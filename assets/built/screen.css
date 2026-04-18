@@ -2506,7 +2506,7 @@ body {
   .brand-mark { width: 38px; height: 38px; font-size: 18px; }
   .brand-name .big { font-size: 16px; }
   .brand-name .est { font-size: 9px; margin-top: 3px; }
-  .nav-toggle { width: 40px; height: 40px; padding: 10px 6px; margin-left: 0; }
+  .nav-toggle { width: 32px; height: 32px; padding: 8px 5px; margin-left: 0; }
 
   /* Topic rail: let it scroll horizontally inside its own band without pushing the page */
   .topics { padding: 14px 0; overflow: hidden; }
