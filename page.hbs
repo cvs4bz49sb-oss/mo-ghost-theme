@@ -1,0 +1,39 @@
+{{!< default}}
+
+{{#post}}
+
+<article>
+    {{#if @page.show_title_and_feature_image}}
+        <header class="article-header">
+            <div class="article-header-inner">
+                <h1 class="article-title">{{title}}</h1>
+                {{#if custom_excerpt}}
+                    <p class="article-dek">{{custom_excerpt}}</p>
+                {{/if}}
+            </div>
+        </header>
+
+        {{#if feature_image}}
+            <div class="article-feature-img">
+                <div class="article-feature-img-inner" style="background-image: url({{img_url feature_image size="xl"}}); background-size: cover; background-position: center;"></div>
+                {{#if feature_image_caption}}
+                    <p class="article-feature-caption">{{{feature_image_caption}}}</p>
+                {{/if}}
+            </div>
+        {{/if}}
+    {{/if}}
+
+    <div class="article-body">
+        <div class="article-body-inner">
+            <aside class="article-rail" aria-hidden="true"></aside>
+
+            <div class="article-content">
+                {{content}}
+            </div>
+
+            <aside class="article-rail" aria-hidden="true"></aside>
+        </div>
+    </div>
+</article>
+
+{{/post}}

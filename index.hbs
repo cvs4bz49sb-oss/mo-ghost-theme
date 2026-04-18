@@ -1,0 +1,264 @@
+{{!< default}}
+
+{{!-- HERO: most recent post as the featured card --}}
+<section class="hero">
+    <div class="container">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <p class="hero-kicker"><span class="dot"></span> A Reader-Supported Publication</p>
+                <h1 class="hero-headline">
+                    <span class="highlight">{{@custom.hero_headline_line_1}}</span><br />
+                    <em>{{@custom.hero_headline_line_2}}</em><br />
+                    <em>{{@custom.hero_headline_line_3}}</em>
+                </h1>
+                <p class="hero-sub">{{@custom.hero_subhead}}</p>
+                <div class="hero-ctas">
+                    <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
+                    <a href="#/portal/signup" class="btn btn-ghost btn-lg" data-portal="signup">Become a Member</a>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                {{#get "posts" limit="1" include="authors,tags"}}
+                    {{#foreach posts}}
+                        <a href="{{url}}" class="hero-feature" style="text-decoration:none; color:inherit;">
+                            <div class="hero-feature-img" aria-hidden="true">
+                                <div class="hero-feature-img-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="l"}});"{{/if}}></div>
+                            </div>
+                            <p class="eyebrow">Today &middot; Featured</p>
+                            <h3>{{title}}</h3>
+                            <p class="byline">By {{#primary_author}}<em>{{name}}</em>{{/primary_author}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
+                            {{#if custom_excerpt}}
+                                <p class="excerpt hero-excerpt-dropcap">{{custom_excerpt}}</p>
+                            {{else}}
+                                <p class="excerpt hero-excerpt-dropcap">{{excerpt words="28"}}</p>
+                            {{/if}}
+                            <span class="read-link">Read the essay &rarr;</span>
+                        </a>
+                    {{/foreach}}
+                {{/get}}
+            </div>
+        </div>
+    </div>
+</section>
+
+{{!-- TOPIC RAIL: hardcoded "Recent" + dynamic tag pills --}}
+<nav class="topics" aria-label="Topics">
+    <div class="container topics-inner">
+        <span class="topics-label">Read by</span>
+        <a href="#" class="topic-pill is-active" data-tag="recent">Recent</a>
+        {{#get "tags" filter="visibility:public" include="count.posts" limit="20" order="name asc"}}
+            {{#foreach tags}}
+                {{#if count.posts}}
+                    <a href="{{url}}" class="topic-pill" data-tag="{{slug}}">{{name}}</a>
+                {{/if}}
+            {{/foreach}}
+        {{/get}}
+    </div>
+</nav>
+
+{{!-- TODAY: feature + most-read sidebar --}}
+<section class="today">
+    <div class="container">
+        <div class="today-default">
+            <div class="today-grid">
+                <div class="today-main">
+                    <div class="sidebar-heading">
+                        <p class="eyebrow">Today</p>
+                        <h3><em>What's new this morning</em></h3>
+                    </div>
+                    {{#get "posts" limit="2" include="authors,tags"}}
+                        {{#foreach posts from="2" limit="1"}}
+                            <a href="{{url}}" class="feature-entry">
+                                <div class="feature-plate">
+                                    <div class="feature-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="l"}});"{{/if}}></div>
+                                </div>
+                                <div class="feature-body">
+                                    {{#if primary_tag}}
+                                        <p class="feature-topic">{{primary_tag.name}}{{#if reading_time}} &middot; Long Read{{/if}}</p>
+                                    {{/if}}
+                                    <h3 class="feature-title">{{title}}</h3>
+                                    {{#if custom_excerpt}}
+                                        <p class="feature-excerpt feature-excerpt-dropcap">{{custom_excerpt}}</p>
+                                    {{else}}
+                                        <p class="feature-excerpt feature-excerpt-dropcap">{{excerpt words="40"}}</p>
+                                    {{/if}}
+                                    <div class="feature-meta">
+                                        {{#primary_author}}
+                                            <p class="feature-byline">By <em>{{name}}</em></p>
+                                        {{/primary_author}}
+                                        <p class="feature-date">{{date format="MMMM D"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        {{/foreach}}
+                    {{/get}}
+                </div>
+
+                <div class="today-sidebar">
+                    <div class="sidebar-heading">
+                        <p class="eyebrow">Most Read</p>
+                        <h3><em>This Month</em></h3>
+                    </div>
+                    {{!--
+                        For now this list is populated from posts marked
+                        `featured: true` in Ghost. In a future iteration we
+                        will replace this {{#get}} call with a fetch from a
+                        small Cloudflare Worker that queries Plausible for
+                        top-read posts over the last 30 days and returns a
+                        list of post slugs. Until that endpoint exists, the
+                        "Most Read" label accurately reflects editorial
+                        selection (featured) rather than analytics.
+                    --}}
+                    <ol class="read-list">
+                        {{#get "posts" filter="featured:true" limit="5" include="authors,tags"}}
+                            {{#foreach posts}}
+                                <li>
+                                    <a href="{{url}}">
+                                        {{#if primary_tag}}
+                                            <p class="card-topic">{{primary_tag.name}}</p>
+                                        {{/if}}
+                                        <h4 class="card-title"><em>{{title}}</em></h4>
+                                        {{#if custom_excerpt}}
+                                            <p class="card-excerpt">{{custom_excerpt}}</p>
+                                        {{else}}
+                                            <p class="card-excerpt">{{excerpt words="22"}}</p>
+                                        {{/if}}
+                                        <p class="card-byline">By {{#primary_author}}<span class="author">{{name}}</span>{{/primary_author}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
+                                    </a>
+                                </li>
+                            {{/foreach}}
+                        {{/get}}
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="today-tag" hidden></div>
+    </div>
+</section>
+
+{{!-- WEEKLY DIGEST --}}
+{{> "digest-cta"}}
+
+{{!-- THIS WEEK: posts 3-8 --}}
+<section class="this-week">
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">This Week</p>
+            <h2 class="section-heading"><em>The wider conversation.</em></h2>
+        </div>
+
+        <div class="flourish"><span class="flourish-mark">&para;</span></div>
+
+        <div class="week-grid">
+            {{#get "posts" limit="8" include="authors,tags"}}
+                {{#foreach posts from="3" limit="6"}}
+                    {{> "post-entry"}}
+                {{/foreach}}
+            {{/get}}
+        </div>
+    </div>
+</section>
+
+{{!-- JOURNAL BAND --}}
+<section class="journal-band">
+    <div class="container">
+        <div class="journal-grid">
+            <div class="journal-art" aria-hidden="true">
+                <div class="journal-art-inner">
+                    <div class="mark">M.O.</div>
+                    <p class="title"><em>The Mere Orthodoxy Journal</em></p>
+                    <p class="issue">{{@custom.journal_issue_title}}</p>
+                </div>
+            </div>
+            <div class="journal-copy">
+                <p class="eyebrow">The Print Journal</p>
+                <h2><em>Ink and paper,<br />four times a year.</em></h2>
+                <p>
+                    A quarterly print journal of serious Protestant thought. Long essays, poetry, and criticism you will want to keep on the shelf. Mailed to members.
+                </p>
+                <p>The Spring issue is at the printer now.</p>
+                <div class="journal-ctas">
+                    <a href="#/portal/signup" class="btn btn-primary btn-lg" data-portal="signup">Become a Member</a>
+                    <a href="/tag/journal/" class="btn btn-ghost btn-lg">Read past issues</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{!-- PODCASTS: only rendered if a feed worker URL is configured --}}
+{{#if @custom.podcast_feed_url}}
+<section class="listen">
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">Listen</p>
+            <h2 class="section-heading"><em>Patient conversations.</em></h2>
+        </div>
+
+        <div class="listen-grid">
+            <a href="#" class="pod-entry" data-show="mere-fidelity">
+                <p class="pod-numeral">I</p>
+                <p class="pod-topic" data-ep-topic>Weekly</p>
+                <h3 class="pod-title" data-ep-title>Mere Fidelity</h3>
+                <p class="pod-excerpt" data-ep-excerpt><span class="pod-initial">A</span> weekly conversation on theology, culture, and the church.</p>
+                <span class="pod-listen-link">Listen &rarr;</span>
+            </a>
+
+            <a href="#" class="pod-entry" data-show="christians-reading-classics">
+                <p class="pod-numeral">II</p>
+                <p class="pod-topic" data-ep-topic>Fortnightly</p>
+                <h3 class="pod-title" data-ep-title>Christians Reading Classics</h3>
+                <p class="pod-excerpt" data-ep-excerpt><span class="pod-initial">A</span> slow walk through the great books of the Christian and classical tradition, one volume at a time.</p>
+                <span class="pod-listen-link">Listen &rarr;</span>
+            </a>
+        </div>
+    </div>
+</section>
+{{/if}}
+
+{{!--
+    Readers / testimonials section. Currently static. In a future iteration
+    these could be pulled from posts tagged `#testimonial` (internal tag) via
+    a {{#get "posts" filter="tag:hash-testimonial"}} call and rendered here.
+--}}
+<section class="readers">
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">Readers</p>
+            <h2 class="section-heading"><em>From our readers.</em></h2>
+        </div>
+
+        <blockquote class="reader-feature">
+            Mere Orthodoxy is (for me) a counterpoint to social media, a place of depth and critical thought.
+        </blockquote>
+
+        <div class="readers-grid">
+            <blockquote class="reader-quote">
+                <p>The articles and podcasts have made the Protestant tradition more accessible to me, and helped me establish boundaries during this confusing and tumultuous era.</p>
+            </blockquote>
+            <blockquote class="reader-quote">
+                <p>Thank you for offering thoughtful, reasonable and decent commentary. It is a boon to my sanity at this stage of my life.</p>
+            </blockquote>
+            <blockquote class="reader-quote">
+                <p>I'm very grateful for the work of Mere Orthodoxy. It has been a genuine companion on my spiritual journey.</p>
+            </blockquote>
+        </div>
+    </div>
+</section>
+
+{{!-- MEMBERSHIP CTA --}}
+<section class="membership-cta">
+    <div class="container cta-inner">
+        <p class="eyebrow">Join {{@site.title}}</p>
+        <h2><em>Support the work.</em><br /><span class="highlight">Sustain the renewal.</span></h2>
+        <p>
+            {{@site.title}} is able to produce top-notch essays and podcasts because of readers like you. If you believe in quality Christian media for the sake of renewal, join us.
+        </p>
+        <div class="hero-ctas" style="justify-content: center;">
+            <a href="#/portal/signup" class="btn btn-primary btn-lg" data-portal="signup">Become a Member &mdash; $100/yr</a>
+            <a href="#/portal/signup" class="btn btn-ghost btn-lg" data-portal="signup">See all plans</a>
+        </div>
+    </div>
+</section>

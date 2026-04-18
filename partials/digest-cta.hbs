@@ -1,0 +1,37 @@
+<section class="digest-section" id="digest" aria-label="Weekly Digest newsletter signup">
+    <div class="container">
+        <div class="digest-cta">
+            <div class="digest-copy">
+                <p class="eyebrow">The Weekly Digest</p>
+                <h3>Premier Thought Every Thursday</h3>
+                <p>An essay worth your time, a handful of links worth reading, and a short note from our editors. No hype. No filler. Unsubscribe anytime.</p>
+            </div>
+            {{#if @custom.digest_form_action}}
+                <form class="digest-form" action="{{@custom.digest_form_action}}" method="POST">
+                    <div class="digest-field">
+                        <label for="digest-first">First Name</label>
+                        <input id="digest-first" type="text" name="first_name" autocomplete="given-name" placeholder="First" required />
+                    </div>
+                    <div class="digest-field">
+                        <label for="digest-last">Last Name</label>
+                        <input id="digest-last" type="text" name="last_name" autocomplete="family-name" placeholder="Last" required />
+                    </div>
+                    <div class="digest-field">
+                        <label for="digest-email">Email</label>
+                        <input id="digest-email" type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+                    </div>
+                    <button type="submit" class="digest-submit">Subscribe</button>
+                    <p class="digest-fineprint">Free. Delivered Thursday mornings.</p>
+                </form>
+            {{else}}
+                <div class="digest-form" style="grid-template-columns: 1fr;">
+                    <div class="digest-field">
+                        <label for="digest-email">Email</label>
+                        <input id="digest-email" type="email" name="email" autocomplete="email" placeholder="you@example.com" data-members-email required />
+                    </div>
+                    <button type="button" class="digest-submit" data-portal="signup">Subscribe</button>
+                </div>
+            {{/if}}
+        </div>
+    </div>
+</section>

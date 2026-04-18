@@ -1,0 +1,52 @@
+{{!< default}}
+
+{{#tag}}
+<header class="archive-header">
+    <div class="archive-header-inner">
+        <p class="eyebrow">Filed under</p>
+        <h1><em>{{name}}</em></h1>
+        {{#if description}}
+            <p class="archive-description">{{description}}</p>
+        {{/if}}
+    </div>
+</header>
+{{/tag}}
+
+<section class="archive-body">
+    <div class="container">
+        <div class="week-grid">
+            {{#foreach posts}}
+                {{> "post-entry"}}
+            {{/foreach}}
+        </div>
+
+        {{#if pagination.pages}}
+            {{#if pagination.total}}
+                {{#if pagination.prev}}
+                    {{#unless pagination.next}}
+                        <nav class="pagination" aria-label="Pagination">
+                            <a href="{{page_url pagination.prev}}">&larr; Previous</a>
+                            <span class="pagination-spacer"></span>
+                            <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
+                            <span class="pagination-spacer"></span>
+                            <span></span>
+                        </nav>
+                    {{/unless}}
+                {{/if}}
+                {{#if pagination.next}}
+                    <nav class="pagination" aria-label="Pagination">
+                        {{#if pagination.prev}}
+                            <a href="{{page_url pagination.prev}}">&larr; Previous</a>
+                        {{else}}
+                            <span></span>
+                        {{/if}}
+                        <span class="pagination-spacer"></span>
+                        <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
+                        <span class="pagination-spacer"></span>
+                        <a href="{{page_url pagination.next}}">Next &rarr;</a>
+                    </nav>
+                {{/if}}
+            {{/if}}
+        {{/if}}
+    </div>
+</section>

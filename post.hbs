@@ -1,0 +1,166 @@
+{{!< default}}
+
+{{#post}}
+
+<div class="breadcrumb">
+    <div class="container">
+        <a href="{{@site.url}}">Home</a>
+        <span class="sep">/</span>
+        {{#if primary_tag}}
+            <a href="{{primary_tag.url}}">{{primary_tag.name}}</a>
+            <span class="sep">/</span>
+        {{/if}}
+        <span class="current">{{title}}</span>
+    </div>
+</div>
+
+<article>
+    <header class="article-header">
+        <div class="article-header-inner">
+            {{#if primary_tag}}
+                <a href="{{primary_tag.url}}" class="article-topic">{{primary_tag.name}} &middot; Essay</a>
+            {{/if}}
+            <h1 class="article-title">{{title}}</h1>
+            {{#if custom_excerpt}}
+                <p class="article-dek">{{custom_excerpt}}</p>
+            {{/if}}
+            <div class="article-meta">
+                {{#primary_author}}
+                    <a href="{{url}}" class="meta-author">
+                        <div class="meta-avatar" aria-hidden="true">
+                            {{#if profile_image}}
+                                <img src="{{img_url profile_image size="xs"}}" alt="{{name}}" />
+                            {{else}}
+                                <span class="meta-avatar-initial">{{name}}</span>
+                            {{/if}}
+                        </div>
+                        <div>
+                            <div class="meta-author-name"><em>{{name}}</em></div>
+                            {{#if bio}}<div class="meta-author-sub">Contributing Writer</div>{{/if}}
+                        </div>
+                    </a>
+                {{/primary_author}}
+                <span class="meta-dot">&bull;</span>
+                <span class="meta-item">{{date format="MMMM D, YYYY"}}</span>
+                <span class="meta-dot">&bull;</span>
+                <span class="meta-item">{{reading_time minute="1 min read" minutes="% min read"}}</span>
+            </div>
+        </div>
+    </header>
+
+    {{#if feature_image}}
+        <div class="article-feature-img">
+            <div class="article-feature-img-inner" style="background-image: url({{img_url feature_image size="xl"}}); background-size: cover; background-position: center;"></div>
+            {{#if feature_image_caption}}
+                <p class="article-feature-caption">{{{feature_image_caption}}}</p>
+            {{/if}}
+        </div>
+    {{/if}}
+
+    <div class="article-body">
+        <div class="article-body-inner">
+
+            <aside class="article-rail" aria-label="Share">
+                <div>
+                    <div class="rail-label">Share</div>
+                    <div class="share-buttons" style="margin-top: 12px;">
+                        <a class="share-btn" href="https://twitter.com/intent/tweet?url={{url absolute="true"}}&text={{encode title}}" target="_blank" rel="noopener" title="Share on X" aria-label="Share on X">X</a>
+                        <a class="share-btn" href="https://www.facebook.com/sharer/sharer.php?u={{url absolute="true"}}" target="_blank" rel="noopener" title="Share on Facebook" aria-label="Share on Facebook">f</a>
+                        <a class="share-btn" href="mailto:?subject={{encode title}}&body={{url absolute="true"}}" title="Email this essay" aria-label="Email">@</a>
+                        <button class="share-btn" type="button" onclick="navigator.clipboard&&navigator.clipboard.writeText('{{url absolute="true"}}');" title="Copy link" aria-label="Copy link">&infin;</button>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="article-content">
+                {{content}}
+
+                {{#unless @member}}
+                    <div class="inline-support">
+                        <p class="eyebrow">A Reader-Supported Publication</p>
+                        <h3><em>You're reading the kind of essay we exist to publish.</em></h3>
+                        <p>
+                            {{@site.title}} publishes long-form essays on theology, culture, and politics because readers like you make them possible. If this piece is worth your time, consider supporting the work.
+                        </p>
+                        <div class="inline-support-ctas">
+                            <a href="#/portal/signup" class="btn btn-primary" data-portal="signup">Become a Member</a>
+                            <a href="/give/" class="btn btn-outline">Give a one-time gift</a>
+                        </div>
+                    </div>
+                {{/unless}}
+            </div>
+
+            <aside class="article-rail" aria-label="Contents">
+                <div>
+                    <div class="rail-label">In this essay</div>
+                </div>
+            </aside>
+
+        </div>
+
+        <div class="container-narrow">
+            {{#primary_author}}
+                <div class="author-bio">
+                    <div class="author-bio-avatar" aria-hidden="true">
+                        {{#if profile_image}}
+                            <img src="{{img_url profile_image size="m"}}" alt="{{name}}" />
+                        {{else}}
+                            <span class="author-bio-avatar-initial">{{name}}</span>
+                        {{/if}}
+                    </div>
+                    <div class="author-bio-body">
+                        <p class="eyebrow">The Author</p>
+                        <h4><em>{{name}}</em></h4>
+                        {{#if bio}}<p>{{bio}}</p>{{/if}}
+                        <div class="author-links">
+                            <a href="{{url}}">More essays by {{name}} &rarr;</a>
+                            {{#if website}}<a href="{{website}}" target="_blank" rel="noopener">Website</a>{{/if}}
+                            {{#if twitter}}<a href="https://twitter.com/{{twitter}}" target="_blank" rel="noopener">Follow</a>{{/if}}
+                        </div>
+                    </div>
+                </div>
+            {{/primary_author}}
+        </div>
+    </div>
+</article>
+
+{{!-- RELATED --}}
+{{#if primary_tag}}
+<section class="related">
+    <div class="section-intro">
+        <p class="eyebrow">Read Next</p>
+        <h2 class="section-heading"><em>More on this theme.</em></h2>
+    </div>
+    <div class="related-grid">
+        {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="3" include="authors,tags"}}
+            {{#foreach posts}}
+                <a href="{{url}}" class="article-card">
+                    <div class="card-media"{{#if feature_image}} style="background-image: url({{img_url feature_image size="m"}});"{{else}} class="card-media mock-1"{{/if}}></div>
+                    <div class="card-body">
+                        {{#if primary_tag}}
+                            <p class="card-topic">{{primary_tag.name}}</p>
+                        {{/if}}
+                        <h3 class="card-title"><em>{{title}}</em></h3>
+                        {{#primary_author}}
+                            <p class="card-byline">By <span class="author">{{name}}</span></p>
+                        {{/primary_author}}
+                        {{#if custom_excerpt}}
+                            <p class="card-excerpt">{{custom_excerpt}}</p>
+                        {{else}}
+                            <p class="card-excerpt">{{excerpt words="24"}}</p>
+                        {{/if}}
+                        <div class="card-meta">
+                            <span>{{date format="MMMM D"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</span>
+                            <span class="read-more">Read &rarr;</span>
+                        </div>
+                    </div>
+                </a>
+            {{/foreach}}
+        {{/get}}
+    </div>
+</section>
+{{/if}}
+
+{{> "membership-cta"}}
+
+{{/post}}

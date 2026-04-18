@@ -1,0 +1,24 @@
+<a href="{{url}}" class="entry">
+    <div class="entry-plate">
+        <div class="entry-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="m"}});"{{/if}}></div>
+    </div>
+    <div class="entry-text">
+        {{#if primary_tag}}
+            <p class="entry-topic">{{primary_tag.name}}</p>
+        {{/if}}
+        <h3 class="entry-title">{{title}}</h3>
+        {{#if custom_excerpt}}
+            <p class="entry-excerpt entry-excerpt-dropcap">{{custom_excerpt}}</p>
+        {{else}}
+            {{#if excerpt}}
+                <p class="entry-excerpt entry-excerpt-dropcap">{{excerpt words="30"}}</p>
+            {{/if}}
+        {{/if}}
+        <div class="entry-meta">
+            {{#primary_author}}
+                <p class="entry-byline">By <em>{{name}}</em></p>
+            {{/primary_author}}
+            <p class="entry-date">{{date format="MMMM D"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
+        </div>
+    </div>
+</a>

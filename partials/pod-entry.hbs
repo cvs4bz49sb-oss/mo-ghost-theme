@@ -1,0 +1,14 @@
+{{!--
+    Podcast entry partial. The static fallback is rendered below; the
+    podcast-feed.js script overrides the topic, title, excerpt, and href
+    from the Cloudflare Worker if a feed URL is configured.
+
+    Required context: numeral, show_slug, topic, title, excerpt, url.
+--}}
+<a href="{{url}}" class="pod-entry" data-show="{{show_slug}}">
+    <p class="pod-numeral">{{numeral}}</p>
+    <p class="pod-topic" data-ep-topic>{{topic}}</p>
+    <h3 class="pod-title" data-ep-title>{{title}}</h3>
+    <p class="pod-excerpt pod-excerpt-dropcap" data-ep-excerpt>{{excerpt}}</p>
+    <span class="pod-listen-link">Listen &rarr;</span>
+</a>

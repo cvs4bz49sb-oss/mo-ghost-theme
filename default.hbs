@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="{{@site.locale}}">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{{meta_title}}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="{{asset "built/screen.css"}}" />
+
+    {{#if @custom.content_api_key}}
+    <meta name="ghost-content-api-key" content="{{@custom.content_api_key}}" />
+    {{/if}}
+
+    {{ghost_head}}
+</head>
+<body class="{{body_class}}"{{#if @custom.podcast_feed_url}} data-podcast-feed-url="{{@custom.podcast_feed_url}}"{{/if}}>
+
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="{{@site.url}}" class="brand" aria-label="{{@site.title}} home">
+                {{#if @site.logo}}
+                    <span class="brand-mark" aria-hidden="true"><img src="{{@site.logo}}" alt="{{@site.title}}" /></span>
+                {{else}}
+                    <span class="brand-mark" aria-hidden="true">M</span>
+                {{/if}}
+                <span class="brand-name">
+                    <span class="big">{{@site.title}}</span>
+                    <span class="est">Est. MMV</span>
+                </span>
+            </a>
+            <nav class="nav" aria-label="Primary">
+                {{#foreach @site.navigation}}
+                    <a href="{{url}}">{{label}}</a>
+                {{/foreach}}
+            </nav>
+            <div class="nav-actions">
+                {{#unless @member}}
+                    <button class="sign-in" data-portal="signin">Sign in</button>
+                    <a href="#/portal/signup" class="btn btn-primary" data-portal="signup">Become a Member</a>
+                {{else}}
+                    <a href="#/portal/account" class="btn btn-primary" data-portal="account">Account</a>
+                {{/unless}}
+            </div>
+        </div>
+    </header>
+
+    {{{body}}}
+
+    <div class="closing-flourish" aria-hidden="true">
+        {{> "closing-flourish"}}
+    </div>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p>&copy; {{date format="YYYY"}} {{@site.title}}.</p>
+            <nav class="footer-nav">
+                {{#foreach @site.secondary_navigation}}
+                    <a href="{{url}}">{{label}}</a>
+                {{/foreach}}
+            </nav>
+        </div>
+    </footer>
+
+    <script src="{{asset "js/topic-filter.js"}}"></script>
+    <script src="{{asset "js/podcast-feed.js"}}"></script>
+
+    {{ghost_foot}}
+</body>
+</html>

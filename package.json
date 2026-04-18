@@ -1,0 +1,79 @@
+{
+  "name": "mere-orthodoxy",
+  "description": "Mere Orthodoxy — Christian renewal for the common good.",
+  "version": "1.0.0",
+  "engines": {
+    "ghost": ">=5.0.0"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Ian Harber",
+    "email": "iharber93@gmail.com"
+  },
+  "keywords": [
+    "ghost",
+    "theme",
+    "ghost-theme"
+  ],
+  "config": {
+    "posts_per_page": 12,
+    "card_assets": true,
+    "custom": {
+      "hero_headline_line_1": {
+        "type": "text",
+        "default": "Christian Renewal"
+      },
+      "hero_headline_line_2": {
+        "type": "text",
+        "default": "for the"
+      },
+      "hero_headline_line_3": {
+        "type": "text",
+        "default": "Common Good."
+      },
+      "hero_subhead": {
+        "type": "text",
+        "default": "Long-form essays, a quarterly print journal, and patient podcasts on theology, culture, and politics."
+      },
+      "podcast_feed_url": {
+        "type": "text",
+        "description": "URL of the deployed podcast-feed Worker. Leave empty to hide the podcast section."
+      },
+      "digest_form_action": {
+        "type": "text",
+        "description": "Form action URL for the Weekly Digest signup (Kit, Mailchimp, ConvertKit, etc.)."
+      },
+      "journal_issue_title": {
+        "type": "text",
+        "default": "Volume IV · Spring 2026"
+      },
+      "content_api_key": {
+        "type": "text",
+        "description": "Ghost Content API key for the homepage topic filter (optional)."
+      },
+      "member_annual_price_id": {
+        "type": "text",
+        "description": "Ghost Portal annual Member price ID. Find under Settings → Membership → Tiers."
+      },
+      "lifetime_price_id": {
+        "type": "text",
+        "description": "Ghost Portal Lifetime price ID (or leave blank if not using Lifetime tier)."
+      },
+      "gift_url": {
+        "type": "text",
+        "default": "/gift",
+        "description": "URL for the gift membership flow."
+      },
+      "group_url": {
+        "type": "text",
+        "default": "/groups",
+        "description": "URL for the group/organization membership flow."
+      },
+      "institution_url": {
+        "type": "text",
+        "default": "/institutions",
+        "description": "URL for the seminary/institution membership flow."
+      }
+    }
+  }
+}
