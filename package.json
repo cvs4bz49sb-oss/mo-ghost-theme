@@ -59,6 +59,14 @@
         "type": "text",
         "description": "Ghost Portal Lifetime price ID (or leave blank if not using Lifetime tier)."
       },
+      "stripe_member_annual_url": {
+        "type": "text",
+        "description": "Stripe Payment Link URL for the $100/yr Member tier. Create in Stripe → Payment Links. When set, the /membership Become-a-Member buttons link here instead of Ghost Portal."
+      },
+      "stripe_lifetime_url": {
+        "type": "text",
+        "description": "Stripe Payment Link URL for the $995 Lifetime tier. Create in Stripe → Payment Links."
+      },
       "gift_url": {
         "type": "text",
         "default": "/gift",

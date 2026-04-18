@@ -40,8 +40,8 @@
           </div>
           <p class="card-subtext">Just 27¢/day</p>
           <p class="card-pitch">For readers who want serious Christian journalism and the quarterly print journal.</p>
-          {{#if @custom.member_annual_price_id}}
-            <a href="#/portal/signup/{{@custom.member_annual_price_id}}" class="btn btn-pill btn-primary">Become a Member</a>
+          {{#if @custom.stripe_member_annual_url}}
+            <a href="{{@custom.stripe_member_annual_url}}" class="btn btn-pill btn-primary">Become a Member</a>
           {{else}}
             <a href="#/portal/signup" class="btn btn-pill btn-primary" data-portal="signup">Become a Member</a>
           {{/if}}
@@ -64,8 +64,8 @@
           </div>
           <p class="card-subtext">One-time payment</p>
           <p class="card-pitch">For readers who want to help sustain Mere&nbsp;Orthodoxy permanently.</p>
-          {{#if @custom.lifetime_price_id}}
-            <a href="#/portal/signup/{{@custom.lifetime_price_id}}" class="btn btn-pill btn-dark">Become a Lifetime Member</a>
+          {{#if @custom.stripe_lifetime_url}}
+            <a href="{{@custom.stripe_lifetime_url}}" class="btn btn-pill btn-dark">Become a Lifetime Member</a>
           {{else}}
             <a href="#/portal/signup" class="btn btn-pill btn-dark" data-portal="signup">Become a Lifetime Member</a>
           {{/if}}
@@ -186,7 +186,11 @@
       </div>
       {{#unless @member}}
       <div class="included-cta">
-        <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
+        {{#if @custom.stripe_member_annual_url}}
+          <a href="{{@custom.stripe_member_annual_url}}" class="btn btn-dark btn-inline">Become a Member</a>
+        {{else}}
+          <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
+        {{/if}}
       </div>
       {{/unless}}
     </div>
