@@ -3800,13 +3800,14 @@ body {
 .toc-mobile .toc-list { font-size: 15px; gap: 12px; }
 
 @media (max-width: 1024px) {
-  /* The sticky desktop rail is already hidden by the existing
-     @media block; surface the TOC in the mobile slot instead and
-     tighten the article-body padding so the TOC sits evenly
-     between the hero image and the first paragraph. */
+  /* Sticky desktop rail is hidden by the existing @media block;
+     surface the TOC in the mobile slot. Spacing rule: the TOC's
+     own symmetric margin owns the gap above AND below when it's
+     visible, and .article-body padding only kicks in when there's
+     no TOC so short posts keep some hero->article breathing room. */
   .toc-mobile { display: block; }
-  .toc-mobile + .article-body,
-  [data-toc][hidden] + .article-body { padding-top: 40px; }
+  .article-body { padding-top: 40px; }
+  .toc-mobile:not([hidden]) + .article-body { padding-top: 0; }
 }
 @media (max-width: 640px) {
   .toc-mobile {
@@ -3815,6 +3816,6 @@ body {
     border-radius: 4px;
   }
   .toc-mobile .toc-list { font-size: 14px; }
-  .toc-mobile + .article-body,
-  [data-toc][hidden] + .article-body { padding-top: 32px; }
+  .article-body { padding-top: 32px; }
+  .toc-mobile:not([hidden]) + .article-body { padding-top: 0; }
 }
