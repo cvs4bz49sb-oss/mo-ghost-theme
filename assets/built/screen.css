@@ -2017,11 +2017,11 @@ body {
   color: var(--color-primary);
 }
 
-.article-content a {
+.article-content a:not(.btn) {
   color: var(--color-secondary);
   border-bottom: 1px solid rgba(193,89,60,0.3);
 }
-.article-content a:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); text-decoration: none; }
+.article-content a:not(.btn):hover { color: var(--color-primary); border-bottom-color: var(--color-primary); text-decoration: none; }
 
 .article-content em { font-style: italic; }
 .article-content strong { font-weight: 600; }
