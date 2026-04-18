@@ -1512,15 +1512,18 @@ img { max-width: 100%; height: auto; }
    entry, and pod excerpts.
 */
 
+/* All excerpt dropcaps are inline (not floated) so the surrounding text
+   keeps one consistent left edge. A floated first-letter displaces
+   line 2 by its width, which reads as ragged alignment no matter how
+   intentional the drop. Size stays above 1em so the initial still
+   reads as an ornament. */
 .hero-excerpt-dropcap::first-letter {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 2.2em;
+  font-size: 1.5em;
   line-height: 1;
   color: var(--color-primary);
-  padding-right: 0.14em;
-  float: left;
-  margin-top: -0.12em;
+  padding-right: 0.1em;
 }
 .hero-excerpt-dropcap {
   display: block;
@@ -1529,12 +1532,10 @@ img { max-width: 100%; height: auto; }
 .feature-excerpt-dropcap::first-letter {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 2.4em;
+  font-size: 1.5em;
   line-height: 1;
   color: var(--color-secondary);
-  padding-right: 0.18em;
-  float: left;
-  margin-top: -0.08em;
+  padding-right: 0.1em;
 }
 .feature-excerpt-dropcap { display: block; }
 
@@ -1555,12 +1556,10 @@ img { max-width: 100%; height: auto; }
 .pod-excerpt-dropcap::first-letter {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 1.9em;
+  font-size: 1.4em;
   line-height: 1;
   color: var(--color-secondary);
-  padding-right: 0.12em;
-  float: left;
-  margin-top: -0.02em;
+  padding-right: 0.08em;
 }
 .pod-excerpt-dropcap { display: block; }
 
@@ -1934,11 +1933,9 @@ body {
 
 .article-content > p:first-of-type::first-letter {
   font-family: var(--font-display);
-  font-size: 4.8em;
-  float: left;
-  line-height: 0.9;
-  padding: 0.06em 0.22em 0 0;
-  margin: 0.05em 0 0 0;
+  font-size: 1.8em;
+  line-height: 1;
+  padding-right: 0.08em;
   color: var(--color-secondary);
   font-style: italic;
 }
@@ -2556,7 +2553,7 @@ body {
   .meta-dot { display: none; }
   .author-bio { flex-direction: column; text-align: center; align-items: center; }
   .article-content { font-size: 17px; }
-  .article-content > p:first-of-type::first-letter { font-size: 3.6em; }
+  .article-content > p:first-of-type::first-letter { font-size: 1.6em; }
 }
 
 /* =============================================================
