@@ -46,8 +46,36 @@
                     <a href="#/portal/account" class="btn btn-primary" data-portal="account">Account</a>
                 {{/unless}}
             </div>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </button>
         </div>
     </header>
+
+    <div class="mobile-nav" id="mobile-nav" hidden>
+        <div class="mobile-nav-backdrop"></div>
+        <aside class="mobile-nav-panel" role="dialog" aria-label="Site navigation">
+            <div class="mobile-nav-head">
+                <span class="mobile-nav-wordmark"><em>{{@site.title}}</em></span>
+                <button class="mobile-nav-close" type="button" aria-label="Close menu">&times;</button>
+            </div>
+            <nav class="mobile-nav-links" aria-label="Primary">
+                {{#foreach @site.navigation}}
+                    <a href="{{url}}">{{label}}</a>
+                {{/foreach}}
+            </nav>
+            <div class="mobile-nav-actions">
+                {{#unless @member}}
+                    <button class="mobile-nav-signin" data-portal="signin">Sign in</button>
+                    <a href="#/portal/signup" class="btn btn-primary" data-portal="signup">Become a Member</a>
+                {{else}}
+                    <a href="#/portal/account" class="btn btn-primary" data-portal="account">Account</a>
+                {{/unless}}
+            </div>
+        </aside>
+    </div>
 
     {{{body}}}
 
@@ -66,6 +94,37 @@
         </div>
     </footer>
 
+    <script>
+        (function () {
+            var toggle = document.querySelector('.nav-toggle');
+            var panel = document.getElementById('mobile-nav');
+            if (!toggle || !panel) return;
+            var closeBtn = panel.querySelector('.mobile-nav-close');
+            var backdrop = panel.querySelector('.mobile-nav-backdrop');
+            var links = panel.querySelectorAll('a, [data-portal]');
+            function open() {
+                panel.hidden = false;
+                requestAnimationFrame(function () { panel.setAttribute('data-open', 'true'); });
+                toggle.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+            function close() {
+                panel.removeAttribute('data-open');
+                toggle.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+                setTimeout(function () { panel.hidden = true; }, 260);
+            }
+            toggle.addEventListener('click', function () {
+                toggle.getAttribute('aria-expanded') === 'true' ? close() : open();
+            });
+            closeBtn.addEventListener('click', close);
+            backdrop.addEventListener('click', close);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') close();
+            });
+            links.forEach(function (l) { l.addEventListener('click', function () { setTimeout(close, 50); }); });
+        })();
+    </script>
     <script src="{{asset "js/topic-filter.js"}}"></script>
     <script src="{{asset "js/podcast-feed.js"}}"></script>
 
