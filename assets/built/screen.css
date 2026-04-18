@@ -2519,6 +2519,11 @@ body {
   .hero-sub { font-size: 16px; }
   .hero-ctas { flex-direction: column; align-items: stretch; gap: 10px; }
   .hero-ctas .btn { width: 100%; }
+  /* Feature image on mobile: the 16:10 frame center-crops, which
+     makes portrait-or-square source images look shoved to one side.
+     Show the whole image on mobile (letterboxed against the dark
+     inner background) so the subject stays visibly centered. */
+  .hero-feature-img-inner { background-size: contain; }
 
   /* Today feature (homepage) */
   .feature-entry { align-items: center; text-align: center; }
