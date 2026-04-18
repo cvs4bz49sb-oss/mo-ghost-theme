@@ -11,6 +11,8 @@ routes:
     template: custom-membership
   /contributors/:
     template: custom-contributors
+  /about/:
+    template: custom-about
   /gift/:
     template: custom-gift
   /groups/:
