@@ -1541,12 +1541,14 @@ img { max-width: 100%; height: auto; }
 .entry-excerpt-dropcap::first-letter {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 1.9em;
+  font-size: 1.4em;
   line-height: 1;
   color: var(--color-secondary);
-  padding-right: 0.14em;
-  float: left;
-  margin-top: -0.02em;
+  padding-right: 0.08em;
+  /* No float: the entry's text column is narrow enough that a floated
+     dropcap forces line 2 to indent past the cap, which reads as
+     misaligned. Keeping the initial big but inline preserves the
+     flourish without breaking the left edge. */
 }
 .entry-excerpt-dropcap { display: block; }
 
