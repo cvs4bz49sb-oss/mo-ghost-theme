@@ -4069,3 +4069,64 @@ body {
   .about-board { padding: 24px 0 64px; }
   .about-board-entry { grid-template-columns: 48px 1fr; }
 }
+
+/* Journal status tracker (replaces the old "Spring issue is at the
+   printer now" line on the homepage Journal Band). Three labeled
+   dots — drafting (blue) / in production (yellow) / arriving
+   (green) — connected by hairlines, matching the visual language
+   of the hero kicker dot. */
+.journal-status {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 32px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  max-width: 360px;
+  position: relative;
+}
+.journal-status::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: calc(100% / 6);
+  right: calc(100% / 6);
+  height: 1px;
+  background: var(--color-card-border);
+  pointer-events: none;
+}
+.journal-status-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  background: transparent;
+}
+.journal-status-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-card-border);
+  box-shadow: 0 0 0 4px var(--color-background);
+  position: relative;
+  z-index: 1;
+}
+.journal-status-dot--drafting { background: #3a6ea5; }
+.journal-status-dot--production { background: #e0b84a; }
+.journal-status-dot--arriving { background: #6a8e5a; }
+.journal-status-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+
+@media (max-width: 640px) {
+  .journal-status { max-width: 320px; margin: 20px 0 28px; }
+  .journal-status-label { font-size: 10px; letter-spacing: 0.12em; }
+}
