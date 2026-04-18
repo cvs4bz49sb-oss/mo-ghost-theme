@@ -3775,11 +3775,15 @@ body {
 }
 .toc-link:hover { color: var(--color-secondary); text-decoration: none; }
 
-/* Mobile-only TOC slot between feature image and article body. */
+/* Mobile-only TOC slot between feature image and article body.
+   Spacing lives entirely on .toc-mobile so the gap above and below
+   the card matches. .article-body padding-top collapses on mobile
+   (see the tablet/mobile overrides below) so the visual rhythm is
+   hero -> 40px -> TOC -> 40px -> article. */
 .toc-mobile {
   display: none;
   max-width: 720px;
-  margin: 24px auto 0;
+  margin: 40px auto;
   padding: 20px 24px;
   background: var(--color-white);
   border: 1px solid var(--color-card-border);
@@ -3796,16 +3800,21 @@ body {
 .toc-mobile .toc-list { font-size: 15px; gap: 12px; }
 
 @media (max-width: 1024px) {
-  /* On tablet and below the sticky desktop rail is already hidden
-     by the existing @media block (.article-rail { display:none }).
-     Surface the TOC in the mobile slot instead. */
+  /* The sticky desktop rail is already hidden by the existing
+     @media block; surface the TOC in the mobile slot instead and
+     tighten the article-body padding so the TOC sits evenly
+     between the hero image and the first paragraph. */
   .toc-mobile { display: block; }
+  .toc-mobile + .article-body,
+  [data-toc][hidden] + .article-body { padding-top: 40px; }
 }
 @media (max-width: 640px) {
   .toc-mobile {
-    margin: 20px 20px 0;
+    margin: 32px 20px;
     padding: 16px 18px;
     border-radius: 4px;
   }
   .toc-mobile .toc-list { font-size: 14px; }
+  .toc-mobile + .article-body,
+  [data-toc][hidden] + .article-body { padding-top: 32px; }
 }
