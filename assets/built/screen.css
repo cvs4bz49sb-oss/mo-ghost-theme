@@ -4108,13 +4108,24 @@ body {
   height: 11px;
   border-radius: 50%;
   background: var(--color-card-border);
-  box-shadow: 0 0 0 4px var(--color-background);
   position: relative;
   z-index: 1;
 }
-.journal-status-dot--drafting { background: #3a6ea5; }
+.journal-status-dot--drafting {
+  background: #3a6ea5;
+  box-shadow: 0 0 0 4px rgba(58, 110, 165, 0.25), 0 0 16px rgba(58, 110, 165, 0.7);
+  animation: journal-status-pulse 2.4s ease-in-out infinite;
+}
 .journal-status-dot--production { background: #e0b84a; }
 .journal-status-dot--arriving { background: #6a8e5a; }
+
+@keyframes journal-status-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(58, 110, 165, 0.22), 0 0 12px rgba(58, 110, 165, 0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(58, 110, 165, 0.32), 0 0 22px rgba(58, 110, 165, 0.85); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .journal-status-dot--drafting { animation: none; }
+}
 .journal-status-label {
   font-family: var(--font-body);
   font-size: 11px;
