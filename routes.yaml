@@ -1,0 +1,34 @@
+# Ghost routing for Mere Orthodoxy.
+#
+# Ghost treats routes.yaml as site config, not theme content, so it is
+# NOT included in theme deploys (the GitHub Action zips exclude it).
+# To apply this file: Ghost Admin -> Settings -> Labs -> Routes ->
+# Upload routes file, then pick this file. Only needs to happen when
+# routes change.
+
+routes:
+  /membership/:
+    template: custom-membership
+  /gift/:
+    template: custom-gift
+  /groups/:
+    template: custom-groups
+  /group-manage/:
+    template: custom-group-manage
+  /institutions/:
+    template: custom-institutions
+  /institution-manage/:
+    template: custom-institution-manage
+  /manage/:
+    template: custom-manage
+  /success/:
+    template: custom-success
+
+collections:
+  /:
+    permalink: /{slug}/
+    template: index
+
+taxonomies:
+  tag: /tag/{slug}/
+  author: /author/{slug}/
