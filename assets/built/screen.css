@@ -3819,3 +3819,17 @@ body {
   .article-body { padding-top: 32px; }
   .toc-mobile:not([hidden]) + .article-body { padding-top: 0; }
 }
+
+/* Subtle rounded corners on every image plate across the theme —
+   homepage hero feature, Today feature, This Week entries, related
+   article cards, and the membership hero. Small 6px radius warms
+   the UI without turning anything into a card. */
+.hero-feature-img,
+.hero-feature-img-inner,
+.feature-plate,
+.feature-plate-inner,
+.entry-plate,
+.entry-plate-inner,
+.card-media {
+  border-radius: 6px;
+}
