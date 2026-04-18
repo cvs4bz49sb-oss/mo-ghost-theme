@@ -4075,6 +4075,31 @@ body {
    dots — drafting (blue) / in production (yellow) / arriving
    (green) — connected by hairlines, matching the visual language
    of the hero kicker dot. */
+.journal-status-heading {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin: 28px 0 14px;
+}
+.journal-status-heading em {
+  font-family: var(--font-display);
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 14px;
+  color: var(--color-dark);
+  font-weight: 400;
+  margin-left: 2px;
+}
+.journal-status-sep {
+  color: var(--color-card-border);
+  margin: 0 6px;
+  font-weight: 400;
+}
+
 .journal-status {
   list-style: none;
   padding: 0;
@@ -4116,8 +4141,8 @@ body {
   box-shadow: 0 0 0 4px rgba(58, 110, 165, 0.25), 0 0 16px rgba(58, 110, 165, 0.7);
   animation: journal-status-pulse 2.4s ease-in-out infinite;
 }
-.journal-status-dot--production { background: #e0b84a; }
-.journal-status-dot--arriving { background: #6a8e5a; }
+.journal-status-dot--production { background: #e0b84a; opacity: 0.32; }
+.journal-status-dot--arriving { background: #6a8e5a; opacity: 0.32; }
 
 @keyframes journal-status-pulse {
   0%, 100% { box-shadow: 0 0 0 4px rgba(58, 110, 165, 0.22), 0 0 12px rgba(58, 110, 165, 0.55); }
