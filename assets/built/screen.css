@@ -3839,179 +3839,233 @@ body {
   border-radius: 6px;
 }
 
+
 /* =============================================================
-   About page (custom-about.hbs, routed at /about/)
+   About page (custom-about.hbs and page-about.hbs, served at /about/)
+   Borrows the editorial feel of the homepage hero, the flourish
+   dividers, the Roman-numeraled other-ways grid, and the contributor
+   card portraits so the page reads as part of the same journal.
    ============================================================= */
 
-.about-hero {
-  padding: 72px 0 40px;
-  text-align: center;
-}
+.about-hero { padding: 72px 0 88px; }
+.about-hero .container { max-width: 880px; text-align: center; }
+.about-hero .hero-kicker { justify-content: center; }
 .about-hero-headline {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(34px, 5vw, 56px);
-  line-height: 1.12;
-  color: var(--color-dark);
-  margin: 12px auto 0;
-  max-width: 820px;
+  font-size: clamp(40px, 5.4vw, 64px);
+  max-width: 760px;
+  margin: 0 auto 24px;
 }
-.about-hero-headline em { font-style: italic; }
+.about-hero .hero-sub {
+  max-width: 560px;
+  margin: 0 auto;
+  font-style: italic;
+}
 
-.about-body { padding: 24px 0 40px; }
-.about-prose { margin: 0 auto; }
+.about-body { padding: 72px 0 32px; }
+.about-prose { max-width: 640px; margin: 0 auto; }
+.about-prose + .about-prose { margin-top: 24px; }
 .about-prose p {
   font-family: var(--font-body);
   font-size: 19px;
   line-height: 1.75;
   color: var(--color-dark);
-  margin: 0 0 24px;
+  margin: 0 0 22px;
 }
 .about-prose p em { font-style: italic; }
 .about-prose p:last-child { margin-bottom: 0; }
-.about-section-heading {
+.about-lede { font-size: 21px !important; }
+.about-lede::first-letter {
   font-family: var(--font-display);
-  font-weight: 400;
   font-style: italic;
-  font-size: 32px;
-  line-height: 1.2;
-  color: var(--color-dark);
-  margin: 0 0 20px;
+  font-size: 1.6em;
+  line-height: 1;
+  color: var(--color-secondary);
+  padding-right: 0.1em;
 }
+.about-body .section-intro {
+  max-width: 640px;
+  margin: 48px auto 20px;
+  text-align: left;
+}
+.about-body .flourish { margin: 48px auto; }
 
+/* Vision grid — mirrors the "Other Memberships" layout on the
+   membership page: big roman numerals, display italic label,
+   short body beneath. */
 .about-vision {
-  margin: 48px 0;
-  padding: 32px 0;
+  padding: 72px 0;
+  background: var(--color-background);
   border-top: 1px solid var(--color-card-border);
   border-bottom: 1px solid var(--color-card-border);
 }
-.about-vision-heading {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 28px;
+.about-vision .section-intro {
   text-align: center;
-  margin: 0 0 28px;
-  color: var(--color-dark);
+  margin-bottom: 48px;
 }
-.about-vision-list {
+.about-vision-grid {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 auto;
+  max-width: 960px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px 40px;
-  counter-reset: vision;
+  column-gap: 56px;
+  row-gap: 40px;
 }
-.about-vision-list > li { counter-increment: vision; position: relative; padding-left: 36px; }
-.about-vision-list > li::before {
-  content: counter(vision, upper-roman);
-  position: absolute;
-  left: 0;
-  top: 0;
+.about-vision-item {
+  padding: 28px 0 0;
+  border-top: 1px solid var(--color-card-border);
+  position: relative;
+}
+.about-vision-item:first-child,
+.about-vision-item:nth-child(2) { border-top: 0; padding-top: 0; }
+.about-vision-numeral {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 22px;
+  font-size: 26px;
   color: var(--color-primary);
+  display: inline-block;
+  margin-bottom: 10px;
   line-height: 1;
 }
 .about-vision-label {
   font-family: var(--font-display);
-  font-style: italic;
-  font-size: 22px;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.1;
   color: var(--color-dark);
-  margin: 0 0 4px;
+  margin: 0 0 10px;
 }
 .about-vision-body {
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 17px;
   color: var(--color-muted);
-  line-height: 1.55;
+  line-height: 1.6;
   margin: 0;
+  max-width: 360px;
+}
+.about-vision-coda {
+  max-width: 640px;
+  margin: 56px auto 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--color-dark);
 }
 
-.about-team { padding: 72px 0 48px; }
+/* Team — circular portraits, display italic names. Same feel as
+   the contributor cards on /contributors/. */
+.about-team { padding: 88px 0 56px; }
+.about-team .section-intro { text-align: center; margin-bottom: 48px; }
 .about-team-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 40px;
+  gap: 48px;
   max-width: 960px;
-  margin: 32px auto 0;
+  margin: 0 auto;
 }
 .about-team-member { text-align: center; }
 .about-team-portrait {
-  width: 140px;
-  height: 140px;
+  width: 148px;
+  height: 148px;
   border-radius: 50%;
   overflow: hidden;
-  background: var(--color-muted);
-  margin: 0 auto 16px;
+  margin: 0 auto 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(135deg, #4a3f36 0%, #2d2927 100%);
   color: var(--color-white);
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 56px;
+  font-size: 64px;
+  box-shadow: 0 6px 20px rgba(45, 41, 39, 0.12);
 }
 .about-team-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .about-team-name {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 22px;
+  font-size: 24px;
   color: var(--color-dark);
-  margin: 0 0 4px;
+  margin: 0 0 6px;
 }
 .about-team-title {
   font-family: var(--font-body);
   font-size: 14px;
+  letter-spacing: 0.04em;
   color: var(--color-muted);
   margin: 0;
-  letter-spacing: 0.02em;
 }
 
-.about-board { padding: 32px 0 72px; }
+/* Editorial board — numbered list, each row with a Roman numeral
+   accent so the list feels typeset rather than a table. */
+.about-board { padding: 32px 0 88px; }
+.about-board .section-intro { text-align: center; margin-bottom: 40px; }
 .about-board-list {
   list-style: none;
   padding: 0;
-  margin: 32px auto 0;
-  max-width: 960px;
+  margin: 0 auto;
+  max-width: 820px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px 48px;
+  column-gap: 64px;
 }
-.about-board-list > li {
-  padding: 16px 0;
+.about-board-entry {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: start;
+  gap: 16px;
+  padding: 24px 0;
   border-top: 1px solid var(--color-card-border);
+}
+.about-board-entry:first-child,
+.about-board-entry:nth-child(2) { border-top: 0; }
+.about-board-numeral {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 26px;
+  color: var(--color-primary);
+  line-height: 1;
+  padding-top: 4px;
 }
 .about-board-name {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 20px;
+  font-size: 21px;
   color: var(--color-dark);
   margin: 0 0 4px;
 }
 .about-board-role {
   font-family: var(--font-body);
   font-size: 14px;
+  line-height: 1.5;
   color: var(--color-muted);
   margin: 0;
-  line-height: 1.5;
 }
-
-.about-cta { padding: 72px 0; background: var(--color-background); }
 
 @media (max-width: 820px) {
-  .about-vision-list { grid-template-columns: 1fr; }
-  .about-team-grid { grid-template-columns: 1fr; gap: 32px; }
-  .about-team-portrait { width: 120px; height: 120px; font-size: 48px; }
-  .about-board-list { grid-template-columns: 1fr; gap: 0; }
+  .about-vision-grid { grid-template-columns: 1fr; column-gap: 0; }
+  .about-vision-item { padding-top: 28px; border-top: 1px solid var(--color-card-border); }
+  .about-vision-item:first-child { border-top: 0; padding-top: 0; }
+  .about-vision-item:nth-child(2) { border-top: 1px solid var(--color-card-border); padding-top: 28px; }
+  .about-team-grid { grid-template-columns: 1fr; gap: 40px; }
+  .about-board-list { grid-template-columns: 1fr; column-gap: 0; }
+  .about-board-entry { border-top: 1px solid var(--color-card-border); }
+  .about-board-entry:first-child { border-top: 0; }
+  .about-board-entry:nth-child(2) { border-top: 1px solid var(--color-card-border); }
 }
 @media (max-width: 640px) {
-  .about-hero { padding: 48px 0 24px; }
+  .about-hero { padding: 56px 0 64px; }
+  .about-hero-headline { font-size: clamp(32px, 9vw, 42px); }
+  .about-body { padding: 56px 0 16px; }
   .about-prose p { font-size: 17px; line-height: 1.7; }
-  .about-section-heading { font-size: 26px; }
-  .about-vision { margin: 32px 0; padding: 24px 0; }
-  .about-vision-heading { font-size: 24px; }
-  .about-team { padding: 56px 0 32px; }
-  .about-board { padding: 16px 0 56px; }
+  .about-lede { font-size: 19px !important; }
+  .about-vision { padding: 56px 0; }
+  .about-vision-label { font-size: 26px; }
+  .about-team { padding: 64px 0 40px; }
+  .about-team-portrait { width: 124px; height: 124px; font-size: 52px; }
+  .about-board { padding: 24px 0 64px; }
+  .about-board-entry { grid-template-columns: 48px 1fr; }
 }
