@@ -98,7 +98,8 @@ img { max-width: 100%; height: auto; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 0;
+  padding-top: 14px;
+  padding-bottom: 14px;
   gap: 32px;
 }
 
@@ -2501,7 +2502,7 @@ body {
   .nav-actions .sign-in { display: none; }
 
   /* Header + hamburger alignment */
-  .header-inner { padding: 10px 0; gap: 12px; }
+  .header-inner { padding: 10px 28px; gap: 12px; }
   .brand-mark { width: 38px; height: 38px; font-size: 18px; }
   .brand-name .big { font-size: 16px; }
   .brand-name .est { font-size: 9px; margin-top: 3px; }
@@ -2520,10 +2521,13 @@ body {
   .hero-ctas .btn { width: 100%; }
 
   /* Today feature (homepage) */
-  .feature-plate { padding: 5px; }
+  .feature-entry { align-items: center; text-align: center; }
+  .feature-plate { padding: 5px; width: 100%; max-width: 420px; margin: 0 auto; }
+  .feature-body { width: 100%; }
+  .feature-meta { justify-content: center; }
   .feature-title { font-size: clamp(28px, 8vw, 36px); }
   .feature-excerpt { font-size: 16px; }
-  .feature-meta { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .feature-meta { flex-direction: column; align-items: center; gap: 6px; }
 
   /* Weekly Digest */
   .digest-cta { padding: 20px 16px; }
