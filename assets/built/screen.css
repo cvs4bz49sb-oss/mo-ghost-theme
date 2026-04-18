@@ -4080,7 +4080,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: rgba(255, 255, 255, 0.62);
   font-weight: 600;
   margin: 28px 0 14px;
 }
@@ -4089,15 +4089,18 @@ body {
   font-style: italic;
   text-transform: none;
   letter-spacing: 0.02em;
-  font-size: 14px;
-  color: var(--color-dark);
+  font-size: 16px;
+  color: var(--color-white);
   font-weight: 400;
   margin-left: 2px;
 }
 .journal-status-sep {
-  color: var(--color-card-border);
+  color: rgba(255, 255, 255, 0.25);
   margin: 0 6px;
   font-weight: 400;
+}
+.journal-status-label {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .journal-status {
@@ -4156,7 +4159,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-muted);
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
