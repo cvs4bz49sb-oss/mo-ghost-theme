@@ -4099,9 +4099,6 @@ body {
   margin: 0 6px;
   font-weight: 400;
 }
-.journal-status-label {
-  color: rgba(255, 255, 255, 0.6);
-}
 
 .journal-status {
   list-style: none;
@@ -4159,10 +4156,13 @@ body {
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.42);
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
+}
+.journal-status-dot--drafting + .journal-status-label {
+  color: var(--color-white);
 }
 
 @media (max-width: 640px) {
