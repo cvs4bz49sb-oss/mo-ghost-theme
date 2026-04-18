@@ -4075,6 +4075,16 @@ body {
    dots — drafting (blue) / in production (yellow) / arriving
    (green) — connected by hairlines, matching the visual language
    of the hero kicker dot. */
+.journal-status-section {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  color: var(--color-white);
+  margin: 40px 0 6px;
+}
+.journal-status-section em { font-style: italic; }
+
 .journal-status-heading {
   font-family: var(--font-body);
   font-size: 11px;
@@ -4082,7 +4092,7 @@ body {
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.62);
   font-weight: 600;
-  margin: 28px 0 14px;
+  margin: 0 0 14px;
 }
 .journal-status-heading em {
   font-family: var(--font-display);
@@ -4132,24 +4142,41 @@ body {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: var(--color-card-border);
   position: relative;
   z-index: 1;
+  opacity: 0.32;
+  transition: opacity 0.2s ease;
 }
-.journal-status-dot--drafting {
-  background: #3a6ea5;
-  box-shadow: 0 0 0 4px rgba(58, 110, 165, 0.25), 0 0 16px rgba(58, 110, 165, 0.7);
-  animation: journal-status-pulse 2.4s ease-in-out infinite;
-}
-.journal-status-dot--production { background: #e0b84a; opacity: 0.32; }
-.journal-status-dot--arriving { background: #6a8e5a; opacity: 0.32; }
+.journal-status-dot--drafting { background: #3a6ea5; }
+.journal-status-dot--production { background: #e0b84a; }
+.journal-status-dot--arriving { background: #6a8e5a; }
 
-@keyframes journal-status-pulse {
+/* Active stage — toggled from HBS based on @custom.journal_status_stage.
+   Each stage has its own halo color so the glow reads as the stage. */
+.journal-status-dot.is-active { opacity: 1; }
+.journal-status-dot--drafting.is-active {
+  animation: journal-status-pulse-drafting 2.4s ease-in-out infinite;
+}
+.journal-status-dot--production.is-active {
+  animation: journal-status-pulse-production 2.4s ease-in-out infinite;
+}
+.journal-status-dot--arriving.is-active {
+  animation: journal-status-pulse-arriving 2.4s ease-in-out infinite;
+}
+@keyframes journal-status-pulse-drafting {
   0%, 100% { box-shadow: 0 0 0 4px rgba(58, 110, 165, 0.22), 0 0 12px rgba(58, 110, 165, 0.55); }
   50%      { box-shadow: 0 0 0 6px rgba(58, 110, 165, 0.32), 0 0 22px rgba(58, 110, 165, 0.85); }
 }
+@keyframes journal-status-pulse-production {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(224, 184, 74, 0.22), 0 0 12px rgba(224, 184, 74, 0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(224, 184, 74, 0.32), 0 0 22px rgba(224, 184, 74, 0.85); }
+}
+@keyframes journal-status-pulse-arriving {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(106, 142, 90, 0.22), 0 0 12px rgba(106, 142, 90, 0.55); }
+  50%      { box-shadow: 0 0 0 6px rgba(106, 142, 90, 0.32), 0 0 22px rgba(106, 142, 90, 0.85); }
+}
 @media (prefers-reduced-motion: reduce) {
-  .journal-status-dot--drafting { animation: none; }
+  .journal-status-dot.is-active { animation: none; }
 }
 .journal-status-label {
   font-family: var(--font-body);
@@ -4161,7 +4188,7 @@ body {
   text-align: center;
   line-height: 1.2;
 }
-.journal-status-dot--drafting + .journal-status-label {
+.journal-status-dot.is-active + .journal-status-label {
   color: var(--color-white);
 }
 

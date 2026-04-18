@@ -47,6 +47,17 @@
         "type": "text",
         "default": "Volume IV · Spring 2026"
       },
+      "journal_status_issue": {
+        "type": "text",
+        "default": "Spring 2026",
+        "description": "Issue label shown in the Journal Status tracker on the homepage (e.g. 'Spring 2026'). Bump this when a new issue enters the pipeline."
+      },
+      "journal_status_stage": {
+        "type": "select",
+        "options": ["Drafting", "In Production", "Arriving"],
+        "default": "Drafting",
+        "description": "Current stage of the next journal issue. The matching dot glows; the other two fade. Advance manually — Drafting → In Production → Arriving — then reset to Drafting for the next issue."
+      },
       "content_api_key": {
         "type": "text",
         "description": "Ghost Content API key for the homepage topic filter (optional)."

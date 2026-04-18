@@ -178,18 +178,25 @@
                 <p>
                     A quarterly print journal of serious Protestant thought. Long essays, poetry, and criticism you will want to keep on the shelf. Mailed to members.
                 </p>
-                <p class="journal-status-heading">Next Issue <span class="journal-status-sep" aria-hidden="true">|</span> <em>Spring 2026</em></p>
-                <ol class="journal-status" aria-label="Current issue status">
+                {{!-- Journal Status tracker. Current stage is set by
+                     @custom.journal_status_stage (Drafting | In Production |
+                     Arriving) in Ghost admin -> Design -> Customize. Ian
+                     promotes the stage manually; when "Arriving" wraps,
+                     he bumps the issue label in @custom.journal_status_issue
+                     and sets the stage back to "Drafting" for the next cycle. --}}
+                <h3 class="journal-status-section"><em>Journal Status</em></h3>
+                <p class="journal-status-heading">Next Issue <span class="journal-status-sep" aria-hidden="true">|</span> <em>{{@custom.journal_status_issue}}</em></p>
+                <ol class="journal-status" aria-label="Current journal status">
                     <li class="journal-status-step">
-                        <span class="journal-status-dot journal-status-dot--drafting" aria-hidden="true"></span>
+                        <span class="journal-status-dot journal-status-dot--drafting{{#match @custom.journal_status_stage "Drafting"}} is-active{{/match}}" aria-hidden="true"></span>
                         <span class="journal-status-label">Drafting</span>
                     </li>
                     <li class="journal-status-step">
-                        <span class="journal-status-dot journal-status-dot--production" aria-hidden="true"></span>
+                        <span class="journal-status-dot journal-status-dot--production{{#match @custom.journal_status_stage "In Production"}} is-active{{/match}}" aria-hidden="true"></span>
                         <span class="journal-status-label">In Production</span>
                     </li>
                     <li class="journal-status-step">
-                        <span class="journal-status-dot journal-status-dot--arriving" aria-hidden="true"></span>
+                        <span class="journal-status-dot journal-status-dot--arriving{{#match @custom.journal_status_stage "Arriving"}} is-active{{/match}}" aria-hidden="true"></span>
                         <span class="journal-status-label">Arriving</span>
                     </li>
                 </ol>
