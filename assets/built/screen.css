@@ -3861,6 +3861,9 @@ body {
   margin: 0;
   font-style: italic;
 }
+.about-hero-highlight {
+  white-space: nowrap;
+}
 
 .about-body { padding: 72px 0 32px; }
 .about-prose { max-width: 640px; margin: 0 auto; }
@@ -4059,7 +4062,7 @@ body {
 }
 @media (max-width: 640px) {
   .about-hero { padding: 56px 0 64px; }
-  .about-hero-headline { font-size: clamp(26px, 7.2vw, 38px); line-height: 1.15; }
+  .about-hero-headline { font-size: clamp(22px, 6.2vw, 34px); line-height: 1.18; }
   .about-body { padding: 56px 0 16px; }
   .about-prose p { font-size: 17px; line-height: 1.7; }
   .about-lede { font-size: 19px !important; }
