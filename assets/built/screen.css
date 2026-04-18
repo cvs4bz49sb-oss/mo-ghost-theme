@@ -4200,3 +4200,53 @@ body {
   .journal-status { max-width: 320px; margin: 20px 0 28px; }
   .journal-status-label { font-size: 10px; letter-spacing: 0.12em; }
 }
+
+/* Membership page: billing-interval toggle (ported from the original
+   membership-site). Anchored to the bottom of the dark .mb-hero so
+   it floats where the dark band meets the pricing section. */
+.mb-hero .toggle-wrap {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -28px;
+}
+.mb-hero .toggle {
+  display: inline-flex;
+  background: var(--color-white);
+  padding: 5px;
+  border-radius: 999px;
+  border: 1px solid var(--color-card-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+.mb-hero .toggle-option {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-muted);
+  background: transparent;
+  border: 0;
+  padding: 10px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+.mb-hero .toggle-option:hover { color: var(--color-dark); }
+.mb-hero .toggle-option.is-active {
+  background: var(--color-dark);
+  color: var(--color-white);
+}
+.mb-hero .toggle-option .badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+.mb-hero { position: relative; }

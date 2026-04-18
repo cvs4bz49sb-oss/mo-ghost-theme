@@ -66,6 +66,10 @@
         "type": "text",
         "description": "Stripe Payment Link URL for the $100/yr Member tier. Create in Stripe → Payment Links. When set, the /membership Become-a-Member buttons link here instead of Ghost Portal."
       },
+      "stripe_member_monthly_url": {
+        "type": "text",
+        "description": "Stripe Payment Link URL for the $10/mo Member tier. Used by the billing-interval toggle on /membership."
+      },
       "stripe_lifetime_url": {
         "type": "text",
         "description": "Stripe Payment Link URL for the $995 Lifetime tier. Create in Stripe → Payment Links."

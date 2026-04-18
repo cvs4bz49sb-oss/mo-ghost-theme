@@ -25,6 +25,15 @@
         <h2 class="section-heading section-heading-light"><em>Support the work.</em></h2>
       </div>
     </div>
+    <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
+      <div class="toggle">
+        <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
+          Annual
+          <span class="badge">Save 17%</span>
+        </button>
+        <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
+      </div>
+    </div>
   </section>
 
   {{#unless @member}}
@@ -34,17 +43,21 @@
         <article class="card card-member is-featured">
           <span class="card-flag">Most Popular</span>
           <p class="card-label"><em>Member</em></p>
-          <div class="card-price">
-            <span class="price-amount">$100</span>
-            <span class="price-interval">/yr</span>
+          <div class="card-price" data-price-display>
+            <span class="price-amount" data-price-annual-amount="$100" data-price-monthly-amount="$10">$100</span>
+            <span class="price-interval" data-price-annual-interval="/yr" data-price-monthly-interval="/mo">/yr</span>
           </div>
-          <p class="card-subtext">Just 27¢/day</p>
+          <p class="card-subtext" data-price-subtext data-price-annual-subtext="Just 27¢/day" data-price-monthly-subtext="Billed monthly">Just 27¢/day</p>
           <p class="card-pitch">For readers who want serious Christian journalism and the quarterly print journal.</p>
-          {{#if @custom.stripe_member_annual_url}}
-            <a href="{{@custom.stripe_member_annual_url}}" class="btn btn-pill btn-primary">Become a Member</a>
-          {{else}}
-            <a href="#/portal/signup" class="btn btn-pill btn-primary" data-portal="signup">Become a Member</a>
-          {{/if}}
+          <a
+            class="btn btn-pill btn-primary"
+            id="member-cta"
+            data-default-interval="annual"
+            data-annual-url="{{@custom.stripe_member_annual_url}}"
+            data-monthly-url="{{@custom.stripe_member_monthly_url}}"
+            href="{{#if @custom.stripe_member_annual_url}}{{@custom.stripe_member_annual_url}}{{else}}#/portal/signup{{/if}}"
+            {{#unless @custom.stripe_member_annual_url}}data-portal="signup"{{/unless}}
+          >Become a Member</a>
           <p class="btn-tagline">Cancel anytime</p>
           <ul class="benefits">
             <li>The quarterly print journal, mailed to your door</li>
@@ -195,5 +208,39 @@
       {{/unless}}
     </div>
   </section>
+
+  <script>
+    (function () {
+      // Billing-interval toggle for the Member tier. Switches the pricing
+      // display, subtext, and CTA href between Annual and Monthly Stripe
+      // Payment Links. Lifetime is a one-time price and doesn't participate.
+      var toggles = document.querySelectorAll('.toggle-option[data-interval]');
+      var cta = document.getElementById('member-cta');
+      var priceAmount = document.querySelector('[data-price-annual-amount]');
+      var priceInterval = document.querySelector('[data-price-annual-interval]');
+      var priceSubtext = document.querySelector('[data-price-subtext]');
+      if (!toggles.length || !cta || !priceAmount || !priceInterval || !priceSubtext) return;
+
+      function apply(interval) {
+        toggles.forEach(function (t) {
+          var active = t.getAttribute('data-interval') === interval;
+          t.classList.toggle('is-active', active);
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        priceAmount.textContent = priceAmount.getAttribute('data-price-' + interval + '-amount') || priceAmount.textContent;
+        priceInterval.textContent = priceInterval.getAttribute('data-price-' + interval + '-interval') || priceInterval.textContent;
+        priceSubtext.textContent = priceSubtext.getAttribute('data-price-' + interval + '-subtext') || priceSubtext.textContent;
+        var url = cta.getAttribute('data-' + interval + '-url');
+        if (url) {
+          cta.setAttribute('href', url);
+          cta.removeAttribute('data-portal');
+        }
+      }
+
+      toggles.forEach(function (t) {
+        t.addEventListener('click', function () { apply(t.getAttribute('data-interval')); });
+      });
+    })();
+  </script>
 
 </main>
