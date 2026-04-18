@@ -9,6 +9,8 @@
 routes:
   /membership/:
     template: custom-membership
+  /contributors/:
+    template: custom-contributors
   /gift/:
     template: custom-gift
   /groups/:

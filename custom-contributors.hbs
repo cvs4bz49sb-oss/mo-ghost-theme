@@ -1,0 +1,48 @@
+{{!< default}}
+{{!-- custom-contributors: Directory of everyone who writes for Mere Orthodoxy.
+     Pulls every public tag whose slug starts with "author-" so adding a
+     contributor is a matter of creating the tag in Ghost admin
+     (name + description + feature image). Wired to /contributors/ in
+     routes.yaml. --}}
+
+<main class="contributors">
+  <section class="contributors-hero">
+    <div class="container">
+      <p class="eyebrow">The Writers</p>
+      <h1 class="contributors-title"><em>Contributors</em></h1>
+      <p class="contributors-sub">The people whose essays, reviews, and criticism make up <em>Mere&nbsp;Orthodoxy</em>.</p>
+    </div>
+  </section>
+
+  <section class="contributors-body">
+    <div class="container">
+      <div class="contributors-grid">
+        {{#get "tags" filter="slug:~^author-+visibility:public" order="name asc" limit="all" include="count.posts"}}
+          {{#foreach tags}}
+            {{#if count.posts}}
+              <a href="{{url}}" class="contributor-card">
+                <div class="contributor-card-portrait" aria-hidden="true">
+                  {{#if feature_image}}
+                    <img src="{{img_url feature_image size="s"}}" alt="{{name}}" />
+                  {{else}}
+                    <span class="contributor-card-initial">{{name}}</span>
+                  {{/if}}
+                </div>
+                <div class="contributor-card-body">
+                  <h2 class="contributor-card-name"><em>{{name}}</em></h2>
+                  {{#if description}}
+                    <p class="contributor-card-bio">{{description}}</p>
+                  {{/if}}
+                  <p class="contributor-card-count">
+                    {{count.posts}}
+                    {{#match count.posts "=" 1}}essay{{else}}essays{{/match}}
+                  </p>
+                </div>
+              </a>
+            {{/if}}
+          {{/foreach}}
+        {{/get}}
+      </div>
+    </div>
+  </section>
+</main>

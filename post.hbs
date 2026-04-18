@@ -25,21 +25,43 @@
                 <p class="article-dek">{{custom_excerpt}}</p>
             {{/if}}
             <div class="article-meta">
-                {{#primary_author}}
-                    <a href="{{url}}" class="meta-author">
-                        <div class="meta-avatar" aria-hidden="true">
-                            {{#if profile_image}}
-                                <img src="{{img_url profile_image size="xs"}}" alt="{{name}}" />
-                            {{else}}
-                                <span class="meta-avatar-initial">{{name}}</span>
-                            {{/if}}
-                        </div>
-                        <div>
-                            <div class="meta-author-name"><em>{{name}}</em></div>
-                            {{#if bio}}<div class="meta-author-sub">Contributing Writer</div>{{/if}}
-                        </div>
-                    </a>
-                {{/primary_author}}
+                {{!-- Contributor byline: any tag whose slug starts with "author-" overrides
+                     the Ghost staff author. Lets us credit 30+ writers without paying for
+                     extra staff seats. When no author- tag exists, fall back to primary_author. --}}
+                <span class="meta-authors" data-byline>
+                    {{#foreach tags}}{{#match slug "=~" "^author-"}}
+                        <a href="{{url}}" class="meta-author meta-author--contributor">
+                            <div class="meta-avatar" aria-hidden="true">
+                                {{#if feature_image}}
+                                    <img src="{{img_url feature_image size="xs"}}" alt="{{name}}" />
+                                {{else}}
+                                    <span class="meta-avatar-initial">{{name}}</span>
+                                {{/if}}
+                            </div>
+                            <div>
+                                <div class="meta-author-name"><em>{{name}}</em></div>
+                                {{#if description}}<div class="meta-author-sub">Contributor</div>{{/if}}
+                            </div>
+                        </a>
+                    {{/match}}{{/foreach}}
+                </span>
+                <span class="meta-authors-fallback">
+                    {{#primary_author}}
+                        <a href="{{url}}" class="meta-author">
+                            <div class="meta-avatar" aria-hidden="true">
+                                {{#if profile_image}}
+                                    <img src="{{img_url profile_image size="xs"}}" alt="{{name}}" />
+                                {{else}}
+                                    <span class="meta-avatar-initial">{{name}}</span>
+                                {{/if}}
+                            </div>
+                            <div>
+                                <div class="meta-author-name"><em>{{name}}</em></div>
+                                {{#if bio}}<div class="meta-author-sub">Contributing Writer</div>{{/if}}
+                            </div>
+                        </a>
+                    {{/primary_author}}
+                </span>
                 <span class="meta-dot">&bull;</span>
                 <span class="meta-item">{{date format="MMMM D, YYYY"}}</span>
                 <span class="meta-dot">&bull;</span>
@@ -99,27 +121,52 @@
         </div>
 
         <div class="container-narrow">
-            {{#primary_author}}
-                <div class="author-bio">
-                    <div class="author-bio-avatar" aria-hidden="true">
-                        {{#if profile_image}}
-                            <img src="{{img_url profile_image size="m"}}" alt="{{name}}" />
-                        {{else}}
-                            <span class="author-bio-avatar-initial">{{name}}</span>
-                        {{/if}}
-                    </div>
-                    <div class="author-bio-body">
-                        <p class="eyebrow">The Author</p>
-                        <h4><em>{{name}}</em></h4>
-                        {{#if bio}}<p>{{bio}}</p>{{/if}}
-                        <div class="author-links">
-                            <a href="{{url}}">More essays by {{name}} &rarr;</a>
-                            {{#if website}}<a href="{{website}}" target="_blank" rel="noopener">Website</a>{{/if}}
-                            {{#if twitter}}<a href="https://twitter.com/{{twitter}}" target="_blank" rel="noopener">Follow</a>{{/if}}
+            {{!-- Contributor bio block mirrors the byline override: any author- tag replaces
+                 the staff author bio. One bio block per contributor tag on the post. --}}
+            <div class="author-bio-contributors" data-bio>
+                {{#foreach tags}}{{#match slug "=~" "^author-"}}
+                    <div class="author-bio">
+                        <div class="author-bio-avatar" aria-hidden="true">
+                            {{#if feature_image}}
+                                <img src="{{img_url feature_image size="m"}}" alt="{{name}}" />
+                            {{else}}
+                                <span class="author-bio-avatar-initial">{{name}}</span>
+                            {{/if}}
+                        </div>
+                        <div class="author-bio-body">
+                            <p class="eyebrow">The Author</p>
+                            <h4><em>{{name}}</em></h4>
+                            {{#if description}}<p>{{description}}</p>{{/if}}
+                            <div class="author-links">
+                                <a href="{{url}}">More essays by {{name}} &rarr;</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {{/primary_author}}
+                {{/match}}{{/foreach}}
+            </div>
+            <div class="author-bio-fallback">
+                {{#primary_author}}
+                    <div class="author-bio">
+                        <div class="author-bio-avatar" aria-hidden="true">
+                            {{#if profile_image}}
+                                <img src="{{img_url profile_image size="m"}}" alt="{{name}}" />
+                            {{else}}
+                                <span class="author-bio-avatar-initial">{{name}}</span>
+                            {{/if}}
+                        </div>
+                        <div class="author-bio-body">
+                            <p class="eyebrow">The Author</p>
+                            <h4><em>{{name}}</em></h4>
+                            {{#if bio}}<p>{{bio}}</p>{{/if}}
+                            <div class="author-links">
+                                <a href="{{url}}">More essays by {{name}} &rarr;</a>
+                                {{#if website}}<a href="{{website}}" target="_blank" rel="noopener">Website</a>{{/if}}
+                                {{#if twitter}}<a href="https://twitter.com/{{twitter}}" target="_blank" rel="noopener">Follow</a>{{/if}}
+                            </div>
+                        </div>
+                    </div>
+                {{/primary_author}}
+            </div>
         </div>
     </div>
 </article>

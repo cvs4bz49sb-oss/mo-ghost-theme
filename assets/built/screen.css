@@ -3559,3 +3559,177 @@ body {
   .membership-support .manage-form { flex-direction: column; }
   .membership-support .manage-form .btn { width: 100%; }
 }
+
+/* =============================================================
+   Contributor tagging system
+   -------------------------------------------------------------
+   Any Ghost tag with slug "author-*" acts as a guest-author
+   record: name is the display name, description is the bio,
+   feature_image is the headshot. Tag URL (/tag/author-slug/ or
+   /contributors/slug/ if rewritten) renders as a contributor
+   bio page via tag.hbs. /contributors/ lists them all via
+   custom-contributors.hbs.
+   ============================================================= */
+
+/* Byline hide/show: if the contributors span has any child <a>,
+   the fallback (staff author byline) is suppressed so guest
+   authors override Ghost's author without losing fallback. */
+.meta-authors[data-byline]:not(:has(.meta-author--contributor)) + .meta-authors-fallback { display: flex; align-items: center; gap: 14px; }
+.meta-authors[data-byline]:has(.meta-author--contributor) + .meta-authors-fallback { display: none; }
+.meta-authors[data-byline]:has(.meta-author--contributor) { display: flex; align-items: center; gap: 14px; }
+.meta-authors[data-byline]:not(:has(.meta-author--contributor)) { display: none; }
+.meta-author--contributor + .meta-author--contributor { border-left: 1px solid var(--color-card-border); padding-left: 14px; margin-left: 14px; }
+
+.entry-byline-contributors[data-byline]:empty { display: none; }
+.entry-byline-contributors[data-byline]:not(:empty) + .entry-byline-fallback { display: none; }
+.entry-byline-contributors[data-byline] .entry-contributor + .entry-contributor::before { content: ", "; }
+
+.author-bio-contributors[data-bio]:empty { display: none; }
+.author-bio-contributors[data-bio]:not(:empty) + .author-bio-fallback { display: none; }
+.author-bio-contributors[data-bio] .author-bio + .author-bio { margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--color-card-border); }
+
+/* Contributor bio page (tag.hbs author-* branch) */
+.contributor-header {
+  background: var(--color-dark);
+  color: var(--color-white);
+  padding: 72px 0 96px;
+}
+.contributor-header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 40px;
+  align-items: center;
+}
+.contributor-portrait {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-muted);
+}
+.contributor-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.contributor-header-body h1 {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 400;
+  margin: 8px 0 16px;
+  color: var(--color-white);
+}
+.contributor-header-body .eyebrow {
+  color: var(--color-primary);
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+.contributor-bio {
+  font-size: 18px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 560px;
+  margin: 0;
+}
+.contributor-list-intro {
+  max-width: 960px;
+  margin: 56px auto 24px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+/* Contributors index (custom-contributors.hbs) */
+.contributors-hero {
+  padding: 72px 0 48px;
+  text-align: center;
+}
+.contributors-title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 400;
+  margin: 8px 0 16px;
+  color: var(--color-dark);
+}
+.contributors-sub {
+  font-size: 18px;
+  color: var(--color-muted);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+.contributors-body { padding: 24px 0 96px; }
+.contributors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 32px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.contributor-card {
+  display: flex;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+  background: var(--color-white);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.contributor-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 14px rgba(45, 41, 39, 0.06);
+  text-decoration: none;
+}
+.contributor-card-portrait {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-style: italic;
+}
+.contributor-card-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.contributor-card-initial { font-style: italic; }
+.contributor-card-body { flex: 1; min-width: 0; }
+.contributor-card-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0 0 6px;
+  color: var(--color-dark);
+}
+.contributor-card-bio {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0 0 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.contributor-card-count {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 0;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .contributor-header-inner { grid-template-columns: 1fr; text-align: center; justify-items: center; gap: 20px; }
+  .contributor-portrait { width: 140px; height: 140px; }
+  .contributor-bio { margin: 0 auto; }
+  .contributors-grid { grid-template-columns: 1fr; gap: 20px; }
+  .contributor-card { padding: 16px; }
+  .contributor-card-portrait { width: 56px; height: 56px; }
+}
