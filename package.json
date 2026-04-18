@@ -51,14 +51,6 @@
         "type": "text",
         "description": "Ghost Content API key for the homepage topic filter (optional)."
       },
-      "member_annual_price_id": {
-        "type": "text",
-        "description": "Ghost Portal annual Member price ID. Find under Settings → Membership → Tiers."
-      },
-      "lifetime_price_id": {
-        "type": "text",
-        "description": "Ghost Portal Lifetime price ID (or leave blank if not using Lifetime tier)."
-      },
       "stripe_member_annual_url": {
         "type": "text",
         "description": "Stripe Payment Link URL for the $100/yr Member tier. Create in Stripe → Payment Links. When set, the /membership Become-a-Member buttons link here instead of Ghost Portal."
