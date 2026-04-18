@@ -1,7 +1,7 @@
 {
   "name": "mere-orthodoxy",
   "description": "Mere Orthodoxy — Christian renewal for the common good.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "engines": {
     "ghost": ">=5.0.0"
   },
@@ -73,6 +73,11 @@
         "type": "text",
         "default": "/institutions",
         "description": "URL for the seminary/institution membership flow."
+      },
+      "membership_api_base": {
+        "type": "text",
+        "default": "https://join.mereorthodoxy.com",
+        "description": "Base URL for the membership-site Express app (Stripe + HubSpot endpoints)."
       }
     }
   }

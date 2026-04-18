@@ -1,0 +1,74 @@
+{{!< default}}
+{{!-- custom-groups: Mere Orthodoxy group memberships --}}
+
+<main class="membership membership-support">
+  <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">For Your Organization</p>
+      <h1 class="page-hero-headline"><em>Mere&nbsp;Orthodoxy</em> for your staff, cohort, or reading group.</h1>
+      <p class="page-hero-sub">One purchase, one invoice, many seats. You assign who receives access.</p>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container">
+      <div class="pricing-table">
+        <div class="pricing-tier">
+          <p class="pricing-tier-label">5 – 19 seats</p>
+          <p class="pricing-tier-price"><span class="price-amount">$80</span><span class="price-interval">/seat / yr</span></p>
+          <p class="pricing-tier-detail">20% off the individual rate.</p>
+        </div>
+        <div class="pricing-tier">
+          <p class="pricing-tier-label">20+ seats</p>
+          <p class="pricing-tier-price"><span class="price-amount">$70</span><span class="price-interval">/seat / yr</span></p>
+          <p class="pricing-tier-detail">30% off the individual rate.</p>
+        </div>
+      </div>
+
+      <form id="group-form" class="stacked-form" novalidate>
+        <fieldset class="form-group">
+          <legend class="form-legend">Seats</legend>
+          <label class="form-field">
+            <span class="form-label">How many seats?</span>
+            <input type="number" name="seats" id="group-seats" min="5" step="1" value="5" required />
+            <span class="form-hint">Minimum of five seats. You can reassign seats at any time.</span>
+          </label>
+          <p class="group-total" id="group-total" aria-live="polite">
+            <span class="group-total-label">Annual total</span>
+            <span class="group-total-amount" id="group-total-amount">$400</span>
+          </p>
+        </fieldset>
+
+        <fieldset class="form-group">
+          <legend class="form-legend">Organization</legend>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Organization name</span>
+              <input type="text" name="org_name" required />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Admin email</span>
+              <input type="email" name="admin_email" autocomplete="email" required />
+              <span class="form-hint">This is who will manage seat assignments.</span>
+            </label>
+          </div>
+          <label class="form-field">
+            <span class="form-label">Admin name</span>
+            <input type="text" name="admin_name" autocomplete="name" required />
+          </label>
+        </fieldset>
+
+        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="group-submit">
+          <span class="btn-label">Continue to payment</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <p class="btn-tagline">Payment runs on Stripe. You will receive a seat-assignment link by email.</p>
+        <p class="btn-error" id="group-error" role="alert"></p>
+      </form>
+    </div>
+  </section>
+
+  <script src="{{asset "js/groups.js"}}"></script>
+</main>

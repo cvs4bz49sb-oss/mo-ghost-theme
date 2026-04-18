@@ -1,0 +1,40 @@
+{{!< default}}
+{{!-- custom-manage: Mere Orthodoxy manage-membership email capture --}}
+
+<main class="membership membership-support page-simple">
+  <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
+
+  <div class="centered-main">
+    <div class="container centered-inner narrow">
+      <h1 class="page-hero-headline page-hero-headline--dark">Manage Your Membership</h1>
+      <p class="page-hero-sub page-hero-sub--dark">
+        Enter the email address you used to sign up. We'll send you to the
+        secure portal where you can update your payment method, review billing
+        history, or cancel your membership.
+      </p>
+
+      <form id="manage-form" class="manage-form" novalidate>
+        <label for="email" class="sr-only">Email address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          autocomplete="email"
+          placeholder="you@example.com"
+        />
+        <button type="submit" class="btn btn-primary" id="manage-cta">
+          <span class="btn-label">Continue</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+      <p class="btn-error" id="manage-error" role="alert"></p>
+
+      <p class="fine-print">
+        Need help? Email <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>.
+      </p>
+    </div>
+  </div>
+
+  <script src="{{asset "js/manage.js"}}"></script>
+</main>

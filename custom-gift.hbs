@@ -1,0 +1,88 @@
+{{!< default}}
+{{!-- custom-gift: Mere Orthodoxy gift membership flow --}}
+
+<main class="membership membership-support">
+  <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Give a Membership</p>
+      <h1 class="page-hero-headline"><em>Share Mere&nbsp;Orthodoxy</em> with someone who would value it.</h1>
+      <p class="page-hero-sub">Gift memberships do not auto-renew. Your recipient receives an email with a personal message and no credit card surprises at the end.</p>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container">
+      <form id="gift-form" class="stacked-form" novalidate>
+        <fieldset class="form-group">
+          <legend class="form-legend">1. Choose a tier</legend>
+          <div class="tier-options">
+            <label class="tier-option">
+              <input type="radio" name="tier" value="annual" checked />
+              <span class="tier-option-body">
+                <span class="tier-option-name">Annual</span>
+                <span class="tier-option-price">$100</span>
+                <span class="tier-option-detail">One year of access. Includes the print journal.</span>
+              </span>
+            </label>
+            <label class="tier-option">
+              <input type="radio" name="tier" value="lifetime" />
+              <span class="tier-option-body">
+                <span class="tier-option-name">Lifetime</span>
+                <span class="tier-option-price">$995</span>
+                <span class="tier-option-detail">Permanent access. Includes Jake Meador's <em>In Search Of The Common Good</em>.</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-group">
+          <legend class="form-legend">2. Your details</legend>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Your name</span>
+              <input type="text" name="purchaser_name" autocomplete="name" required />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Your email</span>
+              <input type="email" name="purchaser_email" autocomplete="email" required />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-group">
+          <legend class="form-legend">3. Recipient</legend>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Recipient name</span>
+              <input type="text" name="recipient_name" required />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Recipient email</span>
+              <input type="email" name="recipient_email" required />
+            </label>
+          </div>
+          <label class="form-field">
+            <span class="form-label">Personal message <span class="form-hint">(optional, 500 characters max)</span></span>
+            <textarea name="message" maxlength="500" rows="4" placeholder="A line or two that goes in the gift email."></textarea>
+          </label>
+          <label class="form-field">
+            <span class="form-label">Deliver on</span>
+            <input type="date" name="deliver_at" />
+            <span class="form-hint">Leave blank to send immediately.</span>
+          </label>
+        </fieldset>
+
+        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="gift-submit">
+          <span class="btn-label">Continue to payment</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <p class="btn-tagline">Payment runs on Stripe. Your recipient is notified after purchase.</p>
+        <p class="btn-error" id="gift-error" role="alert"></p>
+      </form>
+    </div>
+  </section>
+
+  <script src="{{asset "js/gift.js"}}"></script>
+</main>

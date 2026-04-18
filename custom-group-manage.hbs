@@ -1,0 +1,82 @@
+{{!< default}}
+{{!-- custom-group-manage: Mere Orthodoxy group admin dashboard --}}
+
+<main class="membership membership-support">
+  <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Group Admin</p>
+      <h1 class="page-hero-headline"><em>Assign your seats.</em></h1>
+      <p class="page-hero-sub">Add the people in your organization by name and email. Each one will receive Mere&nbsp;Orthodoxy access.</p>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container">
+      <div class="admin-summary">
+        <div class="admin-summary-item">
+          <p class="admin-summary-label">Organization</p>
+          <p class="admin-summary-value" id="group-org">&mdash;</p>
+        </div>
+        <div class="admin-summary-item">
+          <p class="admin-summary-label">Seats used</p>
+          <p class="admin-summary-value"><span id="seats-used">0</span> <span class="admin-summary-subtle">of <span id="seats-total">&mdash;</span></span></p>
+        </div>
+        <div class="admin-summary-item">
+          <p class="admin-summary-label">Admin</p>
+          <p class="admin-summary-value" id="group-admin">&mdash;</p>
+        </div>
+      </div>
+
+      <form id="single-add-form" class="stacked-form" novalidate>
+        <fieldset class="form-group">
+          <legend class="form-legend">Add a member</legend>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Name</span>
+              <input type="text" name="member_name" autocomplete="off" required />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Email</span>
+              <input type="email" name="member_email" autocomplete="off" required />
+            </label>
+          </div>
+        </fieldset>
+        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="single-add-submit">
+          <span class="btn-label">Add to group</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <p class="btn-error" id="single-add-error" role="alert"></p>
+      </form>
+
+      <details class="bulk-add">
+        <summary>Add several at once</summary>
+        <form id="bulk-add-form" class="stacked-form stacked-form--nested" novalidate>
+          <label class="form-field">
+            <span class="form-label">Paste names and emails</span>
+            <textarea name="bulk" rows="6" placeholder="Jane Smith, jane@example.com&#10;John Doe, john@example.com" required></textarea>
+            <span class="form-hint">One per line. Name and email separated by a comma or tab.</span>
+          </label>
+          <button type="submit" class="btn btn-pill btn-dark btn-wide" id="bulk-add-submit">
+            <span class="btn-label">Add all</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="btn-error" id="bulk-add-error" role="alert"></p>
+        </form>
+      </details>
+
+      <section class="admin-list">
+        <header class="admin-list-header">
+          <h2 class="admin-list-title"><em>Recently added</em></h2>
+          <p class="admin-list-hint">Shown from this session. A full seat ledger arrives with the seat database.</p>
+        </header>
+        <ul class="admin-list-items" id="members-list" aria-live="polite">
+          <li class="admin-list-empty" id="members-empty">No members added yet.</li>
+        </ul>
+      </section>
+    </div>
+  </section>
+
+  <script src="{{asset "js/group-manage.js"}}"></script>
+</main>

@@ -1,0 +1,104 @@
+{{!< default}}
+{{!-- custom-institution-manage: Mere Orthodoxy institutional admin dashboard --}}
+
+<main class="membership membership-support">
+  <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Institutional Admin</p>
+      <h1 class="page-hero-headline"><em>Provision your institution.</em></h1>
+      <p class="page-hero-sub">Add email domains for blanket access, or add individuals by name and email for accounts that live outside your institutional domain.</p>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container">
+      <div class="admin-summary">
+        <div class="admin-summary-item">
+          <p class="admin-summary-label">Institution</p>
+          <p class="admin-summary-value" id="inst-org">&mdash;</p>
+        </div>
+        <div class="admin-summary-item">
+          <p class="admin-summary-label">Contract ends</p>
+          <p class="admin-summary-value" id="inst-end-date">&mdash;</p>
+        </div>
+        <div class="admin-summary-item">
+          <p class="admin-summary-label">Admin</p>
+          <p class="admin-summary-value" id="inst-admin">&mdash;</p>
+        </div>
+      </div>
+
+      <form id="domain-add-form" class="stacked-form" novalidate>
+        <fieldset class="form-group">
+          <legend class="form-legend">Domain allowlist</legend>
+          <p class="form-intro">Anyone signing up with an email at a listed domain gets automatic access for the life of the contract.</p>
+          <label class="form-field">
+            <span class="form-label">Add a domain</span>
+            <input type="text" name="domain" placeholder="rts.edu" required />
+            <span class="form-hint">Domain only. No "@".</span>
+          </label>
+        </fieldset>
+        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="domain-add-submit">
+          <span class="btn-label">Add domain</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <p class="btn-error" id="domain-add-error" role="alert"></p>
+
+        <ul class="admin-list-items admin-list-items--compact" id="domains-list" aria-live="polite">
+          <li class="admin-list-empty" id="domains-empty">No domains added yet.</li>
+        </ul>
+      </form>
+
+      <form id="single-add-form" class="stacked-form" novalidate>
+        <fieldset class="form-group">
+          <legend class="form-legend">Invite an individual</legend>
+          <p class="form-intro">For staff, adjuncts, or partners whose primary email is outside your institutional domain.</p>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Name</span>
+              <input type="text" name="member_name" autocomplete="off" required />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Email</span>
+              <input type="email" name="member_email" autocomplete="off" required />
+            </label>
+          </div>
+        </fieldset>
+        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="single-add-submit">
+          <span class="btn-label">Add member</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <p class="btn-error" id="single-add-error" role="alert"></p>
+      </form>
+
+      <details class="bulk-add">
+        <summary>Invite several at once</summary>
+        <form id="bulk-add-form" class="stacked-form stacked-form--nested" novalidate>
+          <label class="form-field">
+            <span class="form-label">Paste names and emails</span>
+            <textarea name="bulk" rows="6" placeholder="Jane Smith, jane@example.edu&#10;John Doe, john@example.edu" required></textarea>
+            <span class="form-hint">One per line. Name and email separated by a comma or tab.</span>
+          </label>
+          <button type="submit" class="btn btn-pill btn-dark btn-wide" id="bulk-add-submit">
+            <span class="btn-label">Invite all</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="btn-error" id="bulk-add-error" role="alert"></p>
+        </form>
+      </details>
+
+      <section class="admin-list">
+        <header class="admin-list-header">
+          <h2 class="admin-list-title"><em>Recently invited</em></h2>
+          <p class="admin-list-hint">Shown from this session. A full member ledger arrives with the allowlist database.</p>
+        </header>
+        <ul class="admin-list-items" id="members-list" aria-live="polite">
+          <li class="admin-list-empty" id="members-empty">No members invited yet.</li>
+        </ul>
+      </section>
+    </div>
+  </section>
+
+  <script src="{{asset "js/institution-manage.js"}}"></script>
+</main>
