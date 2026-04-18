@@ -79,6 +79,14 @@
         </div>
     {{/if}}
 
+    {{!-- Mobile-only TOC slot. JS populates both this and the desktop rail from
+         the article's <h2> headings. Hidden on desktop via CSS; hidden on mobile
+         when empty so posts without subheads don't show an empty container. --}}
+    <nav class="toc-mobile" aria-label="In this essay" data-toc hidden>
+        <p class="toc-label">In this essay</p>
+        <ol class="toc-list" data-toc-list></ol>
+    </nav>
+
     <div class="article-body">
         <div class="article-body-inner">
 
@@ -112,9 +120,10 @@
                 {{/unless}}
             </div>
 
-            <aside class="article-rail" aria-label="Contents">
+            <aside class="article-rail article-rail-toc" aria-label="Contents" data-toc hidden>
                 <div>
                     <div class="rail-label">In this essay</div>
+                    <ol class="toc-list" data-toc-list></ol>
                 </div>
             </aside>
 
@@ -209,5 +218,7 @@
 {{/if}}
 
 {{> "membership-cta"}}
+
+<script src="{{asset "js/toc.js"}}"></script>
 
 {{/post}}

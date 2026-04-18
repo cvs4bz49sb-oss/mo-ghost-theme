@@ -3733,3 +3733,79 @@ body {
   .contributor-card { padding: 16px; }
   .contributor-card-portrait { width: 56px; height: 56px; }
 }
+
+/* =============================================================
+   Table of contents
+   -------------------------------------------------------------
+   Populated client-side from <h2> headings by assets/js/toc.js.
+   Two DOM copies render: the desktop rail (sticky, right column)
+   and a mobile-only slot between the hero image and the article
+   body. Both start `hidden`; the script unhides only if there
+   are H2s to list.
+   ============================================================= */
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  counter-reset: toc;
+}
+.toc-item { counter-increment: toc; position: relative; padding-left: 22px; }
+.toc-item::before {
+  content: counter(toc, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--color-primary);
+}
+.toc-link {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-dark);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.toc-link:hover { color: var(--color-secondary); text-decoration: none; }
+
+/* Mobile-only TOC slot between feature image and article body. */
+.toc-mobile {
+  display: none;
+  max-width: 720px;
+  margin: 24px auto 0;
+  padding: 20px 24px;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+}
+.toc-mobile .toc-label {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin: 0;
+}
+.toc-mobile .toc-list { font-size: 15px; gap: 12px; }
+
+@media (max-width: 1024px) {
+  /* On tablet and below the sticky desktop rail is already hidden
+     by the existing @media block (.article-rail { display:none }).
+     Surface the TOC in the mobile slot instead. */
+  .toc-mobile { display: block; }
+}
+@media (max-width: 640px) {
+  .toc-mobile {
+    margin: 20px 20px 0;
+    padding: 16px 18px;
+    border-radius: 4px;
+  }
+  .toc-mobile .toc-list { font-size: 14px; }
+}
