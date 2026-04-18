@@ -1,0 +1,18 @@
+{{!< default}}
+
+<section class="error-section">
+    <div class="error-inner">
+        <p class="error-numeral"><em>{{statusCode}}</em></p>
+        <h1 class="error-title"><em>{{#match statusCode "404"}}The page you were looking for is not here.{{else}}Something has gone wrong.{{/match}}</em></h1>
+        <p class="error-message">
+            {{#match statusCode "404"}}
+                Pages move, essays are retitled, and links grow old. The rest of the journal is still here.
+            {{else}}
+                {{message}}
+            {{/match}}
+        </p>
+        <div class="hero-ctas" style="justify-content: center;">
+            <a href="{{@site.url}}" class="btn btn-primary btn-lg">Return to the home page</a>
+        </div>
+    </div>
+</section>

@@ -1,18 +1,144 @@
 {{!< default}}
+{{!-- custom-about: About page for Mere Orthodoxy. Routed to /about/
+     via routes.yaml. Team and editorial board listings are hardcoded
+     here since they change rarely; swap them in this file when they do.
+     --}}
 
-<section class="error-section">
-    <div class="error-inner">
-        <p class="error-numeral"><em>{{statusCode}}</em></p>
-        <h1 class="error-title"><em>{{#match statusCode "404"}}The page you were looking for is not here.{{else}}Something has gone wrong.{{/match}}</em></h1>
-        <p class="error-message">
-            {{#match statusCode "404"}}
-                Pages move, essays are retitled, and links grow old. The rest of the journal is still here.
-            {{else}}
-                {{message}}
-            {{/match}}
-        </p>
-        <div class="hero-ctas" style="justify-content: center;">
-            <a href="{{@site.url}}" class="btn btn-primary btn-lg">Return to the home page</a>
-        </div>
+<main class="about">
+
+  <section class="about-hero">
+    <div class="container">
+      <p class="eyebrow">About</p>
+      <h1 class="about-hero-headline">Forming Christians in the Church to participate in culture for the <em>common good</em>.</h1>
     </div>
-</section>
+  </section>
+
+  <section class="about-body">
+    <div class="container container-narrow">
+
+      <div class="about-prose">
+        <p>Blaise Pascal once wrote that the Christian faith is &ldquo;Worthy of reverence because it really understands human nature. Attractive because it promises true good.&rdquo; We believe individuals, families, churches, communities, and nations are renewed when they remember this truth. In a world that seeks to dominate or desert the culture, we seek to renew it.</p>
+        <p>We do this through recovering the best of the Christian tradition throughout the ages and applying it to the issues of our time. Our aim is to use media to strengthen faith, virtue, and knowledge for the flourishing of our common bonds and to be faithful to the call of Christ on all of life.</p>
+      </div>
+
+      <div class="flourish"><span class="flourish-mark">&para;</span></div>
+
+      <div class="about-prose">
+        <h2 class="about-section-heading"><em>Our namesake.</em></h2>
+        <p>Mere Orthodoxy gets its name from combining the two great works of C.S. Lewis and G.K. Chesterton, <em>Mere Christianity</em> and <em>Orthodoxy</em>. These books and authors represent some of the best of the Christian tradition. Lewis, a Protestant, and Chesterton, a Catholic, both understood that there is an irreducible core of the Christian faith that unites all Christians across denomination and tradition. They knew that the core of the Christian faith was reasonable, defensible, and beautiful, and when that truth is clearly and carefully articulated, it makes sense of everything else. As Chesterton wrote, &ldquo;Instinct after instinct was answered by doctrine after doctrine.&rdquo; We believe that Christianity is the key to the world.</p>
+        <p>This core is what we guard and are guided by. Most succinctly expressed in the Nicene Creed, we want to answer the instincts of individuals and the broader culture with &ldquo;doctrine after doctrine.&rdquo; Not merely as a defense of the truth&mdash;though we will certainly defend it&mdash;or as an intellectual exercise&mdash;though it is fascinating&mdash;but as the key that unlocks the mystery and wonder of God and his creation.</p>
+      </div>
+
+      <div class="flourish"><span class="flourish-mark">&para;</span></div>
+
+      <div class="about-prose">
+        <h2 class="about-section-heading"><em>The power of words.</em></h2>
+        <p>We believe that words have the power of life and death. This is why we are committed to using words, amplified through writing, audio, and video, to spread ideas that bring life. We believe in renewing the Church with a Protestant Catholicity, a faith that is deeply rooted in the distinctives of the Protestant Reformation but sees itself situated in the one, holy, catholic, and apostolic church and receives all of the Church&rsquo;s treasures. We believe in renewing the culture with a Solidarity Conservatism, which seeks to preserve the thought that has led to the flourishing of Western civilization while seeing ourselves in membership with one another as image bearers of God.</p>
+      </div>
+
+      <div class="about-vision">
+        <h2 class="about-vision-heading"><em>We want to see</em></h2>
+        <ol class="about-vision-list">
+          <li>
+            <p class="about-vision-label">Individuals</p>
+            <p class="about-vision-body">formed in faith, virtue, and reason.</p>
+          </li>
+          <li>
+            <p class="about-vision-label">Churches</p>
+            <p class="about-vision-body">formed in scripture, sacrament, and conviction.</p>
+          </li>
+          <li>
+            <p class="about-vision-label">Communities</p>
+            <p class="about-vision-body">formed in membership, solidarity, and tradition.</p>
+          </li>
+          <li>
+            <p class="about-vision-label">Public leaders</p>
+            <p class="about-vision-body">formed in character, limits, and locality.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="about-prose">
+        <p>This is why we write and speak about church, culture, formation, family, theology, technology, and more. Through faithfulness to Christ in every square inch of life, we seek the renewal of the Church and culture in our lifetime.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="about-team">
+    <div class="container">
+      <div class="section-intro">
+        <p class="eyebrow">The Team</p>
+        <h2 class="section-heading"><em>Who we are.</em></h2>
+      </div>
+      <div class="about-team-grid">
+        <article class="about-team-member">
+          <div class="about-team-portrait" aria-hidden="true"><span class="about-team-initial">J</span></div>
+          <h3 class="about-team-name"><em>Jake Meador</em></h3>
+          <p class="about-team-title">Editor-In-Chief &amp; Chairman</p>
+        </article>
+        <article class="about-team-member">
+          <div class="about-team-portrait" aria-hidden="true"><span class="about-team-initial">M</span></div>
+          <h3 class="about-team-name"><em>Mark Kremer</em></h3>
+          <p class="about-team-title">Publisher &amp; Executive Director</p>
+        </article>
+        <article class="about-team-member">
+          <div class="about-team-portrait" aria-hidden="true"><span class="about-team-initial">I</span></div>
+          <h3 class="about-team-name"><em>Ian Harber</em></h3>
+          <p class="about-team-title">Director of Communications &amp; Marketing</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-board">
+    <div class="container">
+      <div class="section-intro">
+        <p class="eyebrow">Editorial Board</p>
+        <h2 class="section-heading"><em>Our editorial board.</em></h2>
+      </div>
+      <ul class="about-board-list">
+        <li>
+          <p class="about-board-name"><em>Jake Meador</em></p>
+          <p class="about-board-role">Chairman</p>
+        </li>
+        <li>
+          <p class="about-board-name"><em>Nadya Williams</em></p>
+          <p class="about-board-role">Books Editor</p>
+        </li>
+        <li>
+          <p class="about-board-name"><em>Samuel James</em></p>
+          <p class="about-board-role">Author; Director of Content Development, Crossway</p>
+        </li>
+        <li>
+          <p class="about-board-name"><em>Kirsten Sanders</em></p>
+          <p class="about-board-role">PhD, Theology, Emory University; Writer</p>
+        </li>
+        <li>
+          <p class="about-board-name"><em>Matthew Loftus</em></p>
+          <p class="about-board-role">Medical Missionary in East Africa</p>
+        </li>
+        <li>
+          <p class="about-board-name"><em>Susannah Black Roberts</em></p>
+          <p class="about-board-role">Senior Editor, Plough</p>
+        </li>
+        <li>
+          <p class="about-board-name"><em>Tessa Carman</em></p>
+          <p class="about-board-role">Literature teacher, editor, and writer</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="about-cta">
+    <div class="container cta-inner">
+      <p class="eyebrow">Join {{@site.title}}</p>
+      <h2><em>Dive deeper.</em></h2>
+      <p>Become a member to receive the weekly digest, the quarterly print journal, and the full archive of essays and podcasts.</p>
+      <div class="hero-ctas" style="justify-content: center;">
+        <a href="/membership/" class="btn btn-primary btn-lg">Become a Member</a>
+      </div>
+    </div>
+  </section>
+
+</main>
