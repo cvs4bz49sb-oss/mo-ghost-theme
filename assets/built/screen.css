@@ -2439,14 +2439,32 @@ body {
   height: 100%;
   width: 78%;
   max-width: 320px;
-  background: var(--color-white);
+  background-color: #f1e8d5;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(130, 102, 70, 0.035) 0px,
+      rgba(130, 102, 70, 0.035) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(130, 102, 70, 0.028) 0px,
+      rgba(130, 102, 70, 0.028) 1px,
+      transparent 1px,
+      transparent 4px
+    ),
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.32 0 0 0 0 0.2 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #f4ecda 0%, #efe5cf 100%);
+  background-size: auto, auto, 220px 220px, 100% 100%;
   padding: 20px 22px 24px;
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
   transition: transform 0.25s ease-out;
   overflow-y: auto;
-  box-shadow: -16px 0 40px rgba(45, 41, 39, 0.18);
+  box-shadow: -16px 0 40px rgba(45, 41, 39, 0.28);
 }
 .mobile-nav[data-open="true"] .mobile-nav-panel {
   transform: translateX(0);
