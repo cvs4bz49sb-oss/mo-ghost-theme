@@ -4456,17 +4456,16 @@ body {
 }
 
 
-/* Experimental: hand-sketched pencil-scratch oval frames on the
-   hero CTAs ("Never Miss An Essay" + "Become a Member"). Replaces
-   the filled pill background with two slightly-offset wobbly
-   ellipses drawn in an inline SVG as the button background, white
-   stroke since the hero band is dark. Both CTAs get the same
-   treatment; "Never Miss An Essay" keeps primary-orange text so it
-   still reads as the first action. */
+/* Hero CTAs: hand-sketched oval frames (toned down).
+   "Never Miss An Essay" is filled primary orange with a darker
+   secondary stroke and a soft primary-colored glow so the first
+   action clearly leads. "Become a Member" is stroke-only in white
+   on the dark hero. The outline path is the same for both; a
+   lighter 0.28-opacity second pass adds just enough wobble to read
+   as pencil without looking chaotic. */
 .hero .hero-ctas .btn,
 .hero .hero-ctas .btn.btn-lg {
   background-color: transparent !important;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M 12,32 C 18,10 72,6 104,10 S 188,14 188,32 170,56 104,54 10,50 12,32 Z' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 14,28 C 26,14 66,8 102,8 S 186,18 190,32 172,52 100,52 12,48 14,28 Z' fill='none' stroke='%23ffffff' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' opacity='0.55'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-position: center;
@@ -4478,10 +4477,22 @@ body {
   font-weight: 600;
   font-size: 15px;
   letter-spacing: 0.08em;
-  transition: color 0.15s, transform 0.12s;
+  transition: color 0.15s, transform 0.12s, filter 0.15s;
 }
-.hero .hero-ctas .btn-primary { color: var(--color-primary); }
-.hero .hero-ctas .btn:hover { color: var(--color-primary); transform: translateY(-1px); }
+.hero .hero-ctas .btn-primary {
+  background-image:
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M 13,30 C 20,12 72,8 104,10 S 188,16 188,32 170,52 104,54 12,48 13,30 Z' fill='%23ee7d51' stroke='%23c1593c' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 15,28 C 26,14 66,8 102,8 S 186,18 190,32 172,52 100,52 12,48 15,28 Z' fill='none' stroke='%23c1593c' stroke-width='0.9' stroke-linecap='round' stroke-linejoin='round' opacity='0.28'/%3E%3C/svg%3E");
+  color: var(--color-white);
+  filter: drop-shadow(0 0 12px rgba(238, 125, 81, 0.55)) drop-shadow(0 0 26px rgba(238, 125, 81, 0.3));
+}
+.hero .hero-ctas .btn-primary:hover {
+  filter: drop-shadow(0 0 16px rgba(238, 125, 81, 0.7)) drop-shadow(0 0 34px rgba(238, 125, 81, 0.4));
+}
+.hero .hero-ctas .btn-ghost {
+  background-image:
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M 13,30 C 20,12 72,8 104,10 S 188,16 188,32 170,52 104,54 12,48 13,30 Z' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 15,28 C 26,14 66,8 102,8 S 186,18 190,32 172,52 100,52 12,48 15,28 Z' fill='none' stroke='%23ffffff' stroke-width='0.9' stroke-linecap='round' stroke-linejoin='round' opacity='0.28'/%3E%3C/svg%3E");
+}
+.hero .hero-ctas .btn:hover { transform: translateY(-1px); }
 @media (max-width: 640px) {
   .hero .hero-ctas .btn,
   .hero .hero-ctas .btn.btn-lg {
