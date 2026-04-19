@@ -96,6 +96,31 @@
 
     <script>
         (function () {
+            // Hide the sticky header when scrolling down past ~80px;
+            // bring it back the instant the user scrolls up.
+            var header = document.querySelector('.site-header');
+            if (!header) return;
+            var lastY = window.scrollY;
+            var threshold = 80;
+            var ticking = false;
+            function onScroll() {
+                var y = window.scrollY;
+                if (y > lastY && y > threshold) {
+                    header.classList.add('is-hidden');
+                } else if (y < lastY) {
+                    header.classList.remove('is-hidden');
+                }
+                lastY = y;
+                ticking = false;
+            }
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    window.requestAnimationFrame(onScroll);
+                    ticking = true;
+                }
+            }, { passive: true });
+        })();
+        (function () {
             var toggle = document.querySelector('.nav-toggle');
             var panel = document.getElementById('mobile-nav');
             if (!toggle || !panel) return;
