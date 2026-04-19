@@ -96,36 +96,39 @@
 
     <script>
         (function () {
-            // Hide the sticky header when scrolling down past ~80px;
-            // reveal it on any upward scroll. Uses a small delta so
-            // momentum scroll on iOS doesn't flicker, and always
-            // shows the bar when the user is near the top.
+            // Fixed-position header: hides on scroll-down, re-appears
+            // on any upward scroll and stays pinned the whole time
+            // the user is scrolling up. Body gets top padding equal
+            // to the header's measured height so content doesn't
+            // slip behind it.
             var header = document.querySelector('.site-header');
             if (!header) return;
+            function syncOffset() {
+                var h = header.getBoundingClientRect().height;
+                document.body.style.paddingTop = h + 'px';
+            }
+            syncOffset();
+            window.addEventListener('resize', syncOffset);
+            if (window.ResizeObserver) {
+                new ResizeObserver(syncOffset).observe(header);
+            }
             var lastY = window.pageYOffset || window.scrollY || 0;
             var threshold = 80;
-            var delta = 6;
+            var downDelta = 10;
             var ticking = false;
             function onScroll() {
                 var y = window.pageYOffset || window.scrollY || 0;
-                var diff = y - lastY;
                 if (y < threshold) {
                     header.classList.remove('is-hidden');
-                } else if (diff > delta) {
+                } else if (y > lastY + downDelta) {
                     header.classList.add('is-hidden');
-                } else if (diff < -delta) {
+                } else if (y < lastY) {
                     header.classList.remove('is-hidden');
                 }
-                if (Math.abs(diff) > delta || y < threshold) lastY = y;
+                lastY = y;
                 ticking = false;
             }
             window.addEventListener('scroll', function () {
-                if (!ticking) {
-                    window.requestAnimationFrame(onScroll);
-                    ticking = true;
-                }
-            }, { passive: true });
-            window.addEventListener('touchmove', function () {
                 if (!ticking) {
                     window.requestAnimationFrame(onScroll);
                     ticking = true;
