@@ -3907,7 +3907,7 @@ body {
   white-space: nowrap;
 }
 
-.about-body { padding: 200px 0 32px; }
+.about-body { padding: 250px 0 32px; }
 .about-prose { max-width: 640px; margin: 0 auto; }
 .about-prose + .about-prose { margin-top: 24px; }
 .about-prose p {
@@ -4109,7 +4109,7 @@ body {
   .about-hero-headline { font-size: clamp(22px, 6.2vw, 34px); line-height: 1.18; }
   .about-hero-image { order: 2; margin-bottom: -40px; }
   .about-hero-image img { max-height: 320px; }
-  .about-body { padding-top: 120px; }
+  .about-body { padding-top: 190px; }
   .about-body { padding: 56px 0 16px; }
   .about-prose p { font-size: 17px; line-height: 1.7; }
   .about-lede { font-size: 19px !important; }
