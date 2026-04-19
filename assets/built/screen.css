@@ -2560,9 +2560,9 @@ body {
      left, text filling the rest. `min-width: 0` on the text column
      is what keeps the phrase "min-width: auto" grid default from
      pushing overflow. */
-  .entry { grid-template-columns: 96px 1fr; gap: 16px; padding: 20px 0; align-items: flex-start; }
+  .entry { grid-template-columns: 96px 1fr; gap: 16px; padding: 20px 0; align-items: stretch; }
   .entry > * { min-width: 0; }
-  .entry-plate { width: 96px; margin: 0; aspect-ratio: 4 / 5; }
+  .entry-plate { width: 96px; margin: 0; aspect-ratio: auto; height: 100%; }
   .entry-title { font-size: 20px; margin: 0 0 8px; }
   .entry-excerpt { font-size: 14px; margin: 0 0 10px; line-height: 1.55; }
   .entry-topic { font-size: 9px; margin: 0 0 6px; }
