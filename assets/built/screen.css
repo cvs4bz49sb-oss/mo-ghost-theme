@@ -4456,34 +4456,36 @@ body {
 }
 
 
-/* Header scratch-oval buttons (experimental; header only).
-   Two slightly-offset wobbly ellipses rendered as an inline SVG
-   background give each nav button a hand-drawn pencil sketch frame.
-   Uses preserveAspectRatio="none" so the same SVG stretches to any
-   button size without re-drawing. Only applies inside .site-header
-   so the rest of the site keeps its filled pill buttons. */
-.site-header .nav-actions .btn,
-.site-header .nav-actions .sign-in {
+/* Experimental: hand-sketched pencil-scratch oval frames on the
+   hero CTAs ("Never Miss An Essay" + "Become a Member"). Replaces
+   the filled pill background with two slightly-offset wobbly
+   ellipses drawn in an inline SVG as the button background, white
+   stroke since the hero band is dark. Both CTAs get the same
+   treatment; "Never Miss An Essay" keeps primary-orange text so it
+   still reads as the first action. */
+.hero .hero-ctas .btn,
+.hero .hero-ctas .btn.btn-lg {
   background-color: transparent !important;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M 12,32 C 18,10 72,6 104,10 S 188,14 188,32 170,56 104,54 10,50 12,32 Z' fill='none' stroke='%232d2927' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 14,28 C 26,14 66,8 102,8 S 186,18 190,32 172,52 100,52 12,48 14,28 Z' fill='none' stroke='%232d2927' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' opacity='0.55'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60' preserveAspectRatio='none'%3E%3Cpath d='M 12,32 C 18,10 72,6 104,10 S 188,14 188,32 170,56 104,54 10,50 12,32 Z' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 14,28 C 26,14 66,8 102,8 S 186,18 190,32 172,52 100,52 12,48 14,28 Z' fill='none' stroke='%23ffffff' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' opacity='0.55'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-position: center;
   border: 0;
   box-shadow: none;
-  color: var(--color-dark);
-  padding: 12px 26px;
+  color: var(--color-white);
+  padding: 14px 30px;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.08em;
   transition: color 0.15s, transform 0.12s;
 }
-.site-header .nav-actions .btn:hover,
-.site-header .nav-actions .sign-in:hover {
-  color: var(--color-primary);
-  transform: translateY(-1px);
-}
-.site-header .nav-actions .btn-primary {
-  color: var(--color-secondary);
+.hero .hero-ctas .btn-primary { color: var(--color-primary); }
+.hero .hero-ctas .btn:hover { color: var(--color-primary); transform: translateY(-1px); }
+@media (max-width: 640px) {
+  .hero .hero-ctas .btn,
+  .hero .hero-ctas .btn.btn-lg {
+    padding: 12px 18px;
+    font-size: 13px;
+  }
 }
