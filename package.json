@@ -33,7 +33,7 @@
       },
       "hero_subhead": {
         "type": "text",
-        "default": "Long-form essays, a quarterly print journal, and patient podcasts on theology, culture, and politics."
+        "default": "Long-form essays, a quarterly print journal, and patient podcasts on theology, culture, and spiritual formation."
       },
       "podcast_feed_url": {
         "type": "text",
