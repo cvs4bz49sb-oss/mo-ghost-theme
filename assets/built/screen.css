@@ -434,6 +434,13 @@ img { max-width: 100%; height: auto; }
   align-items: center;
   gap: 18px;
   overflow-x: auto;
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;         /* old Edge */
+}
+.topics-inner::-webkit-scrollbar {  /* Chromium, Safari */
+  display: none;
+  width: 0;
+  height: 0;
 }
 .topics-label {
   font-size: 11px;
