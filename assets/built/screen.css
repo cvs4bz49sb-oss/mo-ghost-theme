@@ -138,10 +138,16 @@ img { max-width: 100%; height: auto; }
 }
 
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
   text-decoration: none;
+}
+.brand-logo {
+  display: block;
+  height: 48px;
+  width: auto;
+  max-width: 260px;
+  object-fit: contain;
 }
 
 .brand-mark {

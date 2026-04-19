@@ -23,13 +23,7 @@
     <header class="site-header">
         <div class="container header-inner">
             <a href="{{@site.url}}" class="brand" aria-label="{{@site.title}} home">
-                <span class="brand-mark" aria-hidden="true">
-                    <img src="{{asset "images/mere-o-logo.png"}}" alt="{{@site.title}}" />
-                </span>
-                <span class="brand-name">
-                    <span class="big">{{@site.title}}</span>
-                    <span class="est">Est. MMV</span>
-                </span>
+                <img src="{{asset "images/mere-o-logo.png"}}" alt="{{@site.title}}" class="brand-logo" />
             </a>
             <nav class="nav" aria-label="Primary">
                 {{#foreach @site.navigation}}
