@@ -13,6 +13,10 @@ routes:
     template: custom-contributors
   /about/:
     template: custom-about
+  /archive/:
+    controller: channel
+    template: custom-archive
+    filter: status:published
   /gift/:
     template: custom-gift
   /groups/:

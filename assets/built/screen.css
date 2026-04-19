@@ -4268,3 +4268,42 @@ body {
   letter-spacing: 0.02em;
 }
 .mb-hero { position: relative; }
+
+/* "Read more essays" link at the bottom of the This Week section on
+   the homepage, routing to /archive/ for the full listing. */
+.week-more {
+  margin-top: 40px;
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-card-border);
+  position: relative;
+}
+.week-more::before {
+  content: "\2766";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--color-primary);
+  font-size: 14px;
+  line-height: 1;
+  background: var(--color-background);
+  padding: 0 12px;
+}
+.week-more-link {
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-dark);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.week-more-link:hover { color: var(--color-primary); text-decoration: none; }
+
+/* Archive listing page (custom-archive.hbs, served at /archive/). */
+.archive-listing { padding: 48px 0 96px; }
+.archive-listing .section-intro { margin-bottom: 32px; text-align: center; }

@@ -41,20 +41,7 @@
     </div>
 </section>
 
-{{!-- TOPIC RAIL: hardcoded "Recent" + dynamic tag pills --}}
-<nav class="topics" aria-label="Topics">
-    <div class="container topics-inner">
-        <span class="topics-label">Read by</span>
-        <a href="#" class="topic-pill is-active" data-tag="recent">Recent</a>
-        {{#get "tags" filter="visibility:public" include="count.posts" limit="20" order="name asc"}}
-            {{#foreach tags}}
-                {{#if count.posts}}
-                    <a href="{{url}}" class="topic-pill" data-tag="{{slug}}">{{name}}</a>
-                {{/if}}
-            {{/foreach}}
-        {{/get}}
-    </div>
-</nav>
+{{> "topic-rail"}}
 
 {{!-- TODAY: feature + most-read sidebar --}}
 <section class="today">
@@ -156,6 +143,10 @@
                     {{> "post-entry"}}
                 {{/foreach}}
             {{/get}}
+        </div>
+
+        <div class="week-more">
+            <a href="/archive/" class="week-more-link">Read more essays <span aria-hidden="true">&rarr;</span></a>
         </div>
     </div>
 </section>

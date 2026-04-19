@@ -1,0 +1,44 @@
+{{!< default}}
+{{!-- custom-archive: full essay archive, paginated. Routed at
+     /archive/ via routes.yaml as a channel so every published post
+     appears here in reverse-chronological order. Reuses the Read-by
+     topic rail from the homepage. --}}
+
+{{> "topic-rail"}}
+
+<section class="archive-listing">
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">The Archive</p>
+            <h1 class="section-heading"><em>Every essay.</em></h1>
+        </div>
+
+        <div class="flourish"><span class="flourish-mark">&para;</span></div>
+
+        <div class="week-grid">
+            {{#foreach posts}}
+                {{> "post-entry"}}
+            {{/foreach}}
+        </div>
+
+        {{#if pagination.pages}}
+            {{#if pagination.total}}
+                <nav class="pagination" aria-label="Pagination">
+                    {{#if pagination.prev}}
+                        <a href="{{page_url pagination.prev}}">&larr; Previous</a>
+                    {{else}}
+                        <span></span>
+                    {{/if}}
+                    <span class="pagination-spacer"></span>
+                    <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
+                    <span class="pagination-spacer"></span>
+                    {{#if pagination.next}}
+                        <a href="{{page_url pagination.next}}">Next &rarr;</a>
+                    {{else}}
+                        <span></span>
+                    {{/if}}
+                </nav>
+            {{/if}}
+        {{/if}}
+    </div>
+</section>

@@ -1,0 +1,17 @@
+{{!-- Topic rail used on the homepage and on /archive/. Topic-filter.js
+     only binds its view-swap behavior when the .today-default and
+     .today-tag slots exist, so including this partial on other pages
+     is safe — pills just navigate to their tag archives. --}}
+<nav class="topics" aria-label="Topics">
+    <div class="container topics-inner">
+        <span class="topics-label">Read by</span>
+        <a href="{{@site.url}}" class="topic-pill is-active" data-tag="recent">Recent</a>
+        {{#get "tags" filter="visibility:public" include="count.posts" limit="20" order="name asc"}}
+            {{#foreach tags}}
+                {{#if count.posts}}
+                    <a href="{{url}}" class="topic-pill" data-tag="{{slug}}">{{name}}</a>
+                {{/if}}
+            {{/foreach}}
+        {{/get}}
+    </div>
+</nav>
