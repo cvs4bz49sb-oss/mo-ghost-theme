@@ -2556,11 +2556,13 @@ body {
   .article-card.is-featured .card-title { font-size: 28px; }
   .related-grid { grid-template-columns: 1fr; }
 
-  /* This Week entries: stack image over text on mobile so the text column
-     can't be pushed past the viewport by the fixed 150px plate + gap. */
-  .entry { grid-template-columns: 1fr; gap: 20px; padding: 28px 0; }
+  /* This Week entries: stack image over text on mobile so the text
+     column can't be pushed past the viewport by the fixed desktop
+     grid. Plate is kept compact (160px max) so entries don't
+     dominate the scroll. */
+  .entry { grid-template-columns: 1fr; gap: 16px; padding: 24px 0; }
   .entry > * { min-width: 0; }
-  .entry-plate { width: 100%; max-width: 260px; margin: 0 auto; }
+  .entry-plate { width: 100%; max-width: 160px; margin: 0 auto; }
   .entry-title { font-size: 24px; }
   .entry-excerpt { font-size: 15px; }
   .entry:nth-child(n+2) { border-top: 1px solid var(--color-card-border); }
