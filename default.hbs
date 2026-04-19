@@ -97,23 +97,35 @@
     <script>
         (function () {
             // Hide the sticky header when scrolling down past ~80px;
-            // bring it back the instant the user scrolls up.
+            // reveal it on any upward scroll. Uses a small delta so
+            // momentum scroll on iOS doesn't flicker, and always
+            // shows the bar when the user is near the top.
             var header = document.querySelector('.site-header');
             if (!header) return;
-            var lastY = window.scrollY;
+            var lastY = window.pageYOffset || window.scrollY || 0;
             var threshold = 80;
+            var delta = 6;
             var ticking = false;
             function onScroll() {
-                var y = window.scrollY;
-                if (y > lastY && y > threshold) {
+                var y = window.pageYOffset || window.scrollY || 0;
+                var diff = y - lastY;
+                if (y < threshold) {
+                    header.classList.remove('is-hidden');
+                } else if (diff > delta) {
                     header.classList.add('is-hidden');
-                } else if (y < lastY) {
+                } else if (diff < -delta) {
                     header.classList.remove('is-hidden');
                 }
-                lastY = y;
+                if (Math.abs(diff) > delta || y < threshold) lastY = y;
                 ticking = false;
             }
             window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    window.requestAnimationFrame(onScroll);
+                    ticking = true;
+                }
+            }, { passive: true });
+            window.addEventListener('touchmove', function () {
                 if (!ticking) {
                     window.requestAnimationFrame(onScroll);
                     ticking = true;
