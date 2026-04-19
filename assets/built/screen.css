@@ -144,7 +144,7 @@ img { max-width: 100%; height: auto; }
 }
 .brand-logo {
   display: block;
-  height: 48px;
+  height: 72px;
   width: auto;
   max-width: 260px;
   object-fit: contain;
@@ -2559,6 +2559,7 @@ body {
 
   /* Header + hamburger alignment */
   .header-inner { padding: 10px 28px; gap: 12px; }
+  .brand-logo { height: 52px; }
   .brand-mark { width: 38px; height: 38px; font-size: 18px; }
   .brand-name .big { font-size: 16px; }
   .brand-name .est { font-size: 9px; margin-top: 3px; }
