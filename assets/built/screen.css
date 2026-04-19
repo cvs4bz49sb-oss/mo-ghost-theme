@@ -132,8 +132,8 @@ img { max-width: 100%; height: auto; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 14px;
-  padding-bottom: 14px;
+  padding-top: 6px;
+  padding-bottom: 6px;
   gap: 32px;
 }
 
@@ -2558,7 +2558,7 @@ body {
   .nav-actions .sign-in { display: none; }
 
   /* Header + hamburger alignment */
-  .header-inner { padding: 10px 28px; gap: 12px; }
+  .header-inner { padding: 4px 28px; gap: 12px; }
   .brand-logo { height: 52px; }
   .brand-mark { width: 38px; height: 38px; font-size: 18px; }
   .brand-name .big { font-size: 16px; }
