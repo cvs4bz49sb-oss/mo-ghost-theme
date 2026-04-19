@@ -23,11 +23,9 @@
     <header class="site-header">
         <div class="container header-inner">
             <a href="{{@site.url}}" class="brand" aria-label="{{@site.title}} home">
-                {{#if @site.logo}}
-                    <span class="brand-mark" aria-hidden="true"><img src="{{@site.logo}}" alt="{{@site.title}}" /></span>
-                {{else}}
-                    <span class="brand-mark" aria-hidden="true">M</span>
-                {{/if}}
+                <span class="brand-mark" aria-hidden="true">
+                    <img src="{{asset "images/mere-o-logo.png"}}" alt="{{@site.title}}" />
+                </span>
                 <span class="brand-name">
                     <span class="big">{{@site.title}}</span>
                     <span class="est">Est. MMV</span>
