@@ -26,6 +26,14 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  border: 1px solid var(--color-primary);
+  pointer-events: none;
+  z-index: 100;
+}
 html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 
 body {
