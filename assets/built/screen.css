@@ -4476,6 +4476,7 @@ body {
   font-weight: 600;
   font-size: 15px;
   letter-spacing: 0.08em;
+  white-space: nowrap;
   transition: color 0.15s, transform 0.12s, filter 0.15s;
 }
 .hero .hero-ctas .btn-primary {
@@ -4496,7 +4497,8 @@ body {
 @media (max-width: 640px) {
   .hero .hero-ctas .btn,
   .hero .hero-ctas .btn.btn-lg {
-    padding: 12px 18px;
-    font-size: 13px;
+    padding: 10px 14px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
   }
 }
