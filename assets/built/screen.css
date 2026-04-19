@@ -310,7 +310,20 @@ img { max-width: 100%; height: auto; }
   font-weight: 600;
   margin: 0 0 24px;
 }
-.hero-kicker .dot { width: 6px; height: 6px; background: var(--color-primary); border-radius: 50%; }
+.hero-kicker .dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  animation: hero-kicker-pulse 2.4s ease-in-out infinite;
+}
+@keyframes hero-kicker-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(238, 125, 81, 0.22), 0 0 6px rgba(238, 125, 81, 0.55); }
+  50%      { box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.32), 0 0 12px rgba(238, 125, 81, 0.85); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-kicker .dot { animation: none; }
+}
 
 .hero-headline {
   font-family: var(--font-display);
