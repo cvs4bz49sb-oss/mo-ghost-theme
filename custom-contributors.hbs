@@ -22,7 +22,11 @@
            same data-tag-slug attribute-selector pattern that drives
            contributor bylines and topic eyebrows. --}}
       <div class="contributors-grid">
-        {{#get "tags" filter="visibility:public" order="name asc" limit="all" include="count.posts"}}
+        {{!-- limit=200 covers MO's contributor roster with headroom.
+             Ghost's `limit="all"` on the tags endpoint has historically
+             truncated at the default page size (~15) on this version,
+             cutting the list off mid-alphabet. --}}
+        {{#get "tags" filter="visibility:public" order="name asc" limit="200" include="count.posts"}}
           {{#foreach tags}}
             {{#if count.posts}}
               <a href="{{url}}" class="contributor-card contributor-card--candidate" data-tag-slug="{{slug}}">
