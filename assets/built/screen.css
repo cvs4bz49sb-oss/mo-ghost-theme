@@ -4015,8 +4015,12 @@ body {
   border-radius: 8px;
   background: var(--color-white);
   position: sticky;
-  top: 96px;
+  top: 80px;
   z-index: 2;
+  /* Cap at viewport height so the full alphabet fits even on short
+     screens; scrolls internally if it still overflows. */
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
   transition: padding 0.18s;
 }
 .contributors-az-toggle {
