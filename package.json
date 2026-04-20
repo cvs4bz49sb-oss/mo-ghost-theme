@@ -43,10 +43,6 @@
         "type": "text",
         "description": "Form action URL for the Weekly Digest signup (Kit, Mailchimp, ConvertKit, etc.)."
       },
-      "journal_issue_title": {
-        "type": "text",
-        "default": "Volume IV · Spring 2026"
-      },
       "journal_status_issue": {
         "type": "text",
         "default": "Spring 2026",
