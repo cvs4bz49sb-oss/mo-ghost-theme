@@ -4504,3 +4504,8 @@ body {
    the inlined membership body. */
 .homepage-membership .readers { display: none; }
 
+/* Read-by topic rail: contributor tags (slug starts with "author-")
+   are bylines, not topics — hide them so the rail only shows
+   editorial categories. */
+.topics .topic-pill[data-tag-slug^="author-"] { display: none; }
+

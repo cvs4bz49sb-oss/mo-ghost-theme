@@ -6,10 +6,10 @@
     <div class="container topics-inner">
         <span class="topics-label">Read by</span>
         <a href="{{@site.url}}" class="topic-pill is-active" data-tag="recent">Recent</a>
-        {{#get "tags" filter="visibility:public" include="count.posts" limit="20" order="name asc"}}
+        {{#get "tags" filter="visibility:public" include="count.posts" limit="all" order="name asc"}}
             {{#foreach tags}}
                 {{#if count.posts}}
-                    <a href="{{url}}" class="topic-pill" data-tag="{{slug}}">{{name}}</a>
+                    <a href="{{url}}" class="topic-pill" data-tag="{{slug}}" data-tag-slug="{{slug}}">{{name}}</a>
                 {{/if}}
             {{/foreach}}
         {{/get}}
