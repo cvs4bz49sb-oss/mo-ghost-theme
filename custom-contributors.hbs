@@ -16,17 +16,20 @@
 
   <section class="contributors-body">
     <div class="container">
-      {{!-- A-Z jump rail. Populated by contributors.js after the grid
-           renders: letters that have at least one contributor become
-           links; the rest render as muted/disabled. --}}
-      <nav class="contributors-az" aria-label="Jump to letter" data-contributors-az hidden></nav>
+      <div class="contributors-layout">
+        {{!-- A-Z jump rail. Populated by contributors.js after the grid
+             renders: letters that have at least one contributor become
+             links; the rest render as muted/disabled. Desktop pins
+             this vertically to the left of the roster; mobile drops it
+             into a horizontal strip above. --}}
+        <nav class="contributors-az" aria-label="Jump to letter" data-contributors-az hidden></nav>
 
-      {{!-- Fetch all public tags; CSS hides any whose slug isn't
-           "author-…". Ghost's NQL `~^` prefix match on `slug` hasn't
-           been reliable across Ghost versions, so the theme uses the
-           same data-tag-slug attribute-selector pattern that drives
-           contributor bylines and topic eyebrows. --}}
-      <div class="contributors-grid">
+        {{!-- Fetch all public tags; CSS hides any whose slug isn't
+             "author-…". Ghost's NQL `~^` prefix match on `slug` hasn't
+             been reliable across Ghost versions, so the theme uses the
+             same data-tag-slug attribute-selector pattern that drives
+             contributor bylines and topic eyebrows. --}}
+        <div class="contributors-grid">
         {{!-- limit=200 covers MO's contributor roster with headroom.
              Ghost's `limit="all"` on the tags endpoint has historically
              truncated at the default page size (~15) on this version,
@@ -56,6 +59,7 @@
             {{/if}}
           {{/foreach}}
         {{/get}}
+        </div>
       </div>
     </div>
   </section>

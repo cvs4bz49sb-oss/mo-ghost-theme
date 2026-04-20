@@ -3992,56 +3992,74 @@ body {
 }
 .contributors-body { padding: 24px 0 96px; }
 
-/* A-Z jump rail. Sticky under the fixed header so it stays accessible
-   as the reader scrolls the roster. Inactive letters (no contributor
-   with that initial) are muted and non-interactive. */
+/* Contributors layout: vertical A-Z rail pinned to the left of the
+   grid on desktop. Mobile collapses to a single column with the rail
+   as a horizontal strip above. */
+.contributors-layout {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 32px;
+  align-items: start;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.contributors-layout .contributors-grid { margin: 0; max-width: none; }
+
 .contributors-az {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px 10px;
-  max-width: 1040px;
-  margin: 0 auto 40px;
-  padding: 16px 0;
-  border-top: 1px solid var(--color-card-border);
-  border-bottom: 1px solid var(--color-card-border);
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+  background: var(--color-white);
   position: sticky;
-  top: 84px;
-  background: var(--color-background);
+  top: 96px;
   z-index: 2;
 }
 .contributors-az-letter {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1;
-  padding: 4px 6px;
+  padding: 5px 8px;
   color: var(--color-secondary);
   text-decoration: none;
   border-radius: 4px;
   transition: color 0.15s, background 0.15s;
-  min-width: 24px;
+  min-width: 28px;
   text-align: center;
 }
 .contributors-az-letter:hover {
   color: var(--color-primary);
+  background: var(--color-page);
   text-decoration: none;
 }
 .contributors-az-letter.is-disabled {
   color: var(--color-card-border);
   pointer-events: none;
 }
-@media (max-width: 640px) {
-  .contributors-az {
-    gap: 2px 6px;
-    padding: 12px 0;
-    margin: 0 auto 24px;
-    top: 72px;
+@media (max-width: 900px) {
+  .contributors-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
+  .contributors-az {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 6px;
+    padding: 10px 8px;
+    position: sticky;
+    top: 76px;
+  }
+}
+@media (max-width: 640px) {
   .contributors-az-letter {
     font-size: 15px;
-    padding: 4px 4px;
-    min-width: 18px;
+    padding: 4px 6px;
+    min-width: 20px;
   }
 }
 /* Editorial two-column list, no card chrome. Mirrors the .week-grid
