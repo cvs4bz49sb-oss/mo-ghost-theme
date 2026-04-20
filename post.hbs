@@ -29,7 +29,7 @@
                      the Ghost staff author. Lets us credit 30+ writers without paying for
                      extra staff seats. When no author- tag exists, fall back to primary_author. --}}
                 <span class="meta-authors" data-byline>
-                    {{#foreach tags}}{{#match slug "=~" "^author-"}}
+                    {{#foreach tags}}{{#match slug "=~" "author-"}}
                         <a href="{{url}}" class="meta-author meta-author--contributor">
                             <div class="meta-avatar" aria-hidden="true">
                                 {{#if feature_image}}
@@ -132,7 +132,7 @@
             {{!-- Contributor bio block mirrors the byline override: any author- tag replaces
                  the staff author bio. One bio block per contributor tag on the post. --}}
             <div class="author-bio-contributors" data-bio>
-                {{#foreach tags}}{{#match slug "=~" "^author-"}}
+                {{#foreach tags}}{{#match slug "=~" "author-"}}
                     <div class="author-bio">
                         <div class="author-bio-avatar" aria-hidden="true">
                             {{#if feature_image}}
@@ -196,7 +196,7 @@
                             <p class="card-topic">{{primary_tag.name}}</p>
                         {{/if}}
                         <h3 class="card-title"><em>{{title}}</em></h3>
-                        <p class="card-byline byline-inline--contributors" data-byline>By {{#foreach tags}}{{#match slug "=~" "^author-"}}<span class="author byline-author">{{name}}</span>{{/match}}{{/foreach}}</p>
+                        <p class="card-byline byline-inline--contributors" data-byline>By {{#foreach tags}}{{#match slug "=~" "author-"}}<span class="author byline-author">{{name}}</span>{{/match}}{{/foreach}}</p>
                         <p class="card-byline byline-inline--fallback">{{#primary_author}}By <span class="author">{{name}}</span>{{/primary_author}}</p>
                         {{#if custom_excerpt}}
                             <p class="card-excerpt">{{custom_excerpt}}</p>

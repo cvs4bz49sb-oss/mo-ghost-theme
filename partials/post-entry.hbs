@@ -18,7 +18,7 @@
             {{!-- Contributor byline override: any author- slug tag replaces the staff author.
                  See post.hbs for the full convention note. --}}
             <p class="entry-byline entry-byline-contributors" data-byline>
-                {{#foreach tags}}{{#match slug "=~" "^author-"}}
+                {{#foreach tags}}{{#match slug "=~" "author-"}}
                     By <em class="entry-contributor">{{name}}</em>
                 {{/match}}{{/foreach}}
             </p>

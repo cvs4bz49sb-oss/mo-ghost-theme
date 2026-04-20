@@ -26,7 +26,7 @@
                             </div>
                             <p class="eyebrow">Today &middot; Featured</p>
                             <h3>{{title}}</h3>
-                            <p class="byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}{{#match slug "=~" "^author-"}}<em class="byline-author">{{name}}</em>{{/match}}{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<em>{{name}}</em>{{/primary_author}}</span> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
+                            <p class="byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}{{#match slug "=~" "author-"}}<em class="byline-author">{{name}}</em>{{/match}}{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<em>{{name}}</em>{{/primary_author}}</span> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
                             {{#if custom_excerpt}}
                                 <p class="excerpt hero-excerpt-dropcap">{{custom_excerpt}}</p>
                             {{else}}
@@ -70,7 +70,7 @@
                                         <p class="feature-excerpt feature-excerpt-dropcap">{{excerpt words="40"}}</p>
                                     {{/if}}
                                     <div class="feature-meta">
-                                        <p class="feature-byline byline-inline--contributors" data-byline>By {{#foreach tags}}{{#match slug "=~" "^author-"}}<em class="byline-author">{{name}}</em>{{/match}}{{/foreach}}</p>
+                                        <p class="feature-byline byline-inline--contributors" data-byline>By {{#foreach tags}}{{#match slug "=~" "author-"}}<em class="byline-author">{{name}}</em>{{/match}}{{/foreach}}</p>
                                         <p class="feature-byline byline-inline--fallback">{{#primary_author}}By <em>{{name}}</em>{{/primary_author}}</p>
                                         <p class="feature-date">{{date format="MMMM D"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
                                     </div>
@@ -109,7 +109,7 @@
                                         {{else}}
                                             <p class="card-excerpt">{{excerpt words="22"}}</p>
                                         {{/if}}
-                                        <p class="card-byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}{{#match slug "=~" "^author-"}}<span class="author byline-author">{{name}}</span>{{/match}}{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<span class="author">{{name}}</span>{{/primary_author}}</span> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
+                                        <p class="card-byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}{{#match slug "=~" "author-"}}<span class="author byline-author">{{name}}</span>{{/match}}{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<span class="author">{{name}}</span>{{/primary_author}}</span> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
                                     </a>
                                 </li>
                             {{/foreach}}

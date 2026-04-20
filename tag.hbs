@@ -4,7 +4,7 @@
 {{!-- Two layouts off the same template: "author-*" tag slugs render as a
      contributor bio page (photo, bio, their essays). Any other tag renders
      the standard filed-under archive layout. --}}
-{{#match slug "=~" "^author-"}}
+{{#match slug "=~" "author-"}}
 <header class="contributor-header">
     <div class="contributor-header-inner">
         {{#if feature_image}}
