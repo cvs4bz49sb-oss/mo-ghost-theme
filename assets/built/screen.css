@@ -4017,40 +4017,61 @@ body {
   position: sticky;
   top: 96px;
   z-index: 2;
-  transition: width 0.18s, padding 0.18s;
+  transition: padding 0.18s;
 }
 .contributors-az-toggle {
   background: none;
   border: 0;
-  padding: 2px 6px 6px;
+  padding: 4px 8px 8px;
   cursor: pointer;
   color: var(--color-muted);
   font-size: 18px;
   line-height: 1;
-  transition: color 0.15s, transform 0.18s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s, box-shadow 0.15s, padding 0.15s;
 }
 .contributors-az-toggle:hover { color: var(--color-primary); }
+.contributors-az-toggle-label { display: none; }
+.contributors-az-toggle-icon { display: inline-block; }
 .contributors-az-letters {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  transition: opacity 0.12s;
 }
 
-/* Collapsed state: rail shrinks to a narrow tab showing just the
-   toggle chevron, which rotates to point outward. Click restores. */
-.contributors-layout.is-az-collapsed { grid-template-columns: 32px 1fr; }
+/* Collapsed state: the rail wrapper loses its card chrome and the
+   toggle becomes a tan pill labeled "A–Z". Click expands the rail
+   back into the sidebar sticky column. */
+.contributors-layout.is-az-collapsed { grid-template-columns: 56px 1fr; }
 .contributors-layout.is-az-collapsed .contributors-az {
-  padding: 8px 4px;
+  border: 0;
+  background: transparent;
+  padding: 0;
 }
 .contributors-layout.is-az-collapsed .contributors-az-letters {
   display: none;
 }
-.contributors-layout.is-az-collapsed .contributors-az-toggle-icon {
-  display: inline-block;
-  transform: rotate(180deg);
+.contributors-layout.is-az-collapsed .contributors-az-toggle {
+  background: var(--color-card-border);
+  color: var(--color-dark);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  padding: 10px 14px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(45, 41, 39, 0.14);
 }
+.contributors-layout.is-az-collapsed .contributors-az-toggle:hover {
+  background: var(--color-background);
+  color: var(--color-dark);
+  box-shadow: 0 6px 16px rgba(45, 41, 39, 0.18);
+}
+.contributors-layout.is-az-collapsed .contributors-az-toggle-label { display: inline; }
+.contributors-layout.is-az-collapsed .contributors-az-toggle-icon { display: none; }
 .contributors-az-letter {
   font-family: var(--font-display);
   font-style: italic;

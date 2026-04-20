@@ -86,7 +86,8 @@
       lettersHtml += '<a href="#letter-num" class="contributors-az-letter" data-letter="#">#</a>';
     }
     rail.innerHTML =
-      '<button type="button" class="contributors-az-toggle" aria-label="Collapse alphabet jump rail" aria-expanded="true" data-az-toggle>' +
+      '<button type="button" class="contributors-az-toggle" aria-label="Expand alphabet jump rail" aria-expanded="false" data-az-toggle>' +
+        '<span class="contributors-az-toggle-label">A\u2013Z</span>' +
         '<span class="contributors-az-toggle-icon" aria-hidden="true">&lsaquo;</span>' +
       "</button>" +
       '<div class="contributors-az-letters" data-az-letters>' + lettersHtml + "</div>";
@@ -102,14 +103,23 @@
     var toggle = rail.querySelector("[data-az-toggle]");
     if (!layout || !toggle) return;
 
-    // Restore the previous collapsed state on load.
+    // Default to collapsed. Only expand if the user explicitly
+    // expanded it in a previous visit on this browser.
+    var expanded = false;
     try {
-      if (window.localStorage && localStorage.getItem(STORAGE_KEY) === "1") {
-        layout.classList.add("is-az-collapsed");
-        toggle.setAttribute("aria-expanded", "false");
-        toggle.setAttribute("aria-label", "Expand alphabet jump rail");
+      if (window.localStorage && localStorage.getItem(STORAGE_KEY) === "0") {
+        expanded = true;
       }
     } catch (e) { /* ignore */ }
+
+    if (!expanded) {
+      layout.classList.add("is-az-collapsed");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Expand alphabet jump rail");
+    } else {
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.setAttribute("aria-label", "Collapse alphabet jump rail");
+    }
 
     toggle.addEventListener("click", function () {
       var collapsed = layout.classList.toggle("is-az-collapsed");
