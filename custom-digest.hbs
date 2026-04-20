@@ -190,7 +190,9 @@
         out.push("<ul>" + lines.map(function (l) { return "<li>" + inline(l.replace(/^-\s+/, "")) + "</li>"; }).join("") + "</ul>");
         return;
       }
-      out.push("<p>" + inline(b.replace(/\n/g, "<br>")) + "</p>");
+      // Escape first (inline escapes <>&), THEN substitute newlines
+      // for real <br> so they survive the escape pass.
+      out.push("<p>" + inline(b).replace(/\n/g, "<br>") + "</p>");
     });
     return out.join("\n");
   }
