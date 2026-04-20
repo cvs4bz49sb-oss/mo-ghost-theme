@@ -123,6 +123,45 @@
     </div>
 </section>
 
+{{!-- PODCASTS: only rendered if a feed worker URL is configured --}}
+{{#if @custom.podcast_feed_url}}
+<section class="listen">
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">Listen</p>
+            <h2 class="section-heading"><em>Patient conversations.</em></h2>
+        </div>
+
+        {{!-- The listen-grid is populated client-side by
+             assets/js/podcast-feed.js, which merges both feeds from
+             the Cloudflare Worker and renders the 4 most recent
+             episodes across shows. The two static cards below are
+             the fallback when the worker is unreachable. Per-show
+             Apple/Spotify URLs come in via data-* attributes so the
+             renderer can build the platform links without
+             hardcoding. --}}
+        <div class="listen-grid listen-grid--podcasts"
+             data-mf-apple="{{@custom.podcast_mf_apple_url}}"
+             data-mf-spotify="{{@custom.podcast_mf_spotify_url}}"
+             data-crc-apple="{{@custom.podcast_crc_apple_url}}"
+             data-crc-spotify="{{@custom.podcast_crc_spotify_url}}">
+            <a href="#" class="pod-entry" data-show="mere-fidelity">
+                <p class="pod-topic">Mere Fidelity</p>
+                <h3 class="pod-title">Weekly conversations</h3>
+                <p class="pod-excerpt pod-excerpt-dropcap"><span class="pod-initial">A</span> weekly conversation on theology, culture, and the church.</p>
+                <span class="pod-listen-link">Listen &rarr;</span>
+            </a>
+            <a href="#" class="pod-entry" data-show="christians-reading-classics">
+                <p class="pod-topic">Christians Reading Classics</p>
+                <h3 class="pod-title">A slow walk</h3>
+                <p class="pod-excerpt pod-excerpt-dropcap"><span class="pod-initial">A</span> slow walk through the great books of the Christian and classical tradition, one volume at a time.</p>
+                <span class="pod-listen-link">Listen &rarr;</span>
+            </a>
+        </div>
+    </div>
+</section>
+{{/if}}
+
 {{!-- WEEKLY DIGEST --}}
 {{> "digest-cta"}}
 
@@ -193,45 +232,6 @@
         </div>
     </div>
 </section>
-
-{{!-- PODCASTS: only rendered if a feed worker URL is configured --}}
-{{#if @custom.podcast_feed_url}}
-<section class="listen">
-    <div class="container">
-        <div class="section-intro">
-            <p class="eyebrow">Listen</p>
-            <h2 class="section-heading"><em>Patient conversations.</em></h2>
-        </div>
-
-        {{!-- The listen-grid is populated client-side by
-             assets/js/podcast-feed.js, which merges both feeds from
-             the Cloudflare Worker and renders the 4 most recent
-             episodes across shows. The two static cards below are
-             the fallback when the worker is unreachable. Per-show
-             Apple/Spotify URLs come in via data-* attributes so the
-             renderer can build the platform links without
-             hardcoding. --}}
-        <div class="listen-grid listen-grid--podcasts"
-             data-mf-apple="{{@custom.podcast_mf_apple_url}}"
-             data-mf-spotify="{{@custom.podcast_mf_spotify_url}}"
-             data-crc-apple="{{@custom.podcast_crc_apple_url}}"
-             data-crc-spotify="{{@custom.podcast_crc_spotify_url}}">
-            <a href="#" class="pod-entry" data-show="mere-fidelity">
-                <p class="pod-topic">Mere Fidelity</p>
-                <h3 class="pod-title">Weekly conversations</h3>
-                <p class="pod-excerpt pod-excerpt-dropcap"><span class="pod-initial">A</span> weekly conversation on theology, culture, and the church.</p>
-                <span class="pod-listen-link">Listen &rarr;</span>
-            </a>
-            <a href="#" class="pod-entry" data-show="christians-reading-classics">
-                <p class="pod-topic">Christians Reading Classics</p>
-                <h3 class="pod-title">A slow walk</h3>
-                <p class="pod-excerpt pod-excerpt-dropcap"><span class="pod-initial">A</span> slow walk through the great books of the Christian and classical tradition, one volume at a time.</p>
-                <span class="pod-listen-link">Listen &rarr;</span>
-            </a>
-        </div>
-    </div>
-</section>
-{{/if}}
 
 {{!--
     Readers / testimonials section. Currently static. In a future iteration
