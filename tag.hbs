@@ -1,12 +1,14 @@
 {{!< default}}
 
-{{#tag}}
-{{!-- One wrapper with data-tag-slug; CSS prefix-selectors swap between
-     the contributor bio layout (for author-* slugs) and the plain
-     "Filed under" archive layout. Ghost's match helper has no regex
-     operator, so we can't branch in Handlebars. --}}
-<div class="tag-page" data-tag-slug="{{slug}}">
+{{!-- tag.hbs — two layouts off one template.
+     `{{#tag}}` scopes to tag properties (slug, name, description,
+     feature_image). `posts` is the top-level paginated post list
+     for this tag archive and must be iterated OUTSIDE the tag
+     block. --}}
 
+<div class="tag-page" data-tag-slug="{{#tag}}{{slug}}{{/tag}}">
+
+    {{#tag}}
     <header class="contributor-header tag-page-contributor">
         <div class="contributor-header-inner">
             {{#if feature_image}}
@@ -33,12 +35,13 @@
             {{/if}}
         </div>
     </header>
+    {{/tag}}
 
     <section class="archive-body">
         <div class="container">
             <div class="contributor-list-intro tag-page-contributor">
                 <p class="eyebrow">Essays</p>
-                <h2 class="section-heading"><em>By {{name}}</em></h2>
+                <h2 class="section-heading">{{#tag}}<em>By {{name}}</em>{{/tag}}</h2>
             </div>
 
             <div class="week-grid">
@@ -79,4 +82,3 @@
     </section>
 
 </div>
-{{/tag}}
