@@ -105,6 +105,10 @@
       "podcast_crc_spotify_url": {
         "type": "text",
         "description": "Spotify show URL for Christians Reading Classics."
+      },
+      "digest_worker_url": {
+        "type": "text",
+        "description": "Full URL of the deployed mo-digest Cloudflare Worker (e.g. https://mo-digest.mo-podcast-feed.workers.dev). Consumed by /digest/."
       }
     }
   }
