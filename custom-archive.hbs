@@ -34,11 +34,20 @@
                      data-page="{{pagination.page}}"
                      data-pages="{{pagination.pages}}"
                      data-base="/archive/">
-                    {{#if pagination.prev}}
-                        <a href="{{page_url pagination.prev}}" class="pagination-prev" rel="prev">&larr; Recent</a>
-                    {{else}}
-                        <span class="pagination-prev is-disabled" aria-hidden="true">&larr; Recent</span>
-                    {{/if}}
+                    <span class="pagination-prev-group">
+                        {{!-- Latest = page 1 (newest). Always rendered;
+                             disabled when already on page 1. --}}
+                        {{#match pagination.page ">" 1}}
+                            <a href="{{page_url 1}}" class="pagination-first">&larr; Latest</a>
+                        {{else}}
+                            <span class="pagination-first is-disabled" aria-hidden="true">&larr; Latest</span>
+                        {{/match}}
+                        {{#if pagination.prev}}
+                            <a href="{{page_url pagination.prev}}" class="pagination-prev" rel="prev">&larr; Back</a>
+                        {{else}}
+                            <span class="pagination-prev is-disabled" aria-hidden="true">&larr; Back</span>
+                        {{/if}}
+                    </span>
 
                     <ol class="pagination-pages" data-pagination-pages aria-label="Page">
                         {{!-- JS replaces this fallback with the full windowed list. --}}
@@ -51,7 +60,11 @@
                         {{else}}
                             <span class="pagination-next is-disabled" aria-hidden="true">Next &rarr;</span>
                         {{/if}}
-                        {{#unless @last}}{{/unless}}
+                        {{#match pagination.page "<" pagination.pages}}
+                            <a href="{{page_url pagination.pages}}" class="pagination-last">Last &rarr;</a>
+                        {{else}}
+                            <span class="pagination-last is-disabled" aria-hidden="true">Last &rarr;</span>
+                        {{/match}}
                     </span>
                 </nav>
             {{/if}}
@@ -109,17 +122,5 @@
     list.appendChild(li);
     prev = n;
   });
-
-  // Last-page jump link, rendered only when we're not already there.
-  if (page < pages) {
-    var group = nav.querySelector('.pagination-next-group');
-    if (group) {
-      var last = document.createElement('a');
-      last.href = url(pages);
-      last.className = 'pagination-last';
-      last.innerHTML = 'Last &rarr;';
-      group.appendChild(last);
-    }
-  }
 })();
 </script>

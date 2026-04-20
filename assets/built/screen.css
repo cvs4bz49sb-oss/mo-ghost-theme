@@ -2443,6 +2443,7 @@ body {
 .pagination--numbered .pagination-num:hover { color: var(--color-primary); }
 .pagination--numbered .pagination-current { color: var(--color-dark); }
 .pagination--numbered .pagination-ellipsis { color: var(--color-muted); }
+.pagination--numbered .pagination-prev-group,
 .pagination--numbered .pagination-next-group { display: inline-flex; gap: 14px; align-items: baseline; }
 .pagination--numbered .is-disabled { opacity: 0.35; }
 @media (max-width: 640px) {
