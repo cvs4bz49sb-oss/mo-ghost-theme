@@ -3743,6 +3743,7 @@ body {
   gap: 40px;
   align-items: center;
 }
+.contributor-header-inner:not(:has(.contributor-portrait)) { grid-template-columns: 1fr; text-align: left; }
 .contributor-portrait {
   width: 180px;
   height: 180px;
