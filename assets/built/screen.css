@@ -542,7 +542,7 @@ img { max-width: 100%; height: auto; }
 /* -------- Today (featured) -------- */
 
 .today {
-  padding: 96px 0 72px;
+  padding: 96px 0 40px;
   background: var(--color-page);
 }
 
@@ -930,7 +930,7 @@ img { max-width: 100%; height: auto; }
 /* -------- Weekly Digest (typographic signup) -------- */
 
 .digest-section {
-  padding: 56px 0;
+  padding: 32px 0 56px;
   background: var(--color-page);
   position: relative;
 }
@@ -1322,7 +1322,7 @@ img { max-width: 100%; height: auto; }
 /* -------- Podcasts (book-page entries) -------- */
 
 .listen {
-  padding: 96px 0;
+  padding: 40px 0;
   background: var(--color-page);
 }
 
