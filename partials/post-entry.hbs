@@ -3,9 +3,14 @@
         <div class="entry-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="m"}});"{{/if}}></div>
     </div>
     <div class="entry-text">
-        {{#if primary_tag}}
-            <p class="entry-topic">{{primary_tag.name}}</p>
-        {{/if}}
+        {{!-- Eyebrow topic: first non-author tag. Ghost's primary_tag
+             returns whichever tag is first in tag order, which is often
+             an author- contributor tag on this site. We render every
+             tag as a candidate and let CSS pick the first one whose
+             slug doesn't start with "author-". --}}
+        <p class="entry-topic entry-topic--candidates" data-topic>
+            {{#foreach tags}}<span class="entry-topic-tag" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}
+        </p>
         <h3 class="entry-title">{{title}}</h3>
         {{#if custom_excerpt}}
             <p class="entry-excerpt entry-excerpt-dropcap">{{custom_excerpt}}</p>
