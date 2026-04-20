@@ -4091,7 +4091,7 @@ body {
 }
 .about-hero .hero-sub {
   max-width: 520px;
-  margin: 0;
+  margin: 0 0 56px;
   font-style: italic;
 }
 .about-hero-image {
@@ -4117,7 +4117,7 @@ body {
   white-space: nowrap;
 }
 
-.about-body { padding: 300px 0 32px; }
+.about-body { padding: 160px 0 32px; }
 .about-prose { max-width: 640px; margin: 0 auto; }
 .about-prose + .about-prose { margin-top: 24px; }
 .about-prose p {
