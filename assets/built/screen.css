@@ -4498,3 +4498,9 @@ body {
 .entry-byline-contributors[data-byline]:not(:has([data-tag-slug^="author-"])) { display: none; }
 .feature-byline.byline-inline--contributors[data-byline]:not(:has([data-tag-slug^="author-"])) { display: none; }
 
+/* Homepage includes the full membership body at the bottom, which
+   has its own Readers testimonial section. The homepage already has
+   its own Readers section higher up, so hide the duplicate from
+   the inlined membership body. */
+.homepage-membership .readers { display: none; }
+
