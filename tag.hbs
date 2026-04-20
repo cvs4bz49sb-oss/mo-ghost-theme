@@ -1,117 +1,82 @@
 {{!< default}}
 
 {{#tag}}
-{{!-- Two layouts off the same template: "author-*" tag slugs render as a
-     contributor bio page (photo, bio, their essays). Any other tag renders
-     the standard filed-under archive layout. --}}
-{{#match slug "=~" "author-"}}
-<header class="contributor-header">
-    <div class="contributor-header-inner">
-        {{#if feature_image}}
-            <div class="contributor-portrait" aria-hidden="true">
-                <img src="{{img_url feature_image size="m"}}" alt="{{name}}" />
+{{!-- One wrapper with data-tag-slug; CSS prefix-selectors swap between
+     the contributor bio layout (for author-* slugs) and the plain
+     "Filed under" archive layout. Ghost's match helper has no regex
+     operator, so we can't branch in Handlebars. --}}
+<div class="tag-page" data-tag-slug="{{slug}}">
+
+    <header class="contributor-header tag-page-contributor">
+        <div class="contributor-header-inner">
+            {{#if feature_image}}
+                <div class="contributor-portrait" aria-hidden="true">
+                    <img src="{{img_url feature_image size="m"}}" alt="{{name}}" />
+                </div>
+            {{/if}}
+            <div class="contributor-header-body">
+                <p class="eyebrow">Contributor</p>
+                <h1><em>{{name}}</em></h1>
+                {{#if description}}
+                    <p class="contributor-bio">{{description}}</p>
+                {{/if}}
             </div>
-        {{/if}}
-        <div class="contributor-header-body">
-            <p class="eyebrow">Contributor</p>
+        </div>
+    </header>
+
+    <header class="archive-header tag-page-archive">
+        <div class="archive-header-inner">
+            <p class="eyebrow">Filed under</p>
             <h1><em>{{name}}</em></h1>
             {{#if description}}
-                <p class="contributor-bio">{{description}}</p>
+                <p class="archive-description">{{description}}</p>
             {{/if}}
         </div>
-    </div>
-</header>
+    </header>
 
-<section class="archive-body">
-    <div class="container">
-        <div class="contributor-list-intro">
-            <p class="eyebrow">Essays</p>
-            <h2 class="section-heading"><em>By {{name}}</em></h2>
-        </div>
-        <div class="week-grid">
-            {{#foreach posts}}
-                {{> "post-entry"}}
-            {{/foreach}}
-        </div>
+    <section class="archive-body">
+        <div class="container">
+            <div class="contributor-list-intro tag-page-contributor">
+                <p class="eyebrow">Essays</p>
+                <h2 class="section-heading"><em>By {{name}}</em></h2>
+            </div>
 
-        {{#if pagination.pages}}
-            {{#if pagination.total}}
-                {{#if pagination.prev}}
-                    {{#unless pagination.next}}
+            <div class="week-grid">
+                {{#foreach posts}}
+                    {{> "post-entry"}}
+                {{/foreach}}
+            </div>
+
+            {{#if pagination.pages}}
+                {{#if pagination.total}}
+                    {{#if pagination.prev}}
+                        {{#unless pagination.next}}
+                            <nav class="pagination" aria-label="Pagination">
+                                <a href="{{page_url pagination.prev}}">&larr; Previous</a>
+                                <span class="pagination-spacer"></span>
+                                <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
+                                <span class="pagination-spacer"></span>
+                                <span></span>
+                            </nav>
+                        {{/unless}}
+                    {{/if}}
+                    {{#if pagination.next}}
                         <nav class="pagination" aria-label="Pagination">
-                            <a href="{{page_url pagination.prev}}">&larr; Previous</a>
+                            {{#if pagination.prev}}
+                                <a href="{{page_url pagination.prev}}">&larr; Previous</a>
+                            {{else}}
+                                <span></span>
+                            {{/if}}
                             <span class="pagination-spacer"></span>
                             <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
                             <span class="pagination-spacer"></span>
-                            <span></span>
+                            <a href="{{page_url pagination.next}}">Next &rarr;</a>
                         </nav>
-                    {{/unless}}
-                {{/if}}
-                {{#if pagination.next}}
-                    <nav class="pagination" aria-label="Pagination">
-                        {{#if pagination.prev}}
-                            <a href="{{page_url pagination.prev}}">&larr; Previous</a>
-                        {{else}}
-                            <span></span>
-                        {{/if}}
-                        <span class="pagination-spacer"></span>
-                        <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
-                        <span class="pagination-spacer"></span>
-                        <a href="{{page_url pagination.next}}">Next &rarr;</a>
-                    </nav>
+                    {{/if}}
                 {{/if}}
             {{/if}}
-        {{/if}}
-    </div>
-</section>
-{{else}}
-<header class="archive-header">
-    <div class="archive-header-inner">
-        <p class="eyebrow">Filed under</p>
-        <h1><em>{{name}}</em></h1>
-        {{#if description}}
-            <p class="archive-description">{{description}}</p>
-        {{/if}}
-    </div>
-</header>
-
-<section class="archive-body">
-    <div class="container">
-        <div class="week-grid">
-            {{#foreach posts}}
-                {{> "post-entry"}}
-            {{/foreach}}
         </div>
+    </section>
 
-        {{#if pagination.pages}}
-            {{#if pagination.total}}
-                {{#if pagination.prev}}
-                    {{#unless pagination.next}}
-                        <nav class="pagination" aria-label="Pagination">
-                            <a href="{{page_url pagination.prev}}">&larr; Previous</a>
-                            <span class="pagination-spacer"></span>
-                            <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
-                            <span class="pagination-spacer"></span>
-                            <span></span>
-                        </nav>
-                    {{/unless}}
-                {{/if}}
-                {{#if pagination.next}}
-                    <nav class="pagination" aria-label="Pagination">
-                        {{#if pagination.prev}}
-                            <a href="{{page_url pagination.prev}}">&larr; Previous</a>
-                        {{else}}
-                            <span></span>
-                        {{/if}}
-                        <span class="pagination-spacer"></span>
-                        <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
-                        <span class="pagination-spacer"></span>
-                        <a href="{{page_url pagination.next}}">Next &rarr;</a>
-                    </nav>
-                {{/if}}
-            {{/if}}
-        {{/if}}
-    </div>
-</section>
-{{/match}}
+</div>
 {{/tag}}

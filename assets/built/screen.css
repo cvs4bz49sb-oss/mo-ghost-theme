@@ -3686,19 +3686,47 @@ body {
 /* Byline hide/show: if the contributors span has any child <a>,
    the fallback (staff author byline) is suppressed so guest
    authors override Ghost's author without losing fallback. */
-.meta-authors[data-byline]:not(:has(.meta-author--contributor)) + .meta-authors-fallback { display: flex; align-items: center; gap: 14px; }
-.meta-authors[data-byline]:has(.meta-author--contributor) + .meta-authors-fallback { display: none; }
-.meta-authors[data-byline]:has(.meta-author--contributor) { display: flex; align-items: center; gap: 14px; }
-.meta-authors[data-byline]:not(:has(.meta-author--contributor)) { display: none; }
-.meta-author--contributor + .meta-author--contributor { border-left: 1px solid var(--color-card-border); padding-left: 14px; margin-left: 14px; }
+/* Contributor byline filtering — CSS attribute prefix selectors
+   handle the "any tag whose slug starts with author-" check since
+   Ghost's match helper has no regex operator. Candidates are every
+   tag on the post; CSS shows only the author-* ones and hides the
+   staff fallback when one exists. */
+.meta-authors[data-byline] .meta-author--candidate { display: none; }
+.meta-authors[data-byline] .meta-author--candidate[data-tag-slug^="author-"] { display: flex; align-items: center; gap: 14px; }
+.meta-authors[data-byline]:has([data-tag-slug^="author-"]) + .meta-authors-fallback { display: none; }
+.meta-authors[data-byline] .meta-author--candidate[data-tag-slug^="author-"] + .meta-author--candidate[data-tag-slug^="author-"] {
+  border-left: 1px solid var(--color-card-border);
+  padding-left: 14px;
+  margin-left: 14px;
+}
 
-.entry-byline-contributors[data-byline]:empty { display: none; }
-.entry-byline-contributors[data-byline]:not(:empty) + .entry-byline-fallback { display: none; }
-.entry-byline-contributors[data-byline] .entry-contributor + .entry-contributor::before { content: ", "; }
+.entry-byline-contributors[data-byline] .entry-contributor--candidate { display: none; }
+.entry-byline-contributors[data-byline] .entry-contributor--candidate[data-tag-slug^="author-"] { display: inline; font-style: italic; }
+.entry-byline-contributors[data-byline]:has([data-tag-slug^="author-"]) + .entry-byline-fallback { display: none; }
+.entry-byline-contributors[data-byline]:not(:has([data-tag-slug^="author-"])) .entry-byline-prefix { display: none; }
+.entry-byline-contributors[data-byline] .entry-contributor--candidate[data-tag-slug^="author-"] + .entry-contributor--candidate[data-tag-slug^="author-"]::before { content: ", "; }
 
-.author-bio-contributors[data-bio]:empty { display: none; }
-.author-bio-contributors[data-bio]:not(:empty) + .author-bio-fallback { display: none; }
-.author-bio-contributors[data-bio] .author-bio + .author-bio { margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--color-card-border); }
+.byline-inline--contributors[data-byline] .byline-author--candidate { display: none; }
+.byline-inline--contributors[data-byline] .byline-author--candidate[data-tag-slug^="author-"] { display: inline; }
+.byline-inline--contributors[data-byline]:has([data-tag-slug^="author-"]) + .byline-inline--fallback { display: none; }
+.byline-inline--contributors[data-byline] .byline-author--candidate[data-tag-slug^="author-"] + .byline-author--candidate[data-tag-slug^="author-"]::before { content: ", "; }
+
+.author-bio-contributors[data-bio] .author-bio--candidate { display: none; }
+.author-bio-contributors[data-bio] .author-bio--candidate[data-tag-slug^="author-"] { display: flex; }
+.author-bio-contributors[data-bio]:has([data-tag-slug^="author-"]) + .author-bio-fallback { display: none; }
+.author-bio-contributors[data-bio] .author-bio--candidate[data-tag-slug^="author-"] + .author-bio--candidate[data-tag-slug^="author-"] {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-card-border);
+}
+
+/* tag.hbs swap: .tag-page[data-tag-slug^="author-"] shows the
+   contributor layout; non-author slugs show the archive layout. */
+.tag-page-contributor { display: none; }
+.tag-page-archive { display: block; }
+.tag-page[data-tag-slug^="author-"] .tag-page-contributor { display: block; }
+.tag-page[data-tag-slug^="author-"] .tag-page-archive { display: none; }
+.tag-page[data-tag-slug^="author-"] .contributor-header-inner { display: grid; grid-template-columns: 180px 1fr; gap: 40px; align-items: center; }
 
 /* Contributor bio page (tag.hbs author-* branch) */
 .contributor-header {
