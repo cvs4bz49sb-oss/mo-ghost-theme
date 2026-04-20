@@ -109,6 +109,10 @@
       "digest_worker_url": {
         "type": "text",
         "description": "Full URL of the deployed mo-digest Cloudflare Worker (e.g. https://mo-digest.mo-podcast-feed.workers.dev). Consumed by /digest/."
+      },
+      "digest_auth_token": {
+        "type": "text",
+        "description": "Shared secret matching DIGEST_AUTH_TOKEN on the mo-digest Worker. When set, /digest/ auto-fills the auth field so you don't type it every time. Visible in page source — anyone who loads /digest/ can read it, so treat this page as semi-private."
       }
     }
   }

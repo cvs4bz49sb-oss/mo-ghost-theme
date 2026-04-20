@@ -69,6 +69,7 @@
 <script>
 (function () {
   var WORKER = {{#if @custom.digest_worker_url}}"{{@custom.digest_worker_url}}"{{else}}""{{/if}};
+  var PREFILL_TOKEN = {{#if @custom.digest_auth_token}}"{{@custom.digest_auth_token}}"{{else}}""{{/if}};
   var STORAGE = "mo_digest_token";
 
   var tokenInput = document.getElementById("digest-token");
@@ -87,7 +88,14 @@
     return;
   }
 
-  try { tokenInput.value = localStorage.getItem(STORAGE) || ""; } catch (_) {}
+  // Preference: admin-injected token > localStorage > empty.
+  try {
+    var stored = localStorage.getItem(STORAGE) || "";
+    tokenInput.value = PREFILL_TOKEN || stored;
+    if (PREFILL_TOKEN) { try { localStorage.setItem(STORAGE, PREFILL_TOKEN); } catch (_) {} }
+  } catch (_) {
+    tokenInput.value = PREFILL_TOKEN || "";
+  }
   tokenInput.addEventListener("input", function () {
     tokenInput.value = tokenInput.value.replace(/[^\x20-\x7E]/g, "");
     try { localStorage.setItem(STORAGE, tokenInput.value); } catch (_) {}
