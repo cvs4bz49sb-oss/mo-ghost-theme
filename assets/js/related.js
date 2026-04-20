@@ -1,13 +1,17 @@
 /*
  * Related posts ("More on this theme") replacer.
  *
- * The server renders the grid server-side via {{#get}} with primary_tag,
- * which is wrong when Ghost assigns an author-<slug> tag as primary
- * (contributor tagging convention). This script quietly replaces the
- * grid using Ghost's Content API, picking the first public tag whose
- * slug doesn't start with "author-" so the matches are topical, not
- * by-author. If the API key isn't configured or the fetch fails, the
- * server-rendered fallback stays in place.
+ * The server renders the grid via {{#get}} with primary_tag, which is
+ * wrong when Ghost assigns an author-<slug> tag as primary (contributor
+ * tagging convention). This script swaps the grid using Ghost's
+ * Content API, picking the first public tag whose slug doesn't start
+ * with "author-" so matches are topical, not by-author. If the API key
+ * isn't configured or the fetch fails, the server-rendered fallback
+ * stays in place.
+ *
+ * Output mirrors the post-entry partial (.entry / .entry-plate /
+ * .entry-text) so the Read Next section visually matches This Week
+ * and the archive listing.
  */
 (function () {
   var section = document.querySelector("[data-related]");
@@ -32,44 +36,50 @@
   var API_BASE = (window.location.origin || "") + "/ghost/api/content";
   var url = API_BASE + "/posts/?key=" + encodeURIComponent(API_KEY) +
     "&filter=" + encodeURIComponent("tag:" + topicSlug + "+id:-" + postId) +
-    "&limit=3&include=tags,authors&fields=id,url,title,feature_image,custom_excerpt,excerpt,published_at,reading_time";
+    "&limit=4&include=tags,authors&fields=id,url,title,feature_image,custom_excerpt,excerpt,published_at,reading_time";
 
   fetch(url, { cache: "default" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       if (!data || !Array.isArray(data.posts) || !data.posts.length) return;
-      grid.innerHTML = data.posts.map(renderCard).join("");
+      grid.innerHTML = data.posts.map(renderEntry).join("");
     })
     .catch(function () { /* leave server render */ });
 
-  function renderCard(p) {
-    var media = p.feature_image
-      ? '<div class="card-media" style="background-image: url(' + escapeAttr(p.feature_image) + ');"></div>'
-      : '<div class="card-media mock-1"></div>';
+  function renderEntry(p) {
+    var plateStyle = p.feature_image
+      ? ' style="background-image: url(' + escapeAttr(p.feature_image) + ');"'
+      : "";
 
     var topicTags = (p.tags || [])
       .map(function (t) {
-        return '<span class="card-topic-tag" data-tag-slug="' + escapeAttr(t.slug) + '">' + escapeHtml(t.name) + '</span>';
+        return '<span class="entry-topic-tag" data-tag-slug="' + escapeAttr(t.slug) + '">' + escapeHtml(t.name) + '</span>';
       })
       .join("");
-    var topic = '<p class="card-topic card-topic--candidates" data-topic>' + topicTags + '</p>';
-
-    var bylineTags = (p.tags || [])
-      .map(function (t) {
-        return '<span class="author byline-author byline-author--candidate" data-tag-slug="' + escapeAttr(t.slug) + '">' + escapeHtml(t.name) + '</span>';
-      })
-      .join("");
-    var byline = '<p class="card-byline byline-inline--contributors" data-byline>By ' + bylineTags + '</p>';
-    var fallbackAuthor = (p.authors && p.authors[0]) ? p.authors[0].name : (p.primary_author && p.primary_author.name) || "";
-    var fallback = fallbackAuthor
-      ? '<p class="card-byline byline-inline--fallback">By <span class="author">' + escapeHtml(fallbackAuthor) + "</span></p>"
-      : "";
+    var topic = '<p class="entry-topic entry-topic--candidates" data-topic>' + topicTags + '</p>';
 
     var excerptText = p.custom_excerpt || p.excerpt || "";
     excerptText = String(excerptText).replace(/\s+/g, " ").trim();
-    if (excerptText.length > 160) excerptText = excerptText.slice(0, 160).replace(/\s+\S*$/, "") + "\u2026";
+    if (excerptText.length > 180) excerptText = excerptText.slice(0, 180).replace(/\s+\S*$/, "") + "\u2026";
     var excerpt = excerptText
-      ? '<p class="card-excerpt">' + escapeHtml(excerptText) + "</p>"
+      ? '<p class="entry-excerpt entry-excerpt-dropcap">' +
+          '<span class="entry-initial">' + escapeHtml(excerptText.charAt(0)) + "</span>" +
+          escapeHtml(excerptText.slice(1)) +
+        "</p>"
+      : "";
+
+    var contributorTags = (p.tags || [])
+      .map(function (t) {
+        return '<em class="entry-contributor entry-contributor--candidate" data-tag-slug="' + escapeAttr(t.slug) + '">' + escapeHtml(t.name) + '</em>';
+      })
+      .join("");
+    var contributorLine =
+      '<p class="entry-byline entry-byline-contributors" data-byline>' +
+        '<span class="entry-byline-prefix">By </span>' + contributorTags +
+      "</p>";
+    var fallbackAuthor = (p.authors && p.authors[0] && p.authors[0].name) || "";
+    var fallbackLine = fallbackAuthor
+      ? '<p class="entry-byline entry-byline-fallback">By <em>' + escapeHtml(fallbackAuthor) + "</em></p>"
       : "";
 
     var dateStr = "";
@@ -81,22 +91,24 @@
     }
     var mins = p.reading_time ? (p.reading_time + " min read") : "";
     var metaBits = [dateStr, mins].filter(Boolean).join(" \u00b7 ");
-    var meta =
-      '<div class="card-meta">' +
-        '<span>' + escapeHtml(metaBits) + "</span>" +
-        '<span class="read-more">Read &rarr;</span>' +
-      "</div>";
+    var dateLine = metaBits
+      ? '<p class="entry-date">' + escapeHtml(metaBits) + "</p>"
+      : "";
 
     return (
-      '<a href="' + escapeAttr(p.url) + '" class="article-card">' +
-        media +
-        '<div class="card-body">' +
+      '<a href="' + escapeAttr(p.url) + '" class="entry">' +
+        '<div class="entry-plate">' +
+          '<div class="entry-plate-inner"' + plateStyle + "></div>" +
+        "</div>" +
+        '<div class="entry-text">' +
           topic +
-          '<h3 class="card-title"><em>' + escapeHtml(p.title) + "</em></h3>" +
-          byline +
-          fallback +
+          '<h3 class="entry-title">' + escapeHtml(p.title) + "</h3>" +
           excerpt +
-          meta +
+          '<div class="entry-meta">' +
+            contributorLine +
+            fallbackLine +
+            dateLine +
+          "</div>" +
         "</div>" +
       "</a>"
     );

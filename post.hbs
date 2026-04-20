@@ -174,47 +174,31 @@
     </div>
 </article>
 
-{{!-- RELATED
-     Server renders the current server-side fallback (filter by primary_tag).
-     If Ghost assigned an author-* tag as primary, the fallback will be
-     "posts by the same contributor." A tiny progressive-enhancement
-     script in assets/js/related.js replaces the grid using Ghost's
-     Content API when a key is configured, picking the first non-author
-     tag for "more on this theme". --}}
+{{!-- RELATED — visual twin of "This Week" on the homepage. Uses the
+     post-entry partial and .week-grid so the card treatment stays
+     consistent across the site. Server renders a primary_tag-based
+     fallback; assets/js/related.js swaps it for a first-non-author
+     tag match when a Content API key is configured. --}}
 {{#if primary_tag}}
 <section class="related"
          data-related
          data-post-id="{{id}}"
          data-tag-slugs="{{#foreach tags visibility="public"}}{{slug}}{{#unless @last}},{{/unless}}{{/foreach}}">
-    <div class="section-intro">
-        <p class="eyebrow">Read Next</p>
-        <h2 class="section-heading"><em>More on this theme.</em></h2>
-    </div>
-    <div class="related-grid" data-related-grid>
-        {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="3" include="authors,tags"}}
-            {{#foreach posts}}
-                <a href="{{url}}" class="article-card">
-                    <div class="card-media"{{#if feature_image}} style="background-image: url({{img_url feature_image size="m"}});"{{else}} class="card-media mock-1"{{/if}}></div>
-                    <div class="card-body">
-                        <p class="card-topic card-topic--candidates" data-topic>
-                            {{#foreach tags visibility="public"}}<span class="card-topic-tag" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}
-                        </p>
-                        <h3 class="card-title"><em>{{title}}</em></h3>
-                        <p class="card-byline byline-inline--contributors" data-byline>By {{#foreach tags}}<span class="author byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}</p>
-                        <p class="card-byline byline-inline--fallback">{{#primary_author}}By <span class="author">{{name}}</span>{{/primary_author}}</p>
-                        {{#if custom_excerpt}}
-                            <p class="card-excerpt">{{custom_excerpt}}</p>
-                        {{else}}
-                            <p class="card-excerpt">{{excerpt words="24"}}</p>
-                        {{/if}}
-                        <div class="card-meta">
-                            <span>{{date format="MMMM D"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</span>
-                            <span class="read-more">Read &rarr;</span>
-                        </div>
-                    </div>
-                </a>
-            {{/foreach}}
-        {{/get}}
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">Read Next</p>
+            <h2 class="section-heading"><em>More on this theme.</em></h2>
+        </div>
+
+        <div class="flourish"><span class="flourish-mark">&para;</span></div>
+
+        <div class="week-grid" data-related-grid>
+            {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="4" include="authors,tags"}}
+                {{#foreach posts}}
+                    {{> "post-entry"}}
+                {{/foreach}}
+            {{/get}}
+        </div>
     </div>
 </section>
 {{/if}}
