@@ -2597,7 +2597,10 @@ body {
   .week-grid::before, .listen-grid::before, .readers-grid::before, .readers-grid::after { display: none; }
 
   .hero { padding: 48px 0 64px; }
-  .today, .this-week, .listen, .readers, .journal-band { padding: 64px 0; }
+  .this-week, .readers, .journal-band { padding: 64px 0; }
+  .today { padding: 48px 0 24px; }
+  .listen { padding: 24px 0; }
+  .digest-section { padding: 24px 0 48px; }
   .membership-cta { padding: 72px 0; }
   .nav-actions .sign-in { display: none; }
 
