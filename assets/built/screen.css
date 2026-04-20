@@ -4491,4 +4491,3 @@ body {
    fallback in that case. */
 .byline-inline--contributors[data-byline]:empty { display: none; }
 .byline-inline--contributors[data-byline]:not(:empty) + .byline-inline--fallback { display: none; }
-.byline-inline--contributors[data-byline] .byline-author + .byline-author::before { content: ", "; }

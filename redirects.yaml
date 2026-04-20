@@ -1,17 +1,13 @@
 # Ghost URL redirects for Mere Orthodoxy.
 #
 # Ghost treats redirects.yaml as site config, not theme content, so it
-# is NOT included in theme deploys (the GitHub Action zips exclude
-# it). Upload once via Ghost Admin -> Settings -> Labs -> Redirects ->
-# Upload redirects file. Re-upload only when redirects change.
-#
-# Format: each entry has `from` (regex), `to` (target), and optional
-# `permanent: true` for 301 (default is 302).
+# is NOT included in theme deploys. Upload once via Ghost Admin ->
+# Settings -> Labs -> Redirects -> Upload redirects file. Re-upload only
+# when redirects change.
 
-- from: ^/tag/author-(.*)/?$
-  to: /contributors/$1/
-  permanent: true
-
+# Ghost's default /author/{slug}/ URLs aren't used by this theme —
+# guest authors live as tags, not Ghost users. Send any stragglers to
+# the tag-style contributor page.
 - from: ^/author/(.*)/?$
-  to: /contributors/$1/
+  to: /tag/author-$1/
   permanent: true
