@@ -190,7 +190,7 @@
             <h2 class="section-heading"><em>More on this theme.</em></h2>
         </div>
 
-        <div class="flourish"><span class="flourish-mark">&para;</span></div>
+        <div class="flourish">{{> "flourish-mark"}}</div>
 
         <div class="week-grid" data-related-grid>
             {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="4" include="authors,tags"}}

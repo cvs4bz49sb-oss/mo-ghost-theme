@@ -1145,12 +1145,16 @@ img { max-width: 100%; height: auto; }
   height: 1px;
   background: var(--color-card-border);
 }
+/* Heart-aflame divider mark rendered as an inline SVG by the shared
+   flourish-mark partial. Uses currentColor so it inherits from the
+   surrounding context (primary orange by default). */
 .flourish-mark {
-  font-family: var(--font-display);
-  font-style: italic;
+  width: 22px;
+  height: 22px;
   color: var(--color-primary);
-  font-size: 22px;
-  line-height: 1;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 /* -------- This Week (book-page entries) -------- */
@@ -1668,10 +1672,10 @@ img { max-width: 100%; height: auto; }
   background: var(--color-page);
   color: var(--color-primary);
 }
-.quill {
-  width: 28px;
-  height: 28px;
-  color: var(--color-primary);
+/* Footer flourish uses the same heart-aflame mark at a larger size. */
+.closing-flourish .flourish-mark {
+  width: 30px;
+  height: 30px;
 }
 .wordmark {
   font-family: var(--font-display);
