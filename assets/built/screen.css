@@ -4508,3 +4508,21 @@ body {
    editorial categories. */
 .topics .topic-pill[data-tag-slug^="author-"] { display: none; }
 
+
+/* Listen grid in "podcasts" mode — merges both feeds into the 4
+   most-recent episodes, so swap the 2-col layout for a 4-col grid
+   on desktop (2×2 on tablet, stacked on mobile) and kill the
+   centered hairline separator from the default listen-grid. */
+.listen-grid--podcasts {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 40px;
+  row-gap: 40px;
+  max-width: 1180px;
+}
+.listen-grid--podcasts::before { display: none; }
+@media (max-width: 1024px) {
+  .listen-grid--podcasts { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 48px; }
+}
+@media (max-width: 640px) {
+  .listen-grid--podcasts { grid-template-columns: 1fr; row-gap: 28px; }
+}
