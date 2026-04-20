@@ -22,14 +22,25 @@
   // client-side so a single show can't hog the layout when the other
   // is quiet.
   var url = FEED_URL + (FEED_URL.indexOf("?") > -1 ? "&" : "?") + "limit=5";
+  console.log("[podcast-feed] fetching", url);
   fetch(url, { cache: "default" })
-    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (r) {
+      console.log("[podcast-feed] response", r.status, r.ok);
+      return r.ok ? r.json() : null;
+    })
     .then(function (data) {
-      if (!data) return;
+      if (!data) {
+        console.warn("[podcast-feed] no data returned; keeping fallback");
+        return;
+      }
+      console.log("[podcast-feed] shows:", Object.keys(data));
       var all = [];
       Object.keys(data).forEach(function (slug) {
         var payload = data[slug];
-        if (!payload || payload.error || !Array.isArray(payload.episodes)) return;
+        if (!payload || payload.error || !Array.isArray(payload.episodes)) {
+          console.warn("[podcast-feed] skipping", slug, payload && payload.error);
+          return;
+        }
         var showTitle = (payload.show && payload.show.title) || slug;
         payload.episodes.forEach(function (ep) {
           if (!ep) return;
@@ -47,13 +58,17 @@
         });
       });
 
+      console.log("[podcast-feed] episodes collected:", all.length);
       if (!all.length) return;
       all.sort(function (a, b) { return b.ts - a.ts; });
       var top = all.slice(0, 4);
 
       grid.innerHTML = top.map(renderCard).join("");
+      console.log("[podcast-feed] rendered", top.length, "cards");
     })
-    .catch(function () { /* static fallback stays */ });
+    .catch(function (err) {
+      console.error("[podcast-feed] fetch failed:", err);
+    });
 
   function renderCard(ep) {
     var date = ep.ts
