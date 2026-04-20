@@ -4314,18 +4314,47 @@ body {
   max-width: 780px;
   margin: 56px auto 0;
 }
-.digest-output textarea {
+/* Rendered preview: Georgia body, 15pt, 1.5 line-height per the
+   editorial spec. Contenteditable so the user can tweak the draft
+   in-place. Source-mode override flips to monospace so edits to
+   raw Markdown stay readable. */
+.digest-output-body {
   width: 100%;
   min-height: 520px;
-  padding: 24px;
+  padding: 28px 32px;
   border: 1px solid var(--color-card-border);
   border-radius: 8px;
   background: var(--color-white);
-  resize: vertical;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15pt;
+  line-height: 1.5;
+  color: var(--color-dark);
+  outline: none;
+  overflow-wrap: break-word;
+}
+.digest-output-body:focus { border-color: var(--color-primary); }
+.digest-output-body p,
+.digest-output-body li { font-size: 15pt; line-height: 1.5; }
+.digest-output-body h1,
+.digest-output-body h2,
+.digest-output-body h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 24px 0 12px;
+}
+.digest-output-body h1 { font-size: 22pt; }
+.digest-output-body h2 { font-size: 19pt; }
+.digest-output-body h3 { font-size: 17pt; }
+.digest-output-body a { color: var(--color-secondary); text-decoration: underline; }
+.digest-output-body hr { border: 0; border-top: 1px solid var(--color-card-border); margin: 28px 0; }
+.digest-output-body ol,
+.digest-output-body ul { padding-left: 1.4em; margin: 12px 0; }
+.digest-output-body.is-source {
   font-family: "SFMono-Regular", Menlo, Consolas, monospace;
   font-size: 13px;
   line-height: 1.65;
-  color: var(--color-dark);
+  white-space: pre-wrap;
 }
 .digest-actions {
   display: flex;

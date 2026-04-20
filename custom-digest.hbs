@@ -57,11 +57,15 @@
           <h2 class="section-heading"><em>This week's digest.</em></h2>
         </div>
 
-        <textarea id="digest-output" spellcheck="false" aria-label="Generated digest draft"></textarea>
+        {{!-- Rendered preview: contenteditable so you can tweak the
+             copy before hitting Copy. The original Markdown is stashed
+             on data-md for the .md download button. --}}
+        <div id="digest-output" class="digest-output-body" contenteditable="true" spellcheck="true" role="textbox" aria-label="Generated digest draft" aria-multiline="true"></div>
 
         <div class="digest-actions">
           <button class="btn btn-primary" id="digest-copy" type="button">Copy for Kit / HubSpot</button>
           <button class="btn btn-outline" id="digest-download" type="button">Download .md</button>
+          <button class="btn btn-outline" id="digest-view-source" type="button" aria-pressed="false">View source</button>
         </div>
         <p class="digest-meta" id="digest-meta"></p>
       </div>
@@ -85,6 +89,13 @@
   var meta = document.getElementById("digest-meta");
   var copy = document.getElementById("digest-copy");
   var download = document.getElementById("digest-download");
+  var viewSource = document.getElementById("digest-view-source");
+
+  // Source-of-truth Markdown lives here; the contenteditable div
+  // shows the rendered HTML. "View source" toggles in place between
+  // rendered preview and raw Markdown so you can edit either.
+  var sourceMd = "";
+  var sourceMode = false;
 
   if (!WORKER) {
     setStatus("Set @custom.digest_worker_url in Ghost admin (Design → Customize) to the mo-digest worker URL.", true);
@@ -123,7 +134,11 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
         if (!res.ok || res.body.error) throw new Error(res.body.error || "Request failed");
-        output.value = res.body.draft || "";
+        sourceMd = res.body.draft || "";
+        sourceMode = false;
+        viewSource.setAttribute("aria-pressed", "false");
+        viewSource.textContent = "View source";
+        output.innerHTML = mdToHtml(sourceMd);
         outputWrap.hidden = false;
         var m = res.body.meta || {};
         meta.textContent = (m.articleCount || 0) + " articles, " + (m.podcastCount || 0) + " podcasts since " + (m.since || "").slice(0, 10) + " · " + (m.model || "");
@@ -135,13 +150,57 @@
       .then(function () { generate.disabled = false; });
   });
 
+  // Whenever the user edits the contenteditable, capture the current
+  // state into sourceMd (Markdown view) or the innerHTML (rendered
+  // view). The source mode shows raw markdown; render mode shows HTML.
+  output.addEventListener("input", function () {
+    if (sourceMode) {
+      sourceMd = output.innerText;
+    }
+  });
+
+  viewSource.addEventListener("click", function () {
+    if (!sourceMode) {
+      // Flip to source: dump the current rendered HTML back to its
+      // Markdown snapshot (we keep sourceMd as the canonical copy).
+      sourceMode = true;
+      output.classList.add("is-source");
+      output.innerText = sourceMd;
+      viewSource.setAttribute("aria-pressed", "true");
+      viewSource.textContent = "View rendered";
+    } else {
+      // Flip back to rendered: parse the (possibly edited) markdown.
+      sourceMd = output.innerText;
+      sourceMode = false;
+      output.classList.remove("is-source");
+      output.innerHTML = mdToHtml(sourceMd);
+      viewSource.setAttribute("aria-pressed", "false");
+      viewSource.textContent = "View source";
+    }
+  });
+
   copy.addEventListener("click", function () {
-    var md = output.value;
-    var html = mdToHtml(md);
+    // Grab whichever view the user is in and derive both formats.
+    var md, html;
+    if (sourceMode) {
+      md = output.innerText;
+      html = mdToHtml(md);
+    } else {
+      html = output.innerHTML;
+      md = sourceMd;
+    }
     var done = function () { setStatus("Copied. Paste into Kit or HubSpot and it'll render formatted."); };
     var plain = function () {
       try { navigator.clipboard.writeText(md).then(done); }
-      catch (_) { output.select(); document.execCommand("copy"); done(); }
+      catch (_) {
+        var r = document.createRange();
+        r.selectNodeContents(output);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+        document.execCommand("copy");
+        done();
+      }
     };
     try {
       if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
@@ -157,7 +216,8 @@
   });
 
   download.addEventListener("click", function () {
-    var blob = new Blob([output.value], { type: "text/markdown" });
+    var md = sourceMode ? output.innerText : sourceMd;
+    var blob = new Blob([md], { type: "text/markdown" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "mo-digest-" + new Date().toISOString().slice(0, 10) + ".md";
