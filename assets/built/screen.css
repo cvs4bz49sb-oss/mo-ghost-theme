@@ -2380,6 +2380,47 @@ body {
 }
 .pagination .pagination-spacer { flex: 1; }
 
+/* Numbered pagination (archive, tag, author). Prev on the left, numbered
+   window in the middle with an ellipsis for gaps, Next + Last on the right.
+   JS builds the number list; the server renders Prev/Next/Last so the
+   control works without JS. */
+.pagination--numbered { gap: 16px; flex-wrap: wrap; }
+.pagination--numbered .pagination-pages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 14px;
+  flex: 1;
+}
+.pagination--numbered .pagination-pages li { display: inline-flex; }
+.pagination--numbered .pagination-num,
+.pagination--numbered .pagination-ellipsis,
+.pagination--numbered .pagination-current {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-variant: normal;
+  font-weight: 400;
+}
+.pagination--numbered .pagination-num { color: var(--color-secondary); }
+.pagination--numbered .pagination-num:hover { color: var(--color-primary); }
+.pagination--numbered .pagination-current { color: var(--color-dark); }
+.pagination--numbered .pagination-ellipsis { color: var(--color-muted); }
+.pagination--numbered .pagination-next-group { display: inline-flex; gap: 14px; align-items: baseline; }
+.pagination--numbered .is-disabled { opacity: 0.35; }
+@media (max-width: 640px) {
+  .pagination--numbered { gap: 10px; font-size: 11px; }
+  .pagination--numbered .pagination-pages { gap: 4px 10px; }
+  .pagination--numbered .pagination-num,
+  .pagination--numbered .pagination-ellipsis,
+  .pagination--numbered .pagination-current { font-size: 15px; }
+}
+
 /* =============================================================
    Error page
    ============================================================= */

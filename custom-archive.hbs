@@ -21,24 +21,105 @@
             {{/foreach}}
         </div>
 
+        {{!-- Pagination: Ghost Handlebars has no range helper, so the
+             numbered window (1 2 3 … N) is rendered client-side by the
+             script below from data-page / data-pages. Prev / Next /
+             Last links are rendered server-side so the control works
+             even if the JS fails. Base URL is the channel root; page 1
+             lives at the base and pages >1 at /page/N/. --}}
         {{#if pagination.pages}}
             {{#if pagination.total}}
-                <nav class="pagination" aria-label="Pagination">
+                <nav class="pagination pagination--numbered" aria-label="Pagination"
+                     data-pagination
+                     data-page="{{pagination.page}}"
+                     data-pages="{{pagination.pages}}"
+                     data-base="/archive/">
                     {{#if pagination.prev}}
-                        <a href="{{page_url pagination.prev}}">&larr; Previous</a>
+                        <a href="{{page_url pagination.prev}}" class="pagination-prev" rel="prev">&larr; Recent</a>
                     {{else}}
-                        <span></span>
+                        <span class="pagination-prev is-disabled" aria-hidden="true">&larr; Recent</span>
                     {{/if}}
-                    <span class="pagination-spacer"></span>
-                    <span class="pagination-current">Page {{pagination.page}} of {{pagination.pages}}</span>
-                    <span class="pagination-spacer"></span>
-                    {{#if pagination.next}}
-                        <a href="{{page_url pagination.next}}">Next &rarr;</a>
-                    {{else}}
-                        <span></span>
-                    {{/if}}
+
+                    <ol class="pagination-pages" data-pagination-pages aria-label="Page">
+                        {{!-- JS replaces this fallback with the full windowed list. --}}
+                        <li><span class="pagination-current" aria-current="page">Page {{pagination.page}} of {{pagination.pages}}</span></li>
+                    </ol>
+
+                    <span class="pagination-next-group">
+                        {{#if pagination.next}}
+                            <a href="{{page_url pagination.next}}" class="pagination-next" rel="next">Next &rarr;</a>
+                        {{else}}
+                            <span class="pagination-next is-disabled" aria-hidden="true">Next &rarr;</span>
+                        {{/if}}
+                        {{#unless @last}}{{/unless}}
+                    </span>
                 </nav>
             {{/if}}
         {{/if}}
     </div>
 </section>
+
+<script>
+(function () {
+  var nav = document.querySelector('[data-pagination]');
+  if (!nav) return;
+  var page = parseInt(nav.getAttribute('data-page'), 10) || 1;
+  var pages = parseInt(nav.getAttribute('data-pages'), 10) || 1;
+  var base = nav.getAttribute('data-base') || '/';
+  if (pages < 2) return;
+
+  function url(n) { return n === 1 ? base : base + 'page/' + n + '/'; }
+
+  // Build a windowed list: always show 1 and last, plus a ±2 window
+  // around the current page. Collapse gaps with an ellipsis entry.
+  var window_ = 2;
+  var set = {};
+  set[1] = true;
+  set[pages] = true;
+  for (var i = page - window_; i <= page + window_; i++) {
+    if (i >= 1 && i <= pages) set[i] = true;
+  }
+  var nums = Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+
+  var list = nav.querySelector('[data-pagination-pages]');
+  list.innerHTML = '';
+  var prev = 0;
+  nums.forEach(function (n) {
+    if (prev && n - prev > 1) {
+      var liDots = document.createElement('li');
+      liDots.className = 'pagination-ellipsis';
+      liDots.textContent = '\u2026';
+      liDots.setAttribute('aria-hidden', 'true');
+      list.appendChild(liDots);
+    }
+    var li = document.createElement('li');
+    if (n === page) {
+      var cur = document.createElement('span');
+      cur.className = 'pagination-current';
+      cur.setAttribute('aria-current', 'page');
+      cur.textContent = String(n);
+      li.appendChild(cur);
+    } else {
+      var a = document.createElement('a');
+      a.href = url(n);
+      a.className = 'pagination-num';
+      a.textContent = String(n);
+      li.appendChild(a);
+    }
+    list.appendChild(li);
+    prev = n;
+  });
+
+  // Last-page jump link, rendered only when we're not already there.
+  if (page < pages) {
+    var group = nav.querySelector('.pagination-next-group');
+    if (group) {
+      var last = document.createElement('a');
+      last.href = url(pages);
+      last.className = 'pagination-last';
+      last.innerHTML = 'Last &rarr;';
+      group.appendChild(last);
+    }
+  }
+})();
+</script>
