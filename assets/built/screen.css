@@ -3726,7 +3726,6 @@ body {
 .tag-page-archive { display: block; }
 .tag-page[data-tag-slug^="author-"] .tag-page-contributor { display: block; }
 .tag-page[data-tag-slug^="author-"] .tag-page-archive { display: none; }
-.tag-page[data-tag-slug^="author-"] .contributor-header-inner { display: grid; grid-template-columns: 180px 1fr; gap: 40px; align-items: center; }
 
 /* Contributor bio page (tag.hbs author-* branch) */
 .contributor-header {
