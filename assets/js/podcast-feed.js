@@ -72,7 +72,7 @@
     if (date) topicBits.push(escapeHtml(date));
     var topic = topicBits.join(" \u00b7 ");
 
-    var summary = String(ep.description).replace(/\s+/g, " ").slice(0, 180).trim();
+    var summary = sanitize(ep.description).replace(/\s+/g, " ").slice(0, 180).trim();
     var initial = summary.charAt(0) || "";
     var rest = summary.slice(1);
     var excerpt = summary
@@ -101,6 +101,33 @@
       linksBlock +
       "</article>"
     );
+  }
+
+  // The worker's HTML-strip regex misses attribute values that contain
+  // `>` characters (common with Tailwind arbitrary selectors like
+  // `<div class="[&_pre>div]:border-0.5">`), leaking class-token gibberish
+  // into the start of descriptions. Walk tokens from the front and
+  // drop any that clearly aren't prose — arbitrary selectors, HTML
+  // fragment markers, markdown build classes, etc. Stop at the first
+  // token that looks like a real word.
+  function sanitize(text) {
+    var s = String(text == null ? "" : text).trim().replace(/^[">\s]+/, "");
+    if (!s) return "";
+    var parts = s.split(/\s+/);
+    var start = 0;
+    while (start < parts.length) {
+      var t = parts[start];
+      var looksLikeProse =
+        /^[A-Za-z][a-zA-Z'\u2018\u2019]{1,}/.test(t) &&
+        t.indexOf("]:") === -1 &&
+        t.indexOf(":[") === -1 &&
+        t.indexOf("&_") === -1 &&
+        t.indexOf("_:") === -1 &&
+        !/markdown/i.test(t);
+      if (looksLikeProse) break;
+      start++;
+    }
+    return parts.slice(start).join(" ").trim();
   }
 
   function escapeHtml(s) {
