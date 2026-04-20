@@ -4526,3 +4526,81 @@ body {
 @media (max-width: 640px) {
   .listen-grid--podcasts { grid-template-columns: 1fr; row-gap: 28px; }
 }
+
+/* Podcast episode cards (listen-grid--podcasts). More deliberate
+   spacing, a shared column rhythm, and a clear Listen block at the
+   bottom so each card reads as a standalone object rather than a
+   dense paragraph. */
+.listen-grid--podcasts { column-gap: 48px; row-gap: 56px; }
+.listen-grid--podcasts .pod-entry--episode {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+.listen-grid--podcasts .pod-topic {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin: 0 0 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.listen-grid--podcasts .pod-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.18;
+  color: var(--color-dark);
+  margin: 0 0 18px;
+}
+.listen-grid--podcasts .pod-title em { font-style: italic; }
+.listen-grid--podcasts .pod-excerpt {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 24px;
+  flex: 1;
+}
+.listen-grid--podcasts .pod-excerpt .pod-initial {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.4em;
+  line-height: 1;
+  color: var(--color-secondary);
+  padding-right: 0.08em;
+}
+.listen-grid--podcasts .pod-listen {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-card-border);
+}
+.listen-grid--podcasts .pod-listen-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.listen-grid--podcasts .pod-listen-platforms {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-dark);
+}
+.listen-grid--podcasts .pod-listen-platforms a {
+  color: var(--color-dark);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.listen-grid--podcasts .pod-listen-platforms a:hover { color: var(--color-primary); }
+.listen-grid--podcasts .pod-listen-sep { color: var(--color-card-border); padding: 0 6px; }

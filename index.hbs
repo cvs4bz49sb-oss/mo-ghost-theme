@@ -207,8 +207,15 @@
              assets/js/podcast-feed.js, which merges both feeds from
              the Cloudflare Worker and renders the 4 most recent
              episodes across shows. The two static cards below are
-             the fallback when the worker is unreachable. --}}
-        <div class="listen-grid listen-grid--podcasts">
+             the fallback when the worker is unreachable. Per-show
+             Apple/Spotify URLs come in via data-* attributes so the
+             renderer can build the platform links without
+             hardcoding. --}}
+        <div class="listen-grid listen-grid--podcasts"
+             data-mf-apple="{{@custom.podcast_mf_apple_url}}"
+             data-mf-spotify="{{@custom.podcast_mf_spotify_url}}"
+             data-crc-apple="{{@custom.podcast_crc_apple_url}}"
+             data-crc-spotify="{{@custom.podcast_crc_spotify_url}}">
             <a href="#" class="pod-entry" data-show="mere-fidelity">
                 <p class="pod-topic">Mere Fidelity</p>
                 <h3 class="pod-title">Weekly conversations</h3>

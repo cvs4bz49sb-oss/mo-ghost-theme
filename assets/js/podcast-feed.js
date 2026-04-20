@@ -6,10 +6,13 @@
  * shows, sorts by publish date descending, and renders the four
  * most recent as cards in the homepage Listen section.
  *
+ * Per-show Apple/Spotify URLs are read from data-* attributes on
+ * the .listen-grid so they can be edited in Ghost admin via
+ * @custom settings (podcast_mf_apple_url, etc.).
+ *
  * Configure the theme's `podcast_feed_url` custom setting to the
- * deployed Worker URL. The theme exposes it as
- * data-podcast-feed-url on <body>. When unset or the fetch fails,
- * the static fallback markup in index.hbs stays put.
+ * deployed Worker URL. When unset or the fetch fails, the static
+ * fallback markup in index.hbs stays put.
  */
 (function () {
   var FEED_URL = document.body.getAttribute("data-podcast-feed-url") || "";
@@ -18,29 +21,26 @@
   var grid = document.querySelector(".listen-grid");
   if (!grid) return;
 
-  // Ask the worker for the 5 latest per show; we'll merge + trim to 4
-  // client-side so a single show can't hog the layout when the other
-  // is quiet.
+  var platforms = {
+    "mere-fidelity": {
+      apple: grid.getAttribute("data-mf-apple") || "",
+      spotify: grid.getAttribute("data-mf-spotify") || "",
+    },
+    "christians-reading-classics": {
+      apple: grid.getAttribute("data-crc-apple") || "",
+      spotify: grid.getAttribute("data-crc-spotify") || "",
+    },
+  };
+
   var url = FEED_URL + (FEED_URL.indexOf("?") > -1 ? "&" : "?") + "limit=5";
-  console.log("[podcast-feed] fetching", url);
   fetch(url, { cache: "default" })
-    .then(function (r) {
-      console.log("[podcast-feed] response", r.status, r.ok);
-      return r.ok ? r.json() : null;
-    })
+    .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
-      if (!data) {
-        console.warn("[podcast-feed] no data returned; keeping fallback");
-        return;
-      }
-      console.log("[podcast-feed] shows:", Object.keys(data));
+      if (!data) return;
       var all = [];
       Object.keys(data).forEach(function (slug) {
         var payload = data[slug];
-        if (!payload || payload.error || !Array.isArray(payload.episodes)) {
-          console.warn("[podcast-feed] skipping", slug, payload && payload.error);
-          return;
-        }
+        if (!payload || payload.error || !Array.isArray(payload.episodes)) return;
         var showTitle = (payload.show && payload.show.title) || slug;
         payload.episodes.forEach(function (ep) {
           if (!ep) return;
@@ -49,26 +49,19 @@
             slug: slug,
             showTitle: showTitle,
             title: ep.title || "",
-            link: ep.link || "#",
             description: ep.description || "",
-            pubDate: ep.pubDate || "",
             ts: isNaN(ts) ? 0 : ts,
-            episode: ep.episode || "",
           });
         });
       });
 
-      console.log("[podcast-feed] episodes collected:", all.length);
       if (!all.length) return;
       all.sort(function (a, b) { return b.ts - a.ts; });
       var top = all.slice(0, 4);
 
       grid.innerHTML = top.map(renderCard).join("");
-      console.log("[podcast-feed] rendered", top.length, "cards");
     })
-    .catch(function (err) {
-      console.error("[podcast-feed] fetch failed:", err);
-    });
+    .catch(function () { /* static fallback stays */ });
 
   function renderCard(ep) {
     var date = ep.ts
@@ -83,16 +76,30 @@
     var initial = summary.charAt(0) || "";
     var rest = summary.slice(1);
     var excerpt = summary
-      ? '<span class="pod-initial">' + escapeHtml(initial) + "</span>" + escapeHtml(rest)
+      ? '<p class="pod-excerpt pod-excerpt-dropcap"><span class="pod-initial">' +
+        escapeHtml(initial) + "</span>" + escapeHtml(rest) + "</p>"
+      : "";
+
+    var p = platforms[ep.slug] || {};
+    var links = [];
+    if (p.apple) {
+      links.push('<a href="' + escapeAttr(p.apple) + '" target="_blank" rel="noopener">Apple</a>');
+    }
+    if (p.spotify) {
+      links.push('<a href="' + escapeAttr(p.spotify) + '" target="_blank" rel="noopener">Spotify</a>');
+    }
+    var linksBlock = links.length
+      ? '<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">' +
+        links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') + "</p></div>"
       : "";
 
     return (
-      '<a href="' + escapeAttr(ep.link) + '" class="pod-entry" data-show="' + escapeAttr(ep.slug) + '">' +
+      '<article class="pod-entry pod-entry--episode" data-show="' + escapeAttr(ep.slug) + '">' +
       '<p class="pod-topic">' + topic + "</p>" +
-      '<h3 class="pod-title">' + escapeHtml(ep.title) + "</h3>" +
-      (excerpt ? '<p class="pod-excerpt pod-excerpt-dropcap">' + excerpt + "</p>" : "") +
-      '<span class="pod-listen-link">Listen &rarr;</span>' +
-      "</a>"
+      '<h3 class="pod-title"><em>' + escapeHtml(ep.title) + "</em></h3>" +
+      excerpt +
+      linksBlock +
+      "</article>"
     );
   }
 
@@ -101,7 +108,5 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
-  function escapeAttr(s) {
-    return escapeHtml(s);
-  }
+  function escapeAttr(s) { return escapeHtml(s); }
 })();

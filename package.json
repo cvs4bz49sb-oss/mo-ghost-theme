@@ -89,6 +89,22 @@
         "type": "text",
         "default": "https://join.mereorthodoxy.com",
         "description": "Base URL for the membership-site Express app (Stripe + HubSpot endpoints)."
+      },
+      "podcast_mf_apple_url": {
+        "type": "text",
+        "description": "Apple Podcasts show URL for Mere Fidelity."
+      },
+      "podcast_mf_spotify_url": {
+        "type": "text",
+        "description": "Spotify show URL for Mere Fidelity."
+      },
+      "podcast_crc_apple_url": {
+        "type": "text",
+        "description": "Apple Podcasts show URL for Christians Reading Classics."
+      },
+      "podcast_crc_spotify_url": {
+        "type": "text",
+        "description": "Spotify show URL for Christians Reading Classics."
       }
     }
   }
