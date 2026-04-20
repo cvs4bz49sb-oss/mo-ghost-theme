@@ -4454,3 +4454,13 @@ body {
   background-size: auto, auto, 220px 220px;
   background-repeat: repeat, repeat, repeat;
 }
+
+/* Contributor byline — inline wrapper pattern used across hero
+   byline, Today feature-entry, Editor's Pick list card, and
+   post.hbs related cards. Mirrors the [data-byline]:empty approach
+   already in use on post.hbs and post-entry.hbs: show the
+   contributor span if it has any .byline-author children; hide the
+   fallback in that case. */
+.byline-inline--contributors[data-byline]:empty { display: none; }
+.byline-inline--contributors[data-byline]:not(:empty) + .byline-inline--fallback { display: none; }
+.byline-inline--contributors[data-byline] .byline-author + .byline-author::before { content: ", "; }

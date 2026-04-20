@@ -196,9 +196,8 @@
                             <p class="card-topic">{{primary_tag.name}}</p>
                         {{/if}}
                         <h3 class="card-title"><em>{{title}}</em></h3>
-                        {{#primary_author}}
-                            <p class="card-byline">By <span class="author">{{name}}</span></p>
-                        {{/primary_author}}
+                        <p class="card-byline byline-inline--contributors" data-byline>By {{#foreach tags}}{{#match slug "=~" "^author-"}}<span class="author byline-author">{{name}}</span>{{/match}}{{/foreach}}</p>
+                        <p class="card-byline byline-inline--fallback">{{#primary_author}}By <span class="author">{{name}}</span>{{/primary_author}}</p>
                         {{#if custom_excerpt}}
                             <p class="card-excerpt">{{custom_excerpt}}</p>
                         {{else}}
