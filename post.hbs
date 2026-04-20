@@ -29,6 +29,7 @@
                      the Ghost staff author. Lets us credit 30+ writers without paying for
                      extra staff seats. When no author- tag exists, fall back to primary_author. --}}
                 <span class="meta-authors" data-byline>
+                    <!-- DEBUG: tags={{#foreach tags}}[slug={{slug}}]{{/foreach}} -->
                     {{#foreach tags}}{{#match slug "=~" "author-"}}
                         <a href="{{url}}" class="meta-author meta-author--contributor">
                             <div class="meta-avatar" aria-hidden="true">
