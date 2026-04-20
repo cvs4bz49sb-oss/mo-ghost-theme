@@ -13,7 +13,7 @@
                 <p class="hero-sub">{{@custom.hero_subhead}}</p>
                 <div class="hero-ctas">
                     <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
-                    <a href="/membership/" class="btn btn-ghost btn-lg">Become a Member</a>
+                    <a href="#join" class="btn btn-ghost btn-lg">Become a Member</a>
                 </div>
             </div>
 
@@ -186,7 +186,7 @@
                     </li>
                 </ol>
                 <div class="journal-ctas">
-                    <a href="/membership/" class="btn btn-primary btn-lg">Become a Member</a>
+                    <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
                     <a href="/tag/journal/" class="btn btn-ghost btn-lg">Read past issues</a>
                 </div>
             </div>
@@ -258,6 +258,6 @@
      shares partials/membership-body.hbs with /membership/. Wrapped in
      a div instead of <main> so it doesn't conflict with any main
      element used elsewhere on the page. --}}
-<div class="membership homepage-membership">
+<div class="membership homepage-membership" id="join">
   {{> "membership-body"}}
 </div>
