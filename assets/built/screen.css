@@ -3902,6 +3902,13 @@ body {
   color: inherit;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+/* Show only author-* tags on /contributors/. The template fetches all
+   public tags because Ghost's NQL prefix-match on `slug` is unreliable
+   across versions; CSS filters the render. */
+.contributor-card--candidate { display: none; }
+.contributor-card--candidate[data-tag-slug^="author-"] {
+  display: flex;
+}
 .contributor-card:hover {
   border-color: var(--color-primary);
   box-shadow: 0 4px 14px rgba(45, 41, 39, 0.06);
