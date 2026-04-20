@@ -60,9 +60,12 @@
                                     <div class="feature-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="l"}});"{{/if}}></div>
                                 </div>
                                 <div class="feature-body">
-                                    {{#if primary_tag}}
-                                        <p class="feature-topic">{{primary_tag.name}}{{#if reading_time}} &middot; Long Read{{/if}}</p>
-                                    {{/if}}
+                                    {{!-- Topic eyebrow: first non-author tag, selected via CSS
+                                         attribute filter. See .entry-topic--candidates for the same
+                                         pattern used in This Week. --}}
+                                    <p class="feature-topic feature-topic--candidates" data-topic>
+                                        {{#foreach tags visibility="public"}}<span class="feature-topic-tag" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}{{#if reading_time}}<span class="feature-topic-type">Long Read</span>{{/if}}
+                                    </p>
                                     <h3 class="feature-title">{{title}}</h3>
                                     {{#if custom_excerpt}}
                                         <p class="feature-excerpt feature-excerpt-dropcap">{{custom_excerpt}}</p>
@@ -100,9 +103,10 @@
                             {{#foreach posts}}
                                 <li>
                                     <a href="{{url}}">
-                                        {{#if primary_tag}}
-                                            <p class="card-topic">{{primary_tag.name}}</p>
-                                        {{/if}}
+                                        {{!-- Topic eyebrow: first non-author tag. --}}
+                                        <p class="card-topic card-topic--candidates" data-topic>
+                                            {{#foreach tags visibility="public"}}<span class="card-topic-tag" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}
+                                        </p>
                                         <h4 class="card-title"><em>{{title}}</em></h4>
                                         {{#if custom_excerpt}}
                                             <p class="card-excerpt">{{custom_excerpt}}</p>

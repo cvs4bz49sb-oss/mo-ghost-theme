@@ -5,9 +5,12 @@
 <article>
     <header class="article-header">
         <div class="article-header-inner">
-            {{#if primary_tag}}
-                <a href="{{primary_tag.url}}" class="article-topic">{{primary_tag.name}} &middot; Essay</a>
-            {{/if}}
+            {{!-- Topic pill: render every public tag; CSS hides author-*
+                 slugs and separates the rest with "·" so Essay follows
+                 the last visible tag regardless of position. --}}
+            <p class="article-topic article-topic--candidates" data-topic>
+                {{#foreach tags visibility="public"}}<a href="{{url}}" class="article-topic-tag" data-tag-slug="{{slug}}">{{name}}</a>{{/foreach}}<span class="article-topic-type">Essay</span>
+            </p>
             <h1 class="article-title">{{title}}</h1>
             {{#if custom_excerpt}}
                 <p class="article-dek">{{custom_excerpt}}</p>
@@ -171,22 +174,31 @@
     </div>
 </article>
 
-{{!-- RELATED --}}
+{{!-- RELATED
+     Server renders the current server-side fallback (filter by primary_tag).
+     If Ghost assigned an author-* tag as primary, the fallback will be
+     "posts by the same contributor." A tiny progressive-enhancement
+     script in assets/js/related.js replaces the grid using Ghost's
+     Content API when a key is configured, picking the first non-author
+     tag for "more on this theme". --}}
 {{#if primary_tag}}
-<section class="related">
+<section class="related"
+         data-related
+         data-post-id="{{id}}"
+         data-tag-slugs="{{#foreach tags visibility="public"}}{{slug}}{{#unless @last}},{{/unless}}{{/foreach}}">
     <div class="section-intro">
         <p class="eyebrow">Read Next</p>
         <h2 class="section-heading"><em>More on this theme.</em></h2>
     </div>
-    <div class="related-grid">
+    <div class="related-grid" data-related-grid>
         {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="3" include="authors,tags"}}
             {{#foreach posts}}
                 <a href="{{url}}" class="article-card">
                     <div class="card-media"{{#if feature_image}} style="background-image: url({{img_url feature_image size="m"}});"{{else}} class="card-media mock-1"{{/if}}></div>
                     <div class="card-body">
-                        {{#if primary_tag}}
-                            <p class="card-topic">{{primary_tag.name}}</p>
-                        {{/if}}
+                        <p class="card-topic card-topic--candidates" data-topic>
+                            {{#foreach tags visibility="public"}}<span class="card-topic-tag" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}
+                        </p>
                         <h3 class="card-title"><em>{{title}}</em></h3>
                         <p class="card-byline byline-inline--contributors" data-byline>By {{#foreach tags}}<span class="author byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}</p>
                         <p class="card-byline byline-inline--fallback">{{#primary_author}}By <span class="author">{{name}}</span>{{/primary_author}}</p>
@@ -210,5 +222,6 @@
 {{> "membership-cta"}}
 
 <script src="{{asset "js/toc.js"}}"></script>
+<script src="{{asset "js/related.js"}}"></script>
 
 {{/post}}
