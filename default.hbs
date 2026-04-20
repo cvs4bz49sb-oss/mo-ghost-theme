@@ -101,6 +101,9 @@
             function syncOffset() {
                 var h = header.getBoundingClientRect().height;
                 document.body.style.paddingTop = h + 'px';
+                // Anchor jumps (scrollIntoView / href="#x") should land
+                // the anchor exactly at the bottom of the fixed header.
+                document.documentElement.style.scrollPaddingTop = h + 'px';
             }
             syncOffset();
             window.addEventListener('resize', syncOffset);
