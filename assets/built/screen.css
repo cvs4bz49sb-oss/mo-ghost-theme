@@ -1145,16 +1145,18 @@ img { max-width: 100%; height: auto; }
   height: 1px;
   background: var(--color-card-border);
 }
-/* Heart-aflame divider mark rendered as an inline SVG by the shared
-   flourish-mark partial. Uses currentColor so it inherits from the
-   surrounding context (primary orange by default). */
+/* Divider mark: the MO site mark rendered as a small round badge by
+   the shared flourish-mark partial. Circle-masking the <img> strips
+   the white corners of the favicon JPEG so only the orange disc
+   shows. object-fit covers any minor aspect drift. */
 .flourish-mark {
-  width: 22px;
-  height: 22px;
-  color: var(--color-primary);
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   display: inline-block;
   vertical-align: middle;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* -------- This Week (book-page entries) -------- */
