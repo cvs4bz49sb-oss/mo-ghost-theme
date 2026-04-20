@@ -115,18 +115,17 @@
     if (!s) return "";
     var parts = s.split(/\s+/);
     var start = 0;
+    // Strict prose-token test: the whole token must be letters,
+    // apostrophes, or hyphens, optionally with a single trailing
+    // punctuation mark (comma, period, etc.). No digits, brackets,
+    // quotes, slashes, underscores, or `>` — all dead giveaways of
+    // CSS / HTML fragments that leaked through broken parsing.
+    var PROSE = /^[A-Za-z][A-Za-z'\u2018\u2019-]+[.,!?;:]?$/;
     while (start < parts.length) {
-      var t = parts[start];
-      var looksLikeProse =
-        /^[A-Za-z][a-zA-Z'\u2018\u2019]{1,}/.test(t) &&
-        t.indexOf("]:") === -1 &&
-        t.indexOf(":[") === -1 &&
-        t.indexOf("&_") === -1 &&
-        t.indexOf("_:") === -1 &&
-        !/markdown/i.test(t);
-      if (looksLikeProse) break;
+      if (PROSE.test(parts[start])) break;
       start++;
     }
+    if (start >= parts.length) return "";
     return parts.slice(start).join(" ").trim();
   }
 
