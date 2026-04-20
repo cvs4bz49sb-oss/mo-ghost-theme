@@ -1,17 +1,19 @@
-{{!-- Topic rail used on the homepage and on /archive/. Topic-filter.js
-     only binds its view-swap behavior when the .today-default and
-     .today-tag slots exist, so including this partial on other pages
-     is safe — pills just navigate to their tag archives. --}}
+{{!-- Topic rail used on the homepage and /archive/. The visible pills
+     are hardcoded to an editorially-curated list — not every tag in
+     Ghost. Order matches the editorial priority: Recent (home) →
+     Church → Culture → Formation → Family → Theology → Technology →
+     Book Reviews. Add or reorder here when the editorial taxonomy
+     changes. --}}
 <nav class="topics" aria-label="Topics">
     <div class="container topics-inner">
         <span class="topics-label">Read by</span>
         <a href="{{@site.url}}" class="topic-pill is-active" data-tag="recent">Recent</a>
-        {{#get "tags" filter="visibility:public" include="count.posts" limit="all" order="name asc"}}
-            {{#foreach tags}}
-                {{#if count.posts}}
-                    <a href="{{url}}" class="topic-pill" data-tag="{{slug}}" data-tag-slug="{{slug}}">{{name}}</a>
-                {{/if}}
-            {{/foreach}}
-        {{/get}}
+        <a href="/tag/church/" class="topic-pill" data-tag="church">Church</a>
+        <a href="/tag/culture/" class="topic-pill" data-tag="culture">Culture</a>
+        <a href="/tag/formation/" class="topic-pill" data-tag="formation">Formation</a>
+        <a href="/tag/family/" class="topic-pill" data-tag="family">Family</a>
+        <a href="/tag/theology/" class="topic-pill" data-tag="theology">Theology</a>
+        <a href="/tag/technology/" class="topic-pill" data-tag="technology">Technology</a>
+        <a href="/tag/book-reviews/" class="topic-pill" data-tag="book-reviews">Book Reviews</a>
     </div>
 </nav>
