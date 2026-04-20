@@ -4276,6 +4276,13 @@ body {
   align-items: end;
   margin-bottom: 16px;
 }
+/* Hidden auth field — still in the DOM so the JS can read it, but
+   the admin has prefilled the token so nothing to display. Collapse
+   the grid to two columns. */
+.digest-controls:has(.digest-field--hidden) {
+  grid-template-columns: 140px auto;
+}
+.digest-field--hidden { display: none; }
 .digest-field label {
   display: block;
   font-size: 11px;

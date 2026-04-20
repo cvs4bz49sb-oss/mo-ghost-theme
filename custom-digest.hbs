@@ -34,7 +34,11 @@
             <label for="digest-days">Window (days)</label>
             <input id="digest-days" type="number" min="1" max="30" value="7">
           </div>
-          <div class="digest-field digest-field--grow">
+          {{!-- Auth field is visually hidden when @custom.digest_auth_token
+               is set; the JS still reads it, just pre-filled. If the
+               admin setting is empty, the field surfaces so you can
+               paste a token manually. --}}
+          <div class="digest-field digest-field--grow{{#if @custom.digest_auth_token}} digest-field--hidden{{/if}}">
             <label for="digest-token">Auth token</label>
             <input id="digest-token" type="password" autocomplete="current-password" placeholder="Paste your DIGEST_AUTH_TOKEN">
           </div>
