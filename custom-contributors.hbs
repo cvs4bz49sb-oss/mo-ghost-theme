@@ -16,6 +16,11 @@
 
   <section class="contributors-body">
     <div class="container">
+      {{!-- A-Z jump rail. Populated by contributors.js after the grid
+           renders: letters that have at least one contributor become
+           links; the rest render as muted/disabled. --}}
+      <nav class="contributors-az" aria-label="Jump to letter" data-contributors-az hidden></nav>
+
       {{!-- Fetch all public tags; CSS hides any whose slug isn't
            "author-…". Ghost's NQL `~^` prefix match on `slug` hasn't
            been reliable across Ghost versions, so the theme uses the

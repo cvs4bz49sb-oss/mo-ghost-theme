@@ -3884,6 +3884,59 @@ body {
   line-height: 1.55;
 }
 .contributors-body { padding: 24px 0 96px; }
+
+/* A-Z jump rail. Sticky under the fixed header so it stays accessible
+   as the reader scrolls the roster. Inactive letters (no contributor
+   with that initial) are muted and non-interactive. */
+.contributors-az {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 10px;
+  max-width: 1040px;
+  margin: 0 auto 40px;
+  padding: 16px 0;
+  border-top: 1px solid var(--color-card-border);
+  border-bottom: 1px solid var(--color-card-border);
+  position: sticky;
+  top: 84px;
+  background: var(--color-background);
+  z-index: 2;
+}
+.contributors-az-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 6px;
+  color: var(--color-secondary);
+  text-decoration: none;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  min-width: 24px;
+  text-align: center;
+}
+.contributors-az-letter:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.contributors-az-letter.is-disabled {
+  color: var(--color-card-border);
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .contributors-az {
+    gap: 2px 6px;
+    padding: 12px 0;
+    margin: 0 auto 24px;
+    top: 72px;
+  }
+  .contributors-az-letter {
+    font-size: 15px;
+    padding: 4px 4px;
+    min-width: 18px;
+  }
+}
 /* Editorial two-column list, no card chrome. Mirrors the .week-grid
    motif used on the homepage: hairline vertical divider between the
    two columns on desktop, horizontal rules between rows via each

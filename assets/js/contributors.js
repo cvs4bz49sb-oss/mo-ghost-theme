@@ -53,9 +53,41 @@
           t.count && t.count.posts > 0;
       }).sort(function (a, b) { return a.name.localeCompare(b.name); });
       if (!authors.length) return;
+
+      // Mark the first author for each initial letter so the A-Z rail
+      // can scroll-link to it. Compare letters in a case-insensitive
+      // way and fall back to "#" for anything that doesn't start with
+      // a letter.
+      var seenLetters = {};
+      authors = authors.map(function (t) {
+        var ch = (t.name || "").trim().charAt(0).toUpperCase();
+        var letter = /^[A-Z]$/.test(ch) ? ch : "#";
+        var isFirst = !seenLetters[letter];
+        seenLetters[letter] = true;
+        return Object.assign({}, t, { __letter: letter, __isLetterAnchor: isFirst });
+      });
+
       grid.innerHTML = authors.map(renderCard).join("");
+      renderAzRail(seenLetters);
     })
     .catch(function () { /* keep server render */ });
+
+  function renderAzRail(activeLetters) {
+    var rail = document.querySelector("[data-contributors-az]");
+    if (!rail) return;
+    var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    var html = letters.map(function (L) {
+      if (activeLetters[L]) {
+        return '<a href="#letter-' + L + '" class="contributors-az-letter" data-letter="' + L + '">' + L + "</a>";
+      }
+      return '<span class="contributors-az-letter is-disabled" aria-disabled="true">' + L + "</span>";
+    }).join("");
+    if (activeLetters["#"]) {
+      html += '<a href="#letter-num" class="contributors-az-letter" data-letter="#">#</a>';
+    }
+    rail.innerHTML = html;
+    rail.hidden = false;
+  }
 
   function renderCard(tag) {
     var portrait = tag.feature_image
@@ -66,8 +98,14 @@
       : "";
     var count = (tag.count && tag.count.posts) || 0;
     var essayWord = count === 1 ? "essay" : "essays";
+    // First contributor in each letter group gets an id so the A-Z
+    // rail can scroll-link directly to it.
+    var anchorId = "";
+    if (tag.__isLetterAnchor) {
+      anchorId = ' id="letter-' + (tag.__letter === "#" ? "num" : tag.__letter) + '"';
+    }
     return (
-      '<a href="' + escapeAttr(tag.url) + '" class="contributor-card contributor-card--candidate" data-tag-slug="' + escapeAttr(tag.slug) + '">' +
+      '<a' + anchorId + ' href="' + escapeAttr(tag.url) + '" class="contributor-card contributor-card--candidate" data-tag-slug="' + escapeAttr(tag.slug) + '" data-letter="' + escapeAttr(tag.__letter || "") + '">' +
         '<div class="contributor-card-portrait" aria-hidden="true">' + portrait + "</div>" +
         '<div class="contributor-card-body">' +
           '<h2 class="contributor-card-name"><em>' + escapeHtml(tag.name) + "</em></h2>" +
