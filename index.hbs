@@ -127,6 +127,33 @@
     </div>
 </section>
 
+{{!-- WEEKLY DIGEST --}}
+{{> "digest-cta"}}
+
+{{!-- THIS WEEK: posts 3-8 --}}
+<section class="this-week">
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">This Week</p>
+            <h2 class="section-heading"><em>The wider conversation.</em></h2>
+        </div>
+
+        <div class="flourish"><span class="flourish-mark">&para;</span></div>
+
+        <div class="week-grid">
+            {{#get "posts" limit="8" include="authors,tags"}}
+                {{#foreach posts from="3" limit="6"}}
+                    {{> "post-entry"}}
+                {{/foreach}}
+            {{/get}}
+        </div>
+
+        <div class="week-more">
+            <a href="/archive/" class="week-more-link">Read more essays <span aria-hidden="true">&rarr;</span></a>
+        </div>
+    </div>
+</section>
+
 {{!-- PODCASTS: only rendered if a feed worker URL is configured --}}
 {{#if @custom.podcast_feed_url}}
 <section class="listen">
@@ -165,33 +192,6 @@
     </div>
 </section>
 {{/if}}
-
-{{!-- WEEKLY DIGEST --}}
-{{> "digest-cta"}}
-
-{{!-- THIS WEEK: posts 3-8 --}}
-<section class="this-week">
-    <div class="container">
-        <div class="section-intro">
-            <p class="eyebrow">This Week</p>
-            <h2 class="section-heading"><em>The wider conversation.</em></h2>
-        </div>
-
-        <div class="flourish"><span class="flourish-mark">&para;</span></div>
-
-        <div class="week-grid">
-            {{#get "posts" limit="8" include="authors,tags"}}
-                {{#foreach posts from="3" limit="6"}}
-                    {{> "post-entry"}}
-                {{/foreach}}
-            {{/get}}
-        </div>
-
-        <div class="week-more">
-            <a href="/archive/" class="week-more-link">Read more essays <span aria-hidden="true">&rarr;</span></a>
-        </div>
-    </div>
-</section>
 
 {{!-- JOURNAL BAND --}}
 <section class="journal-band">

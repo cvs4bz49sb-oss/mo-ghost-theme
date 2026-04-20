@@ -542,7 +542,7 @@ img { max-width: 100%; height: auto; }
 /* -------- Today (featured) -------- */
 
 .today {
-  padding: 96px 0 40px;
+  padding: 96px 0 72px;
   background: var(--color-page);
 }
 
@@ -930,7 +930,7 @@ img { max-width: 100%; height: auto; }
 /* -------- Weekly Digest (typographic signup) -------- */
 
 .digest-section {
-  padding: 32px 0 56px;
+  padding: 56px 0;
   background: var(--color-page);
   position: relative;
 }
@@ -1356,7 +1356,7 @@ img { max-width: 100%; height: auto; }
 /* -------- Podcasts (book-page entries) -------- */
 
 .listen {
-  padding: 40px 0;
+  padding: 96px 0;
   background: var(--color-page);
 }
 
@@ -2682,10 +2682,7 @@ body {
   .week-grid::before, .listen-grid::before, .readers-grid::before, .readers-grid::after { display: none; }
 
   .hero { padding: 48px 0 64px; }
-  .this-week, .readers, .journal-band { padding: 64px 0; }
-  .today { padding: 48px 0 24px; }
-  .listen { padding: 24px 0; }
-  .digest-section { padding: 24px 0 48px; }
+  .today, .this-week, .listen, .readers, .journal-band { padding: 64px 0; }
   .membership-cta { padding: 72px 0; }
   .nav-actions .sign-in { display: none; }
 
