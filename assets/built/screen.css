@@ -4010,13 +4010,46 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 12px 8px;
+  padding: 8px 6px 12px;
   border: 1px solid var(--color-card-border);
   border-radius: 8px;
   background: var(--color-white);
   position: sticky;
   top: 96px;
   z-index: 2;
+  transition: width 0.18s, padding 0.18s;
+}
+.contributors-az-toggle {
+  background: none;
+  border: 0;
+  padding: 2px 6px 6px;
+  cursor: pointer;
+  color: var(--color-muted);
+  font-size: 18px;
+  line-height: 1;
+  transition: color 0.15s, transform 0.18s;
+}
+.contributors-az-toggle:hover { color: var(--color-primary); }
+.contributors-az-letters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: opacity 0.12s;
+}
+
+/* Collapsed state: rail shrinks to a narrow tab showing just the
+   toggle chevron, which rotates to point outward. Click restores. */
+.contributors-layout.is-az-collapsed { grid-template-columns: 32px 1fr; }
+.contributors-layout.is-az-collapsed .contributors-az {
+  padding: 8px 4px;
+}
+.contributors-layout.is-az-collapsed .contributors-az-letters {
+  display: none;
+}
+.contributors-layout.is-az-collapsed .contributors-az-toggle-icon {
+  display: inline-block;
+  transform: rotate(180deg);
 }
 .contributors-az-letter {
   font-family: var(--font-display);
@@ -4041,7 +4074,8 @@ body {
   pointer-events: none;
 }
 @media (max-width: 900px) {
-  .contributors-layout {
+  .contributors-layout,
+  .contributors-layout.is-az-collapsed {
     grid-template-columns: 1fr;
     gap: 20px;
   }
@@ -4053,6 +4087,15 @@ body {
     padding: 10px 8px;
     position: sticky;
     top: 76px;
+  }
+  /* Horizontal strip — collapse toggle is noisy here, hide it. */
+  .contributors-az-toggle { display: none; }
+  .contributors-az-letters {
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 6px;
   }
 }
 @media (max-width: 640px) {

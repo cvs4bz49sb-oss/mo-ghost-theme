@@ -76,17 +76,54 @@
     var rail = document.querySelector("[data-contributors-az]");
     if (!rail) return;
     var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    var html = letters.map(function (L) {
+    var lettersHtml = letters.map(function (L) {
       if (activeLetters[L]) {
         return '<a href="#letter-' + L + '" class="contributors-az-letter" data-letter="' + L + '">' + L + "</a>";
       }
       return '<span class="contributors-az-letter is-disabled" aria-disabled="true">' + L + "</span>";
     }).join("");
     if (activeLetters["#"]) {
-      html += '<a href="#letter-num" class="contributors-az-letter" data-letter="#">#</a>';
+      lettersHtml += '<a href="#letter-num" class="contributors-az-letter" data-letter="#">#</a>';
     }
-    rail.innerHTML = html;
+    rail.innerHTML =
+      '<button type="button" class="contributors-az-toggle" aria-label="Collapse alphabet jump rail" aria-expanded="true" data-az-toggle>' +
+        '<span class="contributors-az-toggle-icon" aria-hidden="true">&lsaquo;</span>' +
+      "</button>" +
+      '<div class="contributors-az-letters" data-az-letters>' + lettersHtml + "</div>";
     rail.hidden = false;
+
+    wireToggle(rail);
+  }
+
+  var STORAGE_KEY = "mo_contributors_az_collapsed";
+
+  function wireToggle(rail) {
+    var layout = rail.closest(".contributors-layout") || rail.parentNode;
+    var toggle = rail.querySelector("[data-az-toggle]");
+    if (!layout || !toggle) return;
+
+    // Restore the previous collapsed state on load.
+    try {
+      if (window.localStorage && localStorage.getItem(STORAGE_KEY) === "1") {
+        layout.classList.add("is-az-collapsed");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.setAttribute("aria-label", "Expand alphabet jump rail");
+      }
+    } catch (e) { /* ignore */ }
+
+    toggle.addEventListener("click", function () {
+      var collapsed = layout.classList.toggle("is-az-collapsed");
+      toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      toggle.setAttribute(
+        "aria-label",
+        collapsed ? "Expand alphabet jump rail" : "Collapse alphabet jump rail"
+      );
+      try {
+        if (window.localStorage) {
+          localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
+        }
+      } catch (e) { /* ignore */ }
+    });
   }
 
   function renderCard(tag) {
