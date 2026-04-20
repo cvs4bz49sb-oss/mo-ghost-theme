@@ -254,16 +254,10 @@
     </div>
 </section>
 
-{{!-- MEMBERSHIP CTA --}}
-<section class="membership-cta">
-    <div class="container cta-inner">
-        <p class="eyebrow">Join {{@site.title}}</p>
-        <h2><em>Support the work.</em><br /><span class="highlight">Sustain the renewal.</span></h2>
-        <p>
-            {{@site.title}} is able to produce top-notch essays and podcasts because of readers like you. If you believe in quality Christian media for the sake of renewal, join us.
-        </p>
-        <div class="hero-ctas" style="justify-content: center;">
-            <a href="/membership/" class="btn btn-primary btn-lg">Become a Member</a>
-        </div>
-    </div>
-</section>
+{{!-- Full membership page content at the bottom of the homepage —
+     shares partials/membership-body.hbs with /membership/. Wrapped in
+     a div instead of <main> so it doesn't conflict with any main
+     element used elsewhere on the page. --}}
+<div class="membership homepage-membership">
+  {{> "membership-body"}}
+</div>
