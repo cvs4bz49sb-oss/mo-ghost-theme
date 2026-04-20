@@ -210,6 +210,84 @@ img { max-width: 100%; height: auto; }
 }
 .nav a:hover { color: var(--color-primary); text-decoration: none; }
 
+/* Desktop dropdown: parent is a <button> in the same row as flat
+   links, menu is an absolutely-positioned panel. Built by
+   nav-dropdowns.js from "Parent > Child" labels in Ghost admin. */
+.nav-dropdown { position: relative; display: inline-flex; }
+.nav-dropdown-toggle {
+  font-family: var(--font-body);
+  color: var(--color-dark);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s;
+}
+.nav-dropdown-toggle:hover,
+.nav-dropdown.is-open .nav-dropdown-toggle { color: var(--color-primary); }
+.nav-dropdown-caret {
+  font-size: 10px;
+  line-height: 1;
+  transition: transform 0.15s;
+}
+.nav-dropdown.is-open .nav-dropdown-caret { transform: rotate(180deg); }
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 200px;
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  box-shadow: 0 10px 28px rgba(45, 41, 39, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.12s, transform 0.12s, visibility 0s linear 0.12s;
+  z-index: 40;
+}
+.nav-dropdown.is-open .nav-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 0.12s, transform 0.12s;
+}
+.nav-dropdown-menu li { list-style: none; }
+.nav-dropdown-menu a {
+  display: block;
+  padding: 8px 16px;
+  color: var(--color-dark);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav-dropdown-menu a:hover {
+  color: var(--color-primary);
+  background: var(--color-page);
+  text-decoration: none;
+}
+.nav-dropdown-menu .nav-dropdown-parent {
+  border-bottom: 1px solid var(--color-rule);
+  font-style: italic;
+  font-family: var(--font-display);
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
 .nav-actions {
   display: flex;
   align-items: center;
@@ -2625,6 +2703,34 @@ body {
 .mobile-nav-links a:hover {
   color: var(--color-secondary);
   text-decoration: none;
+}
+
+/* Mobile dropdown group: parent renders as a heading (or link if it
+   has a URL of its own), children are indented inline links so the
+   whole tree is visible at once in the drawer. */
+.mobile-nav-group { display: flex; flex-direction: column; }
+.mobile-nav-group-heading {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0;
+  padding: 14px 0 6px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.mobile-nav-group-parent {
+  font-weight: 600;
+}
+.mobile-nav-group-children {
+  display: flex;
+  flex-direction: column;
+  padding-left: 16px;
+}
+.mobile-nav-group-child {
+  font-size: 15px !important;
+  font-weight: 400 !important;
 }
 .mobile-nav-actions {
   margin-top: auto;

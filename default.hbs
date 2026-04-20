@@ -28,12 +28,16 @@
             <a href="{{@site.url}}" class="brand" aria-label="{{@site.title}} home">
                 <img src="{{asset "images/mere-o-logo.png"}}" alt="{{@site.title}}" class="brand-logo" />
             </a>
-            <nav class="nav" aria-label="Primary">
+            <nav class="nav" aria-label="Primary" data-nav-dropdowns>
                 {{!-- Use this.url so Handlebars resolves the nav item's
                      `url` property instead of invoking Ghost's {{url}}
-                     helper, which was returning "/" for every item. --}}
+                     helper, which was returning "/" for every item.
+                     `data-nav-dropdowns` triggers nav-dropdowns.js to
+                     regroup flat items into dropdowns using the
+                     "Parent > Child" label convention managed in
+                     Ghost Admin → Settings → Navigation. --}}
                 {{#foreach @site.navigation}}
-                    <a href="{{this.url}}">{{label}}</a>
+                    <a href="{{this.url}}" data-nav-label="{{label}}">{{label}}</a>
                 {{/foreach}}
             </nav>
             <div class="nav-actions">
@@ -59,9 +63,9 @@
                 <span class="mobile-nav-wordmark"><em>{{@site.title}}</em></span>
                 <button class="mobile-nav-close" type="button" aria-label="Close menu">&times;</button>
             </div>
-            <nav class="mobile-nav-links" aria-label="Primary">
+            <nav class="mobile-nav-links" aria-label="Primary" data-nav-dropdowns data-nav-mode="mobile">
                 {{#foreach @site.navigation}}
-                    <a href="{{this.url}}">{{label}}</a>
+                    <a href="{{this.url}}" data-nav-label="{{label}}">{{label}}</a>
                 {{/foreach}}
             </nav>
             <div class="mobile-nav-actions">
@@ -92,6 +96,7 @@
         </div>
     </footer>
 
+    <script src="{{asset "js/nav-dropdowns.js"}}"></script>
     <script>
         (function () {
             // Fixed-position header: hides on scroll-down, re-appears
