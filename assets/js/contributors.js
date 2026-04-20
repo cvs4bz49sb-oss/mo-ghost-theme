@@ -53,88 +53,9 @@
           t.count && t.count.posts > 0;
       }).sort(function (a, b) { return a.name.localeCompare(b.name); });
       if (!authors.length) return;
-
-      // Mark the first author for each initial letter so the A-Z rail
-      // can scroll-link to it. Compare letters in a case-insensitive
-      // way and fall back to "#" for anything that doesn't start with
-      // a letter.
-      var seenLetters = {};
-      authors = authors.map(function (t) {
-        var ch = (t.name || "").trim().charAt(0).toUpperCase();
-        var letter = /^[A-Z]$/.test(ch) ? ch : "#";
-        var isFirst = !seenLetters[letter];
-        seenLetters[letter] = true;
-        return Object.assign({}, t, { __letter: letter, __isLetterAnchor: isFirst });
-      });
-
       grid.innerHTML = authors.map(renderCard).join("");
-      renderAzRail(seenLetters);
     })
     .catch(function () { /* keep server render */ });
-
-  function renderAzRail(activeLetters) {
-    var rail = document.querySelector("[data-contributors-az]");
-    if (!rail) return;
-    var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    var lettersHtml = letters.map(function (L) {
-      if (activeLetters[L]) {
-        return '<a href="#letter-' + L + '" class="contributors-az-letter" data-letter="' + L + '">' + L + "</a>";
-      }
-      return '<span class="contributors-az-letter is-disabled" aria-disabled="true">' + L + "</span>";
-    }).join("");
-    if (activeLetters["#"]) {
-      lettersHtml += '<a href="#letter-num" class="contributors-az-letter" data-letter="#">#</a>';
-    }
-    rail.innerHTML =
-      '<button type="button" class="contributors-az-toggle" aria-label="Expand alphabet jump rail" aria-expanded="false" data-az-toggle>' +
-        '<span class="contributors-az-toggle-label">A\u2013Z</span>' +
-        '<span class="contributors-az-toggle-icon" aria-hidden="true">&lsaquo;</span>' +
-      "</button>" +
-      '<div class="contributors-az-letters" data-az-letters>' + lettersHtml + "</div>";
-    rail.hidden = false;
-
-    wireToggle(rail);
-  }
-
-  var STORAGE_KEY = "mo_contributors_az_collapsed";
-
-  function wireToggle(rail) {
-    var layout = rail.closest(".contributors-layout") || rail.parentNode;
-    var toggle = rail.querySelector("[data-az-toggle]");
-    if (!layout || !toggle) return;
-
-    // Default to collapsed. Only expand if the user explicitly
-    // expanded it in a previous visit on this browser.
-    var expanded = false;
-    try {
-      if (window.localStorage && localStorage.getItem(STORAGE_KEY) === "0") {
-        expanded = true;
-      }
-    } catch (e) { /* ignore */ }
-
-    if (!expanded) {
-      layout.classList.add("is-az-collapsed");
-      toggle.setAttribute("aria-expanded", "false");
-      toggle.setAttribute("aria-label", "Expand alphabet jump rail");
-    } else {
-      toggle.setAttribute("aria-expanded", "true");
-      toggle.setAttribute("aria-label", "Collapse alphabet jump rail");
-    }
-
-    toggle.addEventListener("click", function () {
-      var collapsed = layout.classList.toggle("is-az-collapsed");
-      toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
-      toggle.setAttribute(
-        "aria-label",
-        collapsed ? "Expand alphabet jump rail" : "Collapse alphabet jump rail"
-      );
-      try {
-        if (window.localStorage) {
-          localStorage.setItem(STORAGE_KEY, collapsed ? "1" : "0");
-        }
-      } catch (e) { /* ignore */ }
-    });
-  }
 
   function renderCard(tag) {
     var portrait = tag.feature_image
@@ -145,14 +66,8 @@
       : "";
     var count = (tag.count && tag.count.posts) || 0;
     var essayWord = count === 1 ? "essay" : "essays";
-    // First contributor in each letter group gets an id so the A-Z
-    // rail can scroll-link directly to it.
-    var anchorId = "";
-    if (tag.__isLetterAnchor) {
-      anchorId = ' id="letter-' + (tag.__letter === "#" ? "num" : tag.__letter) + '"';
-    }
     return (
-      '<a' + anchorId + ' href="' + escapeAttr(tag.url) + '" class="contributor-card contributor-card--candidate" data-tag-slug="' + escapeAttr(tag.slug) + '" data-letter="' + escapeAttr(tag.__letter || "") + '">' +
+      '<a href="' + escapeAttr(tag.url) + '" class="contributor-card contributor-card--candidate" data-tag-slug="' + escapeAttr(tag.slug) + '">' +
         '<div class="contributor-card-portrait" aria-hidden="true">' + portrait + "</div>" +
         '<div class="contributor-card-body">' +
           '<h2 class="contributor-card-name"><em>' + escapeHtml(tag.name) + "</em></h2>" +
