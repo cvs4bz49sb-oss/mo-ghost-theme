@@ -101,14 +101,9 @@
             function syncOffset() {
                 var h = header.getBoundingClientRect().height;
                 document.body.style.paddingTop = h + 'px';
+                // Anchor jumps (href="#x") should land the target at
+                // the bottom edge of the fixed nav.
                 document.documentElement.style.scrollPaddingTop = h + 'px';
-                // Belt-and-suspenders: apply scroll-margin-top directly
-                // to every in-page anchor target so #foo links land
-                // right at the bottom edge of the nav regardless of
-                // how the browser interprets scroll-padding-top with
-                // smooth-scroll.
-                var targets = document.querySelectorAll('[id]');
-                targets.forEach(function (t) { t.style.scrollMarginTop = h + 'px'; });
             }
             syncOffset();
             window.addEventListener('resize', syncOffset);
