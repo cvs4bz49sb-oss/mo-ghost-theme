@@ -20,15 +20,23 @@
         <h2 class="section-heading section-heading-light"><em>Support the work.</em></h2>
       </div>
     </div>
-    <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
-      <div class="toggle">
-        <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
-          Annual
-          <span class="badge">Save 17%</span>
-        </button>
-        <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
+    {{#match @member.status "paid"}}
+      <div class="toggle-wrap"><p class="mb-thanks">Thank you for your support.</p></div>
+    {{else}}{{#match @member.status "comped"}}
+      <div class="toggle-wrap"><p class="mb-thanks">Thank you for your support.</p></div>
+    {{else}}{{#match @member.email @custom.dashboard_preview_email}}
+      <div class="toggle-wrap"><p class="mb-thanks">Thank you for your support.</p></div>
+    {{else}}
+      <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
+        <div class="toggle">
+          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
+            Annual
+            <span class="badge">Save 17%</span>
+          </button>
+          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
+        </div>
       </div>
-    </div>
+    {{/match}}{{/match}}{{/match}}
   </section>
 
   {{!-- Pricing vs "already a member" is gated by paid/comped status
