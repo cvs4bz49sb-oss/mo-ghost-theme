@@ -18,15 +18,19 @@
       <div class="section-intro section-intro-light mb-hero-intro">
         <p class="eyebrow eyebrow-light">Membership</p>
         <h2 class="section-heading section-heading-light"><em>Support the work.</em></h2>
+        {{#match @member.status "paid"}}
+          <a href="{{#if @custom.gift_url}}{{@custom.gift_url}}{{else}}/gift/{{/if}}" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
+        {{else}}{{#match @member.status "comped"}}
+          <a href="{{#if @custom.gift_url}}{{@custom.gift_url}}{{else}}/gift/{{/if}}" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
+        {{else}}{{#match @member.email @custom.dashboard_preview_email}}
+          <a href="{{#if @custom.gift_url}}{{@custom.gift_url}}{{else}}/gift/{{/if}}" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
+        {{else}}{{/match}}{{/match}}{{/match}}
       </div>
     </div>
-    {{#match @member.status "paid"}}
-      <div class="toggle-wrap"><p class="mb-thanks">Thank you for your support.</p></div>
-    {{else}}{{#match @member.status "comped"}}
-      <div class="toggle-wrap"><p class="mb-thanks">Thank you for your support.</p></div>
-    {{else}}{{#match @member.email @custom.dashboard_preview_email}}
-      <div class="toggle-wrap"><p class="mb-thanks">Thank you for your support.</p></div>
-    {{else}}
+    {{!-- Annual/Monthly toggle: pricing-only, so hidden for
+         paid/comped/preview members who see the gift CTA above
+         and the "already a member" block below instead. --}}
+    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
       <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
         <div class="toggle">
           <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">

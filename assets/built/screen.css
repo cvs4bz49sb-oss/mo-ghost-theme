@@ -5098,22 +5098,9 @@ body {
   letter-spacing: 0.02em;
 }
 .mb-hero { position: relative; }
-/* Paid-member replacement for the Annual/Monthly toggle — same
-   floating-pill shape and placement, thank-you copy in place of
-   controls. */
-.mb-hero .mb-thanks {
-  margin: 0;
-  background: var(--color-white);
-  border: 1px solid var(--color-card-border);
-  border-radius: 999px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  padding: 14px 28px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-dark);
-  letter-spacing: 0.02em;
-}
+/* Paid-member "Gift A Membership" CTA sits under the headline
+   in place of the pricing toggle below. */
+.mb-hero-gift-cta { margin-top: 24px; }
 
 /* "Read more essays" link at the bottom of the This Week section on
    the homepage, routing to /archive/ for the full listing. */
