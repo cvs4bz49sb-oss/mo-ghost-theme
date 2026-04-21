@@ -3169,6 +3169,7 @@ body {
   .hero-ctas { flex-direction: row; align-items: stretch; gap: 8px; flex-wrap: nowrap; }
   .hero-ctas .btn { flex: 1 1 0; min-width: 0; width: auto; padding: 12px 14px; font-size: 13px; }
   .hero-ctas .btn-lg { padding: 12px 14px; font-size: 13px; }
+  .hero-ctas .btn:only-child { flex: 0 0 auto; }
   /* Feature image on mobile: fill the 16:10 frame with `cover` so
      the box is always occupied, regardless of source aspect ratio.
      Center-position keeps the subject roughly middle. */
