@@ -67,10 +67,9 @@
     var date = ep.ts
       ? new Date(ep.ts).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
       : "";
-    var topicBits = [];
-    if (ep.showTitle) topicBits.push(escapeHtml(ep.showTitle));
-    if (date) topicBits.push(escapeHtml(date));
-    var topic = topicBits.join(" \u00b7 ");
+    var topicHtml = "";
+    if (ep.showTitle) topicHtml += '<p class="pod-topic">' + escapeHtml(ep.showTitle) + "</p>";
+    if (date) topicHtml += '<p class="pod-date">' + escapeHtml(date) + "</p>";
 
     var summary = sanitize(ep.description).replace(/\s+/g, " ").slice(0, 180).trim();
     var initial = summary.charAt(0) || "";
@@ -95,7 +94,7 @@
 
     return (
       '<article class="pod-entry pod-entry--episode" data-show="' + escapeAttr(ep.slug) + '">' +
-      '<p class="pod-topic">' + topic + "</p>" +
+      topicHtml +
       '<h3 class="pod-title"><em>' + escapeHtml(ep.title) + "</em></h3>" +
       excerpt +
       linksBlock +
