@@ -101,19 +101,6 @@
                     </button>
                 {{/if}}
             </div>
-            {{!-- Upsell note: rendered for everyone who isn't paid,
-                 comped, or the staff-preview email. JS in
-                 article-audio.js / article-bookmark.js uses the same
-                 gate to redirect button clicks to /membership/. --}}
-            {{#match @member.status "paid"}}{{else}}
-            {{#match @member.status "comped"}}{{else}}
-            {{#match @member.email @custom.dashboard_preview_email}}{{else}}
-                <p class="article-actions-upsell">
-                    <a href="/membership/">Become a Member to access</a>
-                </p>
-            {{/match}}
-            {{/match}}
-            {{/match}}
         </div>
     </header>
 

@@ -2237,7 +2237,7 @@ body {
 /* -------- Article body -------- */
 
 .article-body {
-  padding: 72px 0 48px;
+  padding: 72px 0 24px;
 }
 
 .article-body-inner {
@@ -2698,7 +2698,7 @@ body {
 /* -------- Related -------- */
 
 .related {
-  padding: 96px 0 72px;
+  padding: 40px 0 72px;
   background: var(--color-page);
 }
 
