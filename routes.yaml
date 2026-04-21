@@ -13,8 +13,6 @@ routes:
     template: custom-contributors
   /about/:
     template: custom-about
-  /digest/:
-    template: custom-digest
   /archive/:
     controller: channel
     template: custom-archive
