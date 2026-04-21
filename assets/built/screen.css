@@ -2091,6 +2091,18 @@ body {
   min-width: 82px;
   text-align: right;
 }
+.ao-player.is-preparing .ao-time {
+  font-variant-numeric: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 10px;
+  animation: ao-pulse 1.3s ease-in-out infinite;
+}
+.ao-player.is-preparing .ao-play { opacity: 0.75; }
+@keyframes ao-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
 @media (max-width: 480px) {
   .ao-player { padding: 6px 12px 6px 6px; gap: 10px; }
   .ao-play { width: 36px; height: 36px; }

@@ -48,21 +48,34 @@
       '<div class="ao-track-fill" data-ao-fill></div>' +
       '<div class="ao-track-thumb" data-ao-thumb></div>' +
       '</div>' +
-      '<span class="ao-time" data-ao-time>0:00 / --:--</span>';
+      '<span class="ao-time" data-ao-time>Preparing</span>';
 
     var parent = triggerEl.parentNode;
     parent.replaceChild(shell, triggerEl);
     shell.appendChild(audio);
+    shell.classList.add("is-preparing");
 
     var playBtn = shell.querySelector("[data-ao-toggle]");
     var track = shell.querySelector("[data-ao-track]");
     var fill = shell.querySelector("[data-ao-fill]");
     var thumb = shell.querySelector("[data-ao-thumb]");
     var timeEl = shell.querySelector("[data-ao-time]");
+    var ready = false;
 
     function setPlaying(on) {
       shell.classList.toggle("is-playing", on);
       playBtn.setAttribute("aria-label", on ? "Pause" : "Play");
+    }
+
+    function showTime() {
+      timeEl.textContent = fmt(audio.currentTime) + " / " + fmt(audio.duration);
+    }
+
+    function markReady() {
+      if (ready) return;
+      ready = true;
+      shell.classList.remove("is-preparing");
+      showTime();
     }
 
     playBtn.addEventListener("click", function () {
@@ -71,16 +84,17 @@
     audio.addEventListener("play", function () { setPlaying(true); });
     audio.addEventListener("pause", function () { setPlaying(false); });
     audio.addEventListener("ended", function () { setPlaying(false); });
+    audio.addEventListener("playing", markReady);
 
     audio.addEventListener("timeupdate", function () {
+      if (!ready) markReady();
       var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
       fill.style.width = pct + "%";
       thumb.style.left = pct + "%";
-      timeEl.textContent = fmt(audio.currentTime) + " / " + fmt(audio.duration);
+      showTime();
       updatePositionState(audio);
     });
     audio.addEventListener("loadedmetadata", function () {
-      timeEl.textContent = fmt(audio.currentTime) + " / " + fmt(audio.duration);
       updatePositionState(audio);
     });
 
