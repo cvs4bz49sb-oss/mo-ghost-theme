@@ -1,3 +1,10 @@
+{{!-- Sitewide "Support the work" CTA rendered under posts, the about
+     page, and anywhere else the partial is invoked. Hidden for
+     paid/comped members and the staff preview email — they've
+     already subscribed. --}}
+{{#match @member.status "paid"}}{{else}}
+{{#match @member.status "comped"}}{{else}}
+{{#match @member.email @custom.dashboard_preview_email}}{{else}}
 <section class="membership-cta">
     <div class="cta-inner">
         <p class="eyebrow">Join {{@site.title}}</p>
@@ -11,3 +18,6 @@
         </div>
     </div>
 </section>
+{{/match}}
+{{/match}}
+{{/match}}
