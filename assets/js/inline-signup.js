@@ -65,6 +65,8 @@
     submit.textContent = "Subscribing\u2026";
     setStatus(root, "");
 
+    var labels = buildContextLabels(root);
+
     // Ghost 5.x requires an integrity token fetched from a dedicated
     // endpoint (anti-abuse). The token is single-use and short-lived,
     // so it has to be fetched per-submit, not cached.
@@ -78,7 +80,7 @@
             email: email,
             emailType: "signup",
             name: name,
-            labels: [],
+            labels: labels,
             requestSrc: "portal",
             redirect: window.location.href,
             integrityToken: integrityToken,
@@ -132,6 +134,43 @@
   function getValue(root, selector) {
     var el = root.querySelector(selector);
     return el ? (el.value || "").trim() : "";
+  }
+
+  // Build the context labels that Ghost will attach to the new member.
+  // Our mo-kit worker mirrors Ghost labels onto Kit tags, so these
+  // labels are the single source of truth for signup provenance.
+  //
+  // TOPIC_TAGS must stay in sync with the TOPIC_TAGS var on the
+  // mo-kit worker; anything outside this set would still become a
+  // Ghost label but the worker won't turn it into a meaningful tag.
+  var TOPIC_TAGS = [
+    "church", "culture", "family", "formation",
+    "technology", "theology", "book-reviews"
+  ];
+  function buildContextLabels(root) {
+    var out = [];
+    // Form location, e.g. "home", "article-inline", "footer".
+    var source = root.getAttribute("data-source");
+    if (source) out.push("source:" + source);
+    // Article topic(s): read the article's visible topic links if
+    // present. Any tag outside TOPIC_TAGS is skipped to keep Ghost
+    // labels/Kit tags bounded.
+    var tagLinks = document.querySelectorAll(".article-topic [data-tag-slug], .article-topic-tag[data-tag-slug]");
+    var added = Object.create(null);
+    for (var i = 0; i < tagLinks.length; i++) {
+      var slug = tagLinks[i].getAttribute("data-tag-slug") || "";
+      if (TOPIC_TAGS.indexOf(slug) === -1) continue;
+      if (added[slug]) continue;
+      added[slug] = true;
+      out.push("topic:" + slug);
+    }
+    // UTM campaign.
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var utm = params.get("utm_campaign");
+      if (utm) out.push("utm:" + utm);
+    } catch (_) {}
+    return out;
   }
 
   function escapeHtml(s) {

@@ -137,6 +137,7 @@
     var form = document.createElement("div");
     form.className = "post-gate-form";
     form.setAttribute("data-inline-signup", "");
+    form.setAttribute("data-source", "gate-modal");
     // On successful subscribe, swap the entire gate card (pitch copy
     // + form + Sign-in row) for the success state so the messaging
     // doesn't double up.

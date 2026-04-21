@@ -21,7 +21,10 @@
     <link rel="shortcut icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
     <link rel="apple-touch-icon" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
 </head>
-<body class="{{body_class}}"{{#if @custom.podcast_feed_url}} data-podcast-feed-url="{{@custom.podcast_feed_url}}"{{/if}}>
+<body class="{{body_class}}"
+      {{#if @custom.podcast_feed_url}}data-podcast-feed-url="{{@custom.podcast_feed_url}}"{{/if}}
+      {{#if @custom.kit_worker_url}}data-kit-worker-url="{{@custom.kit_worker_url}}"{{/if}}
+      {{#if @member}}data-member-email="{{@member.email}}"{{/if}}>
 
     <header class="site-header">
         <div class="container header-inner">
@@ -98,6 +101,7 @@
 
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
     <script src="{{asset "js/inline-signup.js"}}"></script>
+    <script src="{{asset "js/kit-events.js"}}"></script>
     <script>
         (function () {
             // Fixed-position header: hides on scroll-down, re-appears

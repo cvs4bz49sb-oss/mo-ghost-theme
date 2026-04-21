@@ -94,7 +94,21 @@
     playBtn.addEventListener("click", function () {
       if (audio.paused) audio.play(); else audio.pause();
     });
-    audio.addEventListener("play", function () { setPlaying(true); });
+    var emittedPlayEvent = false;
+    audio.addEventListener("play", function () {
+      setPlaying(true);
+      if (emittedPlayEvent) return;
+      emittedPlayEvent = true;
+      if (typeof window.__kitEmit === "function") {
+        var topicTags = [];
+        var tagEls = document.querySelectorAll(".article-topic [data-tag-slug], .article-topic-tag[data-tag-slug]");
+        for (var i = 0; i < tagEls.length; i++) {
+          var slug = tagEls[i].getAttribute("data-tag-slug");
+          if (slug) topicTags.push(slug);
+        }
+        window.__kitEmit("audio_played", { postId: postId, postTags: topicTags });
+      }
+    });
     audio.addEventListener("pause", function () { setPlaying(false); });
     audio.addEventListener("ended", function () { setPlaying(false); });
     audio.addEventListener("playing", markReady);

@@ -9,7 +9,7 @@
             {{!-- Ghost-native inline signup. inline-signup.js POSTs the
                  values straight to /members/api/send-magic-link/ and
                  swaps the form for a success state. No Portal modal. --}}
-            <div class="digest-form" data-inline-signup>
+            <div class="digest-form" data-inline-signup data-source="{{#if source}}{{source}}{{else}}home{{/if}}">
                     <div class="digest-field">
                         <label for="digest-first">First Name</label>
                         <input id="digest-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />

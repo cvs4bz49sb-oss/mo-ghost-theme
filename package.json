@@ -108,6 +108,10 @@
       "audio_worker_url": {
         "type": "text",
         "description": "Full URL of the deployed mo-audio Cloudflare Worker (e.g. https://mo-audio.mo-podcast-feed.workers.dev). When set, paid Members see a 'Listen to this essay' button in the post header. Empty disables audio articles."
+      },
+      "kit_worker_url": {
+        "type": "text",
+        "description": "Full URL of the deployed mo-kit Cloudflare Worker (e.g. https://mo-kit.mo-podcast-feed.workers.dev). When set, signup forms pass topic/source context labels to Ghost, and engagement events (audio plays, article reads, membership clicks) are forwarded to Kit as tags. Empty disables the Kit integration entirely."
       }
     }
   }
