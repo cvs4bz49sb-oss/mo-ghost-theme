@@ -5667,7 +5667,7 @@ body {
   z-index: 3;
 }
 .forum-hero-image-inner {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   background: #3a332e center / cover no-repeat;
   border-radius: 18px;
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
@@ -5805,7 +5805,7 @@ body {
 @media (max-width: 820px) {
   .forum-hero-grid { grid-template-columns: 1fr; gap: 32px; }
   .forum-hero-content { max-width: none; }
-  .forum-hero-image-inner { aspect-ratio: 16 / 10; }
+  .forum-hero-image-inner { aspect-ratio: 16 / 9; }
 }
 @media (max-width: 640px) {
   .forum-hero { padding: 56px 0; }
