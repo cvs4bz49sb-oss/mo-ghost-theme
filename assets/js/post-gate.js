@@ -107,7 +107,7 @@
     wrap.appendChild(eyebrow("Keep Reading"));
     wrap.appendChild(heading("Subscribe to keep reading."));
     wrap.appendChild(body(
-      "Free. Delivered Thursday mornings. Unsubscribe anytime. Subscribers read every essay; Members fund the work."
+      "Pick up where you left off, get access to the full archive, and never miss an essay again. Free. Unsubscribe anytime."
     ));
     wrap.appendChild(buildSubscribeForm());
 
