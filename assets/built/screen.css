@@ -2312,10 +2312,64 @@ body {
   flex-wrap: wrap;
   justify-content: center;
 }
+
+/* Inline Subscribe form inside the free-tier gate. Two-up on the
+   first row (first / last), email on its own row, full-width submit
+   underneath. */
+.post-gate-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto 18px;
+  text-align: left;
+}
+.post-gate-form .post-gate-field:nth-child(3),
+.post-gate-form .post-gate-submit { grid-column: 1 / -1; }
+.post-gate-field label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-bottom: 6px;
+}
+.post-gate-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: var(--color-white);
+  font: inherit;
+  color: var(--color-dark);
+}
+.post-gate-field input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.post-gate-submit { justify-self: stretch; }
+.post-gate-signin {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+.post-gate-signin-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--color-secondary);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.post-gate-signin-link:hover { color: var(--color-primary); }
+
 @media (max-width: 640px) {
   .post-gate-card { margin: 32px 0 0; padding: 32px 20px; }
   .post-gate-actions { width: 100%; }
   .post-gate-actions .btn { width: 100%; }
+  .post-gate-form { grid-template-columns: 1fr; }
 }
 
 /* -------- Inline membership prompt -------- */

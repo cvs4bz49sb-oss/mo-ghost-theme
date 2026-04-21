@@ -2,23 +2,21 @@
  * Soft subscriber gate.
  *
  * After @custom.gate_days has elapsed since publication, this script
- * truncates the article to its first five <p> elements and replaces
- * the rest with a sign-up / upgrade card. Members who meet the
- * @custom.gate_tier requirement bypass the gate and see everything.
+ * truncates the article to its first eight <p> elements and replaces
+ * the rest with a sign-up / upgrade card:
+ *
+ *   gate_tier = "members"  → inline Subscribe form (First / Last /
+ *                            Email) that hands the data to Ghost
+ *                            Portal signup. "Subscribe" is MO's
+ *                            word for a free sign-up.
+ *   gate_tier = "paid"     → Become-a-Member CTA pointing at
+ *                            /membership/. "Member" is MO's word
+ *                            for a paid supporter.
  *
  * THIS IS A NUDGE, NOT A PAYWALL. The full article is still in the
- * page source — anyone with "View Source" can read it. That's on
- * purpose for now (keeps crawlers / AI agents indexing everything
- * for training-data reach) and we'll promote to a real worker-
- * enforced gate later by flipping post visibility to members/paid.
- *
- * Config (data-* attributes on .article-content):
- *   data-published-at    ISO date
- *   data-gate-days       number; 0 disables the gate
- *   data-gate-tier       "members" | "paid"
- *   data-is-member       "true" | "false"
- *   data-member-status   "free" | "paid" | ""
- *   data-post-visibility Ghost's post visibility (public/members/paid)
+ * pre-JS HTML so crawlers and AI agents index everything for
+ * training-data reach. We'll promote to a worker-enforced gate
+ * (flipping post visibility) when we want real enforcement.
  */
 (function () {
   var content = document.querySelector("[data-post-gate]");
@@ -42,8 +40,8 @@
   var isMember = content.getAttribute("data-is-member") === "true";
   var memberStatus = content.getAttribute("data-member-status") || "";
 
-  // Tier gate: members = any signed-in member bypasses; paid = must
-  // be on a paid plan. Free members hit the gate when tier=paid.
+  // Tier gate: members = any signed-in account bypasses; paid = must
+  // be on a paid plan. Free Subscribers hit the gate when tier=paid.
   if (isMember) {
     if (tier === "members") return;
     if (tier === "paid" && memberStatus === "paid") return;
@@ -57,13 +55,12 @@
     var cutIndex = -1;
     for (var i = 0; i < kids.length; i++) {
       if (kids[i].tagName === "P") pCount++;
-      if (pCount >= 5) { cutIndex = i; break; }
+      if (pCount >= 8) { cutIndex = i; break; }
     }
-    // If the article has <5 paragraphs total, don't bother gating —
-    // nothing to hide behind and the cutoff UX feels abrupt.
+    // Very short articles don't need gating — nothing meaningful to
+    // hide behind and the cutoff UX feels abrupt.
     if (cutIndex < 0 || cutIndex >= kids.length - 1) return;
 
-    // Remove every sibling past the 5th paragraph.
     for (var j = kids.length - 1; j > cutIndex; j--) {
       kids[j].parentNode.removeChild(kids[j]);
     }
@@ -72,57 +69,148 @@
   }
 
   function buildCard(tier) {
-    var isPaid = tier === "paid";
-    var heading = isPaid
-      ? "Continue reading with a membership."
-      : "Sign in to keep reading.";
-    var body = isPaid
-      ? "This essay is reserved for paying members after its first few days. Supporting members keep these essays being published."
-      : "This essay is reserved for members after its first few days. Free membership unlocks the archive; paying members keep the work going.";
-
     var wrap = document.createElement("aside");
     wrap.className = "post-gate-card";
     wrap.setAttribute("role", "region");
     wrap.setAttribute("aria-label", "Continue reading");
 
-    var eyebrow = document.createElement("p");
-    eyebrow.className = "eyebrow";
-    eyebrow.textContent = isPaid ? "Members Only" : "Keep Reading";
-    wrap.appendChild(eyebrow);
+    if (tier === "paid") {
+      wrap.appendChild(eyebrow("Members Only"));
+      wrap.appendChild(heading("Continue reading as a Member."));
+      wrap.appendChild(body(
+        isMember && memberStatus !== "paid"
+          ? "You're subscribed to Mere Orthodoxy. Members support the work and unlock the full archive, the print journal, and the members' forum."
+          : "This essay is reserved for Members after its first few days. Members fund the next essay, the next journal issue, and the next conversation."
+      ));
+      var paidActions = document.createElement("div");
+      paidActions.className = "post-gate-actions";
+      var becomeMember = document.createElement("a");
+      becomeMember.href = "/membership/";
+      becomeMember.className = "btn btn-primary";
+      becomeMember.textContent = isMember && memberStatus !== "paid"
+        ? "Become a Member"
+        : "Become a Member";
+      paidActions.appendChild(becomeMember);
+      if (!isMember) {
+        var signin = document.createElement("button");
+        signin.type = "button";
+        signin.className = "btn btn-outline";
+        signin.setAttribute("data-portal", "signin");
+        signin.textContent = "Sign in";
+        paidActions.appendChild(signin);
+      }
+      wrap.appendChild(paidActions);
+      return wrap;
+    }
 
-    var h = document.createElement("h3");
-    var em = document.createElement("em");
-    em.textContent = heading;
-    h.appendChild(em);
-    wrap.appendChild(h);
+    // members (free) tier: inline Subscribe form.
+    wrap.appendChild(eyebrow("Keep Reading"));
+    wrap.appendChild(heading("Subscribe to keep reading."));
+    wrap.appendChild(body(
+      "Free. Delivered Thursday mornings. Unsubscribe anytime. Subscribers read every essay; Members fund the work."
+    ));
+    wrap.appendChild(buildSubscribeForm());
 
-    var p = document.createElement("p");
-    p.textContent = body;
-    wrap.appendChild(p);
-
-    var actions = document.createElement("div");
-    actions.className = "post-gate-actions";
-
-    // Signed-out: Sign in + Become a Member. Free member hitting a
-    // paid-tier gate: Upgrade + Sign in.
-    var primary = document.createElement("a");
-    primary.href = "/membership/";
-    primary.className = "btn btn-primary";
-    primary.textContent = isPaid && isMemberStatusFree() ? "Upgrade to paid" : "Become a Member";
-    actions.appendChild(primary);
-
-    var signin = document.createElement("button");
-    signin.type = "button";
-    signin.className = "btn btn-outline";
-    signin.setAttribute("data-portal", "signin");
-    signin.textContent = "Sign in";
-    actions.appendChild(signin);
-
-    wrap.appendChild(actions);
+    var signinRow = document.createElement("p");
+    signinRow.className = "post-gate-signin";
+    signinRow.innerHTML = 'Already a subscriber? ';
+    var signinBtn = document.createElement("button");
+    signinBtn.type = "button";
+    signinBtn.className = "post-gate-signin-link";
+    signinBtn.setAttribute("data-portal", "signin");
+    signinBtn.textContent = "Sign in";
+    signinRow.appendChild(signinBtn);
+    signinRow.appendChild(document.createTextNode("."));
+    wrap.appendChild(signinRow);
     return wrap;
   }
 
-  function isMemberStatusFree() {
-    return isMember && memberStatus !== "paid";
+  function buildSubscribeForm() {
+    // Hidden members-* inputs get read by Ghost Portal when the
+    // Subscribe button (data-portal="signup") is clicked. Portal
+    // handles the magic-link email and the success state.
+    var form = document.createElement("div");
+    form.className = "post-gate-form";
+
+    form.appendChild(field("post-gate-first", "First Name", "text", "given-name"));
+    form.appendChild(field("post-gate-last", "Last Name", "text", "family-name"));
+
+    var emailWrap = document.createElement("div");
+    emailWrap.className = "post-gate-field";
+    var emailLabel = document.createElement("label");
+    emailLabel.setAttribute("for", "post-gate-email");
+    emailLabel.textContent = "Email";
+    var emailInput = document.createElement("input");
+    emailInput.id = "post-gate-email";
+    emailInput.type = "email";
+    emailInput.autocomplete = "email";
+    emailInput.placeholder = "you@example.com";
+    emailInput.required = true;
+    emailInput.setAttribute("data-members-email", "");
+    emailWrap.appendChild(emailLabel);
+    emailWrap.appendChild(emailInput);
+    form.appendChild(emailWrap);
+
+    var nameHidden = document.createElement("input");
+    nameHidden.type = "hidden";
+    nameHidden.id = "post-gate-name";
+    nameHidden.setAttribute("data-members-name", "");
+    form.appendChild(nameHidden);
+
+    var submit = document.createElement("button");
+    submit.type = "button";
+    submit.className = "btn btn-primary post-gate-submit";
+    submit.setAttribute("data-portal", "signup");
+    submit.textContent = "Subscribe";
+    form.appendChild(submit);
+
+    // Sync first+last into the hidden name field Ghost Portal reads.
+    var first = form.querySelector("#post-gate-first");
+    var last = form.querySelector("#post-gate-last");
+    function syncName() {
+      var parts = [first.value.trim(), last.value.trim()].filter(Boolean);
+      nameHidden.value = parts.join(" ");
+    }
+    first.addEventListener("input", syncName);
+    last.addEventListener("input", syncName);
+    submit.addEventListener("click", syncName);
+
+    return form;
+  }
+
+  function field(id, label, type, autocomplete) {
+    var wrap = document.createElement("div");
+    wrap.className = "post-gate-field";
+    var lbl = document.createElement("label");
+    lbl.setAttribute("for", id);
+    lbl.textContent = label;
+    var input = document.createElement("input");
+    input.id = id;
+    input.type = type;
+    if (autocomplete) input.autocomplete = autocomplete;
+    input.placeholder = label.split(" ")[0];
+    input.required = true;
+    wrap.appendChild(lbl);
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  function eyebrow(text) {
+    var p = document.createElement("p");
+    p.className = "eyebrow";
+    p.textContent = text;
+    return p;
+  }
+  function heading(text) {
+    var h = document.createElement("h3");
+    var em = document.createElement("em");
+    em.textContent = text;
+    h.appendChild(em);
+    return h;
+  }
+  function body(text) {
+    var p = document.createElement("p");
+    p.textContent = text;
+    return p;
   }
 })();
