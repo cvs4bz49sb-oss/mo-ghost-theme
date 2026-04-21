@@ -2099,6 +2099,24 @@ body {
   animation: ao-pulse 1.3s ease-in-out infinite;
 }
 .ao-player.is-preparing .ao-play { opacity: 0.75; }
+.ao-speed {
+  flex: 0 0 auto;
+  min-width: 36px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(238, 125, 81, 0.4);
+  background: transparent;
+  color: var(--color-primary, #ee7d51);
+  font-family: var(--font-body, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ao-speed:hover { background: rgba(238, 125, 81, 0.14); border-color: var(--color-primary, #ee7d51); }
 @keyframes ao-pulse {
   0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }

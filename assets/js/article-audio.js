@@ -48,7 +48,8 @@
       '<div class="ao-track-fill" data-ao-fill></div>' +
       '<div class="ao-track-thumb" data-ao-thumb></div>' +
       '</div>' +
-      '<span class="ao-time" data-ao-time>Preparing</span>';
+      '<span class="ao-time" data-ao-time>Preparing</span>' +
+      '<button class="ao-speed" type="button" data-ao-speed aria-label="Playback speed">1x</button>';
 
     var parent = triggerEl.parentNode;
     parent.replaceChild(shell, triggerEl);
@@ -60,7 +61,19 @@
     var fill = shell.querySelector("[data-ao-fill]");
     var thumb = shell.querySelector("[data-ao-thumb]");
     var timeEl = shell.querySelector("[data-ao-time]");
+    var speedBtn = shell.querySelector("[data-ao-speed]");
     var ready = false;
+
+    var SPEEDS = [1, 1.25, 1.5, 1.75, 2];
+    var speedIdx = 0;
+    function fmtSpeed(v) { return (v % 1 === 0 ? v.toFixed(0) : v.toString()) + "x"; }
+    speedBtn.addEventListener("click", function () {
+      speedIdx = (speedIdx + 1) % SPEEDS.length;
+      var rate = SPEEDS[speedIdx];
+      audio.playbackRate = rate;
+      speedBtn.textContent = fmtSpeed(rate);
+      updatePositionState(audio);
+    });
 
     function setPlaying(on) {
       shell.classList.toggle("is-playing", on);
