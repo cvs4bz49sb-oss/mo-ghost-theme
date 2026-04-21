@@ -42,6 +42,8 @@
     var e = upcoming[0];
     heroUpcoming.hidden = false;
     document.querySelector("[data-events-title]").textContent = e.title;
+    var titleLink = document.querySelector("[data-events-title-link]");
+    if (titleLink) titleLink.href = e.url;
     document.querySelector("[data-events-date]").textContent = formatDate(e.ts);
     if (e.excerpt) {
       var sub = document.querySelector("[data-events-excerpt]");

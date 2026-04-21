@@ -26,7 +26,7 @@
             </div>
 
             <div class="hero-visual">
-                {{#get "posts" limit="1" include="authors,tags"}}
+                {{#get "posts" filter="tag:-hash-event" limit="1" include="authors,tags"}}
                     {{#foreach posts}}
                         <a href="{{url}}" class="hero-feature" style="text-decoration:none; color:inherit;">
                             <div class="hero-feature-img" aria-hidden="true">
@@ -61,7 +61,7 @@
                         <p class="eyebrow">Today</p>
                         <h3><em>What's new this morning</em></h3>
                     </div>
-                    {{#get "posts" limit="2" include="authors,tags"}}
+                    {{#get "posts" filter="tag:-hash-event" limit="2" include="authors,tags"}}
                         {{#foreach posts from="2" limit="1"}}
                             <a href="{{url}}" class="feature-entry">
                                 <div class="feature-plate">
@@ -107,7 +107,7 @@
                         selection (featured) rather than analytics.
                     --}}
                     <ol class="read-list">
-                        {{#get "posts" filter="featured:true" limit="5" include="authors,tags"}}
+                        {{#get "posts" filter="featured:true+tag:-hash-event" limit="5" include="authors,tags"}}
                             {{#foreach posts}}
                                 <li>
                                     <a href="{{url}}">
@@ -149,7 +149,7 @@
         <div class="flourish">{{> "flourish-mark"}}</div>
 
         <div class="week-grid">
-            {{#get "posts" limit="8" include="authors,tags"}}
+            {{#get "posts" filter="tag:-hash-event" limit="8" include="authors,tags"}}
                 {{#foreach posts from="3" limit="6"}}
                     {{> "post-entry"}}
                 {{/foreach}}

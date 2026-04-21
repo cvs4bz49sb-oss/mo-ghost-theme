@@ -46,6 +46,11 @@ collections:
   /:
     permalink: /{slug}/
     template: index
+    # Exclude internal-tagged event posts from the default collection
+    # so they don't leak onto /archive/, tag archives, or any default
+    # {{#foreach posts}} iteration. They remain accessible by URL and
+    # render via the events page / replay library.
+    filter: tag:-hash-event
 
 taxonomies:
   tag: /tag/{slug}/
