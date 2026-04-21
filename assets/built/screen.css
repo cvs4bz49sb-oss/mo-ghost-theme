@@ -5976,3 +5976,31 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Download-PDF button in .article-actions, matching the pill
+   aesthetic of the Listen + Bookmark buttons. */
+.article-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(238, 125, 81, 0.08);
+  border: 1px solid rgba(238, 125, 81, 0.35);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.article-pdf:hover {
+  background: rgba(238, 125, 81, 0.16);
+  border-color: var(--color-primary);
+  text-decoration: none;
+  color: var(--color-primary);
+}
+.article-pdf-icon { width: 14px; height: 14px; flex: 0 0 auto; }
