@@ -12,20 +12,25 @@
   var placeholder = document.querySelector("[data-replays-placeholder]");
   if (!source || !list) return;
 
-  var now = Date.now();
+  // "Past" = the replay YouTube embed has been pasted into the post.
+  // Ghost 5 won't let us edit published_at to a future date, so we
+  // key off presence of the video embed instead of date comparison.
   var items = Array.prototype.slice.call(source.querySelectorAll(".replays-item"))
     .map(function (el) {
       var ts = Date.parse(el.getAttribute("data-published-at"));
+      var contentHtml = (el.querySelector(".replays-item-content") || {}).innerHTML || "";
       return {
         slug: el.getAttribute("data-slug") || "",
         url: el.getAttribute("data-url") || "",
         title: el.getAttribute("data-title") || "",
         excerpt: el.getAttribute("data-excerpt") || "",
         ts: isNaN(ts) ? 0 : ts,
-        contentHtml: (el.querySelector(".replays-item-content") || {}).innerHTML || "",
+        contentHtml: contentHtml,
+        hasReplay: /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
       };
     })
-    .filter(function (e) { return e.ts > 0 && e.ts < now; });
+    .filter(function (e) { return e.hasReplay; })
+    .sort(function (a, b) { return b.ts - a.ts; });
 
   if (placeholder) placeholder.remove();
   if (!items.length) {

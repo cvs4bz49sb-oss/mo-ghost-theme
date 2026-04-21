@@ -1,12 +1,16 @@
 /*
  * /events/ page wiring.
  *
- * Reads every #event post rendered hidden inside [data-events-source],
- * sorts by published_at, promotes the closest future event into the
- * hero + body, and populates the "Past Events" footer list with the
- * rest. Also stamps the registration form with the upcoming event's
- * title so the inline-signup flow can attach it as a Ghost label
- * (mirrored by mo-kit into a Kit tag).
+ * Each #event post rendered hidden inside [data-events-source] is
+ * classified as "past" if its body contains a YouTube embed (Ian
+ * pastes the replay in after the event), otherwise "upcoming". The
+ * newest upcoming post becomes the hero; past posts go to the
+ * footer list, newest first.
+ *
+ * Display date/time comes straight from the post excerpt — Ian
+ * types it as part of the excerpt, e.g. "Saturday, April 25 at
+ * 7 PM Eastern — With Alan Noble", and we render it verbatim
+ * under the hero title.
  */
 (function () {
   var source = document.querySelector("[data-events-source]");
@@ -14,7 +18,7 @@
 
   var items = Array.prototype.slice.call(source.querySelectorAll(".events-item"))
     .map(function (el) {
-      var ts = Date.parse(el.getAttribute("data-published-at"));
+      var contentHtml = (el.querySelector(".events-item-content") || {}).innerHTML || "";
       return {
         slug: el.getAttribute("data-slug") || "",
         url: el.getAttribute("data-url") || "",
@@ -22,15 +26,16 @@
         excerpt: el.getAttribute("data-excerpt") || "",
         featureImage: el.getAttribute("data-feature-image") || "",
         publishedAt: el.getAttribute("data-published-at") || "",
-        ts: isNaN(ts) ? 0 : ts,
-        contentHtml: (el.querySelector(".events-item-content") || {}).innerHTML || "",
+        ts: Date.parse(el.getAttribute("data-published-at")) || 0,
+        contentHtml: contentHtml,
+        hasReplay: /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
       };
-    })
-    .filter(function (e) { return e.ts > 0; });
+    });
 
-  var now = Date.now();
-  var upcoming = items.filter(function (e) { return e.ts > now; }).sort(function (a, b) { return a.ts - b.ts; });
-  var past = items.filter(function (e) { return e.ts <= now; }).sort(function (a, b) { return b.ts - a.ts; });
+  var upcoming = items.filter(function (e) { return !e.hasReplay; })
+    .sort(function (a, b) { return b.ts - a.ts; }); // newest first = the one to feature
+  var past = items.filter(function (e) { return e.hasReplay; })
+    .sort(function (a, b) { return b.ts - a.ts; });
 
   var heroUpcoming = document.querySelector("[data-events-hero]");
   var heroEmpty = document.querySelector("[data-events-hero-empty]");
@@ -44,7 +49,6 @@
     document.querySelector("[data-events-title]").textContent = e.title;
     var titleLink = document.querySelector("[data-events-title-link]");
     if (titleLink) titleLink.href = e.url;
-    document.querySelector("[data-events-date]").textContent = formatDate(e.ts);
     if (e.excerpt) {
       var sub = document.querySelector("[data-events-excerpt]");
       sub.textContent = e.excerpt;
@@ -81,10 +85,12 @@
     }
     var body = document.createElement("div");
     body.className = "events-past-body";
-    var date = document.createElement("p");
-    date.className = "events-past-date";
-    date.textContent = formatDate(e.ts);
-    body.appendChild(date);
+    if (e.excerpt) {
+      var when = document.createElement("p");
+      when.className = "events-past-date";
+      when.textContent = e.excerpt;
+      body.appendChild(when);
+    }
     var title = document.createElement("h3");
     title.className = "events-past-event-title";
     var em = document.createElement("em");
@@ -94,13 +100,5 @@
     a.appendChild(body);
     li.appendChild(a);
     return li;
-  }
-
-  function formatDate(ts) {
-    try {
-      return new Date(ts).toLocaleDateString("en-US", {
-        month: "long", day: "numeric", year: "numeric",
-      });
-    } catch (_) { return ""; }
   }
 })();
