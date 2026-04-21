@@ -1,0 +1,43 @@
+{{!< default}}
+{{!-- /dashboard/bookmarks/ — full bookmarks list. Gating logic mirrors
+     custom-dashboard.hbs. --}}
+
+<main class="dashboard">
+
+  {{#unless @member}}
+    <section class="hero dashboard-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <h1 class="hero-headline">Sign in to view your <span class="highlight"><em>bookmarks</em></span>.</h1>
+        <p class="dashboard-actions">
+          <a href="#/portal/signin" class="btn btn-primary" data-portal="signin">Sign in</a>
+          <a href="/membership/" class="btn btn-ghost">Become a Member</a>
+        </p>
+      </div>
+    </section>
+  {{else}}
+
+    {{#match @member.status "paid"}}{{> "dashboard-full-list" kind="bookmarks"}}{{else}}
+    {{#match @member.status "comped"}}{{> "dashboard-full-list" kind="bookmarks"}}{{else}}
+    {{#match @member.email @custom.dashboard_preview_email}}
+      <div class="dashboard-admin-banner" role="note">
+        <strong>Admin preview.</strong> You are not a paid Member — this page is visible because your email matches <code>@custom.dashboard_preview_email</code>.
+      </div>
+      {{> "dashboard-full-list" kind="bookmarks"}}
+    {{else}}
+      <section class="hero dashboard-hero">
+        <div class="container">
+          <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+          <h1 class="hero-headline">Bookmarks are a <span class="highlight"><em>member feature</em></span>.</h1>
+          <p class="dashboard-actions"><a href="/membership/" class="btn btn-primary">Become a Member</a></p>
+        </div>
+      </section>
+    {{/match}}
+    {{/match}}
+    {{/match}}
+
+  {{/unless}}
+
+</main>
+
+<script src="{{asset "js/dashboard.js"}}"></script>

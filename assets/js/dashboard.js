@@ -1,10 +1,11 @@
 /*
- * Dashboard reading-history hydration.
+ * Dashboard list hydration.
  *
- * Server-side rendering handles everything else (hero, members-only
- * essays via {{#get}}, rail). This fetches /history from the mo-kit
- * worker and injects an editorial-style essay list into
- * [data-dashboard-history].
+ * Renders bookmarks and reading history into their mount elements.
+ * Each mount carries two optional data attributes:
+ *   data-limit    — max rows to show; blank/absent means render all
+ *   data-view-all — href to navigate to when truncated (adds a
+ *                   "View All N →" link under the list)
  */
 (function () {
   var body = document.body;
@@ -16,61 +17,120 @@
   var nameEl = document.querySelector(".dashboard-hero .highlight em");
   if (nameEl) {
     var full = (nameEl.textContent || "").trim();
-    if (full) {
+    // Skip when the highlight isn't a name (e.g. "Bookmarks" page).
+    if (full && /\s/.test(full) && /^[A-Z]/.test(full)) {
       var first = full.split(/\s+/)[0];
       if (first) nameEl.textContent = first;
     }
   }
 
-  hydrateBookmarks(body, WORKER, EMAIL);
+  hydrateBookmarks();
+  hydrateHistory();
 
-  var mount = document.querySelector("[data-dashboard-history]");
-  if (!mount) return;
+  // --- Bookmarks ---------------------------------------------------------
 
-  if (!WORKER || !EMAIL) {
-    showEmpty(mount, "Reading history is only available for signed-in members.");
-    return;
+  function hydrateBookmarks() {
+    var mount = document.querySelector("[data-dashboard-bookmarks]");
+    if (!mount) return;
+    if (!WORKER || !EMAIL) {
+      showEmpty(mount, "Bookmarks are only available for signed-in members.");
+      return;
+    }
+    fetch(WORKER.replace(/\/$/, "") + "/bookmarks?email=" + encodeURIComponent(EMAIL), {
+      method: "GET", mode: "cors", credentials: "omit",
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var list = (data && data.bookmarks) || [];
+        renderList(mount, list, "bookmarks", {
+          emptyMsg: "No bookmarks yet. Tap the bookmark icon on any essay to save it here.",
+        });
+      })
+      .catch(function () {
+        showEmpty(mount, "Couldn't load your bookmarks right now. Try reloading.");
+      });
   }
 
-  fetch(WORKER.replace(/\/$/, "") + "/history?email=" + encodeURIComponent(EMAIL) + "&limit=20", {
-    method: "GET", mode: "cors", credentials: "omit",
-  })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (data) {
-      var list = (data && data.history) || [];
-      if (!list.length) {
-        showEmpty(mount, "You haven't finished any essays yet. Read one for 60 seconds or scroll to the end, and it'll appear here.");
-        return;
-      }
-      var ol = document.createElement("ol");
-      ol.className = "dashboard-essay-list";
-      for (var i = 0; i < list.length; i++) ol.appendChild(renderItem(list[i], WORKER, EMAIL));
-      clear(mount);
-      mount.appendChild(ol);
-    })
-    .catch(function () {
-      showEmpty(mount, "Couldn't load your reading history right now. Try reloading.");
-    });
+  // --- Reading History ---------------------------------------------------
 
-  function renderItem(entry, WORKER, EMAIL) {
+  function hydrateHistory() {
+    var mount = document.querySelector("[data-dashboard-history]");
+    if (!mount) return;
+    if (!WORKER || !EMAIL) {
+      showEmpty(mount, "Reading history is only available for signed-in members.");
+      return;
+    }
+    fetch(WORKER.replace(/\/$/, "") + "/history?email=" + encodeURIComponent(EMAIL) + "&limit=50", {
+      method: "GET", mode: "cors", credentials: "omit",
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var list = (data && data.history) || [];
+        renderList(mount, list, "history", {
+          emptyMsg: "You haven't finished any essays yet. Read one for 60 seconds or scroll to the end, and it'll appear here.",
+        });
+      })
+      .catch(function () {
+        showEmpty(mount, "Couldn't load your reading history right now. Try reloading.");
+      });
+  }
+
+  // --- Shared rendering --------------------------------------------------
+
+  function renderList(mount, fullList, kind, opts) {
+    if (!fullList.length) { showEmpty(mount, opts.emptyMsg); return; }
+
+    var limitRaw = parseInt(mount.getAttribute("data-limit") || "", 10);
+    var limit = isNaN(limitRaw) ? fullList.length : limitRaw;
+    var visible = fullList.slice(0, limit);
+    var viewAllHref = mount.getAttribute("data-view-all") || "";
+
+    var ol = document.createElement("ol");
+    ol.className = "dashboard-essay-list";
+    for (var i = 0; i < visible.length; i++) {
+      ol.appendChild(renderItem(visible[i], kind));
+    }
+
+    clear(mount);
+    mount.appendChild(ol);
+
+    if (viewAllHref && fullList.length > limit) {
+      var wrap = document.createElement("p");
+      wrap.className = "dashboard-view-all";
+      var a = document.createElement("a");
+      a.href = viewAllHref;
+      a.textContent = "View all " + fullList.length + " \u2192";
+      wrap.appendChild(a);
+      mount.appendChild(wrap);
+    }
+  }
+
+  function renderItem(entry, kind) {
     var remove = document.createElement("button");
     remove.type = "button";
     remove.className = "dashboard-essay-remove";
-    remove.setAttribute("aria-label", "Remove from reading history");
+    remove.setAttribute("aria-label", kind === "bookmarks" ? "Remove bookmark" : "Remove from reading history");
     remove.textContent = "Remove";
+
+    var metaText = kind === "bookmarks"
+      ? (entry.savedAt ? "Saved " + formatRelative(entry.savedAt) : "")
+      : "Read " + formatRelative(entry.readAt);
+
     var li = buildEssayRow({
       url: entry.url || ("/" + (entry.slug || "")),
       title: entry.title || entry.slug || entry.postId,
       topic: entry.primary_tag && entry.primary_tag.name,
       image: entry.feature_image,
-      metaText: "Read " + formatRelative(entry.readAt),
+      metaText: metaText,
       remove: remove,
     });
+
+    var endpoint = kind === "bookmarks" ? "/bookmarks/remove" : "/history/remove";
     remove.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
       remove.disabled = true;
-      fetch(WORKER.replace(/\/$/, "") + "/history/remove", {
+      fetch(WORKER.replace(/\/$/, "") + endpoint, {
         method: "POST",
         mode: "cors",
         credentials: "omit",
@@ -78,6 +138,7 @@
         body: JSON.stringify({ email: EMAIL, postId: entry.postId }),
       }).then(function () { li.remove(); }).catch(function () { remove.disabled = false; });
     });
+
     return li;
   }
 
@@ -132,63 +193,6 @@
   }
 
   function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
-
-  function hydrateBookmarks(body, WORKER, EMAIL) {
-    var mount = document.querySelector("[data-dashboard-bookmarks]");
-    if (!mount) return;
-    if (!WORKER || !EMAIL) {
-      showEmpty(mount, "Bookmarks are only available for signed-in members.");
-      return;
-    }
-    fetch(WORKER.replace(/\/$/, "") + "/bookmarks?email=" + encodeURIComponent(EMAIL), {
-      method: "GET", mode: "cors", credentials: "omit",
-    })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
-        var list = (data && data.bookmarks) || [];
-        if (!list.length) {
-          showEmpty(mount, "No bookmarks yet. Tap the bookmark icon on any essay to save it here.");
-          return;
-        }
-        var ol = document.createElement("ol");
-        ol.className = "dashboard-essay-list";
-        for (var i = 0; i < list.length; i++) ol.appendChild(renderBookmarkItem(list[i], WORKER, EMAIL));
-        clear(mount);
-        mount.appendChild(ol);
-      })
-      .catch(function () {
-        showEmpty(mount, "Couldn't load your bookmarks right now. Try reloading.");
-      });
-  }
-
-  function renderBookmarkItem(entry, WORKER, EMAIL) {
-    var remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "dashboard-essay-remove";
-    remove.setAttribute("aria-label", "Remove bookmark");
-    remove.textContent = "Remove";
-    var li = buildEssayRow({
-      url: entry.url || ("/" + (entry.slug || "")),
-      title: entry.title || entry.slug || entry.postId,
-      topic: entry.primary_tag && entry.primary_tag.name,
-      image: entry.feature_image,
-      metaText: entry.savedAt ? "Saved " + formatRelative(entry.savedAt) : "",
-      remove: remove,
-    });
-    remove.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      remove.disabled = true;
-      fetch(WORKER.replace(/\/$/, "") + "/bookmarks/remove", {
-        method: "POST",
-        mode: "cors",
-        credentials: "omit",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: EMAIL, postId: entry.postId }),
-      }).then(function () { li.remove(); }).catch(function () { remove.disabled = false; });
-    });
-    return li;
-  }
 
   function formatRelative(iso) {
     var then = Date.parse(iso);

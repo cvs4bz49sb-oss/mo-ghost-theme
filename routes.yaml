@@ -31,6 +31,10 @@ routes:
     template: custom-manage
   /dashboard/:
     template: custom-dashboard
+  /dashboard/bookmarks/:
+    template: custom-dashboard-bookmarks
+  /dashboard/history/:
+    template: custom-dashboard-history
   /success/:
     template: custom-success
 

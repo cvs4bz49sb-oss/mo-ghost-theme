@@ -5535,3 +5535,37 @@ body {
 }
 .dashboard-essay-remove:hover { color: var(--color-primary); }
 .dashboard-essay-remove:disabled { opacity: 0.5; cursor: default; }
+
+/* --- View all link (under truncated list) + full-list + breadcrumb - */
+.dashboard-view-all {
+  margin: 24px 0 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.dashboard-view-all a {
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(238, 125, 81, 0.35);
+  padding-bottom: 2px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.dashboard-view-all a:hover {
+  border-color: var(--color-primary);
+  color: var(--color-secondary, #c1593c);
+}
+.dashboard-breadcrumb {
+  margin: 18px 0 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.dashboard-breadcrumb a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.dashboard-breadcrumb a:hover { color: var(--color-secondary, #c1593c); }
+.dashboard-main--full { max-width: 760px; margin: 0 auto; }

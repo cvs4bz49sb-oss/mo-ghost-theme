@@ -1,0 +1,30 @@
+{{!-- Shared body for /dashboard/bookmarks/ and /dashboard/history/.
+     Expects a `kind` param equal to "bookmarks" or "history". --}}
+
+<section class="hero dashboard-hero">
+  <div class="container">
+    <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+    <h1 class="hero-headline">
+      {{#match kind "bookmarks"}}Your <span class="highlight"><em>Bookmarks</em></span>.{{/match}}
+      {{#match kind "history"}}Your <span class="highlight"><em>Reading History</em></span>.{{/match}}
+    </h1>
+    <p class="dashboard-breadcrumb"><a href="/dashboard/">&larr; Back to dashboard</a></p>
+  </div>
+</section>
+
+<section class="dashboard-body">
+  <div class="container">
+    <div class="dashboard-main dashboard-main--full">
+      {{#match kind "bookmarks"}}
+        <div class="dashboard-bookmarks" data-dashboard-bookmarks>
+          <p class="dashboard-empty" data-bookmarks-placeholder>Loading your bookmarks&hellip;</p>
+        </div>
+      {{/match}}
+      {{#match kind "history"}}
+        <div class="dashboard-history" data-dashboard-history>
+          <p class="dashboard-empty" data-history-placeholder>Loading your reading history&hellip;</p>
+        </div>
+      {{/match}}
+    </div>
+  </div>
+</section>
