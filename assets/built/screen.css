@@ -4710,12 +4710,13 @@ body {
 }
 @media (max-width: 640px) {
   .about-hero { padding: 48px 0 0; }
-  .about-hero-grid { grid-template-columns: 1fr; gap: 28px; }
+  .about-hero-grid { grid-template-columns: 1fr; gap: 20px; }
   .about-hero-content { max-width: none; }
   .about-hero-headline { font-size: clamp(22px, 6.2vw, 34px); line-height: 1.18; }
+  .about-hero .hero-sub { margin: 0; }
   .about-hero-image { order: 2; margin-bottom: 0; }
   .about-hero-image img { max-height: 320px; }
-  .about-body { padding: 40px 0 16px; }
+  .about-body { padding: 32px 0 16px; }
   .about-prose p { font-size: 17px; line-height: 1.7; }
   .about-lede { font-size: 19px !important; }
   .about-vision { padding: 56px 0; }
