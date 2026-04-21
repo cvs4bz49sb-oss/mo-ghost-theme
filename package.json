@@ -113,6 +113,17 @@
       "digest_auth_token": {
         "type": "text",
         "description": "Shared secret matching DIGEST_AUTH_TOKEN on the mo-digest Worker. When set, /digest/ auto-fills the auth field so you don't type it every time. Visible in page source — anyone who loads /digest/ can read it, so treat this page as semi-private."
+      },
+      "gate_days": {
+        "type": "text",
+        "default": "7",
+        "description": "Days a new post stays unrestricted before the soft subscriber gate kicks in. 0 disables the gate entirely. Soft gate only — JS overlay on the rendered article; not a real paywall. Upgrade to a worker-enforced gate later."
+      },
+      "gate_tier": {
+        "type": "select",
+        "options": ["members", "paid"],
+        "default": "members",
+        "description": "Who can read an article after the gate closes. 'members' = any signed-in member (free or paid). 'paid' = paying members only; free members still see the gate."
       }
     }
   }

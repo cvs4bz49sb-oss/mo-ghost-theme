@@ -97,7 +97,21 @@
                 </div>
             </aside>
 
-            <div class="article-content">
+            {{!-- Soft subscriber gate. The data-* attributes feed
+                 assets/js/post-gate.js, which after @custom.gate_days
+                 has elapsed truncates the article to the first five
+                 paragraphs and injects a sign-up / upgrade card.
+                 Bypassable via View Source — this is a nudge, not a
+                 real paywall. For enforced access control we'll
+                 promote to a worker that flips post visibility. --}}
+            <div class="article-content"
+                 data-post-gate
+                 data-published-at="{{published_at}}"
+                 data-gate-days="{{#if @custom.gate_days}}{{@custom.gate_days}}{{else}}0{{/if}}"
+                 data-gate-tier="{{#if @custom.gate_tier}}{{@custom.gate_tier}}{{else}}members{{/if}}"
+                 data-is-member="{{#if @member}}true{{else}}false{{/if}}"
+                 data-member-status="{{#if @member}}{{@member.status}}{{/if}}"
+                 data-post-visibility="{{visibility}}">
                 {{content}}
 
                 {{#unless @member}}
@@ -207,5 +221,6 @@
 
 <script src="{{asset "js/toc.js"}}"></script>
 <script src="{{asset "js/related.js"}}"></script>
+<script src="{{asset "js/post-gate.js"}}"></script>
 
 {{/post}}
