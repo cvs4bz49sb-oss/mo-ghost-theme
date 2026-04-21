@@ -72,7 +72,10 @@
                     <div class="article-audio"
                          data-article-audio
                          data-post-id="{{id}}"
-                         data-audio-base="{{@custom.audio_worker_url}}">
+                         data-audio-base="{{@custom.audio_worker_url}}"
+                         data-post-title="{{title}}"
+                         data-post-author="{{#if primary_author}}{{primary_author.name}}{{else}}Mere Orthodoxy{{/if}}"
+                         {{#if feature_image}}data-post-image="{{img_url feature_image size="m"}}"{{/if}}>
                         <button class="article-audio-trigger" type="button" data-audio-trigger aria-label="Listen to this essay">
                             <span class="article-audio-icon" aria-hidden="true">&#9654;</span>
                             <span class="article-audio-label">Listen to this essay</span>

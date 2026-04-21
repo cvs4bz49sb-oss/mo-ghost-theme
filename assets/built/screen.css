@@ -2010,6 +2010,92 @@ body {
   height: 48px;
   border-radius: 999px;
 }
+.ao-player {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 520px;
+  padding: 8px 18px 8px 8px;
+  border-radius: 999px;
+  background: rgba(238, 125, 81, 0.08);
+  border: 1px solid rgba(238, 125, 81, 0.35);
+}
+.ao-player audio { display: none; }
+.ao-play {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: var(--color-primary, #ee7d51);
+  color: var(--color-white, #fff);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+}
+.ao-play:hover { background: #e26a3b; }
+.ao-play:active { transform: scale(0.96); }
+.ao-icon { width: 16px; height: 16px; fill: currentColor; }
+.ao-icon-pause { display: none; }
+.ao-player.is-playing .ao-icon-play { display: none; }
+.ao-player.is-playing .ao-icon-pause { display: block; }
+.ao-track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 18px;
+  cursor: pointer;
+  touch-action: none;
+}
+.ao-track-bg,
+.ao-track-fill {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+.ao-track-bg {
+  left: 0;
+  right: 0;
+  background: rgba(238, 125, 81, 0.18);
+}
+.ao-track-fill {
+  left: 0;
+  width: 0;
+  background: var(--color-primary, #ee7d51);
+}
+.ao-track-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--color-primary, #ee7d51);
+  transform: translateY(-50%);
+  pointer-events: none;
+  box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.2);
+}
+.ao-time {
+  flex: 0 0 auto;
+  font-family: var(--font-body, sans-serif);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary, #ee7d51);
+  letter-spacing: 0.02em;
+  min-width: 82px;
+  text-align: right;
+}
+@media (max-width: 480px) {
+  .ao-player { padding: 6px 12px 6px 6px; gap: 10px; }
+  .ao-play { width: 36px; height: 36px; }
+  .ao-time { min-width: 72px; font-size: 11px; }
+}
 .article-title em { font-style: italic; }
 .article-title .highlight {
   background-color: rgba(193,89,60,0.78);
