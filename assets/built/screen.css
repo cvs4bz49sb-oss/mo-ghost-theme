@@ -1177,9 +1177,11 @@ img { max-width: 100%; height: auto; }
 /* -------- This Week (book-page entries) -------- */
 
 .this-week {
-  padding: 72px 0 96px;
+  padding: 48px 0 96px;
   background: var(--color-background);
 }
+.this-week .section-intro { margin-bottom: 24px; }
+.this-week .flourish { margin-bottom: 24px; }
 
 .week-grid {
   display: grid;
