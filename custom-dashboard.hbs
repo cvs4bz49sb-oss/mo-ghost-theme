@@ -2,56 +2,61 @@
 {{!-- custom-dashboard: Paying Members hub.
 
      Visibility rules:
-       - Not signed in                 → sign-in prompt
-       - @member.status == "paid"      → full dashboard
-       - @member.status == "comped"    → full dashboard
-       - @member.email == @custom.dashboard_preview_email → full dashboard + admin banner
-       - Any other signed-in state     → upsell to paid membership
+       - Not signed in                                 → sign-in prompt
+       - @member.status == "paid"                       → full dashboard
+       - @member.status == "comped"                     → full dashboard
+       - @member.email == @custom.dashboard_preview_email
+                                                        → full dashboard + admin banner
+       - Any other signed-in state                      → upsell
 
-     The actual content is fetched client-side from the mo-kit worker
-     (reading history) and Ghost's Content API via {{#get}} (latest
-     members-only essays). See assets/js/dashboard.js. --}}
+     Layout matches custom-about.hbs: dark hero, eyebrow kicker,
+     container-narrow prose, flourish marks between sections. Body
+     uses native <details>/<summary> for expandable modules. --}}
 
-<main class="dashboard-page">
-  <div class="container">
+<main class="dashboard">
 
-    {{#unless @member}}
-      <section class="dashboard-gate">
-        <p class="eyebrow">Members Only</p>
-        <h1>Sign in to your dashboard</h1>
-        <p>Your reading history, members-only essays, and membership settings all live here. Open the magic link in your inbox, or subscribe below if you're new.</p>
+  {{#unless @member}}
+    <section class="hero dashboard-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <h1 class="hero-headline">
+          Sign in to your <span class="highlight"><em>members&nbsp;hub</em></span>.
+        </h1>
+        <p class="hero-sub">Your reading history, members-only essays, and membership settings all live here. Open the magic link in your inbox, or subscribe below if you're new.</p>
         <p class="dashboard-actions">
           <a href="#/portal/signin" class="btn btn-primary" data-portal="signin">Sign in</a>
           <a href="/membership/" class="btn btn-ghost">Become a Member</a>
         </p>
-      </section>
-    {{else}}
+      </div>
+    </section>
+  {{else}}
 
-      {{!-- Gate: paid, comped, or staff-preview email. Everything else
-           renders the upsell. --}}
-      {{#match @member.status "paid"}}{{> "dashboard-body"}}{{else}}
-      {{#match @member.status "comped"}}{{> "dashboard-body"}}{{else}}
-      {{#match @member.email @custom.dashboard_preview_email}}
-        <div class="dashboard-admin-banner" role="note">
-          <strong>Admin preview.</strong> You are not a paid Member — this dashboard is visible because your email matches <code>dashboard_preview_email</code>.
-        </div>
-        {{> "dashboard-body"}}
-      {{else}}
-        <section class="dashboard-gate">
-          <p class="eyebrow">Members Only</p>
-          <h1>Your dashboard awaits</h1>
-          <p>Members get a reading history feed, bookmarks, and access to members-only essays. Your current plan doesn't include dashboard access yet.</p>
+    {{#match @member.status "paid"}}{{> "dashboard-body"}}{{else}}
+    {{#match @member.status "comped"}}{{> "dashboard-body"}}{{else}}
+    {{#match @member.email @custom.dashboard_preview_email}}
+      <div class="dashboard-admin-banner" role="note">
+        <strong>Admin preview.</strong> You are not a paid Member — this dashboard is visible because your email matches <code>@custom.dashboard_preview_email</code>.
+      </div>
+      {{> "dashboard-body"}}
+    {{else}}
+      <section class="hero dashboard-hero">
+        <div class="container">
+          <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+          <h1 class="hero-headline">
+            Your dashboard <span class="highlight"><em>awaits</em></span>.
+          </h1>
+          <p class="hero-sub">Members get a reading history feed, members-only essays, and direct membership controls. Your current plan doesn't include dashboard access yet.</p>
           <p class="dashboard-actions">
             <a href="/membership/" class="btn btn-primary">Become a Member</a>
           </p>
-        </section>
-      {{/match}}
-      {{/match}}
-      {{/match}}
+        </div>
+      </section>
+    {{/match}}
+    {{/match}}
+    {{/match}}
 
-    {{/unless}}
+  {{/unless}}
 
-  </div>
 </main>
 
 <script src="{{asset "js/dashboard.js"}}"></script>

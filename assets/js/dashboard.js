@@ -1,9 +1,9 @@
 /*
- * Dashboard client-side hydration.
+ * Dashboard reading-history hydration.
  *
- * The page template renders sections server-side from Ghost context
- * (member identity, members-only essays via {{#get}}). This file only
- * fetches reading history from the mo-kit worker and injects it into
+ * Server-side rendering handles everything else (hero, members-only
+ * essays via {{#get}}, rail). This fetches /history from the mo-kit
+ * worker and injects an editorial-style essay list into
  * [data-dashboard-history].
  */
 (function () {
@@ -14,74 +14,88 @@
   if (!mount) return;
 
   if (!WORKER || !EMAIL) {
-    renderEmpty(mount, "Reading history is only available for signed-in members.");
+    showEmpty(mount, "Reading history is only available for signed-in members.");
     return;
   }
 
-  var placeholder = mount.querySelector("[data-history-placeholder]");
-
   fetch(WORKER.replace(/\/$/, "") + "/history?email=" + encodeURIComponent(EMAIL) + "&limit=20", {
-    method: "GET",
-    mode: "cors",
-    credentials: "omit",
+    method: "GET", mode: "cors", credentials: "omit",
   })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
-      if (placeholder) placeholder.remove();
       var list = (data && data.history) || [];
       if (!list.length) {
-        renderEmpty(mount, "You haven't finished any essays yet. Read one for 60 seconds or scroll to the end, and it'll appear here.");
+        showEmpty(mount, "You haven't finished any essays yet. Read one for 60 seconds or scroll to the end, and it'll appear here.");
         return;
       }
-      var grid = document.createElement("div");
-      grid.className = "dashboard-grid dashboard-grid--history";
-      for (var i = 0; i < list.length; i++) grid.appendChild(renderCard(list[i]));
-      mount.appendChild(grid);
+      var ol = document.createElement("ol");
+      ol.className = "dashboard-essay-list";
+      for (var i = 0; i < list.length; i++) ol.appendChild(renderItem(list[i], i + 1));
+      clear(mount);
+      mount.appendChild(ol);
     })
     .catch(function () {
-      if (placeholder) placeholder.remove();
-      renderEmpty(mount, "Couldn't load your reading history right now. Try reloading.");
+      showEmpty(mount, "Couldn't load your reading history right now. Try reloading.");
     });
 
-  function renderCard(entry) {
-    var card = document.createElement("a");
-    card.className = "dashboard-card dashboard-card--history";
-    card.href = entry.url || ("/" + (entry.slug || ""));
-    if (entry.feature_image) {
-      var img = document.createElement("div");
-      img.className = "dashboard-card-img";
-      img.style.backgroundImage = "url(" + entry.feature_image + ")";
-      card.appendChild(img);
-    }
+  function renderItem(entry, n) {
+    var li = document.createElement("li");
+    li.className = "dashboard-essay";
+
+    var num = document.createElement("span");
+    num.className = "dashboard-essay-numeral";
+    num.textContent = toRoman(n);
+    li.appendChild(num);
+
     var body = document.createElement("div");
-    body.className = "dashboard-card-body";
+    body.className = "dashboard-essay-body";
+
     if (entry.primary_tag && entry.primary_tag.name) {
       var topic = document.createElement("p");
-      topic.className = "dashboard-card-topic";
+      topic.className = "dashboard-essay-topic";
       topic.textContent = entry.primary_tag.name;
       body.appendChild(topic);
     }
-    var title = document.createElement("h3");
-    title.className = "dashboard-card-title";
-    title.textContent = entry.title || entry.slug || entry.postId;
-    body.appendChild(title);
-    if (entry.readAt) {
-      var meta = document.createElement("p");
-      meta.className = "dashboard-card-meta";
-      meta.textContent = "Read " + formatRelative(entry.readAt);
-      body.appendChild(meta);
-    }
-    card.appendChild(body);
-    return card;
+    var h3 = document.createElement("h3");
+    h3.className = "dashboard-essay-title";
+    var a = document.createElement("a");
+    a.href = entry.url || ("/" + (entry.slug || ""));
+    var em = document.createElement("em");
+    em.textContent = entry.title || entry.slug || entry.postId;
+    a.appendChild(em);
+    h3.appendChild(a);
+    body.appendChild(h3);
+
+    var meta = document.createElement("p");
+    meta.className = "dashboard-essay-meta";
+    meta.textContent = "Read " + formatRelative(entry.readAt);
+    body.appendChild(meta);
+
+    li.appendChild(body);
+    return li;
   }
 
-  function renderEmpty(mount, msg) {
-    var p = mount.querySelector("[data-history-placeholder]");
-    if (p) p.remove();
-    var empty = document.createElement("p");
-    empty.className = "dashboard-empty";
-    empty.textContent = msg;
-    mount.appendChild(empty);
+  function showEmpty(mount, msg) {
+    clear(mount);
+    var p = document.createElement("p");
+    p.className = "dashboard-empty";
+    p.textContent = msg;
+    mount.appendChild(p);
+  }
+
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+  function toRoman(n) {
+    var values = [10, 9, 5, 4, 1];
+    var symbols = ["X", "IX", "V", "IV", "I"];
+    var out = "";
+    var i = 0;
+    while (n > 0 && i < values.length) {
+      while (n >= values[i]) { out += symbols[i]; n -= values[i]; }
+      i++;
+    }
+    // Fallback to arabic for numbers this loop doesn't cover (20+).
+    return out || String(n);
   }
 
   function formatRelative(iso) {
