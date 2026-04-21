@@ -174,7 +174,7 @@
                             {{@site.title}} publishes long-form essays on theology, culture, and spiritual formation because readers like you make them possible. If this piece is worth your time, consider supporting the work.
                         </p>
                         <div class="inline-support-ctas">
-                            <a href="/membership/" class="btn btn-primary">Become a Member</a>
+                            <a href="#join" class="btn btn-primary">Become a Member</a>
                         </div>
                     </div>
                 {{/unless}}
@@ -195,44 +195,26 @@
             <div class="author-bio-contributors" data-bio>
                 {{#foreach tags}}
                     <div class="author-bio author-bio--candidate" data-tag-slug="{{slug}}">
-                        <div class="author-bio-avatar" aria-hidden="true">
-                            {{#if feature_image}}
-                                <img src="{{img_url feature_image size="m"}}" alt="{{name}}" />
-                            {{else}}
-                                <span class="author-bio-avatar-initial">{{name}}</span>
-                            {{/if}}
-                        </div>
-                        <div class="author-bio-body">
-                            <p class="eyebrow">The Author</p>
-                            <h4><em>{{name}}</em></h4>
-                            {{#if description}}<p>{{description}}</p>{{/if}}
-                            <div class="author-links">
-                                <a href="{{url}}">More essays by {{name}} &rarr;</a>
-                            </div>
-                        </div>
+                        <div class="flourish">{{> "flourish-mark"}}</div>
+                        <p class="eyebrow">The Author</p>
+                        <h4 class="author-bio-name"><em>{{name}}</em></h4>
+                        {{#if description}}<p class="author-bio-text">{{description}}</p>{{/if}}
+                        <p class="author-bio-links"><a href="{{url}}">More essays by {{name}} &rarr;</a></p>
                     </div>
                 {{/foreach}}
             </div>
             <div class="author-bio-fallback">
                 {{#primary_author}}
                     <div class="author-bio">
-                        <div class="author-bio-avatar" aria-hidden="true">
-                            {{#if profile_image}}
-                                <img src="{{img_url profile_image size="m"}}" alt="{{name}}" />
-                            {{else}}
-                                <span class="author-bio-avatar-initial">{{name}}</span>
-                            {{/if}}
-                        </div>
-                        <div class="author-bio-body">
-                            <p class="eyebrow">The Author</p>
-                            <h4><em>{{name}}</em></h4>
-                            {{#if bio}}<p>{{bio}}</p>{{/if}}
-                            <div class="author-links">
-                                <a href="{{url}}">More essays by {{name}} &rarr;</a>
-                                {{#if website}}<a href="{{website}}" target="_blank" rel="noopener">Website</a>{{/if}}
-                                {{#if twitter}}<a href="https://twitter.com/{{twitter}}" target="_blank" rel="noopener">Follow</a>{{/if}}
-                            </div>
-                        </div>
+                        <div class="flourish">{{> "flourish-mark"}}</div>
+                        <p class="eyebrow">The Author</p>
+                        <h4 class="author-bio-name"><em>{{name}}</em></h4>
+                        {{#if bio}}<p class="author-bio-text">{{bio}}</p>{{/if}}
+                        <p class="author-bio-links">
+                            <a href="{{url}}">More essays by {{name}} &rarr;</a>
+                            {{#if website}}<a href="{{website}}" target="_blank" rel="noopener">Website</a>{{/if}}
+                            {{#if twitter}}<a href="https://twitter.com/{{twitter}}" target="_blank" rel="noopener">Follow</a>{{/if}}
+                        </p>
                     </div>
                 {{/primary_author}}
             </div>

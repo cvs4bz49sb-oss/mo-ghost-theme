@@ -2582,37 +2582,34 @@ body {
 
 /* -------- Inline membership prompt -------- */
 
+/* Mid-article member pitch — editorial prose block, no card chrome.
+   Sits between paragraphs of .article-content; bordered top & bottom
+   with a thin rule so it reads as an intentional pause, not a widget. */
 .inline-support {
-  margin: 56px -40px;
-  padding: 40px;
-  background: var(--color-background);
-  border: 1px solid var(--color-card-border);
-  border-radius: var(--radius-lg);
-  position: relative;
-  overflow: hidden;
+  margin: 44px 0;
+  padding: 28px 0;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
 }
-.inline-support::before {
-  content: "";
-  position: absolute;
-  top: -80px;
-  right: -80px;
-  width: 240px;
-  height: 240px;
-  background: radial-gradient(circle, rgba(238,125,81,0.18), transparent 60%);
+.inline-support .eyebrow {
+  color: var(--color-primary);
+  margin: 0 0 12px;
 }
-.inline-support .eyebrow { color: var(--color-secondary); }
 .inline-support h3 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 28px;
-  line-height: 1.2;
-  margin: 0 0 14px;
+  font-size: 26px;
+  line-height: 1.25;
+  margin: 0 0 12px;
+  color: var(--color-dark);
 }
 .inline-support h3 em { font-style: italic; }
 .inline-support p {
   font-size: 16px;
-  margin: 0 0 20px;
-  max-width: 520px;
+  line-height: 1.55;
+  margin: 0 0 18px;
+  color: var(--color-dark);
+  max-width: 620px;
 }
 .inline-support-ctas {
   display: flex;
@@ -2620,59 +2617,54 @@ body {
   flex-wrap: wrap;
 }
 
-/* -------- Author bio -------- */
+/* -------- Author bio — editorial prose, no card -------------------- */
 
 .author-bio {
   max-width: 720px;
-  margin: 64px auto 0;
-  padding: 40px;
-  background: var(--color-white);
-  border: 1px solid var(--color-card-border);
-  border-radius: var(--radius-lg);
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-  box-shadow: var(--shadow-card);
+  margin: 32px auto 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
-.author-bio-avatar {
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ee7d51, #c1593c);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-white);
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 36px;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-.author-bio-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.author-bio-body .eyebrow { font-size: 10px; margin-bottom: 6px; }
-.author-bio-body h4 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 22px;
+.author-bio .flourish { margin: 0 0 20px; }
+.author-bio .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
   margin: 0 0 10px;
 }
-.author-bio-body h4 em { font-style: italic; }
-.author-bio-body p {
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--color-dark);
+.author-bio-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.2;
   margin: 0 0 14px;
+  color: var(--color-dark);
 }
-.author-bio-body .author-links {
+.author-bio-name em { font-style: italic; }
+.author-bio-text {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+.author-bio-links {
+  font-family: var(--font-body);
   font-size: 13px;
   letter-spacing: 0.06em;
+  margin: 0;
 }
-.author-bio-body .author-links a { margin-right: 14px; }
+.author-bio-links a {
+  color: var(--color-primary);
+  text-decoration: none;
+  margin-right: 16px;
+  transition: color 0.15s;
+}
+.author-bio-links a:hover { color: var(--color-secondary, #c1593c); }
 
 /* -------- Related -------- */
 
@@ -3185,7 +3177,8 @@ body {
   .article-header { padding: 48px 0 72px; }
   .article-meta { gap: 14px; flex-wrap: wrap; justify-content: center; }
   .meta-dot { display: none; }
-  .author-bio { flex-direction: column; text-align: center; align-items: center; }
+  .author-bio { margin-top: 24px; }
+  .author-bio-name { font-size: 22px; }
   .article-content { font-size: 17px; }
   .article-content > p:first-of-type::first-letter { font-size: 1.6em; }
 }
