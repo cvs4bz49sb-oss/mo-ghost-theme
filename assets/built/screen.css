@@ -2533,13 +2533,30 @@ body {
    Archive (tag / author) styles
    ============================================================= */
 
+/* Dark hero treatment on tag archive headers — matches article
+   headers (post.hbs). Orange radial glow behind, white display
+   headline, primary-orange eyebrow. */
 .archive-header {
-  background: var(--color-white);
-  padding: 72px 0 48px;
+  background: var(--color-dark);
+  color: var(--color-white);
+  padding: 72px 0 96px;
+  position: relative;
+  overflow: hidden;
   text-align: center;
-  border-bottom: 1px solid var(--color-rule);
+}
+.archive-header::before {
+  content: "";
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 720px;
+  height: 520px;
+  background: radial-gradient(ellipse, rgba(238, 125, 81, 0.22), transparent 65%);
+  pointer-events: none;
 }
 .archive-header-inner {
+  position: relative;
   max-width: 720px;
   margin: 0 auto;
   padding: 0 28px;
@@ -2556,13 +2573,13 @@ body {
   font-style: italic;
   font-size: clamp(36px, 4.4vw, 56px);
   line-height: 1.1;
-  color: var(--color-dark);
+  color: var(--color-white);
   margin: 0 0 18px;
 }
 .archive-header .archive-description {
   font-size: 17px;
   line-height: 1.6;
-  color: var(--color-muted);
+  color: rgba(255, 255, 255, 0.78);
   margin: 0 auto;
   max-width: 560px;
 }
