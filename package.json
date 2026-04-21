@@ -19,29 +19,9 @@
     "posts_per_page": 12,
     "card_assets": true,
     "custom": {
-      "hero_headline_line_1": {
-        "type": "text",
-        "default": "Christian Renewal"
-      },
-      "hero_headline_line_2": {
-        "type": "text",
-        "default": "for the"
-      },
-      "hero_headline_line_3": {
-        "type": "text",
-        "default": "Common Good."
-      },
-      "hero_subhead": {
-        "type": "text",
-        "default": "Long-form essays, a quarterly print journal, and patient podcasts on theology, culture, and spiritual formation."
-      },
       "podcast_feed_url": {
         "type": "text",
         "description": "URL of the deployed podcast-feed Worker. Leave empty to hide the podcast section."
-      },
-      "digest_form_action": {
-        "type": "text",
-        "description": "Form action URL for the Weekly Digest signup (Kit, Mailchimp, ConvertKit, etc.)."
       },
       "journal_status_issue": {
         "type": "text",
