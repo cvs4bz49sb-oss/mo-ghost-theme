@@ -12,11 +12,22 @@
   var WORKER = body.getAttribute("data-kit-worker-url") || "";
   var EMAIL = body.getAttribute("data-member-email") || "";
   var postId = btn.getAttribute("data-post-id") || "";
-  if (!WORKER || !EMAIL || !postId) return;
+  if (!postId) return;
 
   var base = WORKER.replace(/\/$/, "");
   var label = btn.querySelector(".article-bookmark-label");
   var state = { bookmarked: false, busy: false };
+
+  // Non-paid click handler: redirect to the membership page. No
+  // pre-fetch of current state since we can't save bookmarks for them.
+  if (!hasPaidAccess()) {
+    btn.addEventListener("click", function () {
+      window.location.href = "/membership/";
+    });
+    return;
+  }
+
+  if (!WORKER || !EMAIL) return;
 
   fetch(base + "/bookmarks?email=" + encodeURIComponent(EMAIL) + "&ids_only=1", {
     method: "GET", mode: "cors", credentials: "omit",
@@ -45,6 +56,15 @@
       .catch(function () { setState(!optimistic); })
       .then(function () { state.busy = false; });
   });
+
+  function hasPaidAccess() {
+    var b = document.body;
+    var status = b.getAttribute("data-member-status") || "";
+    if (status === "paid" || status === "comped") return true;
+    var email = (b.getAttribute("data-member-email") || "").toLowerCase();
+    var preview = (b.getAttribute("data-preview-email") || "").toLowerCase();
+    return !!(email && preview && email === preview);
+  }
 
   function setState(bookmarked) {
     state.bookmarked = !!bookmarked;

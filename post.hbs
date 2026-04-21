@@ -67,37 +67,53 @@
                  the button for an inline HTML5 audio player pointing
                  at the mo-audio worker. Archive posts are synthesized
                  on first play; new posts are pre-warmed via webhook. --}}
-            {{#if @member}}
-                <div class="article-actions">
-                    {{#if @custom.audio_worker_url}}
-                        <div class="article-audio"
-                             data-article-audio
-                             data-post-id="{{id}}"
-                             data-audio-base="{{@custom.audio_worker_url}}"
-                             data-post-title="{{title}}"
-                             data-post-author="{{#if primary_author}}{{primary_author.name}}{{else}}Mere Orthodoxy{{/if}}"
-                             {{#if feature_image}}data-post-image="{{img_url feature_image size="m"}}"{{/if}}>
-                            <button class="article-audio-trigger" type="button" data-audio-trigger aria-label="Listen to this essay">
-                                <svg class="article-audio-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7V5z"/></svg>
-                                <span class="article-audio-label">Listen to this essay</span>
-                            </button>
-                        </div>
-                    {{/if}}
-                    {{#if @custom.kit_worker_url}}
-                        <button class="article-bookmark" type="button"
-                                data-article-bookmark
-                                data-post-id="{{id}}"
-                                aria-label="Bookmark this essay"
-                                aria-pressed="false">
-                            <svg class="article-bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
-                                <path class="article-bookmark-outline" d="M6 3h12v18l-6-4-6 4V3z" fill="none" stroke="currentColor" stroke-width="2"/>
-                                <path class="article-bookmark-fill" d="M6 3h12v18l-6-4-6 4V3z" fill="currentColor"/>
-                            </svg>
-                            <span class="article-bookmark-label">Bookmark</span>
+            {{!-- Audio player + Bookmark are visible to everyone so
+                 the value is obvious at a glance. Click behavior is
+                 paid-gated in article-audio.js and article-bookmark.js
+                 — non-paid visitors get redirected to /membership/.
+                 The inline note below states the gate explicitly. --}}
+            <div class="article-actions">
+                {{#if @custom.audio_worker_url}}
+                    <div class="article-audio"
+                         data-article-audio
+                         data-post-id="{{id}}"
+                         data-audio-base="{{@custom.audio_worker_url}}"
+                         data-post-title="{{title}}"
+                         data-post-author="{{#if primary_author}}{{primary_author.name}}{{else}}Mere Orthodoxy{{/if}}"
+                         {{#if feature_image}}data-post-image="{{img_url feature_image size="m"}}"{{/if}}>
+                        <button class="article-audio-trigger" type="button" data-audio-trigger aria-label="Listen to this essay">
+                            <svg class="article-audio-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7V5z"/></svg>
+                            <span class="article-audio-label">Listen to this essay</span>
                         </button>
-                    {{/if}}
-                </div>
-            {{/if}}
+                    </div>
+                {{/if}}
+                {{#if @custom.kit_worker_url}}
+                    <button class="article-bookmark" type="button"
+                            data-article-bookmark
+                            data-post-id="{{id}}"
+                            aria-label="Bookmark this essay"
+                            aria-pressed="false">
+                        <svg class="article-bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path class="article-bookmark-outline" d="M6 3h12v18l-6-4-6 4V3z" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path class="article-bookmark-fill" d="M6 3h12v18l-6-4-6 4V3z" fill="currentColor"/>
+                        </svg>
+                        <span class="article-bookmark-label">Bookmark</span>
+                    </button>
+                {{/if}}
+            </div>
+            {{!-- Upsell note: rendered for everyone who isn't paid,
+                 comped, or the staff-preview email. JS in
+                 article-audio.js / article-bookmark.js uses the same
+                 gate to redirect button clicks to /membership/. --}}
+            {{#match @member.status "paid"}}{{else}}
+            {{#match @member.status "comped"}}{{else}}
+            {{#match @member.email @custom.dashboard_preview_email}}{{else}}
+                <p class="article-actions-upsell">
+                    <a href="/membership/">Become a Member to access</a>
+                </p>
+            {{/match}}
+            {{/match}}
+            {{/match}}
         </div>
     </header>
 

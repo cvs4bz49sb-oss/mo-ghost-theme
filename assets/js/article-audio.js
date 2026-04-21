@@ -27,9 +27,22 @@
   var image = wrap.getAttribute("data-post-image") || "";
 
   trigger.addEventListener("click", function () {
+    if (!hasPaidAccess()) {
+      window.location.href = "/membership/";
+      return;
+    }
     var src = base.replace(/\/$/, "") + "/" + postId + ".mp3";
     buildPlayer(wrap, trigger, src, { title: title, author: author, image: image });
   });
+
+  function hasPaidAccess() {
+    var b = document.body;
+    var status = b.getAttribute("data-member-status") || "";
+    if (status === "paid" || status === "comped") return true;
+    var email = (b.getAttribute("data-member-email") || "").toLowerCase();
+    var preview = (b.getAttribute("data-preview-email") || "").toLowerCase();
+    return !!(email && preview && email === preview);
+  }
 
   function buildPlayer(mount, triggerEl, src, meta) {
     var audio = document.createElement("audio");

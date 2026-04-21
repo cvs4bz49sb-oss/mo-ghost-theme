@@ -5569,3 +5569,26 @@ body {
 }
 .dashboard-breadcrumb a:hover { color: var(--color-secondary, #c1593c); }
 .dashboard-main--full { max-width: 760px; margin: 0 auto; }
+
+/* --- "Become a Member to access" note under the action row ---------- */
+.article-actions-upsell {
+  margin: 12px auto 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.article-actions-upsell a {
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(238, 125, 81, 0.35);
+  padding-bottom: 2px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.article-actions-upsell a:hover {
+  border-color: var(--color-primary);
+  color: var(--color-secondary, #c1593c);
+}

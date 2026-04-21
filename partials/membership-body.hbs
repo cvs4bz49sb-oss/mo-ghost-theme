@@ -31,7 +31,30 @@
     </div>
   </section>
 
-  {{#unless @member}}
+  {{!-- Pricing vs "already a member" is gated by paid/comped status
+       (plus the staff-preview email). Free Subscribers still see the
+       pricing cards because their tier doesn't unlock Member benefits. --}}
+  {{#match @member.status "paid"}}
+  <section class="pricing">
+    <div class="container">
+      <p class="already-member">You're already a member. <a href="/manage">Manage your membership &rarr;</a></p>
+    </div>
+  </section>
+  {{else}}
+  {{#match @member.status "comped"}}
+  <section class="pricing">
+    <div class="container">
+      <p class="already-member">You're already a member. <a href="/manage">Manage your membership &rarr;</a></p>
+    </div>
+  </section>
+  {{else}}
+  {{#match @member.email @custom.dashboard_preview_email}}
+  <section class="pricing">
+    <div class="container">
+      <p class="already-member">You're already a member. <a href="/manage">Manage your membership &rarr;</a></p>
+    </div>
+  </section>
+  {{else}}
   <section class="pricing">
     <div class="container">
       <div class="cards">
@@ -113,13 +136,9 @@
       </div>
     </div>
   </section>
-  {{else}}
-  <section class="pricing">
-    <div class="container">
-      <p class="already-member">You're already a member. <a href="/manage">Manage your membership &rarr;</a></p>
-    </div>
-  </section>
-  {{/unless}}
+  {{/match}}
+  {{/match}}
+  {{/match}}
 
   <section class="readers">
     <div class="container">
@@ -192,7 +211,11 @@
         <h3 class="capstone-title"><em>And the work itself.</em></h3>
         <p class="capstone-body">Your membership funds the next writer commissioned, the next journal published, and the next essay and episode we can bring to readers and listeners like you.</p>
       </div>
-      {{#unless @member}}
+      {{!-- Hide the CTA for paid/comped/preview only; free Subscribers
+           still see it because they haven't upgraded yet. --}}
+      {{#match @member.status "paid"}}{{else}}
+      {{#match @member.status "comped"}}{{else}}
+      {{#match @member.email @custom.dashboard_preview_email}}{{else}}
       <div class="included-cta">
         {{#if @custom.stripe_member_annual_url}}
           <a href="{{@custom.stripe_member_annual_url}}" class="btn btn-dark btn-inline">Become a Member</a>
@@ -200,7 +223,9 @@
           <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
         {{/if}}
       </div>
-      {{/unless}}
+      {{/match}}
+      {{/match}}
+      {{/match}}
     </div>
   </section>
 
