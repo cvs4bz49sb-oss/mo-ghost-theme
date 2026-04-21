@@ -135,8 +135,28 @@
     </div>
 </section>
 
-{{!-- WEEKLY DIGEST --}}
-{{> "digest-cta"}}
+{{!-- WEEKLY DIGEST — state-aware.
+     * paid / comped / preview   → nothing (member already in)
+     * free Subscriber           → simple Membership CTA scrolling to #join
+     * signed-out visitor        → original digest signup --}}
+{{#match @member.status "paid"}}{{else}}
+{{#match @member.status "comped"}}{{else}}
+{{#match @member.email @custom.dashboard_preview_email}}{{else}}
+    {{#if @member}}
+        <section class="home-upgrade-cta" aria-label="Become a member">
+            <div class="container">
+                <p class="eyebrow">For Subscribers</p>
+                <h3><em>Ready for more?</em></h3>
+                <p>You're on the free list. Members get the quarterly print journal, the full archive, the Weekly Digest, audio on every essay, and members-only events.</p>
+                <p><a href="#join" class="btn btn-primary btn-lg">Become a Member</a></p>
+            </div>
+        </section>
+    {{else}}
+        {{> "digest-cta"}}
+    {{/if}}
+{{/match}}
+{{/match}}
+{{/match}}
 
 {{!-- THIS WEEK: posts 3-8 --}}
 <section class="this-week">
@@ -238,11 +258,11 @@
                 </ol>
                 <div class="journal-ctas">
                     {{#match @member.status "paid"}}
-                        <a href="/manage/" class="btn btn-primary btn-lg">Manage Membership</a>
+                        <a href="{{#if @custom.gift_url}}{{@custom.gift_url}}{{else}}/gift/{{/if}}" class="btn btn-primary btn-lg">Gift The Journal</a>
                     {{else}}{{#match @member.status "comped"}}
-                        <a href="/manage/" class="btn btn-primary btn-lg">Manage Membership</a>
+                        <a href="{{#if @custom.gift_url}}{{@custom.gift_url}}{{else}}/gift/{{/if}}" class="btn btn-primary btn-lg">Gift The Journal</a>
                     {{else}}{{#match @member.email @custom.dashboard_preview_email}}
-                        <a href="/manage/" class="btn btn-primary btn-lg">Manage Membership</a>
+                        <a href="{{#if @custom.gift_url}}{{@custom.gift_url}}{{else}}/gift/{{/if}}" class="btn btn-primary btn-lg">Gift The Journal</a>
                     {{else}}
                         <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
                     {{/match}}{{/match}}{{/match}}
