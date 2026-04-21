@@ -106,8 +106,6 @@
   }
 
   function entryHtml(post, i) {
-    var topic = post.primary_tag ? post.primary_tag.name : "";
-    var author = post.primary_author ? post.primary_author.name : "";
     var excerpt = (post.custom_excerpt || post.excerpt || "").replace(/\s+/g, " ").trim();
     if (excerpt.length > 220) excerpt = excerpt.slice(0, 220).replace(/\s+\S*$/, "") + "\u2026";
     var first = excerpt.charAt(0);
@@ -124,19 +122,45 @@
       bgStyle = 'style="background: ' + plate + ';"';
     }
 
+    // Topic eyebrow: every public tag as a candidate. CSS hides
+    // author-* slugs and shows the first remaining one. Matches the
+    // .entry-topic--candidates pattern in post-entry.hbs.
+    var tags = Array.isArray(post.tags) ? post.tags : [];
+    var topicTags = tags.map(function (t) {
+      return '<span class="entry-topic-tag" data-tag-slug="' + escapeAttr(t.slug || "") + '">' +
+        escapeHtml(t.name || "") + "</span>";
+    }).join("");
+    var topic = '<p class="entry-topic entry-topic--candidates" data-topic>' + topicTags + "</p>";
+
+    // Byline: contributor override when any author-* tag exists,
+    // otherwise falls back to primary_author. CSS handles both.
+    var contributorTags = tags.map(function (t) {
+      return '<em class="entry-contributor entry-contributor--candidate" data-tag-slug="' + escapeAttr(t.slug || "") + '">' +
+        escapeHtml(t.name || "") + "</em>";
+    }).join("");
+    var contributorLine =
+      '<p class="entry-byline entry-byline-contributors" data-byline>' +
+        '<span class="entry-byline-prefix">By </span>' + contributorTags +
+      "</p>";
+    var fallbackName = (post.primary_author && post.primary_author.name) || "";
+    var fallbackLine = fallbackName
+      ? '<p class="entry-byline entry-byline-fallback">By <em>' + escapeHtml(fallbackName) + "</em></p>"
+      : "";
+
     return '' +
       '<a href="' + escapeAttr(post.url) + '" class="entry">' +
         '<div class="entry-plate">' +
           '<div class="entry-plate-inner" ' + bgStyle + '></div>' +
         '</div>' +
         '<div class="entry-text">' +
-          (topic ? '<p class="entry-topic">' + escapeHtml(topic) + '</p>' : '') +
+          topic +
           '<h3 class="entry-title">' + escapeHtml(post.title) + '</h3>' +
           (excerpt ? '<p class="entry-excerpt">' +
             '<span class="entry-initial">' + escapeHtml(first) + '</span>' +
             escapeHtml(rest) + '</p>' : '') +
           '<div class="entry-meta">' +
-            (author ? '<p class="entry-byline">By <em>' + escapeHtml(author) + '</em></p>' : '<span></span>') +
+            contributorLine +
+            fallbackLine +
             (meta ? '<p class="entry-date">' + escapeHtml(meta) + '</p>' : '') +
           '</div>' +
         '</div>' +
