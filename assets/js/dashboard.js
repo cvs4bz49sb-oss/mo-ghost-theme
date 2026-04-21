@@ -44,7 +44,7 @@
       }
       var ol = document.createElement("ol");
       ol.className = "dashboard-essay-list";
-      for (var i = 0; i < list.length; i++) ol.appendChild(renderItem(list[i]));
+      for (var i = 0; i < list.length; i++) ol.appendChild(renderItem(list[i], WORKER, EMAIL));
       clear(mount);
       mount.appendChild(ol);
     })
@@ -52,14 +52,33 @@
       showEmpty(mount, "Couldn't load your reading history right now. Try reloading.");
     });
 
-  function renderItem(entry) {
-    return buildEssayRow({
+  function renderItem(entry, WORKER, EMAIL) {
+    var remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "dashboard-essay-remove";
+    remove.setAttribute("aria-label", "Remove from reading history");
+    remove.textContent = "Remove";
+    var li = buildEssayRow({
       url: entry.url || ("/" + (entry.slug || "")),
       title: entry.title || entry.slug || entry.postId,
       topic: entry.primary_tag && entry.primary_tag.name,
       image: entry.feature_image,
       metaText: "Read " + formatRelative(entry.readAt),
+      remove: remove,
     });
+    remove.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      remove.disabled = true;
+      fetch(WORKER.replace(/\/$/, "") + "/history/remove", {
+        method: "POST",
+        mode: "cors",
+        credentials: "omit",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: EMAIL, postId: entry.postId }),
+      }).then(function () { li.remove(); }).catch(function () { remove.disabled = false; });
+    });
+    return li;
   }
 
   function buildEssayRow(opts) {
