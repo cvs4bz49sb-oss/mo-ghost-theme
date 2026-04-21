@@ -113,7 +113,13 @@
       "<h4><em>Almost there.</em></h4>" +
       "<p>We sent a link to <strong>" + escapeHtml(email) + "</strong>. " +
       "Open it to finish subscribing and you'll land right back on this page.</p>";
-    root.parentNode.replaceChild(success, root);
+    // The form may declare a larger container to swap out (e.g. the
+    // whole post-gate card with its pitch copy above the form) so the
+    // success state fully replaces the surrounding messaging instead
+    // of appearing below it.
+    var replaceSelector = root.getAttribute("data-replace-on-success");
+    var target = replaceSelector ? root.closest(replaceSelector) || root : root;
+    target.parentNode.replaceChild(success, target);
   }
 
   function setStatus(root, msg, isError) {

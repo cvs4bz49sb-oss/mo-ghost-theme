@@ -133,6 +133,10 @@
     var form = document.createElement("div");
     form.className = "post-gate-form";
     form.setAttribute("data-inline-signup", "");
+    // On successful subscribe, swap the entire gate card (pitch copy
+    // + form + Sign-in row) for the success state so the messaging
+    // doesn't double up.
+    form.setAttribute("data-replace-on-success", ".post-gate-card");
 
     form.appendChild(field("post-gate-first", "First Name", "text", "given-name", "data-signup-first"));
     form.appendChild(field("post-gate-last", "Last Name", "text", "family-name", "data-signup-last"));
