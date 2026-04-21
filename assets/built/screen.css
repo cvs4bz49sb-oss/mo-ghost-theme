@@ -5328,6 +5328,12 @@ body {
   gap: 48px;
   align-items: start;
 }
+.dashboard-main {
+  /* Give the grid row enough height for the sticky rail on the
+     right to actually have somewhere to stick, even when the
+     modules are collapsed. */
+  min-height: calc(100vh - 240px);
+}
 
 /* --- Module (expandable section) -------------------------------------- */
 .dashboard-module {
