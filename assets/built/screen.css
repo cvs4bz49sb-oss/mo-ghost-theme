@@ -2627,7 +2627,36 @@ body {
   border: 0;
   box-shadow: none;
 }
-.author-bio .flourish { margin: 0 0 20px; }
+.author-bio .flourish { margin: 0 0 24px; }
+.author-bio-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.author-bio-portrait {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #ee7d51, #c1593c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 40px;
+}
+.author-bio-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.author-bio-initial { font-size: 0; line-height: 1; }
+.author-bio-initial::first-letter { font-size: 40px; }
+.author-bio-text-col { flex: 1; min-width: 0; }
 .author-bio .eyebrow {
   font-size: 10px;
   letter-spacing: 0.28em;
@@ -3178,6 +3207,9 @@ body {
   .article-meta { gap: 14px; flex-wrap: wrap; justify-content: center; }
   .meta-dot { display: none; }
   .author-bio { margin-top: 24px; }
+  .author-bio-layout { gap: 18px; }
+  .author-bio-portrait { width: 72px; height: 72px; font-size: 30px; }
+  .author-bio-initial::first-letter { font-size: 30px; }
   .author-bio-name { font-size: 22px; }
   .article-content { font-size: 17px; }
   .article-content > p:first-of-type::first-letter { font-size: 1.6em; }
@@ -4226,7 +4258,7 @@ body {
 .byline-inline--contributors[data-byline] .byline-author--candidate[data-tag-slug^="author-"] + .byline-author--candidate[data-tag-slug^="author-"]::before { content: ", "; }
 
 .author-bio-contributors[data-bio] .author-bio--candidate { display: none; }
-.author-bio-contributors[data-bio] .author-bio--candidate[data-tag-slug^="author-"] { display: flex; }
+.author-bio-contributors[data-bio] .author-bio--candidate[data-tag-slug^="author-"] { display: block; }
 .author-bio-contributors[data-bio]:has([data-tag-slug^="author-"]) + .author-bio-fallback { display: none; }
 .author-bio-contributors[data-bio] .author-bio--candidate[data-tag-slug^="author-"] + .author-bio--candidate[data-tag-slug^="author-"] {
   margin-top: 32px;

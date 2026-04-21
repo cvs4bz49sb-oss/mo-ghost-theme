@@ -196,10 +196,21 @@
                 {{#foreach tags}}
                     <div class="author-bio author-bio--candidate" data-tag-slug="{{slug}}">
                         <div class="flourish">{{> "flourish-mark"}}</div>
-                        <p class="eyebrow">The Author</p>
-                        <h4 class="author-bio-name"><em>{{name}}</em></h4>
-                        {{#if description}}<p class="author-bio-text">{{description}}</p>{{/if}}
-                        <p class="author-bio-links"><a href="{{url}}">More essays by {{name}} &rarr;</a></p>
+                        <div class="author-bio-layout">
+                            <div class="author-bio-portrait" aria-hidden="true">
+                                {{#if feature_image}}
+                                    <img src="{{img_url feature_image size="s"}}" alt="" />
+                                {{else}}
+                                    <span class="author-bio-initial">{{name}}</span>
+                                {{/if}}
+                            </div>
+                            <div class="author-bio-text-col">
+                                <p class="eyebrow">The Author</p>
+                                <h4 class="author-bio-name"><em>{{name}}</em></h4>
+                                {{#if description}}<p class="author-bio-text">{{description}}</p>{{/if}}
+                                <p class="author-bio-links"><a href="{{url}}">More essays by {{name}} &rarr;</a></p>
+                            </div>
+                        </div>
                     </div>
                 {{/foreach}}
             </div>
@@ -207,14 +218,25 @@
                 {{#primary_author}}
                     <div class="author-bio">
                         <div class="flourish">{{> "flourish-mark"}}</div>
-                        <p class="eyebrow">The Author</p>
-                        <h4 class="author-bio-name"><em>{{name}}</em></h4>
-                        {{#if bio}}<p class="author-bio-text">{{bio}}</p>{{/if}}
-                        <p class="author-bio-links">
-                            <a href="{{url}}">More essays by {{name}} &rarr;</a>
-                            {{#if website}}<a href="{{website}}" target="_blank" rel="noopener">Website</a>{{/if}}
-                            {{#if twitter}}<a href="https://twitter.com/{{twitter}}" target="_blank" rel="noopener">Follow</a>{{/if}}
-                        </p>
+                        <div class="author-bio-layout">
+                            <div class="author-bio-portrait" aria-hidden="true">
+                                {{#if profile_image}}
+                                    <img src="{{img_url profile_image size="s"}}" alt="" />
+                                {{else}}
+                                    <span class="author-bio-initial">{{name}}</span>
+                                {{/if}}
+                            </div>
+                            <div class="author-bio-text-col">
+                                <p class="eyebrow">The Author</p>
+                                <h4 class="author-bio-name"><em>{{name}}</em></h4>
+                                {{#if bio}}<p class="author-bio-text">{{bio}}</p>{{/if}}
+                                <p class="author-bio-links">
+                                    <a href="{{url}}">More essays by {{name}} &rarr;</a>
+                                    {{#if website}}<a href="{{website}}" target="_blank" rel="noopener">Website</a>{{/if}}
+                                    {{#if twitter}}<a href="https://twitter.com/{{twitter}}" target="_blank" rel="noopener">Follow</a>{{/if}}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 {{/primary_author}}
             </div>
