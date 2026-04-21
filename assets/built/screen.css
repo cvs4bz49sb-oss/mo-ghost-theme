@@ -5453,15 +5453,9 @@ body {
 }
 
 /* --- Rail (right column) --------------------------------------------- */
-/* Sticky within the cream dashboard-body section — sits in its grid
-   column at natural position, pins to top: 120px (just below the
-   fixed site header) as the page scrolls, then releases when the
-   dashboard-body's end scrolls past. .dashboard-main has a
-   min-height (see above) so the grid row is always tall enough for
-   sticky to engage even when the modules are collapsed. */
+/* No sticky, no fixed — rail sits in its natural spot in the grid
+   column and scrolls with the page. */
 .dashboard-rail {
-  position: sticky;
-  top: 120px;
   align-self: start;
   display: flex;
   flex-direction: column;
