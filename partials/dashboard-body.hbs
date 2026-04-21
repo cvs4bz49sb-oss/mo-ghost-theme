@@ -1,8 +1,6 @@
 {{!-- Dashboard body for full-access members (paid, comped, or staff
-     preview). Editorial layout: dark hero + two-column body with
-     <details> modules on the left and a member-info rail on the
-     right. Modules are expandable via native <details>/<summary>,
-     no JS needed beyond the history fetch in dashboard.js. --}}
+     preview). Editorial two-column layout: <details> modules on
+     the left, identity rail on the right. --}}
 
 <section class="hero dashboard-hero">
   <div class="container">
@@ -10,7 +8,7 @@
     <h1 class="hero-headline">
       Welcome, <span class="highlight"><em>{{#if @member.name}}{{@member.name}}{{else}}friend{{/if}}</em></span>.
     </h1>
-    <p class="hero-sub">Your home inside Mere Orthodoxy. Reading history, members-only essays, and membership settings — all in one place.</p>
+    <p class="hero-sub">Your home inside Mere Orthodoxy. Bookmarks, reading history, and membership settings — all in one place.</p>
   </div>
 </section>
 
@@ -22,29 +20,13 @@
 
         <details class="dashboard-module" open>
           <summary>
-            <span class="dashboard-module-eyebrow">Module I</span>
-            <h2 class="dashboard-module-title"><em>Members-only Essays</em></h2>
+            <h2 class="dashboard-module-title"><em>Bookmarks</em></h2>
             <span class="dashboard-module-chev" aria-hidden="true"></span>
           </summary>
           <div class="dashboard-module-body">
-            {{#get "posts" filter="visibility:paid" limit="6" include="authors,tags" as |members_posts|}}
-              {{#if members_posts}}
-                <ol class="dashboard-essay-list">
-                  {{#foreach members_posts}}
-                    <li class="dashboard-essay">
-                      <span class="dashboard-essay-numeral">{{@number}}</span>
-                      <div class="dashboard-essay-body">
-                        {{#if primary_tag}}<p class="dashboard-essay-topic">{{primary_tag.name}}</p>{{/if}}
-                        <h3 class="dashboard-essay-title"><a href="{{url}}"><em>{{title}}</em></a></h3>
-                        {{#if excerpt}}<p class="dashboard-essay-excerpt">{{excerpt words="24"}}</p>{{/if}}
-                      </div>
-                    </li>
-                  {{/foreach}}
-                </ol>
-              {{else}}
-                <p class="dashboard-empty">No members-only essays published yet.</p>
-              {{/if}}
-            {{/get}}
+            <div class="dashboard-bookmarks" data-dashboard-bookmarks>
+              <p class="dashboard-empty" data-bookmarks-placeholder>Loading your bookmarks&hellip;</p>
+            </div>
           </div>
         </details>
 
@@ -52,8 +34,7 @@
 
         <details class="dashboard-module" open>
           <summary>
-            <span class="dashboard-module-eyebrow">Module II</span>
-            <h2 class="dashboard-module-title"><em>Your Reading History</em></h2>
+            <h2 class="dashboard-module-title"><em>Reading History</em></h2>
             <span class="dashboard-module-chev" aria-hidden="true"></span>
           </summary>
           <div class="dashboard-module-body">

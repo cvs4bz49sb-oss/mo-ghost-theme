@@ -5308,7 +5308,7 @@ body {
 .dashboard-module + .flourish { margin: 40px 0; }
 .dashboard-module summary {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: baseline;
   column-gap: 18px;
   padding: 0 0 16px;
@@ -5318,14 +5318,6 @@ body {
   user-select: none;
 }
 .dashboard-module summary::-webkit-details-marker { display: none; }
-.dashboard-module-eyebrow {
-  font-family: var(--font-body);
-  font-size: 10px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-  font-weight: 600;
-}
 .dashboard-module-title {
   font-family: var(--font-display);
   font-size: 28px;
@@ -5475,3 +5467,62 @@ body {
   .dashboard-essay-numeral { font-size: 22px; }
   .dashboard-essay-title { font-size: 18px; }
 }
+
+/* --- Post-page bookmark button (sits next to the audio trigger) ---- */
+.article-actions {
+  margin: 32px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.article-actions .article-audio { margin: 0; }
+.article-bookmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(238, 125, 81, 0.08);
+  border: 1px solid rgba(238, 125, 81, 0.35);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.article-bookmark:hover {
+  background: rgba(238, 125, 81, 0.16);
+  border-color: var(--color-primary);
+}
+.article-bookmark-icon { width: 14px; height: 14px; flex: 0 0 auto; }
+.article-bookmark .article-bookmark-outline { display: block; }
+.article-bookmark .article-bookmark-fill { display: none; }
+.article-bookmark.is-bookmarked {
+  background: var(--color-primary);
+  color: var(--color-white, #fff);
+  border-color: var(--color-primary);
+}
+.article-bookmark.is-bookmarked .article-bookmark-outline { display: none; }
+.article-bookmark.is-bookmarked .article-bookmark-fill { display: block; }
+
+/* --- Dashboard "Remove" button inline on bookmark list items ------ */
+.dashboard-essay-remove {
+  margin-top: 10px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.dashboard-essay-remove:hover { color: var(--color-primary); }
+.dashboard-essay-remove:disabled { opacity: 0.5; cursor: default; }

@@ -10,6 +10,20 @@
   var body = document.body;
   var WORKER = body.getAttribute("data-kit-worker-url") || "";
   var EMAIL = body.getAttribute("data-member-email") || "";
+
+  // Ghost only exposes @member.name as a single string. Swap the
+  // hero headline's "Welcome, {full name}" to first name only.
+  var nameEl = document.querySelector(".dashboard-hero .highlight em");
+  if (nameEl) {
+    var full = (nameEl.textContent || "").trim();
+    if (full) {
+      var first = full.split(/\s+/)[0];
+      if (first) nameEl.textContent = first;
+    }
+  }
+
+  hydrateBookmarks(body, WORKER, EMAIL);
+
   var mount = document.querySelector("[data-dashboard-history]");
   if (!mount) return;
 
@@ -84,6 +98,92 @@
   }
 
   function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+  function hydrateBookmarks(body, WORKER, EMAIL) {
+    var mount = document.querySelector("[data-dashboard-bookmarks]");
+    if (!mount) return;
+    if (!WORKER || !EMAIL) {
+      showEmpty(mount, "Bookmarks are only available for signed-in members.");
+      return;
+    }
+    fetch(WORKER.replace(/\/$/, "") + "/bookmarks?email=" + encodeURIComponent(EMAIL), {
+      method: "GET", mode: "cors", credentials: "omit",
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var list = (data && data.bookmarks) || [];
+        if (!list.length) {
+          showEmpty(mount, "No bookmarks yet. Tap the bookmark icon on any essay to save it here.");
+          return;
+        }
+        var ol = document.createElement("ol");
+        ol.className = "dashboard-essay-list";
+        for (var i = 0; i < list.length; i++) ol.appendChild(renderBookmarkItem(list[i], i + 1, WORKER, EMAIL));
+        clear(mount);
+        mount.appendChild(ol);
+      })
+      .catch(function () {
+        showEmpty(mount, "Couldn't load your bookmarks right now. Try reloading.");
+      });
+  }
+
+  function renderBookmarkItem(entry, n, WORKER, EMAIL) {
+    var li = document.createElement("li");
+    li.className = "dashboard-essay";
+
+    var num = document.createElement("span");
+    num.className = "dashboard-essay-numeral";
+    num.textContent = toRoman(n);
+    li.appendChild(num);
+
+    var bodyDiv = document.createElement("div");
+    bodyDiv.className = "dashboard-essay-body";
+
+    if (entry.primary_tag && entry.primary_tag.name) {
+      var topic = document.createElement("p");
+      topic.className = "dashboard-essay-topic";
+      topic.textContent = entry.primary_tag.name;
+      bodyDiv.appendChild(topic);
+    }
+    var h3 = document.createElement("h3");
+    h3.className = "dashboard-essay-title";
+    var a = document.createElement("a");
+    a.href = entry.url || ("/" + (entry.slug || ""));
+    var em = document.createElement("em");
+    em.textContent = entry.title || entry.slug || entry.postId;
+    a.appendChild(em);
+    h3.appendChild(a);
+    bodyDiv.appendChild(h3);
+
+    if (entry.savedAt) {
+      var meta = document.createElement("p");
+      meta.className = "dashboard-essay-meta";
+      meta.textContent = "Saved " + formatRelative(entry.savedAt);
+      bodyDiv.appendChild(meta);
+    }
+
+    var remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "dashboard-essay-remove";
+    remove.setAttribute("aria-label", "Remove bookmark");
+    remove.textContent = "Remove";
+    remove.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      remove.disabled = true;
+      fetch(WORKER.replace(/\/$/, "") + "/bookmarks/remove", {
+        method: "POST",
+        mode: "cors",
+        credentials: "omit",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: EMAIL, postId: entry.postId }),
+      }).then(function () { li.remove(); }).catch(function () { remove.disabled = false; });
+    });
+    bodyDiv.appendChild(remove);
+
+    li.appendChild(bodyDiv);
+    return li;
+  }
 
   function toRoman(n) {
     var values = [10, 9, 5, 4, 1];
