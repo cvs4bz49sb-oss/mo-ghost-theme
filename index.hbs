@@ -19,8 +19,13 @@
                     {{else}}{{#match @member.email @custom.dashboard_preview_email}}
                         <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
                     {{else}}
-                        <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
-                        <a href="#join" class="btn btn-ghost btn-lg">Become a Member</a>
+                        {{#if @member}}
+                            {{!-- Free Subscriber: already on the list, so a single upgrade button. --}}
+                            <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
+                        {{else}}
+                            <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
+                            <a href="#join" class="btn btn-ghost btn-lg">Become a Member</a>
+                        {{/if}}
                     {{/match}}{{/match}}{{/match}}
                 </div>
             </div>
@@ -143,12 +148,30 @@
 {{#match @member.status "comped"}}{{else}}
 {{#match @member.email @custom.dashboard_preview_email}}{{else}}
     {{#if @member}}
-        <section class="home-upgrade-cta" aria-label="Become a member">
+        {{!-- Free Subscriber upgrade pitch — styled inline in the
+             same light container the digest CTA uses, so this block
+             sits in rhythm with the rest of the homepage. --}}
+        <section class="digest-section home-upgrade-section" id="digest" aria-label="Become a Member">
             <div class="container">
-                <p class="eyebrow">For Subscribers</p>
-                <h3><em>Ready for more?</em></h3>
-                <p>You're on the free list. Members get the quarterly print journal, the full archive, the Weekly Digest, audio on every essay, and members-only events.</p>
-                <p><a href="#join" class="btn btn-primary btn-lg">Become a Member</a></p>
+                <div class="digest-cta home-upgrade-cta">
+                    <div class="digest-copy">
+                        <p class="eyebrow">For Subscribers</p>
+                        <h3>Want More Mere Orthodoxy?</h3>
+                        <p>You're on our free list. Members get everything below — plus our full print journal mailed to your door, four times a year.</p>
+                    </div>
+                    <div class="home-upgrade-body">
+                        <ul class="home-upgrade-list">
+                            <li>The quarterly print journal, mailed to your door</li>
+                            <li>Private Discord community of serious readers</li>
+                            <li>Ebook and events library</li>
+                            <li>Monthly Mailbag from Jake Meador</li>
+                            <li>Audio on every essay</li>
+                            <li>Bookmarks</li>
+                            <li>The Weekly Digest, every Thursday</li>
+                        </ul>
+                        <a href="#join" class="btn btn-primary btn-lg home-upgrade-btn">Become a Member</a>
+                    </div>
+                </div>
             </div>
         </section>
     {{else}}

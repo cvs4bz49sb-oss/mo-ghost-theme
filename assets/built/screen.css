@@ -5912,38 +5912,48 @@ body {
   .replays-title { font-size: 22px; }
 }
 
-/* Home → "For Subscribers" upgrade CTA. Rendered in place of the
-   weekly-digest signup for signed-in free subscribers. */
-.home-upgrade-cta {
-  padding: 64px 0;
-  background: var(--color-dark);
-  color: var(--color-white, #fff);
-  text-align: center;
+/* Home → "Want More Mere Orthodoxy?" CTA for signed-in free
+   Subscribers. Reuses .digest-section/.digest-cta inline grid so
+   the block sits in rhythm with the rest of the homepage's light
+   sections. Left: copy. Right: benefits list + Become a Member. */
+.home-upgrade-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
 }
-.home-upgrade-cta .container { max-width: 680px; }
-.home-upgrade-cta .eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-  font-weight: 600;
-  margin: 0 0 14px;
-}
-.home-upgrade-cta h3 {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 4vw, 40px);
-  line-height: 1.15;
-  font-weight: 400;
-  margin: 0 0 16px;
-  color: var(--color-white, #fff);
-}
-.home-upgrade-cta h3 em { font-style: italic; }
-.home-upgrade-cta p {
+.home-upgrade-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.6;
-  margin: 0 auto 20px;
-  max-width: 560px;
-  opacity: 0.88;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-dark);
 }
-.home-upgrade-cta p:last-child { margin-bottom: 0; }
+.home-upgrade-list li {
+  position: relative;
+  padding-left: 22px;
+}
+.home-upgrade-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 10px;
+  height: 2px;
+  background: var(--color-primary);
+}
+.home-upgrade-btn { align-self: flex-start; }
+
+/* Account button shows @member.name; cap width so long names
+   truncate instead of stretching the header. */
+.btn-account {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
