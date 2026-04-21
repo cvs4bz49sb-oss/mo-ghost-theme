@@ -12,14 +12,14 @@
                 </h1>
                 <p class="hero-sub">Long-form essays, a quarterly print journal, and patient podcasts on theology, culture, and spiritual formation.</p>
                 <div class="hero-ctas">
-                    <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
                     {{#match @member.status "paid"}}
-                        <a href="/manage/" class="btn btn-ghost btn-lg">Manage Membership</a>
+                        <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
                     {{else}}{{#match @member.status "comped"}}
-                        <a href="/manage/" class="btn btn-ghost btn-lg">Manage Membership</a>
+                        <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
                     {{else}}{{#match @member.email @custom.dashboard_preview_email}}
-                        <a href="/manage/" class="btn btn-ghost btn-lg">Manage Membership</a>
+                        <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
                     {{else}}
+                        <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
                         <a href="#join" class="btn btn-ghost btn-lg">Become a Member</a>
                     {{/match}}{{/match}}{{/match}}
                 </div>
