@@ -50,12 +50,16 @@
   applyGate(content, tier);
 
   function applyGate(root, tier) {
+    // Mobile readers get fewer free paragraphs so the gate sits at a
+    // comparable scroll depth on a phone vs a desktop. 640px matches
+    // the rest of the theme's mobile breakpoint.
+    var maxParagraphs = (window.innerWidth || 1024) <= 640 ? 4 : 8;
     var kids = Array.prototype.slice.call(root.children);
     var pCount = 0;
     var cutIndex = -1;
     for (var i = 0; i < kids.length; i++) {
       if (kids[i].tagName === "P") pCount++;
-      if (pCount >= 8) { cutIndex = i; break; }
+      if (pCount >= maxParagraphs) { cutIndex = i; break; }
     }
     // Very short articles don't need gating — nothing meaningful to
     // hide behind and the cutoff UX feels abrupt.
