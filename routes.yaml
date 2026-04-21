@@ -39,6 +39,8 @@ routes:
     template: custom-dashboard-replays
   /events/:
     template: custom-events
+  /forum/:
+    template: custom-forum
   /success/:
     template: custom-success
 

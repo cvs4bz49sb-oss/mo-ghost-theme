@@ -5624,35 +5624,59 @@ body {
   color: var(--color-secondary, #c1593c);
 }
 
+
 /* ----------------------------------------------------------------------------
-   /events/ — public landing.
-   Dark hero populated from the closest upcoming #event post,
-   body shows its prose + registration form, footer lists past events.
+   /events/ library + /forum/ detail. /forum/ hero mirrors custom-about:
+   two-column grid with the event's feature image on the right,
+   title + excerpt left.
    ---------------------------------------------------------------------------- */
 .events-page [data-events-source] { display: none; }
-.events-hero {
+
+/* --- /forum/ hero ---------------------------------------------------- */
+.forum-hero {
   background: var(--color-dark);
   color: var(--color-white, #fff);
-  padding: 96px 0 64px;
-}
-.events-hero .events-kicker-sep { padding: 0 8px; opacity: 0.5; }
-.events-hero .hero-sub { max-width: 620px; margin-top: 18px; }
-.events-feature {
-  max-width: 1040px;
-  margin: -32px auto 0;
-  padding: 0 24px;
+  padding: 72px 0;
+  overflow: visible;
   position: relative;
-  z-index: 1;
 }
-.events-feature-inner {
-  aspect-ratio: 16 / 9;
+.forum-hero .container { max-width: 1180px; text-align: left; }
+.forum-hero .hero-kicker { justify-content: flex-start; }
+.forum-hero--empty .hero-sub a { color: var(--color-primary); text-decoration: underline; }
+.forum-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.forum-hero-content { max-width: 620px; }
+.forum-hero-headline {
+  font-size: clamp(36px, 4.4vw, 56px);
+  margin: 0 0 20px;
+}
+.forum-hero .hero-sub {
+  max-width: 520px;
+  margin: 0;
+  font-style: italic;
+  opacity: 0.9;
+}
+.events-hero-link,
+.events-hero-link:hover { color: inherit; text-decoration: none; }
+.forum-hero-image {
+  position: relative;
+  z-index: 3;
+}
+.forum-hero-image-inner {
+  aspect-ratio: 4 / 3;
   background: #3a332e center / cover no-repeat;
-  border-radius: 4px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+  border-radius: 18px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
 }
+
+/* --- /forum/ body (prose + registration) ---------------------------- */
 .events-body {
   background: var(--color-cream, #f5efe1);
-  padding: 72px 0 48px;
+  padding: 72px 0 96px;
 }
 .events-prose {
   font-family: var(--font-body);
@@ -5662,9 +5686,7 @@ body {
 }
 .events-prose > :first-child { margin-top: 0; }
 .events-prose > :last-child { margin-bottom: 0; }
-.events-register {
-  margin-top: 16px;
-}
+.events-register { margin-top: 16px; }
 .events-register .eyebrow {
   font-size: 11px;
   letter-spacing: 0.28em;
@@ -5690,39 +5712,47 @@ body {
   max-width: 620px;
 }
 
-/* --- Past events list ------------------------------------------------- */
-.events-past {
-  background: var(--color-cream, #f5efe1);
-  padding: 16px 0 96px;
+/* --- /events/ library ------------------------------------------------ */
+.events-library-hero {
+  background: var(--color-dark);
+  color: var(--color-white, #fff);
+  padding: 96px 0 72px;
 }
-.events-past .eyebrow {
+.events-library-hero .hero-sub { max-width: 680px; margin-top: 18px; }
+.events-library-body {
+  background: var(--color-cream, #f5efe1);
+  padding: 72px 0 96px;
+}
+.events-library-section { margin: 0; }
+.events-library-section + .flourish { margin: 48px 0; }
+.events-library-section .eyebrow {
   font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--color-primary);
   font-weight: 600;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 }
-.events-past-title {
+.events-library-title {
   font-family: var(--font-display);
   font-size: 32px;
   line-height: 1.15;
-  margin: 0 0 10px;
+  margin: 0 0 24px;
   color: var(--color-dark);
   font-weight: 400;
 }
-.events-past-sub {
+.events-library-sub {
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-muted);
-  margin: 0 0 28px;
+  margin: -16px 0 24px;
 }
-.events-past-sub a {
+.events-library-sub a {
   color: var(--color-primary);
   text-decoration: none;
   border-bottom: 1px solid rgba(238, 125, 81, 0.35);
 }
-.events-past-list {
+.events-library-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -5730,7 +5760,7 @@ body {
   flex-direction: column;
   gap: 24px;
 }
-.events-past-link {
+.events-library-link {
   display: grid;
   grid-template-columns: 132px 1fr;
   gap: 22px;
@@ -5738,7 +5768,7 @@ body {
   text-decoration: none;
   color: inherit;
 }
-.events-past-thumb {
+.events-library-thumb {
   display: block;
   width: 100%;
   aspect-ratio: 3 / 4;
@@ -5750,7 +5780,7 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 }
-.events-past-date {
+.events-library-when {
   font-family: var(--font-body);
   font-size: 10px;
   letter-spacing: 0.22em;
@@ -5759,7 +5789,7 @@ body {
   font-weight: 600;
   margin: 0 0 6px;
 }
-.events-past-event-title {
+.events-library-card-title {
   font-family: var(--font-display);
   font-size: 22px;
   line-height: 1.25;
@@ -5768,16 +5798,24 @@ body {
   font-weight: 400;
   transition: color 0.15s;
 }
-.events-past-link:hover .events-past-event-title { color: var(--color-primary); }
+.events-library-link:hover .events-library-card-title { color: var(--color-primary); }
+.events-library-empty { text-align: center; max-width: 520px; margin: 0 auto; }
+.events-library-empty .eyebrow { text-align: center; }
 
+@media (max-width: 820px) {
+  .forum-hero-grid { grid-template-columns: 1fr; gap: 32px; }
+  .forum-hero-content { max-width: none; }
+  .forum-hero-image-inner { aspect-ratio: 16 / 10; }
+}
 @media (max-width: 640px) {
-  .events-hero { padding: 72px 0 48px; }
-  .events-feature { padding: 0 16px; margin-top: -24px; }
-  .events-body { padding: 48px 0 32px; }
-  .events-past { padding: 16px 0 72px; }
-  .events-register-title, .events-past-title { font-size: 26px; }
-  .events-past-link { grid-template-columns: 96px 1fr; gap: 16px; }
-  .events-past-event-title { font-size: 18px; }
+  .forum-hero { padding: 56px 0; }
+  .events-body { padding: 48px 0 72px; }
+  .events-library-hero { padding: 72px 0 56px; }
+  .events-library-body { padding: 48px 0 72px; }
+  .events-register-title,
+  .events-library-title { font-size: 26px; }
+  .events-library-link { grid-template-columns: 96px 1fr; gap: 16px; }
+  .events-library-card-title { font-size: 18px; }
 }
 
 /* ----------------------------------------------------------------------------

@@ -1,16 +1,25 @@
 /*
- * /events/ page wiring.
+ * Events wiring — shared between two templates.
  *
- * Each #event post rendered hidden inside [data-events-source] is
- * classified as "past" if its body contains a YouTube embed (Ian
- * pastes the replay in after the event), otherwise "upcoming". The
- * newest upcoming post becomes the hero; past posts go to the
- * footer list, newest first.
+ *   /forum/  → detail view of the single current upcoming event.
+ *              Template: custom-forum.hbs. Driven by [data-events-hero].
  *
- * Display date/time comes straight from the post excerpt — Ian
- * types it as part of the excerpt, e.g. "Saturday, April 25 at
- * 7 PM Eastern — With Alan Noble", and we render it verbatim
- * under the hero title.
+ *   /events/ → library: lists every event, split into Upcoming and
+ *              Past based on whether the post body contains a replay
+ *              embed.
+ *              Template: custom-events.hbs. Driven by
+ *              [data-events-library-upcoming] / [data-events-library-past].
+ *
+ * Both templates render the full post set hidden inside
+ * [data-events-source]; this script parses it, classifies each post
+ * (upcoming = no replay iframe, past = replay iframe present), and
+ * populates whichever mount elements are on the page.
+ *
+ * Event display date/time comes straight from the post excerpt —
+ * Ian types it in, e.g. "Saturday, April 25 · 7 PM Eastern · With
+ * Alan Noble". Ghost 5 no longer allows future published_at on a
+ * published post, which is why we lean on the excerpt + the replay-
+ * embed signal instead of dates.
  */
 (function () {
   var source = document.querySelector("[data-events-source]");
@@ -25,7 +34,6 @@
         title: el.getAttribute("data-title") || "",
         excerpt: el.getAttribute("data-excerpt") || "",
         featureImage: el.getAttribute("data-feature-image") || "",
-        publishedAt: el.getAttribute("data-published-at") || "",
         ts: Date.parse(el.getAttribute("data-published-at")) || 0,
         contentHtml: contentHtml,
         hasReplay: /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
@@ -33,19 +41,28 @@
     });
 
   var upcoming = items.filter(function (e) { return !e.hasReplay; })
-    .sort(function (a, b) { return b.ts - a.ts; }); // newest first = the one to feature
+    .sort(function (a, b) { return b.ts - a.ts; });
   var past = items.filter(function (e) { return e.hasReplay; })
     .sort(function (a, b) { return b.ts - a.ts; });
 
-  var heroUpcoming = document.querySelector("[data-events-hero]");
-  var heroEmpty = document.querySelector("[data-events-hero-empty]");
-  var feature = document.querySelector("[data-events-feature]");
-  var body = document.querySelector("[data-events-body]");
-  var pastEl = document.querySelector("[data-events-past]");
+  if (document.querySelector("[data-events-hero]")) renderForum(upcoming);
+  if (document.querySelector("[data-events-library-upcoming]")) renderLibrary(upcoming, past);
 
-  if (upcoming.length) {
-    var e = upcoming[0];
-    heroUpcoming.hidden = false;
+  // ---- /forum/ detail view -----------------------------------------------
+
+  function renderForum(upcomingEvents) {
+    var heroEl = document.querySelector("[data-events-hero]");
+    var emptyEl = document.querySelector("[data-events-hero-empty]");
+    var featureWrap = document.querySelector("[data-events-feature-wrap]");
+    var body = document.querySelector("[data-events-body]");
+
+    if (!upcomingEvents.length) {
+      if (emptyEl) emptyEl.hidden = false;
+      return;
+    }
+
+    var e = upcomingEvents[0];
+    heroEl.hidden = false;
     document.querySelector("[data-events-title]").textContent = e.title;
     var titleLink = document.querySelector("[data-events-title-link]");
     if (titleLink) titleLink.href = e.url;
@@ -54,45 +71,62 @@
       sub.textContent = e.excerpt;
       sub.hidden = false;
     }
-    if (e.featureImage) {
-      feature.hidden = false;
+    if (e.featureImage && featureWrap) {
+      featureWrap.hidden = false;
       document.querySelector("[data-events-feature-inner]").style.backgroundImage = "url(" + e.featureImage + ")";
     }
-    var prose = document.querySelector("[data-events-prose]");
-    prose.innerHTML = e.contentHtml;
+    document.querySelector("[data-events-prose]").innerHTML = e.contentHtml;
     body.hidden = false;
-  } else {
-    heroEmpty.hidden = false;
   }
 
-  if (past.length) {
-    var list = document.querySelector("[data-events-past-list]");
-    for (var i = 0; i < past.length; i++) list.appendChild(renderPastItem(past[i]));
-    pastEl.hidden = false;
+  // ---- /events/ library view --------------------------------------------
+
+  function renderLibrary(upcomingEvents, pastEvents) {
+    var upcomingSection = document.querySelector("[data-events-library-upcoming]");
+    var pastSection = document.querySelector("[data-events-library-past]");
+    var empty = document.querySelector("[data-events-empty]");
+
+    if (upcomingEvents.length) {
+      var upList = document.querySelector("[data-events-library-upcoming-list]");
+      for (var i = 0; i < upcomingEvents.length; i++) {
+        upList.appendChild(renderCard(upcomingEvents[i], i === 0 ? "/forum/" : upcomingEvents[i].url));
+      }
+      upcomingSection.hidden = false;
+    }
+    if (pastEvents.length) {
+      var pastList = document.querySelector("[data-events-library-past-list]");
+      for (var j = 0; j < pastEvents.length; j++) {
+        pastList.appendChild(renderCard(pastEvents[j], pastEvents[j].url));
+      }
+      pastSection.hidden = false;
+    }
+    if (!upcomingEvents.length && !pastEvents.length) {
+      if (empty) empty.hidden = false;
+    }
   }
 
-  function renderPastItem(e) {
+  function renderCard(e, href) {
     var li = document.createElement("li");
-    li.className = "events-past-item";
+    li.className = "events-library-card";
     var a = document.createElement("a");
-    a.href = e.url;
-    a.className = "events-past-link";
+    a.href = href;
+    a.className = "events-library-link";
     if (e.featureImage) {
       var thumb = document.createElement("span");
-      thumb.className = "events-past-thumb";
+      thumb.className = "events-library-thumb";
       thumb.style.backgroundImage = "url(" + e.featureImage + ")";
       a.appendChild(thumb);
     }
     var body = document.createElement("div");
-    body.className = "events-past-body";
+    body.className = "events-library-body-col";
     if (e.excerpt) {
       var when = document.createElement("p");
-      when.className = "events-past-date";
+      when.className = "events-library-when";
       when.textContent = e.excerpt;
       body.appendChild(when);
     }
     var title = document.createElement("h3");
-    title.className = "events-past-event-title";
+    title.className = "events-library-card-title";
     var em = document.createElement("em");
     em.textContent = e.title;
     title.appendChild(em);

@@ -1,23 +1,14 @@
 {{!< default}}
-{{!-- /events/ — single public events page.
-
-     Everything below is rendered server-side from Ghost posts tagged
-     #event (internal tag so they don't appear in the main feed). A
-     small script in assets/js/events.js inspects each item's
-     data-published-at, sorts them, and promotes the closest future
-     event into the hero + body while past events collect into the
-     "Past Events" footer.
-
-     To add a new event: Ghost Admin → New post → write it → add the
-     internal tag `#event` → set Publish date to the event's start
-     datetime → publish. After the event, paste the YouTube replay
-     into the post body via Ghost's YouTube block. --}}
+{{!-- /events/ — library view listing every #event post, split into
+     "Upcoming" (no replay embed yet) and "Past Events" (replay
+     embed present in the post body). The actual event detail with
+     title, body, and registration form lives at /forum/ or at each
+     event's own post URL. --}}
 
 <main class="events-page">
 
-  {{!-- Raw event data. Rendered hidden; events.js reads from it. --}}
   <div data-events-source hidden>
-    {{#get "posts" filter="tag:hash-event" order="published_at asc" limit="all"}}
+    {{#get "posts" filter="tag:hash-event" order="published_at desc" limit="all"}}
       {{#foreach posts}}
         <article class="events-item"
                  data-slug="{{slug}}"
@@ -32,70 +23,38 @@
     {{/get}}
   </div>
 
-  {{!-- Hero: populated by JS with the upcoming event. --}}
-  <section class="hero events-hero" data-events-hero hidden>
-    <div class="container">
-      <p class="hero-kicker"><span class="dot"></span> Online Event</p>
-      <h1 class="hero-headline"><a class="events-hero-link" data-events-title-link><span data-events-title></span></a></h1>
-      <p class="hero-sub" data-events-excerpt hidden></p>
-    </div>
-  </section>
-
-  {{!-- Hero fallback: no upcoming events. --}}
-  <section class="hero events-hero events-hero--empty" data-events-hero-empty hidden>
+  <section class="hero events-library-hero">
     <div class="container">
       <p class="hero-kicker"><span class="dot"></span> Online Events</p>
       <h1 class="hero-headline">Gather in <span class="highlight"><em>community</em></span>.</h1>
-      <p class="hero-sub">Online gatherings with our editors, contributors, and leading thinkers. No events are currently scheduled — check back soon.</p>
+      <p class="hero-sub">Online gatherings with editors, contributors, and leading thinkers on theology, culture, and faithful public witness. Register for what's next; revisit every past event in the library.</p>
     </div>
   </section>
 
-  {{!-- Feature image for upcoming event. --}}
-  <div class="events-feature" data-events-feature hidden>
-    <div class="events-feature-inner" data-events-feature-inner></div>
-  </div>
-
-  {{!-- Body: prose of the upcoming event + registration form. --}}
-  <section class="events-body" data-events-body hidden>
+  <section class="events-library-body">
     <div class="container container-narrow">
-      <div class="events-prose" data-events-prose></div>
 
-      <div class="flourish">{{> "flourish-mark"}}</div>
-
-      <div class="events-register">
-        <p class="eyebrow">Register</p>
-        <h2 class="events-register-title"><em>Save your seat.</em></h2>
-        <p class="events-register-sub">Enter your name and email. We'll send you the details and save your spot. If you're not already subscribed to {{@site.title}}, you'll be added to our free list automatically.</p>
-
-        <div class="digest-form events-register-form" data-inline-signup data-source="events-page" data-event-name-from="[data-events-title]">
-          <div class="digest-field">
-            <label for="event-first">First Name</label>
-            <input id="event-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
-          </div>
-          <div class="digest-field">
-            <label for="event-last">Last Name</label>
-            <input id="event-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
-          </div>
-          <div class="digest-field">
-            <label for="event-email">Email</label>
-            <input id="event-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
-          </div>
-          <button type="button" class="digest-submit" data-signup-submit>Register</button>
-          <p class="digest-fineprint">Free signup. Unsubscribe anytime.</p>
-          <p class="digest-status" data-signup-status></p>
-        </div>
+      <div class="events-library-section" data-events-library-upcoming hidden>
+        <p class="eyebrow">Upcoming</p>
+        <h2 class="events-library-title"><em>What's next.</em></h2>
+        <ol class="events-library-list" data-events-library-upcoming-list></ol>
       </div>
-    </div>
-  </section>
 
-  {{!-- Past events list (footer). --}}
-  <section class="events-past" data-events-past hidden>
-    <div class="container container-narrow">
       <div class="flourish">{{> "flourish-mark"}}</div>
-      <p class="eyebrow">Past Events</p>
-      <h2 class="events-past-title"><em>The archive.</em></h2>
-      <p class="events-past-sub">Paid Members can watch every replay in <a href="/dashboard/replays/">the replay library</a>.</p>
-      <ol class="events-past-list" data-events-past-list></ol>
+
+      <div class="events-library-section" data-events-library-past hidden>
+        <p class="eyebrow">Past Events</p>
+        <h2 class="events-library-title"><em>The archive.</em></h2>
+        <p class="events-library-sub">Paid Members can watch every replay in <a href="/dashboard/replays/">the replay library</a>.</p>
+        <ol class="events-library-list" data-events-library-past-list></ol>
+      </div>
+
+      <div class="events-library-empty" data-events-empty hidden>
+        <p class="eyebrow">Coming Soon</p>
+        <h2 class="events-library-title"><em>No events on the calendar yet.</em></h2>
+        <p>Subscribe to {{@site.title}} to be first to hear when the next online event goes live.</p>
+      </div>
+
     </div>
   </section>
 

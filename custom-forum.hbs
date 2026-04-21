@@ -1,0 +1,89 @@
+{{!< default}}
+{{!-- /forum/ — the "always the next upcoming event" detail page.
+
+     Fetches every #event post, picks the newest-published one that
+     doesn't yet have a replay embed in its body, and renders it as
+     the full detail view (hero + image + prose + registration form).
+     When that event ends and the replay is pasted in, /forum/ rotates
+     to the next upcoming event automatically. --}}
+
+<main class="events-page">
+
+  <div data-events-source hidden>
+    {{#get "posts" filter="tag:hash-event" order="published_at desc" limit="all"}}
+      {{#foreach posts}}
+        <article class="events-item"
+                 data-slug="{{slug}}"
+                 data-url="{{url}}"
+                 data-title="{{title}}"
+                 data-excerpt="{{custom_excerpt}}"
+                 data-feature-image="{{#if feature_image}}{{img_url feature_image size="xl"}}{{/if}}"
+                 data-published-at="{{published_at}}">
+          <div class="events-item-content">{{content}}</div>
+        </article>
+      {{/foreach}}
+    {{/get}}
+  </div>
+
+  {{!-- Hero — two-column grid mirroring custom-about.hbs: kicker +
+       title + excerpt on the left, feature image right-aligned.
+       Populated by JS from the current upcoming event. --}}
+  <section class="hero forum-hero" data-events-hero hidden>
+    <div class="container">
+      <div class="forum-hero-grid">
+        <div class="forum-hero-content">
+          <p class="hero-kicker"><span class="dot"></span> Online Event</p>
+          <h1 class="hero-headline forum-hero-headline"><a class="events-hero-link" data-events-title-link><span data-events-title></span></a></h1>
+          <p class="hero-sub" data-events-excerpt hidden></p>
+        </div>
+        <div class="forum-hero-image" data-events-feature-wrap hidden aria-hidden="true">
+          <div class="forum-hero-image-inner" data-events-feature-inner></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{!-- Empty state: no upcoming events. --}}
+  <section class="hero forum-hero forum-hero--empty" data-events-hero-empty hidden>
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> Online Events</p>
+      <h1 class="hero-headline">No event on the <span class="highlight"><em>calendar right now</em></span>.</h1>
+      <p class="hero-sub">The next online event will appear here as soon as it's announced. Visit <a href="/events/">the events library</a> to browse past events.</p>
+    </div>
+  </section>
+
+  <section class="events-body" data-events-body hidden>
+    <div class="container container-narrow">
+      <div class="events-prose" data-events-prose></div>
+
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      <div class="events-register">
+        <p class="eyebrow">Register</p>
+        <h2 class="events-register-title"><em>Save your seat.</em></h2>
+        <p class="events-register-sub">Enter your name and email. We'll send you the details and save your spot. If you're not already subscribed to {{@site.title}}, you'll be added to our free list automatically.</p>
+
+        <div class="digest-form events-register-form" data-inline-signup data-source="forum-page" data-event-name-from="[data-events-title]">
+          <div class="digest-field">
+            <label for="event-first">First Name</label>
+            <input id="event-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
+          </div>
+          <div class="digest-field">
+            <label for="event-last">Last Name</label>
+            <input id="event-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+          </div>
+          <div class="digest-field">
+            <label for="event-email">Email</label>
+            <input id="event-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+          </div>
+          <button type="button" class="digest-submit" data-signup-submit>Register</button>
+          <p class="digest-fineprint">Free signup. Unsubscribe anytime.</p>
+          <p class="digest-status" data-signup-status></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/events.js"}}"></script>
