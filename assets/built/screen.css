@@ -2003,7 +2003,7 @@ body {
   color: var(--color-white);
   border-color: var(--color-primary);
 }
-.article-audio-icon { font-size: 11px; line-height: 1; }
+.article-audio-icon { width: 11px; height: 11px; fill: currentColor; flex: 0 0 auto; }
 .article-audio-player {
   width: 100%;
   max-width: 520px;
