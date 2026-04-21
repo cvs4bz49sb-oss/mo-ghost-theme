@@ -5453,21 +5453,19 @@ body {
 }
 
 /* --- Rail (right column) --------------------------------------------- */
-/* Position: fixed so it absolutely does not move on scroll. The grid
-   reserves a 320px column for it so the main column's width isn't
-   affected. `right` is computed to align with the right edge of the
-   .container (1180px max-width, 28px side padding). */
+/* Sticky within the cream dashboard-body section — sits in its grid
+   column at natural position, pins to top: 120px (just below the
+   fixed site header) as the page scrolls, then releases when the
+   dashboard-body's end scrolls past. .dashboard-main has a
+   min-height (see above) so the grid row is always tall enough for
+   sticky to engage even when the modules are collapsed. */
 .dashboard-rail {
-  position: fixed;
-  top: 100px;
-  right: calc(max(28px, (100vw - 1180px) / 2 + 28px));
-  width: 320px;
-  max-height: calc(100vh - 140px);
-  overflow-y: auto;
+  position: sticky;
+  top: 120px;
+  align-self: start;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  z-index: 2;
+  gap: 24px;
 }
 /* Editorial rail — no cards, no borders. Each section is plain
    prose: eyebrow, italic display tier line, meta, inline arrow
