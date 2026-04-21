@@ -23,6 +23,7 @@
  */
 (function () {
   var MAGIC_URL = "/members/api/send-magic-link/";
+  var INTEGRITY_URL = "/members/api/integrity-token/";
 
   document.addEventListener("click", function (e) {
     var submit = e.target && e.target.closest && e.target.closest("[data-signup-submit]");
@@ -64,22 +65,27 @@
     submit.textContent = "Subscribing\u2026";
     setStatus(root, "");
 
-    // Payload mirrors what Ghost Portal itself sends. requestSrc
-     // identifies the caller; Ghost 5.x rejects the request without
-     // it. redirect is honored when the magic-link link is clicked.
-    fetch(MAGIC_URL, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        email: email,
-        emailType: "signup",
-        name: name,
-        labels: [],
-        requestSrc: "portal",
-        redirect: window.location.href,
-      }),
-      credentials: "same-origin",
-    })
+    // Ghost 5.x requires an integrity token fetched from a dedicated
+    // endpoint (anti-abuse). The token is single-use and short-lived,
+    // so it has to be fetched per-submit, not cached.
+    fetch(INTEGRITY_URL, { credentials: "same-origin" })
+      .then(function (r) { return r.ok ? r.text() : ""; })
+      .then(function (integrityToken) {
+        return fetch(MAGIC_URL, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            email: email,
+            emailType: "signup",
+            name: name,
+            labels: [],
+            requestSrc: "portal",
+            redirect: window.location.href,
+            integrityToken: integrityToken,
+          }),
+          credentials: "same-origin",
+        });
+      })
       .then(function (res) {
         if (res.ok) return null;
         return res.json().then(
