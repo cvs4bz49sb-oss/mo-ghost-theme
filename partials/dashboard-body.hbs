@@ -35,7 +35,7 @@
 
         <div class="flourish">{{> "flourish-mark"}}</div>
 
-        <details class="dashboard-module" open>
+        <details class="dashboard-module">
           <summary>
             <h2 class="dashboard-module-title"><em>Reading History</em></h2>
             <span class="dashboard-module-chev" aria-hidden="true"></span>
@@ -54,20 +54,22 @@
 
       <aside class="dashboard-rail" aria-label="Membership">
 
-        <div class="dashboard-rail-card">
+        <div class="dashboard-rail-item">
           <p class="eyebrow">Your Membership</p>
           <p class="dashboard-rail-tier"><em>{{#match @member.status "paid"}}Paid Member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "free"}}Free Subscriber{{/match}}</em></p>
           {{#if @member.created_at}}
             <p class="dashboard-rail-meta">Member since {{date @member.created_at format="MMMM YYYY"}}</p>
           {{/if}}
-          <a href="/manage/" class="btn btn-primary dashboard-rail-btn">Manage Membership</a>
+          <a href="/manage/" class="dashboard-rail-link">Manage Membership &rarr;</a>
         </div>
 
-        <div class="dashboard-rail-card">
+        <div class="dashboard-rail-sep" aria-hidden="true"></div>
+
+        <div class="dashboard-rail-item">
           <p class="eyebrow">Replays</p>
           <p class="dashboard-rail-tier"><em>Event Library</em></p>
           <p class="dashboard-rail-meta">Watch every past online event on demand.</p>
-          <a href="/dashboard/replays/" class="btn btn-primary dashboard-rail-btn">Open Replay Library</a>
+          <a href="/dashboard/replays/" class="dashboard-rail-link">Open replay library &rarr;</a>
         </div>
 
       </aside>

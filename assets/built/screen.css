@@ -5453,21 +5453,27 @@ body {
 }
 
 /* --- Rail (right column) --------------------------------------------- */
+/* Position: fixed so it absolutely does not move on scroll. The grid
+   reserves a 320px column for it so the main column's width isn't
+   affected. `right` is computed to align with the right edge of the
+   .container (1180px max-width, 28px side padding). */
 .dashboard-rail {
-  position: sticky;
+  position: fixed;
   top: 100px;
-  align-self: start;
+  right: calc(max(28px, (100vw - 1180px) / 2 + 28px));
+  width: 320px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  z-index: 2;
 }
-.dashboard-rail-card {
-  background: var(--color-white, #fff);
-  border: 1px solid var(--color-card-border, rgba(0,0,0,0.1));
-  border-radius: 4px;
-  padding: 22px 24px;
-}
-.dashboard-rail-card .eyebrow {
+/* Editorial rail — no cards, no borders. Each section is plain
+   prose: eyebrow, italic display tier line, meta, inline arrow
+   link. A thin rule separates the sections. */
+.dashboard-rail-item { padding: 0; }
+.dashboard-rail-item .eyebrow {
   font-family: var(--font-body);
   font-size: 10px;
   letter-spacing: 0.28em;
@@ -5487,25 +5493,39 @@ body {
 .dashboard-rail-meta {
   font-family: var(--font-body);
   font-size: 13px;
+  line-height: 1.5;
   color: var(--color-muted);
-  margin: 0 0 18px;
+  margin: 0 0 14px;
 }
-.dashboard-rail-btn { width: 100%; text-align: center; }
-.dashboard-rail-card--soft {
-  background: rgba(238, 125, 81, 0.08);
-  border-color: rgba(238, 125, 81, 0.28);
-}
-.dashboard-rail-body {
+.dashboard-rail-link {
   font-family: var(--font-body);
   font-size: 13px;
-  line-height: 1.55;
-  color: var(--color-dark);
+  letter-spacing: 0.04em;
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(238, 125, 81, 0.35);
+  padding-bottom: 2px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.dashboard-rail-link:hover {
+  border-color: var(--color-primary);
+  color: var(--color-secondary, #c1593c);
+}
+.dashboard-rail-sep {
+  height: 1px;
+  background: rgba(0,0,0,0.1);
   margin: 0;
 }
 
 @media (max-width: 960px) {
   .dashboard-grid { grid-template-columns: 1fr; gap: 40px; }
-  .dashboard-rail { position: static; }
+  .dashboard-rail {
+    position: static;
+    width: auto;
+    right: auto;
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 @media (max-width: 640px) {
   .dashboard-hero { padding: 72px 0 56px; }
