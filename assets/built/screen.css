@@ -2235,6 +2235,12 @@ body {
   position: static;
   top: auto;
 }
+/* Both TOC containers start with the `hidden` attribute; toc.js only
+   removes it when the article has H2s. The `.article-rail` (display:flex)
+   and `.toc-mobile` (display:block, in the 1024px media query) rules
+   otherwise win over the attribute's default display:none. */
+.article-rail[hidden],
+.toc-mobile[hidden] { display: none !important; }
 
 .rail-label {
   font-size: 10px;
