@@ -5450,6 +5450,7 @@ body {
 .dashboard-rail {
   position: sticky;
   top: 100px;
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 20px;
