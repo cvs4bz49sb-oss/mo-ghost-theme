@@ -29,6 +29,8 @@ routes:
     template: custom-institution-manage
   /manage/:
     template: custom-manage
+  /dashboard/:
+    template: custom-dashboard
   /success/:
     template: custom-success
 

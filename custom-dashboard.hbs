@@ -1,0 +1,57 @@
+{{!< default}}
+{{!-- custom-dashboard: Paying Members hub.
+
+     Visibility rules:
+       - Not signed in                 → sign-in prompt
+       - @member.status == "paid"      → full dashboard
+       - @member.status == "comped"    → full dashboard
+       - @member.email == @custom.dashboard_preview_email → full dashboard + admin banner
+       - Any other signed-in state     → upsell to paid membership
+
+     The actual content is fetched client-side from the mo-kit worker
+     (reading history) and Ghost's Content API via {{#get}} (latest
+     members-only essays). See assets/js/dashboard.js. --}}
+
+<main class="dashboard-page">
+  <div class="container">
+
+    {{#unless @member}}
+      <section class="dashboard-gate">
+        <p class="eyebrow">Members Only</p>
+        <h1>Sign in to your dashboard</h1>
+        <p>Your reading history, members-only essays, and membership settings all live here. Open the magic link in your inbox, or subscribe below if you're new.</p>
+        <p class="dashboard-actions">
+          <a href="#/portal/signin" class="btn btn-primary" data-portal="signin">Sign in</a>
+          <a href="/membership/" class="btn btn-ghost">Become a Member</a>
+        </p>
+      </section>
+    {{else}}
+
+      {{!-- Gate: paid, comped, or staff-preview email. Everything else
+           renders the upsell. --}}
+      {{#match @member.status "paid"}}{{> "dashboard-body"}}{{else}}
+      {{#match @member.status "comped"}}{{> "dashboard-body"}}{{else}}
+      {{#match @member.email @custom.dashboard_preview_email}}
+        <div class="dashboard-admin-banner" role="note">
+          <strong>Admin preview.</strong> You are not a paid Member — this dashboard is visible because your email matches <code>dashboard_preview_email</code>.
+        </div>
+        {{> "dashboard-body"}}
+      {{else}}
+        <section class="dashboard-gate">
+          <p class="eyebrow">Members Only</p>
+          <h1>Your dashboard awaits</h1>
+          <p>Members get a reading history feed, bookmarks, and access to members-only essays. Your current plan doesn't include dashboard access yet.</p>
+          <p class="dashboard-actions">
+            <a href="/membership/" class="btn btn-primary">Become a Member</a>
+          </p>
+        </section>
+      {{/match}}
+      {{/match}}
+      {{/match}}
+
+    {{/unless}}
+
+  </div>
+</main>
+
+<script src="{{asset "js/dashboard.js"}}"></script>

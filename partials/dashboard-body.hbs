@@ -1,0 +1,55 @@
+{{!-- Dashboard body rendered for any member with full access (paid,
+     comped, or staff preview). Sections:
+
+       1. Welcome header — identity + joined date
+       2. Members-only essays — six most recent visibility:paid posts
+       3. Reading history — last ~20 posts, hydrated by dashboard.js
+       4. Manage membership — card linking to /manage/ --}}
+
+<header class="dashboard-header">
+  <p class="eyebrow">Member Dashboard</p>
+  <h1>Welcome, {{#if @member.name}}{{@member.name}}{{else}}friend{{/if}}</h1>
+  <p class="dashboard-meta">
+    {{#match @member.status "paid"}}Paid Member{{/match}}{{#match @member.status "comped"}}Complimentary Member{{/match}}{{#match @member.status "free"}}Free Subscriber{{/match}}
+    {{#if @member.created_at}}<span class="dashboard-dot">&bull;</span>Member since {{date @member.created_at format="MMMM YYYY"}}{{/if}}
+  </p>
+</header>
+
+<section class="dashboard-section" aria-labelledby="dash-exclusive">
+  <h2 id="dash-exclusive">Members-only Essays</h2>
+  {{#get "posts" filter="visibility:paid" limit="6" include="authors,tags" as |members_posts|}}
+    {{#if members_posts}}
+      <div class="dashboard-grid">
+        {{#foreach members_posts}}
+          <a href="{{url}}" class="dashboard-card">
+            {{#if feature_image}}
+              <div class="dashboard-card-img" style="background-image: url({{img_url feature_image size='s'}});"></div>
+            {{/if}}
+            <div class="dashboard-card-body">
+              {{#if primary_tag}}<p class="dashboard-card-topic">{{primary_tag.name}}</p>{{/if}}
+              <h3 class="dashboard-card-title">{{title}}</h3>
+              {{#if excerpt}}<p class="dashboard-card-excerpt">{{excerpt words="18"}}</p>{{/if}}
+            </div>
+          </a>
+        {{/foreach}}
+      </div>
+    {{else}}
+      <p class="dashboard-empty">No members-only essays published yet.</p>
+    {{/if}}
+  {{/get}}
+</section>
+
+<section class="dashboard-section" aria-labelledby="dash-history">
+  <h2 id="dash-history">Your Reading History</h2>
+  <div class="dashboard-history" data-dashboard-history>
+    <p class="dashboard-empty" data-history-placeholder>Loading your reading history…</p>
+  </div>
+</section>
+
+<section class="dashboard-section dashboard-section--manage" aria-labelledby="dash-manage">
+  <h2 id="dash-manage">Manage Your Membership</h2>
+  <p>Update your payment method, review your billing history, or cancel anytime.</p>
+  <p class="dashboard-actions">
+    <a href="/manage/" class="btn btn-primary">Open Billing Portal</a>
+  </p>
+</section>

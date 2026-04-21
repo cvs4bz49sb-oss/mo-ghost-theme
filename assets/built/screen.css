@@ -5255,3 +5255,171 @@ body {
 }
 .listen-grid--podcasts .pod-listen-platforms a:hover { color: var(--color-primary); }
 .listen-grid--podcasts .pod-listen-sep { color: var(--color-card-border); padding: 0 6px; }
+
+/* ----------------------------------------------------------------------------
+   Member dashboard (/dashboard/). custom-dashboard.hbs + partials/dashboard-body.
+   Sections: welcome header, members-only essays, reading history, manage card.
+   ---------------------------------------------------------------------------- */
+.dashboard-page {
+  padding: 64px 0 96px;
+  background: var(--color-cream, #f5efe1);
+  min-height: 60vh;
+}
+.dashboard-page .container { max-width: 1040px; }
+.dashboard-admin-banner {
+  background: rgba(238, 125, 81, 0.12);
+  border: 1px solid rgba(238, 125, 81, 0.45);
+  border-radius: 4px;
+  padding: 10px 16px;
+  margin-bottom: 28px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+}
+.dashboard-admin-banner code {
+  font-size: 12px;
+  background: rgba(0,0,0,0.04);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.dashboard-header { margin-bottom: 48px; }
+.dashboard-header .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.dashboard-header h1 {
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 1.1;
+  margin: 0 0 10px;
+  color: var(--color-dark);
+}
+.dashboard-meta {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0;
+}
+.dashboard-meta .dashboard-dot { padding: 0 8px; color: var(--color-card-border); }
+
+.dashboard-section { margin-bottom: 56px; }
+.dashboard-section h2 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.2;
+  margin: 0 0 20px;
+  color: var(--color-dark);
+}
+.dashboard-empty {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-white, #fff);
+  border: 1px solid var(--color-card-border, rgba(0,0,0,0.1));
+  border-radius: 6px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  border-color: rgba(238, 125, 81, 0.45);
+}
+.dashboard-card-img {
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0,0,0,0.06);
+}
+.dashboard-card-body { padding: 14px 16px 18px; }
+.dashboard-card-topic {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.dashboard-card-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.3;
+  margin: 0 0 6px;
+  color: var(--color-dark);
+}
+.dashboard-card-excerpt,
+.dashboard-card-meta {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0;
+}
+.dashboard-card-meta { margin-top: 6px; font-size: 12px; }
+
+.dashboard-section--manage {
+  background: rgba(238, 125, 81, 0.06);
+  border: 1px solid rgba(238, 125, 81, 0.28);
+  border-radius: 6px;
+  padding: 24px 28px;
+}
+.dashboard-section--manage h2 { margin-bottom: 8px; }
+.dashboard-section--manage p {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+
+.dashboard-gate {
+  max-width: 520px;
+  margin: 40px auto;
+  text-align: center;
+}
+.dashboard-gate .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.dashboard-gate h1 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 1.15;
+  margin: 0 0 14px;
+  color: var(--color-dark);
+}
+.dashboard-gate p {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0 0 20px;
+}
+.dashboard-actions { display: flex; gap: 12px; justify-content: flex-start; flex-wrap: wrap; }
+.dashboard-gate .dashboard-actions { justify-content: center; }
+
+@media (max-width: 640px) {
+  .dashboard-page { padding: 40px 0 72px; }
+  .dashboard-header h1 { font-size: 32px; }
+  .dashboard-section h2 { font-size: 20px; }
+  .dashboard-section--manage { padding: 20px; }
+}
