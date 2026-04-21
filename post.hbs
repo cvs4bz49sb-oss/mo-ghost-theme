@@ -269,7 +269,13 @@
 </section>
 {{/if}}
 
-{{> "membership-cta"}}
+{{!-- Full membership form at the bottom of every post — same partial
+     used on the homepage #join anchor and /membership/. Wrapped in a
+     .membership.homepage-membership div so it picks up the same
+     containing styles the homepage uses. --}}
+<div class="membership homepage-membership" id="join">
+  {{> "membership-body"}}
+</div>
 
 <script src="{{asset "js/toc.js"}}"></script>
 <script src="{{asset "js/related.js"}}"></script>
