@@ -5,11 +5,10 @@
 <article>
     <header class="article-header">
         <div class="article-header-inner">
-            {{!-- Topic pill: render every public tag; CSS hides author-*
-                 slugs and separates the rest with "·" so Essay follows
-                 the last visible tag regardless of position. --}}
+            {{!-- Topic pill: render every public tag; CSS hides
+                 author-* slugs and separates the rest with "·". --}}
             <p class="article-topic article-topic--candidates" data-topic>
-                {{#foreach tags visibility="public"}}<a href="{{url}}" class="article-topic-tag" data-tag-slug="{{slug}}">{{name}}</a>{{/foreach}}<span class="article-topic-type">Essay</span>
+                {{#foreach tags visibility="public"}}<a href="{{url}}" class="article-topic-tag" data-tag-slug="{{slug}}">{{name}}</a>{{/foreach}}
             </p>
             <h1 class="article-title">{{title}}</h1>
             {{#if custom_excerpt}}

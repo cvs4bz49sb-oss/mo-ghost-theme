@@ -1282,10 +1282,9 @@ img { max-width: 100%; height: auto; }
   color: var(--color-muted);
   margin: 0 2px;
 }
-/* Trailing static type label ("Long Read", "Essay") only shows when
-   there is at least one visible topic tag. */
-.feature-topic--candidates .feature-topic-type::before,
-.article-topic--candidates .article-topic-type::before {
+/* Trailing static type label ("Long Read") only shows when there's
+   at least one visible topic tag. */
+.feature-topic--candidates .feature-topic-type::before {
   content: " \00B7 ";
   color: var(--color-muted);
   margin: 0 2px;
