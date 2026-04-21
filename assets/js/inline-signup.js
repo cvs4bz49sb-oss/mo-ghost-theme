@@ -64,6 +64,9 @@
     submit.textContent = "Subscribing\u2026";
     setStatus(root, "");
 
+    // Payload mirrors what Ghost Portal itself sends. requestSrc
+     // identifies the caller; Ghost 5.x rejects the request without
+     // it. redirect is honored when the magic-link link is clicked.
     fetch(MAGIC_URL, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -72,6 +75,7 @@
         emailType: "signup",
         name: name,
         labels: [],
+        requestSrc: "portal",
         redirect: window.location.href,
       }),
       credentials: "same-origin",
