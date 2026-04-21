@@ -1971,6 +1971,45 @@ body {
   margin: 0 0 24px;
   color: var(--color-white);
 }
+
+/* Audio-article Listen block sits below the meta line in the dark
+   article header. Members-only — rendered server-side only for paid
+   @member.status. The trigger swaps to a native audio element on
+   click via assets/js/article-audio.js. */
+.article-audio {
+  margin: 32px auto 0;
+  display: flex;
+  justify-content: center;
+}
+.article-audio-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: rgba(238, 125, 81, 0.12);
+  border: 1px solid rgba(238, 125, 81, 0.4);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.article-audio-trigger:hover {
+  background: rgba(238, 125, 81, 0.22);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+.article-audio-icon { font-size: 11px; line-height: 1; }
+.article-audio-player {
+  width: 100%;
+  max-width: 520px;
+  height: 48px;
+  border-radius: 999px;
+}
 .article-title em { font-style: italic; }
 .article-title .highlight {
   background-color: rgba(193,89,60,0.78);

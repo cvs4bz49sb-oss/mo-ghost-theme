@@ -61,6 +61,25 @@
                 <span class="meta-dot">&bull;</span>
                 <span class="meta-item">{{reading_time minute="1 min read" minutes="% min read"}}</span>
             </div>
+
+            {{!-- Audio article: Members-only. Free Subscribers and
+                 signed-out visitors don't see the button. Click swaps
+                 the button for an inline HTML5 audio player pointing
+                 at the mo-audio worker. Archive posts are synthesized
+                 on first play; new posts are pre-warmed via webhook. --}}
+            {{#match @member.status "paid"}}
+                {{#if @custom.audio_worker_url}}
+                    <div class="article-audio"
+                         data-article-audio
+                         data-post-id="{{id}}"
+                         data-audio-base="{{@custom.audio_worker_url}}">
+                        <button class="article-audio-trigger" type="button" data-audio-trigger aria-label="Listen to this essay">
+                            <span class="article-audio-icon" aria-hidden="true">&#9654;</span>
+                            <span class="article-audio-label">Listen to this essay</span>
+                        </button>
+                    </div>
+                {{/if}}
+            {{/match}}
         </div>
     </header>
 
@@ -221,5 +240,6 @@
 <script src="{{asset "js/toc.js"}}"></script>
 <script src="{{asset "js/related.js"}}"></script>
 <script src="{{asset "js/post-gate.js"}}"></script>
+<script src="{{asset "js/article-audio.js"}}"></script>
 
 {{/post}}

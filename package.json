@@ -124,6 +124,10 @@
         "options": ["members", "paid"],
         "default": "members",
         "description": "Who can read an article after the gate closes. 'members' = any signed-in member (free or paid). 'paid' = paying members only; free members still see the gate."
+      },
+      "audio_worker_url": {
+        "type": "text",
+        "description": "Full URL of the deployed mo-audio Cloudflare Worker (e.g. https://mo-audio.mo-podcast-feed.workers.dev). When set, paid Members see a 'Listen to this essay' button in the post header. Empty disables audio articles."
       }
     }
   }
