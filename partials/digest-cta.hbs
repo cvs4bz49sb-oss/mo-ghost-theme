@@ -7,6 +7,9 @@
                 <p>An essay worth your time, a handful of links worth reading, and a short note from our editors. No hype. No filler. Unsubscribe anytime.</p>
             </div>
             {{#if @custom.digest_form_action}}
+                {{!-- External service (Kit / Mailchimp). Leave form submit
+                     to the external action. Only used when admin explicitly
+                     sets @custom.digest_form_action. --}}
                 <form class="digest-form" action="{{@custom.digest_form_action}}" method="POST">
                     <div class="digest-field">
                         <label for="digest-first">First Name</label>
@@ -24,38 +27,26 @@
                     <p class="digest-fineprint">Free. Delivered Thursday mornings.</p>
                 </form>
             {{else}}
-                <div class="digest-form digest-form--portal">
+                {{!-- Ghost-native inline signup. inline-signup.js POSTs the
+                     values straight to /members/api/send-magic-link/ and
+                     swaps the form for a success state. No Portal modal. --}}
+                <div class="digest-form" data-inline-signup>
                     <div class="digest-field">
                         <label for="digest-first">First Name</label>
-                        <input id="digest-first" type="text" autocomplete="given-name" placeholder="First" required />
+                        <input id="digest-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
                     </div>
                     <div class="digest-field">
                         <label for="digest-last">Last Name</label>
-                        <input id="digest-last" type="text" autocomplete="family-name" placeholder="Last" required />
+                        <input id="digest-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
                     </div>
                     <div class="digest-field">
                         <label for="digest-email">Email</label>
-                        <input id="digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-members-email required />
+                        <input id="digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
                     </div>
-                    <input type="hidden" id="digest-name" data-members-name />
-                    <button type="button" class="digest-submit" data-portal="signup" id="digest-submit">Subscribe</button>
+                    <button type="button" class="digest-submit" data-signup-submit>Subscribe</button>
                     <p class="digest-fineprint">Free. Delivered Thursday mornings.</p>
+                    <p class="digest-status" data-signup-status></p>
                 </div>
-                <script>
-                    (function () {
-                        var first = document.getElementById('digest-first');
-                        var last = document.getElementById('digest-last');
-                        var name = document.getElementById('digest-name');
-                        var btn = document.getElementById('digest-submit');
-                        if (!first || !last || !name || !btn) return;
-                        function sync() {
-                            name.value = [first.value.trim(), last.value.trim()].filter(Boolean).join(' ');
-                        }
-                        first.addEventListener('input', sync);
-                        last.addEventListener('input', sync);
-                        btn.addEventListener('click', sync);
-                    })();
-                </script>
             {{/if}}
         </div>
     </div>

@@ -126,59 +126,34 @@
   }
 
   function buildSubscribeForm() {
-    // Hidden members-* inputs get read by Ghost Portal when the
-    // Subscribe button (data-portal="signup") is clicked. Portal
-    // handles the magic-link email and the success state.
+    // [data-inline-signup] is picked up by inline-signup.js via
+    // event delegation; it POSTs directly to
+    // /members/api/send-magic-link/ and renders an inline success
+    // state. No Portal modal.
     var form = document.createElement("div");
     form.className = "post-gate-form";
+    form.setAttribute("data-inline-signup", "");
 
-    form.appendChild(field("post-gate-first", "First Name", "text", "given-name"));
-    form.appendChild(field("post-gate-last", "Last Name", "text", "family-name"));
-
-    var emailWrap = document.createElement("div");
-    emailWrap.className = "post-gate-field";
-    var emailLabel = document.createElement("label");
-    emailLabel.setAttribute("for", "post-gate-email");
-    emailLabel.textContent = "Email";
-    var emailInput = document.createElement("input");
-    emailInput.id = "post-gate-email";
-    emailInput.type = "email";
-    emailInput.autocomplete = "email";
-    emailInput.placeholder = "you@example.com";
-    emailInput.required = true;
-    emailInput.setAttribute("data-members-email", "");
-    emailWrap.appendChild(emailLabel);
-    emailWrap.appendChild(emailInput);
-    form.appendChild(emailWrap);
-
-    var nameHidden = document.createElement("input");
-    nameHidden.type = "hidden";
-    nameHidden.id = "post-gate-name";
-    nameHidden.setAttribute("data-members-name", "");
-    form.appendChild(nameHidden);
+    form.appendChild(field("post-gate-first", "First Name", "text", "given-name", "data-signup-first"));
+    form.appendChild(field("post-gate-last", "Last Name", "text", "family-name", "data-signup-last"));
+    form.appendChild(field("post-gate-email", "Email", "email", "email", "data-signup-email"));
 
     var submit = document.createElement("button");
     submit.type = "button";
     submit.className = "btn btn-primary post-gate-submit";
-    submit.setAttribute("data-portal", "signup");
+    submit.setAttribute("data-signup-submit", "");
     submit.textContent = "Subscribe";
     form.appendChild(submit);
 
-    // Sync first+last into the hidden name field Ghost Portal reads.
-    var first = form.querySelector("#post-gate-first");
-    var last = form.querySelector("#post-gate-last");
-    function syncName() {
-      var parts = [first.value.trim(), last.value.trim()].filter(Boolean);
-      nameHidden.value = parts.join(" ");
-    }
-    first.addEventListener("input", syncName);
-    last.addEventListener("input", syncName);
-    submit.addEventListener("click", syncName);
+    var status = document.createElement("p");
+    status.className = "post-gate-status";
+    status.setAttribute("data-signup-status", "");
+    form.appendChild(status);
 
     return form;
   }
 
-  function field(id, label, type, autocomplete) {
+  function field(id, label, type, autocomplete, signupAttr) {
     var wrap = document.createElement("div");
     wrap.className = "post-gate-field";
     var lbl = document.createElement("label");
@@ -188,8 +163,9 @@
     input.id = id;
     input.type = type;
     if (autocomplete) input.autocomplete = autocomplete;
-    input.placeholder = label.split(" ")[0];
+    input.placeholder = type === "email" ? "you@example.com" : label.split(" ")[0];
     input.required = true;
+    if (signupAttr) input.setAttribute(signupAttr, "");
     wrap.appendChild(lbl);
     wrap.appendChild(input);
     return wrap;

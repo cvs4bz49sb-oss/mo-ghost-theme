@@ -1128,6 +1128,15 @@ img { max-width: 100%; height: auto; }
 .digest-submit:hover { color: var(--color-primary); }
 .digest-submit:hover::after { transform: translateX(4px); }
 .digest-fineprint { display: none; }
+/* Status line under the digest form for inline errors / progress. */
+.digest-form .digest-status {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+  min-height: 18px;
+}
+.digest-form .digest-status.is-error { color: var(--color-secondary); }
 
 /* -------- Divider flourish -------- */
 
@@ -2364,6 +2373,45 @@ body {
   text-decoration: underline;
 }
 .post-gate-signin-link:hover { color: var(--color-primary); }
+
+.post-gate-status {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+  min-height: 18px;
+  text-align: center;
+}
+.post-gate-status.is-error { color: var(--color-secondary); }
+
+/* Inline signup success state — replaces the form in place once
+   Ghost accepts the magic-link request. Shared by the post gate and
+   the digest CTA. */
+.inline-signup-success {
+  max-width: 540px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 24px 16px;
+}
+.inline-signup-success .eyebrow { margin: 0 0 10px; }
+.inline-signup-success h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(22px, 2.4vw, 28px);
+  margin: 0 0 10px;
+  color: var(--color-dark);
+}
+.inline-signup-success p {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0;
+}
+.inline-signup-success strong {
+  font-weight: 600;
+  color: var(--color-dark);
+}
 
 @media (max-width: 640px) {
   .post-gate-card { margin: 32px 0 0; padding: 32px 20px; }
