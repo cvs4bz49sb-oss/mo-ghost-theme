@@ -44,7 +44,7 @@
       }
       var ol = document.createElement("ol");
       ol.className = "dashboard-essay-list";
-      for (var i = 0; i < list.length; i++) ol.appendChild(renderItem(list[i], i + 1));
+      for (var i = 0; i < list.length; i++) ol.appendChild(renderItem(list[i]));
       clear(mount);
       mount.appendChild(ol);
     })
@@ -52,39 +52,54 @@
       showEmpty(mount, "Couldn't load your reading history right now. Try reloading.");
     });
 
-  function renderItem(entry, n) {
+  function renderItem(entry) {
+    return buildEssayRow({
+      url: entry.url || ("/" + (entry.slug || "")),
+      title: entry.title || entry.slug || entry.postId,
+      topic: entry.primary_tag && entry.primary_tag.name,
+      image: entry.feature_image,
+      metaText: "Read " + formatRelative(entry.readAt),
+    });
+  }
+
+  function buildEssayRow(opts) {
     var li = document.createElement("li");
     li.className = "dashboard-essay";
 
-    var num = document.createElement("span");
-    num.className = "dashboard-essay-numeral";
-    num.textContent = toRoman(n);
-    li.appendChild(num);
+    var thumb = document.createElement("a");
+    thumb.className = "dashboard-essay-thumb";
+    thumb.href = opts.url;
+    thumb.setAttribute("aria-hidden", "true");
+    thumb.setAttribute("tabindex", "-1");
+    if (opts.image) thumb.style.backgroundImage = "url(" + opts.image + ")";
+    li.appendChild(thumb);
 
     var body = document.createElement("div");
     body.className = "dashboard-essay-body";
 
-    if (entry.primary_tag && entry.primary_tag.name) {
+    if (opts.topic) {
       var topic = document.createElement("p");
       topic.className = "dashboard-essay-topic";
-      topic.textContent = entry.primary_tag.name;
+      topic.textContent = opts.topic;
       body.appendChild(topic);
     }
     var h3 = document.createElement("h3");
     h3.className = "dashboard-essay-title";
     var a = document.createElement("a");
-    a.href = entry.url || ("/" + (entry.slug || ""));
+    a.href = opts.url;
     var em = document.createElement("em");
-    em.textContent = entry.title || entry.slug || entry.postId;
+    em.textContent = opts.title;
     a.appendChild(em);
     h3.appendChild(a);
     body.appendChild(h3);
 
-    var meta = document.createElement("p");
-    meta.className = "dashboard-essay-meta";
-    meta.textContent = "Read " + formatRelative(entry.readAt);
-    body.appendChild(meta);
-
+    if (opts.metaText) {
+      var meta = document.createElement("p");
+      meta.className = "dashboard-essay-meta";
+      meta.textContent = opts.metaText;
+      body.appendChild(meta);
+    }
+    if (opts.remove) body.appendChild(opts.remove);
     li.appendChild(body);
     return li;
   }
@@ -118,7 +133,7 @@
         }
         var ol = document.createElement("ol");
         ol.className = "dashboard-essay-list";
-        for (var i = 0; i < list.length; i++) ol.appendChild(renderBookmarkItem(list[i], i + 1, WORKER, EMAIL));
+        for (var i = 0; i < list.length; i++) ol.appendChild(renderBookmarkItem(list[i], WORKER, EMAIL));
         clear(mount);
         mount.appendChild(ol);
       })
@@ -127,46 +142,20 @@
       });
   }
 
-  function renderBookmarkItem(entry, n, WORKER, EMAIL) {
-    var li = document.createElement("li");
-    li.className = "dashboard-essay";
-
-    var num = document.createElement("span");
-    num.className = "dashboard-essay-numeral";
-    num.textContent = toRoman(n);
-    li.appendChild(num);
-
-    var bodyDiv = document.createElement("div");
-    bodyDiv.className = "dashboard-essay-body";
-
-    if (entry.primary_tag && entry.primary_tag.name) {
-      var topic = document.createElement("p");
-      topic.className = "dashboard-essay-topic";
-      topic.textContent = entry.primary_tag.name;
-      bodyDiv.appendChild(topic);
-    }
-    var h3 = document.createElement("h3");
-    h3.className = "dashboard-essay-title";
-    var a = document.createElement("a");
-    a.href = entry.url || ("/" + (entry.slug || ""));
-    var em = document.createElement("em");
-    em.textContent = entry.title || entry.slug || entry.postId;
-    a.appendChild(em);
-    h3.appendChild(a);
-    bodyDiv.appendChild(h3);
-
-    if (entry.savedAt) {
-      var meta = document.createElement("p");
-      meta.className = "dashboard-essay-meta";
-      meta.textContent = "Saved " + formatRelative(entry.savedAt);
-      bodyDiv.appendChild(meta);
-    }
-
+  function renderBookmarkItem(entry, WORKER, EMAIL) {
     var remove = document.createElement("button");
     remove.type = "button";
     remove.className = "dashboard-essay-remove";
     remove.setAttribute("aria-label", "Remove bookmark");
     remove.textContent = "Remove";
+    var li = buildEssayRow({
+      url: entry.url || ("/" + (entry.slug || "")),
+      title: entry.title || entry.slug || entry.postId,
+      topic: entry.primary_tag && entry.primary_tag.name,
+      image: entry.feature_image,
+      metaText: entry.savedAt ? "Saved " + formatRelative(entry.savedAt) : "",
+      remove: remove,
+    });
     remove.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -179,23 +168,7 @@
         body: JSON.stringify({ email: EMAIL, postId: entry.postId }),
       }).then(function () { li.remove(); }).catch(function () { remove.disabled = false; });
     });
-    bodyDiv.appendChild(remove);
-
-    li.appendChild(bodyDiv);
     return li;
-  }
-
-  function toRoman(n) {
-    var values = [10, 9, 5, 4, 1];
-    var symbols = ["X", "IX", "V", "IV", "I"];
-    var out = "";
-    var i = 0;
-    while (n > 0 && i < values.length) {
-      while (n >= values[i]) { out += symbols[i]; n -= values[i]; }
-      i++;
-    }
-    // Fallback to arabic for numbers this loop doesn't cover (20+).
-    return out || String(n);
   }
 
   function formatRelative(iso) {
