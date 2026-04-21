@@ -35,6 +35,10 @@ routes:
     template: custom-dashboard-bookmarks
   /dashboard/history/:
     template: custom-dashboard-history
+  /dashboard/replays/:
+    template: custom-dashboard-replays
+  /events/:
+    template: custom-events
   /success/:
     template: custom-success
 

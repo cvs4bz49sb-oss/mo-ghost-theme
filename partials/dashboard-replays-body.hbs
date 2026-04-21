@@ -1,0 +1,40 @@
+{{!-- Body for /dashboard/replays/. Renders every past #event post
+     with its full content (which includes the YouTube embed Ian
+     pastes in after the event). --}}
+
+<section class="hero dashboard-hero">
+  <div class="container">
+    <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+    <h1 class="hero-headline">Event <span class="highlight"><em>Replays</em></span>.</h1>
+    <p class="hero-sub">Every past online event, on demand. Newest first.</p>
+    <p class="dashboard-breadcrumb"><a href="/dashboard/">&larr; Back to dashboard</a></p>
+  </div>
+</section>
+
+<section class="dashboard-body">
+  <div class="container container-narrow">
+
+    {{!-- All #event posts dumped to the page; the JS filters to
+         strictly past ones (published_at < now). The YouTube embed
+         is whatever Ian pasted into the post body after the event. --}}
+    <div data-replays-source hidden>
+      {{#get "posts" filter="tag:hash-event" order="published_at desc" limit="all"}}
+        {{#foreach posts}}
+          <article class="replays-item"
+                   data-slug="{{slug}}"
+                   data-url="{{url}}"
+                   data-title="{{title}}"
+                   data-excerpt="{{custom_excerpt}}"
+                   data-published-at="{{published_at}}">
+            <div class="replays-item-content">{{content}}</div>
+          </article>
+        {{/foreach}}
+      {{/get}}
+    </div>
+
+    <ol class="replays-list" data-replays-list>
+      <li class="replays-empty" data-replays-placeholder>Loading past events&hellip;</li>
+    </ol>
+
+  </div>
+</section>

@@ -1,0 +1,104 @@
+{{!< default}}
+{{!-- /events/ — single public events page.
+
+     Everything below is rendered server-side from Ghost posts tagged
+     #event (internal tag so they don't appear in the main feed). A
+     small script in assets/js/events.js inspects each item's
+     data-published-at, sorts them, and promotes the closest future
+     event into the hero + body while past events collect into the
+     "Past Events" footer.
+
+     To add a new event: Ghost Admin → New post → write it → add the
+     internal tag `#event` → set Publish date to the event's start
+     datetime → publish. After the event, paste the YouTube replay
+     into the post body via Ghost's YouTube block. --}}
+
+<main class="events-page">
+
+  {{!-- Raw event data. Rendered hidden; events.js reads from it. --}}
+  <div data-events-source hidden>
+    {{#get "posts" filter="tag:hash-event" order="published_at asc" limit="all"}}
+      {{#foreach posts}}
+        <article class="events-item"
+                 data-slug="{{slug}}"
+                 data-url="{{url}}"
+                 data-title="{{title}}"
+                 data-excerpt="{{custom_excerpt}}"
+                 data-feature-image="{{#if feature_image}}{{img_url feature_image size="xl"}}{{/if}}"
+                 data-published-at="{{published_at}}">
+          <div class="events-item-content">{{content}}</div>
+        </article>
+      {{/foreach}}
+    {{/get}}
+  </div>
+
+  {{!-- Hero: populated by JS with the closest upcoming event. --}}
+  <section class="hero events-hero" data-events-hero hidden>
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> Online Event <span class="events-kicker-sep" aria-hidden="true">&middot;</span> <span data-events-date></span></p>
+      <h1 class="hero-headline" data-events-title></h1>
+      <p class="hero-sub" data-events-excerpt hidden></p>
+    </div>
+  </section>
+
+  {{!-- Hero fallback: no upcoming events. --}}
+  <section class="hero events-hero events-hero--empty" data-events-hero-empty hidden>
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> Online Events</p>
+      <h1 class="hero-headline">Gather in <span class="highlight"><em>community</em></span>.</h1>
+      <p class="hero-sub">Online gatherings with our editors, contributors, and leading thinkers. No events are currently scheduled — check back soon.</p>
+    </div>
+  </section>
+
+  {{!-- Feature image for upcoming event. --}}
+  <div class="events-feature" data-events-feature hidden>
+    <div class="events-feature-inner" data-events-feature-inner></div>
+  </div>
+
+  {{!-- Body: prose of the upcoming event + registration form. --}}
+  <section class="events-body" data-events-body hidden>
+    <div class="container container-narrow">
+      <div class="events-prose" data-events-prose></div>
+
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      <div class="events-register">
+        <p class="eyebrow">Register</p>
+        <h2 class="events-register-title"><em>Save your seat.</em></h2>
+        <p class="events-register-sub">Enter your name and email. We'll send you the details and save your spot. If you're not already subscribed to {{@site.title}}, you'll be added to our free list automatically.</p>
+
+        <div class="digest-form events-register-form" data-inline-signup data-source="events-page" data-event-name-from="[data-events-title]">
+          <div class="digest-field">
+            <label for="event-first">First Name</label>
+            <input id="event-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
+          </div>
+          <div class="digest-field">
+            <label for="event-last">Last Name</label>
+            <input id="event-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+          </div>
+          <div class="digest-field">
+            <label for="event-email">Email</label>
+            <input id="event-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+          </div>
+          <button type="button" class="digest-submit" data-signup-submit>Register</button>
+          <p class="digest-fineprint">Free signup. Unsubscribe anytime.</p>
+          <p class="digest-status" data-signup-status></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{!-- Past events list (footer). --}}
+  <section class="events-past" data-events-past hidden>
+    <div class="container container-narrow">
+      <div class="flourish">{{> "flourish-mark"}}</div>
+      <p class="eyebrow">Past Events</p>
+      <h2 class="events-past-title"><em>The archive.</em></h2>
+      <p class="events-past-sub">Paid Members can watch every replay in <a href="/dashboard/replays/">the replay library</a>.</p>
+      <ol class="events-past-list" data-events-past-list></ol>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/events.js"}}"></script>

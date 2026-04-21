@@ -170,6 +170,16 @@
       var utm = params.get("utm_campaign");
       if (utm) out.push("utm:" + utm);
     } catch (_) {}
+    // Event registration: form declares `data-event-name-from="sel"`
+    // pointing at an element (populated client-side by events.js)
+    // whose textContent is the event title. Emits "event: Title" as
+    // a Ghost label; mo-kit mirrors to Kit tag with the same name.
+    var eventSel = root.getAttribute("data-event-name-from");
+    if (eventSel) {
+      var nameEl = document.querySelector(eventSel);
+      var eventName = nameEl ? (nameEl.textContent || "").trim() : "";
+      if (eventName) out.push("event: " + eventName);
+    }
     return out;
   }
 

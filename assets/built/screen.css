@@ -5623,3 +5623,253 @@ body {
   border-color: var(--color-primary);
   color: var(--color-secondary, #c1593c);
 }
+
+/* ----------------------------------------------------------------------------
+   /events/ — public landing.
+   Dark hero populated from the closest upcoming #event post,
+   body shows its prose + registration form, footer lists past events.
+   ---------------------------------------------------------------------------- */
+.events-page [data-events-source] { display: none; }
+.events-hero {
+  background: var(--color-dark);
+  color: var(--color-white, #fff);
+  padding: 96px 0 64px;
+}
+.events-hero .events-kicker-sep { padding: 0 8px; opacity: 0.5; }
+.events-hero .hero-sub { max-width: 620px; margin-top: 18px; }
+.events-feature {
+  max-width: 1040px;
+  margin: -32px auto 0;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+.events-feature-inner {
+  aspect-ratio: 16 / 9;
+  background: #3a332e center / cover no-repeat;
+  border-radius: 4px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+.events-body {
+  background: var(--color-cream, #f5efe1);
+  padding: 72px 0 48px;
+}
+.events-prose {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--color-dark);
+}
+.events-prose > :first-child { margin-top: 0; }
+.events-prose > :last-child { margin-bottom: 0; }
+.events-register {
+  margin-top: 16px;
+}
+.events-register .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.events-register-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 1.15;
+  margin: 0 0 12px;
+  color: var(--color-dark);
+  font-weight: 400;
+}
+.events-register-sub {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0 0 28px;
+  max-width: 620px;
+}
+
+/* --- Past events list ------------------------------------------------- */
+.events-past {
+  background: var(--color-cream, #f5efe1);
+  padding: 16px 0 96px;
+}
+.events-past .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.events-past-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 1.15;
+  margin: 0 0 10px;
+  color: var(--color-dark);
+  font-weight: 400;
+}
+.events-past-sub {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 28px;
+}
+.events-past-sub a {
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(238, 125, 81, 0.35);
+}
+.events-past-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.events-past-link {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 22px;
+  align-items: start;
+  text-decoration: none;
+  color: inherit;
+}
+.events-past-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--color-card-border, rgba(0,0,0,0.1));
+  padding: 6px;
+  background: var(--color-white, #fff);
+  background-clip: content-box;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.events-past-date {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.events-past-event-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.25;
+  margin: 0;
+  color: var(--color-dark);
+  font-weight: 400;
+  transition: color 0.15s;
+}
+.events-past-link:hover .events-past-event-title { color: var(--color-primary); }
+
+@media (max-width: 640px) {
+  .events-hero { padding: 72px 0 48px; }
+  .events-feature { padding: 0 16px; margin-top: -24px; }
+  .events-body { padding: 48px 0 32px; }
+  .events-past { padding: 16px 0 72px; }
+  .events-register-title, .events-past-title { font-size: 26px; }
+  .events-past-link { grid-template-columns: 96px 1fr; gap: 16px; }
+  .events-past-event-title { font-size: 18px; }
+}
+
+/* ----------------------------------------------------------------------------
+   /dashboard/replays/ — paid-only video replay library.
+   ---------------------------------------------------------------------------- */
+.dashboard [data-replays-source] { display: none; }
+.replays-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.replays-card {
+  border-top: 1px solid rgba(0,0,0,0.1);
+  padding-top: 24px;
+}
+.replays-card:first-child { border-top: 0; padding-top: 0; }
+.replays-details { margin: 0; padding: 0; }
+.replays-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 18px;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+.replays-summary::-webkit-details-marker { display: none; }
+.replays-date {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin: 0 0 6px;
+  grid-column: 1;
+}
+.replays-title {
+  grid-column: 1;
+  grid-row: 2;
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1.2;
+  margin: 0;
+  font-weight: 400;
+  color: var(--color-dark);
+}
+.replays-sub {
+  grid-column: 1;
+  grid-row: 3;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 8px 0 0;
+}
+.replays-chev {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: center;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(45deg) translateY(-3px);
+  transition: transform 0.2s;
+}
+.replays-details[open] .replays-chev {
+  transform: rotate(-135deg) translateY(-3px);
+}
+.replays-body {
+  padding: 20px 0 4px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-dark);
+}
+.replays-body iframe { max-width: 100%; border-radius: 4px; }
+.replays-body > :first-child { margin-top: 0; }
+.replays-body > :last-child { margin-bottom: 0; }
+.replays-empty {
+  list-style: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .replays-title { font-size: 22px; }
+}
