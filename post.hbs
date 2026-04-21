@@ -62,12 +62,12 @@
                 <span class="meta-item">{{reading_time minute="1 min read" minutes="% min read"}}</span>
             </div>
 
-            {{!-- Audio article: Members-only. Free Subscribers and
-                 signed-out visitors don't see the button. Click swaps
+            {{!-- Audio article: any signed-in member (free or paid).
+                 Signed-out visitors don't see the button. Click swaps
                  the button for an inline HTML5 audio player pointing
                  at the mo-audio worker. Archive posts are synthesized
                  on first play; new posts are pre-warmed via webhook. --}}
-            {{#match @member.status "paid"}}
+            {{#if @member}}
                 {{#if @custom.audio_worker_url}}
                     <div class="article-audio"
                          data-article-audio
@@ -79,7 +79,7 @@
                         </button>
                     </div>
                 {{/if}}
-            {{/match}}
+            {{/if}}
         </div>
     </header>
 
