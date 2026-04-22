@@ -6576,16 +6576,37 @@ body {
 .podcast-episode-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0;
+  max-width: none;
 }
+/* Kill the homepage listen-grid vertical divider; it's a 2-col
+   center line that makes no sense on a single-column list. */
+.podcast-episode-list::before { display: none; }
 .podcast-episode-list .pod-entry {
-  padding: 20px 0;
+  padding: 14px 0;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
+  gap: 6px;
 }
 .podcast-episode-list .pod-entry:first-child {
   border-top: 0;
   padding-top: 0;
 }
+/* Tighter typography so more episodes fit at a glance. */
+.podcast-episode-list .pod-title { font-size: 18px; line-height: 1.25; }
+.podcast-episode-list .pod-topic { font-size: 9px; }
+.podcast-episode-list .pod-date {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 500;
+  margin: 0;
+}
+.podcast-episode-list .pod-excerpt { font-size: 13px; line-height: 1.5; }
+.podcast-episode-list .pod-excerpt .pod-initial { font-size: 20px; }
+.podcast-episode-list .pod-listen { margin-top: 4px; }
+.podcast-episode-list .pod-listen-label,
+.podcast-episode-list .pod-listen-platforms { font-size: 10px; }
 .podcast-episodes-loading {
   font-family: var(--font-body);
   font-size: 14px;
