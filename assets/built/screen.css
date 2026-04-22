@@ -5392,6 +5392,17 @@ body {
   flex-direction: column;
   gap: 28px;
 }
+/* Inline on /dashboard/ (bookmarks + history modules): 2 entries
+   per row. Full-page views (/dashboard/bookmarks/ + history/)
+   stay single-column so the archive reads linearly. */
+.dashboard-module .dashboard-essay-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 32px;
+}
+@media (max-width: 720px) {
+  .dashboard-module .dashboard-essay-list { grid-template-columns: 1fr; }
+}
 .dashboard-essay {
   display: grid;
   grid-template-columns: 132px 1fr;
