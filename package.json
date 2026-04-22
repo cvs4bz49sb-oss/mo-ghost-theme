@@ -38,33 +38,6 @@
         "type": "text",
         "description": "Ghost Content API key for the homepage topic filter (optional)."
       },
-      "stripe_member_annual_url": {
-        "type": "text",
-        "description": "Stripe Payment Link URL for the $100/yr Member tier. Create in Stripe → Payment Links. When set, the /membership Become-a-Member buttons link here instead of Ghost Portal."
-      },
-      "stripe_member_monthly_url": {
-        "type": "text",
-        "description": "Stripe Payment Link URL for the $10/mo Member tier. Used by the billing-interval toggle on /membership."
-      },
-      "stripe_lifetime_url": {
-        "type": "text",
-        "description": "Stripe Payment Link URL for the $995 Lifetime tier. Create in Stripe → Payment Links."
-      },
-      "gift_url": {
-        "type": "text",
-        "default": "/gift",
-        "description": "URL for the gift membership flow."
-      },
-      "group_url": {
-        "type": "text",
-        "default": "/groups",
-        "description": "URL for the group/organization membership flow."
-      },
-      "institution_url": {
-        "type": "text",
-        "default": "/institutions",
-        "description": "URL for the seminary/institution membership flow."
-      },
       "membership_api_base": {
         "type": "text",
         "default": "https://join.mereorthodoxy.com",
