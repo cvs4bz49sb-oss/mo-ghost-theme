@@ -6183,8 +6183,12 @@ body {
    .gift-banner the submit drops to its own row and the three fields
    share the full width equally. */
 .gift-banner { margin: 0 0 36px; }
+/* Three rows: First+Last, Email full width, Subscribe link. */
 .gift-banner .digest-form {
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+}
+.gift-banner .digest-form .digest-field:nth-child(3) {
+  grid-column: 1 / -1;
 }
 .gift-banner .digest-submit {
   grid-column: 1 / -1;
