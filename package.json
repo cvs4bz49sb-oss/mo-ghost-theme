@@ -112,6 +112,10 @@
       "ebook_access_worker_url": {
         "type": "text",
         "description": "URL of the deployed mo-ebook-access Worker (e.g. https://mo-ebook-access.mo-podcast-feed.workers.dev). When set, /dashboard/ebooks/ mints a short-lived token so paid Members skip the ebook email gate. Empty falls back to the HubSpot-list gate at each ebook."
+      },
+      "gift_worker_url": {
+        "type": "text",
+        "description": "URL of the deployed mo-gift Worker (e.g. https://mo-gift.mo-podcast-feed.workers.dev). When set, a 4th action button appears on gate-eligible articles for any signed-in member, letting them copy a gift link that bypasses the soft gate for the recipient. Empty hides the button."
       }
     }
   }

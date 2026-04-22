@@ -112,6 +112,28 @@
                     </svg>
                     <span class="article-pdf-label">Download PDF</span>
                 </a>
+                {{!-- Gift link: any signed-in member (Subscriber or Member)
+                     can copy a shareable URL that bypasses the soft gate
+                     for the recipient. Hidden for signed-out visitors. --}}
+                {{#if @member}}
+                {{#if @custom.gift_worker_url}}
+                <button class="article-gift" type="button"
+                        data-article-gift
+                        data-post-id="{{id}}"
+                        data-post-url="{{url absolute="true"}}"
+                        data-member-email="{{@member.email}}"
+                        data-worker-url="{{@custom.gift_worker_url}}"
+                        aria-label="Gift this essay">
+                    <svg class="article-gift-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 9h18v4H3z" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M5 13v8h14v-8" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 9v12" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 9c-2-3-6-3-6-1s2 3 6 1zM12 9c2-3 6-3 6-1s-2 3-6 1z" fill="none" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span class="article-gift-label">Gift this essay</span>
+                </button>
+                {{/if}}
+                {{/if}}
             </div>
         </div>
     </header>
@@ -286,5 +308,6 @@
 <script src="{{asset "js/article-audio.js"}}"></script>
 <script src="{{asset "js/article-bookmark.js"}}"></script>
 <script src="{{asset "js/article-pdf.js"}}"></script>
+<script src="{{asset "js/article-gift.js"}}"></script>
 
 {{/post}}

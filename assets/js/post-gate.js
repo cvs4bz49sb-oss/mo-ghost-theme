@@ -40,6 +40,20 @@
   var isMember = content.getAttribute("data-is-member") === "true";
   var memberStatus = content.getAttribute("data-member-status") || "";
 
+  // Gift-link bypass: if URL carries ?gift=<token> and the reader
+  // isn't already a signed-in member, decode the token for display
+  // (name + tier), skip the gate, and render a top banner crediting
+  // the gifter with an inline free-subscribe form. Token is signed
+  // but not verified client-side — the soft gate is bypassable
+  // anyway. See workers/gift/gift.js.
+  if (!isMember) {
+    var giftClaims = readGiftClaims();
+    if (giftClaims) {
+      renderGiftBanner(content, giftClaims);
+      return;
+    }
+  }
+
   // Tier gate: members = any signed-in account bypasses; paid = must
   // be on a paid plan. Free Subscribers hit the gate when tier=paid.
   if (isMember) {
@@ -178,6 +192,72 @@
     wrap.appendChild(lbl);
     wrap.appendChild(input);
     return wrap;
+  }
+
+  function readGiftClaims() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var token = params.get("gift");
+      if (!token) return null;
+      var dot = token.indexOf(".");
+      if (dot < 0) return null;
+      var payload = token.slice(0, dot);
+      // Base64url → base64 → UTF-8 string. Signature is not verified
+      // here; presence is the signal. A forged token just shows a
+      // bogus name on an already-soft-gated article.
+      var b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+      while (b64.length % 4) b64 += "=";
+      var json = decodeURIComponent(Array.prototype.map.call(atob(b64), function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(""));
+      var claims = JSON.parse(json);
+      if (typeof claims.exp === "number" && claims.exp * 1000 < Date.now()) return null;
+      return {
+        by: String(claims.by || "A Subscriber"),
+        tier: String(claims.tier || "Subscriber"),
+      };
+    } catch (_) { return null; }
+  }
+
+  function renderGiftBanner(root, claims) {
+    var banner = document.createElement("aside");
+    banner.className = "gift-banner";
+    banner.setAttribute("role", "region");
+    banner.setAttribute("aria-label", "Gifted article");
+
+    var eb = document.createElement("p");
+    eb.className = "eyebrow gift-banner-eyebrow";
+    eb.textContent = "A gift from " + claims.by;
+    banner.appendChild(eb);
+
+    var h = document.createElement("h2");
+    h.className = "gift-banner-heading";
+    var em = document.createElement("em");
+    em.textContent = claims.by + " is a " + claims.tier + " of Mere Orthodoxy and gifted you this article.";
+    h.appendChild(em);
+    banner.appendChild(h);
+
+    var p = document.createElement("p");
+    p.className = "gift-banner-body";
+    p.textContent = "Read all of our essays by subscribing for free.";
+    banner.appendChild(p);
+
+    banner.appendChild(buildSubscribeForm());
+
+    var signinRow = document.createElement("p");
+    signinRow.className = "gift-banner-signin";
+    signinRow.innerHTML = "Already a subscriber? ";
+    var signinBtn = document.createElement("button");
+    signinBtn.type = "button";
+    signinBtn.className = "post-gate-signin-link";
+    signinBtn.setAttribute("data-portal", "signin");
+    signinBtn.textContent = "Sign in";
+    signinRow.appendChild(signinBtn);
+    signinRow.appendChild(document.createTextNode("."));
+    banner.appendChild(signinRow);
+
+    // Prepend so the banner sits above the article body.
+    root.insertBefore(banner, root.firstChild);
   }
 
   function eyebrow(text) {
