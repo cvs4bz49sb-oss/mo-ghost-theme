@@ -37,6 +37,21 @@
 
         <details class="dashboard-module">
           <summary>
+            <h2 class="dashboard-module-title"><em>Ebooks</em></h2>
+            <span class="dashboard-module-chev" aria-hidden="true"></span>
+          </summary>
+          <div class="dashboard-module-body">
+            {{> "ebooks-list"}}
+            <p class="dashboard-view-all">
+              <a href="/dashboard/ebooks/">View the full library &rarr;</a>
+            </p>
+          </div>
+        </details>
+
+        <div class="flourish">{{> "flourish-mark"}}</div>
+
+        <details class="dashboard-module">
+          <summary>
             <h2 class="dashboard-module-title"><em>Reading History</em></h2>
             <span class="dashboard-module-chev" aria-hidden="true"></span>
           </summary>

@@ -1,11 +1,6 @@
 {{!-- Body for /dashboard/ebooks/. Paid-member ebook library.
-
-     Each card links to the ebook subdomain. When @custom.ebook_access_worker_url
-     is set, dashboard-ebooks.js mints a short-lived HMAC token via the
-     mo-ebook-access worker and rewrites flagged links (data-requires-token)
-     to include ?t=TOKEN so paid Ghost members skip the ebook's HubSpot-list
-     gate. Without the worker URL the links still resolve — the HubSpot gate
-     just handles auth as before. --}}
+     Rendered list lives in partials/ebooks-list.hbs so the same
+     set is reused inline on the dashboard. --}}
 
 <section class="hero dashboard-hero">
   <div class="container">
@@ -17,87 +12,7 @@
 </section>
 
 <section class="dashboard-body">
-  <div class="container container-narrow">
-    <ul class="ebooks-grid"
-        data-ebooks
-        data-member-email="{{@member.email}}"
-        data-worker-url="{{@custom.ebook_access_worker_url}}">
-
-      <li class="ebook-card">
-        <a href="https://christian-formation.up.railway.app/"
-           data-ebook-link
-           data-requires-token="true"
-           data-verify-path="/api/ghost-verify"
-           class="ebook-card-link"
-           target="_blank"
-           rel="noopener">
-          <span class="ebook-card-eyebrow">Ebook</span>
-          <h2 class="ebook-card-title"><em>Christian Formation in The Modern World</em></h2>
-          <p class="ebook-card-excerpt">A collection on shaping Christian lives under the conditions of modernity.</p>
-          <span class="ebook-card-cta">Open ebook &rarr;</span>
-        </a>
-      </li>
-
-      <li class="ebook-card">
-        <a href="https://christians-in-an-ai-world.up.railway.app/"
-           data-ebook-link
-           data-requires-token="true"
-           data-verify-path="/api/ghost-verify"
-           class="ebook-card-link"
-           target="_blank"
-           rel="noopener">
-          <span class="ebook-card-eyebrow">Ebook</span>
-          <h2 class="ebook-card-title"><em>Christians In An AI World</em></h2>
-          <p class="ebook-card-excerpt">Theological and practical reflections for the age of artificial intelligence.</p>
-          <span class="ebook-card-cta">Open ebook &rarr;</span>
-        </a>
-      </li>
-
-      <li class="ebook-card">
-        <a href="https://church-leadership-ebook-production.up.railway.app/"
-           data-ebook-link
-           data-requires-token="true"
-           data-verify-path="/api/ghost-verify"
-           class="ebook-card-link"
-           target="_blank"
-           rel="noopener">
-          <span class="ebook-card-eyebrow">Ebook</span>
-          <h2 class="ebook-card-title"><em>Navigating the Fracture</em></h2>
-          <p class="ebook-card-excerpt">Church leadership under the conditions of cultural and institutional upheaval.</p>
-          <span class="ebook-card-cta">Open ebook &rarr;</span>
-        </a>
-      </li>
-
-      <li class="ebook-card">
-        <a href="https://spiritual-formation-for-the-family-production.up.railway.app/"
-           data-ebook-link
-           data-requires-token="true"
-           data-verify-path="/api/ghost-verify"
-           class="ebook-card-link"
-           target="_blank"
-           rel="noopener">
-          <span class="ebook-card-eyebrow">Ebook</span>
-          <h2 class="ebook-card-title"><em>Spiritual Formation for the Family</em></h2>
-          <p class="ebook-card-excerpt">Practices and convictions for forming Christian households.</p>
-          <span class="ebook-card-cta">Open ebook &rarr;</span>
-        </a>
-      </li>
-
-      <li class="ebook-card">
-        <a href="https://blueprintforrenewal-production.up.railway.app/"
-           data-ebook-link
-           data-requires-token="true"
-           data-verify-path="/api/ghost-verify"
-           class="ebook-card-link"
-           target="_blank"
-           rel="noopener">
-          <span class="ebook-card-eyebrow">Ebook</span>
-          <h2 class="ebook-card-title"><em>Blueprint for Renewal</em></h2>
-          <p class="ebook-card-excerpt">A strategic outline for the work of Christian cultural renewal.</p>
-          <span class="ebook-card-cta">Open ebook &rarr;</span>
-        </a>
-      </li>
-
-    </ul>
+  <div class="container">
+    {{> "ebooks-list"}}
   </div>
 </section>

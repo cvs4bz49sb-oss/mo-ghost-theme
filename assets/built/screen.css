@@ -5937,39 +5937,39 @@ body {
   .replays-title { font-size: 22px; }
 }
 
-/* --- Dashboard ebook library (/dashboard/ebooks/) ----------------- */
+/* --- Ebook list ------------------------------------------------
+   Editorial rows (no cards): 4 entries per row on desktop, stacking
+   to 2 on tablets and 1 on phones. Each entry is a plain column
+   with a short hairline accent above the title — no background,
+   no border, no shadow. Used on /dashboard/ebooks/ and inline on
+   /dashboard/ via the shared ebooks-list partial.                  */
 .ebooks-grid {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 32px;
 }
-@media (max-width: 720px) {
+@media (max-width: 980px) {
+  .ebooks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
   .ebooks-grid { grid-template-columns: 1fr; }
 }
-.ebook-card {
-  border: 1px solid var(--color-card-border);
-  border-radius: 6px;
-  background: var(--color-white);
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+.ebook-entry {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 16px;
 }
-.ebook-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 10px 28px -18px rgba(0, 0, 0, 0.25);
-  transform: translateY(-1px);
-}
-.ebook-card-link {
+.ebook-entry-link {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 26px 28px;
+  gap: 8px;
   text-decoration: none;
   color: inherit;
   height: 100%;
 }
-.ebook-card-eyebrow {
+.ebook-entry-eyebrow {
   font-family: var(--font-body);
   font-size: 10px;
   letter-spacing: 0.22em;
@@ -5977,15 +5977,15 @@ body {
   font-weight: 600;
   color: var(--color-primary);
 }
-.ebook-card-title {
+.ebook-entry-title {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.2;
   margin: 0;
   color: var(--color-dark);
 }
-.ebook-card-excerpt {
+.ebook-entry-excerpt {
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.55;
@@ -5993,15 +5993,18 @@ body {
   margin: 0;
   flex: 1;
 }
-.ebook-card-cta {
+.ebook-entry-cta {
   font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-weight: 600;
   color: var(--color-primary);
-  margin-top: 6px;
+  margin-top: 4px;
+  transition: color 0.15s;
 }
+.ebook-entry-link:hover .ebook-entry-cta { color: var(--color-secondary, #c1593c); }
+.ebook-entry-link:hover .ebook-entry-title { color: var(--color-secondary, #c1593c); }
 
 /* Home → "Want More Mere Orthodoxy?" CTA for signed-in free
    Subscribers. Reuses .digest-section/.digest-cta inline grid so

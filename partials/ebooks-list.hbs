@@ -1,0 +1,58 @@
+{{!-- Shared ebook list used on /dashboard/ebooks/ and inlined as a
+     dashboard module. 4-up grid, editorial row style (no cards).
+
+     Only deployed ebooks live here — Christian Formation and
+     Christians In An AI World are intentionally excluded until
+     their Railway projects are live. --}}
+
+<ul class="ebooks-grid"
+    data-ebooks
+    data-member-email="{{@member.email}}"
+    data-worker-url="{{@custom.ebook_access_worker_url}}">
+
+  <li class="ebook-entry">
+    <a href="https://church-leadership-ebook-production.up.railway.app/"
+       data-ebook-link
+       data-requires-token="true"
+       data-verify-path="/api/ghost-verify"
+       class="ebook-entry-link"
+       target="_blank"
+       rel="noopener">
+      <span class="ebook-entry-eyebrow">Ebook</span>
+      <h3 class="ebook-entry-title"><em>Navigating the Fracture</em></h3>
+      <p class="ebook-entry-excerpt">Church leadership under the conditions of cultural and institutional upheaval.</p>
+      <span class="ebook-entry-cta">Open &rarr;</span>
+    </a>
+  </li>
+
+  <li class="ebook-entry">
+    <a href="https://spiritual-formation-for-the-family-production.up.railway.app/"
+       data-ebook-link
+       data-requires-token="true"
+       data-verify-path="/api/ghost-verify"
+       class="ebook-entry-link"
+       target="_blank"
+       rel="noopener">
+      <span class="ebook-entry-eyebrow">Ebook</span>
+      <h3 class="ebook-entry-title"><em>Spiritual Formation for the Family</em></h3>
+      <p class="ebook-entry-excerpt">Practices and convictions for forming Christian households.</p>
+      <span class="ebook-entry-cta">Open &rarr;</span>
+    </a>
+  </li>
+
+  <li class="ebook-entry">
+    <a href="https://blueprintforrenewal-production.up.railway.app/"
+       data-ebook-link
+       data-requires-token="true"
+       data-verify-path="/api/ghost-verify"
+       class="ebook-entry-link"
+       target="_blank"
+       rel="noopener">
+      <span class="ebook-entry-eyebrow">Ebook</span>
+      <h3 class="ebook-entry-title"><em>Blueprint for Renewal</em></h3>
+      <p class="ebook-entry-excerpt">A strategic outline for the work of Christian cultural renewal.</p>
+      <span class="ebook-entry-cta">Open &rarr;</span>
+    </a>
+  </li>
+
+</ul>
