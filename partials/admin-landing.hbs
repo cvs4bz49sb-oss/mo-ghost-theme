@@ -1,0 +1,74 @@
+{{!-- /admin/ landing: tiles for each tool. No cards — editorial
+     rows with eyebrow + title + short description + arrow. --}}
+
+<section class="hero admin-hero">
+  <div class="container">
+    <p class="hero-kicker"><span class="dot"></span> Admin</p>
+    <h1 class="admin-headline">Mere&nbsp;Orthodoxy <em><span class="highlight">Operations</span></em>.</h1>
+    <p class="admin-sub">Every tool for running the publication, in one place.</p>
+  </div>
+</section>
+
+{{> "admin-nav"}}
+
+<section class="admin-body">
+  <div class="container container-narrow">
+    <ul class="admin-tool-list">
+      <li class="admin-tool">
+        <a href="/admin/members/" class="admin-tool-link">
+          <span class="admin-tool-numeral">I</span>
+          <div class="admin-tool-body">
+            <p class="eyebrow">Analytics</p>
+            <h2 class="admin-tool-title"><em>Members</em></h2>
+            <p class="admin-tool-desc">Counts by tier, new signups this week / month, timeseries, recent activity.</p>
+          </div>
+          <span class="admin-tool-arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      </li>
+      <li class="admin-tool admin-tool--pending">
+        <div class="admin-tool-link">
+          <span class="admin-tool-numeral">II</span>
+          <div class="admin-tool-body">
+            <p class="eyebrow">Analytics</p>
+            <h2 class="admin-tool-title"><em>Traffic</em></h2>
+            <p class="admin-tool-desc">Top articles, top topics, top regions, time-of-day — via Plausible.</p>
+          </div>
+          <span class="admin-tool-soon">Next</span>
+        </div>
+      </li>
+      <li class="admin-tool admin-tool--pending">
+        <div class="admin-tool-link">
+          <span class="admin-tool-numeral">III</span>
+          <div class="admin-tool-body">
+            <p class="eyebrow">Workflow</p>
+            <h2 class="admin-tool-title"><em>Editorial Kanban</em></h2>
+            <p class="admin-tool-desc">Submissions, approved, edited, scheduled, published, denied.</p>
+          </div>
+          <span class="admin-tool-soon">Soon</span>
+        </div>
+      </li>
+      <li class="admin-tool admin-tool--pending">
+        <div class="admin-tool-link">
+          <span class="admin-tool-numeral">IV</span>
+          <div class="admin-tool-body">
+            <p class="eyebrow">Analytics</p>
+            <h2 class="admin-tool-title"><em>Podcasts</em></h2>
+            <p class="admin-tool-desc">Downloads, top episodes, listener geography — once host API picked.</p>
+          </div>
+          <span class="admin-tool-soon">Soon</span>
+        </div>
+      </li>
+      <li class="admin-tool admin-tool--pending">
+        <div class="admin-tool-link">
+          <span class="admin-tool-numeral">V</span>
+          <div class="admin-tool-body">
+            <p class="eyebrow">Revenue</p>
+            <h2 class="admin-tool-title"><em>Sponsorships</em></h2>
+            <p class="admin-tool-desc">Sponsor directory, placements, invoice status.</p>
+          </div>
+          <span class="admin-tool-soon">Soon</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>

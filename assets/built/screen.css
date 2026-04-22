@@ -6693,3 +6693,305 @@ body {
   transition: color 0.15s;
 }
 .podcast-host-link:hover .podcast-host-name { color: var(--color-primary); }
+
+/* =============================================================
+   Admin dashboard — /admin/, /admin/members/, …
+
+   Editorial aesthetic. No cards. Hairline-separated columns.
+   Minimal margins. Same dark hero pattern as /contact/ and
+   /podcasts/*.
+   ============================================================= */
+
+.admin-page { }
+.admin-hero {
+  padding: 64px 0 48px;
+  text-align: center;
+}
+.admin-hero .container { max-width: 760px; }
+.admin-hero .hero-kicker { justify-content: center; }
+.admin-headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(38px, 5.2vw, 60px);
+  line-height: 1.06;
+  color: var(--color-white);
+  margin: 12px 0 16px;
+}
+.admin-headline em { font-style: italic; }
+.admin-sub {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 520px;
+  margin: 0 auto;
+}
+.admin-sub a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Horizontal tool nav between admin pages. */
+.admin-nav {
+  border-bottom: 1px solid var(--color-card-border);
+  background: var(--color-background);
+}
+.admin-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.admin-nav-link {
+  display: inline-block;
+  padding: 16px 0;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.admin-nav-link:hover { color: var(--color-primary); }
+.admin-nav-link--pending {
+  color: var(--color-muted);
+  pointer-events: none;
+}
+.admin-nav-soon {
+  margin-left: 6px;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--color-muted);
+  opacity: 0.65;
+}
+
+.admin-body {
+  padding: 48px 0 96px;
+  background: var(--color-background);
+}
+
+/* Landing page — tool list. Numeral + title + description + arrow. */
+.admin-tool-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.admin-tool {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.admin-tool:first-child { border-top: 0; }
+.admin-tool-link {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 24px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
+.admin-tool-numeral {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--color-primary);
+  text-align: center;
+}
+.admin-tool-body { min-width: 0; }
+.admin-tool-body .eyebrow { color: var(--color-primary); margin: 0 0 4px; }
+.admin-tool-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+}
+.admin-tool-desc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0;
+}
+.admin-tool-arrow {
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--color-primary);
+}
+.admin-tool-soon {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.admin-tool--pending { opacity: 0.55; }
+
+/* Stat row — 6 columns on wide desktop, 3 on tablet, 2 on phone. */
+.admin-stats {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+@media (max-width: 880px) {
+  .admin-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .admin-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.admin-stat {
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+}
+.admin-stat:first-child { border-left: 0; }
+@media (max-width: 880px) {
+  .admin-stat:nth-child(3n+1) { border-left: 0; }
+  .admin-stat:nth-child(n+4) { border-top: 1px solid rgba(0, 0, 0, 0.1); }
+}
+@media (max-width: 520px) {
+  .admin-stat:nth-child(3n+1) { border-left: 1px solid rgba(0, 0, 0, 0.1); }
+  .admin-stat:nth-child(2n+1) { border-left: 0; }
+  .admin-stat:nth-child(n+3) { border-top: 1px solid rgba(0, 0, 0, 0.1); }
+}
+.admin-stat-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+.admin-stat-value {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--color-dark);
+}
+
+/* Chart + recent signups — 2-col split, chart left, list right. */
+.admin-split {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+@media (max-width: 880px) {
+  .admin-split { grid-template-columns: 1fr; gap: 40px; }
+}
+
+.admin-chart { }
+.admin-chart-summary {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+}
+.admin-chart-summary strong { color: var(--color-primary); font-weight: 600; }
+.admin-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.admin-chart-line {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.admin-chart-area {
+  fill: rgba(238, 125, 81, 0.12);
+  stroke: none;
+}
+.admin-chart-axis {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-muted);
+  letter-spacing: 0.04em;
+  margin: 6px 0 0;
+}
+
+/* Recent signup list — hairlines, no cards. */
+.admin-recent {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.admin-recent-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.admin-recent-item:first-child { border-top: 0; }
+.admin-recent-person { min-width: 0; }
+.admin-recent-name {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-dark);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-recent-email {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 2px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-recent-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.admin-recent-tier {
+  font-family: var(--font-body);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.admin-recent-tier--paid { color: var(--color-primary); }
+.admin-recent-tier--comped { color: var(--color-secondary, #c1593c); }
+.admin-recent-tier--free { color: var(--color-muted); }
+.admin-recent-date {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-muted);
+  letter-spacing: 0.04em;
+}
+
+.admin-empty {
+  list-style: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0;
+}

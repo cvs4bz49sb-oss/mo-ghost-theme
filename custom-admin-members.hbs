@@ -1,0 +1,16 @@
+{{!< default}}
+{{!-- /admin/members/ — membership analytics.
+     Gated same way as /admin/. Hydrated by assets/js/admin-members.js
+     from the mo-admin worker. --}}
+
+<main class="admin-page">
+
+  {{#match @member.email "ian@mereorthodoxy.com"}}
+    {{> "admin-members-body"}}
+  {{else}}
+    {{> "admin-denied"}}
+  {{/match}}
+
+</main>
+
+<script src="{{asset "js/admin-members.js"}}"></script>

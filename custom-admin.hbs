@@ -1,0 +1,15 @@
+{{!< default}}
+{{!-- /admin/ — admin dashboard shell. Lists every tool.
+     Gated to admin emails only. Additional admins are added by
+     editing both the {{#match}} chain here AND the mo-admin
+     worker's ADMIN_EMAILS env var. --}}
+
+<main class="admin-page">
+
+  {{#match @member.email "ian@mereorthodoxy.com"}}
+    {{> "admin-landing"}}
+  {{else}}
+    {{> "admin-denied"}}
+  {{/match}}
+
+</main>

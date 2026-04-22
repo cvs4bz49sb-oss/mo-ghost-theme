@@ -1,0 +1,59 @@
+{{!-- /admin/members/ body. All data is hydrated client-side from
+     the mo-admin worker; page renders a skeleton that the JS
+     populates. No cards. --}}
+
+<section class="hero admin-hero">
+  <div class="container">
+    <p class="hero-kicker"><span class="dot"></span> Admin &middot; Analytics</p>
+    <h1 class="admin-headline"><em>Members.</em></h1>
+    <p class="admin-sub">Who's signing up, in what tier, at what rate.</p>
+  </div>
+</section>
+
+{{> "admin-nav"}}
+
+<section class="admin-body"
+         data-admin-members
+         data-worker-url="{{@custom.admin_worker_url}}"
+         data-member-email="{{@member.email}}">
+  <div class="container">
+
+    {{!-- Top stat row — four columns on desktop, two on tablet,
+         one on phone. Hairlines, no card backgrounds. --}}
+    <ul class="admin-stats" data-admin-stats>
+      <li class="admin-stat"><span class="admin-stat-label">Total</span><span class="admin-stat-value" data-stat="total">&mdash;</span></li>
+      <li class="admin-stat"><span class="admin-stat-label">Paid</span><span class="admin-stat-value" data-stat="paid">&mdash;</span></li>
+      <li class="admin-stat"><span class="admin-stat-label">Comped</span><span class="admin-stat-value" data-stat="comped">&mdash;</span></li>
+      <li class="admin-stat"><span class="admin-stat-label">Free</span><span class="admin-stat-value" data-stat="free">&mdash;</span></li>
+      <li class="admin-stat"><span class="admin-stat-label">New this week</span><span class="admin-stat-value" data-stat="newThisWeek">&mdash;</span></li>
+      <li class="admin-stat"><span class="admin-stat-label">New this month</span><span class="admin-stat-value" data-stat="newThisMonth">&mdash;</span></li>
+    </ul>
+
+    <div class="flourish">{{> "flourish-mark"}}</div>
+
+    <div class="admin-split">
+
+      <div class="admin-split-main">
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow">Signups</p>
+          <h2 class="section-heading"><em>Last 30 days.</em></h2>
+        </div>
+        <div class="admin-chart" data-admin-chart aria-label="Signups per day">
+          <p class="admin-empty" data-chart-placeholder>Loading&hellip;</p>
+        </div>
+      </div>
+
+      <aside class="admin-split-side" aria-labelledby="recent-heading">
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow" id="recent-heading">Recent Signups</p>
+          <h2 class="section-heading"><em>Latest ten.</em></h2>
+        </div>
+        <ul class="admin-recent" data-admin-recent>
+          <li class="admin-empty" data-recent-placeholder>Loading&hellip;</li>
+        </ul>
+      </aside>
+
+    </div>
+
+  </div>
+</section>

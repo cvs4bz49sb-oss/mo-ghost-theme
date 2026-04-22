@@ -53,6 +53,10 @@ routes:
     template: custom-mere-fidelity
   /podcasts/christians-reading-classics/:
     template: custom-christians-reading-classics
+  /admin/:
+    template: custom-admin
+  /admin/members/:
+    template: custom-admin-members
 
 collections:
   /:
