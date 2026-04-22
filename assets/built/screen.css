@@ -6548,7 +6548,9 @@ body {
 .podcast-hero-art img {
   width: 100%;
   max-width: 440px;
+  aspect-ratio: 1 / 1;
   height: auto;
+  object-fit: cover;
   border-radius: 18px;
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.45);
 }
