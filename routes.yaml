@@ -37,6 +37,8 @@ routes:
     template: custom-dashboard-history
   /dashboard/replays/:
     template: custom-dashboard-replays
+  /dashboard/ebooks/:
+    template: custom-dashboard-ebooks
   /events/:
     template: custom-events
   /forum/:

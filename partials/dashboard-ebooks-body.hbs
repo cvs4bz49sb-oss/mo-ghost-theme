@@ -1,0 +1,53 @@
+{{!-- Body for /dashboard/ebooks/. Paid-member ebook library.
+     Each card links out to the ebook subdomain where the existing
+     HubSpot-list gate asks for the member's email and sets a 90-day
+     cookie. Paid Ghost members are already in the HubSpot Active
+     Members list, so the gate resolves in one step.
+
+     When we're ready to retire the HubSpot gate, add a Ghost-minted
+     HMAC token (?t=...) to each href and update the Express apps to
+     accept it. Touch-points: this file + each ebook's server.js. --}}
+
+<section class="hero dashboard-hero">
+  <div class="container">
+    <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+    <h1 class="hero-headline"><span class="highlight"><em>Ebook</em></span> Library.</h1>
+    <p class="hero-sub">Every Mere Orthodoxy ebook, in one place. Click through to read online or download a PDF.</p>
+    <p class="dashboard-breadcrumb"><a href="/dashboard/">&larr; Back to dashboard</a></p>
+  </div>
+</section>
+
+<section class="dashboard-body">
+  <div class="container container-narrow">
+    <ul class="ebooks-grid">
+
+      <li class="ebook-card">
+        <a href="https://christian-formation.up.railway.app/" class="ebook-card-link" target="_blank" rel="noopener">
+          <span class="ebook-card-eyebrow">Ebook</span>
+          <h2 class="ebook-card-title"><em>Christian Formation in The Modern World</em></h2>
+          <p class="ebook-card-excerpt">A collection on shaping Christian lives under the conditions of modernity.</p>
+          <span class="ebook-card-cta">Open ebook &rarr;</span>
+        </a>
+      </li>
+
+      <li class="ebook-card">
+        <a href="https://christians-in-an-ai-world.up.railway.app/" class="ebook-card-link" target="_blank" rel="noopener">
+          <span class="ebook-card-eyebrow">Ebook</span>
+          <h2 class="ebook-card-title"><em>Christians In An AI World</em></h2>
+          <p class="ebook-card-excerpt">Theological and practical reflections for the age of artificial intelligence.</p>
+          <span class="ebook-card-cta">Open ebook &rarr;</span>
+        </a>
+      </li>
+
+      <li class="ebook-card">
+        <a href="https://thoughts-on-citizenship.up.railway.app/" class="ebook-card-link" target="_blank" rel="noopener">
+          <span class="ebook-card-eyebrow">Ebook</span>
+          <h2 class="ebook-card-title"><em>Thoughts On Citizenship</em></h2>
+          <p class="ebook-card-excerpt">Primary sources and commentary on the Christian as citizen.</p>
+          <span class="ebook-card-cta">Open ebook &rarr;</span>
+        </a>
+      </li>
+
+    </ul>
+  </div>
+</section>
