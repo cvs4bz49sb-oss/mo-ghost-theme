@@ -6177,59 +6177,7 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
-/* Top-of-article note for visitors arriving via ?gift=<token>.
-   Flat, editorial, no box — hairline above/below, single line of
-   body copy, one-field email form, small sign-in link.              */
-.gift-banner {
-  margin: 0 0 28px;
-  padding: 14px 0 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-.gift-banner-line {
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--color-muted);
-  margin: 0 0 10px;
-}
-.gift-banner-form {
-  display: flex;
-  gap: 8px;
-  margin: 0;
-  max-width: 420px;
-  align-items: center;
-}
-.gift-banner-form input[data-signup-email] {
-  flex: 1;
-  min-width: 0;
-  font-family: var(--font-body);
-  font-size: 14px;
-  padding: 8px 12px;
-  border: 1px solid var(--color-card-border);
-  border-radius: 999px;
-  background: var(--color-white);
-  color: var(--color-dark);
-}
-.gift-banner-submit {
-  padding: 8px 16px;
-  font-size: 13px;
-  white-space: nowrap;
-}
-.gift-banner-status {
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--color-muted);
-  margin: 6px 0 0;
-  grid-column: 1 / -1;
-  width: 100%;
-}
-.gift-banner-signin {
-  margin: 8px 0 0;
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--color-muted);
-}
-@media (max-width: 560px) {
-  .gift-banner-form { flex-direction: column; align-items: stretch; max-width: none; }
-}
+/* Top-of-article banner for ?gift=<token> visitors. Reuses the
+   homepage Digest CTA via the .digest-cta class — this shim just
+   gives it the right breathing room inside the article body. */
+.gift-banner { margin: 0 0 36px; }

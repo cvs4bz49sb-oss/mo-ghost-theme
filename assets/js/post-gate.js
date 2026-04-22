@@ -220,64 +220,78 @@
   }
 
   function renderGiftBanner(root, claims) {
-    var banner = document.createElement("aside");
-    banner.className = "gift-banner";
-    banner.setAttribute("role", "region");
-    banner.setAttribute("aria-label", "Gifted article");
+    // Reuse the homepage Digest CTA's markup + styling exactly
+    // (.digest-cta / .digest-copy / .digest-form) so the top-of-article
+    // gift note sits in the same visual family as the rest of the site.
+    var cta = document.createElement("div");
+    cta.className = "gift-banner digest-cta";
+    cta.setAttribute("role", "region");
+    cta.setAttribute("aria-label", "Gifted article");
 
-    var line = document.createElement("p");
-    line.className = "gift-banner-line";
-    line.textContent = claims.by + ", a " + claims.tier + " of Mere Orthodoxy, gifted you this essay. Subscribe free for the rest.";
-    banner.appendChild(line);
+    var copy = document.createElement("div");
+    copy.className = "digest-copy";
 
-    banner.appendChild(buildGiftSubscribeForm());
+    var eb = document.createElement("p");
+    eb.className = "eyebrow";
+    eb.textContent = "A gift from a " + claims.tier;
+    copy.appendChild(eb);
 
-    var signinRow = document.createElement("p");
-    signinRow.className = "gift-banner-signin";
-    signinRow.appendChild(document.createTextNode("Already a subscriber? "));
-    var signinBtn = document.createElement("button");
-    signinBtn.type = "button";
-    signinBtn.className = "post-gate-signin-link";
-    signinBtn.setAttribute("data-portal", "signin");
-    signinBtn.textContent = "Sign in";
-    signinRow.appendChild(signinBtn);
-    signinRow.appendChild(document.createTextNode("."));
-    banner.appendChild(signinRow);
+    var h = document.createElement("h3");
+    h.textContent = claims.by + " shared this essay with you.";
+    copy.appendChild(h);
 
-    // Prepend so the banner sits above the article body.
-    root.insertBefore(banner, root.firstChild);
+    var body = document.createElement("p");
+    body.textContent = "Subscribe free for the rest — an essay a week, no hype, no filler.";
+    copy.appendChild(body);
+
+    cta.appendChild(copy);
+    cta.appendChild(buildGiftSubscribeForm());
+
+    root.insertBefore(cta, root.firstChild);
   }
 
   function buildGiftSubscribeForm() {
-    // Single-field email-only form. inline-signup.js only requires
-    // [data-signup-email] + [data-signup-submit]; first/last default
-    // to empty strings. Smaller and simpler than the full gate form.
     var form = document.createElement("div");
-    form.className = "gift-banner-form";
+    form.className = "digest-form";
     form.setAttribute("data-inline-signup", "");
     form.setAttribute("data-source", "gift-banner");
     form.setAttribute("data-replace-on-success", ".gift-banner");
 
-    var input = document.createElement("input");
-    input.type = "email";
-    input.autocomplete = "email";
-    input.placeholder = "you@example.com";
-    input.setAttribute("data-signup-email", "");
-    form.appendChild(input);
+    form.appendChild(giftField("gift-first", "First Name", "text", "given-name", "First", "data-signup-first"));
+    form.appendChild(giftField("gift-last", "Last Name", "text", "family-name", "Last", "data-signup-last"));
+    form.appendChild(giftField("gift-email", "Email", "email", "email", "you@example.com", "data-signup-email"));
 
     var submit = document.createElement("button");
     submit.type = "button";
-    submit.className = "btn btn-primary gift-banner-submit";
+    submit.className = "digest-submit";
     submit.setAttribute("data-signup-submit", "");
     submit.textContent = "Subscribe";
     form.appendChild(submit);
 
     var status = document.createElement("p");
-    status.className = "gift-banner-status";
+    status.className = "digest-status";
     status.setAttribute("data-signup-status", "");
     form.appendChild(status);
 
     return form;
+  }
+
+  function giftField(id, labelText, type, autocomplete, placeholder, signupAttr) {
+    var wrap = document.createElement("div");
+    wrap.className = "digest-field";
+    var lbl = document.createElement("label");
+    lbl.setAttribute("for", id);
+    lbl.textContent = labelText;
+    var input = document.createElement("input");
+    input.id = id;
+    input.type = type;
+    if (autocomplete) input.autocomplete = autocomplete;
+    if (placeholder) input.placeholder = placeholder;
+    input.required = true;
+    if (signupAttr) input.setAttribute(signupAttr, "");
+    wrap.appendChild(lbl);
+    wrap.appendChild(input);
+    return wrap;
   }
 
   function eyebrow(text) {
