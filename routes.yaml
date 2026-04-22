@@ -45,6 +45,10 @@ routes:
     template: custom-forum
   /success/:
     template: custom-success
+  /contact/:
+    template: custom-contact
+  /submissions/:
+    template: custom-submissions
 
 collections:
   /:

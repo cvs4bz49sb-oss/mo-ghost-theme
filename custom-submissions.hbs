@@ -1,0 +1,89 @@
+{{!< default}}
+{{!-- /submissions/ — routed via routes.yaml. --}}
+
+<section class="mb-hero contact-hero">
+  <div class="container">
+    <div class="section-intro section-intro-light">
+      <p class="eyebrow eyebrow-light">Submissions</p>
+      <h1 class="mb-hero-headline">Write for <em><span class="highlight">Mere&nbsp;Orthodoxy</span>.</em></h1>
+      <p class="mb-hero-sub">We are always accepting essay submissions for consideration. Long-form, serious, theologically honest.</p>
+    </div>
+  </div>
+</section>
+
+<section class="contact-body">
+  <div class="container contact-grid">
+
+    <div class="contact-intro">
+      <div class="contact-section">
+        <p class="eyebrow">Guidelines</p>
+        <ul class="submissions-list">
+          <li>Submit as a .docx or Google Doc using the form.</li>
+          <li>Use hyperlinks rather than footnotes.</li>
+          <li>Allow up to two weeks for a reply before asking for an update. If the submission is time-sensitive, note that in the subject line and we'll do our best to review it sooner.</li>
+        </ul>
+      </div>
+
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      <div class="contact-section">
+        <p class="eyebrow">AI Policy</p>
+        <p>All article text must be written by a human. We follow <a href="https://thedispatch.com/artificial-intelligence-policy/" target="_blank" rel="noopener"><em>The Dispatch</em>'s AI policy</a>.</p>
+      </div>
+    </div>
+
+    <aside class="contact-form-wrap" aria-labelledby="submissions-form-heading">
+      <p class="eyebrow">Submit an essay</p>
+      <h2 id="submissions-form-heading" class="contact-form-heading"><em>Tell us about your piece.</em></h2>
+      <p class="contact-form-sub">All fields required. Files up to 20&nbsp;MB each.</p>
+
+      <form class="site-form" data-site-form="submissions" data-worker-url="{{@custom.forms_worker_url}}" enctype="multipart/form-data" novalidate>
+        <div class="site-form-row">
+          <div class="site-form-field">
+            <label for="sub-first">First name</label>
+            <input id="sub-first" name="firstName" type="text" autocomplete="given-name" required />
+          </div>
+          <div class="site-form-field">
+            <label for="sub-last">Last name</label>
+            <input id="sub-last" name="lastName" type="text" autocomplete="family-name" required />
+          </div>
+        </div>
+        <div class="site-form-field">
+          <label for="sub-email">Email</label>
+          <input id="sub-email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="site-form-field">
+          <label for="sub-phone">Phone</label>
+          <input id="sub-phone" name="phone" type="tel" autocomplete="tel" required />
+        </div>
+        <div class="site-form-field">
+          <label for="sub-essay">Essay</label>
+          <p class="site-form-note">.docx only, 20&nbsp;MB max.</p>
+          <input id="sub-essay" name="essay" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required />
+        </div>
+        <div class="site-form-field">
+          <label for="sub-bio">Author bio</label>
+          <p class="site-form-note">150 characters max.</p>
+          <textarea id="sub-bio" name="bio" rows="3" maxlength="150" required></textarea>
+        </div>
+        <div class="site-form-field">
+          <label for="sub-headshot">Author headshot</label>
+          <p class="site-form-note">Square image preferred, 20&nbsp;MB max.</p>
+          <input id="sub-headshot" name="headshot" type="file" accept="image/*" required />
+        </div>
+        <div class="site-form-field site-form-field-check">
+          <label>
+            <input name="aiAttested" type="checkbox" value="true" required />
+            I wrote this piece myself and abided by the AI policy.
+          </label>
+        </div>
+
+        <button type="submit" class="site-form-submit">Submit</button>
+        <p class="site-form-status" data-form-status></p>
+      </form>
+    </aside>
+
+  </div>
+</section>
+
+<script src="{{asset "js/site-forms.js"}}"></script>
