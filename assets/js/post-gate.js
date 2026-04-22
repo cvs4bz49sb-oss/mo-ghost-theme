@@ -241,7 +241,7 @@
     copy.appendChild(h);
 
     var body = document.createElement("p");
-    body.textContent = "Subscribe free for the rest — an essay a week, no hype, no filler.";
+    body.textContent = "Subscribe for free to read all of our essays.";
     copy.appendChild(body);
 
     cta.appendChild(copy);
