@@ -225,28 +225,16 @@
     banner.setAttribute("role", "region");
     banner.setAttribute("aria-label", "Gifted article");
 
-    var eb = document.createElement("p");
-    eb.className = "eyebrow gift-banner-eyebrow";
-    eb.textContent = "A gift from " + claims.by;
-    banner.appendChild(eb);
+    var line = document.createElement("p");
+    line.className = "gift-banner-line";
+    line.textContent = claims.by + ", a " + claims.tier + " of Mere Orthodoxy, gifted you this essay. Subscribe free for the rest.";
+    banner.appendChild(line);
 
-    var h = document.createElement("h2");
-    h.className = "gift-banner-heading";
-    var em = document.createElement("em");
-    em.textContent = claims.by + " is a " + claims.tier + " of Mere Orthodoxy and gifted you this article.";
-    h.appendChild(em);
-    banner.appendChild(h);
-
-    var p = document.createElement("p");
-    p.className = "gift-banner-body";
-    p.textContent = "Read all of our essays by subscribing for free.";
-    banner.appendChild(p);
-
-    banner.appendChild(buildSubscribeForm());
+    banner.appendChild(buildGiftSubscribeForm());
 
     var signinRow = document.createElement("p");
     signinRow.className = "gift-banner-signin";
-    signinRow.innerHTML = "Already a subscriber? ";
+    signinRow.appendChild(document.createTextNode("Already a subscriber? "));
     var signinBtn = document.createElement("button");
     signinBtn.type = "button";
     signinBtn.className = "post-gate-signin-link";
@@ -258,6 +246,38 @@
 
     // Prepend so the banner sits above the article body.
     root.insertBefore(banner, root.firstChild);
+  }
+
+  function buildGiftSubscribeForm() {
+    // Single-field email-only form. inline-signup.js only requires
+    // [data-signup-email] + [data-signup-submit]; first/last default
+    // to empty strings. Smaller and simpler than the full gate form.
+    var form = document.createElement("div");
+    form.className = "gift-banner-form";
+    form.setAttribute("data-inline-signup", "");
+    form.setAttribute("data-source", "gift-banner");
+    form.setAttribute("data-replace-on-success", ".gift-banner");
+
+    var input = document.createElement("input");
+    input.type = "email";
+    input.autocomplete = "email";
+    input.placeholder = "you@example.com";
+    input.setAttribute("data-signup-email", "");
+    form.appendChild(input);
+
+    var submit = document.createElement("button");
+    submit.type = "button";
+    submit.className = "btn btn-primary gift-banner-submit";
+    submit.setAttribute("data-signup-submit", "");
+    submit.textContent = "Subscribe";
+    form.appendChild(submit);
+
+    var status = document.createElement("p");
+    status.className = "gift-banner-status";
+    status.setAttribute("data-signup-status", "");
+    form.appendChild(status);
+
+    return form;
   }
 
   function eyebrow(text) {
