@@ -5553,6 +5553,15 @@ body {
   gap: 12px;
   flex-wrap: wrap;
 }
+/* Icon group — keeps bookmark + pdf + gift together, so when the
+   expanded audio pill is wide enough to wrap, all three icons
+   move to the next line as a unit. */
+.article-actions-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
 .article-actions .article-audio { margin: 0; }
 .article-bookmark {
   display: inline-flex;
