@@ -6502,3 +6502,166 @@ body {
   color: var(--color-muted);
   margin: 0;
 }
+
+/* --- /podcasts/mere-fidelity/ and /podcasts/christians-reading-classics/ ---
+   Hero: header left, square artwork right. Body: episode feed left,
+   host list right. Matches the editorial-but-warm feel of the rest
+   of the site; no cards on the hosts, just portraits + prose.      */
+.podcast-hero { padding: 72px 0 88px; }
+.podcast-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 880px) {
+  .podcast-hero-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+.podcast-hero-content { max-width: 620px; }
+.podcast-hero-headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 4.4vw, 56px);
+  line-height: 1.1;
+  color: var(--color-white);
+  margin: 14px 0 20px;
+}
+.podcast-hero-headline em { font-style: italic; }
+.podcast-hero-sub {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 28px;
+  max-width: 520px;
+}
+.podcast-hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.podcast-hero-art {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.podcast-hero-art img {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  border-radius: 18px;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.45);
+}
+
+/* Body: 2-col, feed left, hosts right. Sticky hosts so they stay
+   visible while the episode list scrolls. */
+.podcast-body { padding: 64px 0 96px; background: var(--color-background); }
+.podcast-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 72px;
+  max-width: 1120px;
+  margin: 0 auto;
+  align-items: start;
+}
+@media (max-width: 880px) {
+  .podcast-grid { grid-template-columns: 1fr; gap: 56px; }
+}
+
+/* Episode list — the existing .listen-grid / .pod-entry styles do
+   most of the work. Here we stack entries vertically with hairlines
+   instead of using the homepage 2-col grid treatment. */
+.podcast-episode-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.podcast-episode-list .pod-entry {
+  padding: 20px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.podcast-episode-list .pod-entry:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.podcast-episodes-loading {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.podcast-hosts { position: sticky; top: 24px; }
+@media (max-width: 880px) {
+  .podcast-hosts { position: static; }
+}
+
+/* Host list — no cards. Portrait left, name + bio right. */
+.podcast-host-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.podcast-host {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 20px;
+}
+.podcast-host:first-child { border-top: 0; padding-top: 0; }
+.podcast-host-link {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+  align-items: start;
+}
+.podcast-host-portrait {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(145deg, #2d2927, #45413f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.podcast-host-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.podcast-host-initial {
+  display: inline-block;
+  max-width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+.podcast-host-body { min-width: 0; }
+.podcast-host-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+  transition: color 0.15s;
+}
+.podcast-host-link:hover .podcast-host-name { color: var(--color-primary); }
+.podcast-host-bio {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0;
+}

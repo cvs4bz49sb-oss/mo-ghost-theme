@@ -49,6 +49,10 @@ routes:
     template: custom-contact
   /submissions/:
     template: custom-submissions
+  /podcasts/mere-fidelity/:
+    template: custom-mere-fidelity
+  /podcasts/christians-reading-classics/:
+    template: custom-christians-reading-classics
 
 collections:
   /:

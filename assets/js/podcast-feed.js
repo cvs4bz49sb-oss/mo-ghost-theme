@@ -21,6 +21,12 @@
   var grid = document.querySelector(".listen-grid");
   if (!grid) return;
 
+  // data-show (optional): filter episodes to a single show slug on
+  // dedicated podcast pages. When absent (homepage), all shows merge.
+  var showFilter = grid.getAttribute("data-show") || "";
+  var showLimit = parseInt(grid.getAttribute("data-show-limit"), 10);
+  if (!showLimit || showLimit <= 0) showLimit = showFilter ? 8 : 4;
+
   var platforms = {
     "mere-fidelity": {
       apple: grid.getAttribute("data-mf-apple") || "",
@@ -32,13 +38,15 @@
     },
   };
 
-  var url = FEED_URL + (FEED_URL.indexOf("?") > -1 ? "&" : "?") + "limit=5";
+  var feedLimit = showFilter ? Math.max(showLimit, 12) : 5;
+  var url = FEED_URL + (FEED_URL.indexOf("?") > -1 ? "&" : "?") + "limit=" + feedLimit;
   fetch(url, { cache: "default" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
       if (!data) return;
       var all = [];
       Object.keys(data).forEach(function (slug) {
+        if (showFilter && slug !== showFilter) return;
         var payload = data[slug];
         if (!payload || payload.error || !Array.isArray(payload.episodes)) return;
         var showTitle = (payload.show && payload.show.title) || slug;
@@ -57,7 +65,7 @@
 
       if (!all.length) return;
       all.sort(function (a, b) { return b.ts - a.ts; });
-      var top = all.slice(0, 4);
+      var top = all.slice(0, showLimit);
 
       grid.innerHTML = top.map(renderCard).join("");
     })
