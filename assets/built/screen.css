@@ -6183,6 +6183,12 @@ body {
    .gift-banner the submit drops to its own row and the three fields
    share the full width equally. */
 .gift-banner { margin: 0 0 36px; }
+/* Copy aligned to top of form; tighter bottom padding so the bottom
+   hairline sits close to the Subscribe link instead of floating. */
+.gift-banner.digest-cta {
+  align-items: start;
+  padding-bottom: 16px;
+}
 /* Three rows: First+Last, Email full width, Subscribe link. */
 .gift-banner .digest-form {
   grid-template-columns: 1fr 1fr;
