@@ -6591,22 +6591,24 @@ body {
   border-top: 0;
   padding-top: 0;
 }
-/* Tighter typography so more episodes fit at a glance. */
-.podcast-episode-list .pod-title { font-size: 18px; line-height: 1.25; }
-.podcast-episode-list .pod-topic { font-size: 9px; }
+/* Bigger text, same tight row heights — line-heights + gaps stay
+   compact so the entries don't balloon when the fonts grow. */
+.podcast-episode-list .pod-title { font-size: 22px; line-height: 1.2; }
+.podcast-episode-list .pod-topic { font-size: 11px; }
 .podcast-episode-list .pod-date {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-muted);
   font-weight: 500;
   margin: 0;
+  line-height: 1.2;
 }
-.podcast-episode-list .pod-excerpt { font-size: 13px; line-height: 1.5; }
-.podcast-episode-list .pod-excerpt .pod-initial { font-size: 20px; }
+.podcast-episode-list .pod-excerpt { font-size: 15px; line-height: 1.45; }
+.podcast-episode-list .pod-excerpt .pod-initial { font-size: 22px; }
 .podcast-episode-list .pod-listen { margin-top: 4px; }
 .podcast-episode-list .pod-listen-label,
-.podcast-episode-list .pod-listen-platforms { font-size: 10px; }
+.podcast-episode-list .pod-listen-platforms { font-size: 11px; }
 .podcast-episodes-loading {
   font-family: var(--font-body);
   font-size: 14px;
@@ -6626,9 +6628,7 @@ body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px 14px;
 }
-@media (max-width: 420px) {
-  .podcast-host-list { grid-template-columns: 1fr; }
-}
+/* Keep 2 per row on mobile too; portrait + name is compact enough. */
 /* CRC has one host — center it rather than leaving a blank column. */
 .podcast-host-list--single { grid-template-columns: minmax(0, 200px); justify-content: center; }
 .podcast-host { min-width: 0; }
