@@ -233,7 +233,7 @@
 
     var eb = document.createElement("p");
     eb.className = "eyebrow";
-    eb.textContent = "A gift from a " + claims.tier;
+    eb.textContent = "A gift for you";
     copy.appendChild(eb);
 
     var h = document.createElement("h3");
