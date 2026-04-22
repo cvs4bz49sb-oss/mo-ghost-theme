@@ -6187,8 +6187,9 @@ body {
    hairline sits close to the Subscribe link instead of floating. */
 .gift-banner.digest-cta {
   align-items: start;
-  padding-bottom: 4px;
+  padding-bottom: 0;
 }
+.gift-banner .digest-submit { padding-bottom: 2px; }
 /* Three rows: First+Last, Email full width, Subscribe link. */
 .gift-banner .digest-form {
   grid-template-columns: 1fr 1fr;
