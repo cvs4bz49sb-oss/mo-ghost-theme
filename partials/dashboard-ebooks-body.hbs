@@ -1,12 +1,11 @@
 {{!-- Body for /dashboard/ebooks/. Paid-member ebook library.
-     Each card links out to the ebook subdomain where the existing
-     HubSpot-list gate asks for the member's email and sets a 90-day
-     cookie. Paid Ghost members are already in the HubSpot Active
-     Members list, so the gate resolves in one step.
 
-     When we're ready to retire the HubSpot gate, add a Ghost-minted
-     HMAC token (?t=...) to each href and update the Express apps to
-     accept it. Touch-points: this file + each ebook's server.js. --}}
+     Each card links to the ebook subdomain. When @custom.ebook_access_worker_url
+     is set, dashboard-ebooks.js mints a short-lived HMAC token via the
+     mo-ebook-access worker and rewrites flagged links (data-requires-token)
+     to include ?t=TOKEN so paid Ghost members skip the ebook's HubSpot-list
+     gate. Without the worker URL the links still resolve — the HubSpot gate
+     just handles auth as before. --}}
 
 <section class="hero dashboard-hero">
   <div class="container">
@@ -19,10 +18,19 @@
 
 <section class="dashboard-body">
   <div class="container container-narrow">
-    <ul class="ebooks-grid">
+    <ul class="ebooks-grid"
+        data-ebooks
+        data-member-email="{{@member.email}}"
+        data-worker-url="{{@custom.ebook_access_worker_url}}">
 
       <li class="ebook-card">
-        <a href="https://christian-formation.up.railway.app/" class="ebook-card-link" target="_blank" rel="noopener">
+        <a href="https://christian-formation.up.railway.app/"
+           data-ebook-link
+           data-requires-token="true"
+           data-verify-path="/api/ghost-verify"
+           class="ebook-card-link"
+           target="_blank"
+           rel="noopener">
           <span class="ebook-card-eyebrow">Ebook</span>
           <h2 class="ebook-card-title"><em>Christian Formation in The Modern World</em></h2>
           <p class="ebook-card-excerpt">A collection on shaping Christian lives under the conditions of modernity.</p>
@@ -31,19 +39,14 @@
       </li>
 
       <li class="ebook-card">
-        <a href="https://christians-in-an-ai-world.up.railway.app/" class="ebook-card-link" target="_blank" rel="noopener">
+        <a href="https://christians-in-an-ai-world.up.railway.app/"
+           data-ebook-link
+           class="ebook-card-link"
+           target="_blank"
+           rel="noopener">
           <span class="ebook-card-eyebrow">Ebook</span>
           <h2 class="ebook-card-title"><em>Christians In An AI World</em></h2>
           <p class="ebook-card-excerpt">Theological and practical reflections for the age of artificial intelligence.</p>
-          <span class="ebook-card-cta">Open ebook &rarr;</span>
-        </a>
-      </li>
-
-      <li class="ebook-card">
-        <a href="https://thoughts-on-citizenship.up.railway.app/" class="ebook-card-link" target="_blank" rel="noopener">
-          <span class="ebook-card-eyebrow">Ebook</span>
-          <h2 class="ebook-card-title"><em>Thoughts On Citizenship</em></h2>
-          <p class="ebook-card-excerpt">Primary sources and commentary on the Christian as citizen.</p>
           <span class="ebook-card-cta">Open ebook &rarr;</span>
         </a>
       </li>
