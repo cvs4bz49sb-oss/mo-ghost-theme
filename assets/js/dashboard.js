@@ -85,14 +85,31 @@
     var visible = fullList.slice(0, limit);
     var viewAllHref = mount.getAttribute("data-view-all") || "";
 
-    var ol = document.createElement("ol");
-    ol.className = "dashboard-essay-list";
-    for (var i = 0; i < visible.length; i++) {
-      ol.appendChild(renderItem(visible[i], kind));
-    }
+    // Two render modes:
+    //   - Inline dashboard modules (data-limit set) → compact
+    //     dashboard-essay rows (small thumb left, text right).
+    //   - Full-page /dashboard/bookmarks/ + /history/ (no limit) →
+    //     archive-style .week-grid of .entry cards matching the
+    //     rest of the blog listings (/archive/, This Week on home).
+    var isCompact = mount.hasAttribute("data-limit");
 
     clear(mount);
-    mount.appendChild(ol);
+
+    var container;
+    if (isCompact) {
+      container = document.createElement("ol");
+      container.className = "dashboard-essay-list";
+      for (var i = 0; i < visible.length; i++) {
+        container.appendChild(renderCompactItem(visible[i], kind));
+      }
+    } else {
+      container = document.createElement("div");
+      container.className = "week-grid dashboard-entry-grid";
+      for (var j = 0; j < visible.length; j++) {
+        container.appendChild(renderEntryItem(visible[j], kind));
+      }
+    }
+    mount.appendChild(container);
 
     if (viewAllHref && fullList.length > limit) {
       var wrap = document.createElement("p");
@@ -105,12 +122,8 @@
     }
   }
 
-  function renderItem(entry, kind) {
-    var remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "dashboard-essay-remove";
-    remove.setAttribute("aria-label", kind === "bookmarks" ? "Remove bookmark" : "Remove from reading history");
-    remove.textContent = "Remove";
+  function renderCompactItem(entry, kind) {
+    var remove = buildRemoveButton(kind, entry);
 
     var metaText = kind === "bookmarks"
       ? (entry.savedAt ? "Saved " + formatRelative(entry.savedAt) : "")
@@ -125,21 +138,92 @@
       remove: remove,
     });
 
+    wireRemove(remove, kind, entry, li);
+    return li;
+  }
+
+  function renderEntryItem(entry, kind) {
+    var url = entry.url || ("/" + (entry.slug || ""));
+    var metaText = kind === "bookmarks"
+      ? (entry.savedAt ? "Saved " + formatRelative(entry.savedAt) : "")
+      : "Read " + formatRelative(entry.readAt);
+
+    var wrap = document.createElement("div");
+    wrap.className = "dashboard-entry";
+
+    var a = document.createElement("a");
+    a.href = url;
+    a.className = "entry";
+
+    var plate = document.createElement("div");
+    plate.className = "entry-plate";
+    var plateInner = document.createElement("div");
+    plateInner.className = "entry-plate-inner";
+    if (entry.feature_image) plateInner.style.backgroundImage = "url(" + entry.feature_image + ")";
+    plate.appendChild(plateInner);
+    a.appendChild(plate);
+
+    var text = document.createElement("div");
+    text.className = "entry-text";
+
+    if (entry.primary_tag && entry.primary_tag.name) {
+      var topic = document.createElement("p");
+      topic.className = "entry-topic";
+      var topicTag = document.createElement("span");
+      topicTag.className = "entry-topic-tag";
+      topicTag.textContent = entry.primary_tag.name;
+      topic.appendChild(topicTag);
+      text.appendChild(topic);
+    }
+
+    var h3 = document.createElement("h3");
+    h3.className = "entry-title";
+    h3.textContent = entry.title || entry.slug || entry.postId;
+    text.appendChild(h3);
+
+    if (metaText) {
+      var meta = document.createElement("div");
+      meta.className = "entry-meta";
+      var date = document.createElement("p");
+      date.className = "entry-date";
+      date.textContent = metaText;
+      meta.appendChild(date);
+      text.appendChild(meta);
+    }
+
+    a.appendChild(text);
+    wrap.appendChild(a);
+
+    var remove = buildRemoveButton(kind, entry);
+    wrap.appendChild(remove);
+    wireRemove(remove, kind, entry, wrap);
+
+    return wrap;
+  }
+
+  function buildRemoveButton(kind, entry) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "dashboard-essay-remove";
+    btn.setAttribute("aria-label", kind === "bookmarks" ? "Remove bookmark" : "Remove from reading history");
+    btn.textContent = "Remove";
+    return btn;
+  }
+
+  function wireRemove(btn, kind, entry, removeNode) {
     var endpoint = kind === "bookmarks" ? "/bookmarks/remove" : "/history/remove";
-    remove.addEventListener("click", function (e) {
+    btn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      remove.disabled = true;
+      btn.disabled = true;
       fetch(WORKER.replace(/\/$/, "") + endpoint, {
         method: "POST",
         mode: "cors",
         credentials: "omit",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: EMAIL, postId: entry.postId }),
-      }).then(function () { li.remove(); }).catch(function () { remove.disabled = false; });
+      }).then(function () { removeNode.remove(); }).catch(function () { btn.disabled = false; });
     });
-
-    return li;
   }
 
   function buildEssayRow(opts) {
