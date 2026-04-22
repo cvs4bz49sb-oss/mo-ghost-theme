@@ -51,6 +51,10 @@
         copyText(u.toString())
           .then(function () { toast("Gift link copied — share it with anyone."); })
           .catch(function () { toast("Link: " + u.toString(), 8000); });
+        // Tag the gifter in Kit so the audience team can segment
+        // who's actively sharing. mo-kit handles the enqueue; this
+        // is fire-and-forget.
+        if (window.__kitEmit) window.__kitEmit("gifted_article", { postId: postId });
       })
       .catch(function () { toast("Gift link unavailable. Try again."); })
       .then(function () { btn.disabled = false; });

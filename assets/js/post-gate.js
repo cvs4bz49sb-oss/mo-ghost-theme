@@ -254,7 +254,10 @@
     var form = document.createElement("div");
     form.className = "digest-form";
     form.setAttribute("data-inline-signup", "");
-    form.setAttribute("data-source", "gift-banner");
+    // source:gift-link lands as a Kit tag on the new subscriber
+    // (mo-kit mirrors Ghost labels to Kit tags). Pairs with the
+    // "used:gift-link" tag the mo-kit worker sets on the gifter.
+    form.setAttribute("data-source", "gift-link");
     form.setAttribute("data-replace-on-success", ".gift-banner");
 
     form.appendChild(giftField("gift-first", "First Name", "text", "given-name", "First", "data-signup-first"));
