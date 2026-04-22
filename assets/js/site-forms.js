@@ -9,6 +9,20 @@
  * [data-form-status] inside the same form.
  */
 (function () {
+  // Show the selected filename next to the upload button. Event
+  // delegation so forms injected dynamically still pick this up.
+  document.addEventListener("change", function (e) {
+    var input = e.target;
+    if (!input || !input.matches || !input.matches('[data-upload] input[type="file"]')) return;
+    var host = input.closest("[data-upload]");
+    if (!host) return;
+    var nameEl = host.querySelector("[data-upload-name]");
+    if (!nameEl) return;
+    var f = input.files && input.files[0];
+    nameEl.textContent = f ? f.name : "No file chosen";
+    host.classList.toggle("has-file", !!f);
+  });
+
   document.addEventListener("submit", function (e) {
     var form = e.target && e.target.closest && e.target.closest("[data-site-form]");
     if (!form) return;

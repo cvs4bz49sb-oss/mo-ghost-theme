@@ -1,70 +1,58 @@
 {{!< default}}
-{{!-- /contact/ — routed via routes.yaml. --}}
+{{!-- /contact/ — routed via routes.yaml. Mirrors the editorial feel
+     of custom-about: centered hero, prose body with pilcrow
+     flourishes between sections, narrow form. --}}
 
-<section class="mb-hero contact-hero">
-  <div class="container">
-    <div class="section-intro section-intro-light">
-      <p class="eyebrow eyebrow-light">Contact Mere&nbsp;Orthodoxy</p>
-      <h1 class="mb-hero-headline"><em>Want to <span class="highlight">talk?</span></em></h1>
-      <p class="mb-hero-sub">A few good ways to reach us. The form sends straight to the editors; the categories below route to the right team.</p>
+<main class="about contact-page">
+
+  <section class="hero about-hero contact-page-hero">
+    <div class="container">
+      <div class="section-intro">
+        <p class="eyebrow">Contact Mere&nbsp;Orthodoxy</p>
+        <h1 class="section-heading contact-page-headline"><em>Want to <span class="highlight">talk?</span></em></h1>
+        <p class="contact-page-sub">A few good ways to reach us. The form sends straight to the editors; the categories below route to the right team.</p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="contact-body">
-  <div class="container contact-grid">
+  <section class="about-body">
+    <div class="container container-narrow">
 
-    <div class="contact-intro">
-      <div class="contact-section">
-        <p class="eyebrow">General Questions</p>
-        <p>Complete the form if you have any general questions or comments.</p>
+      <div class="about-prose contact-categories">
+        <div class="contact-section">
+          <p class="eyebrow">General Questions</p>
+          <p>Complete the form below if you have any general questions or comments.</p>
+        </div>
+        <div class="contact-section">
+          <p class="eyebrow">Donate</p>
+          <p>To make a tax-deductible donation, <a href="/donate/">visit the donate page</a>.</p>
+        </div>
+        <div class="contact-section">
+          <p class="eyebrow">Submissions</p>
+          <p>If you want to write for us, <a href="/submissions/">submit an essay here</a>.</p>
+        </div>
+        <div class="contact-section">
+          <p class="eyebrow">Advertise With Us</p>
+          <p>Email <a href="mailto:ads@mereorthodoxy.com">ads@mereorthodoxy.com</a>.</p>
+        </div>
+        <div class="contact-section">
+          <p class="eyebrow">Media &amp; Speaking Requests</p>
+          <p>Email <a href="mailto:press@mereorthodoxy.com">press@mereorthodoxy.com</a>.</p>
+        </div>
+        <div class="contact-section">
+          <p class="eyebrow">Manage Membership</p>
+          <p><a href="/manage/">Update billing, address, or cancel</a>.</p>
+        </div>
       </div>
 
       <div class="flourish">{{> "flourish-mark"}}</div>
 
-      <div class="contact-section">
-        <p class="eyebrow">Donate</p>
-        <p>To make a tax-deductible donation, <a href="/donate/">visit the donate page</a>.</p>
+      <div class="section-intro">
+        <p class="eyebrow">Send a note</p>
+        <h2 class="section-heading"><em>We'll get back to you.</em></h2>
       </div>
 
-      <div class="contact-section">
-        <p class="eyebrow">Submissions</p>
-        <p>If you want to write for us, <a href="/submissions/">submit an essay here</a>.</p>
-      </div>
-
-      <div class="contact-section">
-        <p class="eyebrow">Advertise With Us</p>
-        <p>If you are interested in advertising with <em>Mere&nbsp;Orthodoxy</em>, email <a href="mailto:ads@mereorthodoxy.com">ads@mereorthodoxy.com</a>.</p>
-      </div>
-
-      <div class="contact-section">
-        <p class="eyebrow">Media &amp; Speaking Requests</p>
-        <p>Email <a href="mailto:press@mereorthodoxy.com">press@mereorthodoxy.com</a>.</p>
-      </div>
-
-      <div class="contact-section">
-        <p class="eyebrow">Manage Membership</p>
-        <p><a href="/manage/">Update your billing, address, or cancel</a>.</p>
-      </div>
-
-      <div class="flourish">{{> "flourish-mark"}}</div>
-
-      <div class="contact-section">
-        <p class="eyebrow">Reach Us By Mail</p>
-        <address class="contact-address">
-          Mere&nbsp;Orthodoxy<br />
-          2040 South Street<br />
-          Lincoln, NE 68502
-        </address>
-      </div>
-    </div>
-
-    <aside class="contact-form-wrap" aria-labelledby="contact-form-heading">
-      <p class="eyebrow">Contact Us</p>
-      <h2 id="contact-form-heading" class="contact-form-heading"><em>Send us a note.</em></h2>
-      <p class="contact-form-sub">Fill out the form with any questions and we'll get back to you.</p>
-
-      <form class="site-form" data-site-form="contact" data-worker-url="{{@custom.forms_worker_url}}" novalidate>
+      <form class="site-form site-form-narrow" data-site-form="contact" data-worker-url="{{@custom.forms_worker_url}}" novalidate>
         <div class="site-form-row">
           <div class="site-form-field">
             <label for="contact-first">First name</label>
@@ -81,15 +69,26 @@
         </div>
         <div class="site-form-field">
           <label for="contact-message">Message</label>
-          <textarea id="contact-message" name="message" rows="6" required></textarea>
+          <textarea id="contact-message" name="message" rows="5" required></textarea>
         </div>
-
         <button type="submit" class="site-form-submit">Send</button>
         <p class="site-form-status" data-form-status></p>
       </form>
-    </aside>
 
-  </div>
-</section>
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      <div class="contact-mail">
+        <p class="eyebrow">Reach Us By Mail</p>
+        <address class="contact-address">
+          Mere&nbsp;Orthodoxy<br />
+          2040 South Street<br />
+          Lincoln, NE 68502
+        </address>
+      </div>
+
+    </div>
+  </section>
+
+</main>
 
 <script src="{{asset "js/site-forms.js"}}"></script>
