@@ -24,6 +24,16 @@
     }
   }
 
+  // On narrow viewports, collapse every dashboard-module at load so
+  // the page isn't an endless scroll out of the gate. <details> still
+  // toggles natively on tap. Desktop keeps whatever `open` the hbs
+  // set.
+  if (window.matchMedia && window.matchMedia("(max-width: 720px)").matches) {
+    document.querySelectorAll(".dashboard-module[open]").forEach(function (d) {
+      d.removeAttribute("open");
+    });
+  }
+
   hydrateBookmarks();
   hydrateHistory();
 
