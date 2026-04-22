@@ -24,15 +24,35 @@
     }
   }
 
-  // On narrow viewports, collapse every dashboard-module at load so
-  // the page isn't an endless scroll out of the gate. <details> still
-  // toggles natively on tap. Desktop keeps whatever `open` the hbs
-  // set.
-  if (window.matchMedia && window.matchMedia("(max-width: 720px)").matches) {
+  // On narrow viewports (tablet and phone), collapse every
+  // dashboard-module at load so the page isn't an endless scroll.
+  // Native <details> toggles on tap; belt-and-braces, we also bind
+  // a click handler to the summary so even if some mobile browser
+  // swallows the native behavior, tapping still opens/closes.
+  var isNarrow = window.matchMedia && window.matchMedia("(max-width: 900px)").matches;
+  if (isNarrow) {
     document.querySelectorAll(".dashboard-module[open]").forEach(function (d) {
       d.removeAttribute("open");
     });
   }
+  document.querySelectorAll(".dashboard-module > summary").forEach(function (s) {
+    s.addEventListener("click", function (e) {
+      // If native toggle isn't working (rare), fall back to manual.
+      var details = s.parentElement;
+      if (!details) return;
+      // Give native behavior a tick; if the open state didn't flip,
+      // flip it ourselves. Prevents double-toggling on browsers
+      // where native works correctly.
+      var wasOpen = details.hasAttribute("open");
+      setTimeout(function () {
+        var isOpen = details.hasAttribute("open");
+        if (isOpen === wasOpen) {
+          if (wasOpen) details.removeAttribute("open");
+          else details.setAttribute("open", "");
+        }
+      }, 0);
+    });
+  });
 
   hydrateBookmarks();
   hydrateHistory();
