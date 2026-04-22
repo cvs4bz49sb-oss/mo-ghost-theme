@@ -6614,36 +6614,36 @@ body {
   margin: 0;
 }
 
-.podcast-hosts { position: sticky; top: 24px; }
-@media (max-width: 880px) {
-  .podcast-hosts { position: static; }
-}
-
-/* Host list — no cards. Portrait left, name + bio right. */
+/* Host list — compact portrait + name, click-through to
+   contributor page. 2-col grid so 6 hosts fit in 3 rows inside
+   the right rail. Not sticky — gets stuck off-screen when the
+   list is taller than the viewport. */
 .podcast-host-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 14px;
+}
+@media (max-width: 420px) {
+  .podcast-host-list { grid-template-columns: 1fr; }
+}
+/* CRC has one host — center it rather than leaving a blank column. */
+.podcast-host-list--single { grid-template-columns: minmax(0, 200px); justify-content: center; }
+.podcast-host { min-width: 0; }
+.podcast-host-link {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-.podcast-host {
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  padding-top: 20px;
-}
-.podcast-host:first-child { border-top: 0; padding-top: 0; }
-.podcast-host-link {
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 16px;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
   text-decoration: none;
   color: inherit;
-  align-items: start;
 }
 .podcast-host-portrait {
-  width: 72px;
-  height: 72px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   overflow: hidden;
   background: linear-gradient(145deg, #2d2927, #45413f);
@@ -6653,8 +6653,12 @@ body {
   color: var(--color-white);
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 22px;
-  flex-shrink: 0;
+  font-size: 28px;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.podcast-host-link:hover .podcast-host-portrait {
+  box-shadow: 0 6px 18px rgba(45, 41, 39, 0.2);
+  transform: translateY(-1px);
 }
 .podcast-host-portrait img {
   width: 100%;
@@ -6670,21 +6674,13 @@ body {
   white-space: nowrap;
   padding: 0 4px;
 }
-.podcast-host-body { min-width: 0; }
 .podcast-host-name {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 19px;
+  font-size: 16px;
   line-height: 1.2;
   color: var(--color-dark);
-  margin: 0 0 4px;
+  margin: 0;
   transition: color 0.15s;
 }
 .podcast-host-link:hover .podcast-host-name { color: var(--color-primary); }
-.podcast-host-bio {
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--color-muted);
-  margin: 0;
-}
