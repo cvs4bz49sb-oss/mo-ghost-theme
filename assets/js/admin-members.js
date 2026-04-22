@@ -27,9 +27,15 @@
     api("/members/timeseries?days=30"),
     api("/members/recent?limit=10"),
   ]).then(function (res) {
-    if (res[0]) fillSummary(res[0]);
-    if (res[1]) fillChart(res[1]);
-    if (res[2]) fillRecent(res[2]);
+    // If any call came back 403, the caller isn't staff. Surface
+    // a single clear "not authorized" state and stop.
+    if (res.some(function (r) { return r && r.forbidden; })) {
+      showForbidden();
+      return;
+    }
+    if (res[0] && res[0].body) fillSummary(res[0].body);
+    if (res[1] && res[1].body) fillChart(res[1].body);
+    if (res[2] && res[2].body) fillRecent(res[2].body);
   }).catch(function () {
     setEmpty(root.querySelector("[data-chart-placeholder]"), "Couldn't reach the admin worker.");
     setEmpty(root.querySelector("[data-recent-placeholder]"), "Couldn't reach the admin worker.");
@@ -38,8 +44,28 @@
   function api(path) {
     var sep = path.indexOf("?") > -1 ? "&" : "?";
     return fetch(worker + path + sep + "email=" + encodeURIComponent(email), { credentials: "omit" })
-      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (r) {
+        if (r.status === 403) return { forbidden: true };
+        return r.ok ? r.json().then(function (body) { return { body: body }; }) : null;
+      })
       .catch(function () { return null; });
+  }
+
+  function showForbidden() {
+    var stats = root.querySelector("[data-admin-stats]");
+    if (stats) stats.remove();
+    var split = root.querySelector(".admin-split");
+    if (split) split.remove();
+    var msg = document.createElement("div");
+    msg.className = "admin-forbidden";
+    msg.innerHTML =
+      '<p class="eyebrow">Staff only</p>' +
+      '<h2 class="section-heading"><em>Not authorized.</em></h2>' +
+      "<p>Your member account isn't linked to a Ghost staff seat. " +
+      "Ask an admin to add your email as a staff user at <code>/ghost/</code>, " +
+      "then reload this page.</p>";
+    var container = root.querySelector(".container");
+    if (container) container.appendChild(msg);
   }
 
   // -------------------------------------------------------------------------

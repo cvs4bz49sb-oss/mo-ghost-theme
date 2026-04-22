@@ -1,15 +1,17 @@
 {{!< default}}
 {{!-- /admin/members/ — membership analytics.
-     Gated same way as /admin/. Hydrated by assets/js/admin-members.js
-     from the mo-admin worker. --}}
+     Page skeleton renders for any signed-in member; the mo-admin
+     worker returns 403 if the caller's email isn't a Ghost staff
+     user, and admin-members.js surfaces that as a not-authorized
+     state. --}}
 
 <main class="admin-page">
 
-  {{#match @member.email "ian@mereorthodoxy.com"}}
+  {{#if @member}}
     {{> "admin-members-body"}}
   {{else}}
     {{> "admin-denied"}}
-  {{/match}}
+  {{/if}}
 
 </main>
 
