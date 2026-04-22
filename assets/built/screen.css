@@ -6178,6 +6178,19 @@ body {
 }
 
 /* Top-of-article banner for ?gift=<token> visitors. Reuses the
-   homepage Digest CTA via the .digest-cta class — this shim just
-   gives it the right breathing room inside the article body. */
+   homepage Digest CTA via the .digest-cta class. Inside the narrower
+   article column the 4-across form squeezes the inputs, so on
+   .gift-banner the submit drops to its own row and the three fields
+   share the full width equally. */
 .gift-banner { margin: 0 0 36px; }
+.gift-banner .digest-form {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.gift-banner .digest-submit {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 10px;
+}
+@media (max-width: 720px) {
+  .gift-banner .digest-form { grid-template-columns: 1fr; }
+}
