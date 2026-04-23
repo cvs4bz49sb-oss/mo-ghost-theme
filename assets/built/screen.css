@@ -6343,17 +6343,62 @@ html[data-theme="dark"] .inline-support .eyebrow {
 /* Dark-mode only: soften the seam where .article-header's
    --color-dark meets the body's slightly-lighter #33302d. A
    bottom-of-header pseudo-element fades from transparent (showing
-   the header's dark) to #33302d at the bottom. Light mode uses
-   the existing dark→cream contrast and doesn't need this. */
+   the header's dark) to #33302d at the bottom. Extra stops give an
+   ease-out feel across the full 240px fade distance so the
+   transition is more gradual than a straight linear gradient. */
 html[data-theme="dark"] .article-header::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 120px;
-  background: linear-gradient(to bottom, rgba(45, 41, 39, 0) 0%, #33302d 100%);
+  height: 240px;
+  background: linear-gradient(
+    to bottom,
+    rgba(51, 48, 45, 0) 0%,
+    rgba(51, 48, 45, 0.15) 35%,
+    rgba(51, 48, 45, 0.55) 70%,
+    #33302d 100%
+  );
   pointer-events: none;
+}
+
+/* Theme transition — fades dark-mode colors in/out over 300ms so
+   the toggle feels like a dissolve rather than a hard cut. Scoped
+   to the elements that actually flip on post pages; keeps hover
+   transitions on buttons (article-bookmark etc.) at their own
+   faster rhythms by not including them. */
+body.post-template,
+body.post-template .article-body,
+body.post-template .article-content,
+body.post-template .article-content a,
+body.post-template .article-content h1,
+body.post-template .article-content h2,
+body.post-template .article-content h3,
+body.post-template .article-content h4,
+body.post-template .article-content h5,
+body.post-template .article-content h6,
+body.post-template .article-content p,
+body.post-template .article-content li,
+body.post-template .article-content blockquote,
+body.post-template .article-content hr,
+body.post-template .article-content code,
+body.post-template .article-content pre,
+body.post-template .article-feature-caption,
+body.post-template .toc-mobile,
+body.post-template .toc-mobile .toc-label,
+body.post-template .toc-mobile .toc-link,
+body.post-template .article-rail,
+body.post-template .article-rail .rail-label,
+body.post-template .article-rail-toc .toc-label,
+body.post-template .article-rail-toc .toc-link,
+body.post-template .inline-support,
+body.post-template .inline-support h3,
+body.post-template .inline-support .eyebrow,
+body.post-template .author-bio-name,
+body.post-template .author-bio-text,
+body.post-template .author-bio-links a {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
 }
 
 /* Author bio block sits OUTSIDE .article-body (it's in the
