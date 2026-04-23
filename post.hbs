@@ -119,17 +119,6 @@
                     {{!-- Gift link: any signed-in member (Subscriber or Member)
                          can copy a shareable URL that bypasses the soft gate
                          for the recipient. Hidden for signed-out visitors. --}}
-                    {{#if @custom.enable_dark_mode}}
-                    <button class="article-theme" type="button"
-                            data-dark-mode-toggle
-                            aria-label="Switch to dark mode"
-                            aria-pressed="false">
-                        <svg class="article-theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                        </svg>
-                        <span class="article-theme-label">Toggle dark mode</span>
-                    </button>
-                    {{/if}}
                     {{#if @member}}
                     {{#if @custom.gift_worker_url}}
                     <button class="article-gift" type="button"
@@ -148,6 +137,17 @@
                         <span class="article-gift-label">Gift this essay</span>
                     </button>
                     {{/if}}
+                    {{/if}}
+                    {{#if @custom.enable_dark_mode}}
+                    <button class="article-theme" type="button"
+                            data-dark-mode-toggle
+                            aria-label="Switch to dark mode"
+                            aria-pressed="false">
+                        <svg class="article-theme-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="article-theme-label">Toggle dark mode</span>
+                    </button>
                     {{/if}}
                 </div>
             </div>
