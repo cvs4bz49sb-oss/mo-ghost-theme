@@ -17,7 +17,7 @@ routes:
     controller: channel
     template: custom-archive
     filter: status:published
-  /gift/:
+  /give/:
     template: custom-gift
   /groups/:
     template: custom-groups

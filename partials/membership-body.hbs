@@ -19,11 +19,11 @@
         <p class="eyebrow eyebrow-light">Membership</p>
         <h2 class="section-heading section-heading-light"><em>Support the work.</em></h2>
         {{#match @member.status "paid"}}
-          <a href="/gift/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
+          <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
         {{else}}{{#match @member.status "comped"}}
-          <a href="/gift/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
+          <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
         {{else}}{{#match @member.email @custom.dashboard_preview_email}}
-          <a href="/gift/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
+          <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
         {{else}}{{/match}}{{/match}}{{/match}}
       </div>
     </div>
@@ -124,7 +124,7 @@
             <span class="other-way-numeral">I</span>
             <h3 class="other-way-title"><em>Give a membership</em></h3>
             <p class="other-way-body">A year of Mere&nbsp;Orthodoxy for a friend, a pastor, or a seminary student.</p>
-            <a href="/gift/" class="other-way-link">Give a gift <span aria-hidden="true">&rarr;</span></a>
+            <a href="/give/" class="other-way-link">Give a gift <span aria-hidden="true">&rarr;</span></a>
           </article>
           <article class="other-way">
             <span class="other-way-numeral">II</span>

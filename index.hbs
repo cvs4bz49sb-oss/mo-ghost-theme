@@ -281,11 +281,11 @@
                 </ol>
                 <div class="journal-ctas">
                     {{#match @member.status "paid"}}
-                        <a href="/gift/" class="btn btn-primary btn-lg">Gift The Journal</a>
+                        <a href="/give/" class="btn btn-primary btn-lg">Gift The Journal</a>
                     {{else}}{{#match @member.status "comped"}}
-                        <a href="/gift/" class="btn btn-primary btn-lg">Gift The Journal</a>
+                        <a href="/give/" class="btn btn-primary btn-lg">Gift The Journal</a>
                     {{else}}{{#match @member.email @custom.dashboard_preview_email}}
-                        <a href="/gift/" class="btn btn-primary btn-lg">Gift The Journal</a>
+                        <a href="/give/" class="btn btn-primary btn-lg">Gift The Journal</a>
                     {{else}}
                         <a href="#join" class="btn btn-primary btn-lg">Get The Journal</a>
                     {{/match}}{{/match}}{{/match}}
