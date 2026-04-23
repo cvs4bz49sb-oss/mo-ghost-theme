@@ -74,6 +74,11 @@
         "type": "text",
         "description": "Full URL of the deployed mo-audio Cloudflare Worker (e.g. https://mo-audio.mo-podcast-feed.workers.dev). When set, paid Members see a 'Listen to this essay' button in the post header. Empty disables audio articles."
       },
+      "enable_dark_mode": {
+        "type": "boolean",
+        "default": false,
+        "description": "Show a dark-mode toggle on post pages. Only the article body switches; the hero, header, and footer stay light/dark per their existing styling. Reader preference persists in localStorage across pages. Leave off until the palette is dialed in."
+      },
       "kit_worker_url": {
         "type": "text",
         "description": "Full URL of the deployed mo-kit Cloudflare Worker (e.g. https://mo-kit.mo-podcast-feed.workers.dev). When set, signup forms pass topic/source context labels to Ghost, and engagement events (audio plays, article reads, membership clicks) are forwarded to Kit as tags. Empty disables the Kit integration entirely."

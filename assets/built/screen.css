@@ -6186,20 +6186,145 @@ body {
 .article-actions .article-audio-trigger,
 .article-actions .article-bookmark,
 .article-actions .article-pdf,
-.article-actions .article-gift {
+.article-actions .article-gift,
+.article-actions .article-theme {
   width: 40px;
   height: 40px;
   padding: 0;
   gap: 0;
   justify-content: center;
 }
+
+/* Dark-mode toggle — matches the pill aesthetic of .article-pdf /
+   .article-bookmark / .article-gift. The .article-actions 40x40
+   override above squares it into an icon-only circle. */
+.article-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(238, 125, 81, 0.08);
+  border: 1px solid rgba(238, 125, 81, 0.35);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.article-theme:hover {
+  background: rgba(238, 125, 81, 0.16);
+  border-color: var(--color-primary);
+}
+.article-theme[aria-pressed="true"] {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+.article-theme[aria-pressed="true"]:hover {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+
+/* ===========================================================
+   Dark-mode palette overrides — scoped to html[data-theme="dark"]
+   .article-body so only the article wrapper and its descendants
+   flip. Masthead, hero, footer, and any other site chrome stay
+   unchanged.
+
+   Tuning notes:
+   - Body bg is deliberately SLIGHTLY lighter than the hero
+     (--color-dark = #2d2927) so the hero→body transition still
+     reads visually instead of bleeding into a solid wall.
+   - Text is warm cream, not pure white, to match the brand's
+     parchment identity.
+   - Links and dropcap keep --color-primary (#ee7d51) because it
+     reads well on dark without a shift; --color-secondary
+     (#c1593c rust) is too muddy on dark so the dropcap is
+     lifted to primary.
+
+   This is a prototype starting point — expect to iterate on
+   specific inline elements (pull-quotes, code blocks, figures,
+   captions, footnote markers) once we see real posts rendered.
+   =========================================================== */
+html[data-theme="dark"] .article-body {
+  background: #33302d;
+  color: #e9dec8;
+}
+html[data-theme="dark"] .article-content,
+html[data-theme="dark"] .article-content p,
+html[data-theme="dark"] .article-content li {
+  color: #e9dec8;
+}
+html[data-theme="dark"] .article-content h1,
+html[data-theme="dark"] .article-content h2,
+html[data-theme="dark"] .article-content h3,
+html[data-theme="dark"] .article-content h4,
+html[data-theme="dark"] .article-content h5,
+html[data-theme="dark"] .article-content h6 {
+  color: #f4ebd8;
+}
+html[data-theme="dark"] .article-content a {
+  color: var(--color-primary);
+}
+html[data-theme="dark"] .article-content a:hover {
+  color: #f19371;
+}
+html[data-theme="dark"] .article-content blockquote {
+  border-left-color: rgba(233, 222, 200, 0.35);
+  color: #d4c7b0;
+}
+html[data-theme="dark"] .article-content hr {
+  background: rgba(233, 222, 200, 0.18);
+  border-color: rgba(233, 222, 200, 0.18);
+}
+html[data-theme="dark"] .article-content code,
+html[data-theme="dark"] .article-content pre {
+  background: rgba(233, 222, 200, 0.08);
+  color: #e9dec8;
+}
+/* Ghost's first-letter dropcap on articles (if any) lifts to
+   primary so the dark-mode accent stays legible. */
+html[data-theme="dark"] .article-content > p:first-of-type::first-letter {
+  color: var(--color-primary);
+}
+/* Share rail + table-of-contents rail sit inside .article-body,
+   so their text needs the cream treatment too. */
+html[data-theme="dark"] .article-rail,
+html[data-theme="dark"] .article-rail .rail-label,
+html[data-theme="dark"] .article-rail-toc .toc-label,
+html[data-theme="dark"] .article-rail-toc .toc-link {
+  color: #b8ab98;
+}
+html[data-theme="dark"] .article-rail-toc .toc-link:hover {
+  color: var(--color-primary);
+}
+/* Inline-support CTA at the end of the article uses page bg +
+   primary accents — pull it onto a subtler dark card so it
+   stays visible without glowing. */
+html[data-theme="dark"] .inline-support {
+  background: rgba(233, 222, 200, 0.04);
+  border-color: rgba(233, 222, 200, 0.18);
+  color: #e9dec8;
+}
+html[data-theme="dark"] .inline-support h3 {
+  color: #f4ebd8;
+}
+html[data-theme="dark"] .inline-support .eyebrow {
+  color: var(--color-primary);
+}
 .article-audio-label,
 .article-bookmark-label,
 .article-pdf-label,
-.article-gift-label { display: none; }
+.article-gift-label,
+.article-theme-label { display: none; }
 .article-actions .article-audio-icon,
 .article-actions .article-bookmark-icon,
 .article-actions .article-pdf-icon,
+.article-actions .article-theme-icon,
 .article-actions .article-gift-icon { width: 16px; height: 16px; }
 
 /* Gift button shares the pill aesthetic with .article-pdf /
