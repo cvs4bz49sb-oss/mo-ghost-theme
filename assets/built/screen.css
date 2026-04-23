@@ -350,7 +350,16 @@ img { max-width: 100%; height: auto; }
 /* -------- Hero -------- */
 
 .hero {
-  background: var(--color-dark);
+  /* Layered bg: a 95%-opaque dark overlay on top of the
+     mo-header-bg image, with the dark color underneath as a
+     fallback if the image fails to load. Lets the texture barely
+     show through behind the hero content; the orange burst on
+     .hero::before still renders on top. Tune the rgba alpha to
+     taste (lower = more image visible). */
+  background:
+    linear-gradient(rgba(45, 41, 39, 0.95), rgba(45, 41, 39, 0.95)),
+    url("../images/mo-header-bg.jpg") center/cover no-repeat,
+    var(--color-dark);
   color: var(--color-white);
   padding: 72px 0 120px;
   position: relative;
