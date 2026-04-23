@@ -360,7 +360,7 @@ img { max-width: 100%; height: auto; }
      renders on top. */
   background:
     linear-gradient(to bottom, rgba(45, 41, 39, 0.90) 0%, rgba(45, 41, 39, 1) 50%),
-    url("../images/mo-header-bg-1.jpg") center/cover no-repeat,
+    url("../images/mo-header-bg.jpg") center/cover no-repeat,
     var(--color-dark);
   color: var(--color-white);
   padding: 72px 0 120px;
@@ -4946,6 +4946,17 @@ body {
   color: var(--color-primary);
   font-weight: 600;
   margin: 0 0 10px;
+}
+
+/* About page bios aren't clamped. The 3-line clamp on
+   .contributor-card-bio makes sense on /contributors/ (where the
+   grid is dense and bios get long) but on About we want the full
+   text for the 10 Team + Board members. */
+.about-team .contributor-card-bio,
+.about-board .contributor-card-bio {
+  display: block;
+  -webkit-line-clamp: none;
+  overflow: visible;
 }
 
 @media (max-width: 820px) {
