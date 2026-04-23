@@ -3088,6 +3088,36 @@ body {
   padding: 14px 0 6px;
   border-bottom: 1px solid var(--color-rule);
 }
+/* Toggle variant — used when the parent is a grouping only (no URL),
+   so Resources / Support collapse on mobile and expand on tap.
+   Inherits the heading style but swaps the element to <button> and
+   adds a right-aligned caret that rotates when expanded. */
+.mobile-nav-group-toggle {
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--color-rule);
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mobile-nav-group-caret {
+  display: inline-block;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--color-muted);
+  transition: transform 0.2s ease;
+  transform: rotate(-90deg);
+}
+.mobile-nav-group:not(.is-collapsed) .mobile-nav-group-caret {
+  transform: rotate(0);
+}
+.mobile-nav-group.is-collapsed .mobile-nav-group-children {
+  display: none;
+}
 .mobile-nav-group-parent {
   font-weight: 600;
 }

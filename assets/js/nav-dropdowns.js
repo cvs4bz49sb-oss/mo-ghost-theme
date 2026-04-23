@@ -126,11 +126,25 @@
     wrap.className = "mobile-nav-group";
 
     if (g.url) {
+      // Parent has its own URL — keep as a link (navigates) and
+      // children always visible. Collapsing would hide the link
+      // target under a toggle, which isn't what we want here.
       wrap.appendChild(makeLink(g.label, g.url, "mobile-nav-group-parent"));
     } else {
-      var heading = document.createElement("p");
-      heading.className = "mobile-nav-group-heading";
-      heading.textContent = g.label;
+      // Parent is a grouping only (e.g. Resources, Support) — render
+      // as a toggle button, start collapsed so the drawer stays short
+      // on mobile. Children expand/collapse on tap.
+      wrap.classList.add("is-collapsed");
+      var heading = document.createElement("button");
+      heading.type = "button";
+      heading.className = "mobile-nav-group-heading mobile-nav-group-toggle";
+      heading.setAttribute("aria-expanded", "false");
+      heading.innerHTML = escapeHtml(g.label) +
+        ' <span class="mobile-nav-group-caret" aria-hidden="true">\u25BE</span>';
+      heading.addEventListener("click", function () {
+        var nowCollapsed = wrap.classList.toggle("is-collapsed");
+        heading.setAttribute("aria-expanded", nowCollapsed ? "false" : "true");
+      });
       wrap.appendChild(heading);
     }
 
