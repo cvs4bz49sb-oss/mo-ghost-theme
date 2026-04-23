@@ -357,7 +357,7 @@ img { max-width: 100%; height: auto; }
      .hero::before still renders on top. Tune the rgba alpha to
      taste (lower = more image visible). */
   background:
-    linear-gradient(rgba(45, 41, 39, 0.95), rgba(45, 41, 39, 0.95)),
+    linear-gradient(rgba(45, 41, 39, 0.97), rgba(45, 41, 39, 0.97)),
     url("../images/mo-header-bg.jpg") center/cover no-repeat,
     var(--color-dark);
   color: var(--color-white);
