@@ -360,7 +360,7 @@ img { max-width: 100%; height: auto; }
      renders on top. */
   background:
     linear-gradient(to bottom, rgba(45, 41, 39, 0.90) 0%, rgba(45, 41, 39, 1) 50%),
-    url("../images/mo-header-bg.jpg") center/cover no-repeat,
+    url("../images/mo-header-bg-1.jpg") center/cover no-repeat,
     var(--color-dark);
   color: var(--color-white);
   padding: 72px 0 120px;
