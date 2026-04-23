@@ -183,6 +183,38 @@
     </div>
   </section>
 
+  <section class="about-contributors">
+    <div class="container">
+      <div class="section-intro">
+        <p class="eyebrow">The Writers</p>
+        <h2 class="section-heading"><em>Who writes here.</em></h2>
+      </div>
+
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      {{!-- Pulls every public tag with at least one post. CSS hides
+           non-author tags via the same data-tag-slug attribute filter
+           used on the /contributors/ page. Names link to each
+           contributor's tag page, which renders their bio and archive
+           via tag.hbs. --}}
+      <div class="about-contributors-grid">
+        {{#get "tags" filter="visibility:public" order="name asc" limit="200" include="count.posts"}}
+          {{#foreach tags}}
+            {{#if count.posts}}
+              <a href="{{url}}" class="about-contributors-name about-contributors-name--candidate" data-tag-slug="{{slug}}">
+                <em>{{name}}</em>
+              </a>
+            {{/if}}
+          {{/foreach}}
+        {{/get}}
+      </div>
+
+      <p class="about-contributors-more">
+        <a href="/contributors/">Contributor profiles <span aria-hidden="true">&rarr;</span></a>
+      </p>
+    </div>
+  </section>
+
   {{> "membership-cta"}}
 
 </main>
