@@ -6340,15 +6340,12 @@ html[data-theme="dark"] .inline-support .eyebrow {
   color: var(--color-primary);
 }
 
-/* Dark-mode only: soften the seam where the hero's --color-dark
-   meets the body's slightly-lighter #33302d. A bottom-of-hero
-   pseudo-element fades from transparent (so the hero bg shows
-   through at the top) to #33302d at the bottom, so the last 120px
-   of the hero blend smoothly into the body color. The orange
-   ::before burst keeps working because ::after sits on top of the
-   hero bg but still behind the hero content (z-index 0 default
-   with pointer-events: none). */
-html[data-theme="dark"] .hero::after {
+/* Dark-mode only: soften the seam where .article-header's
+   --color-dark meets the body's slightly-lighter #33302d. A
+   bottom-of-header pseudo-element fades from transparent (showing
+   the header's dark) to #33302d at the bottom. Light mode uses
+   the existing dark→cream contrast and doesn't need this. */
+html[data-theme="dark"] .article-header::after {
   content: "";
   position: absolute;
   left: 0;
