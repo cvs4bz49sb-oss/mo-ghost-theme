@@ -24,13 +24,20 @@
   var email = (btn.getAttribute("data-member-email") || "").trim();
   var postId = (btn.getAttribute("data-post-id") || "").trim();
   var postUrl = (btn.getAttribute("data-post-url") || "").trim();
-  if (!workerUrl || !email || !postId || !postUrl) {
+  // Hide only on genuine config errors. An empty email means the
+  // visitor isn't signed in — feature-gate.js intercepts the click
+  // and prompts them to subscribe, so the button must stay visible.
+  if (!workerUrl || !postId || !postUrl) {
     btn.setAttribute("hidden", "");
     return;
   }
 
   btn.addEventListener("click", function () {
     if (btn.disabled) return;
+    // Defense in depth: feature-gate should have caught an empty
+    // email before this handler fires, but if somehow not, bail
+    // quietly instead of making a fetch with no auth identity.
+    if (!email) return;
     btn.disabled = true;
     fetch(workerUrl + "/mint", {
       method: "POST",
