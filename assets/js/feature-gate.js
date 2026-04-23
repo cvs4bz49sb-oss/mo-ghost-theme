@@ -26,14 +26,22 @@
 (function () {
   var STATUS = (document.body.getAttribute("data-member-status") || "anonymous").toLowerCase();
 
-  // Admin preview bypass: when Ghost staff are signed in as
-  // admins (not as a Portal Member), @member is null so
-  // data-member-status isn't emitted. The theme already surfaces
-  // data-preview-email from @custom.dashboard_preview_email to let
-  // admins preview member-only pages — if that attr is set, treat
-  // the current session as paid so the feature-gate doesn't trip
-  // on every gated button during admin testing.
-  if (STATUS === "anonymous" && document.body.getAttribute("data-preview-email")) {
+  // Admin preview bypass: @custom.dashboard_preview_email exists
+  // precisely so Ian (or any admin) can browse the site as if they
+  // were a paid member without actually paying. The theme exposes
+  // it as data-preview-email on body.
+  //
+  // Two cases to handle:
+  //   1. Admin is signed into Ghost admin but NOT signed into Portal
+  //      as a Member. STATUS starts as "anonymous" (no @member).
+  //      Bypass to paid.
+  //   2. Admin IS signed into Portal as a free/comped Member using
+  //      the same email as the preview setting. STATUS is "free"
+  //      or "comped" but the email matches — treat as paid so the
+  //      gate doesn't trip on audio/bookmark.
+  var PREVIEW_EMAIL = (document.body.getAttribute("data-preview-email") || "").toLowerCase();
+  var MEMBER_EMAIL = (document.body.getAttribute("data-member-email") || "").toLowerCase();
+  if (PREVIEW_EMAIL && (STATUS === "anonymous" || MEMBER_EMAIL === PREVIEW_EMAIL)) {
     STATUS = "paid";
   }
 
