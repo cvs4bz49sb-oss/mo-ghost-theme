@@ -102,14 +102,17 @@
         <h2 class="section-heading"><em>Who we are.</em></h2>
       </div>
 
-      {{!-- Team cards — 3 staff in the contributor-card pattern with
-           photo, italic display name, role eyebrow, and bio. Photos
-           live at assets/images/team/<slug>.jpg; drop the files in
-           and they render on next deploy. --}}
+      {{!-- Team cards — photos pulled from each person's Ghost
+           author-* tag feature_image via {{#get}}. Role, name, and
+           bio stay hardcoded because roles live here on the About
+           page, not in tag metadata. If a tag slug doesn't match,
+           the {{else}} branch falls back to name initials. --}}
       <div class="contributors-grid about-team-grid">
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/jake-meador.jpg"}}" alt="Jake Meador" />
+            {{#get "tags" filter="slug:author-jake-meador" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Jake Meador" />{{else}}<span class="contributor-card-initial">Jake Meador</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Jake Meador</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Jake Meador</em></h3>
@@ -119,7 +122,9 @@
         </div>
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/mark-kremer.jpg"}}" alt="Mark Kremer" />
+            {{#get "tags" filter="slug:author-mark-kremer" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Mark Kremer" />{{else}}<span class="contributor-card-initial">Mark Kremer</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Mark Kremer</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Mark Kremer</em></h3>
@@ -129,7 +134,9 @@
         </div>
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/ian-harber.jpg"}}" alt="Ian Harber" />
+            {{#get "tags" filter="slug:author-ian-harber" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Ian Harber" />{{else}}<span class="contributor-card-initial">Ian Harber</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Ian Harber</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Ian Harber</em></h3>
@@ -148,14 +155,15 @@
         <h2 class="section-heading"><em>The editorial board.</em></h2>
       </div>
 
-      {{!-- Board members — contributor-card pattern. Hardcoded
-           because these people aren't all Ghost author-* tags yet.
-           When they are, this block can be switched to a tag-driven
-           {{#get}} loop filtered to the board members' slugs. --}}
+      {{!-- Board member photos pulled from Ghost author tags same
+           way as Team above. Name, role, and bio are hardcoded so
+           About-page-specific copy isn't coupled to tag metadata. --}}
       <div class="contributors-grid">
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/jake-meador.jpg"}}" alt="Jake Meador" />
+            {{#get "tags" filter="slug:author-jake-meador" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Jake Meador" />{{else}}<span class="contributor-card-initial">Jake Meador</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Jake Meador</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Jake Meador</em></h3>
@@ -165,7 +173,9 @@
         </div>
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/nadya-williams.jpg"}}" alt="Nadya Williams" />
+            {{#get "tags" filter="slug:author-nadya-williams" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Nadya Williams" />{{else}}<span class="contributor-card-initial">Nadya Williams</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Nadya Williams</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Nadya Williams</em></h3>
@@ -175,7 +185,9 @@
         </div>
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/samuel-james.jpg"}}" alt="Samuel James" />
+            {{#get "tags" filter="slug:author-samuel-james" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Samuel James" />{{else}}<span class="contributor-card-initial">Samuel James</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Samuel James</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Samuel James</em></h3>
@@ -185,7 +197,9 @@
         </div>
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/kirsten-sanders.jpg"}}" alt="Kirsten Sanders" />
+            {{#get "tags" filter="slug:author-kirsten-sanders" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Kirsten Sanders" />{{else}}<span class="contributor-card-initial">Kirsten Sanders</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Kirsten Sanders</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Kirsten Sanders</em></h3>
@@ -195,7 +209,9 @@
         </div>
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/matthew-loftus.jpg"}}" alt="Matthew Loftus" />
+            {{#get "tags" filter="slug:author-matthew-loftus" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Matthew Loftus" />{{else}}<span class="contributor-card-initial">Matthew Loftus</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Matthew Loftus</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Matthew Loftus</em></h3>
@@ -205,7 +221,9 @@
         </div>
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/susannah-black-roberts.jpg"}}" alt="Susannah Black Roberts" />
+            {{#get "tags" filter="slug:author-susannah-black-roberts" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Susannah Black Roberts" />{{else}}<span class="contributor-card-initial">Susannah Black Roberts</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Susannah Black Roberts</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Susannah Black Roberts</em></h3>
@@ -215,7 +233,9 @@
         </div>
         <div class="contributor-card contributor-card--static">
           <div class="contributor-card-portrait" aria-hidden="true">
-            <img src="{{asset "images/team/tessa-carman.jpg"}}" alt="Tessa Carman" />
+            {{#get "tags" filter="slug:author-tessa-carman" limit="1"}}
+              {{#foreach tags}}{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="Tessa Carman" />{{else}}<span class="contributor-card-initial">Tessa Carman</span>{{/if}}{{/foreach}}
+            {{else}}<span class="contributor-card-initial">Tessa Carman</span>{{/get}}
           </div>
           <div class="contributor-card-body">
             <h3 class="contributor-card-name"><em>Tessa Carman</em></h3>
