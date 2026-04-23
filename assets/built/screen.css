@@ -6339,6 +6339,23 @@ html[data-theme="dark"] .inline-support h3 {
 html[data-theme="dark"] .inline-support .eyebrow {
   color: var(--color-primary);
 }
+
+/* Author bio block sits OUTSIDE .article-body (it's in the
+   container-narrow wrapper after the article), so the .article-body
+   text color overrides don't reach it. Scope these directly to the
+   bio classes on post-template + dark. */
+html[data-theme="dark"] .post-template .author-bio-name {
+  color: #f4ebd8;
+}
+html[data-theme="dark"] .post-template .author-bio-text {
+  color: #e9dec8;
+}
+html[data-theme="dark"] .post-template .author-bio-links a {
+  color: var(--color-primary);
+}
+html[data-theme="dark"] .post-template .author-bio-links a:hover {
+  color: #f19371;
+}
 .article-audio-label,
 .article-bookmark-label,
 .article-pdf-label,
