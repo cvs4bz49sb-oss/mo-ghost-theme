@@ -6539,18 +6539,23 @@ html[data-theme="dark"] .post-template .author-bio-links a:hover {
     align-items: flex-start;
     gap: 10px;
     border-radius: 14px;
-    padding: 16px 18px;
+    /* Extra right padding reserves room for the absolute-positioned
+       × button so long message text can't run under it. */
+    padding: 16px 44px 16px 18px;
     left: 16px;
     right: 16px;
     bottom: 16px;
     transform: translateY(16px);
     max-width: none;
+    /* Center the translateX override from desktop so bottom-left/
+       bottom-right positioning wins cleanly on mobile. */
   }
+  .feature-gate-popup { left: 16px; right: 16px; }
   .feature-gate-popup.is-visible { transform: translateY(0); }
   .feature-gate-popup.is-closing { transform: translateY(16px); }
   .feature-gate-close {
     position: absolute;
-    top: 8px;
+    top: 10px;
     right: 12px;
   }
 }
