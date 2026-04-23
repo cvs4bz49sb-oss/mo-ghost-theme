@@ -28,6 +28,17 @@
       orgEl.textContent = body.org_name || 'Preview institution';
       adminEl.textContent = body.admin_email || 'admin@example.edu';
       endDateEl.textContent = body.contract_end_date || '—';
+      // Server is authoritative for members + domains. Replace local
+      // sessionStorage caches so the dashboard survives browser
+      // close/reopen.
+      if (Array.isArray(body.members)) {
+        writeStore(membersKey, body.members.map((m) => ({ name: m.name || '', email: m.email })));
+        renderMembers();
+      }
+      if (Array.isArray(body.domains)) {
+        writeStore(domainsKey, body.domains);
+        renderDomains();
+      }
     } catch {
       orgEl.textContent = 'Preview institution';
       adminEl.textContent = 'admin@example.edu';

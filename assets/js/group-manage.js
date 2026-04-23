@@ -19,6 +19,13 @@
       orgEl.textContent = body.org_name || 'Preview organization';
       adminEl.textContent = body.admin_email || 'admin@example.com';
       seatsTotalEl.textContent = body.seat_count ?? '—';
+      // Server is authoritative for the seat list — replace the local
+      // sessionStorage cache with whatever the server reports so the
+      // dashboard survives browser close/reopen.
+      if (Array.isArray(body.seats)) {
+        saveMembers(body.seats.map((s) => ({ name: s.name || '', email: s.email })));
+        render();
+      }
     } catch {
       orgEl.textContent = 'Preview organization';
       adminEl.textContent = 'admin@example.com';
