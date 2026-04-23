@@ -26,48 +26,39 @@
 (function () {
   var STATUS = (document.body.getAttribute("data-member-status") || "anonymous").toLowerCase();
 
-  // QA override: append ?gate=force to any post URL to force STATUS
-  // to anonymous so every gated button fires its popup, regardless
-  // of sign-in state or the admin preview bypass below. Lets Ian
-  // test the popups from his normal admin session without clearing
-  // the preview-email setting. Persists to sessionStorage so it
-  // survives link-clicks within the same tab.
+  // QA override: ?gate=force on any URL forces STATUS to anonymous
+  // so every gated button fires. Persists to sessionStorage for
+  // tab-internal navigation. ?gate=off clears.
+  var forced = false;
   try {
     var params = new URLSearchParams(window.location.search);
-    if (params.get("gate") === "force") {
-      sessionStorage.setItem("mo-gate-force", "1");
-    } else if (params.get("gate") === "off") {
-      sessionStorage.removeItem("mo-gate-force");
-    }
-    if (sessionStorage.getItem("mo-gate-force") === "1") {
-      STATUS = "anonymous";
-    }
-  } catch (e) { /* sessionStorage can throw in private mode — ignore */ }
+    var g = params.get("gate");
+    if (g === "force") sessionStorage.setItem("mo-gate-force", "1");
+    if (g === "off") sessionStorage.removeItem("mo-gate-force");
+    forced = sessionStorage.getItem("mo-gate-force") === "1";
+  } catch (e) { /* private mode — ignore */ }
 
-  if (STATUS !== "anonymous" || !isForced()) {
-    // Admin preview bypass: @custom.dashboard_preview_email exists
-    // precisely so Ian (or any admin) can browse the site as if they
-    // were a paid member without actually paying. The theme exposes
-    // it as data-preview-email on body.
+  if (forced) {
+    STATUS = "anonymous";
+  } else {
+    // Admin preview bypass: @custom.dashboard_preview_email is a
+    // theme setting Ian can set to his Portal member email. When the
+    // current signed-in member's email matches, treat them as paid
+    // so the gate doesn't trip on audio/bookmark regardless of their
+    // actual Ghost tier.
     //
-    // Two cases to handle:
-    //   1. Admin is signed into Ghost admin but NOT signed into Portal
-    //      as a Member. STATUS starts as "anonymous" (no @member).
-    //      Bypass to paid.
-    //   2. Admin IS signed into Portal as a free/comped Member using
-    //      the same email as the preview setting. STATUS is "free"
-    //      or "comped" but the email matches — treat as paid so the
-    //      gate doesn't trip on audio/bookmark.
+    // IMPORTANT: We only upgrade when the CURRENT MEMBER's email
+    // matches. An earlier version also upgraded anonymous visitors
+    // when data-preview-email was set at all — that was wrong,
+    // because the preview-email attribute renders server-side for
+    // every visitor, not just the admin. It silenced popups for
+    // all signed-out readers. Now the admin must actually be signed
+    // into Portal with the preview email for the bypass to kick in.
     var PREVIEW_EMAIL = (document.body.getAttribute("data-preview-email") || "").toLowerCase();
     var MEMBER_EMAIL = (document.body.getAttribute("data-member-email") || "").toLowerCase();
-    if (PREVIEW_EMAIL && (STATUS === "anonymous" || MEMBER_EMAIL === PREVIEW_EMAIL)) {
+    if (PREVIEW_EMAIL && MEMBER_EMAIL && MEMBER_EMAIL === PREVIEW_EMAIL) {
       STATUS = "paid";
     }
-  }
-
-  function isForced() {
-    try { return sessionStorage.getItem("mo-gate-force") === "1"; }
-    catch (e) { return false; }
   }
 
   var FEATURES = {
