@@ -6340,6 +6340,25 @@ html[data-theme="dark"] .inline-support .eyebrow {
   color: var(--color-primary);
 }
 
+/* Dark-mode only: soften the seam where the hero's --color-dark
+   meets the body's slightly-lighter #33302d. A bottom-of-hero
+   pseudo-element fades from transparent (so the hero bg shows
+   through at the top) to #33302d at the bottom, so the last 120px
+   of the hero blend smoothly into the body color. The orange
+   ::before burst keeps working because ::after sits on top of the
+   hero bg but still behind the hero content (z-index 0 default
+   with pointer-events: none). */
+html[data-theme="dark"] .hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, rgba(45, 41, 39, 0) 0%, #33302d 100%);
+  pointer-events: none;
+}
+
 /* Author bio block sits OUTSIDE .article-body (it's in the
    container-narrow wrapper after the article), so the .article-body
    text color overrides don't reach it. Scope these directly to the
