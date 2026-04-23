@@ -6250,6 +6250,29 @@ body {
    specific inline elements (pull-quotes, code blocks, figures,
    captions, footnote markers) once we see real posts rendered.
    =========================================================== */
+/* Body bg on post pages — darkens the band BEHIND the feature image
+   and the mobile TOC nav so the hero→feature-image→article-body
+   transition is a continuous dark rather than dark→cream→dark.
+   Scoped to body.post-template (Ghost's auto class) so non-post
+   pages stay light even if the reader's localStorage has dark on. */
+html[data-theme="dark"] body.post-template {
+  background: #33302d;
+}
+html[data-theme="dark"] .article-feature-caption {
+  color: #b8ab98;
+}
+html[data-theme="dark"] .toc-mobile {
+  background: rgba(233, 222, 200, 0.04);
+  border-color: rgba(233, 222, 200, 0.18);
+  color: #e9dec8;
+}
+html[data-theme="dark"] .toc-mobile .toc-label {
+  color: #b8ab98;
+}
+html[data-theme="dark"] .toc-mobile .toc-link {
+  color: #e9dec8;
+}
+
 html[data-theme="dark"] .article-body {
   background: #33302d;
   color: #e9dec8;
