@@ -104,6 +104,9 @@
                             <span class="article-bookmark-label">Bookmark</span>
                         </button>
                     {{/if}}
+                    {{!-- PDF download: any signed-in member (Subscriber or
+                         Member). Signed-out visitors don't see the button. --}}
+                    {{#if @member}}
                     <a class="article-pdf" href="#"
                        data-article-pdf
                        data-post-id="{{id}}"
@@ -116,6 +119,7 @@
                         </svg>
                         <span class="article-pdf-label">Download PDF</span>
                     </a>
+                    {{/if}}
                     {{!-- Gift link: any signed-in member (Subscriber or Member)
                          can copy a shareable URL that bypasses the soft gate
                          for the recipient. Hidden for signed-out visitors. --}}
