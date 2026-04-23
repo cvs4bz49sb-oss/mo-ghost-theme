@@ -1,0 +1,20 @@
+{{!-- Renders the byline sub-label under a contributor's name.
+
+     For the nine people on the About page (Team + Editorial Board),
+     emit their specific role. Everyone else falls through to the
+     generic "Contributor" label, guarded by {{#if description}} so
+     tags with no bio don't get a naked sub-label.
+
+     Expects to be called inside a {{#foreach tags}} scope so `slug`
+     and `description` resolve to the current tag. --}}
+{{#match slug "author-jake-meador"}}<div class="meta-author-sub">Editor-in-Chief</div>
+{{else}}{{#match slug "author-mark-kremer"}}<div class="meta-author-sub">Executive Director</div>
+{{else}}{{#match slug "author-ian-harber"}}<div class="meta-author-sub">Director of Communications</div>
+{{else}}{{#match slug "author-nadya-williams"}}<div class="meta-author-sub">Books Editor</div>
+{{else}}{{#match slug "author-samuel-james"}}<div class="meta-author-sub">Editorial Board Member</div>
+{{else}}{{#match slug "author-kirsten-sanders"}}<div class="meta-author-sub">Editorial Board Member</div>
+{{else}}{{#match slug "author-matthew-loftus"}}<div class="meta-author-sub">Editorial Board Member</div>
+{{else}}{{#match slug "author-susannah-black-roberts"}}<div class="meta-author-sub">Editorial Board Member</div>
+{{else}}{{#match slug "author-tessa-carman"}}<div class="meta-author-sub">Editorial Board Member</div>
+{{else}}{{#if description}}<div class="meta-author-sub">Contributor</div>{{/if}}
+{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}
