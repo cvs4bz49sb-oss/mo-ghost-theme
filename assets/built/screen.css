@@ -4892,29 +4892,19 @@ body {
   margin: 0;
 }
 
-/* -------- About page — Contributors section --------
-   Reuses .contributors-grid + .contributor-card from the main
-   /contributors/ page. Only the section wrapper + "All contributor
-   profiles →" link need their own rules. */
-
-.about-contributors { padding: 32px 0 88px; background: var(--color-page); }
-.about-contributors .section-intro { text-align: center; margin-bottom: 16px; }
-.about-contributors .flourish { margin-bottom: 40px; }
-
-.about-contributors-more {
-  text-align: center;
-  margin: 48px 0 0;
+/* Role eyebrow inside .contributor-card — sits between the display
+   name and the bio, styled like .contributor-card-count but carrying
+   the person's role instead of a post count. Used on the About page
+   Team + Editorial Board blocks where cards are static, not driven
+   from Ghost tag data. */
+.contributor-card-role {
   font-family: var(--font-body);
-  font-size: 13px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
+  color: var(--color-primary);
   font-weight: 600;
-}
-.about-contributors-more a { color: var(--color-dark); text-decoration: none; transition: color 0.15s; }
-.about-contributors-more a:hover { color: var(--color-primary); }
-
-@media (max-width: 640px) {
-  .about-contributors { padding: 24px 0 56px; }
+  margin: 0 0 10px;
 }
 
 @media (max-width: 820px) {

@@ -102,22 +102,41 @@
         <h2 class="section-heading"><em>Who we are.</em></h2>
       </div>
 
-      <div class="about-team-grid">
-        <article class="about-team-member">
-          <div class="about-team-portrait" aria-hidden="true"><span class="about-team-initial">J</span></div>
-          <h3 class="about-team-name"><em>Jake Meador</em></h3>
-          <p class="about-team-title">Editor-in-Chief &amp; Chairman</p>
-        </article>
-        <article class="about-team-member">
-          <div class="about-team-portrait" aria-hidden="true"><span class="about-team-initial">M</span></div>
-          <h3 class="about-team-name"><em>Mark Kremer</em></h3>
-          <p class="about-team-title">Publisher &amp; Executive Director</p>
-        </article>
-        <article class="about-team-member">
-          <div class="about-team-portrait" aria-hidden="true"><span class="about-team-initial">I</span></div>
-          <h3 class="about-team-name"><em>Ian Harber</em></h3>
-          <p class="about-team-title">Director of Communications &amp; Marketing</p>
-        </article>
+      {{!-- Team cards — 3 staff in the contributor-card pattern with
+           photo, italic display name, role eyebrow, and bio. Photos
+           live at assets/images/team/<slug>.jpg; drop the files in
+           and they render on next deploy. --}}
+      <div class="contributors-grid about-team-grid">
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/jake-meador.jpg"}}" alt="Jake Meador" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Jake Meador</em></h3>
+            <p class="contributor-card-role">Editor-in-Chief &amp; Chairman</p>
+            <p class="contributor-card-bio">Editor-in-chief of Mere Orthodoxy and author of <em>In Search of the Common Good</em> and <em>What Are Christians For?</em>. His writing has appeared in The Atlantic, Commonweal, First Things, Christianity Today, and elsewhere.</p>
+          </div>
+        </div>
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/mark-kremer.jpg"}}" alt="Mark Kremer" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Mark Kremer</em></h3>
+            <p class="contributor-card-role">Publisher &amp; Executive Director</p>
+            <p class="contributor-card-bio">Thirty years of pastoral leadership and over twenty years in non-profit leadership and publishing. Consults with churches and ministries on leadership, vision, strategic planning, and stewardship.</p>
+          </div>
+        </div>
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/ian-harber.jpg"}}" alt="Ian Harber" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Ian Harber</em></h3>
+            <p class="contributor-card-role">Director of Communications &amp; Marketing</p>
+            <p class="contributor-card-bio">Ten-plus years in marketing and communications with nonprofits, churches, Christian podcasts, and publications. Author of <em>Walking Through Deconstruction: How To Be A Companion In A Crisis of Faith</em> (IVP, 2025).</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -129,101 +148,82 @@
         <h2 class="section-heading"><em>The editorial board.</em></h2>
       </div>
 
-      <ol class="about-board-list">
-        <li class="about-board-entry">
-          <span class="about-board-numeral">I</span>
-          <div>
-            <p class="about-board-name"><em>Jake Meador</em></p>
-            <p class="about-board-role">Chairman</p>
-          </div>
-        </li>
-        <li class="about-board-entry">
-          <span class="about-board-numeral">II</span>
-          <div>
-            <p class="about-board-name"><em>Nadya Williams</em></p>
-            <p class="about-board-role">Books Editor</p>
-          </div>
-        </li>
-        <li class="about-board-entry">
-          <span class="about-board-numeral">III</span>
-          <div>
-            <p class="about-board-name"><em>Samuel James</em></p>
-            <p class="about-board-role">Author; Director of Content Development, Crossway</p>
-          </div>
-        </li>
-        <li class="about-board-entry">
-          <span class="about-board-numeral">IV</span>
-          <div>
-            <p class="about-board-name"><em>Kirsten Sanders</em></p>
-            <p class="about-board-role">PhD, Theology, Emory University; Writer</p>
-          </div>
-        </li>
-        <li class="about-board-entry">
-          <span class="about-board-numeral">V</span>
-          <div>
-            <p class="about-board-name"><em>Matthew Loftus</em></p>
-            <p class="about-board-role">Medical Missionary in East Africa</p>
-          </div>
-        </li>
-        <li class="about-board-entry">
-          <span class="about-board-numeral">VI</span>
-          <div>
-            <p class="about-board-name"><em>Susannah Black Roberts</em></p>
-            <p class="about-board-role">Senior Editor, Plough</p>
-          </div>
-        </li>
-        <li class="about-board-entry">
-          <span class="about-board-numeral">VII</span>
-          <div>
-            <p class="about-board-name"><em>Tessa Carman</em></p>
-            <p class="about-board-role">Literature teacher, editor, and writer</p>
-          </div>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <section class="about-contributors">
-    <div class="container">
-      <div class="section-intro">
-        <p class="eyebrow">The Writers</p>
-        <h2 class="section-heading"><em>Who writes here.</em></h2>
-      </div>
-
-      <div class="flourish">{{> "flourish-mark"}}</div>
-
-      {{!-- Reuses the .contributors-grid + .contributor-card pattern
-           from custom-contributors.hbs so name, 72px headshot, and bio
-           render identically to /contributors/. CSS filters to
-           author-* slugs; pulling every public tag is intentional
-           because Ghost NQL prefix-match on slug is unreliable. --}}
+      {{!-- Board members — contributor-card pattern. Hardcoded
+           because these people aren't all Ghost author-* tags yet.
+           When they are, this block can be switched to a tag-driven
+           {{#get}} loop filtered to the board members' slugs. --}}
       <div class="contributors-grid">
-        {{#get "tags" filter="visibility:public" order="name asc" limit="200" include="count.posts"}}
-          {{#foreach tags}}
-            {{#if count.posts}}
-              <a href="{{url}}" class="contributor-card contributor-card--candidate" data-tag-slug="{{slug}}">
-                <div class="contributor-card-portrait" aria-hidden="true">
-                  {{#if feature_image}}
-                    <img src="{{img_url feature_image size="s"}}" alt="{{name}}" />
-                  {{else}}
-                    <span class="contributor-card-initial">{{name}}</span>
-                  {{/if}}
-                </div>
-                <div class="contributor-card-body">
-                  <h3 class="contributor-card-name"><em>{{name}}</em></h3>
-                  {{#if description}}
-                    <p class="contributor-card-bio">{{description}}</p>
-                  {{/if}}
-                </div>
-              </a>
-            {{/if}}
-          {{/foreach}}
-        {{/get}}
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/jake-meador.jpg"}}" alt="Jake Meador" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Jake Meador</em></h3>
+            <p class="contributor-card-role">Chairman</p>
+            <p class="contributor-card-bio">Editor-in-chief of Mere Orthodoxy. Writes on theology, Reformed catholicity, and the formation of the local church.</p>
+          </div>
+        </div>
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/nadya-williams.jpg"}}" alt="Nadya Williams" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Nadya Williams</em></h3>
+            <p class="contributor-card-role">Books Editor</p>
+            <p class="contributor-card-bio">Classicist with a PhD from Princeton. Author of <em>Cultural Christians in the Early Church</em> and host of the Christians Reading Classics podcast.</p>
+          </div>
+        </div>
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/samuel-james.jpg"}}" alt="Samuel James" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Samuel James</em></h3>
+            <p class="contributor-card-role">Author &amp; Director of Content Development, Crossway</p>
+            <p class="contributor-card-bio">Writes and edits at the intersection of evangelical theology and digital culture.</p>
+          </div>
+        </div>
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/kirsten-sanders.jpg"}}" alt="Kirsten Sanders" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Kirsten Sanders</em></h3>
+            <p class="contributor-card-role">Theologian &amp; Writer</p>
+            <p class="contributor-card-bio">PhD in theology from Emory University. Writes on systematic theology, the life of the mind, and the vocation of the theologian.</p>
+          </div>
+        </div>
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/matthew-loftus.jpg"}}" alt="Matthew Loftus" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Matthew Loftus</em></h3>
+            <p class="contributor-card-role">Physician &amp; Medical Missionary</p>
+            <p class="contributor-card-bio">Serves as a medical missionary in East Africa. Regular contributor on evangelical culture, medicine, and Christian formation.</p>
+          </div>
+        </div>
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/susannah-black-roberts.jpg"}}" alt="Susannah Black Roberts" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Susannah Black Roberts</em></h3>
+            <p class="contributor-card-role">Senior Editor, Plough</p>
+            <p class="contributor-card-bio">Writer and editor focused on political theology, communalism, and the Christian imagination.</p>
+          </div>
+        </div>
+        <div class="contributor-card contributor-card--static">
+          <div class="contributor-card-portrait" aria-hidden="true">
+            <img src="{{asset "images/team/tessa-carman.jpg"}}" alt="Tessa Carman" />
+          </div>
+          <div class="contributor-card-body">
+            <h3 class="contributor-card-name"><em>Tessa Carman</em></h3>
+            <p class="contributor-card-role">Literature Teacher, Editor, &amp; Writer</p>
+            <p class="contributor-card-bio">Writes on literature, beauty, and the formation of the Christian imagination through reading.</p>
+          </div>
+        </div>
       </div>
-
-      <p class="about-contributors-more">
-        <a href="/contributors/">All contributor profiles <span aria-hidden="true">&rarr;</span></a>
-      </p>
     </div>
   </section>
 
