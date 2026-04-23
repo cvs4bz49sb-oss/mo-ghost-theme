@@ -6555,6 +6555,89 @@ html[data-theme="dark"] .post-template .author-bio-links a:hover {
   }
 }
 
+/* Feature gate MODAL — subscriber-tier features (PDF, gift) open
+   a centered dialog with the same magic-link signup form pattern
+   the digest CTA uses. On success, Ghost's magic-link email
+   redirects the subscriber back to the article they were on. */
+.feature-gate-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  padding: 20px;
+}
+.feature-gate-modal.is-visible { opacity: 1; }
+.feature-gate-modal.is-closing { opacity: 0; }
+.feature-gate-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(45, 41, 39, 0.72);
+  cursor: pointer;
+}
+.feature-gate-modal-panel {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  background: var(--color-page);
+  border: 1px solid var(--color-card-border);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  padding: 40px 32px 32px;
+  text-align: center;
+}
+.feature-gate-modal-panel .eyebrow {
+  margin: 0 0 10px;
+}
+.feature-gate-modal-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(22px, 2.6vw, 28px);
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 14px;
+}
+.feature-gate-modal-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 22px;
+}
+.feature-gate-modal-form {
+  text-align: left;
+}
+.feature-gate-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: transparent;
+  border: 0;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.15s;
+}
+.feature-gate-modal-close:hover { color: var(--color-dark); }
+body.feature-gate-modal-open { overflow: hidden; }
+
+/* Dark-mode override for the modal — matches the article-body dark
+   palette so the overlay sits well on a dark page. */
+html[data-theme="dark"] .feature-gate-modal-panel {
+  background: #33302d;
+  border-color: rgba(233, 222, 200, 0.18);
+  color: #e9dec8;
+}
+html[data-theme="dark"] .feature-gate-modal-title,
+html[data-theme="dark"] .feature-gate-modal-body {
+  color: #e9dec8;
+}
+
 /* Clipboard-copy confirmation toast used by article-gift.js. Fixed
    at bottom-center, fades in/out via .is-visible. */
 .gift-toast {
