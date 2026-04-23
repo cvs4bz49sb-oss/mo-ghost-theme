@@ -6471,99 +6471,12 @@ html[data-theme="dark"] .post-template .author-bio-links a:hover {
 }
 .article-gift[disabled] { opacity: 0.5; cursor: default; }
 
-/* Feature gate popup — bottom-center pill that shows when a visitor
-   without the required access (anonymous for subscriber features,
-   anonymous-or-free for member features) clicks a gated button in
-   the article action row. Shares the gift-toast aesthetic: dark
-   pill on the page, primary-accent CTA inline. */
-.feature-gate-popup {
-  position: fixed;
-  left: 50%;
-  bottom: 32px;
-  transform: translate(-50%, 16px);
-  display: inline-flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 18px 14px 22px;
-  background: var(--color-dark);
-  color: var(--color-white);
-  border-radius: 999px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.28);
-  font-family: var(--font-body);
-  font-size: 14px;
-  opacity: 0;
-  transition: opacity 200ms ease, transform 200ms ease;
-  z-index: 1000;
-  max-width: calc(100vw - 32px);
-  pointer-events: auto;
-}
-.feature-gate-popup.is-visible {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-.feature-gate-popup.is-closing {
-  opacity: 0;
-  transform: translate(-50%, 16px);
-}
-.feature-gate-message {
-  margin: 0;
-  line-height: 1.4;
-}
-.feature-gate-cta {
-  color: var(--color-primary);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.15s;
-}
-.feature-gate-cta:hover {
-  color: #f19371;
-}
-.feature-gate-close {
-  background: transparent;
-  border: 0;
-  color: rgba(255,255,255,0.55);
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0 4px;
-  transition: color 0.15s;
-}
-.feature-gate-close:hover {
-  color: var(--color-white);
-}
-@media (max-width: 640px) {
-  .feature-gate-popup {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    border-radius: 14px;
-    /* Extra right padding reserves room for the absolute-positioned
-       × button so long message text can't run under it. */
-    padding: 16px 44px 16px 18px;
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    transform: translateY(16px);
-    max-width: none;
-    /* Center the translateX override from desktop so bottom-left/
-       bottom-right positioning wins cleanly on mobile. */
-  }
-  .feature-gate-popup { left: 16px; right: 16px; }
-  .feature-gate-popup.is-visible { transform: translateY(0); }
-  .feature-gate-popup.is-closing { transform: translateY(16px); }
-  .feature-gate-close {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-  }
-}
-
-/* Feature gate MODAL — subscriber-tier features (PDF, gift) open
-   a centered dialog with the same magic-link signup form pattern
-   the digest CTA uses. On success, Ghost's magic-link email
-   redirects the subscriber back to the article they were on. */
+/* Feature gate MODAL — both subscriber (PDF, gift) and member
+   (audio, bookmark) gated clicks now open a centered dialog with
+   the right next step. Subscriber modals embed the Ghost magic-
+   link signup form (see feature-gate.js subscriberInner); member
+   modals show a prominent "Become a Member" CTA. Panel styling is
+   shared. */
 .feature-gate-modal {
   position: fixed;
   inset: 0;
@@ -6630,6 +6543,19 @@ html[data-theme="dark"] .post-template .author-bio-links a:hover {
 }
 .feature-gate-modal-close:hover { color: var(--color-dark); }
 body.feature-gate-modal-open { overflow: hidden; }
+
+/* Member variant: a single prominent CTA button instead of the
+   signup form. The .btn / .btn-primary classes from the theme's
+   existing button system do the heavy lifting; this wrapper just
+   centers it and gives top spacing. */
+.feature-gate-modal-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+.feature-gate-modal-cta {
+  min-width: 220px;
+}
 
 /* Dark-mode override for the modal — matches the article-body dark
    palette so the overlay sits well on a dark page. */
