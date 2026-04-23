@@ -2455,6 +2455,24 @@ body {
   margin: 32px 0;
 }
 .article-content figure img { margin: 0; }
+
+/* iframes (YouTube, Vimeo, embeds) — Ghost's embed cards render the
+   iframe with literal width/height attributes from the provider
+   (e.g. YouTube's 728x409). Without these overrides, on mobile the
+   728px iframe widens its ancestor containers past the viewport,
+   which then causes paragraphs in the same container to render at
+   the wider width and clip their tails at the right edge. Force
+   full-width responsive with a 16:9 default. */
+.article-content iframe,
+.article-content .kg-embed-card,
+.article-content .kg-embed-card iframe {
+  max-width: 100%;
+  width: 100%;
+}
+.article-content iframe {
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
 .article-content figcaption {
   font-size: 13px;
   color: var(--color-muted);
