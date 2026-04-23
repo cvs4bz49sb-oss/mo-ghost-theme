@@ -6528,6 +6528,25 @@ html[data-theme="dark"] .post-template .author-bio-links a:hover {
 .feature-gate-modal-form {
   text-align: left;
 }
+/* Stack the Subscribe button below the three input fields so the
+   modal has more breathing room. The base .digest-form grid puts
+   the button in the fourth column inline, which reads cramped in
+   a narrower modal. */
+.feature-gate-modal-form {
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px 16px;
+}
+.feature-gate-modal-form .digest-submit {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 14px;
+}
+.feature-gate-modal-form .digest-fineprint,
+.feature-gate-modal-form .digest-status {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin: 0;
+}
 .feature-gate-modal-close {
   position: absolute;
   top: 12px;
