@@ -2382,11 +2382,11 @@ body {
 .article-content blockquote {
   margin: 40px -40px;
   padding: 0 60px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-weight: 400;
-  font-size: 28px;
-  line-height: 1.4;
+  font-size: 20px;
+  line-height: 1.55;
   color: var(--color-dark);
   position: relative;
 }
