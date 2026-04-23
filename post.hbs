@@ -81,7 +81,7 @@
                          data-post-title="{{title}}"
                          data-post-author="{{#if primary_author}}{{primary_author.name}}{{else}}Mere Orthodoxy{{/if}}"
                          {{#if feature_image}}data-post-image="{{img_url feature_image size="m"}}"{{/if}}>
-                        <button class="article-audio-trigger" type="button" data-audio-trigger aria-label="Listen to this essay">
+                        <button class="article-audio-trigger" type="button" data-audio-trigger data-feature-gate="audio" aria-label="Listen to this essay">
                             <svg class="article-audio-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7V5z"/></svg>
                             <span class="article-audio-label">Listen to this essay</span>
                         </button>
@@ -94,6 +94,7 @@
                     {{#if @custom.kit_worker_url}}
                         <button class="article-bookmark" type="button"
                                 data-article-bookmark
+                                data-feature-gate="bookmark"
                                 data-post-id="{{id}}"
                                 aria-label="Bookmark this essay"
                                 aria-pressed="false">
@@ -104,11 +105,14 @@
                             <span class="article-bookmark-label">Bookmark</span>
                         </button>
                     {{/if}}
-                    {{!-- PDF download: any signed-in member (Subscriber or
-                         Member). Signed-out visitors don't see the button. --}}
-                    {{#if @member}}
+                    {{!-- PDF + Gift + Audio + Bookmark all render for every
+                         visitor now. feature-gate.js intercepts clicks from
+                         users who don't have access and shows a popup with
+                         a CTA to subscribe / become a member. Gating tier
+                         lives in data-feature-gate on each button. --}}
                     <a class="article-pdf" href="#"
                        data-article-pdf
+                       data-feature-gate="pdf"
                        data-post-id="{{id}}"
                        data-post-slug="{{slug}}"
                        aria-label="Download PDF of this essay"
@@ -119,17 +123,13 @@
                         </svg>
                         <span class="article-pdf-label">Download PDF</span>
                     </a>
-                    {{/if}}
-                    {{!-- Gift link: any signed-in member (Subscriber or Member)
-                         can copy a shareable URL that bypasses the soft gate
-                         for the recipient. Hidden for signed-out visitors. --}}
-                    {{#if @member}}
                     {{#if @custom.gift_worker_url}}
                     <button class="article-gift" type="button"
                             data-article-gift
+                            data-feature-gate="gift"
                             data-post-id="{{id}}"
                             data-post-url="{{url absolute="true"}}"
-                            data-member-email="{{@member.email}}"
+                            data-member-email="{{#if @member}}{{@member.email}}{{/if}}"
                             data-worker-url="{{@custom.gift_worker_url}}"
                             aria-label="Gift this essay">
                         <svg class="article-gift-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -140,7 +140,6 @@
                         </svg>
                         <span class="article-gift-label">Gift this essay</span>
                     </button>
-                    {{/if}}
                     {{/if}}
                     <button class="article-theme" type="button"
                             data-dark-mode-toggle

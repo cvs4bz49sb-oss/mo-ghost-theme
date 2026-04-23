@@ -6471,6 +6471,90 @@ html[data-theme="dark"] .post-template .author-bio-links a:hover {
 }
 .article-gift[disabled] { opacity: 0.5; cursor: default; }
 
+/* Feature gate popup — bottom-center pill that shows when a visitor
+   without the required access (anonymous for subscriber features,
+   anonymous-or-free for member features) clicks a gated button in
+   the article action row. Shares the gift-toast aesthetic: dark
+   pill on the page, primary-accent CTA inline. */
+.feature-gate-popup {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translate(-50%, 16px);
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px 14px 22px;
+  background: var(--color-dark);
+  color: var(--color-white);
+  border-radius: 999px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+  font-family: var(--font-body);
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 200ms ease, transform 200ms ease;
+  z-index: 1000;
+  max-width: calc(100vw - 32px);
+  pointer-events: auto;
+}
+.feature-gate-popup.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.feature-gate-popup.is-closing {
+  opacity: 0;
+  transform: translate(-50%, 16px);
+}
+.feature-gate-message {
+  margin: 0;
+  line-height: 1.4;
+}
+.feature-gate-cta {
+  color: var(--color-primary);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.feature-gate-cta:hover {
+  color: #f19371;
+}
+.feature-gate-close {
+  background: transparent;
+  border: 0;
+  color: rgba(255,255,255,0.55);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.15s;
+}
+.feature-gate-close:hover {
+  color: var(--color-white);
+}
+@media (max-width: 640px) {
+  .feature-gate-popup {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 14px;
+    padding: 16px 18px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    transform: translateY(16px);
+    max-width: none;
+  }
+  .feature-gate-popup.is-visible { transform: translateY(0); }
+  .feature-gate-popup.is-closing { transform: translateY(16px); }
+  .feature-gate-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+  }
+}
+
 /* Clipboard-copy confirmation toast used by article-gift.js. Fixed
    at bottom-center, fades in/out via .is-visible. */
 .gift-toast {
