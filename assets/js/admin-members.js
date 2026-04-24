@@ -22,23 +22,22 @@
     return;
   }
 
-  Promise.all([
-    api("/members/summary"),
-    api("/members/timeseries?days=30"),
-    api("/members/recent?limit=10"),
-  ]).then(function (res) {
-    // If any call came back 403, the caller isn't staff. Surface
-    // a single clear "not authorized" state and stop.
-    if (res.some(function (r) { return r && r.forbidden; })) {
-      showForbidden();
-      return;
-    }
-    if (res[0] && res[0].body) fillSummary(res[0].body);
-    if (res[1] && res[1].body) fillChart(res[1].body);
-    if (res[2] && res[2].body) fillRecent(res[2].body);
-  }).catch(function () {
-    setEmpty(root.querySelector("[data-chart-placeholder]"), "Couldn't reach the admin worker.");
-    setEmpty(root.querySelector("[data-recent-placeholder]"), "Couldn't reach the admin worker.");
+  // Kick off independently so a slow timeseries doesn't block the
+  // summary + recent cells from rendering.
+  api("/members/summary").then(function (res) {
+    if (!res) return setStatErr("Couldn't load summary.");
+    if (res.forbidden) return showForbidden();
+    fillSummary(res.body);
+  });
+  api("/members/timeseries?days=30").then(function (res) {
+    if (!res) return setEmpty(root.querySelector("[data-chart-placeholder]"), "Couldn't load signup timeseries.");
+    if (res.forbidden) return showForbidden();
+    fillChart(res.body);
+  });
+  api("/members/recent?limit=10").then(function (res) {
+    if (!res) return setEmpty(root.querySelector("[data-recent-placeholder]"), "Couldn't load recent signups.");
+    if (res.forbidden) return showForbidden();
+    fillRecent(res.body);
   });
 
   function api(path) {
@@ -46,9 +45,21 @@
     return fetch(worker + path + sep + "email=" + encodeURIComponent(email), { credentials: "omit" })
       .then(function (r) {
         if (r.status === 403) return { forbidden: true };
-        return r.ok ? r.json().then(function (body) { return { body: body }; }) : null;
+        if (!r.ok) {
+          console.error("admin worker " + r.status + " on " + path);
+          return null;
+        }
+        return r.json().then(function (body) { return { body: body }; });
       })
-      .catch(function () { return null; });
+      .catch(function (err) {
+        console.error("admin worker fetch failed on " + path, err);
+        return null;
+      });
+  }
+
+  function setStatErr(msg) {
+    root.querySelectorAll('[data-stat]').forEach(function (el) { el.textContent = "—"; });
+    console.error(msg);
   }
 
   function showForbidden() {
