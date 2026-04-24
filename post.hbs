@@ -339,14 +339,15 @@
      selectors already rely on. --}}
 {{#if @custom.plausible_domain}}
 <script>
-  (function () {
+  // Fire on 'load' (after deferred trackers have installed the real
+  // sender) rather than inline. Ghost's proxied Plausible build
+  // replaces window.plausible without replaying the queue shim, so
+  // queued events fired during parse get silently dropped.
+  window.addEventListener("load", function () {
     if (!window.plausible) return;
     var titleEl = document.querySelector(".article-title");
     var title = titleEl ? titleEl.textContent.trim().slice(0, 200) : document.title;
 
-    // Walk the tag pills in render order.
-    //   - First non-"author-" slug wins as primary_tag (topic).
-    //   - First "author-" slug (minus prefix) wins as author.
     var tagEls = document.querySelectorAll(".article-topic-tag[data-tag-slug]");
     var primary_tag = "";
     var author = "";
@@ -367,7 +368,7 @@
         author: author
       }
     });
-  })();
+  });
 </script>
 {{/if}}
 

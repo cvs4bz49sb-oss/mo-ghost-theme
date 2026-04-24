@@ -18,14 +18,18 @@
 
     {{ghost_head}}
 
-    {{!-- Plausible Analytics — gated on @custom.plausible_domain so
-         staging doesn't pollute prod stats. Installs the default
-         tracker; outbound-link + file-download + 404 tracking all
-         via one script. --}}
-    {{#if @custom.plausible_domain}}
-    <script defer data-domain="{{@custom.plausible_domain}}" src="https://plausible.io/js/script.outbound-links.file-downloads.404.tagged-events.js"></script>
-    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
-    {{/if}}
+    {{!-- Plausible tracker is injected by Ghost's official Plausible
+         Integration via ghost_head (proxied through the Ghost domain
+         as pa-*.js, which bypasses ad blockers). Do NOT add a direct
+         <script src="plausible.io/..."> here: plausible.io/js/* is on
+         every major blocklist, so the request fails, and Ghost's
+         proxied build installs its own window.plausible without
+         replaying a queue shim — any event pushed to the shim before
+         the real sender loads is silently dropped.
+
+         Custom events (e.g. "Article Read" on posts) fire via
+         window.plausible(...) on the 'load' event — after pa-*.js has
+         installed the real sender. See post.hbs for the one caller. --}}
 
     <link rel="icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
     <link rel="shortcut icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
