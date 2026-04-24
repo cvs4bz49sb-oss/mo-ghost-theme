@@ -37,8 +37,15 @@
 
   const renderDisplay = (a) => {
     if (!a) return '';
-    const line2 = a.line2 ? `${a.line2}, ` : '';
-    return `${a.name ? a.name + ' — ' : ''}${a.line1}, ${line2}${a.city}, ${a.state} ${a.postal_code}, ${a.country}`;
+    // Multi-line postal format. CSS white-space: pre-line keeps
+    // the newlines intact in the display paragraph.
+    const lines = [];
+    if (a.name) lines.push(a.name);
+    lines.push(a.line1);
+    if (a.line2) lines.push(a.line2);
+    lines.push(`${a.city}, ${a.state} ${a.postal_code}`);
+    lines.push(a.country);
+    return lines.join('\n');
   };
 
   const renderView = () => {

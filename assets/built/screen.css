@@ -5495,7 +5495,10 @@ body {
   margin: 0;
   padding: 0;
 }
-.dashboard-module + .flourish { margin: 40px 0; }
+/* Generous breathing room between modules so each reads as its
+   own editorial beat. Flourish sits mid-way between. */
+.dashboard-module + .flourish { margin: 72px 0; }
+.dashboard-module + .dashboard-module { margin-top: 72px; }
 .dashboard-module summary {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -5673,6 +5676,191 @@ body {
   margin: 0;
 }
 
+/* --- Dashboard address module ---------------------------------------- */
+/* Editorial styling — no cards, no bordered boxes. Hairline focus
+   states on inputs, a bottom rule under each field, italic display
+   headings for section legends. Matches the rest of the dashboard
+   prose rather than the bordered signup forms on /give/ /groups/. */
+.dashboard-address-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dashboard-address-eyebrow {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0;
+}
+.dashboard-address-display {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0;
+  white-space: pre-line;
+}
+.dashboard-address-lede {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0 0 14px;
+  max-width: 52ch;
+}
+.dashboard-address-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Inline arrow link — used for Edit / Add / Cancel. No pill, no
+   background. Just the primary color with a soft underline. */
+.dashboard-inline-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-primary);
+  border-bottom: 1px solid rgba(238, 125, 81, 0.35);
+  padding-bottom: 2px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.dashboard-inline-link:hover {
+  color: var(--color-secondary, #c1593c);
+  border-color: var(--color-primary);
+}
+.dashboard-inline-link--muted {
+  color: var(--color-muted);
+  border-bottom-color: rgba(0, 0, 0, 0.18);
+  font-weight: 500;
+}
+.dashboard-inline-link--muted:hover {
+  color: var(--color-dark);
+  border-bottom-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Form. No card, no box-shadow. Fieldset groups separated by a
+   full-width hairline above an italic display heading. Inputs
+   sit on a bottom rule only — underlined fields, not bordered
+   boxes — which is the house style for the dashboard context. */
+.dashboard-address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.dashboard-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+.dashboard-form-group:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.dashboard-form-legend {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--color-dark);
+  font-weight: 400;
+  margin: 0;
+}
+.dashboard-form-legend em {
+  font-style: italic;
+  color: var(--color-secondary, #c1593c);
+}
+.dashboard-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.dashboard-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dashboard-form-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+.dashboard-form-hint {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--color-muted);
+  font-weight: 400;
+  font-style: italic;
+}
+.dashboard-form-field input,
+.dashboard-form-field select {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--color-dark);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  padding: 8px 0;
+  width: 100%;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.dashboard-form-field select {
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+                    linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 28px;
+}
+.dashboard-form-field input:focus,
+.dashboard-form-field select:focus {
+  outline: none;
+  border-bottom-color: var(--color-primary);
+  border-bottom-width: 2px;
+  padding-bottom: 7px;
+}
+.dashboard-address-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+}
+.dashboard-form-success {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-secondary, #c1593c);
+  font-weight: 600;
+  margin: 0;
+}
+
 @media (max-width: 960px) {
   .dashboard-grid { grid-template-columns: 1fr; gap: 40px; }
   .dashboard-rail {
@@ -5689,6 +5877,10 @@ body {
   .dashboard-module-title { font-size: 24px; }
   .dashboard-essay { grid-template-columns: 96px 1fr; gap: 16px; }
   .dashboard-essay-title { font-size: 18px; }
+  .dashboard-module + .flourish { margin: 56px 0; }
+  .dashboard-module + .dashboard-module { margin-top: 56px; }
+  .dashboard-form-row { grid-template-columns: 1fr; gap: 22px; }
+  .dashboard-form-legend { font-size: 20px; }
 }
 
 /* --- Post-page bookmark button (sits next to the audio trigger) ---- */

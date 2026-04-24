@@ -65,6 +65,8 @@
           </div>
         </details>
 
+        <div class="flourish">{{> "flourish-mark"}}</div>
+
         {{!-- Shipping address — the print journal is mailed to
              whatever's stored here. Dashboard-level visibility rules
              already gate the page to paid / comped / admin-preview
@@ -83,59 +85,66 @@
               <p class="dashboard-empty" data-address-placeholder>Loading your address&hellip;</p>
 
               <div class="dashboard-address-view" data-address-view hidden>
+                <p class="eyebrow dashboard-address-eyebrow">On file</p>
                 <p class="dashboard-address-display" data-address-display></p>
-                <button type="button" class="dashboard-address-edit" data-address-edit>Edit address</button>
+                <button type="button" class="dashboard-inline-link" data-address-edit>Edit address &rarr;</button>
               </div>
 
               <div class="dashboard-address-empty" data-address-empty hidden>
-                <p>We don't have a shipping address on file yet. The print journal goes out quarterly &mdash; add your address so you don't miss the next one.</p>
-                <button type="button" class="btn btn-pill btn-primary" data-address-edit>Add address</button>
+                <p class="dashboard-address-lede">The print journal goes out quarterly. Add your address so you don't miss the next issue.</p>
+                <button type="button" class="dashboard-inline-link" data-address-edit>Add your address &rarr;</button>
               </div>
 
-              <form class="stacked-form dashboard-address-form" data-address-form hidden novalidate>
-                <div class="form-row">
-                  <label class="form-field">
-                    <span class="form-label">Full name on label</span>
+              <form class="dashboard-address-form" data-address-form hidden novalidate>
+                <div class="dashboard-form-group">
+                  <p class="dashboard-form-legend"><em>Recipient</em></p>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Full name on label</span>
                     <input type="text" name="name" autocomplete="name" required />
                   </label>
                 </div>
-                <label class="form-field">
-                  <span class="form-label">Street</span>
-                  <input type="text" name="line1" autocomplete="address-line1" required />
-                </label>
-                <label class="form-field">
-                  <span class="form-label">Apartment, suite, or unit <span class="form-hint">(optional)</span></span>
-                  <input type="text" name="line2" autocomplete="address-line2" />
-                </label>
-                <div class="form-row">
-                  <label class="form-field">
-                    <span class="form-label">City</span>
-                    <input type="text" name="city" autocomplete="address-level2" required />
+
+                <div class="dashboard-form-group">
+                  <p class="dashboard-form-legend"><em>Address</em></p>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Street</span>
+                    <input type="text" name="line1" autocomplete="address-line1" required />
                   </label>
-                  <label class="form-field">
-                    <span class="form-label">State / Province</span>
-                    <input type="text" name="state" autocomplete="address-level1" maxlength="3" required />
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Apartment, suite, or unit <span class="dashboard-form-hint">(optional)</span></span>
+                    <input type="text" name="line2" autocomplete="address-line2" />
                   </label>
+                  <div class="dashboard-form-row">
+                    <label class="dashboard-form-field">
+                      <span class="dashboard-form-label">City</span>
+                      <input type="text" name="city" autocomplete="address-level2" required />
+                    </label>
+                    <label class="dashboard-form-field">
+                      <span class="dashboard-form-label">State / Province</span>
+                      <input type="text" name="state" autocomplete="address-level1" maxlength="3" required />
+                    </label>
+                  </div>
+                  <div class="dashboard-form-row">
+                    <label class="dashboard-form-field">
+                      <span class="dashboard-form-label">ZIP / Postal code</span>
+                      <input type="text" name="postal_code" autocomplete="postal-code" required />
+                    </label>
+                    <label class="dashboard-form-field">
+                      <span class="dashboard-form-label">Country</span>
+                      <select name="country" required>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                      </select>
+                    </label>
+                  </div>
                 </div>
-                <div class="form-row">
-                  <label class="form-field">
-                    <span class="form-label">ZIP / Postal code</span>
-                    <input type="text" name="postal_code" autocomplete="postal-code" required />
-                  </label>
-                  <label class="form-field">
-                    <span class="form-label">Country</span>
-                    <select name="country" required>
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                    </select>
-                  </label>
-                </div>
+
                 <div class="dashboard-address-actions">
-                  <button type="submit" class="btn btn-pill btn-primary" data-address-submit>Save</button>
-                  <button type="button" class="btn btn-pill btn-ghost" data-address-cancel>Cancel</button>
+                  <button type="submit" class="btn btn-pill btn-primary" data-address-submit>Save address</button>
+                  <button type="button" class="dashboard-inline-link dashboard-inline-link--muted" data-address-cancel>Cancel</button>
                 </div>
                 <p class="btn-error" data-address-error role="alert"></p>
-                <p class="form-success" data-address-success hidden>Saved.</p>
+                <p class="dashboard-form-success" data-address-success hidden>Saved.</p>
               </form>
             </div>
           </div>
