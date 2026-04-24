@@ -74,6 +74,47 @@
           </label>
         </fieldset>
 
+        {{!-- Recipient shipping address. Optional — if the purchaser
+             doesn't know the address, the recipient can add it via
+             their dashboard after they claim the gift. The print
+             journal is mailed to whatever's on file quarterly. --}}
+        <fieldset class="form-group">
+          <legend class="form-legend">4. Where to mail the print journal <span class="form-hint">(optional)</span></legend>
+          <p class="form-intro">Mere Orthodoxy members receive the quarterly print journal. If you know your recipient's address, drop it in here. Otherwise leave blank — we'll ask them when they claim the gift.</p>
+          <label class="form-field">
+            <span class="form-label">Street</span>
+            <input type="text" name="recipient_line1" autocomplete="address-line1" />
+          </label>
+          <label class="form-field">
+            <span class="form-label">Apartment, suite, or unit <span class="form-hint">(optional)</span></span>
+            <input type="text" name="recipient_line2" autocomplete="address-line2" />
+          </label>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">City</span>
+              <input type="text" name="recipient_city" autocomplete="address-level2" />
+            </label>
+            <label class="form-field">
+              <span class="form-label">State / Province</span>
+              <input type="text" name="recipient_state" autocomplete="address-level1" maxlength="3" />
+            </label>
+          </div>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">ZIP / Postal code</span>
+              <input type="text" name="recipient_postal_code" autocomplete="postal-code" />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Country</span>
+              <select name="recipient_country">
+                <option value="">—</option>
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+              </select>
+            </label>
+          </div>
+        </fieldset>
+
         <button type="submit" class="btn btn-pill btn-primary btn-wide" id="gift-submit">
           <span class="btn-label">Continue to payment</span>
           <span class="btn-spinner" aria-hidden="true"></span>
