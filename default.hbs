@@ -17,6 +17,16 @@
     {{/if}}
 
     {{ghost_head}}
+
+    {{!-- Plausible Analytics — gated on @custom.plausible_domain so
+         staging doesn't pollute prod stats. Installs the default
+         tracker; outbound-link + file-download + 404 tracking all
+         via one script. --}}
+    {{#if @custom.plausible_domain}}
+    <script defer data-domain="{{@custom.plausible_domain}}" src="https://plausible.io/js/script.outbound-links.file-downloads.404.tagged-events.js"></script>
+    <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+    {{/if}}
+
     <link rel="icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
     <link rel="shortcut icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
     <link rel="apple-touch-icon" href="{{asset "images/mere-o-fav-icon.jpg"}}" />

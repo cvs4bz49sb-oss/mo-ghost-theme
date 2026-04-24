@@ -7654,6 +7654,102 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin: 6px 0 0;
 }
 
+/* --- Admin period selector (traffic page) ------------------------------ */
+/* Toggle-style row of time-range options. Active option has an underline
+   rather than a pill background, matching the editorial tone elsewhere. */
+.admin-period {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0 0 32px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.admin-period-option {
+  background: transparent;
+  border: 0;
+  padding: 12px 18px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.admin-period-option:hover {
+  color: var(--color-dark);
+}
+.admin-period-option.is-active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* --- Ranked lists (top pages, top sources, top countries) --------------- */
+/* Each row shows a faint bar scaled to the highest value, an item label,
+   and a numeric count. No cards; bars use a tinted primary. */
+.admin-ranked {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.admin-ranked-item {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+.admin-ranked-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: rgba(238, 125, 81, 0.08);
+  pointer-events: none;
+  z-index: 0;
+}
+.admin-ranked-label {
+  position: relative;
+  flex: 1 1 auto;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 1;
+}
+.admin-ranked-label a {
+  color: inherit;
+  text-decoration: none;
+}
+.admin-ranked-label a:hover {
+  color: var(--color-primary);
+}
+.admin-ranked-value {
+  position: relative;
+  flex: 0 0 auto;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  z-index: 1;
+  font-variant-numeric: tabular-nums;
+}
+.admin-ranked--columns {
+  column-count: 2;
+  column-gap: 32px;
+}
+.admin-ranked--columns .admin-ranked-item {
+  break-inside: avoid;
+}
+@media (max-width: 640px) {
+  .admin-ranked--columns { column-count: 1; }
+}
+
 /* Recent signup list — hairlines, no cards. */
 .admin-recent {
   list-style: none;

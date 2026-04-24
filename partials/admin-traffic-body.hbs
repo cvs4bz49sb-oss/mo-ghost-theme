@@ -1,0 +1,85 @@
+{{!-- /admin/traffic/ body. Hydrated client-side from mo-admin's
+     /traffic/* endpoints. Page renders a skeleton that the JS
+     populates. No cards. --}}
+
+<section class="hero admin-hero">
+  <div class="container">
+    <p class="hero-kicker"><span class="dot"></span> Admin &middot; Analytics</p>
+    <h1 class="admin-headline"><em>Traffic.</em></h1>
+    <p class="admin-sub">Who's reading what, from where, how long. Via Plausible.</p>
+  </div>
+</section>
+
+{{> "admin-nav"}}
+
+<section class="admin-body"
+         data-admin-traffic
+         data-worker-url="{{@custom.admin_worker_url}}"
+         data-member-email="{{@member.email}}">
+  <div class="container">
+
+    {{!-- Period selector — defaults to 30d. JS re-fetches on change. --}}
+    <div class="admin-period" role="tablist" aria-label="Time period">
+      <button type="button" class="admin-period-option" data-period="7d" role="tab">7 days</button>
+      <button type="button" class="admin-period-option is-active" data-period="30d" role="tab" aria-selected="true">30 days</button>
+      <button type="button" class="admin-period-option" data-period="month" role="tab">This month</button>
+      <button type="button" class="admin-period-option" data-period="6mo" role="tab">6 months</button>
+      <button type="button" class="admin-period-option" data-period="12mo" role="tab">12 months</button>
+    </div>
+
+    {{!-- Summary stats. --}}
+    <ul class="admin-stats" data-admin-stats>
+      <li class="admin-stat"><span class="admin-stat-label">Unique visitors</span><span class="admin-stat-value" data-stat="visitors">&mdash;</span></li>
+      <li class="admin-stat"><span class="admin-stat-label">Pageviews</span><span class="admin-stat-value" data-stat="pageviews">&mdash;</span></li>
+      <li class="admin-stat"><span class="admin-stat-label">Avg visit</span><span class="admin-stat-value" data-stat="visit_duration">&mdash;</span></li>
+      <li class="admin-stat"><span class="admin-stat-label">Bounce rate</span><span class="admin-stat-value" data-stat="bounce_rate">&mdash;</span></li>
+    </ul>
+
+    <div class="flourish">{{> "flourish-mark"}}</div>
+
+    {{!-- Timeseries chart. --}}
+    <div class="section-intro section-intro-left">
+      <p class="eyebrow">Visitors</p>
+      <h2 class="section-heading"><em>Over time.</em></h2>
+    </div>
+    <div class="admin-chart" data-admin-chart aria-label="Visitors per day">
+      <p class="admin-empty" data-chart-placeholder>Loading&hellip;</p>
+    </div>
+
+    <div class="flourish">{{> "flourish-mark"}}</div>
+
+    {{!-- Two-column: top pages + top sources. --}}
+    <div class="admin-split">
+      <div class="admin-split-main">
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow">Top Pages</p>
+          <h2 class="section-heading"><em>Most read.</em></h2>
+        </div>
+        <ol class="admin-ranked" data-admin-top-pages>
+          <li class="admin-empty" data-pages-placeholder>Loading&hellip;</li>
+        </ol>
+      </div>
+      <aside class="admin-split-side">
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow">Top Sources</p>
+          <h2 class="section-heading"><em>Where readers come from.</em></h2>
+        </div>
+        <ol class="admin-ranked" data-admin-top-sources>
+          <li class="admin-empty" data-sources-placeholder>Loading&hellip;</li>
+        </ol>
+      </aside>
+    </div>
+
+    <div class="flourish">{{> "flourish-mark"}}</div>
+
+    {{!-- Countries. --}}
+    <div class="section-intro section-intro-left">
+      <p class="eyebrow">Regions</p>
+      <h2 class="section-heading"><em>Who's reading where.</em></h2>
+    </div>
+    <ol class="admin-ranked admin-ranked--columns" data-admin-top-countries>
+      <li class="admin-empty" data-countries-placeholder>Loading&hellip;</li>
+    </ol>
+
+  </div>
+</section>

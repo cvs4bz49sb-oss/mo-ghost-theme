@@ -101,6 +101,10 @@
       "kit_bridge_url": {
         "type": "text",
         "description": "URL of the deployed mo-kit-bridge Worker (e.g. https://mo-kit-bridge.mo-podcast-feed.workers.dev). Powers /admin/drift/ (Ghost↔Kit reconciliation report). Empty disables the drift page."
+      },
+      "plausible_domain": {
+        "type": "text",
+        "description": "Plausible site ID (usually the domain — e.g. mereorthodoxy.com). When set, the Plausible tracking script loads site-wide and /admin/traffic/ can query stats. Empty disables both. Use the production domain even on staging so stats accumulate in the right account."
       }
     }
   }

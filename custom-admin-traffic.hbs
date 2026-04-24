@@ -1,0 +1,17 @@
+{{!< default}}
+{{!-- /admin/traffic/ — Plausible analytics.
+     Page skeleton renders for any signed-in member; the mo-admin
+     worker returns 403 if the caller's email isn't in ADMIN_EMAILS,
+     and admin-traffic.js surfaces that as a denied state. --}}
+
+<main class="admin-page">
+
+  {{#if @member}}
+    {{> "admin-traffic-body"}}
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-traffic.js"}}"></script>
