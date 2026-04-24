@@ -62,17 +62,26 @@
     buttons.forEach(function (btn) {
       updateButton(btn);
       btn.addEventListener("click", function () {
-        // Mark <html> as mid-switch so CSS can kill transitions on
-        // the feature-toggle buttons during the theme flip (they'd
-        // otherwise animate via their own hover transitions, reading
-        // as a soft fade rather than an instant switch).
+        // 1. Mark <html> as mid-switch so CSS can kill transitions on
+        //    the feature-toggle buttons (see matching rule in
+        //    screen.css — html[data-theme-switching] .article-actions ...).
+        // 2. Force a synchronous reflow so the `transition: none`
+        //    actually lands before step 3 — otherwise the browser
+        //    still animates color/bg changes on the toggles.
+        // 3. Flip the theme attribute. Feature toggles snap; post
+        //    body fades at its own 300ms rhythm.
+        // 4. Drop the theme-switching attribute after two frames so
+        //    hover transitions return to normal.
         document.documentElement.setAttribute("data-theme-switching", "true");
+        // Force a layout read — this flushes the attribute + style
+        // recalc to the render tree before the theme flip below.
+        void document.documentElement.offsetHeight;
+
         var next = current() === "dark" ? "light" : "dark";
         apply(next);
         try { localStorage.setItem(KEY, next); } catch (e) { /* no-op */ }
         buttons.forEach(updateButton);
-        // Drop the attribute after two frames so the post-body's
-        // own 300ms color-transition still runs normally.
+
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
             document.documentElement.removeAttribute("data-theme-switching");
