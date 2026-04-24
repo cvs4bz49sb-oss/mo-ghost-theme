@@ -1,3 +1,4 @@
+  <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
   <section class="mb-hero">
     <div class="container">
       <div class="hero-grid">
@@ -105,8 +106,23 @@
           </div>
           <p class="card-subtext">One-time payment</p>
           <p class="card-pitch">For readers who want to help sustain Mere&nbsp;Orthodoxy permanently.</p>
-          <a href="#/portal/signup" class="btn btn-pill btn-dark" data-portal="signup">Become a Lifetime Member</a>
+          {{!-- Ghost Portal doesn't support one-time purchases, so
+               lifetime routes through the mo-membership worker:
+               click → POST /api/create-lifetime-checkout → Stripe
+               Checkout (collects email + shipping) → webhook
+               provisions Ghost member with lifetime tier. --}}
+          <button
+            type="button"
+            class="btn btn-pill btn-dark"
+            data-lifetime-checkout
+            data-member-email="{{#if @member}}{{@member.email}}{{/if}}"
+            data-member-name="{{#if @member}}{{@member.name}}{{/if}}"
+          >
+            <span class="btn-label">Become a Lifetime Member</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
           <p class="btn-tagline">One-time. No renewal.</p>
+          <p class="btn-error" data-lifetime-error role="alert"></p>
           <ul class="benefits">
             <li><strong>Everything in Member, plus:</strong></li>
             <li>A copy of Jake Meador's <em>In Search Of The Common Good: Christian Fidelity In A Fractured World</em></li>
@@ -259,3 +275,4 @@
       });
     })();
   </script>
+  <script src="{{asset "js/lifetime-checkout.js"}}"></script>
