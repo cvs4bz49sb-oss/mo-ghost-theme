@@ -4951,6 +4951,68 @@ body {
   margin: 0;
 }
 
+/* -------- Admin data tables (/admin/addresses/, /gifts/, etc.) ---------- */
+
+.admin-table-host { margin: 32px 0; }
+.admin-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.admin-table-count {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin: 0;
+}
+.admin-table-status {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-secondary);
+  min-height: 20px;
+  margin: 8px 0;
+}
+.admin-table-wrap {
+  overflow-x: auto;
+  border-top: 1px solid var(--color-card-border);
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+.admin-table thead th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 600;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--color-card-border);
+  white-space: nowrap;
+}
+.admin-table tbody td {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-rule);
+  color: var(--color-dark);
+  vertical-align: top;
+}
+.admin-table tbody tr:hover td { background: rgba(238, 125, 81, 0.04); }
+.admin-table-empty {
+  text-align: center;
+  color: var(--color-muted);
+  font-style: italic;
+  padding: 32px !important;
+}
+.btn-sm { padding: 8px 18px; font-size: 11px; letter-spacing: 0.18em; }
+
 /* Role eyebrow inside .contributor-card — sits between the display
    name and the bio, styled like .contributor-card-count but carrying
    the person's role instead of a post count. Used on the About page

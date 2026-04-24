@@ -1,0 +1,43 @@
+{{!< default}}
+<main class="admin-page">
+  {{#if @member}}
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Institutions</p>
+        <h1 class="admin-headline">Institutions <em><span class="highlight">overview</span></em>.</h1>
+        <p class="admin-sub">Every institutions on the platform. Download the CSV for reporting or cohort work.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container container-narrow">
+        <div class="admin-table-host"
+             data-admin-table
+             data-title="Institutions"
+             data-endpoint="/api/admin/institutions-list"
+             data-collection="institutions"
+             data-api-base="{{@custom.membership_api_base}}"
+             data-member-email="{{@member.email}}"
+             data-columns="org_name,contact_name,contact_email,org_type,headcount,domain_count,member_count,status,contract_end"
+             data-column-labels="Institution,Contact,Email,Type,Headcount,Domains,Members,Status,Contract ends">
+          <div class="admin-table-toolbar">
+            <p class="admin-table-count" data-count-label>Loading&hellip;</p>
+            <a href="#" class="btn btn-pill btn-primary btn-sm" data-download-csv hidden>Download CSV</a>
+          </div>
+          <p class="admin-table-status" data-status></p>
+          <div class="admin-table-wrap">
+            <table class="admin-table" data-table hidden>
+              <thead><tr data-thead></tr></thead>
+              <tbody data-tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+</main>
+<script src="{{asset "js/admin-table.js"}}"></script>
