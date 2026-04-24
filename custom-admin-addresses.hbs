@@ -1,14 +1,15 @@
 {{!< default}}
-{{!-- /admin/addresses/ — shipping addresses for print-journal fulfillment.
-     Admin-gated: the page shell renders for any signed-in member, but
-     the worker rejects non-admin emails with 403 and the JS surfaces
-     a denied state. --}}
+{{!-- /admin/members/addresses/ — shipping addresses for print-journal
+     fulfillment. Admin-gated: the page shell renders for any signed-in
+     member, but the worker rejects non-admin emails with 403 and the
+     JS surfaces a denied state. --}}
 
 <main class="admin-page">
   {{#if @member}}
+
     <section class="hero admin-hero">
       <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Addresses</p>
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members</p>
         <h1 class="admin-headline">Shipping <em><span class="highlight">addresses</span></em>.</h1>
         <p class="admin-sub">Every saved address from members, gift recipients, and group purchases. Download the CSV when you're ready to print labels.</p>
       </div>
@@ -17,30 +18,38 @@
     {{> "admin-nav"}}
 
     <section class="admin-body">
-      <div class="container container-narrow">
-        <div class="admin-table-host"
-             data-admin-table
-             data-title="Addresses"
-             data-endpoint="/api/admin/addresses"
-             data-collection="addresses"
-             data-api-base="{{@custom.membership_api_base}}"
-             data-member-email="{{@member.email}}"
-             data-columns="name,line1,line2,city,state,postal_code,country,source,updated_at"
-             data-column-labels="Name,Street,Apt,City,State,ZIP,Country,Source,Updated">
-          <div class="admin-table-toolbar">
-            <p class="admin-table-count" data-count-label>Loading&hellip;</p>
-            <a href="#" class="btn btn-pill btn-primary btn-sm" data-download-csv hidden>Download CSV</a>
-          </div>
-          <p class="admin-table-status" data-status></p>
-          <div class="admin-table-wrap">
-            <table class="admin-table" data-table hidden>
-              <thead><tr data-thead></tr></thead>
-              <tbody data-tbody></tbody>
-            </table>
+      <div class="container">
+        <div class="admin-members-layout">
+          <aside class="admin-members-sidebar">
+            {{> "admin-members-subnav" active="addresses"}}
+          </aside>
+          <div class="admin-members-main">
+            <div class="admin-table-host"
+                 data-admin-table
+                 data-title="Addresses"
+                 data-endpoint="/api/admin/addresses"
+                 data-collection="addresses"
+                 data-api-base="{{@custom.membership_api_base}}"
+                 data-member-email="{{@member.email}}"
+                 data-columns="name,line1,line2,city,state,postal_code,country,source,updated_at"
+                 data-column-labels="Name,Street,Apt,City,State,ZIP,Country,Source,Updated">
+              <div class="admin-table-toolbar">
+                <p class="admin-table-count" data-count-label>Loading&hellip;</p>
+                <a href="#" class="btn btn-pill btn-primary btn-sm" data-download-csv hidden>Download CSV</a>
+              </div>
+              <p class="admin-table-status" data-status></p>
+              <div class="admin-table-wrap">
+                <table class="admin-table" data-table hidden>
+                  <thead><tr data-thead></tr></thead>
+                  <tbody data-tbody></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}

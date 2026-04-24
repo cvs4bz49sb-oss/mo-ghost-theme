@@ -1,14 +1,44 @@
 {{!< default}}
-{{!-- /admin/members/ — membership analytics.
-     Page skeleton renders for any signed-in member; the mo-admin
-     worker returns 403 if the caller's email isn't a Ghost staff
-     user, and admin-members.js surfaces that as a not-authorized
-     state. --}}
+{{!-- /admin/members/ — membership analytics (default landing for
+     the Members admin section). Page skeleton renders for any
+     signed-in member; the mo-admin worker returns 403 if the
+     caller's email isn't in ADMIN_EMAILS, and admin-members.js
+     surfaces that as a not-authorized state.
+
+     Sidebar nav (admin-members-subnav partial) links to the
+     five sibling views: Addresses, Gifts, Groups, Institutions,
+     Drift. All live under /admin/members/*. --}}
 
 <main class="admin-page">
 
   {{#if @member}}
-    {{> "admin-members-body"}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members</p>
+        <h1 class="admin-headline">Members <em><span class="highlight">Analytics</span></em>.</h1>
+        <p class="admin-sub">Who's signing up, in what tier, at what rate.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container">
+        <div class="admin-members-layout">
+          <aside class="admin-members-sidebar">
+            {{> "admin-members-subnav" active="analytics"}}
+          </aside>
+          <div class="admin-members-main"
+               data-admin-members
+               data-worker-url="{{@custom.admin_worker_url}}"
+               data-member-email="{{@member.email}}">
+            {{> "admin-members-body"}}
+          </div>
+        </div>
+      </div>
+    </section>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}

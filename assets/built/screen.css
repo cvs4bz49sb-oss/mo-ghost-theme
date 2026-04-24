@@ -7462,9 +7462,13 @@ html[data-theme="dark"] .feature-gate-modal-body {
   padding: 0;
   margin: 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 24px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.admin-nav-list::-webkit-scrollbar { display: none; }
 .admin-nav-link {
   display: inline-block;
   padding: 16px 0;
@@ -7477,6 +7481,8 @@ html[data-theme="dark"] .feature-gate-modal-body {
   text-decoration: none;
   border-bottom: 2px solid transparent;
   transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .admin-nav-link:hover { color: var(--color-primary); }
 .admin-nav-link--pending {
@@ -7490,6 +7496,76 @@ html[data-theme="dark"] .feature-gate-modal-body {
   letter-spacing: 0.16em;
   color: var(--color-muted);
   opacity: 0.65;
+}
+
+/* /admin/members/* two-column layout: sticky left sidebar with
+   section nav, main column for the active section's content.
+   Collapses to a horizontal-scroll chip strip above content at
+   <=760px so the whole sidebar becomes a one-line selector that
+   matches the top admin-nav's mobile treatment. */
+.admin-members-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.admin-members-sidebar { position: sticky; top: 24px; align-self: start; }
+.admin-members-subnav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.admin-members-subnav-link {
+  display: block;
+  padding: 10px 12px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.admin-members-subnav-link:hover { color: var(--color-primary); }
+.admin-members-subnav-link.is-active {
+  color: var(--color-primary);
+  border-left-color: var(--color-primary);
+}
+.admin-members-main { min-width: 0; }
+
+@media (max-width: 760px) {
+  .admin-members-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .admin-members-sidebar {
+    position: static;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--color-card-border);
+  }
+  .admin-members-sidebar::-webkit-scrollbar { display: none; }
+  .admin-members-subnav-list {
+    flex-direction: row;
+    gap: 24px;
+    flex-wrap: nowrap;
+  }
+  .admin-members-subnav-link {
+    padding: 12px 0;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .admin-members-subnav-link.is-active {
+    border-bottom-color: var(--color-primary);
+  }
 }
 
 .admin-body {

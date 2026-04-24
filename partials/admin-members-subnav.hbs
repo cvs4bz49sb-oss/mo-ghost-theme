@@ -1,0 +1,17 @@
+{{!-- Sidebar nav for the /admin/members/* section.
+     Used by admin-members, admin-addresses, admin-gifts, admin-groups,
+     admin-institutions, and admin-drift templates. Pass `active` with
+     one of: analytics, addresses, gifts, groups, institutions, drift.
+
+     Collapses to a horizontal-scroll chip strip at <=760px via
+     .admin-members-sidebar / .admin-members-subnav-list media rules. --}}
+<nav class="admin-members-subnav" aria-label="Member admin sections">
+  <ul class="admin-members-subnav-list">
+    <li><a href="/admin/members/" class="admin-members-subnav-link{{#if (match active "analytics")}} is-active{{/if}}">Analytics</a></li>
+    <li><a href="/admin/members/addresses/" class="admin-members-subnav-link{{#if (match active "addresses")}} is-active{{/if}}">Addresses</a></li>
+    <li><a href="/admin/members/gifts/" class="admin-members-subnav-link{{#if (match active "gifts")}} is-active{{/if}}">Gifts</a></li>
+    <li><a href="/admin/members/groups/" class="admin-members-subnav-link{{#if (match active "groups")}} is-active{{/if}}">Groups</a></li>
+    <li><a href="/admin/members/institutions/" class="admin-members-subnav-link{{#if (match active "institutions")}} is-active{{/if}}">Institutions</a></li>
+    <li><a href="/admin/members/drift/" class="admin-members-subnav-link{{#if (match active "drift")}} is-active{{/if}}">Drift</a></li>
+  </ul>
+</nav>

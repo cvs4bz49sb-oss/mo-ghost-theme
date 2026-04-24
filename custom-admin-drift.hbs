@@ -1,5 +1,5 @@
 {{!< default}}
-{{!-- /admin/drift/ — Ghost ↔ Kit reconciliation report.
+{{!-- /admin/members/drift/ — Ghost ↔ Kit reconciliation report.
      Read-only view. Lists members in only one of the two systems
      plus status mismatches where Ghost and Kit disagree on tier.
      Powered by the mo-kit-bridge worker's /api/drift endpoint. --}}
@@ -8,7 +8,7 @@
   {{#if @member}}
     <section class="hero admin-hero">
       <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Reconciliation</p>
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members</p>
         <h1 class="admin-headline">Drift <em><span class="highlight">Report</span></em>.</h1>
         <p class="admin-sub">Ghost and Kit should always agree. Anything on this page is out of sync — investigate, then either re-sync or delete.</p>
       </div>
@@ -17,11 +17,16 @@
     {{> "admin-nav"}}
 
     <section class="admin-body">
-      <div class="container container-narrow">
-        <div class="drift-host"
-             data-drift
-             data-kit-bridge-url="{{@custom.kit_bridge_url}}"
-             data-member-email="{{@member.email}}">
+      <div class="container">
+        <div class="admin-members-layout">
+          <aside class="admin-members-sidebar">
+            {{> "admin-members-subnav" active="drift"}}
+          </aside>
+          <div class="admin-members-main">
+            <div class="drift-host"
+                 data-drift
+                 data-kit-bridge-url="{{@custom.kit_bridge_url}}"
+                 data-member-email="{{@member.email}}">
 
           {{!-- Summary counts — updated by JS after fetch. --}}
           <ul class="admin-stats" data-drift-stats>
@@ -88,6 +93,8 @@
             <p class="admin-sub">No drift detected. Every Ghost member has a Kit subscriber, every Kit subscriber has a Ghost member, and their statuses agree.</p>
           </section>
 
+            </div>
+          </div>
         </div>
       </div>
     </section>

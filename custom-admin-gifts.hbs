@@ -1,43 +1,55 @@
 {{!< default}}
+{{!-- /admin/members/gifts/ — every gift membership on the platform. --}}
+
 <main class="admin-page">
   {{#if @member}}
+
     <section class="hero admin-hero">
       <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Gifts</p>
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members</p>
         <h1 class="admin-headline">Gifts <em><span class="highlight">overview</span></em>.</h1>
-        <p class="admin-sub">Every gift memberships on the platform. Download the CSV for reporting or cohort work.</p>
+        <p class="admin-sub">Every gift membership on the platform. Download the CSV for reporting or cohort work.</p>
       </div>
     </section>
 
     {{> "admin-nav"}}
 
     <section class="admin-body">
-      <div class="container container-narrow">
-        <div class="admin-table-host"
-             data-admin-table
-             data-title="Gifts"
-             data-endpoint="/api/admin/gifts"
-             data-collection="gifts"
-             data-api-base="{{@custom.membership_api_base}}"
-             data-member-email="{{@member.email}}"
-             data-columns="tier,purchaser_name,recipient_name,recipient_email,status,comp_until,created_at"
-             data-column-labels="Tier,Purchaser,Recipient,Email,Status,Comp Until,Created">
-          <div class="admin-table-toolbar">
-            <p class="admin-table-count" data-count-label>Loading&hellip;</p>
-            <a href="#" class="btn btn-pill btn-primary btn-sm" data-download-csv hidden>Download CSV</a>
-          </div>
-          <p class="admin-table-status" data-status></p>
-          <div class="admin-table-wrap">
-            <table class="admin-table" data-table hidden>
-              <thead><tr data-thead></tr></thead>
-              <tbody data-tbody></tbody>
-            </table>
+      <div class="container">
+        <div class="admin-members-layout">
+          <aside class="admin-members-sidebar">
+            {{> "admin-members-subnav" active="gifts"}}
+          </aside>
+          <div class="admin-members-main">
+            <div class="admin-table-host"
+                 data-admin-table
+                 data-title="Gifts"
+                 data-endpoint="/api/admin/gifts"
+                 data-collection="gifts"
+                 data-api-base="{{@custom.membership_api_base}}"
+                 data-member-email="{{@member.email}}"
+                 data-columns="tier,purchaser_name,recipient_name,recipient_email,status,comp_until,created_at"
+                 data-column-labels="Tier,Purchaser,Recipient,Email,Status,Comp Until,Created">
+              <div class="admin-table-toolbar">
+                <p class="admin-table-count" data-count-label>Loading&hellip;</p>
+                <a href="#" class="btn btn-pill btn-primary btn-sm" data-download-csv hidden>Download CSV</a>
+              </div>
+              <p class="admin-table-status" data-status></p>
+              <div class="admin-table-wrap">
+                <table class="admin-table" data-table hidden>
+                  <thead><tr data-thead></tr></thead>
+                  <tbody data-tbody></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
 </main>
+
 <script src="{{asset "js/admin-table.js"}}"></script>

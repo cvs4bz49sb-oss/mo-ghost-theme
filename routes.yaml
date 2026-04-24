@@ -59,15 +59,15 @@ routes:
     template: custom-admin
   /admin/members/:
     template: custom-admin-members
-  /admin/addresses/:
+  /admin/members/addresses/:
     template: custom-admin-addresses
-  /admin/gifts/:
+  /admin/members/gifts/:
     template: custom-admin-gifts
-  /admin/groups/:
+  /admin/members/groups/:
     template: custom-admin-groups
-  /admin/institutions/:
+  /admin/members/institutions/:
     template: custom-admin-institutions
-  /admin/drift/:
+  /admin/members/drift/:
     template: custom-admin-drift
   /admin/traffic/:
     template: custom-admin-traffic
