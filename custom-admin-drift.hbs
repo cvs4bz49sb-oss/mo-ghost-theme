@@ -1,0 +1,100 @@
+{{!< default}}
+{{!-- /admin/drift/ — Ghost ↔ Kit reconciliation report.
+     Read-only view. Lists members in only one of the two systems
+     plus status mismatches where Ghost and Kit disagree on tier.
+     Powered by the mo-kit-bridge worker's /api/drift endpoint. --}}
+
+<main class="admin-page">
+  {{#if @member}}
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Reconciliation</p>
+        <h1 class="admin-headline">Drift <em><span class="highlight">Report</span></em>.</h1>
+        <p class="admin-sub">Ghost and Kit should always agree. Anything on this page is out of sync — investigate, then either re-sync or delete.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container container-narrow">
+        <div class="drift-host"
+             data-drift
+             data-kit-bridge-url="{{@custom.kit_bridge_url}}"
+             data-member-email="{{@member.email}}">
+
+          {{!-- Summary counts — updated by JS after fetch. --}}
+          <ul class="admin-stats" data-drift-stats>
+            <li class="admin-stat"><span class="admin-stat-label">Ghost total</span><span class="admin-stat-value" data-stat="ghost_total">&mdash;</span></li>
+            <li class="admin-stat"><span class="admin-stat-label">Kit total</span><span class="admin-stat-value" data-stat="kit_total">&mdash;</span></li>
+            <li class="admin-stat"><span class="admin-stat-label">Only in Ghost</span><span class="admin-stat-value" data-stat="only_in_ghost">&mdash;</span></li>
+            <li class="admin-stat"><span class="admin-stat-label">Only in Kit</span><span class="admin-stat-value" data-stat="only_in_kit">&mdash;</span></li>
+            <li class="admin-stat"><span class="admin-stat-label">Status mismatch</span><span class="admin-stat-value" data-stat="status_mismatch">&mdash;</span></li>
+          </ul>
+
+          <p class="admin-table-status" data-drift-status>Loading drift report (this takes 10-20 seconds — we're pulling both full lists)&hellip;</p>
+
+          <div class="flourish">{{> "flourish-mark"}}</div>
+
+          {{!-- Only in Ghost — member exists in Ghost but NOT in Kit. --}}
+          <section class="drift-section" data-drift-section="only_in_ghost" hidden>
+            <div class="section-intro section-intro-left">
+              <p class="eyebrow">Only in Ghost</p>
+              <h2 class="section-heading"><em>Missing from Kit.</em></h2>
+            </div>
+            <p class="admin-sub">These Ghost members don't appear in your Kit audience. Either mo-kit failed to sync them, or they were deleted from Kit without going through Ghost.</p>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>Email</th><th>Name</th><th>Status</th><th>Created</th></tr></thead>
+                <tbody data-drift-tbody="only_in_ghost"></tbody>
+              </table>
+            </div>
+          </section>
+
+          {{!-- Only in Kit — subscriber exists in Kit but NOT in Ghost. --}}
+          <section class="drift-section" data-drift-section="only_in_kit" hidden>
+            <div class="section-intro section-intro-left">
+              <p class="eyebrow">Only in Kit</p>
+              <h2 class="section-heading"><em>Missing from Ghost.</em></h2>
+            </div>
+            <p class="admin-sub">Kit subscribers without a Ghost counterpart. The bridge cron creates these automatically within 15 minutes of a Kit signup; anyone persistently here is a problem.</p>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>Email</th><th>Name</th><th>Kit state</th><th>Tags</th></tr></thead>
+                <tbody data-drift-tbody="only_in_kit"></tbody>
+              </table>
+            </div>
+          </section>
+
+          {{!-- Status mismatch — both sides have them, statuses disagree. --}}
+          <section class="drift-section" data-drift-section="status_mismatch" hidden>
+            <div class="section-intro section-intro-left">
+              <p class="eyebrow">Status mismatch</p>
+              <h2 class="section-heading"><em>Tiers disagree.</em></h2>
+            </div>
+            <p class="admin-sub">Ghost and Kit both have them, but one thinks they're paid/comped and the other doesn't. Usually means mo-kit didn't sync the last status change.</p>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>Email</th><th>Name</th><th>Ghost status</th><th>Kit status tag</th><th>Paid tag in Kit</th></tr></thead>
+                <tbody data-drift-tbody="status_mismatch"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="drift-section" data-drift-clean hidden>
+            <div class="section-intro section-intro-left">
+              <p class="eyebrow">All clear</p>
+              <h2 class="section-heading"><em>Ghost and Kit match.</em></h2>
+            </div>
+            <p class="admin-sub">No drift detected. Every Ghost member has a Kit subscriber, every Kit subscriber has a Ghost member, and their statuses agree.</p>
+          </section>
+
+        </div>
+      </div>
+    </section>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+</main>
+
+<script src="{{asset "js/admin-drift.js"}}"></script>

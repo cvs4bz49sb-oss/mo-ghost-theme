@@ -97,6 +97,10 @@
       "admin_worker_url": {
         "type": "text",
         "description": "URL of the deployed mo-admin Worker (e.g. https://mo-admin.mo-podcast-feed.workers.dev). Powers /admin/ and its sub-pages. Empty disables the admin dashboard's data fetches (page still renders; stats stay blank)."
+      },
+      "kit_bridge_url": {
+        "type": "text",
+        "description": "URL of the deployed mo-kit-bridge Worker (e.g. https://mo-kit-bridge.mo-podcast-feed.workers.dev). Powers /admin/drift/ (Ghost↔Kit reconciliation report). Empty disables the drift page."
       }
     }
   }

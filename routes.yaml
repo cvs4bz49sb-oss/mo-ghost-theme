@@ -67,6 +67,8 @@ routes:
     template: custom-admin-groups
   /admin/institutions/:
     template: custom-admin-institutions
+  /admin/drift/:
+    template: custom-admin-drift
 
 collections:
   /:
