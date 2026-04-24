@@ -331,19 +331,40 @@
      article page load with title, primary_tag, and author as
      custom properties. Powers /admin/traffic/ top-articles,
      top-topics, and top-contributors breakdowns.
-     Title read from the DOM so we don't have to JS-escape handlebars
-     output; primary_tag and author slugs are safe strings. --}}
+
+     Topic + author are derived from the rendered tag pills (not
+     Ghost's primary_tag / primary_author), because MO uses the
+     `author-*` tag convention for contributors rather than Ghost's
+     native authors. Same convention the byline and topic-pill CSS
+     selectors already rely on. --}}
 {{#if @custom.plausible_domain}}
 <script>
   (function () {
     if (!window.plausible) return;
     var titleEl = document.querySelector(".article-title");
     var title = titleEl ? titleEl.textContent.trim().slice(0, 200) : document.title;
+
+    // Walk the tag pills in render order.
+    //   - First non-"author-" slug wins as primary_tag (topic).
+    //   - First "author-" slug (minus prefix) wins as author.
+    var tagEls = document.querySelectorAll(".article-topic-tag[data-tag-slug]");
+    var primary_tag = "";
+    var author = "";
+    tagEls.forEach(function (el) {
+      var slug = el.getAttribute("data-tag-slug") || "";
+      if (!slug) return;
+      if (slug.indexOf("author-") === 0) {
+        if (!author) author = slug.replace(/^author-/, "");
+      } else if (!primary_tag) {
+        primary_tag = slug;
+      }
+    });
+
     plausible("Article Read", {
       props: {
         title: title,
-        primary_tag: "{{primary_tag.slug}}",
-        author: "{{primary_author.slug}}"
+        primary_tag: primary_tag,
+        author: author
       }
     });
   })();
