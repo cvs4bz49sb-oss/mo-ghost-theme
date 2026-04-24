@@ -49,6 +49,7 @@
     fill("[data-admin-top-articles]", '<li class="admin-empty">Loading…</li>');
     fill("[data-admin-top-topics]", '<li class="admin-empty">Loading…</li>');
     fill("[data-admin-top-authors]", '<li class="admin-empty">Loading…</li>');
+    fill("[data-admin-top-pages]", '<li class="admin-empty">Loading…</li>');
     fill("[data-admin-top-sources]", '<li class="admin-empty">Loading…</li>');
     fill("[data-admin-top-countries]", '<li class="admin-empty">Loading…</li>');
     root.querySelectorAll('[data-stat]').forEach(function (el) { el.textContent = "…"; });
@@ -77,6 +78,11 @@
       if (!res) return fill("[data-admin-top-authors]", '<li class="admin-empty">Couldn’t load contributors.</li>');
       if (res.forbidden) return showForbidden();
       fillAuthors(res.body);
+    });
+    api("/traffic/top-pages?limit=20").then(function (res) {
+      if (!res) return fill("[data-admin-top-pages]", '<li class="admin-empty">Couldn’t load pages.</li>');
+      if (res.forbidden) return showForbidden();
+      fillPages(res.body);
     });
     api("/traffic/top-sources?limit=15").then(function (res) {
       if (!res) return fill("[data-admin-top-sources]", '<li class="admin-empty">Couldn’t load sources.</li>');
@@ -154,6 +160,14 @@
     var total = series.reduce(function (s, d) { return s + (d.visitors || 0); }, 0);
     var pv = series.reduce(function (s, d) { return s + (d.pageviews || 0); }, 0);
 
+    // One label per data point, formatted mm-dd-yyyy. Grid with
+    // N columns so labels align with the chart's data points.
+    // CSS rotates each label -55deg so long date strings don't
+    // overlap at 30-day+ ranges.
+    var labels = series.map(function (d) {
+      return '<span>' + formatDateUS(d.date) + '</span>';
+    }).join("");
+
     host.innerHTML =
       '<p class="admin-chart-summary"><strong>' + formatNumber(total) + '</strong> visitors' +
       (pv ? ' &middot; <strong>' + formatNumber(pv) + '</strong> pageviews' : '') +
@@ -162,7 +176,7 @@
         '<path d="' + area + '" class="admin-chart-area"/>' +
         '<polyline points="' + points + '" class="admin-chart-line"/>' +
       '</svg>' +
-      '<p class="admin-chart-axis"><span>' + series[0].date + '</span><span>' + series[series.length - 1].date + '</span></p>';
+      '<div class="admin-chart-days" style="--days: ' + series.length + ';">' + labels + '</div>';
   }
 
   function fillArticles(payload) {
@@ -217,6 +231,24 @@
     }).join(""));
   }
 
+  function fillPages(payload) {
+    var pages = (payload && payload.pages) || [];
+    if (!pages.length) return fill("[data-admin-top-pages]", '<li class="admin-empty">No data.</li>');
+    var max = pages[0].visitors || 1;
+    fill("[data-admin-top-pages]", pages.map(function (p) {
+      var bar = Math.round(((p.visitors || 0) / max) * 100);
+      return (
+        '<li class="admin-ranked-item">' +
+          '<div class="admin-ranked-bar" style="width: ' + bar + '%"></div>' +
+          '<span class="admin-ranked-label">' +
+            '<a href="' + escapeAttr(p.page) + '">' + escapeHtml(p.page) + '</a>' +
+          '</span>' +
+          '<span class="admin-ranked-value">' + formatNumber(p.visitors) + '</span>' +
+        '</li>'
+      );
+    }).join(""));
+  }
+
   function fillSources(payload) {
     var sources = (payload && payload.sources) || [];
     if (!sources.length) return fill("[data-admin-top-sources]", '<li class="admin-empty">No data.</li>');
@@ -265,6 +297,13 @@
   function formatNumber(n) {
     if (typeof n !== "number") return String(n || "—");
     return n.toLocaleString("en-US");
+  }
+  // mm-dd-yyyy from Plausible's ISO "YYYY-MM-DD"
+  function formatDateUS(iso) {
+    if (!iso) return "";
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    if (!m) return iso;
+    return m[2] + "-" + m[3] + "-" + m[1];
   }
   function formatDuration(s) {
     s = Math.round(s || 0);

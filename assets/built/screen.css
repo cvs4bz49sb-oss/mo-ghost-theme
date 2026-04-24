@@ -7644,6 +7644,30 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   fill: rgba(238, 125, 81, 0.12);
   stroke: none;
 }
+/* Per-day tick labels below the visitors chart. One <span> per data
+   point; parent grid sets column count so labels align with data
+   points. Labels are rotated -55deg so 30+ days don't overlap. */
+.admin-chart-days {
+  display: grid;
+  grid-template-columns: repeat(var(--days, 30), minmax(0, 1fr));
+  padding: 0 8px;
+  margin-top: 12px;
+  min-height: 64px;
+}
+.admin-chart-days span {
+  display: block;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
+  white-space: nowrap;
+  transform: rotate(-55deg);
+  transform-origin: top right;
+  text-align: right;
+  padding-right: 6px;
+  line-height: 1;
+}
 .admin-chart-axis {
   display: flex;
   justify-content: space-between;
