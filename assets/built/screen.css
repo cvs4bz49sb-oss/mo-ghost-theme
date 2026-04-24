@@ -1083,8 +1083,8 @@ img { max-width: 100%; height: auto; }
 .digest-form {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr 1.2fr auto;
-  gap: 18px;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 18px 18px;
   align-items: end;
 }
 .digest-field {
@@ -1122,10 +1122,16 @@ img { max-width: 100%; height: auto; }
   border-bottom-color: var(--color-primary);
 }
 .digest-submit {
+  /* Sits on its own row beneath the three inputs so the fields have
+     room to breathe. Right-aligned keeps the visual rhythm from when
+     it lived inline at the end of the row. */
+  grid-column: 1 / -1;
+  justify-self: end;
   background: transparent;
   color: var(--color-secondary);
   border: 0;
   padding: 10px 0;
+  margin-top: 4px;
   font-family: var(--font-body);
   font-size: 11px;
   font-weight: 600;
@@ -6785,13 +6791,16 @@ html[data-theme="dark"] .post-template .author-bio-links a:hover {
 .feature-gate-modal-form {
   text-align: left;
 }
-/* Stack the Subscribe button below the three input fields so the
-   modal has more breathing room. The base .digest-form grid puts
-   the button in the fourth column inline, which reads cramped in
-   a narrower modal. */
+/* Modal layout: First + Last on row 1, Email alone on row 2,
+   Subscribe alone on row 3. Gives each element room to breathe in
+   the narrower modal width, and keeps the visual rhythm top-down. */
 .feature-gate-modal-form {
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 18px 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 18px;
+}
+.feature-gate-modal-form .digest-field:nth-of-type(3) {
+  /* Email — its own row, full width. */
+  grid-column: 1 / -1;
 }
 .feature-gate-modal-form .digest-submit {
   grid-column: 1 / -1;
