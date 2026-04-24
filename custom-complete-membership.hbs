@@ -7,6 +7,23 @@
 <main class="membership membership-support">
   <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
 
+  {{!-- Free subscribers don't get the print journal, so skip the
+       address form entirely and route them straight to the site.
+       Only paid / comped / lifetime / gift / group / admin-preview
+       members see the address form. --}}
+  {{#match @member.status "free"}}
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Welcome to Mere Orthodoxy</p>
+        <h1 class="page-hero-headline">You're <em>subscribed</em>.</h1>
+        <p class="page-hero-sub">You'll receive the Weekly Digest in your inbox and can read every free essay online. Want the full experience — the print journal, the ebook library, audio versions, and the Member Dashboard? Upgrade any time.</p>
+        <div class="button-row" style="margin-top: 24px;">
+          <a href="/membership/" class="btn btn-primary btn-inline">Become a Member</a>
+          <a href="https://mereorthodoxy.com" class="btn btn-dark btn-inline">Read Mere Orthodoxy</a>
+        </div>
+      </div>
+    </section>
+  {{else}}
   <section class="page-hero">
     <div class="container">
       <p class="eyebrow">Welcome to Mere Orthodoxy</p>
@@ -85,6 +102,7 @@
       {{/if}}
     </div>
   </section>
+  {{/match}}
 
   <script src="{{asset "js/complete-membership.js"}}"></script>
 </main>

@@ -1,38 +1,145 @@
 {{!< default}}
-{{!-- custom-manage: Mere Orthodoxy manage-membership email capture --}}
+{{!-- custom-manage: /manage/ page. Two modes:
+     1) Signed-in member → tier-aware content. Paid / free members
+        see the Portal billing flow; lifetime / gift / group members
+        see a tier-specific message (there's nothing for them to
+        manage in Portal — no recurring billing).
+     2) Not signed in → email-capture form to request a magic link.
+
+     Tier detection: Ghost's member labels are scanned client-side
+     in a small inline script because Ghost's Handlebars helpers
+     don't do substring matching on arrays. Each tier variant is
+     rendered server-side and hidden by default; JS unhides one. --}}
 
 <main class="membership membership-support page-simple">
   <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
 
   <div class="centered-main">
     <div class="container centered-inner narrow">
-      <h1 class="page-hero-headline page-hero-headline--dark">Manage Your Membership</h1>
-      <p class="page-hero-sub page-hero-sub--dark">
-        Enter the email address you used to sign up. We'll send you to the
-        secure portal where you can update your payment method, review billing
-        history, or cancel your membership.
-      </p>
 
-      <form id="manage-form" class="manage-form" novalidate>
-        <label for="email" class="sr-only">Email address</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          required
-          autocomplete="email"
-          placeholder="you@example.com"
-        />
-        <button type="submit" class="btn btn-primary" id="manage-cta">
-          <span class="btn-label">Continue</span>
-          <span class="btn-spinner" aria-hidden="true"></span>
-        </button>
-      </form>
-      <p class="btn-error" id="manage-error" role="alert"></p>
+      {{#if @member}}
+        {{!-- Pass labels as a data attribute so the inline script
+             can pick the right variant. --}}
+        <div class="manage-tier-wrap"
+             data-member-status="{{@member.status}}"
+             data-member-labels="{{#foreach @member.labels}}{{name}} {{/foreach}}">
 
-      <p class="fine-print">
-        Need help? Email <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>.
-      </p>
+          {{!-- Default (paid monthly/annual) — shown unless a
+               tier-specific variant un-hides itself. --}}
+          <div data-manage-tier="paid">
+            <p class="eyebrow">Your Membership</p>
+            <h1 class="page-hero-headline page-hero-headline--dark">Manage Your Membership</h1>
+            <p class="page-hero-sub page-hero-sub--dark">
+              Update your payment method, switch between monthly and annual, review billing history, or cancel — all through the secure Portal below.
+            </p>
+            <div class="button-row">
+              <a href="#/portal/account" data-portal="account" class="btn btn-primary btn-inline">Open Billing Portal</a>
+              <a href="/dashboard/" class="btn btn-dark btn-inline">Go to Dashboard</a>
+            </div>
+          </div>
+
+          <div data-manage-tier="lifetime" hidden>
+            <p class="eyebrow">Lifetime Member</p>
+            <h1 class="page-hero-headline page-hero-headline--dark">Thank you for joining permanently.</h1>
+            <p class="page-hero-sub page-hero-sub--dark">
+              Your lifetime membership doesn't renew and there's no billing to manage — it's done. Update your shipping address, bookmarks, and reading history from your <a href="/dashboard/">Member Dashboard</a>.
+            </p>
+            <div class="button-row">
+              <a href="/dashboard/" class="btn btn-primary btn-inline">Open Dashboard</a>
+              <a href="https://mereorthodoxy.com" class="btn btn-dark btn-inline">Read Mere&nbsp;Orthodoxy</a>
+            </div>
+          </div>
+
+          <div data-manage-tier="gift" hidden>
+            <p class="eyebrow">Gift Membership</p>
+            <h1 class="page-hero-headline page-hero-headline--dark">Enjoy your gift.</h1>
+            <p class="page-hero-sub page-hero-sub--dark">
+              Someone gave you a membership to Mere&nbsp;Orthodoxy. There's no billing attached — nothing will renew or charge you. Manage your reading, bookmarks, and shipping address from your <a href="/dashboard/">Member Dashboard</a>.
+            </p>
+            <div class="button-row">
+              <a href="/dashboard/" class="btn btn-primary btn-inline">Open Dashboard</a>
+            </div>
+          </div>
+
+          <div data-manage-tier="group" hidden>
+            <p class="eyebrow">Group Membership</p>
+            <h1 class="page-hero-headline page-hero-headline--dark">You're part of a group.</h1>
+            <p class="page-hero-sub page-hero-sub--dark">
+              Your membership is provided through your organization's group subscription. Billing is handled by them — there's nothing for you to manage here. Open your <a href="/dashboard/">Member Dashboard</a> for reading, bookmarks, and your address.
+            </p>
+            <div class="button-row">
+              <a href="/dashboard/" class="btn btn-primary btn-inline">Open Dashboard</a>
+            </div>
+          </div>
+
+          <div data-manage-tier="free" hidden>
+            <p class="eyebrow">Free Subscriber</p>
+            <h1 class="page-hero-headline page-hero-headline--dark">You're subscribed.</h1>
+            <p class="page-hero-sub page-hero-sub--dark">
+              You receive the Weekly Digest and can read every free essay. Upgrade to a full Membership any time to unlock the print journal, audio versions, the ebook library, bookmarks, and the Member Dashboard.
+            </p>
+            <div class="button-row">
+              <a href="/membership/" class="btn btn-primary btn-inline">Become a Member</a>
+              <a href="#/portal/account" data-portal="account" class="btn btn-dark btn-inline">Account Settings</a>
+            </div>
+          </div>
+
+          <p class="fine-print">
+            Questions? Email <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>.
+          </p>
+        </div>
+
+        <script>
+          (function () {
+            var wrap = document.querySelector('.manage-tier-wrap');
+            if (!wrap) return;
+            var labels = (wrap.getAttribute('data-member-labels') || '').toLowerCase();
+            var status = (wrap.getAttribute('data-member-status') || '').toLowerCase();
+            // Priority: tier labels win over status. Lifetime before
+            // gift (a gift-lifetime carries both labels; the lifetime
+            // copy is the more accurate story for the recipient).
+            var variant =
+              labels.indexOf('tier:lifetime') > -1 || labels.indexOf('source:lifetime') > -1 ? 'lifetime' :
+              labels.indexOf('source:gift') > -1 ? 'gift' :
+              labels.indexOf('source:group') > -1 ? 'group' :
+              status === 'free' ? 'free' :
+              'paid';
+            wrap.querySelectorAll('[data-manage-tier]').forEach(function (el) {
+              el.hidden = el.getAttribute('data-manage-tier') !== variant;
+            });
+          })();
+        </script>
+
+      {{else}}
+        {{!-- Not signed in — keep the email-capture flow so people
+             who arrived from an email link can request a new one. --}}
+        <h1 class="page-hero-headline page-hero-headline--dark">Manage Your Membership</h1>
+        <p class="page-hero-sub page-hero-sub--dark">
+          Enter the email address you used to sign up. We'll send you a secure one-click sign-in link — from there you can update billing, review history, or cancel.
+        </p>
+
+        <form id="manage-form" class="manage-form" novalidate>
+          <label for="email" class="sr-only">Email address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder="you@example.com"
+          />
+          <button type="submit" class="btn btn-primary" id="manage-cta">
+            <span class="btn-label">Continue</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+        <p class="btn-error" id="manage-error" role="alert"></p>
+
+        <p class="fine-print">
+          Need help? Email <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>.
+        </p>
+      {{/if}}
+
     </div>
   </div>
 

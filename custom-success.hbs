@@ -1,5 +1,8 @@
 {{!< default}}
-{{!-- custom-success: Mere Orthodoxy post-checkout success page --}}
+{{!-- custom-success: post-checkout confirmation. Reads ?gift=, ?group=,
+     or ?lifetime=1 from the URL (set by the mo-membership worker's
+     success_url) to show tier-specific copy. Generic success copy is
+     the fallback for Portal-native monthly/annual checkouts. --}}
 
 <main class="membership membership-support page-simple">
 
@@ -11,18 +14,50 @@
           <path d="M19 33 L28 42 L46 22" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </div>
-      <h1 class="page-hero-headline page-hero-headline--dark">Welcome to Mere&nbsp;Orthodoxy.</h1>
-      <p class="page-hero-sub page-hero-sub--dark">
-        Your membership is confirmed. You'll receive a welcome email shortly.
-        If you signed up for a print journal subscription, your first issue
-        will arrive when the next issue ships.
-      </p>
+
+      {{!-- All four branches render server-side. The client script
+           below un-hides exactly one based on ?gift / ?group / ?lifetime. --}}
+      <div data-success-default>
+        <h1 class="page-hero-headline page-hero-headline--dark">Welcome to Mere&nbsp;Orthodoxy.</h1>
+        <p class="page-hero-sub page-hero-sub--dark">Your membership is confirmed. You'll receive a welcome email shortly. If you signed up for the print journal, your first issue arrives with the next shipment.</p>
+      </div>
+
+      <div data-success-lifetime hidden>
+        <h1 class="page-hero-headline page-hero-headline--dark">Thank you. Your lifetime membership is active.</h1>
+        <p class="page-hero-sub page-hero-sub--dark">No renewal, no annual charge, permanent access. Your welcome email is on its way — it includes a one-click sign-in link to your Member Dashboard. The quarterly print journal goes out to the address you provided at checkout.</p>
+      </div>
+
+      <div data-success-gift hidden>
+        <h1 class="page-hero-headline page-hero-headline--dark">Your gift is on its way.</h1>
+        <p class="page-hero-sub page-hero-sub--dark">We've emailed your recipient their membership details and a one-click sign-in link. They'll know exactly what to do — and who it's from.</p>
+      </div>
+
+      <div data-success-group hidden>
+        <h1 class="page-hero-headline page-hero-headline--dark">Your group membership is ready.</h1>
+        <p class="page-hero-sub page-hero-sub--dark">Check your email — we've sent you a secure link to the group dashboard where you can assign seats. Each person you add gets an instant welcome email with one-click access.</p>
+      </div>
+
       <div class="button-row">
         <a href="https://mereorthodoxy.com" class="btn btn-primary btn-inline">Read Mere&nbsp;Orthodoxy</a>
-        <a href="/manage" class="btn btn-dark btn-inline">Manage Your Membership</a>
+        <a href="/manage/" class="btn btn-dark btn-inline">Manage Your Membership</a>
       </div>
       <p class="fine-print">Questions? Email us at <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>.</p>
     </div>
   </div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var key = null;
+      if (params.get('lifetime')) key = 'lifetime';
+      else if (params.get('gift')) key = 'gift';
+      else if (params.get('group')) key = 'group';
+      if (!key) return;
+      var def = document.querySelector('[data-success-default]');
+      var target = document.querySelector('[data-success-' + key + ']');
+      if (def) def.hidden = true;
+      if (target) target.hidden = false;
+    })();
+  </script>
 
 </main>
