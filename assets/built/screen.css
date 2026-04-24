@@ -49,12 +49,18 @@ img { max-width: 100%; height: auto; }
   margin: 0 auto;
   padding: 0 28px;
 }
+@media (max-width: 520px) {
+  .container { padding: 0 18px; }
+}
 
 .container-narrow {
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
   padding: 0 28px;
+}
+@media (max-width: 520px) {
+  .container-narrow { padding: 0 18px; }
 }
 
 .eyebrow {
@@ -4985,6 +4991,7 @@ body {
 }
 .admin-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-top: 1px solid var(--color-card-border);
 }
 
@@ -5029,6 +5036,11 @@ body {
   vertical-align: top;
 }
 .admin-table tbody tr:hover td { background: rgba(238, 125, 81, 0.04); }
+@media (max-width: 640px) {
+  .admin-table thead th { padding: 10px 8px; font-size: 9px; letter-spacing: 0.18em; }
+  .admin-table tbody td { padding: 10px 8px; font-size: 12px; }
+  .admin-table-toolbar { flex-wrap: wrap; gap: 10px; }
+}
 .admin-table-empty {
   text-align: center;
   color: var(--color-muted);
@@ -7436,10 +7448,15 @@ html[data-theme="dark"] .feature-gate-modal-body {
 .admin-headline {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(38px, 5.2vw, 60px);
+  font-size: clamp(30px, 5.2vw, 60px);
   line-height: 1.06;
   color: var(--color-white);
   margin: 12px 0 16px;
+  overflow-wrap: break-word;
+}
+@media (max-width: 640px) {
+  .admin-hero { padding: 40px 0 32px; }
+  .admin-body { padding: 32px 0 64px; }
 }
 .admin-headline em { font-style: italic; }
 .admin-sub {
@@ -7682,6 +7699,12 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   font-size: 32px;
   line-height: 1;
   color: var(--color-dark);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 520px) {
+  .admin-stat { padding: 14px 12px; }
+  .admin-stat-value { font-size: 24px; }
+  .admin-stat-label { font-size: 9px; letter-spacing: 0.18em; }
 }
 
 /* Chart + recent signups — 2-col split, chart left, list right. */
@@ -7695,7 +7718,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .admin-split { grid-template-columns: 1fr; gap: 40px; }
 }
 
-.admin-chart { }
+.admin-chart { --yaxis-w: 44px; }
 .admin-chart-summary {
   font-family: var(--font-body);
   font-size: 15px;
@@ -7703,11 +7726,40 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin: 0 0 12px;
 }
 .admin-chart-summary strong { color: var(--color-primary); font-weight: 600; }
+.admin-chart-plot { width: 100%; }
+.admin-chart-canvas {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+/* Y-axis: 4 tick labels aligned with the SVG's inner plot area.
+   Padding matches the SVG's P=8 so top label lines up with niceMax
+   and bottom label sits at 0. */
+.admin-chart-yaxis {
+  flex: 0 0 var(--yaxis-w);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 8px 0;
+  box-sizing: border-box;
+}
+.admin-chart-yaxis span {
+  display: block;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  line-height: 1;
+}
 .admin-chart-svg {
   width: 100%;
   height: auto;
   display: block;
   overflow: visible;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .admin-chart-line {
   fill: none;
@@ -7715,18 +7767,46 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   stroke-width: 2;
   stroke-linejoin: round;
   stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 .admin-chart-area {
   fill: rgba(238, 125, 81, 0.12);
   stroke: none;
 }
-/* Per-day tick labels below the visitors chart. One <span> per data
-   point; parent grid sets column count so labels align with data
-   points. Labels are rotated -55deg so 30+ days don't overlap. */
+.admin-chart-gridline {
+  stroke: rgba(0, 0, 0, 0.08);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  vector-effect: non-scaling-stroke;
+}
+/* Per-day visitor totals, rendered above the chart. Same N-column
+   grid as the x-axis date row so each number sits above its day.
+   Left offset matches the y-axis width so the number columns line
+   up with the plot area, not the full chart width. */
+.admin-chart-values {
+  display: grid;
+  grid-template-columns: repeat(var(--days, 30), minmax(0, 1fr));
+  padding: 0 8px 6px calc(var(--yaxis-w, 44px) + 8px);
+  min-height: 16px;
+}
+.admin-chart-values span {
+  display: block;
+  text-align: center;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-primary);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* Per-day tick labels below the visitors chart. Rotated -55deg so
+   30+ days don't overlap. Left offset matches the y-axis width. */
 .admin-chart-days {
   display: grid;
   grid-template-columns: repeat(var(--days, 30), minmax(0, 1fr));
-  padding: 0 8px;
+  padding: 0 8px 0 calc(var(--yaxis-w, 44px) + 8px);
   margin-top: 12px;
   min-height: 64px;
 }
@@ -7743,6 +7823,12 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   text-align: right;
   padding-right: 6px;
   line-height: 1;
+}
+@media (max-width: 640px) {
+  .admin-chart { --yaxis-w: 32px; }
+  .admin-chart-yaxis span { font-size: 9px; }
+  .admin-chart-values span { font-size: 9px; }
+  .admin-chart-days span { font-size: 9px; }
 }
 .admin-chart-axis {
   display: flex;
@@ -7790,11 +7876,15 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
    rather than a pill background, matching the editorial tone elsewhere. */
 .admin-period {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0;
   margin: 0 0 32px;
   border-bottom: 1px solid var(--color-card-border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.admin-period::-webkit-scrollbar { display: none; }
 .admin-period-option {
   background: transparent;
   border: 0;
@@ -7809,6 +7899,8 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .admin-period-option:hover {
   color: var(--color-dark);
@@ -7834,6 +7926,11 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   padding: 10px 14px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   overflow: hidden;
+}
+@media (max-width: 520px) {
+  .admin-ranked-item { padding: 10px 10px; gap: 8px; }
+  .admin-ranked-label { font-size: 13px; }
+  .admin-ranked-value { font-size: 12px; }
 }
 .admin-ranked-bar {
   position: absolute;

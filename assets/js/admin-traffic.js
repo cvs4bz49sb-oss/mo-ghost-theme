@@ -145,13 +145,16 @@
     if (!series.length) { host.innerHTML = '<p class="admin-empty">No data in this range.</p>'; return; }
 
     var max = series.reduce(function (m, d) { return Math.max(m, d.visitors || 0); }, 0) || 1;
+    // Round max up to a nice value so y-axis ticks land on readable
+    // numbers (10, 25, 50, 100, 250, ...) instead of the raw peak.
+    var niceMax = niceCeil(max);
     var W = 640, H = 160, P = 8;
     var innerW = W - P * 2, innerH = H - P * 2;
     var step = series.length > 1 ? innerW / (series.length - 1) : 0;
 
     var points = series.map(function (d, i) {
       var x = P + i * step;
-      var y = P + innerH - ((d.visitors || 0) / max) * innerH;
+      var y = P + innerH - ((d.visitors || 0) / niceMax) * innerH;
       return x + "," + y.toFixed(1);
     }).join(" ");
 
@@ -160,7 +163,31 @@
     var total = series.reduce(function (s, d) { return s + (d.visitors || 0); }, 0);
     var pv = series.reduce(function (s, d) { return s + (d.pageviews || 0); }, 0);
 
-    // One label per data point, formatted mm-dd-yyyy. Grid with
+    // Y-axis ticks: 4 evenly-spaced values from niceMax down to 0.
+    // Rendered as HTML spans alongside the SVG (not inside it) so
+    // preserveAspectRatio="none" doesn't distort the text.
+    var tickCount = 4;
+    var tickValues = [];
+    for (var t = 0; t < tickCount; t++) {
+      tickValues.push(Math.round(niceMax * (tickCount - 1 - t) / (tickCount - 1)));
+    }
+    var yaxis = tickValues.map(function (v) {
+      return '<span>' + formatNumber(v) + '</span>';
+    }).join("");
+    // Gridlines at each tick, subtle. Drawn inside the SVG because
+    // they need to scale with the plot area.
+    var gridlines = tickValues.map(function (v) {
+      var y = P + innerH - (v / niceMax) * innerH;
+      return '<line x1="' + P + '" x2="' + (P + innerW) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" class="admin-chart-gridline"/>';
+    }).join("");
+
+    // Per-day totals — one number per data point, rendered above the
+    // chart in a grid that matches the x-axis date labels below.
+    var values = series.map(function (d) {
+      return '<span>' + formatNumber(d.visitors || 0) + '</span>';
+    }).join("");
+
+    // One date label per data point, formatted mm-dd-yyyy. Grid with
     // N columns so labels align with the chart's data points.
     // CSS rotates each label -55deg so long date strings don't
     // overlap at 30-day+ ranges.
@@ -172,11 +199,31 @@
       '<p class="admin-chart-summary"><strong>' + formatNumber(total) + '</strong> visitors' +
       (pv ? ' &middot; <strong>' + formatNumber(pv) + '</strong> pageviews' : '') +
       ' over ' + series.length + ' days.</p>' +
-      '<svg class="admin-chart-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Visitors per day">' +
-        '<path d="' + area + '" class="admin-chart-area"/>' +
-        '<polyline points="' + points + '" class="admin-chart-line"/>' +
-      '</svg>' +
-      '<div class="admin-chart-days" style="--days: ' + series.length + ';">' + labels + '</div>';
+      '<div class="admin-chart-plot">' +
+        '<div class="admin-chart-values" style="--days: ' + series.length + ';">' + values + '</div>' +
+        '<div class="admin-chart-canvas">' +
+          '<div class="admin-chart-yaxis" aria-hidden="true">' + yaxis + '</div>' +
+          '<svg class="admin-chart-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Visitors per day">' +
+            '<g class="admin-chart-gridlines">' + gridlines + '</g>' +
+            '<path d="' + area + '" class="admin-chart-area"/>' +
+            '<polyline points="' + points + '" class="admin-chart-line"/>' +
+          '</svg>' +
+        '</div>' +
+        '<div class="admin-chart-days" style="--days: ' + series.length + ';">' + labels + '</div>' +
+      '</div>';
+  }
+
+  // Round n up to a readable tick max (10, 25, 50, 100, 250, 500, 1k, …).
+  // Keeps the y-axis landing on numbers you'd actually write down.
+  function niceCeil(n) {
+    if (n <= 1) return 1;
+    var mag = Math.pow(10, Math.floor(Math.log10(n)));
+    var rel = n / mag;
+    if (rel <= 1) return mag;
+    if (rel <= 2) return 2 * mag;
+    if (rel <= 2.5) return 2.5 * mag;
+    if (rel <= 5) return 5 * mag;
+    return 10 * mag;
   }
 
   function fillArticles(payload) {
