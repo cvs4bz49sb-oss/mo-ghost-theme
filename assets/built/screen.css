@@ -7678,6 +7678,37 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin: 6px 0 0;
 }
 
+/* --- Spacing rhythm between admin sections ----------------------------- */
+/* The flourish dividers used to carry the vertical rhythm. Without them,
+   sections need real margin between each unit. "Unit" = an admin-split,
+   a stand-alone admin-stats / admin-chart / admin-ranked list, OR a
+   section-intro plus whatever follows it. Drift-section blocks get the
+   same treatment. */
+.admin-body .container > .admin-period,
+.admin-body .container > .admin-stats,
+.admin-body .container > .admin-split,
+.admin-body .container > .admin-chart,
+.admin-body .container > .admin-ranked,
+.admin-body .container > .section-intro,
+.admin-body .container > .drift-section,
+.admin-body .container > .admin-table-host,
+.admin-body .container .drift-host > .admin-stats,
+.admin-body .container .drift-host > .admin-table-status,
+.admin-body .container .drift-host > .drift-section {
+  margin-top: 64px;
+}
+.admin-body .container > :first-child,
+.admin-body .container .drift-host > :first-child {
+  margin-top: 0;
+}
+/* When a section-intro directly precedes its content (a chart or list),
+   keep them tight as a pair — the gap belongs BEFORE the section-intro,
+   not between it and the content it introduces. */
+.admin-body .container > .section-intro + .admin-chart,
+.admin-body .container > .section-intro + .admin-ranked {
+  margin-top: 16px;
+}
+
 /* --- Admin period selector (traffic page) ------------------------------ */
 /* Toggle-style row of time-range options. Active option has an underline
    rather than a pill background, matching the editorial tone elsewhere. */
