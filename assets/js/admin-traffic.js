@@ -46,7 +46,9 @@
   function hydrate() {
     // Reset placeholders.
     setEmpty("[data-chart-placeholder]", "Loading…");
-    fill("[data-admin-top-pages]", '<li class="admin-empty">Loading…</li>');
+    fill("[data-admin-top-articles]", '<li class="admin-empty">Loading…</li>');
+    fill("[data-admin-top-topics]", '<li class="admin-empty">Loading…</li>');
+    fill("[data-admin-top-authors]", '<li class="admin-empty">Loading…</li>');
     fill("[data-admin-top-sources]", '<li class="admin-empty">Loading…</li>');
     fill("[data-admin-top-countries]", '<li class="admin-empty">Loading…</li>');
     root.querySelectorAll('[data-stat]').forEach(function (el) { el.textContent = "…"; });
@@ -61,10 +63,20 @@
       if (res.forbidden) return showForbidden();
       fillChart(res.body);
     });
-    api("/traffic/top-pages?limit=20").then(function (res) {
-      if (!res) return fill("[data-admin-top-pages]", '<li class="admin-empty">Couldn’t load pages.</li>');
+    api("/traffic/top-articles?limit=20").then(function (res) {
+      if (!res) return fill("[data-admin-top-articles]", '<li class="admin-empty">Couldn’t load articles.</li>');
       if (res.forbidden) return showForbidden();
-      fillPages(res.body);
+      fillArticles(res.body);
+    });
+    api("/traffic/top-topics?limit=20").then(function (res) {
+      if (!res) return fill("[data-admin-top-topics]", '<li class="admin-empty">Couldn’t load topics.</li>');
+      if (res.forbidden) return showForbidden();
+      fillTopics(res.body);
+    });
+    api("/traffic/top-authors?limit=20").then(function (res) {
+      if (!res) return fill("[data-admin-top-authors]", '<li class="admin-empty">Couldn’t load contributors.</li>');
+      if (res.forbidden) return showForbidden();
+      fillAuthors(res.body);
     });
     api("/traffic/top-sources?limit=15").then(function (res) {
       if (!res) return fill("[data-admin-top-sources]", '<li class="admin-empty">Couldn’t load sources.</li>');
@@ -153,19 +165,53 @@
       '<p class="admin-chart-axis"><span>' + series[0].date + '</span><span>' + series[series.length - 1].date + '</span></p>';
   }
 
-  function fillPages(payload) {
-    var pages = (payload && payload.pages) || [];
-    if (!pages.length) return fill("[data-admin-top-pages]", '<li class="admin-empty">No data.</li>');
-    var max = pages[0].visitors || 1;
-    fill("[data-admin-top-pages]", pages.map(function (p) {
-      var bar = Math.round(((p.visitors || 0) / max) * 100);
+  function fillArticles(payload) {
+    var articles = (payload && payload.articles) || [];
+    if (!articles.length) return fill("[data-admin-top-articles]", '<li class="admin-empty">No article reads recorded in this range yet. Custom events start accumulating after a page view on a post with the new tracker.</li>');
+    var max = articles[0].visitors || 1;
+    fill("[data-admin-top-articles]", articles.map(function (a) {
+      var bar = Math.round(((a.visitors || 0) / max) * 100);
+      return (
+        '<li class="admin-ranked-item">' +
+          '<div class="admin-ranked-bar" style="width: ' + bar + '%"></div>' +
+          '<span class="admin-ranked-label">' + escapeHtml(a.title) + '</span>' +
+          '<span class="admin-ranked-value">' + formatNumber(a.visitors) + '</span>' +
+        '</li>'
+      );
+    }).join(""));
+  }
+
+  function fillTopics(payload) {
+    var topics = (payload && payload.topics) || [];
+    if (!topics.length) return fill("[data-admin-top-topics]", '<li class="admin-empty">No data yet.</li>');
+    var max = topics[0].visitors || 1;
+    fill("[data-admin-top-topics]", topics.map(function (t) {
+      var bar = Math.round(((t.visitors || 0) / max) * 100);
       return (
         '<li class="admin-ranked-item">' +
           '<div class="admin-ranked-bar" style="width: ' + bar + '%"></div>' +
           '<span class="admin-ranked-label">' +
-            '<a href="' + escapeAttr(p.page) + '">' + escapeHtml(p.page) + '</a>' +
+            '<a href="/tag/' + escapeAttr(t.slug) + '/">' + escapeHtml(t.name) + '</a>' +
           '</span>' +
-          '<span class="admin-ranked-value">' + formatNumber(p.visitors) + '</span>' +
+          '<span class="admin-ranked-value">' + formatNumber(t.visitors) + '</span>' +
+        '</li>'
+      );
+    }).join(""));
+  }
+
+  function fillAuthors(payload) {
+    var authors = (payload && payload.authors) || [];
+    if (!authors.length) return fill("[data-admin-top-authors]", '<li class="admin-empty">No data yet.</li>');
+    var max = authors[0].visitors || 1;
+    fill("[data-admin-top-authors]", authors.map(function (a) {
+      var bar = Math.round(((a.visitors || 0) / max) * 100);
+      return (
+        '<li class="admin-ranked-item">' +
+          '<div class="admin-ranked-bar" style="width: ' + bar + '%"></div>' +
+          '<span class="admin-ranked-label">' +
+            '<a href="/author/' + escapeAttr(a.slug) + '/">' + escapeHtml(a.name) + '</a>' +
+          '</span>' +
+          '<span class="admin-ranked-value">' + formatNumber(a.visitors) + '</span>' +
         '</li>'
       );
     }).join(""));

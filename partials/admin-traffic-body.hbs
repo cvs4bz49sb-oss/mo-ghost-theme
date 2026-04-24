@@ -48,18 +48,44 @@
 
     <div class="flourish">{{> "flourish-mark"}}</div>
 
-    {{!-- Two-column: top pages + top sources. --}}
+    {{!-- Top Articles — full width since titles can be long. --}}
+    <div class="section-intro section-intro-left">
+      <p class="eyebrow">Top Articles</p>
+      <h2 class="section-heading"><em>Most read.</em></h2>
+    </div>
+    <ol class="admin-ranked" data-admin-top-articles>
+      <li class="admin-empty" data-articles-placeholder>Loading&hellip;</li>
+    </ol>
+
+    <div class="flourish">{{> "flourish-mark"}}</div>
+
+    {{!-- Two-column: top topics + top contributors. --}}
     <div class="admin-split">
       <div class="admin-split-main">
         <div class="section-intro section-intro-left">
-          <p class="eyebrow">Top Pages</p>
-          <h2 class="section-heading"><em>Most read.</em></h2>
+          <p class="eyebrow">Top Topics</p>
+          <h2 class="section-heading"><em>Categories readers want.</em></h2>
         </div>
-        <ol class="admin-ranked" data-admin-top-pages>
-          <li class="admin-empty" data-pages-placeholder>Loading&hellip;</li>
+        <ol class="admin-ranked" data-admin-top-topics>
+          <li class="admin-empty" data-topics-placeholder>Loading&hellip;</li>
         </ol>
       </div>
       <aside class="admin-split-side">
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow">Top Contributors</p>
+          <h2 class="section-heading"><em>Writers being read.</em></h2>
+        </div>
+        <ol class="admin-ranked" data-admin-top-authors>
+          <li class="admin-empty" data-authors-placeholder>Loading&hellip;</li>
+        </ol>
+      </aside>
+    </div>
+
+    <div class="flourish">{{> "flourish-mark"}}</div>
+
+    {{!-- Two-column: top sources + top regions. --}}
+    <div class="admin-split">
+      <div class="admin-split-main">
         <div class="section-intro section-intro-left">
           <p class="eyebrow">Top Sources</p>
           <h2 class="section-heading"><em>Where readers come from.</em></h2>
@@ -67,19 +93,17 @@
         <ol class="admin-ranked" data-admin-top-sources>
           <li class="admin-empty" data-sources-placeholder>Loading&hellip;</li>
         </ol>
+      </div>
+      <aside class="admin-split-side">
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow">Regions</p>
+          <h2 class="section-heading"><em>Who's reading where.</em></h2>
+        </div>
+        <ol class="admin-ranked" data-admin-top-countries>
+          <li class="admin-empty" data-countries-placeholder>Loading&hellip;</li>
+        </ol>
       </aside>
     </div>
-
-    <div class="flourish">{{> "flourish-mark"}}</div>
-
-    {{!-- Countries. --}}
-    <div class="section-intro section-intro-left">
-      <p class="eyebrow">Regions</p>
-      <h2 class="section-heading"><em>Who's reading where.</em></h2>
-    </div>
-    <ol class="admin-ranked admin-ranked--columns" data-admin-top-countries>
-      <li class="admin-empty" data-countries-placeholder>Loading&hellip;</li>
-    </ol>
 
   </div>
 </section>
