@@ -62,10 +62,22 @@
     buttons.forEach(function (btn) {
       updateButton(btn);
       btn.addEventListener("click", function () {
+        // Mark <html> as mid-switch so CSS can kill transitions on
+        // the feature-toggle buttons during the theme flip (they'd
+        // otherwise animate via their own hover transitions, reading
+        // as a soft fade rather than an instant switch).
+        document.documentElement.setAttribute("data-theme-switching", "true");
         var next = current() === "dark" ? "light" : "dark";
         apply(next);
         try { localStorage.setItem(KEY, next); } catch (e) { /* no-op */ }
         buttons.forEach(updateButton);
+        // Drop the attribute after two frames so the post-body's
+        // own 300ms color-transition still runs normally.
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            document.documentElement.removeAttribute("data-theme-switching");
+          });
+        });
       });
     });
   }
