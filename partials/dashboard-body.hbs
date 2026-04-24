@@ -65,11 +65,10 @@
           </div>
         </details>
 
-        {{!-- Shipping address — paid Members only; the print journal is
-             mailed to whatever's stored here. Read/write proxies through
-             the mo-membership Worker, which also mirrors to Kit custom
-             fields + the Ghost member note on save. --}}
-        {{#match @member.status "!=" "free"}}
+        {{!-- Shipping address — the print journal is mailed to
+             whatever's stored here. Dashboard-level visibility rules
+             already gate the page to paid / comped / admin-preview
+             members, so this module renders unconditionally here. --}}
         <details class="dashboard-module">
           <summary>
             <h2 class="dashboard-module-title"><em>Shipping Address</em></h2>
@@ -141,7 +140,6 @@
             </div>
           </div>
         </details>
-        {{/match}}
 
       </div>
 
