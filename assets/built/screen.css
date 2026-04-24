@@ -5681,6 +5681,9 @@ body {
    states on inputs, a bottom rule under each field, italic display
    headings for section legends. Matches the rest of the dashboard
    prose rather than the bordered signup forms on /give/ /groups/. */
+/* Make sure our display:flex below doesn't override the HTML hidden
+   attribute — JS flips between view/empty/form via [hidden]. */
+.dashboard-address [hidden] { display: none !important; }
 .dashboard-address-view {
   display: flex;
   flex-direction: column;
