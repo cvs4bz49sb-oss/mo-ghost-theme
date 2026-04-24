@@ -1,0 +1,90 @@
+{{!< default}}
+{{!-- custom-complete-membership: new Members land here after Portal
+     checkout to give us their shipping address for the print journal.
+     Ghost doesn't expose custom member fields on our plan, so we
+     collect + store via the mo-membership Worker instead. --}}
+
+<main class="membership membership-support">
+  <script>window.MO_API_BASE = "{{@custom.membership_api_base}}";</script>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Welcome to Mere Orthodoxy</p>
+      <h1 class="page-hero-headline"><em>One last thing</em> — where should we mail the journal?</h1>
+      <p class="page-hero-sub">Members receive the quarterly print journal by mail. Give us an address and we'll take it from there. You can update this any time from your dashboard.</p>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container">
+      {{#if @member}}
+        <form id="address-form"
+              class="stacked-form"
+              novalidate
+              data-member-email="{{@member.email}}"
+              data-member-name="{{@member.name}}">
+
+          <fieldset class="form-group">
+            <legend class="form-legend">Recipient</legend>
+            <label class="form-field">
+              <span class="form-label">Full name on label</span>
+              <input type="text" name="name" autocomplete="name" value="{{@member.name}}" required />
+            </label>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <legend class="form-legend">Address</legend>
+            <label class="form-field">
+              <span class="form-label">Street</span>
+              <input type="text" name="line1" autocomplete="address-line1" required />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Apartment, suite, or unit <span class="form-hint">(optional)</span></span>
+              <input type="text" name="line2" autocomplete="address-line2" />
+            </label>
+            <div class="form-row">
+              <label class="form-field">
+                <span class="form-label">City</span>
+                <input type="text" name="city" autocomplete="address-level2" required />
+              </label>
+              <label class="form-field">
+                <span class="form-label">State / Province</span>
+                <input type="text" name="state" autocomplete="address-level1" maxlength="3" required />
+                <span class="form-hint">Two-letter code (e.g. CA, NY, ON)</span>
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="form-field">
+                <span class="form-label">ZIP / Postal code</span>
+                <input type="text" name="postal_code" autocomplete="postal-code" required />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Country</span>
+                <select name="country" required>
+                  <option value="US" selected>United States</option>
+                  <option value="CA">Canada</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <button type="submit" class="btn btn-pill btn-primary btn-wide" id="address-submit">
+            <span class="btn-label">Save address</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="btn-tagline">You can update this any time from your dashboard.</p>
+          <p class="btn-error" id="address-error" role="alert"></p>
+          <p class="form-success" id="address-success" hidden>Got it. Your journal will start with the next issue.</p>
+        </form>
+      {{else}}
+        <div class="empty-state">
+          <p class="eyebrow">Sign in needed</p>
+          <h2><em>Please sign in</em> before completing your membership.</h2>
+          <p>This page only works when you're signed in as a member. Check your inbox for the Mere Orthodoxy magic-link email, or <a href="#/portal/signin">sign in here</a>.</p>
+        </div>
+      {{/if}}
+    </div>
+  </section>
+
+  <script src="{{asset "js/complete-membership.js"}}"></script>
+</main>

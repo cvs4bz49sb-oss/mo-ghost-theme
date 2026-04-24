@@ -65,6 +65,84 @@
           </div>
         </details>
 
+        {{!-- Shipping address — paid Members only; the print journal is
+             mailed to whatever's stored here. Read/write proxies through
+             the mo-membership Worker, which also mirrors to Kit custom
+             fields + the Ghost member note on save. --}}
+        {{#match @member.status "!=" "free"}}
+        <details class="dashboard-module">
+          <summary>
+            <h2 class="dashboard-module-title"><em>Shipping Address</em></h2>
+            <span class="dashboard-module-chev" aria-hidden="true"></span>
+          </summary>
+          <div class="dashboard-module-body">
+            <div class="dashboard-address"
+                 data-dashboard-address
+                 data-member-email="{{@member.email}}"
+                 data-member-name="{{@member.name}}"
+                 data-api-base="{{@custom.membership_api_base}}">
+              <p class="dashboard-empty" data-address-placeholder>Loading your address&hellip;</p>
+
+              <div class="dashboard-address-view" data-address-view hidden>
+                <p class="dashboard-address-display" data-address-display></p>
+                <button type="button" class="dashboard-address-edit" data-address-edit>Edit address</button>
+              </div>
+
+              <div class="dashboard-address-empty" data-address-empty hidden>
+                <p>We don't have a shipping address on file yet. The print journal goes out quarterly &mdash; add your address so you don't miss the next one.</p>
+                <button type="button" class="btn btn-pill btn-primary" data-address-edit>Add address</button>
+              </div>
+
+              <form class="stacked-form dashboard-address-form" data-address-form hidden novalidate>
+                <div class="form-row">
+                  <label class="form-field">
+                    <span class="form-label">Full name on label</span>
+                    <input type="text" name="name" autocomplete="name" required />
+                  </label>
+                </div>
+                <label class="form-field">
+                  <span class="form-label">Street</span>
+                  <input type="text" name="line1" autocomplete="address-line1" required />
+                </label>
+                <label class="form-field">
+                  <span class="form-label">Apartment, suite, or unit <span class="form-hint">(optional)</span></span>
+                  <input type="text" name="line2" autocomplete="address-line2" />
+                </label>
+                <div class="form-row">
+                  <label class="form-field">
+                    <span class="form-label">City</span>
+                    <input type="text" name="city" autocomplete="address-level2" required />
+                  </label>
+                  <label class="form-field">
+                    <span class="form-label">State / Province</span>
+                    <input type="text" name="state" autocomplete="address-level1" maxlength="3" required />
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label class="form-field">
+                    <span class="form-label">ZIP / Postal code</span>
+                    <input type="text" name="postal_code" autocomplete="postal-code" required />
+                  </label>
+                  <label class="form-field">
+                    <span class="form-label">Country</span>
+                    <select name="country" required>
+                      <option value="US">United States</option>
+                      <option value="CA">Canada</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="dashboard-address-actions">
+                  <button type="submit" class="btn btn-pill btn-primary" data-address-submit>Save</button>
+                  <button type="button" class="btn btn-pill btn-ghost" data-address-cancel>Cancel</button>
+                </div>
+                <p class="btn-error" data-address-error role="alert"></p>
+                <p class="form-success" data-address-success hidden>Saved.</p>
+              </form>
+            </div>
+          </div>
+        </details>
+        {{/match}}
+
       </div>
 
       <aside class="dashboard-rail" aria-label="Membership">

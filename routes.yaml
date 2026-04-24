@@ -29,6 +29,8 @@ routes:
     template: custom-institution-manage
   /manage/:
     template: custom-manage
+  /complete-membership/:
+    template: custom-complete-membership
   /dashboard/:
     template: custom-dashboard
   /dashboard/bookmarks/:
