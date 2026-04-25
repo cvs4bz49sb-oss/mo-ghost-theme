@@ -3,9 +3,10 @@
  *
  * Workers (mo-admin, mo-membership/api/admin/*, mo-kit-bridge) require
  * an Authorization: Bearer <jwt> header where <jwt> is a Ghost members
- * identity token. Ghost mints these for the currently logged-in member
- * via GET /members/api/identity/. Tokens expire after ~10 minutes, so
- * we cache one and refetch on demand.
+ * identity token (RS512, sub=email). Ghost's site mints these for the
+ * currently logged-in member via GET /members/api/session/ — that
+ * endpoint returns the JWT in the response body as plain text. Tokens
+ * expire after ~10 minutes, so we cache one and refetch on demand.
  *
  * Usage:
  *   const headers = await window.MOAdminAuth.headers();
@@ -21,7 +22,7 @@
 
   async function fetchToken() {
     try {
-      const r = await fetch("/members/api/identity/", { credentials: "same-origin" });
+      const r = await fetch("/members/api/session/", { credentials: "same-origin" });
       if (!r.ok) return null;
       const text = (await r.text()).trim();
       // Ghost returns plain text in current versions; some older versions
