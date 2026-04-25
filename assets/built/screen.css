@@ -8316,16 +8316,19 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 
 /* Decision row — inbox-only. Lives at the bottom of the expanded
    body so editors approve or deny AFTER reading the full submission,
-   not from a button on the collapsed head. */
+   not from a button on the collapsed head. Buttons match the sm
+   pill scale used elsewhere in the card so the section reads as
+   a quiet closing action, not a CTA banner. */
 .editorial-card-decision {
-  padding-top: 14px;
-  margin-top: 14px;
+  padding-top: 12px;
+  margin-top: 12px;
   border-top: 1px solid var(--color-rule);
 }
 .editorial-card-decision-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 8px 14px;
   margin-top: 4px;
 }
 .editorial-card-decision-hint {
@@ -8333,7 +8336,6 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   font-size: 12px;
   color: var(--color-muted);
   font-style: italic;
-  margin: 8px 0 0 !important;
 }
 
 .admin-forbidden { max-width: 560px; }

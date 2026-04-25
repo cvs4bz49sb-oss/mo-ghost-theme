@@ -130,17 +130,19 @@
       '</div>';
 
     // Decision row only for inbox cards — already-on-the-board cards
-    // change status by drag-drop, not buttons.
+    // change status by drag-drop, not buttons. Sized to match the
+    // download buttons above it so the section reads as a quiet
+    // closing action, not a CTA banner.
     var decision = "";
     if (variant === "inbox") {
       decision =
         '<div class="editorial-card-section editorial-card-decision">' +
           '<p class="eyebrow">Decision</p>' +
           '<div class="editorial-card-decision-actions">' +
-            '<button type="button" class="btn btn-pill btn-primary" data-action="approve" data-id="' + row.id + '">Approve &amp; move to board</button>' +
-            '<button type="button" class="btn btn-pill" data-action="deny" data-id="' + row.id + '">Deny</button>' +
+            '<button type="button" class="btn btn-sm btn-pill btn-primary" data-action="approve" data-id="' + row.id + '">Approve</button>' +
+            '<button type="button" class="btn btn-sm btn-pill" data-action="deny" data-id="' + row.id + '">Deny</button>' +
+            '<span class="editorial-card-decision-hint">Approving moves this card into the workflow board below.</span>' +
           '</div>' +
-          '<p class="editorial-card-decision-hint">Approving moves this submission into the workflow board below. You can reorder it after.</p>' +
         '</div>';
     }
 
