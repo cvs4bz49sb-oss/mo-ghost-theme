@@ -1,0 +1,1471 @@
+{{!-- /ebook/blueprint-for-renewal/read/ — standalone Ghost custom-template page.
+     Bound via routes.yaml to Ghost Page slug `ebook-blueprint-for-renewal-read`.
+     Ghost enforces per-tier visibility (paid Member tier OR the
+     "Ebook · Blueprint for Renewal" tier) before this template renders.
+     Content ported verbatim from ebooks/blueprint-for-renewal/public/index.html;
+     the Express server + Railway deploy are decommissioned. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blueprint for Renewal &mdash; Mere Orthodoxy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+  <style>
+    /* ===== CSS Reset & Base ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #ee7d51;
+      --secondary: #c1593c;
+      --tertiary: #a43a27;
+      --quaternary: #d89f5b;
+      --body-text: #2d2927;
+      --light-text: #9a8773;
+      --dark-bg: #c0b2a5;
+      --light-bg: #f6f3f2;
+      --page-bg: #f1e0c9;
+      --font-headline: 'IM Fell Great Primer', 'Georgia', serif;
+      --font-body: 'Source Serif 4', 'Georgia', serif;
+      --content-width: 680px;
+      --sidebar-width: 260px;
+    }
+
+    /* ===== Dark Mode ===== */
+    [data-theme="dark"] {
+      --page-bg: #2d2927;
+      --body-text: #e8ddd0;
+      --light-text: #9a8773;
+      --primary: #ee7d51;
+      --secondary: #d4826a;
+      --tertiary: #e8a08a;
+      --quaternary: #d89f5b;
+    }
+
+    /* ===== Body ===== */
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 2rem;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 19px;
+      line-height: 1.75;
+      color: var(--body-text);
+      background-color: var(--page-bg);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== Layout ===== */
+    .page-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ===== Header Bar ===== */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background-color: var(--page-bg);
+      transition: background-color 0.3s ease;
+    }
+
+    .org-name {
+      font-family: var(--font-headline);
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--body-text);
+      text-decoration: none;
+      font-weight: 400;
+    }
+
+    .org-name:hover {
+      color: var(--secondary);
+    }
+
+    /* ===== Theme Toggle ===== */
+    .theme-toggle {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      border-radius: 14px;
+      border: 2px solid var(--body-text);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 0;
+    }
+
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: var(--body-text);
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    [data-theme="dark"] .theme-toggle::after {
+      transform: translateX(22px);
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      padding: 5.5rem 2rem 2rem 2.5rem;
+      overflow-y: auto;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar nav {
+      flex: 1;
+    }
+
+    .sidebar-actions {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+    }
+
+    /* ===== About Button ===== */
+    .about-btn {
+      display: block;
+      text-align: center;
+      width: 100%;
+      padding: 0.6rem 1.4rem;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--body-text);
+      background: transparent;
+      border: 2px solid var(--secondary);
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 0.25rem;
+    }
+
+    .about-btn:hover {
+      background-color: var(--secondary);
+      color: var(--page-bg);
+    }
+
+    [data-theme="dark"] .about-btn {
+      border-color: var(--quaternary);
+      color: var(--body-text);
+    }
+
+    [data-theme="dark"] .about-btn:hover {
+      background-color: var(--quaternary);
+      color: #2d2927;
+    }
+
+    /* ===== Icon Button Row ===== */
+    .icon-btn-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+
+    /* ===== Share Button & Popup ===== */
+    .share-wrapper {
+      position: relative;
+    }
+
+    .share-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      color: var(--secondary);
+      background: transparent;
+      border: 2px solid var(--secondary);
+      border-radius: 50%;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .share-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .share-btn:hover {
+      background-color: var(--secondary);
+      color: var(--page-bg);
+    }
+
+    [data-theme="dark"] .share-btn {
+      border-color: var(--quaternary);
+      color: var(--quaternary);
+    }
+
+    [data-theme="dark"] .share-btn:hover {
+      background-color: var(--quaternary);
+      color: #2d2927;
+    }
+
+    .share-popup {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 0.5rem);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      background-color: var(--page-bg);
+      border: 1px solid var(--dark-bg);
+      border-radius: 6px;
+      padding: 0.5rem 0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      z-index: 60;
+    }
+
+    .share-popup.open {
+      display: block;
+    }
+
+    [data-theme="dark"] .share-popup {
+      border-color: var(--light-text);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .share-option {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.5rem 1rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--body-text);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+
+    .share-option:hover {
+      background-color: var(--dark-bg);
+    }
+
+    [data-theme="dark"] .share-option:hover {
+      background-color: rgba(255,255,255,0.08);
+    }
+
+    .share-option svg {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+    }
+
+    .share-copied {
+      font-size: 0.8rem;
+      color: var(--secondary);
+      text-align: center;
+      padding: 0.25rem 0;
+      display: none;
+    }
+
+    .share-copied.show {
+      display: block;
+    }
+
+    .toc-title {
+      font-family: var(--font-headline);
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    .toc-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .toc-list li {
+      margin-bottom: 0.35rem;
+    }
+
+    .toc-list a {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--light-text);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 0.15rem 0;
+    }
+
+    .toc-list a:hover {
+      color: var(--body-text);
+    }
+
+    .toc-list a.active {
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .toc-list .toc-major {
+      font-family: var(--font-headline);
+      font-size: 0.95rem;
+      color: var(--light-text);
+      margin-top: 0.5rem;
+      transition: color 0.2s ease, font-weight 0.2s ease;
+    }
+
+    .toc-list .toc-major:hover {
+      color: var(--body-text);
+    }
+
+    .toc-list .toc-major.active {
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .toc-list .toc-major:first-child {
+      margin-top: 0;
+    }
+
+    .toc-list .toc-sub {
+      padding-left: 0;
+    }
+
+    /* ===== Main Content ===== */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 6rem 4rem 6rem 4rem;
+      max-width: calc(var(--content-width) + var(--sidebar-width) + 8rem);
+    }
+
+    .content-container {
+      max-width: var(--content-width);
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      margin-bottom: 3.5rem;
+      padding-bottom: 0;
+    }
+
+    .hero-title {
+      font-family: var(--font-headline);
+      font-size: clamp(2.8rem, 5.5vw, 4.2rem);
+      line-height: 1.12;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-headline);
+      font-style: italic;
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: var(--body-text);
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+
+    .hero-date {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--light-text);
+    }
+
+    /* ===== Sections ===== */
+    .content-section {
+      margin-bottom: 1rem;
+    }
+
+    .section-label {
+      font-family: var(--font-headline);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--light-text);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.75rem;
+      margin-top: 3rem;
+    }
+
+    .content-section:first-child .section-label {
+      margin-top: 0;
+    }
+
+    .section-title {
+      font-family: var(--font-headline);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 400;
+      color: var(--body-text);
+      margin-top: 4rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      padding-top: 2rem;
+      border-top: 3px solid var(--secondary);
+    }
+
+    .essay-heading {
+      font-family: var(--font-headline);
+      font-size: 1.15rem;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+
+    .section-heading {
+      font-family: var(--font-headline);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      line-height: 1.35;
+    }
+
+    .subsection-heading {
+      font-family: var(--font-headline);
+      font-style: italic;
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-top: 2.5rem;
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+
+    /* ===== Body Text ===== */
+    p {
+      margin-bottom: 1.25rem;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    /* ===== Callout (bold+italic manifesto statement) ===== */
+    .callout {
+      font-family: var(--font-headline);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--body-text);
+      padding: 2rem 0;
+      margin: 2rem 0;
+      border-top: 3px solid var(--secondary);
+      border-bottom: 3px solid var(--secondary);
+    }
+
+    .callout strong {
+      font-weight: 400;
+    }
+
+    /* ===== Blockquote ===== */
+    blockquote {
+      margin: 1.75rem 0;
+      padding: 0.25rem 0 0.25rem 1.75rem;
+      border-left: 3px solid var(--quaternary);
+      color: var(--body-text);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    /* ===== Barna List ===== */
+    .barna-list {
+      margin: 1.5rem 0 1.5rem 1.5rem;
+      padding: 0;
+    }
+
+    .barna-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 0.25rem;
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    /* ===== Mobile Hamburger ===== */
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      z-index: 200;
+    }
+
+    .menu-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background-color: var(--body-text);
+      margin: 5px 0;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(45, 41, 39, 0.4);
+      z-index: 5;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 960px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        background-color: var(--page-bg);
+        z-index: 50;
+        width: 280px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 5.5rem 1.5rem 4rem 1.5rem;
+      }
+
+      .hero-title {
+        font-size: 2.4rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+      }
+
+      .top-bar {
+        padding: 1rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        font-size: 17px;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .section-title {
+        font-size: 1.7rem;
+      }
+
+      .section-heading {
+        font-size: 1.3rem;
+      }
+
+      .main-content {
+        padding: 5rem 1.25rem 3rem 1.25rem;
+      }
+    }
+
+    /* ===== Download Button ===== */
+    .download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      color: var(--page-bg);
+      background-color: var(--secondary);
+      border: 2px solid var(--secondary);
+      border-radius: 50%;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .download-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .download-btn:hover {
+      background-color: var(--tertiary);
+      border-color: var(--tertiary);
+      color: var(--page-bg);
+    }
+
+    [data-theme="dark"] .download-btn {
+      color: #2d2927;
+      background-color: var(--quaternary);
+      border-color: var(--quaternary);
+    }
+
+    [data-theme="dark"] .download-btn:hover {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* ===== Footer ===== */
+    .site-footer {
+      text-align: center;
+      padding: 3rem 0 2rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--light-text);
+    }
+
+    /* ===== PDF / Print Mode ===== */
+    body.print-mode .download-btn,
+    body.print-mode .about-btn,
+    body.print-mode .share-wrapper,
+    body.print-mode .sidebar-actions,
+    body.print-mode .top-bar,
+    body.print-mode .sidebar,
+    body.print-mode .sidebar-overlay,
+    body.print-mode .progress-bar,
+    body.print-mode .menu-toggle,
+    body.print-mode .site-footer {
+      display: none !important;
+    }
+
+    body.print-mode {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      line-height: 1.6 !important;
+    }
+
+    body.print-mode .main-content {
+      margin-left: 0;
+      padding: 0;
+      max-width: 100%;
+    }
+
+    body.print-mode .content-container {
+      max-width: 100%;
+    }
+
+    /* Title page: centered, standalone */
+    body.print-mode .hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      height: 100vh;
+      page-break-after: always;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    body.print-mode .hero-title {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 28pt !important;
+      line-height: 1.2 !important;
+      color: #000000 !important;
+      margin-bottom: 0.5rem;
+    }
+
+    body.print-mode .hero-subtitle {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 14pt !important;
+      font-style: italic;
+      color: #000000 !important;
+      margin-bottom: 2rem;
+    }
+
+    body.print-mode .hero-date {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      color: #333333 !important;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Add "Mere Orthodoxy" to title page via pseudo-element */
+    body.print-mode .hero::before {
+      content: "Mere Orthodoxy";
+      font-family: 'Times New Roman', 'Times', serif;
+      font-size: 14pt;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #333333;
+      margin-bottom: 3rem;
+    }
+
+    /* Chapter headings: start on new page */
+    body.print-mode .content-section {
+      page-break-before: always;
+      margin-bottom: 0;
+    }
+
+    body.print-mode .section-title {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 22pt !important;
+      color: #000000 !important;
+      border-top: 1px solid #000000;
+      border-bottom: none;
+      padding-top: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+    }
+
+    body.print-mode .section-label {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 11pt !important;
+      color: #333333 !important;
+      margin-top: 0;
+    }
+
+    body.print-mode .section-heading {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 16pt !important;
+      color: #000000 !important;
+      margin-top: 2rem;
+    }
+
+    body.print-mode .subsection-heading {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 13pt !important;
+      font-style: italic;
+      color: #000000 !important;
+    }
+
+    body.print-mode .essay-heading {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 13pt !important;
+      color: #000000 !important;
+    }
+
+    body.print-mode p {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      color: #000000 !important;
+      line-height: 1.6 !important;
+    }
+
+    body.print-mode blockquote {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 11pt !important;
+      color: #000000 !important;
+      border-left-color: #999999;
+    }
+
+    body.print-mode .barna-list li {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 11pt !important;
+      color: #000000 !important;
+    }
+
+    body.print-mode .callout {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      color: #000000 !important;
+      border-top-color: #000000;
+      border-bottom-color: #000000;
+    }
+
+    /* ===== Highlight & Share Tooltip ===== */
+    .highlight-share {
+      display: none;
+      position: absolute;
+      z-index: 300;
+      background-color: #2d2927;
+      border-radius: 6px;
+      padding: 0.35rem 0.25rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      gap: 0.1rem;
+      align-items: center;
+      transform: translateX(-50%);
+    }
+
+    .highlight-share.visible {
+      display: flex;
+    }
+
+    .highlight-share * {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .highlight-share::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 7px solid #2d2927;
+    }
+
+    .hs-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #e8ddd0;
+      transition: background-color 0.15s ease;
+      padding: 0;
+    }
+
+    .hs-btn:hover {
+      background-color: rgba(255,255,255,0.12);
+    }
+
+    .hs-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .hs-divider {
+      width: 1px;
+      height: 20px;
+      background-color: rgba(255,255,255,0.2);
+      margin: 0 0.15rem;
+    }
+
+    .hs-copied {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #2d2927;
+      color: #e8ddd0;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .hs-copied.show {
+      opacity: 1;
+    }
+
+    @media (max-width: 960px) {
+      .highlight-share {
+        padding: 0.4rem 0.35rem;
+      }
+      .highlight-share::after {
+        bottom: auto;
+        top: -6px;
+        border-top: none;
+        border-bottom: 7px solid #2d2927;
+      }
+      .hs-copied {
+        top: auto;
+        bottom: -28px;
+      }
+      .hs-btn {
+        width: 40px;
+        height: 40px;
+      }
+      .hs-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    body.print-mode .highlight-share {
+      display: none !important;
+    }
+
+    /* ===== Scroll Progress ===== */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      z-index: 200;
+      transition: width 0.1s ease-out;
+      width: 0%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Highlight & Share Tooltip -->
+  <div class="highlight-share" id="highlightShare">
+    <span class="hs-copied" id="hsCopied">Copied!</span>
+    <button class="hs-btn" id="hsCopy" title="Copy quote">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </button>
+    <button class="hs-btn" id="hsSMS" title="Text message">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <div class="hs-divider"></div>
+    <button class="hs-btn" id="hsX" title="Share on X">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </button>
+    <button class="hs-btn" id="hsFB" title="Share on Facebook">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </button>
+    <button class="hs-btn" id="hsIG" title="Instagram Stories">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+    </button>
+  </div>
+
+  <!-- Reading Progress -->
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a href="https://mereorthodoxy.com" class="org-name">Mere Orthodoxy</a>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="page-wrapper">
+    <!-- Sidebar TOC -->
+    <aside class="sidebar" id="sidebar">
+      <nav>
+        <h2 class="toc-title">Contents</h2>
+        <ul class="toc-list">
+          <li><a href="#introduction" class="toc-major">Introduction</a></li>
+          <li><a href="#act-one" class="toc-sub">Act One</a></li>
+          <li><a href="#act-two" class="toc-sub">Act Two</a></li>
+          <li><a href="#protestant-catholicity" class="toc-major">1. Protestant Catholicity</a></li>
+          <li><a href="#why-protestant-catholic" class="toc-sub">Why &ldquo;Protestant Catholic&rdquo;?</a></li>
+          <li><a href="#what-is-the-churchs-purpose" class="toc-sub">What is the church&rsquo;s purpose?</a></li>
+          <li><a href="#core-values" class="toc-sub">Core Values</a></li>
+          <li><a href="#solidarity-conservatism" class="toc-major">2. Solidarity Conservatism</a></li>
+          <li><a href="#the-purpose-of-politics" class="toc-sub">The Purpose of Politics</a></li>
+          <li><a href="#how-politics-work-best" class="toc-sub">How Politics Work Best</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-actions">
+        <a href="https://mereorthodoxy.com/about" class="about-btn">About<br>Mere Orthodoxy</a>
+        <div class="icon-btn-row">
+          <div class="share-wrapper">
+            <div class="share-popup" id="sharePopup">
+              <button class="share-option" id="copyLink">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Copy link
+              </button>
+              <div class="share-copied" id="copiedMsg">Link copied!</div>
+              <a class="share-option" id="shareSMS" href="#" target="_blank">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Text message
+              </a>
+              <a class="share-option" id="shareX" href="#" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Share on X
+              </a>
+              <a class="share-option" id="shareFB" href="#" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Share on Facebook
+              </a>
+              <a class="share-option" id="shareIG" href="#" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                Instagram Stories
+              </a>
+            </div>
+            <button class="share-btn" id="shareToggle" title="Share">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </button>
+          </div>
+          <a href="/api/pdf" class="download-btn" title="Download PDF">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9m0 0L4.5 7.5M8 11l3.5-3.5M2 13h12"/></svg>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        <!-- Hero -->
+        <div class="hero">
+          <h1 class="hero-title">Blueprint for<br>Renewal</h1>
+          <p class="hero-subtitle">Protestant Catholicity and Solidarity Conservatism</p>
+        </div>
+
+        <!-- Article Content -->
+        <article>
+          <section id="introduction" class="content-section">
+            <h2 class="section-label">Introduction</h2>
+            <h3 class="essay-heading"><strong>A Blueprint for Renewal in the Third Act of the Post-War American Church</strong></h3>
+            <p>So far, the story of American Christianity after World War II has consisted of two acts.</p>
+            <h3 id="act-one" class="section-heading">Act One</h3>
+            <p>First was the era spanning from the end of World War II through the 1970s. It was marked by high church attendance, a soft Protestant establishmentarianism, a variety of vital Christian movements, and a kind of presuppositionally Christian public space, such that arguments about public life often traded quite explicitly on Christian commitments.</p>
+            <p>Significantly, all four streams of the church in American history were strong during this era. The Protestant Mainline was at the peak of its power and influence. Reinhold Niebuhr, the preeminent Mainline theologian, enjoyed a status as a public intellectual that no theologian has even approached in the years since his death. Evangelicalism, led by Billy Graham and financed by J. Howard Pew, was entrepreneurial and grew rapidly, particularly across the midwest and sun belt regions. The Black church, symbolically led by Martin Luther King Jr., was a force for civil reform <em>and</em> was an anchor to communal life amongst Afro-Americans, particularly in the south. Finally, Roman Catholicism was also thriving, enjoying a new-found mainstream acceptability in American life thanks to the accessible broadcasts of Bishop Fulton Sheen as well as the popularity of the Massachusetts politician and Catholic John F. Kennedy.</p>
+            <p>However, by the late 1960s this particular iteration of American Christianity was obviously weakening. Virtually all of Niebuhr’s major works had come and gone by then and the lion of the mainline himself would die in 1971. The Mainline itself also slid deeper into theological revisionism as this era continued and began a demographic collapse that, 50 years later, they still haven’t pulled out of. King’s place in American life had become contested and diminished in the aftermath of the Civil Rights Acts and Voting Rights Act. His access to political power had become limited due to his falling out with President Johnson over the Vietnam War. And the emergence of a more radical and secular bloc within the Civil Rights Movement had also eaten into King’s movement. Sheen retired in 1969 and the fallout of Vatican II left American Catholicism in a state of chaos for a time—a time which also coincided with the most extreme period during the Catholic clerical abuse scandal. Evangelicalism was comparatively more resilient, but was not unchallenged by these shifts: The ecosystem of American religion that nourished Graham was not pervasively evangelical, of course, but it did create conditions on which Graham’s evangelicalism was dependent.</p>
+            <p>As a result, by the 1970s there was a great deal of uncertainty and anxiety permeating evangelical Christianity due to declining church engagement, diminished political power, and a more assertive bloc of secularists now announcing their presence in America’s public life. This led to the Second Act in our story and the emergence of two groups that would define that era in American church history.</p>
+            <h3 id="act-two" class="section-heading">Act Two</h3>
+            <p>By the mid 1970s, the men who would define the next chapter in America’s Christian history were beginning their work. In the ecclesial space, Rick Warren was in seminary at Southwestern Baptist in Fort Worth. He would go on to launch Saddleback Church in southern California in 1980.</p>
+            <p>Bill Hybels, meanwhile, was a successful youth minister who would launch Willow Creek Church in 1975 after their ministry essentially outgrew the work he did with youth in another area church. Hybels’s ministry in particular was built on marketing research he did in response to diminished engagement in the church amongst suburbanites in the Chicago area. Specifically, Hybels surveyed people living in the area to find out if they were attending a church or, if they were not, what kept them from going. The answers were a mixture of pragmatic complaints and moral accusations. Some thought that Christians were hypocritical or always asking for money. Others simply felt that church was boring or irrelevant, that what happened on Sunday morning made no impact on their life the rest of the week.</p>
+            <p>Armed with this information, Hybels essentially reverse engineered a church experience to address each of these concerns. Sermons aimed at practical application and services were designed to be maximally engaging to the congregation. All of this marked a subtle yet significant liturgical shift in the church. Decisions about the service were still ostensibly <em>bound</em> by Scripture, but they were not necessarily <em>guided</em> by Scripture. Rather, the service was built to be relevant, accessible, and engaging and then checked against Scripture, as it were. If there wasn’t anything in Scripture that forbade what they were doing, it was assumed that what they planned was acceptable. The church was designed, therefore, with the pragmatic goal of getting butts into pews (or theatre seating, eventually). </p>
+            <p>This placed the task of attracting an audience at the forefront of how many evangelicals thought about church life. It also backgrounded many of the questions that traditionally defined church–questions of spiritual formation and discipleship, of close attention to Scripture, and of the church’s sacramental life. All of these things were now reinterpreted and reframed as part of the task of attracting people to church and then giving them an engaging, memorable, and relevant experience. Indeed, this revolution in ecclesiology actually reimagined the nature of church belonging: Traditionally speaking the terms used for people attending services on Sunday were terms like “laity” or “parishioners,” which conveyed that they were members in a “parish” which was itself a member of a larger church body. The belonging a church member possessed, then, was grounded in a shared way of life and shared beliefs. But under the attractional framing, the people attending church on Sunday mornings were now the audience–a passive term that did not indicate any broader sense of belonging. We do not imagine the people in the audience for a movie as belonging to some kind of broader community, after all. The pragmatic framework Hybels adopted, therefore, actually represented a revolution in the life of the American church.</p>
+            <p>Meanwhile, by the late 1970s American evangelicals were also feeling deeply anxious and alarmed by the state of the American nation. The removal of prayer from public schools due to the 1962 court case <em>Engel v Vitale</em> had provoked strong reactions amongst American Christians and created anxiety about our nation’s schools. Some within the movement also were worried about school integration in the aftermath of <em>Brown v Board</em>. While the soft Protestant establishment of the post-war years was not a product of American evangelicalism, it was a system that evangelicals benefited from and created a sense of security for them. As that system was dismantled due to the failure of the Mainline and the lack of a successor institution to replace it, the highly entrepreneurial and anti-institutional evangelicals engaged more in American political life. But their mode of engagement was not as insiders who were entrusted with the stewardship of the public square, as with the Mainline, but rather as outsiders who felt threatened by it and needed to bring public life to heel. The project was fundamentally adversarial, framed as an existential struggle for the soul of America.</p>
+            <p>This also represented a fundamental shift from how Christians had often imagined politics in the past. Both Roman Catholic and Protestant Christians generally had a positive vision for political life in which Christians worked within various political institutions to serve and build up the nation. This could mean serving in political office, but also it often meant creating institutions that were active in public life and intended to serve all comers. In the 19th century, the Salvation Army and the YMCA (and YWCA) were, in different ways, all examples of this work. More recently, projects like World Relief, Compassion International, and World Vision would all exemplify this same public spirit.</p>
+            <p>The underlying theory behind this was something that can be deeply sourced in Christian social thought across the ages: Achieving a utopian political state is not possible today due to the presence of sin. However, it is also impossible for anyone to live entirely autonomously simply by nature of a person’s tangible, physical needs for housing, food, clothing, and so on. Providing for those needs inherently means partnering in some way with other people. So, Christianity said, our political lives exist in order to insure that those necessary relationships are mutually delightful and beneficial rather than being exploitative or parasitic.</p>
+            <p>As politics became more adversarial, this underlying vision was lost. It was replaced with a more militaristic imagining of public life which was defined chiefly by who held power and how they used it to reward friends and punish enemies. As the Religious Right became a more dominant presence in American life and as this new conflictual frame became dominant in the church, it created a political project for American evangelicalism that was less and less interested in broad civic projects aimed at mutual flourishing and became instead more insular and committed to a zero-sum vision of politics in which the only way that American Christians could prosper politically is if other groups that they differed from on major political questions suffered.</p>
+            <p>To be sure this change did not happen all at once–you can still detect the more altruistic and outreach oriented posture in groups like Samaritan’s Purse, which Franklin Graham, the son of Billy Graham, took over in 1979.</p>
+            <p>That being said, as the shift has become more advanced, we have simultaneously seen a far sharper focus on electoral politics, to the exclusion of other sorts of political engagement, and we have seen in places a heightened sense of hostility to some of these older organizations, such as World Relief and World Vision.</p>
+            <p>The outcome of both these transformations in the Second Act is that in our church life evangelicals have tended to focus more on audience acquisition, with an increasingly passive laity, and have had less concern with close attention to Scripture, the sacraments, and Christian formation. These trends help explain the appeal of protest figures who have sought to push against these trends, but never with the same power or force or influence as the mainstream attractional figures. Attractional preaching helped produce the backlash that led to the success of figures like John MacArthur and John Piper, both famous for longer, expository preaching. It also produced, briefly, a heightened interest in “liturgy” via the work of James K. A. Smith, and today it is producing a heightened interest in spiritual formation via John Mark Comer, who himself is a former megachurch pastor who has been mentored or influenced by a major sunbelt evangelical figure (Dallas Willard) and an ex-attractional pastor from the Willow Creek ecosystem (John Ortberg). While all of these movements are notable, none so far have been able to move from a protest movement into the mainstream such that those figures genuinely enjoyed the same sort of reach, influence, and access to power that defined figures like Hybels, whose Global Leadership Summit has hosted heads of state and major figures in global business, or Warren, who offered a prayer at a presidential inauguration and hosted discussions between presidential candidates in his church.</p>
+            <p>And yet the protest movements are indicative of the weaknesses of these second act trends. </p>
+            <p>A purely attractional mode of church life leaves behind enormous spiritual vacuums that must be filled by something. It also leads to a deep ignorance of Scripture and church history, which leaves many churchgoers highly vulnerable to trends and fads that subtly draw them away from a life of Christian discipleship. Most notably, surveys on the theological beliefs of American evangelicals have exposed a number of deeply concerning trends amongst self-described evangelicals: a 2022 survey reported that –meaning they believe Jesus to be a created being rather than “very God of very God.” The follow-up survey in 2025 found that nearly ⅔ of self-described evangelicals  and  the orthodox belief that the Holy Spirit is a “person” rather than a “force.” These findings are supported by other, older surveys, such as  in which they found that while 38% of the US population at that time identified as “evangelical” only about 8% actually affirmed all nine statements Barna defined as being essential to evangelical identity. These are the nine statements Barna asked people to affirm in order to be defined as a theologically committed evangelical:</p>
+            <ol class="barna-list">
+              <li>They had made a personal commitment to Jesus Christ that is still important to their life.</li>
+              <li>They believed they would go to Heaven when they die because they confessed their sins and accepted Jesus as their savior.</li>
+              <li>They said faith is very important in their life.</li>
+              <li>They believed that they had a personal responsibility to share their beliefs about Jesus with non-Christians.</li>
+              <li>They believed that Satan exists.</li>
+              <li>They said that eternal salvation is only possible through grace, not works.</li>
+              <li>They believed that Jesus lived a sinless life on earth.</li>
+              <li>They said the Bible is accurate in all it teaches.</li>
+              <li>They described God as the all-knowing, all-powerful perfect deity who created the universe and rules it today.</li>
+            </ol>
+            <p>To review: Only about ⅕ of people who identified as “evangelical” when surveyed affirmed all nine of these statements.</p>
+            <p>These data points indicate that while the seeker-sensitive movement did for a time lead to a growth in church attendance, it did not produce people who affirm or understand basic Christian claims about God and humanity.</p>
+            <p>The adversarial political posture also leaves much to be desired, as the good works that the more collaborative era of evangelical engagement fostered are now being abandoned with no one to replace them in those necessary endeavors. Additionally, an adversarial style has also led evangelicals to soften their commitment to even the baseline Christian commitments of the Religious Right: During the Religious Right’s most powerful moment, they were still able to act as an influential bloc in defining policy for the American right, such that the Republican party platform always included language about a ban on abortion as well as commitments to natural marriage. There even were latent commitments to the more collaborative political projects of earlier eras, as seen in one of the Bush administration’s greatest successes: the President’s Emergency Plan for AIDS Relief (PEPFAR). As we write in 2025, the Republican party platform has been stripped of all language regarding a limitation on abortion access, the sitting Republican president is the most supportive national Republican in their history on gay marriage issues (as well as related issues concerning reproductive technologies, such as IVF), and PEPFAR has been dismantled by a populist GOP that is frequently hostile to the aid projects supported by older generations of evangelicals.</p>
+            <p>As we now enter a new era in the story of American Christianity, it will be necessary to address the gaps created by the failures of attractional ecclesiology and adversarial politics.</p>
+            <p>Most of this report will be focused on defining the two movements we are suggesting as an answer to the failures of attractional church life and adversarial political life. But before getting to what those two movements are, we need to explain why we need <em>two</em> movements–one of ecclesial renewal and one of cultural renewal–and not just a single movement.</p>
+            <p>Evangelicals are people fairly comfortable with the idea of ecclesial renewal. We find it easy to understand why evangelism, discipleship, missions, prayer, and personal Bible study are all immensely important. And when we see a problem, we are very comfortable prescribing those things as how we fix the problem.</p>
+            <p>On one level, that is precisely correct, of course. Ultimately, people need to know Jesus. They need to hear the Gospel, they need to be disciplined in their faith, they need to evangelize others, and they need to be devoted to Bible study and prayer and church life. All of that is entirely true. And so one part of our proposal is all about how American Christians can regain the spiritual rootedness that has too often evaded us in the digital era.</p>
+            <p>That said, there is a second layer of concern here as well: We also need a healthy, liberal society in the west for many reasons. (“Liberal” here simply means traditional western liberalism with an emphasis on core liberal rights, like free speech, freedom of religion, freedom of assembly, and so on–we are calling for the liberalism of the Founders and of Lincoln, not the political ideology of the American left or the Democratic party.) </p>
+            <p>On a basic pragmatic level, it is better for conservative Christians in the western world–who hold many beliefs that are unpopular and not widely shared within American life–if we live in a liberal society because if we do not it is not unlikely that whatever illiberal authorities exist will be used to target certain Christian ideas and practices, as already happens in many other parts of the world that are not liberal. Indeed, recent events in Canada and the UK targeting religious liberty suggest what could happen in America as well were it not for the First Amendment in the US Constitution, that arch-liberal document.</p>
+            <p>But there are other reasons we should desire to have a liberal public square in America. </p>
+            <p>One of those reasons is that liberal public squares preserve space for reason, debate, and persuasion. They encourage postures and even virtues that are beneficial for everyone, not just for Christians. It is better for all of us if the average American values free speech, is able to respectfully disagree with their neighbor, and is able to make and listen to arguments without becoming triggered, aggressive, or belligerent.</p>
+            <p>Another reason is that liberal public spaces allow for social change to happen organically and with minimal violence. Liberals are not revolutionaries who think that if you can’t get the political system you want you should just start engaging in acts of lawless violence in order to get your way. Liberals do not believe in threats, intimidation, or bullying. Rather, they believe in reason and persuasion. And when reason and persuasion is preeminent, it is possible for people to change their minds, even to change their minds <em>en masse</em> and then to make significant changes to how a society functions. Sometimes those changes don’t work out and sometimes they do. But either way, social reform under a liberal society is generally less violent than the alternatives and that is a good thing.</p>
+            <p>Traditionally American liberalism was built on and secured by many Christian ideas and concepts. But the institutional bulwarks that maintained and encouraged those ideas and concepts were not evangelical Christians. They were, mostly, the Protestant Mainline. What has happened in recent years, however, is that the Protestant Mainline has lost virtually all of its power and influence and, as a result, liberalism has limped along in American life, but it has become weaker and also less capable of making arguments for itself or of opposing alternative political visions that are less concerned with free speech, civic disagreement, and persuasion.</p>
+            <p>We now live in a world in which a major presidential candidate has said that religious beliefs that support the cause for life will “have to be changed” if women’s rights are to be protected. How Secretary Clinton planned on doing that is not entirely clear, but given the legal attacks made by the Obama administration on many traditional Christian believers, one can imagine what Clinton might have had in mind. Yet we also live in a world in which major political figures from the other dominant party have indulged all sorts of illiberal beliefs that reduce politics to simply acquiring power and then using power to punish your enemies and reward your friends. “For my friends, everything. For my enemies, the law,” has become a common saying in certain parts of the political right.</p>
+            <p>The outcome of all this is that civic society isn’t really working the way it ought to in the United States, at least not if America’s grand political experiment is to continue. The challenge here is that those liberal values and convictions that made America what it was are largely the fruit of Christianity–as Tom Holland and Glen Scrivener have both been arguing for some time now. But the Christian institutional vehicles used to advance those specific ideas, practices, and norms are now too weak and ineffective to do the job. We need the old ideas of the founding and of Lincoln, but we need new Christian vehicles for advancing them.</p>
+            <p class="callout"><strong><em>This is why Mere Orthodoxy has a proposal for civic renewal alongside our proposal for ecclesial renewal. We believe that the outworking of the Christian Gospel across a society does not simply manifest in the multiplying of churches or the filling of those churches with eager Christian believers devoted to prayer, Scripture, and the sacraments. It does include that, of course. But it includes more: </em></strong><strong><em>It includes the spread of Christian society, which is a society defined not by dominance and power and control, but by liberality, by a desire to lift up the weak, and by the normalization of mercy and tolerance, which enable us to forebear with our neighbors over time, forgiving where we must forgive, seeking forgiveness where we must seek forgiveness, and making and hearing claims and counter-claims about the kind of society we wish to be.</em></strong><strong><em> We want healthy churches. We also want a healthy society, indeed we want what Christian thinkers once referred to as a “commonwealth,” a society in which the individuals are all united together in a limited but shared political project marked by the love of neighbor, care for the weak, and pursuit of the common good. We care about both the church and the commonwealth and so our proposals in this document are meant to lift up both.</em></strong></p>
+          </section>
+          <section id="protestant-catholicity" class="content-section">
+            <h2 class="section-title">Protestant Catholicity</h2>
+            <p><strong>Protestant Catholicity</strong> is a vision for the renewal of local churches rooted in a commitment to our fathers and mothers in the faith as well as our global brothers and sisters and founded on a commitment to returning to the sources of Christian thought–Scripture above all, but then secondarily to the wisdom and practices of the historic church.</p>
+            <p>To identify practical points of departure, we can use a few basic questions and then compare how an attractional view would respond and then contrast it with the Protestant Catholic response.</p>
+            <h3 id="why-“protestant-catholic”" class="section-heading">Why “Protestant Catholic”?</h3>
+            <p>Scripture is clear that there is ultimately only one people of God, only one church. It exists across time and space, not bound by the years or miles that divide her members. Traditionally the way the church has spoken of this unity and universality is with the word “catholic.” So a commitment to catholicity is a non-negotiable for this project simply because it is bound by Scripture and this is the way Scripture speaks.</p>
+            <p>However, in recent decades the term “catholic” has tended to be most closely associated with the Roman Catholic Church as it exists under the Bishop of Rome. For those of us who believe that church to be in error on many issues and who believe the Bishop of Rome does not have the authority that the Roman church claims he does, it is important to explain that we are both <em>catholic</em> and also <em>not</em> Roman. </p>
+            <p>The simplest way of doing this is with the term “Protestant Catholic.”</p>
+            <h3 id="what-is-the-churchs-purpose" class="section-heading">What is the church’s purpose?</h3>
+            <p>A seeker-sensitive approach to this question would say that the church exists to provide people with engaging experiences and relevant content that help them grow in their personal faith journey. </p>
+            <p>In some cases, they would also include something about how that personal spiritual growth should also show up in some specific ways in their home with family, at work with coworkers, or out in the neighborhood or city as they live amongst their neighbors. </p>
+            <p>But the answer will tend to be highly individualistic and will emphasize the “experience” of a worship service and will tend to judge what happens on Sunday mornings based on how relevant it is to the audience.</p>
+            <p>In contrast, a Protestant Catholic approach would say that the church exists to preach God’s Word, practice the sacraments, and support each other in living a life of Christian discipleship.</p>
+            <p>The key difference, then, is that the attractional model tends to judge itself by what kind of subjective experience it delivers to people in church whereas a Protestant Catholic approach largely judges itself by whether or not it is doing specific tasks. </p>
+            <p>This means that while the attractional model tends to be highly reactive and pragmatic, the Protestant Catholic model is constructive and rooted. For Protestant Catholic churches, the practices of the church are fixed: They will preach God’s Word. They will baptize and serve the Lord’s Supper. They will aid and equip for a life of Christian discipleship. The questions and work they will do, therefore, is relatively fixed and is largely focused on how to do better the things they are already doing: How can we grow in the ways we preach the Bible? How can we help our people more completely understand and participate in the sacraments? How do we help people live more faithfully the Christian life as defined in Scripture?</p>
+            <h3 id="how-does-the-church-accomplish-its-purpose" class="section-heading">How does the church accomplish its purpose?</h3>
+            <p>For attractional churches, the church can only accomplish its purpose with a kind of endless iteration of itself based on ongoing market research. As culture shifts and attitudes toward church change, the church changes with it, constantly adapting and adjusting to the needs and demands of the moment.</p>
+            <p>While some of this can be helpful in as much as it is simply basic missiological study, this approach does also create a great deal of anxiety and undermines stability in the church because there will always be new ways to create memorable experiences, new ideas to innovate in the Sunday service, and so on.</p>
+            <p>Significantly, this approach also tends to be highly volunteer intensive and can be professionalized in ways that minimize the importance of Christian maturity. </p>
+            <p>Because the Sunday morning service is designed for memorability and, crassly put, entertainment value, a great deal of people are needed to produce it: sound technicians, musicians, greeters, ushers, security, and the pastor. The demands of such a service have in recent years regularly led to megachurches canceling Sunday gatherings around holiday weekends due at least in part to the lack of volunteers to help run the service.</p>
+            <p>Likewise, when one finds a person of sufficient talent to carry out this work, it is easy for churches to become built around that person’s talent in ways that make actual Christian maturity far less important. It should not surprise us that so many megachurch pastors have, in recent years, been exposed in various sorts of abuse scandals. The attractional model of church life makes this far more likely to happen because the model demands high-talent individuals and tends to reward them based not on their maturity or character but rather on their performance of the role they have within the church’s programming and events. This is also why many megachurches struggle immensely to have successful transitions in church leadership. The church over time grows around the personality and talent of the leader at its center in such a way that it is basically impossible for the church to function without that leader’s unique skills. All of this, of course, is also highly corrosive to the ordinary practices of Christian piety, which can and often will present obstacles to this model of church life because the values of a slow life of discipleship and the values of a successful event-driven model of church life are often opposites.</p>
+            <p>In contrast, this question is far simpler for a Protestant Catholic church: If the church exists to preach the Gospel, perform the Sacraments, and aid people in lives of Christian discipleship, then it accomplishes that purpose simply by doing those things. In practice it isn’t <em>quite</em> that easy or simple because actually doing all of those things is immensely difficult. But also the difficulty should be seen not as proof that something isn’t working and needs to be changed, but rather as being itself part of the means that God uses to call people to himself. When Protestant Catholic churches find that it is difficult to do those things, it should drive them to prayer and greater dependence on God, which will over time both help grow that church in its devotion to scripture and the sacraments and mature it in its life of Christian discipleship.</p>
+            <p>To use a potentially crass illustration, the attractional model largely terminates on the maxim that “the customer is always right.” This is why the attractional model has the problems that it does: The demands of the customer are hard to know, constantly changing, and hard to fulfill. In contrast, the Protestant Catholic model says that we are not dealing with “customers” at all, but rather with human beings who need to know Jesus and our only task is to call them to Jesus using the means Jesus gave us for doing that–which are preaching, the sacraments, and the formed life of a Christian community bound together in love and care for one another. </p>
+            <p>This means that whereas the attractional model is inherently reactive, the Protestant Catholic approach is active and can be defined on its own terms.</p>
+            <h3 id="what-is-the-role-of-non-ordained-or-non-staff-people-in-the-church-on-sundays" class="section-heading">What is the role of non-ordained or non-staff people in the church on Sundays?</h3>
+            <p>In an attractional model, the participants in a Sunday service are the volunteers and staff producing the service. Everyone else present at the service is part of the audience.</p>
+            <p>In contrast, a Protestant Catholic Sunday gathering presupposes that everyone there is an active part of what is happening because everyone present has the same needs that, ultimately, have the same solution. There are differences in roles or responsibilities, to be sure, but what matters most is not the experience that staff and volunteers produce for the audience but, instead, how everyone in the service is called to repent, believe the Gospel, and follow Jesus.</p>
+            <h3 id="what-practices-are-part-of-a-church-service" class="section-heading">What practices are part of a church service?</h3>
+            <p>For attractional churches, the Sunday morning gathering retains singing and preaching from more traditional liturgies, but both are refashioned in order to achieve the experiential and relevance goals they set for themselves. Other aspects of the liturgy are set aside, either due to concerns with the length of the service, which they seek to keep relatively short, or because they are not easily fit into the dominant paradigm. So the Lord’s Supper is a less frequent practice and other practices, such as a corporate confession of sin or a benediction, are almost entirely absent.</p>
+            <p>In contrast, Protestant Catholic churches view the liturgy itself as being formational for the community, as a tool to help guide people toward Christ through making the ordinary means of grace more accessible and sensible. So the service begins with a Call to Worship as a way to help everyone remember what is happening and why and to call the entire community together for a shared action. The service will also include readings from Scripture, a corporate confession of sin and either assurance of pardon or absolution, depending on the specific theological commitments of the congregation, regular practice of the Lord’s Supper, and a departing benediction, which completes the act begun in the Call to Worship. What all of this does is it helps people hear God’s Word in a variety of ways, to actively participate in the service as they respond to the Call to Worship, kneel during the confession, receive the Eucharistic elements, and receive the benediction as the service ends, sending them out into the world as followers of Jesus bound to different patterns of life than the world around them, which they have been equipped to follow through all that happens in the service.</p>
+            <p>Put another way, the Protestant Catholic approach simply takes for granted the fact that God is at work. They do not need specific methods or techniques to draw people to church, but simply need to trust God to do what he will through the means he has given us–and it is simply our job to avail ourselves of those means and make his Word accessible to everyone. </p>
+            <p>This is not a passive approach to church life because it still places a great deal of weight on the clarity of the Word, particularly through the sermon and the songs that are sung, and it requires ministers to walk congregations through these shared practices. But also this means that the shape of the church’s life is not contingent on the unique talent of a single person, nor is it existing in a constant state of reacting to new market research or consumer demand.</p>
+            <h3 id="core-values" class="section-heading">Core Values</h3>
+            <p>Another way of defining Protestant Catholicity is to talk about core values of Protestant Catholicity set against the core values of an attractional model.</p>
+            <h4 id="retrieval--innovation" class="subsection-heading">Retrieval &gt; Innovation</h4>
+            <p>Protestant Catholics have a bias toward retrieving the riches left to us by our fathers and mothers in the faith. This is not because they regard the past as sacrosanct or because they think needs or challenges never change nor is it because they think one can simply repristinate the past, as if one retrieves a healthier past moment by taking a box off a shelf and opening it and experiencing an ideal form of church life. Times and cultures change and that does present new challenges to God’s people. </p>
+            <p>However, the assumption that Protestant Catholics work from is that God’s Word does not change, the ordinary means of grace do not change, and so ultimately all missiological challenges are met with these tools. The theological convictions that define the movement are fixed. What can change are certain methodological approaches: Protestant Catholic churches might use a praise band or a choir for worship. The pastor might preach in some kind of clerical vestment or in something less formal. The Lord’s Supper might be served via passing a tray or the congregants might walk toward a table to receive. Churches might adopt any number of approaches to supporting one another in Christian discipleship. Methods can flex, but the core theological commitments remain fixed. Protestant Catholics, in the words of Kevin Vanhoozer, seek to retrieve the riches of the church’s past creatively in order to live forward faithfully.</p>
+            <p>All of this is a contrast to attractional models, which tend to favor innovation and creativity and often have an indifferent or even hostile relationship to past practices of the church.</p>
+            <h4 id="meditation--entertainment" class="subsection-heading">Meditation &gt; Entertainment</h4>
+            <p>Protestant Catholics value the formation that comes through sustained meditation, privately and corporately, on the truths of Scripture, aided by the preached Word, congregational singing, and private and corporate prayer together. The Sunday morning service is pervasively participational rather than being largely passive as for the congregation attending Sunday services in a more attractional congregation.</p>
+            <h4 id="discipleship--programs" class="subsection-heading">Discipleship &gt; Programs</h4>
+            <p>Finally, while attractional models for church tend to emphasize programming and events–usually aimed at specific demographic groups within the church–a Protestant Catholic congregation seeks to pursue lives of Christian discipleship collectively through common practices that unite the entire congregation rather than programming that divides them. They presuppose that what unites all people–our need to repent of our sins, believe the Gospel, and follow Christ each day as he calls us to in Scripture–is of greater importance than the various things that divide us and separate us.</p>
+          </section>
+          <section id="solidarity-conservatism" class="content-section">
+            <h2 class="section-title">Solidarity Conservatism</h2>
+            <p><strong>Solidarity conservatism</strong> begins with two presuppositions: </p>
+            <p>First, no human being can live entirely on their own.</p>
+            <p>Second, these relationships are healthiest and work best when they exist in communities governed not by partiality and personal preference, but by a fixed and shared rule of law that ensures that everyone is bound by the same standard.</p>
+            <p>The enemies of solidarity conservatism are individualism and arbitrary power.</p>
+            <h3 id="the-purpose-of-politics" class="section-heading">The Purpose of Politics</h3>
+            <p>All of us are defined by a variety of needs that we are unable to fulfill entirely on our own. </p>
+            <p>We cannot but live in some form of community simply because we are human creatures who need to eat, who need water, who need shelter, who need clothing, and who need some form of livelihood. All of these realities push us toward community of some kind. The purpose of politics is to shape these unavoidable and necessary relationships in ways that make them mutually beneficial and delightful for everyone involved. </p>
+            <p>This means that solidarity conservatives do not see weakness, contingency, and vulnerability as abnormal or as a sign of failure. All of us live our whole lives with certain degrees of dependence. Additionally, all of us will experience at least one period of acute dependence and virtually all of us will experience two such periods: the beginning and end of our lives. Everyone enters adulthood only after many years of living entirely dependent on one’s parents or caregivers. Everyone who dies of natural causes is highly likely to pass through another period of high dependence as their health declines and fails. Dependence is a normal part of the human experience. </p>
+            <p>Any political vision that views such vulnerability as abnormal or as a problem to be “solved” is, in this respect, inhumane and even cruel.</p>
+            <p>Significantly, this means that solidarity conservatism is deliberately under-determined on matters of policy. This is not a policy program to advance specific legislative proposals or laws. It is, rather, an overall philosophy of common life aimed at producing a stable and lawful social order in which all human beings can flourish and thrive, regardless of individual capacities. Specifically, there are three doctrinal commitments that define the solidarity conservative philosophy. Those commitments are “solidarity,” “subsidiarity,” and “sphere sovereignty.”</p>
+            <h4 id="solidarity" class="subsection-heading">Solidarity</h4>
+            <p>Solidarity refers to a conscientious awareness of our mutual interdependence on one another, and acting for the good of our neighbor in light of the fact that we are both mutually needy and dependent. It is founded on the belief that each human being is a person, made in the divine image and therefore possessing qualities and capacities that demand certain responses from us as their neighbors. </p>
+            <p>Viewed from above, solidarity teaches us that my neighbor is not a kind of worker drone or raw material that I can use and exploit for my own purposes. Rather, he is a human person who calls forth from me a response of care and support as he seeks to live a worthy life in the world. Viewed from below, solidarity reminds us that each person possesses agency and is not made for a life of passivity, but is instead made to serve and love neighbor, according to whatever capacities God has given them. </p>
+            <p>Solidarity, in other words, is an active laboring for the common good founded on the principle that interdependence is the ordinary human condition and the mutual recognition and addressing of one another’s needs best fits us to love and serve our neighbor. Pope St. John Paul II explained the concept and significance well when he wrote that,</p>
+            <blockquote>In a world divided and beset by every type of conflict, the conviction is growing of a radical interdependence and consequently of the need for a solidarity which will take up interdependence and transfer it to the moral plane. Today perhaps more than in the past, people are realizing that they are linked together by a common destiny, which is to be constructed together, if catastrophe for all is to be avoided. From the depth of anguish, fear and escapist phenomena like drugs, typical of the contemporary world, the idea is slowly emerging that the good to which we are all called and the happiness to which we aspire cannot be obtained without an effort and commitment on the part of all, nobody excluded, and the consequent renouncing of personal selfishness.</blockquote>
+            <p>Solidarity also flows from the idea that the goods we enjoy in this world are not intended only for <em>some</em> people to enjoy, but are actually intended for <em>all</em> people to enjoy. It follows from this that all human beings have a right to necessary human goods like food and shelter. In this way, solidarity not only names a relational reality, that my neighbor and I are linked through mutually shared needs and dependencies, but it also provides guidance in an existential way as I seek to follow God in the world. <em>Since</em> it is true that I am bound to my neighbor through relationships of mutual need and dependence, <em>it follows that</em> I will treat my neighbor in this way rather than that way.</p>
+            <p>In this respect, we can say that any political theology which fails to recognize the solidarity of all peoples and the universal destination of goods is not an authentically Christian political theology, regardless of whatever claims or protestations it might make otherwise. The greatest commandment is to love the Lord with all our heart, soul, and mind and the second is like it: to love our neighbor as ourselves. Any political theology that does not recognize the intrinsic connections we have to our neighbors on this basis fails to uphold Christianity’s greatest commandments.</p>
+            <p>That being said, the point of solidarity is not to dissolve all human persons, in all their particularity and rootedness relationally and culturally, into a single impersonal mass. Solidarity names the basic human condition. But we need more than solidarity alone to comprehend our political lives and the responsibilities we owe to our neighbors.</p>
+            <h4 id="subsidiarity" class="subsection-heading">Subsidiarity</h4>
+            <p>The second key principle of solidarity conservatism is subsidiarity. It is the idea that any social or political problem should be solved by the smallest and most local body able to address it. Crucially, subsidiarity is not equivalent to localism, which is the belief that politics should be ordered purely toward the small and local and that large scale, national endeavors are inherently problematic. Subsidiarity, in contrast, recognizes that some things–large-scale infrastructure and national security are two obvious examples–cannot be adequately managed by a neighborhood board or city council. Subsidiarity recognizes a licit role for national government. It simply seeks to ensure that larger, national authorities are not doing tasks best left to smaller, more local groups.</p>
+            <p>The reasons that the principle of subsidiarity is so important are numerous and mostly unsurprising. A large part of solving any problem is possessing the adequate knowledge, context, and connection to the problem to understand how it is best solved. Typically, the people or groups possessing that knowledge will be smaller and closer to the problem. So subsidiarity matters simply in terms of having actually competent good governance because it helps us identify the people most competent to address a problem.</p>
+            <p>Subsidiarity also matters because it creates a sense of agency in individuals and small communities. It is easy in a world dominated and defined by large tech firms to assume that many of us lack any genuine agency or ability to create positive change within a community or place. Subsidiarity helps us recognize that that is not actually true. We can and should act in specific ways where we can in order to advance the good of our neighbor and serve the common good–and this could be something as </p>
+            <h4 id="sphere-sovereignty" class="subsection-heading">Sphere Sovereignty</h4>
+            <p>A principle that is in many ways parallel to subsidiarity while remaining distinct is that of ‘sphere sovereignty.’ Whereas subsidiarity is a principle most closely associated with Catholic Social Teaching, sphere sovereignty comes down to us from the Dutch Calvinists of the late 19th and early 20th century.</p>
+            <p>Whereas subsidiarity conceives of society in a more hierarchical way, sphere sovereignty imagines it more as a web inter-connected “spheres,” each of which has its own domain over which it is sovereign. So while subsidiarity tends to think in terms of place and proximity, sphere sovereignty is centered more on essences, one might say: It recognizes there are social tasks proper to families which are distinct from those tasks proper to the government or those proper to the church or those proper to the market or organized labor.</p>
+            <p>While these two principles are often treated as belonging to separate social doctrines, it is better to see them as approaching the social problem from different angles. Subsidiarity, coming out of the Roman tradition, is more comfortable thinking in hierarchical terms, beginning with the smallest and most local and working upward. There are many benefits that come from analyzing social problems in these terms, particularly in a democratic republic which depends on healthy citizens and local communities to function well. That said, locality is not the only relevant question when assessing how a particular social problem should be best addressed. This is why sphere sovereignty is also helpful. It helps us by reminding us that we not only need to think in terms of scale, but in terms of domains—work proper to a local church is distinct from work proper to a family, and for reasons that are not really about scale or size, but due to the nature of those communities.</p>
+            <h4 id="conclusion" class="subsection-heading">Conclusion</h4>
+            <p>When stacked together, what these three principles do is provide us with a framework for understanding our political lives. At the bottom of everything is the principle of solidarity, which reminds us of our common humanity, our shared experiences of dependency and contingency, and our shared need for both law and mercy.</p>
+            <p>With that foundation in place, subsidiarity and sphere sovereignty equip us with tools to analyze specific social problems we confront, allowing us to make distinctions and identify the various and distinct responsibilities that different communities have for different social challenges.</p>
+            <p>In what follows, we want to develop the commitments that this political vision requires of us in order to endure.</p>
+            <h3 id="how-politics-work-best" class="section-heading">How Politics Work Best</h3>
+            <h4 id="presence" class="subsection-heading">Presence</h4>
+            <p>One of the temptations we all face in our political lives, and which is especially strong in a moment of low trust and low connection, is to withdraw from common political life. The difficulty this creates is that one cannot really live one’s way out of dependency. </p>
+            <p>We can’t live without having relationships to others–we eat food we did not grow, wear clothes we did not make, work on machines we did not assemble made from materials we did not mine. You can’t ultimately withdraw yourself completely from your neighbors because you need them. </p>
+            <p>So a key commitment of solidarity conservatism is a commitment to sustained presence in public life wherever God calls us–whether that’s in professional associations related to one’s job, to local government, or simply being a committed patron of neighborhood shops and having relationships with local business owners. Obviously for Christians this commitment requires engagement in local churches as well.</p>
+            <p>What this means is that solidarity conservatives will have a strong bias toward maintaining strong social bonds to their fellow members of whatever civic projects they belong to–be that a business, a neighborhood, a city, or, ultimately, a republic.</p>
+            <p>Doing this well is a challenge, of course, because it is immensely easy to so value presence that you lose your distinctiveness as a Christian. But the biblical pattern, which we see in Jeremiah’s letter to the exiles in Jeremiah 29, and continue to see over and over in the New Testament, is that God calls his people to be present without conforming. The late Tim Keller spoke on this at length in , calling it “living on the razor’s edge.” Here is how he described it:</p>
+            <blockquote>The Babylonians took the Jews to Babylon in order to destroy their culture to destroy their faith. They assumed that if they moved into the city they would assimilate and their children or certainly their grandchildren would worship the Babylonian Gods and just lose their identity as Israel, as the people of God. There were people (in Israel) who said, “okay we don't want that to happen so when we get to Babylon because we've been taken there by force let's stay outside so we can keep our identity.” And the Lord says to them, “I want you to move into the city but I want you to keep your identity. I want you to increase your numbers and keep your faith. But at the same time I want you to engage. I want you to seek (Babylon’s) peace and prosperity I want you to pray to the Lord for it. I want you to love it. That's the razor's edge. Engage, and at the same time, be different. Don't assimilate and just pick up all the views of the culture, but don't stay out,  (try to) keep your skirts clean, and denounce everybody. No. Live on the razor's edge.</blockquote>
+            <p>The fact that God has to tell his people that in Jeremiah and that the issue pops up again multiple times in the New Testament should tell us something. Specifically, it should tell us that this is hard to do and that we will be tempted, like our fathers and mothers before us, to either withdraw or to conform in sinful ways. But the call that God gives us in Scripture is to both <em>engage</em> and <em>be holy</em>. And what God commands he also enables us to do. So as we avail ourselves of the Holy Spirit, the Church, Scripture, the Sacraments, Prayer, and all the rest, we are equipped to both remain distinct and to be robustly present in the lives of our communities, including but not limited to the local church.</p>
+            <h4 id="persuasion" class="subsection-heading">Persuasion</h4>
+            <p>Related to the work of presence is the work of persuasion.</p>
+            <p>To begin, when we talk about “persuasion” we do not actually mean some kind of embrace of some form of “public reason” in the more recent liberal use of the term. In that understanding of “persuasion” anyone engaged in public persuasion is required to make their arguments using only presuppositions that are shared by everyone in the community. This is the way that the great liberal theorist John Rawls defined “public reason” and it has shaped the way many of us think about public life.</p>
+            <p>The problem with this frame is that it essentially forces all the members of a society to search for a lowest common denominator in order to ground their life together. And this does two things that are destructive of our political lives: First, it makes our politics more brittle because in deeply pluralistic societies it is quite difficult to find shared presuppositions that unify <em>everyone</em> and whatever those presuppositions are they tend to be radically under-determined, such that it is very hard for us to actually act in a unified way on the basis of that presupposition. For example, you could easily get the vast majority of people in America to agree that we should treat children well because children are valuable. But that presupposition in itself offers very little help in moving forward as a common political society. We need something more defined and focused, otherwise we either end up doing virtually nothing because that’s all we can agree on or we end up locked into power struggles to establish whose policy proposals built off that lowest common denominator will actually get implemented.</p>
+            <p>There is a second problem too: most of the things we believe in most deeply and care about most are built on presuppositions that I may not share with some or even many of my neighbors. And if I am not allowed to bring those beliefs or values into public life because they cannot pass the “public reason” test, then it also makes political life alienating for most of us because it feels like a domain where we must somehow be less human than we really are, where our most treasured beliefs are not allowed. This is especially alienating for religious people, whose entire belief systems about the good life are likely to be bound up with their religious faith. So to tell them in particular they aren’t allowed to make public arguments based on those beliefs is essentially to tell them that they live in a political system that does not have room for their deeply held beliefs. This has had predictable consequences for our politics, as many religious people have come to believe that liberal democracy is intolerant of their religion, which encourages them to either withdraw from democratic life or to seek to destroy it.</p>
+            <p>Instead, what we mean by persuasion is simply this: Each of us is free to make public arguments and claims on the basis of our genuine and deeply held beliefs and we all agree to grant one another the dignity of a fair hearing and argument over their claims. But we also will seek to make compromises for the sake of our life together and will agree to not dominate one another. </p>
+            <p>This work is difficult, of course, but it is not hard to wonder how the past 20 years of our politics might look different if both parties adopted minimal commitments of anti-domination and sincere attempts at persuasion and a willingness to maintain political society through compromise amidst deep differences.</p>
+            <p>There is one other vital part of persuasion as a public practice. Persuasion begins with the assumption that we share common sources of authority and common desires that both of us can make an appeal to amidst disagreement and which can offer something like an impartial judge to help resolve our conflict. For conservatives, this “something” is the rule of law. </p>
+            <p>Thus solidarity conservatism at its heart is deeply hostile and opposed to arbitrary power. The reasons why are many: In the first place, arbitrary power is not only frequently unjust, but it is also unaccountable, which makes it virtually impossible to resolve the conflicts that arbitrary power generates, save through the application of more and different arbitrary power. The preservation of trust between neighbors as well as the preservation of liberal democratic society requires that we have a shared commitment to the rule of law, that constrains all parties and commits us to a shared way of life as citizens bound together under the rule of law within a democratic civic project aiming at the good of all its members.</p>
+            <h4 id="patient-endurance" class="subsection-heading">Patient Endurance</h4>
+            <p>A final commitment of solidarity conservatism follows from the first: Solidarity conservatism values patient endurance of difference. This is because solidarity conservatism recognizes that we live amongst human creatures who are slow to change and that we ourselves are fallible, finite, and thus prone to error. These insights compel us toward mercy, toward the withholding of certain judgments or punishments because we recognize that in every public dispute the options before us are not simply that one side or another wins, but that both sides seek together to find a way of patiently enduring together <em>amidst</em> difference. This is because sometimes patient endurance is actually the best course because the problem presenting itself to us is, at least in the moment, deeply complex. The work of “solving” that problem would, therefore, likely cause greater harm than the problem itself is already causing. Put another way, solidarity conservatism is built on the recognition that all of us live by what Wendell Berry calls “the way of ignorance” and for this reason it is sometimes wisest and best not to act to “fix” a problem, but instead to patiently endure that problem as we seek greater understanding of it and clearer wisdom in how best to respond to it.</p>
+            <h4 id="preservation" class="subsection-heading">Preservation</h4>
+            <p>Finally, solidarity conservatism is built on the idea that it is easier to tear down than to build up. Solidarity conservatism is a movement that seeks first and foremost to preserve what is good and to  that what we have which is currently good can continue on in that course. Conservatism, for solidarity conservatives, is not about being committed to certain political policies, but rather to certain political postures.</p>
+            <p>An illustration might be helpful: Years ago I (Jake) spoke to a seminary professor friend about his work as a professor. I had observed that his institution seemed to be thriving and healthy and asked him how it had become so. One of the first things he said to me is “we have a zero tolerance policy for caricatures.”</p>
+            <p>What he meant is that he and his colleagues at the institution did not believe their job was simply to download the right answers to a hypothetical theology quiz into the heads of their students. Certainly, they wanted their students to affirm certain theological doctrines. But <em>how</em> they arrived at that affirmation was in many ways just as important as the affirmation itself. One can, after all, reach the “correct” conclusion in any number of ways–many of which are not actually good in a pastor. Having a sustainable and healthy process for reasoning theologically was far more valuable than simply learning to recite the “correct” answers.</p>
+            <blockquote>“If we have a student turn in a paper that endorses all the right positions but they get there by caricaturing the people they are reading or through bad reasoning, we’ll fail them,” he told me.</blockquote>
+            <p>A similar principle binds the work of solidarity conservatives. Solidarity conservatives are not content to simply achieve the right end; they want to get there via the correct means as well. They do this because they know that principled, fixed means are a sure guide to healthy ends, but an approach that is indifferent to means can lead one to quite dark places over time. So solidarity conservatives seek not only to advance the good, but to preserve what already is good.</p>
+            <p>What does this mean practically? Well, it presupposes the other practices already described: Solidarity conservatives can persist in the works of presence, persuasion, and patient endurance because their commitment to preservation undergirds the entire project. </p>
+            <h4 id="conclusion" class="subsection-heading">Conclusion</h4>
+            <p>As Christians (and as Augustinians!) we recognize that all utopian projects are inherently doomed. There are two reasons for this.</p>
+            <p>First, we recognize that our attempts to create perfection often do greater harm than is done through the slower, more patient work of advancing justice through persuasion and patient endurance amidst the struggles of common civil life. Second, we recognize that ultimately we cannot lay hold of our greatest goods and desires in this life. Because we are made to know God and our deepest desire and need is to know him, our deepest goods cannot be obtained through political means or even obtained in this temporal life. They can only be realized in the world to come, when we shall see God as he is.</p>
+            <p>That being said, this reality is not a call to quietism or to withdrawal or to civic indifference. Rather, it is a frame that should guide us as we pursue the forms of life that Christianity teaches us are best–toward the life of families, toward justice for the poor and the widow and the orphan and the sojourner, toward neighborly love and affection, and toward the flourishing of neighborhoods and churches and the advancing of good work.</p>
+            <p>The goal of solidarity conservatism, then, is not the creation of utopia, but the cultivation of civic society in which it is easier to be good, in which the commands of God are heard and obeyed, and the nature of the human person is understood, received, and honored.</p>
+          </section>
+        </article>
+
+        <footer class="site-footer">
+          <p>&copy; 2026 Mere Orthodoxy</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Print mode detection (for PDF generation)
+    if (new URLSearchParams(window.location.search).get('print') === 'true') {
+      document.body.classList.add('print-mode');
+    }
+
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    });
+
+    // Mobile menu
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    });
+
+    // Close sidebar on link click (mobile)
+    document.querySelectorAll('.toc-list a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 960) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('open');
+        }
+      });
+    });
+
+    // Reading progress bar
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    });
+
+    // Active TOC highlighting
+    const tocTargetIds = new Set(
+      Array.from(document.querySelectorAll('.toc-list a')).map(a => a.getAttribute('href').replace('#', ''))
+    );
+    const tocSections = Array.from(document.querySelectorAll('[id]')).filter(el => tocTargetIds.has(el.id));
+    const tocLinks = document.querySelectorAll('.toc-list a');
+
+    const observerOptions = {
+      rootMargin: '-10% 0px -80% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          tocLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + id) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    tocSections.forEach(section => {
+      observer.observe(section);
+    });
+
+    // Share functionality
+    const SHARE_URL = window.location.origin + window.location.pathname;
+    const SHARE_TITLE = 'Blueprint for Renewal — Mere Orthodoxy';
+    const SHARE_TEXT = 'Blueprint for Renewal: Protestant Catholicity and Solidarity Conservatism';
+
+    const shareToggle = document.getElementById('shareToggle');
+    const sharePopup = document.getElementById('sharePopup');
+
+    shareToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sharePopup.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!sharePopup.contains(e.target) && e.target !== shareToggle) {
+        sharePopup.classList.remove('open');
+      }
+    });
+
+    // Copy link
+    document.getElementById('copyLink').addEventListener('click', () => {
+      navigator.clipboard.writeText(SHARE_URL).then(() => {
+        const msg = document.getElementById('copiedMsg');
+        msg.classList.add('show');
+        setTimeout(() => msg.classList.remove('show'), 2000);
+      });
+    });
+
+    // Text message (sms: on mobile, fallback to sms: anyway)
+    document.getElementById('shareSMS').href =
+      'sms:?&body=' + encodeURIComponent(SHARE_TEXT + ' ' + SHARE_URL);
+
+    // X (Twitter)
+    document.getElementById('shareX').href =
+      'https://x.com/intent/tweet?text=' + encodeURIComponent(SHARE_TEXT) +
+      '&url=' + encodeURIComponent(SHARE_URL);
+
+    // Facebook
+    document.getElementById('shareFB').href =
+      'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL);
+
+    // Instagram Stories (deep link — opens IG app with URL in clipboard)
+    document.getElementById('shareIG').addEventListener('click', (e) => {
+      e.preventDefault();
+      navigator.clipboard.writeText(SHARE_URL).then(() => {
+        window.open('https://www.instagram.com/create/story/', '_blank');
+        const msg = document.getElementById('copiedMsg');
+        msg.textContent = 'Link copied! Paste it in your Story.';
+        msg.classList.add('show');
+        setTimeout(() => { msg.classList.remove('show'); msg.textContent = 'Link copied!'; }, 4000);
+      });
+    });
+
+    // ===== Highlight & Share =====
+    const hsTooltip = document.getElementById('highlightShare');
+    const hsCopiedMsg = document.getElementById('hsCopied');
+    let selectedQuote = '';
+
+    // Build share text with graceful attribution trimming for character limits.
+    // When there's a limit: first drop "Mere Orthodoxy", then "Blueprint for Renewal",
+    // then it's just the quote + link with no attribution.
+    // When there's no limit (0), always include full attribution.
+    function buildShareText(rawQuote, limit) {
+      const quote = rawQuote.replace(/\s+/g, ' ').trim();
+      const wrapped = '\u201c' + quote + '\u201d';
+      const attrFull = '\n\n\u2014 Blueprint for Renewal, Mere Orthodoxy';
+      const attrShort = '\n\n\u2014 Blueprint for Renewal';
+      const attrNone = '';
+
+      if (!limit) return wrapped + attrFull;
+
+      if ((wrapped + attrFull).length <= limit) return wrapped + attrFull;
+      if ((wrapped + attrShort).length <= limit) return wrapped + attrShort;
+      return wrapped + attrNone;
+    }
+
+    function positionTooltip(range) {
+      const rect = range.getBoundingClientRect();
+      const tooltipWidth = hsTooltip.offsetWidth || 200;
+      const isMobile = window.innerWidth <= 960;
+      const x = rect.left + rect.width / 2;
+      const clampedX = Math.max(tooltipWidth / 2 + 8, Math.min(x, window.innerWidth - tooltipWidth / 2 - 8));
+      hsTooltip.style.left = clampedX + 'px';
+      if (isMobile) {
+        // Below selection on mobile so it doesn't cover text
+        hsTooltip.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+      } else {
+        // Above selection on desktop
+        hsTooltip.style.top = (rect.top + window.scrollY - 10) + 'px';
+      }
+    }
+
+    function hideTooltip() {
+      hsTooltip.classList.remove('visible');
+      selectedQuote = '';
+    }
+
+    function checkSelection() {
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim() : '';
+      if (text.length > 3 && sel.rangeCount > 0 && document.querySelector('.main-content').contains(sel.anchorNode)) {
+        selectedQuote = text;
+        positionTooltip(sel.getRangeAt(0));
+        hsTooltip.classList.add('visible');
+      } else {
+        hideTooltip();
+      }
+    }
+
+    // Desktop: mouseup
+    document.addEventListener('mouseup', (e) => {
+      if (hsTooltip.contains(e.target)) return;
+      setTimeout(checkSelection, 10);
+    });
+
+    document.addEventListener('mousedown', (e) => {
+      if (!hsTooltip.contains(e.target)) {
+        hideTooltip();
+      }
+    });
+
+    // Mobile: selectionchange fires as the user adjusts selection handles
+    let selectionChangeTimer = null;
+    document.addEventListener('selectionchange', () => {
+      if (!('ontouchstart' in window)) return; // only run on touch devices
+      clearTimeout(selectionChangeTimer);
+      selectionChangeTimer = setTimeout(checkSelection, 300);
+    });
+
+    // Copy quote + link (no limit)
+    document.getElementById('hsCopy').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 0) + '\n\n' + SHARE_URL;
+      navigator.clipboard.writeText(text).then(() => {
+        hsCopiedMsg.classList.add('show');
+        setTimeout(() => hsCopiedMsg.classList.remove('show'), 1500);
+      });
+    });
+
+    // SMS with quote (no hard limit)
+    document.getElementById('hsSMS').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 0) + '\n\n' + SHARE_URL;
+      window.open('sms:?&body=' + encodeURIComponent(text));
+    });
+
+    // X with quote (~250 chars for text, URL takes ~30 via t.co)
+    document.getElementById('hsX').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 250);
+      window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL), '_blank');
+    });
+
+    // Facebook (no hard limit for quote param)
+    document.getElementById('hsFB').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 0);
+      window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL) + '&quote=' + encodeURIComponent(text), '_blank');
+    });
+
+    // Instagram Stories (no limit — clipboard)
+    document.getElementById('hsIG').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 0) + '\n\n' + SHARE_URL;
+      navigator.clipboard.writeText(text).then(() => {
+        window.open('https://www.instagram.com/create/story/', '_blank');
+        hsCopiedMsg.textContent = 'Quote + link copied! Paste in your Story.';
+        hsCopiedMsg.classList.add('show');
+        setTimeout(() => { hsCopiedMsg.classList.remove('show'); hsCopiedMsg.textContent = 'Copied!'; }, 4000);
+      });
+    });
+  </script>
+</body>
+</html>

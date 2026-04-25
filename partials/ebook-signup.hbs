@@ -1,0 +1,74 @@
+{{!-- Right-column signup card for an ebook landing page.
+
+     Usage (from a custom-ebook-<slug>.hbs template):
+       {{> "ebook-signup" slug="navigating-the-fracture"
+                          title="Navigating the Fracture"
+                          read_url="/ebook/navigating-the-fracture/read/"
+                          tier_name="Ebook · Navigating the Fracture" }}
+
+     Architecture (Ghost-native, post-Railway):
+       - The "Open ebook" button is a plain anchor to the Ghost-served
+         /ebook/<slug>/read/ page. Ghost enforces tier visibility
+         server-side at that URL.
+       - The signup form posts to the mo-ebook-access /grant endpoint
+         which comps the new free member into the per-ebook tier and
+         sends a magic link redirecting back here.
+       - data-member-has-ebook-tier is computed below using {{#has}}
+         tier matching against @member.tiers — true if the visitor is
+         already in this ebook's tier, in which case JS shows OPEN
+         without needing to call the worker first.
+--}}
+
+<aside class="ebook-landing"
+       data-ebook-landing
+       data-ebook-slug="{{slug}}"
+       data-ebook-title="{{title}}"
+       data-ebook-read-url="{{read_url}}"
+       data-worker-url="{{@custom.ebook_access_worker_url}}"
+       data-member-email="{{#if @member}}{{@member.email}}{{/if}}"
+       data-member-status="{{#if @member}}{{@member.status}}{{/if}}"
+       data-member-has-ebook-tier="{{#if @member}}{{#has @member.tiers slug=tier_slug}}true{{else}}false{{/has}}{{else}}false{{/if}}">
+
+  <div class="ebook-landing-card" data-ebook-card>
+
+    <div class="ebook-landing-form" data-ebook-signup data-inline-signup data-source="ebook-{{slug}}">
+      <p class="eyebrow">Free Subscriber Ebook</p>
+      <h2 class="ebook-landing-form-title">Read it free.</h2>
+      <p class="ebook-landing-form-sub">Tell us where to send your link. You'll get this ebook plus our weekly newsletter.</p>
+
+      <div class="digest-form ebook-landing-form-fields">
+        <div class="digest-field">
+          <label for="ebook-{{slug}}-first">First Name</label>
+          <input id="ebook-{{slug}}-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first />
+        </div>
+        <div class="digest-field">
+          <label for="ebook-{{slug}}-last">Last Name</label>
+          <input id="ebook-{{slug}}-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last />
+        </div>
+        <div class="digest-field">
+          <label for="ebook-{{slug}}-email">Email</label>
+          <input id="ebook-{{slug}}-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+        </div>
+        <button type="button" class="digest-submit" data-signup-submit>Send me the ebook</button>
+        <p class="digest-fineprint">Free signup. Unsubscribe anytime.</p>
+        <p class="digest-status" data-signup-status></p>
+      </div>
+    </div>
+
+    <div class="ebook-landing-open" data-ebook-open hidden>
+      <p class="eyebrow">You're in</p>
+      <h2 class="ebook-landing-form-title">Open <em>{{title}}</em>.</h2>
+      <p class="ebook-landing-form-sub">Click below to start reading.</p>
+      <a href="{{read_url}}" class="btn btn-primary btn-lg ebook-landing-open-btn" data-ebook-open-btn target="_blank" rel="noopener">Open the ebook &rarr;</a>
+    </div>
+
+    <div class="ebook-landing-grant" data-ebook-grant hidden>
+      <p class="eyebrow">Almost there</p>
+      <h2 class="ebook-landing-form-title">Add this ebook to your account.</h2>
+      <p class="ebook-landing-form-sub">You're signed in as <strong data-ebook-signed-email></strong>. Click below and we'll unlock <em>{{title}}</em> on your account.</p>
+      <button type="button" class="btn btn-primary btn-lg" data-ebook-grant-btn>Unlock the ebook</button>
+      <p class="digest-status" data-ebook-grant-status></p>
+    </div>
+
+  </div>
+</aside>

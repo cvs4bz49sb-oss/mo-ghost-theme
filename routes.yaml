@@ -73,6 +73,26 @@ routes:
     template: custom-admin-traffic
   /admin/editorial/:
     template: custom-admin-editorial
+  # Ebook landing pages (public, lead-gen). Form on each comps a free
+  # signup into the matching internal Ghost tier via mo-ebook-access.
+  /ebook/navigating-the-fracture/:
+    template: custom-ebook-navigating-the-fracture
+  /ebook/spiritual-formation-for-the-family/:
+    template: custom-ebook-spiritual-formation-for-the-family
+  /ebook/blueprint-for-renewal/:
+    template: custom-ebook-blueprint-for-renewal
+  # Ebook read pages — bound to Ghost Pages (created in Ghost Admin)
+  # whose visibility is set to [paid Member tier, per-ebook tier].
+  # Ghost enforces the gate before the standalone template renders.
+  /ebook/navigating-the-fracture/read/:
+    template: page-ebook-navigating-the-fracture-read
+    data: page.ebook-navigating-the-fracture-read
+  /ebook/spiritual-formation-for-the-family/read/:
+    template: page-ebook-spiritual-formation-for-the-family-read
+    data: page.ebook-spiritual-formation-for-the-family-read
+  /ebook/blueprint-for-renewal/read/:
+    template: page-ebook-blueprint-for-renewal-read
+    data: page.ebook-blueprint-for-renewal-read
 
 collections:
   /:

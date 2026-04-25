@@ -1,0 +1,42 @@
+{{!< default}}
+{{!-- /ebook/blueprint-for-renewal/ — free-subscriber landing.
+     See sibling templates + partials/ebook-signup.hbs for the model.
+     Free signup → label ebook:blueprint-for-renewal → access to this
+     ebook only. --}}
+
+<main class="ebook-page">
+
+  <section class="hero ebook-hero">
+    <div class="container">
+      <div class="ebook-hero-grid">
+        <div class="ebook-hero-content">
+          <p class="hero-kicker"><span class="dot"></span> A Mere Orthodoxy Ebook</p>
+          <h1 class="hero-headline ebook-hero-headline">
+            A blueprint for <span class="highlight"><em>Christian renewal</em></span>.
+          </h1>
+          <p class="hero-sub">A strategic outline for the long work of recovering Christian witness in education, institutions, and public life.</p>
+
+          <div class="ebook-hero-meta">
+            <p class="ebook-meta-row"><span class="eyebrow">For</span> Builders, founders, and patient strategists.</p>
+            <p class="ebook-meta-row"><span class="eyebrow">Length</span> A weekend's read.</p>
+            <p class="ebook-meta-row"><span class="eyebrow">Cost</span> Free with a Mere Orthodoxy subscription.</p>
+          </div>
+
+          <div class="ebook-hero-prose">
+            <p>Christian cultural renewal is generational work. It happens in classrooms before it happens in legislation, in friendships before it happens in publications, in habits before it happens in headlines. The people who do it well think long, build slow, and refuse the short loop of outrage.</p>
+            <p><em>Blueprint for Renewal</em> sketches the shape of that work — what to build, what to recover, what to leave behind — for anyone with a long enough horizon to take it seriously.</p>
+          </div>
+        </div>
+
+        {{> "ebook-signup"
+            slug="blueprint-for-renewal"
+            title="Blueprint for Renewal"
+            read_url="/ebook/blueprint-for-renewal/read/"
+            tier_slug="ebook-blueprint-for-renewal"}}
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/ebook-landing.js"}}"></script>

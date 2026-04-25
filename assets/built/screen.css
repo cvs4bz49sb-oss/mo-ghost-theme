@@ -8372,3 +8372,142 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   padding: 1px 6px;
   border-radius: 3px;
 }
+
+/* --- /ebook/<slug>/ — free-subscriber landing pages --------------------- */
+/* Two-column hero: left is the editorial pitch, right is a single signup
+   card. Mirrors the .about-hero-grid layout so the page reads in the same
+   editorial register as About / Forum. The card collapses below the pitch
+   on mobile so the form is the second thing the visitor sees, not the
+   first (the headline + blurb earn the email). */
+
+.ebook-page { background: var(--color-background); }
+
+.ebook-hero {
+  padding: 64px 0 48px;
+}
+.ebook-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 56px;
+  align-items: start;
+}
+.ebook-hero-content { max-width: 620px; }
+.ebook-hero-headline {
+  font-size: clamp(34px, 4.2vw, 52px);
+  margin: 0 0 20px;
+}
+.ebook-hero .hero-sub {
+  max-width: 520px;
+  margin: 0 0 32px;
+  font-style: italic;
+}
+.ebook-hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 28px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+.ebook-meta-row {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0;
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 14px;
+  align-items: baseline;
+}
+.ebook-meta-row .eyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+}
+.ebook-hero-prose p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0 0 14px;
+  max-width: 56ch;
+}
+.ebook-hero-prose p:last-child { margin-bottom: 0; }
+.ebook-hero-prose em { font-style: italic; }
+
+/* Right column: the signup / unlock / open card. Hairlines, subtle
+   surface contrast, no card chrome shadows (per the no-cards rule). */
+.ebook-landing { display: block; }
+.ebook-landing-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  padding: 32px;
+  color: var(--color-white);
+}
+.ebook-landing-card .eyebrow {
+  color: var(--color-primary);
+  margin: 0 0 8px;
+}
+.ebook-landing-form-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.15;
+  color: var(--color-white);
+  margin: 0 0 12px;
+}
+.ebook-landing-form-title em { font-style: italic; }
+.ebook-landing-form-sub {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 20px;
+}
+.ebook-landing-form-sub strong { color: var(--color-white); }
+.ebook-landing-form-fields { margin: 0; }
+.ebook-landing-form-fields .digest-field { margin-bottom: 12px; }
+.ebook-landing-form-fields .digest-field label {
+  color: rgba(255, 255, 255, 0.78);
+}
+.ebook-landing-form-fields .digest-field input {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--color-white);
+}
+.ebook-landing-form-fields .digest-field input::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+.ebook-landing-form-fields .digest-submit {
+  width: 100%;
+  margin-top: 6px;
+}
+.ebook-landing-form-fields .digest-fineprint {
+  color: rgba(255, 255, 255, 0.56);
+  margin-top: 10px;
+}
+.ebook-landing-form-fields .digest-status {
+  color: rgba(255, 255, 255, 0.78);
+  margin-top: 10px;
+}
+.ebook-landing-form-fields .digest-status.is-error {
+  color: #ffb29a;
+}
+.ebook-landing-open-btn { width: 100%; }
+
+/* Mobile: stack. Pitch above, card below. Below 760 the dark card fills
+   the column width; meta-row labels stay tight via the same grid template. */
+@media (max-width: 880px) {
+  .ebook-hero-grid { grid-template-columns: 1fr; gap: 32px; }
+  .ebook-hero-content { max-width: none; }
+  .ebook-hero .hero-sub { max-width: none; }
+}
+@media (max-width: 520px) {
+  .ebook-hero { padding: 40px 0 32px; }
+  .ebook-landing-card { padding: 24px; }
+  .ebook-landing-form-title { font-size: 24px; }
+  .ebook-meta-row { grid-template-columns: 72px 1fr; gap: 10px; font-size: 13px; }
+}

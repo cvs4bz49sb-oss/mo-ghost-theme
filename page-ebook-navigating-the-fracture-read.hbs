@@ -1,0 +1,2005 @@
+{{!-- /ebook/navigating-the-fracture/read/ — standalone Ghost custom-template page.
+     Bound via routes.yaml to Ghost Page slug `ebook-navigating-the-fracture-read`.
+     Ghost enforces per-tier visibility (paid Member tier OR the
+     "Ebook · Navigating the Fracture" tier) before this template renders.
+     Content ported verbatim from ebooks/church-leadership-ebook/public/index.html
+     (the Railway app slug differed from the public title); the Express server +
+     Railway deploy are decommissioned. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigating the Fracture &mdash; Mere Orthodoxy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+  <style>
+    /* ===== CSS Reset & Base ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #ee7d51;
+      --secondary: #c1593c;
+      --tertiary: #a43a27;
+      --quaternary: #d89f5b;
+      --body-text: #2d2927;
+      --light-text: #9a8773;
+      --dark-bg: #c0b2a5;
+      --light-bg: #f6f3f2;
+      --page-bg: #f1e0c9;
+      --font-headline: 'IM Fell Great Primer', 'Georgia', serif;
+      --font-body: 'Source Serif 4', 'Georgia', serif;
+      --content-width: 680px;
+      --sidebar-width: 260px;
+    }
+
+    /* ===== Dark Mode ===== */
+    [data-theme="dark"] {
+      --page-bg: #2d2927;
+      --body-text: #e8ddd0;
+      --light-text: #9a8773;
+      --primary: #ee7d51;
+      --secondary: #d4826a;
+      --tertiary: #e8a08a;
+      --quaternary: #d89f5b;
+    }
+
+    /* ===== Body ===== */
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 5rem;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 19px;
+      line-height: 1.75;
+      color: var(--body-text);
+      background-color: var(--page-bg);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== Layout ===== */
+    .page-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ===== Header Bar ===== */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background-color: var(--page-bg);
+      transition: background-color 0.3s ease;
+    }
+
+    .org-name {
+      font-family: var(--font-headline);
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--body-text);
+      text-decoration: none;
+      font-weight: 400;
+    }
+
+    .org-name:hover {
+      color: var(--secondary);
+    }
+
+    /* ===== Theme Toggle ===== */
+    .theme-toggle {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      border-radius: 14px;
+      border: 2px solid var(--body-text);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 0;
+    }
+
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: var(--body-text);
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    [data-theme="dark"] .theme-toggle::after {
+      transform: translateX(22px);
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      padding: 5.5rem 2rem 2rem 2.5rem;
+      overflow-y: auto;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+
+    .sidebar nav {
+      flex: 1;
+    }
+
+    .sidebar-actions {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+    }
+
+    /* ===== About Button ===== */
+    .about-btn {
+      display: block;
+      text-align: center;
+      width: 100%;
+      padding: 0.6rem 1.4rem;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--body-text);
+      background: transparent;
+      border: 2px solid var(--secondary);
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 0.25rem;
+    }
+
+    .about-btn:hover {
+      background-color: var(--secondary);
+      color: var(--page-bg);
+    }
+
+    [data-theme="dark"] .about-btn {
+      border-color: var(--quaternary);
+      color: var(--body-text);
+    }
+
+    [data-theme="dark"] .about-btn:hover {
+      background-color: var(--quaternary);
+      color: #2d2927;
+    }
+
+    /* ===== Icon Button Row ===== */
+    .icon-btn-row {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+
+    /* ===== Share Button & Popup ===== */
+    .share-wrapper {
+      position: relative;
+    }
+
+    .share-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      color: var(--secondary);
+      background: transparent;
+      border: 2px solid var(--secondary);
+      border-radius: 50%;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .share-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .share-btn:hover {
+      background-color: var(--secondary);
+      color: var(--page-bg);
+    }
+
+    [data-theme="dark"] .share-btn {
+      border-color: var(--quaternary);
+      color: var(--quaternary);
+    }
+
+    [data-theme="dark"] .share-btn:hover {
+      background-color: var(--quaternary);
+      color: #2d2927;
+    }
+
+    .share-popup {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 0.5rem);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      background-color: var(--page-bg);
+      border: 1px solid var(--dark-bg);
+      border-radius: 6px;
+      padding: 0.5rem 0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      z-index: 60;
+    }
+
+    .share-popup.open {
+      display: block;
+    }
+
+    [data-theme="dark"] .share-popup {
+      border-color: var(--light-text);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .share-option {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.5rem 1rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--body-text);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+
+    .share-option:hover {
+      background-color: var(--dark-bg);
+    }
+
+    [data-theme="dark"] .share-option:hover {
+      background-color: rgba(255,255,255,0.08);
+    }
+
+    .share-option svg {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+    }
+
+    .share-copied {
+      font-size: 0.8rem;
+      color: var(--secondary);
+      text-align: center;
+      padding: 0.25rem 0;
+      display: none;
+    }
+
+    .share-copied.show {
+      display: block;
+    }
+
+    .toc-title {
+      font-family: var(--font-headline);
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.02em;
+    }
+
+    .toc-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .toc-list li {
+      margin-bottom: 0.35rem;
+    }
+
+    .toc-list a {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--light-text);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      display: block;
+      padding: 0.15rem 0;
+    }
+
+    .toc-list a:hover {
+      color: var(--body-text);
+    }
+
+    .toc-list a.active {
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .toc-list .toc-major {
+      font-family: var(--font-headline);
+      font-size: 0.95rem;
+      color: var(--light-text);
+      margin-top: 0.5rem;
+      transition: color 0.2s ease, font-weight 0.2s ease;
+    }
+
+    .toc-list .toc-major:hover {
+      color: var(--body-text);
+    }
+
+    .toc-list .toc-major.active {
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .toc-list .toc-major:first-child {
+      margin-top: 0;
+    }
+
+    .toc-list .toc-sub {
+      padding-left: 0;
+    }
+
+    /* ===== Main Content ===== */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 6rem 4rem 6rem 4rem;
+      max-width: calc(var(--content-width) + var(--sidebar-width) + 8rem);
+    }
+
+    .content-container {
+      max-width: var(--content-width);
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      margin-bottom: 3.5rem;
+      padding-bottom: 0;
+    }
+
+    .hero-title {
+      font-family: var(--font-headline);
+      font-size: clamp(2.8rem, 5.5vw, 4.2rem);
+      line-height: 1.12;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-headline);
+      font-style: italic;
+      font-size: clamp(1.1rem, 2vw, 1.35rem);
+      color: var(--body-text);
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+
+    .hero-date {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--light-text);
+    }
+
+    /* ===== Sections ===== */
+    .content-section {
+      margin-bottom: 1rem;
+    }
+
+    .section-label {
+      font-family: var(--font-headline);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--light-text);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.75rem;
+      margin-top: 3rem;
+    }
+
+    .content-section:first-child .section-label {
+      margin-top: 0;
+    }
+
+    .section-title {
+      font-family: var(--font-headline);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 400;
+      color: var(--body-text);
+      margin-top: 4rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      padding-top: 2rem;
+      border-top: 3px solid var(--secondary);
+    }
+
+    .essay-heading {
+      font-family: var(--font-headline);
+      font-size: 1.15rem;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+
+    .essay-author {
+      font-family: var(--font-headline);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--light-text);
+      margin-bottom: 1.75rem;
+    }
+
+    .section-heading {
+      font-family: var(--font-headline);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      line-height: 1.35;
+    }
+
+    .subsection-heading {
+      font-family: var(--font-headline);
+      font-style: italic;
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--body-text);
+      margin-top: 2.5rem;
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+
+    /* ===== Body Text ===== */
+    p {
+      margin-bottom: 1.25rem;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    /* ===== Callout (bold+italic manifesto statement) ===== */
+    .callout {
+      font-family: var(--font-headline);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--body-text);
+      padding: 2rem 0;
+      margin: 2rem 0;
+      border-top: 3px solid var(--secondary);
+      border-bottom: 3px solid var(--secondary);
+    }
+
+    .callout strong {
+      font-weight: 400;
+    }
+
+    /* ===== Blockquote ===== */
+    blockquote {
+      margin: 1.75rem 0;
+      padding: 0.25rem 0 0.25rem 1.75rem;
+      border-left: 3px solid var(--quaternary);
+      color: var(--body-text);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    /* ===== Ordered/Unordered Lists ===== */
+    .barna-list {
+      margin: 1.5rem 0 1.5rem 1.5rem;
+      padding: 0;
+    }
+
+    .barna-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 0.25rem;
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    /* ===== Hamburger Menu ===== */
+    .menu-toggle {
+      display: block;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      z-index: 200;
+    }
+
+    .menu-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background-color: var(--body-text);
+      margin: 5px 0;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(45, 41, 39, 0.4);
+      z-index: 5;
+    }
+
+
+    /* ===== Responsive ===== */
+    @media (max-width: 960px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        background-color: var(--page-bg);
+        z-index: 50;
+        width: 280px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 5.5rem 1.5rem 4rem 1.5rem;
+      }
+
+      .hero-title {
+        font-size: 2.4rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+      }
+
+      .top-bar {
+        padding: 1rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        font-size: 17px;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .section-title {
+        font-size: 1.7rem;
+      }
+
+      .section-heading {
+        font-size: 1.3rem;
+      }
+
+      .main-content {
+        padding: 5rem 1.25rem 3rem 1.25rem;
+      }
+    }
+
+    /* ===== Download Popup ===== */
+    .icon-btn-row .download-wrapper {
+      flex: 1;
+    }
+
+    .download-wrapper {
+      position: relative;
+    }
+
+    .download-popup {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 0.5rem);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      background-color: var(--page-bg);
+      border: 1px solid var(--dark-bg);
+      border-radius: 6px;
+      padding: 0.5rem 0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      z-index: 60;
+    }
+
+    .download-popup.open {
+      display: block;
+    }
+
+    [data-theme="dark"] .download-popup {
+      border-color: var(--light-text);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+
+    .download-option {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.5rem 1rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--body-text);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.15s ease;
+    }
+
+    .download-option:hover {
+      background-color: var(--dark-bg);
+    }
+
+    [data-theme="dark"] .download-option:hover {
+      background-color: rgba(255,255,255,0.08);
+    }
+
+    .download-option svg {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ===== Download Button ===== */
+    .download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      color: var(--page-bg);
+      background-color: var(--secondary);
+      border: 2px solid var(--secondary);
+      border-radius: 50%;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .download-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .download-btn:hover {
+      background-color: var(--tertiary);
+      border-color: var(--tertiary);
+      color: var(--page-bg);
+    }
+
+    [data-theme="dark"] .download-btn {
+      color: #2d2927;
+      background-color: var(--quaternary);
+      border-color: var(--quaternary);
+    }
+
+    [data-theme="dark"] .download-btn:hover {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* ===== Contributors ===== */
+    .contributors-section {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--dark-bg);
+    }
+
+    .contributors-section .section-title {
+      margin-bottom: 2rem;
+    }
+
+    .contributor {
+      margin-bottom: 2rem;
+    }
+
+    .contributor-name {
+      font-family: var(--font-headline);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--body-text);
+      margin-bottom: 0.25rem;
+    }
+
+    .contributor-bio {
+      font-size: 0.95rem;
+      color: var(--light-text);
+      line-height: 1.65;
+    }
+
+    .essay-author a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s ease;
+    }
+
+    .essay-author a:hover {
+      border-bottom-color: var(--light-text);
+    }
+
+    /* ===== Footer ===== */
+    .site-footer {
+      text-align: center;
+      padding: 3rem 0 2rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--light-text);
+    }
+
+    /* ===== PDF / Print Mode ===== */
+    body.print-mode .download-wrapper,
+    body.print-mode .about-btn,
+    body.print-mode .share-wrapper,
+    body.print-mode .sidebar-actions,
+    body.print-mode .top-bar,
+    body.print-mode .sidebar,
+    body.print-mode .sidebar-overlay,
+    body.print-mode .progress-bar,
+    body.print-mode .menu-toggle {
+      display: none !important;
+    }
+
+    body.print-mode {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      line-height: 1.6 !important;
+    }
+
+    body.print-mode .main-content {
+      margin-left: 0;
+      padding: 0;
+      max-width: 100%;
+    }
+
+    body.print-mode .content-container {
+      max-width: 100%;
+    }
+
+    /* Title page: centered, standalone */
+    body.print-mode .hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      height: 100vh;
+      page-break-after: always;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    body.print-mode .hero-title {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 28pt !important;
+      line-height: 1.2 !important;
+      color: #000000 !important;
+      margin-bottom: 0.5rem;
+    }
+
+    body.print-mode .hero-subtitle {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 14pt !important;
+      font-style: italic;
+      color: #000000 !important;
+      margin-bottom: 2rem;
+    }
+
+    body.print-mode .hero-date {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      color: #333333 !important;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Add "Mere Orthodoxy" to title page via pseudo-element */
+    body.print-mode .hero::before {
+      content: "Mere Orthodoxy";
+      font-family: 'Times New Roman', 'Times', serif;
+      font-size: 14pt;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #333333;
+      margin-bottom: 3rem;
+    }
+
+    /* Chapter headings: start on new page */
+    body.print-mode .content-section {
+      page-break-before: always;
+      margin-bottom: 0;
+    }
+
+    body.print-mode .section-title {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 22pt !important;
+      color: #000000 !important;
+      border-top: 1px solid #000000;
+      border-bottom: none;
+      padding-top: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+    }
+
+    body.print-mode .section-label {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 11pt !important;
+      color: #333333 !important;
+      margin-top: 0;
+    }
+
+    body.print-mode .section-heading {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 16pt !important;
+      color: #000000 !important;
+      margin-top: 2rem;
+    }
+
+    body.print-mode .subsection-heading {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 13pt !important;
+      font-style: italic;
+      color: #000000 !important;
+    }
+
+    body.print-mode .essay-heading {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 13pt !important;
+      color: #000000 !important;
+    }
+
+    body.print-mode .essay-author {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 11pt !important;
+      color: #333333 !important;
+    }
+
+    body.print-mode p {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      color: #000000 !important;
+      line-height: 1.6 !important;
+    }
+
+    body.print-mode blockquote {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 11pt !important;
+      color: #000000 !important;
+      border-left-color: #999999;
+    }
+
+    body.print-mode .barna-list li {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 11pt !important;
+      color: #000000 !important;
+    }
+
+    body.print-mode .callout {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      color: #000000 !important;
+      border-top-color: #000000;
+      border-bottom-color: #000000;
+    }
+
+    body.print-mode .contributors-section {
+      page-break-before: always;
+      border-top: none;
+    }
+
+    body.print-mode .contributor-name {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 12pt !important;
+      font-weight: bold;
+      color: #000000 !important;
+    }
+
+    body.print-mode .contributor-bio {
+      font-family: 'Times New Roman', 'Times', serif !important;
+      font-size: 11pt !important;
+      color: #000000 !important;
+    }
+
+    body.print-mode .site-footer {
+      display: none;
+    }
+
+    body.print-mode .essay-author a {
+      color: inherit !important;
+      text-decoration: none !important;
+      border-bottom: none !important;
+    }
+
+    /* ===== Highlight & Share Tooltip ===== */
+    .highlight-share {
+      display: none;
+      position: absolute;
+      z-index: 300;
+      background-color: #2d2927;
+      border-radius: 6px;
+      padding: 0.35rem 0.25rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      gap: 0.1rem;
+      align-items: center;
+      transform: translateX(-50%);
+    }
+
+    .highlight-share.visible {
+      display: flex;
+    }
+
+    .highlight-share * {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .highlight-share::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 7px solid #2d2927;
+    }
+
+    .hs-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #e8ddd0;
+      transition: background-color 0.15s ease;
+      padding: 0;
+    }
+
+    .hs-btn:hover {
+      background-color: rgba(255,255,255,0.12);
+    }
+
+    .hs-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .hs-divider {
+      width: 1px;
+      height: 20px;
+      background-color: rgba(255,255,255,0.2);
+      margin: 0 0.15rem;
+    }
+
+    .hs-copied {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #2d2927;
+      color: #e8ddd0;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .hs-copied.show {
+      opacity: 1;
+    }
+
+    @media (max-width: 960px) {
+      .highlight-share {
+        padding: 0.4rem 0.35rem;
+      }
+      .highlight-share::after {
+        bottom: auto;
+        top: -6px;
+        border-top: none;
+        border-bottom: 7px solid #2d2927;
+      }
+      .hs-copied {
+        top: auto;
+        bottom: -28px;
+      }
+      .hs-btn {
+        width: 40px;
+        height: 40px;
+      }
+      .hs-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    body.print-mode .highlight-share {
+      display: none !important;
+    }
+
+    /* ===== Scroll Progress ===== */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      z-index: 200;
+      transition: width 0.1s ease-out;
+      width: 0%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Highlight & Share Tooltip -->
+  <div class="highlight-share" id="highlightShare">
+    <span class="hs-copied" id="hsCopied">Copied!</span>
+    <button class="hs-btn" id="hsCopy" title="Copy quote">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </button>
+    <button class="hs-btn" id="hsSMS" title="Text message">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <div class="hs-divider"></div>
+    <button class="hs-btn" id="hsX" title="Share on X">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </button>
+    <button class="hs-btn" id="hsFB" title="Share on Facebook">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </button>
+    <button class="hs-btn" id="hsIG" title="Instagram Stories">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+    </button>
+  </div>
+
+  <!-- Reading Progress -->
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a href="https://mereorthodoxy.com" class="org-name">Mere Orthodoxy</a>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
+  </header>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="page-wrapper">
+    <!-- Sidebar TOC -->
+    <aside class="sidebar" id="sidebar">
+      <nav>
+        <h2 class="toc-title">Contents</h2>
+        <ul class="toc-list">
+          <li><a href="#top" class="toc-major">Top</a></li>
+          <li><a href="#six-way-fracturing" class="toc-major">The Six Way Fracturing of Evangelicalism</a></li>
+          <li><a href="#renewed-protestantism" class="toc-major">Toward a Renewed Public Protestantism</a></li>
+          <li><a href="#christ-repairs-culture" class="toc-major">Christ Repairs Culture</a></li>
+          <li><a href="#four-quadrants" class="toc-major">The Four Quadrants of Church Life</a></li>
+          <li><a href="#therapeutic-age" class="toc-major">The Christian in a Therapeutic Age</a></li>
+          <li><a href="#counter-institutions" class="toc-major">The Church Amongst the Counter-Institutions</a></li>
+          <li><a href="#contributors" class="toc-major">Contributors</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-actions">
+        <a href="https://mereorthodoxy.com/about" class="about-btn">About<br>Mere Orthodoxy</a>
+        <div class="icon-btn-row">
+          <div class="share-wrapper">
+            <div class="share-popup" id="sharePopup">
+              <button class="share-option" id="copyLink">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Copy link
+              </button>
+              <div class="share-copied" id="copiedMsg">Link copied!</div>
+              <a class="share-option" id="shareSMS" href="#" target="_blank">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Text message
+              </a>
+              <a class="share-option" id="shareX" href="#" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Share on X
+              </a>
+              <a class="share-option" id="shareFB" href="#" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Share on Facebook
+              </a>
+              <a class="share-option" id="shareIG" href="#" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                Instagram Stories
+              </a>
+            </div>
+            <button class="share-btn" id="shareToggle" title="Share">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </button>
+          </div>
+          <div class="download-wrapper">
+            <div class="download-popup" id="downloadPopup">
+              <a class="download-option" href="/api/epub">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 1.5h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1z"/><path d="M6 4.5h4M6 7h4M6 9.5h2"/></svg>
+                ePub (e-readers)
+              </a>
+              <a class="download-option" href="/api/pdf">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5z"/><path d="M9.5 1.5V5H13"/></svg>
+                PDF
+              </a>
+            </div>
+            <button class="download-btn" id="downloadToggle" title="Download">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9m0 0L4.5 7.5M8 11l3.5-3.5M2 13h12"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        <!-- Hero -->
+        <div id="top" class="hero">
+          <h1 class="hero-title">Navigating the Fracture</h1>
+          <p class="hero-subtitle">A Pastor&rsquo;s Guide to Leading Through Cultural Division</p>
+        </div>
+
+        <!-- Article Content -->
+        <article>
+
+          <!-- ====== ARTICLE 1 ====== -->
+          <section id="six-way-fracturing" class="content-section">
+            <h2 class="section-title">The Six Way Fracturing of Evangelicalism</h2>
+            <p class="essay-author">By <a href="#contributor-graham-flowers">Michael Graham &amp; Skyler Flowers</a></p>
+
+            <p>Colin Kaepernick.</p>
+            <p>&ldquo;Grab them by the p&hellip;&rdquo;</p>
+            <p>Confederate monuments.</p>
+            <p>George Floyd, Breonna Taylor, Ahmaud Arbery.</p>
+            <p>COVID &ndash; serious problem or overblown?</p>
+            <p>Trump, Biden, other, or abstain?</p>
+            <p>January 6th, 2021.</p>
+
+            <p>The last few years have highlighted major differences in how Americans have processed the same cultural moments. Every month seems to bring another national Rorschach Test as to how we parse the times. Unlike Rorschach Tests these national events are not always neutral blobs of cultural ink. The same rending of the fabric of America is also happening (maybe not so) quietly within evangelicalism.</p>
+
+            <h3 class="section-heading">Introduction</h3>
+
+            <p>I regularly hear from about six dozen pastors from around the United States. Over the past year, each of them have expressed to me that they are exhausted, and I have yet to hear from a single one that they are thriving. When drilling down on these things much of the exhaustion revolves around what we have all been intuitively feeling and objectively observing: evangelicalism is fracturing.</p>
+
+            <p>Tim Dalrymple, the President and CEO of Christianity Today, has been observing the same thing:</p>
+
+            <blockquote><p>New fractures are forming within the American evangelical movement, fractures that do not run along the usual regional, denominational, ethnic, or political lines. Couples, families, friends, and congregations once united in their commitment to Christ are now dividing over seemingly irreconcilable views of the world. In fact, they are not merely dividing but becoming incomprehensible to one another.</p></blockquote>
+
+            <p>The fracturing we are experiencing is likely to be irrevocable as the historical ties that bind have eroded beyond repair. The reality is that while many in the evangelical movement thought their bonds were primarily (or exclusively) theological or missional, many of those bonds were actually political, cultural, and socioeconomic. These political, cultural, and socioeconomic differences have always been there beneath the water line but what has occurred over the last 5-10 years has been the extent to which those values are expressed has been exposed. With the expression louder and the exposing more visible, these divergent values have rapidly created substantive wedges between various subgroups.</p>
+
+            <p>The rate at which divergent views have been revealed has created jarring relational dissonance. People in the pews are left questioning the extent to which their unity is based on the Apostles or Nicene creeds or other political, cultural, and socioeconomic matters. They are left questioning where churches, ministries, or organizations land on these things.</p>
+
+            <p>The tectonic plates are shifting underfoot. This fracturing will likely be irrevocable not because our Gospel essentials are not unifying enough but because the divergence of ethical priorities, cultural engagement, racial attitudes, political visions/illusions, and their implications for philosophy of ministry mean that unity is fundamentally no longer tenable.</p>
+
+            <h3 class="section-heading">The 6 Categories</h3>
+
+            <p>As I have surveyed the evangelical landscape and discussed with pastors all around the country, evangelicalism seems to be fracturing into at least 6 different subgroups. Three of those groups (#s1-3) still have at least some connectivity to evangelicalism and the other three have cut ties (#s 4-6):</p>
+
+            <ol class="barna-list">
+              <li><strong>Neo-Fundamentalist Evangelical</strong> &ndash; Neo-fundamentalists are those who have deep concerns about both political and theological liberalism. There is some overlap and co-belligerency with Christian Nationalism (a syncretism of right wing nationalism and Christianity) but neo-fundamentalists do so with more theological vocabulary and rationality. Concerning threats within the church, they have deep worries with the church&rsquo;s drift towards liberalism and the ways secular ideologies are finding homes in the church. Outside the church, they are concerned by the culture&rsquo;s increasing hostility to Christianity, most prominently from mass media, social media, and the government.</li>
+              <li><strong>Mainstream Evangelical</strong> &ndash; Historically this term has been Protestants who hold to the Bebbington Quadrilateral of conversionism, activism, biblicism, and crucicentrism. The emphasis for this group is on the fulfillment of the Great Commission. Concerning threats within the church, they share some concern for the secular right&rsquo;s influence on Christianity, including the destructive pull of Christian Nationalism, but are far more concerned by the secular left&rsquo;s influence and the desire to assimilate since the world still remains so hostile. Outside the church, they are likely uncomfortable with the rhetoric Trump and other conservatives use but view this direction as the lesser of two evils.</li>
+              <li><strong>Neo-Evangelical</strong> &ndash; People who would see themselves as &ldquo;global evangelicals&rdquo; and are doctrinally &ldquo;Evangelicals&rdquo; (w/ some philosophy of ministry differences) but no longer use the term &ldquo;evangelical&rdquo; in some circumstances in the American context as the term as an identifier has evolved to be more political than theological. Within the church, they are highly concerned by conservative Christianity&rsquo;s acceptance of Trump and failure to engage on topics of race and sexuality in helpful ways, but they have not totally abandoned evangelical identification and likely still labor in churches with the broadest spectrum of these groups. Outside of the church, this group feels largely homeless in today&rsquo;s world. There is equal concern, or slightly more either way depending on the person, at the threat the left and the right pose to Christians seeking to live peaceful and quiet lives in all godliness.</li>
+              <li><strong>Post-Evangelical</strong> &ndash; People who have fully left evangelicalism from a self-identification standpoint and reject the &ldquo;evangelical&rdquo; label yet are still churched and likely still agree with the Apostles Creed and Nicene Creed. They are more deconstructed than neo-evangelicals and they are more vocal in their critiques of 1s and 2s than 3s would be. Some remain firmly in Protestant circles and others have crossed over to mainline, catholic, or orthodox traditions while still holding to the basic creeds. Concerning threats within the church, they are focused on abuse, corruption, hypocrisy, Christian nationalism, and the secular right. Outside the church, they are primarily concerned with the matters of injustice, inequity, the secular right, and to a lesser extent the radical secular left. Many 4s are 4s also because their experiences with predominantly white evangelicalism have been so difficult and strained that physical distance seemed to be the only conclusion.</li>
+              <li><strong>Dechurched (but with some Jesus)</strong> &ndash; People who have left the church but still hold to at least some orthodox Christian beliefs.</li>
+              <li><strong>Dechurched and Deconverted</strong> &ndash; People who have left the church and are completely deconverted with no vestigial Christian beliefs.</li>
+            </ol>
+
+            <blockquote><p><strong>Note</strong> &ndash; there is likely a halfway point between 4 and 5 known as ex-vangelicals that don&rsquo;t neatly fit either 4 or 5. This group is difficult to parse as the meaning that this group has taken on has evolved even this year. We did not want to exclude the group from this typology but given the evolving nature were hesitant to pin it down too precisely at this juncture. Some of these folks have actually dechurched, some have deconverted, yet some remain in the faith but are quite vocal on their critiques of the movement. In time this category might evolve and/or swallow up category 5 below or it might fizzle like other labels.</p></blockquote>
+
+            <p>Some of these terms have been used in the past with different definitions. We are trying to stay close to the commonly understood meanings of both Christian Nationalist and ex-vangelical as they are presently understood. However, regarding Neo-Evangelical and Post-Evangelical we are diverging from some of the other past uses of these terms. Post-Evangelical was a term sometimes used during the emergent church movement and we are not using it in this sense. Neo-Evangelical is sometimes used to describe folks whom we have categorized as 4s and 5s here and we are not using the term in that sense.</p>
+
+            <p>It should also be noted that there are many folks who exist part way between two categories. There are those who are 0.5s whose commitment to nationalistic identity is so grave and syncretistic that they are no longer in the faith. There are 1.5s who can&rsquo;t fully commit to neo-fundamentalism or Christian Nationalism. There are 2.5s who draw equal inspiration from both mainstream evangelicalism and neo-evangelicalism. There are 3.5s who likely strongly agree with the critiques levied by 4s but think the tactics of 3s are more wise. There are some 4.5s who would still subscribe to the Apostles and Nicene Creeds but fully dechurched for a wide variety of reasons. Hence, these categories should be seen as a bit fluid with permeability between them especially while we are in this season of self-sorting.</p>
+
+            <h3 class="section-heading">The Fault Lines</h3>
+
+            <p>Over the last few decades and especially the last five years these groups have been increasingly becoming more clear. For some decades old exhaustion with the Culture Wars strategy disenfranchised them. For some five to six years of dissonance with how fellow congregants processed Trump, Mike Brown, and Trayvon Martin created separation. Finally for others the separation wasn&rsquo;t palpable until 2020-2021 when divergence was revealed as to how people processed COVID, masks, the losses of George Floyd, Breonna Taylor, Ahmaud Arbery, Trump&rsquo;s re-election campaign, and January 6th.</p>
+
+            <p>As I&rsquo;ve talked with pastors about this paradigm, 1s and 4s have largely already opted out of worshiping in the same churches anymore (with the exception of a few megachurch environments). This leaves the primary points of real world internal church tension being between 1s vs. 3s and 2s vs. 4s.</p>
+
+            <h4 class="subsection-heading">1s vs. 3s</h4>
+
+            <p>Neo-Fundamentalist Evangelicals (1s) think that 3s have a compromised Gospel that has imported worldly ideas of social justice into the church and are in danger of apostasy as a result. These things come to a head primarily on the topics of race and politics. 1s cannot fathom that 3s might not have voted for the &ldquo;pro-life&rdquo; Trump and elected to abstain, vote third party, or vote for Biden. 1s struggle to understand that evangelicals would be activists on anything except abortion.</p>
+
+            <p>Many neo-evangelicals (3s) struggle with what they would view as ethical compromise in voting for someone with the moral track record of Donald Trump and resent the pressure from 1s to do so. 3s also struggle with the 1s view that we live in a post-racial colorblind society and there aren&rsquo;t lingering effects of the awful legacy of chattel slavery and Jim Crow systems of racial oppression and white dominance. 3s struggle with the idea that 1s see ongoing positive historical legacy of the societal benefits conferred by our Constitution but that 1s see no continuation of a negative historical legacy of the much more recent harm inflicted by slavery and Jim Crow. 3s struggle with the close proximity of 1s political and national identity to their Christian identity.</p>
+
+            <p>The upshot of these things means significant philosophy of ministry differences in how to contextualize the Gospel in this cultural moment. Disagreements over mercy, justice, strategies, tactics, affect, and culture are not easily bridged. In many instances these differences will be fatal.</p>
+
+            <h4 class="subsection-heading">2s vs. 4s</h4>
+
+            <p>Mainstream evangelicals (2s) sometimes have a hard time understanding the core concerns of post-evangelicals (4s). There is misalignment between the two groups as to the extent of hypocrisy, racism, political entanglements, and abuse. Some of these differences arise from diverging experiences between the two groups. Anecdotally it seems like many post-evangelicals have experienced church hurt and potentially first hand or second hand trauma.</p>
+
+            <p>Post-evangelicals (4s) feel that mainstream evangelicals (2s) form a kind of establishment that is very resistant to reform or change. I have observed among 4s immense frustration due to their perception that mainstream evangelicals are silent, inactive, or unwilling to see problems obvious to 4s.</p>
+
+            <p>The upshot of these things means that 2s and 4s will increasingly struggle to occupy the same churches. There are significant disagreements about whether problems exist, the extent of those problems, and what things need to be done to address those matters.</p>
+
+            <h3 class="section-heading">What are the Implications For the Future of Evangelicalism?</h3>
+
+            <p>If 2016 was an X-ray, then 2020-2021 is a 3D MRI. What was previously invisible is now largely plain for all to see. Imagine for a moment that every local church is a rubber band. If you have ever had one of those multi-packs of rubber bands there are different diameters, widths, and elastic qualities. The bottom line is that the rubber bands of local churches, ministries, and parachurch organizations are now less elastic. This means the overall tension tolerable before the band breaks has been reduced.</p>
+
+            <p>How much elasticity can a church handle now?</p>
+
+            <p>As I talk with other pastors around the country what we are seeing is that a church can handle two adjacent subgroups. Some churches are a little more elastic and some a little less elastic but two adjacent subgroups seems to be the amount of tension tolerable before it becomes fatal. If this is true, then three local church paradigms will eventually take form:</p>
+
+            <ul class="barna-list">
+              <li><strong>Type A Church</strong> &ndash; a church comprised almost entirely of 1s and 2s</li>
+              <li><strong>Type B Church</strong> &ndash; a church comprised almost entirely of 2s and 3s</li>
+              <li><strong>Type C Church</strong> &ndash; a church comprised almost entirely of 3s and 4s</li>
+            </ul>
+
+            <p>Type A Church will continue to carry the torch of the culture wars into the 21st century. They will continue the same primary mode of cultural engagement through political activism through the Republican Party. They will see Type B &amp; C churches as being compromised by political and theological liberalism.</p>
+
+            <p>Type B Church will chart a course that is not as culture war centric. While still being politically involved &ndash; their primary mode of cultural engagement will be interpersonal in nature. These churches will seek to make disciples and be neighborly. Type B churches would like to avoid the perceived political syncretism and cultural withdrawal of Type A Church and the perceived overly deconstructed posture of Type C Church.</p>
+
+            <p>Type C Church will seek to recover the public witness of the church by critiquing abuse, hypocrisy, inconsistencies, and misconduct. Their primary mode will be calling the church to ethical fidelity, justice, and empathy towards the lost, marginalized, oppressed, or disinherited. Type C Church would like to avoid the perceived fundamentalism, cultural isolation, and tacit support of oppressive structures or systems of Type A Churches and the perceived silence of Type B Churches on certain justice or ethical matters.</p>
+
+            <p>If this thesis holds true then people will continue to self-sort themselves into the type of church that best fits their animating and core concerns. Some churches will try to fight this sorting and be all things to all people, but the size, weight, gravity, and sheer force behind the wedge issues will continue to force churches into one of these three paradigms. We will see a resurgence in fundamentalism as there is plenty of fear to animate parishioners, particularly from the secular left. We will see a rising tide of justice minded churches with plenty of concerns particularly from the secular right.</p>
+
+            <p>There will also be denominational strain for larger denominations. It will likely be impossible for denominations to span the entire 1.0 to 4.0 range. If a single local church can withstand a span of 1.0-1.5 range at most, then a nationwide denomination can likely only withstand a span of 2.0-2.5 without a split.</p>
+
+            <p>Large parachurch organizations will feel these tensions most acutely due to their big tent nature. It will be difficult to find a least common denominator that is satisfying to a very broad group as many will be dissatisfied. These tensions are playing themselves out particularly among large campus ministries.</p>
+
+            <h3 class="section-heading">What are the Implications for the Broader Culture?</h3>
+
+            <p>Politically, there will be a reshuffling of the deck &ndash; some 3s and 4s will become independent or vote democrat. However, there does seem to be a rise of people who hold little to no orthodox Christian views who now self-identify as evangelical. This might in turn be a zero sum game where the only thing that is different is that the term &ldquo;evangelical&rdquo; is now more semantically tied to political meaning and less to theological meaning.</p>
+
+            <p>Sociologically, the resurgent neo-fundamentalism and its co-belligerent Christian Nationalism will continue to create parallel information ecosystems that will further stretch and rend the fabric of the USA. This will create opportunities particularly for 3s to try to create space for a nuanced middle America but it will be challenging to hold with erosion happening in either direction and without the (illusory) safety of tribalism.</p>
+
+            <p>Racially, tensions are likely to continue to rise. Neo-fundamentalists and Christian Nationalists will continue to find new labels and terms for their fears surrounding social justice. Exvangelicals and the dechurched will not tolerate evangelicals who don&rsquo;t agree that systemic racism exists, express some meaningful agreement concerning its existence, and take active steps to work against it.</p>
+
+            <p>Economically, there will likely be more boycotts and counter boycotts as capitalism becomes increasingly weaponized in all directions to lobby for a particular cultural or political vision.</p>
+
+            <p>Regarding journalism, news, media, and social media, there will be ongoing challenges with sound information and reporting. The temptation on either end of the spectrum to distort, twist, and lie will be a problem that is not going away. This will likely continue to be exploited by foreign bad actors as well, further complicating the matter.</p>
+
+            <h3 class="section-heading">Hope For the Future</h3>
+
+            <p>The question that remains before us is whether the big tent evangelicalism is worth fighting to preserve. From a big picture viewpoint, the answer seems obvious depending on where you are standing: cutoff the subgroup that seems the most extreme from where you are standing and march on. However, as this fracturing takes place in local churches, it is a much harder lived reality.</p>
+
+            <p>Therefore, the question is ultimately answered not by how major evangelical institutions react to each succeeding wave of evangelicalism but how local pastors and church leaders preach, counsel, disciple, and lead through these waves. It is easier for institutions to throw around their collective weight in distancing and removing various subgroups from their mission than it is for local pastors to see people leave who have been in their church for decades. This is why pastors are beat down and tired.</p>
+
+            <p>As local churches continue to observe this fracturing in their contexts, it will be necessary that they move forth with courage, compassion, and conviction for those across this spectrum. This will at times mean saying goodbye to brothers and sisters who you have ministered alongside for years and at other times mean calling back those who want nothing more than to be done with the church.</p>
+
+            <p>But there is hope. As Tim Keller pointed out in a recent interview, we have been here before in the 1940s when Carl F. H. Henry charted a course in between the twin dangers of liberalism and fundamentalism. He pointed out that in that day there was a sorting between various subgroups in Christianity that eventually led to what we now call evangelicalism. We are in a similar sorting here in the early 21st century. There is a lot to be explored this century in the orbit of the constellation of the doctrine of man, the imago dei, and (kingdom) ethics.</p>
+
+            <p>The church is not held together by its own strength but by the unbreakable bond of the unity of the Spirit. With this confidence, the church can move forward into this sorting, whatever it may look like, with hope that the Lord is using it to strengthen and embolden his church for fruitful mission in this age. This fracturing need not be viewed as wholly negative. Rather, in this sorting we hold on to the confidence that God is preparing his church to engage this age as both missional and confessional, with courage and compassion, holding on to orthodoxy, orthopraxy, and orthopathos.</p>
+          </section>
+
+          <!-- ====== ARTICLE 2 ====== -->
+          <section id="renewed-protestantism" class="content-section">
+            <h2 class="section-title">Toward a Renewed Public Protestantism: The Beginnings of a Manifesto</h2>
+            <p class="essay-author">By <a href="#contributor-meador">Jake Meador</a></p>
+
+            <p>In his book <em>Bad Religion</em>, Ross Douthat suggests that the 1950s were the high water mark for Christianity in America. Amongst other things, church attendance was at its peak and each of America&rsquo;s four defining ecclesial traditions were relatively strong. The Protestant Mainline was still vital, providing a kind of moral conscience to accompany the dynamism of American markets and might of American political power, as Joseph Bottum has argued. The Mainline provided a way for Christian Americans to self-consciously recognize the ways in which their faith equipped them for virtuous citizenship and participation in the institutions of American public life. Meanwhile, American Evangelicalism supplied an energy, entrepreneurialism, and spirit of outreach that paired well with the Mainline&rsquo;s more stolid sensibility. Where evangelicalism was deficient&mdash;aiming the energy it excelled at gathering up&mdash;the mainline was strong and vice versa. The combination allowed for the publicly conscious, institutionally rooted realism of Niebuhr to exist alongside the energy and zeal of Graham.</p>
+
+            <p>Alongside these two white Protestant movements existed the Roman Catholic Church and the Black church. The Roman church supplied an anchor institution and community that rooted predominantly working class, immigrant communities across America&rsquo;s emerging industrial urban hubs. Even as these communities assimilated into mainstream American life, the Roman church provided, for a time, a certain historical and cultural rootedness that resisted the atomizing tendencies of America. The Black church served a similar function as the Roman church for the nation&rsquo;s African American citizens while also offering a vision of Christian faith that contained elements of the Mainline and of the Evangelical. Like the Mainline, the Black church was publicly engaged in mainstream American life and was concerned with problems of justice and social crisis. Like the Evangelicals, the Black church tended to be more reliably committed to historic Christian doctrines concerning the resurrection, the supernatural, and so on as well as a robust individual practice of Christian piety. In this respect, the Black church has been the lone American ecclesial tradition that has sustained this dual concern throughout her history&mdash;a testimony which perhaps makes her uniquely equipped to help us understand the shape of Christian faithfulness in our own moment. Taken as a whole, these four movements made up &ldquo;American Christianity.&rdquo;</p>
+
+            <h3 class="section-heading">The Failure of the Christian Movement in America</h3>
+
+            <p>That world, however, has long since collapsed. The Protestant Mainline, which was long plagued by theological modernism has today been overtaken by a kind of progressive audience capture, and is now a shadow of its former self in terms of intellectual credibility, demographic might, and institutional clout. Evangelicalism, meanwhile, has become more and more amorphous and often only superficially Christian, the fruit of 50 years of seeker-sensitive ideology and political capture that abandoned catechesis and many staples of Protestant liturgy in favor of market-based innovation and a quest for relevance and power. Recent studies have found that American evangelicals mostly don&rsquo;t know what Christianity teaches: They are divided in their views on matters of basic Christian moral teaching and even endorse basic heresies in large numbers.</p>
+
+            <p>America&rsquo;s Catholic population has shifted dramatically with the European enclaves almost entirely disappearing as distinctly Catholic groups and with a corresponding demographic collapse and massive reduction in sacramental life in the Roman church. The Roman church today still has a large number of immigrants, though today they mostly come from Mexico and central America rather than Italy, Ireland, and Poland. But these communities too seem to be following the same demographic pattern as the earlier European immigrant communities, becoming gradually more secular or more Protestant with each successive generation.</p>
+
+            <p>The remaining portion of the American Catholic church tends to be the closest thing we have to the old Protestant Mainline&mdash;mostly white cultural and intellectual elites who, incidentally, are often converts out of the Mainline or Evangelicalism. Yet this bloc is demographically far smaller than the old Mainline and, because of the nature of Roman theology, it has a far harder time fulfilling the public-facing role that the old Mainline did, as the recent disputes over integralism amply demonstrate.</p>
+
+            <p>Finally, the Black church has, at times, persisted in its public facing ministry which exists alongside a faithful adherence to traditional Christian orthodoxy. Yet it has also fallen prey to a certain sort of political capture, even if for more sympathetic reasons than those of the Mainline or Evangelical movements, and has experienced its own kind of demographic decline in the past several decades.</p>
+
+            <p>The result is an American church that is mostly nowhere, at least relative to the form it took in the 1950s. The full reckoning with this decline has not yet come, as the Baby Boomer generation&rsquo;s capital has managed to mostly preserve the legacy institutions and churches of this era. Their ongoing financial investment in certain institutions has masked much of this decline, giving the appearance of persistent health and vitality, even as the soul of the movement has long since departed. As the Boomers retire and die, their money and volunteer resources will disappear and the underlying realities facing the American church will no longer be &ldquo;underlying&rdquo; and will become quite visible indeed. All four streams of the American church are likely to look extremely different 10-15 years from now with the Catholics and Evangelicals perhaps being set up for the most seismic and shocking diminishment. Colleges will close, as will seminaries. Churches will shut their doors. Other ecclesial institutions will likewise fail due to a lack of financial resources.</p>
+
+            <h3 class="section-heading">The Task Before Us</h3>
+
+            <p>The task before us, then, is to imagine what the American church will be in the aftermath of this collapse. The things we cannot do should be apparent. If we follow the theological path of the Mainline, we will soon have nothing at all to say to America and our churches will empty out as the Mainline&rsquo;s churches already have. The rising generation can enjoy blue politics and activism without the bother of going to church, after all. If evangelicals adopt our own version of this error by foregrounding the therapeutic, then the same problem holds: You can get mental health support and counseling and sleep in on Sunday mornings too.</p>
+
+            <p>On the other hand, if we follow the sociological and theological path of the evangelicals we will, likewise, collapse: a movement that is losing its understanding of marriage and in which nearly half of its members are de facto Arians will not survive as a meaningfully Christian movement. It will, instead, simply become a socio-political entity defined more by its political and commercial patterns and lifestyle choices than by any properly theological convictions.</p>
+
+            <p>The challenge before us, then, is to essentially re-plant the Christian movement in the United States. This work will require the legacy institutions of the departing world to fundamentally reimagine their work while other new institutions come into existence in order to serve and support the church in her work as it must be done today.</p>
+
+            <h3 class="section-heading">The Two Structures of God&rsquo;s Redemptive Mission</h3>
+
+            <p>We might put the matter this way: Christian movements always thrive on two distinct types of institutions, as Richard Winter explains in his classic paper, &ldquo;The Two Structures of God&rsquo;s Redemptive Mission.&rdquo; Put simply, you could refer to the two structures as &ldquo;parish and religious orders,&rdquo; if you&rsquo;re thinking in Catholic terms or, in more Protestant terms, &ldquo;local churches&rdquo; and &ldquo;parachurch organizations.&rdquo; We can see this pattern throughout church history&mdash;the former institution anchors the sacramental life of the church and is the primary venue where the Word of God is proclaimed and Christian discipline is practiced. But then existing alongside these churches, we find religious orders or parachurch movements that seek to pursue some more specific form of Christian work or life that is good and in keeping with God&rsquo;s purposes, but is not strictly speaking the task of the parish.</p>
+
+            <p>The problem we are dealing with today in evangelicalism is two-fold: First, the churches have become commoditized, as it were, driven to see themselves as a kind lifestyle purveyor. This is partly the consequence of the attractional movement, which gave birth to the notion that churches existed chiefly to provide a certain kind of experience to attendees, rather than to preach the Gospel and administer the sacraments to parishioners. But it is also a function of the wide-scale adoption of the car, which has destroyed the neighborhood parish church model and created the structure in which churches had plausible reason to see themselves as an experience dispenser in competition with other churches dispensing other experiences on Sunday morning. Second, the parachurch organizations have not adapted to new realities and have often operated in a free-floating, undefined relationship to those local churches that have remained recognizably Christian communities.</p>
+
+            <p>We can see Winter&rsquo;s structure everywhere in the post-war Christian movement in America. The 1950s and 60s saw the birth, reorganization, or rapid expansion of many such organizations, such as InterVarsity Fellowship, the Navigators, Campus Crusade for Christ, Christianity Today, Fuller Seminary, Trinity Evangelical Divinity School, and Gordon-Conwell Theological Seminary. During that time, none of these groups needed to be terribly self-conscious about their relationship to the church. They could simply assume the presence of faithful local churches and assume that of course the people involved in their ministries would be rooted in local Christian communities.</p>
+
+            <p>In the intervening decades, those assumptions have ceased to be true. The outcome is that campus ministries have often come to serve as de facto churches for their students, only to have their students abandon the faith in the years after graduating due, in part, to the absence of any Christian community in their life or even any understanding of why the church would be an essential part of Christian discipleship. Other institutions have become free-floating, writing about the church more than for the church or serving as a kind of standalone academic institution with only a tenuous tie to the vital practice of the faith as lived out within local churches. In other words, the evangelical center has collapsed as leaders have passed on and socio-cultural conditions have evolved, leaving virtually none of the aforementioned institutions unscathed.</p>
+
+            <p>To give only one specific example of the broader phenomenon I am trying to name, it is striking to note that the last two long-serving editors of the flagship evangelical magazine Christianity Today both left evangelicalism after retiring, with David Neff adopting a revisionist position on sexuality while Mark Galli converted to Catholicism. The center position that Christianity Today once occupied has become incoherent due to the collapse of both the Mainline and Evangelicalism.</p>
+
+            <p>In the absence of stable, presupposed relationships to local churches, these institutions have floundered. Some university campus ministry chapters are now drifting more and more toward the progressive ideologies of the university students they seek to reach. Other chapters and ministries, meanwhile, struggle to imagine Christian faithfulness outside the highly quixotic experience of Christian fellowship in non-denominational campus ministry. Their graduates pay the price for this failure, often apostatizing after college when they find that the faith of their evangelical campus ministry has not equipped them for life after college and when they discover that they simply do not know how to live as an ordinary parishioner within a local Christian congregation. In short, many of the legacy institutions of previous generations have struggled to adapt to a secularizing America and have in various ways been colonized by the country they were designed to reach.</p>
+
+            <h3 class="section-heading">What We Need</h3>
+
+            <p>What is needed today is two-fold:</p>
+
+            <p>First, we need churches that understand their chief function as being the plain preaching of the Gospel, administration of the sacramental life of the church, and the aiding of her members in ordinary Christian discipleship, by which the church witnesses in its life together to the world that God has been drawing into life ever since the Resurrection of Christ, the first fruits of the new creation.</p>
+
+            <p>Second, we need a network of institutions and informal communities of friends that create a robust ecosystem of organizations and networks that support the church in her worship and work. In other words, we need to rebuild an ecosystem of Winter&rsquo;s &ldquo;orders&rdquo; or &ldquo;missions organizations.&rdquo;</p>
+
+            <p>We need media institutions that participate in public discourse, presenting a serious and grounded account of Christian orthodoxy. These institutions can assist churches in evangelization, catechesis, and discipleship by being present in the digital and media spaces where people increasingly live much of their lives, offering an alternative to the noise, anger, and distraction that pervades American media and digital life.</p>
+
+            <p>We need what might be thought of as digital outreach organizations which help churches and other Christian institutions understand how digital technology actually functions as a formative presence in a person&rsquo;s life and how media actually reaches people, how media entities build audiences, and so on.</p>
+
+            <p>We need institutions focused on reaching America&rsquo;s young people, introducing them to the basic elements of Christian belief, and helping them to become connected to Christian churches and begin their practices of Christian discipleship. This work will chiefly fall to two types of institutions. The task of broad Christian evangelism and discipleship amongst young Americans must be taken up campus ministries explicitly affiliated with local churches or denominations. The task of Christian intellectual formation and equipping those Christians called to such things for virtuous participation in America&rsquo;s public and elite institutions must fall to broadly ecumenical study centers and think tanks.</p>
+
+            <p>We also need seminaries training pastors who will lead the kinds of churches we need to plant. This will almost certainly require a dramatic reevaluation of how many institutions go about their work. Due to declining enrollments, many evangelical seminaries are facing severe financial hardships.</p>
+
+            <p>How can this problem be addressed? It is likely that most of the seminaries of the future will not have their own land and buildings. The expense these assets create is too high relative to the resources that seminaries will be able to draw upon in a leaner, smaller American church. Rather, seminaries will follow the lead of many RTS campuses as well as Bethlehem College and Seminary and Indianapolis Theological Seminary, amongst others: They will meet in classroom space furnished by local churches and work in far closer partnership with a small number of local churches who are vested partners with the seminary in its work.</p>
+
+            <p>Finally, as America&rsquo;s civil life unwinds, we need a variety of contextually defined and determined institutions that seek to repair the rends in America&rsquo;s social fabric. These institutions could be businesses led by Christian executives who understand their responsibility to customers and employees in distinctly Christian ways and behave accordingly. This category would also include altruistic non-profit ventures intended to address problems of poverty, literacy, addiction, mental health support, and so on. Finally, it also includes institutions dedicated to providing third places for neighborhood members to meet and come together, places like laundromats, coffee shops, bookstores, rec centers, and so on.</p>
+
+            <p>In short, what is needed is a rebuilt American Protestantism that can reckon with and accommodate America as she actually exists while also restoring the vital public life that has been lost with the failure of the American church and accomplishing this work through a renewal of actual local congregations dedicated to the preaching of the Gospel, the sacramental life of the church, and the practices of Christian discipleship.</p>
+          </section>
+
+          <!-- ====== ARTICLE 3 ====== -->
+          <section id="christ-repairs-culture" class="content-section">
+            <h2 class="section-title">Christ Repairs Culture</h2>
+            <p class="essay-author">By <a href="#contributor-peter">Stiven Peter</a></p>
+
+            <p>The evangelical movement&rsquo;s defining treatise, Carl Henry&rsquo;s <em>The Uneasy Conscience of Modern Fundamentalism</em>, argued Christians should neither be separate Fundamentalists nor mainline Liberals, but a third, new thing: Evangelicals. Since then, Evangelicalism, born out of the modern fundamentalist-modernist controversy, remains caught between the fundamentalist temptation to separate into the world and the modernist temptation to make the Church compatible with modern life, even at the expense of orthodoxy.</p>
+
+            <p>The promise of Evangelicalism is a &ldquo;third way&rdquo; that maintains Christian distinctiveness and cultural relevance, which also answers the divisions of modern life. Henry wrote this in 1947. Still, he might as well have written them today. The timelessness of Henry&rsquo;s words, despite the enormous cultural shifts from 1947 to 2023, reveals a pertinent desire to be relevant, distinct, but still faithful. From its beginning, Evangelicalism is a movement searching for a cultural script in a tumultuous world.</p>
+
+            <p>A few years later after Henry&rsquo;s book, H. Richard Niebuhr provided Evangelicals the operating system to consider its relationship with the world when he published <em>Christ and Culture</em>. In it, he gives a typology of the different ways Christians have related to Culture, alongside their respective pros and cons. The taxonomy falls into three major paradigms: Christ against Culture, emphasizing opposition; Christ of Culture, emphasizing a fundamental agreement between Christ and Culture; and a combination view of the two. In this third framework, there are three variations: one that sees Christ as the fulfillment of Culture (Christ above Culture), one that puts Christ and Culture in dualistic tension (Christ and Culture in paradox), and a conversionist attitude that casts Jesus as the converter of Culture and society. This final option, Christ the transformer of Culture, seeks to transform what has been deformed by sin into the Lord for the common good. The motto for this attitude is <em>All of life for all of Christ</em>. Seen through the script of Creation, Fall, Redemption, and Consummation, all of society stands ready to be renewed by Christians who await the final restoration of all things.</p>
+
+            <p>Since then, Evangelicals have latched onto this model as the default system for its marching orders for the world. Whether it&rsquo;s James Davidson Hunter&rsquo;s Faithful Presence, Tim Keller&rsquo;s winsomeness, Neo-Calvinism&rsquo;s Sphere Sovereignty, or the Already-Not Yet Kingdom of New Testament Scholarship. Evangelicalism is defined by a desire to transform Culture. Deviation from this model, even motivated by a desire to adapt to a new &ldquo;post-Christian&rdquo; cultural landscape, can appear as neo-fundamentalism or liberal drift.</p>
+
+            <p>Nevertheless, Wood and Dreher reveal growing dissatisfaction with this old model of Christ transforming Culture. But this dissatisfaction makes sense. The past few decades of Evangelicalism oversaw not the transformation of Culture but its increased hostility. Now, 76 years after Henry&rsquo;s book, we shouldn&rsquo;t blame Evangelicals for asking, if we were wrong all along. Maybe we should strategically retreat to survive a tide of hostility? Maybe we should try to make our faith relevant by becoming more inviting to progressives? Maybe we should sync to the right instead and become a bulwark in the culture wars? These questions, however, threaten to schism the coalition Carl Henry brought forth. The conversionist spirit is in Evangelicalism&rsquo;s DNA. Deviation from a transformational model would mean the dissolution of the movement itself. In short, the culture war threatens to dissolve Evangelicalism.</p>
+
+            <p>But part of this fracturing stems from Evangelicalism&rsquo;s inability to understand the true nature of the culture shifts. Too often, &ldquo;the culture war&rdquo; equates it to the political polarization on current social issues of the day. But this is a distorted understanding of Culture. Fundamentally, Culture operates at the pre-discourse level. When I extend my hand to reach out to you, you don&rsquo;t think I&rsquo;m attacking you. You know immediately what to do&mdash;you reach out and shake my hand, because that is how we greet each other in the West. It&rsquo;s just what we do; we were socialized into it. It just feels natural. When we wake up in the morning, we don&rsquo;t think about whether or not we&rsquo;ll go outside with clothes on. We just put them on because that is just what we do. Culture makes these behaviors common sense and effortless. Culture provides the map by which we navigate our lives.</p>
+
+            <p>Part of Culture&rsquo;s necessity comes from our biological deficiency. We come out of the womb needing to be specialized. Birds come out the womb knowing how to fly. Fish come out the womb knowing to swim. But we come out of the womb needing help from the world around us on how to talk, learn, and live. Human institutions&mdash;family, religion, civic life, etc&mdash;supplement our biological insufficiency. The matrix of these institutions forms a culture, which provides us with a set of well-defined parameters in navigating the world. Culture gives us a sense of continuity. Culture allows us to take our social world for granted. Culture gives us the general script to live our lives. We are left to fill in the details.</p>
+
+            <p>However, the problem of modern society is that there is no script anymore. German sociologist Arnold Gehlen coined the term <em>deinstitutionalization</em> to describe the process of the receding of institutions underwriting our social world. What occurs in the background, i.e. what we have been socialized to take as natural, now becomes the subject of deliberation.</p>
+
+            <p>The process of deinstitutionalization occurs when this social arrangement is no longer seen as the norm, and the structure of marriage and family life becomes open-ended. What was once following the general script, the natural thing to do, now becomes one option among others. According to Gehlen, when there are no stable institutions to underwrite human experience, we must turn inward and deliberate about what we should do. This process, which Gehlen calls <em>subjectivization</em>, fosters an incessant fixation on the self. Hence, the loss of a cultural script in society comes alongside uniquely subjective ideas like &ldquo;finding myself,&rdquo; &ldquo;being true to you,&rdquo; or &ldquo;everyone should do what works for them.&rdquo; In modern society, these blank &ldquo;scripts&rdquo; vie to become the de facto Culture. This is the true nature of the culture &ldquo;war&rdquo;: the deinstitutionalization of society and the dominance of &ldquo;choice&rdquo; in all aspects of life. It&rsquo;s the dissolution of all normative Culture. It&rsquo;s everyone whatever is right in their own eyes.</p>
+
+            <p>If Evangelicalism is divided over how to engage cultural issues, it&rsquo;s because it also lacks the script to fit as Christians in the world. Unknowingly, it, too, is giving way to deinstitutionalization. Against this background, the typical &ldquo;models&rdquo; of Christ and Culture should be evaluated in how the Church responds to the dissolution of cultural norms. The Benedict Option/&ldquo;Purity From&rdquo;/Christ Against Culture responds to this dissolution by fortifying a Christian way of life. However, this model effectively tends to type Christianity as one lifestyle among many. The Christ of Culture/&ldquo;Relevance to&rdquo; model of engagement accepts the deinstitutionalization program and wholeheartedly embraces the fracturing of the Church along the lines of the specific lifestyle enclaves in modern Culture. Even the &ldquo;Christ-transforming culture&rdquo; that wages a culture war alongside typical political lines becomes blind to the deinstitutionalization of society. This model, in fact, all of these models, risk Christianity becoming just another preference for some.</p>
+
+            <p>But when we recognize that the principle problem of our Culture is that there is no more culture, the Christian response becomes clear. How does the Church, which lays claim to the truth about reality, touch a society obsessed with letting everyone create their own? It invites the Culture to share in the life of the Divine Story. It teaches the Culture again how to live in the story of Creation, Fall, Redemption, and Consummation. It proclaims Christ has bound up the broken pieces of our lives&mdash;our relationships, self-preoccupation, and anxiety. Christ gives us the script of our lives, guaranteeing us a blessed, eternal end and a fruitful life in the meantime. In a word, Christ repairs the Culture.</p>
+
+            <p>Deinstitutionalization and subjectivism create the perfect opportunity for the Church to teach the world how to live in the world. While people may appreciate the anti-authoritative impulse of these forces, many more are starving for a script to make sense of their lives. The pessimism reveals a profound aching for a roadmap. In a word&mdash;my generation needs a culture. We do not know how to flirt, date, parent, or even grow up. We have no role models.</p>
+
+            <p>How does Christianity minister to this mood? It means showing the way. It means being the role models of communal life. It means offering people a way to live that&rsquo;s grand enough for everyone to participate.</p>
+
+            <p>The posture of repair attunes the Church to its need to minister and preserve a society on the verge of breaking down. The Church&rsquo;s rhetoric in other models is blind to the Culture&rsquo;s great need for leadership, character, and vision. Instead of having a defensive or even triumphalist posture, repair taps into what Christians are best at doing: helping those in need. Our Culture does not give guidance on how to interact with the opposite sex. The Church should aid in modeling romance, flourishing marriages, and fulfilling family life. Zero-child households are becoming the norm. The Church, in response, should be saying, &ldquo;Here is how you date. Let us help you. Here is how we&rsquo;ve married. Let us help you. Here is how we&rsquo;ve parented, let us help you.&rdquo; Our Culture is marked by profound loneliness. The Church should model generous hospitality and deep commitment to the community. Our Culture does not know how to have hope in times of adversity. The Church should model suffering and perseverance. No one else is going to repair these institutions. Only the Church can.</p>
+
+            <p>In the Sermon on the Mount, our Lord called us to the salt and light of the Earth. Salt, by its nature, has a preserving and enriching quality. Today, the meat of life has decayed. Evangelicals must be the ones to enrich it. Henry&rsquo;s vision, above all, was to not let the Church slip away into relative obscurity. That said, traditional engagement models do not work in a dissolving culture. The only way for the Church to not do that is to take up the task of repairing the institutions that have been erased. A Christianity that repairs Culture fights to restore a cultural mainstream for the sake of those left to themselves to figure out all of life&rsquo;s questions. This Christianity goes past the political battles of the day and sees the great need to build a common way of life. It is not defensive or separate from the Culture but compassionate. A life that lives with no script is one destined to wander. If the Church wants any serious commitment to engagement, it must lead people from this desert to the land of abundant life, pointing to the one who first repaired us.</p>
+          </section>
+
+          <!-- ====== ARTICLE 4 ====== -->
+          <section id="four-quadrants" class="content-section">
+            <h2 class="section-title">The Four Quadrants of Church Life in the Gray Zone</h2>
+            <p class="essay-author">By <a href="#contributor-strunk-ruyack">Dave Strunk &amp; Ben Ruyack</a></p>
+
+            <p>Any pastor of a church over 70 people has to develop some kind of rhythm or strategy with which they encourage their church into greater fruitfulness in Christ. For better or ill, we&rsquo;ve been calling these things &ldquo;programs&rdquo; for some time, despite the computer metaphor it conjures nowadays.</p>
+
+            <p>On this side of the pandemic, it&rsquo;s right and praiseworthy to say that the evangelical church needs to get back to catechism, or deeper Bible study, or something different, but the pastor or ministry leader still has to sit behind a desk on a Tuesday morning and think about how that very discipleship can be done at &ldquo;scale,&rdquo; however modest that scale is. As such, a pastor needs a plan&mdash;a program&mdash;for discipleship, and in our church we&rsquo;ve been feeling like we needed a different approach for some time.</p>
+
+            <p>By summer of 2021, like many churches, our people started emerging from the pandemic more regularly, but they weren&rsquo;t emerging in the same way that they went into it. And even though it was time to rev the engine of church programming again, we experienced no small amount of emotional or attendance resistance to normal church programming that we had offered in the past: small groups in homes, volunteer shortages in key Sunday ministries, the regularity of student participation in the youth ministry, and several other programs.</p>
+
+            <p>However, through all these changes, I (Ben) had this nagging sense that there were programs in our midst that were working. If we take &ldquo;working&rdquo; to mean &ldquo;growing in attendance or fervor,&rdquo; I started noticing all the trends outside the church that seemed to be picking up steam last summer, and began asking our staff to notice.</p>
+
+            <p>So what did we notice? We noticed CrossFit, which has no shortage of new locations opening up near us, with more and more people joining. We also noticed that people kept mentioning various social media influencers on various platforms, and that there is no shortage of moderately successful new influencers. In sharp contrast to social media, we also noticed the homeschool movement growing in both fervor and attendance. And to provide one more quick head turn, we noticed our local pubs picking up steam with both the regulars and the newcomers.</p>
+
+            <h3 class="section-heading">Divining the Variables</h3>
+
+            <p>&ldquo;But what could all these &lsquo;programs&rsquo; possibly have in common?&rdquo; we thought. That&rsquo;s when I (Dave) realized that there are at least two variables (and doubtless more) that are an &ldquo;ask&rdquo; of any program: the time commitment and the risk involved. Time commitment is a simple enough category to understand. On the other hand, risk is a potentially too-broad category, so we defined &ldquo;risk&rdquo; as expected life change that happens when someone joins a program: changing a diet, one&rsquo;s emotions, one&rsquo;s relationships, and so on.</p>
+
+            <p>Once we landed on those variables, we decided to track them on a double-axis graph. The horizontal axis tracks time commitment from low to high, and the vertical axis tracks risk from low to high. The first thing we did was plot where successful programs in our culture at-large were. And we immediately gained our first insight.</p>
+
+            <p>CrossFit asks for a LOT of risk: to do it the way it&rsquo;s intended requires a lot of life change, and it also requires a high time commitment. The same is true with homeschooling; families previously going to public schools prior to the pandemic can attest to the shift in lifestyle regarding time commitment.</p>
+
+            <p>Alternatively, following an influencer or being a pub regular occur in the opposite quadrant, where lower risk and lower time commitment are asked of the patron.</p>
+
+            <p>It seemed, then, that programs gaining steam around us were pushing to the corners: either high risk and high time commitment, or low risk and low time commitment. Useful observations, we felt.</p>
+
+            <h3 class="section-heading">Using the Chart</h3>
+
+            <p>So, then, in good chart fashion, we had to name our quadrants and put it to use for ourselves.</p>
+
+            <p>The <strong>Platoon Quadrant</strong> was inspired by Army usage, signifying that the number of adherents to a particular squad may be small (10 or 11 people), but the fervor and commitment would be high. The <strong>Consumer Quadrant</strong> was simple enough: there&rsquo;s not a big ask for time or risk, so one can simply consume what is offered.</p>
+
+            <p>The <strong>Service Quadrant</strong> was next named, where high time commitment meets lower risk. We see the dynamics of the Service Quadrant in key volunteers: deacons, children&rsquo;s ministry childcare for younger ages, and so on. Not a lot of life change is expected in the Service Quadrant, but it is time intensive.</p>
+
+            <p>And in the opposite quadrant from Service is, for lack of a better name, the <strong>Devotee Quadrant</strong>, where high risk is asked, but less time commitment. This quadrant is a tad more elusive to define, but we see its dynamics in play with the fans of various fads or trends; ultimately a lot of life change is asked of the person, but the long-term time commitment doesn&rsquo;t last. In our church, a program in the Devotee Quadrant would be a 6-week workshop like we offer for helping people personally craft a Rule of Life.</p>
+
+            <p>And so after naming the quadrants, we did the scary task of plotting our own programs on this chart. And here&rsquo;s what we quickly had to be honest about: all of the programs that were failing in fervor or attendance were in the middle of the chart. The most consistent programs that were set to scale were asking our people for a medium amount of risk, and a medium amount of time commitment. It was the medium-ask programs where enthusiasm was waning, and where people were dropping out at a quick rate.</p>
+
+            <p>For instance, previously we had 10 small groups that met twice a month, and we&rsquo;ve shut down 4 since 2021, and half of the current ones have strongly waned in enthusiasm. And what did those small groups look like? They looked medium-ask: people share a medium amount of vulnerability in a small group of 12 people with a medium amount of Bible study, and meetings meet a moderate amount of time (i.e. twice a month). The typical small group participants might make two or three meetings out of four, but they&rsquo;ll never make all four. Small groups for us are in the middle, and faltering.</p>
+
+            <h3 class="section-heading">How did we get here?</h3>
+
+            <p>It wasn&rsquo;t always like this. In fact, perhaps one of the key intuitions of the megachurch-influenced program era of the evangelical church is that people were willing to give less time to the church. As a result, the evangelical church created streamlined programming in order to help people&rsquo;s time really count. Some even called it the &ldquo;simple church&rdquo; model. At a cultural level, then, this simple church model probably has in its DNA an assumption of the over-busy suburban family.</p>
+
+            <p>That&rsquo;s why all our programming, when set to scale, wouldn&rsquo;t really move past a certain invisible line on our chart. We named it the &ldquo;line of most resistance,&rdquo; where evangelical churches historically would plan everything to the bottom and left of the line. The assumption was that more people would come if the program were below that line, and if the program went above or right of the line of most resistance, you couldn&rsquo;t maintain a scaled program.</p>
+
+            <p>But, as we&rsquo;ve detailed above, this doesn&rsquo;t seem to be the case anymore.</p>
+
+            <h3 class="section-heading">Where do we go now?</h3>
+
+            <p>Ultimately this is a diagnostic tool. It won&rsquo;t tell you what to do. Jesus as Head of the Church, the Scriptures, your church&rsquo;s particular tradition, and your local leadership should guide that. That said, for our church, we felt the diagnostics revealed something of a shift that we wanted to make. If what was gaining fervor in our culture were things in the Platoon and Consumer Quadrants, that&rsquo;s how we wanted to begin shaping some of our church programming.</p>
+
+            <p>Now, a quick caveat: we don&rsquo;t take the Consumer Quadrant to be an inherently negative space, though it may be in some instances. Rather, to &ldquo;consume&rdquo; is a catch-all term we took to mean someone who didn&rsquo;t have much time to give, was scared to risk, but didn&rsquo;t mind receiving from some kind of program. For instance, sometimes people just need to come to a church to heal, and be seen, without much expected of them. This is especially true of those with prior church wounds.</p>
+
+            <p>In addition, the Consumer Quadrant may also get a crowd, which is what evangelical megachurches have been recommending for decades. The question then is begged: why would we do more things in the Consumer Quadrant if the evangelical church already attempts this and does it reasonably well? The answer depends on the kind of consumption that happens. Where the evangelical church has attempted higher attendance devoid of fruitfulness, we recommend consumer programs that aim at helping people become more human. An example: it is low-risk and low-time commitment for the church to ask families to host dinners, and have people sign up to join potlucks at those homes in groups of 10 in order to meet new people in the church. A real meal with real conversation is consumeristic in a sense because it&rsquo;s low-risk and low-time commitment, but it invites deeper human interaction more than a livestream worship service.</p>
+
+            <p>So, with the assumption that people needed more low-risk, low-time commitment opportunities (Consumer Quadrant) in our church as well as more high-risk and high-time commitment opportunities (Platoon Quadrant), we first road-tested the usefulness of the chart&rsquo;s insights with our burgeoning women&rsquo;s ministry. I (Ben) talked with our women&rsquo;s ministry leadership team through the insights we were gaining, they liked it, and came up with two complementary ideas. One: offer simple one-time events that help people meet each other and engage in human activity. Two: offer high-ask, intensive ways to hear from God and each other.</p>
+
+            <p>For the Consumer Quadrant, they came up with a women&rsquo;s paint night in a local restaurant, where women were invited to paint with the up-front guidance of an expert in our church as she taught how she meditates with God through artistic creation. In attendance, this was the largest men&rsquo;s or women&rsquo;s ministry event we&rsquo;ve ever done. A few months later, we offered a flower arrangement event, done similarly, and it was also hugely successful. In either event, women simply had a chance to use their hands and get to know each other in a casual way, and their fervor and attendance showed.</p>
+
+            <p>In the Platoon Quadrant, our women&rsquo;s team has come up with a guerilla strategy to get women together to thoroughly share their entire life stories and how God has woven His way into all the good and bad. In a group of five, the women get together for five straight weeks in total confidentiality, with one woman sharing her story each week. If a woman can&rsquo;t make it to one of the five weeks, she is asked not to participate at all for this cycle. Over a meeting of about 2 hours, a woman shares her faith journey for an extended time, and once done the group sits in silence for several minutes. Once the silence is over, each participant only gets to say one thing; namely, how she has seen God at work in the sharer&rsquo;s life. Then, once this five-week program is over, willing women from that group are encouraged to go create their own new group in the church. We should add that this program is never advertised through any church communications, that it&rsquo;s a high risk and a medium-time commitment, and it has gained an intense fervor in our church.</p>
+
+            <p>We have more plans for ways we will push into the Platoon Quadrant (along with higher-risk, medium-time commitments in the Devotee Quadrant) as well: silent retreats, smaller and less-programmed men&rsquo;s retreats, ongoing contemplative spiritual direction, intensive Bible reading plans, and more rigorous Confirmation classes for high schoolers. But admittedly, we are only beginning our process, and beginning to see early fruit from the insights.</p>
+
+            <h3 class="section-heading">Who are we really talking about?</h3>
+
+            <p>As this process has begun, there is one additional observation to make as it relates to our church: to the degree that people were affected by the pandemic, we believe the forces will be pushing toward the corners of the Platoon and Consumer Quadrants. So, if a person had children in school, or shifted any of their work to remote-based, or had to change churches, or moved locations, or had to change any lifestyle routine in a permanent way, it is this person that is more interested in pushing to the corners.</p>
+
+            <p>Alternatively, to the degree someone&rsquo;s life hasn&rsquo;t changed all that much, they&rsquo;ll probably prefer to keep things at medium-risk and medium-commitment. If a retired person was golfing three days a week before the pandemic, and is golfing three days a week still, he is not wondering how the church can offer something different.</p>
+
+            <h3 class="section-heading">Wider Applicability</h3>
+
+            <p>Given that we gleaned these insights from the cultural programs around us, we wonder if the insights have wider explanatory power. In media and journalism, consider that Substack has grown the influence and incomes of long-form writers (Platoon Quadrant), while Reddit also continues to gather a swarm (Consumer Quadrant). In contrast, legacy middlebrow publications continue to see readership decline.</p>
+
+            <p>In vocational choice, there is a return of the appeal of trades such as plumbers, mechanics, and electricians (Platoon), as well as an increase in people out of the labor force (Consumer), while post-secondary school enrollments have been in decline for several years (Middlebrow).</p>
+
+            <p>In Christian intellectual growth, one can match the world&rsquo;s largest Dante reading group (Platoon) with the rise of Christian social media influencers through YouTube and podcasting (Consumer), while the middlebrow Christian book publishing industry continues to wane.</p>
+
+            <p>Even in overall Christian denominations in the West, one hears often of the increase in fervor of the evangelical convert to Eastern Orthodoxy (Platoon) alongside the accessible appeal of charismatic and pentecostal churches (Consumer). All the while, mainline Protestants continue their precipitous decline (Middlebrow).</p>
+
+            <p>Perhaps this is overwrought cultural analysis, but we wonder: is future ministry faithfulness to be found in a mass appeal to the center, or will it be found in a plethora of approaches that are simultaneously demanding and accessible?</p>
+
+            <h3 class="section-heading">Conclusion</h3>
+
+            <p>We end where we began: these issues will be irrelevant in churches where the pastor can do all of the discipling. But where pastors and ministry leaders have created programs in order to encourage greater fervor in following Christ and loving His Church, we recommend observing trends in the culture and seeing where the Spirit may be blowing. It will require fortitude. But, where ministry leaders are increasingly frustrated with failed attempts, and those same ministry leaders have the urge to keep at it, we suspect there will be movement toward the corners anyway.</p>
+          </section>
+
+          <!-- ====== ARTICLE 5 ====== -->
+          <section id="therapeutic-age" class="content-section">
+            <h2 class="section-title">The Christian in a Therapeutic Age</h2>
+            <p class="essay-author">By <a href="#contributor-harber">Ian Harber</a></p>
+
+            <p>There have been numerous pieces published by secular media outlets and influencers lately warning of the rise of &ldquo;therapy speak.&rdquo; While hard to define, you could loosely say that it is the prescriptive use of psychological and therapeutic terms in everyday language to describe one&rsquo;s experience, identity, and the various situations in life. You hear it most in the overuse of words like &ldquo;trauma,&rdquo; but it shows up in many other places. Shame, attachment, inner child, trigger, holding space, gaslight, anxious, depressed, narcissism, boundaries, vulnerability, PTSD, OCD, self-care. The list of these words and phrases seems nearly endless and, more importantly, suddenly ubiquitous in the lexicon of the average Millennial and Gen Z person today.</p>
+
+            <p>The important thing to say immediately is that all of these mental ailments are real, which is why it&rsquo;s almost impossible to write a critique of a therapeutic culture without sounding like you&rsquo;re diminishing the reality of these experiences. In no way do I wish to say that these things aren&rsquo;t legitimate. They are. But the fact that these things are real is almost the point. The &ldquo;prevalence inflation,&rdquo; as Derek Thompson at <em>The Atlantic</em> called it, leads to people who don&rsquo;t actually suffer from clinical mental health disorders seeking help they don&rsquo;t need and drains resources from those who actually do.</p>
+
+            <p>This led the doctors to worry about the patients who had convinced themselves that they had a mental health issue that they didn&rsquo;t actually have, but also to worry for those who did have it. Self-diagnosis of mental health disorders on social media is a lose-lose for both the person who has self-diagnosed and for the person who actually has the disorder.</p>
+
+            <p>While I imagine that most of us don&rsquo;t know someone who has self-diagnosed with DID (though maybe you do), the prevalence of therapy speak as a native language has become an increasingly live issue for many folks as they talk with their children, siblings, friends, coworkers, and church members. For many, psychology culture is becoming their defining social narrative. Going to therapy is a sign that someone is &ldquo;doing the work.&rdquo; &ldquo;Healing from trauma&rdquo; means that someone is finally &ldquo;getting healthy.&rdquo; But is this producing the results that people are hoping it is? It doesn&rsquo;t seem like it is. Not because therapy is bad or it doesn&rsquo;t work, but because the ideas of what therapy is and is supposed to do have changed. It&rsquo;s become more important to appear as if you are &ldquo;doing the work&rdquo; than to actually do it.</p>
+
+            <blockquote><p>&ldquo;That&rsquo;s a big problem because this modern idea that anxiety is an identity gives people a fixed mindset, telling them this is who they are and will be in the future.&rdquo; On the contrary, she said, therapy works best when patients come into sessions believing that they can get better. That means believing that anxiety is treatable, modifiable, and malleable&mdash;all the things a fixed identity is not.</p></blockquote>
+
+            <p>That, in a nutshell, is the shift that our therapeutic culture has caused. The shift from mental health disorders being largely &ldquo;treatable, modifiable, and malleable&rdquo; to being an &ldquo;identity&rdquo; that &ldquo;gives people a fixed mindset, telling them this is who they are and who they will be in the future.&rdquo;</p>
+
+            <h3 class="section-heading">The Effects of a Therapeutic Culture</h3>
+
+            <p>In light of all of this, the first question we have to ask is: Is this shift making us better? The rising consensus from mental health professionals seems to be a resounding &ldquo;No.&rdquo; A study of more than 8,000 students in the U.K. who participated in a mindfulness program found that their anxiety became worse. Because therapeutic culture constantly turns us inward, we become overly aware of every uncomfortable situation we are in and the negative emotions we feel.</p>
+
+            <p>Not only that, but it trains us to believe that because we are experiencing something uncomfortable or negative, there must be something wrong&mdash;either with us or with them. Not only have we begun to diagnose ourselves, but we&rsquo;ve also started diagnosing others. Armed with only what we&rsquo;ve seen on a handful of TikTok videos or a graphic from a therapeutic influencer&rsquo;s Instagram&mdash;without any training, experience, credentials, or professional understanding&mdash;we label other people with therapeutic labels and mental disorders because they loosely match a description of something we heard someone say one time. Either we&rsquo;re anxious, or they&rsquo;re a narcissist. Either we&rsquo;re OCD, or they&rsquo;re shaming us. Either way, it creates the perception of being a perpetual victim of either your own psyche or other people&rsquo;s neuroses.</p>
+
+            <p>Being a perpetual victim not only increases anxiety out of constant fear of being triggered, but it also erodes your relationships and isolates you. Because you&rsquo;re constantly protecting yourself from triggers, whether from your own or from what you perceive in others, you don&rsquo;t allow yourself to foster the necessary connections to develop deep relationships. Every interaction is a potential threat that could trigger discomfort, so it just seems better to stay away from as much interaction with other people as possible.</p>
+
+            <blockquote><p>&ldquo;There&rsquo;s a paradox. There is such an emphasis on the &lsquo;self-care&rsquo; aspect of it that is actually making us more isolated and more alone, because the focus is just on the self. The focus is not about the mutuality of relationships&mdash;the reciprocity, the way that you weave fabric, you know, between people who are relying on each other&hellip; Labeling enables me to not have to deal with you. But in the end, it creates more and more isolation and fragmentation. That is not necessarily a good thing for the community and for the social good.&rdquo; &mdash;Esther Perel</p></blockquote>
+
+            <p>While we turn to therapy in order to heal our inner wounds, more and more people are finding themselves even more anxious and isolated than they were before. As they turn inward, they damage relationships with people who would otherwise be there to help them through difficult circumstances. This isn&rsquo;t necessarily because therapy is broken but because of how we have begun to use therapy as a buffer between us and the uncomfortable realities of life when it was never meant to function that way. The more we avoid the hard knocks of life, the more we&rsquo;re hurt when we&rsquo;re hit by them. So, the very thing intended to help us become more resilient in a difficult world ends up making us more fragile.</p>
+
+            <h3 class="section-heading">Mental Health Disorders as Status Symbol</h3>
+
+            <p>There is a second important question we have to ask about our therapeutic culture: why would self-diagnosed mental illnesses be viewed as an attractive status symbol? It almost sounds perverse to say. Obviously, those who experience mental distress don&rsquo;t consciously compute it as a status symbol. And for people who sincerely have mental disorders, it isn&rsquo;t. Again, this is a difficult topic to critique when you&rsquo;re discussing something that is both real and distressing.</p>
+
+            <p>In a therapeutic culture, it seems like everyone has a mental health disorder. And if everyone has one but you, then you&rsquo;re the weird one for being &ldquo;normal.&rdquo; They endow an identity to someone who otherwise doesn&rsquo;t know who they are without it because they have nothing else to identify with. Even while you might feel intense mental distress, you can&rsquo;t imagine your life without it.</p>
+
+            <p>There is just a certain vibe that something should be wrong. It&rsquo;s not that the people who claim to be having these experiences don&rsquo;t actually have them. I believe they are. It&rsquo;s that the cultural narrative they have bought into and organized their life around creates a self-fulfilling prophecy&mdash;a catastrophic feedback loop&mdash;that creates the circumstances for the very thing they go to therapy to seek relief from.</p>
+
+            <p>Part of this has to do with the fact that suffering and struggle are unavoidable parts of life and are some of the primary ways we find meaning and purpose and form our identity. Yet, in a decadent society, many people exist insulated from substantial external suffering and struggle while actively seeking to mitigate it in their lives. People work more with their minds than their bodies, have instant access to near-infinite knowledge in their pockets, and are encouraged to look within and find themselves by participating in wellness capitalism, all while shunning traditional meaning-making roles and responsibilities. This means struggle is primarily experienced in the mind without the traditional means of alleviating the struggle, such as physical work, meaningful community, loving familial relationships, and faith in God who uses, redeems, and is sovereign over our suffering.</p>
+
+            <p>The breakdown of our families, communities, institutions, and faith has led to us having an identity crisis, as everything that we traditionally found our identity in is liquidated by individualism, secularism, globalism, and the digital age. With nothing left outside of us to give us an identity, we have nothing left to identify with except for what is inside of us. And when many turn inside to look for their &ldquo;true self,&rdquo; what they find is despair. The human soul was never meant to be alone, and it cannot be found apart from a loving connection with God and others.</p>
+
+            <p>Everyone experiences despair, not only those who are disconnected from God and others. Even Paul said that he &ldquo;despaired at life itself&rdquo; at one point (2 Corinthians 1:8). Yet despair was not his only or the defining emotion even under the most tumultuous of circumstances. He saw the trials as sharing in the suffering and comfort of Christ (1:5), sanctifying (1:9), and temporary (1:10). He set his hope on the Lord (1:10) and knew he could count on others to help carry his burdens (1:11). While everyone feels despair, Christians have a different experience of despair from the rest of the world. But if despair is all that&rsquo;s found and there&rsquo;s no loving connection with God or others to form an identity, then despair itself becomes the identity and is given the label of however it manifests itself in the person&rsquo;s life.</p>
+
+            <p>But that&rsquo;s not all. Because one is pushed to find their identity in their inward despair by social isolation in the first place, finding people with the same self-diagnoses on the internet creates a pseudo-community that fills the space where family, friends, and the church would have traditionally been. People find others who have the same experiences as them. Online communities form around shared lived experiences. Each post for the community serves as a reinforcement of the identity and perpetuates both the disorder and the isolation. The more someone owns their identity and produces content around the identity, the more they are rewarded by the community and gain status among the group.</p>
+
+            <h3 class="section-heading">The Potency of Therapeutic Culture</h3>
+
+            <p>This cocktail of individualism (read: crippling isolation) and social media is what makes therapy-speak so potent. With no way to find our identity outside of ourselves through faith, community, institutions, etc, and with the epistemological horse-blinders of social media, the only way for us to find a recognizable identity is by identifying with the despair in our minds as reinforced by the messages we see on social media.</p>
+
+            <p>The highly online life is akin to being educated by hypnop&aelig;dia. Scrolling TikTok for hours alone is qualitatively no different than listening to &ldquo;sixty-two thousand repetitions in the dark.&rdquo; The same messages are being algorithmically served to us based on our interests&mdash;or let&rsquo;s be real: based on our neuroses&mdash;and are consistently reinforced through short, quippy videos on auto-play that are designed to capture our attention, stir intense emotions, and provide easy answers through axiomatic truths that are presented as self-evident and utterly indisputable. This is why social media is a distortion zone. The result of social media being the chief architect of someone&rsquo;s plausibility structures is best understood as a kind of &ldquo;internet brain.&rdquo;</p>
+
+            <p>Unfettered, isolated, and vulnerable social media use liquidates meaning, purpose, identity, community, and moral reasoning and replaces it with moral words without reason that undermine the very things that give us meaning, purpose, identity, and community. All in the name of freedom and fulfillment that it simply can&rsquo;t deliver.</p>
+
+            <h3 class="section-heading">Christian Life in a Therapeutic World</h3>
+
+            <p>What are ways that Christians can live, witness, and navigate the complexities of a therapeutic culture? I believe there are at least three. 1) Occupy a different existential space, 2) Embody a different story, and 3) Cultivate a different quality of life.</p>
+
+            <h4 class="subsection-heading">Occupy a Different Existential Space</h4>
+
+            <p>While the therapeutic culture insists that we are the center of the world and our identity is something we create, Christianity insists that God is the center of the world and our identity is given to us by him. The explicit retrieval needed here is the Creator-creature distinction.</p>
+
+            <p>When we view ourselves as a creature who is in creation and under the creator God, we&rsquo;re relieved from the pressure to embody God&rsquo;s incommunicable attributes. We are able to embrace our natural limits and not feel the need to consolidate all power, knowledge, and presence in our small human frame. We can rest in the God who is over all things, sustains all things, and cares for all things. When life spins out of control, we have a God who we can trust, who isn&rsquo;t scared of the things that scare us, and who cares for us enough to carry us through all of our struggles and suffering.</p>
+
+            <p>Not only that, but instead of creating our own identities by trying to find value and worth through achievement, technique, and our unique neurosis, we receive our identity as royal image bearers, beloved sons and daughters, and coheirs to an eternal inheritance from him. No matter what happens in our lives or brains, we know that those things are not the truest things about us. Our value, worth, identity, meaning, and purpose are not things that we can find or achieve on our own but are gracious gifts from our Creator that we receive through humble, restful trust.</p>
+
+            <h4 class="subsection-heading">Embody a Different Story</h4>
+
+            <p>The therapeutic world tells us a story for us to live in. It tells us that the goal of life is to find peace, that the problem in the world is whatever causes us pain or discomfort, that the world is a dangerous place full of exploitation and trauma, that the way to find peace from those things is purely utilitarian&mdash;whatever works for you is fine, and that the best thing we can do is to minimize as much discomfort as possible.</p>
+
+            <p>On the contrary, the Christian story is one of Creation-Fall-Redemption-Restoration. It tells the story of a good creation that God delights in, people made in his image with a royal vocation to lovingly represent him to each other and care for his world, but people have fallen and experience brokenness and distress because we failed to trust him and sought glory for ourselves, yet in our sin, he has given us himself out of love to restore us to the good creation we were intended to be. Our lives and this world are not dependent on our perfect techniques because he will one day make everything new and establish perfect justice and righteousness forever and ever.</p>
+
+            <p>We are not the center of the story, the point of the story, or the writers of the story&mdash;we are participants in the story that God has written and is writing. We have a purpose and a role to play, and God has provided a way for us to fulfill our role through the healing of our souls and adopting us into his family, the Church.</p>
+
+            <h4 class="subsection-heading">Cultivate a New Life</h4>
+
+            <p>Jesus told his disciples before his crucifixion, &ldquo;Peace I leave with you. My peace I give to you. I do not give to you as the world gives. Don&rsquo;t let your heart be troubled or fearful&rdquo; (John 14:27). While the therapeutic world offers various kinds of technique to find peace, Christians recognize that peace is something Jesus gives us through his Spirit. It&rsquo;s impossible&mdash;a contradiction even&mdash;to achieve peace; peace can only be received.</p>
+
+            <p>Christians are people who bear a yoke and a burden, but it&rsquo;s an easy yoke and a light burden (Matthew 11:30). We can&rsquo;t carry the heavy burdens of the world. We aren&rsquo;t meant to find our belonging or affirmation in our achievements, perform our unique idiosyncrasies as our identity, and let our lives be guided by the latest trends on social media. We find belonging in thick relationships and commitment to the people of God. We receive peace through prayer, worship, silence, solitude, confession, and the sacraments. We cultivate wisdom for life through scripture, spiritual reading, and the counsel of trusted friends. And yes, we go to therapy to work through deep wounds that need careful attention. But we have hope that God is at work in those deep, dark places and doesn&rsquo;t waste any struggle or suffering that we have experienced for the healing of our souls, our transformation into Christlikeness, the good of our community, and the restoration of the world.</p>
+
+            <p>In short, Christians live from a fundamentally different existential map. We see beyond the band-aid fixes of our modern ailments and root ourselves in something that is simultaneously ancient and eternal. We order our lives around the truth, goodness, and beauty of God revealed in Christ and embodied in his church.</p>
+
+            <p>The therapeutic culture is trying to solve real ailments. We&rsquo;re more fractured, isolated, and devoid of meaning-making roles and institutions than ever before. The digital age has raptured us from our bodies and communities and drained us of the very things that make us human. But the good truth for our time&mdash;and all eternity&mdash;is that the God-human, Jesus, has made a way for us to recover our humanity. In Christ, we are made more human. We are united to divine love and given eternal rest. In the midst of the chaos and uncertainty of our modern world, Christ offers us peace. And in Christ alone&mdash;our comforter, our all in all&mdash;our fears are stilled, and our strivings cease.</p>
+          </section>
+
+          <!-- ====== ARTICLE 6 ====== -->
+          <section id="counter-institutions" class="content-section">
+            <h2 class="section-title">The Church Amongst the Counter-Institutions</h2>
+            <p class="essay-author">By <a href="#contributor-edwards">Brad Edwards</a></p>
+
+            <p>I watched <em>The Social Dilemma</em> far later than most people not living under a rock. I expected a serious documentary that forecasted serious consequences with a tone of (even more) serious urgency and fear to drive the point home. If anything, it was understated.</p>
+
+            <p>I&rsquo;m still bewildered why interest seems to have abated so quickly. While it&rsquo;s fashionable to blame social media for polarization and fake news, rarely are those dynamics so clearly shown to be the direct result of social media&rsquo;s incentive structure rather than an unavoidable (if unfortunate) byproduct thereof. The most disturbing of which is the &ldquo;attention extraction model&rdquo; Social Media uses to generate ad revenue by keeping users engaged with specific social rewards known in behavioral psychology to produce dopamine production in the brain.</p>
+
+            <p>In our day-to-day embodied relationships, those dopamine &ldquo;hits&rdquo; are proportional to the intimacy, frequency, and quantity of social interactions. Where that ceiling previously kept &ldquo;online community&rdquo; from becoming a replacement for embodied community, the ubiquity of the 24/7 companionship of a smart phone made frequency of affirmation a stunningly effective one-trick-pony for extracting (and keeping) our attention.</p>
+
+            <p>I&rsquo;ve often hoped that social media will go the way of smoking: when we realize that constant use is unhealthy and toxic (a pack a day), it will become a niche hobby for those who enjoy it in moderation (the occasional cigar). But that analogy breaks down at the very point I wished <em>The Social Dilemma</em> had explored further: smoking doesn&rsquo;t try to mimic oxygen the way social media does meaningful community, nor sell itself as a comparable replacement thereof. Facebook and Twitter are simply not neutral vehicles for communication. As digital liturgies shaping our affections, they are the purest forms of systemic individualism humanity has ever seen. Their allure lies in resembling a safer form of the traditional &ldquo;brick and mortar&rdquo; institutions that have been on an accelerating decline (both in terms of social trust and cultural centrality) for several decades. It is in that vacuum Social Media offers individuals community (via friends or followers) and ritual (via newsfeeds), but seemingly without the need to constrain individual purpose or meaning beyond our selves.</p>
+
+            <p>&ldquo;Seemingly&rdquo; being the operative word. A &ldquo;counterfeit&rdquo; is an imitation of something intended to deceive or defraud. By creating a false perception of value, counterfeiters profit by deceiving those who use their doppelg&auml;nger. To varying degrees but in every measurable way, Social Media platforms are counterfeit institutions.</p>
+
+            <h3 class="section-heading">The Social Good of Traditional Institutions</h3>
+
+            <p>The same social upheaval that birthed the civil rights movement and sexual revolution catalyzed a parallel anti-institutionalist trend. Much of that skepticism is valid, and the ensuing reforms much needed, but it&rsquo;s simply easier to abandon institutions than reform them. Author and President of The American Enterprise Institute, Yuval Levin, observes that while this exodus has largely happened in the name of greater personal freedom, we&rsquo;re experiencing the consequences of not having their anchoring presence or accumulated social capital to draw on while weathering rapid social change.</p>
+
+            <p>Architecture offers a really helpful metaphor to that point: like buildings built of actual brick and mortar, institutions can take a lot of punishment. You can punch a hole in a brick wall without threatening its structural integrity. It&rsquo;s unlikely anyone on the other side of the building will even hear whatever made the hole&mdash;that&rsquo;s what makes those materials so helpful in weathering storms. Brick and mortar buildings mediate our experience of inclement weather (both mild and severe) by inserting themselves between us and our environment, which allows us to prepare ourselves for going back out into the wind and rain before getting pulverized by them.</p>
+
+            <p>My point is this: within mediating institutions, we can take a deep breath to recalibrate and incorporate perspectives we would otherwise be too overwhelmed to hear in the midst of a raging storm. Institutions have the same capacity to mediate sociocultural change in ways that can be both humanizing and dehumanizing, but the difference between those results is not primarily in how influential they are in society, but in how formative they are for their members&mdash;for good or for ill.</p>
+
+            <p>Our country&rsquo;s relationship with institutions has always been a high-wire act balancing on a tension stretching between individualist freedom and institutional depth. When love of neighbor is limited in scope or narrowly defined, we can assume one merely cultural value or another has compromised the church&rsquo;s prophetic voice.</p>
+
+            <h3 class="section-heading">The Destabilizing Fruit of Counterfeit Institutions</h3>
+
+            <p>In contrast, social media platforms are digital silhouettes of institutions reduced to their social connections&mdash;in other words, they&rsquo;re mere Networks. With connections as the only structure, their architectural equivalent is more spiderweb than brick and mortar: content-agnostic, highly conductive, and able to respond (and quantify response) in real time.</p>
+
+            <p>Each platform is a complex tapestry made up of hundreds of millions of interlocking and decentralized connections, each one thrumming with fresh perspectives and information exchange, but distilled down into bite-sized chunks on an infinite-scrolling news feed. From within these counterfeit institutions, you don&rsquo;t just hear about the news, you receive a more unfiltered and unmediated experience of the news short of physically being there as it happens.</p>
+
+            <p>Combined with the behavioral psychology undergirding social media&rsquo;s &ldquo;attention extraction model&rdquo; which highlights controversy and incentivizes outrage, we experience news far more viscerally and without the pressure release valves institutions normally provide in mediating our experiences through embodied community. The epistemological implications of that power unleashed on a social platform, yet unmoored from institutionally-shaped virtues, are staggering.</p>
+
+            <p>The riot and storming of the U.S. Capitol building on January 6th was a real-life parable (and tragic caricature) of this social &ldquo;dilemma&rdquo; quickly escalating into an all-out epistemological crisis and open warfare between Institutions and Networks. The more political institutions are distrusted to mediate differences, provide constructive solutions, and release pent-up pressure, the more social media rushes to fill that vacuum.</p>
+
+            <p>The cultural shockwaves that would otherwise be dampened by brick and mortar Institutions are amplified by Networks. The same superhighways of connectivity that deliver humanizing social progress are a poor refuge when weaponized for dehumanizing ends.</p>
+
+            <h3 class="section-heading">The Populist Allure of Counterfeit Institutions</h3>
+
+            <p>Institutions, like literal brick and mortar buildings, are mostly built by a subcommunity of experts with related experience working off a shared set of blueprints in close coordination with each other. These gatekeepers set the organizational DNA and establish the culture-setting vision they hope to replicate. This requires cooperation, precision, conformity, and shared purpose. Members or participants in those institutions are not (at least initially) its builders&mdash;they must first be shaped into bricks in order to also be meaningful contributors.</p>
+
+            <p>Yet this can feel elitist to a culture of expressive individualism that views any personal conformity as oppressive, but rather insists on being affirmed in our unique voice or perspective. And a society that primarily seeks individual affirmation in lieu of institutional formation will discard &ldquo;responsibility&rdquo; as a civic virtue.</p>
+
+            <p>Without the regular opportunity to practice the skills of restraint or submission within the refuge of local institutions, citizens become resistant to even healthy formation and fragile in navigating sociocultural differences. That fragility means it can no longer be virtuous to merely accept differences, we must affirm them no matter our conscience. To do otherwise is to do violence against those who we see differently.</p>
+
+            <p>The &ldquo;gospel&rdquo; of Social Media promises all the affirmation that comes from being part of an institution, but without the prerequisite openness to formation that infuses deep community with meaning. In short, it is the populist&rsquo;s digital antidote to elitist institutions.</p>
+
+            <h3 class="section-heading">The Democratic Facade of Counterfeit Institutions</h3>
+
+            <p>And therein lies the most fitting reason to describe social media platforms as &ldquo;Counterfeit Institutions.&rdquo; The line between &ldquo;democratizing&rdquo; elitist institutions and a populist deconstruction is an often blurry line. Social Media&rsquo;s line is especially so because it relies on a masterfully-spun reality that the entire &ldquo;user experience&rdquo; is designed to conceal:</p>
+
+            <p><em>You&rsquo;re not the spider. You&rsquo;re lunch.</em></p>
+
+            <p>Populist groundswells are notoriously susceptible to bad actors who are able to tap into nascent discontent and leverage it for their own social or political gain. Social media companies hide behind a similar facade of altruism, promising virtual liberation from any constraint of our personal expression, but it is a liberation more akin to <em>The Matrix</em> than <em>Les Mis&eacute;rables</em>: the goal is not human freedom from oppression, but the automated shackling of our attention for the sake of shareholder and advertiser profit.</p>
+
+            <p>By several orders of magnitude, social media is inherently more abusive and manipulative than the institutions we have grown so wary of. Rather than have our expressive individualism confronted for our good, it is co-opted through a siren song of affirmation.</p>
+
+            <p>At the end of the day, social media is highly unlikely to go the way of smoking. We simply can&rsquo;t put this genie back in the bottle. We live in a different world than the one where institutions sufficiently mediated our sociocultural experience, the current pace of which places institutions (and our relationship with them) at an historic, adapt-or-die crossroads.</p>
+
+            <h3 class="section-heading">Re-Purposing Institutions&hellip; Starting with the Church</h3>
+
+            <p>The church is long past-due for an Institutional Renaissance every bit as humanizing as Counterfeit Institutions have been dehumanizing. We are at the very front end of realizing that ministry in a &ldquo;Post-Christian Society&rdquo; means far more than standing firm against secularism, and the church has far more painstaking work to do in understanding the implications of (and our complicity in) an Individualism increasingly unanchored by mediating institutions. But that endeavor&rsquo;s trajectory and texture is essentially biblical, and one Jesus has already guaranteed to be unfazed by the gates of Hell. Counterfeits simply can&rsquo;t compete with Covenant.</p>
+
+            <p>How then, do we start that work?</p>
+
+            <p>First, we have to see this within our own walls and remove the speck from our own eye. The fruit of Individualism&rsquo;s influence on evangelicalism is deep and pervasive. We fish have to learn to explain to other fish that liberation from aquatic oppression is not more freeing, but more suffocating and dehumanizing. Worship at the altar of affirmation is not only unbiblical, it risks a spiritual fragility that imports the &ldquo;safe spaces&rdquo; of liberal university caricatures into the pews. The church has to become significantly more self-aware in how digital liturgies are shaping our affections away from an openness to grace-fueled, corporately formative practices.</p>
+
+            <p>Yet we also cannot trample upon the many legitimate wounds of institutional abuse, nor take for granted how much a climate of fear thereof has permeated our pews already. Even though most of us have not directly suffered institutional abuse, everyone now knows someone who has.</p>
+
+            <p>Second, and in the words of my podcast co-conspirator, Bryce Hales, we have to learn to &ldquo;tell the better story&rdquo; of the institutional church. Authority, submission, and repentance are all blasphemies to Individualists, in part because we (evangelical pastors) have been guilty of teaching their biblical imperative without painting with their humanizing beauty. Where the Missio Dei is reduced to the Great Commission and neglects the Cultural Mandate, we omit the extraordinary dignity of ordinary faithfulness rooted in place&mdash;like doing the laundry, mowing the lawn, or being emotionally present with our families.</p>
+
+            <p>There is so much more we are called to, but unconditional repentance and ordinary faithfulness are more than a good place to start, they are essential elements of the church&rsquo;s formative purpose. Once seen through this institutional lens, you can&rsquo;t unsee how the depth and breadth of our lopsided narratives are forming lopsided disciples. We need more heroes who embrace obscurity for the sake of love than sacrifice love for the sake of celebrity.</p>
+
+            <p>Just as the church&rsquo;s faithfulness to the Great Commission relies on the Gospel to make disciples, institutions rely on communally-embodied narratives to shape members. The work of contextualizing the Gospel in an environment so inhospitable to institutions at least requires us to sing the praises of repentance unto life, submission to the common good, and authority transcendent of populist spin&mdash;all exclusively within the folds of God&rsquo;s New Covenant Institution. As Christians, we know that the Spirit of Christ&rsquo;s presence within and among the Body of Christ is objectively more formative than the empty spiritual calories of mere affirmation. Our task ahead, then, is to practice the embodied hospitality of a Savior whose invitation is not despite an institution He begrudgingly tolerates, but is uniquely experienced within the Bride whom He &ldquo;rejoices over with loud singing.&rdquo; (Zeph 3:17)</p>
+          </section>
+
+          <!-- Contributors -->
+          <section id="contributors" class="content-section contributors-section">
+            <h2 class="section-title">Contributors</h2>
+
+            <div class="contributor" id="contributor-graham-flowers">
+              <p class="contributor-name">Michael Graham &amp; Skyler Flowers</p>
+              <p class="contributor-bio">Michael Graham is a church planter and writer exploring the fracturing of American evangelicalism. Skyler Flowers is a pastor and cultural commentator.</p>
+            </div>
+
+            <div class="contributor" id="contributor-meador">
+              <p class="contributor-name">Jake Meador</p>
+              <p class="contributor-bio">Jake Meador is the editor-in-chief of Mere Orthodoxy.</p>
+            </div>
+
+            <div class="contributor" id="contributor-peter">
+              <p class="contributor-name">Stiven Peter</p>
+              <p class="contributor-bio">Stiven Peter is a writer exploring the intersection of sociology, theology, and cultural engagement.</p>
+            </div>
+
+            <div class="contributor" id="contributor-strunk-ruyack">
+              <p class="contributor-name">Dave Strunk &amp; Ben Ruyack</p>
+              <p class="contributor-bio">Dave Strunk and Ben Ruyack are pastors navigating post-pandemic church ministry and programming.</p>
+            </div>
+
+            <div class="contributor" id="contributor-harber">
+              <p class="contributor-name">Ian Harber</p>
+              <p class="contributor-bio">Ian Harber is a writer and digital strategist exploring faith, technology, and culture.</p>
+            </div>
+
+            <div class="contributor" id="contributor-edwards">
+              <p class="contributor-name">Brad Edwards</p>
+              <p class="contributor-bio">Brad Edwards is a writer and podcaster examining the intersection of institutions, technology, and Christian faithfulness.</p>
+            </div>
+          </section>
+
+        </article>
+
+        <footer class="site-footer">
+          <p>&copy; 2025 Mere Orthodoxy</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Print mode detection (for PDF generation)
+    if (new URLSearchParams(window.location.search).get('print') === 'true') {
+      document.body.classList.add('print-mode');
+    }
+
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    });
+
+    // Sidebar toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    // Desktop: restore sidebar state
+    if (window.innerWidth > 960) {
+      if (localStorage.getItem('sidebarCollapsed') === 'true') {
+        sidebar.classList.add('collapsed');
+      }
+    }
+
+    // Hamburger handles both mobile and desktop
+    menuToggle.addEventListener('click', () => {
+      if (window.innerWidth <= 960) {
+        // Mobile: slide-in overlay
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+      } else {
+        // Desktop: toggle collapsed
+        if (sidebar.classList.contains('collapsed')) {
+          sidebar.classList.remove('collapsed');
+          localStorage.setItem('sidebarCollapsed', 'false');
+        } else {
+          sidebar.classList.add('collapsed');
+          localStorage.setItem('sidebarCollapsed', 'true');
+        }
+      }
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    });
+
+    // Close sidebar on link click (mobile)
+    document.querySelectorAll('.toc-list a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 960) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('open');
+        }
+      });
+    });
+
+    // Reading progress bar
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    });
+
+    // Active TOC highlighting
+    const contentSections = document.querySelectorAll('.content-section');
+    const tocLinks = document.querySelectorAll('.toc-list a');
+
+    const observerOptions = {
+      rootMargin: '-10% 0px -80% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          tocLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + id) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    contentSections.forEach(section => {
+      observer.observe(section);
+    });
+
+    // Share functionality
+    // {{SHARE_CONSTANTS}}: Update these for each ebook
+    const SHARE_URL = window.location.origin + window.location.pathname;
+    const SHARE_TITLE = 'Navigating the Fracture \u2014 Mere Orthodoxy';
+    const SHARE_TEXT = 'Navigating the Fracture \u2014 Mere Orthodoxy';
+
+    const shareToggle = document.getElementById('shareToggle');
+    const sharePopup = document.getElementById('sharePopup');
+
+    shareToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sharePopup.classList.toggle('open');
+      downloadPopup.classList.remove('open');
+    });
+
+    const downloadToggle = document.getElementById('downloadToggle');
+    const downloadPopup = document.getElementById('downloadPopup');
+
+    downloadToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      downloadPopup.classList.toggle('open');
+      sharePopup.classList.remove('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!sharePopup.contains(e.target) && e.target !== shareToggle) {
+        sharePopup.classList.remove('open');
+      }
+      if (!downloadPopup.contains(e.target) && !downloadToggle.contains(e.target)) {
+        downloadPopup.classList.remove('open');
+      }
+    });
+
+    // Copy link
+    document.getElementById('copyLink').addEventListener('click', () => {
+      navigator.clipboard.writeText(SHARE_URL).then(() => {
+        const msg = document.getElementById('copiedMsg');
+        msg.classList.add('show');
+        setTimeout(() => msg.classList.remove('show'), 2000);
+      });
+    });
+
+    // Text message (sms: on mobile, fallback to sms: anyway)
+    document.getElementById('shareSMS').href =
+      'sms:?&body=' + encodeURIComponent(SHARE_TEXT + ' ' + SHARE_URL);
+
+    // X (Twitter)
+    document.getElementById('shareX').href =
+      'https://x.com/intent/tweet?text=' + encodeURIComponent(SHARE_TEXT) +
+      '&url=' + encodeURIComponent(SHARE_URL);
+
+    // Facebook
+    document.getElementById('shareFB').href =
+      'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL);
+
+    // Instagram Stories (deep link — opens IG app with URL in clipboard)
+    document.getElementById('shareIG').addEventListener('click', (e) => {
+      e.preventDefault();
+      navigator.clipboard.writeText(SHARE_URL).then(() => {
+        window.open('https://www.instagram.com/create/story/', '_blank');
+        const msg = document.getElementById('copiedMsg');
+        msg.textContent = 'Link copied! Paste it in your Story.';
+        msg.classList.add('show');
+        setTimeout(() => { msg.classList.remove('show'); msg.textContent = 'Link copied!'; }, 4000);
+      });
+    });
+
+    // ===== Highlight & Share =====
+    const hsTooltip = document.getElementById('highlightShare');
+    const hsCopiedMsg = document.getElementById('hsCopied');
+    let selectedQuote = '';
+
+    // Build share text with graceful attribution trimming for character limits.
+    // {{ATTRIBUTION}}: Update the attribution strings below for each ebook.
+    function buildShareText(rawQuote, limit) {
+      const quote = rawQuote.replace(/\s+/g, ' ').trim();
+      const wrapped = '\u201c' + quote + '\u201d';
+      const attrFull = '\n\n\u2014 Navigating the Fracture, Mere Orthodoxy';
+      const attrShort = '\n\n\u2014 Navigating the Fracture';
+      const attrNone = '';
+
+      if (!limit) return wrapped + attrFull;
+
+      if ((wrapped + attrFull).length <= limit) return wrapped + attrFull;
+      if ((wrapped + attrShort).length <= limit) return wrapped + attrShort;
+      return wrapped + attrNone;
+    }
+
+    function positionTooltip(range) {
+      const rect = range.getBoundingClientRect();
+      const tooltipWidth = hsTooltip.offsetWidth || 200;
+      const isMobile = window.innerWidth <= 960;
+      const x = rect.left + rect.width / 2;
+      const clampedX = Math.max(tooltipWidth / 2 + 8, Math.min(x, window.innerWidth - tooltipWidth / 2 - 8));
+      hsTooltip.style.left = clampedX + 'px';
+      if (isMobile) {
+        // Below selection on mobile so it doesn't cover text
+        hsTooltip.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+      } else {
+        // Above selection on desktop
+        hsTooltip.style.top = (rect.top + window.scrollY - 10) + 'px';
+      }
+    }
+
+    function hideTooltip() {
+      hsTooltip.classList.remove('visible');
+      selectedQuote = '';
+    }
+
+    function checkSelection() {
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim() : '';
+      if (text.length > 3 && sel.rangeCount > 0 && document.querySelector('.main-content').contains(sel.anchorNode)) {
+        selectedQuote = text;
+        positionTooltip(sel.getRangeAt(0));
+        hsTooltip.classList.add('visible');
+      } else {
+        hideTooltip();
+      }
+    }
+
+    // Desktop: mouseup
+    document.addEventListener('mouseup', (e) => {
+      if (hsTooltip.contains(e.target)) return;
+      setTimeout(checkSelection, 10);
+    });
+
+    document.addEventListener('mousedown', (e) => {
+      if (!hsTooltip.contains(e.target)) {
+        hideTooltip();
+      }
+    });
+
+    // Mobile: selectionchange fires as the user adjusts selection handles
+    let selectionChangeTimer = null;
+    document.addEventListener('selectionchange', () => {
+      if (!('ontouchstart' in window)) return; // only run on touch devices
+      clearTimeout(selectionChangeTimer);
+      selectionChangeTimer = setTimeout(checkSelection, 300);
+    });
+
+    // Copy quote + link (no limit)
+    document.getElementById('hsCopy').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 0) + '\n\n' + SHARE_URL;
+      navigator.clipboard.writeText(text).then(() => {
+        hsCopiedMsg.classList.add('show');
+        setTimeout(() => hsCopiedMsg.classList.remove('show'), 1500);
+      });
+    });
+
+    // SMS with quote (no hard limit)
+    document.getElementById('hsSMS').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 0) + '\n\n' + SHARE_URL;
+      window.open('sms:?&body=' + encodeURIComponent(text));
+    });
+
+    // X with quote (~250 chars for text, URL takes ~30 via t.co)
+    document.getElementById('hsX').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 250);
+      window.open('https://x.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SHARE_URL), '_blank');
+    });
+
+    // Facebook (no hard limit for quote param)
+    document.getElementById('hsFB').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 0);
+      window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL) + '&quote=' + encodeURIComponent(text), '_blank');
+    });
+
+    // Instagram Stories (no limit — clipboard)
+    document.getElementById('hsIG').addEventListener('click', () => {
+      const text = buildShareText(selectedQuote, 0) + '\n\n' + SHARE_URL;
+      navigator.clipboard.writeText(text).then(() => {
+        window.open('https://www.instagram.com/create/story/', '_blank');
+        hsCopiedMsg.textContent = 'Quote + link copied! Paste in your Story.';
+        hsCopiedMsg.classList.add('show');
+        setTimeout(() => { hsCopiedMsg.classList.remove('show'); hsCopiedMsg.textContent = 'Copied!'; }, 4000);
+      });
+    });
+  </script>
+</body>
+</html>

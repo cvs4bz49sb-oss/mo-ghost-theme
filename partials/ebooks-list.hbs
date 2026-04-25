@@ -1,23 +1,21 @@
 {{!-- Shared ebook list used on /dashboard/ebooks/ and inlined as a
      dashboard module. 4-up grid, editorial row style (no cards).
 
+     Architecture (post-Railway, 2026-04-25):
+       Each ebook is a Ghost custom-template Page at
+       /ebook/<slug>/read/. Ghost enforces tier visibility at render
+       time. Paid Members satisfy the main paid Member tier on every
+       ebook page, so anchors here are plain links — no token mint,
+       no Railway, no HubSpot gate.
+
      Only deployed ebooks live here — Christian Formation and
      Christians In An AI World are intentionally excluded until
-     their Railway projects are live. --}}
+     their content + Ghost pages are ready. --}}
 
-<ul class="ebooks-grid"
-    data-ebooks
-    data-member-email="{{@member.email}}"
-    data-worker-url="{{@custom.ebook_access_worker_url}}">
+<ul class="ebooks-grid">
 
   <li class="ebook-entry">
-    <a href="https://church-leadership-ebook-production.up.railway.app/"
-       data-ebook-link
-       data-requires-token="true"
-       data-verify-path="/api/ghost-verify"
-       class="ebook-entry-link"
-       target="_blank"
-       rel="noopener">
+    <a href="/ebook/navigating-the-fracture/read/" class="ebook-entry-link">
       <span class="ebook-entry-eyebrow">Ebook</span>
       <h3 class="ebook-entry-title"><em>Navigating the Fracture</em></h3>
       <p class="ebook-entry-excerpt">Church leadership under the conditions of cultural and institutional upheaval.</p>
@@ -26,13 +24,7 @@
   </li>
 
   <li class="ebook-entry">
-    <a href="https://spiritual-formation-for-the-family-production.up.railway.app/"
-       data-ebook-link
-       data-requires-token="true"
-       data-verify-path="/api/ghost-verify"
-       class="ebook-entry-link"
-       target="_blank"
-       rel="noopener">
+    <a href="/ebook/spiritual-formation-for-the-family/read/" class="ebook-entry-link">
       <span class="ebook-entry-eyebrow">Ebook</span>
       <h3 class="ebook-entry-title"><em>Spiritual Formation for the Family</em></h3>
       <p class="ebook-entry-excerpt">Practices and convictions for forming Christian households.</p>
@@ -41,13 +33,7 @@
   </li>
 
   <li class="ebook-entry">
-    <a href="https://blueprintforrenewal-production.up.railway.app/"
-       data-ebook-link
-       data-requires-token="true"
-       data-verify-path="/api/ghost-verify"
-       class="ebook-entry-link"
-       target="_blank"
-       rel="noopener">
+    <a href="/ebook/blueprint-for-renewal/read/" class="ebook-entry-link">
       <span class="ebook-entry-eyebrow">Ebook</span>
       <h3 class="ebook-entry-title"><em>Blueprint for Renewal</em></h3>
       <p class="ebook-entry-excerpt">A strategic outline for the work of Christian cultural renewal.</p>

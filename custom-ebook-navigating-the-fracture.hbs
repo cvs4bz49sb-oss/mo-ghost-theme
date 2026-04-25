@@ -1,0 +1,48 @@
+{{!< default}}
+{{!-- /ebook/navigating-the-fracture/ — free-subscriber landing page.
+     Two-column layout: left is the editorial pitch, right is the
+     signup card (rendered by partials/ebook-signup.hbs).
+
+     Submitting the form creates a free Ghost member with the label
+     `ebook:navigating-the-fracture`. The mo-ebook-access worker uses
+     that label to mint an ebook-specific HMAC token — granting
+     access to THIS ebook only, not the full members-only library.
+
+     Copy below is starter copy. Edit freely; structure should stay. --}}
+
+<main class="ebook-page">
+
+  <section class="hero ebook-hero">
+    <div class="container">
+      <div class="ebook-hero-grid">
+        <div class="ebook-hero-content">
+          <p class="hero-kicker"><span class="dot"></span> A Mere Orthodoxy Ebook</p>
+          <h1 class="hero-headline ebook-hero-headline">
+            Leading the church through <span class="highlight"><em>cultural fracture</em></span>.
+          </h1>
+          <p class="hero-sub">A short guide for pastors and lay leaders navigating the institutional and cultural upheaval reshaping Christian community.</p>
+
+          <div class="ebook-hero-meta">
+            <p class="ebook-meta-row"><span class="eyebrow">For</span> Pastors, elders, and lay leaders.</p>
+            <p class="ebook-meta-row"><span class="eyebrow">Length</span> One sitting.</p>
+            <p class="ebook-meta-row"><span class="eyebrow">Cost</span> Free with a Mere Orthodoxy subscription.</p>
+          </div>
+
+          <div class="ebook-hero-prose">
+            <p>The fracture isn't coming. It's already here. Trusted institutions are losing authority. Old alliances are dissolving. The people in the pew aren't who they were five years ago, and the cultural waters around them aren't either.</p>
+            <p><em>Navigating the Fracture</em> is a working pastor's field guide for that moment: how to lead with conviction without losing your people, how to hold the center without flattening it, and how to keep the long view in front of a congregation living week to week.</p>
+          </div>
+        </div>
+
+        {{> "ebook-signup"
+            slug="navigating-the-fracture"
+            title="Navigating the Fracture"
+            read_url="/ebook/navigating-the-fracture/read/"
+            tier_slug="ebook-navigating-the-fracture"}}
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/ebook-landing.js"}}"></script>
