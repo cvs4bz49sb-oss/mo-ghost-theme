@@ -1,9 +1,11 @@
 {{!-- /ebook/spiritual-formation-for-the-family/read/ — standalone Ghost custom-template page.
-     Bound via routes.yaml to Ghost Page slug `ebook-spiritual-formation-for-the-family-read`.
-     Ghost enforces per-tier visibility (paid Member tier OR the
-     "Ebook · Spiritual Formation for the Family" tier) before this template renders.
-     Content ported verbatim from ebooks/spiritual-formation-for-the-family/public/index.html;
+     Routed via routes.yaml directly to this template (no Ghost Page
+     data binding). Member gating happens inline below: signed-in
+     members see the full ebook, anonymous visitors get a redirect
+     to the landing page. Content ported verbatim from
+     ebooks/spiritual-formation-for-the-family/public/index.html;
      the Express server + Railway deploy are decommissioned. --}}
+{{#if @member}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2349,3 +2351,17 @@
   </script>
 </body>
 </html>
+{{else}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0;url=/ebook/spiritual-formation-for-the-family/" />
+  <title>Sign in to read</title>
+  <script>window.location.replace("/ebook/spiritual-formation-for-the-family/");</script>
+</head>
+<body>
+  <p>This ebook is for Mere Orthodoxy subscribers. <a href="/ebook/spiritual-formation-for-the-family/">Continue to sign up &rarr;</a></p>
+</body>
+</html>
+{{/if}}

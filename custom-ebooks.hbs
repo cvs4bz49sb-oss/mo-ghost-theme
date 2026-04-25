@@ -4,11 +4,14 @@
      links to the per-ebook landing page (/ebook/<slug>/), which
      itself handles member-state branching:
        - Anonymous → free-subscriber signup form
-       - Signed-in without the matching ebook tier → one-click unlock
-       - Paid Member or already-tiered → "Open the ebook"
+       - Signed-in → "Open the ebook"
      Paid Members visiting their own dashboard library at
      /dashboard/ebooks/ skip the landing pages entirely (those tiles
-     link straight to /ebook/<slug>/read/). --}}
+     link straight to /ebook/<slug>/read/).
+
+     Tiles are a CSS grid (auto-fit) so the layout adjusts as ebooks
+     are added or hidden. Blueprint for Renewal is currently hidden
+     pending editorial work; re-add its tile here when ready. --}}
 
 <main class="ebooks-page">
 
@@ -16,12 +19,12 @@
     <div class="container">
       <p class="hero-kicker"><span class="dot"></span> The Ebook Library</p>
       <h1 class="hero-headline">Books for the <span class="highlight"><em>long view</em></span>.</h1>
-      <p class="hero-sub">Short, sharp ebooks from Mere Orthodoxy on church leadership, household formation, and Christian cultural renewal. Free with a subscription.</p>
+      <p class="hero-sub">Ebooks from Mere Orthodoxy on church leadership, household formation, and Christian cultural renewal. Free with a subscription.</p>
     </div>
   </section>
 
   <section class="ebooks-body">
-    <div class="container container-narrow">
+    <div class="container">
 
       <ul class="ebooks-catalog">
 
@@ -29,7 +32,7 @@
           <a href="/ebook/navigating-the-fracture/" class="ebooks-catalog-link">
             <p class="eyebrow">Church Leadership</p>
             <h2 class="ebooks-catalog-title"><em>Navigating the Fracture</em></h2>
-            <p class="ebooks-catalog-excerpt">Church leadership under the conditions of cultural and institutional upheaval. A short field guide for pastors, elders, and lay leaders.</p>
+            <p class="ebooks-catalog-excerpt">Church leadership under the conditions of cultural and institutional upheaval. A field guide for pastors, elders, and lay leaders.</p>
             <span class="ebooks-catalog-cta">Read this ebook &rarr;</span>
           </a>
         </li>
@@ -43,18 +46,22 @@
           </a>
         </li>
 
-        <li class="ebooks-catalog-item">
-          <a href="/ebook/blueprint-for-renewal/" class="ebooks-catalog-link">
-            <p class="eyebrow">Cultural Renewal</p>
-            <h2 class="ebooks-catalog-title"><em>Blueprint for Renewal</em></h2>
-            <p class="ebooks-catalog-excerpt">A strategic outline for the long work of recovering Christian witness in education, institutions, and public life.</p>
-            <span class="ebooks-catalog-cta">Read this ebook &rarr;</span>
-          </a>
-        </li>
+        {{!-- Blueprint for Renewal — HIDDEN as of 2026-04-25 pending
+             editorial work. Re-add by uncommenting:
+
+          <li class="ebooks-catalog-item">
+            <a href="/ebook/blueprint-for-renewal/" class="ebooks-catalog-link">
+              <p class="eyebrow">Cultural Renewal</p>
+              <h2 class="ebooks-catalog-title"><em>Blueprint for Renewal</em></h2>
+              <p class="ebooks-catalog-excerpt">A strategic outline for the long work of recovering Christian witness in education, institutions, and public life.</p>
+              <span class="ebooks-catalog-cta">Read this ebook &rarr;</span>
+            </a>
+          </li>
+        --}}
 
       </ul>
 
-      <p class="ebooks-catalog-note">All ebooks are free with a Mere Orthodoxy subscription. <a href="/membership/">Become a Member</a> for the full library plus the print journal, the audio archive, and event replays.</p>
+      <p class="ebooks-catalog-note">All ebooks are free with a Mere Orthodoxy subscription. <a href="/membership/">Become a Member</a> for the full essay archive, audio on every essay, the print journal, and event replays.</p>
 
     </div>
   </section>

@@ -1,10 +1,11 @@
 {{!-- /ebook/navigating-the-fracture/read/ — standalone Ghost custom-template page.
-     Bound via routes.yaml to Ghost Page slug `ebook-navigating-the-fracture-read`.
-     Ghost enforces per-tier visibility (paid Member tier OR the
-     "Ebook · Navigating the Fracture" tier) before this template renders.
-     Content ported verbatim from ebooks/church-leadership-ebook/public/index.html
-     (the Railway app slug differed from the public title); the Express server +
-     Railway deploy are decommissioned. --}}
+     Routed via routes.yaml directly to this template (no Ghost Page
+     data binding). Member gating happens inline below: signed-in
+     members see the full ebook, anonymous visitors get a redirect
+     to the landing page. Content ported verbatim from
+     ebooks/church-leadership-ebook/public/index.html; the Express
+     server + Railway deploy are decommissioned. --}}
+{{#if @member}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2003,3 +2004,20 @@
   </script>
 </body>
 </html>
+{{else}}
+{{!-- Anonymous visitor — redirect to the landing page so they can sign
+     up for free access. The landing page handles the email-capture
+     flow + magic-link signup. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0;url=/ebook/navigating-the-fracture/" />
+  <title>Sign in to read</title>
+  <script>window.location.replace("/ebook/navigating-the-fracture/");</script>
+</head>
+<body>
+  <p>This ebook is for Mere Orthodoxy subscribers. <a href="/ebook/navigating-the-fracture/">Continue to sign up &rarr;</a></p>
+</body>
+</html>
+{{/if}}

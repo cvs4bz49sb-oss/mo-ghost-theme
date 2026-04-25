@@ -1,9 +1,18 @@
 {{!-- /ebook/blueprint-for-renewal/read/ — standalone Ghost custom-template page.
-     Bound via routes.yaml to Ghost Page slug `ebook-blueprint-for-renewal-read`.
-     Ghost enforces per-tier visibility (paid Member tier OR the
-     "Ebook · Blueprint for Renewal" tier) before this template renders.
-     Content ported verbatim from ebooks/blueprint-for-renewal/public/index.html;
-     the Express server + Railway deploy are decommissioned. --}}
+
+     STATUS (2026-04-25): HIDDEN. Routes are commented out in
+     routes.yaml; the catalog (/ebooks/) and dashboard library both
+     drop the Blueprint tile. The template + landing page partial +
+     content stay here unchanged so re-enabling is a 3-line revert
+     (uncomment routes.yaml, restore catalog tile, restore dashboard
+     tile). Ian's call: needs more editorial work before publishing.
+
+     Routed (when enabled) via routes.yaml directly to this template
+     (no Ghost Page data binding). Member gating happens inline
+     below: signed-in members see the full ebook, anonymous visitors
+     get a redirect to the landing page. Content ported verbatim
+     from ebooks/blueprint-for-renewal/public/index.html. --}}
+{{#if @member}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1469,3 +1478,17 @@
   </script>
 </body>
 </html>
+{{else}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0;url=/ebook/blueprint-for-renewal/" />
+  <title>Sign in to read</title>
+  <script>window.location.replace("/ebook/blueprint-for-renewal/");</script>
+</head>
+<body>
+  <p>This ebook is for Mere Orthodoxy subscribers. <a href="/ebook/blueprint-for-renewal/">Continue to sign up &rarr;</a></p>
+</body>
+</html>
+{{/if}}

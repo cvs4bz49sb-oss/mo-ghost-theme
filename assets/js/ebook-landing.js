@@ -1,28 +1,23 @@
 /*
- * Ebook landing page — free-subscriber gate, Ghost-native edition.
+ * Ebook landing page — free-subscriber lead-gen flow.
  *
- * Three surfaces the right-column card can show, picked based on
- * the visitor's member state at page load:
+ * Two surfaces:
+ *   SIGNUP (anonymous) — form posts to mo-ebook-access /grant. The
+ *     worker creates a free Ghost member if one doesn't exist (or
+ *     finds the existing one), writes attribution labels
+ *     (`ebook:<slug>`, `source:ebook-<slug>`) so Kit segmentation
+ *     knows which ebook brought them in, and sends a magic link
+ *     redirecting back to this page.
+ *   OPEN (signed in) — "Open the ebook" is a plain anchor to
+ *     /ebook/<slug>/read/. The read template's {{#if @member}} wrap
+ *     gates the content; signed-in members go straight in.
  *
- *   SIGNUP (anonymous) — default form. POSTs to mo-ebook-access
- *     /grant, which creates a free Ghost member and comps them into
- *     the matching ebook tier, then sends a magic link redirecting
- *     back to this page. After they click the link they land here
- *     signed in, and this script transitions them to OPEN.
- *
- *   UNLOCK (signed in but no matching tier) — single button posts
- *     to /grant to comp the existing member into the ebook tier.
- *     On success, transitions to OPEN.
- *
- *   OPEN (signed in and eligible) — paid/comped Member tier, OR
- *     already in the per-ebook tier. The "Open the ebook" button is
- *     a plain anchor to /ebook/<slug>/read/ — Ghost serves the page
- *     and enforces tier visibility. No worker round-trip.
- *
- * The actual access check is server-side: Ghost decides at /ebook/
- * <slug>/read/ render time whether the visitor's tiers include one
- * of the page's allowed tiers. The client only picks WHICH surface
- * to render initially.
+ * No per-ebook access gate at the read level (B+ model — ebooks are
+ * free with any subscription; attribution lives in labels). Existing
+ * subscribers who fill the form for additional ebooks get fresh
+ * label-add events that mo-kit mirrors to Kit, so per-ebook
+ * conversion sequences can fire on signup, not just on first
+ * subscription.
  */
 (function () {
   var root = document.querySelector("[data-ebook-landing]");
@@ -33,43 +28,24 @@
   var readUrl = root.getAttribute("data-ebook-read-url");
   var workerUrl = (root.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
   var memberEmail = (root.getAttribute("data-member-email") || "").trim().toLowerCase();
-  var memberStatus = (root.getAttribute("data-member-status") || "").trim().toLowerCase();
-  var memberHasTier = (root.getAttribute("data-member-has-ebook-tier") || "").trim() === "true";
 
   var signupEl = root.querySelector("[data-ebook-signup]");
   var openEl = root.querySelector("[data-ebook-open]");
-  var grantEl = root.querySelector("[data-ebook-grant]");
   var openBtn = root.querySelector("[data-ebook-open-btn]");
-  var grantBtn = root.querySelector("[data-ebook-grant-btn]");
-  var grantStatus = root.querySelector("[data-ebook-grant-status]");
-  var signedEmailEl = root.querySelector("[data-ebook-signed-email]");
 
-  // Anchor the "Open" button to the Ghost-served read page.
   if (openBtn && readUrl) {
     openBtn.setAttribute("href", readUrl);
-    openBtn.setAttribute("target", "_blank");
-    openBtn.setAttribute("rel", "noopener");
   }
 
-  // State picker.
   if (memberEmail) {
-    var paidLike = memberStatus === "paid" || memberStatus === "comped";
-    if (paidLike || memberHasTier) {
-      show(openEl); hide(signupEl); hide(grantEl);
-    } else {
-      if (signedEmailEl) signedEmailEl.textContent = memberEmail;
-      show(grantEl); hide(signupEl); hide(openEl);
-    }
+    show(openEl); hide(signupEl);
   } else {
-    show(signupEl); hide(openEl); hide(grantEl);
+    show(signupEl); hide(openEl);
   }
 
   // -------------------------------------------------------------------------
-  // Anonymous signup — POST /grant. We piggy-back on the inline-signup
-  // data attributes for the input fields, but intercept the click /
-  // Enter key in capture phase so the request goes to /grant (which
-  // comps the member into the ebook tier) instead of plain magic-link
-  // signup.
+  // Anonymous signup — POST /grant. Capture-phase listener so we
+  // intercept BEFORE inline-signup.js's plain magic-link handler.
   signupEl && signupEl.addEventListener("click", function (e) {
     var btn = e.target && e.target.closest && e.target.closest("[data-signup-submit]");
     if (!btn) return;
@@ -128,44 +104,13 @@
   }
 
   // -------------------------------------------------------------------------
-  // Unlock — signed-in member without the per-ebook tier. One click
-  // posts to /grant; on success, swap to the OPEN surface. We pass
-  // no `redirect` since they're already signed in — no need for a
-  // fresh magic link round-trip just to get back here.
-  grantBtn && grantBtn.addEventListener("click", function () {
-    if (!memberEmail) return;
-    var orig = grantBtn.textContent;
-    grantBtn.disabled = true;
-    grantBtn.textContent = "Unlocking\u2026";
-    setGrantStatus("");
-    fetch(workerUrl + "/grant", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: memberEmail,
-        ebook: slug,
-        source: "ebook-landing-already-signed-in",
-      }),
-    })
-      .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || "Couldn't unlock."); }); })
-      .then(function () { show(openEl); hide(grantEl); })
-      .catch(function (err) {
-        grantBtn.disabled = false;
-        grantBtn.textContent = orig;
-        setGrantStatus(err.message || "Couldn't unlock. Try again.", true);
-      });
-  });
-
-  // -------------------------------------------------------------------------
 
   function val(sel) { var el = root.querySelector(sel); return el ? (el.value || "").trim() : ""; }
   function show(el) { if (el) el.removeAttribute("hidden"); }
   function hide(el) { if (el) el.setAttribute("hidden", ""); }
-  function setSignupStatus(msg, isError) { setStatus(signupEl, msg, isError); }
-  function setGrantStatus(msg, isError) { setStatus(grantEl, msg, isError, "[data-ebook-grant-status]"); }
-  function setStatus(host, msg, isError, sel) {
-    if (!host) return;
-    var el = host.querySelector(sel || "[data-signup-status]");
+  function setSignupStatus(msg, isError) {
+    if (!signupEl) return;
+    var el = signupEl.querySelector("[data-signup-status]");
     if (!el) return;
     el.textContent = msg || "";
     el.classList.toggle("is-error", !!isError);

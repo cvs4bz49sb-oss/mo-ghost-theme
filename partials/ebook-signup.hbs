@@ -3,20 +3,19 @@
      Usage (from a custom-ebook-<slug>.hbs template):
        {{> "ebook-signup" slug="navigating-the-fracture"
                           title="Navigating the Fracture"
-                          read_url="/ebook/navigating-the-fracture/read/"
-                          tier_name="Ebook · Navigating the Fracture" }}
+                          read_url="/ebook/navigating-the-fracture/read/" }}
 
-     Architecture (Ghost-native, post-Railway):
-       - The "Open ebook" button is a plain anchor to the Ghost-served
-         /ebook/<slug>/read/ page. Ghost enforces tier visibility
-         server-side at that URL.
-       - The signup form posts to the mo-ebook-access /grant endpoint
-         which comps the new free member into the per-ebook tier and
-         sends a magic link redirecting back here.
-       - data-member-has-ebook-tier is computed below using {{#has}}
-         tier matching against @member.tiers — true if the visitor is
-         already in this ebook's tier, in which case JS shows OPEN
-         without needing to call the worker first.
+     Architecture (B+, Ghost-native, post-Railway):
+       - Read pages have `visibility: members`. Ghost gates anonymous
+         visitors natively; any signed-in member (free or paid) can
+         read any ebook. There is NO per-ebook access gate.
+       - The form posts to the mo-ebook-access /grant endpoint, which
+         creates a free Ghost member if needed and writes attribution
+         labels (`ebook:<slug>` and `source:ebook-<slug>`). mo-kit
+         mirrors them to Kit tags so per-ebook conversion sequences
+         can fire.
+       - For signed-in visitors, the card just shows "Open the ebook"
+         — a plain anchor to /ebook/<slug>/read/.
 --}}
 
 <aside class="ebook-landing"
@@ -25,9 +24,7 @@
        data-ebook-title="{{title}}"
        data-ebook-read-url="{{read_url}}"
        data-worker-url="{{@custom.ebook_access_worker_url}}"
-       data-member-email="{{#if @member}}{{@member.email}}{{/if}}"
-       data-member-status="{{#if @member}}{{@member.status}}{{/if}}"
-       data-member-has-ebook-tier="{{#if @member}}{{#has @member.tiers slug=tier_slug}}true{{else}}false{{/has}}{{else}}false{{/if}}">
+       data-member-email="{{#if @member}}{{@member.email}}{{/if}}">
 
   <div class="ebook-landing-card" data-ebook-card>
 
@@ -60,14 +57,6 @@
       <h2 class="ebook-landing-form-title">Open <em>{{title}}</em>.</h2>
       <p class="ebook-landing-form-sub">Click below to start reading.</p>
       <a href="{{read_url}}" class="btn btn-primary btn-lg ebook-landing-open-btn" data-ebook-open-btn target="_blank" rel="noopener">Open the ebook &rarr;</a>
-    </div>
-
-    <div class="ebook-landing-grant" data-ebook-grant hidden>
-      <p class="eyebrow">Almost there</p>
-      <h2 class="ebook-landing-form-title">Add this ebook to your account.</h2>
-      <p class="ebook-landing-form-sub">You're signed in as <strong data-ebook-signed-email></strong>. Click below and we'll unlock <em>{{title}}</em> on your account.</p>
-      <button type="button" class="btn btn-primary btn-lg" data-ebook-grant-btn>Unlock the ebook</button>
-      <p class="digest-status" data-ebook-grant-status></p>
     </div>
 
   </div>
