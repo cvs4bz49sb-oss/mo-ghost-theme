@@ -8221,6 +8221,75 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .editorial-card-name { font-size: 18px; }
 }
 
+/* Click-to-expand: head is always visible; body reveals on
+   .is-expanded. Body holds full bio, file download buttons, and an
+   editor notes textarea that saves on input/blur. */
+.editorial-card-head {
+  cursor: pointer;
+}
+.editorial-card-headline { min-width: 0; flex: 1 1 auto; }
+.editorial-card-body {
+  display: none;
+  padding-top: 14px;
+  margin-top: 12px;
+  border-top: 1px dashed var(--color-rule);
+}
+.editorial-inbox-card.is-expanded .editorial-card-body,
+.editorial-card.is-expanded .editorial-card-body {
+  display: block;
+}
+.editorial-card-section { margin-top: 14px; }
+.editorial-card-section:first-child { margin-top: 0; }
+.editorial-card-section .eyebrow { margin: 0 0 6px; }
+.editorial-card-section p {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  margin: 0;
+  white-space: pre-wrap;
+  max-width: 70ch;
+}
+.editorial-card-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.editorial-card-empty {
+  font-style: italic;
+  color: var(--color-muted);
+}
+.editorial-card-notes-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.editorial-card-notes-state {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-muted);
+  font-style: italic;
+}
+.editorial-card-notes {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-dark);
+  background: var(--color-background);
+  border: 1px solid var(--color-rule);
+  border-radius: 2px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.editorial-card-notes:focus {
+  outline: 1px solid var(--color-primary);
+  outline-offset: 0;
+  border-color: var(--color-primary);
+}
+
 .admin-forbidden { max-width: 560px; }
 .admin-forbidden .eyebrow { color: var(--color-primary); margin: 0 0 6px; }
 .admin-forbidden .section-heading {

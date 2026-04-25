@@ -1,19 +1,22 @@
 /*
  * /admin/editorial/ hydration.
  *
- * Two views:
- *   1. Inbox — every submission with status='submitted'. Each row is a
- *      card with Approve / Deny inline buttons (also draggable directly
- *      to a board column).
+ * Two views, one in-memory store:
+ *   1. Inbox — every submission with status='submitted'. Approve / Deny
+ *      inline buttons + drag-drop into any board column.
  *   2. Board — five workflow columns (Approved, Edited, Scheduled,
- *      Published, Denied). Cards drag between any of them.
+ *      Published, Denied) with HTML5 drag-drop between any of them.
  *
- * State changes (button clicks AND drag-drops) hit
- * POST {api-base}/api/admin/submissions/<id>/status with { status }.
- * The card moves immediately on success; on failure we revert + show
- * the error in the status line.
+ * Every card click-expands to show: full bio, an editable Notes
+ * textarea (saves on blur), and download buttons for the archived
+ * essay + headshot. File downloads route through the worker so each
+ * fetch carries the JWT — anchors couldn't, so we use fetch+blob and
+ * synthesise a download click. Same pattern as the admin-table CSV.
  *
- * Auth: window.MOAdminAuth.headers() — Ghost member JWT, verified
+ * Status changes are optimistic: update locally + repaint, then POST.
+ * On failure, revert + surface the error in the status line.
+ *
+ * Auth: window.MOAdminAuth.headers() — Ghost member JWT verified
  * worker-side against the live Ghost staff list.
  */
 (function () {
@@ -37,8 +40,12 @@
   });
 
   // In-memory copy of every row, keyed by id. Moves are optimistic:
-  // we update locally + repaint, then POST. On error we revert.
+  // update locally + repaint, then POST. Card-expansion state is
+  // tracked separately so a status change doesn't collapse cards
+  // unrelated to the move.
   var rows = {};
+  var expanded = new Set();
+  var notesSaveTimers = {};
 
   hydrate();
   wireDropTargets();
@@ -66,114 +73,153 @@
   }
 
   function repaint() {
-    // Inbox = status='submitted', newest first (the API already sorts
-    // newest-first; we just filter).
     var inboxRows = Object.values(rows).filter(function (r) { return r.status === "submitted"; });
     if (!inboxRows.length) {
       inboxEl.innerHTML = "";
       if (inboxEmpty) inboxEmpty.removeAttribute("hidden");
     } else {
       if (inboxEmpty) inboxEmpty.setAttribute("hidden", "");
-      inboxEl.innerHTML = inboxRows.map(renderInboxCard).join("");
+      inboxEl.innerHTML = inboxRows.map(function (r) { return renderCard(r, "inbox"); }).join("");
     }
-    wireInboxButtons();
-    wireDraggables(inboxEl);
+    wireCard(inboxEl);
 
-    // Board columns.
     Object.keys(boardCols).forEach(function (status) {
       var col = boardCols[status];
       var count = boardCounts[status];
       var colRows = Object.values(rows)
         .filter(function (r) { return r.status === status; })
         .sort(function (a, b) { return (b.created_at || "").localeCompare(a.created_at || ""); });
-      col.innerHTML = colRows.map(renderBoardCard).join("");
+      col.innerHTML = colRows.map(function (r) { return renderCard(r, "board"); }).join("");
       if (count) count.textContent = colRows.length;
-      wireDraggables(col);
+      wireCard(col);
     });
   }
 
   // -------------------------------------------------------------------------
-  // Cards
+  // Card rendering — single template covers both inbox and board variants.
+  // The expanded body is always rendered; CSS hides it until is-expanded.
 
-  function renderInboxCard(row) {
-    var name = escapeHtml(row.first_name + " " + row.last_name);
+  function renderCard(row, variant) {
+    var name = escapeHtml(row.first_name + " " + (row.last_name || ""));
     var when = formatDate(row.created_at);
-    var bio = escapeHtml((row.bio || "").slice(0, 240));
-    var essayUrl = essayLink(row);
-    return (
-      '<li class="editorial-inbox-card" draggable="true" data-id="' + row.id + '">' +
-        '<div class="editorial-inbox-card-head">' +
-          '<div>' +
-            '<p class="editorial-card-name">' + name + '</p>' +
-            '<p class="editorial-card-meta">' +
-              '<a href="mailto:' + escapeAttr(row.email) + '">' + escapeHtml(row.email) + '</a>' +
-              (row.phone ? ' &middot; ' + escapeHtml(row.phone) : "") +
-              ' &middot; ' + escapeHtml(when) +
-            '</p>' +
-          '</div>' +
-          '<div class="editorial-card-actions">' +
-            (essayUrl ? '<a href="' + escapeAttr(essayUrl) + '" class="editorial-card-link" target="_blank" rel="noopener">Essay &rarr;</a>' : "") +
-            '<button type="button" class="btn btn-sm btn-pill btn-primary" data-action="approve" data-id="' + row.id + '">Approve</button>' +
-            '<button type="button" class="btn btn-sm btn-pill" data-action="deny" data-id="' + row.id + '">Deny</button>' +
+    var bioPreview = escapeHtml((row.bio || "").slice(0, 180));
+    var bioFull = escapeHtml(row.bio || "");
+    var notes = escapeAttr(row.notes || "");
+    var meta = [];
+    if (row.email) meta.push('<a href="mailto:' + escapeAttr(row.email) + '">' + escapeHtml(row.email) + '</a>');
+    if (row.phone) meta.push(escapeHtml(row.phone));
+    meta.push(escapeHtml(when));
+    var isExpanded = expanded.has(row.id);
+    var cardClass = (variant === "inbox" ? "editorial-inbox-card" : "editorial-card") + (isExpanded ? " is-expanded" : "");
+
+    var actions = "";
+    if (variant === "inbox") {
+      actions =
+        '<div class="editorial-card-actions">' +
+          '<button type="button" class="btn btn-sm btn-pill btn-primary" data-action="approve" data-id="' + row.id + '">Approve</button>' +
+          '<button type="button" class="btn btn-sm btn-pill" data-action="deny" data-id="' + row.id + '">Deny</button>' +
+        '</div>';
+    }
+
+    var head =
+      '<div class="editorial-card-head" data-card-toggle data-id="' + row.id + '">' +
+        '<div class="editorial-card-headline">' +
+          '<p class="editorial-card-name">' + name + '</p>' +
+          '<p class="editorial-card-meta">' + meta.join(' &middot; ') + '</p>' +
+          (variant === "inbox" && bioPreview ? '<p class="editorial-card-bio">' + bioPreview + (row.bio && row.bio.length > 180 ? "&hellip;" : "") + '</p>' : "") +
+        '</div>' +
+        actions +
+      '</div>';
+
+    var body =
+      '<div class="editorial-card-body">' +
+        (bioFull ? '<div class="editorial-card-section"><p class="eyebrow">Bio</p><p>' + bioFull + '</p></div>' : "") +
+        '<div class="editorial-card-section">' +
+          '<p class="eyebrow">Files</p>' +
+          '<div class="editorial-card-files">' +
+            (row.essay_key ? '<button type="button" class="btn btn-sm btn-pill" data-action="download" data-id="' + row.id + '" data-which="essay">Download essay</button>' : '') +
+            (row.headshot_key ? '<button type="button" class="btn btn-sm btn-pill" data-action="download" data-id="' + row.id + '" data-which="headshot">Download headshot</button>' : '') +
+            (!row.essay_key && !row.headshot_key ? '<p class="editorial-card-empty">No files archived.</p>' : '') +
           '</div>' +
         '</div>' +
-        (bio ? '<p class="editorial-card-bio">' + bio + (row.bio.length > 240 ? "&hellip;" : "") + '</p>' : "") +
-      '</li>'
-    );
-  }
+        '<div class="editorial-card-section">' +
+          '<label class="editorial-card-notes-label" for="editorial-notes-' + row.id + '">' +
+            '<span class="eyebrow">Notes</span>' +
+            '<span class="editorial-card-notes-state" data-notes-state></span>' +
+          '</label>' +
+          '<textarea class="editorial-card-notes" id="editorial-notes-' + row.id + '" data-notes data-id="' + row.id + '" rows="3" placeholder="Editor notes — saves automatically.">' + notes + '</textarea>' +
+        '</div>' +
+      '</div>';
 
-  function renderBoardCard(row) {
-    var name = escapeHtml(row.first_name + " " + row.last_name);
-    var when = formatDate(row.updated_at || row.created_at);
-    var essayUrl = essayLink(row);
-    return (
-      '<article class="editorial-card" draggable="true" data-id="' + row.id + '">' +
-        '<p class="editorial-card-name">' + name + '</p>' +
-        '<p class="editorial-card-meta">' + escapeHtml(when) + '</p>' +
-        (essayUrl ? '<a href="' + escapeAttr(essayUrl) + '" class="editorial-card-link" target="_blank" rel="noopener">Essay &rarr;</a>' : "") +
-      '</article>'
-    );
-  }
-
-  function essayLink(row) {
-    // We don't have a public R2 URL by default — the essay/headshot are
-    // archived for backup. Surface the R2 key as a copyable string for
-    // now; if @custom.submissions_public_base is added later, point the
-    // link at that domain.
-    if (!row.essay_key) return null;
-    return "/admin/editorial/file?key=" + encodeURIComponent(row.essay_key);
+    var tag = variant === "inbox" ? "li" : "article";
+    return '<' + tag + ' class="' + cardClass + '" draggable="true" data-id="' + row.id + '">' + head + body + '</' + tag + '>';
   }
 
   // -------------------------------------------------------------------------
-  // Inbox buttons (Approve / Deny)
+  // Wire interactions on whichever card host we just rendered into.
 
-  function wireInboxButtons() {
-    inboxEl.querySelectorAll("[data-action]").forEach(function (btn) {
+  function wireCard(host) {
+    if (!host) return;
+
+    host.querySelectorAll('[data-card-toggle]').forEach(function (head) {
+      head.addEventListener("click", function (ev) {
+        // Buttons inside the head shouldn't toggle the card.
+        if (ev.target.closest("button, a, textarea, input")) return;
+        var id = parseInt(head.getAttribute("data-id"), 10);
+        if (expanded.has(id)) expanded.delete(id);
+        else expanded.add(id);
+        repaint();
+      });
+    });
+
+    host.querySelectorAll('[data-action="approve"], [data-action="deny"]').forEach(function (btn) {
       btn.addEventListener("click", function (ev) {
         ev.preventDefault();
+        ev.stopPropagation();
         var id = btn.getAttribute("data-id");
-        var action = btn.getAttribute("data-action");
-        var next = action === "approve" ? "approved" : "denied";
+        var next = btn.getAttribute("data-action") === "approve" ? "approved" : "denied";
         moveCard(id, next);
       });
     });
+
+    host.querySelectorAll('[data-action="download"]').forEach(function (btn) {
+      btn.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        downloadFile(btn.getAttribute("data-id"), btn.getAttribute("data-which"), btn);
+      });
+    });
+
+    host.querySelectorAll("[data-notes]").forEach(function (ta) {
+      ta.addEventListener("input", function () {
+        var id = ta.getAttribute("data-id");
+        clearTimeout(notesSaveTimers[id]);
+        var stateEl = ta.closest(".editorial-card-body").querySelector("[data-notes-state]");
+        if (stateEl) stateEl.textContent = "Editing…";
+        notesSaveTimers[id] = setTimeout(function () { saveNotes(id, ta.value, stateEl); }, 700);
+      });
+      ta.addEventListener("blur", function () {
+        var id = ta.getAttribute("data-id");
+        clearTimeout(notesSaveTimers[id]);
+        var stateEl = ta.closest(".editorial-card-body").querySelector("[data-notes-state]");
+        saveNotes(id, ta.value, stateEl);
+      });
+    });
+
+    wireDraggables(host);
   }
 
   // -------------------------------------------------------------------------
-  // Drag and drop
+  // Drag-drop
 
   function wireDraggables(host) {
-    if (!host) return;
     host.querySelectorAll('[draggable="true"]').forEach(function (card) {
       card.addEventListener("dragstart", function (ev) {
-        var id = card.getAttribute("data-id");
-        ev.dataTransfer.setData("text/plain", id);
+        ev.dataTransfer.setData("text/plain", card.getAttribute("data-id"));
         ev.dataTransfer.effectAllowed = "move";
         card.classList.add("is-dragging");
       });
-      card.addEventListener("dragend", function () {
-        card.classList.remove("is-dragging");
-      });
+      card.addEventListener("dragend", function () { card.classList.remove("is-dragging"); });
     });
   }
 
@@ -186,15 +232,12 @@
         ev.dataTransfer.dropEffect = "move";
         col.classList.add("is-drop-target");
       });
-      col.addEventListener("dragleave", function () {
-        col.classList.remove("is-drop-target");
-      });
+      col.addEventListener("dragleave", function () { col.classList.remove("is-drop-target"); });
       col.addEventListener("drop", function (ev) {
         ev.preventDefault();
         col.classList.remove("is-drop-target");
         var id = ev.dataTransfer.getData("text/plain");
-        if (!id) return;
-        moveCard(id, status);
+        if (id) moveCard(id, status);
       });
     });
   }
@@ -214,30 +257,95 @@
     window.MOAdminAuth.headers({ "Content-Type": "application/json" })
       .then(function (headers) {
         return fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/status", {
-          method: "POST",
-          headers: headers,
-          credentials: "omit",
+          method: "POST", headers: headers, credentials: "omit",
           body: JSON.stringify({ status: nextStatus }),
         });
       })
       .then(function (r) {
         if (r.status === 401 || r.status === 403) {
-          row.status = prevStatus;
-          repaint();
-          showForbidden();
-          return;
+          row.status = prevStatus; repaint(); showForbidden(); return;
         }
         if (!r.ok) {
-          row.status = prevStatus;
-          repaint();
+          row.status = prevStatus; repaint();
           setStatus("Couldn't save move (" + r.status + "). Reverted.");
         }
       })
       .catch(function (err) {
         console.error("editorial move failed", err);
-        row.status = prevStatus;
-        repaint();
+        row.status = prevStatus; repaint();
         setStatus("Network error saving move. Reverted.");
+      });
+  }
+
+  function saveNotes(id, value, stateEl) {
+    var row = rows[id];
+    if (!row) return;
+    var trimmed = String(value || "");
+    if ((row.notes || "") === trimmed) {
+      if (stateEl) stateEl.textContent = "";
+      return;
+    }
+    if (stateEl) stateEl.textContent = "Saving…";
+
+    window.MOAdminAuth.headers({ "Content-Type": "application/json" })
+      .then(function (headers) {
+        return fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/notes", {
+          method: "POST", headers: headers, credentials: "omit",
+          body: JSON.stringify({ notes: trimmed }),
+        });
+      })
+      .then(function (r) {
+        if (!r.ok) {
+          if (stateEl) stateEl.textContent = "Save failed.";
+          return;
+        }
+        row.notes = trimmed;
+        if (stateEl) {
+          stateEl.textContent = "Saved";
+          setTimeout(function () { if (stateEl.textContent === "Saved") stateEl.textContent = ""; }, 2000);
+        }
+      })
+      .catch(function (err) {
+        console.error("notes save failed", err);
+        if (stateEl) stateEl.textContent = "Save failed.";
+      });
+  }
+
+  function downloadFile(id, which, btn) {
+    var origLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Downloading…";
+    window.MOAdminAuth.headers()
+      .then(function (headers) {
+        return fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/" + which, {
+          headers: headers, credentials: "omit",
+        });
+      })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        // Filename from Content-Disposition if provided.
+        var dispo = r.headers.get("content-disposition") || "";
+        var m = /filename="?([^"]+)"?/.exec(dispo);
+        var filename = m ? m[1] : (which + (which === "essay" ? ".docx" : ".jpg"));
+        return r.blob().then(function (blob) { return { blob: blob, filename: filename }; });
+      })
+      .then(function (data) {
+        var url = URL.createObjectURL(data.blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = data.filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      })
+      .catch(function (err) {
+        console.error("download failed", err);
+        setStatus("Download failed: " + err.message);
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = origLabel;
       });
   }
 
