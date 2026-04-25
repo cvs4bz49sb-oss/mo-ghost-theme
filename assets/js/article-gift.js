@@ -1,24 +1,19 @@
 /*
  * Article gift-link button.
  *
- * Only useful on articles where the soft gate is (or will be) in
- * effect — i.e. visibility:public + gate_days > 0 + past the gate
- * window. For fresh posts still in the free-read window, or for
- * already-paid posts, the recipient can read without a gift link so
- * the button would be noise. We hide it in those cases.
- *
  * Click flow: mint a signed token via mo-gift Worker, copy the
  * article URL with ?gift=TOKEN to the clipboard, flash a toast.
+ *
+ * The button is always wired up on any post where it renders. The
+ * earlier "only show on past-gate posts" guard hid it during the
+ * first gate_days of a post's life — exactly when members are most
+ * likely to share — so we removed it. Gift tokens are no-ops while
+ * a post is freely readable and useful once it isn't, so showing
+ * the button universally costs nothing.
  */
 (function () {
   var btn = document.querySelector("[data-article-gift]");
   if (!btn) return;
-
-  var gateRoot = document.querySelector("[data-post-gate]");
-  if (!gateInEffect(gateRoot)) {
-    btn.setAttribute("hidden", "");
-    return;
-  }
 
   var workerUrl = (btn.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
   var email = (btn.getAttribute("data-member-email") || "").trim();
@@ -66,17 +61,6 @@
       .catch(function () { toast("Gift link unavailable. Try again."); })
       .then(function () { btn.disabled = false; });
   });
-
-  function gateInEffect(root) {
-    if (!root) return false;
-    if ((root.getAttribute("data-post-visibility") || "public") !== "public") return false;
-    var days = parseInt(root.getAttribute("data-gate-days"), 10);
-    if (!days || days <= 0) return false;
-    var pub = Date.parse(root.getAttribute("data-published-at") || "");
-    if (isNaN(pub)) return false;
-    var gateAt = pub + days * 24 * 60 * 60 * 1000;
-    return Date.now() >= gateAt;
-  }
 
   function copyText(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
