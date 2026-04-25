@@ -71,6 +71,8 @@ routes:
     template: custom-admin-drift
   /admin/traffic/:
     template: custom-admin-traffic
+  /admin/editorial/:
+    template: custom-admin-editorial
 
 collections:
   /:

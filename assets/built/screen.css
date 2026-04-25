@@ -8090,6 +8090,137 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin: 0;
 }
 
+/* --- /admin/editorial/ — submissions inbox + workflow board ----------- */
+/* Hairlines, no cards. Inbox is a vertical list of incoming submissions
+   with Approve/Deny inline. Below the inbox sits a five-column workflow
+   board with HTML5 drag-drop between columns. */
+
+.editorial-inbox {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--color-card-border);
+}
+.editorial-inbox-card {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--color-rule);
+  cursor: grab;
+}
+.editorial-inbox-card.is-dragging { opacity: 0.4; cursor: grabbing; }
+.editorial-inbox-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.editorial-card-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+}
+.editorial-card-meta {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 0;
+}
+.editorial-card-meta a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.editorial-card-bio {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  margin: 10px 0 0;
+  max-width: 70ch;
+}
+.editorial-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.editorial-card-link {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.editorial-card-link:hover { text-decoration: underline; }
+.editorial-inbox-sub { color: var(--color-muted); margin: 8px 0 0; }
+
+/* Spacing between inbox section and workflow section. */
+.editorial-board-intro { margin-top: 64px !important; }
+
+/* Workflow board — five columns. Stacks below the inbox. Horizontal
+   scroll on narrow viewports rather than wrapping (so the sequence
+   reads left-to-right). */
+.editorial-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(220px, 1fr));
+  gap: 18px;
+  margin-top: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.editorial-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  border-top: 2px solid var(--color-dark);
+}
+.editorial-col--denied { border-top-color: var(--color-muted); opacity: 0.85; }
+.editorial-col-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 0 6px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.editorial-col-head .eyebrow { margin: 0; }
+.editorial-col-count {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+.editorial-col-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0;
+  min-height: 80px;
+}
+.editorial-col-body.is-drop-target {
+  background: rgba(238, 125, 81, 0.06);
+  outline: 1px dashed var(--color-primary);
+  outline-offset: -4px;
+}
+.editorial-card {
+  padding: 12px 14px;
+  border: 1px solid var(--color-rule);
+  background: var(--color-background);
+  cursor: grab;
+  transition: border-color 0.15s, transform 0.05s;
+}
+.editorial-card:hover { border-color: var(--color-card-border); }
+.editorial-card.is-dragging { opacity: 0.4; cursor: grabbing; }
+.editorial-card .editorial-card-name { font-size: 16px; margin: 0 0 4px; }
+.editorial-card .editorial-card-meta { font-size: 11px; }
+.editorial-card .editorial-card-link { display: inline-block; margin-top: 8px; }
+
+@media (max-width: 760px) {
+  .editorial-board { grid-template-columns: repeat(5, minmax(180px, 220px)); }
+  .editorial-col { min-width: 180px; }
+  .editorial-card-name { font-size: 18px; }
+}
+
 .admin-forbidden { max-width: 560px; }
 .admin-forbidden .eyebrow { color: var(--color-primary); margin: 0 0 6px; }
 .admin-forbidden .section-heading {

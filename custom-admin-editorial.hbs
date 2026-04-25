@@ -1,0 +1,97 @@
+{{!< default}}
+{{!-- /admin/editorial/ — submissions inbox + workflow board.
+     Inbox at the top: every submission with status='submitted'.
+     Board below: five workflow columns with drag-drop between them
+     (Approved / Edited / Scheduled / Published / Denied).
+
+     Data is hydrated client-side from mo-membership's
+     /api/admin/submissions endpoint. Status changes (drag-drop or
+     the inline buttons in the inbox) persist via
+     POST /api/admin/submissions/<id>/status.
+
+     Auth: standard Ghost-staff JWT (admin-auth.js + worker isStaff). --}}
+
+<main class="admin-page">
+
+  {{#if @member}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Editorial</p>
+        <h1 class="admin-headline"><em>Editorial.</em></h1>
+        <p class="admin-sub">New submissions land in the inbox. Move pieces through the workflow as they progress.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body"
+             data-admin-editorial
+             data-api-base="{{@custom.membership_api_base}}">
+      <div class="container">
+
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow">Inbox</p>
+          <h2 class="section-heading"><em>New submissions.</em></h2>
+        </div>
+        <p class="admin-sub editorial-inbox-sub" data-editorial-inbox-empty hidden>The inbox is clear. New submissions show here as they come in.</p>
+        <ul class="editorial-inbox" data-editorial-inbox>
+          <li class="admin-empty" data-editorial-inbox-loading>Loading&hellip;</li>
+        </ul>
+
+        <div class="section-intro section-intro-left editorial-board-intro">
+          <p class="eyebrow">Workflow</p>
+          <h2 class="section-heading"><em>In progress.</em></h2>
+        </div>
+        <p class="admin-sub">Drag a card between columns to update its status. Changes save automatically.</p>
+        <div class="editorial-board" data-editorial-board>
+          <div class="editorial-col" data-editorial-col="approved">
+            <header class="editorial-col-head">
+              <p class="eyebrow">Approved</p>
+              <span class="editorial-col-count" data-editorial-count="approved">0</span>
+            </header>
+            <div class="editorial-col-body" data-editorial-drop="approved"></div>
+          </div>
+          <div class="editorial-col" data-editorial-col="edited">
+            <header class="editorial-col-head">
+              <p class="eyebrow">Edited</p>
+              <span class="editorial-col-count" data-editorial-count="edited">0</span>
+            </header>
+            <div class="editorial-col-body" data-editorial-drop="edited"></div>
+          </div>
+          <div class="editorial-col" data-editorial-col="scheduled">
+            <header class="editorial-col-head">
+              <p class="eyebrow">Scheduled</p>
+              <span class="editorial-col-count" data-editorial-count="scheduled">0</span>
+            </header>
+            <div class="editorial-col-body" data-editorial-drop="scheduled"></div>
+          </div>
+          <div class="editorial-col" data-editorial-col="published">
+            <header class="editorial-col-head">
+              <p class="eyebrow">Published</p>
+              <span class="editorial-col-count" data-editorial-count="published">0</span>
+            </header>
+            <div class="editorial-col-body" data-editorial-drop="published"></div>
+          </div>
+          <div class="editorial-col editorial-col--denied" data-editorial-col="denied">
+            <header class="editorial-col-head">
+              <p class="eyebrow">Denied</p>
+              <span class="editorial-col-count" data-editorial-count="denied">0</span>
+            </header>
+            <div class="editorial-col-body" data-editorial-drop="denied"></div>
+          </div>
+        </div>
+
+        <p class="admin-table-status" data-editorial-status></p>
+
+      </div>
+    </section>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-editorial.js"}}"></script>
