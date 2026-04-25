@@ -8135,12 +8135,6 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin: 10px 0 0;
   max-width: 70ch;
 }
-.editorial-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 .editorial-card-link {
   font-family: var(--font-body);
   font-size: 11px;
@@ -8222,12 +8216,42 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 }
 
 /* Click-to-expand: head is always visible; body reveals on
-   .is-expanded. Body holds full bio, file download buttons, and an
-   editor notes textarea that saves on input/blur. */
+   .is-expanded. Body holds full bio, file download buttons, an editor
+   notes textarea that saves on input/blur, and (inbox-only) the
+   approve/deny decision row at the bottom. */
 .editorial-card-head {
   cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.editorial-card-head:hover {
+  background: rgba(238, 125, 81, 0.04);
+}
+.editorial-card-head:hover .editorial-card-toggle-label {
+  color: var(--color-primary);
 }
 .editorial-card-headline { min-width: 0; flex: 1 1 auto; }
+.editorial-card-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.12s;
+}
+.editorial-card-toggle-chevron {
+  font-size: 10px;
+  line-height: 1;
+}
+.editorial-inbox-card.is-expanded .editorial-card-toggle,
+.editorial-card.is-expanded .editorial-card-toggle {
+  color: var(--color-primary);
+}
 .editorial-card-body {
   display: none;
   padding-top: 14px;
@@ -8288,6 +8312,28 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   outline: 1px solid var(--color-primary);
   outline-offset: 0;
   border-color: var(--color-primary);
+}
+
+/* Decision row — inbox-only. Lives at the bottom of the expanded
+   body so editors approve or deny AFTER reading the full submission,
+   not from a button on the collapsed head. */
+.editorial-card-decision {
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--color-rule);
+}
+.editorial-card-decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+.editorial-card-decision-hint {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  font-style: italic;
+  margin: 8px 0 0 !important;
 }
 
 .admin-forbidden { max-width: 560px; }

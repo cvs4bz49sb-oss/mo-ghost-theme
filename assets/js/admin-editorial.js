@@ -112,14 +112,9 @@
     var isExpanded = expanded.has(row.id);
     var cardClass = (variant === "inbox" ? "editorial-inbox-card" : "editorial-card") + (isExpanded ? " is-expanded" : "");
 
-    var actions = "";
-    if (variant === "inbox") {
-      actions =
-        '<div class="editorial-card-actions">' +
-          '<button type="button" class="btn btn-sm btn-pill btn-primary" data-action="approve" data-id="' + row.id + '">Approve</button>' +
-          '<button type="button" class="btn btn-sm btn-pill" data-action="deny" data-id="' + row.id + '">Deny</button>' +
-        '</div>';
-    }
+    var hint = variant === "inbox"
+      ? (isExpanded ? "Hide details" : "View details")
+      : (isExpanded ? "Hide" : "View");
 
     var head =
       '<div class="editorial-card-head" data-card-toggle data-id="' + row.id + '">' +
@@ -128,8 +123,26 @@
           '<p class="editorial-card-meta">' + meta.join(' &middot; ') + '</p>' +
           (variant === "inbox" && bioPreview ? '<p class="editorial-card-bio">' + bioPreview + (row.bio && row.bio.length > 180 ? "&hellip;" : "") + '</p>' : "") +
         '</div>' +
-        actions +
+        '<span class="editorial-card-toggle" aria-hidden="true">' +
+          '<span class="editorial-card-toggle-label">' + hint + '</span>' +
+          '<span class="editorial-card-toggle-chevron">' + (isExpanded ? "&#9652;" : "&#9662;") + '</span>' +
+        '</span>' +
       '</div>';
+
+    // Decision row only for inbox cards — already-on-the-board cards
+    // change status by drag-drop, not buttons.
+    var decision = "";
+    if (variant === "inbox") {
+      decision =
+        '<div class="editorial-card-section editorial-card-decision">' +
+          '<p class="eyebrow">Decision</p>' +
+          '<div class="editorial-card-decision-actions">' +
+            '<button type="button" class="btn btn-pill btn-primary" data-action="approve" data-id="' + row.id + '">Approve &amp; move to board</button>' +
+            '<button type="button" class="btn btn-pill" data-action="deny" data-id="' + row.id + '">Deny</button>' +
+          '</div>' +
+          '<p class="editorial-card-decision-hint">Approving moves this submission into the workflow board below. You can reorder it after.</p>' +
+        '</div>';
+    }
 
     var body =
       '<div class="editorial-card-body">' +
@@ -149,6 +162,7 @@
           '</label>' +
           '<textarea class="editorial-card-notes" id="editorial-notes-' + row.id + '" data-notes data-id="' + row.id + '" rows="3" placeholder="Editor notes — saves automatically.">' + notes + '</textarea>' +
         '</div>' +
+        decision +
       '</div>';
 
     var tag = variant === "inbox" ? "li" : "article";
