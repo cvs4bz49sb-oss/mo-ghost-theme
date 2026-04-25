@@ -885,40 +885,50 @@ img { max-width: 100%; height: auto; }
   list-style: none;
   padding: 0;
   margin: 0;
-  counter-reset: readlist;
 }
 .read-list li {
-  counter-increment: readlist;
   position: relative;
-  padding: 14px 0 14px 60px;
+  padding: 14px 0;
   border-bottom: 1px solid var(--color-rule);
 }
 .read-list li:last-child { border-bottom: 0; padding-bottom: 0; }
 .read-list li:first-child { padding-top: 0; }
-.read-list li::before {
-  content: counter(readlist, upper-roman);
-  position: absolute;
-  left: 0;
-  top: 16px;
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-primary);
-  font-size: 34px;
-  line-height: 1;
-  width: 46px;
-  text-align: right;
-  transition: color 0.15s;
-}
-.read-list li:first-child::before { top: 2px; }
 .read-list a {
-  display: block;
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 16px;
+  align-items: flex-start;
   color: inherit;
   text-decoration: none;
   transition: opacity 0.15s;
 }
 .read-list a:hover { text-decoration: none; }
 .read-list a:hover .card-title { color: var(--color-secondary); }
-.read-list li:hover::before { color: var(--color-secondary); }
+
+/* Cover-image plate — matches the entry-plate chrome in This Week
+   so the sidebar list reads as a smaller-scale version of the same
+   editorial card style. White backing + card border + subtle
+   shadow on the outside, sepia-toned image inside, gradient
+   fallback when a post has no feature_image. */
+.read-plate {
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--color-card-border);
+  padding: 4px;
+  background: var(--color-white);
+  box-shadow: 0 2px 6px rgba(45,41,39,0.06);
+}
+.read-plate-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  filter: sepia(0.12) saturate(0.85) contrast(1.02);
+  background-size: cover;
+  background-position: center;
+  background-color: #4a3f36;
+  background-image: linear-gradient(135deg, #4a3f36 0%, #2d2927 100%);
+}
+.read-text { min-width: 0; }
 
 .read-list .card-topic {
   font-size: 10px;
