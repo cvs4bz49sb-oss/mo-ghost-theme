@@ -8511,3 +8511,89 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .ebook-landing-form-title { font-size: 24px; }
   .ebook-meta-row { grid-template-columns: 72px 1fr; gap: 10px; font-size: 13px; }
 }
+
+/* --- /ebooks/ — public catalog ----------------------------------------- */
+/* Editorial row treatment, hairlines only, matches the rest of the
+   site's no-cards rule. Each tile is a clickable row that takes the
+   visitor to the per-ebook landing page; the landing page handles
+   member-state branching (signup form / unlock / open). */
+
+.ebooks-page { background: var(--color-background); }
+
+.ebooks-hero {
+  padding: 64px 0 48px;
+  text-align: center;
+}
+.ebooks-hero .hero-kicker { justify-content: center; }
+.ebooks-hero .hero-headline { margin-bottom: 16px; }
+.ebooks-hero .hero-sub {
+  max-width: 560px;
+  margin: 0 auto;
+  font-style: italic;
+}
+
+.ebooks-body { padding: 16px 0 80px; }
+
+.ebooks-catalog {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--color-card-border);
+}
+.ebooks-catalog-item { border-bottom: 1px solid var(--color-card-border); }
+.ebooks-catalog-link {
+  display: block;
+  padding: 36px 0;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.ebooks-catalog-link:hover { text-decoration: none; }
+.ebooks-catalog-link:hover .ebooks-catalog-title { color: var(--color-secondary); }
+.ebooks-catalog-link:hover .ebooks-catalog-cta { color: var(--color-secondary); }
+.ebooks-catalog-link .eyebrow {
+  color: var(--color-primary);
+  margin: 0 0 8px;
+}
+.ebooks-catalog-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3.4vw, 38px);
+  line-height: 1.1;
+  margin: 0 0 12px;
+  color: var(--color-dark);
+  transition: color 0.15s;
+}
+.ebooks-catalog-title em { font-style: italic; }
+.ebooks-catalog-excerpt {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 14px;
+  max-width: 60ch;
+}
+.ebooks-catalog-cta {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  transition: color 0.15s;
+}
+.ebooks-catalog-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 40px 0 0;
+  font-style: italic;
+}
+.ebooks-catalog-note a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 520px) {
+  .ebooks-hero { padding: 40px 0 32px; }
+  .ebooks-catalog-link { padding: 28px 0; }
+  .ebooks-catalog-excerpt { font-size: 15px; }
+}

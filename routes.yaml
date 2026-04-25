@@ -73,6 +73,10 @@ routes:
     template: custom-admin-traffic
   /admin/editorial/:
     template: custom-admin-editorial
+  # Public ebook catalog. Anonymous-viewable; tiles route through
+  # the per-ebook landing pages, which handle member-state branching.
+  /ebooks/:
+    template: custom-ebooks
   # Ebook landing pages (public, lead-gen). Form on each comps a free
   # signup into the matching internal Ghost tier via mo-ebook-access.
   /ebook/navigating-the-fracture/:

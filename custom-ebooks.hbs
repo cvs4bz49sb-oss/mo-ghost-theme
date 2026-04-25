@@ -1,0 +1,62 @@
+{{!< default}}
+{{!-- /ebooks/ — public catalog of every published Mere Orthodoxy
+     ebook. Anyone can view this page (no member check). Each tile
+     links to the per-ebook landing page (/ebook/<slug>/), which
+     itself handles member-state branching:
+       - Anonymous → free-subscriber signup form
+       - Signed-in without the matching ebook tier → one-click unlock
+       - Paid Member or already-tiered → "Open the ebook"
+     Paid Members visiting their own dashboard library at
+     /dashboard/ebooks/ skip the landing pages entirely (those tiles
+     link straight to /ebook/<slug>/read/). --}}
+
+<main class="ebooks-page">
+
+  <section class="hero ebooks-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> The Ebook Library</p>
+      <h1 class="hero-headline">Books for the <span class="highlight"><em>long view</em></span>.</h1>
+      <p class="hero-sub">Short, sharp ebooks from Mere Orthodoxy on church leadership, household formation, and Christian cultural renewal. Free with a subscription.</p>
+    </div>
+  </section>
+
+  <section class="ebooks-body">
+    <div class="container container-narrow">
+
+      <ul class="ebooks-catalog">
+
+        <li class="ebooks-catalog-item">
+          <a href="/ebook/navigating-the-fracture/" class="ebooks-catalog-link">
+            <p class="eyebrow">Church Leadership</p>
+            <h2 class="ebooks-catalog-title"><em>Navigating the Fracture</em></h2>
+            <p class="ebooks-catalog-excerpt">Church leadership under the conditions of cultural and institutional upheaval. A short field guide for pastors, elders, and lay leaders.</p>
+            <span class="ebooks-catalog-cta">Read this ebook &rarr;</span>
+          </a>
+        </li>
+
+        <li class="ebooks-catalog-item">
+          <a href="/ebook/spiritual-formation-for-the-family/" class="ebooks-catalog-link">
+            <p class="eyebrow">Household Formation</p>
+            <h2 class="ebooks-catalog-title"><em>Spiritual Formation for the Family</em></h2>
+            <p class="ebooks-catalog-excerpt">Practices and convictions for parents and spouses building lives of faith together — across rhythms, screens, schools, and Sundays.</p>
+            <span class="ebooks-catalog-cta">Read this ebook &rarr;</span>
+          </a>
+        </li>
+
+        <li class="ebooks-catalog-item">
+          <a href="/ebook/blueprint-for-renewal/" class="ebooks-catalog-link">
+            <p class="eyebrow">Cultural Renewal</p>
+            <h2 class="ebooks-catalog-title"><em>Blueprint for Renewal</em></h2>
+            <p class="ebooks-catalog-excerpt">A strategic outline for the long work of recovering Christian witness in education, institutions, and public life.</p>
+            <span class="ebooks-catalog-cta">Read this ebook &rarr;</span>
+          </a>
+        </li>
+
+      </ul>
+
+      <p class="ebooks-catalog-note">All ebooks are free with a Mere Orthodoxy subscription. <a href="/membership/">Become a Member</a> for the full library plus the print journal, the audio archive, and event replays.</p>
+
+    </div>
+  </section>
+
+</main>
