@@ -1,0 +1,17 @@
+{{!-- Inner body of the sitewide "Support the work" CTA. Lives in
+     its own partial so partials/membership-cta.hbs can include it
+     from BOTH the signed-in-free-Subscriber branch AND the
+     anonymous-visitor branch without duplicating markup. --}}
+<section class="membership-cta">
+    <div class="cta-inner">
+        <p class="eyebrow">Join {{@site.title}}</p>
+        <h2><em>Support the work.</em><br /><span class="highlight">Sustain the renewal.</span></h2>
+        <p>
+            Essays like this one are made possible by readers who believe in quality Christian media. Members receive the quarterly print journal, the full archive, and the weekly digest.
+        </p>
+        <div class="cta-buttons">
+            <a href="/membership/" class="btn btn-primary btn-lg">Become a Member &mdash; $100/yr</a>
+            <a href="/membership/" class="btn btn-ghost btn-lg">See all plans</a>
+        </div>
+    </div>
+</section>

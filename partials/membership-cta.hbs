@@ -1,23 +1,22 @@
 {{!-- Sitewide "Support the work" CTA rendered under posts, the about
      page, and anywhere else the partial is invoked. Hidden for
      paid/comped members and the staff preview email — they've
-     already subscribed. --}}
+     already subscribed. Always shown for free Subscribers AND
+     anonymous visitors (both should be converted).
+
+     The {{#match @member.email @custom.dashboard_preview_email}}
+     check used to live at the outer level, which was a bug:
+     when both sides were empty (anonymous visitor + unset preview
+     email setting), the match returned true and the CTA was
+     hidden from anonymous visitors entirely. Now gated behind
+     {{#if @member}} so the email match only runs when there's an
+     actual signed-in member to compare against. --}}
 {{#match @member.status "paid"}}{{else}}
 {{#match @member.status "comped"}}{{else}}
-{{#match @member.email @custom.dashboard_preview_email}}{{else}}
-<section class="membership-cta">
-    <div class="cta-inner">
-        <p class="eyebrow">Join {{@site.title}}</p>
-        <h2><em>Support the work.</em><br /><span class="highlight">Sustain the renewal.</span></h2>
-        <p>
-            Essays like this one are made possible by readers who believe in quality Christian media. Members receive the quarterly print journal, the full archive, and the weekly digest.
-        </p>
-        <div class="cta-buttons">
-            <a href="/membership/" class="btn btn-primary btn-lg">Become a Member &mdash; $100/yr</a>
-            <a href="/membership/" class="btn btn-ghost btn-lg">See all plans</a>
-        </div>
-    </div>
-</section>
-{{/match}}
+{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
+{{> "membership-cta-body"}}
+{{/match}}{{else}}
+{{> "membership-cta-body"}}
+{{/if}}
 {{/match}}
 {{/match}}

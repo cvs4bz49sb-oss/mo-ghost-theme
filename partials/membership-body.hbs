@@ -23,15 +23,15 @@
           <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
         {{else}}{{#match @member.status "comped"}}
           <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
-        {{else}}{{#match @member.email @custom.dashboard_preview_email}}
+        {{else}}{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}
           <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
-        {{else}}{{/match}}{{/match}}{{/match}}
+        {{/match}}{{/if}}{{/match}}{{/match}}
       </div>
     </div>
     {{!-- Annual/Monthly toggle: pricing-only, so hidden for
          paid/comped/preview members who see the gift CTA above
          and the "already a member" block below instead. --}}
-    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
+    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
       <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
         <div class="toggle">
           <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
@@ -41,126 +41,37 @@
           <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
         </div>
       </div>
-    {{/match}}{{/match}}{{/match}}
+    {{/match}}{{else}}
+      {{!-- Anonymous visitor — show pricing toggle. --}}
+      <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
+        <div class="toggle">
+          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
+            Annual
+            <span class="badge">Save 17%</span>
+          </button>
+          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
+        </div>
+      </div>
+    {{/if}}{{/match}}{{/match}}
   </section>
 
   {{!-- Pricing vs "already a member" is gated by paid/comped status
-       (plus the staff-preview email). Free Subscribers still see the
-       pricing cards because their tier doesn't unlock Member benefits. --}}
+       (plus the staff-preview email). Free Subscribers AND anonymous
+       visitors both see the pricing cards. The third match is gated
+       behind {{#if @member}} so an anonymous visitor with @member.email
+       being empty doesn't accidentally satisfy "{{#match "" ""}}" and
+       get told they're already a member. --}}
   {{#match @member.status "paid"}}
-  <section class="pricing">
-    <div class="container">
-      <p class="already-member">You're already a member. <a href="/manage">Manage your membership &rarr;</a></p>
-    </div>
-  </section>
+    {{> "membership-already"}}
+  {{else}}{{#match @member.status "comped"}}
+    {{> "membership-already"}}
+  {{else}}{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}
+    {{> "membership-already"}}
   {{else}}
-  {{#match @member.status "comped"}}
-  <section class="pricing">
-    <div class="container">
-      <p class="already-member">You're already a member. <a href="/manage">Manage your membership &rarr;</a></p>
-    </div>
-  </section>
-  {{else}}
-  {{#match @member.email @custom.dashboard_preview_email}}
-  <section class="pricing">
-    <div class="container">
-      <p class="already-member">You're already a member. <a href="/manage">Manage your membership &rarr;</a></p>
-    </div>
-  </section>
-  {{else}}
-  <section class="pricing">
-    <div class="container">
-      <div class="cards">
-        <article class="card card-member is-featured">
-          <span class="card-flag">Most Popular</span>
-          <p class="card-label"><em>Member</em></p>
-          <div class="card-price" data-price-display>
-            <span class="price-amount" data-price-annual-amount="$100" data-price-monthly-amount="$10">$100</span>
-            <span class="price-interval" data-price-annual-interval="/yr" data-price-monthly-interval="/mo">/yr</span>
-          </div>
-          <p class="card-subtext" data-price-subtext data-price-annual-subtext="Just 27¢/day" data-price-monthly-subtext="Billed monthly">Just 27¢/day</p>
-          <p class="card-pitch">For readers who want serious Christian journalism and the quarterly print journal.</p>
-          <a
-            class="btn btn-pill btn-primary"
-            id="member-cta"
-            href="#/portal/signup"
-            data-portal="signup"
-          >Become a Member</a>
-          <p class="btn-tagline">Cancel anytime</p>
-          <ul class="benefits">
-            <li>The quarterly print journal, mailed to your door</li>
-            <li>Private Discord community of serious readers</li>
-            <li>Ebook and online event library</li>
-            <li>Monthly Mailbag from Jake Meador</li>
-            <li>The full archive, including 20+ years of essays</li>
-            <li>Audio versions of every article</li>
-            <li>Bookmarks</li>
-            <li>Member Dashboard</li>
-          </ul>
-        </article>
-
-        <article class="card card-lifetime">
-          <p class="card-label"><em>Lifetime</em></p>
-          <div class="card-price">
-            <span class="price-amount">$995</span>
-          </div>
-          <p class="card-subtext">One-time payment</p>
-          <p class="card-pitch">For readers who want to help sustain Mere&nbsp;Orthodoxy permanently.</p>
-          {{!-- Ghost Portal doesn't support one-time purchases, so
-               lifetime routes through the mo-membership worker:
-               click → POST /api/create-lifetime-checkout → Stripe
-               Checkout (collects email + shipping) → webhook
-               provisions Ghost member with lifetime tier. --}}
-          <button
-            type="button"
-            class="btn btn-pill btn-dark"
-            data-lifetime-checkout
-            data-member-email="{{#if @member}}{{@member.email}}{{/if}}"
-            data-member-name="{{#if @member}}{{@member.name}}{{/if}}"
-          >
-            <span class="btn-label">Become a Lifetime Member</span>
-            <span class="btn-spinner" aria-hidden="true"></span>
-          </button>
-          <p class="btn-tagline">One-time. No renewal.</p>
-          <p class="btn-error" data-lifetime-error role="alert"></p>
-          <ul class="benefits">
-            <li><strong>Everything in Member, plus:</strong></li>
-            <li>A copy of Jake Meador's <em>In Search Of The Common Good: Christian Fidelity In A Fractured World</em></li>
-          </ul>
-        </article>
-      </div>
-
-      <div class="other-ways">
-        <div class="other-ways-intro">
-          <p class="eyebrow">Other Memberships</p>
-          <h2 class="section-heading"><em>Share Mere&nbsp;Orthodoxy<br class="mobile-only" /> With Others</em></h2>
-        </div>
-        <div class="other-ways-grid">
-          <article class="other-way is-featured">
-            <span class="other-way-numeral">I</span>
-            <h3 class="other-way-title"><em>Give a membership</em></h3>
-            <p class="other-way-body">A year of Mere&nbsp;Orthodoxy for a friend, a pastor, or a seminary student.</p>
-            <a href="/give/" class="other-way-link">Give a gift <span aria-hidden="true">&rarr;</span></a>
-          </article>
-          <article class="other-way">
-            <span class="other-way-numeral">II</span>
-            <h3 class="other-way-title"><em>For your organization</em></h3>
-            <p class="other-way-body">Churches, staffs, and cohorts. Volume pricing starting at five seats.</p>
-            <a href="/groups/" class="other-way-link">See group pricing <span aria-hidden="true">&rarr;</span></a>
-          </article>
-          <article class="other-way">
-            <span class="other-way-numeral">III</span>
-            <h3 class="other-way-title"><em>Seminaries &amp; institutions</em></h3>
-            <p class="other-way-body">Domain-based access for schools, denominations, and larger partners.</p>
-            <a href="/institutions/" class="other-way-link">Start a conversation <span aria-hidden="true">&rarr;</span></a>
-          </article>
-        </div>
-      </div>
-    </div>
-  </section>
-  {{/match}}
-  {{/match}}
-  {{/match}}
+    {{> "membership-pricing"}}
+  {{/match}}{{else}}
+    {{> "membership-pricing"}}
+  {{/if}}{{/match}}{{/match}}
 
   <section class="readers">
     <div class="container">
@@ -234,14 +145,20 @@
         <p class="capstone-body">Your membership funds the next writer commissioned, the next journal published, and the next essay and episode we can bring to readers and listeners like you.</p>
       </div>
       {{!-- Hide the CTA for paid/comped/preview only; free Subscribers
-           still see it because they haven't upgraded yet. --}}
+           AND anonymous visitors both see it (anonymous visitor's
+           {{#if @member}} guard prevents the empty-vs-empty match
+           false positive). --}}
       {{#match @member.status "paid"}}{{else}}
       {{#match @member.status "comped"}}{{else}}
-      {{#match @member.email @custom.dashboard_preview_email}}{{else}}
+      {{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
       <div class="included-cta">
         <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
       </div>
-      {{/match}}
+      {{/match}}{{else}}
+      <div class="included-cta">
+        <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
+      </div>
+      {{/if}}
       {{/match}}
       {{/match}}
     </div>
