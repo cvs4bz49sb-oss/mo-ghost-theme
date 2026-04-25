@@ -17,21 +17,19 @@
   if (!root) return;
 
   var workerUrl = (root.getAttribute("data-kit-bridge-url") || "").trim().replace(/\/$/, "");
-  var email = (root.getAttribute("data-member-email") || "").trim();
   var statusEl = root.querySelector("[data-drift-status]");
 
-  if (!workerUrl || !email) {
+  if (!workerUrl) {
     setStatus("Kit bridge URL not configured. Set @custom.kit_bridge_url in theme settings.");
     return;
   }
 
-  var url = workerUrl + "/api/drift?admin=" + encodeURIComponent(email);
-  fetch(url, {
-    headers: { "X-Admin-Email": email },
-    credentials: "omit",
-  })
+  window.MOAdminAuth.headers()
+    .then(function (headers) {
+      return fetch(workerUrl + "/api/drift", { headers: headers, credentials: "omit" });
+    })
     .then(function (res) {
-      if (res.status === 403) {
+      if (res.status === 401 || res.status === 403) {
         setStatus("Forbidden — your email isn't in the admin allowlist.");
         return null;
       }

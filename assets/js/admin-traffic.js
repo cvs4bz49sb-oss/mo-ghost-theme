@@ -17,9 +17,8 @@
   if (!root) return;
 
   var worker = (root.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
-  var email = (root.getAttribute("data-member-email") || "").trim();
 
-  if (!worker || !email) {
+  if (!worker) {
     setEmpty("[data-chart-placeholder]", "Admin worker URL not configured.");
     setEmpty("[data-pages-placeholder]", "");
     setEmpty("[data-sources-placeholder]", "");
@@ -98,20 +97,22 @@
 
   function api(path) {
     var sep = path.indexOf("?") > -1 ? "&" : "?";
-    var url = worker + path + sep + "email=" + encodeURIComponent(email) + "&period=" + encodeURIComponent(period);
-    return fetch(url, { credentials: "omit" })
-      .then(function (r) {
-        if (r.status === 403) return { forbidden: true };
-        if (!r.ok) {
-          console.error("admin worker " + r.status + " on " + path);
-          return null;
-        }
-        return r.json().then(function (body) { return { body: body }; });
-      })
-      .catch(function (err) {
-        console.error("admin worker fetch failed on " + path, err);
+    var url = worker + path + sep + "period=" + encodeURIComponent(period);
+    return window.MOAdminAuth.headers().then(function (headers) {
+      return fetch(url, { headers: headers, credentials: "omit" });
+    })
+    .then(function (r) {
+      if (r.status === 401 || r.status === 403) return { forbidden: true };
+      if (!r.ok) {
+        console.error("admin worker " + r.status + " on " + path);
         return null;
-      });
+      }
+      return r.json().then(function (body) { return { body: body }; });
+    })
+    .catch(function (err) {
+      console.error("admin worker fetch failed on " + path, err);
+      return null;
+    });
   }
 
   function setStatErr() {
