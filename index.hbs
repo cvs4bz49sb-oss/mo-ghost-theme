@@ -20,11 +20,21 @@
                         <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
                     {{else}}
                         {{!-- Free Subscriber: already on the list, so a single upgrade button. --}}
-                        <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
+                        <div class="cta-stack">
+                            <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
+                            <p class="btn-tagline">Get the journal and support Mere Orthodoxy</p>
+                        </div>
                     {{/match}}{{else}}
-                        {{!-- Anonymous visitor — primary CTA is the free signup. --}}
-                        <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
-                        <a href="#join" class="btn btn-ghost btn-lg">Become a Member</a>
+                        {{!-- Anonymous visitor — emotional CTA on the button, functional
+                             clarity in the helper text below. --}}
+                        <div class="cta-stack">
+                            <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
+                            <p class="btn-tagline">Subscribe for free</p>
+                        </div>
+                        <div class="cta-stack">
+                            <a href="#join" class="btn btn-ghost btn-lg">Become a Member</a>
+                            <p class="btn-tagline">Get the journal and support Mere Orthodoxy</p>
+                        </div>
                     {{/if}}{{/match}}{{/match}}
                 </div>
             </div>

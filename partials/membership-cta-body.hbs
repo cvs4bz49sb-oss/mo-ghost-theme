@@ -1,17 +1,28 @@
-{{!-- Inner body of the sitewide "Support the work" CTA. Lives in
-     its own partial so partials/membership-cta.hbs can include it
-     from BOTH the signed-in-free-Subscriber branch AND the
-     anonymous-visitor branch without duplicating markup. --}}
+{{!-- Inner body of the sitewide "If you loved this, here's how to
+     support" CTA. Lives in its own partial so partials/membership-cta
+     can include it from BOTH the signed-in-free-Subscriber branch
+     AND the anonymous-visitor branch without duplicating markup.
+
+     Voice: reader-first. Reframed from "essays like this are made
+     possible by readers" (third-person editorial pitch) to "if this
+     piece was worth your time, here's what to do about it" — a
+     direct response to the moment a reader has just finished an
+     essay they enjoyed. --}}
 <section class="membership-cta">
     <div class="cta-inner">
-        <p class="eyebrow">Join {{@site.title}}</p>
-        <h2><em>Support the work.</em><br /><span class="highlight">Sustain the renewal.</span></h2>
+        <p class="eyebrow">Loved this essay?</p>
+        <h2><em>Help us write the next one.</em></h2>
         <p>
-            Essays like this one are made possible by readers who believe in quality Christian media. Members receive the quarterly print journal, the full archive, and the weekly digest.
+            Mere Orthodoxy is reader-supported. If this piece was worth your time, become a Member — you'll get the print journal mailed to your door, the full archive, and the satisfaction of helping us commission the next essay you'll want to read.
         </p>
         <div class="cta-buttons">
-            <a href="/membership/" class="btn btn-primary btn-lg">Become a Member &mdash; $100/yr</a>
-            <a href="/membership/" class="btn btn-ghost btn-lg">See all plans</a>
+            <div class="cta-stack">
+                <a href="/membership/" class="btn btn-primary btn-lg">Become a Member</a>
+                <p class="btn-tagline">Get the journal and support Mere Orthodoxy</p>
+            </div>
         </div>
+        <p class="cta-secondary">
+            Not ready to commit? <a href="/membership/">See all plans &rarr;</a>
+        </p>
     </div>
 </section>
