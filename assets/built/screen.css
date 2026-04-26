@@ -3507,13 +3507,14 @@ body {
 .btn-pill { border-radius: 999px; padding: 16px 24px; font-size: 15px; }
 .btn-inline { width: auto; padding: 14px 28px; }
 .btn-tagline {
+  font-family: var(--font-body);
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-secondary);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-muted);
   text-align: center;
-  margin: 12px 0 0;
+  margin: 8px 0 0;
 }
 .membership .card .btn { width: 100%; }
 
