@@ -3249,15 +3249,9 @@ body {
   .hero-headline { font-size: clamp(42px, 10vw, 56px); }
   .hero-headline-tail { font-size: 0.7em; }
   .hero-sub { font-size: 16px; }
-  /* Stacks go full-width column on mobile so each button gets its
-     own row + breathing room for the helper caption underneath.
-     Without this, two .cta-stacks would compress into half-viewport
-     columns and captions would wrap awkwardly. */
-  .hero-ctas { flex-direction: column; align-items: stretch; gap: 18px; flex-wrap: nowrap; }
-  .hero-ctas .cta-stack { width: 100%; }
-  .hero-ctas .btn { width: 100%; padding: 14px 16px; font-size: 14px; }
-  .hero-ctas .btn-lg { padding: 14px 16px; font-size: 14px; }
-  .hero-ctas .cta-stack .btn-tagline { max-width: none; font-size: 13px; }
+  .hero-ctas { flex-direction: row; align-items: stretch; gap: 8px; flex-wrap: nowrap; }
+  .hero-ctas .btn { flex: 1 1 0; min-width: 0; width: auto; padding: 12px 14px; font-size: 13px; }
+  .hero-ctas .btn-lg { padding: 12px 14px; font-size: 13px; }
   .hero-ctas .btn:only-child { flex: 0 0 auto; }
   /* Feature image on mobile: fill the 16:10 frame with `cover` so
      the box is always occupied, regardless of source aspect ratio.
@@ -3522,29 +3516,6 @@ body {
   text-align: center;
   margin: 8px 0 0;
 }
-
-/* Vertical pair: a button stacked above its helper-text caption.
-   Used in .hero-ctas where each CTA wants a quiet caption directly
-   beneath it. The parent flex container lays the stacks side-by-side
-   on desktop; mobile media-query overrides at the parent level make
-   them stack column so each button gets its own full-width row +
-   breathing room for the caption. */
-.cta-stack {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 6px;
-  min-width: 0;
-}
-.cta-stack .btn-tagline {
-  margin: 0;
-  max-width: 30ch;
-  align-self: center;
-  line-height: 1.35;
-}
-/* On the dark hero, --color-muted is too dim. Lift to a light
-   translucent white that's actually readable. */
-.hero-ctas .btn-tagline { color: rgba(255, 255, 255, 0.68); }
 .membership .card .btn { width: 100%; }
 
 .benefits {
