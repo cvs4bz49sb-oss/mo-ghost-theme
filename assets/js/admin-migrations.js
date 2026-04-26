@@ -96,16 +96,52 @@
 
     var actionCell = document.createElement("td");
     actionCell.className = "admin-migrations-actions";
+    if (row.status === "pending") {
+      actionCell.appendChild(buildDoneBtn(row));
+    }
     actionCell.appendChild(buildDeleteBtn(row));
     tr.appendChild(actionCell);
 
     return tr;
   }
 
+  function buildDoneBtn(row) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "admin-migrations-done";
+    btn.textContent = "Mark Done";
+    btn.title = "Set status to Done (HubSpot membership cancelled)";
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      window.MOAdminAuth.headers({ "Content-Type": "application/json" })
+        .then(function (headers) {
+          return fetch(apiBase + "/api/admin/migrations/" + row.id + "/status", {
+            method: "POST",
+            headers: headers,
+            credentials: "omit",
+            body: JSON.stringify({ status: "cancelled" }),
+          });
+        })
+        .then(function (res) {
+          if (!res.ok) {
+            btn.disabled = false;
+            alert("Couldn't mark done (" + res.status + ").");
+            return;
+          }
+          load();
+        })
+        .catch(function () {
+          btn.disabled = false;
+          alert("Network error marking done.");
+        });
+    });
+    return btn;
+  }
+
   function buildStatusSelect(row) {
     var sel = document.createElement("select");
     sel.className = "admin-migrations-status-select";
-    [["pending", "Pending"], ["cancelled", "Cancelled"], ["no_action", "No action"]].forEach(function (opt) {
+    [["pending", "Pending"], ["cancelled", "Done"], ["no_action", "No action"]].forEach(function (opt) {
       var o = document.createElement("option");
       o.value = opt[0];
       o.textContent = opt[1];

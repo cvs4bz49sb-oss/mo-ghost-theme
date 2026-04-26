@@ -8850,7 +8850,27 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   outline-offset: 1px;
 }
 
-.admin-migrations-actions { text-align: right; }
+.admin-migrations-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+.admin-migrations-done {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-white);
+  background: var(--color-primary);
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.admin-migrations-done:hover { background: var(--color-secondary); }
+.admin-migrations-done[disabled] { opacity: 0.5; cursor: default; }
+
 .admin-migrations-delete {
   font-family: var(--font-body);
   font-size: 12px;
