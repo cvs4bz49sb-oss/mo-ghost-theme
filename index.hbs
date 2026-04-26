@@ -20,11 +20,22 @@
                         <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
                     {{else}}
                         {{!-- Free Subscriber: already on the list, so a single upgrade button. --}}
-                        <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
+                        <div class="cta-stack">
+                            <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
+                            <p class="btn-tagline">Get the journal. Support the work.</p>
+                        </div>
                     {{/match}}{{else}}
-                        {{!-- Anonymous visitor — primary CTA is the free signup. --}}
-                        <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
-                        <a href="#join" class="btn btn-ghost btn-lg">Become a Member</a>
+                        {{!-- Anonymous visitor — emotional pull on the button, functional
+                             clarity in the helper text. Captions kept short + parallel
+                             so the two stacks read as a balanced pair. --}}
+                        <div class="cta-stack">
+                            <a href="#digest" class="btn btn-primary btn-lg">Never Miss An Essay</a>
+                            <p class="btn-tagline">Free, in your inbox.</p>
+                        </div>
+                        <div class="cta-stack">
+                            <a href="#join" class="btn btn-ghost btn-lg">Become a Member</a>
+                            <p class="btn-tagline">Get the journal. Support the work.</p>
+                        </div>
                     {{/if}}{{/match}}{{/match}}
                 </div>
             </div>
