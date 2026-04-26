@@ -8670,4 +8670,9 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .home-plan-strip { padding: 18px 0; }
   .home-plan-strip-steps { font-size: 15px; line-height: 1.6; }
   .home-plan-strip-sep { margin: 0 8px; }
+  /* Wrap step III to its own line on narrow viewports — hides the
+     separator that would dangle at the end of step II and forces
+     III to render as a block. */
+  .home-plan-strip-sep--break { display: none; }
+  .home-plan-strip-step--last { display: block; }
 }
