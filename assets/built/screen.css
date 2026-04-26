@@ -2642,25 +2642,27 @@ body {
 /* Dark mode: the post-gate card keeps its cream background (it sits
    inside the dark article body as a lit signup zone), so the nested
    h3/p must stay DARK — otherwise the article-content cascade flips
-   them cream and they go invisible on the cream card. Same fix
-   applied to .inline-signup-success which sits in the same context. */
-html[data-theme="dark"] .post-gate-card,
-html[data-theme="dark"] .post-gate-card h3,
-html[data-theme="dark"] .post-gate-card p,
-html[data-theme="dark"] .post-gate-card .post-gate-signin {
+   them cream and they go invisible on the cream card.
+
+   Specificity note: the article-content dark-mode rules
+   (html[data-theme="dark"] .article-content h3 / p) are 0,2,2 and
+   live ~4000 lines later in this file, so a plain
+   html[data-theme="dark"] .post-gate-card h3 selector (also 0,2,2)
+   loses to source order. Adding .article-content to the chain
+   bumps these to 0,3,3 — wins the cascade. Same fix on
+   .inline-signup-success (post-submit success state, same context). */
+html[data-theme="dark"] .article-content .post-gate-card h3 {
   color: var(--color-dark);
 }
-html[data-theme="dark"] .post-gate-card p {
+html[data-theme="dark"] .article-content .post-gate-card p,
+html[data-theme="dark"] .article-content .post-gate-card .post-gate-signin {
   color: var(--color-muted);
 }
-html[data-theme="dark"] .post-gate-card .post-gate-signin {
-  color: var(--color-muted);
-}
-html[data-theme="dark"] .inline-signup-success h4,
-html[data-theme="dark"] .inline-signup-success strong {
+html[data-theme="dark"] .article-content .inline-signup-success h4,
+html[data-theme="dark"] .article-content .inline-signup-success strong {
   color: var(--color-dark);
 }
-html[data-theme="dark"] .inline-signup-success p {
+html[data-theme="dark"] .article-content .inline-signup-success p {
   color: var(--color-muted);
 }
 
