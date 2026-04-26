@@ -3516,37 +3516,6 @@ body {
   text-align: center;
   margin: 8px 0 0;
 }
-
-/* Vertical pair: a button stacked on top of its helper-text caption.
-   The parent flex container (.hero-ctas, .cta-buttons) lays these
-   out side-by-side; on mobile they wrap. Used wherever a button
-   needs explanatory text packaged with it. */
-.cta-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.cta-stack .btn { width: auto; }
-
-/* Helper text on the dark hero needs lighter color than the global
-   --color-muted (which is tuned for light backgrounds). */
-.hero-ctas .btn-tagline { color: rgba(255, 255, 255, 0.62); }
-
-/* Membership-CTA section is dark too; same treatment + a quieter
-   "See all plans" secondary link below the primary button. */
-.membership-cta .btn-tagline { color: rgba(255, 255, 255, 0.62); }
-.cta-secondary {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 18px 0 0;
-}
-.cta-secondary a {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.cta-secondary a:hover { color: var(--color-white); }
 .membership .card .btn { width: 100%; }
 
 .benefits {
