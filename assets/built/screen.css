@@ -2639,6 +2639,31 @@ body {
   .post-gate-form { grid-template-columns: 1fr; }
 }
 
+/* Dark mode: the post-gate card keeps its cream background (it sits
+   inside the dark article body as a lit signup zone), so the nested
+   h3/p must stay DARK — otherwise the article-content cascade flips
+   them cream and they go invisible on the cream card. Same fix
+   applied to .inline-signup-success which sits in the same context. */
+html[data-theme="dark"] .post-gate-card,
+html[data-theme="dark"] .post-gate-card h3,
+html[data-theme="dark"] .post-gate-card p,
+html[data-theme="dark"] .post-gate-card .post-gate-signin {
+  color: var(--color-dark);
+}
+html[data-theme="dark"] .post-gate-card p {
+  color: var(--color-muted);
+}
+html[data-theme="dark"] .post-gate-card .post-gate-signin {
+  color: var(--color-muted);
+}
+html[data-theme="dark"] .inline-signup-success h4,
+html[data-theme="dark"] .inline-signup-success strong {
+  color: var(--color-dark);
+}
+html[data-theme="dark"] .inline-signup-success p {
+  color: var(--color-muted);
+}
+
 /* -------- Inline membership prompt -------- */
 
 /* Mid-article member pitch — editorial prose block, no card chrome.
