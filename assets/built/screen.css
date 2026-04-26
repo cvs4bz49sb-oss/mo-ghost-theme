@@ -8625,3 +8625,100 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .ebooks-catalog-link { padding: 24px; }
 }
 
+/* -------- Membership migration page (/migrate/) --------
+   Three-step page for current HubSpot members moving over to
+   Ghost. Follows the /about/ vision-grid editorial idiom:
+   Roman numerals, italic display label, body text, button.
+   Hairline separators, no card chrome. */
+
+.migrate-page .migrate-steps {
+  padding: 64px 0 88px;
+  background: var(--color-page);
+}
+.migrate-page .migrate-steps .container { max-width: 780px; }
+
+.migrate-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.migrate-step {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  column-gap: 28px;
+  padding: 40px 0;
+  border-top: 1px solid var(--color-rule);
+}
+.migrate-step:first-child { border-top: 0; padding-top: 8px; }
+
+.migrate-step-numeral {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 56px;
+  line-height: 1;
+  color: var(--color-primary);
+  padding-top: 4px;
+}
+.migrate-step-body { padding-top: 0; }
+.migrate-step-body .eyebrow {
+  color: var(--color-primary);
+  margin: 0 0 8px;
+}
+.migrate-step-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(24px, 2.6vw, 30px);
+  line-height: 1.15;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+}
+.migrate-step-label em { font-style: italic; }
+.migrate-step-text {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 20px;
+  max-width: 560px;
+}
+.migrate-step-cta { margin: 0; }
+
+.migrate-coda {
+  margin: 56px auto 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-muted);
+  line-height: 1.65;
+}
+.migrate-coda em { font-style: italic; }
+.migrate-coda a { color: var(--color-secondary); }
+.migrate-coda a:hover { color: var(--color-primary); }
+
+@media (max-width: 640px) {
+  .migrate-page .migrate-steps { padding: 40px 0 64px; }
+  .migrate-step {
+    grid-template-columns: 56px 1fr;
+    column-gap: 18px;
+    padding: 32px 0;
+  }
+  .migrate-step-numeral { font-size: 38px; padding-top: 2px; }
+  .migrate-step-text { font-size: 16px; }
+  .migrate-coda { margin-top: 40px; }
+}
+
+/* Dark mode: keep the cream/dark editorial palette readable on
+   the dark page background. Numerals stay primary, body text
+   lifts to cream, hairlines pick up the standard dark-mode rule
+   tone. */
+html[data-theme="dark"] .migrate-page .migrate-steps {
+  background: transparent;
+}
+html[data-theme="dark"] .migrate-step {
+  border-top-color: rgba(233, 222, 200, 0.18);
+}
+html[data-theme="dark"] .migrate-step-label { color: #f4ebd8; }
+html[data-theme="dark"] .migrate-step-text { color: #e9dec8; }
+html[data-theme="dark"] .migrate-coda { color: #b8ab98; }
+html[data-theme="dark"] .migrate-page .btn-primary { color: #ffffff; }
+
