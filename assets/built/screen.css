@@ -8707,18 +8707,198 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .migrate-coda { margin-top: 40px; }
 }
 
+/* Warning band — sits between hero and steps. Brand primary
+   left rule, no card chrome, restrained color. */
+.migrate-warning {
+  background: var(--color-page);
+  padding: 20px 0 0;
+}
+.migrate-warning .container { max-width: 780px; }
+.migrate-warning-inner {
+  border-left: 3px solid var(--color-primary);
+  padding: 8px 0 8px 18px;
+}
+.migrate-warning-inner .eyebrow {
+  color: var(--color-primary);
+  margin: 0 0 4px;
+}
+.migrate-warning-text {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+/* Discount code block — quiet hairline box inside Step I. The code
+   itself uses the brand monospace treatment so it's obviously
+   copy-and-pasteable. No card. */
+.migrate-code {
+  margin: 4px 0 24px;
+  padding: 18px 20px;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  max-width: 480px;
+}
+.migrate-code-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 8px;
+}
+.migrate-code-value {
+  margin: 0 0 6px;
+}
+.migrate-code-value code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+  background: transparent;
+  padding: 0;
+  border: 0;
+}
+.migrate-code-help {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* Embedded migrate form — sits inside Step II's body column.
+   Inherits the .site-form layout from the contact / submissions
+   forms; we only add the bits unique to this form (hint text and
+   the checkbox row). */
+.migrate-form {
+  margin-top: 8px;
+  max-width: 520px;
+}
+.site-form-hint {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+.site-form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-dark);
+  cursor: pointer;
+  margin: 4px 0 0;
+}
+.site-form-check input[type="checkbox"] {
+  margin-top: 3px;
+  flex: 0 0 auto;
+}
+
 /* Dark mode: keep the cream/dark editorial palette readable on
    the dark page background. Numerals stay primary, body text
    lifts to cream, hairlines pick up the standard dark-mode rule
    tone. */
-html[data-theme="dark"] .migrate-page .migrate-steps {
+html[data-theme="dark"] .migrate-page .migrate-steps,
+html[data-theme="dark"] .migrate-warning {
   background: transparent;
 }
-html[data-theme="dark"] .migrate-step {
+html[data-theme="dark"] .migrate-step,
+html[data-theme="dark"] .migrate-code {
   border-top-color: rgba(233, 222, 200, 0.18);
+  border-bottom-color: rgba(233, 222, 200, 0.18);
 }
-html[data-theme="dark"] .migrate-step-label { color: #f4ebd8; }
-html[data-theme="dark"] .migrate-step-text { color: #e9dec8; }
-html[data-theme="dark"] .migrate-coda { color: #b8ab98; }
+html[data-theme="dark"] .migrate-step-label,
+html[data-theme="dark"] .migrate-warning-text { color: #f4ebd8; }
+html[data-theme="dark"] .migrate-step-text,
+html[data-theme="dark"] .site-form-check { color: #e9dec8; }
+html[data-theme="dark"] .migrate-coda,
+html[data-theme="dark"] .migrate-code-help,
+html[data-theme="dark"] .site-form-hint { color: #b8ab98; }
 html[data-theme="dark"] .migrate-page .btn-primary { color: #ffffff; }
+
+/* -------- Admin: Migrations dashboard --------
+   Table-driven: name, email, "started new" pill, status select,
+   submitted date, delete. Borrows .admin-table aesthetics; the
+   pill / select / delete pieces are unique to this view. */
+
+.admin-migrations-table .pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+}
+.admin-migrations-table .pill-good {
+  color: #2e6048;
+  border-color: rgba(46, 96, 72, 0.3);
+  background: rgba(46, 96, 72, 0.08);
+}
+.admin-migrations-table .pill-muted {
+  color: var(--color-muted);
+  border-color: var(--color-rule);
+  background: transparent;
+}
+
+.admin-migrations-status-select {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 4px 24px 4px 10px;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: var(--color-page);
+  color: var(--color-dark);
+  cursor: pointer;
+}
+.admin-migrations-status-select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.admin-migrations-actions { text-align: right; }
+.admin-migrations-delete {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.admin-migrations-delete:hover { color: var(--color-secondary); }
+.admin-migrations-delete[disabled] { opacity: 0.5; cursor: default; }
+
+.admin-migrations-empty {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  text-align: center;
+  padding: 32px 0;
+}
+
+html[data-theme="dark"] .admin-migrations-status-select {
+  background: rgba(233, 222, 200, 0.04);
+  border-color: rgba(233, 222, 200, 0.22);
+  color: #e9dec8;
+}
+html[data-theme="dark"] .admin-migrations-table .pill-muted {
+  border-color: rgba(233, 222, 200, 0.22);
+  color: #b8ab98;
+}
+html[data-theme="dark"] .admin-migrations-table .pill-good {
+  color: #a8d4be;
+  border-color: rgba(168, 212, 190, 0.35);
+  background: rgba(168, 212, 190, 0.08);
+}
+html[data-theme="dark"] .admin-migrations-empty { color: #b8ab98; }
 

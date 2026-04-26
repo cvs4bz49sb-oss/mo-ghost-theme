@@ -1,9 +1,12 @@
 {{!< default}}
 {{!-- /migrate/ — three-step page for current Members on the legacy
-     mereorthodoxy.com (HubSpot) system moving over to the Ghost
-     site. Linked from a one-off migration email; not in nav.
-     Step 2 sends them back to the legacy cancel form on the old
-     site, where the cancellation is processed manually. --}}
+     mereorthodoxy.com (HubSpot) system moving over to Ghost.
+     Linked from a one-off migration email; not in nav.
+
+     Step II is an inline form (mo-forms /migrate); requests land in
+     /admin/members/migrations/. The legacy /manage-membership form
+     on the old site goes away when HubSpot does, so we collect the
+     cancellation request here and process it manually. --}}
 
 <main class="membership membership-support migrate-page">
 
@@ -14,6 +17,17 @@
       <p class="page-hero-sub">
         Three steps. You won't lose access during the move.
       </p>
+    </div>
+  </section>
+
+  <section class="migrate-warning">
+    <div class="container">
+      <div class="migrate-warning-inner">
+        <p class="eyebrow">Important</p>
+        <p class="migrate-warning-text">
+          If you don't migrate, your Membership will expire when the old site goes offline.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -29,6 +43,13 @@
             <p class="migrate-step-text">
               Sign up here. Use the same email you used before so we can match your records.
             </p>
+
+            <div class="migrate-code">
+              <p class="migrate-code-label">Use this code at checkout</p>
+              <p class="migrate-code-value"><code>MOMOVE50</code></p>
+              <p class="migrate-code-help">50% off your first three months &mdash; our thank-you for moving with us.</p>
+            </div>
+
             <p class="migrate-step-cta">
               <a href="/membership/" class="btn btn-primary btn-inline">Become a Member</a>
             </p>
@@ -41,11 +62,35 @@
             <p class="eyebrow">Step Two</p>
             <h2 class="migrate-step-label"><em>Cancel your old Membership.</em></h2>
             <p class="migrate-step-text">
-              Submit a cancellation request on the old site. We'll process it within a day or two.
+              Submit your request below. We'll process it within a day or two so you aren't billed twice.
             </p>
-            <p class="migrate-step-cta">
-              <a href="https://mereorthodoxy.com/manage-membership" class="btn btn-primary btn-inline" target="_blank" rel="noopener">Submit Cancellation Request</a>
-            </p>
+
+            <form class="migrate-form site-form"
+                  data-site-form="migrate"
+                  data-worker-url="{{@custom.forms_worker_url}}"
+                  novalidate>
+              <div class="site-form-row">
+                <div class="site-form-field">
+                  <label for="migrate-first">First name</label>
+                  <input id="migrate-first" name="firstName" type="text" autocomplete="given-name" required />
+                </div>
+                <div class="site-form-field">
+                  <label for="migrate-last">Last name</label>
+                  <input id="migrate-last" name="lastName" type="text" autocomplete="family-name" required />
+                </div>
+              </div>
+              <div class="site-form-field">
+                <label for="migrate-email">Membership email</label>
+                <input id="migrate-email" name="email" type="email" autocomplete="email" required />
+                <span class="site-form-hint">The email on your old Membership.</span>
+              </div>
+              <label class="site-form-check">
+                <input type="checkbox" name="startedNew" value="on" />
+                <span>I've started my new Membership.</span>
+              </label>
+              <button type="submit" class="site-form-submit">Submit Cancellation Request</button>
+              <p class="site-form-status" data-form-status></p>
+            </form>
           </div>
         </li>
 
@@ -68,3 +113,5 @@
   </section>
 
 </main>
+
+<script src="{{asset "js/site-forms.js"}}"></script>

@@ -64,6 +64,20 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       };
+    } else if (kind === "migrate") {
+      url = worker + "/migrate";
+      var startedNewEl = form.querySelector("[name=startedNew]");
+      var migrateBody = {
+        firstName: form.querySelector("[name=firstName]").value,
+        lastName: form.querySelector("[name=lastName]").value,
+        email: form.querySelector("[name=email]").value,
+        startedNew: !!(startedNewEl && startedNewEl.checked),
+      };
+      init = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(migrateBody),
+      };
     } else {
       url = worker + "/submissions";
       var fd = new FormData(form);
@@ -98,10 +112,17 @@
     var success = document.createElement("div");
     success.className = "site-form-success";
     success.setAttribute("role", "status");
-    var title = kind === "contact" ? "Thanks — message sent." : "Thanks — submission received.";
-    var body = kind === "contact"
-      ? "We'll be in touch soon."
-      : "We'll read your essay and be in touch within two weeks.";
+    var title, body;
+    if (kind === "contact") {
+      title = "Thanks — message sent.";
+      body = "We'll be in touch soon.";
+    } else if (kind === "migrate") {
+      title = "Thanks — request received.";
+      body = "We'll cancel your old Membership within a day or two.";
+    } else {
+      title = "Thanks — submission received.";
+      body = "We'll read your essay and be in touch within two weeks.";
+    }
     success.innerHTML =
       '<p class="eyebrow">Sent</p>' +
       '<h3><em>' + title + '</em></h3>' +
