@@ -3246,7 +3246,7 @@ body {
   .topic-pill { font-size: 13px; padding: 6px 12px; }
 
   /* Hero: tighten headline + subhead so nothing overflows */
-  .hero-headline { font-size: clamp(34px, 9vw, 46px); }
+  .hero-headline { font-size: clamp(50px, 11vw, 66px); }
   .hero-headline-tail { font-size: 0.7em; }
   .hero-sub { font-size: 16px; }
   .hero-ctas { flex-direction: row; align-items: stretch; gap: 8px; flex-wrap: nowrap; }
