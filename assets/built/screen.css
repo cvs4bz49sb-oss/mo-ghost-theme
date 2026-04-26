@@ -6647,19 +6647,31 @@ html[data-theme="dark"] .article-rail-toc .toc-link {
 html[data-theme="dark"] .article-rail-toc .toc-link:hover {
   color: var(--color-primary);
 }
-/* Inline-support CTA at the end of the article uses page bg +
-   primary accents — pull it onto a subtler dark card so it
-   stays visible without glowing. */
+/* Inline-support CTA at the end of the article: keep the editorial
+   pause feel in dark mode — visible top/bottom hairlines, no card
+   background. Paragraph + button text get explicit cream/white so
+   they survive whatever the article-content cascade throws at them. */
 html[data-theme="dark"] .inline-support {
-  background: rgba(233, 222, 200, 0.04);
-  border-color: rgba(233, 222, 200, 0.18);
+  background: transparent;
+  border-top-color: rgba(233, 222, 200, 0.22);
+  border-bottom-color: rgba(233, 222, 200, 0.22);
   color: #e9dec8;
 }
 html[data-theme="dark"] .inline-support h3 {
   color: #f4ebd8;
 }
+html[data-theme="dark"] .inline-support p {
+  color: #e9dec8;
+}
 html[data-theme="dark"] .inline-support .eyebrow {
   color: var(--color-primary);
+}
+html[data-theme="dark"] .inline-support .btn-primary {
+  color: #ffffff;
+}
+html[data-theme="dark"] .inline-support .btn-ghost {
+  color: #f4ebd8;
+  border-color: rgba(244, 235, 216, 0.4);
 }
 
 /* Dark-mode only: soften the seam where .article-header's
