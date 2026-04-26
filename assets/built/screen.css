@@ -8801,27 +8801,13 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   flex: 0 0 auto;
 }
 
-/* Dark mode: keep the cream/dark editorial palette readable on
-   the dark page background. Numerals stay primary, body text
-   lifts to cream, hairlines pick up the standard dark-mode rule
-   tone. */
-html[data-theme="dark"] .migrate-page .migrate-steps,
-html[data-theme="dark"] .migrate-warning {
-  background: transparent;
-}
-html[data-theme="dark"] .migrate-step,
-html[data-theme="dark"] .migrate-code {
-  border-top-color: rgba(233, 222, 200, 0.18);
-  border-bottom-color: rgba(233, 222, 200, 0.18);
-}
-html[data-theme="dark"] .migrate-step-label,
-html[data-theme="dark"] .migrate-warning-text { color: #f4ebd8; }
-html[data-theme="dark"] .migrate-step-text,
-html[data-theme="dark"] .site-form-check { color: #e9dec8; }
-html[data-theme="dark"] .migrate-coda,
-html[data-theme="dark"] .migrate-code-help,
-html[data-theme="dark"] .site-form-hint { color: #b8ab98; }
-html[data-theme="dark"] .migrate-page .btn-primary { color: #ffffff; }
+/* /migrate/ has no dark-mode treatment — it renders light always.
+   dark-mode.js auto-applies data-theme="dark" on <html> when the
+   OS prefers dark, but the rest of the site only honors that on
+   post pages (rules scoped to body.post-template). Adding ungated
+   html[data-theme="dark"] rules here would flip text to cream on
+   the still-cream body background, making it unreadable for
+   anyone in OS dark mode. Keep it light. */
 
 /* -------- Admin: Migrations dashboard --------
    Table-driven: name, email, "started new" pill, status select,
@@ -8885,20 +8871,6 @@ html[data-theme="dark"] .migrate-page .btn-primary { color: #ffffff; }
   text-align: center;
   padding: 32px 0;
 }
-
-html[data-theme="dark"] .admin-migrations-status-select {
-  background: rgba(233, 222, 200, 0.04);
-  border-color: rgba(233, 222, 200, 0.22);
-  color: #e9dec8;
-}
-html[data-theme="dark"] .admin-migrations-table .pill-muted {
-  border-color: rgba(233, 222, 200, 0.22);
-  color: #b8ab98;
-}
-html[data-theme="dark"] .admin-migrations-table .pill-good {
-  color: #a8d4be;
-  border-color: rgba(168, 212, 190, 0.35);
-  background: rgba(168, 212, 190, 0.08);
-}
-html[data-theme="dark"] .admin-migrations-empty { color: #b8ab98; }
+/* No dark-mode override — admin pages stay light regardless of
+   OS / data-theme="dark" (matches every other /admin/* view). */
 
