@@ -3,15 +3,17 @@
      legacy site moving over to Ghost. Linked from a one-off migration
      email; not in nav.
 
-     The whole flow: click Become a Member, sign up via the Stripe
-     Payment Link (which has metadata.kind=migration and the MOMOVE50
-     coupon attached), webhook on mo-membership writes mo_migrated_at
-     to their HubSpot contact. Their old Membership gets cancelled
+     Two Stripe Payment Link options: monthly (MOVEMONTHLY50, 50% off)
+     and annual (MOVEANNUAL10, 10% off). Both Payment Links carry
+     metadata.kind=migration so the mo-membership webhook flags the
+     buyer's HubSpot contact with mo_migrated_at on
+     checkout.session.completed. Their old Membership gets cancelled
      manually via a HubSpot active list filtered on that property.
 
-     The Payment Link URL lives in @custom.migration_payment_link;
-     fall back to /membership/ if unset so the page never has a dead
-     CTA. --}}
+     Payment Link URLs live in @custom.migration_payment_link_monthly
+     and @custom.migration_payment_link_annual. If neither is set,
+     the page falls back to a single /membership/ CTA so it isn't
+     broken before the Payment Links are created. --}}
 
 <main class="membership membership-support migrate-page">
 
@@ -20,7 +22,7 @@
       <p class="eyebrow">Membership Migration</p>
       <h1 class="page-hero-headline"><em>Move your Membership</em> to the new site.</h1>
       <p class="page-hero-sub">
-        One step. Your 50% migration discount applies automatically at checkout.
+        Pick monthly or annual. Your migration discount applies automatically at checkout.
       </p>
     </div>
   </section>
@@ -41,9 +43,34 @@
       <p class="migrate-cta-text">
         Sign up here. Use the same email you used before so we can match your records and cancel your old Membership for you.
       </p>
-      <p class="migrate-cta-button">
-        <a href="{{#if @custom.migration_payment_link}}{{@custom.migration_payment_link}}{{else}}/membership/{{/if}}" class="btn btn-primary btn-lg">Become a Member</a>
-      </p>
+
+      {{#if @custom.migration_payment_link_monthly}}
+        <div class="migrate-cta-options">
+          <div class="migrate-cta-option">
+            <a href="{{@custom.migration_payment_link_monthly}}" class="btn btn-primary btn-lg">Become a Monthly Member</a>
+            <p class="btn-tagline">50% off &mdash; applies automatically</p>
+          </div>
+          {{#if @custom.migration_payment_link_annual}}
+            <div class="migrate-cta-option">
+              <a href="{{@custom.migration_payment_link_annual}}" class="btn btn-primary btn-lg">Become an Annual Member</a>
+              <p class="btn-tagline">10% off &mdash; applies automatically</p>
+            </div>
+          {{/if}}
+        </div>
+      {{else}}{{#if @custom.migration_payment_link_annual}}
+        <div class="migrate-cta-options">
+          <div class="migrate-cta-option">
+            <a href="{{@custom.migration_payment_link_annual}}" class="btn btn-primary btn-lg">Become an Annual Member</a>
+            <p class="btn-tagline">10% off &mdash; applies automatically</p>
+          </div>
+        </div>
+      {{else}}
+        {{!-- Neither Payment Link configured yet — keep the page from
+             breaking by routing to the regular /membership/ page. --}}
+        <p class="migrate-cta-button">
+          <a href="/membership/" class="btn btn-primary btn-lg">Become a Member</a>
+        </p>
+      {{/if}}{{/if}}
     </div>
   </section>
 

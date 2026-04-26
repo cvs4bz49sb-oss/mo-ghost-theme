@@ -8673,9 +8673,29 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 }
 .migrate-cta-button { margin: 0; }
 
+/* Two-tier picker — monthly + annual side-by-side on desktop,
+   stacked on mobile. Each option is a button + small tagline. */
+.migrate-cta-options {
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.migrate-cta-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.migrate-cta-option .btn-tagline {
+  margin: 8px 0 0;
+}
+
 @media (max-width: 640px) {
   .migrate-warning { padding: 24px 0 4px; }
   .migrate-cta { padding: 32px 0 64px; }
   .migrate-cta-text { font-size: 16px; }
+  .migrate-cta-options { gap: 20px; }
+  .migrate-cta-option .btn { width: 100%; }
+  .migrate-cta-option { width: 100%; max-width: 320px; }
 }
 
