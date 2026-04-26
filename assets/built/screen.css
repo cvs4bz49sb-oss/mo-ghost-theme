@@ -8612,3 +8612,44 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .ebooks-catalog { gap: 20px; }
   .ebooks-catalog-link { padding: 24px; }
 }
+
+/* --- Homepage way-finder strip ("Where to begin / I. II. III.") ---- */
+/* Single-line sliver directly above the Readers section. Eyebrow on
+   top, three Roman-numeral steps in italic display below, separated
+   by middots. Hairlines top + bottom. About half the vertical
+   footprint of the Readers section it precedes. */
+.home-plan-strip {
+  padding: 22px 0;
+  text-align: center;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  background: var(--color-background);
+}
+.home-plan-strip-eyebrow {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 0 0 8px;
+}
+.home-plan-strip-steps {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--color-dark);
+  margin: 0;
+}
+.home-plan-strip-steps em { font-style: italic; }
+.home-plan-strip-sep {
+  color: var(--color-muted);
+  margin: 0 14px;
+  font-style: normal;
+}
+
+@media (max-width: 640px) {
+  .home-plan-strip { padding: 18px 0; }
+  .home-plan-strip-steps { font-size: 15px; line-height: 1.6; }
+  .home-plan-strip-sep { margin: 0 8px; }
+}
