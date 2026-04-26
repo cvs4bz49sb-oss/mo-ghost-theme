@@ -423,7 +423,7 @@ img { max-width: 100%; height: auto; }
 .hero-headline {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(48px, 5.4vw, 80px);
+  font-size: clamp(38px, 4.4vw, 62px);
   line-height: 1.05;
   color: var(--color-white);
   margin: 0 0 28px;
