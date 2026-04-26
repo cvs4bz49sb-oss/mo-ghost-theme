@@ -43,6 +43,10 @@
         "default": "https://join.mereorthodoxy.com",
         "description": "Base URL for the membership-site Express app (Stripe + HubSpot endpoints)."
       },
+      "migration_payment_link": {
+        "type": "text",
+        "description": "Stripe Payment Link URL for the /migrate/ page. Must have metadata.kind=migration set so the webhook flags the buyer as migrated, and the MOMOVE50 coupon attached for the 50%-off-3-months migration discount. Empty falls back to /membership/."
+      },
       "podcast_mf_apple_url": {
         "type": "text",
         "description": "Apple Podcasts show URL for Mere Fidelity."

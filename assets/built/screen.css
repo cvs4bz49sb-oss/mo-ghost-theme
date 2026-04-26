@@ -8626,92 +8626,17 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 }
 
 /* -------- Membership migration page (/migrate/) --------
-   Three-step page for current HubSpot members moving over to
-   Ghost. Follows the /about/ vision-grid editorial idiom:
-   Roman numerals, italic display label, body text, button.
-   Hairline separators, no card chrome. */
+   Single-step landing for current paid Members moving over to
+   Ghost. Hero (dark band) → warning (cream band, primary left
+   rule) → CTA (centered explanation + button). No steps, no
+   form — the Stripe Payment Link does all the work and the
+   webhook on mo-membership flags the buyer in HubSpot. Page
+   renders light always (no dark-mode override; matches the
+   rest of the non-article site). */
 
-.migrate-page .migrate-steps {
-  padding: 64px 0 88px;
-  background: var(--color-page);
-}
-.migrate-page .migrate-steps .container { max-width: 780px; }
-
-.migrate-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.migrate-step {
-  display: grid;
-  grid-template-columns: 88px 1fr;
-  column-gap: 28px;
-  padding: 40px 0;
-  border-top: 1px solid var(--color-rule);
-}
-.migrate-step:first-child { border-top: 0; padding-top: 8px; }
-
-.migrate-step-numeral {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 56px;
-  line-height: 1;
-  color: var(--color-primary);
-  padding-top: 4px;
-}
-.migrate-step-body { padding-top: 0; }
-.migrate-step-body .eyebrow {
-  color: var(--color-primary);
-  margin: 0 0 8px;
-}
-.migrate-step-label {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(24px, 2.6vw, 30px);
-  line-height: 1.15;
-  color: var(--color-dark);
-  margin: 0 0 12px;
-}
-.migrate-step-label em { font-style: italic; }
-.migrate-step-text {
-  font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.6;
-  color: var(--color-dark);
-  margin: 0 0 20px;
-  max-width: 560px;
-}
-.migrate-step-cta { margin: 0; }
-
-.migrate-coda {
-  margin: 56px auto 0;
-  text-align: center;
-  font-family: var(--font-body);
-  font-size: 16px;
-  color: var(--color-muted);
-  line-height: 1.65;
-}
-.migrate-coda em { font-style: italic; }
-.migrate-coda a { color: var(--color-secondary); }
-.migrate-coda a:hover { color: var(--color-primary); }
-
-@media (max-width: 640px) {
-  .migrate-page .migrate-steps { padding: 40px 0 64px; }
-  .migrate-step {
-    grid-template-columns: 56px 1fr;
-    column-gap: 18px;
-    padding: 32px 0;
-  }
-  .migrate-step-numeral { font-size: 38px; padding-top: 2px; }
-  .migrate-step-text { font-size: 16px; }
-  .migrate-coda { margin-top: 40px; }
-}
-
-/* Warning band — sits between hero and steps. Brand primary
-   left rule, no card chrome, restrained color. */
 .migrate-warning {
   background: var(--color-page);
-  padding: 20px 0 0;
+  padding: 28px 0 8px;
 }
 .migrate-warning .container { max-width: 780px; }
 .migrate-warning-inner {
@@ -8730,167 +8655,27 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin: 0;
 }
 
-/* Discount code block — quiet hairline box inside Step I. The code
-   itself uses the brand monospace treatment so it's obviously
-   copy-and-pasteable. No card. */
-.migrate-code {
-  margin: 4px 0 24px;
-  padding: 18px 20px;
-  border-top: 1px solid var(--color-rule);
-  border-bottom: 1px solid var(--color-rule);
-  max-width: 480px;
+.migrate-cta {
+  background: var(--color-page);
+  padding: 40px 0 88px;
 }
-.migrate-code-label {
+.migrate-cta .container {
+  max-width: 620px;
+  text-align: center;
+}
+.migrate-cta-text {
   font-family: var(--font-body);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  margin: 0 0 8px;
-}
-.migrate-code-value {
-  margin: 0 0 6px;
-}
-.migrate-code-value code {
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--color-primary);
-  background: transparent;
-  padding: 0;
-  border: 0;
-}
-.migrate-code-help {
-  font-family: var(--font-body);
-  font-style: italic;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--color-muted);
-  margin: 0;
-}
-
-/* Embedded migrate form — sits inside Step II's body column.
-   Inherits the .site-form layout from the contact / submissions
-   forms; we only add the bits unique to this form (hint text and
-   the checkbox row). */
-.migrate-form {
-  margin-top: 8px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 auto 28px;
   max-width: 520px;
 }
-.site-form-hint {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-style: italic;
-  color: var(--color-muted);
-  margin-top: 4px;
-}
-.site-form-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--color-dark);
-  cursor: pointer;
-  margin: 4px 0 0;
-}
-.site-form-check input[type="checkbox"] {
-  margin-top: 3px;
-  flex: 0 0 auto;
-}
+.migrate-cta-button { margin: 0; }
 
-/* /migrate/ has no dark-mode treatment — it renders light always.
-   dark-mode.js auto-applies data-theme="dark" on <html> when the
-   OS prefers dark, but the rest of the site only honors that on
-   post pages (rules scoped to body.post-template). Adding ungated
-   html[data-theme="dark"] rules here would flip text to cream on
-   the still-cream body background, making it unreadable for
-   anyone in OS dark mode. Keep it light. */
-
-/* -------- Admin: Migrations dashboard --------
-   Table-driven: name, email, "started new" pill, status select,
-   submitted date, delete. Borrows .admin-table aesthetics; the
-   pill / select / delete pieces are unique to this view. */
-
-.admin-migrations-table .pill {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  border: 1px solid transparent;
+@media (max-width: 640px) {
+  .migrate-warning { padding: 24px 0 4px; }
+  .migrate-cta { padding: 32px 0 64px; }
+  .migrate-cta-text { font-size: 16px; }
 }
-.admin-migrations-table .pill-good {
-  color: #2e6048;
-  border-color: rgba(46, 96, 72, 0.3);
-  background: rgba(46, 96, 72, 0.08);
-}
-.admin-migrations-table .pill-muted {
-  color: var(--color-muted);
-  border-color: var(--color-rule);
-  background: transparent;
-}
-
-.admin-migrations-status-select {
-  font-family: var(--font-body);
-  font-size: 13px;
-  padding: 4px 24px 4px 10px;
-  border: 1px solid var(--color-rule);
-  border-radius: 6px;
-  background: var(--color-page);
-  color: var(--color-dark);
-  cursor: pointer;
-}
-.admin-migrations-status-select:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-
-.admin-migrations-actions {
-  text-align: right;
-  white-space: nowrap;
-}
-.admin-migrations-done {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--color-white);
-  background: var(--color-primary);
-  border: 0;
-  border-radius: 999px;
-  padding: 6px 12px;
-  margin-right: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.admin-migrations-done:hover { background: var(--color-secondary); }
-.admin-migrations-done[disabled] { opacity: 0.5; cursor: default; }
-
-.admin-migrations-delete {
-  font-family: var(--font-body);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  color: var(--color-muted);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 4px 8px;
-}
-.admin-migrations-delete:hover { color: var(--color-secondary); }
-.admin-migrations-delete[disabled] { opacity: 0.5; cursor: default; }
-
-.admin-migrations-empty {
-  font-family: var(--font-body);
-  font-size: 15px;
-  color: var(--color-muted);
-  text-align: center;
-  padding: 32px 0;
-}
-/* No dark-mode override — admin pages stay light regardless of
-   OS / data-theme="dark" (matches every other /admin/* view). */
 

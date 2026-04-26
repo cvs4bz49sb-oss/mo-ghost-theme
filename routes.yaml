@@ -69,8 +69,6 @@ routes:
     template: custom-admin-groups
   /admin/members/institutions/:
     template: custom-admin-institutions
-  /admin/members/migrations/:
-    template: custom-admin-migrations
   /admin/members/drift/:
     template: custom-admin-drift
   /admin/traffic/:

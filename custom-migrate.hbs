@@ -1,12 +1,17 @@
 {{!< default}}
-{{!-- /migrate/ — three-step page for current Members on the legacy
-     mereorthodoxy.com (HubSpot) system moving over to Ghost.
-     Linked from a one-off migration email; not in nav.
+{{!-- /migrate/ — single-step landing for current paid Members on the
+     legacy site moving over to Ghost. Linked from a one-off migration
+     email; not in nav.
 
-     Step II is an inline form (mo-forms /migrate); requests land in
-     /admin/members/migrations/. The legacy /manage-membership form
-     on the old site goes away when HubSpot does, so we collect the
-     cancellation request here and process it manually. --}}
+     The whole flow: click Become a Member, sign up via the Stripe
+     Payment Link (which has metadata.kind=migration and the MOMOVE50
+     coupon attached), webhook on mo-membership writes mo_migrated_at
+     to their HubSpot contact. Their old Membership gets cancelled
+     manually via a HubSpot active list filtered on that property.
+
+     The Payment Link URL lives in @custom.migration_payment_link;
+     fall back to /membership/ if unset so the page never has a dead
+     CTA. --}}
 
 <main class="membership membership-support migrate-page">
 
@@ -15,7 +20,7 @@
       <p class="eyebrow">Membership Migration</p>
       <h1 class="page-hero-headline"><em>Move your Membership</em> to the new site.</h1>
       <p class="page-hero-sub">
-        Three steps. You won't lose access during the move.
+        One step. Your 50% migration discount applies automatically at checkout.
       </p>
     </div>
   </section>
@@ -31,87 +36,15 @@
     </div>
   </section>
 
-  <section class="migrate-steps">
+  <section class="migrate-cta">
     <div class="container">
-      <ol class="migrate-list">
-
-        <li class="migrate-step">
-          <div class="migrate-step-numeral">I.</div>
-          <div class="migrate-step-body">
-            <p class="eyebrow">Step One</p>
-            <h2 class="migrate-step-label"><em>Start your new Membership.</em></h2>
-            <p class="migrate-step-text">
-              Sign up here. Use the same email you used before so we can match your records.
-            </p>
-
-            <div class="migrate-code">
-              <p class="migrate-code-label">Use this code at checkout</p>
-              <p class="migrate-code-value"><code>MOMOVE50</code></p>
-              <p class="migrate-code-help">50% off your first three months &mdash; our thank-you for moving with us.</p>
-            </div>
-
-            <p class="migrate-step-cta">
-              <a href="/membership/" class="btn btn-primary btn-inline">Become a Member</a>
-            </p>
-          </div>
-        </li>
-
-        <li class="migrate-step">
-          <div class="migrate-step-numeral">II.</div>
-          <div class="migrate-step-body">
-            <p class="eyebrow">Step Two</p>
-            <h2 class="migrate-step-label"><em>Cancel your old Membership.</em></h2>
-            <p class="migrate-step-text">
-              Submit your request below. We'll process it within a day or two so you aren't billed twice.
-            </p>
-
-            <form class="migrate-form site-form"
-                  data-site-form="migrate"
-                  data-worker-url="{{@custom.forms_worker_url}}"
-                  novalidate>
-              <div class="site-form-row">
-                <div class="site-form-field">
-                  <label for="migrate-first">First name</label>
-                  <input id="migrate-first" name="firstName" type="text" autocomplete="given-name" required />
-                </div>
-                <div class="site-form-field">
-                  <label for="migrate-last">Last name</label>
-                  <input id="migrate-last" name="lastName" type="text" autocomplete="family-name" required />
-                </div>
-              </div>
-              <div class="site-form-field">
-                <label for="migrate-email">Membership email</label>
-                <input id="migrate-email" name="email" type="email" autocomplete="email" required />
-                <span class="site-form-hint">The email on your old Membership.</span>
-              </div>
-              <label class="site-form-check">
-                <input type="checkbox" name="startedNew" value="on" />
-                <span>I've started my new Membership.</span>
-              </label>
-              <button type="submit" class="site-form-submit">Submit Cancellation Request</button>
-              <p class="site-form-status" data-form-status></p>
-            </form>
-          </div>
-        </li>
-
-        <li class="migrate-step">
-          <div class="migrate-step-numeral">III.</div>
-          <div class="migrate-step-body">
-            <p class="eyebrow">Step Three</p>
-            <h2 class="migrate-step-label"><em>Manage from your dashboard.</em></h2>
-            <p class="migrate-step-text">
-              Update billing, address, bookmarks, and reading history any time.
-            </p>
-            <p class="migrate-step-cta">
-              <a href="/dashboard/" class="btn btn-primary btn-inline">Open Dashboard</a>
-            </p>
-          </div>
-        </li>
-
-      </ol>
+      <p class="migrate-cta-text">
+        Sign up here. Use the same email you used before so we can match your records and cancel your old Membership for you.
+      </p>
+      <p class="migrate-cta-button">
+        <a href="{{#if @custom.migration_payment_link}}{{@custom.migration_payment_link}}{{else}}/membership/{{/if}}" class="btn btn-primary btn-lg">Become a Member</a>
+      </p>
     </div>
   </section>
 
 </main>
-
-<script src="{{asset "js/site-forms.js"}}"></script>
