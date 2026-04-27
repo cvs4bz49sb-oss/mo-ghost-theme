@@ -38,6 +38,7 @@
 <body class="{{body_class}}"
       {{#if @custom.podcast_feed_url}}data-podcast-feed-url="{{@custom.podcast_feed_url}}"{{/if}}
       {{#if @custom.kit_worker_url}}data-kit-worker-url="{{@custom.kit_worker_url}}"{{/if}}
+      {{#if @custom.search_worker_url}}data-search-worker-url="{{@custom.search_worker_url}}"{{/if}}
       {{#if @member}}data-member-email="{{@member.email}}" data-member-status="{{@member.status}}"{{/if}}
       {{#if @custom.dashboard_preview_email}}data-preview-email="{{@custom.dashboard_preview_email}}"{{/if}}>
 
@@ -62,7 +63,7 @@
                 {{!-- Search trigger — opens Ghost's built-in sodo-search
                      modal (auto-loaded by ghost_head). Keyboard "/" also
                      opens it. --}}
-                <button class="nav-search" type="button" data-ghost-search aria-label="Search articles">
+                <button class="nav-search" type="button" data-mo-search aria-label="Search articles">
                     <svg class="nav-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="7"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -96,7 +97,7 @@
                 {{/foreach}}
             </nav>
             <div class="mobile-nav-actions">
-                <button class="mobile-nav-search" type="button" data-ghost-search aria-label="Search articles">
+                <button class="mobile-nav-search" type="button" data-mo-search aria-label="Search articles">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="7"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -135,6 +136,7 @@
     <script src="{{asset "js/kit-events.js"}}"></script>
     <script src="{{asset "js/dark-mode.js"}}"></script>
     <script src="{{asset "js/feature-gate.js"}}"></script>
+    <script src="{{asset "js/search.js"}}"></script>
     <script>
         (function () {
             // Fixed-position header: hides on scroll-down, re-appears
