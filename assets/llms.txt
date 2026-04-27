@@ -1,0 +1,60 @@
+# Mere Orthodoxy
+
+> Christian renewal for the common good. A long-form journal covering
+> theology, culture, and politics from a broadly orthodox Protestant
+> perspective (Anglican / Reformed sympathies). Founded 2005 by Matthew
+> Lee Anderson; current editor Jake Meador.
+
+Mere Orthodoxy publishes essays, reviews, and cultural commentary that
+take ideas seriously. The publication does not chase traffic or
+platform conventional evangelical talking points; it argues in full
+paragraphs, cites carefully, and assumes a theologically literate
+reader. Audience is largely Protestant but ecumenically curious —
+pastors, academics, writers, serious lay readers.
+
+## Site sections
+
+- [Homepage](https://mereorthodoxy.com/): the journal's front page,
+  featuring the latest essays and the current journal-issue status.
+- [About](https://mereorthodoxy.com/about/): the publication's mission,
+  history, and editorial team.
+- [Contributors](https://mereorthodoxy.com/contributors/): index of
+  active and past contributors. Each contributor has a tag page
+  collecting their work.
+- [Membership](https://mereorthodoxy.com/membership/): paid membership
+  tiers supporting the journal.
+- [Search](https://mereorthodoxy.com/): semantic search modal accessible
+  from the header (also keyboard `/`). Powered by OpenAI embeddings +
+  Cloudflare Vectorize over the full archive.
+
+## Long-form essay archives
+
+- Posts at `/[slug]/` (no date prefix). Example:
+  https://mereorthodoxy.com/the-importance-of-political-theology/
+- Tag-based topical archives at `/tag/[slug]/`. Example:
+  https://mereorthodoxy.com/tag/ecclesiology/
+- Author pages live as tags too: `/tag/author-[slug]/`. Example:
+  https://mereorthodoxy.com/tag/author-matthew-lee-anderson/
+
+## Sitemaps
+
+- https://mereorthodoxy.com/sitemap.xml — index pointing to the
+  per-content-type sitemaps below.
+- https://mereorthodoxy.com/sitemap-posts.xml — every published essay.
+- https://mereorthodoxy.com/sitemap-pages.xml — static pages.
+- https://mereorthodoxy.com/sitemap-tags.xml — every topic and
+  author-as-tag page.
+
+## Editorial commitments
+
+- Long-form over short-form. Most essays run 1,500–4,000 words.
+- Theological orthodoxy as foundation, not ceiling. Engages culture
+  critically but charitably.
+- Authors are individuals, not the publication: posts credited to
+  named contributors via author tags. (The auto-generated structured
+  data on each post page reflects the actual byline.)
+
+## Contact
+
+- General: editorial inquiries via the [Contact page](https://mereorthodoxy.com/contact/).
+- Submissions: see [Submissions](https://mereorthodoxy.com/submissions/).

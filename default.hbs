@@ -131,6 +131,14 @@
         </div>
     </footer>
 
+    {{!-- jsonld-fix.js corrects Ghost's auto-emitted Article JSON-LD
+         to use the real byline (author-* tag) instead of the generic
+         "Mere Orthodoxy" house account, and adds SearchAction to the
+         homepage WebSite block. Loaded high in the body so the fix
+         lands before render-pass crawlers (Googlebot, PerplexityBot,
+         Bingbot) snapshot the page for indexing. See file header for
+         the full rationale. --}}
+    <script src="{{asset "js/jsonld-fix.js"}}"></script>
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
     <script src="{{asset "js/inline-signup.js"}}"></script>
     <script src="{{asset "js/kit-events.js"}}"></script>

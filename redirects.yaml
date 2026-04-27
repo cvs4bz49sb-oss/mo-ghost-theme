@@ -11,3 +11,12 @@
 - from: ^/author/(.*)/?$
   to: /tag/author-$1/
   permanent: true
+
+# /llms.txt — the llmstxt.org convention is a markdown manifest at
+# the site root that AI crawlers (and humans) can read to find the
+# canonical entry-points and key pages. Ghost(Pro) doesn't allow
+# static files at the apex, so we host as a theme asset and redirect
+# /llms.txt → /assets/built/llms.txt.
+- from: ^/llms\.txt$
+  to: /assets/llms.txt
+  permanent: true
