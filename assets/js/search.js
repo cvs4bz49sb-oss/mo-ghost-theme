@@ -62,7 +62,7 @@
     input = document.createElement("input");
     input.type = "text";
     input.className = "mo-search-input";
-    input.placeholder = "Search the archive\u2026";
+    input.placeholder = "Search by title, author, or topic\u2026";
     input.setAttribute("autocomplete", "off");
     input.setAttribute("spellcheck", "false");
     input.setAttribute("aria-label", "Search query");
@@ -109,7 +109,7 @@
     if (!workerUrl) {
       setStatus("Search isn't configured yet (no worker URL set in theme settings).");
     } else if (!input.value) {
-      setStatus("Type to search the archive\u2014titles, ideas, and full essay content.");
+      setStatus("Type a name (e.g. \u201cMatt Anderson\u201d), a tag (e.g. \u201cecclesiology\u201d), or any phrase. Search blends author, title, and full-text matching.");
     }
   }
 
@@ -125,7 +125,7 @@
   function onInput() {
     var q = input.value.trim();
     if (!q) {
-      setStatus("Type to search the archive\u2014titles, ideas, and full essay content.");
+      setStatus("Type a name (e.g. \u201cMatt Anderson\u201d), a tag (e.g. \u201cecclesiology\u201d), or any phrase. Search blends author, title, and full-text matching.");
       renderResults([]);
       return;
     }
