@@ -312,6 +312,29 @@ img { max-width: 100%; height: auto; }
 }
 .sign-in:hover { color: var(--color-dark); text-decoration: none; }
 
+/* Search trigger — magnifier icon button next to Sign in. Opens
+   Ghost's built-in sodo-search modal (loaded via ghost_head).
+   Keyboard "/" also opens it. */
+.nav-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  border-radius: 999px;
+  transition: color 0.15s, background 0.15s;
+}
+.nav-search:hover {
+  color: var(--color-dark);
+  background: rgba(45, 41, 39, 0.05);
+}
+.nav-search-icon { display: block; }
+
 .btn {
   font-family: var(--font-body);
   font-size: 15px;
@@ -3217,6 +3240,28 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   text-align: center;
 }
 .mobile-nav-signin:hover { color: var(--color-dark); }
+
+/* Mobile search row — text + icon, full-width tap target. */
+.mobile-nav-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  width: 100%;
+}
+.mobile-nav-search:hover {
+  background: rgba(45, 41, 39, 0.04);
+}
+.mobile-nav-search svg { color: var(--color-muted); }
 .mobile-nav-actions .btn {
   width: 100%;
   padding: 12px 20px;
