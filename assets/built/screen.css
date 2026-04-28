@@ -5148,6 +5148,12 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
    .contributor-card-bio makes sense on /contributors/ (where the
    grid is dense and bios get long) but on About we want the full
    text for the 10 Team + Board members. */
+/* The shared .contributors-grid::before draws a single vertical
+   hairline at left:50% for the 2-column /contributors/ layout. The
+   /about/ Team grid overrides to 3 columns, where 50% falls through
+   the middle column instead of between columns — hide it here. */
+.about-team-grid::before { display: none; }
+
 .about-team .contributor-card-bio,
 .about-board .contributor-card-bio {
   display: block;
