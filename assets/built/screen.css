@@ -298,6 +298,7 @@ img { max-width: 100%; height: auto; }
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .sign-in {
@@ -309,6 +310,7 @@ img { max-width: 100%; height: auto; }
   border: 0;
   cursor: pointer;
   font-family: var(--font-body);
+  white-space: nowrap;
 }
 .sign-in:hover { color: var(--color-dark); text-decoration: none; }
 
@@ -349,6 +351,7 @@ img { max-width: 100%; height: auto; }
   justify-content: center;
   text-decoration: none;
   transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  white-space: nowrap;
 }
 .btn:hover { text-decoration: none; transform: translateY(-1px); }
 
