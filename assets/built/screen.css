@@ -1050,8 +1050,7 @@ img { max-width: 100%; height: auto; }
   color: var(--color-primary);
   font-size: 16px;
   line-height: 1;
-  background: var(--color-page);
-  padding: 0 14px;
+  background: transparent;
 }
 .tag-more-link {
   font-family: var(--font-body);
@@ -1095,8 +1094,7 @@ img { max-width: 100%; height: auto; }
   color: var(--color-primary);
   font-size: 16px;
   line-height: 1;
-  background: var(--color-page);
-  padding: 0 14px;
+  background: transparent;
 }
 .digest-copy { position: relative; }
 .digest-copy .eyebrow {
@@ -1287,8 +1285,7 @@ img { max-width: 100%; height: auto; }
   color: var(--color-primary);
   font-size: 14px;
   line-height: 1;
-  background: var(--color-background);
-  padding: 0 12px;
+  background: transparent;
 }
 
 .entry-plate {
@@ -2931,8 +2928,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   color: var(--color-primary);
   font-size: 16px;
   line-height: 1;
-  background: var(--color-background);
-  padding: 0 14px;
+  background: transparent;
 }
 .pagination a {
   color: var(--color-secondary);
@@ -5389,8 +5385,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   color: var(--color-primary);
   font-size: 14px;
   line-height: 1;
-  background: var(--color-background);
-  padding: 0 12px;
+  background: transparent;
 }
 .week-more-link {
   font-family: var(--font-body);
