@@ -1219,18 +1219,16 @@ img { max-width: 100%; height: auto; }
   height: 1px;
   background: var(--color-card-border);
 }
-/* Divider mark: the MO site mark rendered as a small round badge by
-   the shared flourish-mark partial. Circle-masking the <img> strips
-   the white corners of the favicon JPEG so only the orange disc
-   shows. object-fit covers any minor aspect drift. */
+/* Divider mark: the MO site mark rendered as a small badge by the
+   shared flourish-mark partial. Source is a transparent PNG so the
+   mark reads cleanly on any page background. */
 .flourish-mark {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
   display: inline-block;
   vertical-align: middle;
-  border-radius: 50%;
-  object-fit: cover;
+  background: transparent;
 }
 
 /* -------- This Week (book-page entries) -------- */
