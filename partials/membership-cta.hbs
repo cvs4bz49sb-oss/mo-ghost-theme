@@ -1,22 +1,10 @@
 {{!-- Sitewide "Support the work" CTA rendered under posts, the about
      page, and anywhere else the partial is invoked. Hidden for
-     paid/comped members and the staff preview email — they've
-     already subscribed. Always shown for free Subscribers AND
-     anonymous visitors (both should be converted).
-
-     The {{#match @member.email @custom.dashboard_preview_email}}
-     check used to live at the outer level, which was a bug:
-     when both sides were empty (anonymous visitor + unset preview
-     email setting), the match returned true and the CTA was
-     hidden from anonymous visitors entirely. Now gated behind
-     {{#if @member}} so the email match only runs when there's an
-     actual signed-in member to compare against. --}}
+     paid/comped members — they've already subscribed. Always shown
+     for free Subscribers AND anonymous visitors (both should be
+     converted). --}}
 {{#match @member.status "paid"}}{{else}}
 {{#match @member.status "comped"}}{{else}}
-{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
 {{> "membership-cta-body"}}
-{{/match}}{{else}}
-{{> "membership-cta-body"}}
-{{/if}}
 {{/match}}
 {{/match}}

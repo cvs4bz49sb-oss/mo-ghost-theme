@@ -23,15 +23,13 @@
           <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
         {{else}}{{#match @member.status "comped"}}
           <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
-        {{else}}{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}
-          <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
-        {{/match}}{{/if}}{{/match}}{{/match}}
+        {{/match}}{{/match}}
       </div>
     </div>
     {{!-- Annual/Monthly toggle: pricing-only, so hidden for
-         paid/comped/preview members who see the gift CTA above
-         and the "already a member" block below instead. --}}
-    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
+         paid/comped members who see the gift CTA above and the
+         "already a member" block below instead. --}}
+    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
       <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
         <div class="toggle">
           <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
@@ -41,37 +39,19 @@
           <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
         </div>
       </div>
-    {{/match}}{{else}}
-      {{!-- Anonymous visitor — show pricing toggle. --}}
-      <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
-        <div class="toggle">
-          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
-            Annual
-            <span class="badge">Save 17%</span>
-          </button>
-          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
-        </div>
-      </div>
-    {{/if}}{{/match}}{{/match}}
+    {{/match}}{{/match}}
   </section>
 
-  {{!-- Pricing vs "already a member" is gated by paid/comped status
-       (plus the staff-preview email). Free Subscribers AND anonymous
-       visitors both see the pricing cards. The third match is gated
-       behind {{#if @member}} so an anonymous visitor with @member.email
-       being empty doesn't accidentally satisfy "{{#match "" ""}}" and
-       get told they're already a member. --}}
+  {{!-- Pricing vs "already a member" is gated by paid/comped status.
+       Free Subscribers AND anonymous visitors both see the pricing
+       cards. --}}
   {{#match @member.status "paid"}}
     {{> "membership-already"}}
   {{else}}{{#match @member.status "comped"}}
     {{> "membership-already"}}
-  {{else}}{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}
-    {{> "membership-already"}}
   {{else}}
     {{> "membership-pricing"}}
-  {{/match}}{{else}}
-    {{> "membership-pricing"}}
-  {{/if}}{{/match}}{{/match}}
+  {{/match}}{{/match}}
 
   <section class="readers">
     <div class="container">
@@ -144,21 +124,13 @@
         <h3 class="capstone-title"><em>And the work itself.</em></h3>
         <p class="capstone-body">Your membership funds the next writer commissioned, the next journal published, and the next essay and episode we can bring to readers and listeners like you.</p>
       </div>
-      {{!-- Hide the CTA for paid/comped/preview only; free Subscribers
-           AND anonymous visitors both see it (anonymous visitor's
-           {{#if @member}} guard prevents the empty-vs-empty match
-           false positive). --}}
+      {{!-- Hide the CTA for paid/comped only; free Subscribers AND
+           anonymous visitors both see it. --}}
       {{#match @member.status "paid"}}{{else}}
       {{#match @member.status "comped"}}{{else}}
-      {{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
       <div class="included-cta">
         <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
       </div>
-      {{/match}}{{else}}
-      <div class="included-cta">
-        <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
-      </div>
-      {{/if}}
       {{/match}}
       {{/match}}
     </div>

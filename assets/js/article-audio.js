@@ -36,12 +36,8 @@
   });
 
   function hasPaidAccess() {
-    var b = document.body;
-    var status = b.getAttribute("data-member-status") || "";
-    if (status === "paid" || status === "comped") return true;
-    var email = (b.getAttribute("data-member-email") || "").toLowerCase();
-    var preview = (b.getAttribute("data-preview-email") || "").toLowerCase();
-    return !!(email && preview && email === preview);
+    var status = document.body.getAttribute("data-member-status") || "";
+    return status === "paid" || status === "comped";
   }
 
   function buildPlayer(mount, triggerEl, src, meta) {

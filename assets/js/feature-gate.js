@@ -40,25 +40,6 @@
 
   if (forced) {
     STATUS = "anonymous";
-  } else {
-    // Admin preview bypass: @custom.dashboard_preview_email is a
-    // theme setting Ian can set to his Portal member email. When the
-    // current signed-in member's email matches, treat them as paid
-    // so the gate doesn't trip on audio/bookmark regardless of their
-    // actual Ghost tier.
-    //
-    // IMPORTANT: We only upgrade when the CURRENT MEMBER's email
-    // matches. An earlier version also upgraded anonymous visitors
-    // when data-preview-email was set at all — that was wrong,
-    // because the preview-email attribute renders server-side for
-    // every visitor, not just the admin. It silenced popups for
-    // all signed-out readers. Now the admin must actually be signed
-    // into Portal with the preview email for the bypass to kick in.
-    var PREVIEW_EMAIL = (document.body.getAttribute("data-preview-email") || "").toLowerCase();
-    var MEMBER_EMAIL = (document.body.getAttribute("data-member-email") || "").toLowerCase();
-    if (PREVIEW_EMAIL && MEMBER_EMAIL && MEMBER_EMAIL === PREVIEW_EMAIL) {
-      STATUS = "paid";
-    }
   }
 
   var FEATURES = {

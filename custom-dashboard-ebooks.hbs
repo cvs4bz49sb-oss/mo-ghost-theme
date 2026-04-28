@@ -20,12 +20,6 @@
 
     {{#match @member.status "paid"}}{{> "dashboard-ebooks-body"}}{{else}}
     {{#match @member.status "comped"}}{{> "dashboard-ebooks-body"}}{{else}}
-    {{#match @member.email @custom.dashboard_preview_email}}
-      <div class="dashboard-admin-banner" role="note">
-        <strong>Admin preview.</strong> You are not a paid Member — this page is visible because your email matches <code>@custom.dashboard_preview_email</code>.
-      </div>
-      {{> "dashboard-ebooks-body"}}
-    {{else}}
       <section class="hero dashboard-hero">
         <div class="container">
           <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
@@ -34,7 +28,6 @@
           <p class="dashboard-actions"><a href="/membership/" class="btn btn-primary">Become a Member</a></p>
         </div>
       </section>
-    {{/match}}
     {{/match}}
     {{/match}}
 

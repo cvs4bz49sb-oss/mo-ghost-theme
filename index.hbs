@@ -16,12 +16,10 @@
                         <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
                     {{else}}{{#match @member.status "comped"}}
                         <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
-                    {{else}}{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}
-                        <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
-                    {{else}}
+                    {{else}}{{#if @member}}
                         {{!-- Free Subscriber: already on the list, so a single upgrade button. --}}
                         <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
-                    {{/match}}{{else}}
+                    {{else}}
                         {{!-- Anonymous visitor — primary CTA is now Membership. --}}
                         <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
                         <a href="#digest" class="btn btn-ghost btn-lg">Never Miss An Essay</a>
@@ -149,12 +147,12 @@
 </section>
 
 {{!-- WEEKLY DIGEST — state-aware.
-     * paid / comped / preview   → nothing (member already in)
+     * paid / comped             → nothing (member already in)
      * free Subscriber           → simple Membership CTA scrolling to #join
      * signed-out visitor        → original digest signup --}}
 {{#match @member.status "paid"}}{{else}}
 {{#match @member.status "comped"}}{{else}}
-{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}{{else}}
+{{#if @member}}
     {{!-- Free Subscriber upgrade pitch — styled inline in the
          same light container the digest CTA uses, so this block
          sits in rhythm with the rest of the homepage. --}}
@@ -181,7 +179,7 @@
             </div>
         </div>
     </section>
-{{/match}}{{else}}
+{{else}}
     {{!-- Anonymous visitor — original digest signup. --}}
     {{> "digest-cta"}}
 {{/if}}
@@ -291,11 +289,9 @@
                         <a href="/give/" class="btn btn-primary btn-lg">Gift The Journal</a>
                     {{else}}{{#match @member.status "comped"}}
                         <a href="/give/" class="btn btn-primary btn-lg">Gift The Journal</a>
-                    {{else}}{{#if @member}}{{#match @member.email @custom.dashboard_preview_email}}
-                        <a href="/give/" class="btn btn-primary btn-lg">Gift The Journal</a>
-                    {{else}}
+                    {{else}}{{#if @member}}
                         <a href="#join" class="btn btn-primary btn-lg">Get The Journal</a>
-                    {{/match}}{{else}}
+                    {{else}}
                         {{!-- Anonymous — primary CTA is the membership signup. --}}
                         <a href="#join" class="btn btn-primary btn-lg">Get The Journal</a>
                     {{/if}}{{/match}}{{/match}}

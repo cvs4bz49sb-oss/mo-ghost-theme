@@ -2,12 +2,10 @@
 {{!-- custom-dashboard: Paying Members hub.
 
      Visibility rules:
-       - Not signed in                                 → sign-in prompt
-       - @member.status == "paid"                       → full dashboard
-       - @member.status == "comped"                     → full dashboard
-       - @member.email == @custom.dashboard_preview_email
-                                                        → full dashboard + admin banner
-       - Any other signed-in state                      → upsell
+       - Not signed in              → sign-in prompt
+       - @member.status == "paid"   → full dashboard
+       - @member.status == "comped" → full dashboard
+       - Any other signed-in state  → upsell
 
      Layout matches custom-about.hbs: dark hero, eyebrow kicker,
      container-narrow prose, flourish marks between sections. Body
@@ -33,12 +31,6 @@
 
     {{#match @member.status "paid"}}{{> "dashboard-body"}}{{else}}
     {{#match @member.status "comped"}}{{> "dashboard-body"}}{{else}}
-    {{#match @member.email @custom.dashboard_preview_email}}
-      <div class="dashboard-admin-banner" role="note">
-        <strong>Admin preview.</strong> You are not a paid Member — this dashboard is visible because your email matches <code>@custom.dashboard_preview_email</code>.
-      </div>
-      {{> "dashboard-body"}}
-    {{else}}
       <section class="hero dashboard-hero">
         <div class="container">
           <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
@@ -51,7 +43,6 @@
           </p>
         </div>
       </section>
-    {{/match}}
     {{/match}}
     {{/match}}
 
