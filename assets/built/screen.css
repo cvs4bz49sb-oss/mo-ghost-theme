@@ -643,14 +643,18 @@ img { max-width: 100%; height: auto; }
   width: 0;
   height: 0;
 }
-/* Scroll-progress thumb. Sits on top of the rail's existing
-   bottom hairline (matched 1px height) in brand orange. Sized
-   and positioned via inline width/left set by topic-rail.hbs's
-   inline scroll handler. Hidden until JS confirms the rail is
-   actually scrollable. */
+/* Scroll-progress thumb. Sits one pixel above the rail's
+   existing bottom hairline (1px tall, brand orange). Stays
+   inside the padding box because the mobile rule below adds
+   overflow: hidden on .topics; positioning the thumb at
+   bottom: -1 like a typical "on the border" overlay would
+   clip it on the very platform we're trying to indicate to.
+   Sized + positioned via inline width/left set by the inline
+   handler in topic-rail.hbs. Hidden until JS confirms the
+   rail is actually scrollable. */
 .topics-progress {
   position: absolute;
-  bottom: -1px;
+  bottom: 0;
   left: 0;
   height: 1px;
   background: var(--color-primary);
