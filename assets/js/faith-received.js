@@ -449,6 +449,62 @@
     return Math.floor(diff / 86400000);
   }
 
+  // ── Sidebar active-section tracking ──────────────────────────
+  // As the reader scrolls, mark the top-most visible section's TOC
+  // link with `is-active` so the sidebar shows where they are. Uses
+  // IntersectionObserver, so no scroll listeners burning the main
+  // thread.
+  initActiveSection();
+
+  function initActiveSection() {
+    var sidebar = document.querySelector(".faith-toc-sidebar");
+    if (!sidebar || !("IntersectionObserver" in window)) return;
+    var anchors = Array.prototype.slice.call(sidebar.querySelectorAll('a[href^="#"]'));
+    if (!anchors.length) return;
+    // Map of id → anchor element.
+    var byId = {};
+    anchors.forEach(function (a) {
+      var id = decodeURIComponent((a.getAttribute("href") || "").slice(1));
+      if (id) byId[id] = a;
+    });
+    var ids = Object.keys(byId);
+    if (!ids.length) return;
+    var visible = new Set();
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) visible.add(e.target.id);
+        else visible.delete(e.target.id);
+      });
+      // Pick the visible section closest to the top of the viewport.
+      var best = null;
+      var bestTop = Infinity;
+      ids.forEach(function (id) {
+        if (!visible.has(id)) return;
+        var node = document.getElementById(id);
+        if (!node) return;
+        var top = node.getBoundingClientRect().top;
+        if (top < bestTop) { bestTop = top; best = id; }
+      });
+      anchors.forEach(function (a) { a.classList.remove("is-active"); });
+      if (best && byId[best]) {
+        byId[best].classList.add("is-active");
+        // Auto-scroll the sidebar to keep the active item in view.
+        var rect = byId[best].getBoundingClientRect();
+        var sbRect = sidebar.getBoundingClientRect();
+        if (rect.top < sbRect.top + 60 || rect.bottom > sbRect.bottom - 60) {
+          byId[best].scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+      }
+    }, {
+      rootMargin: "-80px 0px -60% 0px",
+      threshold: 0,
+    });
+    ids.forEach(function (id) {
+      var node = document.getElementById(id);
+      if (node) observer.observe(node);
+    });
+  }
+
   // ── 4. Reading controls (Expand all / Collapse all) ───────────
   initReadingControls();
 

@@ -152,40 +152,95 @@ function readingControls(doc) {
   </div>`;
 }
 
-// ── Table of contents block (clickable nav) ──────────────────
+// ── Table of contents (rendered inside .faith-toc-sidebar) ────
+//
+// Returns the inner <nav> markup. The page layout (via wrapBody)
+// drops it into a sticky-on-desktop / inline-on-mobile sidebar.
+// Returns empty string when fewer than 4 items — the doc renders
+// without a sidebar in that case.
 function tocBlock(items, getNum, getTitle, getAnchor, opts = {}) {
   if (!items || items.length < 4) return "";
   const links = items.map((c) => `
-            <li class="faith-toc-item"><a href="#${getAnchor(c)}"><span class="faith-toc-num">${roman(getNum(c))}</span><span class="faith-toc-label">${escape(smarten(getTitle(c)))}</span></a></li>`).join("");
+        <li class="faith-toc-item"><a href="#${getAnchor(c)}"><span class="faith-toc-num">${roman(getNum(c))}</span><span class="faith-toc-label">${escape(smarten(getTitle(c)))}</span></a></li>`).join("");
   return `
-    <nav class="faith-toc" aria-label="Contents">
-      <div class="container container-narrow">
-        <p class="faith-toc-label-heading">Contents${opts.label ? ` &middot; ${opts.label}` : ""}</p>
+  <nav class="faith-toc" aria-label="Contents">
+    <p class="faith-toc-label-heading">${opts.label ? escape(opts.label) : "Contents"}</p>
+    <ol class="faith-toc-list">${links}
+    </ol>
+  </nav>`;
+}
+
+// Heidelberg-specific: TOC grouped by Part (Misery / Deliverance /
+// Gratitude). Matches the original TFR sidebar treatment.
+function heidelbergTocBlock(lordsDays) {
+  if (!lordsDays || lordsDays.length < 4) return "";
+  const sections = [
+    { key: "misery", label: "Part I · Misery" },
+    { key: "deliverance", label: "Part II · Deliverance" },
+    { key: "gratitude", label: "Part III · Gratitude" },
+  ];
+  const blocks = sections.map((s) => {
+    const days = lordsDays.filter((d) => d.section === s.key);
+    if (!days.length) return "";
+    const links = days.map((d) => `
+          <li class="faith-toc-item"><a href="#lords-day-${d.number}"><span class="faith-toc-num">LD ${d.number}</span><span class="faith-toc-label">${escape(smarten(d.title))}</span></a></li>`).join("");
+    return `
+      <div class="faith-toc-group">
+        <p class="faith-toc-group-label">${s.label}</p>
         <ol class="faith-toc-list">${links}
         </ol>
-      </div>
-    </nav>`;
+      </div>`;
+  }).join("");
+  return `
+  <nav class="faith-toc faith-toc--heidelberg" aria-label="Contents">
+    <p class="faith-toc-label-heading">Lord's Days</p>
+    ${blocks}
+  </nav>`;
 }
 
 function booksTocBlock(books) {
   if (!books || !books.length) return "";
   const blocks = books.map((b) => {
     const links = (b.chapters ?? []).map((c) => `
-              <li class="faith-toc-item"><a href="#book-${b.bookNumber}-chapter-${c.number}"><span class="faith-toc-num">${roman(c.number)}</span><span class="faith-toc-label">${titleFor(c)}</span></a></li>`).join("");
+          <li class="faith-toc-item"><a href="#book-${b.bookNumber}-chapter-${c.number}"><span class="faith-toc-num">${roman(c.number)}</span><span class="faith-toc-label">${titleFor(c)}</span></a></li>`).join("");
     return `
-        <div class="faith-toc-book">
-          <p class="faith-toc-book-label">${b.bookNumber > 0 ? `Book ${roman(b.bookNumber)}` : "Preface"}</p>
-          <ol class="faith-toc-list">${links}
-          </ol>
-        </div>`;
+      <div class="faith-toc-group">
+        <p class="faith-toc-group-label">${b.bookNumber > 0 ? `Book ${roman(b.bookNumber)}` : "Preface"}</p>
+        <ol class="faith-toc-list">${links}
+        </ol>
+      </div>`;
   }).join("");
   return `
-    <nav class="faith-toc faith-toc--books" aria-label="Contents">
-      <div class="container container-narrow">
-        <p class="faith-toc-label-heading">Contents</p>
-        ${blocks}
+  <nav class="faith-toc faith-toc--books" aria-label="Contents">
+    <p class="faith-toc-label-heading">Contents</p>
+    ${blocks}
+  </nav>`;
+}
+
+// Wraps the doc body. When a TOC is present, lays out as a 2-column
+// grid (sticky sidebar + reading column on desktop; stacked on
+// mobile). When there's no TOC, falls back to the single centered
+// reading column.
+function wrapBody({ toc, controls, sections, kindClass = "" }) {
+  const inner = `${controls || ""}\n        ${sections}`;
+  if (!toc) {
+    return `
+    <div class="article-body faith-doc-body">
+      <div class="container container-narrow faith-doc-inner">
+        ${inner}
       </div>
-    </nav>`;
+    </div>`;
+  }
+  return `
+    <div class="article-body faith-doc-body faith-doc-body--has-sidebar">
+      <div class="faith-doc-layout ${kindClass}">
+        <aside class="faith-toc-sidebar">${toc}
+        </aside>
+        <div class="faith-doc-inner">
+          ${inner}
+        </div>
+      </div>
+    </div>`;
 }
 
 // ── Wrap a section in <details> (or not) ─────────────────────
@@ -222,7 +277,8 @@ function renderSectionFlat({ id, eyebrow, title, body, kindClass = "" }) {
 // ── Per-shape renderers ─────────────────────────────────────────
 
 function renderSections(doc) {
-  // Apostles, Nicene, Athanasian, Chalcedonian — short creeds. Flat.
+  // Apostles, Nicene, Athanasian, Chalcedonian — short creeds. Flat,
+  // no sidebar (3-4 items doesn't earn the navigation chrome).
   const items = (doc.sections ?? []).map((s) =>
     renderSectionFlat({
       id: `section-${s.number}`,
@@ -235,11 +291,7 @@ function renderSections(doc) {
   <main class="article faith-doc faith-doc--sections">
     ${header(doc)}
     ${intro(doc, INTROS)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
-        ${items}
-      </div>
-    </div>
+    ${wrapBody({ toc: "", controls: "", sections: items })}
   </main>`;
 }
 
@@ -264,19 +316,13 @@ function renderChapters(doc, opts = {}) {
     (c) => c.number,
     (c) => stripHtml(titleFor(c)) || `Chapter ${c.number}`,
     (c) => `chapter-${c.number}`,
-    {}
+    { label: "Chapters" }
   );
   return `
   <main class="article faith-doc faith-doc--chapters">
     ${header(doc)}
     ${intro(doc, INTROS)}
-    ${toc}
-    ${readingControls(doc)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
-        ${items}
-      </div>
-    </div>
+    ${wrapBody({ toc, controls: readingControls(doc), sections: items })}
   </main>`;
 }
 
@@ -305,13 +351,7 @@ function renderArticles(doc) {
   <main class="article faith-doc faith-doc--articles">
     ${header(doc)}
     ${intro(doc, INTROS)}
-    ${toc}
-    ${readingControls(doc)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
-        ${items}
-      </div>
-    </div>
+    ${wrapBody({ toc, controls: readingControls(doc), sections: items })}
   </main>`;
 }
 
@@ -323,17 +363,15 @@ function renderTheses(doc) {
           <p class="faith-thesis-text">${escape(smarten(t.text))}</p>
         </li>
   `).join("\n");
+  const list = `
+        <ol class="faith-thesis-list">
+          ${items}
+        </ol>`;
   return `
   <main class="article faith-doc faith-doc--theses">
     ${header(doc)}
     ${intro(doc, INTROS)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
-        <ol class="faith-thesis-list">
-          ${items}
-        </ol>
-      </div>
-    </div>
+    ${wrapBody({ toc: "", controls: "", sections: list })}
   </main>`;
 }
 
@@ -370,64 +408,56 @@ function renderQA(doc) {
           </div>
         </details>`;
   }).join("\n");
+  // Larger Catechism gets a numerical-jump TOC; Shorter doesn't
+  // (107 short Q&A flow more naturally as a single column).
+  const toc = collapsible
+    ? tocBlock(
+        doc.questions ?? [],
+        (q) => q.number,
+        (q) => q.question,
+        (q) => `q-${q.number}`,
+        { label: "Questions" }
+      )
+    : "";
   return `
   <main class="article faith-doc faith-doc--qa">
     ${header(doc)}
     ${intro(doc, INTROS)}
-    ${readingControls(doc)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
-        ${items}
-      </div>
-    </div>
+    ${wrapBody({ toc, controls: readingControls(doc), sections: items, kindClass: "faith-doc-layout--qa" })}
   </main>`;
 }
 
 function renderHeidelberg(doc) {
-  // 52 Lord's Days, each containing 1-3 Q&A. Each Lord's Day is a
-  // collapsible. Q&A inside a Lord's Day are always open (the Lord's
-  // Day grouping IS the navigation unit).
-  const sections = ["misery", "deliverance", "gratitude"];
-  const sectionLabels = {
+  // 52 Lord's Days grouped by Part (Misery, Deliverance, Gratitude).
+  // Each Lord's Day is a collapsible. Q&A inside a Lord's Day stay
+  // flat. Sidebar TOC groups by part to match the original TFR.
+  const partList = ["misery", "deliverance", "gratitude"];
+  const partLabels = {
     misery: "Part I &middot; Misery",
     deliverance: "Part II &middot; Deliverance",
     gratitude: "Part III &middot; Gratitude",
   };
 
   const allDays = doc.lordsDays ?? [];
-  // TOC: list every Lord's Day across all parts.
-  const toc = tocBlock(
-    allDays,
-    (d) => d.number,
-    (d) => d.title,
-    (d) => `lords-day-${d.number}`,
-    { label: "Lord's Days" }
-  );
+  const toc = heidelbergTocBlock(allDays);
 
-  let html = `
-  <main class="article faith-doc faith-doc--heidelberg">
-    ${header(doc)}
-    ${intro(doc, INTROS)}
-    ${toc}
-    ${readingControls(doc)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">`;
-
-  for (const sec of sections) {
+  let sectionsHtml = "";
+  for (const sec of partList) {
     const days = allDays.filter((d) => d.section === sec);
     if (!days.length) continue;
-    html += `
+    sectionsHtml += `
         <section class="faith-heidelberg-part" id="part-${sec}">
-          <p class="eyebrow faith-part-eyebrow">${sectionLabels[sec]}</p>
+          <p class="eyebrow faith-part-eyebrow">${partLabels[sec]}</p>
           <div class="flourish">{{> "flourish-mark"}}</div>
           ${days.map((d, i) => renderLordsDay(d, sec === "misery" && i === 0)).join("\n")}
         </section>`;
   }
-  html += `
-      </div>
-    </div>
+  return `
+  <main class="article faith-doc faith-doc--heidelberg">
+    ${header(doc)}
+    ${intro(doc, INTROS)}
+    ${wrapBody({ toc, controls: readingControls(doc), sections: sectionsHtml })}
   </main>`;
-  return html;
 }
 
 function renderLordsDay(d, openByDefault) {
@@ -477,11 +507,7 @@ function renderEdwards(doc) {
   <main class="article faith-doc faith-doc--edwards">
     ${header(doc)}
     ${intro(doc, INTROS)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
-        ${items}
-      </div>
-    </div>
+    ${wrapBody({ toc: "", controls: "", sections: items })}
   </main>`;
 }
 
@@ -515,13 +541,7 @@ function renderLibraryChapters(doc) {
   <main class="article faith-doc faith-doc--library">
     ${header(doc)}
     ${intro(doc, INTROS)}
-    ${toc}
-    ${readingControls(doc)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
-        ${items}
-      </div>
-    </div>
+    ${wrapBody({ toc, controls: readingControls(doc), sections: items })}
   </main>`;
 }
 
@@ -553,13 +573,7 @@ function renderLibraryBooks(doc) {
   <main class="article faith-doc faith-doc--library faith-doc--books">
     ${header(doc)}
     ${intro(doc, INTROS)}
-    ${booksTocBlock(doc.books)}
-    ${readingControls(doc)}
-    <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
-        ${html}
-      </div>
-    </div>
+    ${wrapBody({ toc: booksTocBlock(doc.books), controls: readingControls(doc), sections: html })}
   </main>`;
 }
 

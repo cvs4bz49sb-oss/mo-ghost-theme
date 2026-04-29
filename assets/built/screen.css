@@ -6692,45 +6692,52 @@ html[data-theme="dark"] .toc-mobile .toc-link {
   color: #e9dec8;
 }
 
-html[data-theme="dark"] .article-body {
+/* IMPORTANT: every rule below must be scoped to body.post-template.
+   The Faith Received reading rooms (custom-faith-* templates) reuse
+   the .article-body and .article-content classes; without this scope
+   a reader who toggled dark mode on a post and then navigates to a
+   document gets dark-mode text colors on a still-cream Faith Received
+   body — black-on-black at the section summaries, cream-on-cream
+   inside the answer prose. Don't drop the body.post-template selector. */
+html[data-theme="dark"] body.post-template .article-body {
   background: #33302d;
   color: #e9dec8;
 }
-html[data-theme="dark"] .article-content,
-html[data-theme="dark"] .article-content p,
-html[data-theme="dark"] .article-content li {
+html[data-theme="dark"] body.post-template .article-content,
+html[data-theme="dark"] body.post-template .article-content p,
+html[data-theme="dark"] body.post-template .article-content li {
   color: #e9dec8;
 }
-html[data-theme="dark"] .article-content h1,
-html[data-theme="dark"] .article-content h2,
-html[data-theme="dark"] .article-content h3,
-html[data-theme="dark"] .article-content h4,
-html[data-theme="dark"] .article-content h5,
-html[data-theme="dark"] .article-content h6 {
+html[data-theme="dark"] body.post-template .article-content h1,
+html[data-theme="dark"] body.post-template .article-content h2,
+html[data-theme="dark"] body.post-template .article-content h3,
+html[data-theme="dark"] body.post-template .article-content h4,
+html[data-theme="dark"] body.post-template .article-content h5,
+html[data-theme="dark"] body.post-template .article-content h6 {
   color: #f4ebd8;
 }
-html[data-theme="dark"] .article-content a {
+html[data-theme="dark"] body.post-template .article-content a {
   color: var(--color-primary);
 }
-html[data-theme="dark"] .article-content a:hover {
+html[data-theme="dark"] body.post-template .article-content a:hover {
   color: #f19371;
 }
-html[data-theme="dark"] .article-content blockquote {
+html[data-theme="dark"] body.post-template .article-content blockquote {
   border-left-color: rgba(233, 222, 200, 0.35);
   color: #d4c7b0;
 }
-html[data-theme="dark"] .article-content hr {
+html[data-theme="dark"] body.post-template .article-content hr {
   background: rgba(233, 222, 200, 0.18);
   border-color: rgba(233, 222, 200, 0.18);
 }
-html[data-theme="dark"] .article-content code,
-html[data-theme="dark"] .article-content pre {
+html[data-theme="dark"] body.post-template .article-content code,
+html[data-theme="dark"] body.post-template .article-content pre {
   background: rgba(233, 222, 200, 0.08);
   color: #e9dec8;
 }
 /* Ghost's first-letter dropcap on articles (if any) lifts to
    primary so the dark-mode accent stays legible. */
-html[data-theme="dark"] .article-content > p:first-of-type::first-letter {
+html[data-theme="dark"] body.post-template .article-content > p:first-of-type::first-letter {
   color: var(--color-primary);
 }
 /* Share rail + table-of-contents rail sit inside .article-body,
@@ -9368,7 +9375,39 @@ body.mo-search-open { overflow: hidden; }
 }
 
 /* ── Document reading view ────────────────────────────────────── */
-.faith-doc { background: var(--color-page); }
+/* Defensive ground-truth colors. Faith Received pages reuse the
+   .article-body and .article-content classes from the post template,
+   so any future unscoped dark-mode/system-style rule that targets
+   those classes can leak in. These explicit rules pin the cream-on-
+   dark colors regardless of what's set elsewhere. */
+.faith-doc { background: var(--color-page); color: var(--color-dark); }
+.faith-doc .article-body,
+.faith-doc .faith-doc-body { background: transparent; color: var(--color-dark); }
+.faith-doc .article-content,
+.faith-doc .article-content p,
+.faith-doc .article-content li,
+.faith-doc .article-content h1,
+.faith-doc .article-content h2,
+.faith-doc .article-content h3,
+.faith-doc .article-content h4,
+.faith-doc .article-content h5,
+.faith-doc .article-content h6 {
+  color: var(--color-dark);
+}
+.faith-doc .article-content a:not(.btn) {
+  color: var(--color-secondary);
+}
+.faith-doc .article-content > p:first-of-type::first-letter {
+  /* Reset the Ghost article first-letter dropcap — the per-section
+     bodies inherit `.article-content` for prose styling but the
+     dropcap belongs only on the leading paragraph of an actual essay,
+     not on every section/Q&A first paragraph. */
+  font-family: inherit;
+  font-size: 1em;
+  color: inherit;
+  font-style: inherit;
+  padding-right: 0;
+}
 
 .faith-doc-header {
   /* Inherits .article-header. Add room for description + actions
@@ -9786,83 +9825,135 @@ body.mo-search-open { overflow: hidden; }
 .faith-book .faith-book-chapter .faith-section-numeral { margin-bottom: 4px; }
 .faith-book .faith-book-chapter .faith-section-title { font-size: clamp(22px, 2.4vw, 28px); }
 
-/* TOC nav (placed after header on docs with 4+ items) */
+/* ── Document layout: sticky sidebar TOC + reading column ─────
+   Matches the original TFR site: a fixed/sticky table of contents
+   on the left, the reading column at standard editorial width on
+   the right. On mobile, collapses to a single column with the TOC
+   as a compact scrollable strip above the reading. */
+.faith-doc-layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 64px 28px 96px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+}
+.faith-doc-body--has-sidebar { padding: 0; background: var(--color-page); }
+
+@media (min-width: 1024px) {
+  .faith-doc-layout {
+    grid-template-columns: 260px minmax(0, 720px);
+    column-gap: 56px;
+    align-items: start;
+  }
+  .faith-toc-sidebar {
+    position: sticky;
+    top: 96px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Hairline separator between sidebar and content. Subtle, doesn't
+       compete with the section hairlines on the right. */
+    border-right: 1px solid var(--color-card-border);
+    padding: 8px 24px 24px 4px;
+  }
+  /* Tame the sidebar scrollbar — visible but quiet. */
+  .faith-toc-sidebar::-webkit-scrollbar { width: 6px; }
+  .faith-toc-sidebar::-webkit-scrollbar-track { background: transparent; }
+  .faith-toc-sidebar::-webkit-scrollbar-thumb {
+    background: var(--color-card-border);
+    border-radius: 3px;
+  }
+}
+@media (max-width: 1023px) {
+  .faith-toc-sidebar {
+    background: var(--color-background);
+    border-radius: 8px;
+    padding: 18px 22px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+}
+
+/* TOC nav itself (rendered inside .faith-toc-sidebar). Single column,
+   left-aligned, compact rows. Active item highlight via JS adds
+   `is-active`; the rule below catches both that and the :target
+   pseudo-class so deep links to a section anchor highlight too. */
 .faith-toc {
-  background: var(--color-background);
-  border-top: 1px solid var(--color-card-border);
-  border-bottom: 1px solid var(--color-card-border);
-  padding: 32px 0;
-  position: relative;
+  font-family: var(--font-body);
 }
-.faith-toc::before {
-  content: "";
-  position: absolute; inset: 0;
-  pointer-events: none;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(130,102,70,0.035) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgba(130,102,70,0.028) 0 1px, transparent 1px 4px);
-}
-.faith-toc > .container { position: relative; }
 .faith-toc-label-heading {
-  font-size: 11px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 0 0 14px;
+  padding: 0 8px;
+}
+.faith-toc-group { margin-bottom: 18px; }
+.faith-toc-group + .faith-toc-group { margin-top: 8px; }
+.faith-toc-group-label {
+  font-family: var(--font-body);
+  font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   font-weight: 600;
   color: var(--color-primary);
-  margin: 0 0 16px;
-  text-align: center;
+  margin: 0 0 8px;
+  padding: 0 8px;
 }
 .faith-toc-list {
   list-style: none;
   padding: 0;
-  margin: 0 auto;
-  max-width: 640px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 32px;
-  row-gap: 6px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
-.faith-toc-item {
-  display: block;
-  padding: 6px 0;
-  border-top: 1px solid var(--color-rule);
-}
-.faith-toc-item:first-child,
-.faith-toc-item:nth-child(2) { border-top: 0; }
+.faith-toc-item { display: block; }
 .faith-toc-item a {
   display: grid;
-  grid-template-columns: 32px 1fr;
+  grid-template-columns: 44px 1fr;
   gap: 10px;
   align-items: baseline;
+  padding: 7px 8px;
+  border-radius: 4px;
   color: var(--color-dark);
   text-decoration: none;
-  font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
+  transition: background 0.12s, color 0.12s;
 }
-.faith-toc-item a:hover { color: var(--color-secondary); text-decoration: none; }
+.faith-toc-item a:hover {
+  background: rgba(238,125,81,0.08);
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+.faith-toc-item a.is-active {
+  background: rgba(238,125,81,0.14);
+  color: var(--color-secondary);
+}
 .faith-toc-num {
   font-family: var(--font-display);
   font-style: italic;
   color: var(--color-primary);
+  font-size: 12px;
+  white-space: nowrap;
   text-align: right;
-  font-size: 13px;
 }
-.faith-toc-label em { font-style: italic; }
-
-.faith-toc-book { margin: 24px auto 0; max-width: 640px; }
-.faith-toc-book-label {
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--color-primary);
-  margin: 16px 0 10px;
+.faith-toc-label {
+  color: inherit;
+  display: inline-block;
 }
 
-@media (max-width: 640px) {
-  .faith-toc-list { grid-template-columns: 1fr; }
-  .faith-toc-item:nth-child(2) { border-top: 1px solid var(--color-rule); }
+@media (max-width: 1023px) {
+  /* Inline-mode TOC has a 2-column grid for short labels (creeds,
+     theses) and stays single-column for label-heavy docs (Heidelberg,
+     Calvin). Default to one-column to avoid awkward wrapping. */
+  .faith-toc-list { gap: 0; }
+  .faith-toc-item a { padding: 6px 8px; font-size: 13px; }
 }
 
 /* "Long work — only first chapter set so far" notice */
