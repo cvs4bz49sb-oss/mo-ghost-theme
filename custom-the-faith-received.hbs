@@ -18,26 +18,10 @@
       </h1>
       <p class="hero-sub">Creeds, confessions, catechisms, and classic texts &mdash; beautifully presented for study and devotion.</p>
 
-      {{!-- Reuses the existing inline-signup.js + data-source labels
-           so the new subscriber lands in Ghost as a free Subscriber
-           with `source: faith-received-home` -> Kit tag of the same
-           name. No new auth or email plumbing. --}}
-      <form class="faith-hero-form" data-inline-signup data-source="faith-received-home" novalidate>
-        <label class="visually-hidden" for="faith-hero-email">Email address</label>
-        <input
-          type="email"
-          id="faith-hero-email"
-          name="email"
-          required
-          autocomplete="email"
-          placeholder="Enter your email for updates"
-          data-signup-email
-        />
-        <button type="submit" class="btn btn-primary" data-signup-submit>
-          <span class="btn-label">Subscribe for updates</span>
-        </button>
-        <p class="faith-hero-status" data-signup-status role="status" aria-live="polite"></p>
-      </form>
+      <div class="hero-ctas faith-hero-ctas">
+        <a href="#documents" class="btn btn-primary btn-lg">Begin reading</a>
+        <a href="/the-faith-received/today/" class="btn btn-ghost btn-lg">Today's reading</a>
+      </div>
     </div>
   </section>
 
