@@ -75,6 +75,11 @@ routes:
     template: custom-admin-traffic
   /admin/editorial/:
     template: custom-admin-editorial
+  # Theological research assistant. Public, no gate. Frontend talks
+  # to the mo-faith-received Worker (Internet Archive search +
+  # Anthropic synthesis).
+  /the-faith-received/:
+    template: custom-the-faith-received
   # Public ebook catalog. Anonymous-viewable; tiles route through
   # the per-ebook landing pages.
   /ebooks/:
