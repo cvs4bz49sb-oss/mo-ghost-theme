@@ -1,0 +1,52 @@
+{{!< default}}
+{{!-- /the-faith-received/search/ — full-text search across every
+     document, section, Q&A, thesis, and chapter in The Faith Received.
+     Index is built at theme-build time (scripts/build-faith-received.mjs)
+     and served as a static asset. fuse.js is loaded from a CDN. --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="hero faith-feature-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> The Faith Received &middot; Search</p>
+      <h1 class="hero-headline faith-hero-headline">
+        Find a passage in the <span class="highlight"><em>great Christian texts</em></span>.
+      </h1>
+      <p class="hero-sub">Search across every creed, confession, catechism, and library work in the reading room. Results link directly to the passage.</p>
+
+      <form class="faith-search-form" data-faith-search novalidate>
+        <label class="visually-hidden" for="faith-search-input">Search The Faith Received</label>
+        <input
+          type="search"
+          id="faith-search-input"
+          name="q"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          placeholder="Try &ldquo;justification&rdquo; or &ldquo;Lord's Supper&rdquo; or &ldquo;Augustine&rdquo;"
+          data-faith-search-input
+        />
+        <button type="submit" class="btn btn-primary" aria-label="Search">
+          <span class="btn-label">Search</span>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <section class="faith-feature-body">
+    <div class="container container-narrow">
+      <p class="faith-search-status" data-faith-search-status role="status" aria-live="polite">Type a word or phrase to search the library.</p>
+      <ol class="faith-search-results" data-faith-search-results></ol>
+
+      <div class="faith-search-empty" data-faith-search-empty hidden>
+        <p>No results. Try a different phrase, or browse by document.</p>
+        <p><a class="btn btn-outline" href="/the-faith-received/">Back to The Faith Received</a></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<script src="{{asset "js/faith-received.js"}}"></script>

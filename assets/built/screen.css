@@ -9057,3 +9057,1040 @@ body.mo-search-open { overflow: hidden; }
   .mo-search-result-title { font-size: 17px; }
   .mo-search-hint { padding: 10px 12px; gap: 10px; }
 }
+
+/* =============================================================
+   The Faith Received
+   -------------------------------------------------------------
+   Project home + per-document reading rooms + feature pages
+   (search, scripture, today, topics, devotional). All styles
+   scoped under `.faith-received` to keep them isolated. Uses the
+   site's existing tokens (--color-primary, --font-display, etc.)
+   so the project reads as part of the Mere Orthodoxy journal.
+   ============================================================= */
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Page-level container ─────────────────────────────────────── */
+.faith-received {
+  background: var(--color-page);
+}
+
+/* ── Hero (homepage + feature pages) ──────────────────────────── */
+.faith-hero {
+  /* Inherits .hero. Project's hero has no feature-image, so we
+     compose with a softer dark plate + the same orange bloom
+     and add room for the email capture form below the sub. */
+  padding: 96px 0 96px;
+  text-align: left;
+}
+.faith-hero .container { position: relative; z-index: 1; max-width: 920px; }
+.faith-hero .hero-kicker { justify-content: flex-start; }
+.faith-hero-headline {
+  font-size: clamp(40px, 5vw, 68px);
+  margin-bottom: 24px;
+  max-width: 880px;
+}
+.faith-hero .hero-sub { max-width: 620px; margin-bottom: 32px; }
+
+.faith-hero-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 520px;
+  align-items: stretch;
+  margin-top: 32px;
+}
+.faith-hero-form input[type="email"] {
+  flex: 1 1 240px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.06);
+  color: var(--color-white);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.faith-hero-form input[type="email"]::placeholder { color: rgba(255,255,255,0.5); }
+.faith-hero-form input[type="email"]:focus {
+  border-color: var(--color-primary);
+  background: rgba(255,255,255,0.1);
+}
+.faith-hero-form .btn { flex: 0 0 auto; padding: 14px 22px; }
+.faith-hero-status {
+  flex-basis: 100%;
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  min-height: 18px;
+}
+.faith-hero-status.is-error { color: #ffb3a0; }
+
+/* When the inline-signup partial swaps in its success block, keep
+   the success card on a dark hero background by giving it a translucent
+   surface treatment that mirrors the form. */
+.faith-hero .inline-signup-success {
+  margin-top: 32px;
+  padding: 20px 24px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  max-width: 520px;
+  color: var(--color-white);
+}
+.faith-hero .inline-signup-success .eyebrow { color: var(--color-primary); }
+.faith-hero .inline-signup-success h4 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  margin: 4px 0 8px;
+}
+
+/* ── Quick-link rail under the hero ───────────────────────────── */
+.faith-rail {
+  background: var(--color-page);
+  border-bottom: 1px solid var(--color-rule);
+}
+.faith-rail .topics-inner { padding: 16px 28px; }
+
+/* ── Section bands (Documents, Library, Tools) ────────────────── */
+.faith-section-band {
+  padding: 88px 0;
+}
+.faith-section-band + .faith-section-band {
+  border-top: 1px solid var(--color-card-border);
+}
+.faith-band-documents { background: var(--color-page); }
+.faith-band-library { background: var(--color-background); position: relative; }
+.faith-band-library::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(130,102,70,0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(130,102,70,0.028) 0 1px, transparent 1px 4px);
+}
+.faith-band-library > * { position: relative; }
+
+.faith-band-tools { background: var(--color-page); }
+
+.faith-section-lede {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--color-muted);
+  max-width: 560px;
+  margin: 16px auto 0;
+}
+.faith-section-band .section-intro { text-align: center; max-width: 720px; margin: 0 auto 32px; }
+.faith-section-band .flourish { margin: 24px auto 40px; }
+
+/* ── Card grid (documents + library) ──────────────────────────── */
+.faith-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 56px;
+  row-gap: 0;
+  max-width: 1080px;
+  margin: 0 auto;
+  position: relative;
+}
+.faith-card-grid::before {
+  content: "";
+  position: absolute;
+  top: 28px; bottom: 28px;
+  left: 50%;
+  width: 1px;
+  background: var(--color-card-border);
+}
+.faith-card {
+  display: block;
+  padding: 32px 0 28px;
+  border-top: 1px solid var(--color-card-border);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s;
+}
+.faith-card:first-child,
+.faith-card:nth-child(2) { border-top: 0; padding-top: 12px; }
+.faith-card:hover { text-decoration: none; transform: translateY(-1px); }
+.faith-card:hover .faith-card-title { color: var(--color-secondary); }
+.faith-card:hover .faith-card-arrow { transform: translateX(3px); }
+.faith-card-date {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+.faith-card-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1.15;
+  margin: 0 0 4px;
+  color: var(--color-dark);
+  transition: color 0.15s;
+}
+.faith-card-title em { font-style: italic; }
+.faith-card-author {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+}
+.faith-card-author em { font-style: italic; }
+.faith-card-desc {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 18px;
+  max-width: 480px;
+}
+.faith-card-link {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.faith-card-arrow { display: inline-block; transition: transform 0.15s; }
+
+@media (max-width: 720px) {
+  .faith-card-grid { grid-template-columns: 1fr; }
+  .faith-card-grid::before { display: none; }
+  .faith-card,
+  .faith-card:first-child,
+  .faith-card:nth-child(2) { border-top: 1px solid var(--color-card-border); padding: 28px 0; }
+  .faith-card:first-child { border-top: 0; padding-top: 8px; }
+}
+
+/* ── Tools grid (Devotional / Today / Topics / Scripture) ─────── */
+.faith-tools-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 56px;
+  row-gap: 40px;
+}
+.faith-tool {
+  padding: 28px 0 0;
+  border-top: 1px solid var(--color-card-border);
+  position: relative;
+}
+.faith-tool:first-child,
+.faith-tool:nth-child(2) { border-top: 0; padding-top: 0; }
+.faith-tool-numeral {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 26px;
+  color: var(--color-primary);
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.faith-tool-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.12;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+}
+.faith-tool-title em { font-style: italic; }
+.faith-tool-body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0 0 18px;
+  max-width: 360px;
+}
+.faith-tool-link {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+@media (max-width: 720px) {
+  .faith-tools-grid { grid-template-columns: 1fr; }
+  .faith-tool, .faith-tool:nth-child(2) { border-top: 1px solid var(--color-card-border); padding-top: 24px; }
+  .faith-tool:first-child { border-top: 0; padding-top: 0; }
+}
+
+/* ── Closing coda band (reuses .journal-band styling) ─────────── */
+.faith-coda { padding: 96px 0; }
+.faith-coda-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+}
+.faith-coda-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1.1;
+  color: var(--color-white);
+  margin: 16px 0 24px;
+}
+.faith-coda-heading em { font-style: italic; }
+.faith-coda-body {
+  font-size: 18px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.82);
+  margin: 0 0 32px;
+}
+.faith-coda-ctas {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Document reading view ────────────────────────────────────── */
+.faith-doc { background: var(--color-page); }
+
+.faith-doc-header {
+  /* Inherits .article-header. Add room for description + actions
+     below the title cluster. */
+  padding: 72px 0 64px;
+}
+.faith-doc-dek {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.7);
+  margin: 16px 0 24px;
+}
+.faith-doc-description {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.82);
+  max-width: 640px;
+  margin: 0 auto 28px;
+}
+.faith-doc-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px 28px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.faith-modernizer-toggle {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.faith-modernizer-toggle:hover { background: rgba(255,255,255,0.08); }
+.faith-modernizer-toggle[aria-pressed="true"] {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+.faith-doc-back {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+}
+.faith-doc-back:hover { color: var(--color-primary); text-decoration: none; }
+
+.faith-doc-body {
+  padding: 72px 0 96px;
+}
+.faith-doc-inner {
+  /* Reading column. Match the article column width across the rest
+     of the site for visual consistency. */
+  max-width: 720px;
+  padding: 0 28px;
+}
+
+/* ── Document section / chapter / article container ──────────── */
+.faith-section {
+  padding: 0 0 56px;
+  margin: 0 0 56px;
+  border-bottom: 1px solid var(--color-card-border);
+  scroll-margin-top: 96px;
+}
+.faith-section:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+.faith-section-numeral {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 12px;
+}
+.faith-section-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1.15;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+.faith-section-title em { font-style: italic; }
+.faith-section-subtitle {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--color-muted);
+  margin: 0 0 24px;
+}
+.faith-section-body { margin-top: 8px; }
+/* Inherit .article-content for all the prose niceties (dropcap on
+   first paragraph, blockquotes, hr ornaments, links, lists). */
+
+/* ── 95 Theses ────────────────────────────────────────────────── */
+.faith-thesis-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: thesis;
+}
+.faith-thesis {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 18px;
+  padding: 24px 0;
+  border-top: 1px solid var(--color-card-border);
+  scroll-margin-top: 96px;
+}
+.faith-thesis:first-child { border-top: 0; padding-top: 0; }
+.faith-thesis-number {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--color-primary);
+  text-align: right;
+  padding-top: 4px;
+}
+.faith-thesis-text {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+/* ── Q & A (Westminster, Heidelberg) ──────────────────────────── */
+.faith-qa {
+  padding: 0 0 32px;
+  margin: 0 0 32px;
+  border-bottom: 1px solid var(--color-rule);
+  scroll-margin-top: 96px;
+}
+.faith-qa:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+.faith-qa-number {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 8px;
+}
+.faith-qa-question {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.25;
+  color: var(--color-dark);
+  margin: 0 0 18px;
+}
+.faith-qa-question em { font-style: italic; }
+.faith-qa-answer { margin: 8px 0 0; }
+.faith-qa-answer p { font-size: 17px; line-height: 1.7; }
+.faith-qa-references {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-rule);
+}
+.faith-qa-ref-label {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-right: 10px;
+}
+
+/* Heidelberg part / Lord's Day */
+.faith-heidelberg-part { padding: 16px 0 48px; }
+.faith-heidelberg-part .flourish { margin-bottom: 40px; }
+.faith-part-eyebrow {
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  margin: 0 0 16px;
+}
+.faith-lords-day {
+  padding: 0 0 56px;
+  margin: 0 0 56px;
+  border-bottom: 1px solid var(--color-card-border);
+  scroll-margin-top: 96px;
+}
+.faith-lords-day:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+.faith-lords-day-numeral {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 12px;
+}
+
+/* Edwards' Resolutions */
+.faith-edwards-preamble {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0 0 48px;
+  padding: 0 0 32px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-edwards-item {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 18px;
+  padding: 22px 0;
+  border-top: 1px solid var(--color-rule);
+  scroll-margin-top: 96px;
+}
+.faith-edwards-item:first-of-type { border-top: 0; padding-top: 0; }
+.faith-edwards-number {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--color-primary);
+  text-align: right;
+  padding-top: 4px;
+}
+.faith-edwards-text {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+/* Library books (Calvin / Augustine / Imitation) */
+.faith-book {
+  padding: 24px 0 56px;
+  margin: 0 0 56px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-book:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+.faith-book-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-align: center;
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.1;
+  color: var(--color-dark);
+  margin: 0 0 32px;
+}
+.faith-book-title em { font-style: italic; }
+
+/* TOC nav (placed after header on docs with 4+ items) */
+.faith-toc {
+  background: var(--color-background);
+  border-top: 1px solid var(--color-card-border);
+  border-bottom: 1px solid var(--color-card-border);
+  padding: 32px 0;
+  position: relative;
+}
+.faith-toc::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(130,102,70,0.035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(130,102,70,0.028) 0 1px, transparent 1px 4px);
+}
+.faith-toc > .container { position: relative; }
+.faith-toc-label-heading {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 16px;
+  text-align: center;
+}
+.faith-toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 640px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 32px;
+  row-gap: 6px;
+}
+.faith-toc-item {
+  display: block;
+  padding: 6px 0;
+  border-top: 1px solid var(--color-rule);
+}
+.faith-toc-item:first-child,
+.faith-toc-item:nth-child(2) { border-top: 0; }
+.faith-toc-item a {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  color: var(--color-dark);
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.faith-toc-item a:hover { color: var(--color-secondary); text-decoration: none; }
+.faith-toc-num {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--color-primary);
+  text-align: right;
+  font-size: 13px;
+}
+.faith-toc-label em { font-style: italic; }
+
+.faith-toc-book { margin: 24px auto 0; max-width: 640px; }
+.faith-toc-book-label {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 16px 0 10px;
+}
+
+@media (max-width: 640px) {
+  .faith-toc-list { grid-template-columns: 1fr; }
+  .faith-toc-item:nth-child(2) { border-top: 1px solid var(--color-rule); }
+}
+
+/* "Long work — only first chapter set so far" notice */
+.faith-oversized-note {
+  margin: 0 0 56px;
+  padding: 24px 28px;
+  border: 1px solid var(--color-card-border);
+  border-left: 3px solid var(--color-primary);
+  background: rgba(238,125,81,0.04);
+  border-radius: 6px;
+}
+.faith-oversized-note .eyebrow { margin-bottom: 8px; }
+.faith-oversized-note p:last-child { margin-bottom: 0; font-size: 15px; line-height: 1.65; color: var(--color-muted); }
+
+/* ── Feature pages: shared shell ──────────────────────────────── */
+.faith-feature .faith-feature-hero { padding: 88px 0 88px; }
+.faith-feature-hero .container { max-width: 920px; }
+.faith-feature-body { padding: 72px 0 96px; }
+.faith-feature-cta {
+  margin-top: 48px;
+  text-align: center;
+}
+.faith-feature-cta .section-heading { font-size: clamp(24px, 2.8vw, 32px); margin: 4px auto 24px; }
+.faith-feature-cta .faith-hero-form {
+  margin: 0 auto;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  padding: 6px 6px 6px 18px;
+  max-width: 460px;
+}
+.faith-feature-cta .faith-hero-form input[type="email"] {
+  border: 0;
+  background: transparent;
+  color: var(--color-dark);
+  padding: 10px 0;
+  font-size: 15px;
+}
+.faith-feature-cta .faith-hero-form input[type="email"]::placeholder { color: var(--color-muted); }
+.faith-feature-cta .faith-hero-form input[type="email"]:focus { background: transparent; }
+.faith-feature-cta .faith-hero-form .btn { padding: 12px 22px; }
+.faith-feature-cta .faith-hero-status { color: var(--color-muted); }
+
+/* ── Search page ──────────────────────────────────────────────── */
+.faith-search-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 36px;
+  max-width: 720px;
+  align-items: stretch;
+}
+.faith-search-form input[type="search"] {
+  flex: 1;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  padding: 14px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.06);
+  color: var(--color-white);
+  outline: none;
+}
+.faith-search-form input[type="search"]::placeholder {
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+}
+.faith-search-form input[type="search"]:focus {
+  border-color: var(--color-primary);
+  background: rgba(255,255,255,0.1);
+}
+.faith-search-status {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 0 0 24px;
+}
+.faith-search-status.is-error { color: var(--color-secondary); }
+.faith-search-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.faith-search-hit {
+  border-bottom: 1px solid var(--color-rule);
+}
+.faith-search-hit-link {
+  display: block;
+  padding: 24px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.15s;
+}
+.faith-search-hit-link:hover { opacity: 1; }
+.faith-search-hit-link:hover .faith-search-hit-title { color: var(--color-secondary); }
+.faith-search-hit-meta {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 8px;
+}
+.faith-search-hit-author {
+  color: var(--color-muted);
+  margin-left: 12px;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+.faith-search-hit-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0 0 8px;
+  color: var(--color-dark);
+  transition: color 0.15s;
+}
+.faith-search-hit-snippet,
+.faith-search-hit-body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+}
+.faith-search-hit-body { color: var(--color-muted); }
+.faith-search-hit mark {
+  background: rgba(238,125,81,0.22);
+  color: inherit;
+  padding: 0 2px;
+}
+.faith-search-empty {
+  padding: 48px 0;
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--color-muted);
+}
+
+/* ── Scripture index page ─────────────────────────────────────── */
+.faith-scripture-toggle {
+  display: inline-flex;
+  gap: 4px;
+  margin-top: 28px;
+  background: rgba(255,255,255,0.08);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.faith-scripture-toggle-btn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  background: transparent;
+  border: 0;
+  padding: 9px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.faith-scripture-toggle-btn.is-active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+.faith-scripture-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.faith-scripture-status {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  margin: 24px 0;
+}
+.faith-scripture-book {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--color-dark);
+  transition: border-color 0.15s, background 0.15s;
+}
+.faith-scripture-book:hover {
+  border-color: var(--color-primary);
+  text-decoration: none;
+}
+.faith-scripture-book.is-empty { opacity: 0.5; cursor: default; }
+.faith-scripture-book-name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 19px;
+}
+.faith-scripture-book-count {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.faith-scripture-detail { max-width: 760px; margin: 0 auto; }
+.faith-scripture-back {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 0 0 16px;
+  display: inline-block;
+}
+.faith-scripture-detail-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 38px;
+  line-height: 1.1;
+  margin: 0 0 32px;
+  color: var(--color-dark);
+}
+.faith-scripture-refs { list-style: none; padding: 0; margin: 0; }
+.faith-scripture-ref { border-top: 1px solid var(--color-rule); }
+.faith-scripture-ref:first-child { border-top: 0; }
+.faith-scripture-ref-link {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) 2fr;
+  gap: 18px;
+  padding: 18px 0;
+  text-decoration: none;
+  color: var(--color-dark);
+  align-items: baseline;
+}
+.faith-scripture-ref-link:hover { text-decoration: none; }
+.faith-scripture-ref-link:hover .faith-scripture-ref-passage { color: var(--color-secondary); }
+.faith-scripture-ref-passage {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  display: block;
+  transition: color 0.15s;
+}
+.faith-scripture-ref-source {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  display: block;
+  margin-top: 6px;
+}
+.faith-scripture-ref-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+.faith-scripture-ref-excerpt {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  display: block;
+}
+
+/* ── Today's reading page ─────────────────────────────────────── */
+.faith-today-body { padding: 72px 0 96px; }
+.faith-today-card {
+  text-align: center;
+}
+.faith-today-card .eyebrow { margin: 0 0 8px; }
+.faith-today-card .section-heading { margin: 0 0 24px; max-width: 580px; margin-left: auto; margin-right: auto; }
+.faith-today-content {
+  text-align: left;
+  margin-top: 24px;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  padding: 32px 36px;
+  border-radius: 8px;
+}
+.faith-today-content p { font-size: 18px; line-height: 1.75; }
+.faith-today-content > p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.8em;
+  line-height: 1;
+  padding-right: 0.08em;
+  color: var(--color-secondary);
+}
+.faith-today-cta { margin-top: 32px; text-align: center; }
+.faith-today-status {
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  padding: 32px 0;
+}
+.faith-today-status.is-error { color: var(--color-secondary); }
+
+/* ── Topics page (V1: list + Coming soon) ─────────────────────── */
+.faith-topics-list {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 48px;
+  row-gap: 32px;
+}
+.faith-topic {
+  padding: 24px 0 0;
+  border-top: 1px solid var(--color-card-border);
+}
+.faith-topic:first-child,
+.faith-topic:nth-child(2) { border-top: 0; padding-top: 8px; }
+.faith-topic-numeral {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--color-primary);
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.faith-topic-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.15;
+  color: var(--color-dark);
+  margin: 0 0 8px;
+}
+.faith-topic-title em { font-style: italic; }
+.faith-topic-body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0;
+}
+@media (max-width: 720px) {
+  .faith-topics-list { grid-template-columns: 1fr; }
+  .faith-topic, .faith-topic:nth-child(2) { border-top: 1px solid var(--color-card-border); padding-top: 22px; }
+  .faith-topic:first-child { border-top: 0; padding-top: 0; }
+}
+
+/* ── Mobile tightening ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .faith-hero { padding: 64px 0 64px; }
+  .faith-hero-headline { font-size: clamp(32px, 9vw, 44px); }
+  .faith-hero-form { flex-direction: column; }
+  .faith-hero-form .btn { width: 100%; }
+  .faith-section-band { padding: 56px 0; }
+  .faith-doc-body { padding: 48px 0 64px; }
+  .faith-doc-inner { padding: 0 20px; }
+  .faith-section { padding-bottom: 40px; margin-bottom: 40px; }
+  .faith-doc-actions { flex-direction: column; gap: 14px; }
+  .faith-thesis,
+  .faith-edwards-item { grid-template-columns: 44px 1fr; gap: 14px; }
+  .faith-thesis-number,
+  .faith-edwards-number { font-size: 22px; }
+  .faith-search-form input[type="search"] { font-size: 18px; padding: 12px 16px; }
+  .faith-feature-cta .faith-hero-form { flex-direction: row; padding: 4px 4px 4px 14px; }
+  .faith-feature-cta .faith-hero-form .btn { padding: 10px 18px; }
+  .faith-scripture-grid { grid-template-columns: 1fr; }
+  .faith-scripture-ref-link { grid-template-columns: 1fr; gap: 4px; }
+}

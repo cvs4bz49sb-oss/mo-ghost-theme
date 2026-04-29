@@ -1,0 +1,81 @@
+{{!< default}}
+{{!-- /the-faith-received/devotional/ — Devotional plan builder. V1
+     ships a description + email-capture; V2 will wire the actual
+     plan-builder UI (source picker + Bible track + saved positions
+     in localStorage, optionally synced to the visitor's Ghost member
+     account). --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="hero faith-feature-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> The Faith Received &middot; Devotional</p>
+      <h1 class="hero-headline faith-hero-headline">
+        Build a daily reading plan from the <span class="highlight"><em>great Christian texts</em></span>.
+      </h1>
+      <p class="hero-sub">Pick the creeds, confessions, and classics you want to read. Pair them with the Bible track of your choice. Read at your own pace; we keep your place.</p>
+    </div>
+  </section>
+
+  <section class="faith-feature-body">
+    <div class="container container-narrow">
+      <div class="section-intro">
+        <p class="eyebrow">Coming in Phase II</p>
+        <h2 class="section-heading"><em>The plan-builder is being typeset.</em></h2>
+      </div>
+
+      <div class="about-prose">
+        <p class="hero-excerpt-dropcap">Most readers come to the great Christian texts with the best intentions and a vague plan. The Faith Received's devotional engine is a way to make the plan concrete: choose your sources, choose your Bible track, and the engine will give you the next thing to read each day, keep your place, and let you build the rhythm at your own pace.</p>
+        <p>For now, you can read every document in the library at its own pace, with the in-page table of contents to navigate by. When the devotional engine is ready, the same texts will be available as a pacing-aware reading plan.</p>
+      </div>
+
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      <div class="section-intro">
+        <p class="eyebrow">What it will do</p>
+        <h2 class="section-heading"><em>The shape of the engine.</em></h2>
+      </div>
+
+      <ol class="about-vision-grid">
+        <li class="about-vision-item">
+          <span class="about-vision-numeral">I</span>
+          <h3 class="about-vision-label"><em>Choose your sources</em></h3>
+          <p class="about-vision-body">Pick from the 22 historic documents and library works. Add or remove as your interests change.</p>
+        </li>
+        <li class="about-vision-item">
+          <span class="about-vision-numeral">II</span>
+          <h3 class="about-vision-label"><em>Add Bible reading</em></h3>
+          <p class="about-vision-body">Psalms, Old Testament, New Testament, or the Gospels &mdash; in your translation of choice.</p>
+        </li>
+        <li class="about-vision-item">
+          <span class="about-vision-numeral">III</span>
+          <h3 class="about-vision-label"><em>Read at your own pace</em></h3>
+          <p class="about-vision-body">The engine remembers where you left off. Skip a day; pick up where you stopped.</p>
+        </li>
+        <li class="about-vision-item">
+          <span class="about-vision-numeral">IV</span>
+          <h3 class="about-vision-label"><em>Sync across devices</em></h3>
+          <p class="about-vision-body">Sign in with your Mere Orthodoxy account and read on phone, tablet, and laptop without losing your place.</p>
+        </li>
+      </ol>
+
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      <div class="faith-feature-cta">
+        <p class="eyebrow">Be the first to read</p>
+        <h3 class="section-heading"><em>Get an email when the devotional engine launches.</em></h3>
+        <form class="faith-hero-form" data-inline-signup data-source="faith-received-devotional" novalidate>
+          <label class="visually-hidden" for="faith-devotional-email">Email address</label>
+          <input type="email" id="faith-devotional-email" name="email" required autocomplete="email" placeholder="Enter your email" data-signup-email />
+          <button type="submit" class="btn btn-primary" data-signup-submit>
+            <span class="btn-label">Notify me</span>
+          </button>
+          <p class="faith-hero-status" data-signup-status role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/faith-received.js"}}"></script>

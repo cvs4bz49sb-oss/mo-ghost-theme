@@ -1,0 +1,41 @@
+{{!< default}}
+{{!-- /the-faith-received/scripture/ — Scripture index. Lists every
+     biblical book and the references found across the documents in
+     the reading room. Source data built into
+     assets/data/faith-received/scripture-index.json by the build
+     script (which copies it from the heidelberg repo). --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="hero faith-feature-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> The Faith Received &middot; Scripture Index</p>
+      <h1 class="hero-headline faith-hero-headline">
+        Read the tradition <span class="highlight"><em>by the book</em></span>.
+      </h1>
+      <p class="hero-sub">Every biblical passage that the historic creeds, catechisms, and library cite or expound. Pick a book; jump to the reference.</p>
+
+      <div class="faith-scripture-toggle" role="tablist" aria-label="Testament">
+        <button type="button" class="faith-scripture-toggle-btn is-active" data-faith-scripture-tab="ot" role="tab" aria-selected="true">Old Testament</button>
+        <button type="button" class="faith-scripture-toggle-btn" data-faith-scripture-tab="nt" role="tab" aria-selected="false">New Testament</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="faith-feature-body">
+    <div class="container">
+      <div class="faith-scripture-grid" data-faith-scripture-books>
+        <p class="faith-scripture-status" data-faith-scripture-status>Loading scripture index&hellip;</p>
+      </div>
+
+      <div class="faith-scripture-detail" data-faith-scripture-detail hidden>
+        <a href="#" class="faith-scripture-back" data-faith-scripture-back>&larr; All books</a>
+        <h2 class="faith-scripture-detail-title" data-faith-scripture-detail-title></h2>
+        <ol class="faith-scripture-refs" data-faith-scripture-refs></ol>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/faith-received.js"}}"></script>

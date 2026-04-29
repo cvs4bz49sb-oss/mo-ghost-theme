@@ -1,0 +1,36 @@
+{{!< default}}
+{{!-- /the-faith-received/today/ — Today's reading. A single passage
+     deterministically picked from the library by day-of-year. Plan
+     entries are pre-built into assets/data/faith-received/today.json
+     so the same date returns the same reading for every visitor. --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="hero faith-feature-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> The Faith Received &middot; Today's Reading</p>
+      <h1 class="hero-headline faith-hero-headline">
+        A passage <span class="highlight"><em>for today</em></span>, drawn from the tradition.
+      </h1>
+      <p class="hero-sub" data-faith-today-date>Loading&hellip;</p>
+    </div>
+  </section>
+
+  <section class="faith-feature-body faith-today-body">
+    <div class="container container-narrow">
+      <article class="faith-today-card" data-faith-today-card hidden>
+        <p class="eyebrow" data-faith-today-source></p>
+        <h2 class="section-heading" data-faith-today-title></h2>
+        <div class="flourish">{{> "flourish-mark"}}</div>
+        <div class="faith-today-content article-content" data-faith-today-content></div>
+        <p class="faith-today-cta">
+          <a class="btn btn-primary" data-faith-today-link href="#">Continue in the document</a>
+        </p>
+      </article>
+      <p class="faith-today-status" data-faith-today-status>Loading today's reading&hellip;</p>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/faith-received.js"}}"></script>

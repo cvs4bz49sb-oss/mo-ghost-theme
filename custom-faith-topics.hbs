@@ -1,0 +1,71 @@
+{{!< default}}
+{{!-- /the-faith-received/topics/ — Cross-reference of major theological
+     topics across the library. V1 lists the topic taxonomy and an
+     email capture for the launch of the cross-reference itself. The
+     full topic-content data (~7K lines in heidelberg/data/topics-content.ts)
+     will be ported in a later pass. --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="hero faith-feature-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> The Faith Received &middot; Topics</p>
+      <h1 class="hero-headline faith-hero-headline">
+        The great themes of the <span class="highlight"><em>Christian faith</em></span>, cross-referenced.
+      </h1>
+      <p class="hero-sub">From God and the Trinity to salvation, the Church, and the life to come. Trace each doctrine across two millennia of writing.</p>
+    </div>
+  </section>
+
+  <section class="faith-feature-body">
+    <div class="container container-narrow">
+      <div class="section-intro">
+        <p class="eyebrow">Coming in Phase II</p>
+        <h2 class="section-heading"><em>The reading room is open. The cross-reference is being typeset.</em></h2>
+      </div>
+
+      <div class="about-prose">
+        <p class="hero-excerpt-dropcap">Every creed, confession, catechism, and classic in the library will be tagged by topic, so that on a single page you can read what the Christian tradition has held about <em>justification</em>, or <em>the sacraments</em>, or <em>the Holy Trinity</em>, across centuries and confessions. We are gathering the references now.</p>
+      </div>
+
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      <div class="section-intro">
+        <p class="eyebrow">The Topics</p>
+        <h2 class="section-heading"><em>What we are gathering.</em></h2>
+      </div>
+
+      <ol class="faith-topics-list">
+        <li class="faith-topic"><span class="faith-topic-numeral">I</span><h3 class="faith-topic-title"><em>God</em></h3><p class="faith-topic-body">The being and attributes of God; the doctrine of the Trinity.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">II</span><h3 class="faith-topic-title"><em>Christ</em></h3><p class="faith-topic-body">The person and work of Christ; the two natures; the offices of prophet, priest, and king.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">III</span><h3 class="faith-topic-title"><em>The Holy Spirit</em></h3><p class="faith-topic-body">The Spirit's procession, gifts, and indwelling.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">IV</span><h3 class="faith-topic-title"><em>Scripture</em></h3><p class="faith-topic-body">The authority, inspiration, and sufficiency of the Bible.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">V</span><h3 class="faith-topic-title"><em>Creation &amp; providence</em></h3><p class="faith-topic-body">God's making and governing of all things.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">VI</span><h3 class="faith-topic-title"><em>Sin</em></h3><p class="faith-topic-body">The fall, original sin, and the bondage of the will.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">VII</span><h3 class="faith-topic-title"><em>Salvation</em></h3><p class="faith-topic-body">Justification, sanctification, perseverance, and assurance.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">VIII</span><h3 class="faith-topic-title"><em>The Church</em></h3><p class="faith-topic-body">The marks of the Church, ministry, and discipline.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">IX</span><h3 class="faith-topic-title"><em>The sacraments</em></h3><p class="faith-topic-body">Baptism and the Lord's Supper as means of grace.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">X</span><h3 class="faith-topic-title"><em>Prayer &amp; the Christian life</em></h3><p class="faith-topic-body">The Lord's Prayer, the Ten Commandments, and the life of holiness.</p></li>
+        <li class="faith-topic"><span class="faith-topic-numeral">XI</span><h3 class="faith-topic-title"><em>The last things</em></h3><p class="faith-topic-body">Death, resurrection, judgment, and the world to come.</p></li>
+      </ol>
+
+      <div class="flourish">{{> "flourish-mark"}}</div>
+
+      <div class="faith-feature-cta">
+        <p class="eyebrow">Be the first to read</p>
+        <h3 class="section-heading"><em>Get an email when the cross-reference goes live.</em></h3>
+        <form class="faith-hero-form" data-inline-signup data-source="faith-received-topics" novalidate>
+          <label class="visually-hidden" for="faith-topics-email">Email address</label>
+          <input type="email" id="faith-topics-email" name="email" required autocomplete="email" placeholder="Enter your email" data-signup-email />
+          <button type="submit" class="btn btn-primary" data-signup-submit>
+            <span class="btn-label">Notify me</span>
+          </button>
+          <p class="faith-hero-status" data-signup-status role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/faith-received.js"}}"></script>

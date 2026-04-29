@@ -3,3 +3,8 @@ node_modules/
 *.zip
 *.log
 .env
+
+# Faith Received: source JSON regenerated locally from the heidelberg
+# repo via scripts/import-faith-received.mjs. Generated partials in
+# partials/faith-received/ ARE committed (those are what Ghost serves).
+data/faith-received/
