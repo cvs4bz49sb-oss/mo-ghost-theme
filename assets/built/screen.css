@@ -8731,6 +8731,75 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
    renders light always (no dark-mode override; matches the
    rest of the non-article site). */
 
+/* FAQ accordion at the top of /migrate/. Two stacked
+   <details> rows; matches the dashboard module pattern
+   (italic display heading, brand-orange chev, hairline
+   between rows, no card chrome). */
+.migrate-faq {
+  background: var(--color-page);
+  padding: 56px 0 24px;
+}
+.migrate-faq .container { max-width: 780px; }
+.migrate-faq-item {
+  border-top: 1px solid var(--color-card-border);
+  padding: 0;
+}
+.migrate-faq-item:last-of-type {
+  border-bottom: 1px solid var(--color-card-border);
+}
+.migrate-faq-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 18px;
+  padding: 24px 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.migrate-faq-summary::-webkit-details-marker { display: none; }
+.migrate-faq-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-dark);
+  font-weight: 400;
+}
+.migrate-faq-chev {
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(45deg) translateY(-3px);
+  transition: transform 0.2s;
+}
+.migrate-faq-item[open] .migrate-faq-chev {
+  transform: rotate(-135deg) translateY(-3px);
+}
+.migrate-faq-body {
+  padding: 0 0 28px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-dark);
+}
+.migrate-faq-body p { margin: 0 0 14px; }
+.migrate-faq-body p:last-child { margin-bottom: 0; }
+.migrate-faq-emphasis {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--color-secondary);
+  margin-top: 18px !important;
+}
+
+@media (max-width: 640px) {
+  .migrate-faq { padding: 40px 0 16px; }
+  .migrate-faq-summary { padding: 20px 0; }
+  .migrate-faq-title { font-size: 22px; }
+  .migrate-faq-body { font-size: 15px; padding-bottom: 24px; }
+}
+
 .migrate-warning {
   background: var(--color-page);
   padding: 28px 0 8px;
