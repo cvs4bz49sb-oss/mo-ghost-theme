@@ -9439,14 +9439,87 @@ body.mo-search-open { overflow: hidden; }
   padding: 0 28px;
 }
 
+/* ── Editorial introduction (atop every document) ────────────── */
+.faith-intro {
+  background: var(--color-page);
+  padding: 56px 0 8px;
+  position: relative;
+}
+.faith-intro-eyebrow {
+  text-align: center;
+  margin: 0 0 18px;
+}
+.faith-intro-prose {
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--color-dark);
+  margin: 0 auto 0;
+  max-width: 640px;
+  text-align: left;
+}
+.faith-intro-prose::first-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.6em;
+  line-height: 1;
+  color: var(--color-secondary);
+  padding-right: 0.1em;
+}
+.faith-intro-flourish {
+  margin: 40px auto 0;
+}
+
+/* ── Reading controls (Expand / Collapse all) ────────────────── */
+.faith-reading-controls {
+  background: var(--color-page);
+  border-bottom: 1px solid var(--color-card-border);
+  padding: 14px 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.faith-reading-controls-label {
+  color: var(--color-primary);
+}
+.faith-reading-control {
+  background: transparent;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  font-weight: inherit;
+  color: var(--color-dark);
+  cursor: pointer;
+  padding: 4px 6px;
+  transition: color 0.15s;
+}
+.faith-reading-control:hover { color: var(--color-secondary); }
+.faith-reading-controls-sep { color: var(--color-card-border); }
+
 /* ── Document section / chapter / article container ──────────── */
+/* Two flavors:
+   - Flat (.faith-section as <article>) for short docs (creeds, theses,
+     edwards, westminster shorter)
+   - Collapsible (.faith-section-details as <details>) for everything
+     longer. The collapsible variant matches the migrate-faq accordion
+     pattern: hairline rows, 45°→-135° brand-orange chev, no card
+     chrome, italic display title in the summary. */
 .faith-section {
   padding: 0 0 56px;
   margin: 0 0 56px;
   border-bottom: 1px solid var(--color-card-border);
   scroll-margin-top: 96px;
 }
-.faith-section:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+.faith-section:last-of-type { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
 .faith-section-numeral {
   font-family: var(--font-body);
   font-size: 11px;
@@ -9459,22 +9532,87 @@ body.mo-search-open { overflow: hidden; }
 .faith-section-title {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(28px, 3vw, 38px);
+  font-size: clamp(26px, 3vw, 36px);
   line-height: 1.15;
   color: var(--color-dark);
   margin: 0 0 16px;
 }
 .faith-section-title em { font-style: italic; }
-.faith-section-subtitle {
+.faith-section-subtitle,
+.faith-section-subtitle-inline {
   font-family: var(--font-body);
   font-style: italic;
   font-size: 17px;
   color: var(--color-muted);
-  margin: 0 0 24px;
+}
+.faith-section-subtitle { margin: 0 0 24px; }
+.faith-section-subtitle-inline {
+  display: block;
+  font-size: 0.6em;
+  margin-top: 6px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 .faith-section-body { margin-top: 8px; }
-/* Inherit .article-content for all the prose niceties (dropcap on
-   first paragraph, blockquotes, hr ornaments, links, lists). */
+
+/* Collapsible variant. Each <details> is a row in an accordion
+   stack — top hairline, generous summary padding, body fades in. */
+.faith-section-details {
+  border-top: 1px solid var(--color-card-border);
+  padding: 0;
+  scroll-margin-top: 96px;
+}
+.faith-section-details:last-of-type { border-bottom: 1px solid var(--color-card-border); }
+.faith-section-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 24px;
+  padding: 28px 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: padding 0.18s;
+}
+.faith-section-summary::-webkit-details-marker { display: none; }
+.faith-section-summary:hover .faith-section-title { color: var(--color-secondary); }
+.faith-section-summary-inner {
+  min-width: 0;
+}
+.faith-section-summary-inner .faith-section-numeral { margin-bottom: 6px; }
+.faith-section-summary-inner .faith-section-title {
+  margin: 0;
+  transition: color 0.15s;
+}
+/* Brand-orange chev — 45° pointing down (closed); -135° pointing up
+   (open). Matches the migrate FAQ accordion. */
+.faith-chev {
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(45deg) translateY(-3px);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.faith-section-details[open] .faith-chev {
+  transform: rotate(-135deg) translateY(-3px);
+}
+.faith-section-details[open] .faith-section-summary { padding-bottom: 18px; }
+.faith-section-details > .faith-section-body {
+  padding: 0 0 36px;
+  margin-top: 0;
+  /* Soft fade-in on open. Browsers ignore the animation on attribute
+     toggle, but adding it makes the open state feel less jarring. */
+  animation: faith-section-fade-in 0.22s ease-out;
+}
+@keyframes faith-section-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faith-section-details > .faith-section-body { animation: none; }
+}
 
 /* ── 95 Theses ────────────────────────────────────────────────── */
 .faith-thesis-list {
@@ -9509,14 +9647,14 @@ body.mo-search-open { overflow: hidden; }
   margin: 0;
 }
 
-/* ── Q & A (Westminster, Heidelberg) ──────────────────────────── */
+/* ── Q & A (Westminster Shorter flat; Larger collapsible) ────── */
 .faith-qa {
   padding: 0 0 32px;
   margin: 0 0 32px;
   border-bottom: 1px solid var(--color-rule);
   scroll-margin-top: 96px;
 }
-.faith-qa:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+.faith-qa:last-of-type { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
 .faith-qa-number {
   font-family: var(--font-body);
   font-size: 11px;
@@ -9536,7 +9674,7 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-qa-question em { font-style: italic; }
 .faith-qa-answer { margin: 8px 0 0; }
-.faith-qa-answer p { font-size: 17px; line-height: 1.7; }
+.faith-qa-answer p { font-size: 17px; line-height: 1.75; }
 .faith-qa-references {
   font-family: var(--font-body);
   font-size: 12px;
@@ -9555,31 +9693,37 @@ body.mo-search-open { overflow: hidden; }
   margin-right: 10px;
 }
 
-/* Heidelberg part / Lord's Day */
-.faith-heidelberg-part { padding: 16px 0 48px; }
-.faith-heidelberg-part .flourish { margin-bottom: 40px; }
+/* Collapsible Q&A variant (Westminster Larger): question goes in the
+   summary; answer + scripture refs live in the details body. */
+.faith-qa-details .faith-qa-summary { column-gap: 20px; padding: 22px 0; }
+.faith-qa-details .faith-qa-number { margin: 0 0 6px; }
+.faith-qa-details .faith-qa-question {
+  font-size: 22px;
+  margin: 0;
+  transition: color 0.15s;
+}
+.faith-qa-details[open] .faith-qa-summary { padding-bottom: 14px; }
+.faith-qa-details > .faith-qa-answer { padding: 0 0 28px; }
+
+/* Heidelberg part / Lord's Day (Lord's Day = collapsible) */
+.faith-heidelberg-part { padding: 8px 0 32px; }
+.faith-heidelberg-part .flourish { margin-bottom: 32px; }
 .faith-part-eyebrow {
   text-align: center;
   font-size: 12px;
   letter-spacing: 0.32em;
   margin: 0 0 16px;
 }
-.faith-lords-day {
-  padding: 0 0 56px;
-  margin: 0 0 56px;
-  border-bottom: 1px solid var(--color-card-border);
-  scroll-margin-top: 96px;
+.faith-lords-day-details {
+  /* inherits .faith-section-details */
 }
-.faith-lords-day:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
-.faith-lords-day-numeral {
-  font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--color-primary);
-  margin: 0 0 12px;
+.faith-lords-day-details + .faith-lords-day-details { border-top: 1px solid var(--color-card-border); }
+.faith-lords-day-body {
+  padding: 4px 0 36px;
 }
+/* Inside an open Lord's Day, Q&A items render as flat blocks. */
+.faith-lords-day-body .faith-qa { padding-bottom: 28px; margin-bottom: 28px; }
+.faith-lords-day-body .faith-qa:last-child { padding-bottom: 0; margin-bottom: 0; }
 
 /* Edwards' Resolutions */
 .faith-edwards-preamble {
@@ -9620,11 +9764,10 @@ body.mo-search-open { overflow: hidden; }
 
 /* Library books (Calvin / Augustine / Imitation) */
 .faith-book {
-  padding: 24px 0 56px;
+  padding: 24px 0 64px;
   margin: 0 0 56px;
-  border-bottom: 1px solid var(--color-card-border);
 }
-.faith-book:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+.faith-book + .faith-book { padding-top: 56px; border-top: 1px solid var(--color-card-border); }
 .faith-book-title {
   font-family: var(--font-display);
   font-weight: 400;
@@ -9632,9 +9775,16 @@ body.mo-search-open { overflow: hidden; }
   font-size: clamp(28px, 3.4vw, 40px);
   line-height: 1.1;
   color: var(--color-dark);
-  margin: 0 0 32px;
+  margin: 0 0 24px;
 }
 .faith-book-title em { font-style: italic; }
+.faith-book .flourish { margin-bottom: 32px; }
+/* Per-chapter <details> nested inside a book — slightly tighter
+   summary padding so book-level framing reads as the dominant rhythm
+   and chapters as nested rows. */
+.faith-book .faith-book-chapter .faith-section-summary { padding: 20px 0; }
+.faith-book .faith-book-chapter .faith-section-numeral { margin-bottom: 4px; }
+.faith-book .faith-book-chapter .faith-section-title { font-size: clamp(22px, 2.4vw, 28px); }
 
 /* TOC nav (placed after header on docs with 4+ items) */
 .faith-toc {
@@ -10093,4 +10243,73 @@ body.mo-search-open { overflow: hidden; }
   .faith-feature-cta .faith-hero-form .btn { padding: 10px 18px; }
   .faith-scripture-grid { grid-template-columns: 1fr; }
   .faith-scripture-ref-link { grid-template-columns: 1fr; gap: 4px; }
+  .faith-section-summary { padding: 22px 0; column-gap: 16px; }
+  .faith-section-summary .faith-section-title { font-size: clamp(22px, 5.5vw, 28px); }
+  .faith-intro { padding: 40px 0 4px; }
+  .faith-intro-prose { font-size: 17px; }
+  .faith-reading-controls { gap: 10px; font-size: 10px; padding: 12px 0; }
+  .faith-toc { padding: 24px 0; }
+}
+
+/* ── Print ────────────────────────────────────────────────────────
+   Documents are confessional reference material — readers will print.
+   Force every collapsible open, drop the dark hero treatment for an
+   ink-friendly title block, hide the nav/header/footer/controls,
+   add proper page breaks. Mirrors the article-print styles already
+   used elsewhere in the theme. */
+@media print {
+  .site-header,
+  .site-footer,
+  .faith-rail,
+  .faith-reading-controls,
+  .faith-doc-actions,
+  .faith-toc,
+  .faith-card-grid,
+  .faith-tools-grid,
+  .faith-coda,
+  nav { display: none !important; }
+  body { background: white; color: black; font-size: 11pt; line-height: 1.45; }
+  .faith-doc-header {
+    background: white;
+    color: black;
+    padding: 0 0 24pt;
+    border-bottom: 1pt solid #999;
+    text-align: left;
+  }
+  .faith-doc-header::before { display: none; }
+  .faith-doc-header .article-title { color: black; font-size: 24pt; margin: 0 0 8pt; }
+  .faith-doc-header .article-topic { display: none; }
+  .faith-doc-dek,
+  .faith-doc-description { color: #444 !important; max-width: 100%; }
+  .faith-intro {
+    background: white;
+    border-bottom: 0;
+    padding: 18pt 0 8pt;
+  }
+  .faith-intro-flourish { display: none; }
+  .faith-intro-prose::first-letter { color: black; }
+  /* Force every <details> open and hide the chev. */
+  details.faith-section-details { border-color: #ccc; page-break-inside: avoid; }
+  details.faith-section-details > .faith-section-body,
+  details.faith-section-details summary + * { display: block !important; }
+  details.faith-section-details:not([open]) > .faith-section-body,
+  details.faith-section-details:not([open]) summary + * { display: block !important; }
+  details summary { list-style: none; cursor: default; }
+  .faith-chev { display: none !important; }
+  /* Open all <details> programmatically through CSS isn't possible —
+     but the body display rule above makes the inner content print
+     even when the element is closed. So rely on that, plus the
+     inline JS below to force them open before the print preview. */
+  .faith-section,
+  .faith-section-details { padding: 6pt 0; margin: 0; border-bottom: 1pt solid #eee; }
+  .faith-section-numeral,
+  .faith-qa-number { color: black; }
+  .faith-section-title,
+  .faith-qa-question { color: black; font-size: 15pt; }
+  .faith-qa-answer p,
+  .faith-section-body p { font-size: 11pt; line-height: 1.5; }
+  a { color: black; text-decoration: none; border-bottom: 0; }
+  .flourish { display: none; }
+  /* Header re-print on each page for the document's title. */
+  @page { margin: 0.6in 0.7in; }
 }

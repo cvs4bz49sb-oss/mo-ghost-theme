@@ -449,7 +449,120 @@
     return Math.floor(diff / 86400000);
   }
 
-  // ── 4. Modernizer toggle (placeholder) ────────────────────────
+  // ── 4. Reading controls (Expand all / Collapse all) ───────────
+  initReadingControls();
+
+  function initReadingControls() {
+    var controls = document.querySelector("[data-faith-controls]");
+    if (!controls) return;
+    var details = function () {
+      return Array.prototype.slice.call(
+        document.querySelectorAll(".faith-doc-body .faith-section-details")
+      );
+    };
+    var expand = controls.querySelector("[data-faith-expand-all]");
+    var collapse = controls.querySelector("[data-faith-collapse-all]");
+    if (expand) {
+      expand.addEventListener("click", function () {
+        details().forEach(function (d) { d.open = true; });
+      });
+    }
+    if (collapse) {
+      collapse.addEventListener("click", function () {
+        details().forEach(function (d) { d.open = false; });
+      });
+    }
+  }
+
+  // ── 5. Auto-open <details> when its anchor is targeted ───────
+  // A reader clicking a TOC link to #chapter-3 (or arriving at the URL
+  // with the hash already present) needs the matching <details> to
+  // open, otherwise the scroll lands on a closed accordion row and
+  // nothing's visible.
+  initAnchorOpener();
+
+  function initAnchorOpener() {
+    function openTarget() {
+      var hash = window.location.hash || "";
+      if (!hash || hash.length < 2) return;
+      var id = hash.slice(1);
+      var node;
+      try { node = document.getElementById(decodeURIComponent(id)); }
+      catch (_) { node = document.getElementById(id); }
+      if (!node) return;
+      // Walk up: open every <details> ancestor (and the target itself
+      // if it IS a <details>).
+      var cur = node;
+      while (cur && cur !== document.body) {
+        if (cur.tagName === "DETAILS") cur.open = true;
+        cur = cur.parentNode;
+      }
+      // Re-trigger scroll after open so the browser lands on the
+      // element's new (post-open) position.
+      requestAnimationFrame(function () {
+        try { node.scrollIntoView({ behavior: "smooth", block: "start" }); }
+        catch (_) { node.scrollIntoView(); }
+      });
+    }
+    window.addEventListener("hashchange", openTarget);
+    if (window.location.hash) {
+      // Defer one frame so the rest of the page is parsed first.
+      requestAnimationFrame(openTarget);
+    }
+    // Intercept clicks on in-page anchor links (TOC items, scripture
+    // refs, etc.) so the open-target runs before the scroll lands.
+    document.addEventListener("click", function (e) {
+      var a = e.target && e.target.closest && e.target.closest("a[href^='#']");
+      if (!a) return;
+      var href = a.getAttribute("href") || "";
+      if (href.length < 2) return;
+      // Let the browser handle history; we'll catch the hashchange.
+      // But also pre-open synchronously so smooth scroll lands right.
+      setTimeout(openTarget, 0);
+    });
+  }
+
+  // ── 6. Force-open every <details> before printing ─────────────
+  // CSS can fake "show inner content even when closed" but the
+  // <summary> + body still render as separate visual blocks. The
+  // cleanest print result is to actually flip every details open
+  // before the print preview captures the page, then restore prior
+  // state after.
+  initPrintHandler();
+
+  function initPrintHandler() {
+    var saved = null;
+    function openAll() {
+      var ds = document.querySelectorAll(".faith-doc details");
+      saved = [];
+      Array.prototype.forEach.call(ds, function (d) {
+        saved.push({ node: d, wasOpen: d.open });
+        d.open = true;
+      });
+    }
+    function restore() {
+      if (!saved) return;
+      saved.forEach(function (s) { s.node.open = s.wasOpen; });
+      saved = null;
+    }
+    window.addEventListener("beforeprint", openAll);
+    window.addEventListener("afterprint", restore);
+    // Some browsers (older Safari) don't fire beforeprint. Hook into
+    // matchMedia as a fallback.
+    if (window.matchMedia) {
+      try {
+        var mq = window.matchMedia("print");
+        if (typeof mq.addEventListener === "function") {
+          mq.addEventListener("change", function (e) {
+            if (e.matches) openAll();
+            else restore();
+          });
+        }
+      } catch (_) {}
+    }
+  }
+
+  // ── 7. Modernizer toggle (placeholder) ────────────────────────
   initModernizer();
 
   function initModernizer() {
