@@ -9826,17 +9826,19 @@ body.mo-search-open { overflow: hidden; }
 .faith-book .faith-book-chapter .faith-section-title { font-size: clamp(22px, 2.4vw, 28px); }
 
 /* ── Document layout: sticky sidebar TOC + reading column ─────
-   Matches the original TFR site: a fixed/sticky table of contents
-   on the left, the reading column at standard editorial width on
-   the right. On mobile, collapses to a single column with the TOC
-   as a compact scrollable strip above the reading. */
+   Matches the original TFR site: a sticky table of contents on the
+   left for desktop, a slide-out drawer triggered by the "Contents"
+   button on mobile. Reading column stays at standard editorial
+   width on the right. */
 .faith-doc-layout {
   max-width: 1180px;
   margin: 0 auto;
   padding: 64px 28px 96px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 48px;
+  gap: 0;
+  /* Position relative so the absolutely-positioned mobile drawer
+     (fixed) and backdrop are anchored to the page, not this layout. */
 }
 .faith-doc-body--has-sidebar { padding: 0; background: var(--color-page); }
 
@@ -9852,27 +9854,121 @@ body.mo-search-open { overflow: hidden; }
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     overscroll-behavior: contain;
-    /* Hairline separator between sidebar and content. Subtle, doesn't
-       compete with the section hairlines on the right. */
+    /* Hairline separator between sidebar and content. */
     border-right: 1px solid var(--color-card-border);
     padding: 8px 24px 24px 4px;
+    background: transparent;
   }
-  /* Tame the sidebar scrollbar — visible but quiet. */
   .faith-toc-sidebar::-webkit-scrollbar { width: 6px; }
   .faith-toc-sidebar::-webkit-scrollbar-track { background: transparent; }
   .faith-toc-sidebar::-webkit-scrollbar-thumb {
     background: var(--color-card-border);
     border-radius: 3px;
   }
+  /* The header "Contents" button + drawer-close button are mobile-
+     only chrome; hide on desktop where the sidebar is always there. */
+  .faith-doc-toc-toggle,
+  .faith-toc-close,
+  .faith-toc-backdrop { display: none !important; }
 }
+
+/* Mobile: drawer */
 @media (max-width: 1023px) {
+  /* The sidebar is hidden off-canvas by default. CSS Grid still
+     places it in the layout but the fixed positioning takes it out
+     of flow. Reading column gets the full width. */
+  .faith-doc-layout { grid-template-columns: 1fr; padding: 32px 0 64px; }
   .faith-toc-sidebar {
-    background: var(--color-background);
-    border-radius: 8px;
-    padding: 18px 22px;
-    max-height: 320px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 320px;
+    max-width: 86vw;
+    background: var(--color-page);
+    z-index: 100;
+    transform: translateX(-101%);
+    transition: transform 0.28s ease;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 0 0 32px rgba(45, 41, 39, 0.18);
+    padding: 64px 24px 24px;
+    /* Restore content margin since we're using padding for header
+       space and need internal items to start below the close button. */
   }
+  .faith-toc-sidebar.is-open { transform: translateX(0); }
+  .faith-toc-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: 1px solid var(--color-card-border);
+    border-radius: 50%;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--color-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .faith-toc-close:hover { background: rgba(45,41,39,0.04); border-color: var(--color-dark); }
+
+  .faith-toc-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 41, 39, 0.42);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+  }
+  .faith-toc-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Lock body scroll when drawer is open. */
+  body.faith-toc-open { overflow: hidden; }
+}
+
+/* "Contents" button in the dark-hero faith-doc-actions row. Hidden
+   on desktop. Hamburger icon + label. */
+.faith-doc-toc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.faith-doc-toc-toggle:hover { background: rgba(255,255,255,0.08); }
+.faith-doc-toc-toggle-icon {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 16px;
+  height: 11px;
+}
+.faith-doc-toc-toggle-icon span {
+  display: block;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
 }
 
 /* TOC nav itself (rendered inside .faith-toc-sidebar). Single column,

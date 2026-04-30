@@ -449,6 +449,75 @@
     return Math.floor(diff / 86400000);
   }
 
+  // ── Mobile TOC drawer ─────────────────────────────────────────
+  // On mobile the .faith-toc-sidebar is fixed-positioned off-canvas
+  // and slides in via the .is-open class. Toggle from the "Contents"
+  // button in the doc header; close on backdrop click, the close
+  // button, Escape, or any TOC link click (so a tap navigates and
+  // closes in one move).
+  initTocDrawer();
+
+  function initTocDrawer() {
+    var drawer = document.querySelector("[data-faith-toc-drawer]");
+    var toggle = document.querySelector("[data-faith-toc-toggle]");
+    if (!drawer || !toggle) return;
+    var close = drawer.querySelector("[data-faith-toc-close]");
+    var backdrop = document.querySelector("[data-faith-toc-backdrop]");
+
+    function isMobile() {
+      return window.matchMedia("(max-width: 1023px)").matches;
+    }
+
+    function open() {
+      if (!isMobile()) return;
+      drawer.classList.add("is-open");
+      if (backdrop) {
+        backdrop.classList.add("is-open");
+        backdrop.hidden = false;
+      }
+      document.body.classList.add("faith-toc-open");
+      toggle.setAttribute("aria-expanded", "true");
+    }
+    function closeFn() {
+      drawer.classList.remove("is-open");
+      if (backdrop) backdrop.classList.remove("is-open");
+      document.body.classList.remove("faith-toc-open");
+      toggle.setAttribute("aria-expanded", "false");
+      // Hide backdrop after the transition so it's not in the AT tree.
+      if (backdrop) {
+        setTimeout(function () {
+          if (!backdrop.classList.contains("is-open")) backdrop.hidden = true;
+        }, 320);
+      }
+    }
+
+    toggle.addEventListener("click", function () {
+      if (drawer.classList.contains("is-open")) closeFn();
+      else open();
+    });
+    if (close) close.addEventListener("click", closeFn);
+    if (backdrop) backdrop.addEventListener("click", closeFn);
+
+    // Tap a TOC link → navigate, then close the drawer. Both happen
+    // since we don't preventDefault — anchor scroll fires, drawer
+    // closes after.
+    drawer.addEventListener("click", function (e) {
+      var a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
+      if (a) closeFn();
+    });
+
+    // Close on Escape.
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && drawer.classList.contains("is-open")) closeFn();
+    });
+
+    // If the viewport flips to desktop while the drawer is open
+    // (rotate, resize), un-stick the body scroll lock.
+    window.addEventListener("resize", function () {
+      if (!isMobile() && drawer.classList.contains("is-open")) closeFn();
+    });
+  }
+
   // ── Sidebar active-section tracking ──────────────────────────
   // As the reader scrolls, mark the top-most visible section's TOC
   // link with `is-active` so the sidebar shows where they are. Uses

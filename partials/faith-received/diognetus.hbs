@@ -7,6 +7,13 @@
       <p class="article-dek faith-doc-dek">Unknown Author &middot; c. 2nd–3rd Century</p>
       <p class="faith-doc-description">12 chapters of early Christian apology on the distinctiveness of the faith.</p>
       <div class="faith-doc-actions">
+        
+        <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
+          <span class="faith-doc-toc-toggle-icon" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="faith-doc-toc-toggle-label">Contents</span>
+        </button>
         <button type="button" class="faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
           <span class="faith-modernizer-label">Modernize language</span>
         </button>
@@ -25,7 +32,10 @@
     
     <div class="article-body faith-doc-body faith-doc-body--has-sidebar">
       <div class="faith-doc-layout ">
-        <aside class="faith-toc-sidebar">
+        <aside class="faith-toc-sidebar" data-faith-toc-drawer aria-label="Document contents">
+          <button type="button" class="faith-toc-close" data-faith-toc-close aria-label="Close contents">
+            <span aria-hidden="true">&times;</span>
+          </button>
   <nav class="faith-toc" aria-label="Contents">
     <p class="faith-toc-label-heading">Chapters</p>
     <ol class="faith-toc-list">
@@ -234,5 +244,6 @@
         </details>
         </div>
       </div>
+      <div class="faith-toc-backdrop" data-faith-toc-backdrop hidden></div>
     </div>
   </main>

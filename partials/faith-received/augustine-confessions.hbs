@@ -7,6 +7,13 @@
       <p class="article-dek faith-doc-dek">Augustine of Hippo &middot; c. 397–400 AD</p>
       <p class="faith-doc-description">Augustine’s autobiographical meditation on sin, grace, memory, and time — the first great Western autobiography.</p>
       <div class="faith-doc-actions">
+        
+        <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
+          <span class="faith-doc-toc-toggle-icon" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="faith-doc-toc-toggle-label">Contents</span>
+        </button>
         <button type="button" class="faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
           <span class="faith-modernizer-label">Modernize language</span>
         </button>
@@ -25,7 +32,10 @@
     
     <div class="article-body faith-doc-body faith-doc-body--has-sidebar">
       <div class="faith-doc-layout ">
-        <aside class="faith-toc-sidebar">
+        <aside class="faith-toc-sidebar" data-faith-toc-drawer aria-label="Document contents">
+          <button type="button" class="faith-toc-close" data-faith-toc-close aria-label="Close contents">
+            <span aria-hidden="true">&times;</span>
+          </button>
   <nav class="faith-toc faith-toc--books" aria-label="Contents">
     <p class="faith-toc-label-heading">Contents</p>
     
@@ -4303,5 +4313,6 @@ St. Mark’s Vicarage, West Hackney, 1876.</p>
         </section>
         </div>
       </div>
+      <div class="faith-toc-backdrop" data-faith-toc-backdrop hidden></div>
     </div>
   </main>

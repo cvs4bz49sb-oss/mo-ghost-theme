@@ -105,10 +105,21 @@ function titleFor(c) {
 }
 
 // ── Header (dark hero atop every document) ────────────────────
-function header(doc) {
+function header(doc, hasToc) {
   const sub = doc.author
     ? `${escape(doc.author)} &middot; ${escape(doc.date)}`
     : escape(doc.date);
+  // The "Contents" toggle only renders for documents that ship a
+  // sidebar TOC. On desktop the sidebar is always visible so the
+  // button is hidden via CSS; on mobile the button opens the slide-
+  // out drawer.
+  const tocToggle = hasToc ? `
+        <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
+          <span class="faith-doc-toc-toggle-icon" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="faith-doc-toc-toggle-label">Contents</span>
+        </button>` : "";
   return `
   <section class="article-header faith-doc-header">
     <div class="article-header-inner">
@@ -117,6 +128,7 @@ function header(doc) {
       <p class="article-dek faith-doc-dek">${sub}</p>
       ${doc.description ? `<p class="faith-doc-description">${escape(smarten(doc.description))}</p>` : ""}
       <div class="faith-doc-actions">
+        ${tocToggle}
         <button type="button" class="faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
           <span class="faith-modernizer-label">Modernize language</span>
         </button>
@@ -218,9 +230,10 @@ function booksTocBlock(books) {
 }
 
 // Wraps the doc body. When a TOC is present, lays out as a 2-column
-// grid (sticky sidebar + reading column on desktop; stacked on
-// mobile). When there's no TOC, falls back to the single centered
-// reading column.
+// grid: sticky sidebar TOC + reading column on desktop ≥1024px.
+// On mobile the sidebar becomes a slide-out drawer triggered by the
+// "Contents" button in the header. When there's no TOC, falls back
+// to the single centered reading column.
 function wrapBody({ toc, controls, sections, kindClass = "" }) {
   const inner = `${controls || ""}\n        ${sections}`;
   if (!toc) {
@@ -234,12 +247,16 @@ function wrapBody({ toc, controls, sections, kindClass = "" }) {
   return `
     <div class="article-body faith-doc-body faith-doc-body--has-sidebar">
       <div class="faith-doc-layout ${kindClass}">
-        <aside class="faith-toc-sidebar">${toc}
+        <aside class="faith-toc-sidebar" data-faith-toc-drawer aria-label="Document contents">
+          <button type="button" class="faith-toc-close" data-faith-toc-close aria-label="Close contents">
+            <span aria-hidden="true">&times;</span>
+          </button>${toc}
         </aside>
         <div class="faith-doc-inner">
           ${inner}
         </div>
       </div>
+      <div class="faith-toc-backdrop" data-faith-toc-backdrop hidden></div>
     </div>`;
 }
 
@@ -289,7 +306,7 @@ function renderSections(doc) {
   ).join("\n");
   return `
   <main class="article faith-doc faith-doc--sections">
-    ${header(doc)}
+    ${header(doc, false)}
     ${intro(doc, INTROS)}
     ${wrapBody({ toc: "", controls: "", sections: items })}
   </main>`;
@@ -320,7 +337,7 @@ function renderChapters(doc, opts = {}) {
   );
   return `
   <main class="article faith-doc faith-doc--chapters">
-    ${header(doc)}
+    ${header(doc, !!toc)}
     ${intro(doc, INTROS)}
     ${wrapBody({ toc, controls: readingControls(doc), sections: items })}
   </main>`;
@@ -349,7 +366,7 @@ function renderArticles(doc) {
   );
   return `
   <main class="article faith-doc faith-doc--articles">
-    ${header(doc)}
+    ${header(doc, !!toc)}
     ${intro(doc, INTROS)}
     ${wrapBody({ toc, controls: readingControls(doc), sections: items })}
   </main>`;
@@ -369,7 +386,7 @@ function renderTheses(doc) {
         </ol>`;
   return `
   <main class="article faith-doc faith-doc--theses">
-    ${header(doc)}
+    ${header(doc, false)}
     ${intro(doc, INTROS)}
     ${wrapBody({ toc: "", controls: "", sections: list })}
   </main>`;
@@ -421,7 +438,7 @@ function renderQA(doc) {
     : "";
   return `
   <main class="article faith-doc faith-doc--qa">
-    ${header(doc)}
+    ${header(doc, !!toc)}
     ${intro(doc, INTROS)}
     ${wrapBody({ toc, controls: readingControls(doc), sections: items, kindClass: "faith-doc-layout--qa" })}
   </main>`;
@@ -454,7 +471,7 @@ function renderHeidelberg(doc) {
   }
   return `
   <main class="article faith-doc faith-doc--heidelberg">
-    ${header(doc)}
+    ${header(doc, !!toc)}
     ${intro(doc, INTROS)}
     ${wrapBody({ toc, controls: readingControls(doc), sections: sectionsHtml })}
   </main>`;
@@ -505,7 +522,7 @@ function renderEdwards(doc) {
   }).join("\n");
   return `
   <main class="article faith-doc faith-doc--edwards">
-    ${header(doc)}
+    ${header(doc, false)}
     ${intro(doc, INTROS)}
     ${wrapBody({ toc: "", controls: "", sections: items })}
   </main>`;
@@ -539,7 +556,7 @@ function renderLibraryChapters(doc) {
   );
   return `
   <main class="article faith-doc faith-doc--library">
-    ${header(doc)}
+    ${header(doc, !!toc)}
     ${intro(doc, INTROS)}
     ${wrapBody({ toc, controls: readingControls(doc), sections: items })}
   </main>`;
@@ -569,11 +586,12 @@ function renderLibraryBooks(doc) {
           ${chapters}
         </section>`;
   }).join("\n");
+  const toc = booksTocBlock(doc.books);
   return `
   <main class="article faith-doc faith-doc--library faith-doc--books">
-    ${header(doc)}
+    ${header(doc, !!toc)}
     ${intro(doc, INTROS)}
-    ${wrapBody({ toc: booksTocBlock(doc.books), controls: readingControls(doc), sections: html })}
+    ${wrapBody({ toc, controls: readingControls(doc), sections: html })}
   </main>`;
 }
 
