@@ -181,9 +181,17 @@ function readingControls(doc) {
     <button type="button" class="faith-reading-control" data-faith-collapse-all>Collapse all</button>
     <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>`
     : "";
+  // Q&A docs (heidelberg + qa kinds) get a dedicated "Memorize" link
+  // pointing at /the-faith-received/{slug}/memorize/. The link doesn't
+  // depend on JS state — it's a real route — so it goes in markup.
+  const memorizePart = (doc.kind === "qa" || doc.kind === "heidelberg")
+    ? `
+    <a class="faith-reading-control faith-reading-control--link" href="/the-faith-received/${doc.slug}/memorize/">Memorize</a>
+    <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>`
+    : "";
   return `
   <div class="faith-reading-controls" data-faith-controls>
-    <span class="faith-reading-controls-label">Reading</span>${expandPart}
+    <span class="faith-reading-controls-label">Reading</span>${expandPart}${memorizePart}
     <button type="button" class="faith-reading-control faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
       <span class="faith-modernizer-label">Modernize language</span>
     </button>
@@ -665,6 +673,129 @@ function renderDoc(doc) {
   }
 }
 
+// ── Memorize mode ───────────────────────────────────────────────
+// Flatten a Q&A doc into the entry shape faith-memorize.js expects:
+// { number, question, answer, references[], lordsDay?, lordsDayTitle? }.
+// Only `qa` and `heidelberg` are memorizable; everything else returns null.
+function memorizeEntries(doc) {
+  if (doc.kind === "qa") {
+    return (doc.questions ?? []).map((q) => ({
+      number: q.number,
+      question: q.question,
+      answer: q.answer,
+      references: q.references ?? [],
+    }));
+  }
+  if (doc.kind === "heidelberg") {
+    const out = [];
+    for (const ld of doc.lordsDays ?? []) {
+      for (const q of ld.questions ?? []) {
+        out.push({
+          number: q.number,
+          question: q.question,
+          answer: q.answer,
+          references: q.references ?? [],
+          lordsDay: ld.number,
+          lordsDayTitle: ld.title,
+        });
+      }
+    }
+    return out;
+  }
+  return null;
+}
+
+// Render the memorize page for a doc. Self-contained: hero, nav,
+// progress bar, filters, card with reveal/mark, prev/next, empty
+// state, plus the inline JSON the JS reads. Wrapper template loads
+// faith-received.js (verse popovers, modernizer) + faith-memorize.js.
+function renderMemorize(doc, entries) {
+  // </script> inside the inline JSON would terminate the script tag,
+  // so escape the closing-tag sequence per the HTML5 JSON-script rule.
+  const json = JSON.stringify(entries).replace(/<\/(script)/gi, "<\\/$1");
+  const total = entries.length;
+  const titleEsc = escape(smarten(doc.title));
+  const titleHighlight = `<span class="highlight"><em>${titleEsc}</em></span>`;
+  return `
+  <main class="faith-received faith-feature faith-memorize" data-faith-memorize data-doc-slug="${escape(doc.slug)}" data-doc-title="${titleEsc}">
+
+    <section class="hero faith-feature-hero faith-memorize-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> The Faith Received &middot; ${titleEsc} &middot; Memorize</p>
+        <h1 class="hero-headline faith-hero-headline">
+          Learn ${titleHighlight} by heart.
+        </h1>
+        <p class="hero-sub">One question at a time. Reveal the answer when you're ready, mark what you've memorized, and pick up where you left off.</p>
+      </div>
+    </section>
+
+    {{> "faith-received/_nav"}}
+
+    <section class="faith-feature-body faith-memorize-body">
+      <div class="container container-narrow">
+
+        <div class="faith-memorize-progress">
+          <div class="faith-memorize-progress-meta">
+            <span class="faith-memorize-progress-label" data-faith-memorize-progress-label>0 of ${total} memorized</span>
+            <span class="faith-memorize-progress-pct" data-faith-memorize-progress-pct>0%</span>
+          </div>
+          <div class="faith-memorize-progress-track" role="progressbar" aria-label="Memorization progress" aria-valuemin="0" aria-valuemax="100">
+            <div class="faith-memorize-progress-fill" data-faith-memorize-progress-fill style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="faith-memorize-filters" role="tablist" aria-label="Filter questions">
+          <button type="button" class="faith-memorize-filter is-active" role="tab" aria-selected="true" data-faith-memorize-filter="all">All</button>
+          <button type="button" class="faith-memorize-filter" role="tab" aria-selected="false" data-faith-memorize-filter="unmemorized">Not yet</button>
+          <button type="button" class="faith-memorize-filter" role="tab" aria-selected="false" data-faith-memorize-filter="memorized">Memorized</button>
+        </div>
+
+        <article class="faith-memorize-card" data-faith-memorize-card>
+          <p class="eyebrow faith-memorize-numeral" data-faith-memorize-numeral></p>
+          <h2 class="faith-memorize-question" data-faith-memorize-question></h2>
+
+          <div class="faith-memorize-answer" data-faith-memorize-answer hidden>
+            <div class="flourish">{{> "flourish-mark"}}</div>
+            <div class="faith-memorize-answer-text article-content" data-faith-memorize-answer-text></div>
+            <p class="faith-qa-references faith-memorize-refs" data-faith-memorize-refs hidden></p>
+          </div>
+
+          <div class="faith-memorize-actions">
+            <button type="button" class="btn btn-ghost faith-memorize-reveal" data-faith-memorize-reveal>Reveal answer</button>
+            <button type="button" class="btn btn-primary faith-memorize-mark" data-faith-memorize-mark>Mark memorized</button>
+          </div>
+
+          <div class="faith-memorize-nav">
+            <button type="button" class="faith-memorize-step" data-faith-memorize-prev aria-label="Previous question">
+              <span aria-hidden="true">&larr;</span> Previous
+            </button>
+            <span class="faith-memorize-position">
+              <span data-faith-memorize-position>1</span> of <span data-faith-memorize-total>${total}</span>
+            </span>
+            <button type="button" class="faith-memorize-step" data-faith-memorize-next aria-label="Next question">
+              Next <span aria-hidden="true">&rarr;</span>
+            </button>
+          </div>
+
+          <p class="faith-memorize-hint"><kbd>Space</kbd> reveals &middot; <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> navigates &middot; <kbd>m</kbd> marks</p>
+        </article>
+
+        <div class="faith-memorize-empty" data-faith-memorize-empty hidden>
+          <p class="eyebrow">All clear</p>
+          <h2 class="section-heading"><em>No questions match this filter.</em></h2>
+          <p class="faith-memorize-empty-body">Switch filters above, or keep going from <button type="button" class="faith-memorize-empty-link" data-faith-memorize-filter="all">All</button>.</p>
+        </div>
+
+        <p class="faith-memorize-back">
+          <a href="/the-faith-received/${doc.slug}/">&larr; Read ${titleEsc} in full</a>
+        </p>
+      </div>
+    </section>
+
+    <script type="application/json" data-faith-memorize-data>${json}</script>
+  </main>`;
+}
+
 // ── Main ────────────────────────────────────────────────────────
 const INTROS = JSON.parse(await readFile(INTRO_PATH, "utf-8"));
 
@@ -672,11 +803,22 @@ const INTROS = JSON.parse(await readFile(INTRO_PATH, "utf-8"));
 // files (_manifest.json, _topics.json) are sidecars consumed below.
 const files = (await readdir(DATA_DIR)).filter((f) => f.endsWith(".json") && !f.startsWith("_"));
 const manifest = [];
+const memorizeBuilt = [];
 for (const file of files) {
   const doc = JSON.parse(await readFile(path.join(DATA_DIR, file), "utf-8"));
   const html = renderDoc(doc);
   const partialPath = path.join(OUT_DIR, `${doc.slug}.hbs`);
   await writeFile(partialPath, html.trim() + "\n");
+
+  // Memorize partial — only for Q&A docs (heidelberg + qa).
+  const entries = memorizeEntries(doc);
+  if (entries && entries.length) {
+    const memHtml = renderMemorize(doc, entries);
+    const memPath = path.join(OUT_DIR, `${doc.slug}-memorize.hbs`);
+    await writeFile(memPath, memHtml.trim() + "\n");
+    memorizeBuilt.push({ slug: doc.slug, title: doc.title, count: entries.length });
+  }
+
   manifest.push({
     slug: doc.slug,
     title: doc.title,
@@ -685,6 +827,7 @@ for (const file of files) {
     description: doc.description,
     category: doc.category,
     kind: doc.kind,
+    memorizable: !!(entries && entries.length),
   });
 }
 
@@ -742,6 +885,11 @@ const TEMPLATE_DIR = path.join(ROOT);
 for (const item of manifest) {
   const tmpl = `{{!< default}}\n{{!-- Generated wrapper for /the-faith-received/${item.slug}/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}"}}\n<script src="{{asset "js/faith-modernize.js"}}"></script>\n<script src="{{asset "js/faith-received.js"}}"></script>\n`;
   await writeFile(path.join(TEMPLATE_DIR, `custom-faith-${item.slug}.hbs`), tmpl);
+
+  if (item.memorizable) {
+    const memTmpl = `{{!< default}}\n{{!-- Generated wrapper for /the-faith-received/${item.slug}/memorize/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}-memorize"}}\n<script src="{{asset "js/faith-received.js"}}"></script>\n<script src="{{asset "js/faith-memorize.js"}}"></script>\n`;
+    await writeFile(path.join(TEMPLATE_DIR, `custom-faith-${item.slug}-memorize.hbs`), memTmpl);
+  }
 }
 
 // ── Topic pages ─────────────────────────────────────────────────
@@ -1288,6 +1436,7 @@ try {
 console.log(`Built ${manifest.length} partials in ${OUT_DIR}`);
 console.log(`  + _cards-documents.hbs (${documents.length}) + _cards-library.hbs (${library.length})`);
 console.log(`  + ${manifest.length} custom-faith-{slug}.hbs wrappers`);
+console.log(`  + ${memorizeBuilt.length} memorize partials + wrappers (${memorizeBuilt.map((m) => `${m.slug}:${m.count}`).join(", ")})`);
 console.log(`  + assets/data/faith-received/search-index.json (${searchIndex.length} entries)`);
 console.log(`  + assets/data/faith-received/today.json (${todayPlan.length} entries)`);
 

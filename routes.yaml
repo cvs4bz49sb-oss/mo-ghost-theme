@@ -163,6 +163,8 @@ routes:
     template: custom-faith-didache
   /the-faith-received/heidelberg/:
     template: custom-faith-heidelberg
+  /the-faith-received/heidelberg/memorize/:
+    template: custom-faith-heidelberg-memorize
   /the-faith-received/augsburg/:
     template: custom-faith-augsburg
   /the-faith-received/belgic/:
@@ -173,8 +175,12 @@ routes:
     template: custom-faith-1689
   /the-faith-received/westminster-shorter/:
     template: custom-faith-westminster-shorter
+  /the-faith-received/westminster-shorter/memorize/:
+    template: custom-faith-westminster-shorter-memorize
   /the-faith-received/westminster-larger/:
     template: custom-faith-westminster-larger
+  /the-faith-received/westminster-larger/memorize/:
+    template: custom-faith-westminster-larger-memorize
   /the-faith-received/lausanne/:
     template: custom-faith-lausanne
   # Library (classic works)
