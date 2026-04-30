@@ -68,6 +68,20 @@ function roman(n) {
   return result;
 }
 
+// Render an array of {book, reference} into clickable buttons that
+// the frontend popover handler upgrades into verse-text popovers.
+// Each button carries the full book name (for the API lookup) and
+// the abbreviated reference (for display + chapter:verse parsing).
+function renderScriptureRefs(refs) {
+  if (!refs || !refs.length) return "";
+  const buttons = refs.map((r) => {
+    const book = escape(r.book || "");
+    const ref = escape(r.reference || r.book || "");
+    return `<button type="button" class="faith-verse-ref" data-faith-verse data-book="${book}" data-reference="${ref}">${ref}</button>`;
+  }).join(`<span class="faith-verse-sep" aria-hidden="true"> &middot; </span>`);
+  return `<p class="faith-qa-references"><span class="faith-qa-ref-label">Scripture</span> ${buttons}</p>`;
+}
+
 // Per-shape decision: do sections of this document collapse?
 // Short docs (creeds, theses, edwards, westminster shorter) read
 // better laid out flat. Longer docs (articles, library chapters,
@@ -398,7 +412,7 @@ function renderQA(doc) {
   const collapsible = isCollapsible(doc);
   const items = (doc.questions ?? []).map((q, i) => {
     const refs = q.references && q.references.length
-      ? `<p class="faith-qa-references"><span class="faith-qa-ref-label">Scripture</span> ${q.references.map((r) => escape(r.reference || r.book)).join(" &middot; ")}</p>`
+      ? renderScriptureRefs(q.references)
       : "";
     const body = `${paragraphs(q.answer)}${refs}`;
     if (!collapsible) {
@@ -487,7 +501,7 @@ function renderLordsDay(d, openByDefault) {
                 </div>
                 ${
                   q.references && q.references.length
-                    ? `<p class="faith-qa-references"><span class="faith-qa-ref-label">Scripture</span> ${q.references.map((r) => escape(r.reference || r.book)).join(" &middot; ")}</p>`
+                    ? renderScriptureRefs(q.references)
                     : ""
                 }
               </article>

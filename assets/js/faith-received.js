@@ -449,6 +449,338 @@
     return Math.floor(diff / 86400000);
   }
 
+  // ── Scripture reference popovers ──────────────────────────────
+  // Each `<button data-faith-verse data-book="…" data-reference="…">`
+  // in a Q&A's references list opens a popover with the verse text
+  // fetched from bolls.life (CSB17, public Bible API). Cached
+  // per (book, reference) so repeat clicks are instant.
+  initScripturePopovers();
+
+  function initScripturePopovers() {
+    var refs = document.querySelectorAll("[data-faith-verse]");
+    if (!refs.length) return;
+
+    var popover = null;
+    var popoverContent = null;
+    var arrow = null;
+    var currentTrigger = null;
+    var cache = new Map();
+
+    var BOOK_NUMBERS = {
+      "Genesis": 1, "Exodus": 2, "Leviticus": 3, "Numbers": 4, "Deuteronomy": 5,
+      "Joshua": 6, "Judges": 7, "Ruth": 8, "1 Samuel": 9, "2 Samuel": 10,
+      "1 Kings": 11, "2 Kings": 12, "1 Chronicles": 13, "2 Chronicles": 14,
+      "Ezra": 15, "Nehemiah": 16, "Esther": 17, "Job": 18, "Psalms": 19, "Psalm": 19,
+      "Proverbs": 20, "Ecclesiastes": 21, "Song of Solomon": 22,
+      "Isaiah": 23, "Jeremiah": 24, "Lamentations": 25, "Ezekiel": 26, "Daniel": 27,
+      "Hosea": 28, "Joel": 29, "Amos": 30, "Obadiah": 31, "Jonah": 32, "Micah": 33,
+      "Nahum": 34, "Habakkuk": 35, "Zephaniah": 36, "Haggai": 37, "Zechariah": 38,
+      "Malachi": 39, "Matthew": 40, "Mark": 41, "Luke": 42, "John": 43, "Acts": 44,
+      "Romans": 45, "1 Corinthians": 46, "2 Corinthians": 47, "Galatians": 48,
+      "Ephesians": 49, "Philippians": 50, "Colossians": 51,
+      "1 Thessalonians": 52, "2 Thessalonians": 53,
+      "1 Timothy": 54, "2 Timothy": 55, "Titus": 56, "Philemon": 57,
+      "Hebrews": 58, "James": 59, "1 Peter": 60, "2 Peter": 61,
+      "1 John": 62, "2 John": 63, "3 John": 64, "Jude": 65, "Revelation": 66,
+    };
+
+    function ensurePopover() {
+      if (popover) return;
+      popover = document.createElement("div");
+      popover.className = "faith-verse-popover";
+      popover.setAttribute("role", "dialog");
+      popover.setAttribute("aria-live", "polite");
+      popover.hidden = true;
+      popover.innerHTML =
+        '<p class="faith-verse-popover-ref" data-faith-verse-ref></p>' +
+        '<p class="faith-verse-popover-translation">Christian Standard Bible</p>' +
+        '<p class="faith-verse-popover-text" data-faith-verse-text></p>' +
+        '<span class="faith-verse-popover-arrow" data-faith-verse-arrow aria-hidden="true"></span>';
+      popoverContent = popover.querySelector("[data-faith-verse-text]");
+      arrow = popover.querySelector("[data-faith-verse-arrow]");
+      document.body.appendChild(popover);
+    }
+
+    function parseReference(reference) {
+      var m = String(reference || "").match(/(\d+):(\d+)(?:-(\d+))?/);
+      if (!m) return null;
+      return {
+        chapter: parseInt(m[1], 10),
+        startVerse: parseInt(m[2], 10),
+        endVerse: m[3] ? parseInt(m[3], 10) : parseInt(m[2], 10),
+      };
+    }
+
+    function stripHtml(html) {
+      return String(html || "")
+        .replace(/<[^>]*>/g, "")
+        .replace(/\[\d+\]/g, "")
+        .replace(/[Ⓐ-ⓩ①-⑳⓪]/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+    }
+
+    function setStatus(msg) {
+      popoverContent.textContent = msg;
+      popoverContent.classList.remove("is-loaded");
+    }
+
+    function setText(text) {
+      popoverContent.textContent = text;
+      popoverContent.classList.add("is-loaded");
+    }
+
+    function loadVerse(book, reference) {
+      var key = (book + "|" + reference).toLowerCase();
+      if (cache.has(key)) {
+        setText(cache.get(key));
+        return;
+      }
+      var bookNum = BOOK_NUMBERS[book];
+      var parsed = parseReference(reference);
+      if (!bookNum || !parsed) {
+        setStatus("Could not load verse text.");
+        return;
+      }
+      setStatus("Loading…");
+      fetch("https://bolls.life/get-text/CSB17/" + bookNum + "/" + parsed.chapter + "/")
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function (verses) {
+          var picked = (verses || [])
+            .filter(function (v) { return v.verse >= parsed.startVerse && v.verse <= parsed.endVerse; })
+            .map(function (v) { return stripHtml(v.text); })
+            .join(" ");
+          if (!picked) throw new Error("empty");
+          cache.set(key, picked);
+          setText(picked);
+        })
+        .catch(function () {
+          setStatus("Could not load verse text.");
+        });
+    }
+
+    function position(trigger) {
+      var rect = trigger.getBoundingClientRect();
+      var popoverWidth = window.innerWidth < 640 ? 280 : 320;
+      var padding = 14;
+      var triggerCenter = rect.left + rect.width / 2;
+
+      var left = triggerCenter - popoverWidth / 2;
+      if (left < padding) left = padding;
+      if (left + popoverWidth > window.innerWidth - padding) {
+        left = window.innerWidth - padding - popoverWidth;
+      }
+
+      var arrowPct = ((triggerCenter - left) / popoverWidth) * 100;
+      arrowPct = Math.max(8, Math.min(92, arrowPct));
+      arrow.style.left = arrowPct + "%";
+
+      // Default: position above the trigger.
+      var top = rect.top + window.scrollY - 14; // 14px gap above
+      popover.classList.remove("is-below");
+      // Once rendered we know the popover height; flip below if no
+      // room above.
+      popover.style.left = left + "px";
+      popover.style.top = top + "px";
+      // Use translateY(-100%) so `top` aligns to the popover's
+      // bottom edge.
+      popover.style.transform = "translateY(-100%)";
+      // After paint, check if it's clipped above the viewport.
+      requestAnimationFrame(function () {
+        var pop = popover.getBoundingClientRect();
+        if (pop.top < 12) {
+          // Flip below.
+          popover.classList.add("is-below");
+          popover.style.transform = "translateY(0)";
+          popover.style.top = (rect.bottom + window.scrollY + 14) + "px";
+        }
+      });
+    }
+
+    function open(trigger) {
+      ensurePopover();
+      currentTrigger = trigger;
+      var book = trigger.getAttribute("data-book") || "";
+      var reference = trigger.getAttribute("data-reference") || "";
+      popover.querySelector("[data-faith-verse-ref]").textContent = reference;
+      setStatus("Loading…");
+      popover.hidden = false;
+      // Defer a frame so the browser sees the hidden→visible flip
+      // and animates if we add a transition.
+      requestAnimationFrame(function () { popover.classList.add("is-open"); });
+      position(trigger);
+      loadVerse(book, reference);
+      trigger.setAttribute("aria-expanded", "true");
+    }
+
+    function close() {
+      if (!popover) return;
+      popover.classList.remove("is-open");
+      // Hide after the transition.
+      setTimeout(function () { if (!popover.classList.contains("is-open")) popover.hidden = true; }, 180);
+      if (currentTrigger) currentTrigger.setAttribute("aria-expanded", "false");
+      currentTrigger = null;
+    }
+
+    document.addEventListener("click", function (e) {
+      var trigger = e.target && e.target.closest && e.target.closest("[data-faith-verse]");
+      if (trigger) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (currentTrigger === trigger) close();
+        else open(trigger);
+        return;
+      }
+      // Click outside an open popover closes it.
+      if (currentTrigger && popover && !popover.contains(e.target)) close();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && currentTrigger) close();
+    });
+
+    function reposition() { if (currentTrigger) position(currentTrigger); }
+    window.addEventListener("scroll", reposition, true);
+    window.addEventListener("resize", reposition);
+  }
+
+  // ── Section copy + link actions ───────────────────────────────
+  // For every section/article/chapter/Q&A, inject a small action
+  // row at the bottom: "Link" copies a deep link to that anchor;
+  // "Copy" copies the section's text content (with scripture refs
+  // when present). Match the original TFR pattern.
+  initSectionActions();
+
+  function initSectionActions() {
+    if (!navigator.clipboard) return;
+    var targets = document.querySelectorAll(
+      ".faith-doc .faith-section-details, " +
+      ".faith-doc .faith-doc-inner > .faith-section, " +
+      ".faith-doc .faith-qa"
+    );
+    Array.prototype.forEach.call(targets, function (target) {
+      // Skip a Q&A nested inside a Lord's Day collapsible — the
+      // outer details already gets actions, and double-injecting
+      // would clutter the row.
+      if (target.classList.contains("faith-qa") &&
+          target.closest(".faith-section-details") &&
+          target.closest(".faith-section-details") !== target) {
+        // Allow it: each Q&A is its own copyable unit.
+      }
+      if (!target.id) return;
+      // Don't double-inject if we've already added actions.
+      if (target.querySelector(":scope > .faith-section-actions, :scope > .faith-section-body > .faith-section-actions")) {
+        return;
+      }
+      var actions = buildActionsRow(target);
+      if (!actions) return;
+      // Where to inject: at the END of the body (for collapsibles)
+      // or at the END of the section (for flat).
+      if (target.classList.contains("faith-section-details")) {
+        var body = target.querySelector(":scope > .faith-section-body");
+        if (body) body.appendChild(actions);
+      } else {
+        target.appendChild(actions);
+      }
+    });
+  }
+
+  function buildActionsRow(section) {
+    var url = location.origin + location.pathname + "#" + section.id;
+    var actions = document.createElement("div");
+    actions.className = "faith-section-actions";
+    actions.innerHTML =
+      '<button type="button" class="faith-section-action" data-faith-copy-link>' +
+        iconLink() + '<span class="faith-section-action-label">Copy link</span>' +
+      '</button>' +
+      '<button type="button" class="faith-section-action" data-faith-copy-text>' +
+        iconCopy() + '<span class="faith-section-action-label">Copy passage</span>' +
+      '</button>';
+    actions.querySelector("[data-faith-copy-link]").addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      navigator.clipboard.writeText(url).then(function () { flashCopied(e.currentTarget); });
+    });
+    actions.querySelector("[data-faith-copy-text]").addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      navigator.clipboard.writeText(extractCopyText(section)).then(function () { flashCopied(e.currentTarget); });
+    });
+    return actions;
+  }
+
+  function flashCopied(btn) {
+    var label = btn.querySelector(".faith-section-action-label");
+    if (!label) return;
+    var prev = label.textContent;
+    label.textContent = "Copied";
+    btn.classList.add("is-copied");
+    setTimeout(function () {
+      label.textContent = prev;
+      btn.classList.remove("is-copied");
+    }, 1600);
+  }
+
+  function extractCopyText(section) {
+    // Pull a clean text representation: numeral/eyebrow + title +
+    // body text + scripture refs (when present). Strip the action-
+    // row and any nested popovers from the output.
+    var clone = section.cloneNode(true);
+    var noise = clone.querySelectorAll(
+      ".faith-section-actions, .faith-chev, .faith-verse-popover, " +
+      ".faith-section-action, .faith-verse-sep, " +
+      "[data-modernizer-toggle]"
+    );
+    Array.prototype.forEach.call(noise, function (n) { n.remove(); });
+    // Replace verse-ref buttons with plain text references so the
+    // copy reads cleanly without "[click] Rom 8:28 [click]".
+    var verseBtns = clone.querySelectorAll("[data-faith-verse]");
+    Array.prototype.forEach.call(verseBtns, function (b) {
+      b.replaceWith(document.createTextNode(b.textContent));
+    });
+    var lines = [];
+    function pushTrim(text) {
+      var t = String(text || "").replace(/\s+/g, " ").trim();
+      if (t) lines.push(t);
+    }
+    var numeral = clone.querySelector(
+      ".faith-section-numeral, .faith-qa-number, .faith-lords-day-numeral"
+    );
+    var title = clone.querySelector(
+      ".faith-section-title, .faith-qa-question"
+    );
+    if (numeral) pushTrim(numeral.textContent);
+    if (title) pushTrim(title.textContent);
+    var body = clone.querySelector(
+      ".faith-section-body, .faith-qa-answer"
+    );
+    if (body) {
+      // Remove any qa-references from the body so we treat them as
+      // a separate trailing block.
+      var refsInBody = body.querySelector(".faith-qa-references");
+      if (refsInBody) refsInBody.remove();
+      var paras = body.querySelectorAll("p, li");
+      if (paras.length) {
+        Array.prototype.forEach.call(paras, function (p) { pushTrim(p.textContent); });
+      } else {
+        pushTrim(body.textContent);
+      }
+    }
+    var refs = clone.querySelector(".faith-qa-references");
+    if (refs) {
+      var refText = refs.textContent.replace(/^Scripture\s*/i, "").trim();
+      if (refText) lines.push("Scripture: " + refText);
+    }
+    return lines.join("\n\n");
+  }
+
+  function iconLink() {
+    return '<svg class="faith-section-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>';
+  }
+  function iconCopy() {
+    return '<svg class="faith-section-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  }
+
   // ── Mobile TOC drawer ─────────────────────────────────────────
   // On mobile the .faith-toc-sidebar is fixed-positioned off-canvas
   // and slides in via the .is-open class. Toggle from the "Contents"

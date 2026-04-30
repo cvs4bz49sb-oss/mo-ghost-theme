@@ -9732,6 +9732,154 @@ body.mo-search-open { overflow: hidden; }
   margin-right: 10px;
 }
 
+/* Clickable scripture reference. JS upgrades these into popovers
+   with verse text fetched from bolls.life (CSB17). Default state
+   reads as a quiet inline link with a soft underline; hover/focus
+   highlights with the brand color. */
+.faith-verse-ref {
+  font: inherit;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  background: transparent;
+  border: 0;
+  padding: 1px 2px;
+  margin: 0;
+  color: var(--color-secondary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(193, 89, 60, 0.3);
+  text-underline-offset: 3px;
+  transition: color 0.15s, text-decoration-color 0.15s, background 0.15s;
+  border-radius: 3px;
+}
+.faith-verse-ref:hover,
+.faith-verse-ref:focus-visible {
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
+  background: rgba(238,125,81,0.08);
+  outline: none;
+}
+.faith-verse-ref[aria-expanded="true"] {
+  color: var(--color-primary);
+  background: rgba(238,125,81,0.12);
+  text-decoration-color: var(--color-primary);
+}
+.faith-verse-sep { color: var(--color-card-border); }
+
+/* Popover. Position is set inline by JS (top-left + transform);
+   styling here. Above the trigger by default; flips below via
+   .is-below when there's no room above. */
+.faith-verse-popover {
+  position: absolute;
+  z-index: 100;
+  width: 320px;
+  max-width: calc(100vw - 28px);
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px -8px rgba(45, 41, 39, 0.22);
+  padding: 18px 20px 16px;
+  font-family: var(--font-body);
+  opacity: 0;
+  transition: opacity 0.16s ease;
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .faith-verse-popover { width: 280px; padding: 16px 18px 14px; }
+}
+.faith-verse-popover.is-open { opacity: 1; pointer-events: auto; }
+.faith-verse-popover-ref {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.2;
+  color: var(--color-secondary);
+  margin: 0 0 4px;
+}
+.faith-verse-popover-translation {
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+}
+.faith-verse-popover-text {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--color-dark);
+  margin: 0;
+  font-style: italic;
+}
+.faith-verse-popover-text:not(.is-loaded) {
+  font-style: italic;
+  color: var(--color-muted);
+}
+/* Arrow pointing down at the trigger when popover is above. Flips
+   to point up via .is-below. */
+.faith-verse-popover-arrow {
+  position: absolute;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-white);
+  border-right: 1px solid var(--color-card-border);
+  border-bottom: 1px solid var(--color-card-border);
+  transform: translateX(-50%) rotate(45deg);
+}
+.faith-verse-popover.is-below .faith-verse-popover-arrow {
+  bottom: auto;
+  top: -7px;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 1px solid var(--color-card-border);
+  border-top: 1px solid var(--color-card-border);
+}
+
+/* Section action row (Copy link / Copy passage). Injected at the
+   bottom of every section/Q&A by initSectionActions(). Quiet by
+   default so it doesn't compete with the prose; brightens on hover. */
+.faith-section-actions {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  margin: 24px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-rule);
+}
+.faith-section-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 0;
+  padding: 4px 2px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.faith-section-action:hover,
+.faith-section-action:focus-visible {
+  color: var(--color-secondary);
+  outline: none;
+}
+.faith-section-action.is-copied { color: var(--color-primary); }
+.faith-section-action-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .faith-section-actions { gap: 14px; }
+  .faith-section-action { font-size: 10px; letter-spacing: 0.16em; }
+}
+
 /* Collapsible Q&A variant (Westminster Larger): question goes in the
    summary; answer + scripture refs live in the details body. */
 .faith-qa-details .faith-qa-summary { column-gap: 20px; padding: 22px 0; }
