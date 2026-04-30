@@ -25,21 +25,7 @@
     </div>
   </section>
 
-  {{!-- Quick-link rail. Visually mirrors the site's topic rail (the
-       "Read by" pattern in partials/topic-rail.hbs) so the page feels
-       like part of the journal. --}}
-  <nav class="topics faith-rail" aria-label="Browse The Faith Received">
-    <div class="container topics-inner" data-faith-rail-inner>
-      <span class="topics-label">Browse by</span>
-      <a href="#documents" class="topic-pill is-active" data-faith-rail-link>Documents</a>
-      <a href="#library" class="topic-pill" data-faith-rail-link>The Library</a>
-      <a href="/the-faith-received/topics/" class="topic-pill">Topics</a>
-      <a href="/the-faith-received/scripture/" class="topic-pill">Scripture Index</a>
-      <a href="/the-faith-received/today/" class="topic-pill">Today's Reading</a>
-      <a href="/the-faith-received/devotional/" class="topic-pill">Devotional</a>
-      <a href="/the-faith-received/search/" class="topic-pill">Search</a>
-    </div>
-  </nav>
+  {{> "faith-received/_nav"}}
 
   {{!-- Documents section: creeds, confessions, catechisms — the
        Church's standards, in chronological order. Cards generated

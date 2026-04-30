@@ -9169,9 +9169,65 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-rail .topics-inner { padding: 16px 28px; }
 
+/* ── Section nav (every TFR page) ─────────────────────────────
+   Persistent secondary nav that sits below the dark hero on every
+   page in /the-faith-received/. Reads as a quiet hairline-bordered
+   rail in the existing topic-pill vocabulary so the project keeps
+   its editorial feel while readers can move between Documents,
+   Library, Topics, etc., without bouncing back to the home page. */
+.faith-section-nav {
+  background: var(--color-page);
+  border-bottom: 1px solid var(--color-rule);
+  position: relative;
+  z-index: 5;
+}
+.faith-section-nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 28px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.faith-section-nav-inner::-webkit-scrollbar { display: none; }
+.faith-section-nav-brand {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--color-dark);
+  margin-right: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.faith-section-nav-brand:hover { color: var(--color-secondary); text-decoration: none; }
+.faith-section-nav-link {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dark);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.12s;
+  flex-shrink: 0;
+}
+.faith-section-nav-link:hover { color: var(--color-primary); text-decoration: none; }
+@media (max-width: 1023px) {
+  .faith-section-nav-inner { padding: 12px 20px; gap: 14px; }
+  .faith-section-nav-brand { font-size: 14px; }
+  .faith-section-nav-link { font-size: 10px; letter-spacing: 0.2em; }
+}
+/* When a doc page renders the left-anchored sidebar at ≥1024px,
+   the section nav still spans the full viewport width — readers
+   shouldn't have to scroll back into the centered area to switch
+   pages. The reading layout below shifts left under the sidebar. */
+
 /* ── Section bands (Documents, Library, Tools) ────────────────── */
 .faith-section-band {
-  padding: 88px 0;
+  padding: 56px 0;
 }
 .faith-section-band + .faith-section-band {
   border-top: 1px solid var(--color-card-border);
@@ -9348,7 +9404,7 @@ body.mo-search-open { overflow: hidden; }
 }
 
 /* ── Closing coda band (reuses .journal-band styling) ─────────── */
-.faith-coda { padding: 96px 0; }
+.faith-coda { padding: 64px 0; }
 .faith-coda-inner {
   max-width: 720px;
   margin: 0 auto;
@@ -9413,9 +9469,9 @@ body.mo-search-open { overflow: hidden; }
 }
 
 .faith-doc-header {
-  /* Inherits .article-header. Add room for description + actions
-     below the title cluster. */
-  padding: 72px 0 64px;
+  /* Inherits .article-header. Tightened from the V1 padding so the
+     hero doesn't dominate the page above the reading. */
+  padding: 56px 0 40px;
 }
 .faith-doc-dek {
   font-family: var(--font-body);
@@ -9441,25 +9497,11 @@ body.mo-search-open { overflow: hidden; }
   flex-wrap: wrap;
   margin-top: 12px;
 }
-.faith-modernizer-toggle {
-  font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: rgba(255,255,255,0.85);
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 999px;
-  padding: 9px 18px;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-.faith-modernizer-toggle:hover { background: rgba(255,255,255,0.08); }
-.faith-modernizer-toggle[aria-pressed="true"] {
-  background: var(--color-primary);
-  color: var(--color-white);
-  border-color: var(--color-primary);
+/* Modernizer toggle now lives in the .faith-reading-controls bar.
+   Inherits the .faith-reading-control look (text-button, small caps);
+   the active state lifts to brand orange. */
+.faith-reading-control.faith-modernizer-toggle[aria-pressed="true"] {
+  color: var(--color-primary);
 }
 .faith-doc-back {
   font-family: var(--font-body);
@@ -9472,7 +9514,7 @@ body.mo-search-open { overflow: hidden; }
 .faith-doc-back:hover { color: var(--color-primary); text-decoration: none; }
 
 .faith-doc-body {
-  padding: 72px 0 96px;
+  padding: 40px 0 64px;
 }
 .faith-doc-inner {
   /* Reading column. Match the article column width across the rest
@@ -9484,7 +9526,7 @@ body.mo-search-open { overflow: hidden; }
 /* ── Editorial introduction (atop every document) ────────────── */
 .faith-intro {
   background: var(--color-page);
-  padding: 56px 0 8px;
+  padding: 36px 0 8px;
   position: relative;
 }
 .faith-intro-eyebrow {
@@ -9556,8 +9598,8 @@ body.mo-search-open { overflow: hidden; }
      pattern: hairline rows, 45°→-135° brand-orange chev, no card
      chrome, italic display title in the summary. */
 .faith-section {
-  padding: 0 0 56px;
-  margin: 0 0 56px;
+  padding: 0 0 36px;
+  margin: 0 0 36px;
   border-bottom: 1px solid var(--color-card-border);
   scroll-margin-top: 96px;
 }
@@ -9976,39 +10018,39 @@ body.mo-search-open { overflow: hidden; }
 .faith-book .faith-book-chapter .faith-section-numeral { margin-bottom: 4px; }
 .faith-book .faith-book-chapter .faith-section-title { font-size: clamp(22px, 2.4vw, 28px); }
 
-/* ── Document layout: sticky sidebar TOC + reading column ─────
-   Matches the original TFR site: a sticky table of contents on the
-   left for desktop, a slide-out drawer triggered by the "Contents"
-   button on mobile. Reading column stays at standard editorial
-   width on the right. */
+/* ── Document layout: left-anchored sidebar + reading column ───
+   Matches the original TFR: sidebar is fixed at the left edge of
+   the viewport (not sat inside a centered max-width container).
+   Reading content shifts left, leaving the sidebar in the reader's
+   peripheral vision and the prose anchored to a comfortable measure
+   in the remaining width. Mobile: drawer. */
 .faith-doc-layout {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 64px 28px 96px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;
-  /* Position relative so the absolutely-positioned mobile drawer
-     (fixed) and backdrop are anchored to the page, not this layout. */
+  padding: 32px 24px 64px;
 }
 .faith-doc-body--has-sidebar { padding: 0; background: var(--color-page); }
 
 @media (min-width: 1024px) {
+  .faith-doc-body--has-sidebar { padding-left: 280px; }
   .faith-doc-layout {
-    grid-template-columns: 260px minmax(0, 720px);
-    column-gap: 56px;
-    align-items: start;
+    /* Reading column lives in the remaining width with a generous
+       max-width and explicit padding. Left-anchored, NOT centered. */
+    padding: 32px 32px 64px 36px;
+    max-width: 880px;
   }
   .faith-toc-sidebar {
-    position: sticky;
-    top: 96px;
-    max-height: calc(100vh - 120px);
+    position: fixed;
+    left: 0;
+    top: 88px;
+    width: 260px;
+    height: calc(100vh - 100px);
     overflow-y: auto;
     overscroll-behavior: contain;
-    /* Hairline separator between sidebar and content. */
     border-right: 1px solid var(--color-card-border);
-    padding: 8px 24px 24px 4px;
-    background: transparent;
+    padding: 24px 22px 28px 28px;
+    background: var(--color-page);
   }
   .faith-toc-sidebar::-webkit-scrollbar { width: 6px; }
   .faith-toc-sidebar::-webkit-scrollbar-track { background: transparent; }
@@ -10225,7 +10267,7 @@ body.mo-search-open { overflow: hidden; }
 /* ── Feature pages: shared shell ──────────────────────────────── */
 .faith-feature .faith-feature-hero { padding: 88px 0 88px; }
 .faith-feature-hero .container { max-width: 920px; }
-.faith-feature-body { padding: 72px 0 96px; }
+.faith-feature-body { padding: 48px 0 64px; }
 .faith-feature-cta {
   margin-top: 48px;
   text-align: center;

@@ -14,13 +14,11 @@
           </span>
           <span class="faith-doc-toc-toggle-label">Contents</span>
         </button>
-        <button type="button" class="faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
-          <span class="faith-modernizer-label">Modernize language</span>
-        </button>
         <a href="/the-faith-received/" class="faith-doc-back"><span aria-hidden="true">&larr;</span> The Faith Received</a>
       </div>
     </div>
   </section>
+  {{> "faith-received/_nav"}}
     
   <section class="faith-intro">
     <div class="container container-narrow">
@@ -39,7 +37,7 @@
   <nav class="faith-toc faith-toc--books" aria-label="Contents">
     <p class="faith-toc-label-heading">Contents</p>
     
-      <details class="faith-toc-book-details" open>
+      <details class="faith-toc-book-details">
         <summary class="faith-toc-book-summary">
           <span class="faith-toc-book-label">Book I</span>
           <span class="faith-toc-book-count">25 chs</span>
@@ -198,9 +196,13 @@
     <button type="button" class="faith-reading-control" data-faith-expand-all>Expand all</button>
     <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>
     <button type="button" class="faith-reading-control" data-faith-collapse-all>Collapse all</button>
+    <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>
+    <button type="button" class="faith-reading-control faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
+      <span class="faith-modernizer-label">Modernize language</span>
+    </button>
   </div>
         
-        <details class="faith-book faith-book-details" id="book-1" open>
+        <details class="faith-book faith-book-details" id="book-1">
           <summary class="faith-book-summary">
             <div class="faith-book-summary-inner">
               <p class="eyebrow faith-part-eyebrow">Book I</p>
@@ -211,7 +213,7 @@
           <div class="faith-book-body">
             <div class="flourish">{{> "flourish-mark"}}</div>
             
-        <details class="faith-section-details faith-book-chapter" id="book-1-chapter-1" open>
+        <details class="faith-section-details faith-book-chapter" id="book-1-chapter-1">
           <summary class="faith-section-summary">
             <div class="faith-section-summary-inner">
               <p class="faith-section-numeral">Chapter I</p>

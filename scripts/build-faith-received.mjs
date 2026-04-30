@@ -143,13 +143,11 @@ function header(doc, hasToc) {
       ${doc.description ? `<p class="faith-doc-description">${escape(smarten(doc.description))}</p>` : ""}
       <div class="faith-doc-actions">
         ${tocToggle}
-        <button type="button" class="faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
-          <span class="faith-modernizer-label">Modernize language</span>
-        </button>
         <a href="/the-faith-received/" class="faith-doc-back"><span aria-hidden="true">&larr;</span> The Faith Received</a>
       </div>
     </div>
-  </section>`;
+  </section>
+  {{> "faith-received/_nav"}}`;
 }
 
 // ── Editorial introduction (always open, dropcap on first ¶) ──
@@ -166,15 +164,29 @@ function intro(doc, intros) {
   </section>`;
 }
 
-// ── Reading controls (Expand / Collapse all + Read aloud later) ─
+// ── Reading controls (Expand / Collapse all + Modernize) ─────
+//
+// The modernize toggle lives here — quieter than a dark-hero CTA,
+// but still findable next to the rest of the reading affordances.
+// Hidden by default; the JS unhides it only when archaic language
+// is detected on the page. Flat documents still render the bar so
+// the modernize button has a home (Westminster Shorter, the older
+// creeds, Edwards' Resolutions all have archaic prose worth flipping).
 function readingControls(doc) {
-  if (!isCollapsible(doc)) return "";
-  return `
-  <div class="faith-reading-controls" data-faith-controls>
-    <span class="faith-reading-controls-label">Reading</span>
+  const collapsible = isCollapsible(doc);
+  const expandPart = collapsible
+    ? `
     <button type="button" class="faith-reading-control" data-faith-expand-all>Expand all</button>
     <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>
     <button type="button" class="faith-reading-control" data-faith-collapse-all>Collapse all</button>
+    <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>`
+    : "";
+  return `
+  <div class="faith-reading-controls" data-faith-controls>
+    <span class="faith-reading-controls-label">Reading</span>${expandPart}
+    <button type="button" class="faith-reading-control faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
+      <span class="faith-modernizer-label">Modernize language</span>
+    </button>
   </div>`;
 }
 
@@ -235,7 +247,7 @@ function booksTocBlock(books) {
             <li class="faith-toc-item"><a href="#book-${b.bookNumber}-chapter-${c.number}"><span class="faith-toc-num">${roman(c.number)}</span><span class="faith-toc-label">${titleFor(c)}</span></a></li>`).join("");
     const label = b.bookNumber > 0 ? `Book ${roman(b.bookNumber)}` : "Preface";
     return `
-      <details class="faith-toc-book-details"${i === 0 ? " open" : ""}>
+      <details class="faith-toc-book-details">
         <summary class="faith-toc-book-summary">
           <span class="faith-toc-book-label">${label}</span>
           <span class="faith-toc-book-count">${(b.chapters || []).length} ${(b.chapters || []).length === 1 ? "ch" : "chs"}</span>
@@ -331,7 +343,7 @@ function renderSections(doc) {
   <main class="article faith-doc faith-doc--sections">
     ${header(doc, false)}
     ${intro(doc, INTROS)}
-    ${wrapBody({ toc: "", controls: "", sections: items })}
+    ${wrapBody({ toc: "", controls: readingControls(doc), sections: items })}
   </main>`;
 }
 
@@ -348,7 +360,7 @@ function renderChapters(doc, opts = {}) {
       body,
     };
     return isCollapsible(doc)
-      ? wrapDetails({ ...args, open: i === 0 })
+      ? wrapDetails({ ...args, open: false })
       : renderSectionFlat(args);
   }).join("\n");
   const toc = tocBlock(
@@ -376,7 +388,7 @@ function renderArticles(doc) {
       body: paragraphs(a.text),
     };
     return isCollapsible(doc)
-      ? wrapDetails({ ...args, open: i === 0 })
+      ? wrapDetails({ ...args, open: false })
       : renderSectionFlat(args);
   }).join("\n");
   const numberedArticles = (doc.articles ?? []).filter((a) => a.number > 0);
@@ -411,7 +423,7 @@ function renderTheses(doc) {
   <main class="article faith-doc faith-doc--theses">
     ${header(doc, false)}
     ${intro(doc, INTROS)}
-    ${wrapBody({ toc: "", controls: "", sections: list })}
+    ${wrapBody({ toc: "", controls: readingControls(doc), sections: list })}
   </main>`;
 }
 
@@ -435,7 +447,7 @@ function renderQA(doc) {
         </article>`;
     }
     return `
-        <details class="faith-section-details faith-qa-details" id="q-${q.number}"${i === 0 ? " open" : ""}>
+        <details class="faith-section-details faith-qa-details" id="q-${q.number}">
           <summary class="faith-section-summary faith-qa-summary">
             <div class="faith-section-summary-inner">
               <p class="faith-qa-number">Q. ${q.number}</p>
@@ -489,7 +501,7 @@ function renderHeidelberg(doc) {
         <section class="faith-heidelberg-part" id="part-${sec}">
           <p class="eyebrow faith-part-eyebrow">${partLabels[sec]}</p>
           <div class="flourish">{{> "flourish-mark"}}</div>
-          ${days.map((d, i) => renderLordsDay(d, sec === "misery" && i === 0)).join("\n")}
+          ${days.map((d) => renderLordsDay(d, false)).join("\n")}
         </section>`;
   }
   return `
@@ -547,7 +559,7 @@ function renderEdwards(doc) {
   <main class="article faith-doc faith-doc--edwards">
     ${header(doc, false)}
     ${intro(doc, INTROS)}
-    ${wrapBody({ toc: "", controls: "", sections: items })}
+    ${wrapBody({ toc: "", controls: readingControls(doc), sections: items })}
   </main>`;
 }
 
@@ -566,7 +578,7 @@ function renderLibraryChapters(doc) {
       body: paragraphsArray(c.paragraphs),
     };
     return isCollapsible(doc)
-      ? wrapDetails({ ...args, open: i === 0 })
+      ? wrapDetails({ ...args, open: false })
       : renderSectionFlat(args);
   }).join("\n");
 
@@ -602,7 +614,7 @@ function renderLibraryBooks(doc) {
       // Inside the (open) first book, the first chapter is also
       // open. Other chapters collapsed. Inside other books, all
       // chapters collapsed.
-      return wrapDetails({ ...args, open: bookIdx === 0 && i === 0, kindClass: "faith-book-chapter" });
+      return wrapDetails({ ...args, open: false, kindClass: "faith-book-chapter" });
     }).join("\n");
     const bookLabel = b.bookNumber > 0 ? `Book ${roman(b.bookNumber)}` : "Preface";
     const bookHeading =
@@ -610,7 +622,7 @@ function renderLibraryBooks(doc) {
         ? `<h2 class="faith-book-title"><em>${escape(smarten(b.bookTitle))}</em></h2>`
         : "";
     return `
-        <details class="faith-book faith-book-details" id="book-${b.bookNumber}"${bookIdx === 0 ? " open" : ""}>
+        <details class="faith-book faith-book-details" id="book-${b.bookNumber}">
           <summary class="faith-book-summary">
             <div class="faith-book-summary-inner">
               <p class="eyebrow faith-part-eyebrow">${bookLabel}</p>
@@ -770,6 +782,7 @@ if (topicsBundle) {
       headline: "The great themes of the <span class=\"highlight\"><em>Christian faith</em></span>, cross-referenced.",
       sub: "From God and the Trinity to salvation, the Church, and the life to come. Trace each doctrine across two millennia of Christian writing.",
     })}
+    {{> "faith-received/_nav"}}
     <section class="faith-feature-body">
       <div class="container">
         <div class="faith-topic-card-grid">
@@ -851,6 +864,7 @@ if (topicsBundle) {
         </div>
       </div>
     </section>
+    {{> "faith-received/_nav"}}
     ${
       sidebar
         ? `
@@ -1051,6 +1065,7 @@ function topicAssignmentRow(a, doc) {
   return `
             <li class="faith-topic-row">
               <details class="faith-topic-row-details"
+                       id="topic-${src}-${anchor}"
                        data-faith-topic-row
                        data-source-url="${url}"
                        data-source-anchor="${anchor}">

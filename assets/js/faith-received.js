@@ -671,23 +671,25 @@
 
   function initSectionActions() {
     if (!navigator.clipboard) return;
+    // Every readable unit gets its own Copy link / Copy passage row.
+    // Includes: collapsibles (sections, articles, chapters, Lord's
+    // Days, library books, library chapters, Westminster Larger
+    // Q&A, topic rows), flat sections (creeds), Q&A rows (Westminster
+    // Shorter, Heidelberg's nested Q&A), and the smaller numbered
+    // units (95 Theses, Edwards' Resolutions).
     var targets = document.querySelectorAll(
       ".faith-doc .faith-section-details, " +
       ".faith-doc .faith-doc-inner > .faith-section, " +
-      ".faith-doc .faith-qa"
+      ".faith-doc .faith-qa, " +
+      ".faith-doc .faith-thesis, " +
+      ".faith-doc .faith-edwards-item, " +
+      ".faith-doc .faith-book-details, " +
+      ".faith-doc .faith-topic-row-details"
     );
     Array.prototype.forEach.call(targets, function (target) {
-      // Skip a Q&A nested inside a Lord's Day collapsible — the
-      // outer details already gets actions, and double-injecting
-      // would clutter the row.
-      if (target.classList.contains("faith-qa") &&
-          target.closest(".faith-section-details") &&
-          target.closest(".faith-section-details") !== target) {
-        // Allow it: each Q&A is its own copyable unit.
-      }
       if (!target.id) return;
       // Don't double-inject if we've already added actions.
-      if (target.querySelector(":scope > .faith-section-actions, :scope > .faith-section-body > .faith-section-actions")) {
+      if (target.querySelector(":scope > .faith-section-actions, :scope > .faith-section-body > .faith-section-actions, :scope > .faith-book-body > .faith-section-actions, :scope > .faith-topic-row-body > .faith-section-actions")) {
         return;
       }
       var actions = buildActionsRow(target);
@@ -697,6 +699,24 @@
       if (target.classList.contains("faith-section-details")) {
         var body = target.querySelector(":scope > .faith-section-body");
         if (body) body.appendChild(actions);
+      } else if (target.classList.contains("faith-book-details")) {
+        var bbody = target.querySelector(":scope > .faith-book-body");
+        if (bbody) bbody.appendChild(actions);
+      } else if (target.classList.contains("faith-topic-row-details")) {
+        // Topic rows lazy-load their body; inject the actions row
+        // only after the body has content. Listen for the toggle
+        // event and append on first open.
+        target.addEventListener("toggle", function inject() {
+          if (!target.open) return;
+          var tbody = target.querySelector(":scope > .faith-topic-row-body");
+          if (!tbody || tbody.querySelector(":scope > .faith-section-actions")) return;
+          // Wait one tick for the lazy-fetch to populate, then inject.
+          setTimeout(function () {
+            if (!tbody.querySelector(":scope > .faith-section-actions")) {
+              tbody.appendChild(buildActionsRow(target));
+            }
+          }, 100);
+        });
       } else {
         target.appendChild(actions);
       }
@@ -740,18 +760,19 @@
   }
 
   function extractCopyText(section) {
-    // Pull a clean text representation: numeral/eyebrow + title +
-    // body text + scripture refs (when present). Strip the action-
-    // row and any nested popovers from the output.
+    // Pull a clean text representation regardless of section shape.
+    // Strip every UI artifact (action rows, chev icons, popover,
+    // toggle buttons), replace verse-ref <button>s with plain text
+    // references, then assemble: numeral/eyebrow + title + body +
+    // scripture refs.
     var clone = section.cloneNode(true);
     var noise = clone.querySelectorAll(
       ".faith-section-actions, .faith-chev, .faith-verse-popover, " +
       ".faith-section-action, .faith-verse-sep, " +
+      ".faith-topic-row-continue, " +
       "[data-modernizer-toggle]"
     );
     Array.prototype.forEach.call(noise, function (n) { n.remove(); });
-    // Replace verse-ref buttons with plain text references so the
-    // copy reads cleanly without "[click] Rom 8:28 [click]".
     var verseBtns = clone.querySelectorAll("[data-faith-verse]");
     Array.prototype.forEach.call(verseBtns, function (b) {
       b.replaceWith(document.createTextNode(b.textContent));
@@ -761,20 +782,27 @@
       var t = String(text || "").replace(/\s+/g, " ").trim();
       if (t) lines.push(t);
     }
+    // Numeral / eyebrow — covers section, Q&A, Lord's Day, thesis,
+    // edwards, library book, topic row.
     var numeral = clone.querySelector(
-      ".faith-section-numeral, .faith-qa-number, .faith-lords-day-numeral"
+      ".faith-section-numeral, .faith-qa-number, .faith-lords-day-numeral, " +
+      ".faith-thesis-number, .faith-edwards-number, " +
+      ".faith-part-eyebrow, .faith-topic-row-label"
     );
+    // Title / heading.
     var title = clone.querySelector(
-      ".faith-section-title, .faith-qa-question"
+      ".faith-section-title, .faith-qa-question, " +
+      ".faith-book-title, .faith-topic-row-snippet"
     );
     if (numeral) pushTrim(numeral.textContent);
     if (title) pushTrim(title.textContent);
+    // Body — broadest selector for any reading-content container.
     var body = clone.querySelector(
-      ".faith-section-body, .faith-qa-answer"
+      ".faith-section-body, .faith-qa-answer, " +
+      ".faith-thesis-text, .faith-edwards-text, " +
+      ".faith-book-body, .faith-topic-row-body"
     );
     if (body) {
-      // Remove any qa-references from the body so we treat them as
-      // a separate trailing block.
       var refsInBody = body.querySelector(".faith-qa-references");
       if (refsInBody) refsInBody.remove();
       var paras = body.querySelectorAll("p, li");
@@ -783,6 +811,14 @@
       } else {
         pushTrim(body.textContent);
       }
+    } else {
+      // Theses + Edwards items have no .faith-section-body wrapper —
+      // the text is a direct sibling of the number. Pull whatever's
+      // left after numeral/title removal.
+      var fallback = clone.querySelector(
+        ".faith-thesis-text, .faith-edwards-text"
+      );
+      if (fallback) pushTrim(fallback.textContent);
     }
     var refs = clone.querySelector(".faith-qa-references");
     if (refs) {

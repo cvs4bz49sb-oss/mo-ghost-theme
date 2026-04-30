@@ -14,13 +14,11 @@
           </span>
           <span class="faith-doc-toc-toggle-label">Contents</span>
         </button>
-        <button type="button" class="faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
-          <span class="faith-modernizer-label">Modernize language</span>
-        </button>
         <a href="/the-faith-received/" class="faith-doc-back"><span aria-hidden="true">&larr;</span> The Faith Received</a>
       </div>
     </div>
   </section>
+  {{> "faith-received/_nav"}}
     
   <section class="faith-intro">
     <div class="container container-narrow">
@@ -115,13 +113,17 @@
     <button type="button" class="faith-reading-control" data-faith-expand-all>Expand all</button>
     <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>
     <button type="button" class="faith-reading-control" data-faith-collapse-all>Collapse all</button>
+    <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>
+    <button type="button" class="faith-reading-control faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
+      <span class="faith-modernizer-label">Modernize language</span>
+    </button>
   </div>
         
         <section class="faith-heidelberg-part" id="part-misery">
           <p class="eyebrow faith-part-eyebrow">Part I &middot; Misery</p>
           <div class="flourish">{{> "flourish-mark"}}</div>
           
-          <details class="faith-section-details faith-lords-day-details" id="lords-day-1" open>
+          <details class="faith-section-details faith-lords-day-details" id="lords-day-1">
             <summary class="faith-section-summary">
               <div class="faith-section-summary-inner">
                 <p class="faith-section-numeral">Lord's Day 1</p>
