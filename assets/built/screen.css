@@ -9201,35 +9201,32 @@ body.mo-search-open { overflow: hidden; }
 .faith-section-band .section-intro { text-align: center; max-width: 720px; margin: 0 auto 32px; }
 .faith-section-band .flourish { margin: 24px auto 40px; }
 
-/* ── Card grid (documents + library) ──────────────────────────── */
+/* ── Card grid (chronological library) ────────────────────────
+   Three-up on desktop, two-up at mid-widths, single column on
+   phones. Uses top + left hairlines to draw a clean grid (no
+   border on the first row's tops or the first column's lefts);
+   no card chrome, just editorial rules. */
 .faith-card-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 56px;
-  row-gap: 0;
-  max-width: 1080px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  max-width: 1180px;
   margin: 0 auto;
-  position: relative;
-}
-.faith-card-grid::before {
-  content: "";
-  position: absolute;
-  top: 28px; bottom: 28px;
-  left: 50%;
-  width: 1px;
-  background: var(--color-card-border);
 }
 .faith-card {
   display: block;
-  padding: 32px 0 28px;
+  padding: 32px 32px 28px;
   border-top: 1px solid var(--color-card-border);
+  border-left: 1px solid var(--color-card-border);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.15s;
+  transition: background 0.15s;
 }
-.faith-card:first-child,
-.faith-card:nth-child(2) { border-top: 0; padding-top: 12px; }
-.faith-card:hover { text-decoration: none; transform: translateY(-1px); }
+/* Strip the left border on the leftmost column and the top border
+   on the first row (3 columns means first 3 cards get no top). */
+.faith-card:nth-child(3n+1) { border-left: 0; }
+.faith-card:nth-child(-n+3) { border-top: 0; padding-top: 14px; }
+.faith-card:hover { text-decoration: none; background: rgba(238,125,81,0.04); }
 .faith-card:hover .faith-card-title { color: var(--color-secondary); }
 .faith-card:hover .faith-card-arrow { transform: translateX(3px); }
 .faith-card-date {
@@ -9278,12 +9275,18 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-card-arrow { display: inline-block; transition: transform 0.15s; }
 
-@media (max-width: 720px) {
+@media (max-width: 960px) {
+  .faith-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .faith-card:nth-child(3n+1) { border-left: 1px solid var(--color-card-border); }
+  .faith-card:nth-child(2n+1) { border-left: 0; }
+  .faith-card:nth-child(-n+3) { border-top: 1px solid var(--color-card-border); padding-top: 32px; }
+  .faith-card:nth-child(-n+2) { border-top: 0; padding-top: 14px; }
+}
+@media (max-width: 600px) {
   .faith-card-grid { grid-template-columns: 1fr; }
-  .faith-card-grid::before { display: none; }
-  .faith-card,
-  .faith-card:first-child,
-  .faith-card:nth-child(2) { border-top: 1px solid var(--color-card-border); padding: 28px 0; }
+  .faith-card { border-left: 0 !important; padding: 28px 20px; }
+  .faith-card:nth-child(-n+3),
+  .faith-card:nth-child(-n+2) { border-top: 1px solid var(--color-card-border); padding-top: 28px; }
   .faith-card:first-child { border-top: 0; padding-top: 8px; }
 }
 
@@ -10157,12 +10160,14 @@ body.mo-search-open { overflow: hidden; }
   gap: 1px;
 }
 .faith-toc-item { display: block; }
+/* Stacked layout: numeral / date as small eyebrow above the label.
+   This keeps long "num" values (e.g. "c. 2nd–3rd Century" on the
+   topic-page sidebars where the dates are the navigation key) from
+   overlapping the title — short numerals like "I", "LD 1" still
+   read fine as a small line above the title.  */
 .faith-toc-item a {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 10px;
-  align-items: baseline;
-  padding: 7px 8px;
+  display: block;
+  padding: 8px 10px;
   border-radius: 4px;
   color: var(--color-dark);
   text-decoration: none;
@@ -10180,16 +10185,21 @@ body.mo-search-open { overflow: hidden; }
   color: var(--color-secondary);
 }
 .faith-toc-num {
-  font-family: var(--font-display);
-  font-style: italic;
+  display: block;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
   color: var(--color-primary);
-  font-size: 12px;
+  margin-bottom: 3px;
   white-space: nowrap;
-  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .faith-toc-label {
+  display: block;
   color: inherit;
-  display: inline-block;
 }
 
 @media (max-width: 1023px) {
@@ -10802,4 +10812,170 @@ body.mo-search-open { overflow: hidden; }
   .flourish { display: none; }
   /* Header re-print on each page for the document's title. */
   @page { margin: 0.6in 0.7in; }
+}
+
+/* ── Library books: collapsible book sections ──────────────────
+   Calvin / Augustine / Imitation render each book as a <details>
+   with the book heading in the summary and chapter list in the
+   body. First book opens by default; subsequent collapse to a
+   compact book-title row. */
+.faith-book-details {
+  padding: 0;
+  margin: 0 0 24px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: var(--color-page);
+  overflow: hidden;
+}
+.faith-book-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 24px;
+  padding: 24px 28px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  background: var(--color-background);
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+.faith-book-summary::-webkit-details-marker { display: none; }
+.faith-book-details[open] > .faith-book-summary {
+  border-bottom-color: var(--color-card-border);
+  background: var(--color-page);
+}
+.faith-book-summary:hover .faith-book-title { color: var(--color-secondary); }
+.faith-book-summary-inner { min-width: 0; }
+.faith-book-summary-inner .faith-part-eyebrow {
+  text-align: left;
+  margin: 0 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+}
+.faith-book-summary-inner .faith-book-title {
+  margin: 0;
+  font-size: clamp(24px, 2.6vw, 32px);
+  text-align: left;
+  transition: color 0.15s;
+}
+.faith-book-body {
+  padding: 32px 28px 28px;
+  animation: faith-section-fade-in 0.22s ease-out;
+}
+.faith-book-body > .flourish { margin-bottom: 28px; }
+.faith-book-body .faith-book-chapter {
+  border-top-color: var(--color-rule);
+}
+.faith-book-body .faith-book-chapter:first-of-type { border-top: 0; }
+.faith-book-body .faith-book-chapter:last-of-type { border-bottom: 0; }
+@media (max-width: 640px) {
+  .faith-book-summary { padding: 18px 18px; }
+  .faith-book-body { padding: 24px 18px 20px; }
+}
+
+/* ── Library sidebar: collapsible book groups ─────────────────
+   Each <details> in booksTocBlock collapses the chapter list under
+   a book-level summary so a 4-book classic isn't a wall of links. */
+.faith-toc-book-details {
+  border-top: 1px solid var(--color-card-border);
+  padding: 0;
+}
+.faith-toc-book-details:first-of-type { border-top: 0; }
+.faith-toc-book-summary {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px 10px 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.faith-toc-book-summary::-webkit-details-marker { display: none; }
+.faith-toc-book-summary:hover .faith-toc-book-label { color: var(--color-secondary); }
+.faith-toc-book-summary .faith-toc-book-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+}
+.faith-toc-book-count {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.faith-toc-book-summary .faith-chev {
+  width: 9px;
+  height: 9px;
+  border-right-width: 1.5px;
+  border-bottom-width: 1.5px;
+}
+.faith-toc-book-list {
+  padding: 4px 0 14px;
+  margin: 0;
+}
+
+/* ── Topic page: rows are <details> for inline expansion ─────── */
+.faith-topic-row { border-top: 1px solid var(--color-rule); }
+.faith-topic-row:first-child { border-top: 0; }
+.faith-topic-row-details {
+  padding: 0;
+  scroll-margin-top: 96px;
+}
+.faith-topic-row-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 18px;
+  padding: 16px 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: color 0.15s;
+}
+.faith-topic-row-summary::-webkit-details-marker { display: none; }
+.faith-topic-row-summary:hover .faith-topic-row-snippet { color: var(--color-secondary); }
+.faith-topic-row-meta { min-width: 0; display: block; }
+.faith-topic-row-meta .faith-topic-row-label {
+  display: block;
+  margin-bottom: 4px;
+}
+.faith-topic-row-meta .faith-topic-row-snippet {
+  display: block;
+  transition: color 0.15s;
+}
+.faith-topic-row-details[open] > .faith-topic-row-summary { padding-bottom: 12px; }
+.faith-topic-row-body {
+  padding: 8px 0 28px;
+  animation: faith-section-fade-in 0.22s ease-out;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-dark);
+}
+.faith-topic-row-body p { margin: 0 0 16px; }
+.faith-topic-row-body p:last-child { margin-bottom: 0; }
+.faith-topic-row-continue {
+  margin: 18px 0 0 !important;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-rule);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.faith-topic-row-continue a {
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+.faith-topic-row-continue a:hover { color: var(--color-primary); }
+.faith-topic-row-fallback {
+  color: var(--color-muted);
+  font-style: italic;
 }

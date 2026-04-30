@@ -868,6 +868,82 @@
     });
   }
 
+  // ── Topic-page row lazy expansion ────────────────────────────
+  // Each <details data-faith-topic-row> on a topic page opens to
+  // show the full passage from the source document. Rather than
+  // inlining every passage into the topic partial (which inflates
+  // the theme deploy substantially), the JS fetches the source HTML
+  // on first open, extracts the matching anchor's content, and
+  // injects it. Cached per-source so opening 5 Heidelberg passages
+  // hits the network once.
+  initTopicRowExpansion();
+
+  function initTopicRowExpansion() {
+    var rows = document.querySelectorAll("[data-faith-topic-row]");
+    if (!rows.length) return;
+    var pageCache = new Map();
+
+    function fetchSource(url) {
+      if (pageCache.has(url)) return pageCache.get(url);
+      var p = fetch(url, { credentials: "same-origin" })
+        .then(function (r) { return r.ok ? r.text() : ""; })
+        .then(function (html) {
+          if (!html) return null;
+          var parser = new DOMParser();
+          return parser.parseFromString(html, "text/html");
+        })
+        .catch(function () { return null; });
+      pageCache.set(url, p);
+      return p;
+    }
+
+    function extractPassage(doc, anchor) {
+      if (!doc || !anchor) return "";
+      var node = doc.getElementById(anchor);
+      if (!node) return "";
+      // The "passage" — pick the right element shape depending on
+      // what the anchor points to.
+      var body = node.querySelector(".faith-section-body, .faith-qa-answer");
+      if (body) {
+        // Strip section-actions injected client-side on the source page.
+        var clone = body.cloneNode(true);
+        clone.querySelectorAll(".faith-section-actions").forEach(function (n) { n.remove(); });
+        return clone.innerHTML;
+      }
+      // Fallback for theses / Edwards items where the whole node is
+      // the passage.
+      if (node.classList.contains("faith-thesis") ||
+          node.classList.contains("faith-edwards-item")) {
+        var p = node.querySelector(".faith-thesis-text, .faith-edwards-text");
+        if (p) return "<p>" + p.innerHTML + "</p>";
+      }
+      return "";
+    }
+
+    function load(row) {
+      var url = row.getAttribute("data-source-url") || "";
+      var anchor = row.getAttribute("data-source-anchor") || "";
+      var body = row.querySelector("[data-faith-topic-body]");
+      if (!body || row.dataset.faithLoaded === "1") return;
+      var pageUrl = url.split("#")[0];
+      fetchSource(pageUrl).then(function (doc) {
+        var html = extractPassage(doc, anchor);
+        if (html) {
+          body.innerHTML = html;
+        } else {
+          body.innerHTML = '<p class="faith-topic-row-fallback">Could not load passage. Open the source document instead.</p>';
+        }
+        row.dataset.faithLoaded = "1";
+      });
+    }
+
+    Array.prototype.forEach.call(rows, function (row) {
+      row.addEventListener("toggle", function () {
+        if (row.open) load(row);
+      });
+    });
+  }
+
   // ── Sidebar active-section tracking ──────────────────────────
   // As the reader scrolls, mark the top-most visible section's TOC
   // link with `is-active` so the sidebar shows where they are. Uses
@@ -1037,27 +1113,76 @@
     }
   }
 
-  // ── 7. Modernizer toggle (placeholder) ────────────────────────
+  // ── 7. Modernizer toggle ──────────────────────────────────────
+  // Ported from cvs4bz49sb-oss/heidelberg/lib/modernize.ts via
+  // assets/js/faith-modernize.js. Dictionary + pattern-based archaic
+  // English → modern English engine, deterministic, runs entirely
+  // client-side. Detect whether any prose on the page contains
+  // archaic forms ("Thou hast", "saith", "-eth" verbs, etc.); if so,
+  // unhide the toggle button so the reader can flip between Original
+  // and Modern English.
   initModernizer();
 
   function initModernizer() {
     var toggle = document.querySelector("[data-modernizer-toggle]");
-    if (!toggle) return;
-    // No document in v1 ships with a modernized text variant. The
-    // button stays hidden (rendered with `hidden` attribute by the
-    // builder). When data adds modernized fields, this script
-    // unhides + wires the swap. Pattern stays in place so the markup
-    // doesn't need to change later.
-    var hasModern = !!document.querySelector("[data-modernized]");
-    if (!hasModern) return;
+    if (!toggle || !window.FaithModernize) return;
+    var FM = window.FaithModernize;
+
+    // Targets: every prose-bearing element. We scope tightly to
+    // avoid touching nav/UI text. The node walk inside each target
+    // ignores nested element structure (e.g. verse-ref buttons stay
+    // intact because we only modernize text nodes).
+    var elements = Array.prototype.slice.call(document.querySelectorAll(
+      ".faith-doc .faith-section-body p, " +
+      ".faith-doc .faith-section-body li, " +
+      ".faith-doc .faith-qa-answer p, " +
+      ".faith-doc .faith-qa-question, " +
+      ".faith-doc .faith-edwards-text, " +
+      ".faith-doc .faith-thesis-text, " +
+      ".faith-doc .faith-edwards-preamble, " +
+      ".faith-doc .faith-topic-row-body p, " +
+      ".faith-doc .faith-topic-row-body li, " +
+      ".faith-doc .faith-topic-row-body .faith-qa-answer p"
+    ));
+
+    var hasArchaic = false;
+    elements.forEach(function (el) {
+      // Snapshot the original HTML once so we can flip back without
+      // reading text we already mutated.
+      el._faithOriginalHTML = el.innerHTML;
+      if (FM.hasArchaicLanguage(el.textContent || "")) hasArchaic = true;
+    });
+    if (!hasArchaic) return;
+
     toggle.hidden = false;
     toggle.addEventListener("click", function () {
-      var on = toggle.getAttribute("aria-pressed") === "true";
-      toggle.setAttribute("aria-pressed", String(!on));
-      document.body.classList.toggle("faith-modernized", !on);
+      var nowOn = toggle.getAttribute("aria-pressed") !== "true";
+      toggle.setAttribute("aria-pressed", String(nowOn));
+      document.body.classList.toggle("faith-modernized", nowOn);
       var label = toggle.querySelector(".faith-modernizer-label");
-      if (label) label.textContent = !on ? "Original language" : "Modernize language";
+      if (label) label.textContent = nowOn ? "Original language" : "Modernize language";
+
+      elements.forEach(function (el) {
+        if (nowOn) {
+          modernizeTextNodes(el);
+        } else {
+          el.innerHTML = el._faithOriginalHTML;
+        }
+      });
     });
+  }
+
+  // Walk every text node descendant of `root` and run the modernizer
+  // on its value. Preserves element structure (verse-ref buttons,
+  // <em>, <strong>, <a>, etc.).
+  function modernizeTextNodes(root) {
+    if (!window.FaithModernize) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var node;
+    while ((node = walker.nextNode())) {
+      var modern = window.FaithModernize.modernizeText(node.nodeValue);
+      if (modern !== node.nodeValue) node.nodeValue = modern;
+    }
   }
 
   // ── helpers ────────────────────────────────────────────────────
