@@ -327,17 +327,35 @@
     }
 
     function sourceToUrl(r) {
-      // Source IDs in the heidelberg index map to our slug + anchor:
-      //   "heidelberg" / "q6" -> /the-faith-received/heidelberg/#q-6
-      //   "diognetus"  / "ch3" -> /the-faith-received/diognetus/#chapter-3
-      var slug = r.source || "";
+      // The heidelberg scripture-index uses TFR's id conventions
+      // ("q6", "art-1", "sec-1", "ch1-p2"). Translate to the Ghost
+      // theme's anchor formats: question → #q-N, article → #article-N,
+      // section/chapter → matches the rendering. Per-source quirks
+      // first because the right anchor depends on how each doc is
+      // rendered (e.g. Lausanne renders sections as articles).
+      var slug = r.source === "confession-1689" ? "1689" : (r.source || "");
       var id = r.id || "";
       var anchor = "";
-      var qm = id.match(/^q(\d+)/);
-      var cm = id.match(/^ch(?:apter)?(\d+)/);
-      if (qm) anchor = "#q-" + qm[1];
-      else if (cm) anchor = "#chapter-" + cm[1];
-      else if (id) anchor = "#" + id;
+      // Per-source: Lausanne sections render as articles in the Ghost theme.
+      if (slug === "lausanne") {
+        var lm = id.match(/^sec-(\d+)/);
+        if (lm) anchor = "#article-" + lm[1];
+      }
+      if (!anchor) {
+        var qm = id.match(/^q(\d+)/);
+        var artm = id.match(/^art-(\d+)/);
+        var secm = id.match(/^sec-(\d+)/);
+        var cm = id.match(/^ch(?:apter)?-?(\d+)/);
+        var resm = id.match(/^res-(\d+)/);
+        var thm = id.match(/^thesis-(\d+)/);
+        if (qm) anchor = "#q-" + qm[1];
+        else if (artm) anchor = "#article-" + artm[1];
+        else if (secm) anchor = "#section-" + secm[1];
+        else if (cm) anchor = "#chapter-" + cm[1];
+        else if (resm) anchor = "#resolution-" + resm[1];
+        else if (thm) anchor = "#thesis-" + thm[1];
+        else if (id) anchor = "#" + id;
+      }
       return "/the-faith-received/" + slug + "/" + anchor;
     }
 
