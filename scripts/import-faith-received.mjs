@@ -282,6 +282,26 @@ async function importDoc(doc) {
   return out;
 }
 
+// ── Topics taxonomy + index ──────────────────────────────────
+// Pulls data/topics.ts (TopicMeta + topicOrder) and
+// data/topics-index.ts (TopicAssignment[]) from the heidelberg
+// repo and writes a single normalized JSON for the build step
+// to consume.
+async function importTopics() {
+  const topicsPath = path.join(SOURCE_REPO, "data/topics.ts");
+  const indexPath = path.join(SOURCE_REPO, "data/topics-index.ts");
+  if (!existsSync(topicsPath) || !existsSync(indexPath)) return;
+  const topicsMod = await import(topicsPath);
+  const indexMod = await import(indexPath);
+  const out = {
+    order: topicsMod.topicOrder,
+    meta: topicsMod.topicMeta,
+    assignments: indexMod.topicsIndex,
+  };
+  await writeFile(path.join(OUT_DIR, "_topics.json"), JSON.stringify(out, null, 2));
+  console.log(`  topics                       taxonomy             {"topics":${out.order.length},"assignments":${out.assignments.length}}`);
+}
+
 const summary = [];
 for (const doc of DOCS) {
   const data = await importDoc(doc);
@@ -302,6 +322,8 @@ for (const doc of DOCS) {
   const cleaned = Object.fromEntries(Object.entries(counts).filter(([, v]) => v != null));
   summary.push(`  ${doc.id.padEnd(28)} ${doc.kind.padEnd(20)} ${JSON.stringify(cleaned)}`);
 }
+
+await importTopics();
 
 console.log("Faith Received import complete:");
 console.log(summary.join("\n"));

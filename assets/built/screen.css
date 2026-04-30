@@ -10558,6 +10558,161 @@ body.mo-search-open { overflow: hidden; }
   .faith-topic:first-child { border-top: 0; padding-top: 0; }
 }
 
+/* ── Topics index page (the new card grid replacing the V1 stub) ─ */
+.faith-topic-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0;
+  max-width: 1080px;
+  margin: 0 auto;
+  position: relative;
+}
+.faith-topic-card {
+  display: block;
+  padding: 28px 28px 24px;
+  text-decoration: none;
+  color: inherit;
+  border-top: 1px solid var(--color-card-border);
+  border-left: 1px solid var(--color-card-border);
+  transition: background 0.15s, color 0.15s;
+}
+.faith-topic-card:nth-child(3n+1) { border-left: 0; }
+.faith-topic-card:hover {
+  background: rgba(238,125,81,0.05);
+  text-decoration: none;
+}
+.faith-topic-card:hover .faith-topic-card-title { color: var(--color-secondary); }
+.faith-topic-card-numeral {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: 10px;
+}
+.faith-topic-card-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.15;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+  transition: color 0.15s;
+}
+.faith-topic-card-title em { font-style: italic; }
+.faith-topic-card-desc {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0 0 14px;
+}
+.faith-topic-card-count {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+}
+@media (max-width: 880px) {
+  .faith-topic-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .faith-topic-card:nth-child(3n+1) { border-left: 1px solid var(--color-card-border); }
+  .faith-topic-card:nth-child(2n+1) { border-left: 0; }
+}
+@media (max-width: 540px) {
+  .faith-topic-card-grid { grid-template-columns: 1fr; }
+  .faith-topic-card { border-left: 0 !important; padding: 24px 20px; }
+}
+
+/* ── Per-topic detail page (rows grouped by document) ───────────── */
+.faith-topic-header { padding-bottom: 56px; }
+.faith-topic-header .article-title { font-size: clamp(36px, 4.4vw, 56px); }
+
+.faith-topic-group {
+  padding: 0 0 56px;
+  margin: 0 0 56px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-topic-group:last-child { border-bottom: 0; }
+.faith-topic-group-header {
+  margin-bottom: 28px;
+  text-align: left;
+}
+.faith-topic-group-header .eyebrow { margin: 0 0 8px; }
+.faith-topic-group-header .section-heading {
+  font-size: clamp(26px, 3vw, 34px);
+  margin: 0 0 6px;
+}
+.faith-topic-group-author {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0;
+  font-style: italic;
+}
+.faith-topic-row-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.faith-topic-row {
+  border-top: 1px solid var(--color-rule);
+}
+.faith-topic-row:first-child { border-top: 0; }
+.faith-topic-row-link {
+  display: grid;
+  grid-template-columns: minmax(140px, 200px) 1fr auto;
+  gap: 18px;
+  align-items: baseline;
+  padding: 16px 0;
+  text-decoration: none;
+  color: var(--color-dark);
+  transition: color 0.15s;
+}
+.faith-topic-row-link:hover {
+  text-decoration: none;
+  color: var(--color-secondary);
+}
+.faith-topic-row-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+.faith-topic-row-snippet {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-dark);
+}
+.faith-topic-row-arrow {
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  transition: transform 0.15s, color 0.15s;
+}
+.faith-topic-row-link:hover .faith-topic-row-arrow {
+  color: var(--color-primary);
+  transform: translateX(3px);
+}
+.faith-topic-empty {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--color-muted);
+  padding: 48px 0;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .faith-topic-row-link { grid-template-columns: 1fr; gap: 4px; padding: 14px 0; }
+  .faith-topic-row-arrow { display: none; }
+  .faith-topic-row-snippet { font-size: 15px; }
+}
+
 /* ── Mobile tightening ───────────────────────────────────────── */
 @media (max-width: 640px) {
   .faith-hero { padding: 64px 0 64px; }

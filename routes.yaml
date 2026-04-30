@@ -122,6 +122,32 @@ routes:
     template: custom-faith-today
   /the-faith-received/topics/:
     template: custom-faith-topics
+  /the-faith-received/topics/god-and-trinity/:
+    template: custom-faith-topic-god-and-trinity
+  /the-faith-received/topics/scripture-and-revelation/:
+    template: custom-faith-topic-scripture-and-revelation
+  /the-faith-received/topics/creation-and-providence/:
+    template: custom-faith-topic-creation-and-providence
+  /the-faith-received/topics/sin-and-the-fall/:
+    template: custom-faith-topic-sin-and-the-fall
+  /the-faith-received/topics/christ-and-the-incarnation/:
+    template: custom-faith-topic-christ-and-the-incarnation
+  /the-faith-received/topics/salvation-and-justification/:
+    template: custom-faith-topic-salvation-and-justification
+  /the-faith-received/topics/the-holy-spirit/:
+    template: custom-faith-topic-the-holy-spirit
+  /the-faith-received/topics/the-church/:
+    template: custom-faith-topic-the-church
+  /the-faith-received/topics/sacraments-and-ordinances/:
+    template: custom-faith-topic-sacraments-and-ordinances
+  /the-faith-received/topics/the-christian-life/:
+    template: custom-faith-topic-the-christian-life
+  /the-faith-received/topics/the-law-and-ethics/:
+    template: custom-faith-topic-the-law-and-ethics
+  /the-faith-received/topics/prayer/:
+    template: custom-faith-topic-prayer
+  /the-faith-received/topics/last-things/:
+    template: custom-faith-topic-last-things
   /the-faith-received/devotional/:
     template: custom-faith-devotional
   # Documents (creeds, confessions, catechisms)

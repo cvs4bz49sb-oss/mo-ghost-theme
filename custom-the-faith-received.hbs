@@ -19,7 +19,7 @@
       <p class="hero-sub">Creeds, confessions, catechisms, and classic texts &mdash; beautifully presented for study and devotion.</p>
 
       <div class="hero-ctas faith-hero-ctas">
-        <a href="#documents" class="btn btn-primary btn-lg">Begin reading</a>
+        <a href="#library" class="btn btn-primary btn-lg">Begin reading</a>
         <a href="/the-faith-received/today/" class="btn btn-ghost btn-lg">Today's reading</a>
       </div>
     </div>
@@ -31,43 +31,29 @@
   <nav class="topics faith-rail" aria-label="Browse The Faith Received">
     <div class="container topics-inner" data-faith-rail-inner>
       <span class="topics-label">Browse by</span>
-      <a href="#documents" class="topic-pill is-active" data-faith-rail-link>Documents</a>
-      <a href="#library" class="topic-pill" data-faith-rail-link>Library</a>
+      <a href="#library" class="topic-pill is-active" data-faith-rail-link>The Library</a>
       <a href="/the-faith-received/topics/" class="topic-pill">Topics</a>
+      <a href="/the-faith-received/scripture/" class="topic-pill">Scripture Index</a>
       <a href="/the-faith-received/today/" class="topic-pill">Today's Reading</a>
       <a href="/the-faith-received/devotional/" class="topic-pill">Devotional</a>
-      <a href="/the-faith-received/scripture/" class="topic-pill">Scripture Index</a>
       <a href="/the-faith-received/search/" class="topic-pill">Search</a>
     </div>
   </nav>
 
-  {{!-- Documents section: creeds / confessions / catechisms.
-       Cards rendered from partials/faith-received/_cards-documents.hbs
-       (auto-generated). --}}
-  <section class="faith-section-band faith-band-documents" id="documents">
-    <div class="container">
-      <div class="section-intro">
-        <p class="eyebrow">Documents</p>
-        <h2 class="section-heading"><em>Creeds, confessions, &amp; catechisms.</em></h2>
-        <p class="faith-section-lede">The standards by which the Church has confessed her faith, from the second century to the twentieth.</p>
-      </div>
-      <div class="flourish">{{> "flourish-mark"}}</div>
-      {{> "faith-received/_cards-documents"}}
-    </div>
-  </section>
-
-  {{!-- Library section: classic theological & devotional works,
-       authored. Cards rendered from
-       partials/faith-received/_cards-library.hbs. --}}
+  {{!-- The full reading room. One chronological timeline of every
+       creed, confession, catechism, and library work — earliest
+       (Apostles' Creed, c. 2nd century) to most recent (Lausanne
+       Covenant, 1974). Cards rendered from
+       partials/faith-received/_cards-chronological.hbs (auto-built). --}}
   <section class="faith-section-band faith-band-library" id="library">
     <div class="container">
       <div class="section-intro">
         <p class="eyebrow">The Library</p>
-        <h2 class="section-heading"><em>The wider conversation.</em></h2>
-        <p class="faith-section-lede">Classic works of theology, apology, and devotion &mdash; from Athanasius and Augustine to Edwards, Calvin, and Leo XIII.</p>
+        <h2 class="section-heading"><em>The Christian tradition, in chronological order.</em></h2>
+        <p class="faith-section-lede">Twenty-two creeds, confessions, catechisms, and classic works &mdash; from the Apostles' Creed in the second century to the Lausanne Covenant in the twentieth.</p>
       </div>
       <div class="flourish">{{> "flourish-mark"}}</div>
-      {{> "faith-received/_cards-library"}}
+      {{> "faith-received/_cards-chronological"}}
     </div>
   </section>
 
@@ -120,7 +106,7 @@
           The Faith Received gathers the creeds, confessions, and classic works of the Christian tradition into a single reading room &mdash; typeset for the web the way they were typeset for the press, free for any reader to study.
         </p>
         <div class="faith-coda-ctas">
-          <a href="#documents" class="btn btn-primary btn-lg">Begin reading</a>
+          <a href="#library" class="btn btn-primary btn-lg">Begin reading</a>
           <a href="/membership/" class="btn btn-ghost btn-lg">Support the work</a>
         </div>
       </div>
