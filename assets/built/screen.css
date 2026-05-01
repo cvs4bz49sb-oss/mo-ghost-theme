@@ -2308,6 +2308,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background:
     radial-gradient(circle at 25% 35%, rgba(238,125,81,0.3), transparent 55%),
     repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 10px);
