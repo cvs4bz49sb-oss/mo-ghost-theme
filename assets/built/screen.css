@@ -2296,8 +2296,13 @@ body {
   position: relative;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-  background-size: cover;
-  background-position: center;
+}
+.article-feature-img-inner img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 .article-feature-img-inner::after {
   content: "";
