@@ -1646,7 +1646,7 @@ img { max-width: 100%; height: auto; }
   line-height: 1.35;
   color: var(--color-dark);
   max-width: 820px;
-  margin: 0 auto 20px;
+  margin: 0 auto 48px;
   text-align: center;
   padding: 0 24px;
   position: relative;
@@ -1659,25 +1659,35 @@ img { max-width: 100%; height: auto; }
   color: var(--color-primary);
   font-size: 18px;
   line-height: 1;
-  margin: 18px auto 0;
+  margin: 22px auto 0;
   text-align: center;
 }
+/* Coda quote at the bottom of the section — same display sizing as
+   the opening feature, but quieter (no flourish, smaller scale, more
+   muted color). Sits below the grid as a closing note. */
+.reader-feature--coda {
+  font-size: clamp(20px, 2.2vw, 26px);
+  color: var(--color-muted);
+  margin: 48px auto 0;
+}
+.reader-feature--coda::after { display: none; }
 
 .readers-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
   column-gap: 56px;
-  row-gap: 0;
+  row-gap: 32px;
   max-width: 1120px;
-  margin: 0 auto 56px;
+  margin: 0 auto;
   position: relative;
 }
 .readers-grid::before,
 .readers-grid::after {
   content: "";
   position: absolute;
-  top: 24px;
-  bottom: 24px;
+  top: 16px;
+  bottom: 16px;
   width: 1px;
   background: var(--color-card-border);
 }
@@ -1688,18 +1698,43 @@ img { max-width: 100%; height: auto; }
   background: transparent;
   border: 0;
   border-radius: 0;
-  padding: 16px 0 0;
+  padding: 0;
   box-shadow: none;
   margin: 0;
   font-family: var(--font-display);
   font-style: italic;
   font-size: 18px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--color-dark);
   position: relative;
   text-align: center;
 }
 .reader-quote p { margin: 0; }
+/* The middle column carries the long testimonial — bump it slightly
+   so the eye reads it as the anchor, with the two short side quotes
+   playing supporting roles. */
+.reader-quote--long {
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+/* Membership-context override for the long-in-middle layout. The
+   homepage's 3-medium-quote grid keeps its 2-col tablet step at 1024px
+   (defined further down). The membership grid skips that step and goes
+   straight to a single column when the side quotes can no longer share
+   a row with the long middle quote without breaking the rhythm. */
+.membership .readers-grid { row-gap: 32px; }
+@media (max-width: 1024px) {
+  .membership .readers-grid {
+    grid-template-columns: 1fr;
+    row-gap: 32px;
+  }
+  .membership .readers-grid::before,
+  .membership .readers-grid::after { display: none; }
+  .membership .reader-quote { padding: 0 12px; }
+  .membership .reader-quote--long { font-size: 18px; line-height: 1.55; }
+  .membership .reader-feature--coda { margin-top: 36px; }
+}
 
 /* -------- Membership CTA -------- */
 
