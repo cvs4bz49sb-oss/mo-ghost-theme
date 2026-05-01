@@ -7,8 +7,11 @@
   const endDateEl = document.getElementById('inst-end-date');
   const membersList = document.getElementById('members-list');
   const membersEmpty = document.getElementById('members-empty');
-  const domainsList = document.getElementById('domains-list');
-  const domainsEmpty = document.getElementById('domains-empty');
+  // Domain list is read-only on this page — MO admins manage it from
+  // /admin/members/institutions/manage/. We still surface the list so
+  // institutional admins can confirm coverage.
+  const domainsReadonlyList = document.getElementById('domains-readonly-list');
+  const domainsReadonlyEmpty = document.getElementById('domains-readonly-empty');
 
   const membersKey = `mo-inst-members:${token || 'preview'}`;
   const domainsKey = `mo-inst-domains:${token || 'preview'}`;
@@ -68,21 +71,15 @@
   };
 
   const renderDomains = () => {
+    if (!domainsReadonlyList) return;
     const domains = readStore(domainsKey);
-    domainsList.querySelectorAll('.admin-list-row').forEach((n) => n.remove());
-    domainsEmpty.hidden = domains.length > 0;
+    domainsReadonlyList.querySelectorAll('.admin-domain-pill').forEach((n) => n.remove());
+    if (domainsReadonlyEmpty) domainsReadonlyEmpty.hidden = domains.length > 0;
     domains.forEach((d) => {
       const li = document.createElement('li');
-      li.className = 'admin-list-row';
-      li.innerHTML = `
-        <div class="admin-list-person">
-          <span class="admin-list-name"></span>
-        </div>
-        <button type="button" class="admin-list-remove" data-domain="">Remove</button>
-      `;
-      li.querySelector('.admin-list-name').textContent = `@${d}`;
-      li.querySelector('.admin-list-remove').dataset.domain = d;
-      domainsList.appendChild(li);
+      li.className = 'admin-domain-pill';
+      li.textContent = `@${d}`;
+      domainsReadonlyList.appendChild(li);
     });
   };
 
@@ -105,25 +102,6 @@
     }).catch(() => {});
   };
 
-  const addDomain = async (domain) => {
-    const response = await fetch(window.MO_API_BASE + '/api/institution/add-domain', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, domain }),
-    });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(body.error || 'Unable to add domain.');
-    return body;
-  };
-
-  const removeDomain = async (domain) => {
-    await fetch(window.MO_API_BASE + '/api/institution/remove-domain', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, domain }),
-    }).catch(() => {});
-  };
-
   const pushMember = (name, email) => {
     const members = readStore(membersKey);
     if (members.some((m) => m.email.toLowerCase() === email.toLowerCase())) return;
@@ -131,40 +109,6 @@
     writeStore(membersKey, members);
     renderMembers();
   };
-
-  const pushDomain = (domain) => {
-    const domains = readStore(domainsKey);
-    if (domains.includes(domain)) return;
-    domains.push(domain);
-    writeStore(domainsKey, domains);
-    renderDomains();
-  };
-
-  document.getElementById('domain-add-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const errorEl = document.getElementById('domain-add-error');
-    const submit = document.getElementById('domain-add-submit');
-    errorEl.textContent = '';
-
-    const raw = (form.domain.value || '').trim().replace(/^@/, '').toLowerCase();
-    if (!raw || !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(raw)) {
-      errorEl.textContent = 'Enter a valid domain, e.g. rts.edu';
-      return;
-    }
-    submit.classList.add('is-loading');
-    submit.disabled = true;
-    try {
-      await addDomain(raw);
-      pushDomain(raw);
-      form.reset();
-    } catch (err) {
-      errorEl.textContent = err.message || 'Something went wrong.';
-    } finally {
-      submit.classList.remove('is-loading');
-      submit.disabled = false;
-    }
-  });
 
   document.getElementById('single-add-form').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -238,16 +182,6 @@
     await removeMember(email);
     writeStore(membersKey, readStore(membersKey).filter((m) => m.email.toLowerCase() !== email.toLowerCase()));
     renderMembers();
-  });
-
-  domainsList.addEventListener('click', async (event) => {
-    const btn = event.target.closest('.admin-list-remove');
-    if (!btn) return;
-    const domain = btn.dataset.domain;
-    btn.disabled = true;
-    await removeDomain(domain);
-    writeStore(domainsKey, readStore(domainsKey).filter((d) => d !== domain));
-    renderDomains();
   });
 
   loadContext();

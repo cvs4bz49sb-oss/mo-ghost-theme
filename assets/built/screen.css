@@ -5156,6 +5156,209 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-style: italic;
   padding: 32px !important;
 }
+.admin-table-link {
+  color: var(--color-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.admin-table-link:hover { border-bottom-color: var(--color-secondary); }
+
+/* ── Per-institution admin detail page ─────────────────────────── */
+.admin-page .admin-back-link {
+  margin: 0 0 24px;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+.admin-page .admin-back-link a { color: var(--color-muted); }
+.admin-page .admin-back-link a:hover { color: var(--color-secondary); }
+
+.admin-page .admin-detail-header {
+  border-bottom: 1px solid var(--color-card-border);
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+}
+.admin-page .admin-detail-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(24px, 2.6vw, 32px);
+  margin: 0 0 6px;
+  color: var(--color-dark);
+}
+.admin-page .admin-detail-sub {
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.admin-page .admin-summary--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px 28px;
+  margin: 0 0 36px;
+  padding: 0;
+}
+.admin-page .admin-summary--grid .admin-summary-item { margin: 0; }
+.admin-page .admin-summary-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 4px;
+}
+.admin-page .admin-summary-value {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.admin-page .admin-section {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--color-card-border);
+}
+.admin-page .admin-section-header { margin-bottom: 16px; }
+.admin-page .admin-section-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  margin: 0 0 4px;
+  color: var(--color-dark);
+}
+.admin-page .admin-section-title em { font-style: italic; }
+.admin-page .admin-section-hint {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0;
+  max-width: 640px;
+}
+
+.admin-page .stacked-form--inline {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+  margin: 16px 0 18px;
+}
+.admin-page .stacked-form--inline .form-field {
+  margin: 0;
+  flex: 1 1 240px;
+}
+.admin-page .stacked-form--inline .form-field--grow { flex-grow: 1; }
+.admin-page .stacked-form--inline input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: var(--color-white);
+  font: inherit;
+  color: var(--color-dark);
+}
+.admin-page .stacked-form--inline .btn-error {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-secondary);
+}
+
+.admin-page .admin-list-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.admin-page .admin-list-empty {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--color-muted);
+  padding: 16px 0;
+}
+.admin-page .admin-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-card-border);
+}
+.admin-page .admin-list-row:first-of-type { border-top: 0; }
+.admin-page .admin-list-person {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.admin-page .admin-list-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+}
+.admin-page .admin-list-email {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.admin-page .admin-list-remove {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.admin-page .admin-list-remove:hover {
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+.admin-page .admin-list-remove:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── /institution-manage/ — read-only domain pills ─────────────── */
+.admin-summary-note {
+  margin: 24px 0 8px;
+  padding: 18px 22px;
+  background: rgba(238,125,81,0.04);
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+}
+.admin-summary-note .admin-summary-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 10px;
+}
+.admin-summary-note .form-hint {
+  margin: 12px 0 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.admin-summary-note .form-hint a { color: var(--color-secondary); }
+.admin-domain-pills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-domain-pill {
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+}
+
 .btn-sm { padding: 8px 18px; font-size: 11px; letter-spacing: 0.18em; }
 
 /* Role eyebrow inside .contributor-card — sits between the display

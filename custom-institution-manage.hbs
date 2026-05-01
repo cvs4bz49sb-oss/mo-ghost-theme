@@ -8,7 +8,7 @@
     <div class="container">
       <p class="eyebrow">Institutional Admin</p>
       <h1 class="page-hero-headline"><em>Provision your institution.</em></h1>
-      <p class="page-hero-sub">Add email domains for blanket access, or add individuals by name and email for accounts that live outside your institutional domain.</p>
+      <p class="page-hero-sub">Invite individuals by name and email when their address falls outside your institutional domain. Domain coverage itself is managed by Mere Orthodoxy &mdash; email <a href="mailto:institutions@mereorthodoxy.com">institutions@mereorthodoxy.com</a> to add or change a domain.</p>
     </div>
   </section>
 
@@ -29,26 +29,13 @@
         </div>
       </div>
 
-      <form id="domain-add-form" class="stacked-form" novalidate>
-        <fieldset class="form-group">
-          <legend class="form-legend">Domain allowlist</legend>
-          <p class="form-intro">Anyone signing up with an email at a listed domain gets automatic access for the life of the contract.</p>
-          <label class="form-field">
-            <span class="form-label">Add a domain</span>
-            <input type="text" name="domain" placeholder="rts.edu" required />
-            <span class="form-hint">Domain only. No "@".</span>
-          </label>
-        </fieldset>
-        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="domain-add-submit">
-          <span class="btn-label">Add domain</span>
-          <span class="btn-spinner" aria-hidden="true"></span>
-        </button>
-        <p class="btn-error" id="domain-add-error" role="alert"></p>
-
-        <ul class="admin-list-items admin-list-items--compact" id="domains-list" aria-live="polite">
-          <li class="admin-list-empty" id="domains-empty">No domains added yet.</li>
+      <section class="admin-summary-note">
+        <p class="admin-summary-label">Email domains</p>
+        <ul class="admin-domain-pills" id="domains-readonly-list" aria-live="polite">
+          <li class="admin-list-empty" id="domains-readonly-empty">No domains on file yet.</li>
         </ul>
-      </form>
+        <p class="form-hint">Anyone with an email at one of these domains gets automatic access for the life of your contract. To add or change a domain, email <a href="mailto:institutions@mereorthodoxy.com">institutions@mereorthodoxy.com</a>.</p>
+      </section>
 
       <form id="single-add-form" class="stacked-form" novalidate>
         <fieldset class="form-group">

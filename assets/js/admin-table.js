@@ -14,6 +14,10 @@
  *   data-api-base           @custom.membership_api_base
  *   data-columns            Comma-separated field names (render order)
  *   data-column-labels      Comma-separated header labels (same order)
+ *   data-link-column        (Optional) Field whose cell becomes a link
+ *   data-link-template      (Optional) URL template; {field} gets
+ *                           replaced with row[field]. Used with
+ *                           data-link-column to drill into a detail page.
  */
 (() => {
   const host = document.querySelector('[data-admin-table]');
@@ -24,6 +28,8 @@
   const collection = host.dataset.collection;
   const columns = (host.dataset.columns || '').split(',').map((s) => s.trim()).filter(Boolean);
   const labels = (host.dataset.columnLabels || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const linkColumn = host.dataset.linkColumn || '';
+  const linkTemplate = host.dataset.linkTemplate || '';
 
   const statusEl = host.querySelector('[data-status]');
   const countEl = host.querySelector('[data-count-label]');
@@ -109,7 +115,19 @@
       columns.forEach((col) => {
         const td = document.createElement('td');
         const v = row[col];
-        td.textContent = v === null || v === undefined ? '' : String(v);
+        const text = v === null || v === undefined ? '' : String(v);
+        if (col === linkColumn && linkTemplate && text) {
+          const a = document.createElement('a');
+          a.className = 'admin-table-link';
+          a.href = linkTemplate.replace(/\{(\w+)\}/g, (_, key) => {
+            const val = row[key];
+            return val === null || val === undefined ? '' : encodeURIComponent(String(val));
+          });
+          a.textContent = text;
+          td.appendChild(a);
+        } else {
+          td.textContent = text;
+        }
         tr.appendChild(td);
       });
       tbody.appendChild(tr);

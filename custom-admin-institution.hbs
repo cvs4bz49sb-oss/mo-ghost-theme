@@ -1,0 +1,112 @@
+{{!< default}}
+{{!-- /admin/members/institutions/manage/?id=... — per-institution detail.
+     Admin-only. Lists org info (read-only), shows the domain allowlist
+     with add/remove, and surfaces the recent member roster. Domain
+     control lives here, not on /institution-manage/, so MO controls
+     which domains grant blanket access. --}}
+
+<main class="admin-page">
+  {{#if @member}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members &middot; Institutions</p>
+        <h1 class="admin-headline" data-inst-headline>Institution <em><span class="highlight">detail</span></em>.</h1>
+        <p class="admin-sub">Domain allowlist, contract details, and member roster for a single institution.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container">
+        <div class="admin-members-layout">
+          <aside class="admin-members-sidebar">
+            {{> "admin-members-subnav" active="institutions"}}
+          </aside>
+          <div class="admin-members-main"
+               data-admin-institution
+               data-api-base="{{@custom.membership_api_base}}">
+
+            <p class="admin-table-status" data-status>Loading institution&hellip;</p>
+
+            <div class="admin-institution-detail" data-detail hidden>
+              <p class="admin-back-link"><a href="/admin/members/institutions/"><span aria-hidden="true">&larr;</span> All institutions</a></p>
+
+              <header class="admin-detail-header">
+                <h2 class="admin-detail-title" data-org-name>&mdash;</h2>
+                <p class="admin-detail-sub" data-org-sub>&mdash;</p>
+              </header>
+
+              <dl class="admin-summary admin-summary--grid">
+                <div class="admin-summary-item">
+                  <dt class="admin-summary-label">Type</dt>
+                  <dd class="admin-summary-value" data-org-type>&mdash;</dd>
+                </div>
+                <div class="admin-summary-item">
+                  <dt class="admin-summary-label">Headcount</dt>
+                  <dd class="admin-summary-value" data-org-headcount>&mdash;</dd>
+                </div>
+                <div class="admin-summary-item">
+                  <dt class="admin-summary-label">Status</dt>
+                  <dd class="admin-summary-value" data-org-status>&mdash;</dd>
+                </div>
+                <div class="admin-summary-item">
+                  <dt class="admin-summary-label">Contract ends</dt>
+                  <dd class="admin-summary-value" data-org-contract-end>&mdash;</dd>
+                </div>
+                <div class="admin-summary-item">
+                  <dt class="admin-summary-label">Granted tier</dt>
+                  <dd class="admin-summary-value" data-org-tier>&mdash;</dd>
+                </div>
+                <div class="admin-summary-item">
+                  <dt class="admin-summary-label">Members</dt>
+                  <dd class="admin-summary-value" data-org-member-count>&mdash;</dd>
+                </div>
+              </dl>
+
+              <section class="admin-section">
+                <header class="admin-section-header">
+                  <h3 class="admin-section-title"><em>Domain allowlist</em></h3>
+                  <p class="admin-section-hint">Anyone signing up with an email at one of these domains is auto-promoted to the institution's tier. MO admins manage this list — institutional admins no longer can.</p>
+                </header>
+
+                <form class="stacked-form stacked-form--inline" data-domain-add novalidate>
+                  <label class="form-field form-field--grow">
+                    <span class="form-label visually-hidden">Domain</span>
+                    <input type="text" name="domain" placeholder="dbu.edu" autocomplete="off" required />
+                  </label>
+                  <button type="submit" class="btn btn-pill btn-primary" data-domain-add-submit>
+                    <span class="btn-label">Add domain</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  </button>
+                  <p class="btn-error" data-domain-add-error role="alert"></p>
+                </form>
+
+                <ul class="admin-list-items admin-list-items--compact" data-domains-list aria-live="polite">
+                  <li class="admin-list-empty" data-domains-empty>No domains added yet.</li>
+                </ul>
+              </section>
+
+              <section class="admin-section">
+                <header class="admin-section-header">
+                  <h3 class="admin-section-title"><em>Members</em></h3>
+                  <p class="admin-section-hint">Recent members provisioned for this institution, by domain match or explicit invite. Read-only here; the institutional admin invites individuals from <a href="/institution-manage/">/institution-manage/</a>.</p>
+                </header>
+                <ul class="admin-list-items" data-members-list aria-live="polite">
+                  <li class="admin-list-empty" data-members-empty>No members yet.</li>
+                </ul>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-institution.js"}}"></script>
