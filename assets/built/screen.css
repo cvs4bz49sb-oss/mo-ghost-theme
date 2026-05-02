@@ -6920,6 +6920,26 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .home-upgrade-btn { align-self: flex-start; }
 
+/* Tablet/mobile: the parent .digest-cta switches to text-align: center
+   at ≤1024px, which cascades into the upgrade list. Each <li> uses an
+   absolutely-positioned orange dash at left:0 of its content box, so
+   centered text floats to the middle of each line while the dash stays
+   pinned at the box edge — short and long items end up with different
+   visual offsets ("stair-step"). Plus the button's flex-start alignment
+   pins it to the left. Override both: confine the body to a centered
+   narrow column, left-align text inside, and center the button below
+   the list. */
+@media (max-width: 1024px) {
+  .home-upgrade-cta .home-upgrade-body {
+    text-align: left;
+    max-width: 360px;
+    margin: 0 auto;
+    align-items: stretch;
+  }
+  .home-upgrade-cta .home-upgrade-list { margin: 0; }
+  .home-upgrade-cta .home-upgrade-btn { align-self: center; }
+}
+
 /* Account button shows @member.name; cap width so long names
    truncate instead of stretching the header. */
 .btn-account {
