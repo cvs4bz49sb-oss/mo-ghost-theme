@@ -4593,9 +4593,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   -webkit-overflow-scrolling: touch;
   padding-bottom: 4px;
   scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
 }
 .contributors-rail-inner::-webkit-scrollbar { height: 4px; }
-.contributors-rail-inner::-webkit-scrollbar-thumb { background: var(--color-card-border); border-radius: 2px; }
+.contributors-rail-inner::-webkit-scrollbar-track { background: transparent; }
+.contributors-rail-inner::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 2px; }
 
 .contributors-rail-pill {
   appearance: none;
