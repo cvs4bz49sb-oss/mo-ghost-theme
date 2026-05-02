@@ -1240,13 +1240,16 @@ img { max-width: 100%; height: auto; }
 }
 /* Divider mark: the MO site mark rendered as a small badge by the
    shared flourish-mark partial. Source is a transparent PNG so the
-   mark reads cleanly on any page background. */
+   mark reads cleanly on any page background. display: block (instead
+   of inline-block + vertical-align) avoids inline-baseline drift that
+   left the mark sitting visibly above the divider line in some
+   contexts. Size bumped from 24 to 32 so the mark reads as a logo
+   at 100% browser zoom on larger desktops, not a smudge. */
 .flourish-mark {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
-  display: inline-block;
-  vertical-align: middle;
+  display: block;
   background: transparent;
 }
 
@@ -1802,8 +1805,8 @@ img { max-width: 100%; height: auto; }
 }
 /* Footer flourish uses the same heart-aflame mark at a larger size. */
 .closing-flourish .flourish-mark {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
 }
 .wordmark {
   font-family: var(--font-display);
