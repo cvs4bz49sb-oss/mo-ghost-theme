@@ -4567,6 +4567,95 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .contributors-body { padding: 24px 0 96px; }
 
+/* ── Alphabet rail ─────────────────────────────────────────────
+   Filters the grid by last-name initial. Visually echoes the topic
+   rail on the homepage: scrollable strip of pills, hairline below.
+   Disabled letters (no contributors) dim and refuse clicks. */
+.contributors-rail {
+  max-width: 1040px;
+  margin: 0 auto 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.contributors-rail-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 10px;
+}
+.contributors-rail-inner {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.contributors-rail-inner::-webkit-scrollbar { height: 4px; }
+.contributors-rail-inner::-webkit-scrollbar-thumb { background: var(--color-card-border); border-radius: 2px; }
+
+.contributors-rail-pill {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 6px 12px;
+  min-width: 36px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.contributors-rail-pill[data-letter="all"] {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+  padding: 6px 14px;
+}
+.contributors-rail-pill:hover:not(:disabled) { color: var(--color-dark); }
+.contributors-rail-pill.is-active {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-white);
+}
+.contributors-rail-pill:disabled,
+.contributors-rail-pill[aria-disabled="true"] {
+  color: var(--color-card-border);
+  cursor: not-allowed;
+}
+
+/* Empty state shown when an alphabet letter has zero matches. */
+.contributors-empty {
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  margin: 48px auto;
+  max-width: 520px;
+}
+.contributors-empty strong {
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+/* View-all toggle. Sits below the grid, centered. Hidden until JS
+   confirms the threshold actually hides anything. */
+.contributors-toggle {
+  text-align: center;
+  margin-top: 48px;
+}
+
+@media (max-width: 760px) {
+  .contributors-rail-label { font-size: 10px; }
+  .contributors-rail-inner { gap: 2px; }
+  .contributors-rail-pill { padding: 6px 10px; min-width: 32px; font-size: 11px; }
+}
+
 /* Editorial two-column list, no card chrome. Mirrors the .week-grid
    motif used on the homepage: hairline vertical divider between the
    two columns on desktop, horizontal rules between rows via each
