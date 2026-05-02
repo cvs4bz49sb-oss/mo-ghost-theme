@@ -1246,8 +1246,8 @@ img { max-width: 100%; height: auto; }
    contexts. Size bumped from 24 to 32 so the mark reads as a logo
    at 100% browser zoom on larger desktops, not a smudge. */
 .flourish-mark {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
   display: block;
   background: transparent;
@@ -1805,8 +1805,8 @@ img { max-width: 100%; height: auto; }
 }
 /* Footer flourish uses the same heart-aflame mark at a larger size. */
 .closing-flourish .flourish-mark {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
 }
 .wordmark {
   font-family: var(--font-display);
