@@ -98,11 +98,13 @@
     var menu = document.createElement("ul");
     menu.className = "nav-dropdown-menu";
     menu.setAttribute("role", "menu");
-    if (g.url) {
-      // Parent has its own URL — add it at the top of the menu so the
-      // button's role as "jump to index" stays discoverable.
-      menu.appendChild(makeMenuItem(g.label, g.url, "nav-dropdown-parent"));
-    }
+    // The parent's own URL is intentionally NOT added as a menu row.
+    // When Ghost Admin's nav has a "Resources" item alongside its
+    // "Resources > …" children, surfacing that URL at the top of the
+    // dropdown produces a labeled-but-confusing row that visitors read
+    // as a clickable dead zone. The toggle button itself carries the
+    // parent identity; if a real Resources index page exists later,
+    // add it as a normal child item instead.
     g.children.forEach(function (c) {
       menu.appendChild(makeMenuItem(c.label, c.url));
     });
@@ -116,6 +118,16 @@
         wrap.classList.add("is-open");
         toggle.setAttribute("aria-expanded", "true");
       }
+    });
+
+    // Clicking a child link should close the dropdown. This matters
+    // when the link is a same-page anchor (e.g. /#join from the
+    // homepage) — the URL change doesn't trigger a navigation, the
+    // document click handler at the top of the file ignores clicks
+    // inside the nav, and the dropdown otherwise stays open until the
+    // visitor clicks somewhere else on the page.
+    menu.addEventListener("click", function (e) {
+      if (e.target.closest("a")) closeAll(nav);
     });
 
     return wrap;

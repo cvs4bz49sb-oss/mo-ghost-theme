@@ -4622,7 +4622,31 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-style: italic;
 }
 .contributor-card-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.contributor-card-initial { font-style: italic; }
+/* Initial-fallback: the SSR template renders the full contributor
+   name into this span as a placeholder for the missing portrait, but
+   spelling out the name inside a 72×72 circle clipped or wrapped
+   awkwardly. Hide the full text and surface only the first letter
+   via ::first-letter — the same pattern used by .archive-avatar-initial
+   and the other byline avatars. JS-rendered cards (contributors.js)
+   write a clean 1-letter initial directly so they don't need the trick. */
+.contributor-card-initial {
+  font-size: 0;
+  line-height: 1;
+  font-style: italic;
+}
+.contributor-card-initial::first-letter {
+  font-size: 28px;
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-style: italic;
+}
+/* JS-rendered cards already contain just one letter — opt out of the
+   font-size:0 trick so the visible character renders straight. */
+.contributor-card-initial--rendered {
+  font-size: 28px;
+  color: var(--color-white);
+  font-family: var(--font-display);
+}
 .contributor-card-body { flex: 1; min-width: 0; }
 .contributor-card-name {
   font-family: var(--font-display);

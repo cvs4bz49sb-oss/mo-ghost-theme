@@ -29,7 +29,10 @@
             <p class="entry-byline entry-byline-fallback">
                 {{#primary_author}}By <em>{{name}}</em>{{/primary_author}}
             </p>
-            <p class="entry-date">{{date format="MMMM D"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
+            {{!-- Year is included on archive views (tag/author pages)
+                 where the post list spans years; the homepage and
+                 home-rail filter omit it for editorial breathing room. --}}
+            <p class="entry-date">{{#if showYear}}{{date format="MMMM D, YYYY"}}{{else}}{{date format="MMMM D"}}{{/if}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
         </div>
     </div>
 </a>

@@ -58,9 +58,15 @@
     .catch(function () { /* keep server render */ });
 
   function renderCard(tag) {
+    // Initial fallback when there's no portrait: surface just the
+    // first character of the contributor's name. The SSR template
+    // emits the full name and relies on ::first-letter; the JS path
+    // just writes the letter directly so the inline span size matches
+    // the surrounding circle without extra CSS.
+    var initial = (tag.name || "").trim().charAt(0).toUpperCase();
     var portrait = tag.feature_image
       ? '<img src="' + escapeAttr(tag.feature_image) + '" alt="' + escapeAttr(tag.name) + '" />'
-      : '<span class="contributor-card-initial">' + escapeHtml(tag.name) + "</span>";
+      : '<span class="contributor-card-initial contributor-card-initial--rendered">' + escapeHtml(initial) + "</span>";
     var bio = tag.description
       ? '<p class="contributor-card-bio">' + escapeHtml(tag.description) + "</p>"
       : "";
