@@ -161,7 +161,11 @@
         // a deliberate lookup should always surface the match.
         var passesThreshold = activeLetter !== "all" || revealAll || count >= COUNT_THRESHOLD;
         var show = matchesLetter && passesThreshold;
-        card.hidden = !show;
+        // Use inline display rather than the hidden attribute. The
+        // existing `.contributor-card--candidate[data-tag-slug^="author-"]`
+        // rule overrides the UA `[hidden] { display: none }` on
+        // specificity, so card.hidden = true left every card visible.
+        card.style.display = show ? "" : "none";
         if (show) visible++;
       });
       if (emptyEl) {
