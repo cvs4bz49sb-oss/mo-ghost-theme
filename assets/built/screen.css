@@ -1624,18 +1624,6 @@ img { max-width: 100%; height: auto; }
   align-items: flex-start;
   gap: 5px;
 }
-.pod-excerpt .pod-initial {
-  flex-shrink: 0;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 28px;
-  line-height: 1;
-  color: var(--color-secondary);
-  min-width: 18px;
-  text-align: center;
-  margin-top: -1px;
-}
-
 .pod-listen-link {
   font-size: 11px;
   letter-spacing: 0.22em;
@@ -5999,14 +5987,6 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin: 0 0 24px;
   flex: 1;
 }
-.listen-grid--podcasts .pod-excerpt .pod-initial {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 1.4em;
-  line-height: 1;
-  color: var(--color-secondary);
-  padding-right: 0.08em;
-}
 .listen-grid--podcasts .pod-listen {
   margin-top: auto;
   padding-top: 16px;
@@ -8045,7 +8025,6 @@ html[data-theme="dark"] .feature-gate-modal-body {
   line-height: 1.2;
 }
 .podcast-episode-list .pod-excerpt { font-size: 15px; line-height: 1.45; }
-.podcast-episode-list .pod-excerpt .pod-initial { font-size: 22px; }
 .podcast-episode-list .pod-listen { margin-top: 4px; }
 .podcast-episode-list .pod-listen-label,
 .podcast-episode-list .pod-listen-platforms { font-size: 11px; }

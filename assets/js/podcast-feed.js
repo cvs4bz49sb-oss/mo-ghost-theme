@@ -80,11 +80,8 @@
     if (date) topicHtml += '<p class="pod-date">' + escapeHtml(date) + "</p>";
 
     var summary = sanitize(ep.description).replace(/\s+/g, " ").slice(0, 180).trim();
-    var initial = summary.charAt(0) || "";
-    var rest = summary.slice(1);
     var excerpt = summary
-      ? '<p class="pod-excerpt pod-excerpt-dropcap"><span class="pod-initial">' +
-        escapeHtml(initial) + "</span>" + escapeHtml(rest) + "</p>"
+      ? '<p class="pod-excerpt">' + escapeHtml(summary) + "</p>"
       : "";
 
     var p = platforms[ep.slug] || {};
