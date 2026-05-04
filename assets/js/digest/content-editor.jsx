@@ -749,7 +749,13 @@ function ContentEditor({ open, content, onChange, onClose }) {
 
         {/* Body */}
         <div style={{ overflowY: 'auto', padding: '0 24px 20px', flex: 1 }}>
-          <Group title="Issue meta" defaultOpen={true}>
+          <Group title="Header" defaultOpen={true}>
+            <Field
+              label="Title (right of logo) — leave empty to remove"
+              value={content.mastheadTitle != null ? content.mastheadTitle : 'The Weekly Digest'}
+              placeholder="The Weekly Digest"
+              onChange={(v) => updateField('mastheadTitle', v)}
+            />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
               <Field label="Issue number" value={content.issueNumber} onChange={(v) => updateField('issueNumber', v)} />
               <Field label="Date" value={content.dateStr} onChange={(v) => updateField('dateStr', v)} placeholder="May 4, 2026" />
@@ -766,6 +772,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {[
                 { k: 'letter', label: 'Letter from the editor' },
+                { k: 'customBlocks', label: 'Custom blocks' },
                 { k: 'membership', label: 'Membership CTA / thanks' },
                 { k: 'sponsorTop', label: 'Top sponsor block' },
                 { k: 'essays', label: 'Essays grid' },
@@ -804,13 +811,117 @@ function ContentEditor({ open, content, onChange, onClose }) {
           <Group title="Letter from the editor">
             <Field label="Title" value={content.editorTitle} onChange={(v) => updateField('editorTitle', v)} />
             <Field
-              label="Body — separate paragraphs with a blank line"
+              label="Body — Markdown supported: **bold**, *italic*, __underline__, [link](url). Blank line = new paragraph."
               value={content.editorBody != null ? content.editorBody : (content.editorParagraphs || []).join('\n\n')}
               multiline
               rows={14}
               onChange={(v) => updateField('editorBody', v)}
             />
             <Field label="Signature" value={content.editorSignature} onChange={(v) => updateField('editorSignature', v)} />
+          </Group>
+
+          <Group title={`Custom blocks (${(content.customBlocks || []).length})`}>
+            <div style={{
+              fontFamily: '"Source Sans 3", Arial, sans-serif',
+              fontSize: 12, color: '#6b6258', lineHeight: 1.5, marginBottom: 12,
+            }}>
+              Free-form text or button blocks rendered between the letter and the membership CTA. Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>). Use the section toggle above to hide them temporarily.
+            </div>
+            {(content.customBlocks || []).map((block, i) => {
+              const moveBlock = (delta) => {
+                const arr = [...(content.customBlocks || [])];
+                const j = i + delta;
+                if (j < 0 || j >= arr.length) return;
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+                updateField('customBlocks', arr);
+              };
+              const removeBlock = () => {
+                const arr = (content.customBlocks || []).filter((_, j) => j !== i);
+                updateField('customBlocks', arr);
+              };
+              return (
+                <div key={block.id || i} style={{
+                  marginBottom: 14,
+                  padding: 12,
+                  background: '#fff',
+                  border: '1px solid #e8d9bd',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <div style={{
+                      fontFamily: '"Source Sans 3", sans-serif',
+                      fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
+                      color: '#c1593c', flex: 1,
+                    }}>
+                      {block.type === 'button' ? `Button · #${i + 1}` : `Text · #${i + 1}`}
+                    </div>
+                    <button onClick={() => moveBlock(-1)} disabled={i === 0} style={{ ...btnStyle('secondary'), padding: '4px 8px', opacity: i === 0 ? 0.4 : 1 }} title="Move up">↑</button>
+                    <button onClick={() => moveBlock(1)} disabled={i === (content.customBlocks || []).length - 1} style={{ ...btnStyle('secondary'), padding: '4px 8px', opacity: i === (content.customBlocks || []).length - 1 ? 0.4 : 1 }} title="Move down">↓</button>
+                    <button onClick={removeBlock} style={{ ...btnStyle('danger'), padding: '4px 10px' }} title="Remove">×</button>
+                  </div>
+                  {block.type === 'button' ? (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+                        <Field label="Button text" value={block.text} onChange={(v) => {
+                          const arr = [...(content.customBlocks || [])];
+                          arr[i] = { ...arr[i], text: v };
+                          updateField('customBlocks', arr);
+                        }} />
+                        <div>
+                          <label style={fieldStyles.label}>Style</label>
+                          <select
+                            value={block.variant || 'primary'}
+                            onChange={(e) => {
+                              const arr = [...(content.customBlocks || [])];
+                              arr[i] = { ...arr[i], variant: e.target.value };
+                              updateField('customBlocks', arr);
+                            }}
+                            style={{ ...fieldStyles.input, height: 36 }}
+                          >
+                            <option value="primary">Primary (filled)</option>
+                            <option value="secondary">Secondary (outlined)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <Field label="Link" value={block.url} placeholder="https://…" onChange={(v) => {
+                        const arr = [...(content.customBlocks || [])];
+                        arr[i] = { ...arr[i], url: v };
+                        updateField('customBlocks', arr);
+                      }} />
+                    </>
+                  ) : (
+                    <Field
+                      label="Text — Markdown supported"
+                      value={block.text}
+                      multiline
+                      rows={6}
+                      onChange={(v) => {
+                        const arr = [...(content.customBlocks || [])];
+                        arr[i] = { ...arr[i], text: v };
+                        updateField('customBlocks', arr);
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => {
+                  const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+                  const arr = [...(content.customBlocks || []), { id, type: 'text', text: '' }];
+                  updateField('customBlocks', arr);
+                }}
+                style={btnStyle('primary')}
+              >+ Add Text Box</button>
+              <button
+                onClick={() => {
+                  const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+                  const arr = [...(content.customBlocks || []), { id, type: 'button', text: 'Click here', url: '', variant: 'primary' }];
+                  updateField('customBlocks', arr);
+                }}
+                style={btnStyle('secondary')}
+              >+ Add Button</button>
+            </div>
           </Group>
 
           <Group title="Membership CTA (free version)">

@@ -136,6 +136,42 @@ const SAMPLE_PODCASTS = [
   },
 ];
 
+// --- Markdown -------------------------------------------------------
+// Minimal Markdown for email content. Supports **bold**, *italic*,
+// __underline__, [text](url), blank lines as paragraph breaks, single
+// newlines as <br>. HTML in the source is escaped first to prevent XSS,
+// then patterns are applied in priority order so that **bold** is consumed
+// before single-asterisk italic gets a chance to misfire.
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+function markdownInline(text, tokens) {
+  let html = escapeHtml(text);
+  // [text](url) — links in brand color, underlined
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, t, u) => {
+    const safe = u.trim().replace(/"/g, '&quot;');
+    return `<a href="${safe}" style="color:${tokens.tertiary};text-decoration:underline">${t}</a>`;
+  });
+  // **bold**  (consume before italic so * doesn't double-fire)
+  html = html.replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>');
+  // __underline__
+  html = html.replace(/__([^_]+?)__/g, '<u>$1</u>');
+  // *italic*
+  html = html.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+  // single newlines → <br>
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
+
+function markdownParagraphs(text) {
+  if (!text) return [];
+  return text.split(/\n\s*\n+/).map((s) => s.trim()).filter(Boolean);
+}
+
 // --- Atomic pieces --------------------------------------------------
 
 function Spacer({ h = 24 }) {
@@ -220,6 +256,9 @@ function Button({ tokens, children, href = '#', variant = 'primary', size = 'md'
 const DEFAULT_CONTENT = {
   issueNumber: '184',
   dateStr: 'May 4, 2026',
+  // Masthead title: shown next to the logo in the header. Editable; if
+  // empty, the title and issue/date stack are omitted entirely.
+  mastheadTitle: 'The Weekly Digest',
   editorTitle: 'The beginning of a new era',
   // Body is one string. Blank lines separate paragraphs; single
   // newlines render as soft <br> within a paragraph. (Older saved
@@ -263,8 +302,13 @@ const DEFAULT_CONTENT = {
   },
   essays: SAMPLE_ESSAYS,
   podcasts: SAMPLE_PODCASTS,
+  // Free-form content blocks rendered between the letter and the
+  // membership CTA. Each block: {id, type: 'text'|'button', text, url?, variant?}
+  // Text blocks accept Markdown. Button blocks render as a centered CTA.
+  customBlocks: [],
   sections: {
     letter: true,
+    customBlocks: true,
     membership: true,
     sponsorTop: true,
     essays: true,
@@ -275,35 +319,47 @@ const DEFAULT_CONTENT = {
 
 // --- Sections -------------------------------------------------------
 
-function Masthead({ tokens, issueNumber, dateStr }) {
+function Masthead({ tokens, issueNumber, dateStr, mastheadTitle }) {
+  // If mastheadTitle is empty AND there's no issue/date, the right
+  // column collapses entirely and the logo centers. If only the title
+  // is empty but issue/date is present, render just the issue line.
+  const showTitle = mastheadTitle && mastheadTitle.trim();
+  const showMeta = (issueNumber && String(issueNumber).trim()) || (dateStr && dateStr.trim());
+  const showRightCol = showTitle || showMeta;
   return (
     <div style={{ padding: '28px 32px 18px', borderBottom: `1px solid ${tokens.rule}` }} className="mo-pad-32">
       <table width="100%" cellPadding="0" cellSpacing="0" border="0" role="presentation">
         <tbody>
           <tr>
-            <td style={{ verticalAlign: 'middle', width: '50%' }}>
-              <img src={moDigestAsset('assets/mere-o-logo.png')} alt="Mere Orthodoxy" style={{ height: 38, display: 'block' }} />
+            <td style={{ verticalAlign: 'middle', width: showRightCol ? '50%' : '100%', textAlign: showRightCol ? 'left' : 'center' }}>
+              <img src={moDigestAsset('assets/mere-o-logo.png')} alt="Mere Orthodoxy" style={{ height: 38, display: showRightCol ? 'block' : 'inline-block' }} />
             </td>
-            <td style={{ verticalAlign: 'middle', textAlign: 'right', width: '50%' }}>
-              <div style={{
-                fontFamily: '"IM Fell English", Georgia, serif',
-                fontSize: 17,
-                color: tokens.bodyText,
-                letterSpacing: '0.04em',
-              }}>
-                The Weekly Digest
-              </div>
-              <div style={{
-                fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-                fontSize: 11,
-                color: tokens.mutedText,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                marginTop: 4,
-              }}>
-                Issue №{issueNumber} · {dateStr}
-              </div>
-            </td>
+            {showRightCol && (
+              <td style={{ verticalAlign: 'middle', textAlign: 'right', width: '50%' }}>
+                {showTitle && (
+                  <div style={{
+                    fontFamily: '"IM Fell English", Georgia, serif',
+                    fontSize: 17,
+                    color: tokens.bodyText,
+                    letterSpacing: '0.04em',
+                  }}>
+                    {mastheadTitle}
+                  </div>
+                )}
+                {showMeta && (
+                  <div style={{
+                    fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+                    fontSize: 11,
+                    color: tokens.mutedText,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    marginTop: showTitle ? 4 : 0,
+                  }}>
+                    {issueNumber ? `Issue №${issueNumber}` : ''}{issueNumber && dateStr ? ' · ' : ''}{dateStr || ''}
+                  </div>
+                )}
+              </td>
+            )}
           </tr>
         </tbody>
       </table>
@@ -338,24 +394,19 @@ function LetterFromEditor({ tokens, content }) {
       </h1>
       {(() => {
         // Read editorBody (new shape) with a fallback to legacy
-        // editorParagraphs array. Split on blank lines for paragraphs;
-        // single newlines within a paragraph render as <br>.
+        // editorParagraphs array. Body supports Markdown:
+        //   **bold**, *italic*, __underline__, [text](url), \n\n for ¶.
         const body = content.editorBody != null
           ? content.editorBody
           : (content.editorParagraphs || []).join('\n\n');
-        const paragraphs = body.split(/\n\s*\n+/).map(s => s.trim()).filter(Boolean);
-        return paragraphs.map((p, i) => (
+        return markdownParagraphs(body).map((p, i) => (
           <p key={i} style={{
             fontFamily: 'Georgia, "Times New Roman", serif',
             fontSize: 16,
             lineHeight: 1.65,
             color: tokens.bodyText,
             margin: '0 0 14px',
-          }}>
-            {p.split('\n').map((line, j, arr) => (
-              <React.Fragment key={j}>{line}{j < arr.length - 1 && <br />}</React.Fragment>
-            ))}
-          </p>
+          }} dangerouslySetInnerHTML={{ __html: markdownInline(p, tokens) }} />
         ));
       })()}
       <p style={{
@@ -367,6 +418,44 @@ function LetterFromEditor({ tokens, content }) {
       }}>
         {content.editorSignature}
       </p>
+    </div>
+  );
+}
+
+// Free-form content area between the letter and the membership CTA.
+// Each block is either a Markdown text block or a centered button. The
+// area renders nothing if the array is empty.
+function CustomBlocks({ tokens, accent, blocks }) {
+  if (!blocks || !blocks.length) return null;
+  return (
+    <div style={{ padding: '24px 40px 8px' }} className="mo-letter mo-pad-40">
+      {blocks.map((b, i) => {
+        if (b.type === 'button') {
+          return (
+            <div key={b.id || i} style={{ textAlign: 'center', margin: '14px 0 18px' }}>
+              <Button tokens={tokens} variant={b.variant || 'primary'} size="lg" accent={accent} href={b.url || '#'}>
+                {b.text || 'Button'}
+              </Button>
+            </div>
+          );
+        }
+        // text block (default) — Markdown body rendered as paragraphs
+        const paras = markdownParagraphs(b.text || '');
+        if (!paras.length) return null;
+        return (
+          <div key={b.id || i} style={{ marginBottom: 14 }}>
+            {paras.map((p, j) => (
+              <p key={j} style={{
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontSize: 16,
+                lineHeight: 1.65,
+                color: tokens.bodyText,
+                margin: '0 0 14px',
+              }} dangerouslySetInnerHTML={{ __html: markdownInline(p, tokens) }} />
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -848,11 +937,12 @@ function Footer({ tokens, isMember }) {
 
 function EmailTemplate({ isMember = false, accent = 'moderate', density = 'normal', divider = 'solid', tokens = MO_TOKENS, content = DEFAULT_CONTENT }) {
   const sections = content.sections || {
-    letter: true, membership: true, sponsorTop: true, essays: true, podcasts: true, sponsorBottom: true,
+    letter: true, customBlocks: true, membership: true, sponsorTop: true, essays: true, podcasts: true, sponsorBottom: true,
   };
   const showAds = !isMember;
   const showCTA = !isMember;
   const showLetter = sections.letter !== false;
+  const showCustomBlocks = sections.customBlocks !== false && Array.isArray(content.customBlocks) && content.customBlocks.length > 0;
   const showMembership = sections.membership !== false;
   const showSponsorTop = sections.sponsorTop !== false && showAds;
   const showEssays = sections.essays !== false;
@@ -881,13 +971,20 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
       textAlign: 'left',
       boxShadow: '0 1px 3px rgba(45,41,39,0.06), 0 12px 36px rgba(45,41,39,0.10)',
     }}>
-      <Masthead tokens={tokens} issueNumber={content.issueNumber} dateStr={content.dateStr} />
+      <Masthead tokens={tokens} issueNumber={content.issueNumber} dateStr={content.dateStr} mastheadTitle={content.mastheadTitle} />
 
       {showLetter && <LetterFromEditor tokens={tokens} content={content} />}
 
-      {showMembership && (
+      {showCustomBlocks && (
         <>
           {showLetter && <Divider />}
+          <CustomBlocks tokens={tokens} accent={accent} blocks={content.customBlocks} />
+        </>
+      )}
+
+      {showMembership && (
+        <>
+          {(showLetter || showCustomBlocks) && <Divider />}
           {showCTA ? (
             <>
               <Spacer h={20} />
