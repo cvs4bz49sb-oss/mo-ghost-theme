@@ -53,30 +53,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+DW+Pica:ital@0;1&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    {{!-- Inject Ghost-resolved asset URLs so the embedded JSX (which
-         was authored against a relative "assets/foo.png" layout) finds
-         the brand images at the correct theme paths.
+    {{!-- Inject ABSOLUTE Ghost-hosted URLs for brand assets. The
+         in-page <img> tags use these URLs directly — same-origin in
+         the live preview, so they load normally — and because the
+         URLs already start with https://, the export's rewriteImages
+         step treats them as foreign and preserves them as-is. Kit
+         recipients fetch them straight from mo-test.ghost.io (or
+         mereorthodoxy.com after cutover; @site.url flips automatically).
 
-         MO_DIGEST_ASSETS — relative theme URLs used by the live preview
-         (same-origin <img> tags, hash-busted by Ghost).
-
-         MO_DIGEST_HOSTED_ASSETS — absolute live-site URLs the EXPORT
-         bakes into the HTML so email recipients pull the brand images
-         directly from Ghost's own CDN. {{@site.url}} flips automatically
-         from mo-test.ghost.io to mereorthodoxy.com on cutover, so the
-         exported email always references whichever host is live. --}}
+         Why not the {{asset}} helper? It would output a relative path
+         (/assets/images/X?v=hash) which would (a) get treated as
+         "needs rewriting" by the export, (b) fail filename matching
+         in any URL-override map because of the query string, and
+         (c) end up data-URI-embedded — which Kit handles unreliably. --}}
     <script>
       window.MO_DIGEST_ASSETS = {
-        'mere-o-logo.png': '{{asset "images/mere-o-logo.png"}}',
-        'mere-fidelity.jpg': '{{asset "images/mere-fidelity.jpg"}}',
-        'christians-reading-classics.jpg': '{{asset "images/christians-reading-classics.jpg"}}'
-      };
-      // Hardcoded /assets/images/ — Ghost serves theme assets here. The
-      // asset helper in this build outputs /assets/built/... which 404s,
-      // so we bypass it for the export's image URLs. The hash query string
-      // is omitted because email recipients don't need cache-busting and
-      // some clients strip query params.
-      window.MO_DIGEST_HOSTED_ASSETS = {
         'mere-o-logo.png': '{{@site.url}}/assets/images/mere-o-logo.png',
         'mere-fidelity.jpg': '{{@site.url}}/assets/images/mere-fidelity.jpg',
         'christians-reading-classics.jpg': '{{@site.url}}/assets/images/christians-reading-classics.jpg'
