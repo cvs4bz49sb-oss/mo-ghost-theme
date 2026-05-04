@@ -270,17 +270,43 @@
                      and sets the stage back to "Drafting" for the next cycle. --}}
                 <h3 class="journal-status-section"><em>Journal Status</em></h3>
                 <p class="journal-status-heading">Next Issue <span class="journal-status-sep" aria-hidden="true">|</span> <em>{{@custom.journal_status_issue}}</em></p>
+                {{!-- Lifecycle triptych: drafted page → bound book →
+                     sealed letter. Currentcolor on every stroke/fill so
+                     the .is-active class can flip the whole glyph from
+                     muted outline to primary-orange + drop-shadow glow
+                     via screen.css. --}}
                 <ol class="journal-status" aria-label="Current journal status">
                     <li class="journal-status-step">
-                        <span class="journal-status-dot journal-status-dot--drafting{{#match @custom.journal_status_stage "Drafting"}} is-active{{/match}}" aria-hidden="true"></span>
+                        <span class="journal-status-mark{{#match @custom.journal_status_stage "Drafting"}} is-active{{/match}}" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 8 L30 8 L36 14 L36 40 L12 40 Z"/>
+                                <path d="M30 8 L30 14 L36 14"/>
+                                <line x1="16" y1="22" x2="30" y2="22"/>
+                                <line x1="16" y1="28" x2="26" y2="28"/>
+                                <line x1="16" y1="34" x2="22" y2="34"/>
+                            </svg>
+                        </span>
                         <span class="journal-status-label">Drafting</span>
                     </li>
                     <li class="journal-status-step">
-                        <span class="journal-status-dot journal-status-dot--production{{#match @custom.journal_status_stage "In Production"}} is-active{{/match}}" aria-hidden="true"></span>
+                        <span class="journal-status-mark{{#match @custom.journal_status_stage "In Production"}} is-active{{/match}}" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="12" y="8" width="24" height="32" rx="1"/>
+                                <line x1="12" y1="16" x2="36" y2="16"/>
+                                <line x1="12" y1="32" x2="36" y2="32"/>
+                                <line x1="20" y1="24" x2="28" y2="24"/>
+                            </svg>
+                        </span>
                         <span class="journal-status-label">In Production</span>
                     </li>
                     <li class="journal-status-step">
-                        <span class="journal-status-dot journal-status-dot--arriving{{#match @custom.journal_status_stage "Arriving"}} is-active{{/match}}" aria-hidden="true"></span>
+                        <span class="journal-status-mark{{#match @custom.journal_status_stage "Arriving"}} is-active{{/match}}" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="8" y="12" width="32" height="24" rx="1"/>
+                                <path d="M8 12 L24 24 L40 12"/>
+                                <circle cx="24" cy="30" r="3.5" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </span>
                         <span class="journal-status-label">Arriving</span>
                     </li>
                 </ol>

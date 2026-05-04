@@ -431,16 +431,31 @@ img { max-width: 100%; height: auto; }
   font-weight: 600;
   margin: 0 0 24px;
 }
+/* Eyebrow kicker mark: a display-italic pilcrow in primary orange,
+   replacing the previous SaaS-y geometric dot. The .dot span in the
+   markup is intentionally empty; ::before injects the glyph so we
+   don't have to touch every hero-kicker site-wide. The soft text-
+   shadow pulse keeps the "active accent" feel without being a literal
+   blinking light. Letter-spacing nudge corrects the pilcrow's natural
+   left-side bearing so it sits flush against the kicker text. */
 .hero-kicker .dot {
-  width: 6px;
-  height: 6px;
-  background: var(--color-primary);
-  border-radius: 50%;
+  display: inline-block;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-primary);
+  margin-right: 2px;
   animation: hero-kicker-pulse 2.4s ease-in-out infinite;
 }
+.hero-kicker .dot::before { content: "\00B6"; }
 @keyframes hero-kicker-pulse {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(238, 125, 81, 0.22), 0 0 6px rgba(238, 125, 81, 0.55); }
-  50%      { box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.32), 0 0 12px rgba(238, 125, 81, 0.85); }
+  0%, 100% { text-shadow: 0 0 5px rgba(238, 125, 81, 0.40), 0 0 10px rgba(238, 125, 81, 0.20); }
+  50%      { text-shadow: 0 0 9px rgba(238, 125, 81, 0.75), 0 0 18px rgba(238, 125, 81, 0.45); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-kicker .dot { animation: none; }
@@ -5718,6 +5733,12 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-weight: 400;
 }
 
+/* Journal status triptych: three small SVG marks depicting the
+   issue's lifecycle (draft page → bound book → sealed letter) in
+   place of the prior SaaS-y connector-dots. The marks are drawn in
+   currentColor so a single class flips the active stage from muted
+   outline to primary-orange + soft pulsing drop-shadow. No
+   connecting hairline — the three glyphs do the work as a triptych. */
 .journal-status {
   list-style: none;
   padding: 0;
@@ -5726,65 +5747,38 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
   max-width: 360px;
-  position: relative;
-}
-.journal-status::before {
-  content: "";
-  position: absolute;
-  top: 5px;
-  left: calc(100% / 6);
-  right: calc(100% / 6);
-  height: 1px;
-  background: var(--color-card-border);
-  pointer-events: none;
 }
 .journal-status-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  position: relative;
+  gap: 12px;
   background: transparent;
 }
-.journal-status-dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  position: relative;
-  z-index: 1;
-  opacity: 0.32;
-  transition: opacity 0.2s ease;
+.journal-status-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: rgba(255, 255, 255, 0.32);
+  transition: color 0.2s ease;
 }
-.journal-status-dot--drafting { background: #3a6ea5; }
-.journal-status-dot--production { background: #e0b84a; }
-.journal-status-dot--arriving { background: #6a8e5a; }
-
-/* Active stage — toggled from HBS based on @custom.journal_status_stage.
-   Each stage has its own halo color so the glow reads as the stage. */
-.journal-status-dot.is-active { opacity: 1; }
-.journal-status-dot--drafting.is-active {
-  animation: journal-status-pulse-drafting 2.4s ease-in-out infinite;
+.journal-status-mark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
-.journal-status-dot--production.is-active {
-  animation: journal-status-pulse-production 2.4s ease-in-out infinite;
+.journal-status-mark.is-active {
+  color: var(--color-primary);
+  animation: journal-status-glow 2.6s ease-in-out infinite;
 }
-.journal-status-dot--arriving.is-active {
-  animation: journal-status-pulse-arriving 2.4s ease-in-out infinite;
-}
-@keyframes journal-status-pulse-drafting {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(58, 110, 165, 0.22), 0 0 12px rgba(58, 110, 165, 0.55); }
-  50%      { box-shadow: 0 0 0 6px rgba(58, 110, 165, 0.32), 0 0 22px rgba(58, 110, 165, 0.85); }
-}
-@keyframes journal-status-pulse-production {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(224, 184, 74, 0.22), 0 0 12px rgba(224, 184, 74, 0.55); }
-  50%      { box-shadow: 0 0 0 6px rgba(224, 184, 74, 0.32), 0 0 22px rgba(224, 184, 74, 0.85); }
-}
-@keyframes journal-status-pulse-arriving {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(106, 142, 90, 0.22), 0 0 12px rgba(106, 142, 90, 0.55); }
-  50%      { box-shadow: 0 0 0 6px rgba(106, 142, 90, 0.32), 0 0 22px rgba(106, 142, 90, 0.85); }
+@keyframes journal-status-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(238, 125, 81, 0.45)) drop-shadow(0 0 10px rgba(238, 125, 81, 0.20)); }
+  50%      { filter: drop-shadow(0 0 8px rgba(238, 125, 81, 0.80)) drop-shadow(0 0 18px rgba(238, 125, 81, 0.45)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .journal-status-dot.is-active { animation: none; }
+  .journal-status-mark.is-active { animation: none; filter: drop-shadow(0 0 6px rgba(238, 125, 81, 0.55)); }
 }
 .journal-status-label {
   font-family: var(--font-body);
@@ -5796,7 +5790,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   text-align: center;
   line-height: 1.2;
 }
-.journal-status-dot.is-active + .journal-status-label {
+.journal-status-mark.is-active + .journal-status-label {
   color: var(--color-white);
 }
 
