@@ -67,6 +67,10 @@
         "type": "text",
         "description": "Spotify show URL for Christians Reading Classics."
       },
+      "youtube_url": {
+        "type": "text",
+        "description": "Full URL of the Mere Orthodoxy YouTube channel (e.g. https://www.youtube.com/@MereOrthodoxy). Renders as the YouTube link in the site footer. Empty hides the link."
+      },
       "gate_days": {
         "type": "text",
         "default": "7",

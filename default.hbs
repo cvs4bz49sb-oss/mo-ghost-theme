@@ -120,13 +120,77 @@
     </div>
 
     <footer class="site-footer">
-        <div class="container footer-inner">
-            <p>&copy; {{date format="YYYY"}} {{@site.title}}.</p>
-            <nav class="footer-nav">
-                {{#foreach @site.secondary_navigation}}
-                    <a href="{{this.url}}">{{label}}</a>
-                {{/foreach}}
-            </nav>
+        <div class="container site-footer-grid">
+
+            <div class="site-footer-col site-footer-brand">
+                <a href="{{@site.url}}" class="site-footer-brand-link" aria-label="{{@site.title}} home">
+                    <img src="{{asset "images/mere-o-logo.png"}}" alt="" class="site-footer-logo" />
+                    <span class="site-footer-wordmark"><em>{{@site.title}}</em></span>
+                </a>
+                <p class="site-footer-tagline">Christian renewal for the common good.</p>
+            </div>
+
+            <div class="site-footer-col">
+                <h4 class="site-footer-heading">Social</h4>
+                <ul class="site-footer-list">
+                    {{#if @site.twitter}}
+                        <li>
+                            <a href="https://x.com/{{@site.twitter}}" rel="noopener" target="_blank">
+                                <svg class="site-footer-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2H21l-6.51 7.443L22 22h-6.91l-4.41-5.79L5.5 22H2.74l6.95-7.945L2 2h7.06l3.99 5.27L18.244 2zm-2.426 18h1.86L7.27 4H5.3l10.518 16z"/></svg>
+                                <span>X</span>
+                            </a>
+                        </li>
+                    {{/if}}
+                    {{#if @site.facebook}}
+                        <li>
+                            <a href="https://facebook.com/{{@site.facebook}}" rel="noopener" target="_blank">
+                                <svg class="site-footer-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.78l-.45 2.91h-2.33V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg>
+                                <span>Facebook</span>
+                            </a>
+                        </li>
+                    {{/if}}
+                    {{#if @custom.youtube_url}}
+                        <li>
+                            <a href="{{@custom.youtube_url}}" rel="noopener" target="_blank">
+                                <svg class="site-footer-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>
+                                <span>YouTube</span>
+                            </a>
+                        </li>
+                    {{/if}}
+                </ul>
+            </div>
+
+            <div class="site-footer-col">
+                <h4 class="site-footer-heading">About</h4>
+                <ul class="site-footer-list">
+                    <li><a href="/about/">About</a></li>
+                    <li><a href="/contributors/">Editors</a></li>
+                    <li><a href="/membership/">Support Our Work</a></li>
+                    <li><a href="/contact/">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="site-footer-col">
+                <h4 class="site-footer-heading">Podcasts</h4>
+                <ul class="site-footer-list">
+                    <li><a href="/podcasts/mere-fidelity/">Mere Fidelity</a></li>
+                    <li><a href="/podcasts/christians-reading-classics/">Christians Reading Classics</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="container site-footer-bottom">
+            <p class="site-footer-meta">
+                &copy; {{date format="YYYY"}} {{@site.title}}. {{@site.title}} is a publication of the non-profit Institute for Christianity and Common Life. All rights reserved.
+            </p>
+            {{#if @site.secondary_navigation}}
+                <nav class="footer-nav" aria-label="Secondary">
+                    {{#foreach @site.secondary_navigation}}
+                        <a href="{{this.url}}">{{label}}</a>
+                    {{/foreach}}
+                </nav>
+            {{/if}}
         </div>
     </footer>
 
