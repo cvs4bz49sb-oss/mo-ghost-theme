@@ -8144,6 +8144,65 @@ html[data-theme="dark"] .feature-gate-modal-body {
 /* Keep 2 per row on mobile too; portrait + name is compact enough. */
 /* CRC has one host — center it rather than leaving a blank column. */
 .podcast-host-list--single { grid-template-columns: minmax(0, 200px); justify-content: center; }
+
+/* Most-Listened sidebar block: lives inside the .podcast-hosts
+   aside, below the host portraits. Editorial treatment — Roman
+   numerals (matching the brand vocabulary used on About + Member-
+   ships pages) + italic titles + hairline divider per row. No card
+   chrome. Hidden by default; podcast-feed.js removes the [hidden]
+   attr once it's populated. */
+.podcast-most-listened {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-rule);
+}
+.podcast-most-listened .section-intro { margin-bottom: 18px; }
+.podcast-most-listened-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.podcast-most-listened-item {
+  margin: 0;
+  border-top: 1px solid var(--color-rule);
+}
+.podcast-most-listened-item:first-child { border-top: 0; }
+.podcast-most-listened-link {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 0;
+  text-decoration: none;
+  color: var(--color-dark);
+  transition: color 0.15s;
+}
+.podcast-most-listened-link:hover {
+  color: var(--color-secondary);
+}
+.podcast-most-listened-link:hover .podcast-most-listened-numeral {
+  color: var(--color-primary);
+}
+.podcast-most-listened-numeral {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.1;
+  color: var(--color-primary);
+  text-align: right;
+  letter-spacing: 0.02em;
+  transition: color 0.15s;
+}
+.podcast-most-listened-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--color-dark);
+}
+.podcast-most-listened-title em { font-style: italic; }
+@media (max-width: 640px) {
+  .podcast-most-listened { margin-top: 40px; }
+}
 .podcast-host { min-width: 0; }
 .podcast-host-link {
   display: flex;

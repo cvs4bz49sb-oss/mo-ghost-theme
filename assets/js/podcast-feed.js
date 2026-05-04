@@ -45,8 +45,17 @@
     },
   };
 
+  // Most-Listened side rail. Show page only. Lives outside the
+  // .listen-grid so it has its own root; the same fetch below
+  // populates both lists.
+  var mostListenedRoot = isShowPage
+    ? document.querySelector('[data-most-listened][data-show="' + cssEscape(showFilter) + '"]')
+    : null;
+
   var feedLimit = isShowPage ? Math.max(showLimit, 12) : 5;
-  var url = FEED_URL + (FEED_URL.indexOf("?") > -1 ? "&" : "?") + "limit=" + feedLimit;
+  var qsParts = ["limit=" + feedLimit];
+  if (mostListenedRoot) qsParts.push("top=true");
+  var url = FEED_URL + (FEED_URL.indexOf("?") > -1 ? "&" : "?") + qsParts.join("&");
   fetch(url, { cache: "default" })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
@@ -83,11 +92,19 @@
         });
       });
 
-      if (!all.length) return;
-      all.sort(function (a, b) { return b.ts - a.ts; });
-      var top = all.slice(0, showLimit);
+      if (all.length) {
+        all.sort(function (a, b) { return b.ts - a.ts; });
+        var top = all.slice(0, showLimit);
+        grid.innerHTML = top.map(isShowPage ? renderShowCard : renderCompactCard).join("");
+      }
 
-      grid.innerHTML = top.map(isShowPage ? renderShowCard : renderCompactCard).join("");
+      // Most Listened sidebar — Captivate insights, only shown when
+      // the worker returned a topEpisodes array for the current
+      // show. Silent failure: if the array is empty or missing, the
+      // <section hidden> stays hidden.
+      if (mostListenedRoot && data[showFilter] && Array.isArray(data[showFilter].topEpisodes)) {
+        renderMostListened(mostListenedRoot, data[showFilter].topEpisodes, showFilter);
+      }
     })
     .catch(function () { /* static fallback stays */ });
 
@@ -161,8 +178,9 @@
       ? '<div class="pod-footer">' + footerInner + '</div>'
       : "";
 
+    var idAttr = ep.id ? ' id="ep-' + escapeAttr(ep.id) + '"' : "";
     return (
-      '<article class="pod-entry pod-entry--episode pod-entry--full" data-show="' + escapeAttr(ep.showSlug) + '">' +
+      '<article class="pod-entry pod-entry--episode pod-entry--full"' + idAttr + ' data-show="' + escapeAttr(ep.showSlug) + '">' +
       metaHtml +
       '<h3 class="pod-title"><em>' + escapeHtml(ep.title) + "</em></h3>" +
       embed +
@@ -187,6 +205,46 @@
       links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') +
       "</p></div>"
     );
+  }
+
+  // ─── Most Listened sidebar ─────────────────────────────────────
+
+  function renderMostListened(root, items, showSlug) {
+    var list = root.querySelector("[data-most-listened-list]");
+    if (!list || !items || !items.length) return;
+
+    var ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+    var rows = items.slice(0, 5).map(function (ep, i) {
+      var numeral = ROMAN[i] || String(i + 1);
+      var titleHtml = escapeHtml(ep.title || "");
+      // Link to the transcript when available (deeper engagement);
+      // fall back to a hash anchor that scrolls to the embed in
+      // the main list. If the main list doesn't have IDs yet, the
+      // anchor is harmless — it just scrolls to top.
+      var href = ep.hasTranscript && ep.transcriptUrl
+        ? absoluteWorkerUrl(ep.transcriptUrl)
+        : (ep.id ? "#ep-" + escapeAttr(ep.id) : "#");
+      return (
+        '<li class="podcast-most-listened-item">' +
+          '<a class="podcast-most-listened-link" href="' + escapeAttr(href) + '">' +
+            '<span class="podcast-most-listened-numeral">' + numeral + '</span>' +
+            '<span class="podcast-most-listened-title"><em>' + titleHtml + '</em></span>' +
+          '</a>' +
+        '</li>'
+      );
+    });
+    list.innerHTML = rows.join("");
+    root.removeAttribute("hidden");
+  }
+
+  // Handles slug values for use in CSS attribute selectors. Older
+  // browsers don't have CSS.escape — ours doesn't need full
+  // escaping, just a safety net for unexpected characters.
+  function cssEscape(s) {
+    if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
+      return CSS.escape(s);
+    }
+    return String(s || "").replace(/[^a-zA-Z0-9\-_]/g, "");
   }
 
   // The transcript URL from the worker is a relative path

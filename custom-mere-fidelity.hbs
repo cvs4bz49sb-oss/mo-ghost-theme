@@ -71,6 +71,19 @@
               <li class="podcast-host"><a href="{{url}}" class="podcast-host-link"><div class="podcast-host-portrait" aria-hidden="true">{{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="{{name}}" />{{else}}<span class="podcast-host-initial">{{name}}</span>{{/if}}</div><h3 class="podcast-host-name"><em>{{name}}</em></h3></a></li>
             {{/foreach}}{{/get}}
           </ul>
+
+          {{!-- Most Listened: populated client-side from
+               podcast-feed.js using Captivate's insights endpoint
+               (worker call with &top=true). Hidden until JS fills
+               in the list — failure mode: silent (the section
+               simply isn't there). --}}
+          <section class="podcast-most-listened" data-most-listened data-show="mere-fidelity" hidden>
+            <div class="section-intro section-intro-left">
+              <p class="eyebrow">Most Listened</p>
+              <h2 class="section-heading"><em>Listener favorites.</em></h2>
+            </div>
+            <ol class="podcast-most-listened-list" data-most-listened-list></ol>
+          </section>
         </aside>
 
       </div>
