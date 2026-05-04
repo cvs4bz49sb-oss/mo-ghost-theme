@@ -216,6 +216,23 @@ img { max-width: 100%; height: auto; }
 }
 .nav a:hover { color: var(--color-primary); text-decoration: none; }
 
+/* Pre-JS hide of dropdown children. Server renders the flat nav
+   list — every "Resources > Ebooks", "Resources > Mere Fidelity
+   Podcast", etc. as its own inline <a> — and nav-dropdowns.js
+   reorganizes them into a "Resources" dropdown after parse. Between
+   first paint and the script firing, all the children showed
+   inline for a frame, producing a visible flicker (worst on
+   Firefox; user-test feedback flagged it). Hiding any
+   data-nav-label item containing ">" until the JS runs eliminates
+   the flicker — the script then wipes nav.innerHTML and rebuilds,
+   so this selector matches nothing afterward and no cleanup is
+   needed. The matching <noscript> override in default.hbs preserves
+   the no-JS fallback so children stay reachable if the script
+   never runs. */
+[data-nav-dropdowns] a[data-nav-label*=">"] {
+  display: none;
+}
+
 /* Desktop dropdown: parent is a <button> in the same row as flat
    links, menu is an absolutely-positioned panel. Built by
    nav-dropdowns.js from "Parent > Child" labels in Ghost admin. */

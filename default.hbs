@@ -12,6 +12,16 @@
 
     <link rel="stylesheet" type="text/css" href="{{asset "built/screen.css"}}" />
 
+    {{!-- No-JS fallback: screen.css hides "Parent > Child" nav items
+         pre-JS to prevent the flicker before nav-dropdowns.js rebuilds
+         them into dropdowns. If JS doesn't run at all, this <noscript>
+         re-shows them so the children stay reachable. --}}
+    <noscript>
+        <style>
+            [data-nav-dropdowns] a[data-nav-label*=">"] { display: inline-flex; }
+        </style>
+    </noscript>
+
     {{#if @custom.content_api_key}}
     <meta name="ghost-content-api-key" content="{{@custom.content_api_key}}" />
     {{/if}}
