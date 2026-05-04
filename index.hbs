@@ -38,9 +38,9 @@
                             <h3>{{title}}</h3>
                             <p class="byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}<em class="byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</em>{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<em>{{name}}</em>{{/primary_author}}</span> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
                             {{#if custom_excerpt}}
-                                <p class="excerpt hero-excerpt-dropcap">{{custom_excerpt}}</p>
+                                <p class="excerpt">{{custom_excerpt}}</p>
                             {{else}}
-                                <p class="excerpt hero-excerpt-dropcap">{{excerpt words="28"}}</p>
+                                <p class="excerpt">{{excerpt words="28"}}</p>
                             {{/if}}
                             <span class="read-link">Read the essay &rarr;</span>
                         </a>
@@ -78,9 +78,9 @@
                                     </p>
                                     <h3 class="feature-title">{{title}}</h3>
                                     {{#if custom_excerpt}}
-                                        <p class="feature-excerpt feature-excerpt-dropcap">{{custom_excerpt}}</p>
+                                        <p class="feature-excerpt">{{custom_excerpt}}</p>
                                     {{else}}
-                                        <p class="feature-excerpt feature-excerpt-dropcap">{{excerpt words="40"}}</p>
+                                        <p class="feature-excerpt">{{excerpt words="40"}}</p>
                                     {{/if}}
                                     <div class="feature-meta">
                                         <p class="feature-byline byline-inline--contributors" data-byline><span class="byline-prefix">By </span>{{#foreach tags}}<em class="byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</em>{{/foreach}}</p>
@@ -235,13 +235,13 @@
             <a href="#" class="pod-entry" data-show="mere-fidelity">
                 <p class="pod-topic">Mere Fidelity</p>
                 <h3 class="pod-title">Weekly conversations</h3>
-                <p class="pod-excerpt pod-excerpt-dropcap"><span class="pod-initial">A</span> weekly conversation on theology, culture, and the church.</p>
+                <p class="pod-excerpt">A weekly conversation on theology, culture, and the church.</p>
                 <span class="pod-listen-link">Listen &rarr;</span>
             </a>
             <a href="#" class="pod-entry" data-show="christians-reading-classics">
                 <p class="pod-topic">Christians Reading Classics</p>
                 <h3 class="pod-title">A slow walk</h3>
-                <p class="pod-excerpt pod-excerpt-dropcap"><span class="pod-initial">A</span> slow walk through the great books of the Christian and classical tradition, one volume at a time.</p>
+                <p class="pod-excerpt">A slow walk through the great books of the Christian and classical tradition, one volume at a time.</p>
                 <span class="pod-listen-link">Listen &rarr;</span>
             </a>
         </div>

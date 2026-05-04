@@ -1959,56 +1959,17 @@ img { max-width: 100%; height: auto; }
    entry, and pod excerpts.
 */
 
-/* All excerpt dropcaps are inline (not floated) so the surrounding text
-   keeps one consistent left edge. A floated first-letter displaces
-   line 2 by its width, which reads as ragged alignment no matter how
-   intentional the drop. Size stays above 1em so the initial still
-   reads as an ornament. */
-.hero-excerpt-dropcap::first-letter {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 1.5em;
-  line-height: 1;
-  color: var(--color-primary);
-  padding-right: 0.1em;
-}
-.hero-excerpt-dropcap {
-  display: block;
-}
-
-.feature-excerpt-dropcap::first-letter {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 1.5em;
-  line-height: 1;
-  color: var(--color-secondary);
-  padding-right: 0.1em;
-}
-.feature-excerpt-dropcap { display: block; }
-
-.entry-excerpt-dropcap::first-letter {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 1.4em;
-  line-height: 1;
-  color: var(--color-secondary);
-  padding-right: 0.08em;
-  /* No float: the entry's text column is narrow enough that a floated
-     dropcap forces line 2 to indent past the cap, which reads as
-     misaligned. Keeping the initial big but inline preserves the
-     flourish without breaking the left edge. */
-}
-.entry-excerpt-dropcap { display: block; }
-
-.pod-excerpt-dropcap::first-letter {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 1.4em;
-  line-height: 1;
-  color: var(--color-secondary);
-  padding-right: 0.08em;
-}
-.pod-excerpt-dropcap { display: block; }
+/* Excerpt dropcaps used to apply to homepage hero, feature, entry,
+   and pod previews via .hero-excerpt-dropcap / .feature-excerpt-
+   dropcap / .entry-excerpt-dropcap / .pod-excerpt-dropcap classes.
+   Removed in user-test pass — four cards in a row each carrying
+   their own large initial reads as a tic, not an ornament. The
+   dropcap stays where the editorial weight is intentional: real
+   articles (.article-content > p:first-of-type::first-letter, plus
+   the dark-mode override) and the About-page lede
+   (.about-lede::first-letter). The corresponding .x-dropcap classes
+   were also stripped from the markup, so no orphan no-op selectors
+   are left behind. */
 
 /* -------- Avatar initials (show first letter only) --------
    We render the full author name inside a span and then use a CSS
