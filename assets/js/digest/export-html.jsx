@@ -37,6 +37,13 @@ async function loadAssetAsDataUri(path) {
 }
 
 async function rewriteImages(rootEl, mode, baseUrl, overrides = {}) {
+  // window.MO_DIGEST_HOSTED_ASSETS is injected by the Ghost theme template
+  // and maps brand-asset filenames to their absolute live URLs on the site
+  // (e.g. https://mereorthodoxy.com/assets/built/images/mere-o-logo.png).
+  // Treated as a higher-priority fallback than data-URI embedding so the
+  // exported email pulls the logo + podcast covers straight from Ghost's
+  // own asset CDN — no upload step, no inflated file size.
+  const hosted = (typeof window !== 'undefined' && window.MO_DIGEST_HOSTED_ASSETS) || {};
   const imgs = rootEl.querySelectorAll('img');
   for (const img of imgs) {
     const orig = img.getAttribute('src') || '';
@@ -45,6 +52,11 @@ async function rewriteImages(rootEl, mode, baseUrl, overrides = {}) {
     // Per-image override wins over every mode.
     if (overrides[filename] && overrides[filename].trim()) {
       img.setAttribute('src', overrides[filename].trim());
+      continue;
+    }
+    // Known Ghost-hosted brand asset — use the live URL.
+    if (hosted[filename]) {
+      img.setAttribute('src', hosted[filename]);
       continue;
     }
     // 'auto' (default): embed as data URI for any image without an override.

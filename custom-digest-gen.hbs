@@ -55,12 +55,26 @@
 
     {{!-- Inject Ghost-resolved asset URLs so the embedded JSX (which
          was authored against a relative "assets/foo.png" layout) finds
-         the brand images at the correct theme paths. --}}
+         the brand images at the correct theme paths.
+
+         MO_DIGEST_ASSETS — relative theme URLs used by the live preview
+         (same-origin <img> tags, hash-busted by Ghost).
+
+         MO_DIGEST_HOSTED_ASSETS — absolute live-site URLs the EXPORT
+         bakes into the HTML so email recipients pull the brand images
+         directly from Ghost's own CDN. {{@site.url}} flips automatically
+         from mo-test.ghost.io to mereorthodoxy.com on cutover, so the
+         exported email always references whichever host is live. --}}
     <script>
       window.MO_DIGEST_ASSETS = {
         'mere-o-logo.png': '{{asset "images/mere-o-logo.png"}}',
         'mere-fidelity.jpg': '{{asset "images/mere-fidelity.jpg"}}',
         'christians-reading-classics.jpg': '{{asset "images/christians-reading-classics.jpg"}}'
+      };
+      window.MO_DIGEST_HOSTED_ASSETS = {
+        'mere-o-logo.png': '{{@site.url}}{{asset "images/mere-o-logo.png"}}',
+        'mere-fidelity.jpg': '{{@site.url}}{{asset "images/mere-fidelity.jpg"}}',
+        'christians-reading-classics.jpg': '{{@site.url}}{{asset "images/christians-reading-classics.jpg"}}'
       };
     </script>
 

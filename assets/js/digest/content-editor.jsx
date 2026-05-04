@@ -7,7 +7,7 @@
 // load/save JSON, reset to sample.
 // =====================================================
 
-const { useState, useRef, useEffect } = React;
+const { useState, useEffect } = React;
 
 // --- RSS parsing ----------------------------------------------------
 
@@ -211,7 +211,6 @@ function ContentEditor({ open, content, onChange, onClose }) {
   const [podcastError, setPodcastError] = useState(null);
   const [podcastMessage, setPodcastMessage] = useState(null);
   const [podcastLoading, setPodcastLoading] = useState(false);
-  const fileInputRef = useRef(null);
 
   // Persist API creds + show mappings locally so user doesn't re-enter every visit.
   useEffect(() => { localStorage.setItem('mo_ghost_url', ghostUrl); }, [ghostUrl]);
@@ -487,32 +486,6 @@ function ContentEditor({ open, content, onChange, onClose }) {
     }
   };
 
-  const handleExportJSON = () => {
-    const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `weekly-digest-${content.issueNumber || 'content'}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImportJSON = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const parsed = JSON.parse(ev.target.result);
-        onChange(parsed);
-      } catch (err) {
-        alert('Could not parse JSON: ' + err.message);
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
-
   const btnStyle = (variant = 'primary') => ({
     background: variant === 'primary' ? '#2d2927' : variant === 'danger' ? 'transparent' : '#fff',
     color: variant === 'primary' ? '#fbf7ee' : variant === 'danger' ? '#a43a27' : '#2d2927',
@@ -577,9 +550,6 @@ function ContentEditor({ open, content, onChange, onClose }) {
           <button onClick={() => { setShowPodcastPanel(!showPodcastPanel); if (!showPodcastPanel) setShowRssPanel(false); }} style={btnStyle(showPodcastPanel ? 'primary' : 'secondary')}>
             {showPodcastPanel ? 'Hide Podcast Pull' : 'Pull Podcasts'}
           </button>
-          <button onClick={handleExportJSON} style={btnStyle('secondary')}>Export JSON</button>
-          <button onClick={() => fileInputRef.current?.click()} style={btnStyle('secondary')}>Import JSON</button>
-          <input ref={fileInputRef} type="file" accept=".json,application/json" onChange={handleImportJSON} style={{ display: 'none' }} />
           <button onClick={() => onChange(DEFAULT_CONTENT)} style={btnStyle('danger')}>Reset</button>
           <button onClick={onClose} style={{ ...btnStyle('secondary'), border: 'none', fontSize: 18, padding: '4px 10px' }}>×</button>
         </div>
@@ -1034,7 +1004,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
             color: '#6b6258',
             flex: 1,
           }}>
-            Changes are saved automatically and will be there next time you open the app. Use Export JSON to back up an issue.
+            Changes are saved automatically and will be there next time you open the app.
           </div>
           <button onClick={onClose} style={btnStyle('primary')}>Done</button>
         </div>

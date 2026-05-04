@@ -2,7 +2,7 @@
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "version": "free",
-  "preview": "client",
+  "preview": "raw",
   "accent": "moderate",
   "density": "normal",
   "divider": "solid",
@@ -754,8 +754,8 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
           View
         </span>
         <div style={{ display: 'flex', gap: 0 }}>
-          <Tab active={preview === 'client'} onClick={() => onPreview('client')}>In Gmail</Tab>
           <Tab active={preview === 'raw'} onClick={() => onPreview('raw')}>Raw Email</Tab>
+          <Tab active={preview === 'client'} onClick={() => onPreview('client')}>In Gmail</Tab>
           <Tab active={preview === 'mobile'} onClick={() => onPreview('mobile')}>Mobile</Tab>
         </div>
       </div>
@@ -935,8 +935,8 @@ function App() {
             value={tweaks.preview}
             onChange={(v) => setTweak('preview', v)}
             options={[
-              { value: 'client', label: 'In Gmail' },
               { value: 'raw', label: 'Raw' },
+              { value: 'client', label: 'In Gmail' },
               { value: 'mobile', label: 'Mobile' },
             ]}
           />
