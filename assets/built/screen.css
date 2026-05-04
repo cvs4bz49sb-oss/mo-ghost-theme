@@ -5747,6 +5747,22 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
   max-width: 360px;
+  position: relative;
+}
+/* Hairline rule connecting the three marks, drawn behind them.
+   Sits at the vertical midpoint of the 36px marks (~18px) and is
+   broken visually around each glyph by the mark's solid dark
+   background — the line never crosses the SVG line work. */
+.journal-status::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: calc(100% / 6);
+  right: calc(100% / 6);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+  z-index: 0;
 }
 .journal-status-step {
   display: flex;
@@ -5754,6 +5770,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   align-items: center;
   gap: 12px;
   background: transparent;
+  position: relative;
+  z-index: 1;
 }
 .journal-status-mark {
   display: inline-flex;
@@ -5761,6 +5779,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   justify-content: center;
   width: 36px;
   height: 36px;
+  padding: 0 6px;
+  background: var(--color-dark);
   color: rgba(255, 255, 255, 0.32);
   transition: color 0.2s ease;
 }
