@@ -19,6 +19,8 @@ routes:
     filter: status:published
   /give/:
     template: custom-gift
+  /donate/:
+    template: custom-donate
   /groups/:
     template: custom-groups
   /group-manage/:

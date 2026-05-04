@@ -1,0 +1,101 @@
+{{!-- /donate/ — instant redirect to the configured donation URL.
+
+     Destination is set by @custom.donate_url (default: the ICCL
+     Anedot donation form). The redirect runs three ways for
+     resilience:
+
+       1. <meta http-equiv="refresh" content="0;url=..."> — works
+          even if JS is disabled or blocked.
+       2. window.location.replace(...) — fires immediately on parse
+          and replaces history so /donate/ doesn't sit in back-button
+          chain.
+       3. A visible fallback link in case both refresh and JS fail
+          (e.g. paranoid browser config).
+
+     Wired up either via routes.yaml (/donate/ → custom-donate) or
+     via a Ghost Page named "donate" with this template selected. --}}
+
+<!DOCTYPE html>
+<html lang="{{@site.locale}}">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,follow" />
+    <title>Donate &middot; {{@site.title}}</title>
+    {{#if @custom.donate_url}}
+        <meta http-equiv="refresh" content="0; url={{@custom.donate_url}}" />
+        <link rel="canonical" href="{{@custom.donate_url}}" />
+    {{/if}}
+    <link rel="stylesheet" type="text/css" href="{{asset "built/screen.css"}}" />
+    <style>
+        .donate-redirect {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px;
+            gap: 18px;
+        }
+        .donate-redirect-eyebrow {
+            font-family: var(--font-body);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--color-primary);
+            margin: 0;
+        }
+        .donate-redirect-headline {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-size: 32px;
+            line-height: 1.2;
+            color: var(--color-dark);
+            margin: 0;
+        }
+        .donate-redirect-sub {
+            font-family: var(--font-body);
+            font-size: 15px;
+            color: var(--color-muted);
+            margin: 0;
+            max-width: 36ch;
+        }
+        .donate-redirect-link {
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body class="donate-template">
+    <main class="donate-redirect" role="status" aria-live="polite">
+        <p class="donate-redirect-eyebrow">Redirecting</p>
+        <h1 class="donate-redirect-headline"><em>One moment.</em></h1>
+        <p class="donate-redirect-sub">Taking you to our secure donation form.</p>
+        {{#if @custom.donate_url}}
+            <p class="donate-redirect-link">
+                <a href="{{@custom.donate_url}}" class="btn btn-primary">Continue to the donation form</a>
+            </p>
+        {{else}}
+            <p class="donate-redirect-sub">
+                The donation URL hasn't been configured yet. An admin needs to set <code>@custom.donate_url</code>.
+            </p>
+        {{/if}}
+    </main>
+    {{#if @custom.donate_url}}
+        {{!-- URL is read from a data attribute (HTML-escaped by
+             Ghost) rather than interpolated directly into JS, so
+             a malicious admin-set URL can't break out of the
+             string literal. --}}
+        <script data-donate-redirect="{{@custom.donate_url}}">
+            (function () {
+                var script = document.currentScript;
+                var dest = script && script.getAttribute("data-donate-redirect");
+                if (dest && typeof window !== "undefined") {
+                    window.location.replace(dest);
+                }
+            })();
+        </script>
+    {{/if}}
+</body>
+</html>

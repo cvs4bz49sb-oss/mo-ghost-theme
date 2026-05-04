@@ -71,6 +71,11 @@
         "type": "text",
         "description": "Full URL of the Mere Orthodoxy YouTube channel (e.g. https://www.youtube.com/@MereOrthodoxy). Renders as the YouTube link in the site footer. Empty hides the link."
       },
+      "donate_url": {
+        "type": "text",
+        "default": "https://secure.anedot.com/institute-for-christianity-and-common-life/donate",
+        "description": "Destination URL for /donate/. The custom-donate template instantly redirects visitors here. Default points at the ICCL Anedot donation form; change in admin if the donation flow moves."
+      },
       "gate_days": {
         "type": "text",
         "default": "7",
