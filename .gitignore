@@ -8,3 +8,9 @@ node_modules/
 # repo via scripts/import-faith-received.mjs. Generated partials in
 # partials/faith-received/ ARE committed (those are what Ghost serves).
 data/faith-received/
+
+# Ebook build intermediates: scripts/build-ebook-pdfs.mjs writes
+# print-ready HTML here while rendering. The final .pdf/.epub
+# outputs in assets/files/ebooks/ ARE committed; the intermediates
+# are throwaway.
+scripts/.ebook-build/
