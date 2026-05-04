@@ -172,13 +172,16 @@ function markdownParagraphs(text) {
   return text.split(/\n\s*\n+/).map((s) => s.trim()).filter(Boolean);
 }
 
-// Section keys the email knows how to render, in the default order.
-// Editor lets the user reorder via drag-and-drop and the result lives
-// on content.sectionOrder. loadSavedContent appends any keys missing
-// from a saved order so older saves don't lose new sections.
+// Fixed-section keys the email knows how to render, in the default
+// order. Custom blocks are no longer represented by a single
+// 'customBlocks' slot — each block's id appears directly in
+// sectionOrder, so users can drag a single text block or button to
+// any position relative to the fixed sections (e.g. between essays
+// and podcasts). Editor lets you drag to reorder; loadSavedContent
+// appends any DEFAULT_SECTION keys missing from a saved order so
+// older saves don't lose new sections.
 const DEFAULT_SECTION_ORDER = [
   'letter',
-  'customBlocks',
   'membership',
   'sponsorTop',
   'essays',
@@ -320,18 +323,22 @@ const DEFAULT_CONTENT = {
   // Each block: {id, type: 'text'|'button', text, url?, variant?}
   // Text blocks accept Markdown. Button blocks render as a centered CTA.
   customBlocks: [],
+  // Visibility map. Keys are fixed-section names ('letter',
+  // 'membership', etc.) AND/OR custom-block ids ('b_abc123…').
+  // Anything not in the map defaults to visible. Set false to hide.
   sections: {
     letter: true,
-    customBlocks: true,
     membership: true,
     sponsorTop: true,
     essays: true,
     podcasts: true,
     sponsorBottom: true,
   },
-  // The order sections render in. Editable via drag-and-drop in the
-  // editor. loadSavedContent in app.jsx appends any missing keys at
-  // the end so older saves don't lose new sections introduced later.
+  // The order sections (and individual custom blocks) render in.
+  // Editable via drag-and-drop in the editor. loadSavedContent in
+  // app.jsx (a) expands the legacy 'customBlocks' slot into the list
+  // of block ids and (b) appends any DEFAULT_SECTION_ORDER keys
+  // missing from a saved order so older saves don't lose new sections.
   sectionOrder: DEFAULT_SECTION_ORDER,
 };
 
@@ -719,8 +726,15 @@ function EssayCard({ tokens, essay, accent }) {
 }
 
 function EssaysGrid({ tokens, accent, density, essays }) {
-  const featured = essays[0];
-  const rest = essays.slice(1);
+  // Featured essay: honor an explicit essay.featured flag if any row
+  // has it set; otherwise fall back to index 0 so the latest pull
+  // always lands featured by default. The remaining essays render in
+  // their array order, with the featured one removed from the grid.
+  const featuredIdx = essays.findIndex((e) => e && e.featured);
+  const fallbackIdx = essays.length ? 0 : -1;
+  const useIdx = featuredIdx >= 0 ? featuredIdx : fallbackIdx;
+  const featured = useIdx >= 0 ? essays[useIdx] : null;
+  const rest = essays.filter((_, i) => i !== useIdx);
   const pairs = [];
   for (let i = 0; i < rest.length; i += 2) {
     pairs.push([rest[i], rest[i + 1]]);
@@ -731,11 +745,11 @@ function EssaysGrid({ tokens, accent, density, essays }) {
     <div style={{ padding: '28px 32px 12px' }} className="mo-pad-32">
       <SectionLabel tokens={tokens} accent={accent}>This Week's Essays</SectionLabel>
 
-      <FeaturedEssay tokens={tokens} essay={featured} accent={accent} />
+      {featured && <FeaturedEssay tokens={tokens} essay={featured} accent={accent} />}
 
-      <div style={{ height: gap + 8 }} />
-      <Rule tokens={tokens} style="solid" />
-      <div style={{ height: gap }} />
+      {featured && <div style={{ height: gap + 8 }} />}
+      {featured && <Rule tokens={tokens} style="solid" />}
+      {featured && <div style={{ height: gap }} />}
 
       {pairs.map((pair, i) => (
         <React.Fragment key={i}>
@@ -967,16 +981,18 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
   );
 
   // Returns the JSX for a single section, or null if it's hidden /
-  // not applicable (e.g. sponsor blocks for paid members, customBlocks
-  // when the array is empty).
+  // not applicable (e.g. sponsor blocks for paid members, custom blocks
+  // with empty content). Handles both fixed-section keys ('letter',
+  // 'membership', …) and custom-block ids (matched against
+  // content.customBlocks).
+  const blocksById = {};
+  (content.customBlocks || []).forEach((b) => { if (b && b.id) blocksById[b.id] = b; });
+
   const renderSection = (key) => {
     if (sections[key] === false) return null;
     switch (key) {
       case 'letter':
         return <LetterFromEditor tokens={tokens} content={content} />;
-      case 'customBlocks':
-        if (!Array.isArray(content.customBlocks) || !content.customBlocks.length) return null;
-        return <CustomBlocks tokens={tokens} accent={accent} blocks={content.customBlocks} />;
       case 'membership':
         return showCTA ? (
           <>
@@ -1011,16 +1027,45 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
             <Spacer h={20} />
           </>
         );
-      default:
-        return null;
+      default: {
+        // Custom block?
+        const block = blocksById[key];
+        if (!block) return null;
+        if (block.type === 'button') {
+          return (
+            <div style={{ padding: '14px 40px 18px', textAlign: 'center' }} className="mo-pad-40">
+              <Button tokens={tokens} variant={block.variant || 'primary'} size="lg" accent={accent} href={block.url || '#'}>
+                {block.text || 'Button'}
+              </Button>
+            </div>
+          );
+        }
+        // text block
+        const paras = markdownParagraphs(block.text || '');
+        if (!paras.length) return null;
+        return (
+          <div style={{ padding: '24px 40px 8px' }} className="mo-letter mo-pad-40">
+            {paras.map((p, j) => (
+              <p key={j} style={{
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontSize: 16,
+                lineHeight: 1.65,
+                color: tokens.bodyText,
+                margin: '0 0 14px',
+              }} dangerouslySetInnerHTML={{ __html: markdownInline(p, tokens) }} />
+            ))}
+          </div>
+        );
+      }
     }
   };
 
-  // Resolve the section order. Fall back to default if missing; filter
-  // out unknown keys defensively (in case the saved blob came from a
-  // newer build with additional keys this email-template doesn't know).
+  // Resolve the section order. Fall back to default if missing; allow
+  // any DEFAULT_SECTION_ORDER key OR any current custom-block id to
+  // pass through. Unknown keys (orphans from a stale save) are filtered.
+  const KNOWN = new Set([...DEFAULT_SECTION_ORDER, ...Object.keys(blocksById)]);
   const order = (Array.isArray(content.sectionOrder) && content.sectionOrder.length)
-    ? content.sectionOrder.filter((k) => DEFAULT_SECTION_ORDER.includes(k))
+    ? content.sectionOrder.filter((k) => KNOWN.has(k))
     : DEFAULT_SECTION_ORDER;
 
   // Pre-render to know which sections actually produce output, so we

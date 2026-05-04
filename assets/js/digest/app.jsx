@@ -9,6 +9,101 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "client": "gmail"
 }/*EDITMODE-END*/;
 
+// Mobile-friendly styles for the editor itself (not the email preview).
+// Targets data-mo-* attributes to override the verbose inline styles
+// the components ship with. Lets you compose digests on a phone without
+// horizontal scrolling or 720px modals overflowing the viewport.
+const MOBILE_TOOL_STYLES = `
+@media (max-width: 720px) {
+  /* TopBar — wrap to multi-row, tighter buttons */
+  [data-mo-topbar] {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    padding: 8px 10px !important;
+  }
+  [data-mo-topbar-divider] { display: none !important; }
+  [data-mo-topbar-spacer] { display: none !important; }
+  [data-mo-topbar-brand] {
+    flex: 1 1 100% !important;
+    border-bottom: 1px solid #d8c4a3 !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 2px !important;
+  }
+  [data-mo-topbar] button {
+    padding: 6px 10px !important;
+    font-size: 10px !important;
+    letter-spacing: 0.1em !important;
+  }
+  [data-mo-topbar-group] {
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+  }
+  [data-mo-topbar-group] > [data-mo-topbar-grouplabel] { display: none !important; }
+
+  /* Modals — full screen on mobile */
+  [data-mo-modal-overlay] {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+  [data-mo-modal-shell] {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+  [data-mo-modal-header] {
+    padding: 10px 14px !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+  }
+  [data-mo-modal-header] button {
+    padding: 6px 10px !important;
+    font-size: 10px !important;
+  }
+  [data-mo-modal-body] {
+    padding: 8px 14px 14px !important;
+  }
+  [data-mo-modal-footer] {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    padding: 10px 14px !important;
+  }
+  [data-mo-modal-footer] button {
+    padding: 8px 14px !important;
+    font-size: 10px !important;
+  }
+
+  /* Gmail chrome — strip the chrome that distracts on mobile */
+  [data-mo-gmail-sidebar] { display: none !important; }
+  [data-mo-gmail-search] { display: none !important; }
+  [data-mo-gmail-emailheader] { padding: 14px 16px 0 !important; }
+  [data-mo-gmail-emailbody] { padding: 16px 12px 24px !important; }
+
+  /* Mobile preview — let the phone frame shrink to viewport */
+  [data-mo-mobile-outer] { padding: 16px 6px 24px !important; }
+  [data-mo-mobile-bezel] {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 8px 6px 14px !important;
+    border-radius: 22px !important;
+    box-sizing: border-box !important;
+  }
+  [data-mo-mobile-bezel] .mo-mobile-stage {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 14px !important;
+  }
+  [data-mo-mobile-notch] { display: none !important; }
+
+  /* Raw preview — tighter backdrop padding */
+  [data-mo-raw-outer] { padding: 18px 8px 30px !important; }
+}
+`;
+
 // =====================================================
 // Gmail-like client chrome
 // =====================================================
@@ -836,12 +931,44 @@ function loadSavedContent() {
       saved.editorBody = saved.editorParagraphs.join('\n\n');
       delete saved.editorParagraphs;
     }
-    // Heal the section order: any DEFAULT_SECTION_ORDER key that's not
-    // in the saved order gets appended at the end so newly-introduced
-    // sections show up rather than vanishing on saves from older builds.
+    // Migrate the legacy 'customBlocks' single slot in sectionOrder
+    // to the list of individual block ids at that position. Old:
+    //   sectionOrder: ['letter', 'customBlocks', 'membership', ...]
+    // New:
+    //   sectionOrder: ['letter', 'b_abc', 'b_def', 'membership', ...]
+    // so users can drag a single block to any position relative to
+    // the fixed sections.
+    if (Array.isArray(saved.sectionOrder) && saved.sectionOrder.includes('customBlocks')) {
+      const blockIds = (saved.customBlocks || []).map((b) => b && b.id).filter(Boolean);
+      const idx = saved.sectionOrder.indexOf('customBlocks');
+      saved.sectionOrder = [
+        ...saved.sectionOrder.slice(0, idx),
+        ...blockIds,
+        ...saved.sectionOrder.slice(idx + 1),
+      ];
+      // If the legacy customBlocks group was hidden, propagate that
+      // to each block individually so the migration is non-destructive.
+      if (saved.sections && saved.sections.customBlocks === false) {
+        saved.sections = { ...saved.sections };
+        blockIds.forEach((id) => { if (saved.sections[id] !== false) saved.sections[id] = false; });
+      }
+      if (saved.sections) {
+        saved.sections = { ...saved.sections };
+        delete saved.sections.customBlocks;
+      }
+    }
+    // Heal the section order:
+    //  (a) Append any DEFAULT_SECTION_ORDER key missing from the saved
+    //      order so newly-introduced fixed sections show up.
+    //  (b) Append any custom-block id not yet in the order so blocks
+    //      added in a stale tab don't vanish.
     if (Array.isArray(saved.sectionOrder) && Array.isArray(DEFAULT_SECTION_ORDER)) {
       const missing = DEFAULT_SECTION_ORDER.filter((k) => !saved.sectionOrder.includes(k));
-      if (missing.length) saved.sectionOrder = [...saved.sectionOrder, ...missing];
+      const blockIds = (saved.customBlocks || []).map((b) => b && b.id).filter(Boolean);
+      const missingBlocks = blockIds.filter((id) => !saved.sectionOrder.includes(id));
+      if (missing.length || missingBlocks.length) {
+        saved.sectionOrder = [...saved.sectionOrder, ...missing, ...missingBlocks];
+      }
     }
     // Shallow-merge with defaults so newly-added top-level keys (e.g. a
     // future `sections` map, or new fields on existing objects) don't end

@@ -770,23 +770,48 @@ function ContentEditor({ open, content, onChange, onClose }) {
               Drag rows to reorder sections in the email. Toggle the checkbox to show or hide a section without losing its content.
             </div>
             {(() => {
-              const SECTION_LABELS = {
+              const FIXED_SECTION_LABELS = {
                 letter: 'Letter from the editor',
-                customBlocks: 'Custom blocks',
                 membership: 'Membership CTA / thanks',
                 sponsorTop: 'Top sponsor block',
                 essays: 'Essays grid',
                 podcasts: 'Podcasts grid',
                 sponsorBottom: 'Bottom sponsor block',
               };
-              const KNOWN_KEYS = Object.keys(SECTION_LABELS);
-              const order = (Array.isArray(content.sectionOrder) && content.sectionOrder.length)
-                ? content.sectionOrder.filter((k) => KNOWN_KEYS.includes(k))
-                : KNOWN_KEYS;
-              // Append any known keys missing from the saved order so
-              // they don't vanish from the editor.
-              const missing = KNOWN_KEYS.filter((k) => !order.includes(k));
-              const fullOrder = [...order, ...missing];
+              const FIXED_KEYS = Object.keys(FIXED_SECTION_LABELS);
+              const blocks = content.customBlocks || [];
+              const blocksById = {};
+              blocks.forEach((b) => { if (b && b.id) blocksById[b.id] = b; });
+              const blockIds = blocks.map((b) => b && b.id).filter(Boolean);
+              // Allow either fixed keys or current block ids in the
+              // order; filter out unknowns / orphans.
+              const KNOWN = new Set([...FIXED_KEYS, ...blockIds]);
+              const orderRaw = (Array.isArray(content.sectionOrder) && content.sectionOrder.length)
+                ? content.sectionOrder.filter((k) => KNOWN.has(k))
+                : FIXED_KEYS;
+              // Append any keys missing from the saved order so
+              // newly-added items don't vanish from the editor.
+              const missing = [...FIXED_KEYS, ...blockIds].filter((k) => !orderRaw.includes(k));
+              const fullOrder = [...orderRaw, ...missing];
+
+              const labelFor = (k) => {
+                if (FIXED_SECTION_LABELS[k]) return { label: FIXED_SECTION_LABELS[k], isBlock: false };
+                const block = blocksById[k];
+                if (block) {
+                  // Strip Markdown for the preview snippet
+                  const plain = (block.text || '')
+                    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+                    .replace(/[*_]+/g, '')
+                    .replace(/\n+/g, ' ')
+                    .trim();
+                  const snippet = plain.length > 38 ? plain.slice(0, 38) + '…' : plain;
+                  if (block.type === 'button') {
+                    return { label: `Button — ${snippet || 'untitled'}`, isBlock: true };
+                  }
+                  return { label: `Text — ${snippet || '(empty)'}`, isBlock: true };
+                }
+                return { label: k, isBlock: false };
+              };
 
               const move = (from, to) => {
                 if (from === to) return;
@@ -800,6 +825,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {fullOrder.map((k, i) => {
                     const enabled = content.sections?.[k] !== false;
+                    const { label, isBlock } = labelFor(k);
                     return (
                       <div
                         key={k}
@@ -820,7 +846,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
                           display: 'flex', alignItems: 'center', gap: 10,
                           padding: '10px 12px',
                           background: enabled ? '#fff' : '#f0eadf',
-                          border: '1.5px solid ' + (enabled ? '#2d2927' : '#d8c4a3'),
+                          border: '1.5px solid ' + (enabled ? (isBlock ? '#c1593c' : '#2d2927') : '#d8c4a3'),
                           borderRadius: 0, cursor: 'grab',
                           fontFamily: '"Source Sans 3", Arial, sans-serif',
                           fontSize: 12, color: enabled ? '#2d2927' : '#9a8773',
@@ -829,7 +855,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
                         }}
                       >
                         <span aria-hidden="true" style={{ fontSize: 14, color: '#9a8773', cursor: 'grab' }}>⋮⋮</span>
-                        <span style={{ flex: 1 }}>{SECTION_LABELS[k]}</span>
+                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
                         <input
                           type="checkbox"
                           checked={enabled}
@@ -867,19 +893,36 @@ function ContentEditor({ open, content, onChange, onClose }) {
               fontFamily: '"Source Sans 3", Arial, sans-serif',
               fontSize: 12, color: '#6b6258', lineHeight: 1.5, marginBottom: 12,
             }}>
-              Free-form text or button blocks rendered between the letter and the membership CTA. Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>). Use the section toggle above to hide them temporarily.
+              Free-form text or button blocks. Each block appears as its own row in the Sections list above — drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>).
             </div>
             {(content.customBlocks || []).map((block, i) => {
+              // Remove a block: drop it from customBlocks AND from
+              // sectionOrder so it doesn't leave an orphaned row in
+              // the Sections panel; clear any sections-map entry too.
               const removeBlock = () => {
-                const arr = (content.customBlocks || []).filter((_, j) => j !== i);
-                updateField('customBlocks', arr);
+                const next = JSON.parse(JSON.stringify(content));
+                next.customBlocks = (next.customBlocks || []).filter((_, j) => j !== i);
+                if (Array.isArray(next.sectionOrder) && block.id) {
+                  next.sectionOrder = next.sectionOrder.filter((k) => k !== block.id);
+                }
+                if (next.sections && block.id && block.id in next.sections) {
+                  next.sections = { ...next.sections };
+                  delete next.sections[block.id];
+                }
+                onChange(next);
               };
+              // Reorder within the customBlocks editor list — also
+              // mirror the change into sectionOrder so the email's
+              // render order tracks. (You can also drag in the
+              // Sections panel above; that's the canonical UI.)
               const reorderBlock = (from, to) => {
                 if (from === to) return;
-                const arr = [...(content.customBlocks || [])];
+                const next = JSON.parse(JSON.stringify(content));
+                const arr = [...(next.customBlocks || [])];
                 const [m] = arr.splice(from, 1);
                 arr.splice(to, 0, m);
-                updateField('customBlocks', arr);
+                next.customBlocks = arr;
+                onChange(next);
               };
               return (
                 <div
@@ -966,16 +1009,22 @@ function ContentEditor({ open, content, onChange, onClose }) {
               <button
                 onClick={() => {
                   const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
-                  const arr = [...(content.customBlocks || []), { id, type: 'text', text: '' }];
-                  updateField('customBlocks', arr);
+                  const next = JSON.parse(JSON.stringify(content));
+                  next.customBlocks = [...(next.customBlocks || []), { id, type: 'text', text: '' }];
+                  // Append the new block to sectionOrder so it shows
+                  // up as its own draggable row in the Sections panel.
+                  next.sectionOrder = Array.isArray(next.sectionOrder) ? [...next.sectionOrder, id] : [id];
+                  onChange(next);
                 }}
                 style={btnStyle('primary')}
               >+ Add Text Box</button>
               <button
                 onClick={() => {
                   const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
-                  const arr = [...(content.customBlocks || []), { id, type: 'button', text: 'Click here', url: '', variant: 'primary' }];
-                  updateField('customBlocks', arr);
+                  const next = JSON.parse(JSON.stringify(content));
+                  next.customBlocks = [...(next.customBlocks || []), { id, type: 'button', text: 'Click here', url: '', variant: 'primary' }];
+                  next.sectionOrder = Array.isArray(next.sectionOrder) ? [...next.sectionOrder, id] : [id];
+                  onChange(next);
                 }}
                 style={btnStyle('secondary')}
               >+ Add Button</button>
@@ -1033,36 +1082,77 @@ function ContentEditor({ open, content, onChange, onClose }) {
                 fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: 11, color: '#9a8773',
               }}>Removes "by Mere Orthodoxy", "by admin", etc. from all essays.</span>
             </div>
-            {(content.essays || []).map((essay, i) => (
-              <div key={i} style={{
-                marginBottom: 18,
-                padding: 12,
-                background: i === 0 ? '#fbf3e3' : '#fff',
-                border: '1px solid #e8d9bd',
-              }}>
-                <div style={{
-                  fontFamily: '"Source Sans 3", sans-serif',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: '#c1593c',
-                  marginBottom: 8,
-                }}>
-                  {i === 0 ? `Featured · Essay 1` : `Essay ${i + 1}`}
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
-                  <Field label="Kicker" value={essay.kicker} onChange={(v) => updateField(`essays.${i}.kicker`, v)} />
-                  <Field label="Byline" value={essay.byline} onChange={(v) => updateField(`essays.${i}.byline`, v)} />
-                </div>
-                <Field label="Title" value={essay.title} onChange={(v) => updateField(`essays.${i}.title`, v)} />
-                <Field label="Summary" value={essay.summary} multiline rows={2} onChange={(v) => updateField(`essays.${i}.summary`, v)} />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <Field label="Image (path or URL)" value={essay.img} onChange={(v) => updateField(`essays.${i}.img`, v)} />
-                  <Field label="Link" value={essay.url} placeholder="https://…" onChange={(v) => updateField(`essays.${i}.url`, v)} />
-                </div>
-              </div>
-            ))}
+            {(() => {
+              // Resolve which essay holds the Featured spot. Honors an
+              // explicit essay.featured = true; otherwise falls back to
+              // index 0 so the latest pull always lands featured by
+              // default. Only one essay can be featured at a time —
+              // toggling another clears the rest.
+              const essays = content.essays || [];
+              const explicitFeaturedIdx = essays.findIndex((e) => e && e.featured);
+              const featuredIdx = explicitFeaturedIdx >= 0 ? explicitFeaturedIdx : (essays.length ? 0 : -1);
+              const setFeatured = (idx) => {
+                const next = essays.map((e, j) => {
+                  const copy = { ...e };
+                  if (j === idx) copy.featured = true;
+                  else delete copy.featured;
+                  return copy;
+                });
+                updateField('essays', next);
+              };
+              return essays.map((essay, i) => {
+                const isFeatured = i === featuredIdx;
+                return (
+                  <div key={i} style={{
+                    marginBottom: 18,
+                    padding: 12,
+                    background: isFeatured ? '#fbf3e3' : '#fff',
+                    border: '1px solid ' + (isFeatured ? '#c1593c' : '#e8d9bd'),
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                      <div style={{
+                        fontFamily: '"Source Sans 3", sans-serif',
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: '#c1593c',
+                        flex: 1,
+                      }}>
+                        {isFeatured ? `Featured · Essay ${i + 1}` : `Essay ${i + 1}`}
+                      </div>
+                      <button
+                        onClick={() => setFeatured(i)}
+                        disabled={isFeatured}
+                        style={{
+                          background: isFeatured ? '#ee7d51' : 'transparent',
+                          color: isFeatured ? '#fff' : '#c1593c',
+                          border: '1.5px solid ' + (isFeatured ? '#ee7d51' : '#c1593c'),
+                          padding: '4px 12px',
+                          fontFamily: '"Source Sans 3", Arial, sans-serif',
+                          fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
+                          cursor: isFeatured ? 'default' : 'pointer',
+                          borderRadius: 0,
+                        }}
+                        title={isFeatured ? 'This is the featured essay' : 'Make this the featured essay'}
+                      >
+                        {isFeatured ? '★ Featured' : '☆ Make featured'}
+                      </button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
+                      <Field label="Kicker" value={essay.kicker} onChange={(v) => updateField(`essays.${i}.kicker`, v)} />
+                      <Field label="Byline" value={essay.byline} onChange={(v) => updateField(`essays.${i}.byline`, v)} />
+                    </div>
+                    <Field label="Title" value={essay.title} onChange={(v) => updateField(`essays.${i}.title`, v)} />
+                    <Field label="Summary" value={essay.summary} multiline rows={2} onChange={(v) => updateField(`essays.${i}.summary`, v)} />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <Field label="Image (path or URL)" value={essay.img} onChange={(v) => updateField(`essays.${i}.img`, v)} />
+                      <Field label="Link" value={essay.url} placeholder="https://…" onChange={(v) => updateField(`essays.${i}.url`, v)} />
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </Group>
 
           <Group title={`Podcasts (${content.podcasts?.length || 0})`}>
