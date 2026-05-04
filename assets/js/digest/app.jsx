@@ -146,7 +146,7 @@ function GmailChrome({ children, content = {} }) {
           </svg>
           <span>Gmail</span>
         </div>
-        <div style={{
+        <div data-mo-gmail-search style={{
           flex: 1, marginLeft: 40, maxWidth: 560,
           background: '#eaf1fb', borderRadius: 8, padding: '8px 16px',
           fontSize: 14, color: '#80868b', display: 'flex', alignItems: 'center', gap: 12,
@@ -165,7 +165,7 @@ function GmailChrome({ children, content = {} }) {
       {/* Body */}
       <div style={{ display: 'flex' }}>
         {/* Sidebar */}
-        <div style={{
+        <div data-mo-gmail-sidebar style={{
           width: 232, padding: '16px 8px', flexShrink: 0,
           fontSize: 14, color: '#202124',
         }}>
@@ -229,7 +229,7 @@ function GmailChrome({ children, content = {} }) {
           </div>
 
           {/* Email header */}
-          <div style={{ padding: '20px 60px 0', borderBottom: 'none' }}>
+          <div data-mo-gmail-emailheader style={{ padding: '20px 60px 0', borderBottom: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
               <div style={{
                 fontSize: 22, fontWeight: 400, color: '#202124', flex: 1, lineHeight: 1.3,
@@ -271,7 +271,7 @@ function GmailChrome({ children, content = {} }) {
           </div>
 
           {/* Email body — flows naturally; outer page scrolls */}
-          <div style={{ padding: '24px 60px 60px', background: '#fff' }}>
+          <div data-mo-gmail-emailbody style={{ padding: '24px 60px 60px', background: '#fff' }}>
             {children}
           </div>
         </div>
@@ -287,7 +287,7 @@ function GmailChrome({ children, content = {} }) {
 // =====================================================
 function MobilePreview({ children }) {
   return (
-    <div style={{
+    <div data-mo-mobile-outer style={{
       background: 'linear-gradient(180deg, #f1e0c9 0%, #e8d4b6 100%)',
       width: '100%',
       padding: '40px 20px 60px',
@@ -331,7 +331,7 @@ function MobilePreview({ children }) {
         Mobile Preview · 375px
       </div>
       {/* Phone bezel */}
-      <div style={{
+      <div data-mo-mobile-bezel style={{
         margin: '0 auto',
         width: 411,
         background: '#1f1c1a',
@@ -340,7 +340,7 @@ function MobilePreview({ children }) {
         boxShadow: '0 30px 60px -20px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.4) inset',
       }}>
         {/* Notch */}
-        <div style={{
+        <div data-mo-mobile-notch style={{
           width: 110, height: 22, background: '#0a0908',
           borderRadius: 14, margin: '0 auto 10px',
         }} />
@@ -372,7 +372,7 @@ function MobilePreview({ children }) {
 // =====================================================
 function RawPreview({ children }) {
   return (
-    <div style={{
+    <div data-mo-raw-outer style={{
       background: 'linear-gradient(180deg, #f1e0c9 0%, #e8d4b6 100%)',
       width: '100%',
       padding: '40px 20px 60px',
@@ -495,18 +495,18 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
   };
 
   return (
-    <div style={{
+    <div data-mo-modal-overlay style={{
       position: 'fixed', inset: 0, zIndex: 9999,
       background: 'rgba(45, 41, 39, 0.55)',
       display: 'flex', alignItems: 'stretch', justifyContent: 'flex-end',
     }} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={{
+      <div data-mo-modal-shell onClick={(e) => e.stopPropagation()} style={{
         width: 720, maxWidth: '100%', height: '100%',
         background: '#fbf7ee', boxShadow: '-8px 0 32px rgba(45,41,39,0.25)',
         display: 'flex', flexDirection: 'column',
       }}>
         {/* Header */}
-        <div style={{
+        <div data-mo-modal-header style={{
           padding: '20px 24px',
           borderBottom: '1px solid #e6d8be',
           display: 'flex', alignItems: 'center', gap: 12,
@@ -535,7 +535,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+        <div data-mo-modal-body style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
           <p style={{
             fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: 13,
             color: '#6b6258', lineHeight: 1.55, marginBottom: 20,
@@ -740,7 +740,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
         </div>
 
         {/* Footer actions */}
-        <div style={{
+        <div data-mo-modal-footer style={{
           padding: '16px 24px',
           borderTop: '1px solid #e6d8be',
           background: '#f1e0c9',
@@ -811,7 +811,7 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
     }}>{children}</button>
   );
   return (
-    <div style={{
+    <div data-mo-topbar style={{
       background: '#f1e0c9',
       borderBottom: '1px solid #d8c4a3',
       padding: '14px 24px',
@@ -821,18 +821,18 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
       flexShrink: 0,
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div data-mo-topbar-brand style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <img src={(window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS['mere-o-logo.png']) || 'assets/mere-o-logo.png'} alt="" style={{ height: 22 }} />
-        <div style={{ width: 1, height: 22, background: '#d8c4a3' }} />
+        <div data-mo-topbar-divider style={{ width: 1, height: 22, background: '#d8c4a3' }} />
         <div style={{ fontSize: 13, color: '#2d2927', fontFamily: '"IM Fell English", Georgia, serif' }}>
           The Weekly Digest — Email Template
         </div>
       </div>
 
-      <div style={{ flex: 1 }} />
+      <div data-mo-topbar-spacer style={{ flex: 1 }} />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9a8773' }}>
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <span data-mo-topbar-grouplabel style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9a8773' }}>
           Audience
         </span>
         <div style={{ display: 'flex', gap: 0, marginLeft: -1 }}>
@@ -842,10 +842,10 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
         </div>
       </div>
 
-      <div style={{ width: 1, height: 28, background: '#d8c4a3' }} />
+      <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9a8773' }}>
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <span data-mo-topbar-grouplabel style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9a8773' }}>
           View
         </span>
         <div style={{ display: 'flex', gap: 0 }}>
@@ -855,7 +855,7 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
         </div>
       </div>
 
-      <div style={{ width: 1, height: 28, background: '#d8c4a3' }} />
+      <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
 
       <button
         onClick={onEditContent}
@@ -1016,6 +1016,7 @@ function App() {
       display: 'flex', flexDirection: 'column',
       background: '#f1e0c9',
     }}>
+      <style>{MOBILE_TOOL_STYLES}</style>
       <TopBar
         version={tweaks.version}
         preview={tweaks.preview}

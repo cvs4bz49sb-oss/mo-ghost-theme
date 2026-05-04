@@ -479,6 +479,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
 
   return (
     <div
+      data-mo-modal-overlay
       style={{
         position: 'fixed',
         inset: 0,
@@ -492,6 +493,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
       onClick={onClose}
     >
       <div
+        data-mo-modal-shell
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%',
@@ -505,7 +507,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
         }}
       >
         {/* Header */}
-        <div style={{
+        <div data-mo-modal-header style={{
           padding: '18px 24px',
           borderBottom: '1px solid #e8d9bd',
           display: 'flex',
@@ -748,7 +750,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
         )}
 
         {/* Body */}
-        <div style={{ overflowY: 'auto', padding: '0 24px 20px', flex: 1 }}>
+        <div data-mo-modal-body style={{ overflowY: 'auto', padding: '0 24px 20px', flex: 1 }}>
           <Group title="Header" defaultOpen={true}>
             <Field
               label="Title (right of logo) — leave empty to remove"
@@ -1189,7 +1191,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
         </div>
 
         {/* Footer */}
-        <div style={{
+        <div data-mo-modal-footer style={{
           padding: '14px 24px',
           borderTop: '1px solid #e8d9bd',
           background: '#f1e0c9',
