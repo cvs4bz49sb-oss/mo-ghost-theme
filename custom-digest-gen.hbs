@@ -1,0 +1,100 @@
+{{!< default}}
+{{!-- /digest-gen/ — admin-only Weekly Digest email composer.
+
+     Single-page React tool (loaded via Babel-standalone) that lets
+     admin users compose a Weekly Digest, pull essays from Ghost
+     Content API, pull podcasts from Captivate (via the user-deployed
+     mo-captivate-proxy worker), preview Free vs Paid versions, and
+     export flat HTML for paste-into-Kit.
+
+     Auth pattern matches the other /admin/* tools: shell renders for
+     any signed-in member; the actual sensitive bits (Ghost Content
+     API key, Captivate creds, Cloudflare Worker URL) are user-supplied
+     and stored in the user's own browser localStorage. Non-staff who
+     navigate here see the tool but can't pull anything until they
+     paste their own keys, which only Ian holds.
+
+     Source-of-truth for the tool lives in
+     emails/weekly-digest-tool/ in the MOCA repo. Changes there should
+     be mirrored here in assets/js/digest/. The two diverge only by
+     the moDigestAsset() lookup added to email-template.jsx and the
+     window-global lookup in app.jsx.
+
+     Cloudflare Worker for Captivate proxy:
+     emails/weekly-digest-tool/cloudflare-worker/captivate-proxy.js
+     (deploy once; paste resulting .workers.dev URL into the Edit
+     Content -> Pull Podcasts panel). --}}
+
+<main class="admin-page">
+
+  {{#if @member}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Digest Generator</p>
+        <h1 class="admin-headline"><em>Weekly&nbsp;Digest.</em></h1>
+        <p class="admin-sub">Compose, preview, and export the Weekly Digest email. Pull essays from Ghost and podcasts from Captivate. Export flat HTML for Kit.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container">
+        <div id="mo-digest-root" style="background:#f1e0c9;border:1px solid #d8c4a3;border-radius:6px;overflow:hidden;min-height:80vh;"></div>
+      </div>
+    </section>
+
+    {{!-- Preconnect + load brand fonts the email template uses. The
+         tool also needs them in the live preview, so we load them at
+         the page level rather than inside the React tree. --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+DW+Pica:ital@0;1&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    {{!-- Inject Ghost-resolved asset URLs so the embedded JSX (which
+         was authored against a relative "assets/foo.png" layout) finds
+         the brand images at the correct theme paths. --}}
+    <script>
+      window.MO_DIGEST_ASSETS = {
+        'mere-o-logo.png': '{{asset "images/mere-o-logo.png"}}',
+        'mere-fidelity.jpg': '{{asset "images/mere-fidelity.jpg"}}',
+        'christians-reading-classics.jpg': '{{asset "images/christians-reading-classics.jpg"}}'
+      };
+    </script>
+
+    {{!-- React + Babel, then the digest tool's own JSX modules.
+         Order matters: tweaks-panel and email-template define globals
+         (TweaksPanel, EmailTemplate, MO_TOKENS, DEFAULT_CONTENT) that
+         content-editor and app reference. --}}
+    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+    {{!-- The shipped JSX targets a #root mount point. Replace it with
+         our scoped #mo-digest-root before any of the modules run, so
+         App's ReactDOM.createRoot(document.getElementById('root'))
+         resolves to the container we own. Done in a way that's
+         reversible if the page is loaded inside something that uses
+         #root for its own purposes. --}}
+    <script>
+      (function () {
+        var existing = document.getElementById('root');
+        if (existing && existing !== document.getElementById('mo-digest-root')) {
+          existing.id = '__non_digest_root_' + Math.random().toString(36).slice(2);
+        }
+        document.getElementById('mo-digest-root').id = 'root';
+      })();
+    </script>
+
+    <script type="text/babel" src="{{asset "js/digest/tweaks-panel.jsx"}}"></script>
+    <script type="text/babel" src="{{asset "js/digest/email-template.jsx"}}"></script>
+    <script type="text/babel" src="{{asset "js/digest/content-editor.jsx"}}"></script>
+    <script type="text/babel" src="{{asset "js/digest/export-html.jsx"}}"></script>
+    <script type="text/babel" src="{{asset "js/digest/app.jsx"}}"></script>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
