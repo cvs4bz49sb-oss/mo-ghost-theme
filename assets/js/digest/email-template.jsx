@@ -221,13 +221,17 @@ const DEFAULT_CONTENT = {
   issueNumber: '184',
   dateStr: 'May 4, 2026',
   editorTitle: 'The beginning of a new era',
-  editorParagraphs: [
+  // Body is one string. Blank lines separate paragraphs; single
+  // newlines render as soft <br> within a paragraph. (Older saved
+  // content uses an editorParagraphs array — migrated automatically
+  // by loadSavedContent in app.jsx.)
+  editorBody: [
     "This is a test for the new Mere Orthodoxy Weekly Digest newsletter. I'm sure it comes as no surprise that this was made entirely using Claude. Claude Design, to be precise. The test is three-fold:",
     "1. Can we make an email that is entirely on-brand?",
     "2. Can we make the input of content as simple as only a few clicks? That's the test. Will it work? We will find out. But right now, I think it just might. So in that way, I'm hopeful.",
     "3. Can we take something made in Claude and send it using Kit without losing any features?",
     "That's the test. Will it work? We will find out. But right now, I think it just might. So in that way, I'm hopeful.",
-  ],
+  ].join('\n\n'),
   editorSignature: '— Ian Harber, Director of Communications',
   membership: {
     headline: 'Mere Orthodoxy exists because of readers like you.',
@@ -332,15 +336,28 @@ function LetterFromEditor({ tokens, content }) {
       }}>
         {content.editorTitle}
       </h1>
-      {content.editorParagraphs.map((p, i) => (
-        <p key={i} style={{
-          fontFamily: 'Georgia, "Times New Roman", serif',
-          fontSize: 16,
-          lineHeight: 1.65,
-          color: tokens.bodyText,
-          margin: '0 0 14px',
-        }}>{p}</p>
-      ))}
+      {(() => {
+        // Read editorBody (new shape) with a fallback to legacy
+        // editorParagraphs array. Split on blank lines for paragraphs;
+        // single newlines within a paragraph render as <br>.
+        const body = content.editorBody != null
+          ? content.editorBody
+          : (content.editorParagraphs || []).join('\n\n');
+        const paragraphs = body.split(/\n\s*\n+/).map(s => s.trim()).filter(Boolean);
+        return paragraphs.map((p, i) => (
+          <p key={i} style={{
+            fontFamily: 'Georgia, "Times New Roman", serif',
+            fontSize: 16,
+            lineHeight: 1.65,
+            color: tokens.bodyText,
+            margin: '0 0 14px',
+          }}>
+            {p.split('\n').map((line, j, arr) => (
+              <React.Fragment key={j}>{line}{j < arr.length - 1 && <br />}</React.Fragment>
+            ))}
+          </p>
+        ));
+      })()}
       <p style={{
         fontFamily: '"IM Fell English", Georgia, serif',
         fontSize: 16,

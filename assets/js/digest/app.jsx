@@ -829,6 +829,13 @@ function loadSavedContent() {
     const raw = localStorage.getItem('mo:content');
     if (!raw) return DEFAULT_CONTENT;
     const saved = JSON.parse(raw);
+    // Migrate legacy editorParagraphs (array) -> editorBody (string).
+    // Older saves had paragraphs as discrete array slots; the editor now
+    // treats body as one rich-text field separated by blank lines.
+    if (saved.editorParagraphs && saved.editorBody == null) {
+      saved.editorBody = saved.editorParagraphs.join('\n\n');
+      delete saved.editorParagraphs;
+    }
     // Shallow-merge with defaults so newly-added top-level keys (e.g. a
     // future `sections` map, or new fields on existing objects) don't end
     // up undefined when an older saved blob is loaded.

@@ -192,20 +192,34 @@ function ContentEditor({ open, content, onChange, onClose }) {
   const [podcastCount, setPodcastCount] = useState(2);
   const [showRssPanel, setShowRssPanel] = useState(false);
   const [showPodcastPanel, setShowPodcastPanel] = useState(false);
-  // Captivate API credentials (one set covers all shows in the user's account)
-  const [captivateUserId, setCaptivateUserId] = useState(() => localStorage.getItem('mo_captivate_user') || '');
-  const [captivateApiKey, setCaptivateApiKey] = useState(() => localStorage.getItem('mo_captivate_key') || '');
-  // Cloudflare Worker URL — your own deployed proxy. See cloudflare-worker/captivate-proxy.js.
+  // Cloudflare Worker URL — points at the existing mo-podcast-feed worker
+  // that already speaks Captivate (and RSS for shows on other hosts). The
+  // worker holds Captivate User ID + API Token as env secrets, so the
+  // browser doesn't see them at all.
   const [captivateWorkerUrl, setCaptivateWorkerUrl] = useState(() => localStorage.getItem('mo_captivate_worker') || '');
-  // Per-row mapping: each row → one slot in content.podcasts
+  // Per-row mapping: each row → one slot in content.podcasts. Slug is
+  // the show's URL slug as configured in mo-podcast-feed (mere-fidelity,
+  // christians-reading-classics).
   const [podcastFeeds, setPodcastFeeds] = useState(() => {
     try {
       const saved = localStorage.getItem('mo_podcast_shows');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Migrate legacy { label, showId } rows (Captivate UUIDs from
+        // the old captivate-proxy flow) to { label, slug } rows so the
+        // worker call hits the right show.
+        if (Array.isArray(parsed) && parsed.length && parsed[0] && 'showId' in parsed[0]) {
+          return [
+            { label: 'Mere Fidelity', slug: 'mere-fidelity' },
+            { label: 'Christians Reading Classics', slug: 'christians-reading-classics' },
+          ];
+        }
+        return parsed;
+      }
     } catch (e) {}
     return [
-      { label: 'Mere Fidelity', showId: '' },
-      { label: 'Christians Reading Classics', showId: '' },
+      { label: 'Mere Fidelity', slug: 'mere-fidelity' },
+      { label: 'Christians Reading Classics', slug: 'christians-reading-classics' },
     ];
   });
   const [podcastError, setPodcastError] = useState(null);
@@ -215,8 +229,6 @@ function ContentEditor({ open, content, onChange, onClose }) {
   // Persist API creds + show mappings locally so user doesn't re-enter every visit.
   useEffect(() => { localStorage.setItem('mo_ghost_url', ghostUrl); }, [ghostUrl]);
   useEffect(() => { localStorage.setItem('mo_ghost_key', ghostKey); }, [ghostKey]);
-  useEffect(() => { localStorage.setItem('mo_captivate_user', captivateUserId); }, [captivateUserId]);
-  useEffect(() => { localStorage.setItem('mo_captivate_key', captivateApiKey); }, [captivateApiKey]);
   useEffect(() => { localStorage.setItem('mo_captivate_worker', captivateWorkerUrl); }, [captivateWorkerUrl]);
   useEffect(() => { localStorage.setItem('mo_podcast_shows', JSON.stringify(podcastFeeds)); }, [podcastFeeds]);
 
@@ -288,24 +300,23 @@ function ContentEditor({ open, content, onChange, onClose }) {
     }
   };
 
-  // Fetch latest episode of each Captivate show via the Captivate API, routed through
-  // the user's own Cloudflare Worker (cloudflare-worker/captivate-proxy.js).
-  // Auth: POST /authenticate/token with form fields {username, token} → {success: true, user: {token: 'JWT...'}}
-  // Episodes: GET /shows/{showId}/episodes  (Authorization: Bearer JWT) → {success: true, episodes: [...]}
+  // Fetch latest episode of each show via the existing mo-podcast-feed
+  // worker (the same one the homepage podcast cards consume). The worker
+  // owns Captivate auth (env-stored CAPTIVATE_USER_ID + CAPTIVATE_API_TOKEN,
+  // 23h token cache) and falls back to RSS for shows on other hosts, so
+  // the browser only needs to GET ?show=<slug>&limit=1.
+  //
+  // Worker response shape: { "<slug>": { show: {title, slug, source}, episodes: [{title, description, link, artwork, episode, audioUrl, ...}] } }
   const fetchPodcastFeeds = async () => {
     setPodcastError(null);
     setPodcastMessage(null);
     if (!captivateWorkerUrl.trim()) {
-      setPodcastError('Worker URL is required. Deploy the Cloudflare Worker (see cloudflare-worker/captivate-proxy.js) and paste its URL above.');
+      setPodcastError('Worker URL is required. Paste your mo-podcast-feed worker URL above (e.g. https://mo-podcast-feed.<your-subdomain>.workers.dev/).');
       return;
     }
-    if (!captivateUserId.trim() || !captivateApiKey.trim()) {
-      setPodcastError('Captivate User ID and API Key are required.');
-      return;
-    }
-    const rows = podcastFeeds.filter(f => f.showId && f.showId.trim());
+    const rows = podcastFeeds.filter(f => f.slug && f.slug.trim());
     if (!rows.length) {
-      setPodcastError('Add at least one Show ID above.');
+      setPodcastError('Add at least one show slug above (e.g. mere-fidelity).');
       return;
     }
 
@@ -313,99 +324,65 @@ function ContentEditor({ open, content, onChange, onClose }) {
     try {
       const workerBase = captivateWorkerUrl.trim().replace(/\/+$/, '');
 
-      // 1) Authenticate — exchange User ID + API Key for a bearer JWT.
-      const authBody = new URLSearchParams({
-        username: captivateUserId.trim(),
-        token: captivateApiKey.trim(),
-      });
-      const authRes = await fetch(`${workerBase}/authenticate/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: authBody,
-      });
-      const authData = await authRes.json().catch(() => ({}));
-      if (!authRes.ok || !authData.success || !authData.user || !authData.user.token) {
-        // Captivate returns 200 with success:false on bad creds; surface its full message
-        // (and the raw shape) so we can tell the difference between bad keys, wrong field
-        // names, or a worker that's stripping/altering the body.
-        const detail = (authData && (authData.message || authData.error)) ||
-          (authData && Object.keys(authData).length
-            ? `unexpected response shape: ${JSON.stringify(authData).slice(0, 300)}`
-            : `HTTP ${authRes.status} with empty/unparseable body`);
-        throw new Error(`Authentication failed: ${detail}`);
-      }
-      const jwt = authData.user.token;
-
-      // 2) For each show, fetch its episodes and grab the most recent one.
+      // One GET per show — mo-podcast-feed accepts ?show=<slug>&limit=N
+      // and returns { <slug>: { show, episodes } }. Could fetch all in
+      // a single call (omitting ?show), but per-row keeps error reporting
+      // clean.
       const results = await Promise.all(
         rows.map(async (row) => {
           try {
-            const epRes = await fetch(`${workerBase}/shows/${encodeURIComponent(row.showId.trim())}/episodes`, {
-              headers: { Authorization: `Bearer ${jwt}` },
-            });
-            const epData = await epRes.json().catch(() => ({}));
-            if (!epRes.ok || !epData.success) {
-              throw new Error((epData && (epData.message || epData.error)) || `HTTP ${epRes.status}`);
-            }
-            const episodes = epData.episodes || [];
+            const slug = row.slug.trim();
+            const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json().catch(() => ({}));
+            const showData = data && data[slug];
+            if (!showData) throw new Error(`Worker returned no data for slug "${slug}".`);
+            if (showData.error) throw new Error(showData.error);
+            const episodes = showData.episodes || [];
             if (!episodes.length) throw new Error('No episodes returned for this show.');
-
-            // Sort by published date desc — API generally returns in order, but be safe.
-            episodes.sort((a, b) => {
-              const da = new Date(a.episode_date || a.published_date || 0).getTime();
-              const db = new Date(b.episode_date || b.published_date || 0).getTime();
-              return db - da;
-            });
-            return { row, episode: episodes[0] };
+            return { row, show: showData.show, episode: episodes[0] };
           } catch (err) {
             return { row, error: err.message };
           }
         })
       );
 
-      // 3) Map each result into a slot in content.podcasts.
+      // Map each result into a slot in content.podcasts.
       const next = JSON.parse(JSON.stringify(content));
       const existing = next.podcasts || [];
       const fresh = [];
       const errors = [];
 
-      const stripTags = (html) => {
-        if (!html) return '';
-        const tmp = document.createElement('div');
-        tmp.innerHTML = html;
-        return (tmp.textContent || tmp.innerText || '').trim().replace(/\s+/g, ' ');
-      };
-
       results.forEach((r, i) => {
         const slot = existing[i] || {};
         if (r.error) {
-          errors.push(`${r.row.label || 'Show ' + (i + 1)}: ${r.error}`);
+          errors.push(`${r.row.label || r.row.slug || 'Show ' + (i + 1)}: ${r.error}`);
           fresh.push(slot);
           return;
         }
         const ep = r.episode;
         let episodeNum = slot.episode || 'Episode';
-        if (ep.episode_number) {
-          episodeNum = `Episode ${ep.episode_number}`;
+        if (ep.episode) {
+          episodeNum = `Episode ${ep.episode}`;
         } else {
           const m = ep.title && ep.title.match(/(?:episode|ep\.?|#)\s*(\d+)/i);
           if (m) episodeNum = `Episode ${m[1]}`;
         }
         fresh.push({
-          img: ep.episode_art || ep.itunes_image || ep.shows_episode_image || slot.img || 'assets/mere-fidelity.jpg',
-          label: r.row.label || slot.label || 'Podcast',
+          img: ep.artwork || slot.img || 'assets/mere-fidelity.jpg',
+          label: r.row.label || (r.show && r.show.title) || slot.label || 'Podcast',
           episode: episodeNum,
           title: ep.title || slot.title || 'Untitled',
-          summary: stripTags(ep.shownotes || ep.itunes_subtitle || ep.summary || '').slice(0, 280) || slot.summary || '',
+          summary: (ep.description || '').slice(0, 280) || slot.summary || '',
           cta: slot.cta || 'Listen to the episode',
-          url: ep.episode_url || ep.media_url || slot.url || '#',
+          url: ep.link || ep.audioUrl || slot.url || '#',
         });
       });
       next.podcasts = fresh;
       onChange(next);
 
       const ok = results.length - errors.length;
-      let msg = `Fetched ${ok}/${results.length} show${results.length === 1 ? '' : 's'} from Captivate.`;
+      let msg = `Pulled ${ok}/${results.length} show${results.length === 1 ? '' : 's'}.`;
       if (errors.length) msg += ' Errors: ' + errors.join(' · ');
       if (errors.length && !ok) setPodcastError(msg);
       else setPodcastMessage(msg);
@@ -422,7 +399,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
     setPodcastFeeds(prev => prev.map((f, j) => (j === i ? { ...f, ...patch } : f)));
   };
   const addPodcastFeed = () => {
-    setPodcastFeeds(prev => [...prev, { label: '', showId: '' }]);
+    setPodcastFeeds(prev => [...prev, { label: '', slug: '' }]);
   };
   const removePodcastFeed = (i) => {
     setPodcastFeeds(prev => prev.filter((_, j) => j !== i));
@@ -660,7 +637,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
           </div>
         )}
 
-        {/* Podcast (Captivate API) panel — fetches latest episode for each show */}
+        {/* Podcast panel — fetches latest episode via mo-podcast-feed worker */}
         {showPodcastPanel && (
           <div style={{
             padding: '16px 24px',
@@ -674,7 +651,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
               marginBottom: 12,
               lineHeight: 1.55,
             }}>
-              Pulls the latest episode of each show via the <strong>Captivate API</strong>, routed through your own Cloudflare Worker (so the browser can call it past CORS). Deploy the worker once from <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>cloudflare-worker/captivate-proxy.js</code> in this project — instructions are at the top of the file. Each row maps to a slot in the email; show name + CTA stay as you've edited them, while <strong>title, summary, episode number, image, and link</strong> get replaced.
+              Pulls the latest episode of each show via the existing <strong>mo-podcast-feed</strong> worker (the same one the homepage podcast cards consume). The worker holds Captivate credentials as env secrets, so this page doesn't need them. Each row maps to a slot in the email; show name + CTA stay as you've edited them, while <strong>title, summary, episode number, image, and link</strong> get replaced.
             </div>
 
             <div style={{ marginBottom: 12 }}>
@@ -683,32 +660,9 @@ function ContentEditor({ open, content, onChange, onClose }) {
                 type="url"
                 value={captivateWorkerUrl}
                 onChange={(e) => setCaptivateWorkerUrl(e.target.value)}
-                placeholder="https://mo-captivate-proxy.your-subdomain.workers.dev"
+                placeholder="https://mo-podcast-feed.your-subdomain.workers.dev/"
                 style={{ ...fieldStyles.input, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12 }}
               />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-              <div>
-                <label style={fieldStyles.label}>Captivate User ID</label>
-                <input
-                  type="text"
-                  value={captivateUserId}
-                  onChange={(e) => setCaptivateUserId(e.target.value)}
-                  placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
-                  style={{ ...fieldStyles.input, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12 }}
-                />
-              </div>
-              <div>
-                <label style={fieldStyles.label}>Captivate API Key</label>
-                <input
-                  type="password"
-                  value={captivateApiKey}
-                  onChange={(e) => setCaptivateApiKey(e.target.value)}
-                  placeholder="(stored in your browser only)"
-                  style={{ ...fieldStyles.input, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12 }}
-                />
-              </div>
             </div>
 
             <div style={{ display: 'grid', gap: 8, marginBottom: 12 }}>
@@ -730,12 +684,12 @@ function ContentEditor({ open, content, onChange, onClose }) {
                     />
                   </div>
                   <div>
-                    {i === 0 && <label style={fieldStyles.label}>Captivate Show ID</label>}
+                    {i === 0 && <label style={fieldStyles.label}>Show slug</label>}
                     <input
                       type="text"
-                      value={feed.showId || ''}
-                      onChange={(e) => updatePodcastFeed(i, { showId: e.target.value })}
-                      placeholder="abcd1234-5678-…"
+                      value={feed.slug || ''}
+                      onChange={(e) => updatePodcastFeed(i, { slug: e.target.value })}
+                      placeholder="mere-fidelity"
                       style={{ ...fieldStyles.input, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12 }}
                     />
                   </div>
@@ -776,7 +730,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
                 textTransform: 'uppercase',
                 color: '#6b6258',
               }}>
-                Where to find Captivate credentials
+                About the show slugs
               </summary>
               <div style={{
                 marginTop: 8,
@@ -785,10 +739,9 @@ function ContentEditor({ open, content, onChange, onClose }) {
                 color: '#6b6258',
                 fontFamily: '"Source Sans 3", sans-serif',
               }}>
-                <div><strong>Worker URL:</strong> Deploy <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>cloudflare-worker/captivate-proxy.js</code> as a Cloudflare Worker (free tier; instructions are at the top of that file). Paste the resulting <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>.workers.dev</code> URL above.</div>
-                <div><strong>User ID + API Key:</strong> Captivate dashboard → My Account → scroll to API Key → click Reveal. Copy both values.</div>
-                <div><strong>Show ID:</strong> Open your show in Captivate. The URL looks like <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>my.captivate.fm/episodes/abcd1234-5678-…</code> — that UUID is the Show ID.</div>
-                <div style={{ marginTop: 6, color: '#9a8773' }}><em>Why a worker?</em> Captivate's API doesn't send CORS headers, so browsers block direct calls. Your worker (which you control) adds the header. Credentials travel from your browser → your worker → Captivate; the worker doesn't store anything.</div>
+                <div><strong>Worker URL:</strong> the same <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>mo-podcast-feed</code> worker URL the site uses for its homepage Listen rail (look in your Cloudflare dashboard → Workers).</div>
+                <div><strong>Show slug:</strong> the slug configured in <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>workers/podcast-feed.js</code>'s <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>SHOWS</code> map. Currently <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>mere-fidelity</code> (Captivate) and <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>christians-reading-classics</code> (RSS). Add new shows by editing that map and redeploying.</div>
+                <div style={{ marginTop: 6, color: '#9a8773' }}><em>Why this worker?</em> It already does Captivate auth (with token caching) and falls back to RSS for shows on other hosts. Reusing it means one worker to maintain instead of two, and credentials never leave Cloudflare.</div>
               </div>
             </details>
           </div>
@@ -850,26 +803,13 @@ function ContentEditor({ open, content, onChange, onClose }) {
 
           <Group title="Letter from the editor">
             <Field label="Title" value={content.editorTitle} onChange={(v) => updateField('editorTitle', v)} />
-            {(content.editorParagraphs || []).map((p, i) => (
-              <Field
-                key={i}
-                label={`Paragraph ${i + 1}`}
-                value={p}
-                multiline
-                rows={4}
-                onChange={(v) => {
-                  const next = [...content.editorParagraphs];
-                  next[i] = v;
-                  updateField('editorParagraphs', next);
-                }}
-              />
-            ))}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-              <button onClick={() => updateField('editorParagraphs', [...(content.editorParagraphs || []), ''])} style={btnStyle('secondary')}>+ Add paragraph</button>
-              {content.editorParagraphs?.length > 1 && (
-                <button onClick={() => updateField('editorParagraphs', content.editorParagraphs.slice(0, -1))} style={btnStyle('secondary')}>− Remove last</button>
-              )}
-            </div>
+            <Field
+              label="Body — separate paragraphs with a blank line"
+              value={content.editorBody != null ? content.editorBody : (content.editorParagraphs || []).join('\n\n')}
+              multiline
+              rows={14}
+              onChange={(v) => updateField('editorBody', v)}
+            />
             <Field label="Signature" value={content.editorSignature} onChange={(v) => updateField('editorSignature', v)} />
           </Group>
 
