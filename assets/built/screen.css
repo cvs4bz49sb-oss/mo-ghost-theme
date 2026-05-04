@@ -5749,21 +5749,16 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   max-width: 360px;
   position: relative;
 }
-/* Hairline rule connecting the three marks, drawn behind them.
-   Sits at the vertical midpoint of the 36px marks (~18px) and is
-   broken visually around each glyph by the mark's solid dark
-   background — the line never crosses the SVG line work. */
-.journal-status::before {
-  content: "";
-  position: absolute;
-  top: 18px;
-  left: calc(100% / 6);
-  right: calc(100% / 6);
-  height: 1px;
-  background: rgba(255, 255, 255, 0.18);
-  pointer-events: none;
-  z-index: 0;
-}
+/* Connecting hairline rendered as four segments in the column gaps,
+   not as one rule behind the marks. The earlier approach (one rule
+   behind, marks carrying a solid var(--color-dark) background to
+   "punch through") made the active mark's glow halo reveal a darker
+   square because the bg color blocked the radial light. With the
+   line drawn in the gaps, the marks have no background at all and
+   the glow can spread freely. Each non-first step draws a segment
+   on its left side; each non-last step draws one on its right side.
+   At top: 18px the segments line up with the vertical midpoint of
+   the 36px marks. */
 .journal-status-step {
   display: flex;
   flex-direction: column;
@@ -5773,14 +5768,32 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   position: relative;
   z-index: 1;
 }
+.journal-status-step::before,
+.journal-status-step::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+  z-index: 0;
+}
+.journal-status-step::before {
+  left: 0;
+  right: calc(50% + 22px);
+}
+.journal-status-step::after {
+  left: calc(50% + 22px);
+  right: 0;
+}
+.journal-status-step:first-child::before { display: none; }
+.journal-status-step:last-child::after { display: none; }
 .journal-status-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
-  padding: 0 6px;
-  background: var(--color-dark);
   color: rgba(255, 255, 255, 0.32);
   transition: color 0.2s ease;
 }
