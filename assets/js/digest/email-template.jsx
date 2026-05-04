@@ -867,9 +867,13 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
   );
 
   return (
-    <div style={{
-      width: 600,
-      maxWidth: '100%',
+    <div className="mo-wrapper" style={{
+      // width:100% + maxWidth:600 reflows on narrow viewports without
+      // depending on @media — so the email shrinks correctly even if a
+      // client (looking at you, Kit's mobile preview) strips the style
+      // block. Desktop caps at 600px; mobile fills the cell width.
+      width: '100%',
+      maxWidth: 600,
       margin: '0 auto',
       background: tokens.bgPaper,
       color: tokens.bodyText,

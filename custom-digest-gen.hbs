@@ -71,10 +71,15 @@
         'mere-fidelity.jpg': '{{asset "images/mere-fidelity.jpg"}}',
         'christians-reading-classics.jpg': '{{asset "images/christians-reading-classics.jpg"}}'
       };
+      // Hardcoded /assets/images/ — Ghost serves theme assets here. The
+      // {{asset}} helper in this build outputs /assets/built/... which 404s,
+      // so we bypass it for the export's image URLs. The hash query string
+      // is omitted because email recipients don't need cache-busting and
+      // some clients strip query params.
       window.MO_DIGEST_HOSTED_ASSETS = {
-        'mere-o-logo.png': '{{@site.url}}{{asset "images/mere-o-logo.png"}}',
-        'mere-fidelity.jpg': '{{@site.url}}{{asset "images/mere-fidelity.jpg"}}',
-        'christians-reading-classics.jpg': '{{@site.url}}{{asset "images/christians-reading-classics.jpg"}}'
+        'mere-o-logo.png': '{{@site.url}}/assets/images/mere-o-logo.png',
+        'mere-fidelity.jpg': '{{@site.url}}/assets/images/mere-fidelity.jpg',
+        'christians-reading-classics.jpg': '{{@site.url}}/assets/images/christians-reading-classics.jpg'
       };
     </script>
 
