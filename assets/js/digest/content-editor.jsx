@@ -762,50 +762,92 @@ function ContentEditor({ open, content, onChange, onClose }) {
             </div>
           </Group>
 
-          <Group title="Sections (show/hide)" defaultOpen={true}>
+          <Group title="Sections (order + show/hide)" defaultOpen={true}>
             <div style={{
               fontFamily: '"Source Sans 3", Arial, sans-serif',
               fontSize: 12, color: '#6b6258', lineHeight: 1.5, marginBottom: 12,
             }}>
-              Toggle whole sections on or off for this issue. Hidden sections are skipped in the export and the preview. Edits to their content are preserved.
+              Drag rows to reorder sections in the email. Toggle the checkbox to show or hide a section without losing its content.
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {[
-                { k: 'letter', label: 'Letter from the editor' },
-                { k: 'customBlocks', label: 'Custom blocks' },
-                { k: 'membership', label: 'Membership CTA / thanks' },
-                { k: 'sponsorTop', label: 'Top sponsor block' },
-                { k: 'essays', label: 'Essays grid' },
-                { k: 'podcasts', label: 'Podcasts grid' },
-                { k: 'sponsorBottom', label: 'Bottom sponsor block' },
-              ].map(({ k, label }) => {
-                const enabled = content.sections?.[k] !== false;
-                return (
-                  <label key={k} style={{
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    padding: '10px 12px',
-                    background: enabled ? '#fff' : '#f0eadf',
-                    border: '1.5px solid ' + (enabled ? '#2d2927' : '#d8c4a3'),
-                    borderRadius: 0, cursor: 'pointer',
-                    fontFamily: '"Source Sans 3", Arial, sans-serif',
-                    fontSize: 12, color: enabled ? '#2d2927' : '#9a8773',
-                    fontWeight: enabled ? 600 : 400,
-                  }}>
-                    <input
-                      type="checkbox"
-                      checked={enabled}
-                      onChange={(e) => {
-                        const sections = { ...(content.sections || {}) };
-                        sections[k] = e.target.checked;
-                        updateField('sections', sections);
-                      }}
-                      style={{ accentColor: '#ee7d51', width: 16, height: 16, flexShrink: 0 }}
-                    />
-                    {label}
-                  </label>
-                );
-              })}
-            </div>
+            {(() => {
+              const SECTION_LABELS = {
+                letter: 'Letter from the editor',
+                customBlocks: 'Custom blocks',
+                membership: 'Membership CTA / thanks',
+                sponsorTop: 'Top sponsor block',
+                essays: 'Essays grid',
+                podcasts: 'Podcasts grid',
+                sponsorBottom: 'Bottom sponsor block',
+              };
+              const KNOWN_KEYS = Object.keys(SECTION_LABELS);
+              const order = (Array.isArray(content.sectionOrder) && content.sectionOrder.length)
+                ? content.sectionOrder.filter((k) => KNOWN_KEYS.includes(k))
+                : KNOWN_KEYS;
+              // Append any known keys missing from the saved order so
+              // they don't vanish from the editor.
+              const missing = KNOWN_KEYS.filter((k) => !order.includes(k));
+              const fullOrder = [...order, ...missing];
+
+              const move = (from, to) => {
+                if (from === to) return;
+                const next = [...fullOrder];
+                const [m] = next.splice(from, 1);
+                next.splice(to, 0, m);
+                updateField('sectionOrder', next);
+              };
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {fullOrder.map((k, i) => {
+                    const enabled = content.sections?.[k] !== false;
+                    return (
+                      <div
+                        key={k}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.effectAllowed = 'move';
+                          e.dataTransfer.setData('text/plain', String(i));
+                          e.currentTarget.style.opacity = '0.4';
+                        }}
+                        onDragEnd={(e) => { e.currentTarget.style.opacity = '1'; }}
+                        onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                          if (!Number.isNaN(from)) move(from, i);
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '10px 12px',
+                          background: enabled ? '#fff' : '#f0eadf',
+                          border: '1.5px solid ' + (enabled ? '#2d2927' : '#d8c4a3'),
+                          borderRadius: 0, cursor: 'grab',
+                          fontFamily: '"Source Sans 3", Arial, sans-serif',
+                          fontSize: 12, color: enabled ? '#2d2927' : '#9a8773',
+                          fontWeight: enabled ? 600 : 400,
+                          userSelect: 'none',
+                        }}
+                      >
+                        <span aria-hidden="true" style={{ fontSize: 14, color: '#9a8773', cursor: 'grab' }}>⋮⋮</span>
+                        <span style={{ flex: 1 }}>{SECTION_LABELS[k]}</span>
+                        <input
+                          type="checkbox"
+                          checked={enabled}
+                          onChange={(e) => {
+                            const sections = { ...(content.sections || {}) };
+                            sections[k] = e.target.checked;
+                            updateField('sections', sections);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          onDragStart={(e) => e.stopPropagation()}
+                          style={{ accentColor: '#ee7d51', width: 16, height: 16, flexShrink: 0, cursor: 'pointer' }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </Group>
 
           <Group title="Letter from the editor">
@@ -828,25 +870,43 @@ function ContentEditor({ open, content, onChange, onClose }) {
               Free-form text or button blocks rendered between the letter and the membership CTA. Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>). Use the section toggle above to hide them temporarily.
             </div>
             {(content.customBlocks || []).map((block, i) => {
-              const moveBlock = (delta) => {
-                const arr = [...(content.customBlocks || [])];
-                const j = i + delta;
-                if (j < 0 || j >= arr.length) return;
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-                updateField('customBlocks', arr);
-              };
               const removeBlock = () => {
                 const arr = (content.customBlocks || []).filter((_, j) => j !== i);
                 updateField('customBlocks', arr);
               };
+              const reorderBlock = (from, to) => {
+                if (from === to) return;
+                const arr = [...(content.customBlocks || [])];
+                const [m] = arr.splice(from, 1);
+                arr.splice(to, 0, m);
+                updateField('customBlocks', arr);
+              };
               return (
-                <div key={block.id || i} style={{
-                  marginBottom: 14,
-                  padding: 12,
-                  background: '#fff',
-                  border: '1px solid #e8d9bd',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <div
+                  key={block.id || i}
+                  onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                    if (!Number.isNaN(from)) reorderBlock(from, i);
+                  }}
+                  style={{
+                    marginBottom: 14,
+                    padding: 12,
+                    background: '#fff',
+                    border: '1px solid #e8d9bd',
+                  }}
+                >
+                  <div
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.effectAllowed = 'move';
+                      e.dataTransfer.setData('text/plain', String(i));
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, cursor: 'grab', userSelect: 'none' }}
+                    title="Drag to reorder"
+                  >
+                    <span aria-hidden="true" style={{ fontSize: 14, color: '#9a8773' }}>⋮⋮</span>
                     <div style={{
                       fontFamily: '"Source Sans 3", sans-serif',
                       fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
@@ -854,8 +914,6 @@ function ContentEditor({ open, content, onChange, onClose }) {
                     }}>
                       {block.type === 'button' ? `Button · #${i + 1}` : `Text · #${i + 1}`}
                     </div>
-                    <button onClick={() => moveBlock(-1)} disabled={i === 0} style={{ ...btnStyle('secondary'), padding: '4px 8px', opacity: i === 0 ? 0.4 : 1 }} title="Move up">↑</button>
-                    <button onClick={() => moveBlock(1)} disabled={i === (content.customBlocks || []).length - 1} style={{ ...btnStyle('secondary'), padding: '4px 8px', opacity: i === (content.customBlocks || []).length - 1 ? 0.4 : 1 }} title="Move down">↓</button>
                     <button onClick={removeBlock} style={{ ...btnStyle('danger'), padding: '4px 10px' }} title="Remove">×</button>
                   </div>
                   {block.type === 'button' ? (

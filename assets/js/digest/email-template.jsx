@@ -172,6 +172,20 @@ function markdownParagraphs(text) {
   return text.split(/\n\s*\n+/).map((s) => s.trim()).filter(Boolean);
 }
 
+// Section keys the email knows how to render, in the default order.
+// Editor lets the user reorder via drag-and-drop and the result lives
+// on content.sectionOrder. loadSavedContent appends any keys missing
+// from a saved order so older saves don't lose new sections.
+const DEFAULT_SECTION_ORDER = [
+  'letter',
+  'customBlocks',
+  'membership',
+  'sponsorTop',
+  'essays',
+  'podcasts',
+  'sponsorBottom',
+];
+
 // --- Atomic pieces --------------------------------------------------
 
 function Spacer({ h = 24 }) {
@@ -302,8 +316,8 @@ const DEFAULT_CONTENT = {
   },
   essays: SAMPLE_ESSAYS,
   podcasts: SAMPLE_PODCASTS,
-  // Free-form content blocks rendered between the letter and the
-  // membership CTA. Each block: {id, type: 'text'|'button', text, url?, variant?}
+  // Free-form content blocks rendered in the customBlocks slot.
+  // Each block: {id, type: 'text'|'button', text, url?, variant?}
   // Text blocks accept Markdown. Button blocks render as a centered CTA.
   customBlocks: [],
   sections: {
@@ -315,6 +329,10 @@ const DEFAULT_CONTENT = {
     podcasts: true,
     sponsorBottom: true,
   },
+  // The order sections render in. Editable via drag-and-drop in the
+  // editor. loadSavedContent in app.jsx appends any missing keys at
+  // the end so older saves don't lose new sections introduced later.
+  sectionOrder: DEFAULT_SECTION_ORDER,
 };
 
 // --- Sections -------------------------------------------------------
@@ -941,20 +959,77 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
   };
   const showAds = !isMember;
   const showCTA = !isMember;
-  const showLetter = sections.letter !== false;
-  const showCustomBlocks = sections.customBlocks !== false && Array.isArray(content.customBlocks) && content.customBlocks.length > 0;
-  const showMembership = sections.membership !== false;
-  const showSponsorTop = sections.sponsorTop !== false && showAds;
-  const showEssays = sections.essays !== false;
-  const showPodcasts = sections.podcasts !== false;
-  const showSponsorBottom = sections.sponsorBottom !== false && showAds;
   const dividerStyle = divider;
-
   const Divider = () => (
     <div style={{ padding: '0 32px' }}>
       <Rule tokens={tokens} style={dividerStyle} />
     </div>
   );
+
+  // Returns the JSX for a single section, or null if it's hidden /
+  // not applicable (e.g. sponsor blocks for paid members, customBlocks
+  // when the array is empty).
+  const renderSection = (key) => {
+    if (sections[key] === false) return null;
+    switch (key) {
+      case 'letter':
+        return <LetterFromEditor tokens={tokens} content={content} />;
+      case 'customBlocks':
+        if (!Array.isArray(content.customBlocks) || !content.customBlocks.length) return null;
+        return <CustomBlocks tokens={tokens} accent={accent} blocks={content.customBlocks} />;
+      case 'membership':
+        return showCTA ? (
+          <>
+            <Spacer h={20} />
+            <MembershipCTA tokens={tokens} accent={accent} content={content.membership} />
+            <Spacer h={14} />
+          </>
+        ) : (
+          <>
+            <Spacer h={20} />
+            <MemberThanks tokens={tokens} content={content.memberThanks} />
+            <Spacer h={14} />
+          </>
+        );
+      case 'sponsorTop':
+        if (!showAds) return null;
+        return (
+          <>
+            <SponsorBlock tokens={tokens} content={content.sponsorTop} />
+            <Spacer h={6} />
+          </>
+        );
+      case 'essays':
+        return <EssaysGrid tokens={tokens} accent={accent} density={density} essays={content.essays} />;
+      case 'podcasts':
+        return <PodcastsGrid tokens={tokens} accent={accent} podcasts={content.podcasts} />;
+      case 'sponsorBottom':
+        if (!showAds) return null;
+        return (
+          <>
+            <SponsorBlock tokens={tokens} content={content.sponsorBottom} />
+            <Spacer h={20} />
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Resolve the section order. Fall back to default if missing; filter
+  // out unknown keys defensively (in case the saved blob came from a
+  // newer build with additional keys this email-template doesn't know).
+  const order = (Array.isArray(content.sectionOrder) && content.sectionOrder.length)
+    ? content.sectionOrder.filter((k) => DEFAULT_SECTION_ORDER.includes(k))
+    : DEFAULT_SECTION_ORDER;
+
+  // Pre-render to know which sections actually produce output, so we
+  // can place dividers between adjacent visible sections only.
+  const renderedSections = order
+    .map((key) => ({ key, node: renderSection(key) }))
+    .filter((s) => s.node !== null);
+
+  const lastKey = renderedSections.length ? renderedSections[renderedSections.length - 1].key : null;
 
   return (
     <div className="mo-wrapper" style={{
@@ -973,69 +1048,18 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
     }}>
       <Masthead tokens={tokens} issueNumber={content.issueNumber} dateStr={content.dateStr} mastheadTitle={content.mastheadTitle} />
 
-      {showLetter && <LetterFromEditor tokens={tokens} content={content} />}
+      {renderedSections.map(({ key, node }, i) => (
+        <React.Fragment key={key}>
+          {i > 0 && <Divider />}
+          {node}
+        </React.Fragment>
+      ))}
 
-      {showCustomBlocks && (
-        <>
-          {showLetter && <Divider />}
-          <CustomBlocks tokens={tokens} accent={accent} blocks={content.customBlocks} />
-        </>
-      )}
-
-      {showMembership && (
-        <>
-          {(showLetter || showCustomBlocks) && <Divider />}
-          {showCTA ? (
-            <>
-              <Spacer h={20} />
-              <MembershipCTA tokens={tokens} accent={accent} content={content.membership} />
-              <Spacer h={14} />
-            </>
-          ) : (
-            <>
-              <Spacer h={20} />
-              <MemberThanks tokens={tokens} content={content.memberThanks} />
-              <Spacer h={14} />
-            </>
-          )}
-        </>
-      )}
-
-      {showSponsorTop && (
-        <>
-          <Divider />
-          <SponsorBlock tokens={tokens} content={content.sponsorTop} />
-          <Spacer h={6} />
-        </>
-      )}
-
-      {showEssays && (
-        <>
-          <Divider />
-          <EssaysGrid tokens={tokens} accent={accent} density={density} essays={content.essays} />
-        </>
-      )}
-
-      {showPodcasts && (
-        <>
-          <Divider />
-          <PodcastsGrid tokens={tokens} accent={accent} podcasts={content.podcasts} />
-        </>
-      )}
-
-      {showSponsorBottom && (
-        <>
-          <Divider />
-          <SponsorBlock tokens={tokens} content={content.sponsorBottom} />
-          <Spacer h={20} />
-        </>
-      )}
-
-      {!showSponsorBottom && <Spacer h={28} />}
+      {lastKey !== 'sponsorBottom' && <Spacer h={28} />}
 
       <Footer tokens={tokens} isMember={isMember} />
     </div>
   );
 }
 
-Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT });
+Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER });

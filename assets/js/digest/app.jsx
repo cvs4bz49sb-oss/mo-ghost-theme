@@ -1,4 +1,4 @@
-/* global React, EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, ContentEditor, TweaksPanel, useTweaks, TweakSection, TweakRadio, TweakToggle, TweakButton, exportEmailHtml, downloadString, copyToClipboard, listImageFilenames */
+/* global React, EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER, ContentEditor, TweaksPanel, useTweaks, TweakSection, TweakRadio, TweakToggle, TweakButton, exportEmailHtml, downloadString, copyToClipboard, listImageFilenames */
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "version": "free",
@@ -835,6 +835,13 @@ function loadSavedContent() {
     if (saved.editorParagraphs && saved.editorBody == null) {
       saved.editorBody = saved.editorParagraphs.join('\n\n');
       delete saved.editorParagraphs;
+    }
+    // Heal the section order: any DEFAULT_SECTION_ORDER key that's not
+    // in the saved order gets appended at the end so newly-introduced
+    // sections show up rather than vanishing on saves from older builds.
+    if (Array.isArray(saved.sectionOrder) && Array.isArray(DEFAULT_SECTION_ORDER)) {
+      const missing = DEFAULT_SECTION_ORDER.filter((k) => !saved.sectionOrder.includes(k));
+      if (missing.length) saved.sectionOrder = [...saved.sectionOrder, ...missing];
     }
     // Shallow-merge with defaults so newly-added top-level keys (e.g. a
     // future `sections` map, or new fields on existing objects) don't end
