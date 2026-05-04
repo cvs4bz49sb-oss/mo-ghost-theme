@@ -424,6 +424,9 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
   const [output, setOutput] = React.useState('');
   const [generating, setGenerating] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
+  // Tracks copy failure so we can surface "select-all in the textarea
+  // and copy manually" instead of silently claiming success.
+  const [copyFailed, setCopyFailed] = React.useState(false);
   const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
@@ -751,13 +754,24 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
             flex: 1, fontFamily: '"Source Sans 3", Arial, sans-serif',
             fontSize: 11, color: '#6b6258',
           }}>
-            {copied ? '✓ Copied to clipboard' : (target === 'kit' ? 'Upload to Kit → Account → Email Templates → New' : 'Paste into your ESP\'s HTML/source view')}
+            {copied
+              ? '✓ Copied to clipboard'
+              : copyFailed
+                ? '⚠ Copy blocked — long-press the HTML output above, Select All, then Copy.'
+                : (target === 'kit' ? 'Upload to Kit → Account → Email Templates → New' : 'Paste into your ESP\'s HTML/source view')}
           </div>
           <button
             onClick={async () => {
-              await copyToClipboard(output);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
+              const ok = await copyToClipboard(output);
+              if (ok) {
+                setCopied(true);
+                setCopyFailed(false);
+                setTimeout(() => setCopied(false), 2000);
+              } else {
+                setCopyFailed(true);
+                setCopied(false);
+                setTimeout(() => setCopyFailed(false), 6000);
+              }
             }}
             disabled={!output || generating}
             style={{

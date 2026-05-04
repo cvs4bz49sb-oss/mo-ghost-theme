@@ -245,20 +245,51 @@ function downloadString(filename, contents) {
 }
 
 async function copyToClipboard(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    await navigator.clipboard.writeText(text);
-    return true;
-  }
-  // fallback
+  // 1) Modern path. Works in HTTPS contexts on most desktop and
+  // mobile browsers. Wrap in try/catch because iOS Safari can throw
+  // NotAllowedError even when the API exists (e.g. after a Promise
+  // boundary loses the user-gesture context, or under aggressive
+  // permissions policies). Fall through on any error.
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (_) { /* fall through to textarea path */ }
+
+  // 2) Textarea fallback. The trick on iOS Safari is that the
+  // textarea must be selectable — `display:none` / `opacity:0` /
+  // `position:absolute;left:-9999px` + .select() does NOT work.
+  // Need a contentEditable + Range-based selection AND a non-zero
+  // visible size. Mitigate by parking it just off-screen.
   const ta = document.createElement('textarea');
   ta.value = text;
+  ta.readOnly = true;
+  ta.contentEditable = 'true';
   ta.style.position = 'fixed';
-  ta.style.opacity = '0';
+  ta.style.top = '0';
+  ta.style.left = '0';
+  ta.style.width = '1px';
+  ta.style.height = '1px';
+  ta.style.padding = '0';
+  ta.style.border = 'none';
+  ta.style.outline = 'none';
+  ta.style.boxShadow = 'none';
+  ta.style.background = 'transparent';
   document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+
+  let ok = false;
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(ta);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    ta.setSelectionRange(0, text.length);
+    ok = document.execCommand('copy');
+  } catch (_) { /* ok stays false */ }
   ta.remove();
-  return true;
+  return ok;
 }
 
 // Return the distinct image filenames the email will reference, given the
