@@ -530,17 +530,6 @@ function FeaturedEssay({ tokens, essay, accent }) {
             {essay.title}
           </h3>
         </a>
-        {essay.byline && (
-          <div style={{
-            fontFamily: '"IM Fell English", Georgia, serif',
-            fontStyle: 'italic',
-            fontSize: 14,
-            color: tokens.mutedText,
-            marginBottom: 10,
-          }}>
-            by {essay.byline}
-          </div>
-        )}
         <p className="mo-essay-summary" style={{
           fontFamily: 'Georgia, serif',
           fontSize: 15,
@@ -595,17 +584,6 @@ function EssayCard({ tokens, essay, accent }) {
             {essay.title}
           </h4>
         </a>
-        {essay.byline && (
-          <div style={{
-            fontFamily: '"IM Fell English", Georgia, serif',
-            fontStyle: 'italic',
-            fontSize: 12.5,
-            color: tokens.mutedText,
-            marginBottom: 8,
-          }}>
-            by {essay.byline}
-          </div>
-        )}
         <p className="mo-essay-summary" style={{
           fontFamily: 'Georgia, serif',
           fontSize: 13.5,
