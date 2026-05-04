@@ -39,10 +39,11 @@
 
     {{> "admin-nav"}}
 
-    <section class="admin-body">
-      <div class="container">
-        <div id="mo-digest-root" style="background:#f1e0c9;border:1px solid #d8c4a3;border-radius:6px;overflow:hidden;min-height:80vh;"></div>
-      </div>
+    {{!-- Full-bleed: the digest tool's TopBar + Gmail chrome wants
+         the whole viewport width. Skip the usual .container wrapper
+         and let #mo-digest-root run edge to edge. --}}
+    <section class="admin-body admin-body--digest" style="padding:0;">
+      <div id="mo-digest-root" style="background:#f1e0c9;min-height:calc(100vh - 280px);"></div>
     </section>
 
     {{!-- Preconnect + load brand fonts the email template uses. The
