@@ -36,10 +36,10 @@
                 <div class="hero-picks">
                     <div class="sidebar-heading hero-picks-heading">
                         <p class="eyebrow">Editor&rsquo;s Pick</p>
-                        <h3><em>This Month</em></h3>
+                        <h3><em>This Week</em></h3>
                     </div>
                     <ol class="read-list hero-read-list">
-                        {{#get "posts" filter="featured:true+tag:-hash-event" limit="5" include="authors,tags"}}
+                        {{#get "posts" filter="featured:true+tag:-hash-event" limit="3" include="authors,tags"}}
                             {{#foreach posts}}
                                 <li>
                                     <a href="{{url}}">
