@@ -1137,6 +1137,7 @@ function App() {
         content={content}
         onChange={setContent}
         onClose={() => setEditorOpen(false)}
+        isMember={isMember}
       />
 
       <ExportModal

@@ -196,9 +196,13 @@ const KIT_TAGS = [
   { tag: '{{ subscriber_preferences_url }}', label: 'Manage preferences URL (already in the footer)' },
 ];
 
-function ContentEditor({ open, content, onChange, onClose }) {
+function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   const [rssText, setRssText] = useState('');
   const [copiedTag, setCopiedTag] = useState(null);
+  // Drag-and-drop hover targets for visual feedback. Cleared on drop /
+  // dragend so the highlight doesn't linger.
+  const [sectionDragOver, setSectionDragOver] = useState(null);
+  const [blockDragOver, setBlockDragOver] = useState(null);
   const [ghostUrl, setGhostUrl] = useState(() => localStorage.getItem('mo_ghost_url') || 'https://mo-test.ghost.io');
   const [ghostKey, setGhostKey] = useState(() => localStorage.getItem('mo_ghost_key') || '');
   const [ghostError, setGhostError] = useState(null);
@@ -892,6 +896,16 @@ function ContentEditor({ open, content, onChange, onClose }) {
                   {fullOrder.map((k, i) => {
                     const enabled = content.sections?.[k] !== false;
                     const { label, isBlock } = labelFor(k);
+                    // Audience filtering: sponsor blocks render only for
+                    // free subscribers; the membership slot swaps content
+                    // (CTA on free, member-thanks on paid) but stays
+                    // visible. Surface the audience-driven hiding here so
+                    // the editor matches what's actually rendered.
+                    const audienceHidden = isMember && (k === 'sponsorTop' || k === 'sponsorBottom');
+                    const audienceNote = audienceHidden
+                      ? '· hidden for paid'
+                      : (k === 'membership' ? `· showing ${isMember ? 'member-thanks' : 'CTA'}` : '');
+                    const isDragOver = sectionDragOver === i;
                     return (
                       <div
                         key={k}
@@ -901,27 +915,57 @@ function ContentEditor({ open, content, onChange, onClose }) {
                           e.dataTransfer.setData('text/plain', String(i));
                           e.currentTarget.style.opacity = '0.4';
                         }}
-                        onDragEnd={(e) => { e.currentTarget.style.opacity = '1'; }}
-                        onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+                        onDragEnd={(e) => {
+                          e.currentTarget.style.opacity = '1';
+                          setSectionDragOver(null);
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = 'move';
+                          if (sectionDragOver !== i) setSectionDragOver(i);
+                        }}
+                        onDragLeave={(e) => {
+                          // Only clear if we're actually leaving this row
+                          // (relatedTarget outside it). Prevents flicker
+                          // from child elements firing dragleave.
+                          if (!e.currentTarget.contains(e.relatedTarget)) {
+                            setSectionDragOver((c) => (c === i ? null : c));
+                          }
+                        }}
                         onDrop={(e) => {
                           e.preventDefault();
+                          setSectionDragOver(null);
                           const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
                           if (!Number.isNaN(from)) move(from, i);
                         }}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 10,
                           padding: '10px 12px',
-                          background: enabled ? '#fff' : '#f0eadf',
-                          border: '1.5px solid ' + (enabled ? (isBlock ? '#c1593c' : '#2d2927') : '#d8c4a3'),
+                          background: enabled ? (audienceHidden ? '#f0eadf' : '#fff') : '#f0eadf',
+                          border: '1.5px solid ' + (
+                            isDragOver ? '#ee7d51'
+                            : enabled ? (isBlock ? '#c1593c' : '#2d2927') : '#d8c4a3'
+                          ),
+                          boxShadow: isDragOver ? '0 0 0 2px rgba(238,125,81,0.25)' : 'none',
                           borderRadius: 0, cursor: 'grab',
                           fontFamily: '"Source Sans 3", Arial, sans-serif',
-                          fontSize: 12, color: enabled ? '#2d2927' : '#9a8773',
-                          fontWeight: enabled ? 600 : 400,
+                          fontSize: 12,
+                          color: enabled && !audienceHidden ? '#2d2927' : '#9a8773',
+                          fontWeight: enabled && !audienceHidden ? 600 : 400,
+                          opacity: audienceHidden ? 0.65 : 1,
                           userSelect: 'none',
+                          transition: 'border-color 0.1s, box-shadow 0.1s',
                         }}
                       >
                         <span aria-hidden="true" style={{ fontSize: 14, color: '#9a8773', cursor: 'grab' }}>⋮⋮</span>
-                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {label}
+                          {audienceNote && (
+                            <span style={{ marginLeft: 8, fontSize: 10, fontWeight: 400, color: '#9a8773', letterSpacing: '0.04em' }}>
+                              {audienceNote}
+                            </span>
+                          )}
+                        </span>
                         <input
                           type="checkbox"
                           checked={enabled}
@@ -990,12 +1034,23 @@ function ContentEditor({ open, content, onChange, onClose }) {
                 next.customBlocks = arr;
                 onChange(next);
               };
+              const blockIsDragOver = blockDragOver === i;
               return (
                 <div
                   key={block.id || i}
-                  onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    if (blockDragOver !== i) setBlockDragOver(i);
+                  }}
+                  onDragLeave={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                      setBlockDragOver((c) => (c === i ? null : c));
+                    }
+                  }}
                   onDrop={(e) => {
                     e.preventDefault();
+                    setBlockDragOver(null);
                     const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
                     if (!Number.isNaN(from)) reorderBlock(from, i);
                   }}
@@ -1003,7 +1058,9 @@ function ContentEditor({ open, content, onChange, onClose }) {
                     marginBottom: 14,
                     padding: 12,
                     background: '#fff',
-                    border: '1px solid #e8d9bd',
+                    border: '1px solid ' + (blockIsDragOver ? '#ee7d51' : '#e8d9bd'),
+                    boxShadow: blockIsDragOver ? '0 0 0 2px rgba(238,125,81,0.25)' : 'none',
+                    transition: 'border-color 0.1s, box-shadow 0.1s',
                   }}
                 >
                   <div
@@ -1012,6 +1069,7 @@ function ContentEditor({ open, content, onChange, onClose }) {
                       e.dataTransfer.effectAllowed = 'move';
                       e.dataTransfer.setData('text/plain', String(i));
                     }}
+                    onDragEnd={() => setBlockDragOver(null)}
                     style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, cursor: 'grab', userSelect: 'none' }}
                     title="Drag to reorder"
                   >
