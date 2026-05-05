@@ -18,4 +18,43 @@ jobs:
         with:
           api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
           api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
-          activate: true
+
+      - name: Activate theme via Admin API
+        # The deploy action uploads but does not activate, so the CDN
+        # hash never rotates and browsers keep serving stale CSS.
+        # This step calls PUT /themes/mere-orthodoxy/activate directly,
+        # which rotates the ?v= hash and busts Ghost Pro's CDN cache.
+        run: |
+          python3 - <<'PYEOF'
+          import base64, hashlib, hmac, json, time, urllib.request, os, sys
+
+          key      = os.environ['GHOST_ADMIN_API_KEY']
+          base_url = os.environ['GHOST_ADMIN_API_URL'].rstrip('/')
+          id_, secret = key.split(':', 1)
+
+          now = int(time.time())
+          def b64u(data):
+              return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
+
+          header  = b64u(json.dumps({'alg':'HS256','kid':id_,'typ':'JWT'}).encode())
+          payload = b64u(json.dumps({'iat':now,'exp':now+300,'aud':'/admin/'}).encode())
+          sig     = b64u(hmac.new(bytes.fromhex(secret),
+                                  f'{header}.{payload}'.encode(),
+                                  hashlib.sha256).digest())
+          jwt = f'{header}.{payload}.{sig}'
+
+          url = f'{base_url}/ghost/api/admin/themes/mere-orthodoxy/activate'
+          req = urllib.request.Request(
+              url, method='PUT',
+              headers={'Authorization': f'Ghost {jwt}',
+                       'Content-Type': 'application/json'})
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  print(f'Activated — HTTP {resp.status}')
+          except urllib.error.HTTPError as e:
+              print(f'HTTP {e.code}: {e.read().decode()}', file=sys.stderr)
+              sys.exit(1)
+          PYEOF
+        env:
+          GHOST_ADMIN_API_URL: ${{ secrets.GHOST_ADMIN_API_URL }}
+          GHOST_ADMIN_API_KEY: ${{ secrets.GHOST_ADMIN_API_KEY }}
