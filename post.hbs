@@ -288,51 +288,11 @@
     </div>
 </article>
 
-{{!-- PREV / NEXT — chronological neighbours. Ghost's prev_post is
-     the older post; next_post is the newer post. Explicit grid-column
-     placement keeps "next" pinned to the right column even when it's
-     the only item (most recent article has no next_post). The outer
-     {{#if prev_post}} / {{#next_post}} pattern renders the section
-     only when at least one neighbour exists. --}}
-{{#if prev_post}}
-<section class="post-nav">
-    <div class="container">
-        <div class="post-nav-grid">
-            {{#prev_post}}
-            <a href="{{url}}" class="post-nav-item post-nav-item--prev">
-                <p class="post-nav-label">&#8592; Previous Article</p>
-                <h3 class="post-nav-title"><em>{{title}}</em></h3>
-            </a>
-            {{/prev_post}}
-            {{#next_post}}
-            <a href="{{url}}" class="post-nav-item post-nav-item--next">
-                <p class="post-nav-label">Next Article &#8594;</p>
-                <h3 class="post-nav-title"><em>{{title}}</em></h3>
-            </a>
-            {{/next_post}}
-        </div>
-    </div>
-</section>
-{{else}}
-{{#next_post}}
-<section class="post-nav">
-    <div class="container">
-        <div class="post-nav-grid">
-            <a href="{{url}}" class="post-nav-item post-nav-item--next">
-                <p class="post-nav-label">Next Article &#8594;</p>
-                <h3 class="post-nav-title"><em>{{title}}</em></h3>
-            </a>
-        </div>
-    </div>
-</section>
-{{/next_post}}
-{{/if}}
-
-{{!-- RELATED — visual twin of "This Week" on the homepage. Uses the
-     post-entry partial and .week-grid so the card treatment stays
-     consistent across the site. Server renders a primary_tag-based
-     fallback; assets/js/related.js swaps it for a first-non-author
-     tag match when a Content API key is configured. --}}
+{{!-- READ NEXT — two sub-sections under one section banner.
+     Convention (Ian): "Previous" = more recent (Ghost next_post),
+     "Next" = older (Ghost prev_post).
+     Recent Articles renders only when at least one neighbour exists;
+     More on this theme renders only when primary_tag exists. --}}
 {{#if primary_tag}}
 <section class="related"
          data-related
@@ -341,8 +301,27 @@
     <div class="container">
         <div class="section-intro">
             <p class="eyebrow">Read Next</p>
-            <h2 class="section-heading"><em>More on this theme.</em></h2>
         </div>
+
+        {{!-- Recent Articles: Previous = newer (next_post), Next = older (prev_post) --}}
+        {{#if next_post}}
+        <h2 class="section-heading related-sub-heading"><em>Recent Articles</em></h2>
+        <div class="flourish">{{> "flourish-mark"}}</div>
+        <div class="week-grid">
+            {{#next_post}}{{> "post-entry" showYear=true}}{{/next_post}}
+            {{#prev_post}}{{> "post-entry" showYear=true}}{{/prev_post}}
+        </div>
+        <div class="flourish related-between-flourish">{{> "flourish-mark"}}</div>
+        {{else}}{{#if prev_post}}
+        <h2 class="section-heading related-sub-heading"><em>Recent Articles</em></h2>
+        <div class="flourish">{{> "flourish-mark"}}</div>
+        <div class="week-grid">
+            {{#prev_post}}{{> "post-entry" showYear=true}}{{/prev_post}}
+        </div>
+        <div class="flourish related-between-flourish">{{> "flourish-mark"}}</div>
+        {{/if}}{{/if}}
+
+        <h2 class="section-heading related-sub-heading"><em>More on this theme.</em></h2>
 
         <div class="flourish">{{> "flourish-mark"}}</div>
 
