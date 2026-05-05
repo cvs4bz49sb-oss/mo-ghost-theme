@@ -3006,6 +3006,51 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .author-bio-links a:hover { color: var(--color-secondary, #c1593c); }
 
+/* -------- Prev / Next navigation -------- */
+
+.post-nav {
+  padding: 48px 0;
+  background: var(--color-page);
+  border-bottom: 1px solid var(--color-card-border);
+}
+.post-nav-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+.post-nav-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+}
+.post-nav-item:hover { text-decoration: none; }
+.post-nav-item--prev { grid-column: 1; }
+.post-nav-item--next { grid-column: 2; text-align: right; }
+.post-nav-label {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+.post-nav-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.25;
+  color: var(--color-dark);
+  margin: 0;
+  transition: color 0.2s;
+}
+.post-nav-item:hover .post-nav-title { color: var(--color-secondary); }
+@media (max-width: 640px) {
+  .post-nav-grid { grid-template-columns: 1fr; gap: 28px; }
+  .post-nav-item--next { grid-column: 1; text-align: left; }
+}
+
 /* -------- Related -------- */
 
 .related {
@@ -7361,6 +7406,8 @@ body.post-template .inline-support .eyebrow,
 body.post-template .author-bio-name,
 body.post-template .author-bio-text,
 body.post-template .author-bio-links a,
+body.post-template .post-nav,
+body.post-template .post-nav-title,
 body.post-template .related,
 body.post-template .related .entry-title,
 body.post-template .related .entry-excerpt,
@@ -7386,6 +7433,17 @@ html[data-theme="dark"] .post-template .author-bio-links a {
 }
 html[data-theme="dark"] .post-template .author-bio-links a:hover {
   color: #f19371;
+}
+/* Prev/next nav sits outside .article-body — needs its own dark rules. */
+html[data-theme="dark"] body.post-template .post-nav {
+  background: #33302d;
+  border-bottom-color: rgba(233, 222, 200, 0.18);
+}
+html[data-theme="dark"] body.post-template .post-nav-title {
+  color: #f4ebd8;
+}
+html[data-theme="dark"] body.post-template .post-nav-item:hover .post-nav-title {
+  color: var(--color-primary);
 }
 /* "Read Next / More on this theme" sits outside .article-body, so
    needs explicit selectors to flip into the dark palette. */
