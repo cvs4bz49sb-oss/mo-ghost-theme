@@ -435,6 +435,17 @@ img { max-width: 100%; height: auto; }
   align-items: center;
   position: relative;
 }
+/* LAYOUT TEST 2026-05-05: when the hero's right column carries
+   the 5-up Editor's Picks list, it's much taller than the
+   single-feature card it replaced. The default align-items:
+   center floats the left-side headline block down to the
+   vertical middle of the hero band. Top-align it instead so
+   "Christian Renewal for the Common Good" sits up where the
+   reader expects it. Reverts automatically when the picks
+   variant goes away. */
+.hero-grid:has(.hero-visual--picks) {
+  align-items: start;
+}
 
 .hero-kicker {
   display: inline-flex;
