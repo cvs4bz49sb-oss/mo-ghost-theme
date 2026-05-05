@@ -566,6 +566,55 @@ img { max-width: 100%; height: auto; }
   font-variant: small-caps;
   letter-spacing: 0.28em;
 }
+/* Hand-drawn circle annotation around "Latest" — single-stroke
+   loop with a slight overshoot at the end (the path's last C
+   segment ends inside the loop, mimicking the spiral-once-around
+   pattern of a real pen mark). Draws in once on page load over
+   1.4s, then stays static — addresses the "I trained myself to
+   skip the hero" pattern from the May 5 user-test feedback
+   without a looping animation that would itself become
+   distracting. prefers-reduced-motion shows the circle drawn
+   statically. The .eyebrow--circled wrapper plus .eyebrow-text
+   span keeps the SVG separable from the text so it can float
+   absolutely without affecting layout. */
+.eyebrow--circled {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+.eyebrow--circled .eyebrow-text {
+  position: relative;
+  z-index: 1;
+}
+.eyebrow-circle {
+  position: absolute;
+  top: -10px;
+  bottom: -8px;
+  left: -16px;
+  right: -18px;
+  pointer-events: none;
+  z-index: 0;
+  display: block;
+}
+.eyebrow-circle svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.eyebrow-circle path {
+  stroke-dasharray: 820;
+  stroke-dashoffset: 820;
+  animation: eyebrow-circle-draw 1.4s ease-out 0.35s forwards;
+}
+@keyframes eyebrow-circle-draw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow-circle path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}
 .hero-feature h3 {
   font-family: var(--font-display);
   font-weight: 400;

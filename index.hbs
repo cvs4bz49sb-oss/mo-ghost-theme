@@ -34,7 +34,14 @@
                             <div class="hero-feature-img" aria-hidden="true">
                                 <div class="hero-feature-img-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="l"}});"{{/if}}></div>
                             </div>
-                            <p class="eyebrow">Latest</p>
+                            <p class="eyebrow eyebrow--circled">
+                                <span class="eyebrow-text">Latest</span>
+                                <span class="eyebrow-circle" aria-hidden="true">
+                                    <svg viewBox="0 0 240 80" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        <path d="M 22 50 C 16 22 78 12 122 14 C 178 16 226 28 222 46 C 218 66 154 76 106 72 C 54 68 14 60 26 42 C 34 28 64 24 92 24" />
+                                    </svg>
+                                </span>
+                            </p>
                             <h3>{{title}}</h3>
                             <p class="byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}<em class="byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</em>{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<em>{{name}}</em>{{/primary_author}}</span> &middot; <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="MMMM D, YYYY"}}</time> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
                             {{#if custom_excerpt}}
