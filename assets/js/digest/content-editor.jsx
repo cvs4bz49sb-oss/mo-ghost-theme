@@ -107,7 +107,7 @@ const fieldStyles = {
     fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
     fontSize: 13,
     color: '#2d2927',
-    borderRadius: 0,
+    borderRadius: 10,
   },
   textarea: {
     width: '100%',
@@ -119,7 +119,7 @@ const fieldStyles = {
     fontSize: 13,
     lineHeight: 1.5,
     color: '#2d2927',
-    borderRadius: 0,
+    borderRadius: 10,
     resize: 'vertical',
     minHeight: 70,
   },
@@ -495,7 +495,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
     letterSpacing: '0.14em',
     textTransform: 'uppercase',
     cursor: 'pointer',
-    borderRadius: 0,
+    borderRadius: 10,
   });
 
   return (
@@ -811,7 +811,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                       padding: '8px 12px',
                       background: isCopied ? '#fbf3e3' : '#fff',
                       border: '1.5px solid ' + (isCopied ? '#c1593c' : '#e8d9bd'),
-                      borderRadius: 0, cursor: 'pointer', textAlign: 'left',
+                      borderRadius: 10, cursor: 'pointer', textAlign: 'left',
                       fontFamily: '"Source Sans 3", Arial, sans-serif',
                     }}
                   >
@@ -947,7 +947,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                             : enabled ? (isBlock ? '#c1593c' : '#2d2927') : '#d8c4a3'
                           ),
                           boxShadow: isDragOver ? '0 0 0 2px rgba(238,125,81,0.25)' : 'none',
-                          borderRadius: 0, cursor: 'grab',
+                          borderRadius: 10, cursor: 'grab',
                           fontFamily: '"Source Sans 3", Arial, sans-serif',
                           fontSize: 12,
                           color: enabled && !audienceHidden ? '#2d2927' : '#9a8773',
@@ -1256,7 +1256,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                           fontFamily: '"Source Sans 3", Arial, sans-serif',
                           fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
                           cursor: isFeatured ? 'default' : 'pointer',
-                          borderRadius: 0,
+                          borderRadius: 10,
                         }}
                         title={isFeatured ? 'This is the featured essay' : 'Make this the featured essay'}
                       >

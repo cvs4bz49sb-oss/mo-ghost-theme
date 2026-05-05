@@ -490,7 +490,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
     width: '100%',
     padding: '8px 10px',
     border: '1.5px solid #d8c4a3',
-    borderRadius: 0,
+    borderRadius: 10,
     fontFamily: '"Source Sans 3", Arial, sans-serif',
     fontSize: 13,
     background: '#fff',
@@ -533,7 +533,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
             background: 'transparent', border: '1.5px solid #2d2927', color: '#2d2927',
             padding: '7px 14px', fontFamily: '"Source Sans 3", Arial, sans-serif',
             fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
-            cursor: 'pointer', borderRadius: 0,
+            cursor: 'pointer', borderRadius: 10,
           }}>Close</button>
         </div>
 
@@ -565,7 +565,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
                     border: '1.5px solid #2d2927', padding: '10px 12px',
                     fontFamily: '"Source Sans 3", Arial, sans-serif',
                     fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
-                    cursor: 'pointer', borderRadius: 0,
+                    cursor: 'pointer', borderRadius: 10,
                   }}>{opt.t}</button>
                 ))}
               </div>
@@ -594,7 +594,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
                     border: '1.5px solid #2d2927', padding: '10px 12px',
                     fontFamily: '"Source Sans 3", Arial, sans-serif',
                     fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
-                    cursor: 'pointer', borderRadius: 0,
+                    cursor: 'pointer', borderRadius: 10,
                   }}>{opt.t}</button>
                 ))}
               </div>
@@ -639,7 +639,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
                       padding: '4px 0',
                       fontFamily: '"Source Sans 3", Arial, sans-serif',
                       fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
-                      cursor: 'pointer', borderRadius: 0,
+                      cursor: 'pointer', borderRadius: 10,
                     }}
                   >
                     {overridesOpen ? '− Hide' : '+ Override'} individual image URLs ({Object.values(imageOverrides).filter(v => v && v.trim()).length}/{listImageFilenames(content).length} set)
@@ -735,7 +735,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
               fontFamily: 'ui-monospace, Menlo, monospace',
               fontSize: 11, lineHeight: 1.45,
               padding: '10px 12px',
-              border: '1.5px solid #d8c4a3', borderRadius: 0,
+              border: '1.5px solid #d8c4a3', borderRadius: 10,
               background: '#2d2927', color: '#f1e0c9',
               resize: 'vertical',
             }}
@@ -780,7 +780,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
               fontFamily: '"Source Sans 3", Arial, sans-serif',
               fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
               cursor: output ? 'pointer' : 'not-allowed',
-              borderRadius: 0, opacity: output ? 1 : 0.5,
+              borderRadius: 10, opacity: output ? 1 : 0.5,
             }}
           >
             Copy HTML
@@ -794,7 +794,7 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
               fontFamily: '"Source Sans 3", Arial, sans-serif',
               fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
               cursor: output ? 'pointer' : 'not-allowed',
-              borderRadius: 0, opacity: output ? 1 : 0.5,
+              borderRadius: 10, opacity: output ? 1 : 0.5,
             }}
           >
             Download .html
@@ -821,7 +821,7 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
       letterSpacing: '0.14em',
       textTransform: 'uppercase',
       cursor: 'pointer',
-      borderRadius: 0,
+      borderRadius: 10,
     }}>{children}</button>
   );
   return (
@@ -884,7 +884,7 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
           letterSpacing: '0.14em',
           textTransform: 'uppercase',
           cursor: 'pointer',
-          borderRadius: 0,
+          borderRadius: 10,
           display: 'inline-flex',
           alignItems: 'center',
           gap: 8,
@@ -910,7 +910,7 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
           letterSpacing: '0.14em',
           textTransform: 'uppercase',
           cursor: 'pointer',
-          borderRadius: 0,
+          borderRadius: 10,
           display: 'inline-flex',
           alignItems: 'center',
           gap: 8,
@@ -1066,7 +1066,7 @@ function App() {
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
               cursor: 'pointer',
-              borderRadius: 0,
+              borderRadius: 10,
             }}
           >
             Edit Content / Paste RSS

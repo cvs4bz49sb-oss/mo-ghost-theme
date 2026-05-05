@@ -362,14 +362,15 @@ function Masthead({ tokens, issueNumber, dateStr, mastheadTitle }) {
             {showRightCol && (
               <td style={{ verticalAlign: 'middle', textAlign: 'right', width: '50%' }}>
                 {showTitle && (
-                  <div style={{
-                    fontFamily: '"IM Fell English", Georgia, serif',
-                    fontSize: 17,
-                    color: tokens.bodyText,
-                    letterSpacing: '0.04em',
-                  }}>
-                    {mastheadTitle}
-                  </div>
+                  <div
+                    style={{
+                      fontFamily: '"IM Fell English", Georgia, serif',
+                      fontSize: 17,
+                      color: tokens.bodyText,
+                      letterSpacing: '0.04em',
+                    }}
+                    dangerouslySetInnerHTML={{ __html: markdownInline(mastheadTitle, tokens) }}
+                  />
                 )}
                 {showMeta && (
                   <div style={{
@@ -406,17 +407,18 @@ function LetterFromEditor({ tokens, content }) {
       }}>
         From Mere Orthodoxy
       </div>
-      <h1 style={{
-        fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
-        fontSize: 34,
-        lineHeight: 1.2,
-        color: tokens.bodyText,
-        margin: '0 0 18px',
-        fontWeight: 400,
-        letterSpacing: '-0.005em',
-      }}>
-        {content.editorTitle}
-      </h1>
+      <h1
+        style={{
+          fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
+          fontSize: 34,
+          lineHeight: 1.2,
+          color: tokens.bodyText,
+          margin: '0 0 18px',
+          fontWeight: 400,
+          letterSpacing: '-0.005em',
+        }}
+        dangerouslySetInnerHTML={{ __html: markdownInline(content.editorTitle || '', tokens) }}
+      />
       {(() => {
         // Read editorBody (new shape) with a fallback to legacy
         // editorParagraphs array. Body supports Markdown:
@@ -434,15 +436,16 @@ function LetterFromEditor({ tokens, content }) {
           }} dangerouslySetInnerHTML={{ __html: markdownInline(p, tokens) }} />
         ));
       })()}
-      <p style={{
-        fontFamily: '"IM Fell English", Georgia, serif',
-        fontSize: 16,
-        fontStyle: 'italic',
-        color: tokens.lightText,
-        margin: '20px 0 0',
-      }}>
-        {content.editorSignature}
-      </p>
+      <p
+        style={{
+          fontFamily: '"IM Fell English", Georgia, serif',
+          fontSize: 16,
+          fontStyle: 'italic',
+          color: tokens.lightText,
+          margin: '20px 0 0',
+        }}
+        dangerouslySetInnerHTML={{ __html: markdownInline(content.editorSignature || '', tokens) }}
+      />
     </div>
   );
 }
@@ -508,28 +511,30 @@ function MembershipCTA({ tokens, accent, content }) {
       }}>
         Become a Member
       </div>
-      <h2 className="mo-cta-headline" style={{
-        fontFamily: '"IM Fell English", Georgia, serif',
-        fontSize: 24,
-        lineHeight: 1.25,
-        margin: '0 0 12px',
-        fontWeight: 400,
-        color: isBold ? '#fff' : tokens.bodyText,
-      }}>
-        {content.headline.split('\n').map((l, i, a) => (
-          <React.Fragment key={i}>{l}{i < a.length - 1 && <br />}</React.Fragment>
-        ))}
-      </h2>
-      <p className="mo-cta-body" style={{
-        fontFamily: 'Georgia, serif',
-        fontSize: 15,
-        lineHeight: 1.6,
-        margin: '0 auto 22px',
-        maxWidth: 440,
-        color: isBold ? 'rgba(255,255,255,0.88)' : tokens.lightText,
-      }}>
-        {content.body}
-      </p>
+      <h2
+        className="mo-cta-headline"
+        style={{
+          fontFamily: '"IM Fell English", Georgia, serif',
+          fontSize: 24,
+          lineHeight: 1.25,
+          margin: '0 0 12px',
+          fontWeight: 400,
+          color: isBold ? '#fff' : tokens.bodyText,
+        }}
+        dangerouslySetInnerHTML={{ __html: markdownInline(content.headline || '', tokens) }}
+      />
+      <p
+        className="mo-cta-body"
+        style={{
+          fontFamily: 'Georgia, serif',
+          fontSize: 15,
+          lineHeight: 1.6,
+          margin: '0 auto 22px',
+          maxWidth: 440,
+          color: isBold ? 'rgba(255,255,255,0.88)' : tokens.lightText,
+        }}
+        dangerouslySetInnerHTML={{ __html: markdownInline(content.body || '', tokens) }}
+      />
       <Button tokens={tokens} variant={isBold ? 'ghost' : 'primary'} size="lg" accent={accent} href={content.href}>
         {content.cta}
       </Button>
@@ -569,25 +574,27 @@ function SponsorBlock({ tokens, content }) {
           }}>
             {content.name}
           </div>
-          <div style={{
-            fontFamily: '"IM Fell English", Georgia, serif',
-            fontSize: 22,
-            color: tokens.bodyText,
-            lineHeight: 1.25,
-            margin: '0 0 10px',
-          }}>
-            {content.headline}
-          </div>
-          <div style={{
-            fontFamily: 'Georgia, serif',
-            fontSize: 13.5,
-            color: tokens.lightText,
-            lineHeight: 1.55,
-            margin: '0 auto 16px',
-            maxWidth: 380,
-          }}>
-            {content.body}
-          </div>
+          <div
+            style={{
+              fontFamily: '"IM Fell English", Georgia, serif',
+              fontSize: 22,
+              color: tokens.bodyText,
+              lineHeight: 1.25,
+              margin: '0 0 10px',
+            }}
+            dangerouslySetInnerHTML={{ __html: markdownInline(content.headline || '', tokens) }}
+          />
+          <div
+            style={{
+              fontFamily: 'Georgia, serif',
+              fontSize: 13.5,
+              color: tokens.lightText,
+              lineHeight: 1.55,
+              margin: '0 auto 16px',
+              maxWidth: 380,
+            }}
+            dangerouslySetInnerHTML={{ __html: markdownInline(content.body || '', tokens) }}
+          />
           <span style={{
             display: 'inline-block',
             color: tokens.tertiary,
@@ -633,26 +640,30 @@ function FeaturedEssay({ tokens, essay, accent }) {
           Featured · {essay.kicker}
         </div>
         <a href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <h3 className="mo-essay-title" style={{
-            fontFamily: '"IM Fell English", Georgia, serif',
-            fontSize: 26,
-            lineHeight: 1.22,
-            color: tokens.bodyText,
-            margin: '0 0 8px',
-            fontWeight: 400,
-          }}>
-            {essay.title}
-          </h3>
+          <h3
+            className="mo-essay-title"
+            style={{
+              fontFamily: '"IM Fell English", Georgia, serif',
+              fontSize: 26,
+              lineHeight: 1.22,
+              color: tokens.bodyText,
+              margin: '0 0 8px',
+              fontWeight: 400,
+            }}
+            dangerouslySetInnerHTML={{ __html: markdownInline(essay.title || '', tokens) }}
+          />
         </a>
-        <p className="mo-essay-summary" style={{
-          fontFamily: 'Georgia, serif',
-          fontSize: 15,
-          lineHeight: 1.6,
-          color: tokens.bodyText,
-          margin: '0 0 16px',
-        }}>
-          {essay.summary}
-        </p>
+        <p
+          className="mo-essay-summary"
+          style={{
+            fontFamily: 'Georgia, serif',
+            fontSize: 15,
+            lineHeight: 1.6,
+            color: tokens.bodyText,
+            margin: '0 0 16px',
+          }}
+          dangerouslySetInnerHTML={{ __html: markdownInline(essay.summary || '', tokens) }}
+        />
         <Button tokens={tokens} variant="secondary" size="sm" accent={accent} href={href}>
           Read the Essay
         </Button>
@@ -687,26 +698,30 @@ function EssayCard({ tokens, essay, accent }) {
           {essay.kicker}
         </div>
         <a href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <h4 className="mo-essay-title" style={{
-            fontFamily: '"IM Fell English", Georgia, serif',
-            fontSize: 18,
-            lineHeight: 1.22,
-            color: tokens.bodyText,
-            margin: '0 0 6px',
-            fontWeight: 400,
-          }}>
-            {essay.title}
-          </h4>
+          <h4
+            className="mo-essay-title"
+            style={{
+              fontFamily: '"IM Fell English", Georgia, serif',
+              fontSize: 18,
+              lineHeight: 1.22,
+              color: tokens.bodyText,
+              margin: '0 0 6px',
+              fontWeight: 400,
+            }}
+            dangerouslySetInnerHTML={{ __html: markdownInline(essay.title || '', tokens) }}
+          />
         </a>
-        <p className="mo-essay-summary" style={{
-          fontFamily: 'Georgia, serif',
-          fontSize: 13.5,
-          lineHeight: 1.55,
-          color: tokens.bodyText,
-          margin: '0 0 12px',
-        }}>
-          {essay.summary}
-        </p>
+        <p
+          className="mo-essay-summary"
+          style={{
+            fontFamily: 'Georgia, serif',
+            fontSize: 13.5,
+            lineHeight: 1.55,
+            color: tokens.bodyText,
+            margin: '0 0 12px',
+          }}
+          dangerouslySetInnerHTML={{ __html: markdownInline(essay.summary || '', tokens) }}
+        />
         <a href={href} style={{
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
           fontSize: 11,
@@ -802,26 +817,30 @@ function PodcastCard({ tokens, pod, accent }) {
           {pod.label} · {pod.episode}
         </div>
         <a href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <h4 className="mo-podcast-title" style={{
-            fontFamily: '"IM Fell English", Georgia, serif',
-            fontSize: 18,
-            lineHeight: 1.22,
-            color: tokens.bodyText,
-            margin: '0 0 8px',
-            fontWeight: 400,
-          }}>
-            {pod.title}
-          </h4>
+          <h4
+            className="mo-podcast-title"
+            style={{
+              fontFamily: '"IM Fell English", Georgia, serif',
+              fontSize: 18,
+              lineHeight: 1.22,
+              color: tokens.bodyText,
+              margin: '0 0 8px',
+              fontWeight: 400,
+            }}
+            dangerouslySetInnerHTML={{ __html: markdownInline(pod.title || '', tokens) }}
+          />
         </a>
-        <p className="mo-podcast-summary" style={{
-          fontFamily: 'Georgia, serif',
-          fontSize: 13.5,
-          lineHeight: 1.55,
-          color: tokens.bodyText,
-          margin: '0 0 14px',
-        }}>
-          {pod.summary}
-        </p>
+        <p
+          className="mo-podcast-summary"
+          style={{
+            fontFamily: 'Georgia, serif',
+            fontSize: 13.5,
+            lineHeight: 1.55,
+            color: tokens.bodyText,
+            margin: '0 0 14px',
+          }}
+          dangerouslySetInnerHTML={{ __html: markdownInline(pod.summary || '', tokens) }}
+        />
         <Button tokens={tokens} variant="secondary" size="sm" accent={accent} href={href}>
           {pod.cta}
         </Button>
@@ -872,25 +891,27 @@ function MemberThanks({ tokens, content }) {
       }}>
         For Members
       </div>
-      <div style={{
-        fontFamily: '"IM Fell English", Georgia, serif',
-        fontSize: 19,
-        lineHeight: 1.35,
-        color: tokens.bodyText,
-        margin: '0 0 10px',
-      }}>
-        {content.headline}
-      </div>
-      <p style={{
-        fontFamily: 'Georgia, serif',
-        fontSize: 13.5,
-        lineHeight: 1.55,
-        color: tokens.lightText,
-        margin: '0 auto 12px',
-        maxWidth: 420,
-      }}>
-        {content.body}
-      </p>
+      <div
+        style={{
+          fontFamily: '"IM Fell English", Georgia, serif',
+          fontSize: 19,
+          lineHeight: 1.35,
+          color: tokens.bodyText,
+          margin: '0 0 10px',
+        }}
+        dangerouslySetInnerHTML={{ __html: markdownInline(content.headline || '', tokens) }}
+      />
+      <p
+        style={{
+          fontFamily: 'Georgia, serif',
+          fontSize: 13.5,
+          lineHeight: 1.55,
+          color: tokens.lightText,
+          margin: '0 auto 12px',
+          maxWidth: 420,
+        }}
+        dangerouslySetInnerHTML={{ __html: markdownInline(content.body || '', tokens) }}
+      />
       <a href={content.href} style={{
         fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
         fontSize: 11,
