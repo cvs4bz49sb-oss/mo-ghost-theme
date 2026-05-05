@@ -27,32 +27,43 @@
                 </div>
             </div>
 
-            <div class="hero-visual">
-                {{#get "posts" filter="tag:-hash-event" limit="1" include="authors,tags"}}
-                    {{#foreach posts}}
-                        <a href="{{url}}" class="hero-feature" style="text-decoration:none; color:inherit;">
-                            <div class="hero-feature-img" aria-hidden="true">
-                                <div class="hero-feature-img-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="l"}});"{{/if}}></div>
-                            </div>
-                            <p class="eyebrow eyebrow--circled">
-                                <span class="eyebrow-text">Latest</span>
-                                <span class="eyebrow-circle" aria-hidden="true">
-                                    <svg viewBox="0 0 240 80" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                                        <path d="M 22 50 C 16 22 78 12 122 14 C 178 16 226 28 222 46 C 218 66 154 76 106 72 C 54 68 14 60 26 42 C 34 28 64 24 92 24" />
-                                    </svg>
-                                </span>
-                            </p>
-                            <h3>{{title}}</h3>
-                            <p class="byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}<em class="byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</em>{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<em>{{name}}</em>{{/primary_author}}</span> &middot; <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="MMMM D, YYYY"}}</time> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
-                            {{#if custom_excerpt}}
-                                <p class="excerpt">{{custom_excerpt}}</p>
-                            {{else}}
-                                <p class="excerpt">{{excerpt words="28"}}</p>
-                            {{/if}}
-                            <span class="read-link">Read the essay &rarr;</span>
-                        </a>
-                    {{/foreach}}
-                {{/get}}
+            <div class="hero-visual hero-visual--picks">
+                {{!-- LAYOUT TEST 2026-05-05: Editor's Picks moved up to
+                     the hero slot in place of the single most-recent
+                     post. The latest two essays now live in the
+                     "What's New" block below the fold. Easy revert:
+                     git revert this commit. --}}
+                <div class="hero-picks">
+                    <div class="sidebar-heading hero-picks-heading">
+                        <p class="eyebrow">Editor&rsquo;s Pick</p>
+                        <h3><em>This Month</em></h3>
+                    </div>
+                    <ol class="read-list hero-read-list">
+                        {{#get "posts" filter="featured:true+tag:-hash-event" limit="5" include="authors,tags"}}
+                            {{#foreach posts}}
+                                <li>
+                                    <a href="{{url}}">
+                                        <div class="read-plate" aria-hidden="true">
+                                            <div class="read-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="s"}});"{{/if}}></div>
+                                        </div>
+                                        <div class="read-text">
+                                            <p class="card-topic card-topic--candidates" data-topic>
+                                                {{#foreach tags visibility="public"}}<span class="card-topic-tag" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}
+                                            </p>
+                                            <h4 class="card-title"><em>{{title}}</em></h4>
+                                            {{#if custom_excerpt}}
+                                                <p class="card-excerpt">{{custom_excerpt}}</p>
+                                            {{else}}
+                                                <p class="card-excerpt">{{excerpt words="22"}}</p>
+                                            {{/if}}
+                                            <p class="card-byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}<span class="author byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<span class="author">{{name}}</span>{{/primary_author}}</span> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
+                                        </div>
+                                    </a>
+                                </li>
+                            {{/foreach}}
+                        {{/get}}
+                    </ol>
+                </div>
             </div>
         </div>
     </div>
@@ -64,22 +75,23 @@
 <section class="today">
     <div class="container">
         <div class="today-default">
-            <div class="today-grid">
-                <div class="today-main">
+            <div class="today-grid today-grid--solo">
+                <div class="today-main today-main--whats-new">
                     <div class="sidebar-heading">
                         <p class="eyebrow">Latest</p>
                         <h3><em>What's new</em></h3>
                     </div>
+                    {{!-- LAYOUT TEST 2026-05-05: Editor's Picks block
+                         was moved into the hero slot, so the latest
+                         two essays both live here under "What's new"
+                         instead of just the second-most-recent. --}}
                     {{#get "posts" filter="tag:-hash-event" limit="2" include="authors,tags"}}
-                        {{#foreach posts from="2" limit="1"}}
+                        {{#foreach posts}}
                             <a href="{{url}}" class="feature-entry">
                                 <div class="feature-plate">
                                     <div class="feature-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="l"}});"{{/if}}></div>
                                 </div>
                                 <div class="feature-body">
-                                    {{!-- Topic eyebrow: first non-author tag, selected via CSS
-                                         attribute filter. See .entry-topic--candidates for the same
-                                         pattern used in This Week. --}}
                                     <p class="feature-topic feature-topic--candidates" data-topic>
                                         {{#foreach tags visibility="public"}}<span class="feature-topic-tag" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}
                                     </p>
@@ -98,53 +110,6 @@
                             </a>
                         {{/foreach}}
                     {{/get}}
-                </div>
-
-                <div class="today-sidebar">
-                    <div class="sidebar-heading">
-                        <p class="eyebrow">Editor&rsquo;s Pick</p>
-                        <h3><em>This Month</em></h3>
-                    </div>
-                    {{!--
-                        For now this list is populated from posts marked
-                        `featured: true` in Ghost. In a future iteration we
-                        will replace this {{#get}} call with a fetch from a
-                        small Cloudflare Worker that queries Plausible for
-                        top-read posts over the last 30 days and returns a
-                        list of post slugs. Until that endpoint exists, the
-                        "Most Read" label accurately reflects editorial
-                        selection (featured) rather than analytics.
-                    --}}
-                    <ol class="read-list">
-                        {{#get "posts" filter="featured:true+tag:-hash-event" limit="5" include="authors,tags"}}
-                            {{#foreach posts}}
-                                <li>
-                                    <a href="{{url}}">
-                                        {{!-- Cover-image plate, same chrome as .entry-plate
-                                             in This Week (white backing, card border, sepia
-                                             tint inside). Replaces the upper-roman counter
-                                             that used to sit on the left edge. --}}
-                                        <div class="read-plate" aria-hidden="true">
-                                            <div class="read-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="s"}});"{{/if}}></div>
-                                        </div>
-                                        <div class="read-text">
-                                            {{!-- Topic eyebrow: first non-author tag. --}}
-                                            <p class="card-topic card-topic--candidates" data-topic>
-                                                {{#foreach tags visibility="public"}}<span class="card-topic-tag" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}
-                                            </p>
-                                            <h4 class="card-title"><em>{{title}}</em></h4>
-                                            {{#if custom_excerpt}}
-                                                <p class="card-excerpt">{{custom_excerpt}}</p>
-                                            {{else}}
-                                                <p class="card-excerpt">{{excerpt words="22"}}</p>
-                                            {{/if}}
-                                            <p class="card-byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}<span class="author byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</span>{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<span class="author">{{name}}</span>{{/primary_author}}</span> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
-                                        </div>
-                                    </a>
-                                </li>
-                            {{/foreach}}
-                        {{/get}}
-                    </ol>
                 </div>
             </div>
         </div>

@@ -552,6 +552,29 @@ img { max-width: 100%; height: auto; }
 }
 
 .hero-visual { position: relative; }
+/* LAYOUT TEST 2026-05-05: hero-visual--picks renders the 5-up
+   Editor's Picks list in the hero slot in place of the single
+   most-recent post. The .read-list styling carries most of the
+   weight; these rules just give the hero context (sidebar
+   heading + reuse of .read-list inside hero column) sensible
+   spacing and color. Revert with a git revert of the test
+   commit. */
+.hero-visual--picks .hero-picks-heading {
+  margin-bottom: 14px;
+}
+.hero-visual--picks .hero-picks-heading .eyebrow {
+  color: var(--color-primary);
+}
+.hero-visual--picks .hero-picks-heading h3 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  margin: 4px 0 0;
+  color: var(--color-dark);
+}
+.hero-visual--picks .hero-read-list { margin: 0; padding: 0; }
 .hero-feature {
   background: transparent;
   padding: 0;
@@ -785,6 +808,20 @@ img { max-width: 100%; height: auto; }
   grid-template-columns: 1.35fr 1fr;
   gap: 48px;
   align-items: stretch;
+}
+/* LAYOUT TEST 2026-05-05: when the Editor's Picks block moves up
+   to the hero, the today section collapses to a single column —
+   "What's new" runs full width with both latest essays stacked
+   inside it. */
+.today-grid--solo {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.today-main--whats-new .feature-entry + .feature-entry {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--color-rule);
 }
 
 .article-card {
