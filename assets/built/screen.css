@@ -554,27 +554,76 @@ img { max-width: 100%; height: auto; }
 .hero-visual { position: relative; }
 /* LAYOUT TEST 2026-05-05: hero-visual--picks renders the 5-up
    Editor's Picks list in the hero slot in place of the single
-   most-recent post. The .read-list styling carries most of the
-   weight; these rules just give the hero context (sidebar
-   heading + reuse of .read-list inside hero column) sensible
-   spacing and color. Revert with a git revert of the test
-   commit. */
+   most-recent post. The hero band is dark, so every text token
+   inside the list needs a cream/light variant — the base
+   .read-list styling assumes a cream page and renders most things
+   in dark or muted, which goes invisible here. Spacing is also
+   tightened compared to the sidebar use to keep the block from
+   towering over the hero copy on the left. Revert with a single
+   `git revert` of the layout-test commit. */
+.hero-visual--picks { color: #f4ebd8; }
 .hero-visual--picks .hero-picks-heading {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 .hero-visual--picks .hero-picks-heading .eyebrow {
   color: var(--color-primary);
+  margin: 0 0 4px;
 }
 .hero-visual--picks .hero-picks-heading h3 {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 400;
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1.2;
-  margin: 4px 0 0;
-  color: var(--color-dark);
+  margin: 0;
+  color: #f4ebd8;
 }
 .hero-visual--picks .hero-read-list { margin: 0; padding: 0; }
+/* Tighten the per-row spacing relative to sidebar usage. */
+.hero-visual--picks .hero-read-list li {
+  padding: 12px 0;
+}
+.hero-visual--picks .hero-read-list li:first-child { padding-top: 12px; }
+.hero-visual--picks .hero-read-list a {
+  gap: 14px;
+}
+.hero-visual--picks .hero-read-list .read-plate {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+}
+/* Color overrides for the dark band. */
+.hero-visual--picks .hero-read-list .card-title {
+  color: #f4ebd8;
+  font-size: 17px;
+  line-height: 1.25;
+  margin: 0 0 4px;
+}
+.hero-visual--picks .hero-read-list a:hover .card-title {
+  color: var(--color-primary);
+}
+.hero-visual--picks .hero-read-list .card-excerpt {
+  color: rgba(244, 235, 216, 0.72);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0 0 6px;
+}
+.hero-visual--picks .hero-read-list .card-byline,
+.hero-visual--picks .hero-read-list .card-byline .author {
+  color: rgba(244, 235, 216, 0.55);
+  font-size: 12px;
+}
+.hero-visual--picks .hero-read-list .card-byline .author {
+  color: #f4ebd8;
+}
+.hero-visual--picks .hero-read-list .card-topic-tag {
+  color: var(--color-primary);
+}
+/* Hairline between rows reads better as a warm low-opacity cream
+   on the dark band than the default --color-rule. */
+.hero-visual--picks .hero-read-list li {
+  border-bottom-color: rgba(244, 235, 216, 0.14);
+}
 .hero-feature {
   background: transparent;
   padding: 0;
