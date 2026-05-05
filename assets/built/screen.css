@@ -565,32 +565,6 @@ img { max-width: 100%; height: auto; }
   margin-bottom: 0;
   font-variant: small-caps;
   letter-spacing: 0.28em;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-}
-/* Pulsing pilcrow before the "Just Published" eyebrow. Same
-   vocabulary as the .hero-kicker .dot pilcrow used across the
-   site, just sized inline with the small-caps eyebrow text.
-   The text-shadow glow oscillation pulls the eye toward the
-   freshness signal without enlarging the type. */
-.hero-feature .eyebrow::before {
-  content: "\00B6";
-  font-family: var(--font-display);
-  font-style: italic;
-  font-variant: normal;
-  letter-spacing: 0;
-  font-size: 1.5em;
-  line-height: 1;
-  color: var(--color-primary);
-  animation: hero-feature-eyebrow-pulse 2.4s ease-in-out infinite;
-}
-@keyframes hero-feature-eyebrow-pulse {
-  0%, 100% { text-shadow: 0 0 4px rgba(238, 125, 81, 0.40), 0 0 9px rgba(238, 125, 81, 0.20); }
-  50%      { text-shadow: 0 0 8px rgba(238, 125, 81, 0.75), 0 0 16px rgba(238, 125, 81, 0.45); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-feature .eyebrow::before { animation: none; }
 }
 .hero-feature h3 {
   font-family: var(--font-display);

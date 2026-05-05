@@ -34,7 +34,7 @@
                             <div class="hero-feature-img" aria-hidden="true">
                                 <div class="hero-feature-img-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="l"}});"{{/if}}></div>
                             </div>
-                            <p class="eyebrow">Just Published</p>
+                            <p class="eyebrow">Latest</p>
                             <h3>{{title}}</h3>
                             <p class="byline">By <span class="byline-inline byline-inline--contributors" data-byline>{{#foreach tags}}<em class="byline-author byline-author--candidate" data-tag-slug="{{slug}}">{{name}}</em>{{/foreach}}</span><span class="byline-inline byline-inline--fallback">{{#primary_author}}<em>{{name}}</em>{{/primary_author}}</span> &middot; <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="MMMM D, YYYY"}}</time> &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
                             {{#if custom_excerpt}}
