@@ -84,7 +84,8 @@
                     {{!-- LAYOUT TEST 2026-05-05: Editor's Picks block
                          was moved into the hero slot, so the latest
                          two essays both live here under "What's new"
-                         instead of just the second-most-recent. --}}
+                         side-by-side. --}}
+                    <div class="today-main--whats-new-entries">
                     {{#get "posts" filter="tag:-hash-event" limit="2" include="authors,tags"}}
                         {{#foreach posts}}
                             <a href="{{url}}" class="feature-entry">
@@ -110,6 +111,7 @@
                             </a>
                         {{/foreach}}
                     {{/get}}
+                    </div>
                 </div>
             </div>
         </div>

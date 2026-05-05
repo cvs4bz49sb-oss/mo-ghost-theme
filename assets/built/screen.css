@@ -870,18 +870,33 @@ img { max-width: 100%; height: auto; }
   align-items: stretch;
 }
 /* LAYOUT TEST 2026-05-05: when the Editor's Picks block moves up
-   to the hero, the today section collapses to a single column —
-   "What's new" runs full width with both latest essays stacked
-   inside it. */
+   to the hero, the today section runs full width and shows the
+   two latest essays SIDE BY SIDE under "What's new". The .today-
+   main--whats-new becomes its own 2-col grid for the entries. */
 .today-grid--solo {
   grid-template-columns: 1fr;
-  max-width: 760px;
-  margin: 0 auto;
 }
-.today-main--whats-new .feature-entry + .feature-entry {
-  margin-top: 28px;
-  padding-top: 28px;
-  border-top: 1px solid var(--color-rule);
+.today-main--whats-new {
+  display: block;
+}
+.today-main--whats-new .sidebar-heading {
+  margin-bottom: 24px;
+}
+.today-main--whats-new-entries {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .today-main--whats-new-entries {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .today-main--whats-new-entries .feature-entry + .feature-entry {
+    padding-top: 32px;
+    border-top: 1px solid var(--color-rule);
+  }
 }
 
 .article-card {
