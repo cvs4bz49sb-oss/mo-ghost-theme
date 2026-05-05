@@ -580,6 +580,11 @@ img { max-width: 100%; height: auto; }
 .eyebrow--circled {
   position: relative;
   display: inline-block;
+  /* .hero-feature is column flex with default cross-axis stretch,
+     so a block child takes full column width; align-self lets the
+     paragraph shrink-wrap to its text instead. Without this the
+     circle SVG stretches across the entire hero column. */
+  align-self: flex-start;
   isolation: isolate;
 }
 .eyebrow--circled .eyebrow-text {
