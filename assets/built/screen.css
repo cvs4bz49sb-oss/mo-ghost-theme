@@ -7456,7 +7456,14 @@ body.post-template .inline-support h3,
 body.post-template .inline-support .eyebrow,
 body.post-template .author-bio-name,
 body.post-template .author-bio-text,
-body.post-template .author-bio-links a {
+body.post-template .author-bio-links a,
+body.post-template .related,
+body.post-template .related .entry-title,
+body.post-template .related .entry-excerpt,
+body.post-template .related .entry-byline,
+body.post-template .related .entry-date,
+body.post-template .related .entry-meta,
+body.post-template .related .entry-plate {
   transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
 }
 
@@ -7475,6 +7482,42 @@ html[data-theme="dark"] .post-template .author-bio-links a {
 }
 html[data-theme="dark"] .post-template .author-bio-links a:hover {
   color: #f19371;
+}
+/* "Read Next / More on this theme" sits outside .article-body, so
+   needs explicit selectors to flip into the dark palette. */
+html[data-theme="dark"] body.post-template .related {
+  background: #33302d;
+}
+html[data-theme="dark"] body.post-template .related .section-heading {
+  color: #f4ebd8;
+}
+html[data-theme="dark"] body.post-template .related .flourish::before,
+html[data-theme="dark"] body.post-template .related .flourish::after {
+  background: rgba(233, 222, 200, 0.18);
+}
+html[data-theme="dark"] body.post-template .related .entry-title {
+  color: #f4ebd8;
+}
+html[data-theme="dark"] body.post-template .related .entry-excerpt {
+  color: #e9dec8;
+}
+html[data-theme="dark"] body.post-template .related .entry-byline {
+  color: #e9dec8;
+}
+html[data-theme="dark"] body.post-template .related .entry-date {
+  color: #b8ab98;
+}
+html[data-theme="dark"] body.post-template .related .entry-meta {
+  border-top-color: rgba(233, 222, 200, 0.18);
+}
+html[data-theme="dark"] body.post-template .related .entry:nth-child(n+3) {
+  border-top-color: rgba(233, 222, 200, 0.18);
+}
+html[data-theme="dark"] body.post-template .related .entry-plate {
+  border-color: rgba(233, 222, 200, 0.12);
+}
+html[data-theme="dark"] body.post-template .related .entry:hover .entry-title {
+  color: var(--color-primary);
 }
 /* During a dark-mode flip, kill transitions on the 5 feature toggles
    so they snap instantly instead of fading via their hover-color
