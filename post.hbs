@@ -288,13 +288,14 @@
     </div>
 </article>
 
-{{!-- READ NEXT — two sub-sections under one banner.
+{{!-- READ NEXT — two independent sub-sections.
      Convention (Ian): "Previous" = more recent (Ghost next_post),
      "Next" = older (Ghost prev_post).
-     prev_post/next_post don't load tags, so the post-entry partial
-     can't be used here — inline entry HTML only touches fields that
-     are guaranteed on those post objects. --}}
-{{#if primary_tag}}
+     prev_post/next_post don't load tags, so inline entry HTML is used
+     instead of the post-entry partial.
+     Section renders when next_post OR prev_post OR primary_tag exists.
+     Recent Articles is NOT gated on primary_tag. --}}
+{{#if next_post}}
 <section class="related"
          data-related
          data-post-id="{{id}}"
@@ -303,9 +304,6 @@
         <div class="section-intro">
             <p class="eyebrow">Read Next</p>
         </div>
-
-        {{!-- Recent Articles sub-section --}}
-        {{#if next_post}}
         <h2 class="section-heading related-sub-heading"><em>Recent Articles</em></h2>
         <div class="flourish">{{> "flourish-mark"}}</div>
         <div class="week-grid">
@@ -316,11 +314,8 @@
                 </div>
                 <div class="entry-text">
                     <h3 class="entry-title">{{title}}</h3>
-                    {{#if custom_excerpt}}
-                        <p class="entry-excerpt">{{custom_excerpt}}</p>
-                    {{else}}
-                        {{#if excerpt}}<p class="entry-excerpt">{{excerpt words="30"}}</p>{{/if}}
-                    {{/if}}
+                    {{#if custom_excerpt}}<p class="entry-excerpt">{{custom_excerpt}}</p>
+                    {{else}}{{#if excerpt}}<p class="entry-excerpt">{{excerpt words="30"}}</p>{{/if}}{{/if}}
                     <div class="entry-meta">
                         <p class="entry-byline">{{#primary_author}}By <em>{{name}}</em>{{/primary_author}}</p>
                         <p class="entry-date">{{date format="MMMM D, YYYY"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
@@ -335,11 +330,8 @@
                 </div>
                 <div class="entry-text">
                     <h3 class="entry-title">{{title}}</h3>
-                    {{#if custom_excerpt}}
-                        <p class="entry-excerpt">{{custom_excerpt}}</p>
-                    {{else}}
-                        {{#if excerpt}}<p class="entry-excerpt">{{excerpt words="30"}}</p>{{/if}}
-                    {{/if}}
+                    {{#if custom_excerpt}}<p class="entry-excerpt">{{custom_excerpt}}</p>
+                    {{else}}{{#if excerpt}}<p class="entry-excerpt">{{excerpt words="30"}}</p>{{/if}}{{/if}}
                     <div class="entry-meta">
                         <p class="entry-byline">{{#primary_author}}By <em>{{name}}</em>{{/primary_author}}</p>
                         <p class="entry-date">{{date format="MMMM D, YYYY"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
@@ -348,9 +340,28 @@
             </a>
             {{/prev_post}}
         </div>
+        {{#if primary_tag}}
         <div class="flourish related-between-flourish">{{> "flourish-mark"}}</div>
-        {{else}}
-        {{#if prev_post}}
+        <h2 class="section-heading related-sub-heading"><em>More on this theme.</em></h2>
+        <div class="flourish">{{> "flourish-mark"}}</div>
+        <div class="week-grid" data-related-grid>
+            {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="4" include="authors,tags"}}
+                {{#foreach posts}}{{> "post-entry"}}{{/foreach}}
+            {{/get}}
+        </div>
+        {{/if}}
+    </div>
+</section>
+{{else}}
+{{#if prev_post}}
+<section class="related"
+         data-related
+         data-post-id="{{id}}"
+         data-tag-slugs="{{#foreach tags visibility="public"}}{{slug}}{{#unless @last}},{{/unless}}{{/foreach}}">
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">Read Next</p>
+        </div>
         <h2 class="section-heading related-sub-heading"><em>Recent Articles</em></h2>
         <div class="flourish">{{> "flourish-mark"}}</div>
         <div class="week-grid">
@@ -361,11 +372,8 @@
                 </div>
                 <div class="entry-text">
                     <h3 class="entry-title">{{title}}</h3>
-                    {{#if custom_excerpt}}
-                        <p class="entry-excerpt">{{custom_excerpt}}</p>
-                    {{else}}
-                        {{#if excerpt}}<p class="entry-excerpt">{{excerpt words="30"}}</p>{{/if}}
-                    {{/if}}
+                    {{#if custom_excerpt}}<p class="entry-excerpt">{{custom_excerpt}}</p>
+                    {{else}}{{#if excerpt}}<p class="entry-excerpt">{{excerpt words="30"}}</p>{{/if}}{{/if}}
                     <div class="entry-meta">
                         <p class="entry-byline">{{#primary_author}}By <em>{{name}}</em>{{/primary_author}}</p>
                         <p class="entry-date">{{date format="MMMM D, YYYY"}} &middot; {{reading_time minute="1 min read" minutes="% min read"}}</p>
@@ -374,21 +382,39 @@
             </a>
             {{/prev_post}}
         </div>
+        {{#if primary_tag}}
         <div class="flourish related-between-flourish">{{> "flourish-mark"}}</div>
-        {{/if}}
-        {{/if}}
-
         <h2 class="section-heading related-sub-heading"><em>More on this theme.</em></h2>
         <div class="flourish">{{> "flourish-mark"}}</div>
         <div class="week-grid" data-related-grid>
             {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="4" include="authors,tags"}}
-                {{#foreach posts}}
-                    {{> "post-entry"}}
-                {{/foreach}}
+                {{#foreach posts}}{{> "post-entry"}}{{/foreach}}
+            {{/get}}
+        </div>
+        {{/if}}
+    </div>
+</section>
+{{else}}
+{{#if primary_tag}}
+<section class="related"
+         data-related
+         data-post-id="{{id}}"
+         data-tag-slugs="{{#foreach tags visibility="public"}}{{slug}}{{#unless @last}},{{/unless}}{{/foreach}}">
+    <div class="container">
+        <div class="section-intro">
+            <p class="eyebrow">Read Next</p>
+        </div>
+        <h2 class="section-heading related-sub-heading"><em>More on this theme.</em></h2>
+        <div class="flourish">{{> "flourish-mark"}}</div>
+        <div class="week-grid" data-related-grid>
+            {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="4" include="authors,tags"}}
+                {{#foreach posts}}{{> "post-entry"}}{{/foreach}}
             {{/get}}
         </div>
     </div>
 </section>
+{{/if}}
+{{/if}}
 {{/if}}
 
 {{!-- Full membership form at the bottom of every post — same partial
