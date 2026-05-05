@@ -1032,10 +1032,6 @@ img { max-width: 100%; height: auto; }
   line-height: 1.5;
   color: var(--color-muted);
   margin: 0 0 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 .read-list .card-byline {
   font-size: 13px;
