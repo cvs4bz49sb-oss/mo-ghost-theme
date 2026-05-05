@@ -180,8 +180,25 @@ function Group({ title, children, defaultOpen = false }) {
 
 // --- Main editor modal ----------------------------------------------
 
+// Kit (Liquid) personalization tags surfaced as click-to-copy chips
+// inside the editor so you don't have to look up the syntax each
+// time. Each chip's `tag` is the literal string Kit substitutes at
+// send time. The first three are required by Kit's layout-template
+// validator and are already injected by the export; the rest are
+// per-recipient personalization.
+const KIT_TAGS = [
+  { tag: '{{ subscriber.first_name }}', label: 'First name' },
+  { tag: '{{ subscriber.first_name | default: "friend" }}', label: 'First name (with "friend" fallback)' },
+  { tag: '{{ subscriber.last_name }}', label: 'Last name' },
+  { tag: '{{ subscriber.email_address }}', label: 'Email address' },
+  { tag: '{{ subscriber.id }}', label: 'Subscriber ID (useful in URLs as ?ref=…)' },
+  { tag: '{{ unsubscribe_url }}', label: 'Unsubscribe URL (already in the footer)' },
+  { tag: '{{ subscriber_preferences_url }}', label: 'Manage preferences URL (already in the footer)' },
+];
+
 function ContentEditor({ open, content, onChange, onClose }) {
   const [rssText, setRssText] = useState('');
+  const [copiedTag, setCopiedTag] = useState(null);
   const [ghostUrl, setGhostUrl] = useState(() => localStorage.getItem('mo_ghost_url') || 'https://mo-test.ghost.io');
   const [ghostKey, setGhostKey] = useState(() => localStorage.getItem('mo_ghost_key') || '');
   const [ghostError, setGhostError] = useState(null);
@@ -761,6 +778,53 @@ function ContentEditor({ open, content, onChange, onClose }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
               <Field label="Issue number" value={content.issueNumber} onChange={(v) => updateField('issueNumber', v)} />
               <Field label="Date" value={content.dateStr} onChange={(v) => updateField('dateStr', v)} placeholder="May 4, 2026" />
+            </div>
+          </Group>
+
+          <Group title="Personalization tags (click to copy)">
+            <div style={{
+              fontFamily: '"Source Sans 3", Arial, sans-serif',
+              fontSize: 12, color: '#6b6258', lineHeight: 1.5, marginBottom: 12,
+            }}>
+              Drop these into any text field — letter body, button label, subject line, sponsor copy. Kit substitutes them per recipient at send time. Use the <code style={{ fontFamily: 'ui-monospace, monospace' }}>| default: "friend"</code> filter to provide a fallback when the field is empty (so you don't get "Hi ,").
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {KIT_TAGS.map(({ tag, label }) => {
+                const isCopied = copiedTag === tag;
+                return (
+                  <button
+                    key={tag}
+                    onClick={async () => {
+                      const ok = window.copyToClipboard ? await window.copyToClipboard(tag) : false;
+                      if (ok) {
+                        setCopiedTag(tag);
+                        setTimeout(() => setCopiedTag((c) => (c === tag ? null : c)), 1500);
+                      }
+                    }}
+                    title={`Copy ${tag}`}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '8px 12px',
+                      background: isCopied ? '#fbf3e3' : '#fff',
+                      border: '1.5px solid ' + (isCopied ? '#c1593c' : '#e8d9bd'),
+                      borderRadius: 0, cursor: 'pointer', textAlign: 'left',
+                      fontFamily: '"Source Sans 3", Arial, sans-serif',
+                    }}
+                  >
+                    <code style={{
+                      fontFamily: 'ui-monospace, Menlo, Consolas, monospace',
+                      fontSize: 12, color: '#2d2927',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      flexShrink: 0, maxWidth: '60%',
+                    }}>{tag}</code>
+                    <span style={{ flex: 1, fontSize: 11, color: '#6b6258', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>— {label}</span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
+                      color: isCopied ? '#c1593c' : '#9a8773', flexShrink: 0,
+                    }}>{isCopied ? '✓ Copied' : 'Copy'}</span>
+                  </button>
+                );
+              })}
             </div>
           </Group>
 

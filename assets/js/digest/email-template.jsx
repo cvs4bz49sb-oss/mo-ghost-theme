@@ -357,7 +357,7 @@ function Masthead({ tokens, issueNumber, dateStr, mastheadTitle }) {
         <tbody>
           <tr>
             <td style={{ verticalAlign: 'middle', width: showRightCol ? '50%' : '100%', textAlign: showRightCol ? 'left' : 'center' }}>
-              <img src={moDigestAsset('assets/mere-o-logo.png')} alt="Mere Orthodoxy" style={{ height: 38, display: showRightCol ? 'block' : 'inline-block' }} />
+              <img src={moDigestAsset('assets/mere-o-logo.png')} alt="Mere Orthodoxy" style={{ height: 52, display: showRightCol ? 'block' : 'inline-block' }} />
             </td>
             {showRightCol && (
               <td style={{ verticalAlign: 'middle', textAlign: 'right', width: '50%' }}>
