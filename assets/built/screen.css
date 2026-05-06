@@ -9940,6 +9940,7 @@ body.mo-search-open { overflow: hidden; }
 .faith-section-nav-inner {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 18px;
   padding: 14px 28px;
   overflow-x: auto;
@@ -12201,7 +12202,9 @@ body.mo-search-open { overflow: hidden; }
   margin: 0 auto;
   max-width: 640px;
   padding: 8px 0 0;
+  text-align: center;
 }
+.faith-intro-disclosure .faith-intro-body { text-align: left; }
 .faith-intro-disclosure > .faith-intro-summary {
   list-style: none;
   display: inline-flex;

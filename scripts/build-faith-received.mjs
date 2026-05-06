@@ -216,7 +216,6 @@ function intro(doc, intros) {
         </summary>
         <div class="faith-intro-body">
           <p class="faith-intro-prose hero-excerpt-dropcap">${escape(smarten(text))}</p>
-          <div class="flourish faith-intro-flourish">{{> "flourish-mark"}}</div>
         </div>
       </details>
     </div>
@@ -824,7 +823,6 @@ function renderLibraryBooks(doc) {
             <span class="faith-chev" aria-hidden="true"></span>
           </summary>
           <div class="faith-book-body">
-            <div class="flourish">{{> "flourish-mark"}}</div>
             ${chapters}
           </div>
         </details>`;
@@ -998,7 +996,6 @@ function renderMemorize(doc, entries) {
           <h2 class="faith-memorize-question" data-faith-memorize-question></h2>
 
           <div class="faith-memorize-answer" data-faith-memorize-answer hidden>
-            <div class="flourish">{{> "flourish-mark"}}</div>
             <div class="faith-memorize-answer-text article-content" data-faith-memorize-answer-text></div>
             <p class="faith-qa-references faith-memorize-refs" data-faith-memorize-refs hidden></p>
           </div>
