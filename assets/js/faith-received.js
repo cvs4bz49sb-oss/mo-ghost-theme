@@ -1061,6 +1061,79 @@
     }
   }
 
+  // ── 4b. View toggle (Heidelberg: Lord's Day / Section / Memorize) ──
+  // Memorize is a real route link, so the click just lets the browser
+  // navigate. The other two tabs flip a [data-faith-view] attribute
+  // on the views wrapper; CSS keys off that attribute to swap which
+  // chrome is visible. In section view the LD <details> are forced
+  // open so each Part reads as a continuous body of text.
+  initViewToggle();
+
+  function initViewToggle() {
+    var nav = document.querySelector("[data-faith-view-toggle]");
+    if (!nav) return;
+    var wrapper = document.querySelector("[data-faith-view]");
+    if (!wrapper) return;
+    var tabs = nav.querySelectorAll(".faith-view-toggle-tab[data-faith-view-target]");
+    var partSummaries = document.querySelectorAll("[data-faith-part-summary]");
+
+    function setView(view) {
+      wrapper.setAttribute("data-faith-view", view);
+      Array.prototype.forEach.call(tabs, function (t) {
+        var on = t.getAttribute("data-faith-view-target") === view;
+        t.classList.toggle("is-active", on);
+        t.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      var lds = document.querySelectorAll(".faith-lords-day-details");
+      if (view === "section") {
+        // In section view the Part containers themselves collapse.
+        // Default each Part closed so the reader sees the three Part
+        // headings before drilling in. LDs inside auto-open so the
+        // Part reads continuously when the reader does open it.
+        Array.prototype.forEach.call(partSummaries, function (s) {
+          s.setAttribute("aria-expanded", "false");
+          var part = s.closest(".faith-heidelberg-part");
+          if (part) part.classList.remove("is-open");
+        });
+        Array.prototype.forEach.call(lds, function (d) { d.open = true; });
+      } else {
+        // Lord's Day view: Part containers are inert headers; LDs
+        // collapse back to default so the reader picks one to read.
+        Array.prototype.forEach.call(partSummaries, function (s) {
+          s.setAttribute("aria-expanded", "true");
+          var part = s.closest(".faith-heidelberg-part");
+          if (part) part.classList.add("is-open");
+        });
+        Array.prototype.forEach.call(lds, function (d) { d.open = false; });
+      }
+    }
+
+    Array.prototype.forEach.call(tabs, function (t) {
+      t.addEventListener("click", function (e) {
+        e.preventDefault();
+        var view = t.getAttribute("data-faith-view-target");
+        if (view) setView(view);
+      });
+    });
+
+    // Part summaries are clickable in section view, inert in LD view.
+    // The CSS gates pointer-events; the JS handles the toggle.
+    Array.prototype.forEach.call(partSummaries, function (s) {
+      s.addEventListener("click", function () {
+        if (wrapper.getAttribute("data-faith-view") !== "section") return;
+        var part = s.closest(".faith-heidelberg-part");
+        if (!part) return;
+        var open = !part.classList.contains("is-open");
+        part.classList.toggle("is-open", open);
+        s.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    });
+
+    // Initial state: LD view, all Parts marked open (visible) so the
+    // page renders content immediately.
+    setView("lords-day");
+  }
+
   // ── 5. Auto-open <details> when its anchor is targeted ───────
   // A reader clicking a TOC link to #chapter-3 (or arriving at the URL
   // with the hash already present) needs the matching <details> to

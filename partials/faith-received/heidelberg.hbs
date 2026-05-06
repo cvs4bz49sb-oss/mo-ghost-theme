@@ -5,7 +5,10 @@
       <p class="article-topic"><a href="/the-faith-received/" class="article-topic-tag">The Faith Received</a></p>
       <h1 class="article-title">The Heidelberg Catechism</h1>
       <p class="article-dek faith-doc-dek">1563</p>
+      
       <p class="faith-doc-description">129 questions and answers for the Christian life, organized into 52 Lord’s Days.</p>
+      
+      
       <div class="faith-doc-actions">
         
         <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
@@ -22,9 +25,16 @@
     
   <section class="faith-intro">
     <div class="container container-narrow">
-      <p class="eyebrow faith-intro-eyebrow">An Introduction</p>
-      <p class="faith-intro-prose hero-excerpt-dropcap">The Heidelberg Catechism was written in 1563 for the churches of the Palatinate by Zacharias Ursinus and Caspar Olevianus, on commission from the elector Frederick III. It asks the reader a single, enormous question: “What is your only comfort, in life and in death?” The 128 questions that follow are an exposition of that answer - a map of the Christian life from misery through deliverance into gratitude, organized into 52 Lord’s Days for weekly preaching. Four and a half centuries later, it remains one of the warmest and most pastoral documents the Reformation produced.</p>
-      <div class="flourish faith-intro-flourish">{{> "flourish-mark"}}</div>
+      <details class="faith-intro-disclosure" data-faith-intro>
+        <summary class="faith-intro-summary">
+          <span class="faith-intro-summary-label" data-faith-intro-label>Read introduction</span>
+          <span class="faith-intro-summary-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="faith-intro-body">
+          <p class="faith-intro-prose hero-excerpt-dropcap">The Heidelberg Catechism was written in 1563 for the churches of the Palatinate by Zacharias Ursinus and Caspar Olevianus, on commission from the elector Frederick III. It asks the reader a single, enormous question: “What is your only comfort, in life and in death?” The 128 questions that follow are an exposition of that answer - a map of the Christian life from misery through deliverance into gratitude, organized into 52 Lord’s Days for weekly preaching. Four and a half centuries later, it remains one of the warmest and most pastoral documents the Reformation produced.</p>
+          <div class="flourish faith-intro-flourish">{{> "flourish-mark"}}</div>
+        </div>
+      </details>
     </div>
   </section>
     
@@ -108,6 +118,18 @@
         </aside>
         <div class="faith-doc-inner">
           
+  <nav class="faith-view-toggle" data-faith-view-toggle aria-label="Catechism view">
+    <button type="button" class="faith-view-toggle-tab is-active" data-faith-view-target="lords-day" aria-pressed="true">
+      <em>By Lord's Day</em>
+    </button>
+    <button type="button" class="faith-view-toggle-tab" data-faith-view-target="section" aria-pressed="false">
+      <em>By Section</em>
+    </button>
+    <a class="faith-view-toggle-tab faith-view-toggle-tab--link" href="/the-faith-received/heidelberg/memorize/">
+      <em>Memorize</em>
+    </a>
+  </nav>
+
   <div class="faith-reading-controls" data-faith-controls>
     <span class="faith-reading-controls-label">Reading</span>
     <button type="button" class="faith-reading-control" data-faith-expand-all>Expand all</button>
@@ -119,10 +141,19 @@
     </button>
   </div>
         
-        <section class="faith-heidelberg-part" id="part-misery">
-          <p class="eyebrow faith-part-eyebrow">Part I &middot; Misery</p>
-          <div class="flourish">{{> "flourish-mark"}}</div>
+        <div class="faith-heidelberg-views" data-faith-view="lords-day">
           
+        <section class="faith-heidelberg-part" data-faith-part="misery" id="part-misery">
+          <button type="button" class="faith-heidelberg-part-summary" data-faith-part-summary aria-expanded="true">
+            <span class="faith-heidelberg-part-summary-inner">
+              <span class="eyebrow faith-part-eyebrow">Part I &middot; Misery</span>
+              <span class="faith-part-subtitle">Lord's Days 1&ndash;4 &middot; Questions 1&ndash;11</span>
+            </span>
+            <span class="faith-chev faith-heidelberg-part-chev" aria-hidden="true"></span>
+          </button>
+          <div class="faith-heidelberg-part-body">
+            <div class="flourish">{{> "flourish-mark"}}</div>
+            
           <details class="faith-section-details faith-lords-day-details" id="lords-day-1">
             <summary class="faith-section-summary">
               <div class="faith-section-summary-inner">
@@ -280,11 +311,19 @@
   
             </div>
           </details>
+          </div>
         </section>
-        <section class="faith-heidelberg-part" id="part-deliverance">
-          <p class="eyebrow faith-part-eyebrow">Part II &middot; Deliverance</p>
-          <div class="flourish">{{> "flourish-mark"}}</div>
-          
+        <section class="faith-heidelberg-part" data-faith-part="deliverance" id="part-deliverance">
+          <button type="button" class="faith-heidelberg-part-summary" data-faith-part-summary aria-expanded="true">
+            <span class="faith-heidelberg-part-summary-inner">
+              <span class="eyebrow faith-part-eyebrow">Part II &middot; Deliverance</span>
+              <span class="faith-part-subtitle">Lord's Days 5&ndash;31 &middot; Questions 12&ndash;85</span>
+            </span>
+            <span class="faith-chev faith-heidelberg-part-chev" aria-hidden="true"></span>
+          </button>
+          <div class="faith-heidelberg-part-body">
+            <div class="flourish">{{> "flourish-mark"}}</div>
+            
           <details class="faith-section-details faith-lords-day-details" id="lords-day-5">
             <summary class="faith-section-summary">
               <div class="faith-section-summary-inner">
@@ -1348,11 +1387,19 @@
   
             </div>
           </details>
+          </div>
         </section>
-        <section class="faith-heidelberg-part" id="part-gratitude">
-          <p class="eyebrow faith-part-eyebrow">Part III &middot; Gratitude</p>
-          <div class="flourish">{{> "flourish-mark"}}</div>
-          
+        <section class="faith-heidelberg-part" data-faith-part="gratitude" id="part-gratitude">
+          <button type="button" class="faith-heidelberg-part-summary" data-faith-part-summary aria-expanded="true">
+            <span class="faith-heidelberg-part-summary-inner">
+              <span class="eyebrow faith-part-eyebrow">Part III &middot; Gratitude</span>
+              <span class="faith-part-subtitle">Lord's Days 32&ndash;52 &middot; Questions 86&ndash;129</span>
+            </span>
+            <span class="faith-chev faith-heidelberg-part-chev" aria-hidden="true"></span>
+          </button>
+          <div class="faith-heidelberg-part-body">
+            <div class="flourish">{{> "flourish-mark"}}</div>
+            
           <details class="faith-section-details faith-lords-day-details" id="lords-day-32">
             <summary class="faith-section-summary">
               <div class="faith-section-summary-inner">
@@ -2044,7 +2091,9 @@
   
             </div>
           </details>
+          </div>
         </section>
+        </div>
         </div>
       </div>
       <div class="faith-toc-backdrop" data-faith-toc-backdrop hidden></div>

@@ -10955,33 +10955,34 @@ body.mo-search-open { overflow: hidden; }
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
 }
-.faith-toc-item { display: block; }
-/* Stacked layout: numeral / date as small eyebrow above the label.
-   This keeps long "num" values (e.g. "c. 2nd–3rd Century" on the
-   topic-page sidebars where the dates are the navigation key) from
-   overlapping the title — short numerals like "I", "LD 1" still
-   read fine as a small line above the title.  */
+/* Editorial rows: hairlines between items, no card chrome. Active
+   item gets a thin accent rule on the left and accent-coloured text;
+   no background fill (MO rule: hairlines + editorial rows, not pills).
+   Stacked layout keeps the numeral as a small eyebrow above the title
+   so long values ("c. 2nd–3rd Century") don't crowd the row. */
+.faith-toc-item { display: block; border-top: 1px solid var(--color-rule); }
+.faith-toc-item:last-child { border-bottom: 1px solid var(--color-rule); }
 .faith-toc-item a {
   display: block;
-  padding: 8px 10px;
-  border-radius: 4px;
+  padding: 9px 8px 9px 12px;
   color: var(--color-dark);
   text-decoration: none;
   font-size: 13px;
   line-height: 1.4;
-  transition: background 0.12s, color 0.12s;
+  border-left: 2px solid transparent;
+  transition: color 0.12s, border-color 0.12s;
 }
 .faith-toc-item a:hover {
-  background: rgba(238,125,81,0.08);
   color: var(--color-secondary);
   text-decoration: none;
+  border-left-color: var(--color-rule);
 }
 .faith-toc-item a.is-active {
-  background: rgba(238,125,81,0.14);
   color: var(--color-secondary);
+  border-left-color: var(--color-secondary);
 }
+.faith-toc-item a.is-active .faith-toc-num { color: var(--color-secondary); }
 .faith-toc-num {
   display: block;
   font-family: var(--font-body);
@@ -12167,4 +12168,287 @@ body.mo-search-open { overflow: hidden; }
   .faith-memorize-actions { flex-direction: column; }
   .faith-memorize-actions .btn { width: 100%; }
   .faith-memorize-nav-btn { font-size: 10px; padding: 9px 14px; }
+}
+
+/* ── Read-introduction disclosure ───────────────────────────── */
+/* Mirrors the original TFR site's "Read introduction" toggle. The
+   summary is a compact accent-coloured link; opening it reveals the
+   full editorial intro with its dropcap and closing flourish. */
+.faith-intro-disclosure {
+  margin: 0 auto;
+  max-width: 640px;
+  padding: 8px 0 0;
+}
+.faith-intro-disclosure > .faith-intro-summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--color-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  padding: 6px 0;
+}
+.faith-intro-disclosure > .faith-intro-summary::-webkit-details-marker { display: none; }
+.faith-intro-summary:hover { color: var(--color-primary); }
+.faith-intro-summary-chev {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+}
+.faith-intro-disclosure[open] .faith-intro-summary-chev {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+.faith-intro-body {
+  padding: 18px 0 0;
+}
+.faith-intro-body .faith-intro-prose { margin-top: 0; }
+
+/* ── View toggle (Heidelberg) ───────────────────────────────── */
+/* Editorial switcher: italic display tabs separated by hairlines,
+   active tab marked by an accent underline. Replaces the original
+   site's pill chrome with MO's hairline-and-italic vocabulary. */
+.faith-view-toggle {
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  margin: 0 0 28px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+}
+.faith-view-toggle-tab {
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--color-muted);
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.15s;
+}
+.faith-view-toggle-tab em { font-style: italic; }
+.faith-view-toggle-tab:hover { color: var(--color-dark); }
+.faith-view-toggle-tab.is-active {
+  color: var(--color-primary);
+}
+.faith-view-toggle-tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -13px;
+  height: 1px;
+  background: var(--color-secondary);
+}
+.faith-view-toggle-tab--link::before {
+  content: "→";
+  display: inline-block;
+  margin-right: 6px;
+  color: var(--color-secondary);
+  font-style: normal;
+  font-size: 0.85em;
+  vertical-align: middle;
+}
+
+/* ── Heidelberg Part containers (responsive to view) ────────── */
+.faith-heidelberg-views { display: block; }
+.faith-heidelberg-part { margin: 0 0 56px; }
+.faith-heidelberg-part:last-child { margin-bottom: 0; }
+.faith-heidelberg-part-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 16px 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: default;
+  border-bottom: 1px solid var(--color-rule);
+}
+.faith-heidelberg-part-summary-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.faith-heidelberg-part-summary-inner .faith-part-eyebrow { margin: 0; }
+.faith-part-subtitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+.faith-heidelberg-part-chev {
+  display: none;
+  width: 12px;
+  height: 12px;
+  border-right: 1.5px solid var(--color-muted);
+  border-bottom: 1.5px solid var(--color-muted);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.faith-heidelberg-part-body { display: block; }
+.faith-heidelberg-part-body .flourish { margin: 24px 0 32px; }
+
+[data-faith-view="lords-day"] .faith-heidelberg-part-summary { cursor: default; pointer-events: none; }
+[data-faith-view="lords-day"] .faith-heidelberg-part-chev { display: none; }
+[data-faith-view="lords-day"] .faith-heidelberg-part-body { display: block; }
+
+[data-faith-view="section"] .faith-heidelberg-part-summary { cursor: pointer; pointer-events: auto; }
+[data-faith-view="section"] .faith-heidelberg-part-summary:hover .faith-part-eyebrow { color: var(--color-primary); }
+[data-faith-view="section"] .faith-heidelberg-part-chev { display: inline-block; }
+[data-faith-view="section"] .faith-heidelberg-part.is-open .faith-heidelberg-part-chev {
+  transform: rotate(225deg);
+}
+[data-faith-view="section"] .faith-heidelberg-part:not(.is-open) .faith-heidelberg-part-body { display: none; }
+[data-faith-view="section"] .faith-heidelberg-part.is-open .faith-heidelberg-part-body { display: block; }
+/* In section view the LD <details> are forced open via JS so the
+   reader gets a continuous body of text. The LD summary chrome
+   (Lord's Day N · title) reads as an inline header rather than a
+   click-target. */
+[data-faith-view="section"] .faith-lords-day-details > .faith-section-summary .faith-chev { display: none; }
+[data-faith-view="section"] .faith-lords-day-details > .faith-section-summary { cursor: default; pointer-events: none; }
+
+/* ── Library editorial header extras ────────────────────────── */
+.faith-doc-header--library .faith-doc-translator {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 16px;
+  font-style: italic;
+}
+.faith-doc-rule {
+  border: 0;
+  height: 1px;
+  background: var(--color-secondary);
+  opacity: 0.4;
+  width: 64px;
+  margin: 24px 0 20px;
+}
+.faith-format-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 24px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+.faith-format-link {
+  color: var(--color-secondary);
+  text-decoration: none;
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s, color 0.15s;
+}
+.faith-format-link:hover {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-secondary);
+}
+.faith-format-link--muted { color: var(--color-muted); }
+.faith-format-link--muted:hover { color: var(--color-secondary); }
+.faith-format-link[data-faith-download-pending] {
+  pointer-events: none;
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.faith-format-sep {
+  color: var(--color-rule);
+  user-select: none;
+}
+
+/* ── Library: Introductory Material ──────────────────────────── */
+.faith-front-matter {
+  margin: 0 0 56px;
+  padding: 0 0 8px;
+}
+.faith-front-matter-heading {
+  margin: 0 0 16px;
+}
+.faith-front-matter-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.faith-front-matter-item {
+  border-top: 1px solid var(--color-rule);
+}
+.faith-front-matter-item:last-child {
+  border-bottom: 1px solid var(--color-rule);
+}
+.faith-front-matter-link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.15s;
+}
+.faith-front-matter-link:hover .faith-front-matter-title { color: var(--color-secondary); }
+.faith-front-matter-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.25;
+  color: var(--color-primary);
+}
+.faith-front-matter-title em { font-style: italic; }
+.faith-front-matter-subtitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+.faith-front-matter-body {
+  padding: 8px 0 24px;
+}
+.faith-front-matter-body p {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+
+/* ── Library editorial book ──────────────────────────────────── */
+.faith-book-details--editorial {
+  border-top: 1px solid var(--color-rule);
+  padding: 6px 0 0;
+}
+.faith-book-details--editorial:last-child {
+  border-bottom: 1px solid var(--color-rule);
+  margin-bottom: 0;
+}
+.faith-book-details--editorial + .faith-book-details--editorial {
+  border-top: 1px solid var(--color-rule);
+  padding-top: 6px;
+}
+.faith-book-subtitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 6px 0 0;
+}
+.faith-doc--editorial .faith-book-details--editorial .faith-book-summary {
+  padding: 22px 0;
+}
+
+@media (max-width: 640px) {
+  .faith-view-toggle { gap: 16px; flex-wrap: wrap; }
+  .faith-view-toggle-tab { font-size: 16px; }
+  .faith-front-matter-title { font-size: 18px; }
+  .faith-format-downloads { gap: 10px; }
 }

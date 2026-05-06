@@ -118,6 +118,40 @@ function titleFor(c) {
   return escape(smarten(c.title || ""));
 }
 
+// ── Library translators + downloads ───────────────────────────
+//
+// Translators aren't in the doc JSON; the original TFR site keeps
+// them in workMeta. Hardcoded here for now; can move to JSON when we
+// re-run the import. Format-download routes match the TFR API shape
+// even though no files exist yet — the markup is ready to wire up
+// once we ship the generated PDFs/EPUBs to R2 (or stand up a Worker).
+const LIBRARY_TRANSLATORS = {
+  "augustine-confessions": "J.G. Pilkington",
+};
+const LIBRARY_DOWNLOADS_AVAILABLE = new Set([
+  // Slugs in this set render the format-downloads row. Rest skip it
+  // until files ship. Add slugs as PDFs/EPUBs become available.
+]);
+
+function formatDownloadsRow(doc) {
+  // Render the row even when files aren't ready — keeps the editorial
+  // layout consistent and gives Ian a placeholder to wire up later.
+  // The hrefs use the original TFR API path shape so the swap to a
+  // Worker or R2 redirect is a one-line change per format.
+  if (doc.category !== "library") return "";
+  const ready = LIBRARY_DOWNLOADS_AVAILABLE.has(doc.slug);
+  const dlAttr = ready ? "" : ` data-faith-download-pending aria-disabled="true"`;
+  const base = `/the-faith-received/${doc.slug}/download`;
+  return `
+      <p class="faith-format-downloads">
+        <a class="faith-format-link" href="${base}/pdf"${dlAttr}>PDF</a>
+        <a class="faith-format-link" href="${base}/epub"${dlAttr}>EPUB</a>
+        <span class="faith-format-sep" aria-hidden="true">|</span>
+        <a class="faith-format-link faith-format-link--muted" href="${base}/modern/pdf"${dlAttr}>PDF (Modern)</a>
+        <a class="faith-format-link faith-format-link--muted" href="${base}/modern/epub"${dlAttr}>EPUB (Modern)</a>
+      </p>`;
+}
+
 // ── Header (dark hero atop every document) ────────────────────
 function header(doc, hasToc) {
   const sub = doc.author
@@ -134,13 +168,25 @@ function header(doc, hasToc) {
           </span>
           <span class="faith-doc-toc-toggle-label">Contents</span>
         </button>` : "";
+  // Library docs get a translator line + hairline + format-downloads
+  // row inside the header, matching the original TFR overview page.
+  const translator = LIBRARY_TRANSLATORS[doc.slug];
+  const translatorLine = translator
+    ? `<p class="faith-doc-translator">Translated by ${escape(translator)}</p>`
+    : "";
+  const isLibrary = doc.category === "library";
+  const libraryRule = isLibrary ? `<hr class="faith-doc-rule" aria-hidden="true">` : "";
+  const downloads = isLibrary ? formatDownloadsRow(doc) : "";
   return `
-  <section class="article-header faith-doc-header">
+  <section class="article-header faith-doc-header${isLibrary ? " faith-doc-header--library" : ""}">
     <div class="article-header-inner">
       <p class="article-topic"><a href="/the-faith-received/" class="article-topic-tag">The Faith Received</a></p>
       <h1 class="article-title">${escape(smarten(doc.title))}</h1>
       <p class="article-dek faith-doc-dek">${sub}</p>
+      ${translatorLine}
       ${doc.description ? `<p class="faith-doc-description">${escape(smarten(doc.description))}</p>` : ""}
+      ${libraryRule}
+      ${downloads}
       <div class="faith-doc-actions">
         ${tocToggle}
         <a href="/the-faith-received/" class="faith-doc-back"><span aria-hidden="true">&larr;</span> The Faith Received</a>
@@ -150,16 +196,29 @@ function header(doc, hasToc) {
   {{> "faith-received/_nav"}}`;
 }
 
-// ── Editorial introduction (always open, dropcap on first ¶) ──
+// ── Editorial introduction (collapsed by default behind "Read introduction") ──
+//
+// Mirrors the original TFR site's introduction disclosure pattern. The
+// summary reads "Read introduction" / "Hide introduction" and toggles
+// the longer editorial body underneath. Body keeps the dropcap on the
+// first paragraph and the closing flourish so once opened it reads as
+// a proper editorial preface.
 function intro(doc, intros) {
   const text = intros[doc.slug];
   if (!text) return "";
   return `
   <section class="faith-intro">
     <div class="container container-narrow">
-      <p class="eyebrow faith-intro-eyebrow">An Introduction</p>
-      <p class="faith-intro-prose hero-excerpt-dropcap">${escape(smarten(text))}</p>
-      <div class="flourish faith-intro-flourish">{{> "flourish-mark"}}</div>
+      <details class="faith-intro-disclosure" data-faith-intro>
+        <summary class="faith-intro-summary">
+          <span class="faith-intro-summary-label" data-faith-intro-label>Read introduction</span>
+          <span class="faith-intro-summary-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="faith-intro-body">
+          <p class="faith-intro-prose hero-excerpt-dropcap">${escape(smarten(text))}</p>
+          <div class="flourish faith-intro-flourish">{{> "flourish-mark"}}</div>
+        </div>
+      </details>
     </div>
   </section>`;
 }
@@ -184,11 +243,14 @@ function readingControls(doc) {
   // Q&A docs (heidelberg + qa kinds) get a dedicated "Memorize" link
   // pointing at /the-faith-received/{slug}/memorize/. The link doesn't
   // depend on JS state — it's a real route — so it goes in markup.
-  const memorizePart = (doc.kind === "qa" || doc.kind === "heidelberg")
-    ? `
+  // Heidelberg suppresses this link because its view toggle owns the
+  // Memorize tab instead.
+  const memorizePart =
+    (doc.kind === "qa" || (doc.kind === "heidelberg" && doc.slug !== "heidelberg"))
+      ? `
     <a class="faith-reading-control faith-reading-control--link" href="/the-faith-received/${doc.slug}/memorize/">Memorize</a>
     <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>`
-    : "";
+      : "";
   return `
   <div class="faith-reading-controls" data-faith-controls>
     <span class="faith-reading-controls-label">Reading</span>${expandPart}${memorizePart}
@@ -196,6 +258,29 @@ function readingControls(doc) {
       <span class="faith-modernizer-label">Modernize language</span>
     </button>
   </div>`;
+}
+
+// ── View toggle (Heidelberg's "By Lord's Day / By Section / Memorize") ──
+//
+// Mirrors the segmented control on the original TFR site. Rendered as
+// three editorial-style links underlined on active rather than a pill,
+// to keep the pattern consistent with the rest of the MO site. The
+// "Memorize" tab is a real link to the /memorize/ subroute (not an
+// in-page view) — clicking it leaves the page.
+function viewToggle(doc) {
+  if (doc.slug !== "heidelberg") return "";
+  return `
+  <nav class="faith-view-toggle" data-faith-view-toggle aria-label="Catechism view">
+    <button type="button" class="faith-view-toggle-tab is-active" data-faith-view-target="lords-day" aria-pressed="true">
+      <em>By Lord's Day</em>
+    </button>
+    <button type="button" class="faith-view-toggle-tab" data-faith-view-target="section" aria-pressed="false">
+      <em>By Section</em>
+    </button>
+    <a class="faith-view-toggle-tab faith-view-toggle-tab--link" href="/the-faith-received/${doc.slug}/memorize/">
+      <em>Memorize</em>
+    </a>
+  </nav>`;
 }
 
 // ── Table of contents (rendered inside .faith-toc-sidebar) ────
@@ -489,13 +574,29 @@ function renderQA(doc) {
 
 function renderHeidelberg(doc) {
   // 52 Lord's Days grouped by Part (Misery, Deliverance, Gratitude).
-  // Each Lord's Day is a collapsible. Q&A inside a Lord's Day stay
-  // flat. Sidebar TOC groups by part to match the original TFR.
+  // Sidebar TOC groups by part to match the original TFR.
+  //
+  // The page supports two in-page views via [data-faith-view] on the
+  // body wrapper (toggled by the segmented control above):
+  //
+  //   "lords-day"  — Part headers inert; LD <details> collapsed by
+  //                  default; reader picks an LD to open.
+  //   "section"    — Part containers themselves are collapsible
+  //                  (closed by default); opening one auto-opens the
+  //                  LDs inside so the part reads as continuous text.
+  //
+  // The Memorize tab in the view toggle is a real route link, not an
+  // in-page view, so it doesn't appear here.
   const partList = ["misery", "deliverance", "gratitude"];
   const partLabels = {
     misery: "Part I &middot; Misery",
     deliverance: "Part II &middot; Deliverance",
     gratitude: "Part III &middot; Gratitude",
+  };
+  const partSubtitles = {
+    misery: "Lord's Days 1&ndash;4 &middot; Questions 1&ndash;11",
+    deliverance: "Lord's Days 5&ndash;31 &middot; Questions 12&ndash;85",
+    gratitude: "Lord's Days 32&ndash;52 &middot; Questions 86&ndash;129",
   };
 
   const allDays = doc.lordsDays ?? [];
@@ -506,17 +607,32 @@ function renderHeidelberg(doc) {
     const days = allDays.filter((d) => d.section === sec);
     if (!days.length) continue;
     sectionsHtml += `
-        <section class="faith-heidelberg-part" id="part-${sec}">
-          <p class="eyebrow faith-part-eyebrow">${partLabels[sec]}</p>
-          <div class="flourish">{{> "flourish-mark"}}</div>
-          ${days.map((d) => renderLordsDay(d, false)).join("\n")}
+        <section class="faith-heidelberg-part" data-faith-part="${sec}" id="part-${sec}">
+          <button type="button" class="faith-heidelberg-part-summary" data-faith-part-summary aria-expanded="true">
+            <span class="faith-heidelberg-part-summary-inner">
+              <span class="eyebrow faith-part-eyebrow">${partLabels[sec]}</span>
+              <span class="faith-part-subtitle">${partSubtitles[sec]}</span>
+            </span>
+            <span class="faith-chev faith-heidelberg-part-chev" aria-hidden="true"></span>
+          </button>
+          <div class="faith-heidelberg-part-body">
+            <div class="flourish">{{> "flourish-mark"}}</div>
+            ${days.map((d) => renderLordsDay(d, false)).join("\n")}
+          </div>
         </section>`;
   }
+  const body = `
+        <div class="faith-heidelberg-views" data-faith-view="lords-day">
+          ${sectionsHtml}
+        </div>`;
+  // The view toggle sits above the reading-controls bar so the order
+  // matches the original site (view → reading affordances → content).
+  const controlsStack = `${viewToggle(doc)}\n${readingControls(doc)}`;
   return `
   <main class="article faith-doc faith-doc--heidelberg">
     ${header(doc, !!toc)}
     ${intro(doc, INTROS)}
-    ${wrapBody({ toc, controls: readingControls(doc), sections: sectionsHtml })}
+    ${wrapBody({ toc, controls: controlsStack, sections: body })}
   </main>`;
 }
 
@@ -605,36 +721,106 @@ function renderLibraryChapters(doc) {
   </main>`;
 }
 
+// Editorial book titles (the "— Infancy and Boyhood" half) that the
+// import doesn't carry over from the source TS modules. Keyed by
+// {slug}/{bookNumber}. Falls back to just "Book {N}" if absent.
+const LIBRARY_BOOK_TITLES = {
+  "augustine-confessions": {
+    1: "Infancy and Boyhood",
+    2: "Object of These Confessions",
+    3: "From Age Seventeen to Nineteen",
+    4: "Teaching, Grief, and Restless Thought",
+    5: "Faustus, Rome, and Milan",
+    6: "Ambrose, Alypius, and the Struggle",
+    7: "Finding God Through the Platonists",
+    8: "The Conversion",
+    9: "Cassiciacum, Baptism, and Monica's Death",
+    10: "Memory and Temptation",
+    11: "Time and Eternity",
+    12: "On Genesis: Heaven and Earth",
+    13: "On Genesis: Creation and the Spirit",
+  },
+};
+
 function renderLibraryBooks(doc) {
   // Multi-book classics (Calvin, Augustine, Imitation). Each BOOK is
   // its own collapsible <details>; inside, each chapter is a nested
   // <details>. First book opens by default so the page has visible
   // content on landing. Books closed → reader sees a clean book-by-
   // book table of contents and can drill in.
-  const html = (doc.books ?? []).map((b, bookIdx) => {
-    const chapters = (b.chapters ?? []).map((c, i) => {
-      const args = {
-        id: `book-${b.bookNumber}-chapter-${c.number}`,
-        eyebrow: `Chapter ${roman(c.number)}`,
-        title: titleFor(c),
-        body: paragraphsArray(c.paragraphs),
-      };
-      // Inside the (open) first book, the first chapter is also
-      // open. Other chapters collapsed. Inside other books, all
-      // chapters collapsed.
-      return wrapDetails({ ...args, open: false, kindClass: "faith-book-chapter" });
-    }).join("\n");
-    const bookLabel = b.bookNumber > 0 ? `Book ${roman(b.bookNumber)}` : "Preface";
-    const bookHeading =
-      b.bookTitle && b.bookTitle !== `Book ${b.bookNumber}`
+  //
+  // Confessions gets the new editorial treatment: front-matter (books
+  // with bookNumber === 0) is split out into a labelled "Introductory
+  // Material" section above the book list; numbered books carry their
+  // editorial book titles ("Book I — Infancy and Boyhood") and a
+  // chapter-count subtitle. Other library-books docs keep the
+  // existing layout until the pattern is reviewed.
+  const useEditorial = doc.slug === "augustine-confessions";
+  const allBooks = doc.books ?? [];
+  const editorialTitles = LIBRARY_BOOK_TITLES[doc.slug] ?? {};
+
+  const renderBookCollapsible = (b, opts = {}) => {
+    // Front-matter books (bookNumber === 0) typically have a single
+    // chapter and short content; rendering the chapter as a nested
+    // <details> adds friction (two clicks to read) and risks ID
+    // collisions when the import gives multiple front-matter books
+    // the same chapter.number. So front-matter inlines its chapter
+    // body directly in the book details. Numbered books keep the
+    // nested chapter <details> for navigability.
+    let chapters;
+    if (b.bookNumber === 0 && (b.chapters || []).length <= 1) {
+      const c = (b.chapters || [])[0];
+      chapters = c
+        ? `<div class="faith-front-matter-body article-content">${paragraphsArray(c.paragraphs)}</div>`
+        : "";
+    } else {
+      chapters = (b.chapters ?? []).map((c) => {
+        const chId = b.bookNumber === 0
+          ? `book-0-${opts.idx ?? 0}-chapter-${c.number}`
+          : `book-${b.bookNumber}-chapter-${c.number}`;
+        return wrapDetails({
+          id: chId,
+          eyebrow: `Chapter ${roman(c.number)}`,
+          title: titleFor(c),
+          body: paragraphsArray(c.paragraphs),
+          open: false,
+          kindClass: "faith-book-chapter",
+        });
+      }).join("\n");
+    }
+    let bookLabel, bookHeading, bookSubtitle = "";
+    if (b.bookNumber > 0) {
+      bookLabel = `Book ${roman(b.bookNumber)}`;
+      const ed = editorialTitles[b.bookNumber];
+      if (ed) {
+        bookHeading = `<h2 class="faith-book-title"><em>${escape(smarten(ed))}</em></h2>`;
+      } else if (b.bookTitle && b.bookTitle !== `Book ${b.bookNumber}` && !/^Book \d+$/.test(b.bookTitle)) {
+        bookHeading = `<h2 class="faith-book-title"><em>${escape(smarten(b.bookTitle))}</em></h2>`;
+      } else {
+        bookHeading = "";
+      }
+      if (useEditorial) {
+        const n = (b.chapters || []).length;
+        bookSubtitle = `<p class="faith-book-subtitle">${n} ${n === 1 ? "chapter" : "chapters"}</p>`;
+      }
+    } else {
+      bookLabel = "Preface";
+      bookHeading = b.bookTitle
         ? `<h2 class="faith-book-title"><em>${escape(smarten(b.bookTitle))}</em></h2>`
         : "";
+    }
+    // bookNumber === 0 (front-matter) needs a per-occurrence suffix
+    // because Confessions ships two front-matter books. Numbered
+    // books keep the bare `book-N` id so external references and the
+    // existing TOC anchors don't break.
+    const bookId = b.bookNumber === 0 ? `book-0-${opts.idx ?? 0}` : `book-${b.bookNumber}`;
     return `
-        <details class="faith-book faith-book-details" id="book-${b.bookNumber}">
+        <details class="faith-book faith-book-details${opts.editorial ? " faith-book-details--editorial" : ""}" id="${bookId}">
           <summary class="faith-book-summary">
             <div class="faith-book-summary-inner">
               <p class="eyebrow faith-part-eyebrow">${bookLabel}</p>
               ${bookHeading}
+              ${bookSubtitle}
             </div>
             <span class="faith-chev" aria-hidden="true"></span>
           </summary>
@@ -643,13 +829,73 @@ function renderLibraryBooks(doc) {
             ${chapters}
           </div>
         </details>`;
-  }).join("\n");
-  const toc = booksTocBlock(doc.books);
+  };
+
+  let bodyHtml;
+  if (useEditorial) {
+    const frontBooks = allBooks.filter((b) => b.bookNumber === 0);
+    const numberedBooks = allBooks.filter((b) => b.bookNumber > 0);
+
+    // Front-matter rendered as an "Introductory Material" labelled
+    // list of editorial rows. Each row is a link to the corresponding
+    // book/chapter anchor on the same page. Subtitle uses the chapter
+    // subtitle when available; otherwise falls back to a stub.
+    const frontRows = frontBooks.map((b, idx) => {
+      const c = (b.chapters ?? [])[0] || {};
+      const anchor = `book-${b.bookNumber}-${idx}`;
+      const title = b.bookTitle || c.title || "Introduction";
+      const sub = c.subtitle || "";
+      return `
+            <li class="faith-front-matter-item">
+              <a class="faith-front-matter-link" href="#${anchor}">
+                <span class="faith-front-matter-title"><em>${escape(smarten(title))}</em></span>
+                ${sub ? `<span class="faith-front-matter-subtitle">${escape(smarten(sub))}</span>` : ""}
+              </a>
+            </li>`;
+    }).join("");
+    const frontSection = frontBooks.length
+      ? `
+        <section class="faith-front-matter" aria-labelledby="introductory-material-heading">
+          <h2 class="eyebrow faith-front-matter-heading" id="introductory-material-heading">Introductory Material</h2>
+          <ul class="faith-front-matter-list">${frontRows}
+          </ul>
+        </section>`
+      : "";
+
+    // Front-matter book bodies still need to render somewhere so the
+    // anchor links from the Introductory Material list resolve. They
+    // sit just below the front-matter list as collapsible details, so
+    // a reader who clicked a row sees the content expanded after
+    // scroll-into-view (anchor-opener JS handles the open).
+    const frontBodies = frontBooks.map((b, idx) =>
+      renderBookCollapsible(b, { editorial: true, idx })
+    ).join("\n");
+
+    const numberedBodies = numberedBooks.map((b) =>
+      renderBookCollapsible(b, { editorial: true, idx: 0 })
+    ).join("\n");
+
+    bodyHtml = `${frontSection}
+        ${frontBodies}
+        <section class="faith-books-section" aria-label="Books">
+          ${numberedBodies}
+        </section>`;
+  } else {
+    bodyHtml = allBooks.map((b) => renderBookCollapsible(b, { idx: 0 })).join("\n");
+  }
+
+  // Editorial layout pulls front-matter into the Introductory Material
+  // section above the book list, so the sidebar TOC focuses on the
+  // numbered books to keep navigation tight.
+  const tocBooks = useEditorial
+    ? allBooks.filter((b) => b.bookNumber > 0)
+    : allBooks;
+  const toc = booksTocBlock(tocBooks);
   return `
-  <main class="article faith-doc faith-doc--library faith-doc--books">
+  <main class="article faith-doc faith-doc--library faith-doc--books${useEditorial ? " faith-doc--editorial" : ""}">
     ${header(doc, !!toc)}
     ${intro(doc, INTROS)}
-    ${wrapBody({ toc, controls: readingControls(doc), sections: html })}
+    ${wrapBody({ toc, controls: readingControls(doc), sections: bodyHtml })}
   </main>`;
 }
 
@@ -878,10 +1124,114 @@ await writeFile(
   `{{!-- Generated by scripts/build-faith-received.mjs. Do not edit by hand. --}}\n<div class="faith-card-grid">${library.map(cardMarkup).join("\n")}\n</div>\n`
 );
 
+// ── Memorize feature ────────────────────────────────────────────
+// One memorize page per Q&A catechism. Renders a shared shell that
+// reads the catechism's Q&A from an inlined JSON script tag and
+// presents a single Q at a time with reveal + mark-memorized + nav.
+const MEMORIZE_TARGETS = [
+  { slug: "heidelberg", title: "The Heidelberg Catechism", date: "1563", count: 129 },
+  { slug: "westminster-shorter", title: "Westminster Shorter Catechism", date: "1647", count: 107 },
+  { slug: "westminster-larger", title: "Westminster Larger Catechism", date: "1647", count: 196 },
+];
+
+for (const m of MEMORIZE_TARGETS) {
+  const docPath = path.join(DATA_DIR, `${m.slug}.json`);
+  let questions = [];
+  try {
+    const doc = JSON.parse(await readFile(docPath, "utf-8"));
+    if (doc.lordsDays) {
+      // Heidelberg: flatten Lord's Day questions, preserving lordsDay #.
+      for (const ld of doc.lordsDays) {
+        for (const q of ld.questions || []) {
+          questions.push({ number: q.number, lordsDay: ld.number, lordsDayTitle: ld.title, question: q.question, answer: q.answer, references: q.references || [] });
+        }
+      }
+    } else if (doc.questions) {
+      // Westminster Shorter / Larger: flat list.
+      for (const q of doc.questions) {
+        questions.push({ number: q.number, question: q.question, answer: q.answer, references: q.references || [] });
+      }
+    }
+  } catch { continue; }
+  if (!questions.length) continue;
+
+  const memBody = `
+  <main class="faith-received faith-memorize" data-faith-memorize data-doc-slug="${m.slug}" data-doc-title="${escape(m.title)}">
+    <section class="article-header faith-doc-header faith-memorize-header">
+      <div class="article-header-inner">
+        <p class="article-topic"><a href="/the-faith-received/${m.slug}/" class="article-topic-tag">${escape(m.title)}</a></p>
+        <h1 class="article-title">Memorize</h1>
+        <p class="faith-doc-description">${m.count} questions and answers, one card at a time. Press <kbd>Space</kbd> to reveal, <kbd>M</kbd> to mark memorized, <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> to navigate.</p>
+        <div class="faith-doc-actions">
+          <a href="/the-faith-received/${m.slug}/" class="faith-doc-back"><span aria-hidden="true">&larr;</span> Back to ${escape(m.title)}</a>
+        </div>
+      </div>
+    </section>
+    {{> "faith-received/_nav"}}
+    <section class="faith-feature-body faith-memorize-body">
+      <div class="container container-narrow">
+        <div class="faith-memorize-progress">
+          <div class="faith-memorize-progress-meta">
+            <span class="faith-memorize-progress-label" data-faith-memorize-progress-label>0 of ${m.count} memorized</span>
+            <span class="faith-memorize-progress-pct" data-faith-memorize-progress-pct>0%</span>
+          </div>
+          <div class="faith-memorize-progress-bar">
+            <div class="faith-memorize-progress-fill" data-faith-memorize-progress-fill style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="faith-memorize-controls">
+          <div class="faith-memorize-filter" role="tablist" aria-label="Filter questions">
+            <button type="button" class="faith-memorize-filter-btn is-active" data-faith-memorize-filter="all" role="tab" aria-selected="true">All</button>
+            <button type="button" class="faith-memorize-filter-btn" data-faith-memorize-filter="unmemorized" role="tab" aria-selected="false">Remaining</button>
+            <button type="button" class="faith-memorize-filter-btn" data-faith-memorize-filter="memorized" role="tab" aria-selected="false">Memorized</button>
+          </div>
+          <div class="faith-memorize-position">
+            <span data-faith-memorize-position>1</span> / <span data-faith-memorize-total>${m.count}</span>
+          </div>
+        </div>
+        <article class="faith-memorize-card" data-faith-memorize-card>
+          <header class="faith-memorize-card-header">
+            <p class="faith-memorize-card-numeral" data-faith-memorize-numeral>Q. 1</p>
+            <h2 class="faith-memorize-card-question" data-faith-memorize-question><em>Loading&hellip;</em></h2>
+          </header>
+          <div class="faith-memorize-answer" data-faith-memorize-answer hidden>
+            <p class="eyebrow">Answer</p>
+            <div class="faith-memorize-answer-text article-content" data-faith-memorize-answer-text></div>
+            <p class="faith-qa-references" data-faith-memorize-refs hidden></p>
+          </div>
+          <div class="faith-memorize-actions">
+            <button type="button" class="btn btn-primary" data-faith-memorize-reveal>Reveal answer</button>
+            <button type="button" class="btn btn-outline" data-faith-memorize-mark>Mark memorized</button>
+          </div>
+        </article>
+        <nav class="faith-memorize-nav" aria-label="Question navigation">
+          <button type="button" class="faith-memorize-nav-btn" data-faith-memorize-prev><span aria-hidden="true">&larr;</span> Previous</button>
+          <button type="button" class="faith-memorize-nav-btn" data-faith-memorize-next>Next <span aria-hidden="true">&rarr;</span></button>
+        </nav>
+        <p class="faith-memorize-empty" data-faith-memorize-empty hidden>No questions match this filter.</p>
+      </div>
+    </section>
+  </main>
+  <script type="application/json" data-faith-memorize-data>${JSON.stringify(questions).replace(/</g, "\\u003c")}</script>
+<script src="{{asset "js/faith-modernize.js"}}"></script>
+<script src="{{asset "js/faith-received.js"}}"></script>
+<script src="{{asset "js/faith-memorize.js"}}"></script>`;
+  await writeFile(
+    path.join(OUT_DIR, `_memorize-${m.slug}.hbs`),
+    `{{!-- Generated by scripts/build-faith-received.mjs. Do not edit by hand. --}}\n${memBody.trim()}\n`
+  );
+}
+
 // Wrapper templates, one per document. Each loads faith-received.js
 // for the reading controls (Expand all / Collapse all), the
 // auto-open-on-anchor handler, and the print handler.
 const TEMPLATE_DIR = path.join(ROOT);
+for (const m of MEMORIZE_TARGETS) {
+  await writeFile(
+    path.join(TEMPLATE_DIR, `custom-faith-${m.slug}-memorize.hbs`),
+    `{{!< default}}\n{{!-- /the-faith-received/${m.slug}/memorize/. Auto-generated. --}}\n{{> "faith-received/_memorize-${m.slug}"}}\n`
+  );
+}
 for (const item of manifest) {
   const tmpl = `{{!< default}}\n{{!-- Generated wrapper for /the-faith-received/${item.slug}/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}"}}\n<script src="{{asset "js/faith-modernize.js"}}"></script>\n<script src="{{asset "js/faith-received.js"}}"></script>\n`;
   await writeFile(path.join(TEMPLATE_DIR, `custom-faith-${item.slug}.hbs`), tmpl);
@@ -1422,6 +1772,79 @@ for (const file of files) {
   }
 }
 await writeFile(path.join(ASSET_DATA_DIR, "today.json"), JSON.stringify(todayPlan));
+
+// ── Devotional sources ──────────────────────────────────────────
+// For every document, expose a flat ordered sequence of "items" the
+// devotional engine can advance through one per day. Item shape:
+//   { anchor: "q-1", label: "Q. 1 — Lord's Day 1" }
+// JS reads this at runtime to assemble today's queue per the
+// reader's selected sources.
+const devotionalSources = {};
+for (const file of files) {
+  const doc = JSON.parse(await readFile(path.join(DATA_DIR, file), "utf-8"));
+  const items = [];
+  if (doc.kind === "heidelberg") {
+    for (const ld of doc.lordsDays || []) {
+      for (const q of ld.questions || []) {
+        items.push({ anchor: `q-${q.number}`, label: `Lord's Day ${ld.number} · Q. ${q.number}` });
+      }
+    }
+  } else if (doc.kind === "qa") {
+    for (const q of doc.questions || []) {
+      items.push({ anchor: `q-${q.number}`, label: `Q. ${q.number}` });
+    }
+  } else if (doc.kind === "sections") {
+    for (const s of doc.sections || []) {
+      items.push({ anchor: `section-${s.number}`, label: `Section ${roman(s.number)} · ${stripHtml(s.title || "")}` });
+    }
+  } else if (doc.kind === "chapters") {
+    for (const c of doc.chapters || []) {
+      items.push({ anchor: `chapter-${c.number}`, label: `Chapter ${roman(c.number)} · ${stripHtml(c.title || "")}` });
+    }
+  } else if (doc.kind === "articles") {
+    for (const a of doc.articles || []) {
+      if (a.number === 0) continue;
+      items.push({ anchor: `article-${a.number}`, label: `Article ${roman(a.number)} · ${stripHtml(a.title || "")}` });
+    }
+  } else if (doc.kind === "theses") {
+    for (const t of doc.theses || []) {
+      items.push({ anchor: `thesis-${t.number}`, label: `Thesis ${t.number}` });
+    }
+  } else if (doc.kind === "edwards") {
+    for (const r of doc.resolutions || []) {
+      if (!r.number) continue;
+      items.push({ anchor: `resolution-${r.number}`, label: `Resolution ${r.number}` });
+    }
+  } else if (doc.kind === "library-chapters" || doc.kind === "library-discourses" || doc.kind === "library-sections") {
+    const list = doc.chapters || doc.discourses || doc.sections || [];
+    const label = doc.discourses ? "Discourse" : doc.sections ? "Section" : "Chapter";
+    for (const c of list) {
+      items.push({ anchor: `chapter-${c.number}`, label: `${label} ${roman(c.number)} · ${stripHtml(titleFor(c))}` });
+    }
+  } else if (doc.kind === "library-books") {
+    for (const b of doc.books || []) {
+      for (const c of b.chapters || []) {
+        items.push({ anchor: `book-${b.bookNumber}-chapter-${c.number}`, label: `Book ${roman(b.bookNumber)} · Chapter ${roman(c.number)} · ${stripHtml(titleFor(c))}` });
+      }
+    }
+  }
+  if (items.length) {
+    devotionalSources[doc.slug] = {
+      slug: doc.slug,
+      title: doc.title,
+      author: doc.author,
+      date: doc.date,
+      category: doc.category,
+      itemCount: items.length,
+      itemNoun: doc.kind === "qa" || doc.kind === "heidelberg" ? "questions" : doc.kind === "theses" ? "theses" : doc.kind === "edwards" ? "resolutions" : doc.kind === "articles" ? "articles" : doc.kind === "sections" ? "sections" : "chapters",
+      items,
+    };
+  }
+}
+await writeFile(
+  path.join(ASSET_DATA_DIR, "devotional-sources.json"),
+  JSON.stringify(devotionalSources)
+);
 
 // Scripture index — copy from the source repo if present.
 const SCRIPTURE_SRC = "/Users/ianharber/Dropbox/Mac (2)/Documents/Claude Code Files/the-faith-received/data/scripture-index.json";
