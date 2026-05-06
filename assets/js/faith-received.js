@@ -1019,12 +1019,11 @@
       anchors.forEach(function (a) { a.classList.remove("is-active"); });
       if (best && byId[best]) {
         byId[best].classList.add("is-active");
-        // Auto-scroll the sidebar to keep the active item in view.
-        var rect = byId[best].getBoundingClientRect();
-        var sbRect = sidebar.getBoundingClientRect();
-        if (rect.top < sbRect.top + 60 || rect.bottom > sbRect.bottom - 60) {
-          byId[best].scrollIntoView({ block: "nearest", behavior: "smooth" });
-        }
+        // No auto-scroll — the sidebar is static (scrolls with the
+        // page), so calling scrollIntoView on a sidebar link would
+        // scroll the whole page back up to wherever that link sits
+        // in the document, fighting the reader's own scrolling. Keep
+        // the active-state highlight; let the page scroll be theirs.
       }
     }, {
       rootMargin: "-80px 0px -60% 0px",

@@ -12090,18 +12090,28 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-topic-row-body p { margin: 0 0 16px; }
 .faith-topic-row-body p:last-child { margin-bottom: 0; }
+/* "Open in source document" — readable italic display link sized to
+   match the rest of the editorial vocabulary, not crammed into a
+   small-caps row. Sits below the lazy-loaded passage with a hairline
+   above and breathing room below. */
 .faith-topic-row-continue {
-  margin: 18px 0 0 !important;
-  padding-top: 14px;
+  margin: 24px 0 8px !important;
+  padding-top: 16px;
   border-top: 1px solid var(--color-rule);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
 }
 .faith-topic-row-continue a {
   color: var(--color-secondary);
   text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  transition: color 0.15s;
 }
 .faith-topic-row-continue a:hover { color: var(--color-primary); }
 .faith-topic-row-fallback {
