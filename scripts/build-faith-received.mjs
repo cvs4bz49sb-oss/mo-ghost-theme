@@ -1358,7 +1358,7 @@ if (topicsBundle) {
   <main class="faith-received faith-feature faith-topics-index">
     ${heroForFeature({
       kicker: "The Faith Received &middot; Topics",
-      headline: "The great themes of the <span class=\"highlight\"><em>Christian faith</em></span>, cross-referenced.",
+      headline: "<em>Topics</em>",
       sub: "From God and the Trinity to salvation, the Church, and the life to come. Trace each doctrine across two millennia of Christian writing.",
     })}
     {{> "faith-received/_nav"}}
