@@ -11223,32 +11223,49 @@ body.mo-search-open { overflow: hidden; }
 }
 
 /* ── Scripture index page ─────────────────────────────────────── */
+/* OT/NT toggle in MO editorial style — italic display tabs separated
+   by spacing, accent underline on active. Lives below the fold on the
+   light page background, so the previous on-dark pill chrome wasn't
+   readable. Matches the .faith-view-toggle pattern. */
 .faith-scripture-toggle {
-  display: inline-flex;
-  gap: 4px;
-  margin-top: 28px;
-  background: rgba(255,255,255,0.08);
-  padding: 4px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  margin: 0 0 28px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  background: transparent;
+  border-radius: 0;
 }
 .faith-scripture-toggle-btn {
-  font-family: var(--font-body);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: rgba(255,255,255,0.8);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  color: var(--color-muted);
   background: transparent;
   border: 0;
-  padding: 9px 18px;
-  border-radius: 999px;
+  padding: 4px 0;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  position: relative;
+  transition: color 0.15s;
 }
+.faith-scripture-toggle-btn:hover { color: var(--color-dark); }
 .faith-scripture-toggle-btn.is-active {
-  background: var(--color-primary);
-  color: var(--color-white);
+  background: transparent;
+  color: var(--color-primary);
+}
+.faith-scripture-toggle-btn.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -13px;
+  height: 1px;
+  background: var(--color-secondary);
 }
 .faith-scripture-grid {
   display: grid;
