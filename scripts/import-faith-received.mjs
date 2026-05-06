@@ -65,7 +65,22 @@ async function extractSections(srcPath) {
 
 async function extractChapters(srcPath) {
   const mod = await import(srcPath);
-  return (mod.chapters ?? []).map((c) => ({ number: c.number, title: c.title, text: c.text }));
+  // Two shapes appear in the heidelberg source:
+  //   - Flat:   { number, title, text }                    (didache, diognetus)
+  //   - Nested: { number, title, paragraphs: [{ text }] }  (1689 — paragraph
+  //             items also carry per-paragraph references)
+  // Normalise both to a `paragraphs: string[]` array so the downstream
+  // build script's chapterBody helper picks them up uniformly.
+  return (mod.chapters ?? []).map((c) => {
+    if (Array.isArray(c.paragraphs) && c.paragraphs.length) {
+      return {
+        number: c.number,
+        title: c.title,
+        paragraphs: c.paragraphs.map((p) => (typeof p === "string" ? p : (p.text || ""))).filter(Boolean),
+      };
+    }
+    return { number: c.number, title: c.title, text: c.text };
+  });
 }
 
 async function extractArticles(srcPath) {
