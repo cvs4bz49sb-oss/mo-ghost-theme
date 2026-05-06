@@ -568,17 +568,24 @@ function renderArticles(doc) {
 }
 
 function renderTheses(doc) {
-  // 95 Theses — flat numbered list, each thesis is short.
+  // 95 Theses — short numbered statements. Each thesis is wrapped in
+  // a <details> collapsible so the Copy link / Copy passage row stays
+  // hidden until the reader clicks the row, then opens inline. The
+  // text itself sits in the summary so it's always visible. Click to
+  // reveal copy features; click again to hide.
   const items = (doc.theses ?? []).map((t) => `
-        <li class="faith-thesis" id="thesis-${t.number}">
-          <span class="faith-thesis-number">${t.number}</span>
-          <p class="faith-thesis-text">${escape(smarten(t.text))}</p>
-        </li>
+        <details class="faith-section-details faith-thesis-details" id="thesis-${t.number}">
+          <summary class="faith-section-summary faith-thesis">
+            <span class="faith-thesis-number">${t.number}</span>
+            <p class="faith-thesis-text">${escape(smarten(t.text))}</p>
+          </summary>
+          <div class="faith-section-body faith-thesis-body"></div>
+        </details>
   `).join("\n");
   const list = `
-        <ol class="faith-thesis-list">
+        <div class="faith-thesis-list">
           ${items}
-        </ol>`;
+        </div>`;
   return `
   <main class="article faith-doc faith-doc--theses">
     ${header(doc, false)}
@@ -745,17 +752,23 @@ function renderLordsDay(d, openByDefault) {
 }
 
 function renderEdwards(doc) {
-  // 70 numbered resolutions, prefaced by an opening note. Flat.
+  // 70 numbered resolutions, prefaced by an opening note. Each
+  // resolution is wrapped in a <details> so the Copy link / Copy
+  // passage row stays hidden until clicked — same pattern as 95
+  // Theses. The opening preamble stays as flat prose.
   const items = (doc.resolutions ?? []).map((r, i) => {
     if (i === 0) {
       return `
           <p class="faith-edwards-preamble">${escape(smarten(r.text))}</p>`;
     }
     return `
-          <article class="faith-edwards-item" id="resolution-${i}">
-            <span class="faith-edwards-number">${i}</span>
-            <p class="faith-edwards-text">${escape(smarten(r.text.replace(/^\d+\.\s*/, "")))}</p>
-          </article>`;
+          <details class="faith-section-details faith-edwards-details" id="resolution-${i}">
+            <summary class="faith-section-summary faith-edwards-item">
+              <span class="faith-edwards-number">${i}</span>
+              <p class="faith-edwards-text">${escape(smarten(r.text.replace(/^\d+\.\s*/, "")))}</p>
+            </summary>
+            <div class="faith-section-body faith-edwards-body"></div>
+          </details>`;
   }).join("\n");
   return `
   <main class="article faith-doc faith-doc--edwards">

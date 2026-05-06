@@ -10505,20 +10505,29 @@ body.mo-search-open { overflow: hidden; }
 
 /* ── 95 Theses ────────────────────────────────────────────────── */
 .faith-thesis-list {
-  list-style: none;
   padding: 0;
   margin: 0;
-  counter-reset: thesis;
 }
-.faith-thesis {
+/* Each thesis is now a <details>; .faith-thesis is the summary inside
+   it. Click the row → reveals the Copy link / Copy passage row that
+   JS injects into the body. Hide the default disclosure marker since
+   the row text itself is the click target. */
+.faith-thesis-details {
+  scroll-margin-top: 96px;
+}
+.faith-thesis-details > .faith-thesis {
   display: grid;
   grid-template-columns: 60px 1fr;
   gap: 18px;
   padding: 24px 0;
-  border-top: 1px solid var(--color-card-border);
-  scroll-margin-top: 96px;
+  cursor: pointer;
+  list-style: none;
 }
-.faith-thesis:first-child { border-top: 0; padding-top: 0; }
+.faith-thesis-details > .faith-thesis::-webkit-details-marker { display: none; }
+.faith-thesis-details > .faith-thesis::marker { content: ""; }
+.faith-thesis-details > .faith-thesis:hover .faith-thesis-text { color: var(--color-secondary); }
+.faith-thesis-details[open] > .faith-thesis { padding-bottom: 12px; }
+.faith-thesis-text { transition: color 0.15s; }
 .faith-thesis-number {
   font-family: var(--font-display);
   font-style: italic;
@@ -10773,15 +10782,25 @@ body.mo-search-open { overflow: hidden; }
   padding: 0 0 32px;
   border-bottom: 1px solid var(--color-card-border);
 }
-.faith-edwards-item {
+/* Each resolution is now a <details>; .faith-edwards-item is the
+   summary inside it. Same pattern as theses — click the row to
+   reveal the Copy link / Copy passage row in the body. */
+.faith-edwards-details {
+  scroll-margin-top: 96px;
+}
+.faith-edwards-details > .faith-edwards-item {
   display: grid;
   grid-template-columns: 60px 1fr;
   gap: 18px;
   padding: 22px 0;
-  border-top: 1px solid var(--color-rule);
-  scroll-margin-top: 96px;
+  cursor: pointer;
+  list-style: none;
 }
-.faith-edwards-item:first-of-type { border-top: 0; padding-top: 0; }
+.faith-edwards-details > .faith-edwards-item::-webkit-details-marker { display: none; }
+.faith-edwards-details > .faith-edwards-item::marker { content: ""; }
+.faith-edwards-details > .faith-edwards-item:hover .faith-edwards-text { color: var(--color-secondary); }
+.faith-edwards-details[open] > .faith-edwards-item { padding-bottom: 12px; }
+.faith-edwards-text { transition: color 0.15s; }
 .faith-edwards-number {
   font-family: var(--font-display);
   font-style: italic;
