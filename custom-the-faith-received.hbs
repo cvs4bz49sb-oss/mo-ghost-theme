@@ -27,33 +27,10 @@
 
   {{> "faith-received/_nav"}}
 
-  {{!-- Documents section: creeds, confessions, catechisms — the
-       Church's standards, in chronological order. Cards generated
-       in partials/faith-received/_cards-documents.hbs. --}}
-  <section class="faith-section-band faith-band-documents" id="documents">
-    <div class="container">
-      <div class="section-intro">
-        <p class="eyebrow">Documents</p>
-        <h2 class="section-heading"><em>Creeds, confessions, &amp; catechisms.</em></h2>
-        <p class="faith-section-lede">The standards by which the Church has confessed her faith, set in chronological order &mdash; from the Apostles' Creed in the second century to the Lausanne Covenant in the twentieth.</p>
-      </div>
-      {{> "faith-received/_cards-documents"}}
-    </div>
-  </section>
-
-  {{!-- Library section: classic theological + devotional works,
-       authored. Cards generated in
-       partials/faith-received/_cards-library.hbs. --}}
-  <section class="faith-section-band faith-band-library" id="library">
-    <div class="container">
-      <div class="section-intro">
-        <p class="eyebrow">The Library</p>
-        <h2 class="section-heading"><em>The wider conversation.</em></h2>
-        <p class="faith-section-lede">Classic works of theology, apology, and devotion, in chronological order &mdash; from Diognetus and Athanasius to Edwards, Calvin, and Leo XIII.</p>
-      </div>
-      {{> "faith-received/_cards-library"}}
-    </div>
-  </section>
+  {{!-- Documents and Library no longer render inline on the home —
+       each lives at its own route (/the-faith-received/documents/,
+       /the-faith-received/library/) so the section nav swaps the page
+       rather than anchor-scrolling. --}}
 
   {{!-- Devotional / Topics / Scripture / Today / Search — call-to-action
        rail. Each is its own routed feature page. --}}
