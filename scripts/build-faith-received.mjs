@@ -836,47 +836,45 @@ function renderLibraryBooks(doc) {
     const frontBooks = allBooks.filter((b) => b.bookNumber === 0);
     const numberedBooks = allBooks.filter((b) => b.bookNumber > 0);
 
-    // Front-matter rendered as an "Introductory Material" labelled
-    // list of editorial rows. Each row is a link to the corresponding
-    // book/chapter anchor on the same page. Subtitle uses the chapter
-    // subtitle when available; otherwise falls back to a stub.
-    const frontRows = frontBooks.map((b, idx) => {
+    // Front-matter rendered as a single "Introductory Material"
+    // section where each row is itself a <details> collapsible: the
+    // summary holds the title + subtitle, and clicking expands the
+    // chapter body inline. No separate list-vs-bodies duplication —
+    // the row IS the collapsible.
+    const frontDetails = frontBooks.map((b, idx) => {
       const c = (b.chapters ?? [])[0] || {};
-      const anchor = `book-${b.bookNumber}-${idx}`;
+      const anchor = `book-0-${idx}`;
       const title = b.bookTitle || c.title || "Introduction";
       const sub = c.subtitle || "";
+      const body = c.paragraphs ? paragraphsArray(c.paragraphs) : "";
       return `
-            <li class="faith-front-matter-item">
-              <a class="faith-front-matter-link" href="#${anchor}">
-                <span class="faith-front-matter-title"><em>${escape(smarten(title))}</em></span>
-                ${sub ? `<span class="faith-front-matter-subtitle">${escape(smarten(sub))}</span>` : ""}
-              </a>
-            </li>`;
+            <details class="faith-front-matter-details" id="${anchor}">
+              <summary class="faith-front-matter-summary">
+                <span class="faith-front-matter-summary-inner">
+                  <span class="faith-front-matter-title"><em>${escape(smarten(title))}</em></span>
+                  ${sub ? `<span class="faith-front-matter-subtitle">${escape(smarten(sub))}</span>` : ""}
+                </span>
+                <span class="faith-chev faith-front-matter-chev" aria-hidden="true"></span>
+              </summary>
+              <div class="faith-front-matter-body article-content">
+                ${body}
+              </div>
+            </details>`;
     }).join("");
     const frontSection = frontBooks.length
       ? `
         <section class="faith-front-matter" aria-labelledby="introductory-material-heading">
           <h2 class="eyebrow faith-front-matter-heading" id="introductory-material-heading">Introductory Material</h2>
-          <ul class="faith-front-matter-list">${frontRows}
-          </ul>
+          <div class="faith-front-matter-list">${frontDetails}
+          </div>
         </section>`
       : "";
-
-    // Front-matter book bodies still need to render somewhere so the
-    // anchor links from the Introductory Material list resolve. They
-    // sit just below the front-matter list as collapsible details, so
-    // a reader who clicked a row sees the content expanded after
-    // scroll-into-view (anchor-opener JS handles the open).
-    const frontBodies = frontBooks.map((b, idx) =>
-      renderBookCollapsible(b, { editorial: true, idx })
-    ).join("\n");
 
     const numberedBodies = numberedBooks.map((b) =>
       renderBookCollapsible(b, { editorial: true, idx: 0 })
     ).join("\n");
 
     bodyHtml = `${frontSection}
-        ${frontBodies}
         <section class="faith-books-section" aria-label="Books">
           ${numberedBodies}
         </section>`;

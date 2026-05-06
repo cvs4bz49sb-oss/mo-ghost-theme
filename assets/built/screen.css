@@ -10789,31 +10789,36 @@ body.mo-search-open { overflow: hidden; }
 .faith-doc-body--has-sidebar { padding: 0; background: var(--color-page); }
 
 @media (min-width: 1024px) {
-  .faith-doc-body--has-sidebar { padding-left: 280px; }
+  /* Sidebar sits in document flow as a grid column, so it starts
+     BELOW the dark hero and rides the page until it would scroll
+     off-screen, at which point sticky positioning locks it under the
+     global Mere Orthodoxy nav. No more overlap with the hero. */
   .faith-doc-layout {
-    /* Reading column lives in the remaining width with a generous
-       max-width and explicit padding. Left-anchored, NOT centered. */
-    padding: 32px 32px 64px 36px;
-    max-width: 880px;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    column-gap: 36px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 32px 64px;
+    align-items: start;
   }
   .faith-toc-sidebar {
-    position: fixed;
-    left: 0;
-    top: 88px;
-    width: 260px;
-    height: calc(100vh - 100px);
+    position: sticky;
+    top: 96px;
+    max-height: calc(100vh - 116px);
     overflow-y: auto;
     overscroll-behavior: contain;
-    border-right: 1px solid var(--color-card-border);
-    padding: 24px 22px 28px 28px;
-    background: var(--color-page);
+    padding: 8px 18px 28px 4px;
+    background: transparent;
+    border-right: 1px solid var(--color-rule);
   }
   .faith-toc-sidebar::-webkit-scrollbar { width: 6px; }
   .faith-toc-sidebar::-webkit-scrollbar-track { background: transparent; }
   .faith-toc-sidebar::-webkit-scrollbar-thumb {
-    background: var(--color-card-border);
+    background: var(--color-rule);
     border-radius: 3px;
   }
+  .faith-doc-inner { min-width: 0; }
   /* The header "Contents" button + drawer-close button are mobile-
      only chrome; hide on desktop where the sidebar is always there. */
   .faith-doc-toc-toggle,
@@ -11820,31 +11825,35 @@ body.mo-search-open { overflow: hidden; }
    with the book heading in the summary and chapter list in the
    body. First book opens by default; subsequent collapse to a
    compact book-title row. */
+/* Book details: editorial rows separated by hairlines. No card
+   chrome — no background fill, no border-radius, no perimeter
+   border. The summary itself is a flush row with eyebrow + italic
+   title + chev; the body opens beneath with a hairline divider. */
 .faith-book-details {
   padding: 0;
-  margin: 0 0 24px;
-  border: 1px solid var(--color-card-border);
-  border-radius: 6px;
-  background: var(--color-page);
-  overflow: hidden;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
 }
+.faith-book-details:last-child { border-bottom: 1px solid var(--color-rule); }
 .faith-book-summary {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   column-gap: 24px;
-  padding: 24px 28px;
+  padding: 22px 0;
   cursor: pointer;
   list-style: none;
   user-select: none;
-  background: var(--color-background);
-  border-bottom: 1px solid transparent;
-  transition: background 0.15s, border-color 0.15s;
+  background: transparent;
+  transition: color 0.15s;
 }
 .faith-book-summary::-webkit-details-marker { display: none; }
 .faith-book-details[open] > .faith-book-summary {
-  border-bottom-color: var(--color-card-border);
-  background: var(--color-page);
+  padding-bottom: 14px;
 }
 .faith-book-summary:hover .faith-book-title { color: var(--color-secondary); }
 .faith-book-summary-inner { min-width: 0; }
@@ -11856,12 +11865,12 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-book-summary-inner .faith-book-title {
   margin: 0;
-  font-size: clamp(24px, 2.6vw, 32px);
+  font-size: clamp(22px, 2.4vw, 30px);
   text-align: left;
   transition: color 0.15s;
 }
 .faith-book-body {
-  padding: 32px 28px 28px;
+  padding: 8px 0 28px;
   animation: faith-section-fade-in 0.22s ease-out;
 }
 .faith-book-body > .flourish { margin-bottom: 28px; }
@@ -11871,8 +11880,8 @@ body.mo-search-open { overflow: hidden; }
 .faith-book-body .faith-book-chapter:first-of-type { border-top: 0; }
 .faith-book-body .faith-book-chapter:last-of-type { border-bottom: 0; }
 @media (max-width: 640px) {
-  .faith-book-summary { padding: 18px 18px; }
-  .faith-book-body { padding: 24px 18px 20px; }
+  .faith-book-summary { padding: 18px 0; }
+  .faith-book-body { padding: 6px 0 20px; }
 }
 
 /* ── Library sidebar: collapsible book groups ─────────────────
@@ -12371,39 +12380,50 @@ body.mo-search-open { overflow: hidden; }
 }
 
 /* ── Library: Introductory Material ──────────────────────────── */
+/* Each entry is a <details> collapsible: summary holds the title +
+   subtitle, body opens inline below. Hairline-separated rows, no
+   card chrome. */
 .faith-front-matter {
-  margin: 0 0 56px;
-  padding: 0 0 8px;
+  margin: 0 0 48px;
 }
 .faith-front-matter-heading {
-  margin: 0 0 16px;
+  margin: 0 0 8px;
 }
 .faith-front-matter-list {
-  list-style: none;
   margin: 0;
   padding: 0;
 }
-.faith-front-matter-item {
+.faith-front-matter-details {
   border-top: 1px solid var(--color-rule);
+  padding: 0;
 }
-.faith-front-matter-item:last-child {
+.faith-front-matter-details:last-child {
   border-bottom: 1px solid var(--color-rule);
 }
-.faith-front-matter-link {
+.faith-front-matter-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 24px;
+  padding: 18px 0;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.faith-front-matter-summary::-webkit-details-marker { display: none; }
+.faith-front-matter-summary:hover .faith-front-matter-title { color: var(--color-secondary); }
+.faith-front-matter-summary-inner {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 18px 0;
-  text-decoration: none;
-  color: inherit;
-  transition: color 0.15s;
+  min-width: 0;
 }
-.faith-front-matter-link:hover .faith-front-matter-title { color: var(--color-secondary); }
 .faith-front-matter-title {
   font-family: var(--font-display);
   font-size: 22px;
   line-height: 1.25;
   color: var(--color-primary);
+  transition: color 0.15s;
 }
 .faith-front-matter-title em { font-style: italic; }
 .faith-front-matter-subtitle {
@@ -12412,8 +12432,23 @@ body.mo-search-open { overflow: hidden; }
   color: var(--color-muted);
   line-height: 1.5;
 }
+.faith-front-matter-chev {
+  width: 11px;
+  height: 11px;
+  border-right: 1.5px solid var(--color-primary);
+  border-bottom: 1.5px solid var(--color-primary);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.2s ease;
+}
+.faith-front-matter-details[open] .faith-front-matter-chev {
+  transform: rotate(-135deg) translateY(-2px);
+}
+.faith-front-matter-details[open] > .faith-front-matter-summary {
+  padding-bottom: 8px;
+}
 .faith-front-matter-body {
-  padding: 8px 0 24px;
+  padding: 4px 0 28px;
+  animation: faith-section-fade-in 0.22s ease-out;
 }
 .faith-front-matter-body p {
   font-family: var(--font-body);
@@ -12422,6 +12457,7 @@ body.mo-search-open { overflow: hidden; }
   color: var(--color-dark);
   margin: 0 0 16px;
 }
+.faith-front-matter-body p:last-child { margin-bottom: 0; }
 
 /* ── Library editorial book ──────────────────────────────────── */
 .faith-book-details--editorial {
