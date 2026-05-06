@@ -2042,11 +2042,162 @@ try {
       }
     }
   }
+  // Auto-scan local docs for Bible references and merge them into the
+  // index. Currently runs for slugs the upstream scripture-index
+  // didn't cover (e.g. Polanus, who isn't in the heidelberg repo).
+  // The detector matches "Book Chapter" and "Book Chapter:Verse"
+  // patterns where Book is in the canonical-book set; ignores
+  // partial matches that look like dates or chapter references in
+  // theological footnotes (e.g. "book five of the Stromata, p. 239").
+  const BIBLE_BOOKS = {
+    "Genesis": ["Genesis", "Gen", "Gn"],
+    "Exodus": ["Exodus", "Exod", "Ex"],
+    "Leviticus": ["Leviticus", "Lev", "Lv"],
+    "Numbers": ["Numbers", "Num", "Nm"],
+    "Deuteronomy": ["Deuteronomy", "Deut", "Dt"],
+    "Joshua": ["Joshua", "Josh", "Jos"],
+    "Judges": ["Judges", "Judg", "Jdg"],
+    "Ruth": ["Ruth"],
+    "1 Samuel": ["1 Samuel", "1 Sam", "1 Sm", "I Samuel", "I Sam"],
+    "2 Samuel": ["2 Samuel", "2 Sam", "2 Sm", "II Samuel", "II Sam"],
+    "1 Kings": ["1 Kings", "1 Kgs", "1 Ki", "I Kings"],
+    "2 Kings": ["2 Kings", "2 Kgs", "2 Ki", "II Kings"],
+    "1 Chronicles": ["1 Chronicles", "1 Chron", "1 Chr", "I Chronicles"],
+    "2 Chronicles": ["2 Chronicles", "2 Chron", "2 Chr", "II Chronicles"],
+    "Ezra": ["Ezra"],
+    "Nehemiah": ["Nehemiah", "Neh"],
+    "Esther": ["Esther", "Est"],
+    "Job": ["Job"],
+    "Psalms": ["Psalms", "Psalm", "Pss", "Ps"],
+    "Proverbs": ["Proverbs", "Prov", "Pr"],
+    "Ecclesiastes": ["Ecclesiastes", "Eccl", "Ecc", "Qoh"],
+    "Song of Solomon": ["Song of Solomon", "Song of Songs", "Canticles", "Cant", "SoS"],
+    "Isaiah": ["Isaiah", "Isa", "Is"],
+    "Jeremiah": ["Jeremiah", "Jer"],
+    "Lamentations": ["Lamentations", "Lam"],
+    "Ezekiel": ["Ezekiel", "Ezek", "Eze"],
+    "Daniel": ["Daniel", "Dan"],
+    "Hosea": ["Hosea", "Hos"],
+    "Joel": ["Joel"],
+    "Amos": ["Amos"],
+    "Obadiah": ["Obadiah", "Obad"],
+    "Jonah": ["Jonah", "Jon"],
+    "Micah": ["Micah", "Mic"],
+    "Nahum": ["Nahum", "Nah"],
+    "Habakkuk": ["Habakkuk", "Hab"],
+    "Zephaniah": ["Zephaniah", "Zeph", "Zph"],
+    "Haggai": ["Haggai", "Hag"],
+    "Zechariah": ["Zechariah", "Zech", "Zec"],
+    "Malachi": ["Malachi", "Mal"],
+    "Matthew": ["Matthew", "Matt", "Mt"],
+    "Mark": ["Mark", "Mk"],
+    "Luke": ["Luke", "Lk"],
+    "John": ["John", "Jn"],
+    "Acts": ["Acts"],
+    "Romans": ["Romans", "Rom", "Rm"],
+    "1 Corinthians": ["1 Corinthians", "1 Cor", "I Corinthians", "I Cor"],
+    "2 Corinthians": ["2 Corinthians", "2 Cor", "II Corinthians", "II Cor"],
+    "Galatians": ["Galatians", "Gal"],
+    "Ephesians": ["Ephesians", "Eph"],
+    "Philippians": ["Philippians", "Phil", "Phl"],
+    "Colossians": ["Colossians", "Col"],
+    "1 Thessalonians": ["1 Thessalonians", "1 Thess", "1 Th", "I Thessalonians"],
+    "2 Thessalonians": ["2 Thessalonians", "2 Thess", "2 Th", "II Thessalonians"],
+    "1 Timothy": ["1 Timothy", "1 Tim", "1 Tm", "I Timothy"],
+    "2 Timothy": ["2 Timothy", "2 Tim", "2 Tm", "II Timothy"],
+    "Titus": ["Titus", "Tit"],
+    "Philemon": ["Philemon", "Phlm", "Phm"],
+    "Hebrews": ["Hebrews", "Heb"],
+    "James": ["James", "Jas", "Jms"],
+    "1 Peter": ["1 Peter", "1 Pet", "1 Pt", "I Peter"],
+    "2 Peter": ["2 Peter", "2 Pet", "2 Pt", "II Peter"],
+    "1 John": ["1 John", "1 Jn", "I John"],
+    "2 John": ["2 John", "2 Jn", "II John"],
+    "3 John": ["3 John", "3 Jn", "III John"],
+    "Jude": ["Jude"],
+    "Revelation": ["Revelation", "Rev", "Apocalypse", "Apoc"],
+  };
+  const ALIAS_TO_CANONICAL = {};
+  for (const [canonical, aliases] of Object.entries(BIBLE_BOOKS)) {
+    for (const a of aliases) ALIAS_TO_CANONICAL[a.toLowerCase()] = canonical;
+  }
+  const aliasRegex = (() => {
+    const sorted = Object.values(BIBLE_BOOKS).flat().sort((a, b) => b.length - a.length);
+    const escaped = sorted.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    return new RegExp("(?:^|[^A-Za-z])(" + escaped.join("|") + ")\\.?\\s+(\\d{1,3})(?:[:.]\\s?(\\d{1,3}))?", "g");
+  })();
+
+  function detectRefs(text) {
+    const found = new Map(); // passage -> count (for de-dup)
+    let m;
+    aliasRegex.lastIndex = 0;
+    while ((m = aliasRegex.exec(text)) !== null) {
+      const alias = m[1];
+      const chapter = parseInt(m[2], 10);
+      const canonical = ALIAS_TO_CANONICAL[alias.toLowerCase()];
+      if (!canonical || !chapter) continue;
+      const passage = `${canonical} ${chapter}`;
+      found.set(passage, (found.get(passage) || 0) + 1);
+    }
+    return found;
+  }
+
+  // Auto-scan slug list. Add new slugs here as their bodies become
+  // index-eligible (i.e. their content isn't already in the upstream
+  // scripture-index.json).
+  const AUTO_SCAN_SLUGS = ["polanus-syntagma"];
+  let added = 0;
+  for (const slug of AUTO_SCAN_SLUGS) {
+    const doc = await getDoc(slug);
+    if (!doc) continue;
+
+    // Walk every chapter and collect refs.
+    const chapters = [];
+    if (doc.kind === "library-books") {
+      for (const b of doc.books || []) {
+        for (const c of b.chapters || []) {
+          chapters.push({ id: `chapter-${c.number}`, type: "chapter", title: c.title || `Chapter ${c.number}`, text: (c.paragraphs || []).join("\n\n") });
+        }
+      }
+    } else if (doc.kind === "library-chapters" || doc.kind === "library-discourses" || doc.kind === "library-sections") {
+      const list = doc.chapters || doc.discourses || doc.sections || [];
+      for (const c of list) {
+        chapters.push({ id: `chapter-${c.number}`, type: "chapter", title: c.title || `Chapter ${c.number}`, text: (c.paragraphs || []).join("\n\n") });
+      }
+    }
+
+    for (const ch of chapters) {
+      const refs = detectRefs(ch.text);
+      for (const [passage] of refs) {
+        if (!scData.index[passage]) scData.index[passage] = [];
+        // Skip if this exact ref is already there.
+        const dup = scData.index[passage].some((r) => r.source === slug && r.id === ch.id);
+        if (dup) continue;
+        scData.index[passage].push({
+          source: slug,
+          type: ch.type,
+          id: ch.id,
+          title: ch.title,
+          excerpt: ch.text,
+        });
+        added++;
+      }
+    }
+  }
+  // Make sure scData.books includes every distinct book across the
+  // index — readers can otherwise hide if not in scData.books.
+  const seenBooks = new Set(scData.books || []);
+  for (const passage of Object.keys(scData.index)) {
+    const m = passage.match(/^(.+?)\s+\d/);
+    if (m) seenBooks.add(m[1]);
+  }
+  scData.books = Array.from(seenBooks);
+
   await writeFile(
     path.join(ASSET_DATA_DIR, "scripture-index.json"),
     JSON.stringify(scData)
   );
-  console.log(`  + scripture-index excerpts: ${replaced} expanded, ${kept} kept`);
+  console.log(`  + scripture-index excerpts: ${replaced} expanded, ${kept} kept; ${added} refs auto-detected from local docs`);
 } catch {
   // skip
 }
