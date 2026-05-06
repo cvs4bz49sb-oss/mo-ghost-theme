@@ -1531,7 +1531,7 @@ function normalizeAnchor(source, type, id) {
     return m ? `chapter-${m[1]}` : id;
   }
   if (source === "augustine-confessions" || source === "calvin-institutes" ||
-      source === "imitation-of-christ") {
+      source === "imitation-of-christ" || source === "polanus-syntagma") {
     const m = id.match(/^book-(\d+)-ch-(\d+)$/);
     return m ? `book-${m[1]}-chapter-${m[2]}` : id;
   }
@@ -2151,18 +2151,31 @@ try {
     const doc = await getDoc(slug);
     if (!doc) continue;
 
-    // Walk every chapter and collect refs.
+    // Walk every chapter and collect refs. ID format must match the
+    // shape that lookupContent + normalizeAnchor + JS sourceToUrl all
+    // expect: library-books docs use `book-N-ch-M`; flat-list library
+    // docs use plain `chapter-N`.
     const chapters = [];
     if (doc.kind === "library-books") {
       for (const b of doc.books || []) {
         for (const c of b.chapters || []) {
-          chapters.push({ id: `chapter-${c.number}`, type: "chapter", title: c.title || `Chapter ${c.number}`, text: (c.paragraphs || []).join("\n\n") });
+          chapters.push({
+            id: `book-${b.bookNumber}-ch-${c.number}`,
+            type: "chapter",
+            title: c.title || `Chapter ${c.number}`,
+            text: (c.paragraphs || []).join("\n\n"),
+          });
         }
       }
     } else if (doc.kind === "library-chapters" || doc.kind === "library-discourses" || doc.kind === "library-sections") {
       const list = doc.chapters || doc.discourses || doc.sections || [];
       for (const c of list) {
-        chapters.push({ id: `chapter-${c.number}`, type: "chapter", title: c.title || `Chapter ${c.number}`, text: (c.paragraphs || []).join("\n\n") });
+        chapters.push({
+          id: `chapter-${c.number}`,
+          type: "chapter",
+          title: c.title || `Chapter ${c.number}`,
+          text: (c.paragraphs || []).join("\n\n"),
+        });
       }
     }
 

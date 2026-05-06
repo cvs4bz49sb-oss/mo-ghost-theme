@@ -335,13 +335,19 @@
         if (lm) anchor = "#article-" + lm[1];
       }
       if (!anchor) {
+        // book-N-ch-N takes precedence over plain ch-N so library-books
+        // docs (Augustine, Calvin, Imitation, Polanus) resolve to their
+        // nested per-book chapter anchor instead of mis-mapping to a
+        // non-existent flat chapter-N anchor.
+        var bcm = id.match(/^book-(\d+)-ch(?:apter)?-?(\d+)/);
         var qm = id.match(/^q(\d+)/);
         var artm = id.match(/^art-(\d+)/);
         var secm = id.match(/^sec-(\d+)/);
         var cm = id.match(/^ch(?:apter)?-?(\d+)/);
         var resm = id.match(/^res-(\d+)/);
         var thm = id.match(/^thesis-(\d+)/);
-        if (qm) anchor = "#q-" + qm[1];
+        if (bcm) anchor = "#book-" + bcm[1] + "-chapter-" + bcm[2];
+        else if (qm) anchor = "#q-" + qm[1];
         else if (artm) anchor = "#article-" + artm[1];
         else if (secm) anchor = "#section-" + secm[1];
         else if (cm) anchor = "#chapter-" + cm[1];
