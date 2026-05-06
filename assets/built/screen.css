@@ -10226,9 +10226,14 @@ body.mo-search-open { overflow: hidden; }
 
 .faith-doc-header {
   /* Inherits .article-header. Tightened from the V1 padding so the
-     hero doesn't dominate the page above the reading. */
+     hero doesn't dominate the page above the reading. Inner content
+     centered horizontally so title, dek, description, and actions
+     align as a single editorial block. */
   padding: 56px 0 40px;
 }
+.faith-doc-header .article-header-inner { text-align: center; }
+.faith-doc-header .article-title { text-align: center; }
+.faith-doc-header .article-topic { margin-left: auto; margin-right: auto; }
 .faith-doc-dek {
   font-family: var(--font-body);
   font-style: italic;
@@ -10237,6 +10242,8 @@ body.mo-search-open { overflow: hidden; }
   color: rgba(255,255,255,0.7);
   margin: 16px 0 24px;
 }
+.faith-doc-header--library .faith-doc-rule { margin-left: auto; margin-right: auto; }
+.faith-doc-header--library .faith-format-downloads { justify-content: center; }
 .faith-doc-description {
   font-family: var(--font-body);
   font-size: 18px;
@@ -10310,26 +10317,28 @@ body.mo-search-open { overflow: hidden; }
   margin: 40px auto 0;
 }
 
-/* ── Reading controls (Expand / Collapse all) ────────────────── */
+/* ── Reading controls (Expand / Collapse all + Modernize) ────── */
+/* Quiet inline row beneath the view toggle. No bar chrome, no caps,
+   no border lines. Italic body links separated by hairlines, accent
+   on hover. The "Reading" label is hidden — the visible affordances
+   already say what they do. */
 .faith-reading-controls {
-  background: var(--color-page);
-  border-bottom: 1px solid var(--color-card-border);
-  padding: 14px 0;
-  text-align: center;
-  font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--color-muted);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: baseline;
+  flex-wrap: wrap;
   gap: 14px;
+  margin: 0 0 28px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+  text-transform: none;
+  color: var(--color-muted);
 }
-.faith-reading-controls-label {
-  color: var(--color-primary);
-}
+.faith-reading-controls-label { display: none; }
 .faith-reading-control {
   background: transparent;
   border: 0;
@@ -10337,13 +10346,19 @@ body.mo-search-open { overflow: hidden; }
   letter-spacing: inherit;
   text-transform: inherit;
   font-weight: inherit;
-  color: var(--color-dark);
+  font-style: italic;
+  color: var(--color-secondary);
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 0;
   transition: color 0.15s;
 }
-.faith-reading-control:hover { color: var(--color-secondary); }
-.faith-reading-controls-sep { color: var(--color-card-border); }
+.faith-reading-control:hover { color: var(--color-primary); }
+.faith-reading-control--link { text-decoration: none; }
+.faith-reading-controls-sep { color: var(--color-rule); font-style: normal; }
+.faith-reading-control.faith-modernizer-toggle[aria-pressed="true"] {
+  color: var(--color-primary);
+  font-weight: 500;
+}
 
 /* ── Document section / chapter / article container ──────────── */
 /* Two flavors:
@@ -10802,12 +10817,11 @@ body.mo-search-open { overflow: hidden; }
     padding: 32px 32px 64px;
     align-items: start;
   }
+  /* Sidebar sits in document flow as a static grid column. It does
+     NOT sticky-follow the reader on scroll — it scrolls off with the
+     rest of the page. Reader scrolls back up to the TOC to navigate. */
   .faith-toc-sidebar {
-    position: sticky;
-    top: 96px;
-    max-height: calc(100vh - 116px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    position: static;
     padding: 8px 18px 28px 4px;
     background: transparent;
     border-right: 1px solid var(--color-rule);

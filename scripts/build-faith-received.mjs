@@ -616,7 +616,6 @@ function renderHeidelberg(doc) {
             <span class="faith-chev faith-heidelberg-part-chev" aria-hidden="true"></span>
           </button>
           <div class="faith-heidelberg-part-body">
-            <div class="flourish">{{> "flourish-mark"}}</div>
             ${days.map((d) => renderLordsDay(d, false)).join("\n")}
           </div>
         </section>`;
