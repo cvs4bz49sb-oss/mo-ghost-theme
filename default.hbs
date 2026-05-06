@@ -311,8 +311,8 @@
             window.addEventListener('orientationchange', function () {
                 setTimeout(fixViewport, 200);
             });
-            window.addEventListener('pageshow', function (e) {
-                if (e.persisted) fixViewport();
+            window.addEventListener('pageshow', function () {
+                fixViewport();
             });
         })();
     </script>

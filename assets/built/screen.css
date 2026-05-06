@@ -1193,17 +1193,7 @@ img { max-width: 100%; height: auto; }
   border-bottom: 1px solid var(--color-card-border);
 }
 .digest-cta::before {
-  content: "\2766";
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-primary);
-  font-size: 16px;
-  line-height: 1;
-  background: transparent;
+  content: none;
 }
 .digest-copy { position: relative; }
 .digest-copy .eyebrow {
@@ -2638,7 +2628,7 @@ body {
   position: relative;
 }
 .article-content blockquote::before {
-  content: '"';
+  content: '\201C';
   position: absolute;
   top: -24px;
   left: 20px;
@@ -3502,6 +3492,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .article-rail { display: none; }
   .related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .article-content blockquote { margin: 40px 0; padding: 0 20px 0 40px; }
+  .article-content blockquote::before { font-size: 56px; top: -20px; left: 0; }
   .inline-support { margin: 56px 0; }
 }
 
