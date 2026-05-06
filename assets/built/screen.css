@@ -3002,11 +3002,10 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
    the flourish that separates the two sub-sections. */
 .related-sub-heading {
   text-align: center;
-  margin: 0 0 8px;
+  margin: 0 0 24px;
 }
-.related-between-flourish {
-  margin-top: 56px;
-  margin-bottom: 16px;
+.related-sub-heading--more {
+  margin-top: 64px;
 }
 
 /* -------- Related -------- */

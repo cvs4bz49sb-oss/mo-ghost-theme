@@ -305,7 +305,6 @@
         </div>
 
         <h2 class="section-heading related-sub-heading"><em>Recent Articles</em></h2>
-        <div class="flourish"></div>
         <div class="week-grid">
             {{#next_post}}
             <a href="{{url}}" class="entry">
@@ -342,9 +341,7 @@
         </div>
 
         {{#if primary_tag}}
-        <div class="flourish related-between-flourish"></div>
-        <h2 class="section-heading related-sub-heading"><em>More on this theme.</em></h2>
-        <div class="flourish"></div>
+        <h2 class="section-heading related-sub-heading related-sub-heading--more"><em>More on this theme.</em></h2>
         <div class="week-grid" data-related-grid>
             {{#get "posts" filter="tag:{{primary_tag.slug}}+id:-{{id}}" limit="4" include="authors,tags"}}
                 {{#foreach posts}}{{> "post-entry"}}{{/foreach}}
