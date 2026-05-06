@@ -27,10 +27,33 @@
 
   {{> "faith-received/_nav"}}
 
-  {{!-- Documents and Library no longer render inline on the home —
-       each lives at its own route (/the-faith-received/documents/,
-       /the-faith-received/library/) so the section nav swaps the page
-       rather than anchor-scrolling. --}}
+  {{!-- Documents and Library are tab-swap views on this page. The
+       section nav rail (above) toggles which is visible via hash
+       (#documents default; #library swaps in). JS handles the swap;
+       no navigation, no anchor-scrolling. --}}
+  <div class="faith-section-tabs" data-faith-section-tabs>
+    <section class="faith-section-band faith-band-documents" data-faith-section="documents">
+      <div class="container">
+        <div class="section-intro">
+          <p class="eyebrow">Documents</p>
+          <h2 class="section-heading"><em>Creeds, confessions, &amp; catechisms.</em></h2>
+          <p class="faith-section-lede">The standards by which the Church has confessed her faith, set in chronological order &mdash; from the Apostles' Creed in the second century to the Lausanne Covenant in the twentieth.</p>
+        </div>
+        {{> "faith-received/_cards-documents"}}
+      </div>
+    </section>
+
+    <section class="faith-section-band faith-band-library" data-faith-section="library" hidden>
+      <div class="container">
+        <div class="section-intro">
+          <p class="eyebrow">The Library</p>
+          <h2 class="section-heading"><em>The wider conversation.</em></h2>
+          <p class="faith-section-lede">Classic works of theology, apology, and devotion, in chronological order &mdash; from Diognetus and Athanasius to Edwards, Calvin, and Leo XIII.</p>
+        </div>
+        {{> "faith-received/_cards-library"}}
+      </div>
+    </section>
+  </div>
 
   {{!-- Devotional / Topics / Scripture / Today / Search — call-to-action
        rail. Each is its own routed feature page. --}}
@@ -97,3 +120,53 @@
 </main>
 
 <script src="{{asset "js/faith-received.js"}}"></script>
+<script>
+// Section-tab swap. The section nav rail toggles between the
+// Documents and Library views inline — no navigation, no scroll.
+// Hash (#documents / #library) drives the active tab so deep-links
+// from other Faith Received pages land on the right view. Default
+// when no hash: Documents.
+(function () {
+  var sections = document.querySelectorAll("[data-faith-section]");
+  var navLinks = document.querySelectorAll(".faith-section-nav-link[data-faith-tab-target]");
+  if (!sections.length) return;
+
+  function show(name) {
+    Array.prototype.forEach.call(sections, function (s) {
+      var match = s.getAttribute("data-faith-section") === name;
+      if (match) s.removeAttribute("hidden");
+      else s.setAttribute("hidden", "");
+    });
+    Array.prototype.forEach.call(navLinks, function (a) {
+      var match = a.getAttribute("data-faith-tab-target") === name;
+      a.classList.toggle("is-active", match);
+      if (match) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+  }
+
+  function fromHash() {
+    var h = (window.location.hash || "").replace(/^#/, "");
+    return h === "library" ? "library" : "documents";
+  }
+
+  Array.prototype.forEach.call(navLinks, function (a) {
+    a.addEventListener("click", function (e) {
+      var target = a.getAttribute("data-faith-tab-target");
+      if (!target) return;
+      // Same-page hash change: prevent default scroll behavior, just
+      // update the URL and swap the tab. The browser's hashchange
+      // event will fire and we re-run show() from there.
+      e.preventDefault();
+      if (window.location.hash !== "#" + target) {
+        history.pushState(null, "", "#" + target);
+      }
+      show(target);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  window.addEventListener("hashchange", function () { show(fromHash()); });
+  show(fromHash());
+})();
+</script>

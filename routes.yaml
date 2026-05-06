@@ -119,10 +119,9 @@ routes:
   # See memory/ghost-theme.md for the full operational guide.
   /the-faith-received/:
     template: custom-the-faith-received
-  /the-faith-received/documents/:
-    template: custom-faith-documents
-  /the-faith-received/library/:
-    template: custom-faith-library
+  # Documents and Library aren't separate routes — they're tab-swap
+  # views inside the home page, driven by the section nav rail and a
+  # hash indicator (#documents / #library). See custom-the-faith-received.hbs.
   # Feature pages
   /the-faith-received/search/:
     template: custom-faith-search
