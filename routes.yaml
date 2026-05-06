@@ -209,6 +209,8 @@ routes:
     template: custom-faith-charnock-attributes
   /the-faith-received/imitation-of-christ/:
     template: custom-faith-imitation-of-christ
+  /the-faith-received/polanus-syntagma/:
+    template: custom-faith-polanus-syntagma
   /the-faith-received/rerum-novarum/:
     template: custom-faith-rerum-novarum
 

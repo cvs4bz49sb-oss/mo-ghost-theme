@@ -127,6 +127,7 @@ function titleFor(c) {
 // once we ship the generated PDFs/EPUBs to R2 (or stand up a Worker).
 const LIBRARY_TRANSLATORS = {
   "augustine-confessions": "J.G. Pilkington",
+  "polanus-syntagma": "Stiven Peter",
 };
 const LIBRARY_DOWNLOADS_AVAILABLE = new Set([
   // Slugs in this set render the format-downloads row. Rest skip it
@@ -831,6 +832,12 @@ const LIBRARY_BOOK_TITLES = {
     12: "On Genesis: Heaven and Earth",
     13: "On Genesis: Creation and the Spirit",
   },
+  "polanus-syntagma": {
+    1: "De Theologiae Principiis",
+    2: "De Dei Essentia et Attributis Divinis",
+    3: "De Sacrosancta Trinitate et Personis Divinis",
+    4: "De Operibus Dei",
+  },
 };
 
 function renderLibraryBooks(doc) {
@@ -846,7 +853,7 @@ function renderLibraryBooks(doc) {
   // editorial book titles ("Book I — Infancy and Boyhood") and a
   // chapter-count subtitle. Other library-books docs keep the
   // existing layout until the pattern is reviewed.
-  const useEditorial = doc.slug === "augustine-confessions";
+  const useEditorial = doc.slug === "augustine-confessions" || doc.slug === "polanus-syntagma";
   const allBooks = doc.books ?? [];
   const editorialTitles = LIBRARY_BOOK_TITLES[doc.slug] ?? {};
 

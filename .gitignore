@@ -14,3 +14,8 @@ data/faith-received/
 # outputs in assets/files/ebooks/ ARE committed; the intermediates
 # are throwaway.
 scripts/.ebook-build/
+
+# Polanus Syntagma source PDF + extracted text. The JSON output goes
+# to data/faith-received/ (also gitignored); the partial under
+# partials/faith-received/polanus-syntagma.hbs IS committed.
+scripts/polanus-source/
