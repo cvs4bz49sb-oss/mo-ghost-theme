@@ -196,13 +196,9 @@
 
   function initScripture() {
     var grid = document.querySelector("[data-faith-scripture-books]");
-    var detail = document.querySelector("[data-faith-scripture-detail]");
-    var detailTitle = document.querySelector("[data-faith-scripture-detail-title]");
-    var detailRefs = document.querySelector("[data-faith-scripture-refs]");
-    var back = document.querySelector("[data-faith-scripture-back]");
     var status = document.querySelector("[data-faith-scripture-status]");
     var tabs = document.querySelectorAll("[data-faith-scripture-tab]");
-    if (!grid || !detail) return;
+    if (!grid) return;
 
     var data = null;
 
@@ -238,87 +234,84 @@
 
     function renderBooks() {
       if (!data) return;
-      // Group references by book name from the index keys.
-      var byBook = {};
+      // Group passages by book → chapter → refs.
+      var byBookChapter = {};
       Object.keys(data.index || {}).forEach(function (passage) {
-        var m = passage.match(/^(.+?)\s+\d/);
+        var m = passage.match(/^(.+?)\s+(\S.*)$/);
         if (!m) return;
         var book = m[1];
-        byBook[book] = (byBook[book] || 0) + (data.index[passage] || []).length;
+        var chapter = m[2];
+        if (!byBookChapter[book]) byBookChapter[book] = {};
+        if (!byBookChapter[book][chapter]) byBookChapter[book][chapter] = [];
+        var refs = data.index[passage] || [];
+        refs.forEach(function (r) {
+          byBookChapter[book][chapter].push({ passage: passage, ref: r });
+        });
       });
+
       var books = (data.books || []).filter(function (b) {
         return current === "ot" ? OT.indexOf(b) > -1 : OT.indexOf(b) === -1;
       });
       grid.innerHTML = "";
       books.forEach(function (book) {
-        var count = byBook[book] || 0;
-        var el = document.createElement(count ? "a" : "div");
-        el.className = "faith-scripture-book";
-        if (count) {
-          el.href = "#" + encodeURIComponent(book);
-          el.addEventListener("click", function (e) {
-            e.preventDefault();
-            renderBook(book);
-          });
-        } else {
-          el.classList.add("is-empty");
-        }
-        el.innerHTML =
-          '<span class="faith-scripture-book-name">' +
-          escapeHtml(book) +
-          "</span>" +
-          '<span class="faith-scripture-book-count">' +
-          count +
-          " refs</span>";
-        grid.appendChild(el);
-      });
-    }
-
-    function renderBook(book) {
-      // Collect every reference whose passage starts with the book name.
-      var refs = [];
-      Object.keys(data.index || {}).forEach(function (passage) {
-        var m = passage.match(/^(.+?)(\s+\d.*)$/);
-        if (!m || m[1] !== book) return;
-        (data.index[passage] || []).forEach(function (r) {
-          refs.push(Object.assign({ passage: passage }, r));
+        var chapters = byBookChapter[book] || {};
+        var chapterKeys = Object.keys(chapters).sort(function (a, b) {
+          return parseChapter(a) - parseChapter(b);
         });
+        var totalRefs = 0;
+        chapterKeys.forEach(function (ch) { totalRefs += chapters[ch].length; });
+
+        var bookEl = document.createElement("details");
+        bookEl.className = "faith-scripture-book-details" + (totalRefs ? "" : " is-empty");
+        var summary = document.createElement("summary");
+        summary.className = "faith-scripture-book";
+        summary.innerHTML =
+          '<span class="faith-scripture-book-name">' + escapeHtml(book) + '</span>' +
+          '<span class="faith-scripture-book-count">' + totalRefs + " ref" + (totalRefs === 1 ? "" : "s") + '</span>' +
+          '<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>';
+        bookEl.appendChild(summary);
+
+        if (totalRefs) {
+          var body = document.createElement("div");
+          body.className = "faith-scripture-book-body";
+          chapterKeys.forEach(function (ch) {
+            var refs = chapters[ch];
+            if (!refs.length) return;
+            var chEl = document.createElement("details");
+            chEl.className = "faith-scripture-chapter-details";
+            var chSummary = document.createElement("summary");
+            chSummary.className = "faith-scripture-chapter";
+            chSummary.innerHTML =
+              '<span class="faith-scripture-chapter-name">' + escapeHtml(book + " " + ch) + '</span>' +
+              '<span class="faith-scripture-chapter-count">' + refs.length + " ref" + (refs.length === 1 ? "" : "s") + '</span>' +
+              '<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>';
+            chEl.appendChild(chSummary);
+            var refsList = document.createElement("ol");
+            refsList.className = "faith-scripture-refs";
+            refs.forEach(function (item) {
+              var li = document.createElement("li");
+              li.className = "faith-scripture-ref";
+              var url = sourceToUrl(item.ref);
+              li.innerHTML =
+                '<a class="faith-scripture-ref-link" href="' + encodeURI(url) + '">' +
+                  '<span class="faith-scripture-ref-passage">' + escapeHtml(item.passage) + '</span>' +
+                  '<span class="faith-scripture-ref-source">' + escapeHtml(prettifySource(item.ref.source || "")) + '</span>' +
+                  (item.ref.title
+                    ? '<span class="faith-scripture-ref-title">' + escapeHtml(item.ref.title) + '</span>'
+                    : "") +
+                  (item.ref.excerpt
+                    ? '<span class="faith-scripture-ref-excerpt">' + escapeHtml(truncate(item.ref.excerpt, 240)) + '</span>'
+                    : "") +
+                "</a>";
+              refsList.appendChild(li);
+            });
+            chEl.appendChild(refsList);
+            body.appendChild(chEl);
+          });
+          bookEl.appendChild(body);
+        }
+        grid.appendChild(bookEl);
       });
-      // Sort by chapter + verse if parseable.
-      refs.sort(function (a, b) {
-        return parseChapter(a.passage) - parseChapter(b.passage);
-      });
-      detailTitle.textContent = book;
-      detailRefs.innerHTML = "";
-      refs.forEach(function (r) {
-        var li = document.createElement("li");
-        li.className = "faith-scripture-ref";
-        var url = sourceToUrl(r);
-        li.innerHTML =
-          '<a class="faith-scripture-ref-link" href="' +
-          encodeURI(url) +
-          '">' +
-          '<span class="faith-scripture-ref-passage">' +
-          escapeHtml(r.passage) +
-          "</span>" +
-          '<span class="faith-scripture-ref-source">' +
-          escapeHtml(prettifySource(r.source || "")) +
-          "</span>" +
-          (r.title
-            ? '<span class="faith-scripture-ref-title">' +
-              escapeHtml(r.title) +
-              "</span>"
-            : "") +
-          (r.excerpt
-            ? '<span class="faith-scripture-ref-excerpt">' +
-              escapeHtml(truncate(r.excerpt, 240)) +
-              "</span>"
-            : "") +
-          "</a>";
-        detailRefs.appendChild(li);
-      });
-      grid.hidden = true;
-      detail.hidden = false;
     }
 
     function parseChapter(passage) {
@@ -371,13 +364,6 @@
       return s.length > n ? s.slice(0, n) + "…" : s;
     }
 
-    if (back) {
-      back.addEventListener("click", function (e) {
-        e.preventDefault();
-        detail.hidden = true;
-        grid.hidden = false;
-      });
-    }
     Array.prototype.forEach.call(tabs, function (btn) {
       btn.addEventListener("click", function () {
         Array.prototype.forEach.call(tabs, function (b) {

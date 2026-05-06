@@ -11267,67 +11267,117 @@ body.mo-search-open { overflow: hidden; }
   height: 1px;
   background: var(--color-secondary);
 }
+/* Single-column list of book collapsibles. No card chrome — each
+   book is an editorial row with hairlines above/below. Click a book
+   to reveal its chapters; click a chapter to reveal the references.
+   Three-deep <details> nesting (book → chapter → refs) keeps the
+   grid compact and lets the reader drill in without leaving the
+   page or losing place. */
 .faith-scripture-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 8px;
-  margin-top: 12px;
+  display: block;
+  margin: 8px 0 0;
+  max-width: 760px;
 }
 .faith-scripture-status {
-  grid-column: 1 / -1;
   text-align: center;
   font-family: var(--font-body);
   color: var(--color-muted);
   margin: 24px 0;
 }
+.faith-scripture-book-details {
+  border-top: 1px solid var(--color-rule);
+}
+.faith-scripture-book-details:last-of-type {
+  border-bottom: 1px solid var(--color-rule);
+}
+.faith-scripture-book-details.is-empty .faith-scripture-book {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
 .faith-scripture-book {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: baseline;
-  justify-content: space-between;
-  padding: 14px 18px;
-  background: var(--color-white);
-  border: 1px solid var(--color-card-border);
-  border-radius: 6px;
+  column-gap: 18px;
+  padding: 16px 0;
+  cursor: pointer;
+  list-style: none;
+  background: transparent;
+  border: 0;
   text-decoration: none;
   color: var(--color-dark);
-  transition: border-color 0.15s, background 0.15s;
+  transition: color 0.15s;
 }
-.faith-scripture-book:hover {
-  border-color: var(--color-primary);
-  text-decoration: none;
+.faith-scripture-book::-webkit-details-marker { display: none; }
+.faith-scripture-book::marker { content: ""; }
+.faith-scripture-book:hover .faith-scripture-book-name {
+  color: var(--color-secondary);
 }
-.faith-scripture-book.is-empty { opacity: 0.5; cursor: default; }
 .faith-scripture-book-name {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 19px;
+  font-size: 22px;
+  transition: color 0.15s;
 }
 .faith-scripture-book-count {
   font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--color-primary);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
 }
-.faith-scripture-detail { max-width: 760px; margin: 0 auto; }
-.faith-scripture-back {
+.faith-scripture-chev {
+  width: 11px;
+  height: 11px;
+  border-right: 1.5px solid var(--color-primary);
+  border-bottom: 1.5px solid var(--color-primary);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.2s ease;
+}
+.faith-scripture-book-details[open] > .faith-scripture-book .faith-scripture-chev,
+.faith-scripture-chapter-details[open] > .faith-scripture-chapter .faith-scripture-chev {
+  transform: rotate(-135deg) translateY(-2px);
+}
+.faith-scripture-book-details[open] > .faith-scripture-book {
+  padding-bottom: 10px;
+}
+
+.faith-scripture-book-body {
+  padding: 0 0 18px 24px;
+}
+.faith-scripture-chapter-details {
+  border-top: 1px solid var(--color-rule);
+}
+.faith-scripture-chapter-details:first-child { border-top: 0; }
+.faith-scripture-chapter {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: baseline;
+  column-gap: 14px;
+  padding: 12px 0;
+  cursor: pointer;
+  list-style: none;
+  transition: color 0.15s;
+}
+.faith-scripture-chapter::-webkit-details-marker { display: none; }
+.faith-scripture-chapter::marker { content: ""; }
+.faith-scripture-chapter:hover .faith-scripture-chapter-name {
+  color: var(--color-secondary);
+}
+.faith-scripture-chapter-name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  transition: color 0.15s;
+}
+.faith-scripture-chapter-count {
   font-family: var(--font-body);
   font-size: 12px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--color-muted);
-  margin: 0 0 16px;
-  display: inline-block;
 }
-.faith-scripture-detail-title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 38px;
-  line-height: 1.1;
-  margin: 0 0 32px;
-  color: var(--color-dark);
+.faith-scripture-chapter-details[open] > .faith-scripture-chapter {
+  padding-bottom: 8px;
 }
 .faith-scripture-refs { list-style: none; padding: 0; margin: 0; }
 .faith-scripture-ref { border-top: 1px solid var(--color-rule); }
