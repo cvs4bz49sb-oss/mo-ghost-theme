@@ -300,7 +300,7 @@
                     ? '<span class="faith-scripture-ref-title">' + escapeHtml(item.ref.title) + '</span>'
                     : "") +
                   (item.ref.excerpt
-                    ? '<span class="faith-scripture-ref-excerpt">' + escapeHtml(truncate(item.ref.excerpt, 240)) + '</span>'
+                    ? '<span class="faith-scripture-ref-excerpt">' + escapeHtml(item.ref.excerpt) + '</span>'
                     : "") +
                 "</a>";
               refsList.appendChild(li);
