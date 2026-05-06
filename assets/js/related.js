@@ -71,7 +71,7 @@
 
     var neighborUrl = API_BASE + "/posts/?key=" + encodeURIComponent(API_KEY) +
       "&filter=" + encodeURIComponent("id:[" + ids.join(",") + "]") +
-      "&limit=2&include=tags&fields=id,tags";
+      "&limit=2&include=tags&fields=id";
 
     fetch(neighborUrl, { cache: "default" })
       .then(function (r) { return r.ok ? r.json() : null; })
