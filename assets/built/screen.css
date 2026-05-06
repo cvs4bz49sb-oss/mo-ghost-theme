@@ -10270,7 +10270,11 @@ body.mo-search-open { overflow: hidden; }
   font-size: 16px;
   letter-spacing: 0.04em;
   color: rgba(255,255,255,0.7);
-  margin: 16px 0 24px;
+  /* margin auto on left/right is critical — base .article-dek caps
+     width at 640px, so without auto the dek anchors to the left edge
+     of its container instead of centering. */
+  margin: 16px auto 24px;
+  text-align: center;
 }
 .faith-doc-header--library .faith-doc-rule { margin-left: auto; margin-right: auto; }
 .faith-doc-header--library .faith-format-downloads { justify-content: center; }
