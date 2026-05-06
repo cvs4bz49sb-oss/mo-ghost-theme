@@ -262,10 +262,10 @@ function readingControls(doc) {
 // ── View toggle (Heidelberg's "By Lord's Day / By Section / Memorize") ──
 //
 // Mirrors the segmented control on the original TFR site. Rendered as
-// three editorial-style links underlined on active rather than a pill,
-// to keep the pattern consistent with the rest of the MO site. The
-// "Memorize" tab is a real link to the /memorize/ subroute (not an
-// in-page view) — clicking it leaves the page.
+// three editorial-style buttons underlined on active rather than a pill,
+// to keep the pattern consistent with the rest of the MO site. All
+// three tabs swap views inline on the same page — Memorize is no
+// longer a route navigation.
 function viewToggle(doc) {
   if (doc.slug !== "heidelberg") return "";
   return `
@@ -276,10 +276,78 @@ function viewToggle(doc) {
     <button type="button" class="faith-view-toggle-tab" data-faith-view-target="section" aria-pressed="false">
       <em>By Section</em>
     </button>
-    <a class="faith-view-toggle-tab faith-view-toggle-tab--link" href="/the-faith-received/${doc.slug}/memorize/">
+    <button type="button" class="faith-view-toggle-tab" data-faith-view-target="memorize" aria-pressed="false">
       <em>Memorize</em>
-    </a>
+    </button>
   </nav>`;
+}
+
+// ── Inline memorize body ──────────────────────────────────────
+//
+// Just the memorize controls + card + JSON data (no hero, no _nav,
+// no faith-feature wrapper). Embedded inside the same Heidelberg page
+// so the view toggle can swap to it without navigating away. The
+// /memorize/ subroute still exists as a fallback for direct links.
+function renderInlineMemorize(doc, entries) {
+  const total = entries.length;
+  const json = JSON.stringify(entries).replace(/<\/script/gi, "<\\/script");
+  const titleEsc = escape(smarten(doc.title));
+  return `
+        <div class="faith-memorize" data-faith-memorize data-doc-slug="${escape(doc.slug)}" data-doc-title="${titleEsc}">
+
+          <div class="faith-memorize-progress">
+            <div class="faith-memorize-progress-meta">
+              <span class="faith-memorize-progress-label" data-faith-memorize-progress-label>0 of ${total} memorized</span>
+              <span class="faith-memorize-progress-pct" data-faith-memorize-progress-pct>0%</span>
+            </div>
+            <div class="faith-memorize-progress-track" role="progressbar" aria-label="Memorization progress" aria-valuemin="0" aria-valuemax="100">
+              <div class="faith-memorize-progress-fill" data-faith-memorize-progress-fill style="width: 0%"></div>
+            </div>
+          </div>
+
+          <div class="faith-memorize-filters" role="tablist" aria-label="Filter questions">
+            <button type="button" class="faith-memorize-filter is-active" role="tab" aria-selected="true" data-faith-memorize-filter="all">All</button>
+            <button type="button" class="faith-memorize-filter" role="tab" aria-selected="false" data-faith-memorize-filter="unmemorized">Not yet</button>
+            <button type="button" class="faith-memorize-filter" role="tab" aria-selected="false" data-faith-memorize-filter="memorized">Memorized</button>
+          </div>
+
+          <article class="faith-memorize-card" data-faith-memorize-card>
+            <p class="eyebrow faith-memorize-numeral" data-faith-memorize-numeral></p>
+            <h2 class="faith-memorize-question" data-faith-memorize-question></h2>
+
+            <div class="faith-memorize-answer" data-faith-memorize-answer hidden>
+              <div class="faith-memorize-answer-text article-content" data-faith-memorize-answer-text></div>
+              <p class="faith-qa-references faith-memorize-refs" data-faith-memorize-refs hidden></p>
+            </div>
+
+            <div class="faith-memorize-actions">
+              <button type="button" class="faith-memorize-reveal" data-faith-memorize-reveal>Reveal answer</button>
+              <button type="button" class="faith-memorize-mark" data-faith-memorize-mark>Mark memorized</button>
+            </div>
+
+            <div class="faith-memorize-nav">
+              <button type="button" class="faith-memorize-step" data-faith-memorize-prev aria-label="Previous question">
+                <span aria-hidden="true">&larr;</span> Previous
+              </button>
+              <span class="faith-memorize-position">
+                <span data-faith-memorize-position>1</span> of <span data-faith-memorize-total>${total}</span>
+              </span>
+              <button type="button" class="faith-memorize-step" data-faith-memorize-next aria-label="Next question">
+                Next <span aria-hidden="true">&rarr;</span>
+              </button>
+            </div>
+
+            <p class="faith-memorize-hint"><kbd>Space</kbd> reveals &middot; <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> navigates &middot; <kbd>m</kbd> marks</p>
+          </article>
+
+          <div class="faith-memorize-empty" data-faith-memorize-empty hidden>
+            <p class="eyebrow">All clear</p>
+            <h2 class="section-heading"><em>No questions match this filter.</em></h2>
+            <p class="faith-memorize-empty-body">Switch filters above, or keep going from <button type="button" class="faith-memorize-empty-link" data-faith-memorize-filter="all">All</button>.</p>
+          </div>
+
+          <script type="application/json" data-faith-memorize-data>${json}</script>
+        </div>`;
 }
 
 // ── Table of contents (rendered inside .faith-toc-sidebar) ────
@@ -619,9 +687,21 @@ function renderHeidelberg(doc) {
           </div>
         </section>`;
   }
+  // Inline memorize markup. Rendered inside the same page wrapped in
+  // a [data-faith-view-content="memorize"] block so the view toggle
+  // can swap to it without navigating to /memorize/. The standalone
+  // /memorize/ route still exists as a direct-link fallback.
+  const memEntries = memorizeEntries(doc) || [];
+  const memorizeBody = memEntries.length ? renderInlineMemorize(doc, memEntries) : "";
+
   const body = `
         <div class="faith-heidelberg-views" data-faith-view="lords-day">
-          ${sectionsHtml}
+          <div data-faith-view-content="reading">
+            ${sectionsHtml}
+          </div>
+          <div data-faith-view-content="memorize" hidden>
+            ${memorizeBody}
+          </div>
         </div>`;
   // The view toggle sits above the reading-controls bar so the order
   // matches the original site (view → reading affordances → content).
@@ -1227,7 +1307,14 @@ for (const m of MEMORIZE_TARGETS) {
   );
 }
 for (const item of manifest) {
-  const tmpl = `{{!< default}}\n{{!-- Generated wrapper for /the-faith-received/${item.slug}/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}"}}\n<script src="{{asset "js/faith-modernize.js"}}"></script>\n<script src="{{asset "js/faith-received.js"}}"></script>\n`;
+  // Heidelberg embeds the memorize view inline (the view toggle's
+  // Memorize tab swaps content rather than navigating to /memorize/),
+  // so its wrapper also loads faith-memorize.js. Other docs only need
+  // it on the dedicated /memorize/ subroute.
+  const memorizeScript = item.slug === "heidelberg"
+    ? `<script src="{{asset "js/faith-memorize.js"}}"></script>\n`
+    : "";
+  const tmpl = `{{!< default}}\n{{!-- Generated wrapper for /the-faith-received/${item.slug}/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}"}}\n<script src="{{asset "js/faith-modernize.js"}}"></script>\n<script src="{{asset "js/faith-received.js"}}"></script>\n${memorizeScript}`;
   await writeFile(path.join(TEMPLATE_DIR, `custom-faith-${item.slug}.hbs`), tmpl);
 
   if (item.memorizable) {

@@ -1062,11 +1062,11 @@
   }
 
   // ── 4b. View toggle (Heidelberg: Lord's Day / Section / Memorize) ──
-  // Memorize is a real route link, so the click just lets the browser
-  // navigate. The other two tabs flip a [data-faith-view] attribute
-  // on the views wrapper; CSS keys off that attribute to swap which
-  // chrome is visible. In section view the LD <details> are forced
-  // open so each Part reads as a continuous body of text.
+  // All three tabs flip [data-faith-view] on the wrapper. CSS keys
+  // off that attribute to swap which [data-faith-view-content] block
+  // is visible. In section view the LD <details> are forced open so
+  // each Part reads as a continuous body of text. Memorize swaps to
+  // its own content block on the same page (no navigation away).
   initViewToggle();
 
   function initViewToggle() {
@@ -1076,13 +1076,27 @@
     if (!wrapper) return;
     var tabs = nav.querySelectorAll(".faith-view-toggle-tab[data-faith-view-target]");
     var partSummaries = document.querySelectorAll("[data-faith-part-summary]");
+    var contentBlocks = wrapper.querySelectorAll("[data-faith-view-content]");
+
+    var layout = wrapper.closest(".faith-doc-layout");
 
     function setView(view) {
       wrapper.setAttribute("data-faith-view", view);
+      // Layout class drives sidebar/reading-controls visibility in CSS.
+      if (layout) layout.classList.toggle("is-memorize-view", view === "memorize");
       Array.prototype.forEach.call(tabs, function (t) {
         var on = t.getAttribute("data-faith-view-target") === view;
         t.classList.toggle("is-active", on);
         t.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      // Show the matching content block, hide the rest. "lords-day"
+      // and "section" share the "reading" content block (DOM is the
+      // same; CSS swaps presentation via [data-faith-view]).
+      var contentKey = view === "memorize" ? "memorize" : "reading";
+      Array.prototype.forEach.call(contentBlocks, function (b) {
+        var match = b.getAttribute("data-faith-view-content") === contentKey;
+        if (match) b.removeAttribute("hidden");
+        else b.setAttribute("hidden", "");
       });
       var lds = document.querySelectorAll(".faith-lords-day-details");
       if (view === "section") {
@@ -1096,7 +1110,7 @@
           if (part) part.classList.remove("is-open");
         });
         Array.prototype.forEach.call(lds, function (d) { d.open = true; });
-      } else {
+      } else if (view === "lords-day") {
         // Lord's Day view: Part containers are inert headers; LDs
         // collapse back to default so the reader picks one to read.
         Array.prototype.forEach.call(partSummaries, function (s) {

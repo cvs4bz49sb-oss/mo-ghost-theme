@@ -10232,9 +10232,38 @@ body.mo-search-open { overflow: hidden; }
      align as a single editorial block. */
   padding: 56px 0 40px;
 }
-.faith-doc-header .article-header-inner { text-align: center; }
-.faith-doc-header .article-title { text-align: center; }
-.faith-doc-header .article-topic { margin-left: auto; margin-right: auto; }
+/* Center every element in the doc hero on the same vertical axis.
+   Wider inner container so the long display title doesn't visually
+   overflow. Each child block centers itself horizontally; max-widths
+   on the prose blocks keep the measure readable while preserving the
+   shared center. */
+.faith-doc-header { text-align: center; }
+.faith-doc-header .article-header-inner {
+  max-width: 960px;
+  text-align: center;
+}
+.faith-doc-header .article-topic {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.faith-doc-header .article-title {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+.faith-doc-header .faith-doc-dek { text-align: center; }
+.faith-doc-header .faith-doc-translator { text-align: center; }
+.faith-doc-header .faith-doc-description {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+.faith-doc-header .faith-doc-actions {
+  justify-content: center;
+  text-align: center;
+}
+.faith-doc-header .faith-doc-back { display: inline-flex; }
 .faith-doc-dek {
   font-family: var(--font-body);
   font-style: italic;
@@ -11376,45 +11405,64 @@ body.mo-search-open { overflow: hidden; }
   transition: width 220ms ease;
 }
 
+/* Filters: hairline-separated italic links, accent underline on
+   active. Drops the pill container + bordered pill buttons. */
 .faith-memorize-filters {
   display: flex;
   justify-content: center;
-  gap: 0;
-  margin: 0 auto 28px;
-  border: 1px solid var(--color-card-border);
-  border-radius: 999px;
-  padding: 4px;
-  width: fit-content;
-  background: var(--color-white);
+  gap: 32px;
+  margin: 0 auto 32px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  width: auto;
 }
 .faith-memorize-filter {
   appearance: none;
   background: transparent;
   border: 0;
-  font-family: var(--font-body);
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--color-muted);
-  padding: 8px 18px;
-  border-radius: 999px;
+  padding: 6px 0;
   cursor: pointer;
-  transition: background 160ms ease, color 160ms ease;
+  position: relative;
+  transition: color 160ms ease;
 }
 .faith-memorize-filter:hover { color: var(--color-dark); }
 .faith-memorize-filter.is-active {
-  background: var(--color-dark);
-  color: var(--color-white);
+  background: transparent;
+  color: var(--color-primary);
+}
+.faith-memorize-filter.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--color-secondary);
 }
 
+/* Memorize card: no card chrome — just an editorial Q&A block in the
+   center of the reading column. Hairline above + below to separate
+   it from controls and nav, no perimeter border, no rounded corners,
+   no shadow. */
 .faith-memorize-card {
-  background: var(--color-white);
-  border: 1px solid var(--color-card-border);
-  border-radius: 10px;
-  padding: 40px 44px 32px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  border-radius: 0;
+  padding: 36px 0 32px;
   max-width: 720px;
   margin: 0 auto;
-  box-shadow: 0 1px 0 rgba(45,41,39,0.02);
+  box-shadow: none;
 }
 .faith-memorize-numeral {
   margin: 0 0 14px;
@@ -11450,14 +11498,30 @@ body.mo-search-open { overflow: hidden; }
 .faith-memorize-actions {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 28px;
   margin-top: 28px;
   flex-wrap: wrap;
 }
-.faith-memorize-actions .btn { min-width: 168px; }
+/* Reveal + Mark memorized: italic display text-buttons matching the
+   reading-controls vocabulary. No pill backgrounds. */
+.faith-memorize-reveal,
+.faith-memorize-mark {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--color-secondary);
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+.faith-memorize-reveal:hover,
+.faith-memorize-mark:hover { color: var(--color-primary); }
 .faith-memorize-mark.is-memorized {
-  background: var(--color-secondary);
-  border-color: var(--color-secondary);
+  color: var(--color-primary);
+  font-weight: 500;
 }
 
 .faith-memorize-nav {
@@ -12346,6 +12410,18 @@ body.mo-search-open { overflow: hidden; }
    click-target. */
 [data-faith-view="section"] .faith-lords-day-details > .faith-section-summary .faith-chev { display: none; }
 [data-faith-view="section"] .faith-lords-day-details > .faith-section-summary { cursor: default; pointer-events: none; }
+
+/* Memorize view: hide reading-controls and (on desktop) sidebar TOC.
+   Memorize is its own self-contained interaction; the reading-view
+   chrome would just be in the way. JS toggles .is-memorize-view on
+   .faith-doc-layout (avoids :has() browser-compat questions). */
+.faith-doc-layout.is-memorize-view .faith-reading-controls { display: none; }
+@media (min-width: 1024px) {
+  .faith-doc-layout.is-memorize-view {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .faith-doc-layout.is-memorize-view .faith-toc-sidebar { display: none; }
+}
 
 /* ── Library editorial header extras ────────────────────────── */
 .faith-doc-header--library .faith-doc-translator {
