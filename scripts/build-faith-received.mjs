@@ -1940,11 +1940,106 @@ await writeFile(
   JSON.stringify(devotionalSources)
 );
 
-// Scripture index — copy from the source repo if present.
+// Scripture index — copy from the source repo if present, and replace
+// each ref's truncated excerpt with the full source text so the
+// Scripture page can show the whole passage. The upstream TFR site
+// truncates excerpts to ~120 chars; we want the entire Q&A answer,
+// section paragraph, article text, etc. Fall back to the original
+// truncated value when we can't resolve the source.
 const SCRIPTURE_SRC = "/Users/ianharber/Dropbox/Mac (2)/Documents/Claude Code Files/the-faith-received/data/scripture-index.json";
+
+function fullPlainText(doc, type, id) {
+  if (!doc) return "";
+  const num = parseInt((String(id).match(/\d+/) || [""])[0], 10);
+  if (type === "question") {
+    if (doc.lordsDays) {
+      for (const ld of doc.lordsDays) {
+        for (const q of ld.questions || []) {
+          if (q.number === num) return q.answer || "";
+        }
+      }
+    }
+    if (doc.questions) {
+      const q = (doc.questions || []).find((q) => q.number === num);
+      if (q) return q.answer || "";
+    }
+  }
+  if (type === "section") {
+    const s = (doc.sections || []).find((s) => s.number === num);
+    if (s) return s.text || "";
+  }
+  if (type === "chapter") {
+    if (doc.chapters) {
+      const c = (doc.chapters || []).find((c) => c.number === num);
+      if (c) return Array.isArray(c.paragraphs) ? c.paragraphs.join("\n\n") : (c.text || "");
+    }
+    if (doc.books) {
+      const m = String(id).match(/book-(\d+)-ch-?(\d+)/);
+      if (m) {
+        const bookNum = parseInt(m[1], 10);
+        const chNum = parseInt(m[2], 10);
+        const b = (doc.books || []).find((b) => b.bookNumber === bookNum);
+        if (b) {
+          const c = (b.chapters || []).find((c) => c.number === chNum);
+          if (c) return Array.isArray(c.paragraphs) ? c.paragraphs.join("\n\n") : (c.text || "");
+        }
+      }
+    }
+    if (doc.discourses) {
+      const c = (doc.discourses || []).find((d) => d.number === num);
+      if (c) return Array.isArray(c.paragraphs) ? c.paragraphs.join("\n\n") : (c.text || "");
+    }
+  }
+  if (type === "article") {
+    const a = (doc.articles || []).find((a) => a.number === num);
+    if (a) return a.text || "";
+  }
+  if (type === "thesis") {
+    const t = (doc.theses || []).find((t) => t.number === num);
+    if (t) return t.text || "";
+  }
+  if (type === "resolution") {
+    const r = (doc.resolutions || []).find((r, i) => i === num);
+    if (r) return (r.text || "").replace(/^\d+\.\s*/, "");
+  }
+  return "";
+}
+
 try {
   const sc = await readFile(SCRIPTURE_SRC, "utf-8");
-  await writeFile(path.join(ASSET_DATA_DIR, "scripture-index.json"), sc);
+  const scData = JSON.parse(sc);
+  const docCache = {};
+  async function getDoc(slug) {
+    if (slug in docCache) return docCache[slug];
+    const realSlug = slug === "confession-1689" ? "1689" : slug;
+    const file = path.join(DATA_DIR, `${realSlug}.json`);
+    try {
+      docCache[slug] = JSON.parse(await readFile(file, "utf-8"));
+    } catch {
+      docCache[slug] = null;
+    }
+    return docCache[slug];
+  }
+  let replaced = 0;
+  let kept = 0;
+  for (const passage of Object.keys(scData.index || {})) {
+    const refs = scData.index[passage] || [];
+    for (const ref of refs) {
+      const doc = await getDoc(ref.source || "");
+      const full = fullPlainText(doc, ref.type, ref.id);
+      if (full && full.length > (ref.excerpt || "").length) {
+        ref.excerpt = full;
+        replaced++;
+      } else {
+        kept++;
+      }
+    }
+  }
+  await writeFile(
+    path.join(ASSET_DATA_DIR, "scripture-index.json"),
+    JSON.stringify(scData)
+  );
+  console.log(`  + scripture-index excerpts: ${replaced} expanded, ${kept} kept`);
 } catch {
   // skip
 }
