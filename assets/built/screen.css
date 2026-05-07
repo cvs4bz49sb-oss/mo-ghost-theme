@@ -9989,17 +9989,25 @@ body.mo-search-open { overflow: hidden; }
 .faith-section-band + .faith-section-band {
   border-top: 1px solid var(--color-card-border);
 }
-.faith-band-documents { background: var(--color-page); }
-.faith-band-library { background: var(--color-background); position: relative; }
-.faith-band-library::before {
-  content: "";
-  position: absolute; inset: 0;
-  pointer-events: none;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(130,102,70,0.035) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgba(130,102,70,0.028) 0 1px, transparent 1px 4px);
+.faith-band-documents,
+.faith-band-library,
+.faith-band-traditions { background: var(--color-page); }
+
+/* Traditions tab — per-tradition group on the home Traditions view.
+   Each band stacks under the next with a hairline + breathing room.
+   The wrapper .faith-band-traditions handles the top-level padding;
+   inner .faith-tradition-band rows separate themselves with a rule. */
+.faith-band-traditions { padding: 56px 0 24px; }
+.faith-tradition-band { padding: 0 0 48px; }
+.faith-tradition-band + .faith-tradition-band {
+  padding-top: 48px;
+  border-top: 1px solid var(--color-rule);
 }
-.faith-band-library > * { position: relative; }
+.faith-tradition-intro { margin-bottom: 32px; }
+.faith-tradition-heading {
+  font-size: clamp(28px, 3.4vw, 40px);
+  margin: 0 auto 12px;
+}
 
 .faith-band-tools { background: var(--color-page); }
 
