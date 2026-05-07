@@ -10313,6 +10313,27 @@ body.mo-search-open { overflow: hidden; }
   color: var(--color-muted);
   font-weight: 400;
 }
+/* On phones the pill capsule fits one short label cleanly but
+   overflows ugly when the doc carries two or three tradition tags
+   ("THE FAITH RECEIVED · REFORMED · BAPTIST"). Drop the capsule
+   chrome at <=600px and render the tags as a centered uppercase
+   line with mid-dot separators — same vocabulary, no awkward
+   rounded edges. */
+@media (max-width: 600px) {
+  .faith-doc-header .article-topic {
+    display: block;
+    border: 0;
+    padding: 0;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    max-width: 100%;
+  }
+  .faith-doc-header .article-topic .article-topic-tag + .article-topic-tag::before {
+    margin: 0 6px;
+  }
+}
 .faith-doc-header .article-title {
   text-align: center;
   margin-left: auto;

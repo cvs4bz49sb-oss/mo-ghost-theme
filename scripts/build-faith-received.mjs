@@ -197,7 +197,6 @@ function header(doc, hasToc) {
       ${downloads}
       <div class="faith-doc-actions">
         ${tocToggle}
-        <a href="/the-faith-received/" class="faith-doc-back"><span aria-hidden="true">&larr;</span> The Faith Received</a>
       </div>
     </div>
   </section>
@@ -1371,9 +1370,6 @@ for (const m of MEMORIZE_TARGETS) {
         <p class="article-topic"><a href="/the-faith-received/${m.slug}/" class="article-topic-tag">${escape(m.title)}</a></p>
         <h1 class="article-title">Memorize</h1>
         <p class="faith-doc-description">${m.count} questions and answers, one card at a time. Press <kbd>Space</kbd> to reveal, <kbd>M</kbd> to mark memorized, <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> to navigate.</p>
-        <div class="faith-doc-actions">
-          <a href="/the-faith-received/${m.slug}/" class="faith-doc-back"><span aria-hidden="true">&larr;</span> Back to ${escape(m.title)}</a>
-        </div>
       </div>
     </section>
     {{> "faith-received/_nav"}}
@@ -1582,7 +1578,6 @@ if (topicsBundle) {
         <p class="faith-doc-description">${escape(smarten(meta.description))}</p>
         <div class="faith-doc-actions">
           ${sidebar ? `<button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents"><span class="faith-doc-toc-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span><span class="faith-doc-toc-toggle-label">Documents</span></button>` : ""}
-          <a href="/the-faith-received/topics/" class="faith-doc-back"><span aria-hidden="true">&larr;</span> All topics</a>
         </div>
       </div>
     </section>
