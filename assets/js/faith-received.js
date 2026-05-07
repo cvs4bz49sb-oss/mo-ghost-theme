@@ -690,7 +690,13 @@
       // or at the END of the section (for flat).
       if (target.classList.contains("faith-section-details")) {
         var body = target.querySelector(":scope > .faith-section-body");
-        if (body) body.appendChild(actions);
+        if (body) {
+          // If the section contains Q&A cards, each Q&A injects its
+          // own action row — skip the section-level row so the user
+          // doesn't see two stacked copy bars per card.
+          if (body.querySelector(":scope > .faith-qa")) return;
+          body.appendChild(actions);
+        }
       } else if (target.classList.contains("faith-book-details")) {
         var bbody = target.querySelector(":scope > .faith-book-body");
         if (bbody) bbody.appendChild(actions);
