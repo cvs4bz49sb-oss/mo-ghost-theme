@@ -13,7 +13,11 @@
   --color-card-border: #d9c6a7;
   --color-card-featured-bg: #f1e0c9;
   --color-muted: #6b6660;
-  --color-rule: #e9dec8;
+  /* Hairlines: --color-rule and --color-card-border are deliberately
+     the same value so all dividers across the site read at the same
+     weight. Was #e9dec8 (lighter) until a visible inconsistency
+     between nav-rail underline and card-grid hairlines was flagged. */
+  --color-rule: #d9c6a7;
 
   --font-display: 'IM Fell Great Primer', 'Source Serif Pro', Georgia, serif;
   --font-body: 'Source Serif Pro', Georgia, serif;
@@ -10080,6 +10084,17 @@ body.mo-search-open { overflow: hidden; }
 .faith-card:nth-child(3n+1) { border-left: 0; }
 .faith-card:nth-child(-n+3) { border-top: 0; padding-top: 14px; }
 .faith-card:hover { text-decoration: none; background: rgba(238,125,81,0.04); }
+/* Filler cells pad the grid out to a multiple of 6 so the row-
+   separator hairline extends across the whole grid even when the
+   last row isn't fully populated. They keep the same border-top /
+   border-left behaviour as real cards (so the lines extend) but
+   carry no content, no link, no padding-bottom, no hover. Hidden
+   at the 1-col phone breakpoint where row separators don't apply. */
+.faith-card--filler {
+  padding-bottom: 0;
+  pointer-events: none;
+}
+.faith-card--filler:hover { background: transparent; }
 .faith-card:hover .faith-card-title { color: var(--color-secondary); }
 .faith-card:hover .faith-card-arrow { transform: translateX(3px); }
 .faith-card-date {
@@ -10141,6 +10156,7 @@ body.mo-search-open { overflow: hidden; }
   .faith-card:nth-child(-n+3),
   .faith-card:nth-child(-n+2) { border-top: 1px solid var(--color-card-border); padding-top: 28px; }
   .faith-card:first-child { border-top: 0; padding-top: 8px; }
+  .faith-card--filler { display: none; }
 }
 
 /* ── Tools grid (Devotional / Today / Topics / Scripture) ─────── */
