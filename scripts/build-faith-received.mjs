@@ -1274,8 +1274,23 @@ const traditionGroups = TRADITION_ORDER.map((slug) => {
   return { slug, label: TRADITION_LABELS[slug], description: TRADITION_DESCRIPTIONS[slug], items };
 }).filter((g) => g.items.length);
 
-const traditionsHtml = traditionGroups.map((g) => `
-  <section class="faith-tradition-band" id="tradition-${g.slug}">
+// Sub-nav: one italic display link per tradition. JS toggles which
+// tradition band is visible inside the Traditions tab. Default is the
+// first tradition. The wrapping <div data-faith-tradition-tabs>
+// scopes the JS handler so it doesn't accidentally bind elsewhere.
+const traditionTabs = traditionGroups.map((g, i) => `
+        <button type="button" class="faith-tradition-tab${i === 0 ? " is-active" : ""}" data-faith-tradition-target="${g.slug}" aria-pressed="${i === 0 ? "true" : "false"}">
+          <em>${escape(g.label)}</em>
+        </button>`).join("");
+
+const traditionsHtml = `
+  <div class="container">
+    <nav class="faith-tradition-tabs" data-faith-tradition-tabs aria-label="Christian traditions">
+      ${traditionTabs}
+    </nav>
+  </div>
+  ${traditionGroups.map((g, i) => `
+  <section class="faith-tradition-band" id="tradition-${g.slug}" data-faith-tradition="${g.slug}"${i === 0 ? "" : " hidden"}>
     <div class="container">
       <div class="section-intro faith-tradition-intro">
         <h2 class="section-heading faith-tradition-heading"><em>${escape(g.label)}</em></h2>
@@ -1285,7 +1300,7 @@ const traditionsHtml = traditionGroups.map((g) => `
         ${g.items.map(cardMarkup).join("\n")}
       </div>
     </div>
-  </section>`).join("\n");
+  </section>`).join("\n")}`;
 
 await writeFile(
   path.join(OUT_DIR, "_cards-traditions.hbs"),

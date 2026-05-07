@@ -180,4 +180,39 @@
   window.addEventListener("hashchange", function () { show(fromHash()); });
   show(fromHash());
 })();
+
+// Traditions sub-tabs. Inside the Traditions section (Patristic /
+// Catholic / Lutheran / Anglican / Reformed / Baptist / Evangelical),
+// only one tradition's band is visible at a time. Click a tab to swap.
+// State is in-page only — no URL hash, so the top-level #traditions
+// hash drives the outer tab and the sub-tab state resets to the first
+// tradition on each visit.
+(function () {
+  var subNav = document.querySelector("[data-faith-tradition-tabs]");
+  if (!subNav) return;
+  var tabs = subNav.querySelectorAll("[data-faith-tradition-target]");
+  var bands = document.querySelectorAll("[data-faith-tradition]");
+  if (!tabs.length || !bands.length) return;
+
+  function show(slug) {
+    Array.prototype.forEach.call(bands, function (b) {
+      var match = b.getAttribute("data-faith-tradition") === slug;
+      if (match) b.removeAttribute("hidden");
+      else b.setAttribute("hidden", "");
+    });
+    Array.prototype.forEach.call(tabs, function (t) {
+      var match = t.getAttribute("data-faith-tradition-target") === slug;
+      t.classList.toggle("is-active", match);
+      t.setAttribute("aria-pressed", match ? "true" : "false");
+    });
+  }
+
+  Array.prototype.forEach.call(tabs, function (t) {
+    t.addEventListener("click", function (e) {
+      e.preventDefault();
+      var slug = t.getAttribute("data-faith-tradition-target");
+      if (slug) show(slug);
+    });
+  });
+})();
 </script>

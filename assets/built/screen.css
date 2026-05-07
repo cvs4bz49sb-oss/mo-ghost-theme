@@ -9993,20 +9993,52 @@ body.mo-search-open { overflow: hidden; }
 .faith-band-library,
 .faith-band-traditions { background: var(--color-page); }
 
-/* Traditions tab — per-tradition group on the home Traditions view.
-   Each band stacks under the next with a hairline + breathing room.
-   The wrapper .faith-band-traditions handles the top-level padding;
-   inner .faith-tradition-band rows separate themselves with a rule. */
-.faith-band-traditions { padding: 56px 0 24px; }
-.faith-tradition-band { padding: 0 0 48px; }
-.faith-tradition-band + .faith-tradition-band {
-  padding-top: 48px;
+/* Traditions tab — sub-nav of italic display links above the active
+   tradition band. Only one band is visible at a time; JS toggles via
+   data-faith-tradition. Sub-nav matches the .faith-view-toggle
+   editorial pattern (italic display + accent underline on active). */
+.faith-band-traditions { padding: 40px 0 56px; }
+.faith-tradition-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin: 0 auto 36px;
+  padding: 12px 0;
   border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  justify-content: center;
 }
+.faith-tradition-tab {
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+  font-family: var(--font-display);
+  font-size: 17px;
+  color: var(--color-muted);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+}
+.faith-tradition-tab em { font-style: italic; }
+.faith-tradition-tab:hover { color: var(--color-dark); }
+.faith-tradition-tab.is-active { color: var(--color-primary); }
+.faith-tradition-tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -13px;
+  height: 1px;
+  background: var(--color-secondary);
+}
+.faith-tradition-band { padding: 8px 0 0; }
 .faith-tradition-intro { margin-bottom: 32px; }
 .faith-tradition-heading {
   font-size: clamp(28px, 3.4vw, 40px);
   margin: 0 auto 12px;
+}
+
+@media (max-width: 640px) {
+  .faith-tradition-tabs { gap: 16px; padding: 10px 0; }
+  .faith-tradition-tab { font-size: 15px; }
 }
 
 .faith-band-tools { background: var(--color-page); }
