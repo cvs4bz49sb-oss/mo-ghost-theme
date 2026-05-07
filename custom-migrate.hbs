@@ -7,21 +7,28 @@
      × 25% off) and annual (one year × 25% off). After the first
      year the subscription renews at full price.
 
-     Stripe setup (see Ian's playbook below): two Payment Links,
-     each tied to a Stripe Coupon configured for "first year" via
-     `Duration = repeating, 12 months`. Suggested coupon IDs:
-       - MOVEMONTHLY25 (25% off, 12-month duration)
-       - MOVEANNUAL25  (25% off, applies to one annual cycle)
-     Both Payment Links carry metadata.kind=migration so the
-     mo-membership webhook flags the buyer's HubSpot contact with
-     mo_migrated_at on checkout.session.completed. Their old
-     Membership gets cancelled manually via a HubSpot active list
-     filtered on that property.
+     Stripe setup:
+       - Coupon MOVEMONTHLY25 (25% off, duration=repeating/12-months),
+         wrapped by Promotion Code MOMONTHLY25.
+       - Coupon MOVEANNUAL25  (25% off, duration=once),
+         wrapped by Promotion Code MOANNUAL25.
+       - Each Payment Link has "Allow promotion codes" enabled.
+       - Each Payment Link carries metadata.kind=migration so the
+         mo-membership webhook flags the buyer's HubSpot contact with
+         mo_migrated_at on checkout.session.completed. Their old
+         Membership gets cancelled manually via a HubSpot active list
+         filtered on that property.
 
-     Payment Link URLs live in @custom.migration_payment_link_monthly
-     and @custom.migration_payment_link_annual. If neither is set,
-     the page falls back to a single /membership/ CTA so it isn't
-     broken before the Payment Links are created. --}}
+     The promo codes are appended to the Payment Link URL via
+     ?prefilled_promo_code=... so the discount auto-applies on
+     Checkout — the buyer sees it pre-applied without typing
+     anything. The bare Payment Link URLs live in
+     @custom.migration_payment_link_monthly and _annual; this
+     template appends the suffix.
+
+     If neither @custom URL is set, the page falls back to a
+     single /membership/ CTA so it isn't broken before the Payment
+     Links are created. --}}
 
 <main class="membership membership-support migrate-page">
 
@@ -81,15 +88,22 @@
         Sign up here. Use the same email you used before so we can match your records and cancel your old Membership for you.
       </p>
 
+      {{!-- ?prefilled_promo_code=... is the Stripe Payment Links
+           parameter that auto-applies a Promotion Code on Checkout.
+           The bare Payment Link URL goes in the @custom setting; the
+           suffix is baked in here so the buyer never has to type the
+           code. Codes match the Stripe Promotion Codes:
+             MOMONTHLY25 → coupon MOVEMONTHLY25 (25% off, 12 months)
+             MOANNUAL25  → coupon MOVEANNUAL25  (25% off, once) --}}
       {{#if @custom.migration_payment_link_monthly}}
         <div class="migrate-cta-options">
           <div class="migrate-cta-option">
-            <a href="{{@custom.migration_payment_link_monthly}}" class="btn btn-primary btn-lg">Become a Monthly Member</a>
+            <a href="{{@custom.migration_payment_link_monthly}}?prefilled_promo_code=MOMONTHLY25" class="btn btn-primary btn-lg">Become a Monthly Member</a>
             <p class="btn-tagline">25% off your first year &mdash; applies automatically</p>
           </div>
           {{#if @custom.migration_payment_link_annual}}
             <div class="migrate-cta-option">
-              <a href="{{@custom.migration_payment_link_annual}}" class="btn btn-primary btn-lg">Become an Annual Member</a>
+              <a href="{{@custom.migration_payment_link_annual}}?prefilled_promo_code=MOANNUAL25" class="btn btn-primary btn-lg">Become an Annual Member</a>
               <p class="btn-tagline">25% off your first year &mdash; applies automatically</p>
             </div>
           {{/if}}
@@ -97,7 +111,7 @@
       {{else}}{{#if @custom.migration_payment_link_annual}}
         <div class="migrate-cta-options">
           <div class="migrate-cta-option">
-            <a href="{{@custom.migration_payment_link_annual}}" class="btn btn-primary btn-lg">Become an Annual Member</a>
+            <a href="{{@custom.migration_payment_link_annual}}?prefilled_promo_code=MOANNUAL25" class="btn btn-primary btn-lg">Become an Annual Member</a>
             <p class="btn-tagline">25% off your first year &mdash; applies automatically</p>
           </div>
         </div>
