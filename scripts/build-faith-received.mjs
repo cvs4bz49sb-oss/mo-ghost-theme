@@ -1224,7 +1224,7 @@ await writeFile(
 // A doc may belong to multiple traditions and appears under each.
 const TRADITION_LABELS = {
   patristic: "Patristic & Early Church",
-  catholic: "Catholic",
+  catholic: "Roman Catholic",
   scholastic: "Scholastic",
   lutheran: "Lutheran",
   anglican: "Anglican",
