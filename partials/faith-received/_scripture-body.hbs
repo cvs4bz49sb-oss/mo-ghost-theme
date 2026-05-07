@@ -1,0 +1,11 @@
+{{!-- Scripture index body. Used by /the-faith-received/scripture/ AND
+     by the Scripture tab on the home page. Caller wraps in
+     .container. --}}
+<div class="faith-scripture-toggle" role="tablist" aria-label="Testament">
+  <button type="button" class="faith-scripture-toggle-btn is-active" data-faith-scripture-tab="ot" role="tab" aria-selected="true">Old Testament</button>
+  <button type="button" class="faith-scripture-toggle-btn" data-faith-scripture-tab="nt" role="tab" aria-selected="false">New Testament</button>
+</div>
+
+<div class="faith-scripture-grid" data-faith-scripture-books>
+  <p class="faith-scripture-status" data-faith-scripture-status>Loading scripture index&hellip;</p>
+</div>

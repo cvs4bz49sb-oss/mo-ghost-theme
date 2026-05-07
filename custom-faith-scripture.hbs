@@ -3,7 +3,9 @@
      biblical book and the references found across the documents in
      the reading room. Source data built into
      assets/data/faith-received/scripture-index.json by the build
-     script (which copies it from the heidelberg repo). --}}
+     script (which copies it from the heidelberg repo). Body markup
+     lives in _scripture-body.hbs so the home Scripture tab and this
+     routed page render identical content. --}}
 
 <main class="faith-received faith-feature">
 
@@ -21,14 +23,7 @@
   {{> "faith-received/_nav"}}
   <section class="faith-feature-body">
     <div class="container">
-      <div class="faith-scripture-toggle" role="tablist" aria-label="Testament">
-        <button type="button" class="faith-scripture-toggle-btn is-active" data-faith-scripture-tab="ot" role="tab" aria-selected="true">Old Testament</button>
-        <button type="button" class="faith-scripture-toggle-btn" data-faith-scripture-tab="nt" role="tab" aria-selected="false">New Testament</button>
-      </div>
-
-      <div class="faith-scripture-grid" data-faith-scripture-books>
-        <p class="faith-scripture-status" data-faith-scripture-status>Loading scripture index&hellip;</p>
-      </div>
+      {{> "faith-received/_scripture-body"}}
     </div>
   </section>
 

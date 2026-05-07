@@ -1,18 +1,21 @@
 {{!-- The Faith Received section nav. Persists on every TFR page so
-     readers can move between Documents / Library / Topics / Scripture
-     / Today / Devotional / Search without bouncing back to the home
-     page. Sits below the dark hero on each page; visually a quiet
-     hairline-bordered rail in the editorial topic-pill style. --}}
+     readers can move between Documents / Library / Traditions /
+     Topics / Scripture / Today / Devotional / Search without
+     bouncing back to the home page. The first seven are tab targets
+     on the home page; clicking from inside a document or feature
+     page navigates to /the-faith-received/#<tab> and the home tab
+     state activates from the hash. Search is its own routed page —
+     the search input is heavy enough to keep on a dedicated URL. --}}
 <nav class="faith-section-nav" aria-label="The Faith Received">
   <div class="container faith-section-nav-inner" data-faith-section-nav-inner>
     <a href="/the-faith-received/" class="faith-section-nav-brand"><em>The Faith Received</em></a>
     <a href="/the-faith-received/#documents" class="faith-section-nav-link" data-faith-tab-target="documents">Documents</a>
     <a href="/the-faith-received/#library" class="faith-section-nav-link" data-faith-tab-target="library">Library</a>
     <a href="/the-faith-received/#traditions" class="faith-section-nav-link" data-faith-tab-target="traditions">Traditions</a>
-    <a href="/the-faith-received/topics/" class="faith-section-nav-link">Topics</a>
-    <a href="/the-faith-received/scripture/" class="faith-section-nav-link">Scripture</a>
-    <a href="/the-faith-received/today/" class="faith-section-nav-link">Today</a>
-    <a href="/the-faith-received/devotional/" class="faith-section-nav-link">Devotional</a>
+    <a href="/the-faith-received/#topics" class="faith-section-nav-link" data-faith-tab-target="topics">Topics</a>
+    <a href="/the-faith-received/#scripture" class="faith-section-nav-link" data-faith-tab-target="scripture">Scripture</a>
+    <a href="/the-faith-received/#today" class="faith-section-nav-link" data-faith-tab-target="today">Today</a>
+    <a href="/the-faith-received/#devotional" class="faith-section-nav-link" data-faith-tab-target="devotional">Devotional</a>
     <a href="/the-faith-received/search/" class="faith-section-nav-link">Search</a>
   </div>
 </nav>

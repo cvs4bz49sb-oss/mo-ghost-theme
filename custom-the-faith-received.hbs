@@ -51,11 +51,40 @@
     <section class="faith-section-band faith-band-traditions" data-faith-section="traditions" hidden>
       {{> "faith-received/_cards-traditions"}}
     </section>
+
+    {{!-- Topics, Scripture, Today, Devotional — feature tabs that
+         used to live at /the-faith-received/topics/ etc. Each renders
+         the same body partial that the standalone routed page does so
+         a deep link continues to work but the home tab is now the
+         primary entry point. --}}
+    <section class="faith-section-band faith-band-topics" data-faith-section="topics" hidden>
+      <div class="container">
+        {{> "faith-received/_topics-body"}}
+      </div>
+    </section>
+
+    <section class="faith-section-band faith-band-scripture" data-faith-section="scripture" hidden>
+      <div class="container">
+        {{> "faith-received/_scripture-body"}}
+      </div>
+    </section>
+
+    <section class="faith-section-band faith-band-today" data-faith-section="today" hidden>
+      <div class="container container-narrow">
+        {{> "faith-received/_today-body"}}
+      </div>
+    </section>
+
+    <section class="faith-section-band faith-band-devotional faith-devotional" data-faith-section="devotional" data-faith-devotional hidden>
+      {{> "faith-received/_devotional-body"}}
+    </section>
   </div>
 
 </main>
 
+<script src="{{asset "js/faith-modernize.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
+<script src="{{asset "js/faith-devotional.js"}}"></script>
 <script>
 // Section-tab swap. The section nav rail toggles between the
 // Documents and Library views inline — no navigation, no scroll.
@@ -83,9 +112,8 @@
 
   function fromHash() {
     var h = (window.location.hash || "").replace(/^#/, "");
-    if (h === "library") return "library";
-    if (h === "traditions") return "traditions";
-    return "documents";
+    var valid = ["documents", "library", "traditions", "topics", "scripture", "today", "devotional"];
+    return valid.indexOf(h) >= 0 ? h : "documents";
   }
 
   Array.prototype.forEach.call(navLinks, function (a) {

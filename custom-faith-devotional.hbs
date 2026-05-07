@@ -1,10 +1,9 @@
 {{!< default}}
 {{!-- /the-faith-received/devotional/ — Devotional plan engine.
-     Two states on the same page:
-       - No plan: source picker + Bible track picker + Save plan
-       - Plan saved: today's reading queue (one item per source +
-         Bible chapter, with mark-as-read to advance)
-     All state in localStorage; no backend, no auth in v1. --}}
+     Two states on the same page (no plan: setup view; plan saved:
+     today's reading queue). All state in localStorage; no backend.
+     Body markup lives in _devotional-body.hbs so the home Devotional
+     tab and this routed page render identical content. --}}
 
 <main class="faith-received faith-feature faith-devotional" data-faith-devotional>
 
@@ -20,76 +19,7 @@
 
   {{> "faith-received/_nav"}}
 
-  {{!-- "Today" view: rendered when a plan exists in localStorage. --}}
-  <section class="faith-feature-body faith-devotional-today" data-faith-devotional-today hidden>
-    <div class="container container-narrow">
-      <div class="faith-devotional-today-meta">
-        <p class="eyebrow">Today's reading</p>
-        <p class="faith-devotional-today-date" data-faith-devotional-date></p>
-      </div>
-      <div class="faith-devotional-queue" data-faith-devotional-queue></div>
-      <div class="faith-devotional-bible" data-faith-devotional-bible></div>
-      <div class="faith-devotional-actions">
-        <button type="button" class="btn btn-primary btn-lg" data-faith-devotional-mark-day>Mark day complete</button>
-        <button type="button" class="btn btn-outline" data-faith-devotional-edit>Edit plan</button>
-        <button type="button" class="faith-devotional-reset" data-faith-devotional-reset>Reset plan</button>
-      </div>
-    </div>
-  </section>
-
-  {{!-- "Setup" view: rendered when no plan exists. --}}
-  <section class="faith-feature-body faith-devotional-setup" data-faith-devotional-setup>
-    <div class="container container-narrow">
-      <div class="section-intro">
-        <p class="eyebrow">Set up your plan</p>
-        <h2 class="section-heading"><em>Choose your sources.</em></h2>
-        <p class="faith-section-lede">Tick any combination of the historic documents and library works. The engine will queue one entry from each per day, in the order you add them.</p>
-      </div>
-
-      <div class="faith-devotional-sources" data-faith-devotional-sources>
-        <p class="faith-devotional-loading">Loading sources&hellip;</p>
-      </div>
-
-      <div class="section-intro">
-        <p class="eyebrow">Add a Bible track</p>
-        <h2 class="section-heading"><em>Pick a Bible reading.</em></h2>
-        <p class="faith-section-lede">Optional. Each track is one chapter per day, fetched live from the Christian Standard Bible.</p>
-      </div>
-
-      <div class="faith-devotional-tracks">
-        <label class="faith-devotional-track">
-          <input type="radio" name="bible-track" value="" checked>
-          <span class="faith-devotional-track-label"><em>None</em></span>
-          <span class="faith-devotional-track-desc">No Bible reading in the daily queue.</span>
-        </label>
-        <label class="faith-devotional-track">
-          <input type="radio" name="bible-track" value="psalms-proverbs">
-          <span class="faith-devotional-track-label"><em>Psalms &amp; Proverbs</em></span>
-          <span class="faith-devotional-track-desc">A Psalm and a Proverb, alternating &mdash; the classic short daily reading.</span>
-        </label>
-        <label class="faith-devotional-track">
-          <input type="radio" name="bible-track" value="new-testament">
-          <span class="faith-devotional-track-label"><em>The New Testament</em></span>
-          <span class="faith-devotional-track-desc">One chapter a day through the New Testament.</span>
-        </label>
-        <label class="faith-devotional-track">
-          <input type="radio" name="bible-track" value="old-testament">
-          <span class="faith-devotional-track-label"><em>The Old Testament</em></span>
-          <span class="faith-devotional-track-desc">One chapter a day through the Old Testament.</span>
-        </label>
-        <label class="faith-devotional-track">
-          <input type="radio" name="bible-track" value="gospels">
-          <span class="faith-devotional-track-label"><em>The Gospels</em></span>
-          <span class="faith-devotional-track-desc">Matthew through John, one chapter a day.</span>
-        </label>
-      </div>
-
-      <div class="faith-devotional-save">
-        <button type="button" class="btn btn-primary btn-lg" data-faith-devotional-save disabled>Save plan</button>
-        <p class="faith-devotional-save-hint" data-faith-devotional-save-hint>Pick at least one source to save.</p>
-      </div>
-    </div>
-  </section>
+  {{> "faith-received/_devotional-body"}}
 
 </main>
 
