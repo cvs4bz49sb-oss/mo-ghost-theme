@@ -10,42 +10,31 @@
 
 <main class="faith-received">
 
-  {{!-- Tab-aware dark hero: each tab brings its own header (kicker +
-       title + lede) so the section title sits in the hero band rather
-       than below the fold. JS swaps which hero block is visible based
-       on the active tab. The shared section nav rail sits below the
-       hero so readers can flip tabs without scrolling. --}}
-  <section class="hero faith-hero faith-hero--tabbed">
+  {{!-- Editorial header: frames the project's place in MO. The tab
+       labels and per-section ledes live below in the section nav rail
+       so the hero stays static and confident across tab swaps. --}}
+  <section class="hero faith-hero faith-hero--coda">
     <div class="container">
-      <div class="faith-hero-tab" data-faith-section="documents">
-        <p class="hero-kicker"><span class="dot"></span> The Faith Received</p>
-        <h1 class="hero-headline faith-hero-headline">
-          <em>Documents</em>
+      <div class="faith-coda-inner">
+        <p class="eyebrow eyebrow-light">A Mere Orthodoxy Project</p>
+        <h1 class="faith-coda-heading">
+          <em>The Christian tradition is the Christian's inheritance.</em>
         </h1>
-        <p class="hero-sub">The standards by which the Church has confessed her faith, set in chronological order &mdash; from the Apostles' Creed in the second century to the Lausanne Covenant in the twentieth.</p>
-      </div>
-      <div class="faith-hero-tab" data-faith-section="library" hidden>
-        <p class="hero-kicker"><span class="dot"></span> The Faith Received</p>
-        <h1 class="hero-headline faith-hero-headline">
-          <em>The Library</em>
-        </h1>
-        <p class="hero-sub">Classic works of theology, apology, and devotion, in chronological order &mdash; from Diognetus and Athanasius to Edwards, Calvin, and Leo XIII.</p>
-      </div>
-      <div class="faith-hero-tab" data-faith-section="traditions" hidden>
-        <p class="hero-kicker"><span class="dot"></span> The Faith Received</p>
-        <h1 class="hero-headline faith-hero-headline">
-          <em>Traditions</em>
-        </h1>
-        <p class="hero-sub">Every document and library work, sorted by the Christian tradition it belongs to &mdash; from the Patristic Church through the Reformation to the modern evangelical movement.</p>
+        <p class="faith-coda-body">
+          The Faith Received gathers the creeds, confessions, and classic works of the Christian tradition into a single reading room &mdash; typeset for the web the way they were typeset for the press, free for any reader to study.
+        </p>
+        <div class="faith-coda-ctas">
+          <a href="#documents" class="btn btn-primary btn-lg">Begin reading</a>
+          <a href="/membership/" class="btn btn-ghost btn-lg">Support the work</a>
+        </div>
       </div>
     </div>
   </section>
 
   {{> "faith-received/_nav"}}
 
-  {{!-- Body: just the cards grid for the active tab. The title + lede
-       moved into the dark hero above; the body section no longer
-       carries its own section-intro. --}}
+  {{!-- Body: just the cards grid for the active tab. Section labels
+       come from the nav rail above; no per-section intro band. --}}
   <div class="faith-section-tabs" data-faith-section-tabs>
     <section class="faith-section-band faith-band-documents" data-faith-section="documents">
       <div class="container">
@@ -63,68 +52,6 @@
       {{> "faith-received/_cards-traditions"}}
     </section>
   </div>
-
-  {{!-- Devotional / Topics / Scripture / Today / Search — call-to-action
-       rail. Each is its own routed feature page. --}}
-  <section class="faith-section-band faith-band-tools">
-    <div class="container">
-      <div class="section-intro">
-        <p class="eyebrow">For Daily Use</p>
-        <h2 class="section-heading"><em>Read with the Church.</em></h2>
-      </div>
-      <ol class="faith-tools-grid">
-        <li class="faith-tool">
-          <span class="faith-tool-numeral">I</span>
-          <h3 class="faith-tool-title"><em>A daily reading plan</em></h3>
-          <p class="faith-tool-body">Build a custom plan from any of the works in the library, paired with the Bible track of your choice.</p>
-          <a href="/the-faith-received/devotional/" class="faith-tool-link">Build a plan <span aria-hidden="true">&rarr;</span></a>
-        </li>
-        <li class="faith-tool">
-          <span class="faith-tool-numeral">II</span>
-          <h3 class="faith-tool-title"><em>Today's reading</em></h3>
-          <p class="faith-tool-body">A daily passage drawn from across the historic Christian texts. New each morning.</p>
-          <a href="/the-faith-received/today/" class="faith-tool-link">Read today <span aria-hidden="true">&rarr;</span></a>
-        </li>
-        <li class="faith-tool">
-          <span class="faith-tool-numeral">III</span>
-          <h3 class="faith-tool-title"><em>By topic</em></h3>
-          <p class="faith-tool-body">The great themes of the Christian faith &mdash; God, Trinity, salvation, sacraments, the last things &mdash; cross-referenced across the library.</p>
-          <a href="/the-faith-received/topics/" class="faith-tool-link">Browse topics <span aria-hidden="true">&rarr;</span></a>
-        </li>
-        <li class="faith-tool">
-          <span class="faith-tool-numeral">IV</span>
-          <h3 class="faith-tool-title"><em>By Scripture</em></h3>
-          <p class="faith-tool-body">Find every place a passage of the Bible is cited or expounded across the historic texts.</p>
-          <a href="/the-faith-received/scripture/" class="faith-tool-link">Open Scripture index <span aria-hidden="true">&rarr;</span></a>
-        </li>
-        <li class="faith-tool">
-          <span class="faith-tool-numeral">V</span>
-          <h3 class="faith-tool-title"><em>Memorize the catechisms</em></h3>
-          <p class="faith-tool-body">One question at a time, with the answer hidden until you're ready. Heidelberg, Westminster Shorter, and Westminster Larger.</p>
-          <a href="/the-faith-received/heidelberg/memorize/" class="faith-tool-link">Begin memorizing <span aria-hidden="true">&rarr;</span></a>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  {{!-- Editorial closing band — frames the project's place in MO. --}}
-  <section class="journal-band faith-coda">
-    <div class="container">
-      <div class="faith-coda-inner">
-        <p class="eyebrow eyebrow-light">A Mere Orthodoxy Project</p>
-        <h2 class="faith-coda-heading">
-          <em>The Christian tradition is the Christian's inheritance.</em>
-        </h2>
-        <p class="faith-coda-body">
-          The Faith Received gathers the creeds, confessions, and classic works of the Christian tradition into a single reading room &mdash; typeset for the web the way they were typeset for the press, free for any reader to study.
-        </p>
-        <div class="faith-coda-ctas">
-          <a href="#documents" class="btn btn-primary btn-lg">Begin reading</a>
-          <a href="/membership/" class="btn btn-ghost btn-lg">Support the work</a>
-        </div>
-      </div>
-    </div>
-  </section>
 
 </main>
 
