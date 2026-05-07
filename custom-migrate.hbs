@@ -3,12 +3,20 @@
      legacy site moving over to Ghost. Linked from a one-off migration
      email; not in nav.
 
-     Two Stripe Payment Link options: monthly (MOVEMONTHLY50, 50% off)
-     and annual (MOVEANNUAL10, 10% off). Both Payment Links carry
-     metadata.kind=migration so the mo-membership webhook flags the
-     buyer's HubSpot contact with mo_migrated_at on
-     checkout.session.completed. Their old Membership gets cancelled
-     manually via a HubSpot active list filtered on that property.
+     Discount: 25% off the FIRST YEAR for both monthly (12 months
+     × 25% off) and annual (one year × 25% off). After the first
+     year the subscription renews at full price.
+
+     Stripe setup (see Ian's playbook below): two Payment Links,
+     each tied to a Stripe Coupon configured for "first year" via
+     `Duration = repeating, 12 months`. Suggested coupon IDs:
+       - MOVEMONTHLY25 (25% off, 12-month duration)
+       - MOVEANNUAL25  (25% off, applies to one annual cycle)
+     Both Payment Links carry metadata.kind=migration so the
+     mo-membership webhook flags the buyer's HubSpot contact with
+     mo_migrated_at on checkout.session.completed. Their old
+     Membership gets cancelled manually via a HubSpot active list
+     filtered on that property.
 
      Payment Link URLs live in @custom.migration_payment_link_monthly
      and @custom.migration_payment_link_annual. If neither is set,
@@ -22,7 +30,7 @@
       <p class="eyebrow">Membership Migration</p>
       <h1 class="page-hero-headline"><em>Move your Membership</em> to the new site.</h1>
       <p class="page-hero-sub">
-        Pick monthly or annual. Your migration discount applies automatically at checkout.
+        Pick monthly or annual and get <strong>25% off your first year</strong>. The discount applies automatically at checkout.
       </p>
     </div>
   </section>
@@ -77,12 +85,12 @@
         <div class="migrate-cta-options">
           <div class="migrate-cta-option">
             <a href="{{@custom.migration_payment_link_monthly}}" class="btn btn-primary btn-lg">Become a Monthly Member</a>
-            <p class="btn-tagline">50% off &mdash; applies automatically</p>
+            <p class="btn-tagline">25% off your first year &mdash; applies automatically</p>
           </div>
           {{#if @custom.migration_payment_link_annual}}
             <div class="migrate-cta-option">
               <a href="{{@custom.migration_payment_link_annual}}" class="btn btn-primary btn-lg">Become an Annual Member</a>
-              <p class="btn-tagline">10% off &mdash; applies automatically</p>
+              <p class="btn-tagline">25% off your first year &mdash; applies automatically</p>
             </div>
           {{/if}}
         </div>
@@ -90,7 +98,7 @@
         <div class="migrate-cta-options">
           <div class="migrate-cta-option">
             <a href="{{@custom.migration_payment_link_annual}}" class="btn btn-primary btn-lg">Become an Annual Member</a>
-            <p class="btn-tagline">10% off &mdash; applies automatically</p>
+            <p class="btn-tagline">25% off your first year &mdash; applies automatically</p>
           </div>
         </div>
       {{else}}
