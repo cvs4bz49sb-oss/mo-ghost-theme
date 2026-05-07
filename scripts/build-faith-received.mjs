@@ -1225,19 +1225,21 @@ await writeFile(
 const TRADITION_LABELS = {
   patristic: "Patristic & Early Church",
   catholic: "Catholic",
+  scholastic: "Scholastic",
   lutheran: "Lutheran",
   anglican: "Anglican",
   reformed: "Reformed",
   baptist: "Baptist",
   evangelical: "Evangelical",
 };
-const TRADITION_ORDER = ["patristic", "catholic", "lutheran", "anglican", "reformed", "baptist", "evangelical"];
+const TRADITION_ORDER = ["patristic", "catholic", "scholastic", "lutheran", "anglican", "reformed", "baptist", "evangelical"];
 const TRADITION_DESCRIPTIONS = {
   patristic: "The undivided Church of the first millennium - creeds, councils, and the Greek and Latin fathers whose witness all later traditions inherit.",
   catholic: "The Western tradition continuing through Rome - the medieval doctors, the devotional classics, and modern Catholic social teaching.",
+  scholastic: "The systematic dogmatics of the medieval and post-Reformation universities - theology argued in the schoolroom method, in dialogue with Aristotle and the fathers, organised by question and distinction.",
   lutheran: "The Reformation that began with Luther's protest at Wittenberg and crystallised in the Augsburg Confession.",
   anglican: "The English Reformation as set down in the Articles of Religion and the Book of Common Prayer.",
-  reformed: "The Calvinist tradition - confessions, catechisms, and scholastic dogmatics from Geneva, the Netherlands, the Palatinate, Westminster, and New England.",
+  reformed: "The Calvinist tradition - confessions, catechisms, and dogmatics from Geneva, the Netherlands, the Palatinate, Westminster, and New England.",
   baptist: "The believer-baptist confessional tradition - rooted in Reformed theology but distinguished by ecclesiology and the ordinances.",
   evangelical: "The modern world-evangelization movement - cross-denominational and missional, expressed in the Lausanne Covenant.",
 };
@@ -1253,7 +1255,7 @@ const TRADITION_TAGS = {
   "heidelberg":          ["reformed"],
   "thirty-nine-articles":["anglican"],
   "westminster-shorter": ["reformed"],
-  "westminster-larger":  ["reformed"],
+  "westminster-larger":  ["reformed", "scholastic"],
   "1689":                ["reformed", "baptist"],
   "lausanne":            ["evangelical"],
   // Library
@@ -1264,8 +1266,8 @@ const TRADITION_TAGS = {
   "ninety-five-theses":      ["lutheran"],
   "calvin-institutes":       ["reformed"],
   "edwards-resolutions":     ["reformed"],
-  "charnock-attributes":     ["reformed"],
-  "polanus-syntagma":        ["reformed"],
+  "charnock-attributes":     ["reformed", "scholastic"],
+  "polanus-syntagma":        ["reformed", "scholastic"],
   "rerum-novarum":           ["catholic"],
 };
 
