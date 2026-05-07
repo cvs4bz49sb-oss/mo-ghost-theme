@@ -178,10 +178,17 @@ function header(doc, hasToc) {
   const isLibrary = doc.category === "library";
   const libraryRule = isLibrary ? `<hr class="faith-doc-rule" aria-hidden="true">` : "";
   const downloads = isLibrary ? formatDownloadsRow(doc) : "";
+  // Tradition pills sit alongside the project pill so each document
+  // wears its lineage in the hero. Each links into the home Traditions
+  // tab; the sub-tab itself doesn't deep-link so we land users on the
+  // tab and let them pick from there.
+  const traditionPills = (TRADITION_TAGS[doc.slug] || [])
+    .map((slug) => `<a href="/the-faith-received/#traditions" class="article-topic-tag">${escape(TRADITION_LABELS[slug] || slug)}</a>`)
+    .join("");
   return `
   <section class="article-header faith-doc-header${isLibrary ? " faith-doc-header--library" : ""}">
     <div class="article-header-inner">
-      <p class="article-topic"><a href="/the-faith-received/" class="article-topic-tag">The Faith Received</a></p>
+      <p class="article-topic"><a href="/the-faith-received/" class="article-topic-tag">The Faith Received</a>${traditionPills}</p>
       <h1 class="article-title">${escape(smarten(doc.title))}</h1>
       <p class="article-dek faith-doc-dek">${sub}</p>
       ${translatorLine}
@@ -1139,6 +1146,58 @@ function renderMemorize(doc, entries) {
 // ── Main ────────────────────────────────────────────────────────
 const INTROS = JSON.parse(await readFile(INTRO_PATH, "utf-8"));
 
+// ── Tradition tagging (declared early so header() can reference it
+// when rendering each document's hero pill row). The Traditions tab
+// builder below also reads these maps. --
+const TRADITION_LABELS = {
+  patristic: "Patristic & Early Church",
+  catholic: "Roman Catholic",
+  scholastic: "Scholastic",
+  lutheran: "Lutheran",
+  anglican: "Anglican",
+  reformed: "Reformed",
+  baptist: "Baptist",
+  evangelical: "Evangelical",
+};
+const TRADITION_ORDER = ["patristic", "catholic", "scholastic", "lutheran", "anglican", "reformed", "baptist", "evangelical"];
+const TRADITION_DESCRIPTIONS = {
+  patristic: "The undivided Church of the first millennium - creeds, councils, and the Greek and Latin fathers whose witness all later traditions inherit.",
+  catholic: "The Western tradition continuing through Rome - the medieval doctors, the devotional classics, and modern Catholic social teaching.",
+  scholastic: "The systematic dogmatics of the medieval and post-Reformation universities - theology argued in the schoolroom method, in dialogue with Aristotle and the fathers, organised by question and distinction.",
+  lutheran: "The Reformation that began with Luther's protest at Wittenberg and crystallised in the Augsburg Confession.",
+  anglican: "The English Reformation as set down in the Articles of Religion and the Book of Common Prayer.",
+  reformed: "The Calvinist tradition - confessions, catechisms, and dogmatics from Geneva, the Netherlands, the Palatinate, Westminster, and New England.",
+  baptist: "The believer-baptist confessional tradition - rooted in Reformed theology but distinguished by ecclesiology and the ordinances.",
+  evangelical: "The modern world-evangelization movement - cross-denominational and missional, expressed in the Lausanne Covenant.",
+};
+const TRADITION_TAGS = {
+  // Documents
+  "apostles-creed":      ["patristic"],
+  "nicene-creed":        ["patristic"],
+  "chalcedonian":        ["patristic"],
+  "athanasian":          ["patristic"],
+  "didache":             ["patristic"],
+  "augsburg":            ["lutheran"],
+  "belgic":              ["reformed"],
+  "heidelberg":          ["reformed"],
+  "thirty-nine-articles":["anglican"],
+  "westminster-shorter": ["reformed"],
+  "westminster-larger":  ["reformed", "scholastic"],
+  "1689":                ["reformed", "baptist"],
+  "lausanne":            ["evangelical"],
+  // Library
+  "diognetus":               ["patristic"],
+  "athanasius-incarnation":  ["patristic"],
+  "augustine-confessions":   ["patristic", "catholic"],
+  "imitation-of-christ":     ["catholic"],
+  "ninety-five-theses":      ["lutheran"],
+  "calvin-institutes":       ["reformed"],
+  "edwards-resolutions":     ["reformed"],
+  "charnock-attributes":     ["reformed", "scholastic"],
+  "polanus-syntagma":        ["reformed", "scholastic"],
+  "rerum-novarum":           ["catholic"],
+};
+
 // Only document JSONs go through the renderer. Underscore-prefixed
 // files (_manifest.json, _topics.json) are sidecars consumed below.
 const files = (await readdir(DATA_DIR)).filter((f) => f.endsWith(".json") && !f.startsWith("_"));
@@ -1233,55 +1292,9 @@ await writeFile(
 // Groups every doc + library work by Christian tradition (Patristic /
 // Catholic / Lutheran / Anglican / Reformed / Baptist / Evangelical).
 // A doc may belong to multiple traditions and appears under each.
-const TRADITION_LABELS = {
-  patristic: "Patristic & Early Church",
-  catholic: "Roman Catholic",
-  scholastic: "Scholastic",
-  lutheran: "Lutheran",
-  anglican: "Anglican",
-  reformed: "Reformed",
-  baptist: "Baptist",
-  evangelical: "Evangelical",
-};
-const TRADITION_ORDER = ["patristic", "catholic", "scholastic", "lutheran", "anglican", "reformed", "baptist", "evangelical"];
-const TRADITION_DESCRIPTIONS = {
-  patristic: "The undivided Church of the first millennium - creeds, councils, and the Greek and Latin fathers whose witness all later traditions inherit.",
-  catholic: "The Western tradition continuing through Rome - the medieval doctors, the devotional classics, and modern Catholic social teaching.",
-  scholastic: "The systematic dogmatics of the medieval and post-Reformation universities - theology argued in the schoolroom method, in dialogue with Aristotle and the fathers, organised by question and distinction.",
-  lutheran: "The Reformation that began with Luther's protest at Wittenberg and crystallised in the Augsburg Confession.",
-  anglican: "The English Reformation as set down in the Articles of Religion and the Book of Common Prayer.",
-  reformed: "The Calvinist tradition - confessions, catechisms, and dogmatics from Geneva, the Netherlands, the Palatinate, Westminster, and New England.",
-  baptist: "The believer-baptist confessional tradition - rooted in Reformed theology but distinguished by ecclesiology and the ordinances.",
-  evangelical: "The modern world-evangelization movement - cross-denominational and missional, expressed in the Lausanne Covenant.",
-};
-const TRADITION_TAGS = {
-  // Documents
-  "apostles-creed":      ["patristic"],
-  "nicene-creed":        ["patristic"],
-  "chalcedonian":        ["patristic"],
-  "athanasian":          ["patristic"],
-  "didache":             ["patristic"],
-  "augsburg":            ["lutheran"],
-  "belgic":              ["reformed"],
-  "heidelberg":          ["reformed"],
-  "thirty-nine-articles":["anglican"],
-  "westminster-shorter": ["reformed"],
-  "westminster-larger":  ["reformed", "scholastic"],
-  "1689":                ["reformed", "baptist"],
-  "lausanne":            ["evangelical"],
-  // Library
-  "diognetus":               ["patristic"],
-  "athanasius-incarnation":  ["patristic"],
-  "augustine-confessions":   ["patristic", "catholic"],
-  "imitation-of-christ":     ["catholic"],
-  "ninety-five-theses":      ["lutheran"],
-  "calvin-institutes":       ["reformed"],
-  "edwards-resolutions":     ["reformed"],
-  "charnock-attributes":     ["reformed", "scholastic"],
-  "polanus-syntagma":        ["reformed", "scholastic"],
-  "rerum-novarum":           ["catholic"],
-};
-
+// TRADITION_LABELS / TRADITION_ORDER / TRADITION_DESCRIPTIONS /
+// TRADITION_TAGS are declared near the top of this file so header()
+// can reference them when rendering each document's hero pill row.
 const traditionGroups = TRADITION_ORDER.map((slug) => {
   const items = chronological.filter((m) => (TRADITION_TAGS[m.slug] || []).includes(slug));
   return { slug, label: TRADITION_LABELS[slug], description: TRADITION_DESCRIPTIONS[slug], items };

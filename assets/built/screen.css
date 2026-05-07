@@ -10303,6 +10303,16 @@ body.mo-search-open { overflow: hidden; }
   margin-left: auto;
   margin-right: auto;
 }
+/* Tradition pills sit alongside the project pill inside the same
+   capsule. Adjacent-sibling separator inserts a mid-dot between
+   tags so the lineage reads as a path: "THE FAITH RECEIVED · ROMAN
+   CATHOLIC · SCHOLASTIC". */
+.faith-doc-header .article-topic .article-topic-tag + .article-topic-tag::before {
+  content: "·";
+  margin: 0 8px;
+  color: var(--color-muted);
+  font-weight: 400;
+}
 .faith-doc-header .article-title {
   text-align: center;
   margin-left: auto;
