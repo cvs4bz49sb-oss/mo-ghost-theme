@@ -127,6 +127,7 @@
     if (item) {
       editingId = item.id;
       form.querySelector('[name="name"]').value = item.name || "";
+      form.querySelector('[name="eyebrow"]').value = item.eyebrow || "";
       form.querySelector('[name="headline"]').value = item.headline || "";
       setImage(item.image || "");
       form.querySelector('[name="body"]').value = item.body || "";
@@ -173,6 +174,7 @@
     }
     return {
       name: form.querySelector('[name="name"]').value.trim(),
+      eyebrow: form.querySelector('[name="eyebrow"]').value.trim(),
       headline: form.querySelector('[name="headline"]').value.trim(),
       image: form.querySelector('[name="image"]').value.trim(),
       body: form.querySelector('[name="body"]').value.trim(),

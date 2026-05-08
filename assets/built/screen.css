@@ -12846,6 +12846,10 @@ body.mo-search-open { overflow: hidden; }
 .slide-in-content {
   padding: 20px 22px 22px;
 }
+.slide-in-eyebrow {
+  color: var(--color-primary);
+  margin: 0 0 4px;
+}
 .slide-in-headline {
   font-family: var(--font-display);
   font-size: 20px;

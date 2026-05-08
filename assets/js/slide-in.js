@@ -122,6 +122,13 @@
     var content = document.createElement("div");
     content.className = "slide-in-content";
 
+    if (item.eyebrow) {
+      var ey = document.createElement("p");
+      ey.className = "eyebrow slide-in-eyebrow";
+      ey.textContent = item.eyebrow;
+      content.appendChild(ey);
+    }
+
     var h = document.createElement("h3");
     h.className = "slide-in-headline";
     var em = document.createElement("em");
