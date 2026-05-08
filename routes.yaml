@@ -108,6 +108,10 @@ routes:
     template: custom-dashboard-journals
   /journal-archive/issue-01/:
     template: page-journal-issue-01-read
+  /journal-archive/issue-02/:
+    template: page-journal-issue-02-read
+  /journal-archive/issue-03/:
+    template: page-journal-issue-03-read
   # Blueprint for Renewal — HIDDEN as of 2026-04-25. Editorial work
   # in progress. Re-enable by uncommenting these two routes (and
   # restoring the catalog tile in custom-ebooks.hbs and the dashboard
