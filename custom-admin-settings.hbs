@@ -1,0 +1,77 @@
+{{!< default}}
+{{!-- /admin/settings/ — site-wide operational settings stored in KV.
+     Journal status, gate config, etc. Staff-only writes; values are
+     read publicly by site-settings.js on every page. --}}
+
+<main class="admin-page">
+
+  {{#if @member}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Settings</p>
+        <h1 class="admin-headline">Site <em><span class="highlight">Settings</span></em>.</h1>
+        <p class="admin-sub">Operational values that affect the public site. Changes take effect within a minute.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container container-narrow">
+        <div class="admin-settings"
+             data-admin-settings
+             data-worker-url="{{@custom.admin_worker_url}}">
+
+          <div class="dashboard-module" data-settings-form>
+
+            <div class="dashboard-form-group">
+              <p class="dashboard-form-legend"><em>Journal Status</em></p>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Issue label</span>
+                <input type="text" name="journal_status_issue" placeholder="e.g. Summer 2026" />
+              </label>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Current stage</span>
+                <select name="journal_status_stage">
+                  <option value="Drafting">Drafting</option>
+                  <option value="In Production">In Production</option>
+                  <option value="Arriving">Arriving</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="dashboard-form-group">
+              <p class="dashboard-form-legend"><em>Subscriber Gate</em></p>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Gate days</span>
+                <input type="number" name="gate_days" min="0" step="1" placeholder="7" />
+                <span class="dashboard-form-hint">Days after publication before the soft gate appears. 0 disables.</span>
+              </label>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Gate tier</span>
+                <select name="gate_tier">
+                  <option value="members">Members (any signed-in)</option>
+                  <option value="paid">Paid only</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="dashboard-address-actions">
+              <button type="button" class="btn btn-pill btn-primary" data-settings-submit>Save settings</button>
+            </div>
+            <p class="dashboard-form-success" data-settings-status hidden></p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-settings.js"}}"></script>

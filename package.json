@@ -23,17 +23,6 @@
         "type": "text",
         "description": "URL of the deployed podcast-feed Worker. Leave empty to hide the podcast section."
       },
-      "journal_status_issue": {
-        "type": "text",
-        "default": "Spring 2026",
-        "description": "Issue label shown in the Journal Status tracker on the homepage (e.g. 'Spring 2026'). Bump this when a new issue enters the pipeline."
-      },
-      "journal_status_stage": {
-        "type": "select",
-        "options": ["Drafting", "In Production", "Arriving"],
-        "default": "Drafting",
-        "description": "Current stage of the next journal issue. The matching dot glows; the other two fade. Advance manually — Drafting → In Production → Arriving — then reset to Drafting for the next issue."
-      },
       "content_api_key": {
         "type": "text",
         "description": "Ghost Content API key for the homepage topic filter (optional)."
@@ -42,42 +31,6 @@
         "type": "text",
         "default": "https://join.mereorthodoxy.com",
         "description": "Base URL for the membership-site Express app (Stripe + HubSpot endpoints)."
-      },
-      "podcast_mf_apple_url": {
-        "type": "text",
-        "description": "Apple Podcasts show URL for Mere Fidelity."
-      },
-      "podcast_mf_spotify_url": {
-        "type": "text",
-        "description": "Spotify show URL for Mere Fidelity."
-      },
-      "podcast_crc_apple_url": {
-        "type": "text",
-        "description": "Apple Podcasts show URL for Christians Reading Classics."
-      },
-      "podcast_crc_spotify_url": {
-        "type": "text",
-        "description": "Spotify show URL for Christians Reading Classics."
-      },
-      "youtube_url": {
-        "type": "text",
-        "description": "Full URL of the Mere Orthodoxy YouTube channel (e.g. https://www.youtube.com/@MereOrthodoxy). Renders as the YouTube link in the site footer. Empty hides the link."
-      },
-      "donate_url": {
-        "type": "text",
-        "default": "https://secure.anedot.com/institute-for-christianity-and-common-life/donate",
-        "description": "Destination URL for /donate/. The custom-donate template instantly redirects visitors here. Default points at the ICCL Anedot donation form; change in admin if the donation flow moves."
-      },
-      "gate_days": {
-        "type": "text",
-        "default": "7",
-        "description": "Days a new post stays unrestricted before the soft subscriber gate kicks in. 0 disables the gate entirely. Soft gate only — JS overlay on the rendered article; not a real paywall. Upgrade to a worker-enforced gate later."
-      },
-      "gate_tier": {
-        "type": "select",
-        "options": ["members", "paid"],
-        "default": "members",
-        "description": "Who can read an article after the gate closes. 'members' = any signed-in member (free or paid). 'paid' = paying members only; free members still see the gate."
       },
       "audio_worker_url": {
         "type": "text",

@@ -49,6 +49,7 @@
       {{#if @custom.podcast_feed_url}}data-podcast-feed-url="{{@custom.podcast_feed_url}}"{{/if}}
       {{#if @custom.kit_worker_url}}data-kit-worker-url="{{@custom.kit_worker_url}}"{{/if}}
       {{#if @custom.search_worker_url}}data-search-worker-url="{{@custom.search_worker_url}}"{{/if}}
+      {{#if @custom.admin_worker_url}}data-admin-worker-url="{{@custom.admin_worker_url}}"{{/if}}
       {{#if @member}}data-member-email="{{@member.email}}" data-member-status="{{@member.status}}"{{/if}}>
 
     <header class="site-header">
@@ -155,14 +156,12 @@
                             </a>
                         </li>
                     {{/if}}
-                    {{#if @custom.youtube_url}}
-                        <li>
-                            <a href="{{@custom.youtube_url}}" rel="noopener" target="_blank">
-                                <svg class="site-footer-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>
-                                <span>YouTube</span>
-                            </a>
-                        </li>
-                    {{/if}}
+                    <li>
+                        <a href="https://www.youtube.com/@MereOrthodoxy" rel="noopener" target="_blank">
+                            <svg class="site-footer-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>
+                            <span>YouTube</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
@@ -208,6 +207,7 @@
          Bingbot) snapshot the page for indexing. See file header for
          the full rationale. --}}
     <script src="{{asset "js/jsonld-fix.js"}}"></script>
+    <script src="{{asset "js/site-settings.js"}}"></script>
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
     <script src="{{asset "js/inline-signup.js"}}"></script>
     <script src="{{asset "js/kit-events.js"}}"></script>

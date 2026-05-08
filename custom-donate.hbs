@@ -22,10 +22,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex,follow" />
     <title>Donate &middot; {{@site.title}}</title>
-    {{#if @custom.donate_url}}
-        <meta http-equiv="refresh" content="0; url={{@custom.donate_url}}" />
-        <link rel="canonical" href="{{@custom.donate_url}}" />
-    {{/if}}
+    <meta http-equiv="refresh" content="0; url=https://secure.anedot.com/institute-for-christianity-and-common-life/donate" />
+    <link rel="canonical" href="https://secure.anedot.com/institute-for-christianity-and-common-life/donate" />
     <link rel="stylesheet" type="text/css" href="{{asset "built/screen.css"}}" />
     <style>
         .donate-redirect {
@@ -72,30 +70,16 @@
         <p class="donate-redirect-eyebrow">Redirecting</p>
         <h1 class="donate-redirect-headline"><em>One moment.</em></h1>
         <p class="donate-redirect-sub">Taking you to our secure donation form.</p>
-        {{#if @custom.donate_url}}
-            <p class="donate-redirect-link">
-                <a href="{{@custom.donate_url}}" class="btn btn-primary">Continue to the donation form</a>
-            </p>
-        {{else}}
-            <p class="donate-redirect-sub">
-                The donation URL hasn't been configured yet. An admin needs to set <code>@custom.donate_url</code>.
-            </p>
-        {{/if}}
+        <p class="donate-redirect-link">
+            <a href="https://secure.anedot.com/institute-for-christianity-and-common-life/donate" class="btn btn-primary">Continue to the donation form</a>
+        </p>
     </main>
-    {{#if @custom.donate_url}}
-        {{!-- URL is read from a data attribute (HTML-escaped by
-             Ghost) rather than interpolated directly into JS, so
-             a malicious admin-set URL can't break out of the
-             string literal. --}}
-        <script data-donate-redirect="{{@custom.donate_url}}">
-            (function () {
-                var script = document.currentScript;
-                var dest = script && script.getAttribute("data-donate-redirect");
-                if (dest && typeof window !== "undefined") {
-                    window.location.replace(dest);
-                }
-            })();
-        </script>
-    {{/if}}
+    <script>
+        (function () {
+            if (typeof window !== "undefined") {
+                window.location.replace("https://secure.anedot.com/institute-for-christianity-and-common-life/donate");
+            }
+        })();
+    </script>
 </body>
 </html>

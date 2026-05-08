@@ -203,8 +203,8 @@
             <div class="article-content"
                  data-post-gate
                  data-published-at="{{published_at}}"
-                 data-gate-days="{{#if @custom.gate_days}}{{@custom.gate_days}}{{else}}0{{/if}}"
-                 data-gate-tier="{{#if @custom.gate_tier}}{{@custom.gate_tier}}{{else}}members{{/if}}"
+                 data-gate-days="0"
+                 data-gate-tier="members"
                  data-is-member="{{#if @member}}true{{else}}false{{/if}}"
                  data-member-status="{{#if @member}}{{@member.status}}{{/if}}"
                  data-post-visibility="{{visibility}}">

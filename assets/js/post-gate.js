@@ -1,9 +1,11 @@
 /*
  * Soft subscriber gate.
  *
- * After @custom.gate_days has elapsed since publication, this script
- * truncates the article to its first eight <p> elements and replaces
- * the rest with a sign-up / upgrade card:
+ * Gate days and tier are loaded from the mo-admin worker via
+ * site-settings.js, which sets data-gate-days / data-gate-tier on
+ * the [data-post-gate] element. If settings haven't arrived yet
+ * (first visit, no sessionStorage cache), this script waits for the
+ * "mo:settings" event before evaluating the gate.
  *
  *   gate_tier = "members"  → inline Subscribe form (First / Last /
  *                            Email) that hands the data to Ghost
@@ -22,21 +24,31 @@
   var content = document.querySelector("[data-post-gate]");
   if (!content) return;
 
+  function run() {
+    var days = parseInt(content.getAttribute("data-gate-days"), 10);
+    if (!days || days <= 0) return;
+
+    var visibility = content.getAttribute("data-post-visibility") || "public";
+    if (visibility !== "public") return;
+
+    var publishedAt = Date.parse(content.getAttribute("data-published-at") || "");
+    if (isNaN(publishedAt)) return;
+
+    var gateAt = publishedAt + days * 24 * 60 * 60 * 1000;
+    if (Date.now() < gateAt) return;
+
+    var tier = content.getAttribute("data-gate-tier") || "members";
+    initGate(tier);
+  }
+
   var days = parseInt(content.getAttribute("data-gate-days"), 10);
-  if (!days || days <= 0) return;
+  if (days > 0) {
+    run();
+  } else {
+    document.addEventListener("mo:settings", function () { run(); }, { once: true });
+  }
 
-  // Ghost already gates members/paid posts server-side; no need to
-  // double up with a JS overlay on those.
-  var visibility = content.getAttribute("data-post-visibility") || "public";
-  if (visibility !== "public") return;
-
-  var publishedAt = Date.parse(content.getAttribute("data-published-at") || "");
-  if (isNaN(publishedAt)) return;
-
-  var gateAt = publishedAt + days * 24 * 60 * 60 * 1000;
-  if (Date.now() < gateAt) return;
-
-  var tier = content.getAttribute("data-gate-tier") || "members";
+  function initGate(tier) {
   var isMember = content.getAttribute("data-is-member") === "true";
   var memberStatus = content.getAttribute("data-member-status") || "";
 
@@ -296,6 +308,8 @@
     wrap.appendChild(input);
     return wrap;
   }
+
+  } // end initGate
 
   function eyebrow(text) {
     var p = document.createElement("p");
