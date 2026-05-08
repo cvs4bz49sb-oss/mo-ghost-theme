@@ -6710,7 +6710,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .commonplace-entry:last-child { border-bottom: none; }
 
 .commonplace-quote {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: normal;
   font-size: 16px;
   line-height: 1.65;
