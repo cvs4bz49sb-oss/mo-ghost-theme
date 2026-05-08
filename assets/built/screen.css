@@ -4547,6 +4547,27 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   color: var(--color-muted);
   margin: 0;
 }
+.manage-address-section {
+  margin-top: 48px;
+  padding-top: 36px;
+  border-top: 1px solid var(--color-card-border);
+  text-align: left;
+}
+.manage-section-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0 0 8px;
+  color: var(--color-dark);
+}
+.manage-section-sub {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0 0 20px;
+}
 .membership-support .manage-form {
   display: flex;
   gap: 10px;
@@ -13158,10 +13179,10 @@ body.lc-advent {
 }
 body.lc-christmas {
   --lc-bg: #1c2e1e;
-  --lc-hero-top: rgba(28, 46, 30, 0.88);
+  --lc-hero-top: rgba(28, 46, 30, 0.82);
   --lc-hero-bot: rgb(28, 46, 30);
-  --lc-accent-hero: rgba(175, 50, 45, 0.28);
-  --lc-accent-article: rgba(175, 50, 45, 0.22);
+  --lc-accent-hero: rgba(180, 45, 40, 0.55);
+  --lc-accent-article: rgba(180, 45, 40, 0.40);
   --lc-dot: #c44040;
 }
 body.lc-epiphany {
@@ -13182,10 +13203,10 @@ body.lc-lent {
 }
 body.lc-easter {
   --lc-bg: #322a1a;
-  --lc-hero-top: rgba(50, 42, 26, 0.88);
+  --lc-hero-top: rgba(50, 42, 26, 0.82);
   --lc-hero-bot: rgb(50, 42, 26);
-  --lc-accent-hero: rgba(215, 185, 85, 0.30);
-  --lc-accent-article: rgba(215, 185, 85, 0.22);
+  --lc-accent-hero: rgba(220, 195, 100, 0.55);
+  --lc-accent-article: rgba(220, 195, 100, 0.40);
   --lc-dot: #d4b84e;
 }
 body.lc-pentecost {

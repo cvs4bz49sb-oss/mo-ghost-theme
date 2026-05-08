@@ -36,6 +36,80 @@
               <a href="#/portal/account" data-portal="account" class="btn btn-primary btn-inline">Open Billing Portal</a>
               <a href="/dashboard/" class="btn btn-dark btn-inline">Go to Dashboard</a>
             </div>
+
+            <div class="manage-address-section">
+              <h2 class="manage-section-heading"><em>Shipping Address</em></h2>
+              <p class="manage-section-sub">The print journal goes out quarterly. Keep your address current so you don't miss the next issue.</p>
+              <div class="dashboard-address"
+                   data-dashboard-address
+                   data-member-email="{{@member.email}}"
+                   data-member-name="{{@member.name}}"
+                   data-api-base="{{@custom.membership_api_base}}">
+                <p class="dashboard-empty" data-address-placeholder>Loading your address&hellip;</p>
+
+                <div class="dashboard-address-view" data-address-view hidden>
+                  <p class="eyebrow dashboard-address-eyebrow">On file</p>
+                  <p class="dashboard-address-display" data-address-display></p>
+                  <button type="button" class="dashboard-inline-link" data-address-edit>Edit address &rarr;</button>
+                </div>
+
+                <div class="dashboard-address-empty" data-address-empty hidden>
+                  <button type="button" class="dashboard-inline-link" data-address-edit>Add your address &rarr;</button>
+                </div>
+
+                <form class="dashboard-address-form" data-address-form hidden novalidate>
+                  <div class="dashboard-form-group">
+                    <p class="dashboard-form-legend"><em>Recipient</em></p>
+                    <label class="dashboard-form-field">
+                      <span class="dashboard-form-label">Full name on label</span>
+                      <input type="text" name="name" autocomplete="name" required />
+                    </label>
+                  </div>
+
+                  <div class="dashboard-form-group">
+                    <p class="dashboard-form-legend"><em>Address</em></p>
+                    <label class="dashboard-form-field">
+                      <span class="dashboard-form-label">Street</span>
+                      <input type="text" name="line1" autocomplete="address-line1" required />
+                    </label>
+                    <label class="dashboard-form-field">
+                      <span class="dashboard-form-label">Apartment, suite, or unit <span class="dashboard-form-hint">(optional)</span></span>
+                      <input type="text" name="line2" autocomplete="address-line2" />
+                    </label>
+                    <div class="dashboard-form-row">
+                      <label class="dashboard-form-field">
+                        <span class="dashboard-form-label">City</span>
+                        <input type="text" name="city" autocomplete="address-level2" required />
+                      </label>
+                      <label class="dashboard-form-field">
+                        <span class="dashboard-form-label">State / Province</span>
+                        <input type="text" name="state" autocomplete="address-level1" maxlength="3" required />
+                      </label>
+                    </div>
+                    <div class="dashboard-form-row">
+                      <label class="dashboard-form-field">
+                        <span class="dashboard-form-label">ZIP / Postal code</span>
+                        <input type="text" name="postal_code" autocomplete="postal-code" required />
+                      </label>
+                      <label class="dashboard-form-field">
+                        <span class="dashboard-form-label">Country</span>
+                        <select name="country" required>
+                          <option value="US">United States</option>
+                          <option value="CA">Canada</option>
+                        </select>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="dashboard-address-actions">
+                    <button type="submit" class="btn btn-pill btn-primary" data-address-submit>Save address</button>
+                    <button type="button" class="dashboard-inline-link dashboard-inline-link--muted" data-address-cancel>Cancel</button>
+                  </div>
+                  <p class="btn-error" data-address-error role="alert"></p>
+                  <p class="dashboard-form-success" data-address-success hidden>Saved.</p>
+                </form>
+              </div>
+            </div>
           </div>
 
           <div data-manage-tier="lifetime" hidden>
@@ -85,7 +159,7 @@
           </div>
 
           <p class="fine-print">
-            Questions? Email <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>.
+            Questions? Email <a href="mailto:member@mereorthodoxy.com">member@mereorthodoxy.com</a>.
           </p>
         </div>
 
@@ -136,7 +210,7 @@
         <p class="btn-error" id="manage-error" role="alert"></p>
 
         <p class="fine-print">
-          Need help? Email <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>.
+          Need help? Email <a href="mailto:member@mereorthodoxy.com">member@mereorthodoxy.com</a>.
         </p>
       {{/if}}
 
@@ -144,4 +218,5 @@
   </div>
 
   <script src="{{asset "js/manage.js"}}"></script>
+  <script src="{{asset "js/dashboard-address.js"}}"></script>
 </main>
