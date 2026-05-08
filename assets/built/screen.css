@@ -3472,6 +3472,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .mobile-nav-search svg { color: var(--color-muted); }
 .mobile-nav-actions .btn {
   width: 100%;
+  max-width: none;
   padding: 12px 20px;
   font-size: 14px;
 }
