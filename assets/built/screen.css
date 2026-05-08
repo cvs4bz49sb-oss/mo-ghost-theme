@@ -13180,8 +13180,8 @@ body.lc-advent {
 }
 body.lc-christmas {
   --lc-bg: #1c2e1e;
-  --lc-hero-top: rgba(28, 46, 30, 0.82);
-  --lc-hero-bot: rgb(28, 46, 30);
+  --lc-hero-top: rgba(28, 46, 30, 0.60);
+  --lc-hero-bot: rgba(28, 46, 30, 0.85);
   --lc-accent-hero: rgba(180, 45, 40, 0.55);
   --lc-accent-article: rgba(180, 45, 40, 0.40);
   --lc-dot: #c44040;
@@ -13204,8 +13204,8 @@ body.lc-lent {
 }
 body.lc-easter {
   --lc-bg: #322a1a;
-  --lc-hero-top: rgba(50, 42, 26, 0.82);
-  --lc-hero-bot: rgb(50, 42, 26);
+  --lc-hero-top: rgba(50, 42, 26, 0.60);
+  --lc-hero-bot: rgba(50, 42, 26, 0.85);
   --lc-accent-hero: rgba(220, 195, 100, 0.55);
   --lc-accent-article: rgba(220, 195, 100, 0.40);
   --lc-dot: #d4b84e;
@@ -13238,32 +13238,32 @@ body[class*="lc-"] .hero::before {
   background: radial-gradient(circle, var(--lc-accent-hero), transparent 65%);
 }
 
-/* Christmas: full-width green → red blend across the hero */
+/* Christmas: radial red glow from top-right corner */
 body.lc-christmas .hero::before {
   top: 0;
   left: 0;
   right: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(105deg,
-    rgba(35, 90, 45, 0.40) 0%,
-    rgba(35, 90, 45, 0.20) 35%,
-    rgba(175, 45, 40, 0.25) 55%,
-    rgba(175, 45, 40, 0.55) 100%);
+  background: radial-gradient(ellipse at top right,
+    rgba(180, 40, 35, 0.70) 0%,
+    rgba(180, 40, 35, 0.40) 30%,
+    rgba(50, 90, 50, 0.15) 55%,
+    transparent 75%);
 }
 
-/* Easter: full-width warm white/cream → gold blend */
+/* Easter: radial white/gold glow from top-right corner */
 body.lc-easter .hero::before {
   top: 0;
   left: 0;
   right: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(105deg,
-    rgba(255, 252, 245, 0.22) 0%,
-    rgba(255, 250, 235, 0.15) 35%,
-    rgba(225, 200, 110, 0.25) 55%,
-    rgba(225, 200, 110, 0.50) 100%);
+  background: radial-gradient(ellipse at top right,
+    rgba(255, 250, 230, 0.55) 0%,
+    rgba(235, 210, 120, 0.40) 30%,
+    rgba(220, 195, 100, 0.15) 55%,
+    transparent 75%);
 }
 
 /* ── Article header (full background swap) ───────────────────── */
