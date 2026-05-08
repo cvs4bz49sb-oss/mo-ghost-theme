@@ -190,7 +190,8 @@
     };
   }
 
-  function renderList(items) {
+  function renderList(items, stats) {
+    stats = stats || {};
     if (!items.length) {
       itemsContainer.innerHTML = '<p class="admin-sub">No slide-ins yet. Create one to get started.</p>';
       return;
@@ -220,6 +221,7 @@
         + ' &middot; ' + esc(target) + ' &middot; ' + esc(audience)
         + ' &middot; ' + esc(triggerLabel)
         + ' &middot; ' + esc(item.frequency)
+        + (stats[item.id] ? ' &middot; ' + (stats[item.id].impressions || 0) + ' views, ' + (stats[item.id].clicks || 0) + ' clicks' : '')
         + '</p>'
         + '</div>'
         + '<div class="admin-slide-in-actions">'
@@ -285,9 +287,11 @@
   }
 
   function loadAll() {
-    fetch(workerUrl + "/slide-ins/all", { headers: authHeaders })
-      .then(function (r) { return r.json(); })
-      .then(renderList)
+    Promise.all([
+      fetch(workerUrl + "/slide-ins/all", { headers: authHeaders }).then(function (r) { return r.json(); }),
+      fetch(workerUrl + "/slide-ins/stats", { headers: authHeaders }).then(function (r) { return r.json(); }).catch(function () { return {}; }),
+    ])
+      .then(function (results) { renderList(results[0], results[1]); })
       .catch(function () { itemsContainer.innerHTML = '<p class="admin-sub">Could not load slide-ins.</p>'; });
   }
 

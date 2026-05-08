@@ -157,9 +157,20 @@
       setTimeout(function () { el.remove(); }, 400);
     });
 
+    btn.addEventListener("click", function () {
+      track(item.id, "click");
+    });
+
     document.body.appendChild(el);
 
-    setTimeout(function () { el.classList.add("is-visible"); }, 50);
+    setTimeout(function () {
+      el.classList.add("is-visible");
+      track(item.id, "impression");
+    }, 50);
+  }
+
+  function track(id, type) {
+    try { navigator.sendBeacon(workerUrl + "/slide-ins/" + id + "/" + type); } catch (e) {}
   }
 
   // ── Trigger helpers ────────────────────────────────────────────
