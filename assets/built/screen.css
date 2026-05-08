@@ -12820,9 +12820,9 @@ body.mo-search-open { overflow: hidden; }
 
 /* ── Image-left layout (matches This Week entry-plate) ── */
 .slide-in.has-image {
-  width: 400px;
+  width: 440px;
   display: grid;
-  grid-template-columns: 130px 1fr;
+  grid-template-columns: 170px 1fr;
 }
 .slide-in.has-image .slide-in-image {
   grid-row: 1 / -1;
