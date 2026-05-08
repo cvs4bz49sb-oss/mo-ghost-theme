@@ -161,14 +161,14 @@
       meta.appendChild(source);
     }
 
-    if (entry.savedAt) {
-      var date = document.createElement("span");
-      date.className = "commonplace-date";
-      date.textContent = formatRelative(entry.savedAt);
-      meta.appendChild(date);
-    }
-
     item.appendChild(meta);
+
+    if (entry.savedAt) {
+      var date = document.createElement("p");
+      date.className = "commonplace-date";
+      date.textContent = "Saved " + formatRelative(entry.savedAt);
+      item.appendChild(date);
+    }
 
     var actions = document.createElement("div");
     actions.className = "commonplace-actions";
@@ -178,8 +178,10 @@
     copyBtn.className = "commonplace-action-btn";
     copyBtn.textContent = "Copy";
     copyBtn.addEventListener("click", function () {
-      var copyText = "“" + entry.text + "”";
-      if (entry.sourceTitle) copyText += " — " + entry.sourceTitle;
+      var copyText = entry.text;
+      if (entry.sourceAuthor) copyText += "\n— " + entry.sourceAuthor;
+      if (entry.sourceTitle) copyText += "\n" + entry.sourceTitle;
+      if (entry.sourceUrl) copyText += "\n\n" + entry.sourceUrl;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(copyText).then(function () {
           copyBtn.textContent = "Copied";

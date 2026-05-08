@@ -55,6 +55,14 @@
     return h1 ? (h1.textContent || "").trim() : document.title;
   }
 
+  function getSourceAuthor() {
+    var el = document.querySelector("[data-post-author]");
+    if (el) return el.getAttribute("data-post-author") || "";
+    var og = document.querySelector('meta[property="article:author"]');
+    if (og && og.content) return og.content;
+    return "";
+  }
+
   function getSourceUrl() {
     var canon = document.querySelector('link[rel="canonical"]');
     return canon ? canon.href : window.location.href;
@@ -166,6 +174,7 @@
         text: currentText,
         postId: getPostId(),
         sourceTitle: getSourceTitle(),
+        sourceAuthor: getSourceAuthor(),
         sourceUrl: getSourceUrl(),
       }),
     })

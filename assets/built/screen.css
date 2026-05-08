@@ -6711,7 +6711,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 
 .commonplace-quote {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-size: 16px;
   line-height: 1.65;
   color: var(--color-dark);
@@ -6735,9 +6735,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-weight: 600;
 }
 .commonplace-source:hover { text-decoration: underline; }
-.commonplace-date::before {
-  content: "·";
-  margin-right: 8px;
+.commonplace-date {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-muted);
+  margin: 4px 0 8px;
 }
 
 .commonplace-actions {
