@@ -5,6 +5,39 @@
 # Settings -> Labs -> Redirects -> Upload redirects file. Re-upload only
 # when redirects change.
 
+# ── Author-prefixed posts from old HubSpot/WordPress site ───────────
+# Old site had /author-slug/post-slug/ paths. Ghost uses flat /{slug}/.
+- from: ^/jake/(.*)$
+  to: /$1
+  permanent: true
+
+- from: ^/matthewloftus/(.*)$
+  to: /$1
+  permanent: true
+
+- from: ^/suzania/(.*)$
+  to: /$1
+  permanent: true
+
+- from: ^/trivial/(.*)$
+  to: /$1
+  permanent: true
+
+- from: ^/sacred-season/(.*)$
+  to: /$1
+  permanent: true
+
+- from: ^/passages/(.*)$
+  to: /$1
+  permanent: true
+
+# ── Category → Tag ──────────────────────────────────────────────────
+# Old site used /category/name/, Ghost uses /tag/name/.
+- from: ^/category/(.*)$
+  to: /tag/$1
+  permanent: true
+
+# ── Author pages ────────────────────────────────────────────────────
 # Ghost's default /author/{slug}/ URLs aren't used by this theme —
 # guest authors live as tags, not Ghost users. Send any stragglers to
 # the tag-style contributor page.
@@ -12,11 +45,31 @@
   to: /tag/author-$1/
   permanent: true
 
+# ── RSS / Feed ──────────────────────────────────────────────────────
+# Old WordPress/HubSpot feed URLs → Ghost's built-in RSS.
+- from: ^/feed/?$
+  to: /rss/
+  permanent: true
+
+- from: ^/rss\.xml$
+  to: /rss/
+  permanent: true
+
+- from: ^/atom\.xml$
+  to: /rss/
+  permanent: true
+
+# ── WordPress legacy query params ───────────────────────────────────
+# Old ?p=123 and ?page_id=123 URLs can't be matched by Ghost's regex
+# redirects (no query-string matching). These will 404 naturally.
+# Google Search Console can track and verify they drop off over time.
+
+# ── Static assets ───────────────────────────────────────────────────
 # /llms.txt — the llmstxt.org convention is a markdown manifest at
 # the site root that AI crawlers (and humans) can read to find the
 # canonical entry-points and key pages. Ghost(Pro) doesn't allow
 # static files at the apex, so we host as a theme asset and redirect
-# /llms.txt → /assets/built/llms.txt.
+# /llms.txt → /assets/llms.txt.
 - from: ^/llms\.txt$
   to: /assets/llms.txt
   permanent: true
