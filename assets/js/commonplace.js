@@ -29,10 +29,11 @@
   tooltip.className = "commonplace-tooltip";
   tooltip.innerHTML =
     '<button type="button" class="commonplace-save-btn">' +
-      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>' +
-        '<polyline points="17 21 17 13 7 13 7 21"></polyline>' +
-        '<polyline points="7 3 7 8 15 8"></polyline>' +
+      '<svg width="14" height="14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<path d="M40 8 Q46 18 36 26 Q24 30 16 34 Q20 22 28 14 Q34 10 40 8 Z"/>' +
+        '<path d="M38 10 L18 32" stroke-width="1"/>' +
+        '<path d="M16 34 L12 38"/>' +
+        '<line x1="12" y1="42" x2="32" y2="42"/>' +
       '</svg>' +
       '<span>Save</span>' +
     '</button>';
