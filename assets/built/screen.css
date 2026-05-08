@@ -6695,6 +6695,119 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .dashboard-entry .entry { flex: 1; }
 .dashboard-entry .dashboard-essay-remove { align-self: flex-start; margin-top: 4px; }
 
+/* --- Commonplace Book ------------------------------------------------ */
+
+.commonplace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.commonplace-entry {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.commonplace-entry:first-child { padding-top: 0; }
+.commonplace-entry:last-child { border-bottom: none; }
+
+.commonplace-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+  padding: 0 0 0 16px;
+  border-left: 3px solid var(--color-primary);
+}
+
+.commonplace-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.commonplace-source {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+.commonplace-source:hover { text-decoration: underline; }
+.commonplace-date::before {
+  content: "·";
+  margin-right: 8px;
+}
+
+.commonplace-actions {
+  display: flex;
+  gap: 12px;
+}
+.commonplace-action-btn {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.commonplace-action-btn:hover { color: var(--color-dark); }
+.commonplace-action-remove.is-confirming {
+  color: var(--color-primary);
+}
+.commonplace-action-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* Highlight-to-save floating tooltip */
+.commonplace-tooltip {
+  position: absolute;
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.commonplace-tooltip.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.commonplace-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary);
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  transition: background 0.15s;
+}
+.commonplace-save-btn:hover {
+  background: var(--color-secondary, #c1593c);
+}
+.commonplace-save-btn:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+.commonplace-save-btn svg {
+  stroke: #fff;
+  flex-shrink: 0;
+}
+
+@media print {
+  .commonplace-tooltip { display: none !important; }
+}
+
 /* --- "Become a Member to access" note under the action row ---------- */
 .article-actions-upsell {
   margin: 12px auto 0;

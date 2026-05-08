@@ -1,5 +1,6 @@
-{{!-- Shared body for /dashboard/bookmarks/ and /dashboard/history/.
-     Expects a `kind` param equal to "bookmarks" or "history". --}}
+{{!-- Shared body for /dashboard/bookmarks/, /dashboard/history/,
+     and /dashboard/commonplace/.
+     Expects a `kind` param: "bookmarks", "history", or "commonplace". --}}
 
 <section class="hero dashboard-hero">
   <div class="container">
@@ -7,6 +8,7 @@
     <h1 class="hero-headline">
       {{#match kind "bookmarks"}}Your <span class="highlight"><em>Bookmarks</em></span>.{{/match}}
       {{#match kind "history"}}Your <span class="highlight"><em>Reading History</em></span>.{{/match}}
+      {{#match kind "commonplace"}}Your <span class="highlight"><em>Commonplace Book</em></span>.{{/match}}
     </h1>
     <p class="dashboard-breadcrumb"><a href="/dashboard/">&larr; Back to dashboard</a></p>
   </div>
@@ -23,6 +25,11 @@
       {{#match kind "history"}}
         <div class="dashboard-history" data-dashboard-history>
           <p class="dashboard-empty" data-history-placeholder>Loading your reading history&hellip;</p>
+        </div>
+      {{/match}}
+      {{#match kind "commonplace"}}
+        <div class="dashboard-commonplace" data-dashboard-commonplace>
+          <p class="dashboard-empty" data-commonplace-placeholder>Loading your commonplace book&hellip;</p>
         </div>
       {{/match}}
     </div>

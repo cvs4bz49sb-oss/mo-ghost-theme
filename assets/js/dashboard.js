@@ -55,6 +55,7 @@
   });
 
   hydrateBookmarks();
+  hydrateCommonplace();
   hydrateHistory();
 
   // --- Bookmarks ---------------------------------------------------------
@@ -79,6 +80,155 @@
       .catch(function () {
         showEmpty(mount, "Couldn't load your bookmarks right now. Try reloading.");
       });
+  }
+
+  // --- Commonplace Book --------------------------------------------------
+
+  function hydrateCommonplace() {
+    var mount = document.querySelector("[data-dashboard-commonplace]");
+    if (!mount) return;
+    if (!WORKER || !EMAIL) {
+      showEmpty(mount, "Commonplace Book is only available for signed-in members.");
+      return;
+    }
+    fetch(WORKER.replace(/\/$/, "") + "/commonplace?email=" + encodeURIComponent(EMAIL), {
+      method: "GET", mode: "cors", credentials: "omit",
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var list = (data && data.entries) || [];
+        renderCommonplaceList(mount, list);
+      })
+      .catch(function () {
+        showEmpty(mount, "Couldn’t load your commonplace book right now. Try reloading.");
+      });
+  }
+
+  function renderCommonplaceList(mount, fullList) {
+    if (!fullList.length) {
+      showEmpty(mount, "No passages saved yet. Highlight any text on an article and tap Save to start your commonplace book.");
+      return;
+    }
+
+    var limitRaw = parseInt(mount.getAttribute("data-limit") || "", 10);
+    var limit = isNaN(limitRaw) ? fullList.length : limitRaw;
+    var visible = fullList.slice(0, limit);
+    var viewAllHref = mount.getAttribute("data-view-all") || "";
+    var isCompact = mount.hasAttribute("data-limit");
+
+    clear(mount);
+
+    var container = document.createElement("div");
+    container.className = "commonplace-list";
+
+    for (var i = 0; i < visible.length; i++) {
+      container.appendChild(renderCommonplaceEntry(visible[i], isCompact));
+    }
+    mount.appendChild(container);
+
+    if (viewAllHref && fullList.length > limit) {
+      var wrap = document.createElement("p");
+      wrap.className = "dashboard-view-all";
+      var a = document.createElement("a");
+      a.href = viewAllHref;
+      a.textContent = "View all " + fullList.length + " →";
+      wrap.appendChild(a);
+      mount.appendChild(wrap);
+    }
+  }
+
+  function renderCommonplaceEntry(entry, isCompact) {
+    var item = document.createElement("div");
+    item.className = "commonplace-entry";
+
+    var quote = document.createElement("blockquote");
+    quote.className = "commonplace-quote";
+    var displayText = entry.text || "";
+    if (isCompact && displayText.length > 180) {
+      displayText = displayText.slice(0, 180).replace(/\s+\S*$/, "") + "…";
+    }
+    quote.textContent = displayText;
+    item.appendChild(quote);
+
+    var meta = document.createElement("div");
+    meta.className = "commonplace-meta";
+
+    if (entry.sourceTitle) {
+      var source = document.createElement("a");
+      source.className = "commonplace-source";
+      source.href = entry.sourceUrl || "#";
+      source.textContent = entry.sourceTitle;
+      meta.appendChild(source);
+    }
+
+    if (entry.savedAt) {
+      var date = document.createElement("span");
+      date.className = "commonplace-date";
+      date.textContent = formatRelative(entry.savedAt);
+      meta.appendChild(date);
+    }
+
+    item.appendChild(meta);
+
+    var actions = document.createElement("div");
+    actions.className = "commonplace-actions";
+
+    var copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "commonplace-action-btn";
+    copyBtn.textContent = "Copy";
+    copyBtn.addEventListener("click", function () {
+      var copyText = "“" + entry.text + "”";
+      if (entry.sourceTitle) copyText += " — " + entry.sourceTitle;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(copyText).then(function () {
+          copyBtn.textContent = "Copied";
+          setTimeout(function () { copyBtn.textContent = "Copy"; }, 1500);
+        });
+      }
+    });
+    actions.appendChild(copyBtn);
+
+    var removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "commonplace-action-btn commonplace-action-remove";
+    removeBtn.textContent = "Remove";
+    var confirmState = 0; // 0=idle, 1=awaiting confirm
+    removeBtn.addEventListener("click", function () {
+      if (confirmState === 0) {
+        confirmState = 1;
+        removeBtn.textContent = "Are you sure?";
+        removeBtn.classList.add("is-confirming");
+        setTimeout(function () {
+          if (confirmState === 1) {
+            confirmState = 0;
+            removeBtn.textContent = "Remove";
+            removeBtn.classList.remove("is-confirming");
+          }
+        }, 3000);
+        return;
+      }
+      removeBtn.disabled = true;
+      removeBtn.textContent = "Removing…";
+      fetch(WORKER.replace(/\/$/, "") + "/commonplace/remove", {
+        method: "POST",
+        mode: "cors",
+        credentials: "omit",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: EMAIL, id: entry.id }),
+      }).then(function () {
+        item.remove();
+      }).catch(function () {
+        removeBtn.disabled = false;
+        removeBtn.textContent = "Remove";
+        removeBtn.classList.remove("is-confirming");
+        confirmState = 0;
+      });
+    });
+    actions.appendChild(removeBtn);
+
+    item.appendChild(actions);
+    return item;
   }
 
   // --- Reading History ---------------------------------------------------

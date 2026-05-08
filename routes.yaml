@@ -39,6 +39,8 @@ routes:
     template: custom-dashboard
   /dashboard/bookmarks/:
     template: custom-dashboard-bookmarks
+  /dashboard/commonplace/:
+    template: custom-dashboard-commonplace
   /dashboard/history/:
     template: custom-dashboard-history
   /dashboard/replays/:
