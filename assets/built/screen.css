@@ -13238,6 +13238,34 @@ body[class*="lc-"] .hero::before {
   background: radial-gradient(circle, var(--lc-accent-hero), transparent 65%);
 }
 
+/* Christmas: full-width green → red blend across the hero */
+body.lc-christmas .hero::before {
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(105deg,
+    rgba(35, 90, 45, 0.40) 0%,
+    rgba(35, 90, 45, 0.20) 35%,
+    rgba(175, 45, 40, 0.25) 55%,
+    rgba(175, 45, 40, 0.55) 100%);
+}
+
+/* Easter: full-width warm white/cream → gold blend */
+body.lc-easter .hero::before {
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(105deg,
+    rgba(255, 252, 245, 0.22) 0%,
+    rgba(255, 250, 235, 0.15) 35%,
+    rgba(225, 200, 110, 0.25) 55%,
+    rgba(225, 200, 110, 0.50) 100%);
+}
+
 /* ── Article header (full background swap) ───────────────────── */
 body[class*="lc-"] .article-header {
   background: var(--lc-bg);
