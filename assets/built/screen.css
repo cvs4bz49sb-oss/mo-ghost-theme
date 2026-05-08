@@ -13154,13 +13154,15 @@ body.lc-advent {
   --lc-hero-bot: rgb(28, 37, 56);
   --lc-accent-hero: rgba(70, 110, 180, 0.28);
   --lc-accent-article: rgba(70, 110, 180, 0.22);
+  --lc-dot: #6e8fbe;
 }
 body.lc-christmas {
-  --lc-bg: #302818;
-  --lc-hero-top: rgba(48, 40, 24, 0.88);
-  --lc-hero-bot: rgb(48, 40, 24);
-  --lc-accent-hero: rgba(200, 170, 75, 0.28);
-  --lc-accent-article: rgba(200, 170, 75, 0.22);
+  --lc-bg: #1c2e1e;
+  --lc-hero-top: rgba(28, 46, 30, 0.88);
+  --lc-hero-bot: rgb(28, 46, 30);
+  --lc-accent-hero: rgba(175, 50, 45, 0.28);
+  --lc-accent-article: rgba(175, 50, 45, 0.22);
+  --lc-dot: #c44040;
 }
 body.lc-epiphany {
   --lc-bg: #352c18;
@@ -13168,6 +13170,7 @@ body.lc-epiphany {
   --lc-hero-bot: rgb(53, 44, 24);
   --lc-accent-hero: rgba(195, 160, 55, 0.30);
   --lc-accent-article: rgba(195, 160, 55, 0.22);
+  --lc-dot: #c4a037;
 }
 body.lc-lent {
   --lc-bg: #282030;
@@ -13175,6 +13178,7 @@ body.lc-lent {
   --lc-hero-bot: rgb(40, 32, 48);
   --lc-accent-hero: rgba(115, 80, 150, 0.24);
   --lc-accent-article: rgba(115, 80, 150, 0.18);
+  --lc-dot: #8a5cb0;
 }
 body.lc-easter {
   --lc-bg: #322a1a;
@@ -13182,6 +13186,7 @@ body.lc-easter {
   --lc-hero-bot: rgb(50, 42, 26);
   --lc-accent-hero: rgba(215, 185, 85, 0.30);
   --lc-accent-article: rgba(215, 185, 85, 0.22);
+  --lc-dot: #d4b84e;
 }
 body.lc-pentecost {
   --lc-bg: #351c1e;
@@ -13189,6 +13194,7 @@ body.lc-pentecost {
   --lc-hero-bot: rgb(53, 28, 30);
   --lc-accent-hero: rgba(170, 58, 62, 0.28);
   --lc-accent-article: rgba(170, 58, 62, 0.22);
+  --lc-dot: #c43e42;
 }
 body.lc-ordinary {
   --lc-bg: #1e2a20;
@@ -13196,6 +13202,7 @@ body.lc-ordinary {
   --lc-hero-bot: rgb(30, 42, 32);
   --lc-accent-hero: rgba(80, 138, 85, 0.25);
   --lc-accent-article: rgba(80, 138, 85, 0.20);
+  --lc-dot: #5d9a62;
 }
 
 /* ── Hero overlay (homepage, dashboard, about, etc.) ─────────── */
@@ -13216,6 +13223,7 @@ body[class*="lc-"] .article-header {
 body[class*="lc-"] .article-header::before {
   background: radial-gradient(ellipse, var(--lc-accent-article), transparent 65%);
 }
+
 
 /* ── Dashboard liturgical settings module ────────────────────── */
 .liturgical-settings-desc {
@@ -13244,13 +13252,13 @@ body[class*="lc-"] .article-header::before {
   font-style: italic;
   color: var(--color-muted);
 }
-.lc-swatch-advent { background: #1c2538; }
-.lc-swatch-christmas { background: #302818; }
-.lc-swatch-epiphany { background: #352c18; }
-.lc-swatch-lent { background: #282030; }
-.lc-swatch-easter { background: #322a1a; }
-.lc-swatch-pentecost { background: #351c1e; }
-.lc-swatch-ordinary { background: #1e2a20; }
+.lc-swatch-advent { background: #6e8fbe; }
+.lc-swatch-christmas { background: #c44040; }
+.lc-swatch-epiphany { background: #c4a037; }
+.lc-swatch-lent { background: #8a5cb0; }
+.lc-swatch-easter { background: #d4b84e; }
+.lc-swatch-pentecost { background: #c43e42; }
+.lc-swatch-ordinary { background: #5d9a62; }
 
 /* Rail-positioned select for the liturgical theme picker */
 .dashboard-rail-select {
