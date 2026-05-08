@@ -8527,6 +8527,13 @@ html[data-theme="dark"] .feature-gate-modal-body {
   color: var(--color-dark);
   opacity: 0.7;
 }
+.admin-body .btn-ghost {
+  color: var(--color-dark);
+  border-color: rgba(45, 41, 39, 0.3);
+}
+.admin-body .btn-ghost:hover {
+  background: rgba(45, 41, 39, 0.06);
+}
 
 /* Landing page — tool list. Numeral + title + description + arrow. */
 .admin-tool-list {
