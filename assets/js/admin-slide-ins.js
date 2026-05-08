@@ -223,6 +223,7 @@
         + '</p>'
         + '</div>'
         + '<div class="admin-slide-in-actions">'
+        + '<button type="button" class="btn btn-pill btn-ghost btn-sm" data-toggle="' + item.id + '">' + (item.active ? 'Deactivate' : 'Activate') + '</button>'
         + '<button type="button" class="btn btn-pill btn-ghost btn-sm" data-edit="' + item.id + '">Edit</button>'
         + '<button type="button" class="btn btn-pill btn-ghost btn-sm btn-danger" data-delete="' + item.id + '">Delete</button>'
         + '</div>'
@@ -230,6 +231,24 @@
     });
     html += '</ul>';
     itemsContainer.innerHTML = html;
+
+    itemsContainer.querySelectorAll("[data-toggle]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-toggle");
+        var item = items.find(function (i) { return i.id === id; });
+        if (!item) return;
+        btn.disabled = true;
+        fetch(workerUrl + "/slide-ins/" + id, {
+          method: "PUT",
+          headers: Object.assign({ "Content-Type": "application/json" }, authHeaders),
+          body: JSON.stringify({ active: !item.active }),
+        })
+          .then(function (r) { if (!r.ok) throw new Error(r.status); })
+          .then(function () { clearCache(); loadAll(); })
+          .catch(function (err) { alert("Toggle failed: " + err.message); })
+          .finally(function () { btn.disabled = false; });
+      });
+    });
 
     itemsContainer.querySelectorAll("[data-edit]").forEach(function (btn) {
       btn.addEventListener("click", function () {
