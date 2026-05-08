@@ -80,27 +80,23 @@
 
     panel.appendChild(header);
 
-    // ── Filter bar ──
-    var filterBar = document.createElement("div");
-    filterBar.className = "mo-search-filters";
+    // ── Single "Filter By" dropdown ──
+    var filterWrap = document.createElement("div");
+    filterWrap.className = "mo-search-filters";
 
-    var authorSelect = buildFilterSelect("author", "Author");
-    var dateSelect = buildFilterSelect("date", "Date");
-    dateSelect.appendChild(makeOption("30", "Past month"));
-    dateSelect.appendChild(makeOption("365", "Past year"));
-    dateSelect.appendChild(makeOption("730", "Past 2 years"));
-    dateSelect.appendChild(makeOption("1825", "Past 5 years"));
+    var filterSelect = document.createElement("select");
+    filterSelect.className = "mo-search-filter-select";
+    filterSelect.setAttribute("data-filter", "mode");
+    filterSelect.appendChild(makeOption("all", "Filter By: All"));
+    filterSelect.appendChild(makeOption("author", "Filter By: Author"));
+    filterSelect.appendChild(makeOption("keyword", "Filter By: Keyword"));
+    filterSelect.appendChild(makeOption("date-30", "Filter By: Past Month"));
+    filterSelect.appendChild(makeOption("date-365", "Filter By: Past Year"));
+    filterSelect.appendChild(makeOption("date-730", "Filter By: Past 2 Years"));
+    filterSelect.addEventListener("change", applyFilters);
 
-    var keywordInput = document.createElement("input");
-    keywordInput.type = "text";
-    keywordInput.className = "mo-search-filter-keyword";
-    keywordInput.placeholder = "Keyword…";
-    keywordInput.addEventListener("input", applyFilters);
-
-    filterBar.appendChild(authorSelect);
-    filterBar.appendChild(dateSelect);
-    filterBar.appendChild(keywordInput);
-    panel.appendChild(filterBar);
+    filterWrap.appendChild(filterSelect);
+    panel.appendChild(filterWrap);
 
     statusEl = document.createElement("p");
     statusEl.className = "mo-search-status";
@@ -123,15 +119,6 @@
 
   // ---- Filter helpers -----------------------------------------------
 
-  function buildFilterSelect(name, label) {
-    var sel = document.createElement("select");
-    sel.className = "mo-search-filter-select";
-    sel.setAttribute("data-filter", name);
-    sel.appendChild(makeOption("", label));
-    sel.addEventListener("change", applyFilters);
-    return sel;
-  }
-
   function makeOption(value, text) {
     var o = document.createElement("option");
     o.value = value;
@@ -139,39 +126,24 @@
     return o;
   }
 
-  function populateFilterOptions(results) {
-    var authors = {};
-    results.forEach(function (r) {
-      if (r.primary_tag) authors[r.primary_tag] = true;
-    });
-
-    var authorSelect = modal.querySelector('[data-filter="author"]');
-    rebuildSelect(authorSelect, "Author", Object.keys(authors).sort());
-  }
-
-  function rebuildSelect(sel, label, items) {
-    var prev = sel.value;
-    sel.innerHTML = "";
-    sel.appendChild(makeOption("", label));
-    items.forEach(function (item) { sel.appendChild(makeOption(item, item)); });
-    if (prev && items.indexOf(prev) >= 0) sel.value = prev;
-  }
-
   function applyFilters() {
     if (!currentResults.length) return;
-    var authorVal = modal.querySelector('[data-filter="author"]').value;
-    var dateVal = modal.querySelector('[data-filter="date"]').value;
-    var kwVal = (modal.querySelector('.mo-search-filter-keyword').value || "").trim().toLowerCase();
-
-    var now = Date.now();
-    var dateCutoff = dateVal ? now - (parseInt(dateVal, 10) * 86400000) : 0;
+    var mode = modal.querySelector('[data-filter="mode"]').value;
+    var q = (input.value || "").trim().toLowerCase();
 
     var filtered = currentResults.filter(function (r) {
-      if (authorVal && r.primary_tag !== authorVal) return false;
-      if (dateCutoff && r.published_at && new Date(r.published_at).getTime() < dateCutoff) return false;
-      if (kwVal) {
+      if (mode === "author") {
+        var author = (r.primary_tag || "").toLowerCase();
+        return !q || author.indexOf(q) >= 0;
+      }
+      if (mode === "keyword") {
         var haystack = ((r.title || "") + " " + (r.excerpt || "")).toLowerCase();
-        if (haystack.indexOf(kwVal) < 0) return false;
+        return !q || haystack.indexOf(q) >= 0;
+      }
+      if (mode.indexOf("date-") === 0) {
+        var days = parseInt(mode.split("-")[1], 10);
+        var cutoff = Date.now() - (days * 86400000);
+        return r.published_at && new Date(r.published_at).getTime() >= cutoff;
       }
       return true;
     });
@@ -179,7 +151,7 @@
     activeIndex = filtered.length ? 0 : -1;
     renderResults(filtered);
     if (!filtered.length && currentResults.length) {
-      setStatus("No results match your filters.");
+      setStatus("No results match that filter.");
     } else if (filtered.length) {
       setStatus("");
     }
@@ -187,10 +159,8 @@
 
   function resetFilters() {
     if (!modal) return;
-    var selects = modal.querySelectorAll(".mo-search-filter-select");
-    selects.forEach(function (s) { s.value = ""; });
-    var kw = modal.querySelector(".mo-search-filter-keyword");
-    if (kw) kw.value = "";
+    var sel = modal.querySelector('[data-filter="mode"]');
+    if (sel) sel.value = "all";
   }
 
   // ---- Open / close ------------------------------------------------
@@ -282,7 +252,6 @@
         var results = (data && data.results) || [];
         currentResults = results;
         activeIndex = results.length ? 0 : -1;
-        populateFilterOptions(results);
         if (!results.length) {
           setStatus('No results for "' + q + '". Try a different phrasing.');
           renderResults([]);
