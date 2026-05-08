@@ -1,0 +1,141 @@
+{{!< default}}
+{{!-- /admin/slide-ins/ — create and manage slide-in CTAs.
+     Staff-only writes; active slide-ins served publicly by
+     GET /slide-ins on the admin worker. --}}
+
+<main class="admin-page">
+
+  {{#if @member}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Settings</p>
+        <h1 class="admin-headline">Slide-in <em><span class="highlight">CTAs</span></em>.</h1>
+        <p class="admin-sub">Subtle prompts that appear on the public site. Targeted by page, audience, and frequency.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container container-narrow">
+        <div class="admin-slide-ins"
+             data-admin-slide-ins
+             data-worker-url="{{@custom.admin_worker_url}}">
+
+          {{!-- List view --}}
+          <div data-slide-in-list>
+            <div class="dashboard-address-actions" style="margin-bottom: 36px;">
+              <button type="button" class="btn btn-pill btn-primary" data-slide-in-create>New slide-in</button>
+            </div>
+            <div data-slide-in-items>
+              <p class="admin-sub">Loading&hellip;</p>
+            </div>
+          </div>
+
+          {{!-- Edit / create form (hidden by default) --}}
+          <div data-slide-in-editor hidden>
+            <div class="dashboard-module" data-slide-in-form>
+
+              <div class="dashboard-form-group">
+                <p class="dashboard-form-legend"><em>Content</em></p>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Internal name</span>
+                  <input type="text" name="name" placeholder="e.g. Spring membership push" />
+                  <span class="dashboard-form-hint">For your reference only. Not shown to visitors.</span>
+                </label>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Headline</span>
+                  <input type="text" name="headline" placeholder="e.g. Support our work" />
+                </label>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Image URL</span>
+                  <input type="url" name="image" placeholder="https://..." />
+                  <span class="dashboard-form-hint">Optional. Paste a Ghost or external image URL.</span>
+                </label>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Body text</span>
+                  <textarea name="body" rows="3" placeholder="A sentence or two."></textarea>
+                </label>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Button text</span>
+                  <input type="text" name="button_text" placeholder="e.g. Become a Member" />
+                </label>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Button URL</span>
+                  <input type="url" name="button_url" placeholder="/membership/" />
+                </label>
+              </div>
+
+              <div class="dashboard-form-group">
+                <p class="dashboard-form-legend"><em>Targeting</em></p>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Show on</span>
+                  <select name="pages_type">
+                    <option value="all">All pages</option>
+                    <option value="homepage">Homepage only</option>
+                    <option value="posts">All posts</option>
+                    <option value="tag">Posts with a specific tag</option>
+                  </select>
+                </label>
+                <label class="dashboard-form-field" data-tag-field hidden>
+                  <span class="dashboard-form-label">Tag slug</span>
+                  <input type="text" name="tag_slug" placeholder="e.g. family" />
+                  <span class="dashboard-form-hint">The tag's URL slug, not its display name.</span>
+                </label>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Audience</span>
+                  <select name="audience">
+                    <option value="everyone">Everyone</option>
+                    <option value="not-signed-in">Not signed in</option>
+                    <option value="signed-in">Any signed-in member</option>
+                    <option value="free">Free subscribers only</option>
+                    <option value="paid">Paid members only</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="dashboard-form-group">
+                <p class="dashboard-form-legend"><em>Behavior</em></p>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Frequency</span>
+                  <select name="frequency">
+                    <option value="weekly">Once a week</option>
+                    <option value="daily">Once a day</option>
+                    <option value="biweekly">Once every two weeks</option>
+                    <option value="monthly">Once a month</option>
+                    <option value="once">Once (until cleared)</option>
+                  </select>
+                  <span class="dashboard-form-hint">How often a visitor sees this after dismissing it.</span>
+                </label>
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Priority</span>
+                  <input type="number" name="priority" min="0" step="1" value="0" />
+                  <span class="dashboard-form-hint">Higher number wins when multiple slide-ins match.</span>
+                </label>
+                <label class="dashboard-form-field dashboard-form-field--checkbox">
+                  <input type="checkbox" name="active" checked />
+                  <span class="dashboard-form-label">Active</span>
+                </label>
+              </div>
+
+              <div class="dashboard-address-actions">
+                <button type="button" class="btn btn-pill btn-primary" data-slide-in-save>Save</button>
+                <button type="button" class="btn btn-pill btn-ghost" data-slide-in-cancel>Cancel</button>
+              </div>
+              <p class="dashboard-form-success" data-slide-in-status hidden></p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-slide-ins.js"}}"></script>
