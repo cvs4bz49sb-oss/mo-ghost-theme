@@ -4549,6 +4549,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .manage-address-section {
   margin-top: 48px;
+  margin-bottom: 40px;
   padding-top: 36px;
   border-top: 1px solid var(--color-card-border);
   text-align: left;
