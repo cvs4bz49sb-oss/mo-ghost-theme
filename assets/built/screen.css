@@ -13200,28 +13200,43 @@ body[class*="lc-"] .article-header::before {
 /* Rail-positioned select for the liturgical theme picker */
 .dashboard-rail-select {
   display: block;
-  margin: 8px 0 0;
+  margin: 0;
 }
 .dashboard-rail-select select {
   width: 100%;
   font-family: var(--font-body);
-  font-size: 13px;
-  padding: 8px 10px;
-  border: 1px solid var(--color-rule);
-  border-radius: 6px;
+  font-size: 12px;
+  padding: 5px 24px 5px 8px;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 3px;
   background: var(--color-white, #fff);
   color: var(--color-dark);
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%232d2927' opacity='.45'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
 }
 .dashboard-rail-select select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.12);
+  box-shadow: 0 0 0 2px rgba(238, 125, 81, 0.1);
 }
 .dashboard-rail .liturgical-preview {
-  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
 }
 .dashboard-rail .liturgical-preview-swatch {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dashboard-rail .liturgical-preview-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
 }
