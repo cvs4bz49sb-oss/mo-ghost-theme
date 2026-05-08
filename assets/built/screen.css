@@ -13180,8 +13180,8 @@ body.lc-advent {
 }
 body.lc-christmas {
   --lc-bg: #1c2e1e;
-  --lc-hero-top: rgba(28, 46, 30, 0.60);
-  --lc-hero-bot: rgba(28, 46, 30, 0.85);
+  --lc-hero-top: rgba(28, 46, 30, 0.70);
+  --lc-hero-bot: rgb(28, 46, 30);
   --lc-accent-hero: rgba(180, 45, 40, 0.55);
   --lc-accent-article: rgba(180, 45, 40, 0.40);
   --lc-dot: #c44040;
@@ -13204,8 +13204,8 @@ body.lc-lent {
 }
 body.lc-easter {
   --lc-bg: #322a1a;
-  --lc-hero-top: rgba(50, 42, 26, 0.60);
-  --lc-hero-bot: rgba(50, 42, 26, 0.85);
+  --lc-hero-top: rgba(50, 42, 26, 0.70);
+  --lc-hero-bot: rgb(50, 42, 26);
   --lc-accent-hero: rgba(220, 195, 100, 0.55);
   --lc-accent-article: rgba(220, 195, 100, 0.40);
   --lc-dot: #d4b84e;
