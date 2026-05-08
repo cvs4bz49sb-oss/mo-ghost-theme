@@ -20,12 +20,71 @@
   var tagField = form.querySelector("[data-tag-field]");
   var tagInput = form.querySelector('[name="tag_slug"]');
 
+  // Image upload elements
+  var imageHidden = form.querySelector('[name="image"]');
+  var imagePreview = form.querySelector("[data-image-preview]");
+  var imagePreviewImg = form.querySelector("[data-image-preview-img]");
+  var imagePicker = form.querySelector("[data-image-picker]");
+  var imageFile = form.querySelector("[data-image-file]");
+  var imageChoose = form.querySelector("[data-image-choose]");
+  var imageRemove = form.querySelector("[data-image-remove]");
+  var imageUploading = form.querySelector("[data-image-uploading]");
+
   var editingId = null;
   var authHeaders = null;
 
   pagesSelect.addEventListener("change", function () {
     tagField.hidden = pagesSelect.value !== "tag";
   });
+
+  // Image upload handlers
+  imageChoose.addEventListener("click", function () { imageFile.click(); });
+  imageRemove.addEventListener("click", function () { setImage(""); });
+
+  imageFile.addEventListener("change", function () {
+    var file = imageFile.files && imageFile.files[0];
+    if (!file) return;
+    uploadImage(file);
+    imageFile.value = "";
+  });
+
+  function setImage(url) {
+    imageHidden.value = url;
+    if (url) {
+      imagePreviewImg.src = url;
+      imagePreview.hidden = false;
+      imagePicker.hidden = true;
+    } else {
+      imagePreviewImg.src = "";
+      imagePreview.hidden = true;
+      imagePicker.hidden = false;
+    }
+  }
+
+  function uploadImage(file) {
+    if (!authHeaders) return;
+    imageChoose.hidden = true;
+    imageUploading.hidden = false;
+
+    var fd = new FormData();
+    fd.append("file", file);
+
+    fetch(workerUrl + "/images/upload", {
+      method: "POST",
+      headers: { Authorization: authHeaders.Authorization },
+      body: fd,
+    })
+      .then(function (r) {
+        if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || r.status); });
+        return r.json();
+      })
+      .then(function (data) { setImage(data.url); })
+      .catch(function (err) { showStatus("Image upload failed: " + err.message, true); })
+      .finally(function () {
+        imageChoose.hidden = false;
+        imageUploading.hidden = true;
+      });
+  }
 
   function showStatus(msg, isError) {
     statusEl.textContent = msg;
@@ -50,7 +109,7 @@
       editingId = item.id;
       form.querySelector('[name="name"]').value = item.name || "";
       form.querySelector('[name="headline"]').value = item.headline || "";
-      form.querySelector('[name="image"]').value = item.image || "";
+      setImage(item.image || "");
       form.querySelector('[name="body"]').value = item.body || "";
       form.querySelector('[name="button_text"]').value = item.button_text || "";
       form.querySelector('[name="button_url"]').value = item.button_url || "";
@@ -71,12 +130,13 @@
       }
     } else {
       editingId = null;
-      form.querySelectorAll("input, textarea, select").forEach(function (el) {
+      form.querySelectorAll("input:not([type=file]):not([type=hidden]), textarea, select").forEach(function (el) {
         if (el.type === "checkbox") el.checked = true;
         else if (el.type === "number") el.value = "0";
         else if (el.tagName === "SELECT") el.selectedIndex = 0;
         else el.value = "";
       });
+      setImage("");
       tagField.hidden = true;
     }
   }

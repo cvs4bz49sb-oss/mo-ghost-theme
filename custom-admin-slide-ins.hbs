@@ -48,11 +48,22 @@
                   <span class="dashboard-form-label">Headline</span>
                   <input type="text" name="headline" placeholder="e.g. Support our work" />
                 </label>
-                <label class="dashboard-form-field">
-                  <span class="dashboard-form-label">Image URL</span>
-                  <input type="url" name="image" placeholder="https://..." />
-                  <span class="dashboard-form-hint">Optional. Paste a Ghost or external image URL.</span>
-                </label>
+                <div class="dashboard-form-field">
+                  <span class="dashboard-form-label">Image</span>
+                  <div class="slide-in-image-upload" data-image-upload>
+                    <div class="slide-in-image-preview" data-image-preview hidden>
+                      <img data-image-preview-img alt="" />
+                      <button type="button" class="slide-in-image-remove" data-image-remove aria-label="Remove image">&times;</button>
+                    </div>
+                    <div class="slide-in-image-picker" data-image-picker>
+                      <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml" data-image-file hidden />
+                      <button type="button" class="btn btn-pill btn-ghost btn-sm" data-image-choose>Upload image</button>
+                      <span class="slide-in-image-uploading" data-image-uploading hidden>Uploading&hellip;</span>
+                    </div>
+                    <input type="hidden" name="image" />
+                  </div>
+                  <span class="dashboard-form-hint">Optional. JPEG, PNG, GIF, WebP, or SVG under 5 MB.</span>
+                </div>
                 <label class="dashboard-form-field">
                   <span class="dashboard-form-label">Body text</span>
                   <textarea name="body" rows="3" placeholder="A sentence or two."></textarea>
