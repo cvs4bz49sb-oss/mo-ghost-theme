@@ -12887,7 +12887,7 @@ body.mo-search-open { overflow: hidden; }
     grid-template-columns: 1fr;
   }
   .slide-in.has-image {
-    grid-template-columns: 90px 1fr;
+    grid-template-columns: 110px 1fr;
   }
   .slide-in.is-visible {
     transform: translateY(0);
