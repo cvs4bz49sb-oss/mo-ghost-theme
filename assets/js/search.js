@@ -80,22 +80,30 @@
 
     panel.appendChild(header);
 
-    // ── Single "Filter By" dropdown ──
+    // ── Filter: dropdown + value input ──
     var filterWrap = document.createElement("div");
     filterWrap.className = "mo-search-filters";
 
     var filterSelect = document.createElement("select");
     filterSelect.className = "mo-search-filter-select";
     filterSelect.setAttribute("data-filter", "mode");
-    filterSelect.appendChild(makeOption("all", "Filter By: All"));
-    filterSelect.appendChild(makeOption("author", "Filter By: Author"));
-    filterSelect.appendChild(makeOption("keyword", "Filter By: Keyword"));
-    filterSelect.appendChild(makeOption("date-30", "Filter By: Past Month"));
-    filterSelect.appendChild(makeOption("date-365", "Filter By: Past Year"));
-    filterSelect.appendChild(makeOption("date-730", "Filter By: Past 2 Years"));
-    filterSelect.addEventListener("change", applyFilters);
+    filterSelect.appendChild(makeOption("all", "No Filter"));
+    filterSelect.appendChild(makeOption("author", "Author"));
+    filterSelect.appendChild(makeOption("keyword", "Keyword"));
+    filterSelect.appendChild(makeOption("date-30", "Past Month"));
+    filterSelect.appendChild(makeOption("date-365", "Past Year"));
+    filterSelect.appendChild(makeOption("date-730", "Past 2 Years"));
+    filterSelect.addEventListener("change", onFilterModeChange);
+
+    var filterInput = document.createElement("input");
+    filterInput.type = "text";
+    filterInput.className = "mo-search-filter-input";
+    filterInput.placeholder = "";
+    filterInput.hidden = true;
+    filterInput.addEventListener("input", applyFilters);
 
     filterWrap.appendChild(filterSelect);
+    filterWrap.appendChild(filterInput);
     panel.appendChild(filterWrap);
 
     statusEl = document.createElement("p");
@@ -126,19 +134,36 @@
     return o;
   }
 
+  function onFilterModeChange() {
+    var mode = modal.querySelector('[data-filter="mode"]').value;
+    var fi = modal.querySelector(".mo-search-filter-input");
+    if (mode === "author" || mode === "keyword") {
+      fi.hidden = false;
+      fi.placeholder = mode === "author" ? "Author name…" : "Exact phrase…";
+      fi.value = "";
+      fi.focus();
+    } else {
+      fi.hidden = true;
+      fi.value = "";
+    }
+    applyFilters();
+  }
+
   function applyFilters() {
     if (!currentResults.length) return;
     var mode = modal.querySelector('[data-filter="mode"]').value;
-    var q = (input.value || "").trim().toLowerCase();
+    var filterVal = (modal.querySelector(".mo-search-filter-input").value || "").trim().toLowerCase();
 
     var filtered = currentResults.filter(function (r) {
       if (mode === "author") {
+        if (!filterVal) return true;
         var author = (r.primary_tag || "").toLowerCase();
-        return !q || author.indexOf(q) >= 0;
+        return author.indexOf(filterVal) >= 0;
       }
       if (mode === "keyword") {
+        if (!filterVal) return true;
         var haystack = ((r.title || "") + " " + (r.excerpt || "")).toLowerCase();
-        return !q || haystack.indexOf(q) >= 0;
+        return haystack.indexOf(filterVal) >= 0;
       }
       if (mode.indexOf("date-") === 0) {
         var days = parseInt(mode.split("-")[1], 10);
@@ -161,6 +186,8 @@
     if (!modal) return;
     var sel = modal.querySelector('[data-filter="mode"]');
     if (sel) sel.value = "all";
+    var fi = modal.querySelector(".mo-search-filter-input");
+    if (fi) { fi.value = ""; fi.hidden = true; }
   }
 
   // ---- Open / close ------------------------------------------------
