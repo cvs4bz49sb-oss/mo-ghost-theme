@@ -1,0 +1,17 @@
+{{!-- Body for /dashboard/journals/. Paid-member journal archive.
+     Lists every past print journal issue with links to the reader. --}}
+
+<section class="hero dashboard-hero">
+  <div class="container">
+    <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+    <h1 class="hero-headline"><span class="highlight"><em>Journal</em></span> Archive.</h1>
+    <p class="hero-sub">Every issue of the Mere Orthodoxy print journal, available to read online as a digital edition.</p>
+    <p class="dashboard-breadcrumb"><a href="/dashboard/">&larr; Back to dashboard</a></p>
+  </div>
+</section>
+
+<section class="dashboard-body">
+  <div class="container">
+    {{> "journals-list"}}
+  </div>
+</section>

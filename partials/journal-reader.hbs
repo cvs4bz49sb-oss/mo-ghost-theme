@@ -1,0 +1,151 @@
+{{!-- Journal PDF reader — standalone page matching the ebook reader
+     aesthetic. Receives: issue, season, pdf_file.
+
+     The PDF is served from the theme's assets/ directory and embedded
+     in an iframe. The browser's native PDF viewer handles rendering,
+     zoom, and page navigation. A top bar provides navigation back to
+     the journal archive and a download link. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mere Orthodoxy &mdash; Issue {{issue}}, {{season}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #ee7d51;
+      --body-text: #2d2927;
+      --light-text: #9a8773;
+      --page-bg: #f1e0c9;
+      --bar-bg: #2d2927;
+      --font-headline: 'IM Fell Great Primer', 'Georgia', serif;
+      --font-body: 'Source Serif 4', 'Georgia', serif;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bar-bg);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .journal-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background: var(--bar-bg);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .journal-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .journal-bar-back {
+      font-family: var(--font-body);
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .journal-bar-back:hover { color: var(--primary); }
+
+    .journal-bar-title {
+      font-family: var(--font-headline);
+      font-size: 16px;
+      font-style: italic;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .journal-bar-issue {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+
+    .journal-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .journal-bar-download {
+      font-family: var(--font-body);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 4px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .journal-bar-download:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .journal-viewer {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .journal-viewer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    @media (max-width: 640px) {
+      .journal-bar {
+        padding: 10px 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .journal-bar-title { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="journal-bar">
+    <div class="journal-bar-left">
+      <a href="/dashboard/journals/" class="journal-bar-back">&larr; All Issues</a>
+      <span class="journal-bar-title">Mere Orthodoxy</span>
+      <span class="journal-bar-issue">Issue {{issue}} &middot; {{season}}</span>
+    </div>
+    <div class="journal-bar-right">
+      <a href="{{asset pdf_file}}" download class="journal-bar-download">Download PDF</a>
+    </div>
+  </header>
+
+  <div class="journal-viewer">
+    <iframe src="{{asset pdf_file}}" title="Mere Orthodoxy Issue {{issue}}"></iframe>
+  </div>
+
+</body>
+</html>

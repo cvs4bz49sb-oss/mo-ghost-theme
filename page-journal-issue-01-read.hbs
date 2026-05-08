@@ -1,0 +1,13 @@
+{{!-- /journal-archive/issue-01/ — digital edition of Issue 001, Fall 2021.
+     Routed via routes.yaml to this template. Member gating inline:
+     signed-in paid/comped members see the PDF reader, everyone else
+     gets redirected to the journal library or membership page. --}}
+{{#if @member}}
+  {{#match @member.status "paid"}}{{> "journal-reader" issue="001" season="Fall 2021" pdf_file="journals/issue-01.pdf"}}{{else}}
+  {{#match @member.status "comped"}}{{> "journal-reader" issue="001" season="Fall 2021" pdf_file="journals/issue-01.pdf"}}{{else}}
+    <script>window.location.href = "/dashboard/journals/";</script>
+  {{/match}}
+  {{/match}}
+{{else}}
+  <script>window.location.href = "/dashboard/journals/";</script>
+{{/if}}
