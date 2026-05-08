@@ -13274,9 +13274,9 @@ body.lc-advent .hero::before {
   width: 100%;
   height: 100%;
   background: radial-gradient(ellipse at top right,
-    rgba(70, 125, 210, 0.80) 0%,
-    rgba(65, 110, 190, 0.50) 30%,
-    rgba(45, 65, 120, 0.22) 55%,
+    rgba(40, 70, 150, 0.80) 0%,
+    rgba(35, 60, 130, 0.50) 30%,
+    rgba(25, 40, 85, 0.22) 55%,
     transparent 75%);
 }
 
