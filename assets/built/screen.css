@@ -12925,7 +12925,8 @@ body.mo-search-open { overflow: hidden; }
     margin: 0 0 8px;
   }
   .slide-in-body {
-    display: none;
+    font-size: 13px;
+    margin: 0 0 10px;
   }
   .slide-in-btn {
     font-size: 12px;
