@@ -1227,7 +1227,7 @@ img { max-width: 100%; height: auto; }
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr 1.2fr;
-  gap: 18px 18px;
+  gap: 6px 18px;
   align-items: end;
 }
 .digest-field {
@@ -1300,8 +1300,9 @@ img { max-width: 100%; height: auto; }
   margin: 6px 0 0;
   font-size: 13px;
   color: var(--color-muted);
-  min-height: 18px;
+  min-height: 0;
 }
+.digest-form .digest-status:empty { display: none; }
 .digest-form .digest-status.is-error { color: var(--color-secondary); }
 
 /* -------- Divider flourish -------- */
