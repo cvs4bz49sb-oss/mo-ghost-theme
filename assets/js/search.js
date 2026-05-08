@@ -80,6 +80,31 @@
 
     panel.appendChild(header);
 
+    // ── Filter bar ──
+    var filterBar = document.createElement("div");
+    filterBar.className = "mo-search-filters";
+
+    var authorSelect = buildFilterSelect("author", "Author");
+    var topicSelect = buildFilterSelect("topic", "Topic");
+    var dateSelect = buildFilterSelect("date", "Date");
+    dateSelect.appendChild(makeOption("", "Date"));
+    dateSelect.appendChild(makeOption("30", "Past month"));
+    dateSelect.appendChild(makeOption("365", "Past year"));
+    dateSelect.appendChild(makeOption("730", "Past 2 years"));
+    dateSelect.appendChild(makeOption("1825", "Past 5 years"));
+
+    var keywordInput = document.createElement("input");
+    keywordInput.type = "text";
+    keywordInput.className = "mo-search-filter-keyword";
+    keywordInput.placeholder = "Keyword…";
+    keywordInput.addEventListener("input", applyFilters);
+
+    filterBar.appendChild(authorSelect);
+    filterBar.appendChild(topicSelect);
+    filterBar.appendChild(dateSelect);
+    filterBar.appendChild(keywordInput);
+    panel.appendChild(filterBar);
+
     statusEl = document.createElement("p");
     statusEl.className = "mo-search-status";
     statusEl.setAttribute("aria-live", "polite");
@@ -97,6 +122,85 @@
 
     modal.appendChild(panel);
     document.body.appendChild(modal);
+  }
+
+  // ---- Filter helpers -----------------------------------------------
+
+  function buildFilterSelect(name, label) {
+    var sel = document.createElement("select");
+    sel.className = "mo-search-filter-select";
+    sel.setAttribute("data-filter", name);
+    sel.appendChild(makeOption("", label));
+    sel.addEventListener("change", applyFilters);
+    return sel;
+  }
+
+  function makeOption(value, text) {
+    var o = document.createElement("option");
+    o.value = value;
+    o.textContent = text;
+    return o;
+  }
+
+  function populateFilterOptions(results) {
+    var authors = {};
+    var topics = {};
+    results.forEach(function (r) {
+      if (r.primary_author) authors[r.primary_author] = true;
+      if (r.primary_tag) topics[r.primary_tag] = true;
+    });
+
+    var authorSelect = modal.querySelector('[data-filter="author"]');
+    var topicSelect = modal.querySelector('[data-filter="topic"]');
+
+    rebuildSelect(authorSelect, "Author", Object.keys(authors).sort());
+    rebuildSelect(topicSelect, "Topic", Object.keys(topics).sort());
+  }
+
+  function rebuildSelect(sel, label, items) {
+    var prev = sel.value;
+    sel.innerHTML = "";
+    sel.appendChild(makeOption("", label));
+    items.forEach(function (item) { sel.appendChild(makeOption(item, item)); });
+    if (prev && items.indexOf(prev) >= 0) sel.value = prev;
+  }
+
+  function applyFilters() {
+    if (!currentResults.length) return;
+    var authorVal = modal.querySelector('[data-filter="author"]').value;
+    var topicVal = modal.querySelector('[data-filter="topic"]').value;
+    var dateVal = modal.querySelector('[data-filter="date"]').value;
+    var kwVal = (modal.querySelector('.mo-search-filter-keyword').value || "").trim().toLowerCase();
+
+    var now = Date.now();
+    var dateCutoff = dateVal ? now - (parseInt(dateVal, 10) * 86400000) : 0;
+
+    var filtered = currentResults.filter(function (r) {
+      if (authorVal && r.primary_author !== authorVal) return false;
+      if (topicVal && r.primary_tag !== topicVal) return false;
+      if (dateCutoff && r.published_at && new Date(r.published_at).getTime() < dateCutoff) return false;
+      if (kwVal) {
+        var haystack = ((r.title || "") + " " + (r.excerpt || "")).toLowerCase();
+        if (haystack.indexOf(kwVal) < 0) return false;
+      }
+      return true;
+    });
+
+    activeIndex = filtered.length ? 0 : -1;
+    renderResults(filtered);
+    if (!filtered.length && currentResults.length) {
+      setStatus("No results match your filters.");
+    } else if (filtered.length) {
+      setStatus("");
+    }
+  }
+
+  function resetFilters() {
+    if (!modal) return;
+    var selects = modal.querySelectorAll(".mo-search-filter-select");
+    selects.forEach(function (s) { s.value = ""; });
+    var kw = modal.querySelector(".mo-search-filter-keyword");
+    if (kw) kw.value = "";
   }
 
   // ---- Open / close ------------------------------------------------
@@ -127,6 +231,7 @@
     if (!q) {
       setStatus("Type a name (e.g. \u201cMatt Anderson\u201d), a tag (e.g. \u201cecclesiology\u201d), or any phrase. Search blends author, title, and full-text matching.");
       renderResults([]);
+      resetFilters();
       return;
     }
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -187,12 +292,13 @@
         var results = (data && data.results) || [];
         currentResults = results;
         activeIndex = results.length ? 0 : -1;
+        populateFilterOptions(results);
         if (!results.length) {
           setStatus('No results for "' + q + '". Try a different phrasing.');
           renderResults([]);
         } else {
           setStatus("");
-          renderResults(results);
+          applyFilters();
         }
       })
       .catch(function (err) {

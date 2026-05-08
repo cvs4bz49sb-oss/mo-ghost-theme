@@ -9739,6 +9739,44 @@ body.mo-search-open { overflow: hidden; }
   border-color: var(--color-muted);
 }
 
+.mo-search-filters {
+  display: flex;
+  gap: 8px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--color-card-border);
+  flex-wrap: wrap;
+}
+.mo-search-filter-select,
+.mo-search-filter-keyword {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-dark);
+  background: var(--color-white, #fff);
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 3px;
+  padding: 5px 8px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.mo-search-filter-select {
+  padding-right: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg width='8' height='5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%232d2927' opacity='.4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+}
+.mo-search-filter-keyword {
+  flex: 1;
+  min-width: 100px;
+  cursor: text;
+}
+.mo-search-filter-select:focus,
+.mo-search-filter-keyword:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(238, 125, 81, 0.1);
+}
+
 .mo-search-status {
   font-family: var(--font-body);
   font-style: italic;
@@ -9845,6 +9883,10 @@ body.mo-search-open { overflow: hidden; }
   .mo-search-panel { max-height: calc(100vh - 32px); }
   .mo-search-header { padding: 12px 16px; }
   .mo-search-input { font-size: 18px; }
+  .mo-search-filters { padding: 8px 16px; gap: 6px; }
+  .mo-search-filter-select,
+  .mo-search-filter-keyword { font-size: 14px; padding: 6px 8px; }
+  .mo-search-filter-select { padding-right: 22px; }
   .mo-search-status { padding: 12px 16px; font-size: 13px; }
   .mo-search-result-link { padding: 14px 16px; }
   .mo-search-result-title { font-size: 17px; }
