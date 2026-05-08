@@ -13274,9 +13274,9 @@ body.lc-advent .hero::before {
   width: 100%;
   height: 100%;
   background: radial-gradient(ellipse at top right,
-    rgba(70, 120, 200, 0.65) 0%,
-    rgba(70, 110, 180, 0.35) 30%,
-    rgba(40, 55, 90, 0.15) 55%,
+    rgba(70, 125, 210, 0.80) 0%,
+    rgba(65, 110, 190, 0.50) 30%,
+    rgba(45, 65, 120, 0.22) 55%,
     transparent 75%);
 }
 
@@ -13302,9 +13302,9 @@ body.lc-lent .hero::before {
   width: 100%;
   height: 100%;
   background: radial-gradient(ellipse at top right,
-    rgba(130, 80, 170, 0.65) 0%,
-    rgba(115, 70, 150, 0.35) 30%,
-    rgba(60, 40, 80, 0.15) 55%,
+    rgba(140, 85, 180, 0.80) 0%,
+    rgba(120, 75, 160, 0.50) 30%,
+    rgba(70, 45, 100, 0.22) 55%,
     transparent 75%);
 }
 
