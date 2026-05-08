@@ -83,7 +83,7 @@
                     <button class="sign-in" data-portal="signin">Sign in</button>
                     <a href="/membership/" class="btn btn-primary">Become a Member</a>
                 {{else}}
-                    <a href="#/portal/account" class="btn btn-primary btn-account" data-portal="account">{{#if @member.name}}{{@member.name}}{{else}}Account{{/if}}</a>
+                    <a href="/dashboard/" class="btn btn-primary btn-account">{{#if @member.name}}{{@member.name}}{{else}}Dashboard{{/if}}</a>
                 {{/unless}}
             </div>
             <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
@@ -118,7 +118,7 @@
                     <button class="mobile-nav-signin" data-portal="signin">Sign in</button>
                     <a href="/membership/" class="btn btn-primary">Become a Member</a>
                 {{else}}
-                    <a href="#/portal/account" class="btn btn-primary btn-account" data-portal="account">{{#if @member.name}}{{@member.name}}{{else}}Account{{/if}}</a>
+                    <a href="/dashboard/" class="btn btn-primary btn-account">{{#if @member.name}}{{@member.name}}{{else}}Dashboard{{/if}}</a>
                 {{/unless}}
             </div>
         </aside>
