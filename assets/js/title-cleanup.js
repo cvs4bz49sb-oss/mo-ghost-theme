@@ -4,32 +4,47 @@
  * 1. Suffix: older posts carry "- Mere Orthodoxy | Christianity,
  *    Politics, and Culture" in their Ghost title. Strip it.
  *
- * 2. Quotes: HubSpot-imported titles sometimes have right curly
- *    quotes in opening position (’ where ‘ belongs,
- *    ” where “ belongs). Fix direction based on context.
+ * 2. Quotes: HubSpot-imported titles have straight ASCII quotes
+ *    or mis-directed curly quotes. Convert to proper typographic
+ *    open/close pairs based on surrounding context.
  */
 (function () {
-  var SUFFIX_RE = /\s*[-\u2013\u2014]\s*Mere\s*Orthodoxy\s*(?:\|[^|]*)?\s*$/i;
+  var SUFFIX_RE = /\s*[-–—]\s*Mere\s*Orthodoxy\s*(?:\|[^|]*)?\s*$/i;
 
   function strip(s) {
     if (typeof s !== "string") return s;
     return s.replace(SUFFIX_RE, "").trimEnd();
   }
 
+  // U+2018 = left single   U+2019 = right single / apostrophe
+  // U+201C = left double    U+201D = right double
+  var OPEN_CTX = "\\s\\u2014\\u2013(\\[{";
+
   function fixQuotes(s) {
     if (typeof s !== "string") return s;
-    // Right single quote in opening position → left single quote
-    s = s.replace(/(^|[\s—–(\[{"“])’(?=\w)/g, '$1‘');
-    // Right double quote in opening position → left double quote
-    s = s.replace(/(^|[\s—–(\[{'‘])”(?=\w)/g, '$1“');
+    // --- Straight ASCII single quote (U+0027) ---
+    // Opening position: after whitespace / start / opening punct
+    s = s.replace(new RegExp("(^|[" + OPEN_CTX + "\"\\u201C])\'(?=\\w)", "g"), "$1‘");
+    // Closing / apostrophe: after a word character
+    s = s.replace(/(\w)'/g, "$1’");
+    // Anything left over
+    s = s.replace(/'/g, "’");
+    // --- Straight ASCII double quote (U+0022) ---
+    s = s.replace(new RegExp("(^|[" + OPEN_CTX + "'\\u2018\\u2019])\"(?=\\w)", "g"), "$1“");
+    s = s.replace(/"/g, "”");
+    // --- Already-curly but wrong direction ---
+    s = s.replace(new RegExp("(^|[" + OPEN_CTX + "\"\\u201C])\\u2019(?=\\w)", "g"), "$1‘");
+    s = s.replace(new RegExp("(^|[" + OPEN_CTX + "'\\u2018])\\u201D(?=\\w)", "g"), "$1“");
     return s;
   }
 
   function fixQuotesInTree(root) {
     if (!root) return;
+    var SKIP = { CODE: 1, PRE: 1, KBD: 1, SCRIPT: 1, STYLE: 1 };
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     var node;
     while ((node = walker.nextNode())) {
+      if (SKIP[node.parentNode.nodeName]) continue;
       var fixed = fixQuotes(node.nodeValue);
       if (fixed !== node.nodeValue) node.nodeValue = fixed;
     }
@@ -50,9 +65,6 @@
     cleanMeta('meta[name="twitter:title"]', "content");
   }
 
-  // Walk known title-bearing selectors. Conservative list — only
-  // cleans text nodes whose full textContent matches the suffix,
-  // avoiding collateral damage to intentional prose.
   var TITLE_SELECTORS = [
     ".article-title",
     ".post-full-title",
@@ -106,10 +118,6 @@
     cleanAll();
   }
 
-  // Late-loaded lists (reading history, bookmarks, replays, podcast
-  // feed, ebooks) are injected by their own scripts after DOMContentLoaded.
-  // Re-run cleanup when the body mutates. Throttled so we don't
-  // reflow on every keystroke in inline forms.
   var pending = false;
   var observer = new MutationObserver(function () {
     if (pending) return;
