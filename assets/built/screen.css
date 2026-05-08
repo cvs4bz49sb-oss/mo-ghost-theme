@@ -6541,6 +6541,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .dashboard-module + .dashboard-module { margin-top: 56px; }
   .dashboard-form-row { grid-template-columns: 1fr; gap: 22px; }
   .dashboard-form-legend { font-size: 20px; }
+  .dashboard-rail-select select {
+    font-size: 16px;
+    padding: 10px 28px 10px 12px;
+    background-position: right 10px center;
+  }
 }
 
 /* --- Post-page bookmark button (sits next to the audio trigger) ---- */
