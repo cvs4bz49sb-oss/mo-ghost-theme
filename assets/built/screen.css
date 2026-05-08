@@ -13094,11 +13094,11 @@ body.mo-search-open { overflow: hidden; }
 
 /* ── Season palettes ─────────────────────────────────────────── */
 body.lc-advent {
-  --lc-bg: #2a2036;
-  --lc-hero-top: rgba(42, 32, 54, 0.88);
-  --lc-hero-bot: rgb(42, 32, 54);
-  --lc-accent-hero: rgba(130, 90, 175, 0.28);
-  --lc-accent-article: rgba(130, 90, 175, 0.22);
+  --lc-bg: #1c2538;
+  --lc-hero-top: rgba(28, 37, 56, 0.88);
+  --lc-hero-bot: rgb(28, 37, 56);
+  --lc-accent-hero: rgba(70, 110, 180, 0.28);
+  --lc-accent-article: rgba(70, 110, 180, 0.22);
 }
 body.lc-christmas {
   --lc-bg: #302818;
@@ -13106,6 +13106,13 @@ body.lc-christmas {
   --lc-hero-bot: rgb(48, 40, 24);
   --lc-accent-hero: rgba(200, 170, 75, 0.28);
   --lc-accent-article: rgba(200, 170, 75, 0.22);
+}
+body.lc-epiphany {
+  --lc-bg: #352c18;
+  --lc-hero-top: rgba(53, 44, 24, 0.88);
+  --lc-hero-bot: rgb(53, 44, 24);
+  --lc-accent-hero: rgba(195, 160, 55, 0.30);
+  --lc-accent-article: rgba(195, 160, 55, 0.22);
 }
 body.lc-lent {
   --lc-bg: #282030;
@@ -13182,9 +13189,39 @@ body[class*="lc-"] .article-header::before {
   font-style: italic;
   color: var(--color-muted);
 }
-.lc-swatch-advent { background: #2a2036; }
+.lc-swatch-advent { background: #1c2538; }
 .lc-swatch-christmas { background: #302818; }
+.lc-swatch-epiphany { background: #352c18; }
 .lc-swatch-lent { background: #282030; }
 .lc-swatch-easter { background: #322a1a; }
 .lc-swatch-pentecost { background: #351c1e; }
 .lc-swatch-ordinary { background: #1e2a20; }
+
+/* Rail-positioned select for the liturgical theme picker */
+.dashboard-rail-select {
+  display: block;
+  margin: 8px 0 0;
+}
+.dashboard-rail-select select {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: var(--color-white, #fff);
+  color: var(--color-dark);
+  cursor: pointer;
+}
+.dashboard-rail-select select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.12);
+}
+.dashboard-rail .liturgical-preview {
+  margin-top: 10px;
+}
+.dashboard-rail .liturgical-preview-swatch {
+  width: 24px;
+  height: 24px;
+}

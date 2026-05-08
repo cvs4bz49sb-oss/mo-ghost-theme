@@ -11,7 +11,7 @@
  */
 (function () {
   var PREF_KEY = "mo_liturgical";
-  var SEASONS = ["advent", "christmas", "lent", "easter", "pentecost", "ordinary"];
+  var SEASONS = ["advent", "christmas", "epiphany", "lent", "easter", "pentecost", "ordinary"];
 
   // ── Easter (Anonymous Gregorian algorithm) ───────────────────
   function easter(year) {
@@ -64,7 +64,7 @@
     var pent = addDays(e, 49);
     var adv = adventStart(y);
 
-    if (today >= new Date(y, 0, 6) && today < ashWed) return "ordinary";
+    if (today >= new Date(y, 0, 6) && today < ashWed) return "epiphany";
     if (today >= ashWed && today <= holySat) return "lent";
     if (today >= e && today < pent) return "easter";
     if (today.getTime() === stripTime(pent).getTime()) return "pentecost";
@@ -89,6 +89,7 @@
   var SEASON_LABELS = {
     advent: "Advent",
     christmas: "Christmas",
+    epiphany: "Epiphany",
     lent: "Lent",
     easter: "Easter",
     pentecost: "Pentecost",
