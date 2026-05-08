@@ -19,6 +19,10 @@
   var pagesSelect = form.querySelector('[name="pages_type"]');
   var tagField = form.querySelector("[data-tag-field]");
   var tagInput = form.querySelector('[name="tag_slug"]');
+  var triggerSelect = form.querySelector('[name="trigger"]');
+  var triggerValueField = form.querySelector("[data-trigger-value-field]");
+  var triggerValueInput = form.querySelector('[name="trigger_value"]');
+  var triggerHint = form.querySelector("[data-trigger-hint]");
 
   // Image upload elements
   var imageHidden = form.querySelector('[name="image"]');
@@ -36,6 +40,21 @@
   pagesSelect.addEventListener("change", function () {
     tagField.hidden = pagesSelect.value !== "tag";
   });
+
+  function updateTriggerUI() {
+    var t = triggerSelect.value;
+    if (t === "exit") {
+      triggerValueField.hidden = true;
+    } else {
+      triggerValueField.hidden = false;
+      if (t === "scroll") {
+        triggerHint.textContent = "Percentage of page scrolled (e.g. 50 = halfway).";
+      } else {
+        triggerHint.textContent = "Seconds before showing (default 3).";
+      }
+    }
+  }
+  triggerSelect.addEventListener("change", updateTriggerUI);
 
   // Image upload handlers
   imageChoose.addEventListener("click", function () { imageFile.click(); });
@@ -117,6 +136,9 @@
       form.querySelector('[name="frequency"]').value = item.frequency || "weekly";
       form.querySelector('[name="priority"]').value = item.priority || 0;
       form.querySelector('[name="active"]').checked = item.active !== false;
+      triggerSelect.value = item.trigger || "delay";
+      triggerValueInput.value = item.trigger_value || 0;
+      updateTriggerUI();
 
       var pages = item.pages || "all";
       if (pages.indexOf("tag:") === 0) {
@@ -138,6 +160,8 @@
       });
       setImage("");
       tagField.hidden = true;
+      triggerValueInput.value = "3";
+      updateTriggerUI();
     }
   }
 
@@ -159,6 +183,8 @@
       frequency: form.querySelector('[name="frequency"]').value,
       priority: parseInt(form.querySelector('[name="priority"]').value, 10) || 0,
       active: form.querySelector('[name="active"]').checked,
+      trigger: triggerSelect.value,
+      trigger_value: parseInt(triggerValueInput.value, 10) || 0,
     };
   }
 
@@ -180,12 +206,17 @@
         "signed-in": "Signed in", free: "Free", paid: "Paid"
       }[item.audience] || item.audience;
 
+      var triggerLabel = { delay: "Delay", exit: "Exit intent", scroll: "Scroll" }[item.trigger || "delay"] || "Delay";
+      if (item.trigger === "scroll" && item.trigger_value) triggerLabel += " " + item.trigger_value + "%";
+      else if ((!item.trigger || item.trigger === "delay") && item.trigger_value) triggerLabel += " " + item.trigger_value + "s";
+
       html += '<li class="admin-slide-in-item">'
         + '<div class="admin-slide-in-info">'
         + '<h3 class="admin-slide-in-name"><em>' + esc(item.name || item.headline) + '</em></h3>'
         + '<p class="admin-slide-in-meta">'
         + '<span class="admin-slide-in-status ' + statusClass + '">' + statusLabel + '</span>'
         + ' &middot; ' + esc(target) + ' &middot; ' + esc(audience)
+        + ' &middot; ' + esc(triggerLabel)
         + ' &middot; ' + esc(item.frequency)
         + '</p>'
         + '</div>'

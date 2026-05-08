@@ -109,6 +109,19 @@
               <div class="dashboard-form-group">
                 <p class="dashboard-form-legend"><em>Behavior</em></p>
                 <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Trigger</span>
+                  <select name="trigger">
+                    <option value="delay">After delay (seconds)</option>
+                    <option value="exit">On exit intent</option>
+                    <option value="scroll">Scroll depth (%)</option>
+                  </select>
+                </label>
+                <label class="dashboard-form-field" data-trigger-value-field>
+                  <span class="dashboard-form-label">Trigger value</span>
+                  <input type="number" name="trigger_value" min="0" step="1" value="3" />
+                  <span class="dashboard-form-hint" data-trigger-hint>Seconds before showing (default 3).</span>
+                </label>
+                <label class="dashboard-form-field">
                   <span class="dashboard-form-label">Frequency</span>
                   <select name="frequency">
                     <option value="weekly">Once a week</option>

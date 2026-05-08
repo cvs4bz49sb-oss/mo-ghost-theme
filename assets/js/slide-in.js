@@ -18,7 +18,6 @@
   var CACHE_KEY = "mo_slide_ins";
   var CACHE_TTL = 5 * 60 * 1000;
   var DISMISS_PREFIX = "mo_sid_";
-  var SHOW_DELAY = 3000;
 
   // ── Page context ──────────────────────────────────────────────
   var bodyClass = document.body.className || "";
@@ -100,7 +99,7 @@
   // ── Render ────────────────────────────────────────────────────
   function render(item) {
     var el = document.createElement("aside");
-    el.className = "slide-in";
+    el.className = "slide-in" + (item.image ? " has-image" : "");
     el.setAttribute("role", "complementary");
     el.setAttribute("aria-label", item.headline);
 
@@ -156,6 +155,50 @@
     setTimeout(function () { el.classList.add("is-visible"); }, 50);
   }
 
+  // ── Trigger helpers ────────────────────────────────────────────
+  function getScrollPercent() {
+    var h = document.documentElement;
+    var b = document.body;
+    var st = h.scrollTop || b.scrollTop;
+    var sh = Math.max(h.scrollHeight, b.scrollHeight) - window.innerHeight;
+    return sh > 0 ? (st / sh) * 100 : 100;
+  }
+
+  function attachTrigger(item) {
+    var trigger = item.trigger || "delay";
+    var value = parseInt(item.trigger_value, 10) || 0;
+    var shown = false;
+
+    function show() {
+      if (shown) return;
+      shown = true;
+      render(item);
+    }
+
+    if (trigger === "exit") {
+      document.documentElement.addEventListener("mouseleave", function handler(e) {
+        if (e.clientY <= 0) {
+          document.documentElement.removeEventListener("mouseleave", handler);
+          show();
+        }
+      });
+      setTimeout(show, 60000);
+    } else if (trigger === "scroll") {
+      var pct = value > 0 ? value : 50;
+      function checkScroll() {
+        if (getScrollPercent() >= pct) {
+          window.removeEventListener("scroll", checkScroll);
+          show();
+        }
+      }
+      window.addEventListener("scroll", checkScroll, { passive: true });
+      checkScroll();
+    } else {
+      var ms = (value > 0 ? value : 3) * 1000;
+      setTimeout(show, ms);
+    }
+  }
+
   // ── Init ──────────────────────────────────────────────────────
   load(function (items) {
     if (!items || !items.length) return;
@@ -168,8 +211,6 @@
     if (!candidates.length) return;
 
     candidates.sort(function (a, b) { return (b.priority || 0) - (a.priority || 0); });
-    var chosen = candidates[0];
-
-    setTimeout(function () { render(chosen); }, SHOW_DELAY);
+    attachTrigger(candidates[0]);
   });
 })();
