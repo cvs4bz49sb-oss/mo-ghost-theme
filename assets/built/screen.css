@@ -13083,3 +13083,108 @@ body.mo-search-open { overflow: hidden; }
 [data-trigger-value-field][hidden] {
   display: none !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Liturgical Calendar Theme
+   Members-only church-year color system. Each lc-* class on <body>
+   shifts the hero overlay, article header, and accent glow to the
+   season's color. Muted, editorial-grade hues — dark enough for
+   white text, warm enough to sit beside the MO brand palette.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Season palettes ─────────────────────────────────────────── */
+body.lc-advent {
+  --lc-bg: #2a2036;
+  --lc-hero-top: rgba(42, 32, 54, 0.88);
+  --lc-hero-bot: rgb(42, 32, 54);
+  --lc-accent-hero: rgba(130, 90, 175, 0.28);
+  --lc-accent-article: rgba(130, 90, 175, 0.22);
+}
+body.lc-christmas {
+  --lc-bg: #302818;
+  --lc-hero-top: rgba(48, 40, 24, 0.88);
+  --lc-hero-bot: rgb(48, 40, 24);
+  --lc-accent-hero: rgba(200, 170, 75, 0.28);
+  --lc-accent-article: rgba(200, 170, 75, 0.22);
+}
+body.lc-lent {
+  --lc-bg: #282030;
+  --lc-hero-top: rgba(40, 32, 48, 0.88);
+  --lc-hero-bot: rgb(40, 32, 48);
+  --lc-accent-hero: rgba(115, 80, 150, 0.24);
+  --lc-accent-article: rgba(115, 80, 150, 0.18);
+}
+body.lc-easter {
+  --lc-bg: #322a1a;
+  --lc-hero-top: rgba(50, 42, 26, 0.88);
+  --lc-hero-bot: rgb(50, 42, 26);
+  --lc-accent-hero: rgba(215, 185, 85, 0.30);
+  --lc-accent-article: rgba(215, 185, 85, 0.22);
+}
+body.lc-pentecost {
+  --lc-bg: #351c1e;
+  --lc-hero-top: rgba(53, 28, 30, 0.88);
+  --lc-hero-bot: rgb(53, 28, 30);
+  --lc-accent-hero: rgba(170, 58, 62, 0.28);
+  --lc-accent-article: rgba(170, 58, 62, 0.22);
+}
+body.lc-ordinary {
+  --lc-bg: #1e2a20;
+  --lc-hero-top: rgba(30, 42, 32, 0.88);
+  --lc-hero-bot: rgb(30, 42, 32);
+  --lc-accent-hero: rgba(80, 138, 85, 0.25);
+  --lc-accent-article: rgba(80, 138, 85, 0.20);
+}
+
+/* ── Hero overlay (homepage, dashboard, about, etc.) ─────────── */
+body[class*="lc-"] .hero {
+  background:
+    linear-gradient(to bottom, var(--lc-hero-top) 0%, var(--lc-hero-bot) 50%),
+    url("../images/mo-header-bg.jpg") center/cover no-repeat,
+    var(--lc-bg);
+}
+body[class*="lc-"] .hero::before {
+  background: radial-gradient(circle, var(--lc-accent-hero), transparent 65%);
+}
+
+/* ── Article header (full background swap) ───────────────────── */
+body[class*="lc-"] .article-header {
+  background: var(--lc-bg);
+}
+body[class*="lc-"] .article-header::before {
+  background: radial-gradient(ellipse, var(--lc-accent-article), transparent 65%);
+}
+
+/* ── Dashboard liturgical settings module ────────────────────── */
+.liturgical-settings-desc {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0 0 20px;
+}
+.liturgical-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.liturgical-preview-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+.liturgical-preview-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-muted);
+}
+.lc-swatch-advent { background: #2a2036; }
+.lc-swatch-christmas { background: #302818; }
+.lc-swatch-lent { background: #282030; }
+.lc-swatch-easter { background: #322a1a; }
+.lc-swatch-pentecost { background: #351c1e; }
+.lc-swatch-ordinary { background: #1e2a20; }

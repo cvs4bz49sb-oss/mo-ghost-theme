@@ -147,6 +147,36 @@
           </div>
         </details>
 
+        <details class="dashboard-module">
+          <summary>
+            <h2 class="dashboard-module-title"><em>Display</em></h2>
+            <span class="dashboard-module-chev" aria-hidden="true"></span>
+          </summary>
+          <div class="dashboard-module-body">
+            <p class="liturgical-settings-desc">Color your reading experience with the rhythms of the church year. Headers shift with the liturgical season.</p>
+            <div class="dashboard-form-group">
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Church Calendar Theme</span>
+                <select data-liturgical-select>
+                  <option value="off">Standard</option>
+                  <option value="auto">Liturgical Calendar (auto)</option>
+                  <option value="advent">Advent</option>
+                  <option value="christmas">Christmas</option>
+                  <option value="lent">Lent</option>
+                  <option value="easter">Easter</option>
+                  <option value="pentecost">Pentecost</option>
+                  <option value="ordinary">Ordinary Time</option>
+                </select>
+                <span class="dashboard-form-hint">Auto follows the Western church calendar throughout the year.</span>
+              </label>
+            </div>
+            <div class="liturgical-preview" data-liturgical-preview hidden>
+              <span class="liturgical-preview-swatch" data-liturgical-swatch></span>
+              <span class="liturgical-preview-label" data-liturgical-label></span>
+            </div>
+          </div>
+        </details>
+
       </div>
 
       <aside class="dashboard-rail" aria-label="Membership">
