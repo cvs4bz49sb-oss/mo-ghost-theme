@@ -85,9 +85,7 @@
     filterBar.className = "mo-search-filters";
 
     var authorSelect = buildFilterSelect("author", "Author");
-    var topicSelect = buildFilterSelect("topic", "Topic");
     var dateSelect = buildFilterSelect("date", "Date");
-    dateSelect.appendChild(makeOption("", "Date"));
     dateSelect.appendChild(makeOption("30", "Past month"));
     dateSelect.appendChild(makeOption("365", "Past year"));
     dateSelect.appendChild(makeOption("730", "Past 2 years"));
@@ -100,7 +98,6 @@
     keywordInput.addEventListener("input", applyFilters);
 
     filterBar.appendChild(authorSelect);
-    filterBar.appendChild(topicSelect);
     filterBar.appendChild(dateSelect);
     filterBar.appendChild(keywordInput);
     panel.appendChild(filterBar);
@@ -144,17 +141,12 @@
 
   function populateFilterOptions(results) {
     var authors = {};
-    var topics = {};
     results.forEach(function (r) {
-      if (r.primary_author) authors[r.primary_author] = true;
-      if (r.primary_tag) topics[r.primary_tag] = true;
+      if (r.primary_tag) authors[r.primary_tag] = true;
     });
 
     var authorSelect = modal.querySelector('[data-filter="author"]');
-    var topicSelect = modal.querySelector('[data-filter="topic"]');
-
     rebuildSelect(authorSelect, "Author", Object.keys(authors).sort());
-    rebuildSelect(topicSelect, "Topic", Object.keys(topics).sort());
   }
 
   function rebuildSelect(sel, label, items) {
@@ -168,7 +160,6 @@
   function applyFilters() {
     if (!currentResults.length) return;
     var authorVal = modal.querySelector('[data-filter="author"]').value;
-    var topicVal = modal.querySelector('[data-filter="topic"]').value;
     var dateVal = modal.querySelector('[data-filter="date"]').value;
     var kwVal = (modal.querySelector('.mo-search-filter-keyword').value || "").trim().toLowerCase();
 
@@ -176,8 +167,7 @@
     var dateCutoff = dateVal ? now - (parseInt(dateVal, 10) * 86400000) : 0;
 
     var filtered = currentResults.filter(function (r) {
-      if (authorVal && r.primary_author !== authorVal) return false;
-      if (topicVal && r.primary_tag !== topicVal) return false;
+      if (authorVal && r.primary_tag !== authorVal) return false;
       if (dateCutoff && r.published_at && new Date(r.published_at).getTime() < dateCutoff) return false;
       if (kwVal) {
         var haystack = ((r.title || "") + " " + (r.excerpt || "")).toLowerCase();
