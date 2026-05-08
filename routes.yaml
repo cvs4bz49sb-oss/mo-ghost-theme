@@ -102,6 +102,12 @@ routes:
     template: page-ebook-navigating-the-fracture-read
   /ebook/spiritual-formation-for-the-family/read/:
     template: page-ebook-spiritual-formation-for-the-family-read
+  # Journal archive — digital editions of the print journal.
+  # Library page (reuses ebook grid layout) + per-issue PDF readers.
+  /dashboard/journals/:
+    template: custom-dashboard-journals
+  /journal-archive/issue-01/:
+    template: page-journal-issue-01-read
   # Blueprint for Renewal — HIDDEN as of 2026-04-25. Editorial work
   # in progress. Re-enable by uncommenting these two routes (and
   # restoring the catalog tile in custom-ebooks.hbs and the dashboard
