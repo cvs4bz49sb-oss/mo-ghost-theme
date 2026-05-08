@@ -6111,6 +6111,15 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .dashboard-hero .hero-headline { margin-top: 12px; max-width: 780px; }
 .dashboard-hero .hero-sub { max-width: 640px; margin-top: 18px; }
 .dashboard-hero .dashboard-actions { margin-top: 28px; }
+.hero-liturgical-week {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin: 24px 0 0;
+}
+.hero-liturgical-week:empty { display: none; }
 
 .dashboard-admin-banner {
   background: rgba(238, 125, 81, 0.12);

@@ -96,6 +96,65 @@
     ordinary: "Ordinary Time",
   };
 
+  // ── Week-level label for the current liturgical date ─────────
+  var ORD = ["", "First", "Second", "Third", "Fourth", "Fifth",
+    "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh",
+    "Twelfth", "Thirteenth", "Fourteenth", "Fifteenth", "Sixteenth",
+    "Seventeenth", "Eighteenth", "Nineteenth", "Twentieth",
+    "Twenty-First", "Twenty-Second", "Twenty-Third", "Twenty-Fourth",
+    "Twenty-Fifth", "Twenty-Sixth", "Twenty-Seventh", "Twenty-Eighth",
+    "Twenty-Ninth", "Thirtieth"];
+
+  function daysBetween(a, b) {
+    return Math.floor((stripTime(b) - stripTime(a)) / 86400000);
+  }
+
+  function computeWeekLabel(date) {
+    var y = date.getFullYear();
+    var today = stripTime(date);
+    var e = easter(y);
+    var ashWed = addDays(e, -46);
+    var palmSun = addDays(e, -7);
+    var pent = addDays(e, 49);
+    var adv = adventStart(y);
+    var season = computeSeason(date);
+
+    switch (season) {
+      case "advent":
+        var w = Math.floor(daysBetween(adv, today) / 7) + 1;
+        return (ORD[w] || w + "th") + " Week of Advent";
+      case "christmas":
+        return "Christmastide";
+      case "epiphany":
+        var d = daysBetween(new Date(y, 0, 6), today);
+        if (d < 7) return "The Epiphany";
+        var w = Math.floor(d / 7) + 1;
+        return (ORD[w] || w + "th") + " Week after the Epiphany";
+      case "lent":
+        if (today >= palmSun) return "Holy Week";
+        if (today.getTime() === ashWed.getTime()) return "Ash Wednesday";
+        var w = Math.floor(daysBetween(ashWed, today) / 7) + 1;
+        return (ORD[w] || w + "th") + " Week of Lent";
+      case "easter":
+        var d = daysBetween(e, today);
+        if (d < 7) return "Easter Week";
+        var w = Math.floor(d / 7) + 1;
+        return (ORD[w] || w + "th") + " Week of Easter";
+      case "pentecost":
+        return "The Day of Pentecost";
+      case "ordinary":
+        var w = Math.floor(daysBetween(addDays(pent, 1), today) / 7) + 1;
+        return (ORD[w] || w + "th") + " Week of Ordinary Time";
+    }
+    return "";
+  }
+
+  // ── Populate dashboard week indicator ───────────────────────
+  var weekEl = document.querySelector("[data-liturgical-week]");
+  if (weekEl) {
+    weekEl.textContent = computeWeekLabel(new Date());
+  }
+
   // ── Dashboard settings UI ────────────────────────────────────
   var select = document.querySelector("[data-liturgical-select]");
   if (select) {
