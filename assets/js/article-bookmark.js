@@ -29,15 +29,20 @@
 
   if (!WORKER || !EMAIL) return;
 
-  fetch(base + "/bookmarks?email=" + encodeURIComponent(EMAIL) + "&ids_only=1", {
-    method: "GET", mode: "cors", credentials: "omit",
-  })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (data) {
-      var ids = (data && data.postIds) || [];
-      setState(ids.indexOf(postId) !== -1);
+  // All mo-kit calls are now JWT-authed; the worker derives email
+  // from payload.sub. Pairs with WORKER_SECURITY_TODO.md (mo-kit
+  // /bookmarks*).
+  window.MOAdminAuth.headers().then(function (headers) {
+    fetch(base + "/bookmarks?ids_only=1", {
+      method: "GET", mode: "cors", credentials: "omit", headers: headers,
     })
-    .catch(function () { /* silent; button starts unbookmarked */ });
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var ids = (data && data.postIds) || [];
+        setState(ids.indexOf(postId) !== -1);
+      })
+      .catch(function () { /* silent; button starts unbookmarked */ });
+  });
 
   btn.addEventListener("click", function () {
     if (state.busy) return;
@@ -45,16 +50,18 @@
     var endpoint = state.bookmarked ? "/bookmarks/remove" : "/bookmarks/add";
     var optimistic = !state.bookmarked;
     setState(optimistic);
-    fetch(base + endpoint, {
-      method: "POST",
-      mode: "cors",
-      credentials: "omit",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: EMAIL, postId: postId }),
-    })
-      .then(function (r) { if (!r.ok) throw new Error("worker " + r.status); })
-      .catch(function () { setState(!optimistic); })
-      .then(function () { state.busy = false; });
+    window.MOAdminAuth.headers({ "content-type": "application/json" }).then(function (headers) {
+      fetch(base + endpoint, {
+        method: "POST",
+        mode: "cors",
+        credentials: "omit",
+        headers: headers,
+        body: JSON.stringify({ postId: postId }),
+      })
+        .then(function (r) { if (!r.ok) throw new Error("worker " + r.status); })
+        .catch(function () { setState(!optimistic); })
+        .then(function () { state.busy = false; });
+    });
   });
 
   function hasPaidAccess() {

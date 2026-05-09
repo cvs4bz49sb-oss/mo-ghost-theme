@@ -54,6 +54,30 @@
     });
   });
 
+  // mo-kit helpers — JWT-authed via MOAdminAuth so the worker can
+  // derive the caller's email from payload.sub instead of trusting
+  // body/URL email. See WORKER_SECURITY_TODO.md (mo-kit). The
+  // returned promise resolves to the Response so callers can
+  // continue with .then(r => r.json()) etc.
+  function moKitGet(path) {
+    var url = WORKER.replace(/\/$/, "") + path;
+    return window.MOAdminAuth.headers().then(function (headers) {
+      return fetch(url, {
+        method: "GET", mode: "cors", credentials: "omit", headers: headers,
+      });
+    });
+  }
+  function moKitPost(path, body) {
+    var url = WORKER.replace(/\/$/, "") + path;
+    return window.MOAdminAuth.headers({ "content-type": "application/json" })
+      .then(function (headers) {
+        return fetch(url, {
+          method: "POST", mode: "cors", credentials: "omit", headers: headers,
+          body: JSON.stringify(body || {}),
+        });
+      });
+  }
+
   hydrateBookmarks();
   hydrateCommonplace();
   hydrateHistory();
@@ -67,9 +91,7 @@
       showEmpty(mount, "Bookmarks are only available for signed-in members.");
       return;
     }
-    fetch(WORKER.replace(/\/$/, "") + "/bookmarks?email=" + encodeURIComponent(EMAIL), {
-      method: "GET", mode: "cors", credentials: "omit",
-    })
+    moKitGet("/bookmarks")
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         var list = (data && data.bookmarks) || [];
@@ -91,9 +113,7 @@
       showEmpty(mount, "Commonplace Book is only available for signed-in members.");
       return;
     }
-    fetch(WORKER.replace(/\/$/, "") + "/commonplace?email=" + encodeURIComponent(EMAIL), {
-      method: "GET", mode: "cors", credentials: "omit",
-    })
+    moKitGet("/commonplace")
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         var list = (data && data.entries) || [];
@@ -215,13 +235,7 @@
       }
       removeBtn.disabled = true;
       removeBtn.textContent = "Removing…";
-      fetch(WORKER.replace(/\/$/, "") + "/commonplace/remove", {
-        method: "POST",
-        mode: "cors",
-        credentials: "omit",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: EMAIL, id: entry.id }),
-      }).then(function () {
+      moKitPost("/commonplace/remove", { id: entry.id }).then(function () {
         item.remove();
       }).catch(function () {
         removeBtn.disabled = false;
@@ -245,9 +259,7 @@
       showEmpty(mount, "Reading history is only available for signed-in members.");
       return;
     }
-    fetch(WORKER.replace(/\/$/, "") + "/history?email=" + encodeURIComponent(EMAIL) + "&limit=50", {
-      method: "GET", mode: "cors", credentials: "omit",
-    })
+    moKitGet("/history?limit=50")
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         var list = (data && data.history) || [];
@@ -401,13 +413,9 @@
       e.preventDefault();
       e.stopPropagation();
       btn.disabled = true;
-      fetch(WORKER.replace(/\/$/, "") + endpoint, {
-        method: "POST",
-        mode: "cors",
-        credentials: "omit",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: EMAIL, postId: entry.postId }),
-      }).then(function () { removeNode.remove(); }).catch(function () { btn.disabled = false; });
+      moKitPost(endpoint, { postId: entry.postId })
+        .then(function () { removeNode.remove(); })
+        .catch(function () { btn.disabled = false; });
     });
   }
 
