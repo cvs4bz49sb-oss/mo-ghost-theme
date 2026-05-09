@@ -41,7 +41,9 @@
         setLoading(false);
         return;
       }
-      window.location.href = data.url;
+      // Validate the worker-supplied URL is on a known Stripe host
+      // before navigating, to defang a tampered worker response.
+      window.MOSafeRedirect.go(data.url);
     } catch (err) {
       showError('Something went wrong. Please try again.');
       setLoading(false);

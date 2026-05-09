@@ -43,7 +43,9 @@
         throw new Error(body.error || 'Unable to start checkout.');
       }
       if (body.url) {
-        window.location.assign(body.url);
+        // Validate the worker-supplied URL is on a known Stripe host
+        // before navigating, to defang a tampered worker response.
+        window.MOSafeRedirect.go(body.url);
         return;
       }
       errorEl.textContent = body.message || 'Checkout is not yet enabled. Stripe wiring is pending.';

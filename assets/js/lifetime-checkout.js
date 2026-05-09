@@ -42,7 +42,9 @@
         if (!res.ok || !body.url) {
           throw new Error(body.error || 'Unable to start checkout.');
         }
-        window.location.assign(body.url);
+        // Validate the worker-supplied URL is on a known Stripe host
+        // before navigating, to defang a tampered worker response.
+        window.MOSafeRedirect.go(body.url);
       } catch (err) {
         if (errorEl) errorEl.textContent = err.message || 'Something went wrong.';
         btn.disabled = false;
