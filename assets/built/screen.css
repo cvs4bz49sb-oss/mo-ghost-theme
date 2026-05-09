@@ -6135,7 +6135,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .pod-show-cover {
   width: 100%;
-  max-width: 360px;
+  max-width: 200px;
   height: auto;
   border-radius: 8px;
   margin-bottom: 20px;

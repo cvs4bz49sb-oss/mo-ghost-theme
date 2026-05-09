@@ -328,7 +328,7 @@
         (date ? '<p class="pod-show-ep-date">' + escapeHtml(date) + '</p>' : '') +
         '<h3 class="pod-title"><em>' + escapeHtml(ep.title || "") + '</em></h3>' +
         (summary ? '<p class="pod-excerpt">' + escapeHtml(summary) + '</p>' : '') +
-        listenHtml;
+        (listenHtml || '');
     }
   }
 
