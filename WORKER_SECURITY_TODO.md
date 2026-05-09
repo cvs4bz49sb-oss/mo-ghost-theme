@@ -1,11 +1,29 @@
-# Worker-side Security TODOs
+# Worker-side Security — STATUS
 
-Tracking the worker-side counterparts to theme commits made in response to Chris Krycho's security audit (2026-05-08). Each item references the theme commit that paired with it; until both sides ship, the worker continues to accept the legacy unauthenticated path so the theme keeps working.
+**Phase B shipped 2026-05-09.** All worker-side enforcement called out in Chris's audit + the post-fix synthesis is now deployed:
+
+| Worker | Change | Deployed |
+|--------|--------|----------|
+| mo-membership | JWT-required on `/api/member/address` GET+POST; lifetime checkout reads identity from JWT; `/api/portal` added with always-200 + rate limit; KV binding for rate limiting | `ecb64a17` |
+| mo-gift | JWT-required on `/mint`, body.email ignored | `922c15b8` |
+| mo-kit | JWT-required on `/event`, `/tags`, `/bookmarks*`, `/commonplace*`, `/history*`; sourceUrl scheme-validated server-side | `06fcd65d` |
+| mo-forms | Origin allowlist enforced (was advisory); per-IP rate limiting; MIME-type allowlist on uploads | `9062ecb3` |
+| mo-ebook-access | Origin allowlist; per-IP + per-email rate limit on `/grant` | `03694b3f` |
+
+The legacy unauth path is **closed** — every member-keyed worker route now requires `Authorization: Bearer <Ghost member JWT>` and derives email from `payload.sub`. body.email and `?email=` are ignored.
+
+A shared Workers KV namespace `mo-rate-limit` (id `98dd47376a2d42058afec2eca50c07c5`) backs rate-limit counters across mo-membership / mo-forms / mo-ebook-access.
+
+---
+
+## Original tracking (kept for the historical context)
+
+Theme commits made in response to Chris Krycho's security audit (2026-05-08); each worker change is paired with one. The legacy unauth paths described below are no longer accepted as of the deploys above.
 
 The general pattern:
 1. Theme starts sending `Authorization: Bearer <jwt>` headers and dropping email from bodies/queries.
-2. Worker is updated to (a) verify the JWT against Ghost's JWKS, (b) extract email from `payload.sub`, (c) ignore any `email` field in the request. Until the worker change deploys, both auth paths are tolerated.
-3. After theme + worker both deploy, the worker drops the legacy unauth path.
+2. Worker is updated to (a) verify the JWT against Ghost's JWKS, (b) extract email from `payload.sub`, (c) ignore any `email` field in the request.
+3. Both sides deployed; legacy unauth path dropped.
 
 ---
 
@@ -15,13 +33,13 @@ This is the canonical list of every theme→worker route, the auth model the the
 
 | Worker | Route | Method | Theme auth (current) | Worker should | Status |
 |--------|-------|--------|----------------------|---------------|--------|
-| mo-membership | `/api/member/address` | GET | JWT | Require JWT, derive email from sub | C2/C3 — theme done; worker pending |
+| mo-membership | `/api/member/address` | GET | JWT | Require JWT, derive email from sub | C2/C3 — **SHIPPED** 2026-05-09 |
 | mo-membership | `/api/member/address` | POST | JWT | Require JWT, derive email from sub, ignore body.email | C2/C3 — theme done (commits fac16b2 + 65f3914); worker pending |
-| mo-membership | `/api/create-lifetime-checkout` | POST | JWT when signed-in; anon otherwise | Prefer JWT identity over body when present | C5 — theme done; worker pending |
+| mo-membership | `/api/create-lifetime-checkout` | POST | JWT when signed-in; anon otherwise | Prefer JWT identity over body when present | C5 — **SHIPPED** 2026-05-09 |
 | mo-membership | `/api/create-gift-checkout` | POST | None (intentional) | Validate body server-side; Stripe collects identity at checkout | OK |
 | mo-membership | `/api/create-group-checkout` | POST | None (intentional) | Re-derive `seats * (seats >= 20 ? 70 : 80)` server-side; ignore client `amount` | C1 — informational |
 | mo-membership | `/api/institutional-inquiry` | POST | None (intentional, public form) | Origin allowlist + rate limit | follow-up |
-| mo-membership | `/api/portal` | POST | None (signed-out flow) | 200-always (no `customer_not_found` distinction); rate limit per IP | H5 — theme done; worker pending |
+| mo-membership | `/api/portal` | POST | None (signed-out flow) | 200-always (no `customer_not_found` distinction); rate limit per IP | H5 — **SHIPPED** 2026-05-09 |
 | mo-membership | `/api/institution/context` | GET | Token in query | Move to POST in body; consider TTL/revocation | H1 — partial; worker followup |
 | mo-membership | `/api/institution/add-member` | POST | Token in body | Verify token, scope check | OK pending followup |
 | mo-membership | `/api/institution/remove-member` | POST | Token in body | Verify token, scope check | OK pending followup |
@@ -30,15 +48,15 @@ This is the canonical list of every theme→worker route, the auth model the the
 | mo-membership | `/api/group/remove-member` | POST | Token in body | Verify token, scope check | OK pending followup |
 | mo-membership | `/api/admin/*` | GET/POST | JWT (admin) | Verify JWT + check sub against staff list | OK |
 | mo-gift | `/mint` | POST | JWT | Require JWT, derive email from sub, ignore body.email | C4 — theme done (commit 7e3cbd2); worker pending |
-| mo-kit | `/event` | POST | JWT | Require JWT, derive/verify email from sub | M2 — theme done; worker pending |
+| mo-kit | `/event` | POST | JWT | Require JWT, derive/verify email from sub | M2 — **SHIPPED** 2026-05-09 |
 | mo-kit | `/bookmarks` | GET | JWT | Require JWT, derive email from sub, drop email param | A2/M2 — theme done (commit 79f283d); worker pending |
-| mo-kit | `/bookmarks/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
-| mo-kit | `/bookmarks/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
-| mo-kit | `/commonplace` | GET | JWT | Require JWT, derive email from sub | A2/M2 — theme done; worker pending |
-| mo-kit | `/commonplace/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
-| mo-kit | `/commonplace/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
-| mo-kit | `/history` | GET | JWT | Require JWT, derive email from sub | A2/M2 — theme done; worker pending |
-| mo-kit | `/history/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
+| mo-kit | `/bookmarks/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
+| mo-kit | `/bookmarks/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
+| mo-kit | `/commonplace` | GET | JWT | Require JWT, derive email from sub | A2/M2 — **SHIPPED** 2026-05-09 |
+| mo-kit | `/commonplace/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
+| mo-kit | `/commonplace/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
+| mo-kit | `/history` | GET | JWT | Require JWT, derive email from sub | A2/M2 — **SHIPPED** 2026-05-09 |
+| mo-kit | `/history/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
 | mo-kit-bridge | `/api/drift` | GET | JWT (admin) | Verify JWT + staff check; sanitize/escape data from mo-kit before returning | OK; consider bridge-side validation since mo-kit feeds member-supplied data |
 | mo-admin | `/settings` | GET | None (public read) | OK; treat output as cosmetic-only on theme side | OK |
 | mo-admin | `/slide-ins` | GET | None (public read) | OK; theme now scheme-validates `button_url`/`image` (A3) | OK |
@@ -52,7 +70,7 @@ This is the canonical list of every theme→worker route, the auth model the the
 | Ghost Content API | `/ghost/api/content/*` | GET | public content key | (Ghost-managed; key is public by design) | OK |
 
 **How to use this table when tightening a worker:**
-- Routes marked "theme done; worker pending" — safe to enforce JWT now. Theme has already migrated; legacy unauth callers no longer exist.
+- Routes marked "**SHIPPED** 2026-05-09" — safe to enforce JWT now. Theme has already migrated; legacy unauth callers no longer exist.
 - Routes marked "OK" — already in steady state, no action needed.
 - Routes marked "intentional, anonymous" — do NOT add JWT requirement. These flows must work for non-members.
 - Routes marked "follow-up" — coordinated work still pending; don't tighten the worker until the theme has migrated.
