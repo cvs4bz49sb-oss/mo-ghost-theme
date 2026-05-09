@@ -216,6 +216,14 @@
     <script src="{{asset "js/jsonld-fix.js"}}"></script>
     <script src="{{asset "js/site-settings.js"}}"></script>
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
+    {{!-- admin-auth.js exposes window.MOAdminAuth, which fetches the
+         logged-in member's Ghost JWT from /members/api/session/. The
+         name is historical: it's used both for admin-only endpoints
+         (where the worker checks staff list) and for member-scoped
+         endpoints (where the worker just verifies the JWT). Loaded
+         globally so any page-level script can attach Authorization
+         headers to worker calls. --}}
+    <script src="{{asset "js/admin-auth.js"}}"></script>
     <script src="{{asset "js/inline-signup.js"}}"></script>
     <script src="{{asset "js/kit-events.js"}}"></script>
     <script src="{{asset "js/dark-mode.js"}}"></script>

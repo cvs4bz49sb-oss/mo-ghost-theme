@@ -1,14 +1,18 @@
 /*
  * /complete-membership/ — captures shipping address for paid members.
  *
- * The theme embeds @member.email on the form's data-member-email attr
- * (server-side). We post that alongside the address to the
- * mo-membership Worker, which re-verifies the email against Ghost's
- * Admin API before saving, so a drive-by POST with someone else's
- * email gets rejected.
+ * Auth: every request to the mo-membership /api/member/address
+ * endpoint includes the Ghost member JWT (Authorization: Bearer ...)
+ * via window.MOAdminAuth. The worker verifies the JWT and derives
+ * the member's email from payload.sub — we no longer send email in
+ * the body or the query string. This means the address endpoint is
+ * no longer addressable by anyone who happens to know a member's
+ * email.
  *
  * On GET (page load), we pre-fill the form if the member already has
- * a saved address.
+ * a saved address. data-member-email is still present on the form
+ * (it gates rendering of this page server-side) but is not sent over
+ * the wire.
  */
 (() => {
   const form = document.getElementById('address-form');
@@ -21,11 +25,14 @@
   const successEl = document.getElementById('address-success');
   const submit = document.getElementById('address-submit');
 
-  // Pre-fill from any existing saved address.
+  // Pre-fill from any existing saved address. JWT identifies the
+  // caller; no email in the URL.
   (async () => {
     try {
+      const headers = await window.MOAdminAuth.headers();
       const response = await fetch(
-        window.MO_API_BASE + '/api/member/address?email=' + encodeURIComponent(email)
+        window.MO_API_BASE + '/api/member/address',
+        { headers }
       );
       if (!response.ok) return;
       const body = await response.json();
@@ -51,15 +58,18 @@
     }
 
     const data = Object.fromEntries(new FormData(form).entries());
-    data.email = email;
+    // Email is derived from the JWT server-side; do not echo it in
+    // the body even if it survived a future copy/paste of this code.
+    delete data.email;
 
     submit.classList.add('is-loading');
     submit.disabled = true;
 
     try {
+      const headers = await window.MOAdminAuth.headers({ 'Content-Type': 'application/json' });
       const response = await fetch(window.MO_API_BASE + '/api/member/address', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(data),
       });
       const body = await response.json().catch(() => ({}));
