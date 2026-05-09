@@ -6131,8 +6131,9 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .listen-grid--covers::before { display: none; }
 @media (max-width: 640px) {
-  .listen-grid--covers { grid-template-columns: 1fr; row-gap: 48px; text-align: center; }
-  .listen-grid--covers .pod-show-cover { margin-left: auto; margin-right: auto; }
+  .listen-grid--covers { grid-template-columns: 1fr; row-gap: 48px; }
+  .listen-grid--covers .pod-show-cover { margin-left: auto; margin-right: auto; display: block; }
+  .listen-grid--covers .pod-show-name { text-align: center; }
 }
 .pod-show-cover {
   width: 100%;
@@ -6193,6 +6194,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   flex: 1;
   display: flex;
   flex-direction: column;
+  text-align: left;
 }
 .pod-show-divider {
   margin-top: auto;
