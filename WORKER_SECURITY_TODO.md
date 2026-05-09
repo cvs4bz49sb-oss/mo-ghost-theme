@@ -201,10 +201,16 @@ The body still includes `text`, `sourceTitle`, `sourceAuthor`, `sourceUrl`. Even
 - Even one rule (e.g. `no-restricted-syntax` matching `?email=` URL templates and unauth fetch patterns) in CI prevents regressing the C2/C3/M2/A1/A2-class issues.
 - Setup: add a minimal `eslint.config.js` + a `.github/workflows/lint.yml` running ESLint on the JS in `assets/js/`. No need for full lint coverage — start with security-relevant rules only and grow.
 
-### `frame-ancestors` via HTTP header (C1 followup)
-- The CSP added in commit 133ce1e is a meta-tag CSP. `frame-ancestors` isn't supported in meta CSPs — must be an HTTP header.
-- Either set via Ghost Pro's edge config (if accessible), or via a Cloudflare Worker that proxies and adds headers.
-- Once set, also consider tightening `script-src` by removing `'unsafe-inline'` (move the liturgical-calendar boot script to an external file with a hash) and `'unsafe-eval'` (build step that compiles JSX at deploy time, removing Babel-standalone runtime).
+### `frame-ancestors` via HTTP header — D5 (worker shipped, route-binding pending)
+- New `mo-headers` worker at `workers/headers/` (Cloudflare version `93f986a5`). Pure pass-through proxy that augments responses with: `Content-Security-Policy: frame-ancestors 'self'` (composed with any existing CSP), `X-Frame-Options: SAMEORIGIN`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`.
+- **Pending action (Ian)**: in the Cloudflare dashboard, add Workers Routes for `mereorthodoxy.com/*` and `www.mereorthodoxy.com/*` pointing at `mo-headers`. Requires mereorthodoxy.com on Cloudflare nameservers with the orange-cloud proxied toggle. Until the routes are bound, the live site is served direct by Ghost Pro and headers don't apply.
+- Smoke-tested at the workers.dev URL — all five headers present.
+- See `workers/headers/README.md` for the full deploy guide.
+
+### Externalize remaining inline scripts (script-src tightening followup)
+- D2 externalized the three default.hbs inline scripts (liturgical-calendar boot, header behaviors, iOS viewport fix). Inline scripts remain in ~22 page-level templates (custom-* and page-* HBS files): their content is page-specific (per-issue journal readers, ebook readers, donate page, etc.) and externalizing each requires a separate file.
+- Once all are externalized, drop `'unsafe-inline'` from script-src in the meta-CSP.
+- Removing `'unsafe-eval'` requires a build step that compiles the digest tool's JSX at deploy time so Babel-standalone isn't loaded at runtime.
 
 ### Run Codex on the same prompts (Chris's recommendation, audits/SYNTHESIS.md C5)
 - Different model, different sensitivities. Likely catches things all three Claude passes missed. Re-run Pass 1, Pass 2, Pass 3 prompts via Codex against the post-A1..A10 codebase.
