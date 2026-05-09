@@ -243,6 +243,9 @@ routes:
     template: custom-faith-rerum-novarum
 
 collections:
+  /transcripts/:
+    permalink: /transcripts/{slug}/
+    filter: tag:hash-podcast-transcript
   /:
     permalink: /{slug}/
     template: index
