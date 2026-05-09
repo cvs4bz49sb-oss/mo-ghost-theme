@@ -10217,7 +10217,8 @@ body.mo-search-open { overflow: hidden; }
   text-align: left;
 }
 .faith-hero .container { position: relative; z-index: 1; max-width: 920px; }
-.faith-hero .hero-kicker { justify-content: flex-start; }
+.faith-hero .hero-kicker { justify-content: flex-start; font-size: 16px; }
+.faith-hero .hero-kicker .dot { font-size: 26px; }
 .faith-hero-headline {
   font-size: clamp(40px, 5vw, 68px);
   margin-bottom: 24px;
