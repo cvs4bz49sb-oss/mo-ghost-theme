@@ -29,13 +29,22 @@
       btn.classList.add('is-loading');
 
       const payload = {};
-      if (btn.dataset.memberEmail) payload.email = btn.dataset.memberEmail;
-      if (btn.dataset.memberName) payload.name = btn.dataset.memberName;
+      const isSignedIn = !!btn.dataset.memberEmail;
+      // For anonymous visitors, prefill name if we have it; Stripe
+      // collects email at checkout. For signed-in members we send a
+      // JWT and let the worker derive identity from payload.sub
+      // instead of trusting body fields — see audit C5.
+      if (!isSignedIn && btn.dataset.memberName) {
+        payload.name = btn.dataset.memberName;
+      }
 
       try {
+        const headers = isSignedIn && window.MOAdminAuth
+          ? await window.MOAdminAuth.headers({ 'Content-Type': 'application/json' })
+          : { 'Content-Type': 'application/json' };
         const res = await fetch(apiBase + '/api/create-lifetime-checkout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(payload),
         });
         const body = await res.json().catch(() => ({}));
