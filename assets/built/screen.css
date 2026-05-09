@@ -3218,18 +3218,26 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   text-align: center;
   margin-top: 40px;
 }
-.btn.archive-curious-btn {
+.archive-curious-btn {
+  display: inline-block;
+  font-family: var(--font-body);
   font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   padding: 12px 36px;
   color: var(--color-dark);
   background: transparent;
   border: 2px solid var(--color-dark);
   border-radius: 999px;
+  text-decoration: none;
   transition: background 0.15s, color 0.15s;
+  cursor: pointer;
 }
-.btn.archive-curious-btn:hover {
+.archive-curious-btn:hover {
   background: var(--color-dark);
-  color: var(--color-bg);
+  color: var(--color-white);
+  text-decoration: none;
 }
 
 /* =============================================================
@@ -5340,7 +5348,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 
 /* Endorsements */
-.about-endorsements { padding: 48px 0 56px; }
+.about-endorsements { padding: 48px 0 0; }
 .about-endorsements .section-intro { text-align: center; margin-bottom: 48px; }
 .about-endorsements-grid {
   display: grid;
@@ -5401,7 +5409,14 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 
 /* Team — circular portraits, display italic names. Same feel as
    the contributor cards on /contributors/. */
-.about-team { padding: 88px 0 56px; }
+.about-divider {
+  max-width: 280px;
+  margin: 48px auto;
+}
+.about-divider .flourish {
+  margin: 0 auto;
+}
+.about-team { padding: 0 0 56px; }
 .about-team .section-intro { text-align: center; margin-bottom: 48px; }
 .about-team-grid {
   display: grid;
@@ -5834,8 +5849,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .about-lede { font-size: 19px !important; }
   .about-vision { padding: 56px 0; }
   .about-vision-label { font-size: 26px; }
-  .about-team { padding: 40px 0 40px; }
-  .about-endorsements { padding-bottom: 24px; }
+  .about-team { padding: 0 0 40px; }
+  .about-divider { margin: 32px auto; }
   .about-team-portrait { width: 124px; height: 124px; font-size: 52px; }
   .about-board { padding: 24px 0 64px; }
   .about-board-entry { grid-template-columns: 48px 1fr; }
