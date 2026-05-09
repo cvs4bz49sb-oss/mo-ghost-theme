@@ -71,7 +71,14 @@
     // endpoint (anti-abuse). The token is single-use and short-lived,
     // so it has to be fetched per-submit, not cached.
     fetch(INTEGRITY_URL, { credentials: "same-origin" })
-      .then(function (r) { return r.ok ? r.text() : ""; })
+      .then(function (r) {
+        // Reject (don't fall through with an empty token) so the
+        // magic-link POST below is skipped — sending it without a
+        // valid integrity token would have Ghost reject the signup
+        // with a confusing error. Surface a real error instead.
+        if (!r.ok) throw new Error("Couldn't verify request. Try again.");
+        return r.text();
+      })
       .then(function (integrityToken) {
         return fetch(MAGIC_URL, {
           method: "POST",
