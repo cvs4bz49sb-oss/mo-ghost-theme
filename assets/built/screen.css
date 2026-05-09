@@ -13694,6 +13694,7 @@ body[class*="lc-"] .article-header::before {
 }
 
 /* ── Faith Gate (password overlay) ────────────────────────────── */
+html:not(.faith-gate-pass) .faith-gate ~ * { visibility: hidden; }
 .faith-gate {
   position: fixed;
   inset: 0;
@@ -13705,6 +13706,7 @@ body[class*="lc-"] .article-header::before {
   -webkit-backdrop-filter: blur(24px) saturate(1.2);
   background: rgba(30, 25, 20, 0.55);
 }
+.faith-gate-pass .faith-gate { display: none; }
 .faith-gate-card {
   max-width: 440px;
   padding: 48px 40px;
