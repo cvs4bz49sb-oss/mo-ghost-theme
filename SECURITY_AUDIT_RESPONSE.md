@@ -6,6 +6,7 @@ This document maps each audit finding to the action taken on the theme side, the
 
 **Theme repo**: https://github.com/cvs4bz49sb-oss/mo-ghost-theme
 **Worker TODOs**: see `WORKER_SECURITY_TODO.md` in this repo.
+**Post-fix re-audit**: three independent passes were run against the post-fix codebase using Chris's recommended follow-up prompts plus a cross-system boundary pass. Reports + synthesis: [`audits/SYNTHESIS.md`](./audits/SYNTHESIS.md). **Headline:** several files calling the same endpoints with the same anti-patterns were missed by the original audit and our fixes — most importantly `dashboard-address.js` (still C2/C3-vulnerable) and the mo-kit endpoint family (bookmarks, commonplace, history — missed by M2). A second round of work (A1–A10 in the synthesis) is needed.
 
 ---
 
