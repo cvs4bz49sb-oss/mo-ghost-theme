@@ -3221,14 +3221,14 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .btn.archive-curious-btn {
   font-size: 13px;
   padding: 12px 36px;
-  color: var(--color-heading);
+  color: var(--color-dark);
   background: transparent;
-  border: 2px solid var(--color-heading);
+  border: 2px solid var(--color-dark);
   border-radius: 999px;
   transition: background 0.15s, color 0.15s;
 }
 .btn.archive-curious-btn:hover {
-  background: var(--color-heading);
+  background: var(--color-dark);
   color: var(--color-bg);
 }
 
@@ -5384,7 +5384,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-family: var(--font-display);
   font-style: italic;
   font-size: 15px;
-  color: var(--color-heading);
+  color: var(--color-dark);
   display: block;
   line-height: 1.2;
 }
