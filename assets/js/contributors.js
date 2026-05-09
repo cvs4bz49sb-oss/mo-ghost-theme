@@ -18,7 +18,7 @@
  * works against whatever cards are on the page.
  */
 (function () {
-  var COUNT_THRESHOLD = 5;
+  var COUNT_THRESHOLD = 6;
 
   var grid = document.querySelector("[data-contributors-grid]");
   if (!grid) return;
