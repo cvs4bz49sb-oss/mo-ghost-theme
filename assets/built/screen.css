@@ -3203,16 +3203,15 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   text-align: center;
   margin-top: 40px;
 }
-.archive-curious-btn {
+.btn.archive-curious-btn {
   font-size: 13px;
   padding: 10px 32px;
   color: var(--color-heading);
   background: transparent;
   border: 1.5px solid var(--color-heading);
-  border-radius: 999px;
   transition: background 0.15s, color 0.15s;
 }
-.archive-curious-btn:hover {
+.btn.archive-curious-btn:hover {
   background: var(--color-heading);
   color: var(--color-bg);
 }
