@@ -75,7 +75,18 @@
       featureWrap.hidden = false;
       document.querySelector("[data-events-feature-inner]").style.backgroundImage = "url(" + e.featureImage + ")";
     }
-    document.querySelector("[data-events-prose]").innerHTML = e.contentHtml;
+    // Sanitize the post body before innerHTML assignment. Ghost
+    // sanitizes server-side, but defense-in-depth: a compromised
+    // staff account or a Ghost sanitizer bypass becomes a stored XSS
+    // vector here without this. ADD_TAGS includes iframe so YouTube/
+    // Vimeo replay embeds keep working.
+    var sanitized = window.DOMPurify
+      ? window.DOMPurify.sanitize(e.contentHtml, {
+          ADD_TAGS: ["iframe"],
+          ADD_ATTR: ["allowfullscreen", "frameborder", "allow"],
+        })
+      : e.contentHtml;
+    document.querySelector("[data-events-prose]").innerHTML = sanitized;
     body.hidden = false;
   }
 
