@@ -7187,8 +7187,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin-top: 4px;
   transition: color 0.15s;
 }
+.ebook-entry-link:hover { text-decoration: none; }
 .ebook-entry-link:hover .ebook-entry-cta { color: var(--color-secondary, #c1593c); }
-.ebook-entry-link:hover .ebook-entry-title { color: var(--color-secondary, #c1593c); }
 
 /* Home → "Want More Mere Orthodoxy?" CTA for signed-in free
    Subscribers. Reuses .digest-section/.digest-cta inline grid so

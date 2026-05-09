@@ -178,9 +178,12 @@
     copyBtn.className = "commonplace-action-btn";
     copyBtn.textContent = "Copy";
     copyBtn.addEventListener("click", function () {
-      var copyText = entry.text;
-      if (entry.sourceAuthor) copyText += "\n— " + entry.sourceAuthor;
-      if (entry.sourceTitle) copyText += "\n" + entry.sourceTitle;
+      var copyText = "“" + entry.text + "”";
+      var attr = [];
+      if (entry.sourceAuthor) attr.push(entry.sourceAuthor);
+      if (entry.sourceTitle) attr.push(entry.sourceTitle);
+      attr.push("Mere Orthodoxy");
+      copyText += "\n\n— " + attr.join(", ");
       if (entry.sourceUrl) copyText += "\n\n" + entry.sourceUrl;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(copyText).then(function () {
