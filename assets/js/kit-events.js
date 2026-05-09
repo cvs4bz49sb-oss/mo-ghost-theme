@@ -21,12 +21,8 @@
     var payload = Object.assign({ type: type, email: EMAIL }, extras || {});
     // Send the Ghost member JWT so the kit worker can verify the
     // caller is the member they claim to be (instead of trusting
-    // body.email). Without auth, anyone who knows a member's email
-    // can forge engagement events that affect Kit segmentation.
-    var headersP = window.MOAdminAuth
-      ? window.MOAdminAuth.headers({ "content-type": "application/json" })
-      : Promise.resolve({ "content-type": "application/json" });
-    headersP.then(function (headers) {
+    // body.email). admin-auth.js is loaded site-wide via default.hbs.
+    window.MOAdminAuth.headers({ "content-type": "application/json" }).then(function (headers) {
       try {
         fetch(WORKER.replace(/\/$/, "") + "/event", {
           method: "POST",
@@ -41,6 +37,14 @@
   };
 
   if (!WORKER || !EMAIL) return;
+
+  // Pre-warm the JWT cache so __kitEmit calls during pagehide
+  // don't have to wait for /members/api/session/ inside a
+  // keepalive request — the keepalive budget on unload is small
+  // and may not span an additional network hop. Fire-and-forget;
+  // if it fails, the per-event headers() call falls back to a
+  // fresh fetch.
+  try { window.MOAdminAuth.getToken(); } catch (_) {}
 
   // ---- visited_membership ------------------------------------------------
   var membershipPaths = ["/membership", "/groups", "/institutions", "/gift"];

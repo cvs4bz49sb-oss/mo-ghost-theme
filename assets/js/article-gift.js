@@ -36,12 +36,10 @@
     showToast({ message: "Generating gift link\u2026" });
     // Send the Ghost member JWT so the mint worker can derive the
     // gifter's email from payload.sub instead of trusting the body.
-    // Without auth, anyone who knew a member's email could mint
-    // unlimited gift tokens attributing the gift to that member.
-    var headersP = window.MOAdminAuth
-      ? window.MOAdminAuth.headers({ "Content-Type": "application/json" })
-      : Promise.resolve({ "Content-Type": "application/json" });
-    headersP
+    // admin-auth.js is loaded site-wide via default.hbs; if it's
+    // missing, that's a load-order regression we should fail loudly
+    // on rather than silently dropping auth.
+    window.MOAdminAuth.headers({ "Content-Type": "application/json" })
       .then(function (headers) {
         return fetch(workerUrl + "/mint", {
           method: "POST",

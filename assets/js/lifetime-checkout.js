@@ -39,7 +39,10 @@
       }
 
       try {
-        const headers = isSignedIn && window.MOAdminAuth
+        // For signed-in members, attach the JWT so the worker can
+        // derive identity from payload.sub. Anonymous visitors send
+        // no auth — Stripe collects their email at checkout.
+        const headers = isSignedIn
           ? await window.MOAdminAuth.headers({ 'Content-Type': 'application/json' })
           : { 'Content-Type': 'application/json' };
         const res = await fetch(apiBase + '/api/create-lifetime-checkout', {
