@@ -31,13 +31,13 @@
         body: JSON.stringify({ email }),
       });
       const data = await res.json().catch(() => ({}));
-      if (res.status === 404 || data.error === 'customer_not_found') {
-        showError("We couldn't find a membership for that email. Try another address or contact ian@mereorthodoxy.com.");
-        setLoading(false);
-        return;
-      }
-      if (!res.ok || !data.url) {
-        showError('Something went wrong. Please try again.');
+      // Generic response for both "not found" and "no url returned"
+      // so the endpoint isn't an existence oracle for member emails.
+      // Worker should also send a courtesy email in the not-found
+      // case so a member who mis-typed gets a real signal — see
+      // WORKER_SECURITY_TODO.md (H5).
+      if (res.status === 404 || data.error === 'customer_not_found' || !res.ok || !data.url) {
+        showError("If that email has a membership, we'll redirect you. Check your inbox if nothing happens, or email ian@mereorthodoxy.com.");
         setLoading(false);
         return;
       }
