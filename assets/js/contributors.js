@@ -195,7 +195,7 @@
 
   function renderCard(tag) {
     var initial = (tag.name || "").trim().charAt(0).toUpperCase();
-    var portrait = tag.feature_image
+    var portrait = (tag.feature_image && window.MOSafeHref.isSafe(tag.feature_image))
       ? '<img src="' + escapeAttr(tag.feature_image) + '" alt="' + escapeAttr(tag.name) + '" />'
       : '<span class="contributor-card-initial contributor-card-initial--rendered">' + escapeHtml(initial) + "</span>";
     var bio = tag.description
@@ -204,7 +204,7 @@
     var count = (tag.count && tag.count.posts) || 0;
     var essayWord = count === 1 ? "essay" : "essays";
     return (
-      '<a href="' + escapeAttr(tag.url) + '" class="contributor-card contributor-card--candidate" data-tag-slug="' + escapeAttr(tag.slug) + '" data-count="' + count + '">' +
+      '<a href="' + escapeAttr(window.MOSafeHref.sanitize(tag.url, "#")) + '" class="contributor-card contributor-card--candidate" data-tag-slug="' + escapeAttr(tag.slug) + '" data-count="' + count + '">' +
         '<div class="contributor-card-portrait" aria-hidden="true">' + portrait + "</div>" +
         '<div class="contributor-card-body">' +
           '<h2 class="contributor-card-name"><em>' + escapeHtml(tag.name) + "</em></h2>" +

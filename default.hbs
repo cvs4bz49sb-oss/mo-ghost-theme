@@ -224,6 +224,14 @@
          globally so any page-level script can attach Authorization
          headers to worker calls. --}}
     <script src="{{asset "js/admin-auth.js"}}"></script>
+    {{!-- safe-href.js exposes window.MOSafeHref. Loaded globally so
+         any script that assigns <a>.href from worker/API/user data
+         can validate the URL is on an allowed scheme (http(s),
+         mailto, tel, or path-relative) and reject javascript:/data:
+         URIs. Counterpart to MOSafeRedirect (which is for full-page
+         navigation). See assets/js/lib/safe-href.js. --}}
+    <script src="{{asset "js/lib/safe-href.js"}}"></script>
+    <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
     <script src="{{asset "js/inline-signup.js"}}"></script>
     <script src="{{asset "js/kit-events.js"}}"></script>
     <script src="{{asset "js/dark-mode.js"}}"></script>

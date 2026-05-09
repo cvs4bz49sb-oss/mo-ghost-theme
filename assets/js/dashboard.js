@@ -176,7 +176,7 @@
     if (entry.sourceTitle) {
       var source = document.createElement("a");
       source.className = "commonplace-source";
-      source.href = entry.sourceUrl || "#";
+      window.MOSafeHref.set(source, entry.sourceUrl, "#");
       source.textContent = entry.sourceTitle;
       meta.appendChild(source);
     }
@@ -349,14 +349,18 @@
     wrap.className = "dashboard-entry";
 
     var a = document.createElement("a");
-    a.href = url;
+    window.MOSafeHref.set(a, url);
     a.className = "entry";
 
     var plate = document.createElement("div");
     plate.className = "entry-plate";
     var plateInner = document.createElement("div");
     plateInner.className = "entry-plate-inner";
-    if (entry.feature_image) plateInner.style.backgroundImage = "url(" + entry.feature_image + ")";
+    // Safe-URL filter then JSON-stringify into the CSS url() so a
+    // value containing `");` can't break out of the CSS string.
+    if (entry.feature_image && window.MOSafeHref.isSafe(entry.feature_image)) {
+      plateInner.style.backgroundImage = "url(" + JSON.stringify(entry.feature_image) + ")";
+    }
     plate.appendChild(plateInner);
     a.appendChild(plate);
 
@@ -425,10 +429,12 @@
 
     var thumb = document.createElement("a");
     thumb.className = "dashboard-essay-thumb";
-    thumb.href = opts.url;
+    window.MOSafeHref.set(thumb, opts.url);
     thumb.setAttribute("aria-hidden", "true");
     thumb.setAttribute("tabindex", "-1");
-    if (opts.image) thumb.style.backgroundImage = "url(" + opts.image + ")";
+    if (opts.image && window.MOSafeHref.isSafe(opts.image)) {
+      thumb.style.backgroundImage = "url(" + JSON.stringify(opts.image) + ")";
+    }
     li.appendChild(thumb);
 
     var body = document.createElement("div");
@@ -443,7 +449,7 @@
     var h3 = document.createElement("h3");
     h3.className = "dashboard-essay-title";
     var a = document.createElement("a");
-    a.href = opts.url;
+    window.MOSafeHref.set(a, opts.url);
     var em = document.createElement("em");
     em.textContent = opts.title;
     a.appendChild(em);

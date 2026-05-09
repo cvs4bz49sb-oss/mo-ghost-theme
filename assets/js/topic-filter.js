@@ -115,8 +115,10 @@
     var meta = [date, readingTime].filter(Boolean).join(" \u00b7 ");
 
     var bgStyle = "";
-    if (post.feature_image) {
-      bgStyle = 'style="background-image: url(' + post.feature_image + ');"';
+    if (post.feature_image && window.MOSafeHref.isSafe(post.feature_image)) {
+      // JSON-stringify into the CSS string so a tampered feature_image
+      // can't break out via `");` or quote characters.
+      bgStyle = 'style="background-image: url(' + escapeAttr(JSON.stringify(post.feature_image)) + ');"';
     } else {
       var plate = plateGradients[(i % 7) + 1];
       bgStyle = 'style="background: ' + plate + ';"';

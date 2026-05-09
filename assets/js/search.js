@@ -235,7 +235,10 @@
     } else if (e.key === "Enter") {
       if (activeIndex >= 0 && currentResults[activeIndex]) {
         e.preventDefault();
-        window.location.href = currentResults[activeIndex].url;
+        // Validate scheme before navigating; a tampered worker
+        // response with a javascript: URL here would XSS the visitor.
+        var safeUrl = window.MOSafeHref.sanitize(currentResults[activeIndex].url);
+        if (safeUrl) window.location.href = safeUrl;
       }
     } else if (e.key === "Escape") {
       e.preventDefault();
@@ -306,7 +309,7 @@
       li.setAttribute("role", "option");
 
       var a = document.createElement("a");
-      a.href = r.url;
+      window.MOSafeHref.set(a, r.url);
       a.className = "mo-search-result-link";
 
       var titleEl = document.createElement("h3");

@@ -96,8 +96,10 @@
   // ── Render helper (used by "More on this theme" grid) ───────────────
 
   function renderEntry(p) {
-    var plateStyle = p.feature_image
-      ? ' style="background-image: url(' + escapeAttr(p.feature_image) + ');"'
+    // Validate URL scheme + JSON-stringify into the CSS string so a
+    // tampered Ghost feature_image can't break out of the CSS context.
+    var plateStyle = (p.feature_image && window.MOSafeHref.isSafe(p.feature_image))
+      ? ' style="background-image: url(' + escapeAttr(JSON.stringify(p.feature_image)) + ');"'
       : "";
 
     var topicTags = (p.tags || [])
@@ -145,7 +147,7 @@
       : "";
 
     return (
-      '<a href="' + escapeAttr(p.url) + '" class="entry">' +
+      '<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.url, "#")) + '" class="entry">' +
         '<div class="entry-plate">' +
           '<div class="entry-plate-inner"' + plateStyle + "></div>" +
         "</div>" +

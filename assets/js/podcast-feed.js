@@ -199,10 +199,10 @@
     var p = platforms[ep.showSlug] || {};
     var links = [];
     if (p.apple) {
-      links.push('<a href="' + escapeAttr(p.apple) + '" target="_blank" rel="noopener">Apple</a>');
+      links.push('<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.apple, "#")) + '" target="_blank" rel="noopener">Apple</a>');
     }
     if (p.spotify) {
-      links.push('<a href="' + escapeAttr(p.spotify) + '" target="_blank" rel="noopener">Spotify</a>');
+      links.push('<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.spotify, "#")) + '" target="_blank" rel="noopener">Spotify</a>');
     }
     if (!links.length) return "";
     return (
@@ -316,8 +316,8 @@
 
       var p = platforms[slug] || {};
       var links = [];
-      if (p.apple) links.push('<a href="' + escapeAttr(p.apple) + '" target="_blank" rel="noopener">Apple</a>');
-      if (p.spotify) links.push('<a href="' + escapeAttr(p.spotify) + '" target="_blank" rel="noopener">Spotify</a>');
+      if (p.apple) links.push('<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.apple, "#")) + '" target="_blank" rel="noopener">Apple</a>');
+      if (p.spotify) links.push('<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.spotify, "#")) + '" target="_blank" rel="noopener">Spotify</a>');
       var listenHtml = links.length
         ? '<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">' +
           links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') +

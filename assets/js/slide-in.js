@@ -110,7 +110,7 @@
     close.innerHTML = "&times;";
     el.appendChild(close);
 
-    if (item.image) {
+    if (item.image && window.MOSafeHref.isSafe(item.image)) {
       var img = document.createElement("img");
       img.className = "slide-in-image";
       img.src = item.image;
@@ -143,8 +143,12 @@
       content.appendChild(p);
     }
 
+    // Validate the worker-supplied URL against MOSafeHref's scheme
+    // allowlist (http(s)/mailto/tel/path-relative). A javascript:
+    // URL here would XSS every visitor on every page that shows the
+    // slide-in.
     var btn = document.createElement("a");
-    btn.href = item.button_url;
+    window.MOSafeHref.set(btn, item.button_url);
     btn.className = "btn btn-primary slide-in-btn";
     btn.textContent = item.button_text;
     content.appendChild(btn);

@@ -105,9 +105,12 @@
         var typeLabel = (item.type || "result").replace(/^./, function (c) {
           return c.toUpperCase();
         });
+        // encodeURI does NOT strip javascript:, so we run through
+        // MOSafeHref.sanitize first. Bad scheme → empty string → the
+        // href becomes harmless.
         li.innerHTML =
           '<a href="' +
-          encodeURI(item.url) +
+          escapeHtml(window.MOSafeHref.sanitize(item.url, "#")) +
           '" class="faith-search-hit-link">' +
           '<p class="faith-search-hit-meta"><span class="faith-search-hit-type">' +
           escapeHtml(typeLabel) +
