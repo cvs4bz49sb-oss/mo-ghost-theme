@@ -75,7 +75,18 @@
     detailEl.hidden = false;
 
     const name = inst.org_name || 'Untitled institution';
-    fields.headline.innerHTML = name + ' <em><span class="highlight">detail</span></em>.';
+    // Build the headline via DOM construction rather than innerHTML
+    // so an attacker-controlled org_name (if the admin API or D1
+    // were ever compromised) can't inject script via the headline.
+    fields.headline.replaceChildren();
+    fields.headline.appendChild(document.createTextNode(name + ' '));
+    const headlineEm = document.createElement('em');
+    const headlineSpan = document.createElement('span');
+    headlineSpan.className = 'highlight';
+    headlineSpan.textContent = 'detail';
+    headlineEm.appendChild(headlineSpan);
+    fields.headline.appendChild(headlineEm);
+    fields.headline.appendChild(document.createTextNode('.'));
     fields.orgName.textContent = name;
     const subParts = [];
     if (inst.contact_name) subParts.push(inst.contact_name);
