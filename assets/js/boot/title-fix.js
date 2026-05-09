@@ -70,4 +70,21 @@
   if (custom) {
     document.title = custom + " | " + site;
   }
+
+  // Noindex for internal/admin pages that shouldn't appear in search
+  var noindex = [
+    "/admin/", "/dashboard/", "/manage/", "/success/",
+    "/complete-membership/", "/migrate/", "/digest-gen/",
+    "/group-manage/", "/institution-manage/", "/groups/",
+    "/institutions/", "/forum/"
+  ];
+  for (var i = 0; i < noindex.length; i++) {
+    if (path.indexOf(noindex[i]) === 0) {
+      var meta = document.createElement("meta");
+      meta.name = "robots";
+      meta.content = "noindex, nofollow";
+      document.head.appendChild(meta);
+      break;
+    }
+  }
 })();
