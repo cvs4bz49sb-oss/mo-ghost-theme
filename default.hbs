@@ -4,6 +4,32 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    {{!-- Content Security Policy.
+
+         Defense-in-depth: even if an XSS vector slips past every
+         sanitizer, the browser refuses to execute scripts from
+         off-allowlist origins, refuses connect-src to off-allowlist
+         hosts, and blocks framing of this page.
+
+         Tradeoffs we accept:
+         - 'unsafe-inline' on script-src for the liturgical-calendar
+           boot script + ghost_head-injected snippets.
+         - 'unsafe-eval' on script-src for @babel/standalone on the
+           admin digest tool. Both could go away with a build step.
+         - 'unsafe-inline' on style-src for inline style="..." attrs
+           on Ghost-rendered post bodies + a few theme spots.
+         - img-src https: is broad; Ghost feature_images come from
+           any admin-configured CDN (HubSpot CDN during migration,
+           Ghost CDN after).
+
+         frame-ancestors is HTTP-header-only (not supported in meta).
+         Set via Ghost Pro's Cloudflare in front, or accept that
+         click-jacking surface is unmitigated for now.
+
+         Pass 2 A05-1, A05-2, A05-3. --}}
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://player.captivate.fm https://js.stripe.com https://challenges.cloudflare.com https://embed.spotify.com https://open.spotify.com https://mo-test.ghost.io; connect-src 'self' https://*.workers.dev https://*.mereorthodoxy.com https://*.ghost.io https://api.stripe.com https://plausible.io https://challenges.cloudflare.com; form-action 'self' https://challenges.cloudflare.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
     <title>{{meta_title}}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
