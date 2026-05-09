@@ -82,12 +82,17 @@
     // staff account or a Ghost sanitizer bypass becomes a stored XSS
     // vector here without this. ADD_TAGS includes iframe so YouTube/
     // Vimeo replay embeds keep working.
-    body.innerHTML = window.DOMPurify
-      ? window.DOMPurify.sanitize(e.contentHtml, {
-          ADD_TAGS: ["iframe"],
-          ADD_ATTR: ["allowfullscreen", "frameborder", "allow"],
-        })
-      : e.contentHtml;
+    //
+    // FAIL CLOSED: if DOMPurify failed to load, render a placeholder
+    // rather than assigning the unsanitized HTML.
+    if (window.DOMPurify) {
+      body.innerHTML = window.DOMPurify.sanitize(e.contentHtml, {
+        ADD_TAGS: ["iframe"],
+        ADD_ATTR: ["allowfullscreen", "frameborder", "allow"],
+      });
+    } else {
+      body.textContent = "Could not display this replay. Please reload.";
+    }
     header.appendChild(body);
 
     li.appendChild(header);

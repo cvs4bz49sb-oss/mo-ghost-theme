@@ -80,13 +80,21 @@
     // staff account or a Ghost sanitizer bypass becomes a stored XSS
     // vector here without this. ADD_TAGS includes iframe so YouTube/
     // Vimeo replay embeds keep working.
-    var sanitized = window.DOMPurify
-      ? window.DOMPurify.sanitize(e.contentHtml, {
-          ADD_TAGS: ["iframe"],
-          ADD_ATTR: ["allowfullscreen", "frameborder", "allow"],
-        })
-      : e.contentHtml;
-    document.querySelector("[data-events-prose]").innerHTML = sanitized;
+    //
+    // FAIL CLOSED: if DOMPurify failed to load (CDN incident, CSP,
+    // ad-block matching `purify`), render a placeholder rather than
+    // assigning the unsanitized HTML. The defense-in-depth claim
+    // must not depend on a 22 KB asset succeeding.
+    var prose = document.querySelector("[data-events-prose]");
+    if (!window.DOMPurify) {
+      prose.textContent = "Could not display this event. Please reload.";
+      body.hidden = false;
+      return;
+    }
+    prose.innerHTML = window.DOMPurify.sanitize(e.contentHtml, {
+      ADD_TAGS: ["iframe"],
+      ADD_ATTR: ["allowfullscreen", "frameborder", "allow"],
+    });
     body.hidden = false;
   }
 
