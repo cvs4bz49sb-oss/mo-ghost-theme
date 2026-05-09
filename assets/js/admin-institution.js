@@ -4,8 +4,9 @@
  * domain allowlist, and the current member roster. Domain CRUD is
  * the only writable control here — everything else is informational.
  *
- * Auth: relies on window.MOAdminAuth (admin-auth.js) for the bearer
- * JWT. Backend endpoints (membership API) are admin-scoped:
+ * Auth: relies on window.MOAuth.fetch (admin-auth.js) which attaches
+ * the Ghost member JWT inside its closure. Backend endpoints
+ * (membership API) are admin-scoped:
  *   GET    /api/admin/institution/get?id=...
  *   POST   /api/admin/institution/add-domain     { id, domain }
  *   POST   /api/admin/institution/remove-domain  { id, domain }
@@ -56,8 +57,7 @@
 
   async function load() {
     try {
-      const headers = await window.MOAdminAuth.headers();
-      const res = await fetch(apiBase + '/api/admin/institution/get?id=' + encodeURIComponent(id), { headers, credentials: 'omit' });
+      const res = await window.MOAuth.fetch(apiBase + '/api/admin/institution/get?id=' + encodeURIComponent(id), { credentials: 'omit' });
       if (res.status === 401) return setStatus('Sign in required.', true);
       if (res.status === 403) return setStatus('Forbidden — your email is not in the admin list.', true);
       if (res.status === 404) return setStatus('Institution not found.', true);
@@ -140,10 +140,9 @@
   }
 
   async function postJson(path, body) {
-    const headers = await window.MOAdminAuth.headers({ 'Content-Type': 'application/json' });
-    const res = await fetch(apiBase + path, {
+    const res = await window.MOAuth.fetch(apiBase + path, {
       method: 'POST',
-      headers,
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'omit',
       body: JSON.stringify(body),
     });

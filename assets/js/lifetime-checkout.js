@@ -39,15 +39,13 @@
       }
 
       try {
-        // For signed-in members, attach the JWT so the worker can
-        // derive identity from payload.sub. Anonymous visitors send
-        // no auth — Stripe collects their email at checkout.
-        const headers = isSignedIn
-          ? await window.MOAdminAuth.headers({ 'Content-Type': 'application/json' })
-          : { 'Content-Type': 'application/json' };
-        const res = await fetch(apiBase + '/api/create-lifetime-checkout', {
+        // For signed-in members, MOAuth.fetch attaches the JWT in its
+        // closure. Anonymous visitors get a plain fetch — Stripe
+        // collects their email at checkout.
+        const fetcher = isSignedIn ? window.MOAuth.fetch : window.fetch.bind(window);
+        const res = await fetcher(apiBase + '/api/create-lifetime-checkout', {
           method: 'POST',
-          headers,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
         const body = await res.json().catch(() => ({}));

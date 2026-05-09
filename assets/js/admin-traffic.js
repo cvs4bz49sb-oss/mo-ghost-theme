@@ -98,9 +98,7 @@
   function api(path) {
     var sep = path.indexOf("?") > -1 ? "&" : "?";
     var url = worker + path + sep + "period=" + encodeURIComponent(period);
-    return window.MOAdminAuth.headers().then(function (headers) {
-      return fetch(url, { headers: headers, credentials: "omit" });
-    })
+    return window.MOAuth.fetch(url, { credentials: "omit" })
     .then(function (r) {
       if (r.status === 401 || r.status === 403) return { forbidden: true };
       if (!r.ok) {

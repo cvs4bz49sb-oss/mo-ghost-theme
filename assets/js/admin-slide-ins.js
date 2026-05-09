@@ -35,7 +35,6 @@
   var imageUploading = form.querySelector("[data-image-uploading]");
 
   var editingId = null;
-  var authHeaders = null;
 
   pagesSelect.addEventListener("change", function () {
     tagField.hidden = pagesSelect.value !== "tag";
@@ -81,16 +80,16 @@
   }
 
   function uploadImage(file) {
-    if (!authHeaders) return;
     imageChoose.hidden = true;
     imageUploading.hidden = false;
 
     var fd = new FormData();
     fd.append("file", file);
 
-    fetch(workerUrl + "/images/upload", {
+    // MOAuth.fetch attaches the JWT in its closure; the bearer never
+    // appears on `window`. Headers passed here are kept; Auth is added.
+    window.MOAuth.fetch(workerUrl + "/images/upload", {
       method: "POST",
-      headers: { Authorization: authHeaders.Authorization },
       body: fd,
     })
       .then(function (r) {
@@ -240,9 +239,9 @@
         var item = items.find(function (i) { return i.id === id; });
         if (!item) return;
         btn.disabled = true;
-        fetch(workerUrl + "/slide-ins/" + id, {
+        window.MOAuth.fetch(workerUrl + "/slide-ins/" + id, {
           method: "PUT",
-          headers: Object.assign({ "Content-Type": "application/json" }, authHeaders),
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ active: !item.active }),
         })
           .then(function (r) { if (!r.ok) throw new Error(r.status); })
@@ -265,9 +264,8 @@
         var id = btn.getAttribute("data-delete");
         var item = items.find(function (i) { return i.id === id; });
         if (!item || !confirm('Delete "' + (item.name || item.headline) + '"?')) return;
-        fetch(workerUrl + "/slide-ins/" + id, {
+        window.MOAuth.fetch(workerUrl + "/slide-ins/" + id, {
           method: "DELETE",
-          headers: authHeaders,
         })
           .then(function (r) { if (!r.ok) throw new Error(r.status); })
           .then(function () { clearCache(); loadAll(); })
@@ -288,8 +286,8 @@
 
   function loadAll() {
     Promise.all([
-      fetch(workerUrl + "/slide-ins/all", { headers: authHeaders }).then(function (r) { return r.json(); }),
-      fetch(workerUrl + "/slide-ins/stats", { headers: authHeaders }).then(function (r) { return r.json(); }).catch(function () { return {}; }),
+      window.MOAuth.fetch(workerUrl + "/slide-ins/all").then(function (r) { return r.json(); }),
+      window.MOAuth.fetch(workerUrl + "/slide-ins/stats").then(function (r) { return r.json(); }).catch(function () { return {}; }),
     ])
       .then(function (results) { renderList(results[0], results[1]); })
       .catch(function () { itemsContainer.innerHTML = '<p class="admin-sub">Could not load slide-ins.</p>'; });
@@ -305,9 +303,9 @@
     var method = editingId ? "PUT" : "POST";
     var url = editingId ? workerUrl + "/slide-ins/" + editingId : workerUrl + "/slide-ins";
 
-    fetch(url, {
+    window.MOAuth.fetch(url, {
       method: method,
-      headers: Object.assign({ "Content-Type": "application/json" }, authHeaders),
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     })
       .then(function (r) {
@@ -323,12 +321,7 @@
       .finally(function () { saveBtn.disabled = false; });
   });
 
-  MOAdminAuth.headers().then(function (headers) {
-    if (!headers.Authorization) {
-      itemsContainer.innerHTML = '<p class="admin-sub">Not authorized.</p>';
-      return;
-    }
-    authHeaders = headers;
-    loadAll();
-  });
+  // MOAuth.fetch attaches the JWT internally; loadAll's first call
+  // will surface 401/403 if the visitor isn't a staff member.
+  loadAll();
 })();

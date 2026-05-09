@@ -164,23 +164,20 @@
     var label = saveBtn.querySelector("span");
     label.textContent = "Saving…";
 
-    // JWT-authed; worker derives email from payload.sub. Drop email
-    // from body. Pairs with WORKER_SECURITY_TODO.md (mo-kit
-    // /commonplace*).
-    window.MOAdminAuth.headers({ "content-type": "application/json" }).then(function (headers) {
-      return fetch(WORKER.replace(/\/$/, "") + "/commonplace/add", {
-        method: "POST",
-        mode: "cors",
-        credentials: "omit",
-        headers: headers,
-        body: JSON.stringify({
-          text: currentText,
-          postId: getPostId(),
-          sourceTitle: getSourceTitle(),
-          sourceAuthor: getSourceAuthor(),
-          sourceUrl: getSourceUrl(),
-        }),
-      });
+    // MOAuth.fetch attaches the JWT inside its closure; worker derives
+    // email from payload.sub. Drop email from body.
+    window.MOAuth.fetch(WORKER.replace(/\/$/, "") + "/commonplace/add", {
+      method: "POST",
+      mode: "cors",
+      credentials: "omit",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        text: currentText,
+        postId: getPostId(),
+        sourceTitle: getSourceTitle(),
+        sourceAuthor: getSourceAuthor(),
+        sourceUrl: getSourceUrl(),
+      }),
     })
       .then(function (r) {
         if (r.ok) {

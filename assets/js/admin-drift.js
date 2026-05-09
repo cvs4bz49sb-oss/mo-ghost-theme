@@ -24,10 +24,7 @@
     return;
   }
 
-  window.MOAdminAuth.headers()
-    .then(function (headers) {
-      return fetch(workerUrl + "/api/drift", { headers: headers, credentials: "omit" });
-    })
+  window.MOAuth.fetch(workerUrl + "/api/drift", { credentials: "omit" })
     .then(function (res) {
       if (res.status === 401 || res.status === 403) {
         setStatus("Forbidden — your email isn't in the admin allowlist.");

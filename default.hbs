@@ -242,13 +242,14 @@
     <script src="{{asset "js/jsonld-fix.js"}}"></script>
     <script src="{{asset "js/site-settings.js"}}"></script>
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
-    {{!-- admin-auth.js exposes window.MOAdminAuth, which fetches the
-         logged-in member's Ghost JWT from /members/api/session/. The
-         name is historical: it's used both for admin-only endpoints
-         (where the worker checks staff list) and for member-scoped
-         endpoints (where the worker just verifies the JWT). Loaded
-         globally so any page-level script can attach Authorization
-         headers to worker calls. --}}
+    {{!-- admin-auth.js exposes window.MOAuth.fetch — a closure-private
+         JWT helper. The Ghost member token (fetched on demand from
+         /members/api/session/) lives in a closure, never on `window`,
+         so an XSS can't extract the bearer. The single public method
+         is window.MOAuth.fetch(url, init) which delegates to fetch
+         after attaching Authorization. Loaded globally so any
+         page-level script can call worker APIs as the signed-in
+         member. --}}
     <script src="{{asset "js/admin-auth.js"}}"></script>
     {{!-- safe-href.js exposes window.MOSafeHref. Loaded globally so
          any script that assigns <a>.href from worker/API/user data

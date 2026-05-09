@@ -2,12 +2,11 @@
  * /complete-membership/ — captures shipping address for paid members.
  *
  * Auth: every request to the mo-membership /api/member/address
- * endpoint includes the Ghost member JWT (Authorization: Bearer ...)
- * via window.MOAdminAuth. The worker verifies the JWT and derives
- * the member's email from payload.sub — we no longer send email in
- * the body or the query string. This means the address endpoint is
- * no longer addressable by anyone who happens to know a member's
- * email.
+ * endpoint goes through window.MOAuth.fetch, which attaches the Ghost
+ * member JWT (Authorization: Bearer ...) inside a closure — the
+ * bearer never appears on `window`. The worker verifies the JWT and
+ * derives the member's email from payload.sub — we no longer send
+ * email in the body or the query string.
  *
  * On GET (page load), we pre-fill the form if the member already has
  * a saved address. data-member-email is still present on the form
@@ -29,10 +28,8 @@
   // caller; no email in the URL.
   (async () => {
     try {
-      const headers = await window.MOAdminAuth.headers();
-      const response = await fetch(
-        window.MO_API_BASE + '/api/member/address',
-        { headers }
+      const response = await window.MOAuth.fetch(
+        window.MO_API_BASE + '/api/member/address'
       );
       if (!response.ok) return;
       const body = await response.json();
@@ -66,10 +63,9 @@
     submit.disabled = true;
 
     try {
-      const headers = await window.MOAdminAuth.headers({ 'Content-Type': 'application/json' });
-      const response = await fetch(window.MO_API_BASE + '/api/member/address', {
+      const response = await window.MOAuth.fetch(window.MO_API_BASE + '/api/member/address', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       const body = await response.json().catch(() => ({}));

@@ -40,9 +40,7 @@
   });
 
   function api(path) {
-    return window.MOAdminAuth.headers().then(function (headers) {
-      return fetch(worker + path, { headers: headers, credentials: "omit" });
-    })
+    return window.MOAuth.fetch(worker + path, { credentials: "omit" })
     .then(function (r) {
       if (r.status === 401 || r.status === 403) return { forbidden: true };
       if (!r.ok) {

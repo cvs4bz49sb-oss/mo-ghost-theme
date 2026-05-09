@@ -79,10 +79,8 @@
   const load = async () => {
     try {
       // Auth via Ghost member JWT — worker derives email from
-      // payload.sub. Pairs with the worker-side enforcement tracked
-      // in WORKER_SECURITY_TODO.md (mo-membership /api/member/address).
-      const headers = await window.MOAdminAuth.headers();
-      const res = await fetch(`${apiBase}/api/member/address`, { headers });
+      // payload.sub. MOAuth.fetch keeps the bearer closure-private.
+      const res = await window.MOAuth.fetch(`${apiBase}/api/member/address`);
       if (!res.ok) throw new Error('fetch');
       const body = await res.json();
       currentAddress = body.found ? body.address : null;
@@ -108,10 +106,9 @@
 
     submitBtn.disabled = true;
     try {
-      const headers = await window.MOAdminAuth.headers({ 'Content-Type': 'application/json' });
-      const res = await fetch(`${apiBase}/api/member/address`, {
+      const res = await window.MOAuth.fetch(`${apiBase}/api/member/address`, {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       const body = await res.json().catch(() => ({}));

@@ -16,7 +16,7 @@
  * Status changes are optimistic: update locally + repaint, then POST.
  * On failure, revert + surface the error in the status line.
  *
- * Auth: window.MOAdminAuth.headers() — Ghost member JWT verified
+ * Auth: window.MOAuth.fetch — Ghost member JWT verified
  * worker-side against the live Ghost staff list.
  */
 (function () {
@@ -52,10 +52,7 @@
 
   function hydrate() {
     setStatus("");
-    window.MOAdminAuth.headers()
-      .then(function (headers) {
-        return fetch(apiBase + "/api/admin/submissions", { headers: headers, credentials: "omit" });
-      })
+    window.MOAuth.fetch(apiBase + "/api/admin/submissions", { credentials: "omit" })
       .then(function (r) {
         if (r.status === 401 || r.status === 403) { showForbidden(); return null; }
         if (!r.ok) { setStatus("Could not load submissions (" + r.status + ")."); return null; }
@@ -270,13 +267,12 @@
     repaint();
     setStatus("");
 
-    window.MOAdminAuth.headers({ "Content-Type": "application/json" })
-      .then(function (headers) {
-        return fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/status", {
-          method: "POST", headers: headers, credentials: "omit",
-          body: JSON.stringify({ status: nextStatus }),
-        });
-      })
+    window.MOAuth.fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "omit",
+      body: JSON.stringify({ status: nextStatus }),
+    })
       .then(function (r) {
         if (r.status === 401 || r.status === 403) {
           row.status = prevStatus; repaint(); showForbidden(); return;
@@ -303,13 +299,12 @@
     }
     if (stateEl) stateEl.textContent = "Saving…";
 
-    window.MOAdminAuth.headers({ "Content-Type": "application/json" })
-      .then(function (headers) {
-        return fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/notes", {
-          method: "POST", headers: headers, credentials: "omit",
-          body: JSON.stringify({ notes: trimmed }),
-        });
-      })
+    window.MOAuth.fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "omit",
+      body: JSON.stringify({ notes: trimmed }),
+    })
       .then(function (r) {
         if (!r.ok) {
           if (stateEl) stateEl.textContent = "Save failed.";
@@ -331,12 +326,9 @@
     var origLabel = btn.textContent;
     btn.disabled = true;
     btn.textContent = "Downloading…";
-    window.MOAdminAuth.headers()
-      .then(function (headers) {
-        return fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/" + which, {
-          headers: headers, credentials: "omit",
-        });
-      })
+    window.MOAuth.fetch(apiBase + "/api/admin/submissions/" + encodeURIComponent(id) + "/" + which, {
+      credentials: "omit",
+    })
       .then(function (r) {
         if (!r.ok) throw new Error("HTTP " + r.status);
         // Filename from Content-Disposition if provided.

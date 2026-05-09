@@ -19,32 +19,25 @@
   window.__kitEmit = function (type, extras) {
     if (!WORKER || !EMAIL || !type) return;
     var payload = Object.assign({ type: type, email: EMAIL }, extras || {});
-    // Send the Ghost member JWT so the kit worker can verify the
-    // caller is the member they claim to be (instead of trusting
-    // body.email). admin-auth.js is loaded site-wide via default.hbs.
-    window.MOAdminAuth.headers({ "content-type": "application/json" }).then(function (headers) {
-      try {
-        fetch(WORKER.replace(/\/$/, "") + "/event", {
-          method: "POST",
-          mode: "cors",
-          credentials: "omit",
-          keepalive: true,
-          headers: headers,
-          body: JSON.stringify(payload),
-        }).catch(function () { /* best-effort */ });
-      } catch (_) { /* ignore */ }
-    });
+    // MOAuth.fetch attaches the JWT inside its closure. Worker
+    // verifies and derives identity from payload.sub.
+    try {
+      window.MOAuth.fetch(WORKER.replace(/\/$/, "") + "/event", {
+        method: "POST",
+        mode: "cors",
+        credentials: "omit",
+        keepalive: true,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch(function () { /* best-effort */ });
+    } catch (_) { /* ignore */ }
   };
 
   if (!WORKER || !EMAIL) return;
 
-  // Pre-warm the JWT cache so __kitEmit calls during pagehide
-  // don't have to wait for /members/api/session/ inside a
-  // keepalive request — the keepalive budget on unload is small
-  // and may not span an additional network hop. Fire-and-forget;
-  // if it fails, the per-event headers() call falls back to a
-  // fresh fetch.
-  try { window.MOAdminAuth.getToken(); } catch (_) {}
+  // The MOAuth IIFE pre-warms the token at module init, so the
+  // first __kitEmit firing during pagehide finds a hot cache.
+  // No additional warm-up needed here.
 
   // ---- visited_membership ------------------------------------------------
   var membershipPaths = ["/membership", "/groups", "/institutions", "/gift"];

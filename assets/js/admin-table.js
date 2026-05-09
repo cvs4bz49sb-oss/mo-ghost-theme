@@ -2,7 +2,7 @@
  * Generic admin data-table loader. Drives every /admin/<section>/ page
  * that needs to render a worker-backed list with a CSV download.
  *
- * Auth: requires window.MOAdminAuth (admin-auth.js) to be loaded first.
+ * Auth: requires window.MOAuth (admin-auth.js) to be loaded first.
  * Each fetch carries Authorization: Bearer <ghost-identity-jwt>; the
  * worker verifies the JWT signature against Ghost's JWKS and only
  * then checks the email against ADMIN_EMAILS. The CSV download path
@@ -52,8 +52,7 @@
 
   (async () => {
     try {
-      const headers = await window.MOAdminAuth.headers();
-      const res = await fetch(apiBase + endpoint, { headers, credentials: 'omit' });
+      const res = await window.MOAuth.fetch(apiBase + endpoint, { credentials: 'omit' });
       if (res.status === 401) { setStatus('Sign in required.'); return; }
       if (res.status === 403) { setStatus('Forbidden — your email is not in the admin list.'); return; }
       if (!res.ok) { setStatus('Could not load data. (' + res.status + ')'); return; }
@@ -81,8 +80,7 @@
     downloadEl.addEventListener('click', async (ev) => {
       ev.preventDefault();
       try {
-        const headers = await window.MOAdminAuth.headers();
-        const r = await fetch(apiBase + endpoint + '?format=csv', { headers });
+        const r = await window.MOAuth.fetch(apiBase + endpoint + '?format=csv');
         if (!r.ok) return setStatus('CSV download failed: ' + r.status);
         const blob = await r.blob();
         const url = URL.createObjectURL(blob);

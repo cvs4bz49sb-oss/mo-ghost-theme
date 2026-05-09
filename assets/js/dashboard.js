@@ -54,28 +54,20 @@
     });
   });
 
-  // mo-kit helpers — JWT-authed via MOAdminAuth so the worker can
-  // derive the caller's email from payload.sub instead of trusting
-  // body/URL email. See WORKER_SECURITY_TODO.md (mo-kit). The
-  // returned promise resolves to the Response so callers can
-  // continue with .then(r => r.json()) etc.
+  // mo-kit helpers — JWT attached inside MOAuth.fetch's closure so
+  // the bearer never appears on `window`. Worker derives caller's
+  // email from payload.sub.
   function moKitGet(path) {
-    var url = WORKER.replace(/\/$/, "") + path;
-    return window.MOAdminAuth.headers().then(function (headers) {
-      return fetch(url, {
-        method: "GET", mode: "cors", credentials: "omit", headers: headers,
-      });
+    return window.MOAuth.fetch(WORKER.replace(/\/$/, "") + path, {
+      method: "GET", mode: "cors", credentials: "omit",
     });
   }
   function moKitPost(path, body) {
-    var url = WORKER.replace(/\/$/, "") + path;
-    return window.MOAdminAuth.headers({ "content-type": "application/json" })
-      .then(function (headers) {
-        return fetch(url, {
-          method: "POST", mode: "cors", credentials: "omit", headers: headers,
-          body: JSON.stringify(body || {}),
-        });
-      });
+    return window.MOAuth.fetch(WORKER.replace(/\/$/, "") + path, {
+      method: "POST", mode: "cors", credentials: "omit",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
   }
 
   hydrateBookmarks();
