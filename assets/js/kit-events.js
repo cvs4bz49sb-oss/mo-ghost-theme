@@ -19,16 +19,25 @@
   window.__kitEmit = function (type, extras) {
     if (!WORKER || !EMAIL || !type) return;
     var payload = Object.assign({ type: type, email: EMAIL }, extras || {});
-    try {
-      fetch(WORKER.replace(/\/$/, "") + "/event", {
-        method: "POST",
-        mode: "cors",
-        credentials: "omit",
-        keepalive: true,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-      }).catch(function () { /* best-effort */ });
-    } catch (_) { /* ignore */ }
+    // Send the Ghost member JWT so the kit worker can verify the
+    // caller is the member they claim to be (instead of trusting
+    // body.email). Without auth, anyone who knows a member's email
+    // can forge engagement events that affect Kit segmentation.
+    var headersP = window.MOAdminAuth
+      ? window.MOAdminAuth.headers({ "content-type": "application/json" })
+      : Promise.resolve({ "content-type": "application/json" });
+    headersP.then(function (headers) {
+      try {
+        fetch(WORKER.replace(/\/$/, "") + "/event", {
+          method: "POST",
+          mode: "cors",
+          credentials: "omit",
+          keepalive: true,
+          headers: headers,
+          body: JSON.stringify(payload),
+        }).catch(function () { /* best-effort */ });
+      } catch (_) { /* ignore */ }
+    });
   };
 
   if (!WORKER || !EMAIL) return;
