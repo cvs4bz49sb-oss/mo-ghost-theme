@@ -3206,10 +3206,16 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .archive-curious-btn {
   font-size: 13px;
   padding: 8px 28px;
-  opacity: 0.65;
-  transition: opacity 0.15s;
+  color: var(--color-heading);
+  background: transparent;
+  border: 1px solid var(--color-hairline);
+  opacity: 1;
+  transition: border-color 0.15s, color 0.15s;
 }
-.archive-curious-btn:hover { opacity: 1; }
+.archive-curious-btn:hover {
+  border-color: var(--color-heading);
+  color: var(--color-heading);
+}
 
 /* =============================================================
    Error page
@@ -5320,7 +5326,6 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 
 /* Endorsements */
 .about-endorsements { padding: 48px 0 0; }
-.about-endorsements .flourish { margin-bottom: 40px; }
 .about-endorsements .section-intro { text-align: center; margin-bottom: 48px; }
 .about-endorsements-grid {
   display: grid;
@@ -5331,6 +5336,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   border-top: 1px solid var(--color-hairline);
   padding-top: 24px;
   margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 .about-endorsement p {
   font-family: var(--font-body);
@@ -5343,6 +5350,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-top: auto;
 }
 .about-endorsement-portrait {
   width: 40px;
