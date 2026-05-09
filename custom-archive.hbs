@@ -69,6 +69,10 @@
                 </nav>
             {{/if}}
         {{/if}}
+
+        <div class="archive-curious" data-archive-curious>
+          <a href="/archive/" class="btn btn-ghost archive-curious-btn" data-curious-link>I&rsquo;m Curious</a>
+        </div>
     </div>
 </section>
 
@@ -83,14 +87,19 @@
 
   function url(n) { return n === 1 ? base : base + 'page/' + n + '/'; }
 
-  // Build a windowed list: always show 1 and last, plus a ±2 window
-  // around the current page. Collapse gaps with an ellipsis entry.
   var window_ = 2;
   var set = {};
   set[1] = true;
   set[pages] = true;
   for (var i = page - window_; i <= page + window_; i++) {
     if (i >= 1 && i <= pages) set[i] = true;
+  }
+  // Spread landmark pages across the full range so the bar
+  // gives a sense of scale (e.g. 1 2 3 … 50 … 100 … 200 … 300 … 409).
+  var landmarks = 5;
+  for (var k = 1; k <= landmarks; k++) {
+    var lm = Math.round((pages / (landmarks + 1)) * k);
+    if (lm >= 1 && lm <= pages) set[lm] = true;
   }
   var nums = Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
 
@@ -122,5 +131,15 @@
     list.appendChild(li);
     prev = n;
   });
+
+  var curious = document.querySelector('[data-curious-link]');
+  if (curious && pages > 1) {
+    function setRandom() {
+      var rp = Math.floor(Math.random() * pages) + 1;
+      curious.href = url(rp);
+    }
+    setRandom();
+    curious.addEventListener('click', function () { setRandom(); });
+  }
 })();
 </script>

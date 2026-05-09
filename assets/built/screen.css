@@ -3199,6 +3199,17 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .pagination--numbered .pagination-ellipsis,
   .pagination--numbered .pagination-current { font-size: 15px; }
 }
+.archive-curious {
+  text-align: center;
+  margin-top: 40px;
+}
+.archive-curious-btn {
+  font-size: 13px;
+  padding: 8px 28px;
+  opacity: 0.65;
+  transition: opacity 0.15s;
+}
+.archive-curious-btn:hover { opacity: 1; }
 
 /* =============================================================
    Error page
