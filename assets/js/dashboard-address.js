@@ -78,7 +78,11 @@
 
   const load = async () => {
     try {
-      const res = await fetch(`${apiBase}/api/member/address?email=${encodeURIComponent(email)}`);
+      // Auth via Ghost member JWT — worker derives email from
+      // payload.sub. Pairs with the worker-side enforcement tracked
+      // in WORKER_SECURITY_TODO.md (mo-membership /api/member/address).
+      const headers = await window.MOAdminAuth.headers();
+      const res = await fetch(`${apiBase}/api/member/address`, { headers });
       if (!res.ok) throw new Error('fetch');
       const body = await res.json();
       currentAddress = body.found ? body.address : null;
@@ -98,13 +102,16 @@
     if (!form.checkValidity()) { form.reportValidity(); return; }
 
     const data = Object.fromEntries(new FormData(form).entries());
-    data.email = email;
+    // Email is derived from the JWT server-side; do not echo it in
+    // the body even if it survived a future copy/paste of this code.
+    delete data.email;
 
     submitBtn.disabled = true;
     try {
+      const headers = await window.MOAdminAuth.headers({ 'Content-Type': 'application/json' });
       const res = await fetch(`${apiBase}/api/member/address`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(data),
       });
       const body = await res.json().catch(() => ({}));
