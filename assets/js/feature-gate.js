@@ -108,22 +108,50 @@
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-labelledby", "fg-modal-title");
 
-    var inner;
-    if (feature.requires === "subscriber") {
-      inner = subscriberInner(featureName, feature);
-    } else {
-      inner = memberInner(feature);
-    }
+    // Build the panel scaffold via DOM construction (textContent for
+    // anything dynamic). Pass 3 #7 in audits/SYNTHESIS.md flagged
+    // this innerHTML pattern as fragile — same H4 class. Inner
+    // contents (subscriberInner / memberInner) are hardcoded strings
+    // so they remain innerHTML for now; if any data-driven field
+    // ever lands inside them, convert those too.
+    var backdrop = document.createElement("div");
+    backdrop.className = "feature-gate-modal-backdrop";
+    backdrop.setAttribute("data-fg-dismiss", "");
 
-    overlay.innerHTML =
-      '<div class="feature-gate-modal-backdrop" data-fg-dismiss></div>' +
-      '<div class="feature-gate-modal-panel">' +
-        '<button class="feature-gate-modal-close" type="button" data-fg-dismiss aria-label="Close">&times;</button>' +
-        '<p class="eyebrow">' + escapeHtml(feature.eyebrow) + '</p>' +
-        '<h3 id="fg-modal-title" class="feature-gate-modal-title">' + escapeHtml(feature.title) + '</h3>' +
-        '<p class="feature-gate-modal-body">' + escapeHtml(feature.body) + '</p>' +
-        inner +
-      '</div>';
+    var panel = document.createElement("div");
+    panel.className = "feature-gate-modal-panel";
+
+    var closeBtn = document.createElement("button");
+    closeBtn.className = "feature-gate-modal-close";
+    closeBtn.type = "button";
+    closeBtn.setAttribute("data-fg-dismiss", "");
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.textContent = "×"; // ×
+
+    var eyebrow = document.createElement("p");
+    eyebrow.className = "eyebrow";
+    eyebrow.textContent = feature.eyebrow;
+
+    var title = document.createElement("h3");
+    title.id = "fg-modal-title";
+    title.className = "feature-gate-modal-title";
+    title.textContent = feature.title;
+
+    var bodyP = document.createElement("p");
+    bodyP.className = "feature-gate-modal-body";
+    bodyP.textContent = feature.body;
+
+    panel.append(closeBtn, eyebrow, title, bodyP);
+
+    var innerWrap = document.createElement("div");
+    if (feature.requires === "subscriber") {
+      innerWrap.innerHTML = subscriberInner(featureName, feature);
+    } else {
+      innerWrap.innerHTML = memberInner(feature);
+    }
+    while (innerWrap.firstChild) panel.appendChild(innerWrap.firstChild);
+
+    overlay.append(backdrop, panel);
 
     document.body.appendChild(overlay);
     modalEl = overlay;

@@ -73,48 +73,41 @@
     });
   }
 
+  // DOM construction (rather than innerHTML + escapeHtml) eliminates
+  // the class of bug where a future edit forgets to escape one field.
+  // Pass 3 (#6 in audits/SYNTHESIS.md) flagged this file as having
+  // the same fragility H4 noted in admin-editorial.js.
   function showSection(key, rows, rowRenderer) {
     var section = root.querySelector('[data-drift-section="' + key + '"]');
     var tbody = root.querySelector('[data-drift-tbody="' + key + '"]');
     if (!section || !tbody) return;
-    tbody.innerHTML = rows.map(rowRenderer).join("");
+    tbody.replaceChildren();
+    rows.forEach(function (r) { tbody.appendChild(rowRenderer(r)); });
     section.hidden = false;
   }
 
-  function renderGhostRow(r) {
-    return (
-      "<tr>" +
-        td(r.email) +
-        td(r.name) +
-        td(r.status) +
-        td(formatDate(r.created_at)) +
-      "</tr>"
-    );
-  }
-  function renderKitRow(r) {
-    return (
-      "<tr>" +
-        td(r.email) +
-        td(r.name) +
-        td(r.state) +
-        td((r.tags || []).join(", ")) +
-      "</tr>"
-    );
-  }
-  function renderMismatchRow(r) {
-    return (
-      "<tr>" +
-        td(r.email) +
-        td(r.name) +
-        td(r.ghost_status) +
-        td(r.kit_status_tag || "(none)") +
-        td(r.kit_has_paid_platform_tag ? "yes" : "no") +
-      "</tr>"
-    );
+  function buildRow(cells) {
+    var tr = document.createElement("tr");
+    cells.forEach(function (v) {
+      var td = document.createElement("td");
+      td.textContent = v == null ? "" : String(v);
+      tr.appendChild(td);
+    });
+    return tr;
   }
 
-  function td(v) {
-    return "<td>" + escapeHtml(v == null ? "" : String(v)) + "</td>";
+  function renderGhostRow(r) {
+    return buildRow([r.email, r.name, r.status, formatDate(r.created_at)]);
+  }
+  function renderKitRow(r) {
+    return buildRow([r.email, r.name, r.state, (r.tags || []).join(", ")]);
+  }
+  function renderMismatchRow(r) {
+    return buildRow([
+      r.email, r.name, r.ghost_status,
+      r.kit_status_tag || "(none)",
+      r.kit_has_paid_platform_tag ? "yes" : "no",
+    ]);
   }
   function setStatus(msg) {
     if (statusEl) statusEl.textContent = msg;
@@ -127,10 +120,5 @@
     if (!s) return "";
     try { return new Date(s).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }); }
     catch (_) { return s; }
-  }
-  function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
-    });
   }
 })();
