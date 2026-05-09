@@ -160,7 +160,7 @@
       ? '<p class="pod-meta">' + metaParts.join('<span class="pod-meta-sep" aria-hidden="true"> · </span>') + '</p>'
       : "";
 
-    var summary = sanitize(ep.description).replace(/\s+/g, " ").slice(0, 240).trim();
+    var summary = firstParagraph(sanitize(ep.description));
     var excerpt = summary
       ? '<p class="pod-excerpt">' + escapeHtml(summary) + "</p>"
       : "";
@@ -171,22 +171,23 @@
         '</div>'
       : "";
 
+    var titleHtml = ep.embedUrl
+      ? ""
+      : '<h3 class="pod-title"><em>' + escapeHtml(ep.title) + "</em></h3>";
+
     var transcriptLink = ep.hasTranscript && ep.transcriptUrl
       ? '<a class="pod-transcript-link" href="' + escapeAttr(absoluteWorkerUrl(ep.transcriptUrl)) + '">Read transcript &rarr;</a>'
       : "";
 
-    var listenBlock = renderListenLinks(ep);
-
-    var footerInner = [listenBlock, transcriptLink].filter(Boolean).join("");
-    var footer = footerInner
-      ? '<div class="pod-footer">' + footerInner + '</div>'
+    var footer = transcriptLink
+      ? '<div class="pod-footer">' + transcriptLink + '</div>'
       : "";
 
     var idAttr = ep.id ? ' id="ep-' + escapeAttr(ep.id) + '"' : "";
     return (
       '<article class="pod-entry pod-entry--episode pod-entry--full"' + idAttr + ' data-show="' + escapeAttr(ep.showSlug) + '">' +
       metaHtml +
-      '<h3 class="pod-title"><em>' + escapeHtml(ep.title) + "</em></h3>" +
+      titleHtml +
       embed +
       excerpt +
       footer +
@@ -311,25 +312,24 @@
       var date = ep.pubDate
         ? new Date(Date.parse(ep.pubDate)).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
         : "";
-      var summary = sanitize(ep.description || "").replace(/\s+/g, " ").slice(0, 160).trim();
-
-      var p = platforms[slug] || {};
-      var links = [];
-      if (p.apple) links.push('<a href="' + escapeAttr(p.apple) + '" target="_blank" rel="noopener">Apple</a>');
-      if (p.spotify) links.push('<a href="' + escapeAttr(p.spotify) + '" target="_blank" rel="noopener">Spotify</a>');
-      var listenHtml = links.length
-        ? '<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">' +
-          links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') +
-          '</p></div>'
-        : '';
+      var summary = firstParagraph(sanitize(ep.description || ""));
 
       target.innerHTML =
         '<p class="pod-show-ep-label">Latest Episode</p>' +
         (date ? '<p class="pod-show-ep-date">' + escapeHtml(date) + '</p>' : '') +
         '<h3 class="pod-title"><em>' + escapeHtml(ep.title || "") + '</em></h3>' +
         (summary ? '<p class="pod-excerpt">' + escapeHtml(summary) + '</p>' : '') +
-        (listenHtml || '');
+        '<div class="pod-show-divider" aria-hidden="true"></div>';
     }
+  }
+
+  function firstParagraph(text) {
+    if (!text) return "";
+    var s = text.replace(/\s+/g, " ").trim();
+    if (!s) return "";
+    var m = s.match(/^(.{60,}?[.!?])\s/);
+    if (m) return m[1];
+    return s;
   }
 
   function escapeHtml(s) {
