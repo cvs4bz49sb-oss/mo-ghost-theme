@@ -25,6 +25,8 @@
   var grid = document.querySelector(".listen-grid");
   if (!grid) return;
 
+  var isCoversLayout = grid.getAttribute("data-layout") === "covers";
+
   // data-show (optional): filter episodes to a single show slug on
   // dedicated podcast pages. When absent (homepage), all shows merge.
   // When present, render the full-detail card variant (artwork,
@@ -92,7 +94,9 @@
         });
       });
 
-      if (all.length) {
+      if (isCoversLayout) {
+        renderCoversLayout(data);
+      } else if (all.length) {
         all.sort(function (a, b) { return b.ts - a.ts; });
         var top = all.slice(0, showLimit);
         grid.innerHTML = top.map(isShowPage ? renderShowCard : renderCompactCard).join("");
@@ -285,6 +289,47 @@
     }
     if (start >= parts.length) return "";
     return parts.slice(start).join(" ").trim();
+  }
+
+  // ─── Covers layout (homepage — cover art + latest episode) ─────
+
+  function renderCoversLayout(data) {
+    var showDivs = grid.querySelectorAll(".pod-show[data-show]");
+    for (var i = 0; i < showDivs.length; i++) {
+      var div = showDivs[i];
+      var slug = div.getAttribute("data-show");
+      var payload = data[slug];
+      if (!payload || payload.error || !Array.isArray(payload.episodes) || !payload.episodes.length) continue;
+
+      var eps = payload.episodes.slice().sort(function (a, b) {
+        return (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0);
+      });
+      var ep = eps[0];
+      var target = div.querySelector(".pod-show-latest");
+      if (!target) continue;
+
+      var date = ep.pubDate
+        ? new Date(Date.parse(ep.pubDate)).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+        : "";
+      var summary = sanitize(ep.description || "").replace(/\s+/g, " ").slice(0, 160).trim();
+
+      var p = platforms[slug] || {};
+      var links = [];
+      if (p.apple) links.push('<a href="' + escapeAttr(p.apple) + '" target="_blank" rel="noopener">Apple</a>');
+      if (p.spotify) links.push('<a href="' + escapeAttr(p.spotify) + '" target="_blank" rel="noopener">Spotify</a>');
+      var listenHtml = links.length
+        ? '<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">' +
+          links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') +
+          '</p></div>'
+        : '';
+
+      target.innerHTML =
+        '<p class="pod-show-ep-label">Latest Episode</p>' +
+        (date ? '<p class="pod-show-ep-date">' + escapeHtml(date) + '</p>' : '') +
+        '<h3 class="pod-title"><em>' + escapeHtml(ep.title || "") + '</em></h3>' +
+        (summary ? '<p class="pod-excerpt">' + escapeHtml(summary) + '</p>' : '') +
+        listenHtml;
+    }
   }
 
   function escapeHtml(s) {

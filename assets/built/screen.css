@@ -6120,6 +6120,96 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .listen-grid--podcasts .pod-listen-platforms a:hover { color: var(--color-primary); }
 .listen-grid--podcasts .pod-listen-sep { color: var(--color-card-border); padding: 0 6px; }
 
+/* Covers layout — two shows side by side, cover art on top,
+   latest episode underneath. Used on the homepage. */
+.listen-grid--covers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 64px;
+  row-gap: 40px;
+  max-width: 860px;
+}
+.listen-grid--covers::before { display: none; }
+@media (max-width: 640px) {
+  .listen-grid--covers { grid-template-columns: 1fr; row-gap: 48px; }
+}
+.pod-show-cover {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.pod-show-name {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.pod-show-ep-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 0 0 4px;
+}
+.pod-show-ep-date {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+}
+.pod-show-latest .pod-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+}
+.pod-show-latest .pod-title em { font-style: italic; }
+.pod-show-latest .pod-excerpt {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0 0 20px;
+}
+.pod-show-latest .pod-listen {
+  padding-top: 16px;
+  border-top: 1px solid var(--color-card-border);
+}
+.pod-show-latest .pod-listen-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.pod-show-latest .pod-listen-platforms {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-dark);
+}
+.pod-show-latest .pod-listen-platforms a {
+  color: var(--color-dark);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.pod-show-latest .pod-listen-platforms a:hover { color: var(--color-primary); }
+.pod-show-latest .pod-listen-sep { color: var(--color-card-border); padding: 0 6px; }
+
 /* ----------------------------------------------------------------------------
    Member dashboard (/dashboard/) — editorial layout modeled on
    custom-about.hbs. Dark hero, two-column body, <details> modules
