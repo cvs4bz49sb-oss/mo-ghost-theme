@@ -37,9 +37,12 @@
 
     <title>{{meta_title}}</title>
     <script src="{{asset "js/boot/title-fix.js"}}"></script>
+    <meta name="theme-color" content="#1d1b18">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://js.stripe.com" />
+    <link rel="dns-prefetch" href="https://plausible.io" />
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="{{asset "built/screen.css"}}" />
@@ -64,6 +67,23 @@
     {{#if @custom.content_api_key}}
     <meta name="ghost-content-api-key" content="{{@custom.content_api_key}}" />
     {{/if}}
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Mere Orthodoxy",
+      "url": "{{@site.url}}",
+      "logo": "{{@site.logo}}",
+      "description": "{{@site.description}}",
+      "foundingDate": "2005",
+      "sameAs": [
+        "https://x.com/maborodoxy",
+        "https://www.facebook.com/mereorthodoxy",
+        "https://www.instagram.com/mereorthodoxy"
+      ]
+    }
+    </script>
 
     {{ghost_head}}
 
@@ -260,6 +280,7 @@
          op when @custom.error_worker_url is empty. --}}
     <script src="{{asset "js/error-beacon.js"}}"></script>
     <script src="{{asset "js/jsonld-fix.js"}}"></script>
+    <script src="{{asset "js/boot/breadcrumb-schema.js"}}"></script>
     <script src="{{asset "js/site-settings.js"}}"></script>
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
     {{!-- admin-auth.js exposes window.MOAuth.fetch — a closure-private

@@ -93,10 +93,30 @@
     var data = hit.data;
     data.author = people.length === 1 ? people[0] : people;
     if (topics.length) data.articleSection = topics;
-    // Sanity: keywords may still carry the byline tag name from
-    // Ghost; replace with topics-only so author identity is
-    // exclusively in `author`.
     if (topics.length) data.keywords = topics.join(", ");
+
+    // Word count from article body
+    var body = document.querySelector(".article-content");
+    if (body) {
+      var wc = (body.textContent || "").trim().split(/\s+/).length;
+      if (wc > 0) data.wordCount = wc;
+    }
+
+    // Reading time from the rendered meta
+    var timeEl = document.querySelector(".article-meta .meta-date");
+    if (timeEl) {
+      var tm = (timeEl.textContent || "").match(/(\d+)\s*min/);
+      if (tm) data.timeRequired = "PT" + tm[1] + "M";
+    }
+
+    // Access: free vs members-only
+    var gate = document.querySelector(".post-gate");
+    data.isAccessibleForFree = !gate || gate.style.display === "none" ? true : false;
+    data.isPartOf = {
+      "@type": "WebSite",
+      "name": "Mere Orthodoxy",
+      "url": window.location.origin + "/"
+    };
 
     hit.node.textContent = JSON.stringify(data);
   }

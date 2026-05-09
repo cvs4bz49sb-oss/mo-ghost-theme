@@ -27,7 +27,7 @@
                         <a href="{{url}}" class="meta-author meta-author--candidate" data-tag-slug="{{slug}}">
                             <div class="meta-avatar" aria-hidden="true">
                                 {{#if feature_image}}
-                                    <img src="{{img_url feature_image size="xs"}}" alt="{{name}}" />
+                                    <img src="{{img_url feature_image size="xs"}}" alt="{{name}}" width="32" height="32" />
                                 {{else}}
                                     <span class="meta-avatar-initial">{{name}}</span>
                                 {{/if}}
@@ -44,7 +44,7 @@
                         <a href="{{url}}" class="meta-author">
                             <div class="meta-avatar" aria-hidden="true">
                                 {{#if profile_image}}
-                                    <img src="{{img_url profile_image size="xs"}}" alt="{{name}}" />
+                                    <img src="{{img_url profile_image size="xs"}}" alt="{{name}}" width="32" height="32" />
                                 {{else}}
                                     <span class="meta-avatar-initial">{{name}}</span>
                                 {{/if}}
@@ -158,7 +158,14 @@
     {{#if feature_image}}
         <div class="article-feature-img">
             <div class="article-feature-img-inner">
-                <img src="{{img_url feature_image size="xl"}}" alt="{{#if feature_image_alt}}{{feature_image_alt}}{{else}}{{title}}{{/if}}" />
+                <img src="{{img_url feature_image size="xl"}}"
+                     srcset="{{img_url feature_image size="s"}} 300w,
+                             {{img_url feature_image size="m"}} 600w,
+                             {{img_url feature_image size="l"}} 1000w,
+                             {{img_url feature_image size="xl"}} 2000w"
+                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 720px, 800px"
+                     alt="{{#if feature_image_alt}}{{feature_image_alt}}{{else}}{{title}}{{/if}}"
+                     fetchpriority="high" />
             </div>
             {{#if feature_image_caption}}
                 <p class="article-feature-caption">{{{feature_image_caption}}}</p>
@@ -243,7 +250,7 @@
                         <div class="author-bio-layout">
                             <div class="author-bio-portrait" aria-hidden="true">
                                 {{#if feature_image}}
-                                    <img src="{{img_url feature_image size="s"}}" alt="" />
+                                    <img src="{{img_url feature_image size="s"}}" alt="{{name}}" loading="lazy" width="120" height="120" />
                                 {{else}}
                                     <span class="author-bio-initial">{{name}}</span>
                                 {{/if}}
@@ -265,7 +272,7 @@
                         <div class="author-bio-layout">
                             <div class="author-bio-portrait" aria-hidden="true">
                                 {{#if profile_image}}
-                                    <img src="{{img_url profile_image size="s"}}" alt="" />
+                                    <img src="{{img_url profile_image size="s"}}" alt="{{name}}" loading="lazy" width="120" height="120" />
                                 {{else}}
                                     <span class="author-bio-initial">{{name}}</span>
                                 {{/if}}
