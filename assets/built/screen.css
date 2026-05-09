@@ -436,7 +436,9 @@ img { max-width: 100%; height: auto; }
   height: 520px;
   background: radial-gradient(circle, rgba(238,125,81,0.28), transparent 65%);
   pointer-events: none;
+  z-index: 0;
 }
+.hero .container { position: relative; z-index: 1; }
 
 .hero-grid {
   display: grid;
