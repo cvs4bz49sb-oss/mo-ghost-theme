@@ -20,8 +20,10 @@
  *   "ordinary"
  */
 (function () {
-  var e = document.body.getAttribute("data-member-email");
-  if (!e) return;
+  // Liturgical season is the same regardless of whether the visitor
+  // is signed in. The previous version returned early when no member
+  // email was present, which was a copy-paste bug from a member-only
+  // feature.
   var p;
   try { p = localStorage.getItem("mo_liturgical"); } catch (x) {}
   if (!p || p === "off") return;

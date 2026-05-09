@@ -16,9 +16,12 @@
     "ghost-theme"
   ],
   "scripts": {
-    "lint": "eslint assets/js"
+    "lint": "eslint assets/js",
+    "build:digest": "node scripts/build-digest.mjs",
+    "build:digest:check": "node scripts/build-digest.mjs --check"
   },
   "devDependencies": {
+    "esbuild": "^0.24.0",
     "eslint": "^9.17.0"
   },
   "config": {

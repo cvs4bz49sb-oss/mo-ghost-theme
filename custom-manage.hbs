@@ -163,26 +163,7 @@
           </p>
         </div>
 
-        <script>
-          (function () {
-            var wrap = document.querySelector('.manage-tier-wrap');
-            if (!wrap) return;
-            var labels = (wrap.getAttribute('data-member-labels') || '').toLowerCase();
-            var status = (wrap.getAttribute('data-member-status') || '').toLowerCase();
-            // Priority: tier labels win over status. Lifetime before
-            // gift (a gift-lifetime carries both labels; the lifetime
-            // copy is the more accurate story for the recipient).
-            var variant =
-              labels.indexOf('tier:lifetime') > -1 || labels.indexOf('source:lifetime') > -1 ? 'lifetime' :
-              labels.indexOf('source:gift') > -1 ? 'gift' :
-              labels.indexOf('source:group') > -1 ? 'group' :
-              status === 'free' ? 'free' :
-              'paid';
-            wrap.querySelectorAll('[data-manage-tier]').forEach(function (el) {
-              el.hidden = el.getAttribute('data-manage-tier') !== variant;
-            });
-          })();
-        </script>
+        <script src="{{asset "js/page/manage-tier.js"}}"></script>
 
       {{else}}
         {{!-- Not signed in — keep the email-capture flow so people

@@ -26,3 +26,5 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Lint
         run: npm run lint
+      - name: Verify digest JSX outputs are up to date
+        run: npm run build:digest:check

@@ -45,19 +45,6 @@
     </div>
   </div>
 
-  <script>
-    (function () {
-      var params = new URLSearchParams(window.location.search);
-      var key = null;
-      if (params.get('lifetime')) key = 'lifetime';
-      else if (params.get('gift')) key = 'gift';
-      else if (params.get('group')) key = 'group';
-      if (!key) return;
-      var def = document.querySelector('[data-success-default]');
-      var target = document.querySelector('[data-success-' + key + ']');
-      if (def) def.hidden = true;
-      if (target) target.hidden = false;
-    })();
-  </script>
+  <script src="{{asset "js/page/success.js"}}"></script>
 
 </main>

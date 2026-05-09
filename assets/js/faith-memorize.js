@@ -115,15 +115,36 @@
     if (index < 0) index = list.length - 1;
 
     var q = list[index];
-    var numeralPrefix = q.lordsDay ? ("Lord's Day " + q.lordsDay + " &middot; Q. " + q.number) : ("Q. " + q.number);
-    els.numeral.innerHTML = numeralPrefix;
-    els.question.innerHTML = "<em>" + escapeHtml(smarten(q.question)) + "</em>";
+    var numeralPrefix = q.lordsDay ? ("Lord's Day " + q.lordsDay + " · Q. " + q.number) : ("Q. " + q.number);
+    els.numeral.textContent = numeralPrefix;
+    els.question.replaceChildren();
+    var qEm = document.createElement("em");
+    qEm.textContent = smarten(q.question);
+    els.question.appendChild(qEm);
     els.answerText.innerHTML = paragraphsHtml(q.answer);
     if (q.references && q.references.length) {
-      var refsHtml = q.references.map(function (r) {
-        return '<button type="button" class="faith-verse-ref" data-faith-verse data-book="' + escapeHtml(r.book || "") + '" data-reference="' + escapeHtml(r.reference || r.book || "") + '">' + escapeHtml(r.reference || r.book || "") + "</button>";
-      }).join('<span class="faith-verse-sep" aria-hidden="true"> &middot; </span>');
-      els.refs.innerHTML = '<span class="faith-qa-ref-label">Scripture</span> ' + refsHtml;
+      els.refs.replaceChildren();
+      var label = document.createElement("span");
+      label.className = "faith-qa-ref-label";
+      label.textContent = "Scripture ";
+      els.refs.appendChild(label);
+      q.references.forEach(function (r, idx) {
+        if (idx > 0) {
+          var sep = document.createElement("span");
+          sep.className = "faith-verse-sep";
+          sep.setAttribute("aria-hidden", "true");
+          sep.textContent = " · ";
+          els.refs.appendChild(sep);
+        }
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "faith-verse-ref";
+        btn.setAttribute("data-faith-verse", "");
+        btn.setAttribute("data-book", r.book || "");
+        btn.setAttribute("data-reference", r.reference || r.book || "");
+        btn.textContent = r.reference || r.book || "";
+        els.refs.appendChild(btn);
+      });
       els.refs.hidden = false;
     } else {
       els.refs.hidden = true;

@@ -91,8 +91,12 @@
     toggle.className = "nav-dropdown-toggle";
     toggle.setAttribute("aria-haspopup", "true");
     toggle.setAttribute("aria-expanded", "false");
-    toggle.innerHTML = escapeHtml(g.label) +
-      ' <span class="nav-dropdown-caret" aria-hidden="true">\u25BE</span>';
+    toggle.appendChild(document.createTextNode(g.label + " "));
+    var caret = document.createElement("span");
+    caret.className = "nav-dropdown-caret";
+    caret.setAttribute("aria-hidden", "true");
+    caret.textContent = "\u25BE";
+    toggle.appendChild(caret);
     wrap.appendChild(toggle);
 
     var menu = document.createElement("ul");
@@ -151,8 +155,12 @@
       heading.type = "button";
       heading.className = "mobile-nav-group-heading mobile-nav-group-toggle";
       heading.setAttribute("aria-expanded", "false");
-      heading.innerHTML = escapeHtml(g.label) +
-        ' <span class="mobile-nav-group-caret" aria-hidden="true">\u25BE</span>';
+      heading.appendChild(document.createTextNode(g.label + " "));
+      var mCaret = document.createElement("span");
+      mCaret.className = "mobile-nav-group-caret";
+      mCaret.setAttribute("aria-hidden", "true");
+      mCaret.textContent = "\u25BE";
+      heading.appendChild(mCaret);
       heading.addEventListener("click", function () {
         var nowCollapsed = wrap.classList.toggle("is-collapsed");
         heading.setAttribute("aria-expanded", nowCollapsed ? "false" : "true");

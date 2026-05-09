@@ -66,58 +66,42 @@
          "needs rewriting" by the export, (b) fail filename matching
          in any URL-override map because of the query string, and
          (c) end up data-URI-embedded — which Kit handles unreliably. --}}
-    <script>
-      window.MO_DIGEST_ASSETS = {
-        'mere-o-logo.png': '{{@site.url}}/assets/images/mere-o-logo.png',
-        'mere-fidelity.jpg': '{{@site.url}}/assets/images/mere-fidelity.jpg',
-        'christians-reading-classics.jpg': '{{@site.url}}/assets/images/christians-reading-classics.jpg'
-      };
-    </script>
+    {{!-- Asset URLs that need the absolute @site.url for the digest
+         tool's HTML export. Template can't externalize the JS object
+         (paths contain Handlebars expansions), so emit as JSON in a
+         meta tag and let digest-bootstrap.js parse it into
+         window.MO_DIGEST_ASSETS. --}}
+    <meta name="mo-digest-assets" content='{"mere-o-logo.png":"{{@site.url}}/assets/images/mere-o-logo.png","mere-fidelity.jpg":"{{@site.url}}/assets/images/mere-fidelity.jpg","christians-reading-classics.jpg":"{{@site.url}}/assets/images/christians-reading-classics.jpg"}' />
 
-    {{!-- React + Babel, then the digest tool's own JSX modules.
-         Order matters: tweaks-panel and email-template define globals
-         (TweaksPanel, EmailTemplate, MO_TOKENS, DEFAULT_CONTENT) that
-         content-editor and app reference.
+    {{!-- React + the digest tool's compiled JS modules. Order matters:
+         tweaks-panel and email-template define globals (TweaksPanel,
+         EmailTemplate, MO_TOKENS, DEFAULT_CONTENT) that content-editor
+         and app reference.
 
-         Switched to react.production.min.js (was .development.js) so
-         we ship production-minified React rather than the dev build
-         with PropTypes warnings + extra strings.
+         No Babel runtime: the JSX is compiled at deploy time via
+         `npm run build:digest` (esbuild) and the .js outputs are
+         committed alongside the .jsx sources. Removing Babel-standalone
+         lets us drop 'unsafe-eval' from the theme's CSP. CI verifies
+         the .js outputs are up to date with their .jsx sources.
 
-         SRI hashes pin each CDN script to a known content hash; if
-         unpkg is compromised, the browser refuses to execute.
-         Regenerate via:
-           openssl dgst -sha384 -binary <file> | openssl base64 -A --}}
+         SRI hashes pin each CDN script to a known content hash. --}}
     <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
             integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
             crossorigin="anonymous"></script>
     <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
             integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
             crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
-            integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
-            crossorigin="anonymous"></script>
 
-    {{!-- The shipped JSX targets a #root mount point. Replace it with
-         our scoped #mo-digest-root before any of the modules run, so
-         App's ReactDOM.createRoot(document.getElementById('root'))
-         resolves to the container we own. Done in a way that's
-         reversible if the page is loaded inside something that uses
-         #root for its own purposes. --}}
-    <script>
-      (function () {
-        var existing = document.getElementById('root');
-        if (existing && existing !== document.getElementById('mo-digest-root')) {
-          existing.id = '__non_digest_root_' + Math.random().toString(36).slice(2);
-        }
-        document.getElementById('mo-digest-root').id = 'root';
-      })();
-    </script>
+    {{!-- Bootstrap: parses the mo-digest-assets meta into the global
+         window.MO_DIGEST_ASSETS the React modules expect, and takes
+         over the #root mount point. See digest-bootstrap.js. --}}
+    <script src="{{asset "js/page/digest-bootstrap.js"}}"></script>
 
-    <script type="text/babel" src="{{asset "js/digest/tweaks-panel.jsx"}}"></script>
-    <script type="text/babel" src="{{asset "js/digest/email-template.jsx"}}"></script>
-    <script type="text/babel" src="{{asset "js/digest/content-editor.jsx"}}"></script>
-    <script type="text/babel" src="{{asset "js/digest/export-html.jsx"}}"></script>
-    <script type="text/babel" src="{{asset "js/digest/app.jsx"}}"></script>
+    <script src="{{asset "js/digest/tweaks-panel.js"}}"></script>
+    <script src="{{asset "js/digest/email-template.js"}}"></script>
+    <script src="{{asset "js/digest/content-editor.js"}}"></script>
+    <script src="{{asset "js/digest/export-html.js"}}"></script>
+    <script src="{{asset "js/digest/app.js"}}"></script>
 
   {{else}}
     {{> "admin-denied"}}

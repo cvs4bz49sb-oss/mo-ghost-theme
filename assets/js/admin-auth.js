@@ -93,8 +93,15 @@
 
   // Pre-warm the token on load so the first authenticated fetch
   // (often during pagehide for kit-events) doesn't need to wait
-  // for /members/api/session/. Fire-and-forget.
-  try { getTokenInternal(); } catch (_) { /* noop */ }
+  // for /members/api/session/. Gated on data-member-email so we
+  // don't hit the endpoint on every public-page view for non-members
+  // (the response is fast but still ~20k visits/week of waste).
+  // Fire-and-forget either way.
+  try {
+    if (document.body && document.body.getAttribute("data-member-email")) {
+      getTokenInternal();
+    }
+  } catch (_) { /* noop */ }
 
   window.MOAuth = { fetch: authedFetch };
 })();
