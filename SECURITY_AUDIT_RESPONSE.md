@@ -11,10 +11,27 @@ This document maps each audit finding to the action taken on the theme side, the
 
 ## Status at a glance
 
-| ID | Severity | Finding | Theme status | Worker status |
-|----|----------|---------|--------------|---------------|
+| ID | Severity | Finding | Theme commit | Worker work |
+|----|----------|---------|--------------|-------------|
+| C1 | Critical | Client-side group pricing | n/a (theme already correct) | needs verification |
+| C2 | Critical | Unauthenticated address endpoint | [`fac16b2`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/fac16b2) | required |
+| C3 | Critical | Email in URL query string | [`fac16b2`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/fac16b2) | required |
+| C4 | Critical | Gift mint endpoint unauthenticated | [`7e3cbd2`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/7e3cbd2) | required |
+| C5 | Critical | Unauthenticated checkout endpoints | [`8f677a8`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/8f677a8) | required |
+| H1 | High | Institution token in URL | [`1204bc8`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/1204bc8) | follow-up: move to POST |
+| H2 | High | Member email in HTML data attrs | n/a (architectural) | n/a |
+| H3 | High | innerHTML with Ghost post content | [`441f791`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/441f791) | n/a |
+| H4 | High | innerHTML in admin-editorial.js | n/a (currently safe) | post-audit refactor |
+| H5 | High | Email enumeration via /manage/ | [`078e677`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/078e677) | required |
+| H6 | High | Group token in URL | [`b58c022`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/b58c022) | follow-up: move to POST |
+| H7 | High | Forms worker no auth, no captcha | n/a (theme has no actionable change for Option A) | required |
+| M1 | Medium | postMessage with wildcard origin | [`9759ecf`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/9759ecf) | n/a |
+| M2 | Medium | Kit event endpoint unauthenticated | [`5d4e17c`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/5d4e17c) | required |
+| M3 | Medium | admin-institution.js unescaped innerHTML | [`20b6bc8`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/20b6bc8) | n/a |
+| M4 | Medium | Blind navigation to worker URLs | [`0e28da1`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/0e28da1) | n/a |
+| Misc | — | inline-signup empty-string fall-through | [`4bcbcd6`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/4bcbcd6) | n/a |
 
-(filled in as commits land)
+Tracking + worker-side detail: [`WORKER_SECURITY_TODO.md`](./WORKER_SECURITY_TODO.md). Tracking docs commit: [`9198941`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/9198941).
 
 ---
 
@@ -28,31 +45,31 @@ This document maps each audit finding to the action taken on the theme side, the
 ### C2 — Unauthenticated address endpoint
 **Severity**: Critical
 **Theme action**: `complete-membership.js` now sends `Authorization: Bearer <jwt>` (Ghost member JWT via `MOAdminAuth.headers()`) on both GET and POST to `/api/member/address`. Email is no longer sent in body or query — the worker derives it from the JWT `sub`.
-**Commit**: (pending)
+**Commit**: see status table above
 **Worker TODO**: verify JWT, extract email from `sub`, reject body `email`. See `WORKER_SECURITY_TODO.md`.
 
 ### C3 — Email in URL query string
 **Severity**: Critical
 **Theme action**: addressed alongside C2 — GET no longer includes `?email=...`. Identity is in the JWT.
-**Commit**: (pending — same as C2)
+**Commit**: same as C2
 
 ### C4 — Gift mint endpoint unauthenticated
 **Severity**: Critical
 **Theme action**: `article-gift.js` now sends JWT on `/mint` and drops `email` from body. Worker derives gifter identity from JWT.
-**Commit**: (pending)
+**Commit**: see status table above
 **Worker TODO**: verify JWT, ignore body `email`.
 
 ### C5 — Unauthenticated checkout endpoints
 **Severity**: Critical
 **Theme action (lifetime)**: `lifetime-checkout.js` sends JWT when the visitor is signed in (`data-member-email` present); body fields are dropped in that case. Anonymous visitors continue to send no auth (Stripe collects identity at checkout).
 **Theme action (gift, group)**: no change — these flows are intrinsically purchase-on-behalf flows where the buyer fills in a form and Stripe collects the actual buyer email. The worker should still validate inputs server-side.
-**Commit**: (pending)
+**Commit**: see status table above
 **Worker TODO**: prefer JWT-derived identity over body fields when JWT present.
 
 ### H1 — Institution token in URL query string
 **Severity**: High
 **Theme action**: `institution-manage.js` now calls `history.replaceState` immediately after reading the token, so the URL becomes `/institution-manage/` with no token in browser history, referrer headers, or screenshots. The token is held in a closure for subsequent POST bodies.
-**Commit**: (pending)
+**Commit**: see status table above
 **Note**: the worker `/api/institution/context` endpoint still accepts the token in a query string for the initial fetch; moving that to a POST body is in `WORKER_SECURITY_TODO.md`.
 
 ### H2 — Member email in HTML data attributes
@@ -63,7 +80,7 @@ This document maps each audit finding to the action taken on the theme side, the
 ### H3 — innerHTML with Ghost post content
 **Severity**: High
 **Theme action**: vendored DOMPurify (~22 KB) at `assets/js/vendor/purify.min.js`. Both `events.js` and `dashboard-replays.js` now wrap their `innerHTML` writes with `DOMPurify.sanitize(html, { ADD_TAGS: ['iframe'], ADD_ATTR: ['allowfullscreen', 'frameborder', 'allow'] })`. YouTube/Vimeo iframe embeds continue to render; `<script>`, inline event handlers, and `javascript:` URIs are stripped.
-**Commit**: (pending)
+**Commit**: see status table above
 
 ### H4 — innerHTML in admin-editorial.js
 **Severity**: High (currently safe)
@@ -73,13 +90,13 @@ This document maps each audit finding to the action taken on the theme side, the
 ### H5 — Email enumeration via /manage/ portal
 **Severity**: High
 **Theme action**: `manage.js` now shows a generic message regardless of whether the email exists ("If that email has a membership, we'll redirect you. Check your inbox if nothing happens, or email ian@mereorthodoxy.com."). The 404 / `customer_not_found` branch no longer reveals existence.
-**Commit**: (pending)
+**Commit**: see status table above
 **Worker TODO**: stop returning the distinguishing 404; add per-IP/per-email rate limiting.
 
 ### H6 — Group token in URL query string
 **Severity**: High
 **Theme action**: same pattern as H1. `group-manage.js` strips the token from the URL after reading.
-**Commit**: (pending)
+**Commit**: see status table above
 
 ### H7 — Forms worker no auth, no captcha
 **Severity**: High
@@ -90,23 +107,23 @@ This document maps each audit finding to the action taken on the theme side, the
 ### M1 — postMessage with wildcard origin
 **Severity**: Medium
 **Theme action**: `tweaks-panel.jsx` now captures the parent origin from `window.location.ancestorOrigins[0]` (or the first inbound message) and uses it as the target for outbound `postMessage` calls. The inbound listener rejects messages from other origins.
-**Commit**: (pending)
+**Commit**: see status table above
 
 ### M2 — Kit event endpoint unauthenticated
 **Severity**: Medium
 **Theme action**: `kit-events.js` now sends `Authorization: Bearer <jwt>` on `/event` POST. Email stays in the body for now (worker can compare to JWT `sub`); the worker is the enforcement point.
-**Commit**: (pending)
+**Commit**: see status table above
 **Worker TODO**: verify JWT, ensure body `email` matches `sub` (or just derive from `sub`).
 
 ### M3 — admin-institution.js unescaped name in innerHTML
 **Severity**: Medium
 **Theme action**: `admin-institution.js` headline rendering switched from string concatenation + `innerHTML` to DOM construction (`createTextNode`, `createElement`, `textContent`). Same pattern already used in `renderDomains` / `renderMembers` further down the same file.
-**Commit**: (pending)
+**Commit**: see status table above
 
 ### M4 — Blind navigation to worker-provided URLs
 **Severity**: Medium
 **Theme action**: added `assets/js/lib/safe-redirect.js` with a `MOSafeRedirect.go(url)` helper that validates against an allowlist (`checkout.stripe.com`, `billing.stripe.com`) before navigation. All four sites (`lifetime-checkout.js`, `gift.js`, `groups.js`, `manage.js`) now go through it.
-**Commit**: (pending)
+**Commit**: see status table above
 
 ---
 
@@ -123,7 +140,7 @@ This document maps each audit finding to the action taken on the theme side, the
 
 ### `inline-signup.js` line 74 — empty string fall-through
 **Status**: fixed. Non-ok integrity-token responses now reject the promise chain and surface an error rather than silently sending an empty token.
-**Commit**: (pending)
+**Commit**: see status table above
 
 ### JS style consistency / ESLint
 **Status**: not addressed. Worth doing — would catch additional issues — but a separate session.
