@@ -133,6 +133,31 @@ const __TWEAKS_STYLE = `
   .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
 `;
 
+// ── parent origin ───────────────────────────────────────────────────────────
+// We only postMessage to the host editor frame, never broadcast. Capture
+// the parent's origin once (via ancestorOrigins where available, else
+// from the first inbound message) and pin all outbound messages to it
+// instead of using '*'. The inbound listener also rejects messages from
+// any other origin so a third-party page that frames us can't poke the
+// edit-mode protocol.
+const __TWEAKS_PARENT_ORIGIN = {
+  value:
+    (typeof window !== 'undefined'
+      && window.location
+      && window.location.ancestorOrigins
+      && window.location.ancestorOrigins[0])
+    || null,
+  capture(origin) {
+    if (!this.value && origin && origin !== 'null') this.value = origin;
+  },
+  // Fall back to the current origin if we never learned the parent's
+  // (e.g. same-origin frame in a browser without ancestorOrigins).
+  // Using window.location.origin is still strictly tighter than '*'.
+  target() {
+    return this.value || window.location.origin;
+  },
+};
+
 // ── useTweaks ───────────────────────────────────────────────────────────────
 function useTweaks(defaults) {
   const [values, setValues] = React.useState(defaults);
@@ -140,7 +165,7 @@ function useTweaks(defaults) {
     const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
       ? keyOrEdits : { [keyOrEdits]: val };
     setValues((prev) => ({ ...prev, ...edits }));
-    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, __TWEAKS_PARENT_ORIGIN.target());
   }, []);
   return [values, setTweak];
 }
@@ -180,18 +205,24 @@ function TweaksPanel({ title = 'Tweaks', children, defaultOpen = false }) {
 
   React.useEffect(() => {
     const onMsg = (e) => {
+      // Only honor messages from the parent frame's origin. If we
+      // haven't learned the origin yet, capture it from the first
+      // valid inbound message and pin all subsequent traffic to it.
+      if (__TWEAKS_PARENT_ORIGIN.value && e.origin !== __TWEAKS_PARENT_ORIGIN.value) return;
       const t = e?.data?.type;
+      if (t !== '__activate_edit_mode' && t !== '__deactivate_edit_mode') return;
+      __TWEAKS_PARENT_ORIGIN.capture(e.origin);
       if (t === '__activate_edit_mode') setOpen(true);
-      else if (t === '__deactivate_edit_mode') setOpen(false);
+      else setOpen(false);
     };
     window.addEventListener('message', onMsg);
-    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    window.parent.postMessage({ type: '__edit_mode_available' }, __TWEAKS_PARENT_ORIGIN.target());
     return () => window.removeEventListener('message', onMsg);
   }, []);
 
   const dismiss = () => {
     setOpen(false);
-    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, __TWEAKS_PARENT_ORIGIN.target());
   };
 
   const onDragStart = (e) => {
