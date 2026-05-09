@@ -90,6 +90,27 @@
     </div>
   </section>
 
+  {{#get "posts" filter="tag:hash-podcast-transcript+tag:mere-fidelity" order="published_at desc" limit="all" include="authors"}}
+    {{#if posts}}
+      <section class="podcast-transcripts">
+        <div class="container">
+          <div class="section-intro section-intro-left">
+            <p class="eyebrow">Transcripts</p>
+            <h2 class="section-heading"><em>Read the conversation.</em></h2>
+          </div>
+          <div class="podcast-transcript-list">
+            {{#foreach posts}}
+              <a href="{{url}}" class="podcast-transcript-entry">
+                <h3 class="podcast-transcript-title"><em>{{title}}</em></h3>
+                <time class="podcast-transcript-date" datetime="{{date format="YYYY-MM-DD"}}">{{date format="MMMM D, YYYY"}}</time>
+              </a>
+            {{/foreach}}
+          </div>
+        </div>
+      </section>
+    {{/if}}
+  {{/get}}
+
 </main>
 
 <script src="{{asset "js/podcast-feed.js"}}"></script>
