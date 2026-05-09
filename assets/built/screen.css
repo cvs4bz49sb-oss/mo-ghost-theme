@@ -6349,15 +6349,88 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .dashboard-hero .hero-headline { margin-top: 12px; max-width: 780px; }
 .dashboard-hero .hero-sub { max-width: 640px; margin-top: 18px; }
 .dashboard-hero .dashboard-actions { margin-top: 28px; }
+/* Liturgical week chip — collapsed shows just the week label as a
+   small all-caps eyebrow. Click to expand into the BCP Collect. */
 .hero-liturgical-week {
   font-family: var(--font-body);
+  margin: 24px 0 0;
+  max-width: 720px;
+}
+.hero-liturgical-week[hidden] { display: none; }
+
+.hero-liturgical-week-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
-  margin: 24px 0 0;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 0;
+  transition: color 180ms ease;
 }
-.hero-liturgical-week:empty { display: none; }
+.hero-liturgical-week-summary::-webkit-details-marker { display: none; }
+.hero-liturgical-week-summary:hover { color: rgba(255,255,255,0.85); }
+.hero-liturgical-week-summary:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.5);
+  outline-offset: 4px;
+  color: rgba(255,255,255,0.85);
+}
+.hero-liturgical-week-chev {
+  display: inline-block;
+  font-size: 10px;
+  transition: transform 180ms ease;
+}
+.hero-liturgical-week[open] .hero-liturgical-week-chev {
+  transform: rotate(180deg);
+}
+
+.hero-liturgical-collect {
+  margin-top: 20px;
+  padding: 24px 28px;
+  background: rgba(255,255,255,0.06);
+  border-left: 2px solid rgba(255,255,255,0.3);
+  border-radius: 4px;
+  /* Brief fade-in when opened */
+  animation: hero-liturgical-collect-fade 220ms ease-out;
+}
+@keyframes hero-liturgical-collect-fade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-liturgical-collect-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin: 0 0 12px;
+}
+.hero-liturgical-collect-body {
+  font-family: var(--font-display, var(--font-body));
+  font-size: 17px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.92);
+  margin: 0;
+  /* Drop cap-ish first letter via small caps would be heavy here;
+     the BCP cadence comes through fine with serif body alone. */
+}
+.hero-liturgical-collect-source {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.4);
+  margin: 16px 0 0;
+}
+
+@media (max-width: 640px) {
+  .hero-liturgical-collect {
+    padding: 18px 20px;
+  }
+  .hero-liturgical-collect-body {
+    font-size: 16px;
+  }
+}
 
 .dashboard-admin-banner {
   background: rgba(238, 125, 81, 0.12);

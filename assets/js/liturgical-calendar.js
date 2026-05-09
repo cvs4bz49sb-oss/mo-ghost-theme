@@ -155,10 +155,63 @@
     }
   }
 
-  // ── Populate dashboard week indicator ───────────────────────
+  // ── Populate dashboard week indicator + Collect dropdown ────
+  // The week chip is a <details> element. Summary text is the week
+  // label (e.g. "First Week of Advent"); body is the BCP 1979 Collect
+  // for that week, lazy-loaded from assets/data/collects.json the
+  // first time the user opens the dropdown.
   const weekEl = document.querySelector("[data-liturgical-week]");
-  if (weekEl) {
-    weekEl.textContent = computeWeekLabel(new Date());
+  const weekLabelEl = document.querySelector("[data-liturgical-week-label]");
+  const collectBodyEl = document.querySelector("[data-liturgical-collect-body]");
+  if (weekEl && weekLabelEl) {
+    const label = computeWeekLabel(new Date());
+    if (label) {
+      weekLabelEl.textContent = label;
+      weekEl.hidden = false;
+
+      let collectsCache = null;
+      let loadStarted = false;
+      const renderPlaceholder = (msg) => {
+        if (collectBodyEl) collectBodyEl.textContent = msg;
+      };
+      const renderCollect = (label) => {
+        if (!collectBodyEl) return;
+        const text = collectsCache && collectsCache[label];
+        if (text) {
+          collectBodyEl.textContent = text;
+        } else {
+          renderPlaceholder(
+            `The Collect for this week isn't in our local set yet. ` +
+              `(Looking for: ${label})`
+          );
+        }
+      };
+      const ensureLoaded = async () => {
+        if (collectsCache || loadStarted) return;
+        loadStarted = true;
+        renderPlaceholder("Loading…");
+        try {
+          // Static asset; Cloudflare/Ghost CDN caches it. ~25 KB.
+          const res = await fetch("/assets/data/collects.json");
+          if (!res.ok) throw new Error(`fetch ${res.status}`);
+          collectsCache = await res.json();
+        } catch (err) {
+          console.error("collect fetch failed", err && err.message);
+          renderPlaceholder(
+            "Could not load the Collect. Try reloading the page."
+          );
+          loadStarted = false; // allow retry on next open
+          return;
+        }
+        renderCollect(label);
+      };
+      // Lazy-load on first open. The <details> "toggle" event fires
+      // whenever the open state changes; we fetch only if it just
+      // opened and haven't fetched yet.
+      weekEl.addEventListener("toggle", () => {
+        if (weekEl.open) ensureLoaded();
+      });
+    }
   }
 
   // ── Dashboard settings UI ────────────────────────────────────

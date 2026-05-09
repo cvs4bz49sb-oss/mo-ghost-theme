@@ -1,0 +1,122 @@
+{
+  "_source": "Collects from The Book of Common Prayer (1979) of the Episcopal Church. Public domain. Anglican tradition prays the Sunday Collect daily through the week — these are keyed to the week label produced by liturgical-calendar.js computeWeekLabel().",
+  "_keying": "Each key matches one of the strings computeWeekLabel returns: e.g. 'First Week of Advent', 'Christmastide', 'Holy Week', 'Twentieth Week of Ordinary Time'. Ordinary Time uses the 1979 BCP Propers (1 through 29), mapped from week-after-Pentecost via lookups in liturgical-calendar.js.",
+
+  "First Week of Advent": "Almighty God, give us grace to cast away the works of darkness, and put on the armor of light, now in the time of this mortal life in which thy Son Jesus Christ came to visit us in great humility; that in the last day, when he shall come again in his glorious majesty to judge both the quick and the dead, we may rise to the life immortal; through him who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Second Week of Advent": "Merciful God, who sent thy messengers the prophets to preach repentance and prepare the way for our salvation: Give us grace to heed their warnings and forsake our sins, that we may greet with joy the coming of Jesus Christ our Redeemer; who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Third Week of Advent": "Stir up thy power, O Lord, and with great might come among us; and, because we are sorely hindered by our sins, let thy bountiful grace and mercy speedily help and deliver us; through Jesus Christ our Lord, to whom, with thee and the Holy Spirit, be honor and glory, world without end. Amen.",
+
+  "Fourth Week of Advent": "Purify our conscience, Almighty God, by thy daily visitation, that thy Son Jesus Christ, at his coming, may find in us a mansion prepared for himself; through the same Jesus Christ our Lord, who liveth and reigneth with thee, in the unity of the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Christmastide": "O God, who hast caused this holy night to shine with the brightness of the true Light: Grant that we, who have known the mystery of that Light on earth, may also enjoy him perfectly in heaven; where with thee and the Holy Spirit he liveth and reigneth, one God, in glory everlasting. Amen.",
+
+  "The Epiphany": "O God, who by the leading of a star didst manifest thy only-begotten Son to the peoples of the earth: Lead us, who know thee now by faith, to thy presence, where we may behold thy glory face to face; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "First Week after the Epiphany": "Father in heaven, who at the baptism of Jesus in the river Jordan didst proclaim him thy beloved Son and anoint him with the Holy Spirit: Grant that all who are baptized into his Name may keep the covenant they have made, and boldly confess him as Lord and Savior; who with thee and the Holy Spirit liveth and reigneth, one God, in glory everlasting. Amen.",
+
+  "Second Week after the Epiphany": "Almighty God, whose Son our Savior Jesus Christ is the light of the world: Grant that thy people, illumined by thy Word and Sacraments, may shine with the radiance of Christ's glory, that he may be known, worshiped, and obeyed to the ends of the earth; through Jesus Christ our Lord, who with thee and the Holy Spirit liveth and reigneth, one God, now and for ever. Amen.",
+
+  "Third Week after the Epiphany": "Give us grace, O Lord, to answer readily the call of our Savior Jesus Christ and proclaim to all people the Good News of his salvation, that we and the whole world may perceive the glory of his marvelous works; who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Fourth Week after the Epiphany": "Almighty and everlasting God, who dost govern all things in heaven and earth: Mercifully hear the supplications of thy people, and in our time grant us thy peace; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Fifth Week after the Epiphany": "Set us free, O God, from the bondage of our sins, and give us the liberty of that abundant life which thou hast made known to us in thy Son our Savior Jesus Christ; who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Sixth Week after the Epiphany": "O God, the strength of all who put their trust in thee: Mercifully accept our prayers; and because, through the weakness of our mortal nature, we can do no good thing without thee, grant us the help of thy grace, that in keeping thy commandments we may please thee both in will and deed; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Seventh Week after the Epiphany": "O Lord, who hast taught us that all our doings without charity are nothing worth: Send thy Holy Spirit and pour into our hearts that most excellent gift of charity, the true bond of peace and of all virtue, without which whosoever liveth is counted dead before thee. Grant this for thy only Son Jesus Christ's sake, who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Eighth Week after the Epiphany": "Most loving Father, whose will it is for us to give thanks for all things, to fear nothing but the loss of thee, and to cast all our care on thee who carest for us: Preserve us from faithless fears and worldly anxieties, that no clouds of this mortal life may hide from us the light of that love which is immortal, and which thou hast manifested unto us in thy Son Jesus Christ our Lord; who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Ash Wednesday": "Almighty and everlasting God, who hatest nothing thou hast made and dost forgive the sins of all those who are penitent: Create and make in us new and contrite hearts, that we, worthily lamenting our sins and acknowledging our wretchedness, may obtain of thee, the God of all mercy, perfect remission and forgiveness; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "First Week of Lent": "Almighty God, whose blessed Son was led by the Spirit to be tempted of Satan: Come quickly to help us who are assaulted by many temptations; and, as thou knowest the weaknesses of each of us, let each one find thee mighty to save; through Jesus Christ thy Son our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Second Week of Lent": "O God, whose glory it is always to have mercy: Be gracious to all who have gone astray from thy ways, and bring them again with penitent hearts and steadfast faith to embrace and hold fast the unchangeable truth of thy Word, Jesus Christ thy Son; who with thee and the Holy Spirit liveth and reigneth, one God, for ever and ever. Amen.",
+
+  "Third Week of Lent": "Almighty God, thou knowest that we have no power of ourselves to help ourselves: Keep us both outwardly in our bodies and inwardly in our souls, that we may be defended from all adversities which may happen to the body, and from all evil thoughts which may assault and hurt the soul; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Fourth Week of Lent": "Gracious Father, whose blessed Son Jesus Christ came down from heaven to be the true bread which giveth life to the world: Evermore give us this bread, that he may live in us, and we in him; who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Fifth Week of Lent": "Almighty God, thou alone canst order the unruly wills and affections of sinners: Grant unto thy people, that they may love the thing which thou commandest, and desire that which thou dost promise; that so, among the sundry and manifold changes of the world, our hearts may surely there be fixed where true joys are to be found; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Holy Week": "Almighty God, whose dear Son went not up to joy but first he suffered pain, and entered not into glory before he was crucified: Mercifully grant that we, walking in the way of the cross, may find it none other than the way of life and peace; through Jesus Christ thy Son our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Easter Week": "O God, who for our redemption didst give thine only-begotten Son to the death of the cross, and by his glorious resurrection hast delivered us from the power of our enemy: Grant us so to die daily to sin, that we may evermore live with him in the joy of his resurrection; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Second Week of Easter": "Almighty and everlasting God, who in the Paschal mystery hast established the new covenant of reconciliation: Grant that all who have been reborn into the fellowship of Christ's Body may show forth in their lives what they profess by their faith; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Third Week of Easter": "O God, whose blessed Son did manifest himself to his disciples in the breaking of bread: Open, we pray thee, the eyes of our faith, that we may behold him in all his redeeming work; who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Fourth Week of Easter": "O God, whose Son Jesus is the good shepherd of thy people: Grant that when we hear his voice we may know him who calleth us each by name, and follow where he doth lead; who, with thee and the Holy Spirit, liveth and reigneth, one God, for ever and ever. Amen.",
+
+  "Fifth Week of Easter": "Almighty God, whom truly to know is everlasting life: Grant us so perfectly to know thy Son Jesus Christ to be the way, the truth, and the life, that we may steadfastly follow his steps in the way that leadeth to eternal life; through the same thy Son Jesus Christ our Lord, who liveth and reigneth with thee, in the unity of the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Sixth Week of Easter": "O God, thou hast prepared for those who love thee such good things as pass our understanding: Pour into our hearts such love towards thee, that we, loving thee in all things and above all things, may obtain thy promises, which exceed all that we can desire; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Seventh Week of Easter": "O God, the King of glory, who hast exalted thine only Son Jesus Christ with great triumph unto thy kingdom in heaven: We beseech thee, leave us not comfortless, but send to us thine Holy Spirit to strengthen us, and exalt us unto the same place whither our Savior Christ is gone before; who liveth and reigneth with thee and the Holy Spirit, one God, in glory everlasting. Amen.",
+
+  "The Day of Pentecost": "Almighty God, on this day, through thy Holy Spirit, didst open the way of eternal life to every race and nation: Pour out this gift anew, that by the preaching of the Gospel thy salvation may reach to the ends of the earth; through Jesus Christ our Lord, who liveth and reigneth with thee, in the unity of the same Spirit, one God, for ever and ever. Amen.",
+
+  "First Week of Ordinary Time": "Almighty God, who hast revealed to thy Church thine eternal Being of glorious majesty and perfect love as one God in three Persons: Give us grace to continue steadfast in the confession of this faith, and constant in our worship of thee, Father, Son, and Holy Spirit; who livest and reignest, one God, for ever and ever. Amen.",
+
+  "Second Week of Ordinary Time": "Keep, O Lord, thy household the Church in thy steadfast faith and love, that through thy grace we may proclaim thy truth with boldness, and minister thy justice with compassion; for the sake of our Savior Jesus Christ, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Third Week of Ordinary Time": "O Lord, make us have perpetual love and reverence for thy holy Name, for thou never failest to help and govern those whom thou hast set upon the sure foundation of thy loving-kindness; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Fourth Week of Ordinary Time": "O God, the protector of all that trust in thee, without whom nothing is strong, nothing is holy: Increase and multiply upon us thy mercy, that, thou being our ruler and guide, we may so pass through things temporal, that we lose not the things eternal; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Fifth Week of Ordinary Time": "O God, from whom all good proceeds: Grant that by thy inspiration we may think those things that are right, and by thy merciful guiding may do them; through our Lord Jesus Christ, who liveth and reigneth with thee and the Holy Spirit, one God, now and for ever. Amen.",
+
+  "Sixth Week of Ordinary Time": "Lord, we pray thee that thy grace may always precede and follow us, that we may continually be given to good works; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Seventh Week of Ordinary Time": "Almighty and merciful God, of whose only gift it cometh that thy faithful people do unto thee true and laudable service: Grant, we beseech thee, that we may so faithfully serve thee in this life, that we fail not finally to attain thy heavenly promises; through the merits of Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Eighth Week of Ordinary Time": "O God, whose never-failing providence ordereth all things both in heaven and earth: We humbly beseech thee to put away from us all hurtful things, and to give us those things which are profitable for us; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Ninth Week of Ordinary Time": "O God, who hast taught us to keep all thy commandments by loving thee and our neighbor: Grant us the grace of thy Holy Spirit, that we may be devoted to thee with our whole heart, and united to one another with pure affection; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Tenth Week of Ordinary Time": "O God, from whom all good proceeds: Grant to us, thy humble servants, that by thy holy inspiration we may think those things that are good, and by thy merciful guiding may perform the same; through our Lord Jesus Christ, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Eleventh Week of Ordinary Time": "O Lord, from whom all good things do come: Grant to us thy humble servants, that by thy holy inspiration we may think those things that are right, and by thy merciful guiding may perform the same; through our Lord Jesus Christ. Amen.",
+
+  "Twelfth Week of Ordinary Time": "Grant, O Lord, that the course of this world may be peaceably governed by thy providence; and that thy Church may joyfully serve thee in confidence and serenity; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Thirteenth Week of Ordinary Time": "Almighty God, who hast built thy Church upon the foundation of the apostles and prophets, Jesus Christ himself being the chief cornerstone: Grant us so to be joined together in unity of spirit by their teaching, that we may be made a holy temple acceptable unto thee; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, world without end. Amen.",
+
+  "Fourteenth Week of Ordinary Time": "O God, who hast taught us to keep all thy commandments by loving thee and our neighbor: Grant us the grace of thy Holy Spirit, that we may be devoted to thee with our whole heart, and united to one another with pure affection; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Fifteenth Week of Ordinary Time": "Almighty God, the fountain of all wisdom, who knowest our necessities before we ask, and our ignorance in asking: Have compassion, we beseech thee, upon our infirmities; and those things which for our unworthiness we dare not, and for our blindness we cannot ask, vouchsafe to give us, for the worthiness of thy Son Jesus Christ our Lord; who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Sixteenth Week of Ordinary Time": "O God, who hast prepared for those who love thee such good things as pass our understanding: Pour into our hearts such love towards thee, that we, loving thee above all things, may obtain thy promises, which exceed all that we can desire; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Seventeenth Week of Ordinary Time": "O God, the protector of all that trust in thee, without whom nothing is strong, nothing is holy: Increase and multiply upon us thy mercy; that, thou being our ruler and guide, we may so pass through things temporal, that we lose not the things eternal; grant this, heavenly Father, for the sake of Jesus Christ our Lord. Amen.",
+
+  "Eighteenth Week of Ordinary Time": "Lord of all power and might, who art the author and giver of all good things: Graft in our hearts the love of thy Name; increase in us true religion; nourish us with all goodness; and bring forth in us the fruit of good works; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Nineteenth Week of Ordinary Time": "Let thy continual mercy, O Lord, cleanse and defend thy Church; and, because it cannot continue in safety without thy succor, preserve it evermore by thy help and goodness; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twentieth Week of Ordinary Time": "Almighty and everlasting God, give unto us the increase of faith, hope, and charity; and, that we may obtain that which thou dost promise, make us to love that which thou dost command; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twenty-First Week of Ordinary Time": "Almighty and merciful God, of whose only gift it cometh that thy faithful people do unto thee true and laudable service: Grant, we beseech thee, that we may so faithfully serve thee in this life, that we fail not finally to attain thy heavenly promises; through the merits of Jesus Christ our Lord. Amen.",
+
+  "Twenty-Second Week of Ordinary Time": "Keep, O Lord, thy household the Church in thy steadfast faith and love, that through thy grace we may proclaim thy truth with boldness, and minister thy justice with compassion; for the sake of our Savior Jesus Christ, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twenty-Third Week of Ordinary Time": "Grant us, O Lord, we pray thee, to trust in thee with all our hearts; for, as thou dost always resist the proud who confide in their own strength, so thou dost not forsake those who make their boast of thy mercy; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twenty-Fourth Week of Ordinary Time": "O God, because without thee we are not able to please thee, mercifully grant that thy Holy Spirit may in all things direct and rule our hearts; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twenty-Fifth Week of Ordinary Time": "Grant us, Lord, not to be anxious about earthly things, but to love things heavenly; and even now, while we are placed among things that are passing away, to hold fast to those that shall endure; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twenty-Sixth Week of Ordinary Time": "O God, thou declarest thine almighty power chiefly in showing mercy and pity: Grant us the fullness of thy grace, that we, running to obtain thy promises, may become partakers of thy heavenly treasure; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twenty-Seventh Week of Ordinary Time": "Almighty and everlasting God, who in Christ hast revealed thy glory among the nations: Preserve the works of thy mercy, that thy Church throughout the world may persevere with steadfast faith in the confession of thy Name; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twenty-Eighth Week of Ordinary Time": "Lord, we pray thee that thy grace may always precede and follow us, that we may continually be given to good works; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Twenty-Ninth Week of Ordinary Time": "Almighty and everlasting God, in Christ thou hast revealed thy glory among the nations: Preserve the works of thy mercy, that thy Church throughout the world may persevere with steadfast faith in the confession of thy Name; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen.",
+
+  "Thirtieth Week of Ordinary Time": "Stir up, O Lord, the wills of thy faithful people; that they, plenteously bringing forth the fruit of good works, may by thee be plenteously rewarded; through Jesus Christ our Lord, who liveth and reigneth with thee and the Holy Spirit, one God, for ever and ever. Amen."
+}

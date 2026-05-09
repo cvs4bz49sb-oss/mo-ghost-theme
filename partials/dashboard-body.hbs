@@ -9,7 +9,19 @@
       Welcome, <span class="highlight"><em>{{#if @member.name}}{{@member.name}}{{else}}friend{{/if}}</em></span>.
     </h1>
     <p class="hero-sub">Your home inside Mere Orthodoxy. Bookmarks, reading history, and membership settings — all in one place.</p>
-    <p class="hero-liturgical-week" data-liturgical-week></p>
+    {{!-- Liturgical week chip. Click to reveal the Sunday Collect
+         from the 1979 BCP, prayed daily through the week. --}}
+    <details class="hero-liturgical-week" data-liturgical-week hidden>
+      <summary class="hero-liturgical-week-summary">
+        <span data-liturgical-week-label></span>
+        <span class="hero-liturgical-week-chev" aria-hidden="true">▾</span>
+      </summary>
+      <div class="hero-liturgical-collect">
+        <p class="hero-liturgical-collect-label">The Collect</p>
+        <div class="hero-liturgical-collect-body" data-liturgical-collect-body></div>
+        <p class="hero-liturgical-collect-source"><em>The Book of Common Prayer (1979)</em></p>
+      </div>
+    </details>
   </div>
 </section>
 
