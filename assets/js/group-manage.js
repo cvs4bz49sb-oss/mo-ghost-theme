@@ -1,6 +1,13 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token') || '';
+  // Strip the token from the URL so it doesn't sit in browser history,
+  // referrer headers, or screenshots. The token is held in this
+  // closure for the lifetime of the page; reload = back to preview
+  // state, which is the existing fallback.
+  if (token) {
+    history.replaceState(null, '', window.location.pathname);
+  }
 
   const orgEl = document.getElementById('group-org');
   const adminEl = document.getElementById('group-admin');
