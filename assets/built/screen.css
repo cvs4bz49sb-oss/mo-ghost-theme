@@ -6131,7 +6131,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .listen-grid--covers::before { display: none; }
 @media (max-width: 640px) {
-  .listen-grid--covers { grid-template-columns: 1fr; row-gap: 48px; }
+  .listen-grid--covers { grid-template-columns: 1fr; row-gap: 48px; text-align: center; }
+  .listen-grid--covers .pod-show-cover { margin-left: auto; margin-right: auto; }
 }
 .pod-show-cover {
   width: 100%;
