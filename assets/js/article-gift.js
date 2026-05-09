@@ -34,11 +34,21 @@
     if (!email) return;
     btn.disabled = true;
     showToast({ message: "Generating gift link\u2026" });
-    fetch(workerUrl + "/mint", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email, postId: postId }),
-    })
+    // Send the Ghost member JWT so the mint worker can derive the
+    // gifter's email from payload.sub instead of trusting the body.
+    // Without auth, anyone who knew a member's email could mint
+    // unlimited gift tokens attributing the gift to that member.
+    var headersP = window.MOAdminAuth
+      ? window.MOAdminAuth.headers({ "Content-Type": "application/json" })
+      : Promise.resolve({ "Content-Type": "application/json" });
+    headersP
+      .then(function (headers) {
+        return fetch(workerUrl + "/mint", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ postId: postId }),
+        });
+      })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         if (!data || !data.token) { showToast({ message: "Gift link unavailable. Try again." }); return; }
