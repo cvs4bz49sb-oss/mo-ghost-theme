@@ -5,12 +5,42 @@ Response to Chris Krycho's security audit of the Mere Orthodoxy Ghost theme, del
 This document maps each audit finding to the action taken on the theme side, the commit that addressed it, and (for coordinated changes) the corresponding worker-side TODO. Anything still in flight is called out explicitly.
 
 **Theme repo**: https://github.com/cvs4bz49sb-oss/mo-ghost-theme
-**Worker TODOs**: see `WORKER_SECURITY_TODO.md` in this repo.
-**Post-fix re-audit**: three independent passes were run against the post-fix codebase using Chris's recommended follow-up prompts plus a cross-system boundary pass. Reports + synthesis: [`audits/SYNTHESIS.md`](./audits/SYNTHESIS.md). **Headline:** several files calling the same endpoints with the same anti-patterns were missed by the original audit and our fixes — most importantly `dashboard-address.js` (still C2/C3-vulnerable) and the mo-kit endpoint family (bookmarks, commonplace, history — missed by M2). A second round of work (A1–A10 in the synthesis) is needed.
+**Worker TODOs**: see `WORKER_SECURITY_TODO.md` in this repo (now includes a canonical "auth-by-route" contract table covering every theme→worker call site).
+**Post-fix re-audit**: three independent passes were run against the post-fix codebase using Chris's recommended follow-up prompts plus a cross-system boundary pass. Reports + synthesis: [`audits/SYNTHESIS.md`](./audits/SYNTHESIS.md).
+
+**Phase A (theme-only follow-ups from the synthesis) and C1/C2 (CSP + auth-by-route) are now shipped.** Twelve commits — full list in the [Phase A status table](#phase-a-status) below. The headline gaps the post-fix audit identified are closed:
+- `dashboard-address.js` now uses JWT (was the most urgent miss — would have broken paid dashboards on worker cutover).
+- The mo-kit ecosystem (bookmarks, commonplace, history) now uses JWT. The "anyone-with-an-email-can-read-your-reading-history" privacy hole is closed theme-side.
+- `MOSafeHref` helper added; 12 worker-/API-supplied URL assignments now scheme-validated.
+- DOMPurify fails closed; SRI on every CDN script; React switched to production build; first-class CSP + Referrer-Policy.
+
+The remaining gap is the worker-side enforcement — the auth-by-route table in `WORKER_SECURITY_TODO.md` is the contract.
 
 ---
 
-## Status at a glance
+<a id="phase-a-status"></a>
+## Phase A status (post-fix audit follow-ups)
+
+| ID | Description | Theme commit |
+|----|-------------|--------------|
+| A1 | Extend C2/C3 fix to `dashboard-address.js` | [`65f3914`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/65f3914) |
+| A2 | Extend M2 fix to mo-kit `/bookmarks*`, `/commonplace*`, `/history*` (8 sites) | [`79f283d`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/79f283d) |
+| A3 | `MOSafeHref` helper + scheme-validate 12 href/src assignments across 8 files | [`09dea49`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/09dea49) |
+| A4 | DOMPurify fails closed (was: fall through to unsanitized HTML) | [`7312ae7`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/7312ae7) |
+| A5 | Drop dead `MOAdminAuth ?` ternaries + pre-warm JWT cache for kit-events | [`94bfb8a`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/94bfb8a) |
+| A6 | SRI hashes on Fuse.js (public page) + React + Babel; React → production build | [`3029e74`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/3029e74) |
+| A7 | DOM construction in admin-drift.js + feature-gate.js (close H4-fragility) | [`c0931ab`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/c0931ab) |
+| A8 | Hash institution/group tokens before sessionStorage keys | [`98d2d87`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/98d2d87) |
+| A9 | `console.error` in `MOSafeRedirect` rejection branch | [`98d2d87`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/98d2d87) |
+| A10 | Tighten tweaks-panel first-message acceptance in browsers without `ancestorOrigins` | [`98d2d87`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/98d2d87) |
+| C1 | Content-Security-Policy + Referrer-Policy meta tags | [`133ce1e`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/133ce1e) |
+| C2 | Auth-by-route contract table in `WORKER_SECURITY_TODO.md` + mo-kit family worker entries | [`37ca0d5`](https://github.com/cvs4bz49sb-oss/mo-ghost-theme/commit/37ca0d5) |
+
+Phase B (worker-side enforcement) and remaining Phase C items (closure-private JWT helper, ESLint, `frame-ancestors` via HTTP header, Codex re-pass) are tracked in `WORKER_SECURITY_TODO.md` § "Post-audit follow-ups".
+
+---
+
+## Status at a glance (original audit)
 
 | ID | Severity | Finding | Theme commit | Worker work |
 |----|----------|---------|--------------|-------------|
