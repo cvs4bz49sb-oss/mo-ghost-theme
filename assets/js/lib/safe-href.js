@@ -28,6 +28,17 @@
   function isPathRelative(url) {
     if (typeof url !== "string") return false;
     if (url === "") return false;
+    // Reject protocol-relative URLs ("//attacker.com/path" or
+    // backslash variants like "/\\evil.com" that some browsers
+    // historically normalized to //). These syntactically look
+    // path-relative but resolve cross-origin at click time.
+    if (
+      url.length >= 2 &&
+      (url.charAt(0) === "/" || url.charAt(0) === "\\") &&
+      (url.charAt(1) === "/" || url.charAt(1) === "\\")
+    ) {
+      return false;
+    }
     var first = url.charAt(0);
     // Path-, query-, or fragment-relative — never carries a scheme.
     if (first === "/" || first === "#" || first === "?") return true;
