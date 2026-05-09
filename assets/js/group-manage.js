@@ -16,7 +16,20 @@
   const membersList = document.getElementById('members-list');
   const membersEmpty = document.getElementById('members-empty');
 
-  const storageKey = `mo-group-members:${token || 'preview'}`;
+  // FNV-1a hash of the token, truncated to 8 hex chars. The H6 fix
+  // strips the token from the URL bar but the previous storage-key
+  // pattern still echoed the raw token in Object.keys(sessionStorage).
+  // Hash so the storage namespace doesn't leak the bearer token.
+  const storageKey = `mo-group-members:${token ? hashSlug(token) : 'preview'}`;
+
+  function hashSlug(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    return h.toString(16).padStart(8, '0');
+  }
 
   const loadContext = async () => {
     try {

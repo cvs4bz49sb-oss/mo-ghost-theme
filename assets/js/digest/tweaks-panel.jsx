@@ -140,21 +140,25 @@ const __TWEAKS_STYLE = `
 // instead of using '*'. The inbound listener also rejects messages from
 // any other origin so a third-party page that frames us can't poke the
 // edit-mode protocol.
+// Browsers without ancestorOrigins (Firefox) leave value=null until
+// the first inbound message arrives. Default to window.location.origin
+// so the inbound listener's strict-equality check applies even before
+// the first message — without this, the listener would accept the
+// FIRST __activate_edit_mode from any origin and pin that origin as
+// trusted (Pass 1 M1-bis).
 const __TWEAKS_PARENT_ORIGIN = {
   value:
     (typeof window !== 'undefined'
       && window.location
       && window.location.ancestorOrigins
       && window.location.ancestorOrigins[0])
+    || (typeof window !== 'undefined' && window.location && window.location.origin)
     || null,
   capture(origin) {
-    if (!this.value && origin && origin !== 'null') this.value = origin;
+    if (origin && origin !== 'null') this.value = origin;
   },
-  // Fall back to the current origin if we never learned the parent's
-  // (e.g. same-origin frame in a browser without ancestorOrigins).
-  // Using window.location.origin is still strictly tighter than '*'.
   target() {
-    return this.value || window.location.origin;
+    return this.value || (typeof window !== 'undefined' ? window.location.origin : '*');
   },
 };
 
@@ -205,13 +209,13 @@ function TweaksPanel({ title = 'Tweaks', children, defaultOpen = false }) {
 
   React.useEffect(() => {
     const onMsg = (e) => {
-      // Only honor messages from the parent frame's origin. If we
-      // haven't learned the origin yet, capture it from the first
-      // valid inbound message and pin all subsequent traffic to it.
-      if (__TWEAKS_PARENT_ORIGIN.value && e.origin !== __TWEAKS_PARENT_ORIGIN.value) return;
+      // Only honor messages from the trusted parent origin. After
+      // A10 the value is always populated (defaults to current
+      // origin), so this is a strict equality check from the very
+      // first message.
+      if (e.origin !== __TWEAKS_PARENT_ORIGIN.value) return;
       const t = e?.data?.type;
       if (t !== '__activate_edit_mode' && t !== '__deactivate_edit_mode') return;
-      __TWEAKS_PARENT_ORIGIN.capture(e.origin);
       if (t === '__activate_edit_mode') setOpen(true);
       else setOpen(false);
     };

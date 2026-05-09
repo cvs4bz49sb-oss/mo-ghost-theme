@@ -16,6 +16,11 @@
     'billing.stripe.com',
   ];
 
+  // NOTE: `buy.stripe.com` (Stripe Payment Links) is intentionally
+  // NOT in the allowlist — the mo-membership worker emits Checkout
+  // Sessions, not Payment Links. If anyone ever wires a Payment Link
+  // through, this throws and the user sees an error. That's safe
+  // (fail-closed) but unexpected — flagged in Pass 3 #11.
   window.MOSafeRedirect = {
     isAllowed: function (url) {
       try {
@@ -31,6 +36,9 @@
     },
     go: function (url) {
       if (!this.isAllowed(url)) {
+        // Log so prod-triage has a signal when a worker returns
+        // something unexpected.
+        console.error('MOSafeRedirect rejected:', url);
         throw new Error('Unexpected checkout redirect destination.');
       }
       window.location.assign(url);
