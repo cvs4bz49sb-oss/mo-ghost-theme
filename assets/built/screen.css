@@ -5325,7 +5325,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 
 /* Endorsements */
-.about-endorsements { padding: 48px 0 0; }
+.about-endorsements { padding: 48px 0 56px; }
 .about-endorsements .section-intro { text-align: center; margin-bottom: 48px; }
 .about-endorsements-grid {
   display: grid;
