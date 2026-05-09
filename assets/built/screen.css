@@ -3205,16 +3205,16 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .archive-curious-btn {
   font-size: 13px;
-  padding: 8px 28px;
+  padding: 10px 32px;
   color: var(--color-heading);
   background: transparent;
-  border: 1px solid var(--color-hairline);
-  opacity: 1;
-  transition: border-color 0.15s, color 0.15s;
+  border: 1.5px solid var(--color-heading);
+  border-radius: 999px;
+  transition: background 0.15s, color 0.15s;
 }
 .archive-curious-btn:hover {
-  border-color: var(--color-heading);
-  color: var(--color-heading);
+  background: var(--color-heading);
+  color: var(--color-bg);
 }
 
 /* =============================================================
