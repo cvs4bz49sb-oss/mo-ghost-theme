@@ -1337,6 +1337,9 @@ img { max-width: 100%; height: auto; }
   display: block;
   background: transparent;
 }
+@media (max-width: 640px) {
+  .flourish { margin-bottom: 24px; }
+}
 
 /* -------- This Week (book-page entries) -------- */
 
@@ -3193,8 +3196,20 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .pagination--numbered .pagination-next-group { display: inline-flex; gap: 14px; align-items: baseline; }
 .pagination--numbered .is-disabled { opacity: 0.35; }
 @media (max-width: 640px) {
-  .pagination--numbered { gap: 10px; font-size: 11px; }
-  .pagination--numbered .pagination-pages { gap: 4px 10px; }
+  .pagination--numbered {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    font-size: 11px;
+  }
+  .pagination--numbered .pagination-pages {
+    grid-column: 1 / -1;
+    order: -1;
+    flex: none;
+    gap: 4px 10px;
+  }
+  .pagination--numbered .pagination-prev-group { justify-self: start; }
+  .pagination--numbered .pagination-next-group { justify-self: end; }
   .pagination--numbered .pagination-num,
   .pagination--numbered .pagination-ellipsis,
   .pagination--numbered .pagination-current { font-size: 15px; }
@@ -3205,10 +3220,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .btn.archive-curious-btn {
   font-size: 13px;
-  padding: 10px 32px;
+  padding: 12px 36px;
   color: var(--color-heading);
   background: transparent;
-  border: 1.5px solid var(--color-heading);
+  border: 2px solid var(--color-heading);
+  border-radius: 999px;
   transition: background 0.15s, color 0.15s;
 }
 .btn.archive-curious-btn:hover {
@@ -5818,7 +5834,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .about-lede { font-size: 19px !important; }
   .about-vision { padding: 56px 0; }
   .about-vision-label { font-size: 26px; }
-  .about-team { padding: 64px 0 40px; }
+  .about-team { padding: 40px 0 40px; }
+  .about-endorsements { padding-bottom: 24px; }
   .about-team-portrait { width: 124px; height: 124px; font-size: 52px; }
   .about-board { padding: 24px 0 64px; }
   .about-board-entry { grid-template-columns: 48px 1fr; }
