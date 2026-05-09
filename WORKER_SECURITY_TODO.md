@@ -9,6 +9,58 @@ The general pattern:
 
 ---
 
+## Auth-by-route contract
+
+This is the canonical list of every theme→worker route, the auth model the theme now sends, and the auth model the worker should enforce. **Anything not on this list either doesn't exist or isn't called from the theme.** Use this as the contract before tightening any worker — if the theme isn't listed as sending JWT for a route, don't enforce JWT there yet.
+
+| Worker | Route | Method | Theme auth (current) | Worker should | Status |
+|--------|-------|--------|----------------------|---------------|--------|
+| mo-membership | `/api/member/address` | GET | JWT | Require JWT, derive email from sub | C2/C3 — theme done; worker pending |
+| mo-membership | `/api/member/address` | POST | JWT | Require JWT, derive email from sub, ignore body.email | C2/C3 — theme done (commits fac16b2 + 65f3914); worker pending |
+| mo-membership | `/api/create-lifetime-checkout` | POST | JWT when signed-in; anon otherwise | Prefer JWT identity over body when present | C5 — theme done; worker pending |
+| mo-membership | `/api/create-gift-checkout` | POST | None (intentional) | Validate body server-side; Stripe collects identity at checkout | OK |
+| mo-membership | `/api/create-group-checkout` | POST | None (intentional) | Re-derive `seats * (seats >= 20 ? 70 : 80)` server-side; ignore client `amount` | C1 — informational |
+| mo-membership | `/api/institutional-inquiry` | POST | None (intentional, public form) | Origin allowlist + rate limit | follow-up |
+| mo-membership | `/api/portal` | POST | None (signed-out flow) | 200-always (no `customer_not_found` distinction); rate limit per IP | H5 — theme done; worker pending |
+| mo-membership | `/api/institution/context` | GET | Token in query | Move to POST in body; consider TTL/revocation | H1 — partial; worker followup |
+| mo-membership | `/api/institution/add-member` | POST | Token in body | Verify token, scope check | OK pending followup |
+| mo-membership | `/api/institution/remove-member` | POST | Token in body | Verify token, scope check | OK pending followup |
+| mo-membership | `/api/group/context` | GET | Token in query | Move to POST in body | H6 — partial; worker followup |
+| mo-membership | `/api/group/add-member` | POST | Token in body | Verify token, scope check | OK pending followup |
+| mo-membership | `/api/group/remove-member` | POST | Token in body | Verify token, scope check | OK pending followup |
+| mo-membership | `/api/admin/*` | GET/POST | JWT (admin) | Verify JWT + check sub against staff list | OK |
+| mo-gift | `/mint` | POST | JWT | Require JWT, derive email from sub, ignore body.email | C4 — theme done (commit 7e3cbd2); worker pending |
+| mo-kit | `/event` | POST | JWT | Require JWT, derive/verify email from sub | M2 — theme done; worker pending |
+| mo-kit | `/bookmarks` | GET | JWT | Require JWT, derive email from sub, drop email param | A2/M2 — theme done (commit 79f283d); worker pending |
+| mo-kit | `/bookmarks/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
+| mo-kit | `/bookmarks/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
+| mo-kit | `/commonplace` | GET | JWT | Require JWT, derive email from sub | A2/M2 — theme done; worker pending |
+| mo-kit | `/commonplace/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
+| mo-kit | `/commonplace/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
+| mo-kit | `/history` | GET | JWT | Require JWT, derive email from sub | A2/M2 — theme done; worker pending |
+| mo-kit | `/history/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — theme done; worker pending |
+| mo-kit-bridge | `/api/drift` | GET | JWT (admin) | Verify JWT + staff check; sanitize/escape data from mo-kit before returning | OK; consider bridge-side validation since mo-kit feeds member-supplied data |
+| mo-admin | `/settings` | GET | None (public read) | OK; treat output as cosmetic-only on theme side | OK |
+| mo-admin | `/slide-ins` | GET | None (public read) | OK; theme now scheme-validates `button_url`/`image` (A3) | OK |
+| mo-admin | `/slide-ins/{id}/{type}` | POST (sendBeacon) | None | Origin allowlist + rate limit (analytics forgery only) | follow-up |
+| mo-admin | `/admin/*` | GET/POST | JWT (admin) | Verify JWT + staff check | OK |
+| mo-forms | `/contact` | POST | None | Origin allowlist + rate limit + Turnstile (Phase B) | H7 — pending |
+| mo-forms | `/submissions` | POST (multipart) | None | Origin allowlist + rate limit + Turnstile + MIME validation | H7 — pending |
+| Ghost Members API | `/members/api/session/` | GET | session cookie | (Ghost-managed) | OK |
+| Ghost Members API | `/members/api/integrity-token/` | GET | session cookie | (Ghost-managed) | OK |
+| Ghost Members API | `/members/api/send-magic-link/` | POST | integrity token | (Ghost-managed) | OK |
+| Ghost Content API | `/ghost/api/content/*` | GET | public content key | (Ghost-managed; key is public by design) | OK |
+
+**How to use this table when tightening a worker:**
+- Routes marked "theme done; worker pending" — safe to enforce JWT now. Theme has already migrated; legacy unauth callers no longer exist.
+- Routes marked "OK" — already in steady state, no action needed.
+- Routes marked "intentional, anonymous" — do NOT add JWT requirement. These flows must work for non-members.
+- Routes marked "follow-up" — coordinated work still pending; don't tighten the worker until the theme has migrated.
+
+If a future theme commit adds a NEW theme→worker call site, add it here in the same commit.
+
+---
+
 ## mo-membership Worker
 
 ### `/api/member/address` GET + POST — paired with theme commit for **C2 / C3**
@@ -57,6 +109,31 @@ The general pattern:
   - Compare body `email` to `payload.sub` and reject mismatches.
 - Currently unauthenticated, so a brief tolerance period (accept either auth or unauth, log unauth) is OK during rollout.
 
+### `/bookmarks*`, `/commonplace*`, `/history*` — paired with theme commit **A2** (post-fix audit)
+The post-fix audit found that the M2 fix only addressed `/event`. The same anti-pattern (email-in-URL on GET, email-in-body on POST, no JWT) was live across:
+- `/bookmarks` (GET, list)
+- `/bookmarks/add` (POST)
+- `/bookmarks/remove` (POST)
+- `/commonplace` (GET, list)
+- `/commonplace/add` (POST)
+- `/commonplace/remove` (POST)
+- `/history` (GET, list)
+- `/history/remove` (POST)
+
+**Privacy impact:** anyone who knew a paid member's email could read their bookmarks, commonplace book, and full reading history, and could add/remove entries (including planting attacker-controlled URLs that render as clickable `<a href>` in the dashboard).
+
+Theme side is now JWT-authed (commit 79f283d). Worker should:
+- Require `Authorization: Bearer <jwt>` on every route above.
+- Verify JWT against Ghost JWKS.
+- Derive email from `payload.sub`. **Reject** any `email` field in body or query as defense-in-depth.
+- Tolerate either auth or legacy unauth during rollout, log unauth, then drop unauth path after a brief window.
+- Once enforced, drop accepting `?email=` query strings entirely on the GET routes.
+
+### Validation hardening on `/commonplace/add` body fields — paired with **A2**
+The body still includes `text`, `sourceTitle`, `sourceAuthor`, `sourceUrl`. Even with JWT now binding identity, these fields are member-controlled rich data later rendered in the dashboard:
+- `sourceUrl` is now scheme-validated theme-side via MOSafeHref before render (A3), but the worker should also reject non-http(s) URLs at write time.
+- `text`, `sourceTitle`, `sourceAuthor` should have length caps (e.g. 5000 / 500 / 200 chars) to prevent storage abuse.
+
 ---
 
 ## mo-forms Worker
@@ -96,3 +173,20 @@ The general pattern:
 
 ### Rename `MOAdminAuth` → `MOMemberAuth`
 - The helper at `assets/js/admin-auth.js` fetches a generic Ghost member JWT (not admin-specific). It's now used by both admin (`admin-*.js`) and member (`complete-membership.js`, `article-gift.js`, `lifetime-checkout.js`, `kit-events.js`) call sites. Rename for clarity, leave a back-compat alias for one release cycle.
+
+### Closure-private JWT helper (Pass 1 H-5)
+- Currently `window.MOAdminAuth.getToken()` is callable from any same-origin script. With admin-auth.js now loaded site-wide, any future XSS can extract the bearer JWT and use it against authenticated workers for ~10 minutes.
+- Replace `getToken()` exposure with `MOAuth.fetch(url, opts)` — the helper does the auth + fetch internally; the bearer never leaves the closure. XSS can still call `MOAuth.fetch` to send authenticated requests, but can't directly steal the bearer to use elsewhere.
+- Strict improvement; needs a refactor of every admin-* and member-* caller. Keep the old API as an alias for one release.
+
+### ESLint regression guard (Pass 2 cross-cutting #4)
+- Even one rule (e.g. `no-restricted-syntax` matching `?email=` URL templates and unauth fetch patterns) in CI prevents regressing the C2/C3/M2/A1/A2-class issues.
+- Setup: add a minimal `eslint.config.js` + a `.github/workflows/lint.yml` running ESLint on the JS in `assets/js/`. No need for full lint coverage — start with security-relevant rules only and grow.
+
+### `frame-ancestors` via HTTP header (C1 followup)
+- The CSP added in commit 133ce1e is a meta-tag CSP. `frame-ancestors` isn't supported in meta CSPs — must be an HTTP header.
+- Either set via Ghost Pro's edge config (if accessible), or via a Cloudflare Worker that proxies and adds headers.
+- Once set, also consider tightening `script-src` by removing `'unsafe-inline'` (move the liturgical-calendar boot script to an external file with a hash) and `'unsafe-eval'` (build step that compiles JSX at deploy time, removing Babel-standalone runtime).
+
+### Run Codex on the same prompts (Chris's recommendation, audits/SYNTHESIS.md C5)
+- Different model, different sensitivities. Likely catches things all three Claude passes missed. Re-run Pass 1, Pass 2, Pass 3 prompts via Codex against the post-A1..A10 codebase.
