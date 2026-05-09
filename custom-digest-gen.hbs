@@ -77,10 +77,25 @@
     {{!-- React + Babel, then the digest tool's own JSX modules.
          Order matters: tweaks-panel and email-template define globals
          (TweaksPanel, EmailTemplate, MO_TOKENS, DEFAULT_CONTENT) that
-         content-editor and app reference. --}}
-    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+         content-editor and app reference.
+
+         Switched to react.production.min.js (was .development.js) so
+         we ship production-minified React rather than the dev build
+         with PropTypes warnings + extra strings.
+
+         SRI hashes pin each CDN script to a known content hash; if
+         unpkg is compromised, the browser refuses to execute.
+         Regenerate via:
+           openssl dgst -sha384 -binary <file> | openssl base64 -A --}}
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+            integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+            integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+            integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+            crossorigin="anonymous"></script>
 
     {{!-- The shipped JSX targets a #root mount point. Replace it with
          our scoped #mo-digest-root before any of the modules run, so
