@@ -314,12 +314,22 @@
         : "";
       var summary = firstParagraph(sanitize(ep.description || ""));
 
+      var p = platforms[slug] || {};
+      var links = [];
+      if (p.apple) links.push('<a href="' + escapeAttr(p.apple) + '" target="_blank" rel="noopener">Apple</a>');
+      if (p.spotify) links.push('<a href="' + escapeAttr(p.spotify) + '" target="_blank" rel="noopener">Spotify</a>');
+      var listenHtml = links.length
+        ? '<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">' +
+          links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') +
+          '</p></div>'
+        : '';
+
       target.innerHTML =
         '<p class="pod-show-ep-label">Latest Episode</p>' +
         (date ? '<p class="pod-show-ep-date">' + escapeHtml(date) + '</p>' : '') +
         '<h3 class="pod-title"><em>' + escapeHtml(ep.title || "") + '</em></h3>' +
         (summary ? '<p class="pod-excerpt">' + escapeHtml(summary) + '</p>' : '') +
-        '<div class="pod-show-divider" aria-hidden="true"></div>';
+        listenHtml;
     }
   }
 

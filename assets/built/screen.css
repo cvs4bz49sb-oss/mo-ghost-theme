@@ -6184,7 +6184,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-size: 14px;
   line-height: 1.55;
   color: var(--color-muted);
-  margin: 0;
+  margin: 0 0 20px;
 }
 .pod-show {
   display: flex;
@@ -6196,11 +6196,34 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   flex-direction: column;
   text-align: left;
 }
-.pod-show-divider {
+.pod-show-latest .pod-listen {
   margin-top: auto;
-  padding-top: 20px;
-  border-bottom: 1px solid var(--color-card-border);
+  padding-top: 16px;
+  border-top: 1px solid var(--color-card-border);
 }
+.pod-show-latest .pod-listen-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.pod-show-latest .pod-listen-platforms {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-dark);
+}
+.pod-show-latest .pod-listen-platforms a {
+  color: var(--color-dark);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.pod-show-latest .pod-listen-platforms a:hover { color: var(--color-primary); }
+.pod-show-latest .pod-listen-sep { color: var(--color-card-border); padding: 0 6px; }
 
 /* ----------------------------------------------------------------------------
    Member dashboard (/dashboard/) — editorial layout modeled on
