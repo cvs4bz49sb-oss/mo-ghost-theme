@@ -22,12 +22,12 @@
  * embed signal instead of dates.
  */
 (function () {
-  var source = document.querySelector("[data-events-source]");
+  const source = document.querySelector("[data-events-source]");
   if (!source) return;
 
-  var items = Array.prototype.slice.call(source.querySelectorAll(".events-item"))
-    .map(function (el) {
-      var contentHtml = (el.querySelector(".events-item-content") || {}).innerHTML || "";
+  const items = Array.prototype.slice.call(source.querySelectorAll(".events-item"))
+    .map((el) => {
+      const contentHtml = (el.querySelector(".events-item-content") || {}).innerHTML || "";
       return {
         slug: el.getAttribute("data-slug") || "",
         url: el.getAttribute("data-url") || "",
@@ -35,15 +35,15 @@
         excerpt: el.getAttribute("data-excerpt") || "",
         featureImage: el.getAttribute("data-feature-image") || "",
         ts: Date.parse(el.getAttribute("data-published-at")) || 0,
-        contentHtml: contentHtml,
+        contentHtml,
         hasReplay: /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
       };
     });
 
-  var upcoming = items.filter(function (e) { return !e.hasReplay; })
-    .sort(function (a, b) { return b.ts - a.ts; });
-  var past = items.filter(function (e) { return e.hasReplay; })
-    .sort(function (a, b) { return b.ts - a.ts; });
+  const upcoming = items.filter((e) => { return !e.hasReplay; })
+    .sort((a, b) => { return b.ts - a.ts; });
+  const past = items.filter((e) => { return e.hasReplay; })
+    .sort((a, b) => { return b.ts - a.ts; });
 
   if (document.querySelector("[data-events-hero]")) renderForum(upcoming);
   if (document.querySelector("[data-events-library-upcoming]")) renderLibrary(upcoming, past);
@@ -51,29 +51,29 @@
   // ---- /forum/ detail view -----------------------------------------------
 
   function renderForum(upcomingEvents) {
-    var heroEl = document.querySelector("[data-events-hero]");
-    var emptyEl = document.querySelector("[data-events-hero-empty]");
-    var featureWrap = document.querySelector("[data-events-feature-wrap]");
-    var body = document.querySelector("[data-events-body]");
+    const heroEl = document.querySelector("[data-events-hero]");
+    const emptyEl = document.querySelector("[data-events-hero-empty]");
+    const featureWrap = document.querySelector("[data-events-feature-wrap]");
+    const body = document.querySelector("[data-events-body]");
 
     if (!upcomingEvents.length) {
       if (emptyEl) emptyEl.hidden = false;
       return;
     }
 
-    var e = upcomingEvents[0];
+    const e = upcomingEvents[0];
     heroEl.hidden = false;
     document.querySelector("[data-events-title]").textContent = e.title;
-    var titleLink = document.querySelector("[data-events-title-link]");
+    const titleLink = document.querySelector("[data-events-title-link]");
     if (titleLink) titleLink.href = e.url;
     if (e.excerpt) {
-      var sub = document.querySelector("[data-events-excerpt]");
+      const sub = document.querySelector("[data-events-excerpt]");
       sub.textContent = e.excerpt;
       sub.hidden = false;
     }
     if (e.featureImage && featureWrap) {
       featureWrap.hidden = false;
-      document.querySelector("[data-events-feature-inner]").style.backgroundImage = "url(" + e.featureImage + ")";
+      document.querySelector("[data-events-feature-inner]").style.backgroundImage = `url(${e.featureImage})`;
     }
     // Sanitize the post body before innerHTML assignment. Ghost
     // sanitizes server-side, but defense-in-depth: a compromised
@@ -85,7 +85,7 @@
     // ad-block matching `purify`), render a placeholder rather than
     // assigning the unsanitized HTML. The defense-in-depth claim
     // must not depend on a 22 KB asset succeeding.
-    var prose = document.querySelector("[data-events-prose]");
+    const prose = document.querySelector("[data-events-prose]");
     if (!window.DOMPurify) {
       prose.textContent = "Could not display this event. Please reload.";
       body.hidden = false;
@@ -101,20 +101,20 @@
   // ---- /events/ library view --------------------------------------------
 
   function renderLibrary(upcomingEvents, pastEvents) {
-    var upcomingSection = document.querySelector("[data-events-library-upcoming]");
-    var pastSection = document.querySelector("[data-events-library-past]");
-    var empty = document.querySelector("[data-events-empty]");
+    const upcomingSection = document.querySelector("[data-events-library-upcoming]");
+    const pastSection = document.querySelector("[data-events-library-past]");
+    const empty = document.querySelector("[data-events-empty]");
 
     if (upcomingEvents.length) {
-      var upList = document.querySelector("[data-events-library-upcoming-list]");
-      for (var i = 0; i < upcomingEvents.length; i++) {
+      const upList = document.querySelector("[data-events-library-upcoming-list]");
+      for (let i = 0; i < upcomingEvents.length; i++) {
         upList.appendChild(renderCard(upcomingEvents[i], i === 0 ? "/forum/" : upcomingEvents[i].url));
       }
       upcomingSection.hidden = false;
     }
     if (pastEvents.length) {
-      var pastList = document.querySelector("[data-events-library-past-list]");
-      for (var j = 0; j < pastEvents.length; j++) {
+      const pastList = document.querySelector("[data-events-library-past-list]");
+      for (let j = 0; j < pastEvents.length; j++) {
         pastList.appendChild(renderCard(pastEvents[j], pastEvents[j].url));
       }
       pastSection.hidden = false;
@@ -125,28 +125,28 @@
   }
 
   function renderCard(e, href) {
-    var li = document.createElement("li");
+    const li = document.createElement("li");
     li.className = "events-library-card";
-    var a = document.createElement("a");
+    const a = document.createElement("a");
     a.href = href;
     a.className = "events-library-link";
     if (e.featureImage) {
-      var thumb = document.createElement("span");
+      const thumb = document.createElement("span");
       thumb.className = "events-library-thumb";
-      thumb.style.backgroundImage = "url(" + e.featureImage + ")";
+      thumb.style.backgroundImage = `url(${e.featureImage})`;
       a.appendChild(thumb);
     }
-    var body = document.createElement("div");
+    const body = document.createElement("div");
     body.className = "events-library-body-col";
     if (e.excerpt) {
-      var when = document.createElement("p");
+      const when = document.createElement("p");
       when.className = "events-library-when";
       when.textContent = e.excerpt;
       body.appendChild(when);
     }
-    var title = document.createElement("h3");
+    const title = document.createElement("h3");
     title.className = "events-library-card-title";
-    var em = document.createElement("em");
+    const em = document.createElement("em");
     em.textContent = e.title;
     title.appendChild(em);
     body.appendChild(title);

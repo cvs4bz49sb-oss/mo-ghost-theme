@@ -78,10 +78,10 @@
   }
 
   async function authedFetch(url, init) {
-    const opts = Object.assign({}, init || {});
+    const opts = { ...init || {}};
     const headers = new Headers((init && init.headers) || {});
     const token = await getTokenInternal();
-    if (token) headers.set("Authorization", "Bearer " + token);
+    if (token) headers.set("Authorization", `Bearer ${token}`);
     opts.headers = headers;
     const res = await fetch(url, opts);
     // If the worker rejects the bearer (401), drop the cached token

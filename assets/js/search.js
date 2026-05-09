@@ -13,20 +13,20 @@
  * of erroring.
  */
 (function () {
-  var workerUrl = (document.body.getAttribute("data-search-worker-url") || "").trim().replace(/\/$/, "");
+  const workerUrl = (document.body.getAttribute("data-search-worker-url") || "").trim().replace(/\/$/, "");
 
   // ---- DOM construction (lazy — only built on first open) -----------
 
-  var modal = null;
-  var input = null;
-  var resultsEl = null;
-  var statusEl = null;
-  var hintEl = null;
-  var activeIndex = -1;
-  var currentResults = [];
-  var lastQuery = "";
-  var debounceTimer = null;
-  var inflightAbort = null;
+  let modal = null;
+  let input = null;
+  let resultsEl = null;
+  let statusEl = null;
+  let hintEl = null;
+  let activeIndex = -1;
+  let currentResults = [];
+  let lastQuery = "";
+  let debounceTimer = null;
+  let inflightAbort = null;
 
   function buildModal() {
     if (modal) return;
@@ -38,19 +38,19 @@
     modal.setAttribute("aria-label", "Search");
     modal.hidden = true;
 
-    var backdrop = document.createElement("div");
+    const backdrop = document.createElement("div");
     backdrop.className = "mo-search-backdrop";
     backdrop.addEventListener("click", close);
     modal.appendChild(backdrop);
 
-    var panel = document.createElement("div");
+    const panel = document.createElement("div");
     panel.className = "mo-search-panel";
 
-    var header = document.createElement("div");
+    const header = document.createElement("div");
     header.className = "mo-search-header";
 
     // Magnifier icon left of input.
-    var icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     icon.setAttribute("class", "mo-search-icon");
     icon.setAttribute("width", "20"); icon.setAttribute("height", "20");
     icon.setAttribute("viewBox", "0 0 24 24"); icon.setAttribute("fill", "none");
@@ -70,7 +70,7 @@
     input.addEventListener("keydown", onInputKeydown);
     header.appendChild(input);
 
-    var closeBtn = document.createElement("button");
+    const closeBtn = document.createElement("button");
     closeBtn.type = "button";
     closeBtn.className = "mo-search-close";
     closeBtn.setAttribute("aria-label", "Close search");
@@ -81,10 +81,10 @@
     panel.appendChild(header);
 
     // ── Filter: dropdown + value input ──
-    var filterWrap = document.createElement("div");
+    const filterWrap = document.createElement("div");
     filterWrap.className = "mo-search-filters";
 
-    var filterSelect = document.createElement("select");
+    const filterSelect = document.createElement("select");
     filterSelect.className = "mo-search-filter-select";
     filterSelect.setAttribute("data-filter", "mode");
     filterSelect.appendChild(makeOption("all", "No Filter"));
@@ -95,7 +95,7 @@
     filterSelect.appendChild(makeOption("date-730", "Past 2 Years"));
     filterSelect.addEventListener("change", onFilterModeChange);
 
-    var filterInput = document.createElement("input");
+    const filterInput = document.createElement("input");
     filterInput.type = "text";
     filterInput.className = "mo-search-filter-input";
     filterInput.placeholder = "";
@@ -128,15 +128,15 @@
   // ---- Filter helpers -----------------------------------------------
 
   function makeOption(value, text) {
-    var o = document.createElement("option");
+    const o = document.createElement("option");
     o.value = value;
     o.textContent = text;
     return o;
   }
 
   function onFilterModeChange() {
-    var mode = modal.querySelector('[data-filter="mode"]').value;
-    var fi = modal.querySelector(".mo-search-filter-input");
+    const mode = modal.querySelector('[data-filter="mode"]').value;
+    const fi = modal.querySelector(".mo-search-filter-input");
     if (mode === "author" || mode === "keyword") {
       fi.hidden = false;
       fi.placeholder = mode === "author" ? "Author name…" : "Exact phrase…";
@@ -151,23 +151,23 @@
 
   function applyFilters() {
     if (!currentResults.length) return;
-    var mode = modal.querySelector('[data-filter="mode"]').value;
-    var filterVal = (modal.querySelector(".mo-search-filter-input").value || "").trim().toLowerCase();
+    const mode = modal.querySelector('[data-filter="mode"]').value;
+    const filterVal = (modal.querySelector(".mo-search-filter-input").value || "").trim().toLowerCase();
 
-    var filtered = currentResults.filter(function (r) {
+    const filtered = currentResults.filter((r) => {
       if (mode === "author") {
         if (!filterVal) return true;
-        var author = (r.primary_tag || "").toLowerCase();
+        const author = (r.primary_tag || "").toLowerCase();
         return author.indexOf(filterVal) >= 0;
       }
       if (mode === "keyword") {
         if (!filterVal) return true;
-        var haystack = ((r.title || "") + " " + (r.excerpt || "")).toLowerCase();
+        const haystack = (`${r.title || ""} ${r.excerpt || ""}`).toLowerCase();
         return haystack.indexOf(filterVal) >= 0;
       }
       if (mode.indexOf("date-") === 0) {
-        var days = parseInt(mode.split("-")[1], 10);
-        var cutoff = Date.now() - (days * 86400000);
+        const days = parseInt(mode.split("-")[1], 10);
+        const cutoff = Date.now() - (days * 86400000);
         return r.published_at && new Date(r.published_at).getTime() >= cutoff;
       }
       return true;
@@ -184,9 +184,9 @@
 
   function resetFilters() {
     if (!modal) return;
-    var sel = modal.querySelector('[data-filter="mode"]');
+    const sel = modal.querySelector('[data-filter="mode"]');
     if (sel) sel.value = "all";
-    var fi = modal.querySelector(".mo-search-filter-input");
+    const fi = modal.querySelector(".mo-search-filter-input");
     if (fi) { fi.value = ""; fi.hidden = true; }
   }
 
@@ -196,7 +196,7 @@
     buildModal();
     modal.hidden = false;
     document.body.classList.add("mo-search-open");
-    setTimeout(function () { input.focus(); }, 0);
+    setTimeout(() => { input.focus(); }, 0);
     if (!workerUrl) {
       setStatus("Search isn't configured yet (no worker URL set in theme settings).");
     } else if (!input.value) {
@@ -214,7 +214,7 @@
   // ---- Input handling ---------------------------------------------
 
   function onInput() {
-    var q = input.value.trim();
+    const q = input.value.trim();
     if (!q) {
       setStatus("Type a name (e.g. \u201cMatt Anderson\u201d), a tag (e.g. \u201cecclesiology\u201d), or any phrase. Search blends author, title, and full-text matching.");
       renderResults([]);
@@ -222,7 +222,7 @@
       return;
     }
     if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(function () { runSearch(q); }, 220);
+    debounceTimer = setTimeout(() => { runSearch(q); }, 220);
   }
 
   function onInputKeydown(e) {
@@ -237,7 +237,7 @@
         e.preventDefault();
         // Validate scheme before navigating; a tampered worker
         // response with a javascript: URL here would XSS the visitor.
-        var safeUrl = window.MOSafeHref.sanitize(currentResults[activeIndex].url);
+        const safeUrl = window.MOSafeHref.sanitize(currentResults[activeIndex].url);
         // eslint-disable-next-line no-restricted-syntax -- already validated by MOSafeHref.sanitize above
         if (safeUrl) window.location.href = safeUrl;
       }
@@ -250,8 +250,8 @@
   function moveActive(dir) {
     if (!currentResults.length) return;
     activeIndex = (activeIndex + dir + currentResults.length) % currentResults.length;
-    var lis = resultsEl.querySelectorAll(".mo-search-result");
-    lis.forEach(function (li, i) {
+    const lis = resultsEl.querySelectorAll(".mo-search-result");
+    lis.forEach((li, i) => {
       li.classList.toggle("is-active", i === activeIndex);
       if (i === activeIndex) li.scrollIntoView({ block: "nearest" });
     });
@@ -271,27 +271,27 @@
     inflightAbort = new AbortController();
     setStatus("Searching the archive\u2026");
 
-    fetch(workerUrl + "/api/search", {
+    fetch(`${workerUrl}/api/search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ q: q }),
+      body: JSON.stringify({ q }),
       signal: inflightAbort.signal,
     })
-      .then(function (res) { return res.json(); })
-      .then(function (data) {
+      .then((res) => { return res.json(); })
+      .then((data) => {
         if (q !== lastQuery) return; // stale; a newer query is in flight
-        var results = (data && data.results) || [];
+        const results = (data && data.results) || [];
         currentResults = results;
         activeIndex = results.length ? 0 : -1;
         if (!results.length) {
-          setStatus('No results for "' + q + '". Try a different phrasing.');
+          setStatus(`No results for "${q}". Try a different phrasing.`);
           renderResults([]);
         } else {
           setStatus("");
           applyFilters();
         }
       })
-      .catch(function (err) {
+      .catch((err) => {
         if (err && err.name === "AbortError") return;
         console.error("search failed", err);
         setStatus("Search failed. Try again in a moment.");
@@ -303,47 +303,47 @@
   function renderResults(results) {
     resultsEl.innerHTML = "";
     if (!results.length) return;
-    results.forEach(function (r, i) {
-      var li = document.createElement("li");
+    results.forEach((r, i) => {
+      const li = document.createElement("li");
       li.className = "mo-search-result";
       if (i === activeIndex) li.classList.add("is-active");
       li.setAttribute("role", "option");
 
-      var a = document.createElement("a");
+      const a = document.createElement("a");
       window.MOSafeHref.set(a, r.url);
       a.className = "mo-search-result-link";
 
-      var titleEl = document.createElement("h3");
+      const titleEl = document.createElement("h3");
       titleEl.className = "mo-search-result-title";
-      var em = document.createElement("em");
+      const em = document.createElement("em");
       em.textContent = r.title || "(untitled)";
       titleEl.appendChild(em);
       a.appendChild(titleEl);
 
       // Eyebrow: author + date + tag.
-      var meta = [];
-      if (r.primary_author) meta.push("By " + r.primary_author);
+      const meta = [];
+      if (r.primary_author) meta.push(`By ${r.primary_author}`);
       if (r.published_at) meta.push(formatDate(r.published_at));
       if (r.primary_tag) meta.push(r.primary_tag);
       if (meta.length) {
-        var metaEl = document.createElement("p");
+        const metaEl = document.createElement("p");
         metaEl.className = "mo-search-result-meta";
         metaEl.textContent = meta.join("  \u00b7  ");
         a.appendChild(metaEl);
       }
 
       if (r.excerpt) {
-        var excerptEl = document.createElement("p");
+        const excerptEl = document.createElement("p");
         excerptEl.className = "mo-search-result-excerpt";
         excerptEl.innerHTML = highlight(r.excerpt, lastQuery);
         a.appendChild(excerptEl);
       }
 
       li.appendChild(a);
-      li.addEventListener("mouseenter", function () {
+      li.addEventListener("mouseenter", () => {
         activeIndex = i;
-        var lis = resultsEl.querySelectorAll(".mo-search-result");
-        lis.forEach(function (n, idx) { n.classList.toggle("is-active", idx === i); });
+        const lis = resultsEl.querySelectorAll(".mo-search-result");
+        lis.forEach((n, idx) => { n.classList.toggle("is-active", idx === i); });
       });
       resultsEl.appendChild(li);
     });
@@ -358,16 +358,16 @@
   // ---- Term highlighting (best-effort) ----------------------------
 
   function highlight(text, query) {
-    var escaped = escapeHtml(text);
+    const escaped = escapeHtml(text);
     if (!query) return escaped;
     // Highlight any word from the query that appears in the excerpt
     // (case-insensitive). Semantic matches won't always have literal
     // overlap — that's expected; the result is still ranked correctly.
-    var words = query.toLowerCase().split(/\s+/).filter(function (w) {
+    const words = query.toLowerCase().split(/\s+/).filter((w) => {
       return w.length > 2; // skip stopwords-by-length
     });
     if (!words.length) return escaped;
-    var pattern = new RegExp("(" + words.map(escapeRegex).join("|") + ")", "ig");
+    const pattern = new RegExp(`(${words.map(escapeRegex).join("|")})`, "ig");
     return escaped.replace(pattern, "<mark>$1</mark>");
   }
 
@@ -379,15 +379,15 @@
   function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 
   function formatDate(iso) {
-    var d = new Date(iso);
+    const d = new Date(iso);
     if (isNaN(d.getTime())) return "";
     return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
   }
 
   // ---- Trigger wiring ---------------------------------------------
 
-  document.addEventListener("click", function (e) {
-    var trigger = e.target && e.target.closest && e.target.closest("[data-mo-search]");
+  document.addEventListener("click", (e) => {
+    const trigger = e.target && e.target.closest && e.target.closest("[data-mo-search]");
     if (!trigger) return;
     e.preventDefault();
     open();
@@ -395,9 +395,9 @@
 
   // "/" from anywhere on the page opens search, unless we're already
   // typing into an input/textarea/contenteditable.
-  document.addEventListener("keydown", function (e) {
+  document.addEventListener("keydown", (e) => {
     if (e.key !== "/") return;
-    var t = e.target;
+    const t = e.target;
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
     e.preventDefault();
     open();

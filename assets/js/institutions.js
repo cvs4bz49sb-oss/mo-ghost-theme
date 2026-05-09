@@ -21,7 +21,7 @@
     submit.disabled = true;
 
     try {
-      const response = await fetch(window.MO_API_BASE + '/api/institutional-inquiry', {
+      const response = await fetch(`${window.MO_API_BASE}/api/institutional-inquiry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

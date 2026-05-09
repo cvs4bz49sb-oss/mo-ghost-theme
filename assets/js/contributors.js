@@ -18,24 +18,24 @@
  * works against whatever cards are on the page.
  */
 (function () {
-  var COUNT_THRESHOLD = 6;
+  const COUNT_THRESHOLD = 6;
 
-  var grid = document.querySelector("[data-contributors-grid]");
+  const grid = document.querySelector("[data-contributors-grid]");
   if (!grid) return;
 
-  var rail = document.querySelector("[data-contributors-rail]");
-  var railInner = document.querySelector("[data-contributors-rail-inner]");
-  var emptyEl = document.querySelector("[data-contributors-empty]");
-  var emptyLetterEl = emptyEl ? emptyEl.querySelector("[data-empty-letter]") : null;
-  var toggleEl = document.querySelector("[data-contributors-toggle]");
-  var viewAllBtn = toggleEl ? toggleEl.querySelector("[data-view-all]") : null;
-  var viewAllLabel = toggleEl ? toggleEl.querySelector("[data-view-all-label]") : null;
+  const rail = document.querySelector("[data-contributors-rail]");
+  const railInner = document.querySelector("[data-contributors-rail-inner]");
+  const emptyEl = document.querySelector("[data-contributors-empty]");
+  const emptyLetterEl = emptyEl ? emptyEl.querySelector("[data-empty-letter]") : null;
+  const toggleEl = document.querySelector("[data-contributors-toggle]");
+  const viewAllBtn = toggleEl ? toggleEl.querySelector("[data-view-all]") : null;
+  const viewAllLabel = toggleEl ? toggleEl.querySelector("[data-view-all-label]") : null;
 
-  var activeLetter = "all";
-  var revealAll = false;
+  let activeLetter = "all";
+  let revealAll = false;
 
-  var apiKeyMeta = document.querySelector('meta[name="ghost-content-api-key"]');
-  var API_KEY = apiKeyMeta ? apiKeyMeta.getAttribute("content") : "";
+  const apiKeyMeta = document.querySelector('meta[name="ghost-content-api-key"]');
+  const API_KEY = apiKeyMeta ? apiKeyMeta.getAttribute("content") : "";
 
   if (API_KEY) {
     loadFullRoster();
@@ -45,41 +45,41 @@
   }
 
   function loadFullRoster() {
-    var apiBase = (window.location.origin || "") + "/ghost/api/content/tags/";
+    const apiBase = `${window.location.origin || ""}/ghost/api/content/tags/`;
     function pageUrl(page) {
-      return apiBase + "?key=" + encodeURIComponent(API_KEY) +
-        "&filter=" + encodeURIComponent("visibility:public") +
-        "&include=count.posts" +
-        "&order=" + encodeURIComponent("name asc") +
-        "&limit=100&page=" + page;
+      return `${apiBase}?key=${encodeURIComponent(API_KEY) 
+        }&filter=${encodeURIComponent("visibility:public") 
+        }&include=count.posts` +
+        `&order=${encodeURIComponent("name asc") 
+        }&limit=100&page=${page}`;
     }
     fetch(pageUrl(1), { cache: "default" })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (first) {
+      .then((r) => { return r.ok ? r.json() : null; })
+      .then((first) => {
         if (!first || !first.tags) return null;
-        var totalPages = (first.meta && first.meta.pagination && first.meta.pagination.pages) || 1;
+        const totalPages = (first.meta && first.meta.pagination && first.meta.pagination.pages) || 1;
         if (totalPages <= 1) return first.tags;
-        var rest = [];
-        for (var i = 2; i <= totalPages; i++) {
+        const rest = [];
+        for (let i = 2; i <= totalPages; i++) {
           rest.push(
             fetch(pageUrl(i), { cache: "default" })
-              .then(function (r) { return r.ok ? r.json() : null; })
-              .then(function (d) { return (d && d.tags) || []; })
+              .then((r) => { return r.ok ? r.json() : null; })
+              .then((d) => { return (d && d.tags) || []; })
           );
         }
-        return Promise.all(rest).then(function (pages) {
-          return pages.reduce(function (acc, t) { return acc.concat(t); }, first.tags.slice());
+        return Promise.all(rest).then((pages) => {
+          return pages.reduce((acc, t) => { return acc.concat(t); }, first.tags.slice());
         });
       })
-      .then(function (tags) {
+      .then((tags) => {
         if (tags) {
-          var authors = tags.filter(function (t) {
+          const authors = tags.filter((t) => {
             return t && t.slug && t.slug.indexOf("author-") === 0 &&
               t.count && t.count.posts > 0;
-          }).sort(function (a, b) {
+          }).sort((a, b) => {
             // Sort by last name, then first name, so the alphabet rail
             // and the visual order of the grid agree with each other.
-            var la = lastName(a.name), lb = lastName(b.name);
+            const la = lastName(a.name), lb = lastName(b.name);
             return la.localeCompare(lb) || a.name.localeCompare(b.name);
           });
           if (authors.length) {
@@ -88,29 +88,29 @@
         }
         initFilter();
       })
-      .catch(function () { initFilter(); });
+      .catch(() => { initFilter(); });
   }
 
   // ── Filter ────────────────────────────────────────────────────
   function initFilter() {
     if (!rail || !grid) return;
-    var cards = Array.prototype.slice.call(grid.querySelectorAll(".contributor-card"));
+    const cards = Array.prototype.slice.call(grid.querySelectorAll(".contributor-card"));
     if (!cards.length) return;
 
     // Stamp each card with the last-name initial. Uses lastName() which
     // strips "Jr.", "Sr.", "III" suffixes so "Smith Jr." sorts under S.
-    cards.forEach(function (card) {
-      var nameEl = card.querySelector(".contributor-card-name");
-      var name = nameEl ? nameEl.textContent.trim() : "";
-      var initial = (lastName(name).charAt(0) || "").toUpperCase();
+    cards.forEach((card) => {
+      const nameEl = card.querySelector(".contributor-card-name");
+      const name = nameEl ? nameEl.textContent.trim() : "";
+      const initial = (lastName(name).charAt(0) || "").toUpperCase();
       card.setAttribute("data-last-initial", initial);
     });
 
     // Disable rail letters that have no contributors.
-    var available = {};
-    cards.forEach(function (c) { available[c.getAttribute("data-last-initial")] = true; });
-    Array.prototype.slice.call(railInner.querySelectorAll(".contributors-rail-pill")).forEach(function (pill) {
-      var letter = pill.getAttribute("data-letter");
+    const available = {};
+    cards.forEach((c) => { available[c.getAttribute("data-last-initial")] = true; });
+    Array.prototype.slice.call(railInner.querySelectorAll(".contributors-rail-pill")).forEach((pill) => {
+      const letter = pill.getAttribute("data-letter");
       if (letter !== "all" && !available[letter]) {
         pill.disabled = true;
         pill.setAttribute("aria-disabled", "true");
@@ -118,11 +118,11 @@
     });
 
     // Wire the rail.
-    railInner.addEventListener("click", function (e) {
-      var pill = e.target.closest(".contributors-rail-pill");
+    railInner.addEventListener("click", (e) => {
+      const pill = e.target.closest(".contributors-rail-pill");
       if (!pill || pill.disabled) return;
       activeLetter = pill.getAttribute("data-letter") || "all";
-      Array.prototype.slice.call(railInner.querySelectorAll(".contributors-rail-pill")).forEach(function (p) {
+      Array.prototype.slice.call(railInner.querySelectorAll(".contributors-rail-pill")).forEach((p) => {
         p.classList.toggle("is-active", p === pill);
       });
       apply();
@@ -130,18 +130,18 @@
 
     // Wire the view-all toggle. Surface it only when the threshold
     // actually hides anything — otherwise it's noise.
-    var hiddenByThreshold = cards.filter(function (c) {
+    const hiddenByThreshold = cards.filter((c) => {
       return parseInt(c.getAttribute("data-count") || "0", 10) < COUNT_THRESHOLD;
     }).length;
     if (toggleEl) {
       if (hiddenByThreshold > 0 && viewAllBtn) {
         toggleEl.hidden = false;
-        viewAllLabel.textContent = "View all " + cards.length + " contributors";
-        viewAllBtn.addEventListener("click", function () {
+        viewAllLabel.textContent = `View all ${cards.length} contributors`;
+        viewAllBtn.addEventListener("click", () => {
           revealAll = !revealAll;
           viewAllLabel.textContent = revealAll
             ? "Show top contributors only"
-            : "View all " + cards.length + " contributors";
+            : `View all ${cards.length} contributors`;
           apply();
         });
       } else {
@@ -152,15 +152,15 @@
     apply();
 
     function apply() {
-      var visible = 0;
-      cards.forEach(function (card) {
-        var initial = card.getAttribute("data-last-initial") || "";
-        var count = parseInt(card.getAttribute("data-count") || "0", 10);
-        var matchesLetter = activeLetter === "all" || initial === activeLetter;
+      let visible = 0;
+      cards.forEach((card) => {
+        const initial = card.getAttribute("data-last-initial") || "";
+        const count = parseInt(card.getAttribute("data-count") || "0", 10);
+        const matchesLetter = activeLetter === "all" || initial === activeLetter;
         // When a specific letter is selected, ignore the threshold —
         // a deliberate lookup should always surface the match.
-        var passesThreshold = activeLetter !== "all" || revealAll || count >= COUNT_THRESHOLD;
-        var show = matchesLetter && passesThreshold;
+        const passesThreshold = activeLetter !== "all" || revealAll || count >= COUNT_THRESHOLD;
+        const show = matchesLetter && passesThreshold;
         // Use inline display rather than the hidden attribute. The
         // existing `.contributor-card--candidate[data-tag-slug^="author-"]`
         // rule overrides the UA `[hidden] { display: none }` on
@@ -188,35 +188,35 @@
   function lastName(name) {
     if (!name) return "";
     // Strip trailing suffixes: Jr / Jr. / Sr / Sr. / II / III / IV / V / PhD / MD.
-    var stripped = name.replace(/,?\s+(jr\.?|sr\.?|ii|iii|iv|v|phd|m\.?d\.?)\s*$/i, "").trim();
-    var tokens = stripped.split(/\s+/);
+    const stripped = name.replace(/,?\s+(jr\.?|sr\.?|ii|iii|iv|v|phd|m\.?d\.?)\s*$/i, "").trim();
+    const tokens = stripped.split(/\s+/);
     return tokens[tokens.length - 1] || "";
   }
 
   function renderCard(tag) {
-    var initial = (tag.name || "").trim().charAt(0).toUpperCase();
-    var portrait = (tag.feature_image && window.MOSafeHref.isSafe(tag.feature_image))
-      ? '<img src="' + escapeAttr(tag.feature_image) + '" alt="' + escapeAttr(tag.name) + '" />'
-      : '<span class="contributor-card-initial contributor-card-initial--rendered">' + escapeHtml(initial) + "</span>";
-    var bio = tag.description
-      ? '<p class="contributor-card-bio">' + escapeHtml(tag.description) + "</p>"
+    const initial = (tag.name || "").trim().charAt(0).toUpperCase();
+    const portrait = (tag.feature_image && window.MOSafeHref.isSafe(tag.feature_image))
+      ? `<img src="${escapeAttr(tag.feature_image)}" alt="${escapeAttr(tag.name)}" />`
+      : `<span class="contributor-card-initial contributor-card-initial--rendered">${escapeHtml(initial)}</span>`;
+    const bio = tag.description
+      ? `<p class="contributor-card-bio">${escapeHtml(tag.description)}</p>`
       : "";
-    var count = (tag.count && tag.count.posts) || 0;
-    var essayWord = count === 1 ? "essay" : "essays";
+    const count = (tag.count && tag.count.posts) || 0;
+    const essayWord = count === 1 ? "essay" : "essays";
     return (
-      '<a href="' + escapeAttr(window.MOSafeHref.sanitize(tag.url, "#")) + '" class="contributor-card contributor-card--candidate" data-tag-slug="' + escapeAttr(tag.slug) + '" data-count="' + count + '">' +
-        '<div class="contributor-card-portrait" aria-hidden="true">' + portrait + "</div>" +
-        '<div class="contributor-card-body">' +
-          '<h2 class="contributor-card-name"><em>' + escapeHtml(tag.name) + "</em></h2>" +
-          bio +
-          '<p class="contributor-card-count">' + count + " " + essayWord + "</p>" +
-        "</div>" +
-      "</a>"
+      `<a href="${escapeAttr(window.MOSafeHref.sanitize(tag.url, "#"))}" class="contributor-card contributor-card--candidate" data-tag-slug="${escapeAttr(tag.slug)}" data-count="${count}">` +
+        `<div class="contributor-card-portrait" aria-hidden="true">${portrait}</div>` +
+        `<div class="contributor-card-body">` +
+          `<h2 class="contributor-card-name"><em>${escapeHtml(tag.name)}</em></h2>${ 
+          bio 
+          }<p class="contributor-card-count">${count} ${essayWord}</p>` +
+        `</div>` +
+      `</a>`
     );
   }
 
   function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }

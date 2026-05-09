@@ -14,39 +14,39 @@
  * beyond the media session metadata.
  */
 (function () {
-  var wrap = document.querySelector("[data-article-audio]");
+  const wrap = document.querySelector("[data-article-audio]");
   if (!wrap) return;
 
-  var trigger = wrap.querySelector("[data-audio-trigger]");
-  var postId = wrap.getAttribute("data-post-id");
-  var base = wrap.getAttribute("data-audio-base");
+  const trigger = wrap.querySelector("[data-audio-trigger]");
+  const postId = wrap.getAttribute("data-post-id");
+  const base = wrap.getAttribute("data-audio-base");
   if (!trigger || !postId || !base) return;
 
-  var title = wrap.getAttribute("data-post-title") || document.title;
-  var author = wrap.getAttribute("data-post-author") || "Mere Orthodoxy";
-  var image = wrap.getAttribute("data-post-image") || "";
+  const title = wrap.getAttribute("data-post-title") || document.title;
+  const author = wrap.getAttribute("data-post-author") || "Mere Orthodoxy";
+  const image = wrap.getAttribute("data-post-image") || "";
 
-  trigger.addEventListener("click", function () {
+  trigger.addEventListener("click", () => {
     if (!hasPaidAccess()) {
       // eslint-disable-next-line no-restricted-syntax -- same-origin path literal, not worker-supplied
       window.location.href = "/membership/";
       return;
     }
-    var src = base.replace(/\/$/, "") + "/" + postId + ".mp3";
-    buildPlayer(wrap, trigger, src, { title: title, author: author, image: image });
+    const src = `${base.replace(/\/$/, "")}/${postId}.mp3`;
+    buildPlayer(wrap, trigger, src, { title, author, image });
   });
 
   function hasPaidAccess() {
-    var status = document.body.getAttribute("data-member-status") || "";
+    const status = document.body.getAttribute("data-member-status") || "";
     return status === "paid" || status === "comped";
   }
 
   function buildPlayer(mount, triggerEl, src, meta) {
-    var audio = document.createElement("audio");
+    const audio = document.createElement("audio");
     audio.preload = "auto";
     audio.src = src;
 
-    var shell = document.createElement("div");
+    const shell = document.createElement("div");
     shell.className = "ao-player";
     shell.innerHTML =
       '<button class="ao-play" type="button" aria-label="Play" data-ao-toggle>' +
@@ -61,25 +61,25 @@
       '<span class="ao-time" data-ao-time>Preparing</span>' +
       '<button class="ao-speed" type="button" data-ao-speed aria-label="Playback speed">1x</button>';
 
-    var parent = triggerEl.parentNode;
+    const parent = triggerEl.parentNode;
     parent.replaceChild(shell, triggerEl);
     shell.appendChild(audio);
     shell.classList.add("is-preparing");
 
-    var playBtn = shell.querySelector("[data-ao-toggle]");
-    var track = shell.querySelector("[data-ao-track]");
-    var fill = shell.querySelector("[data-ao-fill]");
-    var thumb = shell.querySelector("[data-ao-thumb]");
-    var timeEl = shell.querySelector("[data-ao-time]");
-    var speedBtn = shell.querySelector("[data-ao-speed]");
-    var ready = false;
+    const playBtn = shell.querySelector("[data-ao-toggle]");
+    const track = shell.querySelector("[data-ao-track]");
+    const fill = shell.querySelector("[data-ao-fill]");
+    const thumb = shell.querySelector("[data-ao-thumb]");
+    const timeEl = shell.querySelector("[data-ao-time]");
+    const speedBtn = shell.querySelector("[data-ao-speed]");
+    let ready = false;
 
-    var SPEEDS = [1, 1.25, 1.5, 1.75, 2];
-    var speedIdx = 0;
-    function fmtSpeed(v) { return (v % 1 === 0 ? v.toFixed(0) : v.toString()) + "x"; }
-    speedBtn.addEventListener("click", function () {
+    const SPEEDS = [1, 1.25, 1.5, 1.75, 2];
+    let speedIdx = 0;
+    function fmtSpeed(v) { return `${v % 1 === 0 ? v.toFixed(0) : v.toString()}x`; }
+    speedBtn.addEventListener("click", () => {
       speedIdx = (speedIdx + 1) % SPEEDS.length;
-      var rate = SPEEDS[speedIdx];
+      const rate = SPEEDS[speedIdx];
       audio.playbackRate = rate;
       speedBtn.textContent = fmtSpeed(rate);
       updatePositionState(audio);
@@ -91,7 +91,7 @@
     }
 
     function showTime() {
-      timeEl.textContent = fmt(audio.currentTime) + " / " + fmt(audio.duration);
+      timeEl.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`;
     }
 
     function markReady() {
@@ -101,72 +101,72 @@
       showTime();
     }
 
-    playBtn.addEventListener("click", function () {
+    playBtn.addEventListener("click", () => {
       if (audio.paused) audio.play(); else audio.pause();
     });
-    var emittedPlayEvent = false;
-    audio.addEventListener("play", function () {
+    let emittedPlayEvent = false;
+    audio.addEventListener("play", () => {
       setPlaying(true);
       if (emittedPlayEvent) return;
       emittedPlayEvent = true;
       if (typeof window.__kitEmit === "function") {
-        var topicTags = [];
-        var tagEls = document.querySelectorAll(".article-topic [data-tag-slug], .article-topic-tag[data-tag-slug]");
-        for (var i = 0; i < tagEls.length; i++) {
-          var slug = tagEls[i].getAttribute("data-tag-slug");
+        const topicTags = [];
+        const tagEls = document.querySelectorAll(".article-topic [data-tag-slug], .article-topic-tag[data-tag-slug]");
+        for (let i = 0; i < tagEls.length; i++) {
+          const slug = tagEls[i].getAttribute("data-tag-slug");
           if (slug) topicTags.push(slug);
         }
-        window.__kitEmit("audio_played", { postId: postId, postTags: topicTags });
+        window.__kitEmit("audio_played", { postId, postTags: topicTags });
       }
     });
-    audio.addEventListener("pause", function () { setPlaying(false); });
-    audio.addEventListener("ended", function () { setPlaying(false); });
+    audio.addEventListener("pause", () => { setPlaying(false); });
+    audio.addEventListener("ended", () => { setPlaying(false); });
     audio.addEventListener("playing", markReady);
 
-    audio.addEventListener("timeupdate", function () {
+    audio.addEventListener("timeupdate", () => {
       if (!ready) markReady();
-      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
-      fill.style.width = pct + "%";
-      thumb.style.left = pct + "%";
+      const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      fill.style.width = `${pct}%`;
+      thumb.style.left = `${pct}%`;
       showTime();
       updatePositionState(audio);
     });
-    audio.addEventListener("loadedmetadata", function () {
+    audio.addEventListener("loadedmetadata", () => {
       updatePositionState(audio);
     });
 
     wireScrub(track, audio);
     wireMediaSession(audio, meta);
 
-    var attempt = audio.play();
+    const attempt = audio.play();
     if (attempt && typeof attempt.catch === "function") {
-      attempt.catch(function () { /* user can tap play */ });
+      attempt.catch(() => { /* user can tap play */ });
     }
   }
 
   function wireScrub(track, audio) {
-    var dragging = false;
+    let dragging = false;
 
     function seekFromEvent(e) {
-      var rect = track.getBoundingClientRect();
-      var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-      var pct = Math.max(0, Math.min(1, x / rect.width));
+      const rect = track.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const pct = Math.max(0, Math.min(1, x / rect.width));
       if (audio.duration) audio.currentTime = pct * audio.duration;
     }
 
-    track.addEventListener("mousedown", function (e) { dragging = true; seekFromEvent(e); });
-    window.addEventListener("mousemove", function (e) { if (dragging) seekFromEvent(e); });
-    window.addEventListener("mouseup", function () { dragging = false; });
+    track.addEventListener("mousedown", (e) => { dragging = true; seekFromEvent(e); });
+    window.addEventListener("mousemove", (e) => { if (dragging) seekFromEvent(e); });
+    window.addEventListener("mouseup", () => { dragging = false; });
 
-    track.addEventListener("touchstart", function (e) { dragging = true; seekFromEvent(e); }, { passive: true });
-    window.addEventListener("touchmove", function (e) { if (dragging) seekFromEvent(e); }, { passive: true });
-    window.addEventListener("touchend", function () { dragging = false; });
+    track.addEventListener("touchstart", (e) => { dragging = true; seekFromEvent(e); }, { passive: true });
+    window.addEventListener("touchmove", (e) => { if (dragging) seekFromEvent(e); }, { passive: true });
+    window.addEventListener("touchend", () => { dragging = false; });
   }
 
   function wireMediaSession(audio, meta) {
     if (!("mediaSession" in navigator)) return;
 
-    var artwork = [];
+    const artwork = [];
     if (meta.image) {
       artwork.push({ src: meta.image, sizes: "512x512", type: "image/jpeg" });
     }
@@ -176,19 +176,19 @@
         title: meta.title,
         artist: meta.author,
         album: "Mere Orthodoxy",
-        artwork: artwork,
+        artwork,
       });
     } catch (_) { /* older browsers */ }
 
-    safeHandler("play", function () { audio.play(); });
-    safeHandler("pause", function () { audio.pause(); });
-    safeHandler("seekbackward", function (e) {
+    safeHandler("play", () => { audio.play(); });
+    safeHandler("pause", () => { audio.pause(); });
+    safeHandler("seekbackward", (e) => {
       audio.currentTime = Math.max(0, audio.currentTime - (e.seekOffset || 15));
     });
-    safeHandler("seekforward", function (e) {
+    safeHandler("seekforward", (e) => {
       audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (e.seekOffset || 15));
     });
-    safeHandler("seekto", function (e) {
+    safeHandler("seekto", (e) => {
       if (e.fastSeek && "fastSeek" in audio) audio.fastSeek(e.seekTime);
       else audio.currentTime = e.seekTime;
     });
@@ -214,8 +214,8 @@
   function fmt(secs) {
     if (!isFinite(secs)) return "--:--";
     secs = Math.max(0, Math.floor(secs));
-    var m = Math.floor(secs / 60);
-    var s = secs % 60;
-    return m + ":" + (s < 10 ? "0" : "") + s;
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
   }
 })();

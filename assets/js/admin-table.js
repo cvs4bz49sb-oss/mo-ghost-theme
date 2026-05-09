@@ -24,8 +24,8 @@
   if (!host) return;
 
   const apiBase = (host.dataset.apiBase || '').replace(/\/$/, '');
-  const endpoint = host.dataset.endpoint;
-  const collection = host.dataset.collection;
+  const {endpoint} = host.dataset;
+  const {collection} = host.dataset;
   const columns = (host.dataset.columns || '').split(',').map((s) => s.trim()).filter(Boolean);
   const labels = (host.dataset.columnLabels || '').split(',').map((s) => s.trim()).filter(Boolean);
   const linkColumn = host.dataset.linkColumn || '';
@@ -55,7 +55,7 @@
       const res = await window.MOAuth.fetch(apiBase + endpoint, { credentials: 'omit' });
       if (res.status === 401) { setStatus('Sign in required.'); return; }
       if (res.status === 403) { setStatus('Forbidden — your email is not in the admin list.'); return; }
-      if (!res.ok) { setStatus('Could not load data. (' + res.status + ')'); return; }
+      if (!res.ok) { setStatus(`Could not load data. (${res.status})`); return; }
       const body = await res.json();
       render(body[collection] || [], body.count);
     } catch (err) {
@@ -80,13 +80,13 @@
     downloadEl.addEventListener('click', async (ev) => {
       ev.preventDefault();
       try {
-        const r = await window.MOAuth.fetch(apiBase + endpoint + '?format=csv');
-        if (!r.ok) return setStatus('CSV download failed: ' + r.status);
+        const r = await window.MOAuth.fetch(`${apiBase + endpoint}?format=csv`);
+        if (!r.ok) return setStatus(`CSV download failed: ${r.status}`);
         const blob = await r.blob();
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = (endpoint.split('/').pop() || 'data') + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+        a.download = `${endpoint.split('/').pop() || 'data'}-${new Date().toISOString().slice(0, 10)}.csv`;
         document.body.appendChild(a);
         a.click();
         a.remove();

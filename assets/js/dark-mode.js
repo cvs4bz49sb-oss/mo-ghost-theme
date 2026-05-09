@@ -18,7 +18,7 @@
  * flash on load (FOUC). The button wiring happens after DOM is ready.
  */
 (function () {
-  var KEY = "mo-article-theme";
+  const KEY = "mo-article-theme";
 
   function apply(theme) {
     if (theme === "dark") {
@@ -36,7 +36,7 @@
 
   // Resolve initial state immediately (before DOM ready) so the page
   // paints in the correct theme on first render.
-  var saved = null;
+  let saved = null;
   try { saved = localStorage.getItem(KEY); } catch (e) { /* no-op */ }
   if (saved === "dark" || saved === "light") {
     apply(saved);
@@ -48,7 +48,7 @@
   }
 
   function updateButton(btn) {
-    var isDark = current() === "dark";
+    const isDark = current() === "dark";
     btn.setAttribute("aria-pressed", isDark ? "true" : "false");
     btn.setAttribute(
       "aria-label",
@@ -57,11 +57,11 @@
   }
 
   function wireButtons() {
-    var buttons = document.querySelectorAll("[data-dark-mode-toggle]");
+    const buttons = document.querySelectorAll("[data-dark-mode-toggle]");
     if (!buttons.length) return;
-    buttons.forEach(function (btn) {
+    buttons.forEach((btn) => {
       updateButton(btn);
-      btn.addEventListener("click", function () {
+      btn.addEventListener("click", () => {
         // 1. Mark <html> as mid-switch so CSS can kill transitions on
         //    the feature-toggle buttons (see matching rule in
         //    screen.css — html[data-theme-switching] .article-actions ...).
@@ -77,13 +77,13 @@
         // recalc to the render tree before the theme flip below.
         void document.documentElement.offsetHeight;
 
-        var next = current() === "dark" ? "light" : "dark";
+        const next = current() === "dark" ? "light" : "dark";
         apply(next);
         try { localStorage.setItem(KEY, next); } catch (e) { /* no-op */ }
         buttons.forEach(updateButton);
 
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
             document.documentElement.removeAttribute("data-theme-switching");
           });
         });

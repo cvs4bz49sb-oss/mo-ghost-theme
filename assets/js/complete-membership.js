@@ -29,7 +29,7 @@
   (async () => {
     try {
       const response = await window.MOAuth.fetch(
-        window.MO_API_BASE + '/api/member/address'
+        `${window.MO_API_BASE}/api/member/address`
       );
       if (!response.ok) return;
       const body = await response.json();
@@ -63,7 +63,7 @@
     submit.disabled = true;
 
     try {
-      const response = await window.MOAuth.fetch(window.MO_API_BASE + '/api/member/address', {
+      const response = await window.MOAuth.fetch(`${window.MO_API_BASE}/api/member/address`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

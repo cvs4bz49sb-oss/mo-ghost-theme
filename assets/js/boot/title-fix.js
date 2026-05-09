@@ -1,6 +1,6 @@
 (function () {
-  var site = "Mere Orthodoxy";
-  var titles = {
+  const site = "Mere Orthodoxy";
+  const titles = {
     "/about/": "About",
     "/membership/": "Become a Member",
     "/archive/": "Archive",
@@ -31,14 +31,14 @@
     "/success/": "Welcome"
   };
 
-  var path = window.location.pathname;
+  const path = window.location.pathname;
 
   // Exact match first
-  var custom = titles[path];
+  let custom = titles[path];
 
   // Faith Received document pages: /the-faith-received/slug/
   if (!custom && path.indexOf("/the-faith-received/") === 0) {
-    var el = document.querySelector("h1");
+    const el = document.querySelector("h1");
     if (el) {
       custom = el.textContent.trim();
     } else {
@@ -53,8 +53,8 @@
 
   // Archive pagination: /archive/page/N/
   if (!custom && path.indexOf("/archive/") === 0) {
-    var m = path.match(/\/page\/(\d+)\//);
-    custom = m ? "Archive (Page " + m[1] + ")" : "Archive";
+    const m = path.match(/\/page\/(\d+)\//);
+    custom = m ? `Archive (Page ${m[1]})` : "Archive";
   }
 
   // Ebook pages: /ebook/slug/
@@ -68,19 +68,19 @@
   }
 
   if (custom) {
-    document.title = custom + " | " + site;
+    document.title = `${custom} | ${site}`;
   }
 
   // Noindex for internal/admin pages that shouldn't appear in search
-  var noindex = [
+  const noindex = [
     "/admin/", "/dashboard/", "/manage/", "/success/",
     "/complete-membership/", "/migrate/", "/digest-gen/",
     "/group-manage/", "/institution-manage/", "/groups/",
     "/institutions/", "/forum/"
   ];
-  for (var i = 0; i < noindex.length; i++) {
+  for (let i = 0; i < noindex.length; i++) {
     if (path.indexOf(noindex[i]) === 0) {
-      var meta = document.createElement("meta");
+      const meta = document.createElement("meta");
       meta.name = "robots";
       meta.content = "noindex, nofollow";
       document.head.appendChild(meta);

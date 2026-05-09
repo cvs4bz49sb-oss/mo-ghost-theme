@@ -31,24 +31,24 @@
   if (typeof document === "undefined") return;
 
   function findArticleBlock() {
-    var scripts = document.querySelectorAll('script[type="application/ld+json"]');
-    for (var i = 0; i < scripts.length; i++) {
+    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    for (let i = 0; i < scripts.length; i++) {
       try {
-        var data = JSON.parse(scripts[i].textContent || "");
+        const data = JSON.parse(scripts[i].textContent || "");
         if (data && (data["@type"] === "Article" || data["@type"] === "BlogPosting")) {
-          return { node: scripts[i], data: data };
+          return { node: scripts[i], data };
         }
       } catch (_) {}
     }
     return null;
   }
   function findWebSiteBlock() {
-    var scripts = document.querySelectorAll('script[type="application/ld+json"]');
-    for (var i = 0; i < scripts.length; i++) {
+    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    for (let i = 0; i < scripts.length; i++) {
       try {
-        var data = JSON.parse(scripts[i].textContent || "");
+        const data = JSON.parse(scripts[i].textContent || "");
         if (data && data["@type"] === "WebSite") {
-          return { node: scripts[i], data: data };
+          return { node: scripts[i], data };
         }
       } catch (_) {}
     }
@@ -56,73 +56,73 @@
   }
 
   function fixArticle() {
-    var hit = findArticleBlock();
+    const hit = findArticleBlock();
     if (!hit) return;
 
     // Pull byline tags out of the rendered article header. The
     // theme emits every tag with `data-tag-slug` and uses CSS to
     // visually filter to `[data-tag-slug^="author-"]` — same
     // filter applies here.
-    var byline = document.querySelector("[data-byline]");
+    const byline = document.querySelector("[data-byline]");
     if (!byline) return;
-    var anchors = byline.querySelectorAll('[data-tag-slug^="author-"]');
+    const anchors = byline.querySelectorAll('[data-tag-slug^="author-"]');
     if (!anchors.length) return; // no author- tag; leave Ghost default alone
 
-    var origin = window.location.origin;
-    var people = [];
-    anchors.forEach(function (a) {
-      var nameEl = a.querySelector(".meta-author-name");
-      var name = (nameEl ? nameEl.textContent : a.textContent || "").trim();
-      var href = a.getAttribute("href") || "";
-      var url = href.indexOf("http") === 0 ? href : origin + href;
+    const {origin} = window.location;
+    const people = [];
+    anchors.forEach((a) => {
+      const nameEl = a.querySelector(".meta-author-name");
+      const name = (nameEl ? nameEl.textContent : a.textContent || "").trim();
+      const href = a.getAttribute("href") || "";
+      const url = href.indexOf("http") === 0 ? href : origin + href;
       if (!name) return;
-      people.push({ "@type": "Person", "name": name, "url": url });
+      people.push({ "@type": "Person", name, url });
     });
     if (!people.length) return;
 
     // articleSection: all non-byline public tags by name, in order.
-    var topics = [];
-    document.querySelectorAll("[data-topic] [data-tag-slug]").forEach(function (a) {
-      var slug = a.getAttribute("data-tag-slug") || "";
+    const topics = [];
+    document.querySelectorAll("[data-topic] [data-tag-slug]").forEach((a) => {
+      const slug = a.getAttribute("data-tag-slug") || "";
       if (slug.indexOf("author-") === 0) return;
       if (slug.indexOf("hash-") === 0) return; // internal tags
-      var name = (a.textContent || "").trim();
+      const name = (a.textContent || "").trim();
       if (name && topics.indexOf(name) === -1) topics.push(name);
     });
 
-    var data = hit.data;
+    const {data} = hit;
     data.author = people.length === 1 ? people[0] : people;
     if (topics.length) data.articleSection = topics;
     if (topics.length) data.keywords = topics.join(", ");
 
     // Word count from article body
-    var body = document.querySelector(".article-content");
+    const body = document.querySelector(".article-content");
     if (body) {
-      var wc = (body.textContent || "").trim().split(/\s+/).length;
+      const wc = (body.textContent || "").trim().split(/\s+/).length;
       if (wc > 0) data.wordCount = wc;
     }
 
     // Reading time from the rendered meta
-    var timeEl = document.querySelector(".article-meta .meta-date");
+    const timeEl = document.querySelector(".article-meta .meta-date");
     if (timeEl) {
-      var tm = (timeEl.textContent || "").match(/(\d+)\s*min/);
-      if (tm) data.timeRequired = "PT" + tm[1] + "M";
+      const tm = (timeEl.textContent || "").match(/(\d+)\s*min/);
+      if (tm) data.timeRequired = `PT${tm[1]}M`;
     }
 
     // Access: free vs members-only
-    var gate = document.querySelector(".post-gate");
+    const gate = document.querySelector(".post-gate");
     data.isAccessibleForFree = !gate || gate.style.display === "none" ? true : false;
     data.isPartOf = {
       "@type": "WebSite",
       "name": "Mere Orthodoxy",
-      "url": window.location.origin + "/"
+      "url": `${window.location.origin}/`
     };
 
     hit.node.textContent = JSON.stringify(data);
   }
 
   function fixWebsite() {
-    var hit = findWebSiteBlock();
+    const hit = findWebSiteBlock();
     if (!hit) return;
     if (hit.data.potentialAction) return; // already present
 
@@ -133,12 +133,12 @@
     // crawlers parse for "this site has search," and giving them
     // a target is fine even if it 404s for users (they'll always
     // arrive via the modal trigger).
-    var origin = (hit.data.url || window.location.origin).replace(/\/$/, "");
+    const origin = (hit.data.url || window.location.origin).replace(/\/$/, "");
     hit.data.potentialAction = {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": origin + "/?s={search_term_string}"
+        "urlTemplate": `${origin}/?s={search_term_string}`
       },
       "query-input": "required name=search_term_string"
     };

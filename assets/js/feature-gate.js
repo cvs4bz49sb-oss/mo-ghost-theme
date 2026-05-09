@@ -24,15 +24,15 @@
  * article-gift.js) don't ALSO fire alongside the gate.
  */
 (function () {
-  var STATUS = (document.body.getAttribute("data-member-status") || "anonymous").toLowerCase();
+  let STATUS = (document.body.getAttribute("data-member-status") || "anonymous").toLowerCase();
 
   // QA override: ?gate=force on any URL forces STATUS to anonymous
   // so every gated button fires. Persists to sessionStorage for
   // tab-internal navigation. ?gate=off clears.
-  var forced = false;
+  let forced = false;
   try {
-    var params = new URLSearchParams(window.location.search);
-    var g = params.get("gate");
+    const params = new URLSearchParams(window.location.search);
+    const g = params.get("gate");
     if (g === "force") sessionStorage.setItem("mo-gate-force", "1");
     if (g === "off") sessionStorage.removeItem("mo-gate-force");
     forced = sessionStorage.getItem("mo-gate-force") === "1";
@@ -42,7 +42,7 @@
     STATUS = "anonymous";
   }
 
-  var FEATURES = {
+  const FEATURES = {
     audio: {
       requires: "member",
       eyebrow: "Members Only",
@@ -81,11 +81,11 @@
 
   document.addEventListener(
     "click",
-    function (e) {
-      var btn = e.target.closest("[data-feature-gate]");
+    (e) => {
+      const btn = e.target.closest("[data-feature-gate]");
       if (!btn) return;
-      var name = btn.getAttribute("data-feature-gate");
-      var feature = FEATURES[name];
+      const name = btn.getAttribute("data-feature-gate");
+      const feature = FEATURES[name];
       if (!feature) return;
       if (hasAccess(feature)) return;
       e.preventDefault();
@@ -95,14 +95,14 @@
     true
   );
 
-  var modalEl = null;
-  var modalOpener = null;
+  let modalEl = null;
+  let modalOpener = null;
 
   function showModal(featureName, feature, opener) {
     dismissModal(true);
     modalOpener = opener;
 
-    var overlay = document.createElement("div");
+    const overlay = document.createElement("div");
     overlay.className = "feature-gate-modal";
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
@@ -114,36 +114,36 @@
     // contents (subscriberInner / memberInner) are hardcoded strings
     // so they remain innerHTML for now; if any data-driven field
     // ever lands inside them, convert those too.
-    var backdrop = document.createElement("div");
+    const backdrop = document.createElement("div");
     backdrop.className = "feature-gate-modal-backdrop";
     backdrop.setAttribute("data-fg-dismiss", "");
 
-    var panel = document.createElement("div");
+    const panel = document.createElement("div");
     panel.className = "feature-gate-modal-panel";
 
-    var closeBtn = document.createElement("button");
+    const closeBtn = document.createElement("button");
     closeBtn.className = "feature-gate-modal-close";
     closeBtn.type = "button";
     closeBtn.setAttribute("data-fg-dismiss", "");
     closeBtn.setAttribute("aria-label", "Close");
     closeBtn.textContent = "×"; // ×
 
-    var eyebrow = document.createElement("p");
+    const eyebrow = document.createElement("p");
     eyebrow.className = "eyebrow";
     eyebrow.textContent = feature.eyebrow;
 
-    var title = document.createElement("h3");
+    const title = document.createElement("h3");
     title.id = "fg-modal-title";
     title.className = "feature-gate-modal-title";
     title.textContent = feature.title;
 
-    var bodyP = document.createElement("p");
+    const bodyP = document.createElement("p");
     bodyP.className = "feature-gate-modal-body";
     bodyP.textContent = feature.body;
 
     panel.append(closeBtn, eyebrow, title, bodyP);
 
-    var innerWrap = document.createElement("div");
+    const innerWrap = document.createElement("div");
     if (feature.requires === "subscriber") {
       innerWrap.innerHTML = subscriberInner(featureName, feature);
     } else {
@@ -157,14 +157,14 @@
     modalEl = overlay;
     document.body.classList.add("feature-gate-modal-open");
 
-    overlay.addEventListener("click", function (e) {
+    overlay.addEventListener("click", (e) => {
       if (e.target.closest("[data-fg-dismiss]")) dismissModal();
     });
     document.addEventListener("keydown", escHandler);
 
-    requestAnimationFrame(function () {
+    requestAnimationFrame(() => {
       overlay.classList.add("is-visible");
-      var first =
+      const first =
         overlay.querySelector("#fg-email") ||
         overlay.querySelector(".feature-gate-modal-cta");
       if (first) first.focus();
@@ -175,17 +175,17 @@
     // Mirrors partials/digest-cta.hbs form structure so inline-signup.js
     // picks it up unchanged.
     return (
-      '<div class="feature-gate-modal-form digest-form" data-inline-signup data-source="feature-gate:' + escapeAttr(featureName) + '">' +
-        '<div class="digest-field"><label for="fg-first">First Name</label>' +
-          '<input id="fg-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required /></div>' +
-        '<div class="digest-field"><label for="fg-last">Last Name</label>' +
-          '<input id="fg-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required /></div>' +
-        '<div class="digest-field"><label for="fg-email">Email</label>' +
-          '<input id="fg-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required /></div>' +
-        '<button type="button" class="digest-submit" data-signup-submit>Subscribe</button>' +
-        '<p class="digest-fineprint">Free. Unsubscribe anytime.</p>' +
-        '<p class="digest-status" data-signup-status></p>' +
-      '</div>'
+      `<div class="feature-gate-modal-form digest-form" data-inline-signup data-source="feature-gate:${escapeAttr(featureName)}">` +
+        `<div class="digest-field"><label for="fg-first">First Name</label>` +
+          `<input id="fg-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required /></div>` +
+        `<div class="digest-field"><label for="fg-last">Last Name</label>` +
+          `<input id="fg-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required /></div>` +
+        `<div class="digest-field"><label for="fg-email">Email</label>` +
+          `<input id="fg-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required /></div>` +
+        `<button type="button" class="digest-submit" data-signup-submit>Subscribe</button>` +
+        `<p class="digest-fineprint">Free. Unsubscribe anytime.</p>` +
+        `<p class="digest-status" data-signup-status></p>` +
+      `</div>`
     );
   }
 
@@ -203,13 +203,13 @@
 
   function dismissModal(immediate) {
     if (!modalEl) return;
-    var m = modalEl;
+    const m = modalEl;
     modalEl = null;
     document.removeEventListener("keydown", escHandler);
     document.body.classList.remove("feature-gate-modal-open");
     if (immediate) { m.remove(); restoreFocus(); return; }
     m.classList.add("is-closing");
-    setTimeout(function () { if (m.parentNode) m.remove(); restoreFocus(); }, 220);
+    setTimeout(() => { if (m.parentNode) m.remove(); restoreFocus(); }, 220);
   }
 
   function restoreFocus() {
@@ -220,12 +220,12 @@
   }
 
   function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
+    return String(s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
   function escapeAttr(s) {
-    return String(s).replace(/["<>]/g, function (c) {
+    return String(s).replace(/["<>]/g, (c) => {
       return { '"': "&quot;", "<": "&lt;", ">": "&gt;" }[c];
     });
   }

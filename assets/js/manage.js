@@ -25,7 +25,7 @@
     }
     setLoading(true);
     try {
-      const res = await fetch(window.MO_API_BASE + '/api/portal', {
+      const res = await fetch(`${window.MO_API_BASE}/api/portal`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

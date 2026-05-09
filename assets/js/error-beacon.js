@@ -19,40 +19,40 @@
  *   window.MOReport("manual", "thing happened", { extras: ... });
  */
 (function () {
-  var beaconUrl = (document.body.getAttribute("data-error-worker-url") || "").trim();
+  const beaconUrl = (document.body.getAttribute("data-error-worker-url") || "").trim();
   if (!beaconUrl) {
     // Worker not configured. Expose a no-op so callers don't need to
     // gate on its existence.
     window.MOReport = function () {};
     return;
   }
-  var endpoint = beaconUrl.replace(/\/$/, "") + "/report";
+  const endpoint = `${beaconUrl.replace(/\/$/, "")}/report`;
 
-  var MAX_REPORTS = 10;
-  var sent = 0;
-  var lastSentAt = 0;
-  var seen = Object.create(null);
+  const MAX_REPORTS = 10;
+  let sent = 0;
+  let lastSentAt = 0;
+  const seen = Object.create(null);
 
   function fingerprint(msg, url, line) {
-    return String(msg).slice(0, 200) + "|" + String(url || "").slice(0, 120) + "|" + (line || "");
+    return `${String(msg).slice(0, 200)}|${String(url || "").slice(0, 120)}|${line || ""}`;
   }
 
   function send(payload) {
     if (sent >= MAX_REPORTS) return;
-    var now = Date.now();
+    const now = Date.now();
     if (now - lastSentAt < 1000) return;
-    var fp = fingerprint(payload.message, payload.url, payload.line);
+    const fp = fingerprint(payload.message, payload.url, payload.line);
     if (seen[fp]) return;
     seen[fp] = true;
     sent += 1;
     lastSentAt = now;
     try {
-      var body = JSON.stringify(payload);
+      const body = JSON.stringify(payload);
       // sendBeacon doesn't fire CORS preflight (it's a "simple"
       // POST), and is queued past pagehide — ideal for error
       // beacons. Falls back to fetch() with keepalive.
       if (navigator.sendBeacon) {
-        var ok = navigator.sendBeacon(endpoint, new Blob([body], { type: "application/json" }));
+        const ok = navigator.sendBeacon(endpoint, new Blob([body], { type: "application/json" }));
         if (ok) return;
       }
       fetch(endpoint, {
@@ -61,8 +61,8 @@
         credentials: "omit",
         keepalive: true,
         headers: { "content-type": "application/json" },
-        body: body,
-      }).catch(function () { /* best-effort */ });
+        body,
+      }).catch(() => { /* best-effort */ });
     } catch (_) { /* ignore */ }
   }
 
@@ -76,7 +76,7 @@
     });
   };
 
-  window.addEventListener("error", function (event) {
+  window.addEventListener("error", (event) => {
     if (!event) return;
     send({
       kind: "error",
@@ -89,10 +89,10 @@
     });
   });
 
-  window.addEventListener("unhandledrejection", function (event) {
-    var reason = event && event.reason;
-    var message = "";
-    var stack = null;
+  window.addEventListener("unhandledrejection", (event) => {
+    const reason = event && event.reason;
+    let message = "";
+    let stack = null;
     if (reason && typeof reason === "object") {
       message = String(reason.message || reason);
       if (reason.stack) stack = String(reason.stack).slice(0, 8000);
@@ -101,8 +101,8 @@
     }
     send({
       kind: "error",
-      message: ("Unhandled rejection: " + message).slice(0, 2000),
-      stack: stack,
+      message: (`Unhandled rejection: ${message}`).slice(0, 2000),
+      stack,
       url: window.location.pathname + window.location.search,
       userAgent: navigator.userAgent,
     });
@@ -112,15 +112,15 @@
   // blocked inline scripts, blocked external scripts, etc. — wiring
   // this up means Ian sees what the new strict-CSP is actually
   // breaking, if anything, without users having to report it.
-  document.addEventListener("securitypolicyviolation", function (event) {
+  document.addEventListener("securitypolicyviolation", (event) => {
     if (!event) return;
     send({
       kind: "csp",
       message:
-        "CSP violation: " +
-        (event.violatedDirective || "?") +
-        " on " +
-        (event.blockedURI || "inline"),
+        `CSP violation: ${ 
+        event.violatedDirective || "?" 
+        } on ${ 
+        event.blockedURI || "inline"}`,
       url: event.documentURI || window.location.pathname,
       line: typeof event.lineNumber === "number" ? event.lineNumber : null,
       column: typeof event.columnNumber === "number" ? event.columnNumber : null,

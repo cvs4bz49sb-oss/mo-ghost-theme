@@ -13,17 +13,17 @@
  *      apply the #root id to our scoped #mo-digest-root.
  */
 (function () {
-  var meta = document.querySelector('meta[name="mo-digest-assets"]');
+  const meta = document.querySelector('meta[name="mo-digest-assets"]');
   if (meta && meta.getAttribute("content")) {
     try { window.MO_DIGEST_ASSETS = JSON.parse(meta.getAttribute("content")); }
     catch (_) { window.MO_DIGEST_ASSETS = {}; }
   }
 
-  var existing = document.getElementById("root");
-  var ownRoot = document.getElementById("mo-digest-root");
+  const existing = document.getElementById("root");
+  const ownRoot = document.getElementById("mo-digest-root");
   if (!ownRoot) return;
   if (existing && existing !== ownRoot) {
-    existing.id = "__non_digest_root_" + Math.random().toString(36).slice(2);
+    existing.id = `__non_digest_root_${Math.random().toString(36).slice(2)}`;
   }
   ownRoot.id = "root";
 })();

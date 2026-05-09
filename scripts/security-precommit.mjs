@@ -163,7 +163,7 @@ async function checkM4() {
       if (!re.test(line)) continue;
       // Whitelist: Ghost Content API public key in URL.
       if (/[?&]key=" \+ encodeURIComponent\(API_KEY\)/.test(line)) continue;
-      if (/[?&]key=\$\{API_KEY\}/.test(line)) continue;
+      if (/[?&]key=\$\{(?:encodeURIComponent\()?API_KEY/.test(line)) continue;
       // Whitelist: institution / group token-in-query, documented
       // T11 residual in threat-model.md.
       if (/\/api\/(institution|group)\/context\?token=/.test(line)) continue;

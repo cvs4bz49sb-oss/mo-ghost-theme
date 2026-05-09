@@ -7,75 +7,75 @@
  * event). Collapsed by default — click the title to expand the video.
  */
 (function () {
-  var source = document.querySelector("[data-replays-source]");
-  var list = document.querySelector("[data-replays-list]");
-  var placeholder = document.querySelector("[data-replays-placeholder]");
+  const source = document.querySelector("[data-replays-source]");
+  const list = document.querySelector("[data-replays-list]");
+  const placeholder = document.querySelector("[data-replays-placeholder]");
   if (!source || !list) return;
 
   // "Past" = the replay YouTube embed has been pasted into the post.
   // Ghost 5 won't let us edit published_at to a future date, so we
   // key off presence of the video embed instead of date comparison.
-  var items = Array.prototype.slice.call(source.querySelectorAll(".replays-item"))
-    .map(function (el) {
-      var ts = Date.parse(el.getAttribute("data-published-at"));
-      var contentHtml = (el.querySelector(".replays-item-content") || {}).innerHTML || "";
+  const items = Array.prototype.slice.call(source.querySelectorAll(".replays-item"))
+    .map((el) => {
+      const ts = Date.parse(el.getAttribute("data-published-at"));
+      const contentHtml = (el.querySelector(".replays-item-content") || {}).innerHTML || "";
       return {
         slug: el.getAttribute("data-slug") || "",
         url: el.getAttribute("data-url") || "",
         title: el.getAttribute("data-title") || "",
         excerpt: el.getAttribute("data-excerpt") || "",
         ts: isNaN(ts) ? 0 : ts,
-        contentHtml: contentHtml,
+        contentHtml,
         hasReplay: /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
       };
     })
-    .filter(function (e) { return e.hasReplay; })
-    .sort(function (a, b) { return b.ts - a.ts; });
+    .filter((e) => { return e.hasReplay; })
+    .sort((a, b) => { return b.ts - a.ts; });
 
   if (placeholder) placeholder.remove();
   if (!items.length) {
-    var empty = document.createElement("li");
+    const empty = document.createElement("li");
     empty.className = "replays-empty";
     empty.textContent = "No event replays yet. Once we host and wrap up an online event, the video appears here.";
     list.appendChild(empty);
     return;
   }
 
-  for (var i = 0; i < items.length; i++) list.appendChild(renderItem(items[i]));
+  for (let i = 0; i < items.length; i++) list.appendChild(renderItem(items[i]));
 
   function renderItem(e) {
-    var li = document.createElement("li");
+    const li = document.createElement("li");
     li.className = "replays-card";
 
-    var header = document.createElement("details");
+    const header = document.createElement("details");
     header.className = "replays-details";
     if (items[0] && e === items[0]) header.open = true; // auto-expand newest
 
-    var summary = document.createElement("summary");
+    const summary = document.createElement("summary");
     summary.className = "replays-summary";
-    var date = document.createElement("p");
+    const date = document.createElement("p");
     date.className = "replays-date";
     date.textContent = formatDate(e.ts);
     summary.appendChild(date);
-    var title = document.createElement("h3");
+    const title = document.createElement("h3");
     title.className = "replays-title";
-    var em = document.createElement("em");
+    const em = document.createElement("em");
     em.textContent = e.title;
     title.appendChild(em);
     summary.appendChild(title);
     if (e.excerpt) {
-      var sub = document.createElement("p");
+      const sub = document.createElement("p");
       sub.className = "replays-sub";
       sub.textContent = e.excerpt;
       summary.appendChild(sub);
     }
-    var chev = document.createElement("span");
+    const chev = document.createElement("span");
     chev.className = "replays-chev";
     chev.setAttribute("aria-hidden", "true");
     summary.appendChild(chev);
     header.appendChild(summary);
 
-    var body = document.createElement("div");
+    const body = document.createElement("div");
     body.className = "replays-body";
     // Sanitize the post body before innerHTML assignment. Ghost
     // sanitizes server-side, but defense-in-depth: a compromised

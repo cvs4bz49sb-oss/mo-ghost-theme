@@ -33,7 +33,7 @@
     submit.disabled = true;
 
     try {
-      const response = await fetch(window.MO_API_BASE + '/api/create-group-checkout', {
+      const response = await fetch(`${window.MO_API_BASE}/api/create-group-checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

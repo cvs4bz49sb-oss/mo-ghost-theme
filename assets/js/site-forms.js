@@ -11,30 +11,30 @@
 (function () {
   // Show the selected filename next to the upload button. Event
   // delegation so forms injected dynamically still pick this up.
-  document.addEventListener("change", function (e) {
-    var input = e.target;
+  document.addEventListener("change", (e) => {
+    const input = e.target;
     if (!input || !input.matches || !input.matches('[data-upload] input[type="file"]')) return;
-    var host = input.closest("[data-upload]");
+    const host = input.closest("[data-upload]");
     if (!host) return;
-    var nameEl = host.querySelector("[data-upload-name]");
+    const nameEl = host.querySelector("[data-upload-name]");
     if (!nameEl) return;
-    var f = input.files && input.files[0];
+    const f = input.files && input.files[0];
     nameEl.textContent = f ? f.name : "No file chosen";
     host.classList.toggle("has-file", !!f);
   });
 
-  document.addEventListener("submit", function (e) {
-    var form = e.target && e.target.closest && e.target.closest("[data-site-form]");
+  document.addEventListener("submit", (e) => {
+    const form = e.target && e.target.closest && e.target.closest("[data-site-form]");
     if (!form) return;
     e.preventDefault();
     handleSubmit(form);
   });
 
   function handleSubmit(form) {
-    var kind = form.getAttribute("data-site-form");
-    var worker = (form.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
-    var status = form.querySelector("[data-form-status]");
-    var submitBtn = form.querySelector(".site-form-submit");
+    const kind = form.getAttribute("data-site-form");
+    const worker = (form.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
+    const status = form.querySelector("[data-form-status]");
+    const submitBtn = form.querySelector(".site-form-submit");
 
     if (!worker) {
       setStatus(status, "The form isn't configured yet. Email us instead.", true);
@@ -50,10 +50,10 @@
     setStatus(status, "Sending\u2026");
     if (submitBtn) { submitBtn.disabled = true; }
 
-    var url, init;
+    let url, init;
     if (kind === "contact") {
-      url = worker + "/contact";
-      var body = {
+      url = `${worker}/contact`;
+      const body = {
         firstName: form.querySelector("[name=firstName]").value,
         lastName: form.querySelector("[name=lastName]").value,
         email: form.querySelector("[name=email]").value,
@@ -65,47 +65,47 @@
         body: JSON.stringify(body),
       };
     } else {
-      url = worker + "/submissions";
-      var fd = new FormData(form);
+      url = `${worker}/submissions`;
+      const fd = new FormData(form);
       // Normalize the checkbox to the value the worker expects.
       fd.set("aiAttested", form.querySelector("[name=aiAttested]").checked ? "true" : "false");
       init = { method: "POST", body: fd };
     }
 
     fetch(url, init)
-      .then(function (r) {
+      .then((r) => {
         return r.json().then(
-          function (j) { return { ok: r.ok, body: j }; },
-          function () { return { ok: r.ok, body: {} }; }
+          (j) => { return { ok: r.ok, body: j }; },
+          () => { return { ok: r.ok, body: {} }; }
         );
       })
-      .then(function (res) {
+      .then((res) => {
         if (res.ok && res.body && res.body.ok) {
           renderSuccess(form, kind);
         } else {
-          var msg = (res.body && res.body.error) || "Something went wrong. Try again.";
+          const msg = (res.body && res.body.error) || "Something went wrong. Try again.";
           setStatus(status, msg, true);
           if (submitBtn) submitBtn.disabled = false;
         }
       })
-      .catch(function () {
+      .catch(() => {
         setStatus(status, "Couldn't reach the server. Try again.", true);
         if (submitBtn) submitBtn.disabled = false;
       });
   }
 
   function renderSuccess(form, kind) {
-    var success = document.createElement("div");
+    const success = document.createElement("div");
     success.className = "site-form-success";
     success.setAttribute("role", "status");
-    var title = kind === "contact" ? "Thanks — message sent." : "Thanks — submission received.";
-    var body = kind === "contact"
+    const title = kind === "contact" ? "Thanks — message sent." : "Thanks — submission received.";
+    const body = kind === "contact"
       ? "We'll be in touch soon."
       : "We'll read your essay and be in touch within two weeks.";
     success.innerHTML =
-      '<p class="eyebrow">Sent</p>' +
-      '<h3><em>' + title + '</em></h3>' +
-      '<p>' + body + '</p>';
+      `<p class="eyebrow">Sent</p>` +
+      `<h3><em>${title}</em></h3>` +
+      `<p>${body}</p>`;
     form.parentNode.replaceChild(success, form);
   }
 

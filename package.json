@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "lint": "eslint assets/js",
+    "lint:fix": "eslint assets/js --fix",
     "build:digest": "node scripts/build-digest.mjs",
     "build:digest:check": "node scripts/build-digest.mjs --check"
   },

@@ -23,7 +23,7 @@
  *   window.MOSafeHref.set(el, url, "#fallback");   // assigns el.href
  */
 (function () {
-  var ALLOWED_SCHEMES = ["http:", "https:", "mailto:", "tel:"];
+  const ALLOWED_SCHEMES = ["http:", "https:", "mailto:", "tel:"];
 
   function isPathRelative(url) {
     if (typeof url !== "string") return false;
@@ -39,7 +39,7 @@
     ) {
       return false;
     }
-    var first = url.charAt(0);
+    const first = url.charAt(0);
     // Path-, query-, or fragment-relative — never carries a scheme.
     if (first === "/" || first === "#" || first === "?") return true;
     // A relative path like "foo/bar" — no scheme, no protocol-relative.
@@ -53,11 +53,11 @@
     if (typeof url !== "string") return false;
     if (isPathRelative(url)) return true;
     try {
-      var u = new URL(url, window.location.origin);
-      for (var i = 0; i < ALLOWED_SCHEMES.length; i++) {
+      const u = new URL(url, window.location.origin);
+      for (let i = 0; i < ALLOWED_SCHEMES.length; i++) {
         if (u.protocol === ALLOWED_SCHEMES[i]) return true;
       }
-      console.error("MOSafeHref rejected:", url, "(protocol:", u.protocol + ")");
+      console.error("MOSafeHref rejected:", url, "(protocol:", `${u.protocol})`);
       return false;
     } catch (_) {
       console.error("MOSafeHref rejected (unparsable):", url);
@@ -75,8 +75,8 @@
   }
 
   window.MOSafeHref = {
-    isSafe: isSafe,
-    sanitize: sanitize,
-    set: set,
+    isSafe,
+    sanitize,
+    set,
   };
 })();

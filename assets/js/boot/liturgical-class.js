@@ -24,19 +24,19 @@
   // is signed in. The previous version returned early when no member
   // email was present, which was a copy-paste bug from a member-only
   // feature.
-  var p;
+  let p;
   try { p = localStorage.getItem("mo_liturgical"); } catch (x) {}
   if (!p || p === "off") return;
-  var s = p;
+  let s = p;
 
   if (p === "auto") {
-    var now = new Date(),
+    const now = new Date(),
         Y = now.getFullYear(),
         M = now.getMonth(),
         D = now.getDate();
 
     function easter(y) {
-      var a = y % 19,
+      const a = y % 19,
           b = Math.floor(y / 100),
           c = y % 100,
           d = Math.floor(b / 4),
@@ -53,7 +53,7 @@
       return new Date(y, mo - 1, da);
     }
     function add(n, d) {
-      var r = new Date(d);
+      const r = new Date(d);
       r.setDate(r.getDate() + n);
       return r;
     }
@@ -61,14 +61,14 @@
       return new Date(d.getFullYear(), d.getMonth(), d.getDate());
     }
 
-    var ea = easter(Y),
-        aw = add(-46, ea),       // Ash Wednesday
-        hs = add(-1, ea),        // Holy Saturday
-        pn = add(49, ea),        // Pentecost
+    const ea = easter(Y),
+        aw = add(-46, ea), // Ash Wednesday
+        hs = add(-1, ea), // Holy Saturday
+        pn = add(49, ea), // Pentecost
         d24 = new Date(Y, 11, 24),
         dw = d24.getDay(),
         a4 = dw === 0 ? d24 : new Date(Y, 11, 24 - dw),
-        av = add(-21, a4),       // First Sunday of Advent
+        av = add(-21, a4), // First Sunday of Advent
         t = ymd(now);
 
     if (M === 0 && D <= 5) s = "christmas";
@@ -82,5 +82,5 @@
     else s = "ordinary";
   }
 
-  if (s && s !== "off") document.body.classList.add("lc-" + s);
+  if (s && s !== "off") document.body.classList.add(`lc-${s}`);
 })();

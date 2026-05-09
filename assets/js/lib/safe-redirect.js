@@ -11,7 +11,7 @@
  * Used by lifetime-checkout.js, gift.js, groups.js, manage.js.
  */
 (function () {
-  var ALLOWED_HOSTS = [
+  const ALLOWED_HOSTS = [
     'checkout.stripe.com',
     'billing.stripe.com',
   ];
@@ -22,11 +22,11 @@
   // through, this throws and the user sees an error. That's safe
   // (fail-closed) but unexpected — flagged in Pass 3 #11.
   window.MOSafeRedirect = {
-    isAllowed: function (url) {
+    isAllowed (url) {
       try {
-        var u = new URL(url);
+        const u = new URL(url);
         if (u.protocol !== 'https:') return false;
-        for (var i = 0; i < ALLOWED_HOSTS.length; i++) {
+        for (let i = 0; i < ALLOWED_HOSTS.length; i++) {
           if (u.hostname === ALLOWED_HOSTS[i]) return true;
         }
         return false;
@@ -34,7 +34,7 @@
         return false;
       }
     },
-    go: function (url) {
+    go (url) {
       if (!this.isAllowed(url)) {
         // Log so prod-triage has a signal when a worker returns
         // something unexpected.

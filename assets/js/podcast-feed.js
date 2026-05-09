@@ -19,24 +19,24 @@
  * fallback markup stays put.
  */
 (function () {
-  var FEED_URL = document.body.getAttribute("data-podcast-feed-url") || "";
+  const FEED_URL = document.body.getAttribute("data-podcast-feed-url") || "";
   if (!FEED_URL) return;
 
-  var grid = document.querySelector(".listen-grid");
+  const grid = document.querySelector(".listen-grid");
   if (!grid) return;
 
-  var isCoversLayout = grid.getAttribute("data-layout") === "covers";
+  const isCoversLayout = grid.getAttribute("data-layout") === "covers";
 
   // data-show (optional): filter episodes to a single show slug on
   // dedicated podcast pages. When absent (homepage), all shows merge.
   // When present, render the full-detail card variant (artwork,
   // iframe player, transcript link). When absent, stay compact.
-  var showFilter = grid.getAttribute("data-show") || "";
-  var isShowPage = !!showFilter;
-  var showLimit = parseInt(grid.getAttribute("data-show-limit"), 10);
+  const showFilter = grid.getAttribute("data-show") || "";
+  const isShowPage = !!showFilter;
+  let showLimit = parseInt(grid.getAttribute("data-show-limit"), 10);
   if (!showLimit || showLimit <= 0) showLimit = isShowPage ? 8 : 4;
 
-  var platforms = {
+  const platforms = {
     "mere-fidelity": {
       apple: grid.getAttribute("data-mf-apple") || "",
       spotify: grid.getAttribute("data-mf-spotify") || "",
@@ -50,31 +50,31 @@
   // Most-Listened side rail. Show page only. Lives outside the
   // .listen-grid so it has its own root; the same fetch below
   // populates both lists.
-  var mostListenedRoot = isShowPage
-    ? document.querySelector('[data-most-listened][data-show="' + cssEscape(showFilter) + '"]')
+  const mostListenedRoot = isShowPage
+    ? document.querySelector(`[data-most-listened][data-show="${cssEscape(showFilter)}"]`)
     : null;
 
-  var feedLimit = isShowPage ? Math.max(showLimit, 12) : 5;
-  var qsParts = ["limit=" + feedLimit];
+  const feedLimit = isShowPage ? Math.max(showLimit, 12) : 5;
+  const qsParts = [`limit=${feedLimit}`];
   if (mostListenedRoot) qsParts.push("top=true");
-  var url = FEED_URL + (FEED_URL.indexOf("?") > -1 ? "&" : "?") + qsParts.join("&");
+  const url = FEED_URL + (FEED_URL.indexOf("?") > -1 ? "&" : "?") + qsParts.join("&");
   fetch(url, { cache: "default" })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (data) {
+    .then((r) => { return r.ok ? r.json() : null; })
+    .then((data) => {
       if (!data) return;
-      var all = [];
-      Object.keys(data).forEach(function (slug) {
+      const all = [];
+      Object.keys(data).forEach((slug) => {
         if (showFilter && slug !== showFilter) return;
-        var payload = data[slug];
+        const payload = data[slug];
         if (!payload || payload.error || !Array.isArray(payload.episodes)) return;
-        var showTitle = (payload.show && payload.show.title) || slug;
-        payload.episodes.forEach(function (ep) {
+        const showTitle = (payload.show && payload.show.title) || slug;
+        payload.episodes.forEach((ep) => {
           if (!ep) return;
-          var ts = ep.pubDate ? Date.parse(ep.pubDate) : NaN;
+          const ts = ep.pubDate ? Date.parse(ep.pubDate) : NaN;
           all.push({
             // Show context.
             showSlug: slug,
-            showTitle: showTitle,
+            showTitle,
             // Episode core.
             id: ep.id || ep.captivateId || "",
             captivateId: ep.captivateId || "",
@@ -97,8 +97,8 @@
       if (isCoversLayout) {
         renderCoversLayout(data);
       } else if (all.length) {
-        all.sort(function (a, b) { return b.ts - a.ts; });
-        var top = all.slice(0, showLimit);
+        all.sort((a, b) => { return b.ts - a.ts; });
+        const top = all.slice(0, showLimit);
         grid.innerHTML = top.map(isShowPage ? renderShowCard : renderCompactCard).join("");
       }
 
@@ -110,32 +110,32 @@
         renderMostListened(mostListenedRoot, data[showFilter].topEpisodes, showFilter);
       }
     })
-    .catch(function () { /* static fallback stays */ });
+    .catch(() => { /* static fallback stays */ });
 
   // ─── Compact card (homepage Listen rail, mixed shows) ──────────
 
   function renderCompactCard(ep) {
-    var date = ep.ts
+    const date = ep.ts
       ? new Date(ep.ts).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
       : "";
-    var topicHtml = "";
-    if (ep.showTitle) topicHtml += '<p class="pod-topic">' + escapeHtml(ep.showTitle) + "</p>";
-    if (date) topicHtml += '<p class="pod-date">' + escapeHtml(date) + "</p>";
+    let topicHtml = "";
+    if (ep.showTitle) topicHtml += `<p class="pod-topic">${escapeHtml(ep.showTitle)}</p>`;
+    if (date) topicHtml += `<p class="pod-date">${escapeHtml(date)}</p>`;
 
-    var summary = sanitize(ep.description).replace(/\s+/g, " ").slice(0, 180).trim();
-    var excerpt = summary
-      ? '<p class="pod-excerpt">' + escapeHtml(summary) + "</p>"
+    const summary = sanitize(ep.description).replace(/\s+/g, " ").slice(0, 180).trim();
+    const excerpt = summary
+      ? `<p class="pod-excerpt">${escapeHtml(summary)}</p>`
       : "";
 
-    var linksBlock = renderListenLinks(ep);
+    const linksBlock = renderListenLinks(ep);
 
     return (
-      '<article class="pod-entry pod-entry--episode" data-show="' + escapeAttr(ep.showSlug) + '">' +
-      topicHtml +
-      '<h3 class="pod-title"><em>' + escapeHtml(ep.title) + "</em></h3>" +
-      excerpt +
-      linksBlock +
-      "</article>"
+      `<article class="pod-entry pod-entry--episode" data-show="${escapeAttr(ep.showSlug)}">${ 
+      topicHtml 
+      }<h3 class="pod-title"><em>${escapeHtml(ep.title)}</em></h3>${ 
+      excerpt 
+      }${linksBlock 
+      }</article>`
     );
   }
 
@@ -149,93 +149,93 @@
   //   footer    : "Listen on Apple | Spotify"  ·  "Read transcript →"
 
   function renderShowCard(ep) {
-    var date = ep.ts
+    const date = ep.ts
       ? new Date(ep.ts).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
       : "";
-    var metaParts = [];
-    if (ep.showTitle) metaParts.push('<span class="pod-meta-show">' + escapeHtml(ep.showTitle) + '</span>');
-    if (date) metaParts.push('<span class="pod-meta-date">' + escapeHtml(date) + '</span>');
-    if (ep.episode) metaParts.push('<span class="pod-meta-ep">Ep ' + escapeHtml(String(ep.episode)) + '</span>');
-    var metaHtml = metaParts.length
-      ? '<p class="pod-meta">' + metaParts.join('<span class="pod-meta-sep" aria-hidden="true"> · </span>') + '</p>'
+    const metaParts = [];
+    if (ep.showTitle) metaParts.push(`<span class="pod-meta-show">${escapeHtml(ep.showTitle)}</span>`);
+    if (date) metaParts.push(`<span class="pod-meta-date">${escapeHtml(date)}</span>`);
+    if (ep.episode) metaParts.push(`<span class="pod-meta-ep">Ep ${escapeHtml(String(ep.episode))}</span>`);
+    const metaHtml = metaParts.length
+      ? `<p class="pod-meta">${metaParts.join('<span class="pod-meta-sep" aria-hidden="true"> · </span>')}</p>`
       : "";
 
-    var summary = firstParagraph(sanitize(ep.description));
-    var excerpt = summary
-      ? '<p class="pod-excerpt">' + escapeHtml(summary) + "</p>"
+    const summary = firstParagraph(sanitize(ep.description));
+    const excerpt = summary
+      ? `<p class="pod-excerpt">${escapeHtml(summary)}</p>`
       : "";
 
-    var embed = ep.embedUrl
-      ? '<div class="pod-embed">' +
-        '<iframe src="' + escapeAttr(ep.embedUrl) + '" loading="lazy" frameborder="0" scrolling="no" title="Listen to ' + escapeAttr(ep.title) + '"></iframe>' +
-        '</div>'
+    const embed = ep.embedUrl
+      ? `<div class="pod-embed">` +
+        `<iframe src="${escapeAttr(ep.embedUrl)}" loading="lazy" frameborder="0" scrolling="no" title="Listen to ${escapeAttr(ep.title)}"></iframe>` +
+        `</div>`
       : "";
 
-    var titleHtml = ep.embedUrl
+    const titleHtml = ep.embedUrl
       ? ""
-      : '<h3 class="pod-title"><em>' + escapeHtml(ep.title) + "</em></h3>";
+      : `<h3 class="pod-title"><em>${escapeHtml(ep.title)}</em></h3>`;
 
-    var transcriptLink = ep.hasTranscript && ep.transcriptUrl
-      ? '<a class="pod-transcript-link" href="' + escapeAttr(absoluteWorkerUrl(ep.transcriptUrl)) + '">Read transcript &rarr;</a>'
+    const transcriptLink = ep.hasTranscript && ep.transcriptUrl
+      ? `<a class="pod-transcript-link" href="${escapeAttr(absoluteWorkerUrl(ep.transcriptUrl))}">Read transcript &rarr;</a>`
       : "";
 
-    var footer = transcriptLink
-      ? '<div class="pod-footer">' + transcriptLink + '</div>'
+    const footer = transcriptLink
+      ? `<div class="pod-footer">${transcriptLink}</div>`
       : "";
 
-    var idAttr = ep.id ? ' id="ep-' + escapeAttr(ep.id) + '"' : "";
+    const idAttr = ep.id ? ` id="ep-${escapeAttr(ep.id)}"` : "";
     return (
-      '<article class="pod-entry pod-entry--episode pod-entry--full"' + idAttr + ' data-show="' + escapeAttr(ep.showSlug) + '">' +
-      metaHtml +
-      titleHtml +
-      embed +
-      excerpt +
-      footer +
-      "</article>"
+      `<article class="pod-entry pod-entry--episode pod-entry--full"${idAttr} data-show="${escapeAttr(ep.showSlug)}">${ 
+      metaHtml 
+      }${titleHtml 
+      }${embed 
+      }${excerpt 
+      }${footer 
+      }</article>`
     );
   }
 
   function renderListenLinks(ep) {
-    var p = platforms[ep.showSlug] || {};
-    var links = [];
+    const p = platforms[ep.showSlug] || {};
+    const links = [];
     if (p.apple) {
-      links.push('<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.apple, "#")) + '" target="_blank" rel="noopener">Apple</a>');
+      links.push(`<a href="${escapeAttr(window.MOSafeHref.sanitize(p.apple, "#"))}" target="_blank" rel="noopener">Apple</a>`);
     }
     if (p.spotify) {
-      links.push('<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.spotify, "#")) + '" target="_blank" rel="noopener">Spotify</a>');
+      links.push(`<a href="${escapeAttr(window.MOSafeHref.sanitize(p.spotify, "#"))}" target="_blank" rel="noopener">Spotify</a>`);
     }
     if (!links.length) return "";
     return (
-      '<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">' +
-      links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') +
-      "</p></div>"
+      `<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">${ 
+      links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') 
+      }</p></div>`
     );
   }
 
   // ─── Most Listened sidebar ─────────────────────────────────────
 
   function renderMostListened(root, items, showSlug) {
-    var list = root.querySelector("[data-most-listened-list]");
+    const list = root.querySelector("[data-most-listened-list]");
     if (!list || !items || !items.length) return;
 
-    var ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
-    var rows = items.slice(0, 5).map(function (ep, i) {
-      var numeral = ROMAN[i] || String(i + 1);
-      var titleHtml = escapeHtml(ep.title || "");
+    const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+    const rows = items.slice(0, 5).map((ep, i) => {
+      const numeral = ROMAN[i] || String(i + 1);
+      const titleHtml = escapeHtml(ep.title || "");
       // Link to the transcript when available (deeper engagement);
       // fall back to a hash anchor that scrolls to the embed in
       // the main list. If the main list doesn't have IDs yet, the
       // anchor is harmless — it just scrolls to top.
-      var href = ep.hasTranscript && ep.transcriptUrl
+      const href = ep.hasTranscript && ep.transcriptUrl
         ? absoluteWorkerUrl(ep.transcriptUrl)
-        : (ep.id ? "#ep-" + escapeAttr(ep.id) : "#");
+        : (ep.id ? `#ep-${escapeAttr(ep.id)}` : "#");
       return (
-        '<li class="podcast-most-listened-item">' +
-          '<a class="podcast-most-listened-link" href="' + escapeAttr(href) + '">' +
-            '<span class="podcast-most-listened-numeral">' + numeral + '</span>' +
-            '<span class="podcast-most-listened-title"><em>' + titleHtml + '</em></span>' +
-          '</a>' +
-        '</li>'
+        `<li class="podcast-most-listened-item">` +
+          `<a class="podcast-most-listened-link" href="${escapeAttr(href)}">` +
+            `<span class="podcast-most-listened-numeral">${numeral}</span>` +
+            `<span class="podcast-most-listened-title"><em>${titleHtml}</em></span>` +
+          `</a>` +
+        `</li>`
       );
     });
     list.innerHTML = rows.join("");
@@ -259,7 +259,7 @@
   function absoluteWorkerUrl(path) {
     if (/^https?:\/\//i.test(path)) return path;
     try {
-      var base = new URL(FEED_URL);
+      const base = new URL(FEED_URL);
       return base.origin + path;
     } catch (e) {
       return path;
@@ -274,16 +274,16 @@
   // fragment markers, markdown build classes, etc. Stop at the first
   // token that looks like a real word.
   function sanitize(text) {
-    var s = String(text == null ? "" : text).trim().replace(/^[">\s]+/, "");
+    const s = String(text == null ? "" : text).trim().replace(/^[">\s]+/, "");
     if (!s) return "";
-    var parts = s.split(/\s+/);
-    var start = 0;
+    const parts = s.split(/\s+/);
+    let start = 0;
     // Strict prose-token test: the whole token must be letters,
     // apostrophes, or hyphens, optionally with a single trailing
     // punctuation mark (comma, period, etc.). No digits, brackets,
     // quotes, slashes, underscores, or `>` — all dead giveaways of
     // CSS / HTML fragments that leaked through broken parsing.
-    var PROSE = /^[A-Za-z][A-Za-z’’’-]*[.,!?;:]?$/;
+    const PROSE = /^[A-Za-z][A-Za-z’’’-]*[.,!?;:]?$/;
     while (start < parts.length) {
       if (PROSE.test(parts[start])) break;
       start++;
@@ -295,55 +295,55 @@
   // ─── Covers layout (homepage — cover art + latest episode) ─────
 
   function renderCoversLayout(data) {
-    var showDivs = grid.querySelectorAll(".pod-show[data-show]");
-    for (var i = 0; i < showDivs.length; i++) {
-      var div = showDivs[i];
-      var slug = div.getAttribute("data-show");
-      var payload = data[slug];
+    const showDivs = grid.querySelectorAll(".pod-show[data-show]");
+    for (let i = 0; i < showDivs.length; i++) {
+      const div = showDivs[i];
+      const slug = div.getAttribute("data-show");
+      const payload = data[slug];
       if (!payload || payload.error || !Array.isArray(payload.episodes) || !payload.episodes.length) continue;
 
-      var eps = payload.episodes.slice().sort(function (a, b) {
+      const eps = payload.episodes.slice().sort((a, b) => {
         return (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0);
       });
-      var ep = eps[0];
-      var target = div.querySelector(".pod-show-latest");
+      const ep = eps[0];
+      const target = div.querySelector(".pod-show-latest");
       if (!target) continue;
 
-      var date = ep.pubDate
+      const date = ep.pubDate
         ? new Date(Date.parse(ep.pubDate)).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
         : "";
-      var summary = firstParagraph(sanitize(ep.description || ""));
+      const summary = firstParagraph(sanitize(ep.description || ""));
 
-      var p = platforms[slug] || {};
-      var links = [];
-      if (p.apple) links.push('<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.apple, "#")) + '" target="_blank" rel="noopener">Apple</a>');
-      if (p.spotify) links.push('<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.spotify, "#")) + '" target="_blank" rel="noopener">Spotify</a>');
-      var listenHtml = links.length
-        ? '<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">' +
-          links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') +
-          '</p></div>'
+      const p = platforms[slug] || {};
+      const links = [];
+      if (p.apple) links.push(`<a href="${escapeAttr(window.MOSafeHref.sanitize(p.apple, "#"))}" target="_blank" rel="noopener">Apple</a>`);
+      if (p.spotify) links.push(`<a href="${escapeAttr(window.MOSafeHref.sanitize(p.spotify, "#"))}" target="_blank" rel="noopener">Spotify</a>`);
+      const listenHtml = links.length
+        ? `<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">${ 
+          links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') 
+          }</p></div>`
         : '';
 
       target.innerHTML =
-        '<p class="pod-show-ep-label">Latest Episode</p>' +
-        (date ? '<p class="pod-show-ep-date">' + escapeHtml(date) + '</p>' : '') +
-        '<h3 class="pod-title"><em>' + escapeHtml(ep.title || "") + '</em></h3>' +
-        (summary ? '<p class="pod-excerpt">' + escapeHtml(summary) + '</p>' : '') +
-        listenHtml;
+        `<p class="pod-show-ep-label">Latest Episode</p>${ 
+        date ? `<p class="pod-show-ep-date">${escapeHtml(date)}</p>` : '' 
+        }<h3 class="pod-title"><em>${escapeHtml(ep.title || "")}</em></h3>${ 
+        summary ? `<p class="pod-excerpt">${escapeHtml(summary)}</p>` : '' 
+        }${listenHtml}`;
     }
   }
 
   function firstParagraph(text) {
     if (!text) return "";
-    var s = text.replace(/\s+/g, " ").trim();
+    const s = text.replace(/\s+/g, " ").trim();
     if (!s) return "";
-    var m = s.match(/^(.{60,}?[.!?])\s/);
+    const m = s.match(/^(.{60,}?[.!?])\s/);
     if (m) return m[1];
     return s;
   }
 
   function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }

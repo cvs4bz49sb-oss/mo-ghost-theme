@@ -15,15 +15,15 @@
  *      closes it. Body overflow is locked while open.
  */
 (function () {
-  var header = document.querySelector('.site-header');
+  const header = document.querySelector('.site-header');
   if (!header) return;
 
   function syncOffset() {
-    var h = header.getBoundingClientRect().height;
-    document.body.style.paddingTop = h + 'px';
+    const h = header.getBoundingClientRect().height;
+    document.body.style.paddingTop = `${h}px`;
     // Anchor jumps (href="#x") should land the target at the bottom
     // edge of the fixed nav.
-    document.documentElement.style.scrollPaddingTop = h + 'px';
+    document.documentElement.style.scrollPaddingTop = `${h}px`;
   }
   syncOffset();
   window.addEventListener('resize', syncOffset);
@@ -31,12 +31,12 @@
     new ResizeObserver(syncOffset).observe(header);
   }
 
-  var lastY = window.pageYOffset || window.scrollY || 0;
-  var threshold = 80;
-  var downDelta = 10;
-  var ticking = false;
+  let lastY = window.pageYOffset || window.scrollY || 0;
+  const threshold = 80;
+  const downDelta = 10;
+  let ticking = false;
   function onScroll() {
-    var y = window.pageYOffset || window.scrollY || 0;
+    const y = window.pageYOffset || window.scrollY || 0;
     if (y < threshold) {
       header.classList.remove('is-hidden');
     } else if (y > lastY + downDelta) {
@@ -47,7 +47,7 @@
     lastY = y;
     ticking = false;
   }
-  window.addEventListener('scroll', function () {
+  window.addEventListener('scroll', () => {
     if (!ticking) {
       window.requestAnimationFrame(onScroll);
       ticking = true;
@@ -56,16 +56,16 @@
 })();
 
 (function () {
-  var toggle = document.querySelector('.nav-toggle');
-  var panel = document.getElementById('mobile-nav');
+  const toggle = document.querySelector('.nav-toggle');
+  const panel = document.getElementById('mobile-nav');
   if (!toggle || !panel) return;
-  var closeBtn = panel.querySelector('.mobile-nav-close');
-  var backdrop = panel.querySelector('.mobile-nav-backdrop');
-  var links = panel.querySelectorAll('a, [data-portal]');
+  const closeBtn = panel.querySelector('.mobile-nav-close');
+  const backdrop = panel.querySelector('.mobile-nav-backdrop');
+  const links = panel.querySelectorAll('a, [data-portal]');
 
   function open() {
     panel.hidden = false;
-    requestAnimationFrame(function () { panel.setAttribute('data-open', 'true'); });
+    requestAnimationFrame(() => { panel.setAttribute('data-open', 'true'); });
     toggle.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
   }
@@ -73,18 +73,18 @@
     panel.removeAttribute('data-open');
     toggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
-    setTimeout(function () { panel.hidden = true; }, 260);
+    setTimeout(() => { panel.hidden = true; }, 260);
   }
 
-  toggle.addEventListener('click', function () {
+  toggle.addEventListener('click', () => {
     toggle.getAttribute('aria-expanded') === 'true' ? close() : open();
   });
   closeBtn.addEventListener('click', close);
   backdrop.addEventListener('click', close);
-  document.addEventListener('keydown', function (e) {
+  document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') close();
   });
-  links.forEach(function (l) {
-    l.addEventListener('click', function () { setTimeout(close, 50); });
+  links.forEach((l) => {
+    l.addEventListener('click', () => { setTimeout(close, 50); });
   });
 })();

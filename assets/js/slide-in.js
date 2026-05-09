@@ -12,63 +12,63 @@
  *   5. Render it and animate in after a short delay.
  */
 (function () {
-  var workerUrl = (document.body.getAttribute("data-admin-worker-url") || "").replace(/\/$/, "");
+  const workerUrl = (document.body.getAttribute("data-admin-worker-url") || "").replace(/\/$/, "");
   if (!workerUrl) return;
 
-  var CACHE_KEY = "mo_slide_ins";
-  var CACHE_TTL = 5 * 60 * 1000;
-  var DISMISS_PREFIX = "mo_sid_";
+  const CACHE_KEY = "mo_slide_ins";
+  const CACHE_TTL = 5 * 60 * 1000;
+  const DISMISS_PREFIX = "mo_sid_";
 
   // ── Page context ──────────────────────────────────────────────
-  var bodyClass = document.body.className || "";
-  var isHome = /\bhome-template\b/.test(bodyClass);
-  var isPost = /\bpost-template\b/.test(bodyClass);
-  var pageTags = [];
+  const bodyClass = document.body.className || "";
+  const isHome = /\bhome-template\b/.test(bodyClass);
+  const isPost = /\bpost-template\b/.test(bodyClass);
+  let pageTags = [];
   if (isPost) {
-    var m = bodyClass.match(/\btag-([a-z0-9-]+)/g);
-    if (m) pageTags = m.map(function (c) { return c.replace("tag-", ""); });
+    const m = bodyClass.match(/\btag-([a-z0-9-]+)/g);
+    if (m) pageTags = m.map((c) => { return c.replace("tag-", ""); });
   }
 
-  var memberEmail = document.body.getAttribute("data-member-email") || "";
-  var memberStatus = document.body.getAttribute("data-member-status") || "";
-  var isMember = !!memberEmail;
-  var isPaid = memberStatus === "paid";
-  var isFree = isMember && !isPaid;
+  const memberEmail = document.body.getAttribute("data-member-email") || "";
+  const memberStatus = document.body.getAttribute("data-member-status") || "";
+  const isMember = !!memberEmail;
+  const isPaid = memberStatus === "paid";
+  const isFree = isMember && !isPaid;
 
   // ── Fetch ─────────────────────────────────────────────────────
   function load(cb) {
     try {
-      var cached = sessionStorage.getItem(CACHE_KEY);
+      const cached = sessionStorage.getItem(CACHE_KEY);
       if (cached) {
-        var parsed = JSON.parse(cached);
+        const parsed = JSON.parse(cached);
         if (parsed.ts && Date.now() - parsed.ts < CACHE_TTL) { cb(parsed.items); return; }
       }
     } catch (e) {}
 
-    fetch(workerUrl + "/slide-ins")
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (items) {
-        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items: items })); } catch (e) {}
+    fetch(`${workerUrl}/slide-ins`)
+      .then((r) => { return r.ok ? r.json() : []; })
+      .then((items) => {
+        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items })); } catch (e) {}
         cb(items);
       })
-      .catch(function () { cb([]); });
+      .catch(() => { cb([]); });
   }
 
   // ── Matching ──────────────────────────────────────────────────
   function matchesPage(item) {
-    var p = item.pages;
+    const p = item.pages;
     if (p === "all") return true;
     if (p === "homepage") return isHome;
     if (p === "posts") return isPost;
     if (p.indexOf("tag:") === 0) {
-      var slug = p.slice(4);
+      const slug = p.slice(4);
       return isPost && pageTags.indexOf(slug) >= 0;
     }
     return false;
   }
 
   function matchesAudience(item) {
-    var a = item.audience;
+    const a = item.audience;
     if (a === "everyone") return true;
     if (a === "not-signed-in") return !isMember;
     if (a === "signed-in") return isMember;
@@ -79,15 +79,15 @@
 
   function isDismissed(item) {
     try {
-      var raw = localStorage.getItem(DISMISS_PREFIX + item.id);
+      const raw = localStorage.getItem(DISMISS_PREFIX + item.id);
       if (!raw) return false;
-      var ts = parseInt(raw, 10);
+      const ts = parseInt(raw, 10);
       if (isNaN(ts)) return false;
-      var now = Date.now();
-      var f = item.frequency;
+      const now = Date.now();
+      const f = item.frequency;
       if (f === "once") return true;
-      var windows = { daily: 86400000, weekly: 604800000, biweekly: 1209600000, monthly: 2592000000 };
-      var window = windows[f] || 604800000;
+      const windows = { daily: 86400000, weekly: 604800000, biweekly: 1209600000, monthly: 2592000000 };
+      const window = windows[f] || 604800000;
       return (now - ts) < window;
     } catch (e) { return false; }
   }
@@ -98,12 +98,12 @@
 
   // ── Render ────────────────────────────────────────────────────
   function render(item) {
-    var el = document.createElement("aside");
-    el.className = "slide-in" + (item.image ? " has-image" : "");
+    const el = document.createElement("aside");
+    el.className = `slide-in${item.image ? " has-image" : ""}`;
     el.setAttribute("role", "complementary");
     el.setAttribute("aria-label", item.headline);
 
-    var close = document.createElement("button");
+    const close = document.createElement("button");
     close.type = "button";
     close.className = "slide-in-close";
     close.setAttribute("aria-label", "Dismiss");
@@ -111,7 +111,7 @@
     el.appendChild(close);
 
     if (item.image && window.MOSafeHref.isSafe(item.image)) {
-      var img = document.createElement("img");
+      const img = document.createElement("img");
       img.className = "slide-in-image";
       img.src = item.image;
       img.alt = "";
@@ -119,25 +119,25 @@
       el.appendChild(img);
     }
 
-    var content = document.createElement("div");
+    const content = document.createElement("div");
     content.className = "slide-in-content";
 
     if (item.eyebrow) {
-      var ey = document.createElement("p");
+      const ey = document.createElement("p");
       ey.className = "eyebrow slide-in-eyebrow";
       ey.textContent = item.eyebrow;
       content.appendChild(ey);
     }
 
-    var h = document.createElement("h3");
+    const h = document.createElement("h3");
     h.className = "slide-in-headline";
-    var em = document.createElement("em");
+    const em = document.createElement("em");
     em.textContent = item.headline;
     h.appendChild(em);
     content.appendChild(h);
 
     if (item.body) {
-      var p = document.createElement("p");
+      const p = document.createElement("p");
       p.className = "slide-in-body";
       p.textContent = item.body;
       content.appendChild(p);
@@ -147,7 +147,7 @@
     // allowlist (http(s)/mailto/tel/path-relative). A javascript:
     // URL here would XSS every visitor on every page that shows the
     // slide-in.
-    var btn = document.createElement("a");
+    const btn = document.createElement("a");
     window.MOSafeHref.set(btn, item.button_url);
     btn.className = "btn btn-primary slide-in-btn";
     btn.textContent = item.button_text;
@@ -155,41 +155,41 @@
 
     el.appendChild(content);
 
-    close.addEventListener("click", function () {
+    close.addEventListener("click", () => {
       dismiss(item);
       el.classList.remove("is-visible");
-      setTimeout(function () { el.remove(); }, 400);
+      setTimeout(() => { el.remove(); }, 400);
     });
 
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", () => {
       track(item.id, "click");
     });
 
     document.body.appendChild(el);
 
-    setTimeout(function () {
+    setTimeout(() => {
       el.classList.add("is-visible");
       track(item.id, "impression");
     }, 50);
   }
 
   function track(id, type) {
-    try { navigator.sendBeacon(workerUrl + "/slide-ins/" + id + "/" + type); } catch (e) {}
+    try { navigator.sendBeacon(`${workerUrl}/slide-ins/${id}/${type}`); } catch (e) {}
   }
 
   // ── Trigger helpers ────────────────────────────────────────────
   function getScrollPercent() {
-    var h = document.documentElement;
-    var b = document.body;
-    var st = h.scrollTop || b.scrollTop;
-    var sh = Math.max(h.scrollHeight, b.scrollHeight) - window.innerHeight;
+    const h = document.documentElement;
+    const b = document.body;
+    const st = h.scrollTop || b.scrollTop;
+    const sh = Math.max(h.scrollHeight, b.scrollHeight) - window.innerHeight;
     return sh > 0 ? (st / sh) * 100 : 100;
   }
 
   function attachTrigger(item) {
-    var trigger = item.trigger || "delay";
-    var value = parseInt(item.trigger_value, 10) || 0;
-    var shown = false;
+    const trigger = item.trigger || "delay";
+    const value = parseInt(item.trigger_value, 10) || 0;
+    let shown = false;
 
     function show() {
       if (shown) return;
@@ -206,7 +206,7 @@
       });
       setTimeout(show, 60000);
     } else if (trigger === "scroll") {
-      var pct = value > 0 ? value : 50;
+      const pct = value > 0 ? value : 50;
       function checkScroll() {
         if (getScrollPercent() >= pct) {
           window.removeEventListener("scroll", checkScroll);
@@ -216,23 +216,23 @@
       window.addEventListener("scroll", checkScroll, { passive: true });
       checkScroll();
     } else {
-      var ms = (value > 0 ? value : 3) * 1000;
+      const ms = (value > 0 ? value : 3) * 1000;
       setTimeout(show, ms);
     }
   }
 
   // ── Init ──────────────────────────────────────────────────────
-  load(function (items) {
+  load((items) => {
     if (!items || !items.length) return;
 
-    var candidates = items
+    const candidates = items
       .filter(matchesPage)
       .filter(matchesAudience)
-      .filter(function (i) { return !isDismissed(i); });
+      .filter((i) => { return !isDismissed(i); });
 
     if (!candidates.length) return;
 
-    candidates.sort(function (a, b) { return (b.priority || 0) - (a.priority || 0); });
+    candidates.sort((a, b) => { return (b.priority || 0) - (a.priority || 0); });
     attachTrigger(candidates[0]);
   });
 })();

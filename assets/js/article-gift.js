@@ -14,13 +14,13 @@
  * keeps the gesture chain intact for the actual write.
  */
 (function () {
-  var btn = document.querySelector("[data-article-gift]");
+  const btn = document.querySelector("[data-article-gift]");
   if (!btn) return;
 
-  var workerUrl = (btn.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
-  var email = (btn.getAttribute("data-member-email") || "").trim();
-  var postId = (btn.getAttribute("data-post-id") || "").trim();
-  var postUrl = (btn.getAttribute("data-post-url") || "").trim();
+  const workerUrl = (btn.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
+  const email = (btn.getAttribute("data-member-email") || "").trim();
+  const postId = (btn.getAttribute("data-post-id") || "").trim();
+  const postUrl = (btn.getAttribute("data-post-url") || "").trim();
   // Hide only on genuine config errors. An empty email means the
   // visitor isn't signed in — feature-gate.js intercepts the click
   // and prompts them to subscribe, so the button must stay visible.
@@ -29,7 +29,7 @@
     return;
   }
 
-  btn.addEventListener("click", function () {
+  btn.addEventListener("click", () => {
     if (btn.disabled) return;
     if (!email) return;
     btn.disabled = true;
@@ -37,15 +37,15 @@
     // MOAuth.fetch attaches the Ghost member JWT inside its closure
     // so the mint worker can derive the gifter's email from
     // payload.sub. Bearer never leaves the closure.
-    window.MOAuth.fetch(workerUrl + "/mint", {
+    window.MOAuth.fetch(`${workerUrl}/mint`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId: postId }),
+      body: JSON.stringify({ postId }),
     })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
+      .then((r) => { return r.ok ? r.json() : null; })
+      .then((data) => {
         if (!data || !data.token) { showToast({ message: "Gift link unavailable. Try again." }); return; }
-        var u;
+        let u;
         try {
           u = new URL(postUrl);
           u.searchParams.set("gift", data.token);
@@ -55,10 +55,10 @@
         }
         showToast({ message: "Gift link ready.", actionLabel: "Copy link", url: u.toString() });
         // Fire-and-forget Kit tag: who's actively sharing.
-        if (window.__kitEmit) window.__kitEmit("gifted_article", { postId: postId });
+        if (window.__kitEmit) window.__kitEmit("gifted_article", { postId });
       })
-      .catch(function () { showToast({ message: "Gift link unavailable. Try again." }); })
-      .then(function () { btn.disabled = false; });
+      .catch(() => { showToast({ message: "Gift link unavailable. Try again." }); })
+      .then(() => { btn.disabled = false; });
   });
 
   // copySync runs inside the action-button's click handler so the
@@ -66,7 +66,7 @@
   // and reliable post-async-chain); falls back to navigator.clipboard
   // for browsers that have removed execCommand.
   function copySync(text) {
-    var ta = document.createElement("textarea");
+    const ta = document.createElement("textarea");
     ta.value = text;
     ta.setAttribute("readonly", "");
     ta.style.position = "fixed";
@@ -76,7 +76,7 @@
     document.body.appendChild(ta);
     ta.select();
     ta.setSelectionRange(0, text.length);
-    var ok = false;
+    let ok = false;
     try { ok = document.execCommand("copy"); } catch (_) { ok = false; }
     document.body.removeChild(ta);
     if (ok) return Promise.resolve();
@@ -93,7 +93,7 @@
   //   ttl           — auto-dismiss in ms; defaults to 3500 (no action) or
   //                   stays open until copied for action toasts.
   function showToast(opts) {
-    var host = document.querySelector(".gift-toast");
+    let host = document.querySelector(".gift-toast");
     if (!host) {
       host = document.createElement("div");
       host.className = "gift-toast";
@@ -102,37 +102,37 @@
       document.body.appendChild(host);
     }
     host.innerHTML = "";
-    var msg = document.createElement("span");
+    const msg = document.createElement("span");
     msg.className = "gift-toast-msg";
     msg.textContent = opts.message;
     host.appendChild(msg);
 
     if (opts.actionLabel && opts.url) {
-      var action = document.createElement("button");
+      const action = document.createElement("button");
       action.type = "button";
       action.className = "gift-toast-action";
       action.textContent = opts.actionLabel;
-      action.addEventListener("click", function () {
+      action.addEventListener("click", () => {
         copySync(opts.url)
-          .then(function () {
+          .then(() => {
             msg.textContent = "Copied! Share it with anyone.";
             action.remove();
             scheduleHide(host, 2500);
           })
-          .catch(function () {
+          .catch(() => {
             // Last-ditch: surface the URL in a selectable input so
             // the user can copy it themselves. Better than failing
             // silently, less ugly than dumping it inline.
             host.innerHTML = "";
-            var label = document.createElement("span");
+            const label = document.createElement("span");
             label.className = "gift-toast-msg";
             label.textContent = "Select and copy:";
-            var field = document.createElement("input");
+            const field = document.createElement("input");
             field.type = "text";
             field.readOnly = true;
             field.value = opts.url;
             field.className = "gift-toast-field";
-            field.addEventListener("focus", function () { field.select(); });
+            field.addEventListener("focus", () => { field.select(); });
             host.appendChild(label);
             host.appendChild(field);
             field.focus();
@@ -148,6 +148,6 @@
 
   function scheduleHide(host, ttl) {
     clearTimeout(host._hideT);
-    host._hideT = setTimeout(function () { host.classList.remove("is-visible"); }, ttl);
+    host._hideT = setTimeout(() => { host.classList.remove("is-visible"); }, ttl);
   }
 })();

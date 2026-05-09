@@ -7,7 +7,7 @@
  * etc. — externalizing them lets us drop 'unsafe-inline' from CSP.
  */
 (function () {
-  var meta = document.querySelector('meta[name="mo-api-base"]');
+  const meta = document.querySelector('meta[name="mo-api-base"]');
   if (meta && meta.getAttribute("content")) {
     window.MO_API_BASE = meta.getAttribute("content");
   }

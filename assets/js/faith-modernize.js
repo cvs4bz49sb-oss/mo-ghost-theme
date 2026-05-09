@@ -699,5 +699,5 @@ function hasArchaicLanguage(text) {
   );
 }
 
-  root.FaithModernize = { modernizeText: modernizeText, modernizeParagraphs: modernizeParagraphs, hasArchaicLanguage: hasArchaicLanguage };
+  root.FaithModernize = { modernizeText, modernizeParagraphs, hasArchaicLanguage };
 })(window);

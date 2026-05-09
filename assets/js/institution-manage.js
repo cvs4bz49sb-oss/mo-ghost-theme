@@ -47,7 +47,7 @@
 
   const loadContext = async () => {
     try {
-      const response = await fetch(window.MO_API_BASE + `/api/institution/context?token=${encodeURIComponent(token)}`);
+      const response = await fetch(`${window.MO_API_BASE}/api/institution/context?token=${encodeURIComponent(token)}`);
       if (!response.ok) throw new Error('ctx');
       const body = await response.json();
       orgEl.textContent = body.org_name || 'Preview institution';
@@ -106,7 +106,7 @@
   };
 
   const addMember = async (name, email) => {
-    const response = await fetch(window.MO_API_BASE + '/api/institution/add-member', {
+    const response = await fetch(`${window.MO_API_BASE}/api/institution/add-member`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, member_name: name, member_email: email }),
@@ -117,7 +117,7 @@
   };
 
   const removeMember = async (email) => {
-    await fetch(window.MO_API_BASE + '/api/institution/remove-member', {
+    await fetch(`${window.MO_API_BASE}/api/institution/remove-member`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, member_email: email }),
@@ -199,7 +199,7 @@
   membersList.addEventListener('click', async (event) => {
     const btn = event.target.closest('.admin-list-remove');
     if (!btn) return;
-    const email = btn.dataset.email;
+    const {email} = btn.dataset;
     btn.disabled = true;
     await removeMember(email);
     writeStore(membersKey, readStore(membersKey).filter((m) => m.email.toLowerCase() !== email.toLowerCase()));

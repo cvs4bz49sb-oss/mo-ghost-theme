@@ -20,18 +20,18 @@
  * subscription.
  */
 (function () {
-  var root = document.querySelector("[data-ebook-landing]");
+  const root = document.querySelector("[data-ebook-landing]");
   if (!root) return;
 
-  var slug = root.getAttribute("data-ebook-slug");
-  var title = root.getAttribute("data-ebook-title") || "the ebook";
-  var readUrl = root.getAttribute("data-ebook-read-url");
-  var workerUrl = (root.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
-  var memberEmail = (root.getAttribute("data-member-email") || "").trim().toLowerCase();
+  const slug = root.getAttribute("data-ebook-slug");
+  const title = root.getAttribute("data-ebook-title") || "the ebook";
+  const readUrl = root.getAttribute("data-ebook-read-url");
+  const workerUrl = (root.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
+  const memberEmail = (root.getAttribute("data-member-email") || "").trim().toLowerCase();
 
-  var signupEl = root.querySelector("[data-ebook-signup]");
-  var openEl = root.querySelector("[data-ebook-open]");
-  var openBtn = root.querySelector("[data-ebook-open-btn]");
+  const signupEl = root.querySelector("[data-ebook-signup]");
+  const openEl = root.querySelector("[data-ebook-open]");
+  const openBtn = root.querySelector("[data-ebook-open-btn]");
 
   if (openBtn && readUrl) {
     openBtn.setAttribute("href", readUrl);
@@ -46,57 +46,57 @@
   // -------------------------------------------------------------------------
   // Anonymous signup — POST /grant. Capture-phase listener so we
   // intercept BEFORE inline-signup.js's plain magic-link handler.
-  signupEl && signupEl.addEventListener("click", function (e) {
-    var btn = e.target && e.target.closest && e.target.closest("[data-signup-submit]");
+  signupEl && signupEl.addEventListener("click", (e) => {
+    const btn = e.target && e.target.closest && e.target.closest("[data-signup-submit]");
     if (!btn) return;
     e.preventDefault();
     e.stopImmediatePropagation();
     submitSignup(btn);
   }, true);
 
-  signupEl && signupEl.addEventListener("keydown", function (e) {
+  signupEl && signupEl.addEventListener("keydown", (e) => {
     if (e.key !== "Enter") return;
     if (!e.target.matches || !e.target.matches("[data-signup-email]")) return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    var btn = signupEl.querySelector("[data-signup-submit]");
+    const btn = signupEl.querySelector("[data-signup-submit]");
     if (btn) submitSignup(btn);
   }, true);
 
   function submitSignup(btn) {
-    var email = val("[data-signup-email]");
+    const email = val("[data-signup-email]");
     if (!email || !/.+@.+\..+/.test(email)) return setSignupStatus("Enter a valid email address.", true);
-    var first = val("[data-signup-first]");
-    var last = val("[data-signup-last]");
-    var name = [first, last].filter(Boolean).join(" ");
+    const first = val("[data-signup-first]");
+    const last = val("[data-signup-last]");
+    const name = [first, last].filter(Boolean).join(" ");
 
-    var orig = btn.textContent;
+    const orig = btn.textContent;
     btn.disabled = true;
     btn.textContent = "Sending\u2026";
     setSignupStatus("");
 
-    fetch(workerUrl + "/grant", {
+    fetch(`${workerUrl}/grant`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: email,
+        email,
         ebook: slug,
-        name: name,
+        name,
         source: "ebook-landing",
         redirect: window.location.href,
       }),
     })
-      .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || "Couldn't sign you up."); }); })
-      .then(function () {
-        var card = root.querySelector("[data-ebook-card]");
+      .then((r) => { return r.ok ? r.json() : r.json().then((j) => { throw new Error(j.error || "Couldn't sign you up."); }); })
+      .then(() => {
+        const card = root.querySelector("[data-ebook-card]");
         if (!card) return;
         card.innerHTML =
-          '<p class="eyebrow">Check your inbox</p>' +
-          '<h2 class="ebook-landing-form-title"><em>Almost there.</em></h2>' +
-          '<p class="ebook-landing-form-sub">We sent a link to <strong>' + escapeHtml(email) + '</strong>. ' +
-          'Open it and you\'ll land back here with <em>' + escapeHtml(title) + '</em> ready to read.</p>';
+          `<p class="eyebrow">Check your inbox</p>` +
+          `<h2 class="ebook-landing-form-title"><em>Almost there.</em></h2>` +
+          `<p class="ebook-landing-form-sub">We sent a link to <strong>${escapeHtml(email)}</strong>. ` +
+          `Open it and you'll land back here with <em>${escapeHtml(title)}</em> ready to read.</p>`;
       })
-      .catch(function (err) {
+      .catch((err) => {
         btn.disabled = false;
         btn.textContent = orig;
         setSignupStatus(err.message || "Couldn't sign you up. Try again.", true);
@@ -105,18 +105,18 @@
 
   // -------------------------------------------------------------------------
 
-  function val(sel) { var el = root.querySelector(sel); return el ? (el.value || "").trim() : ""; }
+  function val(sel) { const el = root.querySelector(sel); return el ? (el.value || "").trim() : ""; }
   function show(el) { if (el) el.removeAttribute("hidden"); }
   function hide(el) { if (el) el.setAttribute("hidden", ""); }
   function setSignupStatus(msg, isError) {
     if (!signupEl) return;
-    var el = signupEl.querySelector("[data-signup-status]");
+    const el = signupEl.querySelector("[data-signup-status]");
     if (!el) return;
     el.textContent = msg || "";
     el.classList.toggle("is-error", !!isError);
   }
   function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }

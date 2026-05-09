@@ -21,45 +21,45 @@
  * (clicking "Topics > Church" just follows its URL as stored).
  */
 (function () {
-  var navs = document.querySelectorAll("[data-nav-dropdowns]");
+  const navs = document.querySelectorAll("[data-nav-dropdowns]");
   if (!navs.length) return;
 
-  navs.forEach(function (nav) {
-    var mode = nav.getAttribute("data-nav-mode") || "desktop";
-    var items = Array.prototype.slice.call(nav.querySelectorAll("a[data-nav-label]"));
+  navs.forEach((nav) => {
+    const mode = nav.getAttribute("data-nav-mode") || "desktop";
+    const items = Array.prototype.slice.call(nav.querySelectorAll("a[data-nav-label]"));
     if (!items.length) return;
 
-    var groups = [];
-    var byLabel = {};
+    const groups = [];
+    const byLabel = {};
 
-    items.forEach(function (a) {
-      var label = (a.getAttribute("data-nav-label") || "").trim();
-      var url = a.getAttribute("href") || "#";
-      var sep = label.indexOf(">");
+    items.forEach((a) => {
+      const label = (a.getAttribute("data-nav-label") || "").trim();
+      const url = a.getAttribute("href") || "#";
+      const sep = label.indexOf(">");
       if (sep === -1) {
-        var g = byLabel[label];
+        let g = byLabel[label];
         if (g) {
           g.url = url;
         } else {
-          g = { label: label, url: url, children: [] };
+          g = { label, url, children: [] };
           groups.push(g);
           byLabel[label] = g;
         }
       } else {
-        var parentLabel = label.slice(0, sep).trim();
-        var childLabel = label.slice(sep + 1).trim();
-        var parent = byLabel[parentLabel];
+        const parentLabel = label.slice(0, sep).trim();
+        const childLabel = label.slice(sep + 1).trim();
+        let parent = byLabel[parentLabel];
         if (!parent) {
           parent = { label: parentLabel, url: null, children: [] };
           groups.push(parent);
           byLabel[parentLabel] = parent;
         }
-        parent.children.push({ label: childLabel, url: url });
+        parent.children.push({ label: childLabel, url });
       }
     });
 
     nav.innerHTML = "";
-    groups.forEach(function (g) {
+    groups.forEach((g) => {
       if (!g.children.length) {
         nav.appendChild(makeLink(g.label, g.url));
         return;
@@ -72,34 +72,34 @@
     });
 
     if (mode !== "mobile") {
-      document.addEventListener("click", function (e) {
+      document.addEventListener("click", (e) => {
         if (nav.contains(e.target)) return;
         closeAll(nav);
       });
-      document.addEventListener("keydown", function (e) {
+      document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeAll(nav);
       });
     }
   });
 
   function renderDesktopGroup(g, nav) {
-    var wrap = document.createElement("div");
+    const wrap = document.createElement("div");
     wrap.className = "nav-dropdown";
 
-    var toggle = document.createElement("button");
+    const toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "nav-dropdown-toggle";
     toggle.setAttribute("aria-haspopup", "true");
     toggle.setAttribute("aria-expanded", "false");
-    toggle.appendChild(document.createTextNode(g.label + " "));
-    var caret = document.createElement("span");
+    toggle.appendChild(document.createTextNode(`${g.label} `));
+    const caret = document.createElement("span");
     caret.className = "nav-dropdown-caret";
     caret.setAttribute("aria-hidden", "true");
     caret.textContent = "\u25BE";
     toggle.appendChild(caret);
     wrap.appendChild(toggle);
 
-    var menu = document.createElement("ul");
+    const menu = document.createElement("ul");
     menu.className = "nav-dropdown-menu";
     menu.setAttribute("role", "menu");
     // The parent's own URL is intentionally NOT added as a menu row.
@@ -109,14 +109,14 @@
     // as a clickable dead zone. The toggle button itself carries the
     // parent identity; if a real Resources index page exists later,
     // add it as a normal child item instead.
-    g.children.forEach(function (c) {
+    g.children.forEach((c) => {
       menu.appendChild(makeMenuItem(c.label, c.url));
     });
     wrap.appendChild(menu);
 
-    toggle.addEventListener("click", function (e) {
+    toggle.addEventListener("click", (e) => {
       e.preventDefault();
-      var open = wrap.classList.contains("is-open");
+      const open = wrap.classList.contains("is-open");
       closeAll(nav);
       if (!open) {
         wrap.classList.add("is-open");
@@ -130,7 +130,7 @@
     // document click handler at the top of the file ignores clicks
     // inside the nav, and the dropdown otherwise stays open until the
     // visitor clicks somewhere else on the page.
-    menu.addEventListener("click", function (e) {
+    menu.addEventListener("click", (e) => {
       if (e.target.closest("a")) closeAll(nav);
     });
 
@@ -138,7 +138,7 @@
   }
 
   function renderMobileGroup(g) {
-    var wrap = document.createElement("div");
+    const wrap = document.createElement("div");
     wrap.className = "mobile-nav-group";
 
     if (g.url) {
@@ -151,26 +151,26 @@
       // as a toggle button, start collapsed so the drawer stays short
       // on mobile. Children expand/collapse on tap.
       wrap.classList.add("is-collapsed");
-      var heading = document.createElement("button");
+      const heading = document.createElement("button");
       heading.type = "button";
       heading.className = "mobile-nav-group-heading mobile-nav-group-toggle";
       heading.setAttribute("aria-expanded", "false");
-      heading.appendChild(document.createTextNode(g.label + " "));
-      var mCaret = document.createElement("span");
+      heading.appendChild(document.createTextNode(`${g.label} `));
+      const mCaret = document.createElement("span");
       mCaret.className = "mobile-nav-group-caret";
       mCaret.setAttribute("aria-hidden", "true");
       mCaret.textContent = "\u25BE";
       heading.appendChild(mCaret);
-      heading.addEventListener("click", function () {
-        var nowCollapsed = wrap.classList.toggle("is-collapsed");
+      heading.addEventListener("click", () => {
+        const nowCollapsed = wrap.classList.toggle("is-collapsed");
         heading.setAttribute("aria-expanded", nowCollapsed ? "false" : "true");
       });
       wrap.appendChild(heading);
     }
 
-    var list = document.createElement("div");
+    const list = document.createElement("div");
     list.className = "mobile-nav-group-children";
-    g.children.forEach(function (c) {
+    g.children.forEach((c) => {
       list.appendChild(makeLink(c.label, c.url, "mobile-nav-group-child"));
     });
     wrap.appendChild(list);
@@ -178,7 +178,7 @@
   }
 
   function makeLink(label, url, className) {
-    var a = document.createElement("a");
+    const a = document.createElement("a");
     a.href = url;
     a.textContent = label;
     if (className) a.className = className;
@@ -186,8 +186,8 @@
   }
 
   function makeMenuItem(label, url, extraClass) {
-    var li = document.createElement("li");
-    var a = document.createElement("a");
+    const li = document.createElement("li");
+    const a = document.createElement("a");
     a.href = url;
     a.textContent = label;
     a.setAttribute("role", "menuitem");
@@ -197,16 +197,16 @@
   }
 
   function closeAll(nav) {
-    nav.querySelectorAll(".nav-dropdown.is-open").forEach(function (d) {
+    nav.querySelectorAll(".nav-dropdown.is-open").forEach((d) => {
       d.classList.remove("is-open");
     });
-    nav.querySelectorAll('[aria-expanded="true"]').forEach(function (b) {
+    nav.querySelectorAll('[aria-expanded="true"]').forEach((b) => {
       b.setAttribute("aria-expanded", "false");
     });
   }
 
   function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }

@@ -6,19 +6,19 @@
  * disabling user zoom.
  */
 (function () {
-  var mv = document.querySelector('meta[name="viewport"]');
+  const mv = document.querySelector('meta[name="viewport"]');
   if (!mv) return;
-  var base = 'width=device-width, initial-scale=1';
+  const base = 'width=device-width, initial-scale=1';
   function fixViewport() {
-    mv.setAttribute('content', base + ', width=' + window.innerWidth);
-    requestAnimationFrame(function () {
+    mv.setAttribute('content', `${base}, width=${window.innerWidth}`);
+    requestAnimationFrame(() => {
       mv.setAttribute('content', base);
     });
   }
-  window.addEventListener('orientationchange', function () {
+  window.addEventListener('orientationchange', () => {
     setTimeout(fixViewport, 200);
   });
-  window.addEventListener('pageshow', function () {
+  window.addEventListener('pageshow', () => {
     fixViewport();
   });
 })();

@@ -18,17 +18,17 @@
  * Both operations share the same IIFE, API key, and escape helpers.
  */
 (function () {
-  var section = document.querySelector("[data-related]");
+  const section = document.querySelector("[data-related]");
   if (!section) return;
 
-  var apiKeyMeta = document.querySelector('meta[name="ghost-content-api-key"]');
-  var API_KEY = apiKeyMeta ? apiKeyMeta.getAttribute("content") : "";
+  const apiKeyMeta = document.querySelector('meta[name="ghost-content-api-key"]');
+  const API_KEY = apiKeyMeta ? apiKeyMeta.getAttribute("content") : "";
   if (!API_KEY) return;
 
-  var API_BASE = (window.location.origin || "") + "/ghost/api/content";
+  const API_BASE = `${window.location.origin || ""}/ghost/api/content`;
 
   function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
@@ -36,61 +36,61 @@
 
   // ── 1. "More on this theme" grid ────────────────────────────────────
 
-  var grid = section.querySelector("[data-related-grid]");
+  const grid = section.querySelector("[data-related-grid]");
   if (grid) {
-    var postId = section.getAttribute("data-post-id") || "";
-    var slugsRaw = section.getAttribute("data-tag-slugs") || "";
-    var slugs = slugsRaw.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
-    var topicSlug = null;
-    for (var i = 0; i < slugs.length; i++) {
+    const postId = section.getAttribute("data-post-id") || "";
+    const slugsRaw = section.getAttribute("data-tag-slugs") || "";
+    const slugs = slugsRaw.split(",").map((s) => { return s.trim(); }).filter(Boolean);
+    let topicSlug = null;
+    for (let i = 0; i < slugs.length; i++) {
       if (slugs[i].indexOf("author-") !== 0) { topicSlug = slugs[i]; break; }
     }
 
     if (topicSlug) {
-      var relatedUrl = API_BASE + "/posts/?key=" + encodeURIComponent(API_KEY) +
-        "&filter=" + encodeURIComponent("tag:" + topicSlug + "+id:-" + postId) +
-        "&limit=4&include=tags,authors&fields=id,url,title,feature_image,custom_excerpt,excerpt,published_at,reading_time";
+      const relatedUrl = `${API_BASE}/posts/?key=${encodeURIComponent(API_KEY) 
+        }&filter=${encodeURIComponent(`tag:${topicSlug}+id:-${postId}`) 
+        }&limit=4&include=tags,authors&fields=id,url,title,feature_image,custom_excerpt,excerpt,published_at,reading_time`;
 
       fetch(relatedUrl, { cache: "default" })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (data) {
+        .then((r) => { return r.ok ? r.json() : null; })
+        .then((data) => {
           if (!data || !Array.isArray(data.posts) || !data.posts.length) return;
           grid.innerHTML = data.posts.map(renderEntry).join("");
         })
-        .catch(function () { /* leave server render */ });
+        .catch(() => { /* leave server render */ });
     }
   }
 
   // ── 2. Recent Articles neighbor bylines ─────────────────────────────
 
-  var neighborEntries = section.querySelectorAll("a[data-neighbor-entry][data-post-id]");
+  const neighborEntries = section.querySelectorAll("a[data-neighbor-entry][data-post-id]");
   if (neighborEntries.length) {
-    var ids = Array.prototype.map.call(neighborEntries, function (a) {
+    const ids = Array.prototype.map.call(neighborEntries, (a) => {
       return a.getAttribute("data-post-id");
     }).filter(Boolean);
 
-    var neighborUrl = API_BASE + "/posts/?key=" + encodeURIComponent(API_KEY) +
-      "&filter=" + encodeURIComponent("id:[" + ids.join(",") + "]") +
-      "&limit=2&include=tags&fields=id";
+    const neighborUrl = `${API_BASE}/posts/?key=${encodeURIComponent(API_KEY) 
+      }&filter=${encodeURIComponent(`id:[${ids.join(",")}]`) 
+      }&limit=2&include=tags&fields=id`;
 
     fetch(neighborUrl, { cache: "default" })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
+      .then((r) => { return r.ok ? r.json() : null; })
+      .then((data) => {
         if (!data || !Array.isArray(data.posts)) return;
-        data.posts.forEach(function (p) {
-          var link = section.querySelector('a[data-neighbor-entry][data-post-id="' + p.id + '"]');
+        data.posts.forEach((p) => {
+          const link = section.querySelector(`a[data-neighbor-entry][data-post-id="${p.id}"]`);
           if (!link) return;
-          var byline = link.querySelector("[data-byline]");
+          const byline = link.querySelector("[data-byline]");
           if (!byline) return;
-          var prefix = '<span class="entry-byline-prefix">By </span>';
-          var contributors = (p.tags || []).map(function (t) {
-            return '<em class="entry-contributor entry-contributor--candidate" data-tag-slug="' +
-              escapeAttr(t.slug) + '">' + escapeHtml(t.name) + "</em>";
+          const prefix = '<span class="entry-byline-prefix">By </span>';
+          const contributors = (p.tags || []).map((t) => {
+            return `<em class="entry-contributor entry-contributor--candidate" data-tag-slug="${ 
+              escapeAttr(t.slug)}">${escapeHtml(t.name)}</em>`;
           }).join("");
           byline.innerHTML = prefix + contributors;
         });
       })
-      .catch(function () { /* leave server render */ });
+      .catch(() => { /* leave server render */ });
   }
 
   // ── Render helper (used by "More on this theme" grid) ───────────────
@@ -98,70 +98,70 @@
   function renderEntry(p) {
     // Validate URL scheme + JSON-stringify into the CSS string so a
     // tampered Ghost feature_image can't break out of the CSS context.
-    var plateStyle = (p.feature_image && window.MOSafeHref.isSafe(p.feature_image))
-      ? ' style="background-image: url(' + escapeAttr(JSON.stringify(p.feature_image)) + ');"'
+    const plateStyle = (p.feature_image && window.MOSafeHref.isSafe(p.feature_image))
+      ? ` style="background-image: url(${escapeAttr(JSON.stringify(p.feature_image))});"`
       : "";
 
-    var topicTags = (p.tags || [])
-      .map(function (t) {
-        return '<span class="entry-topic-tag" data-tag-slug="' + escapeAttr(t.slug) + '">' + escapeHtml(t.name) + '</span>';
+    const topicTags = (p.tags || [])
+      .map((t) => {
+        return `<span class="entry-topic-tag" data-tag-slug="${escapeAttr(t.slug)}">${escapeHtml(t.name)}</span>`;
       })
       .join("");
-    var topic = '<p class="entry-topic entry-topic--candidates" data-topic>' + topicTags + '</p>';
+    const topic = `<p class="entry-topic entry-topic--candidates" data-topic>${topicTags}</p>`;
 
-    var excerptText = p.custom_excerpt || p.excerpt || "";
+    let excerptText = p.custom_excerpt || p.excerpt || "";
     excerptText = String(excerptText).replace(/\s+/g, " ").trim();
-    if (excerptText.length > 180) excerptText = excerptText.slice(0, 180).replace(/\s+\S*$/, "") + "…";
-    var excerpt = excerptText
-      ? '<p class="entry-excerpt entry-excerpt-dropcap">' +
-          '<span class="entry-initial">' + escapeHtml(excerptText.charAt(0)) + "</span>" +
-          escapeHtml(excerptText.slice(1)) +
-        "</p>"
+    if (excerptText.length > 180) excerptText = `${excerptText.slice(0, 180).replace(/\s+\S*$/, "")}…`;
+    const excerpt = excerptText
+      ? `<p class="entry-excerpt entry-excerpt-dropcap">` +
+          `<span class="entry-initial">${escapeHtml(excerptText.charAt(0))}</span>${ 
+          escapeHtml(excerptText.slice(1)) 
+        }</p>`
       : "";
 
-    var contributorTags = (p.tags || [])
-      .map(function (t) {
-        return '<em class="entry-contributor entry-contributor--candidate" data-tag-slug="' + escapeAttr(t.slug) + '">' + escapeHtml(t.name) + '</em>';
+    const contributorTags = (p.tags || [])
+      .map((t) => {
+        return `<em class="entry-contributor entry-contributor--candidate" data-tag-slug="${escapeAttr(t.slug)}">${escapeHtml(t.name)}</em>`;
       })
       .join("");
-    var contributorLine =
-      '<p class="entry-byline entry-byline-contributors" data-byline>' +
-        '<span class="entry-byline-prefix">By </span>' + contributorTags +
-      "</p>";
-    var fallbackAuthor = (p.authors && p.authors[0] && p.authors[0].name) || "";
-    var fallbackLine = fallbackAuthor
-      ? '<p class="entry-byline entry-byline-fallback">By <em>' + escapeHtml(fallbackAuthor) + "</em></p>"
+    const contributorLine =
+      `<p class="entry-byline entry-byline-contributors" data-byline>` +
+        `<span class="entry-byline-prefix">By </span>${contributorTags 
+      }</p>`;
+    const fallbackAuthor = (p.authors && p.authors[0] && p.authors[0].name) || "";
+    const fallbackLine = fallbackAuthor
+      ? `<p class="entry-byline entry-byline-fallback">By <em>${escapeHtml(fallbackAuthor)}</em></p>`
       : "";
 
-    var dateStr = "";
+    let dateStr = "";
     if (p.published_at) {
-      var d = new Date(p.published_at);
+      const d = new Date(p.published_at);
       if (!isNaN(d.getTime())) {
         dateStr = d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
       }
     }
-    var mins = p.reading_time ? (p.reading_time + " min read") : "";
-    var metaBits = [dateStr, mins].filter(Boolean).join(" · ");
-    var dateLine = metaBits
-      ? '<p class="entry-date">' + escapeHtml(metaBits) + "</p>"
+    const mins = p.reading_time ? (`${p.reading_time} min read`) : "";
+    const metaBits = [dateStr, mins].filter(Boolean).join(" · ");
+    const dateLine = metaBits
+      ? `<p class="entry-date">${escapeHtml(metaBits)}</p>`
       : "";
 
     return (
-      '<a href="' + escapeAttr(window.MOSafeHref.sanitize(p.url, "#")) + '" class="entry">' +
-        '<div class="entry-plate">' +
-          '<div class="entry-plate-inner"' + plateStyle + "></div>" +
-        "</div>" +
-        '<div class="entry-text">' +
-          topic +
-          '<h3 class="entry-title">' + escapeHtml(p.title) + "</h3>" +
-          excerpt +
-          '<div class="entry-meta">' +
-            contributorLine +
-            fallbackLine +
-            dateLine +
-          "</div>" +
-        "</div>" +
-      "</a>"
+      `<a href="${escapeAttr(window.MOSafeHref.sanitize(p.url, "#"))}" class="entry">` +
+        `<div class="entry-plate">` +
+          `<div class="entry-plate-inner"${plateStyle}></div>` +
+        `</div>` +
+        `<div class="entry-text">${ 
+          topic 
+          }<h3 class="entry-title">${escapeHtml(p.title)}</h3>${ 
+          excerpt 
+          }<div class="entry-meta">${ 
+            contributorLine 
+            }${fallbackLine 
+            }${dateLine 
+          }</div>` +
+        `</div>` +
+      `</a>`
     );
   }
 })();

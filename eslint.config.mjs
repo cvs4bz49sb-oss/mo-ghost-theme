@@ -119,7 +119,7 @@ export default [
     },
     rules: {
       ...securityRules,
-      // Permissive on style — this isn't a code-quality lint pass.
+      // Permissive on noise — this isn't a code-quality lint pass.
       "no-unused-vars": "off",
       "no-empty": "off",
       "no-prototype-builtins": "off",
@@ -128,10 +128,57 @@ export default [
       "no-inner-declarations": "off",
       "no-undef": "off",
       "no-redeclare": "off",
+
+      // Modernization rules — see SECURITY-AGENT.md §6.21. Most are
+      // auto-fixable; running `npm run lint:fix` modernizes the file
+      // (var → const/let, function → arrow, string concat → template
+      // literals, Object.assign → spread, etc.).
+      //
+      // These are at "error" level so CI catches regressions, but
+      // running --fix makes them go away. Per-line exceptions go
+      // through the standard eslint-disable-next-line.
+      "no-var": "error",
+      "prefer-const": ["error", { destructuring: "all" }],
+      "prefer-arrow-callback": ["error", { allowNamedFunctions: true }],
+      "prefer-template": "error",
+      "prefer-rest-params": "error",
+      "prefer-spread": "error",
+      "object-shorthand": ["error", "always", { avoidExplicitReturnArrows: true }],
+      "prefer-object-spread": "error",
+      "prefer-numeric-literals": "error",
+      "prefer-exponentiation-operator": "error",
+      "no-useless-concat": "error",
+      "no-useless-rename": "error",
+      "no-useless-computed-key": "error",
+      "no-useless-constructor": "error",
+      "no-lonely-if": "error",
+      "no-implicit-coercion": ["warn", { allow: ["!!"] }],
+
+      // Cosmetic: ESLint's prefer-template auto-fix sometimes leaves
+      // ${  x  } (extra spaces). Tighten that.
+      "template-curly-spacing": ["error", "never"],
+      "no-multi-spaces": "error",
+
+      // Encourage modern DOM usage where reasonable. These are
+      // hard to auto-fix; keep at warn so the agent surfaces them
+      // during /security-check without blocking CI.
+      "prefer-destructuring": [
+        "warn",
+        {
+          VariableDeclarator: { array: false, object: true },
+          AssignmentExpression: { array: false, object: false },
+        },
+      ],
     },
   },
   {
-    // The vendored DOMPurify ships pre-minified; don't lint it.
-    ignores: ["assets/js/vendor/**", "assets/js/digest/**/*.jsx"],
+    // Vendored libs and esbuild-compiled JSX outputs aren't our code.
+    // The .jsx sources are also skipped — they're admin tools that
+    // were written in their own style and aren't worth modernizing
+    // since esbuild compiles them at deploy and the .js outputs ship.
+    ignores: [
+      "assets/js/vendor/**",
+      "assets/js/digest/**",
+    ],
   },
 ];

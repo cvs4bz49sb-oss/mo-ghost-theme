@@ -19,7 +19,7 @@
     submit.disabled = true;
 
     try {
-      const response = await fetch(window.MO_API_BASE + '/api/create-gift-checkout', {
+      const response = await fetch(`${window.MO_API_BASE}/api/create-gift-checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

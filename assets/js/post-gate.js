@@ -21,36 +21,36 @@
  * (flipping post visibility) when we want real enforcement.
  */
 (function () {
-  var content = document.querySelector("[data-post-gate]");
+  const content = document.querySelector("[data-post-gate]");
   if (!content) return;
 
   function run() {
-    var days = parseInt(content.getAttribute("data-gate-days"), 10);
+    const days = parseInt(content.getAttribute("data-gate-days"), 10);
     if (!days || days <= 0) return;
 
-    var visibility = content.getAttribute("data-post-visibility") || "public";
+    const visibility = content.getAttribute("data-post-visibility") || "public";
     if (visibility !== "public") return;
 
-    var publishedAt = Date.parse(content.getAttribute("data-published-at") || "");
+    const publishedAt = Date.parse(content.getAttribute("data-published-at") || "");
     if (isNaN(publishedAt)) return;
 
-    var gateAt = publishedAt + days * 24 * 60 * 60 * 1000;
+    const gateAt = publishedAt + days * 24 * 60 * 60 * 1000;
     if (Date.now() < gateAt) return;
 
-    var tier = content.getAttribute("data-gate-tier") || "members";
+    const tier = content.getAttribute("data-gate-tier") || "members";
     initGate(tier);
   }
 
-  var days = parseInt(content.getAttribute("data-gate-days"), 10);
+  const days = parseInt(content.getAttribute("data-gate-days"), 10);
   if (days > 0) {
     run();
   } else {
-    document.addEventListener("mo:settings", function () { run(); }, { once: true });
+    document.addEventListener("mo:settings", () => { run(); }, { once: true });
   }
 
   function initGate(tier) {
-  var isMember = content.getAttribute("data-is-member") === "true";
-  var memberStatus = content.getAttribute("data-member-status") || "";
+  const isMember = content.getAttribute("data-is-member") === "true";
+  const memberStatus = content.getAttribute("data-member-status") || "";
 
   // Gift-link bypass: if URL carries ?gift=<token> and the reader
   // isn't already a signed-in member, decode the token for display
@@ -59,7 +59,7 @@
   // but not verified client-side — the soft gate is bypassable
   // anyway. See workers/gift/gift.js.
   if (!isMember) {
-    var giftClaims = readGiftClaims();
+    const giftClaims = readGiftClaims();
     if (giftClaims) {
       renderGiftBanner(content, giftClaims);
       return;
@@ -79,11 +79,11 @@
     // Mobile readers get fewer free paragraphs so the gate sits at a
     // comparable scroll depth on a phone vs a desktop. 640px matches
     // the rest of the theme's mobile breakpoint.
-    var maxParagraphs = (window.innerWidth || 1024) <= 640 ? 4 : 8;
-    var kids = Array.prototype.slice.call(root.children);
-    var pCount = 0;
-    var cutIndex = -1;
-    for (var i = 0; i < kids.length; i++) {
+    const maxParagraphs = (window.innerWidth || 1024) <= 640 ? 4 : 8;
+    const kids = Array.prototype.slice.call(root.children);
+    let pCount = 0;
+    let cutIndex = -1;
+    for (let i = 0; i < kids.length; i++) {
       if (kids[i].tagName === "P") pCount++;
       if (pCount >= maxParagraphs) { cutIndex = i; break; }
     }
@@ -91,7 +91,7 @@
     // hide behind and the cutoff UX feels abrupt.
     if (cutIndex < 0 || cutIndex >= kids.length - 1) return;
 
-    for (var j = kids.length - 1; j > cutIndex; j--) {
+    for (let j = kids.length - 1; j > cutIndex; j--) {
       kids[j].parentNode.removeChild(kids[j]);
     }
     kids[cutIndex].classList.add("is-gate-fade");
@@ -99,7 +99,7 @@
   }
 
   function buildCard(tier) {
-    var wrap = document.createElement("aside");
+    const wrap = document.createElement("aside");
     wrap.className = "post-gate-card";
     wrap.setAttribute("role", "region");
     wrap.setAttribute("aria-label", "Continue reading");
@@ -112,9 +112,9 @@
           ? "You're subscribed to Mere Orthodoxy. Members support the work and unlock the full archive, the print journal, and the members' forum."
           : "This essay is reserved for Members after its first few days. Members fund the next essay, the next journal issue, and the next conversation."
       ));
-      var paidActions = document.createElement("div");
+      const paidActions = document.createElement("div");
       paidActions.className = "post-gate-actions";
-      var becomeMember = document.createElement("a");
+      const becomeMember = document.createElement("a");
       becomeMember.href = "/membership/";
       becomeMember.className = "btn btn-primary";
       becomeMember.textContent = isMember && memberStatus !== "paid"
@@ -122,7 +122,7 @@
         : "Become a Member";
       paidActions.appendChild(becomeMember);
       if (!isMember) {
-        var signin = document.createElement("button");
+        const signin = document.createElement("button");
         signin.type = "button";
         signin.className = "btn btn-outline";
         signin.setAttribute("data-portal", "signin");
@@ -141,10 +141,10 @@
     ));
     wrap.appendChild(buildSubscribeForm());
 
-    var signinRow = document.createElement("p");
+    const signinRow = document.createElement("p");
     signinRow.className = "post-gate-signin";
     signinRow.innerHTML = 'Already a subscriber? ';
-    var signinBtn = document.createElement("button");
+    const signinBtn = document.createElement("button");
     signinBtn.type = "button";
     signinBtn.className = "post-gate-signin-link";
     signinBtn.setAttribute("data-portal", "signin");
@@ -160,7 +160,7 @@
     // event delegation; it POSTs directly to
     // /members/api/send-magic-link/ and renders an inline success
     // state. No Portal modal.
-    var form = document.createElement("div");
+    const form = document.createElement("div");
     form.className = "post-gate-form";
     form.setAttribute("data-inline-signup", "");
     form.setAttribute("data-source", "gate-modal");
@@ -173,14 +173,14 @@
     form.appendChild(field("post-gate-last", "Last Name", "text", "family-name", "data-signup-last"));
     form.appendChild(field("post-gate-email", "Email", "email", "email", "data-signup-email"));
 
-    var submit = document.createElement("button");
+    const submit = document.createElement("button");
     submit.type = "button";
     submit.className = "btn btn-primary post-gate-submit";
     submit.setAttribute("data-signup-submit", "");
     submit.textContent = "Subscribe";
     form.appendChild(submit);
 
-    var status = document.createElement("p");
+    const status = document.createElement("p");
     status.className = "post-gate-status";
     status.setAttribute("data-signup-status", "");
     form.appendChild(status);
@@ -189,12 +189,12 @@
   }
 
   function field(id, label, type, autocomplete, signupAttr) {
-    var wrap = document.createElement("div");
+    const wrap = document.createElement("div");
     wrap.className = "post-gate-field";
-    var lbl = document.createElement("label");
+    const lbl = document.createElement("label");
     lbl.setAttribute("for", id);
     lbl.textContent = label;
-    var input = document.createElement("input");
+    const input = document.createElement("input");
     input.id = id;
     input.type = type;
     if (autocomplete) input.autocomplete = autocomplete;
@@ -208,21 +208,21 @@
 
   function readGiftClaims() {
     try {
-      var params = new URLSearchParams(window.location.search);
-      var token = params.get("gift");
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("gift");
       if (!token) return null;
-      var dot = token.indexOf(".");
+      const dot = token.indexOf(".");
       if (dot < 0) return null;
-      var payload = token.slice(0, dot);
+      const payload = token.slice(0, dot);
       // Base64url → base64 → UTF-8 string. Signature is not verified
       // here; presence is the signal. A forged token just shows a
       // bogus name on an already-soft-gated article.
-      var b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+      let b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
       while (b64.length % 4) b64 += "=";
-      var json = decodeURIComponent(Array.prototype.map.call(atob(b64), function (c) {
-        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      const json = decodeURIComponent(Array.prototype.map.call(atob(b64), (c) => {
+        return `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`;
       }).join(""));
-      var claims = JSON.parse(json);
+      const claims = JSON.parse(json);
       if (typeof claims.exp === "number" && claims.exp * 1000 < Date.now()) return null;
       return {
         by: String(claims.by || "A Subscriber"),
@@ -235,24 +235,24 @@
     // Reuse the homepage Digest CTA's markup + styling exactly
     // (.digest-cta / .digest-copy / .digest-form) so the top-of-article
     // gift note sits in the same visual family as the rest of the site.
-    var cta = document.createElement("div");
+    const cta = document.createElement("div");
     cta.className = "gift-banner digest-cta";
     cta.setAttribute("role", "region");
     cta.setAttribute("aria-label", "Gifted article");
 
-    var copy = document.createElement("div");
+    const copy = document.createElement("div");
     copy.className = "digest-copy";
 
-    var eb = document.createElement("p");
+    const eb = document.createElement("p");
     eb.className = "eyebrow";
     eb.textContent = "A gift for you";
     copy.appendChild(eb);
 
-    var h = document.createElement("h3");
-    h.textContent = claims.by + " shared this essay with you.";
+    const h = document.createElement("h3");
+    h.textContent = `${claims.by} shared this essay with you.`;
     copy.appendChild(h);
 
-    var body = document.createElement("p");
+    const body = document.createElement("p");
     body.textContent = "Subscribe for free to read all of our essays.";
     copy.appendChild(body);
 
@@ -263,7 +263,7 @@
   }
 
   function buildGiftSubscribeForm() {
-    var form = document.createElement("div");
+    const form = document.createElement("div");
     form.className = "digest-form";
     form.setAttribute("data-inline-signup", "");
     // source:gift-link lands as a Kit tag on the new subscriber
@@ -276,14 +276,14 @@
     form.appendChild(giftField("gift-last", "Last Name", "text", "family-name", "Last", "data-signup-last"));
     form.appendChild(giftField("gift-email", "Email", "email", "email", "you@example.com", "data-signup-email"));
 
-    var submit = document.createElement("button");
+    const submit = document.createElement("button");
     submit.type = "button";
     submit.className = "digest-submit";
     submit.setAttribute("data-signup-submit", "");
     submit.textContent = "Subscribe";
     form.appendChild(submit);
 
-    var status = document.createElement("p");
+    const status = document.createElement("p");
     status.className = "digest-status";
     status.setAttribute("data-signup-status", "");
     form.appendChild(status);
@@ -292,12 +292,12 @@
   }
 
   function giftField(id, labelText, type, autocomplete, placeholder, signupAttr) {
-    var wrap = document.createElement("div");
+    const wrap = document.createElement("div");
     wrap.className = "digest-field";
-    var lbl = document.createElement("label");
+    const lbl = document.createElement("label");
     lbl.setAttribute("for", id);
     lbl.textContent = labelText;
-    var input = document.createElement("input");
+    const input = document.createElement("input");
     input.id = id;
     input.type = type;
     if (autocomplete) input.autocomplete = autocomplete;
@@ -312,20 +312,20 @@
   } // end initGate
 
   function eyebrow(text) {
-    var p = document.createElement("p");
+    const p = document.createElement("p");
     p.className = "eyebrow";
     p.textContent = text;
     return p;
   }
   function heading(text) {
-    var h = document.createElement("h3");
-    var em = document.createElement("em");
+    const h = document.createElement("h3");
+    const em = document.createElement("em");
     em.textContent = text;
     h.appendChild(em);
     return h;
   }
   function body(text) {
-    var p = document.createElement("p");
+    const p = document.createElement("p");
     p.textContent = text;
     return p;
   }

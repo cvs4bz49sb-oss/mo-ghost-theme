@@ -29,7 +29,7 @@
  * all of these.
  */
 (function () {
-  var body = document.body;
+  const {body} = document;
   if (!body.hasAttribute("data-reader")) return;
 
   // Print mode detection (for PDF generation)
@@ -38,19 +38,19 @@
   }
 
   // ---- Theme toggle ----------------------------------------------------
-  var themeToggle = document.getElementById("themeToggle");
-  var html = document.documentElement;
+  const themeToggle = document.getElementById("themeToggle");
+  const html = document.documentElement;
   if (themeToggle) {
-    themeToggle.addEventListener("click", function () {
-      var current = html.getAttribute("data-theme");
+    themeToggle.addEventListener("click", () => {
+      const current = html.getAttribute("data-theme");
       html.setAttribute("data-theme", current === "dark" ? "light" : "dark");
     });
   }
 
   // ---- Sidebar toggle --------------------------------------------------
-  var menuToggle = document.getElementById("menuToggle");
-  var sidebar = document.getElementById("sidebar");
-  var overlay = document.getElementById("sidebarOverlay");
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
 
   // Desktop: restore collapsed state from localStorage.
   if (sidebar && window.innerWidth > 960) {
@@ -60,32 +60,30 @@
   }
 
   if (menuToggle && sidebar) {
-    menuToggle.addEventListener("click", function () {
+    menuToggle.addEventListener("click", () => {
       if (window.innerWidth <= 960) {
         sidebar.classList.toggle("open");
         if (overlay) overlay.classList.toggle("open");
-      } else {
-        if (sidebar.classList.contains("collapsed")) {
+      } else if (sidebar.classList.contains("collapsed")) {
           sidebar.classList.remove("collapsed");
           localStorage.setItem("sidebarCollapsed", "false");
         } else {
           sidebar.classList.add("collapsed");
           localStorage.setItem("sidebarCollapsed", "true");
         }
-      }
     });
   }
 
   if (overlay) {
-    overlay.addEventListener("click", function () {
+    overlay.addEventListener("click", () => {
       if (sidebar) sidebar.classList.remove("open");
       overlay.classList.remove("open");
     });
   }
 
   // Close sidebar on link click (mobile)
-  document.querySelectorAll(".toc-list a").forEach(function (link) {
-    link.addEventListener("click", function () {
+  document.querySelectorAll(".toc-list a").forEach((link) => {
+    link.addEventListener("click", () => {
       if (window.innerWidth <= 960 && sidebar) {
         sidebar.classList.remove("open");
         if (overlay) overlay.classList.remove("open");
@@ -94,13 +92,13 @@
   });
 
   // ---- Reading progress bar -------------------------------------------
-  var progressBar = document.getElementById("progressBar");
+  const progressBar = document.getElementById("progressBar");
   if (progressBar) {
-    window.addEventListener("scroll", function () {
-      var scrollTop = window.scrollY;
-      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      var progress = (scrollTop / docHeight) * 100;
-      progressBar.style.width = progress + "%";
+    window.addEventListener("scroll", () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      progressBar.style.width = `${progress}%`;
     });
   }
 
@@ -108,68 +106,68 @@
   // Journal pages tag sections with .content-section. Some ebook pages
   // don't apply that class — fall back to "every element with an id
   // that the TOC links to."
-  var tocLinks = document.querySelectorAll(".toc-list a");
-  var contentSections = document.querySelectorAll(".content-section");
+  const tocLinks = document.querySelectorAll(".toc-list a");
+  let contentSections = document.querySelectorAll(".content-section");
   if (!contentSections.length && tocLinks.length) {
-    var tocIds = new Set();
-    tocLinks.forEach(function (a) {
-      var href = a.getAttribute("href") || "";
+    const tocIds = new Set();
+    tocLinks.forEach((a) => {
+      const href = a.getAttribute("href") || "";
       if (href.charAt(0) === "#") tocIds.add(href.slice(1));
     });
     contentSections = Array.prototype.filter.call(
       document.querySelectorAll("[id]"),
-      function (el) { return tocIds.has(el.id); },
+      (el) => { return tocIds.has(el.id); },
     );
   }
   if (contentSections.length && "IntersectionObserver" in window) {
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
+    const observer = new IntersectionObserver(
+      ((entries) => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            var id = entry.target.getAttribute("id");
-            tocLinks.forEach(function (link) {
+            const id = entry.target.getAttribute("id");
+            tocLinks.forEach((link) => {
               link.classList.remove("active");
-              if (link.getAttribute("href") === "#" + id) {
+              if (link.getAttribute("href") === `#${id}`) {
                 link.classList.add("active");
               }
             });
           }
         });
-      },
+      }),
       { rootMargin: "-10% 0px -80% 0px", threshold: 0 },
     );
-    contentSections.forEach(function (section) {
+    contentSections.forEach((section) => {
       observer.observe(section);
     });
   }
 
   // ---- Share + download popovers --------------------------------------
-  var SHARE_URL = window.location.origin + window.location.pathname;
-  var SHARE_TITLE = body.getAttribute("data-reader-share-title") || document.title || "";
-  var SHARE_TEXT = body.getAttribute("data-reader-share-text") || SHARE_TITLE;
-  var ATTR_FULL = body.getAttribute("data-reader-attr-full") || "";
-  var ATTR_SHORT = body.getAttribute("data-reader-attr-short") || ATTR_FULL;
+  const SHARE_URL = window.location.origin + window.location.pathname;
+  const SHARE_TITLE = body.getAttribute("data-reader-share-title") || document.title || "";
+  const SHARE_TEXT = body.getAttribute("data-reader-share-text") || SHARE_TITLE;
+  const ATTR_FULL = body.getAttribute("data-reader-attr-full") || "";
+  const ATTR_SHORT = body.getAttribute("data-reader-attr-short") || ATTR_FULL;
 
-  var shareToggle = document.getElementById("shareToggle");
-  var sharePopup = document.getElementById("sharePopup");
-  var downloadToggle = document.getElementById("downloadToggle");
-  var downloadPopup = document.getElementById("downloadPopup");
+  const shareToggle = document.getElementById("shareToggle");
+  const sharePopup = document.getElementById("sharePopup");
+  const downloadToggle = document.getElementById("downloadToggle");
+  const downloadPopup = document.getElementById("downloadPopup");
 
   if (shareToggle && sharePopup) {
-    shareToggle.addEventListener("click", function (e) {
+    shareToggle.addEventListener("click", (e) => {
       e.stopPropagation();
       sharePopup.classList.toggle("open");
       if (downloadPopup) downloadPopup.classList.remove("open");
     });
   }
   if (downloadToggle && downloadPopup) {
-    downloadToggle.addEventListener("click", function (e) {
+    downloadToggle.addEventListener("click", (e) => {
       e.stopPropagation();
       downloadPopup.classList.toggle("open");
       if (sharePopup) sharePopup.classList.remove("open");
     });
   }
-  document.addEventListener("click", function (e) {
+  document.addEventListener("click", (e) => {
     if (sharePopup && shareToggle && !sharePopup.contains(e.target) && e.target !== shareToggle) {
       sharePopup.classList.remove("open");
     }
@@ -179,50 +177,50 @@
   });
 
   // Copy link
-  var copyLink = document.getElementById("copyLink");
+  const copyLink = document.getElementById("copyLink");
   if (copyLink) {
-    copyLink.addEventListener("click", function () {
-      navigator.clipboard.writeText(SHARE_URL).then(function () {
-        var msg = document.getElementById("copiedMsg");
+    copyLink.addEventListener("click", () => {
+      navigator.clipboard.writeText(SHARE_URL).then(() => {
+        const msg = document.getElementById("copiedMsg");
         if (msg) {
           msg.classList.add("show");
-          setTimeout(function () { msg.classList.remove("show"); }, 2000);
+          setTimeout(() => { msg.classList.remove("show"); }, 2000);
         }
       });
     });
   }
 
   // SMS
-  var shareSMS = document.getElementById("shareSMS");
+  const shareSMS = document.getElementById("shareSMS");
   if (shareSMS) {
-    shareSMS.href = "sms:?&body=" + encodeURIComponent(SHARE_TEXT + " " + SHARE_URL);
+    shareSMS.href = `sms:?&body=${encodeURIComponent(`${SHARE_TEXT} ${SHARE_URL}`)}`;
   }
 
   // X (Twitter)
-  var shareX = document.getElementById("shareX");
+  const shareX = document.getElementById("shareX");
   if (shareX) {
-    shareX.href = "https://x.com/intent/tweet?text=" + encodeURIComponent(SHARE_TEXT) +
-      "&url=" + encodeURIComponent(SHARE_URL);
+    shareX.href = `https://x.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT) 
+      }&url=${encodeURIComponent(SHARE_URL)}`;
   }
 
   // Facebook
-  var shareFB = document.getElementById("shareFB");
+  const shareFB = document.getElementById("shareFB");
   if (shareFB) {
-    shareFB.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(SHARE_URL);
+    shareFB.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`;
   }
 
   // Instagram Stories
-  var shareIG = document.getElementById("shareIG");
+  const shareIG = document.getElementById("shareIG");
   if (shareIG) {
-    shareIG.addEventListener("click", function (e) {
+    shareIG.addEventListener("click", (e) => {
       e.preventDefault();
-      navigator.clipboard.writeText(SHARE_URL).then(function () {
+      navigator.clipboard.writeText(SHARE_URL).then(() => {
         window.open("https://www.instagram.com/create/story/", "_blank");
-        var msg = document.getElementById("copiedMsg");
+        const msg = document.getElementById("copiedMsg");
         if (msg) {
           msg.textContent = "Link copied! Paste it in your Story.";
           msg.classList.add("show");
-          setTimeout(function () {
+          setTimeout(() => {
             msg.classList.remove("show");
             msg.textContent = "Link copied!";
           }, 4000);
@@ -232,13 +230,13 @@
   }
 
   // ---- Highlight & Share -----------------------------------------------
-  var hsTooltip = document.getElementById("highlightShare");
-  var hsCopiedMsg = document.getElementById("hsCopied");
-  var selectedQuote = "";
+  const hsTooltip = document.getElementById("highlightShare");
+  const hsCopiedMsg = document.getElementById("hsCopied");
+  let selectedQuote = "";
 
   function buildShareText(rawQuote, limit) {
-    var quote = rawQuote.replace(/\s+/g, " ").trim();
-    var wrapped = "“" + quote + "”";
+    const quote = rawQuote.replace(/\s+/g, " ").trim();
+    const wrapped = `“${quote}”`;
     if (!limit) return wrapped + ATTR_FULL;
     if ((wrapped + ATTR_FULL).length <= limit) return wrapped + ATTR_FULL;
     if ((wrapped + ATTR_SHORT).length <= limit) return wrapped + ATTR_SHORT;
@@ -247,16 +245,16 @@
 
   function positionTooltip(range) {
     if (!hsTooltip) return;
-    var rect = range.getBoundingClientRect();
-    var tooltipWidth = hsTooltip.offsetWidth || 200;
-    var isMobile = window.innerWidth <= 960;
-    var x = rect.left + rect.width / 2;
-    var clampedX = Math.max(tooltipWidth / 2 + 8, Math.min(x, window.innerWidth - tooltipWidth / 2 - 8));
-    hsTooltip.style.left = clampedX + "px";
+    const rect = range.getBoundingClientRect();
+    const tooltipWidth = hsTooltip.offsetWidth || 200;
+    const isMobile = window.innerWidth <= 960;
+    const x = rect.left + rect.width / 2;
+    const clampedX = Math.max(tooltipWidth / 2 + 8, Math.min(x, window.innerWidth - tooltipWidth / 2 - 8));
+    hsTooltip.style.left = `${clampedX}px`;
     if (isMobile) {
-      hsTooltip.style.top = (rect.bottom + window.scrollY + 10) + "px";
+      hsTooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
     } else {
-      hsTooltip.style.top = (rect.top + window.scrollY - 10) + "px";
+      hsTooltip.style.top = `${rect.top + window.scrollY - 10}px`;
     }
   }
 
@@ -266,9 +264,9 @@
   }
 
   function checkSelection() {
-    var sel = window.getSelection();
-    var text = sel ? sel.toString().trim() : "";
-    var mainContent = document.querySelector(".main-content");
+    const sel = window.getSelection();
+    const text = sel ? sel.toString().trim() : "";
+    const mainContent = document.querySelector(".main-content");
     if (
       text.length > 3 &&
       sel.rangeCount > 0 &&
@@ -285,71 +283,71 @@
   }
 
   if (hsTooltip) {
-    document.addEventListener("mouseup", function (e) {
+    document.addEventListener("mouseup", (e) => {
       if (hsTooltip.contains(e.target)) return;
       setTimeout(checkSelection, 10);
     });
-    document.addEventListener("mousedown", function (e) {
+    document.addEventListener("mousedown", (e) => {
       if (!hsTooltip.contains(e.target)) hideTooltip();
     });
-    var selectionChangeTimer = null;
-    document.addEventListener("selectionchange", function () {
+    let selectionChangeTimer = null;
+    document.addEventListener("selectionchange", () => {
       if (!("ontouchstart" in window)) return;
       clearTimeout(selectionChangeTimer);
       selectionChangeTimer = setTimeout(checkSelection, 300);
     });
 
-    var hsCopy = document.getElementById("hsCopy");
+    const hsCopy = document.getElementById("hsCopy");
     if (hsCopy) {
-      hsCopy.addEventListener("click", function () {
-        var text = buildShareText(selectedQuote, 0) + "\n\n" + SHARE_URL;
-        navigator.clipboard.writeText(text).then(function () {
+      hsCopy.addEventListener("click", () => {
+        const text = `${buildShareText(selectedQuote, 0)}\n\n${SHARE_URL}`;
+        navigator.clipboard.writeText(text).then(() => {
           if (hsCopiedMsg) {
             hsCopiedMsg.classList.add("show");
-            setTimeout(function () { hsCopiedMsg.classList.remove("show"); }, 1500);
+            setTimeout(() => { hsCopiedMsg.classList.remove("show"); }, 1500);
           }
         });
       });
     }
-    var hsSMS = document.getElementById("hsSMS");
+    const hsSMS = document.getElementById("hsSMS");
     if (hsSMS) {
-      hsSMS.addEventListener("click", function () {
-        var text = buildShareText(selectedQuote, 0) + "\n\n" + SHARE_URL;
-        window.open("sms:?&body=" + encodeURIComponent(text));
+      hsSMS.addEventListener("click", () => {
+        const text = `${buildShareText(selectedQuote, 0)}\n\n${SHARE_URL}`;
+        window.open(`sms:?&body=${encodeURIComponent(text)}`);
       });
     }
-    var hsX = document.getElementById("hsX");
+    const hsX = document.getElementById("hsX");
     if (hsX) {
-      hsX.addEventListener("click", function () {
-        var text = buildShareText(selectedQuote, 250);
+      hsX.addEventListener("click", () => {
+        const text = buildShareText(selectedQuote, 250);
         window.open(
-          "https://x.com/intent/tweet?text=" + encodeURIComponent(text) +
-            "&url=" + encodeURIComponent(SHARE_URL),
+          `https://x.com/intent/tweet?text=${encodeURIComponent(text) 
+            }&url=${encodeURIComponent(SHARE_URL)}`,
           "_blank",
         );
       });
     }
-    var hsFB = document.getElementById("hsFB");
+    const hsFB = document.getElementById("hsFB");
     if (hsFB) {
-      hsFB.addEventListener("click", function () {
-        var text = buildShareText(selectedQuote, 0);
+      hsFB.addEventListener("click", () => {
+        const text = buildShareText(selectedQuote, 0);
         window.open(
-          "https://www.facebook.com/sharer/sharer.php?u=" +
-            encodeURIComponent(SHARE_URL) + "&quote=" + encodeURIComponent(text),
+          `https://www.facebook.com/sharer/sharer.php?u=${ 
+            encodeURIComponent(SHARE_URL)}&quote=${encodeURIComponent(text)}`,
           "_blank",
         );
       });
     }
-    var hsIG = document.getElementById("hsIG");
+    const hsIG = document.getElementById("hsIG");
     if (hsIG) {
-      hsIG.addEventListener("click", function () {
-        var text = buildShareText(selectedQuote, 0) + "\n\n" + SHARE_URL;
-        navigator.clipboard.writeText(text).then(function () {
+      hsIG.addEventListener("click", () => {
+        const text = `${buildShareText(selectedQuote, 0)}\n\n${SHARE_URL}`;
+        navigator.clipboard.writeText(text).then(() => {
           window.open("https://www.instagram.com/create/story/", "_blank");
           if (hsCopiedMsg) {
             hsCopiedMsg.textContent = "Quote + link copied! Paste in your Story.";
             hsCopiedMsg.classList.add("show");
-            setTimeout(function () {
+            setTimeout(() => {
               hsCopiedMsg.classList.remove("show");
               hsCopiedMsg.textContent = "Copied!";
             }, 4000);

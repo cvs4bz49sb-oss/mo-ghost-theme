@@ -15,28 +15,28 @@
  */
 (function () {
   "use strict";
-  var root = document.querySelector("[data-faith-memorize]");
+  const root = document.querySelector("[data-faith-memorize]");
   if (!root) return;
 
-  var slug = root.getAttribute("data-doc-slug") || "";
-  var STORAGE_KEY = "faith-memorize:" + slug;
+  const slug = root.getAttribute("data-doc-slug") || "";
+  const STORAGE_KEY = `faith-memorize:${slug}`;
 
   // Load Q&A data from inline JSON.
-  var dataNode = document.querySelector("[data-faith-memorize-data]");
-  var questions = [];
+  const dataNode = document.querySelector("[data-faith-memorize-data]");
+  let questions = [];
   try { questions = JSON.parse(dataNode.textContent || "[]"); } catch (_) { return; }
   if (!questions.length) return;
 
   // Persistent state.
-  var state = loadState();
-  var memorized = new Set(state.memorized || []);
-  var filter = "all";
-  var index = 0;
-  var revealed = false;
+  const state = loadState();
+  const memorized = new Set(state.memorized || []);
+  let filter = "all";
+  let index = 0;
+  let revealed = false;
 
   function loadState() {
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : { memorized: [], lastIndex: 0 };
     } catch (_) {
       return { memorized: [], lastIndex: 0 };
@@ -52,13 +52,13 @@
   }
 
   function filtered() {
-    if (filter === "memorized") return questions.filter(function (q) { return memorized.has(q.number); });
-    if (filter === "unmemorized") return questions.filter(function (q) { return !memorized.has(q.number); });
+    if (filter === "memorized") return questions.filter((q) => { return memorized.has(q.number); });
+    if (filter === "unmemorized") return questions.filter((q) => { return !memorized.has(q.number); });
     return questions;
   }
 
   // DOM refs
-  var els = {
+  const els = {
     question: root.querySelector("[data-faith-memorize-question]"),
     numeral: root.querySelector("[data-faith-memorize-numeral]"),
     answer: root.querySelector("[data-faith-memorize-answer]"),
@@ -79,14 +79,14 @@
   };
 
   function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
 
   function smarten(text) {
     if (!text) return "";
-    var s = String(text);
+    let s = String(text);
     s = s.replace(/(^|[\s\(\[\{])'/g, "$1‘").replace(/'/g, "’");
     s = s.replace(/(^|[\s\(\[\{])"/g, "$1“").replace(/"/g, "”");
     return s;
@@ -95,14 +95,14 @@
   function paragraphsHtml(text) {
     return String(text || "")
       .split(/\n\s*\n/)
-      .map(function (p) { return p.trim(); })
+      .map((p) => { return p.trim(); })
       .filter(Boolean)
-      .map(function (p) { return "<p>" + escapeHtml(smarten(p)) + "</p>"; })
+      .map((p) => { return `<p>${escapeHtml(smarten(p))}</p>`; })
       .join("");
   }
 
   function render() {
-    var list = filtered();
+    const list = filtered();
     if (!list.length) {
       els.card.hidden = true;
       els.empty.hidden = false;
@@ -114,29 +114,29 @@
     if (index >= list.length) index = 0;
     if (index < 0) index = list.length - 1;
 
-    var q = list[index];
-    var numeralPrefix = q.lordsDay ? ("Lord's Day " + q.lordsDay + " · Q. " + q.number) : ("Q. " + q.number);
+    const q = list[index];
+    const numeralPrefix = q.lordsDay ? (`Lord's Day ${q.lordsDay} · Q. ${q.number}`) : (`Q. ${q.number}`);
     els.numeral.textContent = numeralPrefix;
     els.question.replaceChildren();
-    var qEm = document.createElement("em");
+    const qEm = document.createElement("em");
     qEm.textContent = smarten(q.question);
     els.question.appendChild(qEm);
     els.answerText.innerHTML = paragraphsHtml(q.answer);
     if (q.references && q.references.length) {
       els.refs.replaceChildren();
-      var label = document.createElement("span");
+      const label = document.createElement("span");
       label.className = "faith-qa-ref-label";
       label.textContent = "Scripture ";
       els.refs.appendChild(label);
-      q.references.forEach(function (r, idx) {
+      q.references.forEach((r, idx) => {
         if (idx > 0) {
-          var sep = document.createElement("span");
+          const sep = document.createElement("span");
           sep.className = "faith-verse-sep";
           sep.setAttribute("aria-hidden", "true");
           sep.textContent = " · ";
           els.refs.appendChild(sep);
         }
-        var btn = document.createElement("button");
+        const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "faith-verse-ref";
         btn.setAttribute("data-faith-verse", "");
@@ -151,7 +151,7 @@
     }
     els.answer.hidden = !revealed;
     els.reveal.textContent = revealed ? "Hide answer" : "Reveal answer";
-    var isMem = memorized.has(q.number);
+    const isMem = memorized.has(q.number);
     els.mark.textContent = isMem ? "Mark not yet" : "Mark memorized";
     els.mark.classList.toggle("is-memorized", isMem);
     els.position.textContent = String(index + 1);
@@ -160,44 +160,44 @@
   }
 
   function updateProgress() {
-    var total = questions.length;
-    var n = memorized.size;
-    var pct = total ? Math.round((n / total) * 100) : 0;
-    els.progressLabel.textContent = n + " of " + total + " memorized";
-    els.progressPct.textContent = pct + "%";
-    els.progressFill.style.width = pct + "%";
+    const total = questions.length;
+    const n = memorized.size;
+    const pct = total ? Math.round((n / total) * 100) : 0;
+    els.progressLabel.textContent = `${n} of ${total} memorized`;
+    els.progressPct.textContent = `${pct}%`;
+    els.progressFill.style.width = `${pct}%`;
   }
 
   // Wire up
-  els.reveal.addEventListener("click", function () {
+  els.reveal.addEventListener("click", () => {
     revealed = !revealed;
     render();
   });
-  els.mark.addEventListener("click", function () {
-    var list = filtered();
+  els.mark.addEventListener("click", () => {
+    const list = filtered();
     if (!list.length) return;
-    var q = list[index];
+    const q = list[index];
     if (memorized.has(q.number)) memorized.delete(q.number);
     else memorized.add(q.number);
     saveState();
     render();
   });
-  els.prev.addEventListener("click", function () {
+  els.prev.addEventListener("click", () => {
     revealed = false;
     index--;
     saveState();
     render();
   });
-  els.next.addEventListener("click", function () {
+  els.next.addEventListener("click", () => {
     revealed = false;
     index++;
     saveState();
     render();
   });
-  Array.prototype.forEach.call(els.filters, function (btn) {
-    btn.addEventListener("click", function () {
+  Array.prototype.forEach.call(els.filters, (btn) => {
+    btn.addEventListener("click", () => {
       filter = btn.getAttribute("data-faith-memorize-filter") || "all";
-      Array.prototype.forEach.call(els.filters, function (b) {
+      Array.prototype.forEach.call(els.filters, (b) => {
         b.classList.remove("is-active");
         b.setAttribute("aria-selected", "false");
       });
@@ -210,7 +210,7 @@
   });
 
   // Keyboard
-  document.addEventListener("keydown", function (e) {
+  document.addEventListener("keydown", (e) => {
     if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault();
@@ -234,7 +234,7 @@
   });
 
   // Restore last position (clamped to filtered list).
-  var startIdx = Math.max(0, Math.min((state.lastIndex || 0), filtered().length - 1));
+  const startIdx = Math.max(0, Math.min((state.lastIndex || 0), filtered().length - 1));
   index = startIdx;
   render();
 })();

@@ -1,11 +1,11 @@
 (function () {
-  var PASSWORD = "credo";
+  const PASSWORD = "credo";
 
   if (sessionStorage.getItem("tfr-access") === "1") return;
 
   document.body.style.overflow = "hidden";
 
-  var overlay = document.createElement("div");
+  const overlay = document.createElement("div");
   overlay.className = "faith-gate";
   overlay.innerHTML =
     '<div class="faith-gate-card">' +
@@ -19,22 +19,22 @@
     '</div>';
 
   document.body.appendChild(overlay);
-  var input = overlay.querySelector(".faith-gate-input");
+  const input = overlay.querySelector(".faith-gate-input");
   input.focus();
 
-  overlay.querySelector("form").addEventListener("submit", function (e) {
+  overlay.querySelector("form").addEventListener("submit", (e) => {
     e.preventDefault();
     if (input.value === PASSWORD) {
       sessionStorage.setItem("tfr-access", "1");
       overlay.remove();
       document.body.style.overflow = "";
     } else {
-      var err = overlay.querySelector(".faith-gate-error");
+      const err = overlay.querySelector(".faith-gate-error");
       err.hidden = false;
       input.value = "";
       input.focus();
       overlay.classList.add("faith-gate--shake");
-      setTimeout(function () { overlay.classList.remove("faith-gate--shake"); }, 400);
+      setTimeout(() => { overlay.classList.remove("faith-gate--shake"); }, 400);
     }
   });
 })();

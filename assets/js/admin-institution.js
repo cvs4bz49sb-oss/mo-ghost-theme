@@ -57,11 +57,11 @@
 
   async function load() {
     try {
-      const res = await window.MOAuth.fetch(apiBase + '/api/admin/institution/get?id=' + encodeURIComponent(id), { credentials: 'omit' });
+      const res = await window.MOAuth.fetch(`${apiBase}/api/admin/institution/get?id=${encodeURIComponent(id)}`, { credentials: 'omit' });
       if (res.status === 401) return setStatus('Sign in required.', true);
       if (res.status === 403) return setStatus('Forbidden — your email is not in the admin list.', true);
       if (res.status === 404) return setStatus('Institution not found.', true);
-      if (!res.ok) return setStatus('Could not load institution. (' + res.status + ')', true);
+      if (!res.ok) return setStatus(`Could not load institution. (${res.status})`, true);
       const body = await res.json();
       render(body.institution || body);
     } catch (err) {
@@ -79,7 +79,7 @@
     // so an attacker-controlled org_name (if the admin API or D1
     // were ever compromised) can't inject script via the headline.
     fields.headline.replaceChildren();
-    fields.headline.appendChild(document.createTextNode(name + ' '));
+    fields.headline.appendChild(document.createTextNode(`${name} `));
     const headlineEm = document.createElement('em');
     const headlineSpan = document.createElement('span');
     headlineSpan.className = 'highlight';
@@ -115,7 +115,7 @@
         </div>
         <button type="button" class="admin-list-remove" data-domain="">Remove</button>
       `;
-      li.querySelector('.admin-list-name').textContent = '@' + d;
+      li.querySelector('.admin-list-name').textContent = `@${d}`;
       li.querySelector('.admin-list-remove').dataset.domain = d;
       domainsList.appendChild(li);
     });
@@ -147,7 +147,7 @@
       body: JSON.stringify(body),
     });
     const json = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(json.error || ('Request failed: ' + res.status));
+    if (!res.ok) throw new Error(json.error || (`Request failed: ${res.status}`));
     return json;
   }
 
@@ -177,9 +177,9 @@
   domainsList.addEventListener('click', async (event) => {
     const btn = event.target.closest('.admin-list-remove');
     if (!btn) return;
-    const domain = btn.dataset.domain;
+    const {domain} = btn.dataset;
     if (!domain) return;
-    if (!confirm('Remove @' + domain + '? Members already provisioned under this domain keep their access until contract end; future signups will not match.')) return;
+    if (!confirm(`Remove @${domain}? Members already provisioned under this domain keep their access until contract end; future signups will not match.`)) return;
     btn.disabled = true;
     try {
       await postJson('/api/admin/institution/remove-domain', { id, domain });

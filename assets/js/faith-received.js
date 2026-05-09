@@ -19,32 +19,32 @@
 (function () {
   "use strict";
 
-  var DATA_BASE = "/assets/data/faith-received";
+  const DATA_BASE = "/assets/data/faith-received";
 
   // ── 1. Search ─────────────────────────────────────────────────
   initSearch();
 
   function initSearch() {
-    var input = document.querySelector("[data-faith-search-input]");
-    var results = document.querySelector("[data-faith-search-results]");
-    var status = document.querySelector("[data-faith-search-status]");
-    var empty = document.querySelector("[data-faith-search-empty]");
-    var form = document.querySelector("[data-faith-search]");
+    const input = document.querySelector("[data-faith-search-input]");
+    const results = document.querySelector("[data-faith-search-results]");
+    const status = document.querySelector("[data-faith-search-status]");
+    const empty = document.querySelector("[data-faith-search-empty]");
+    const form = document.querySelector("[data-faith-search]");
     if (!input || !results) return;
 
-    var index = null;
-    var fuse = null;
-    var loading = null;
+    let index = null;
+    let fuse = null;
+    let loading = null;
 
     function ensureIndex() {
       if (fuse) return Promise.resolve(fuse);
       if (loading) return loading;
-      loading = fetch(DATA_BASE + "/search-index.json", { credentials: "same-origin" })
-        .then(function (r) {
+      loading = fetch(`${DATA_BASE}/search-index.json`, { credentials: "same-origin" })
+        .then((r) => {
           if (!r.ok) throw new Error("Search index failed to load.");
           return r.json();
         })
-        .then(function (data) {
+        .then((data) => {
           index = data;
           fuse = new window.Fuse(index, {
             keys: [
@@ -60,7 +60,7 @@
           });
           return fuse;
         })
-        .catch(function (err) {
+        .catch((err) => {
           if (status) {
             status.textContent = err.message || "Search is unavailable.";
             status.classList.add("is-error");
@@ -71,7 +71,7 @@
     }
 
     function run(q) {
-      var query = String(q || "").trim();
+      const query = String(q || "").trim();
       if (query.length < 2) {
         results.innerHTML = "";
         if (empty) empty.hidden = true;
@@ -79,8 +79,8 @@
         return;
       }
       if (status) status.textContent = "Searching…";
-      ensureIndex().then(function () {
-        var hits = fuse.search(query, { limit: 50 });
+      ensureIndex().then(() => {
+        const hits = fuse.search(query, { limit: 50 });
         renderResults(hits, query);
       });
     }
@@ -89,52 +89,52 @@
       results.innerHTML = "";
       if (!hits.length) {
         if (empty) empty.hidden = false;
-        if (status) status.textContent = 'No results for "' + escapeHtml(query) + '".';
+        if (status) status.textContent = `No results for "${escapeHtml(query)}".`;
         return;
       }
       if (empty) empty.hidden = true;
       if (status) {
         status.textContent =
-          hits.length === 1 ? "1 result." : hits.length + " results.";
+          hits.length === 1 ? "1 result." : `${hits.length} results.`;
       }
-      var frag = document.createDocumentFragment();
-      hits.forEach(function (h) {
-        var item = h.item;
-        var li = document.createElement("li");
+      const frag = document.createDocumentFragment();
+      hits.forEach((h) => {
+        const {item} = h;
+        const li = document.createElement("li");
         li.className = "faith-search-hit";
-        var typeLabel = (item.type || "result").replace(/^./, function (c) {
+        const typeLabel = (item.type || "result").replace(/^./, (c) => {
           return c.toUpperCase();
         });
         // encodeURI does NOT strip javascript:, so we run through
         // MOSafeHref.sanitize first. Bad scheme → empty string → the
         // href becomes harmless.
         li.innerHTML =
-          '<a href="' +
-          escapeHtml(window.MOSafeHref.sanitize(item.url, "#")) +
-          '" class="faith-search-hit-link">' +
-          '<p class="faith-search-hit-meta"><span class="faith-search-hit-type">' +
-          escapeHtml(typeLabel) +
-          "</span>" +
-          (item.author
-            ? ' <span class="faith-search-hit-author">' +
-              escapeHtml(item.author) +
-              "</span>"
-            : "") +
-          "</p>" +
-          '<h3 class="faith-search-hit-title"><em>' +
-          escapeHtml(item.title) +
-          "</em></h3>" +
-          (item.snippet
-            ? '<p class="faith-search-hit-snippet">' +
-              highlight(escapeHtml(item.snippet), query) +
-              "</p>"
-            : "") +
-          (item.body
-            ? '<p class="faith-search-hit-body">' +
-              highlight(escapeHtml(item.body), query) +
-              "</p>"
-            : "") +
-          "</a>";
+          `<a href="${ 
+          escapeHtml(window.MOSafeHref.sanitize(item.url, "#")) 
+          }" class="faith-search-hit-link">` +
+          `<p class="faith-search-hit-meta"><span class="faith-search-hit-type">${ 
+          escapeHtml(typeLabel) 
+          }</span>${ 
+          item.author
+            ? ` <span class="faith-search-hit-author">${ 
+              escapeHtml(item.author) 
+              }</span>`
+            : "" 
+          }</p>` +
+          `<h3 class="faith-search-hit-title"><em>${ 
+          escapeHtml(item.title) 
+          }</em></h3>${ 
+          item.snippet
+            ? `<p class="faith-search-hit-snippet">${ 
+              highlight(escapeHtml(item.snippet), query) 
+              }</p>`
+            : "" 
+          }${item.body
+            ? `<p class="faith-search-hit-body">${ 
+              highlight(escapeHtml(item.body), query) 
+              }</p>`
+            : "" 
+          }</a>`;
         frag.appendChild(li);
       });
       results.appendChild(frag);
@@ -143,16 +143,16 @@
     function highlight(text, q) {
       if (!q) return text;
       try {
-        var re = new RegExp(
-          "(" +
+        const re = new RegExp(
+          `(${ 
             q
               .split(/\s+/)
               .filter(Boolean)
-              .map(function (t) {
+              .map((t) => {
                 return t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
               })
-              .join("|") +
-            ")",
+              .join("|") 
+            })`,
           "ig"
         );
         return text.replace(re, "<mark>$1</mark>");
@@ -161,15 +161,15 @@
       }
     }
 
-    var inputDebounce = 0;
-    input.addEventListener("input", function () {
+    let inputDebounce = 0;
+    input.addEventListener("input", () => {
       clearTimeout(inputDebounce);
-      inputDebounce = setTimeout(function () {
+      inputDebounce = setTimeout(() => {
         run(input.value);
       }, 80);
     });
     if (form) {
-      form.addEventListener("submit", function (e) {
+      form.addEventListener("submit", (e) => {
         e.preventDefault();
         run(input.value);
       });
@@ -177,8 +177,8 @@
 
     // Pre-fetch the index on first focus (before the visitor types) so
     // search latency on the very first character is hidden.
-    var prefetched = false;
-    input.addEventListener("focus", function () {
+    let prefetched = false;
+    input.addEventListener("focus", () => {
       if (prefetched) return;
       prefetched = true;
       ensureIndex();
@@ -186,7 +186,7 @@
 
     // Support ?q= deep-links.
     try {
-      var qParam = new URLSearchParams(window.location.search).get("q");
+      const qParam = new URLSearchParams(window.location.search).get("q");
       if (qParam) {
         input.value = qParam;
         run(qParam);
@@ -198,14 +198,14 @@
   initScripture();
 
   function initScripture() {
-    var grid = document.querySelector("[data-faith-scripture-books]");
-    var status = document.querySelector("[data-faith-scripture-status]");
-    var tabs = document.querySelectorAll("[data-faith-scripture-tab]");
+    const grid = document.querySelector("[data-faith-scripture-books]");
+    const status = document.querySelector("[data-faith-scripture-status]");
+    const tabs = document.querySelectorAll("[data-faith-scripture-tab]");
     if (!grid) return;
 
-    var data = null;
+    let data = null;
 
-    var OT = [
+    const OT = [
       "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
       "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel",
       "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles",
@@ -216,19 +216,19 @@
       "Haggai", "Zechariah", "Malachi",
     ];
 
-    var current = "ot";
+    let current = "ot";
 
-    fetch(DATA_BASE + "/scripture-index.json", { credentials: "same-origin" })
-      .then(function (r) {
+    fetch(`${DATA_BASE}/scripture-index.json`, { credentials: "same-origin" })
+      .then((r) => {
         if (!r.ok) throw new Error("Scripture index unavailable.");
         return r.json();
       })
-      .then(function (d) {
+      .then((d) => {
         data = d;
         if (status) status.remove();
         renderBooks();
       })
-      .catch(function (err) {
+      .catch((err) => {
         if (status) {
           status.textContent = err.message || "Scripture index unavailable.";
           status.classList.add("is-error");
@@ -238,74 +238,74 @@
     function renderBooks() {
       if (!data) return;
       // Group passages by book → chapter → refs.
-      var byBookChapter = {};
-      Object.keys(data.index || {}).forEach(function (passage) {
-        var m = passage.match(/^(.+?)\s+(\S.*)$/);
+      const byBookChapter = {};
+      Object.keys(data.index || {}).forEach((passage) => {
+        const m = passage.match(/^(.+?)\s+(\S.*)$/);
         if (!m) return;
-        var book = m[1];
-        var chapter = m[2];
+        const book = m[1];
+        const chapter = m[2];
         if (!byBookChapter[book]) byBookChapter[book] = {};
         if (!byBookChapter[book][chapter]) byBookChapter[book][chapter] = [];
-        var refs = data.index[passage] || [];
-        refs.forEach(function (r) {
-          byBookChapter[book][chapter].push({ passage: passage, ref: r });
+        const refs = data.index[passage] || [];
+        refs.forEach((r) => {
+          byBookChapter[book][chapter].push({ passage, ref: r });
         });
       });
 
-      var books = (data.books || []).filter(function (b) {
+      const books = (data.books || []).filter((b) => {
         return current === "ot" ? OT.indexOf(b) > -1 : OT.indexOf(b) === -1;
       });
       grid.innerHTML = "";
-      books.forEach(function (book) {
-        var chapters = byBookChapter[book] || {};
-        var chapterKeys = Object.keys(chapters).sort(function (a, b) {
+      books.forEach((book) => {
+        const chapters = byBookChapter[book] || {};
+        const chapterKeys = Object.keys(chapters).sort((a, b) => {
           return parseChapter(a) - parseChapter(b);
         });
-        var totalRefs = 0;
-        chapterKeys.forEach(function (ch) { totalRefs += chapters[ch].length; });
+        let totalRefs = 0;
+        chapterKeys.forEach((ch) => { totalRefs += chapters[ch].length; });
 
-        var bookEl = document.createElement("details");
-        bookEl.className = "faith-scripture-book-details" + (totalRefs ? "" : " is-empty");
-        var summary = document.createElement("summary");
+        const bookEl = document.createElement("details");
+        bookEl.className = `faith-scripture-book-details${totalRefs ? "" : " is-empty"}`;
+        const summary = document.createElement("summary");
         summary.className = "faith-scripture-book";
         summary.innerHTML =
-          '<span class="faith-scripture-book-name">' + escapeHtml(book) + '</span>' +
-          '<span class="faith-scripture-book-count">' + totalRefs + " ref" + (totalRefs === 1 ? "" : "s") + '</span>' +
-          '<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>';
+          `<span class="faith-scripture-book-name">${escapeHtml(book)}</span>` +
+          `<span class="faith-scripture-book-count">${totalRefs} ref${totalRefs === 1 ? "" : "s"}</span>` +
+          `<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>`;
         bookEl.appendChild(summary);
 
         if (totalRefs) {
-          var body = document.createElement("div");
+          const body = document.createElement("div");
           body.className = "faith-scripture-book-body";
-          chapterKeys.forEach(function (ch) {
-            var refs = chapters[ch];
+          chapterKeys.forEach((ch) => {
+            const refs = chapters[ch];
             if (!refs.length) return;
-            var chEl = document.createElement("details");
+            const chEl = document.createElement("details");
             chEl.className = "faith-scripture-chapter-details";
-            var chSummary = document.createElement("summary");
+            const chSummary = document.createElement("summary");
             chSummary.className = "faith-scripture-chapter";
             chSummary.innerHTML =
-              '<span class="faith-scripture-chapter-name">' + escapeHtml(book + " " + ch) + '</span>' +
-              '<span class="faith-scripture-chapter-count">' + refs.length + " ref" + (refs.length === 1 ? "" : "s") + '</span>' +
-              '<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>';
+              `<span class="faith-scripture-chapter-name">${escapeHtml(`${book} ${ch}`)}</span>` +
+              `<span class="faith-scripture-chapter-count">${refs.length} ref${refs.length === 1 ? "" : "s"}</span>` +
+              `<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>`;
             chEl.appendChild(chSummary);
-            var refsList = document.createElement("ol");
+            const refsList = document.createElement("ol");
             refsList.className = "faith-scripture-refs";
-            refs.forEach(function (item) {
-              var li = document.createElement("li");
+            refs.forEach((item) => {
+              const li = document.createElement("li");
               li.className = "faith-scripture-ref";
-              var url = sourceToUrl(item.ref);
+              const url = sourceToUrl(item.ref);
               li.innerHTML =
-                '<a class="faith-scripture-ref-link" href="' + encodeURI(url) + '">' +
-                  '<span class="faith-scripture-ref-passage">' + escapeHtml(item.passage) + '</span>' +
-                  '<span class="faith-scripture-ref-source">' + escapeHtml(prettifySource(item.ref.source || "")) + '</span>' +
-                  (item.ref.title
-                    ? '<span class="faith-scripture-ref-title">' + escapeHtml(item.ref.title) + '</span>'
-                    : "") +
-                  (item.ref.excerpt
-                    ? '<span class="faith-scripture-ref-excerpt">' + escapeHtml(item.ref.excerpt) + '</span>'
-                    : "") +
-                "</a>";
+                `<a class="faith-scripture-ref-link" href="${encodeURI(url)}">` +
+                  `<span class="faith-scripture-ref-passage">${escapeHtml(item.passage)}</span>` +
+                  `<span class="faith-scripture-ref-source">${escapeHtml(prettifySource(item.ref.source || ""))}</span>${ 
+                  item.ref.title
+                    ? `<span class="faith-scripture-ref-title">${escapeHtml(item.ref.title)}</span>`
+                    : "" 
+                  }${item.ref.excerpt
+                    ? `<span class="faith-scripture-ref-excerpt">${escapeHtml(item.ref.excerpt)}</span>`
+                    : "" 
+                }</a>`;
               refsList.appendChild(li);
             });
             chEl.appendChild(refsList);
@@ -318,7 +318,7 @@
     }
 
     function parseChapter(passage) {
-      var m = passage.match(/(\d+)/);
+      const m = passage.match(/(\d+)/);
       return m ? parseInt(m[1], 10) : 0;
     }
 
@@ -329,53 +329,53 @@
       // section/chapter → matches the rendering. Per-source quirks
       // first because the right anchor depends on how each doc is
       // rendered (e.g. Lausanne renders sections as articles).
-      var slug = r.source === "confession-1689" ? "1689" : (r.source || "");
-      var id = r.id || "";
-      var anchor = "";
+      const slug = r.source === "confession-1689" ? "1689" : (r.source || "");
+      const id = r.id || "";
+      let anchor = "";
       // Per-source: Lausanne sections render as articles in the Ghost theme.
       if (slug === "lausanne") {
-        var lm = id.match(/^sec-(\d+)/);
-        if (lm) anchor = "#article-" + lm[1];
+        const lm = id.match(/^sec-(\d+)/);
+        if (lm) anchor = `#article-${lm[1]}`;
       }
       if (!anchor) {
         // book-N-ch-N takes precedence over plain ch-N so library-books
         // docs (Augustine, Calvin, Imitation, Polanus) resolve to their
         // nested per-book chapter anchor instead of mis-mapping to a
         // non-existent flat chapter-N anchor.
-        var bcm = id.match(/^book-(\d+)-ch(?:apter)?-?(\d+)/);
-        var qm = id.match(/^q(\d+)/);
-        var artm = id.match(/^art-(\d+)/);
-        var secm = id.match(/^sec-(\d+)/);
-        var cm = id.match(/^ch(?:apter)?-?(\d+)/);
-        var resm = id.match(/^res-(\d+)/);
-        var thm = id.match(/^thesis-(\d+)/);
-        if (bcm) anchor = "#book-" + bcm[1] + "-chapter-" + bcm[2];
-        else if (qm) anchor = "#q-" + qm[1];
-        else if (artm) anchor = "#article-" + artm[1];
-        else if (secm) anchor = "#section-" + secm[1];
-        else if (cm) anchor = "#chapter-" + cm[1];
-        else if (resm) anchor = "#resolution-" + resm[1];
-        else if (thm) anchor = "#thesis-" + thm[1];
-        else if (id) anchor = "#" + id;
+        const bcm = id.match(/^book-(\d+)-ch(?:apter)?-?(\d+)/);
+        const qm = id.match(/^q(\d+)/);
+        const artm = id.match(/^art-(\d+)/);
+        const secm = id.match(/^sec-(\d+)/);
+        const cm = id.match(/^ch(?:apter)?-?(\d+)/);
+        const resm = id.match(/^res-(\d+)/);
+        const thm = id.match(/^thesis-(\d+)/);
+        if (bcm) anchor = `#book-${bcm[1]}-chapter-${bcm[2]}`;
+        else if (qm) anchor = `#q-${qm[1]}`;
+        else if (artm) anchor = `#article-${artm[1]}`;
+        else if (secm) anchor = `#section-${secm[1]}`;
+        else if (cm) anchor = `#chapter-${cm[1]}`;
+        else if (resm) anchor = `#resolution-${resm[1]}`;
+        else if (thm) anchor = `#thesis-${thm[1]}`;
+        else if (id) anchor = `#${id}`;
       }
-      return "/the-faith-received/" + slug + "/" + anchor;
+      return `/the-faith-received/${slug}/${anchor}`;
     }
 
     function prettifySource(s) {
       return s
         .split("-")
-        .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+        .map((w) => { return w.charAt(0).toUpperCase() + w.slice(1); })
         .join(" ");
     }
 
     function truncate(s, n) {
       s = String(s || "").trim();
-      return s.length > n ? s.slice(0, n) + "…" : s;
+      return s.length > n ? `${s.slice(0, n)}…` : s;
     }
 
-    Array.prototype.forEach.call(tabs, function (btn) {
-      btn.addEventListener("click", function () {
-        Array.prototype.forEach.call(tabs, function (b) {
+    Array.prototype.forEach.call(tabs, (btn) => {
+      btn.addEventListener("click", () => {
+        Array.prototype.forEach.call(tabs, (b) => {
           b.classList.remove("is-active");
           b.setAttribute("aria-selected", "false");
         });
@@ -391,17 +391,17 @@
   initToday();
 
   function initToday() {
-    var card = document.querySelector("[data-faith-today-card]");
-    var status = document.querySelector("[data-faith-today-status]");
-    var dateEl = document.querySelector("[data-faith-today-date]");
-    var sourceEl = document.querySelector("[data-faith-today-source]");
-    var titleEl = document.querySelector("[data-faith-today-title]");
-    var contentEl = document.querySelector("[data-faith-today-content]");
-    var linkEl = document.querySelector("[data-faith-today-link]");
+    const card = document.querySelector("[data-faith-today-card]");
+    const status = document.querySelector("[data-faith-today-status]");
+    const dateEl = document.querySelector("[data-faith-today-date]");
+    const sourceEl = document.querySelector("[data-faith-today-source]");
+    const titleEl = document.querySelector("[data-faith-today-title]");
+    const contentEl = document.querySelector("[data-faith-today-content]");
+    const linkEl = document.querySelector("[data-faith-today-link]");
     if (!card || !status) return;
 
-    var now = new Date();
-    var dayOfYear = computeDayOfYear(now);
+    const now = new Date();
+    const dayOfYear = computeDayOfYear(now);
 
     if (dateEl) {
       dateEl.textContent = now.toLocaleDateString(undefined, {
@@ -412,18 +412,18 @@
       });
     }
 
-    fetch(DATA_BASE + "/today.json", { credentials: "same-origin" })
-      .then(function (r) {
+    fetch(`${DATA_BASE}/today.json`, { credentials: "same-origin" })
+      .then((r) => {
         if (!r.ok) throw new Error("Today's reading is unavailable.");
         return r.json();
       })
-      .then(function (plan) {
+      .then((plan) => {
         if (!plan || !plan.length) {
           status.textContent = "Today's reading is unavailable.";
           return;
         }
-        var pick = plan[dayOfYear % plan.length];
-        var labelParts = (pick.label || "").split(" · ");
+        const pick = plan[dayOfYear % plan.length];
+        const labelParts = (pick.label || "").split(" · ");
         if (sourceEl) sourceEl.textContent = labelParts[0] || "";
         if (titleEl) titleEl.textContent = labelParts.slice(1).join(" · ");
         if (linkEl) linkEl.setAttribute("href", pick.url);
@@ -433,16 +433,16 @@
         // copy of all the texts.
         if (contentEl) {
           fetch(pick.url, { credentials: "same-origin" })
-            .then(function (r) { return r.ok ? r.text() : ""; })
-            .then(function (html) {
+            .then((r) => { return r.ok ? r.text() : ""; })
+            .then((html) => {
               if (!html) return;
-              var anchor = pick.url.split("#")[1];
+              const anchor = pick.url.split("#")[1];
               if (!anchor) return;
-              var parser = new DOMParser();
-              var doc = parser.parseFromString(html, "text/html");
-              var node = doc.getElementById(anchor);
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, "text/html");
+              const node = doc.getElementById(anchor);
               if (!node) return;
-              var body = node.querySelector(".faith-section-body, .faith-qa-answer, .faith-edwards-text, .faith-thesis-text");
+              const body = node.querySelector(".faith-section-body, .faith-qa-answer, .faith-edwards-text, .faith-thesis-text");
               if (body) contentEl.innerHTML = body.innerHTML;
               else contentEl.textContent = (node.textContent || "").trim().slice(0, 600);
             });
@@ -450,15 +450,15 @@
         status.hidden = true;
         card.hidden = false;
       })
-      .catch(function (err) {
+      .catch((err) => {
         status.textContent = err.message || "Today's reading is unavailable.";
         status.classList.add("is-error");
       });
   }
 
   function computeDayOfYear(d) {
-    var start = new Date(d.getFullYear(), 0, 0);
-    var diff = d - start + (start.getTimezoneOffset() - d.getTimezoneOffset()) * 60000;
+    const start = new Date(d.getFullYear(), 0, 0);
+    const diff = d - start + (start.getTimezoneOffset() - d.getTimezoneOffset()) * 60000;
     return Math.floor(diff / 86400000);
   }
 
@@ -470,16 +470,16 @@
   initScripturePopovers();
 
   function initScripturePopovers() {
-    var refs = document.querySelectorAll("[data-faith-verse]");
+    const refs = document.querySelectorAll("[data-faith-verse]");
     if (!refs.length) return;
 
-    var popover = null;
-    var popoverContent = null;
-    var arrow = null;
-    var currentTrigger = null;
-    var cache = new Map();
+    let popover = null;
+    let popoverContent = null;
+    let arrow = null;
+    let currentTrigger = null;
+    const cache = new Map();
 
-    var BOOK_NUMBERS = {
+    const BOOK_NUMBERS = {
       "Genesis": 1, "Exodus": 2, "Leviticus": 3, "Numbers": 4, "Deuteronomy": 5,
       "Joshua": 6, "Judges": 7, "Ruth": 8, "1 Samuel": 9, "2 Samuel": 10,
       "1 Kings": 11, "2 Kings": 12, "1 Chronicles": 13, "2 Chronicles": 14,
@@ -515,7 +515,7 @@
     }
 
     function parseReference(reference) {
-      var m = String(reference || "").match(/(\d+):(\d+)(?:-(\d+))?/);
+      const m = String(reference || "").match(/(\d+):(\d+)(?:-(\d+))?/);
       if (!m) return null;
       return {
         chapter: parseInt(m[1], 10),
@@ -544,68 +544,68 @@
     }
 
     function loadVerse(book, reference) {
-      var key = (book + "|" + reference).toLowerCase();
+      const key = (`${book}|${reference}`).toLowerCase();
       if (cache.has(key)) {
         setText(cache.get(key));
         return;
       }
-      var bookNum = BOOK_NUMBERS[book];
-      var parsed = parseReference(reference);
+      const bookNum = BOOK_NUMBERS[book];
+      const parsed = parseReference(reference);
       if (!bookNum || !parsed) {
         setStatus("Could not load verse text.");
         return;
       }
       setStatus("Loading…");
-      fetch("https://bolls.life/get-text/CSB17/" + bookNum + "/" + parsed.chapter + "/")
-        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
-        .then(function (verses) {
-          var picked = (verses || [])
-            .filter(function (v) { return v.verse >= parsed.startVerse && v.verse <= parsed.endVerse; })
-            .map(function (v) { return stripHtml(v.text); })
+      fetch(`https://bolls.life/get-text/CSB17/${bookNum}/${parsed.chapter}/`)
+        .then((r) => { return r.ok ? r.json() : Promise.reject(); })
+        .then((verses) => {
+          const picked = (verses || [])
+            .filter((v) => { return v.verse >= parsed.startVerse && v.verse <= parsed.endVerse; })
+            .map((v) => { return stripHtml(v.text); })
             .join(" ");
           if (!picked) throw new Error("empty");
           cache.set(key, picked);
           setText(picked);
         })
-        .catch(function () {
+        .catch(() => {
           setStatus("Could not load verse text.");
         });
     }
 
     function position(trigger) {
-      var rect = trigger.getBoundingClientRect();
-      var popoverWidth = window.innerWidth < 640 ? 280 : 320;
-      var padding = 14;
-      var triggerCenter = rect.left + rect.width / 2;
+      const rect = trigger.getBoundingClientRect();
+      const popoverWidth = window.innerWidth < 640 ? 280 : 320;
+      const padding = 14;
+      const triggerCenter = rect.left + rect.width / 2;
 
-      var left = triggerCenter - popoverWidth / 2;
+      let left = triggerCenter - popoverWidth / 2;
       if (left < padding) left = padding;
       if (left + popoverWidth > window.innerWidth - padding) {
         left = window.innerWidth - padding - popoverWidth;
       }
 
-      var arrowPct = ((triggerCenter - left) / popoverWidth) * 100;
+      let arrowPct = ((triggerCenter - left) / popoverWidth) * 100;
       arrowPct = Math.max(8, Math.min(92, arrowPct));
-      arrow.style.left = arrowPct + "%";
+      arrow.style.left = `${arrowPct}%`;
 
       // Default: position above the trigger.
-      var top = rect.top + window.scrollY - 14; // 14px gap above
+      const top = rect.top + window.scrollY - 14; // 14px gap above
       popover.classList.remove("is-below");
       // Once rendered we know the popover height; flip below if no
       // room above.
-      popover.style.left = left + "px";
-      popover.style.top = top + "px";
+      popover.style.left = `${left}px`;
+      popover.style.top = `${top}px`;
       // Use translateY(-100%) so `top` aligns to the popover's
       // bottom edge.
       popover.style.transform = "translateY(-100%)";
       // After paint, check if it's clipped above the viewport.
-      requestAnimationFrame(function () {
-        var pop = popover.getBoundingClientRect();
+      requestAnimationFrame(() => {
+        const pop = popover.getBoundingClientRect();
         if (pop.top < 12) {
           // Flip below.
           popover.classList.add("is-below");
           popover.style.transform = "translateY(0)";
-          popover.style.top = (rect.bottom + window.scrollY + 14) + "px";
+          popover.style.top = `${rect.bottom + window.scrollY + 14}px`;
         }
       });
     }
@@ -613,14 +613,14 @@
     function open(trigger) {
       ensurePopover();
       currentTrigger = trigger;
-      var book = trigger.getAttribute("data-book") || "";
-      var reference = trigger.getAttribute("data-reference") || "";
+      const book = trigger.getAttribute("data-book") || "";
+      const reference = trigger.getAttribute("data-reference") || "";
       popover.querySelector("[data-faith-verse-ref]").textContent = reference;
       setStatus("Loading…");
       popover.hidden = false;
       // Defer a frame so the browser sees the hidden→visible flip
       // and animates if we add a transition.
-      requestAnimationFrame(function () { popover.classList.add("is-open"); });
+      requestAnimationFrame(() => { popover.classList.add("is-open"); });
       position(trigger);
       loadVerse(book, reference);
       trigger.setAttribute("aria-expanded", "true");
@@ -630,13 +630,13 @@
       if (!popover) return;
       popover.classList.remove("is-open");
       // Hide after the transition.
-      setTimeout(function () { if (!popover.classList.contains("is-open")) popover.hidden = true; }, 180);
+      setTimeout(() => { if (!popover.classList.contains("is-open")) popover.hidden = true; }, 180);
       if (currentTrigger) currentTrigger.setAttribute("aria-expanded", "false");
       currentTrigger = null;
     }
 
-    document.addEventListener("click", function (e) {
-      var trigger = e.target && e.target.closest && e.target.closest("[data-faith-verse]");
+    document.addEventListener("click", (e) => {
+      const trigger = e.target && e.target.closest && e.target.closest("[data-faith-verse]");
       if (trigger) {
         e.preventDefault();
         e.stopPropagation();
@@ -648,7 +648,7 @@
       if (currentTrigger && popover && !popover.contains(e.target)) close();
     });
 
-    document.addEventListener("keydown", function (e) {
+    document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && currentTrigger) close();
     });
 
@@ -672,7 +672,7 @@
     // Q&A, topic rows), flat sections (creeds), Q&A rows (Westminster
     // Shorter, Heidelberg's nested Q&A), and the smaller numbered
     // units (95 Theses, Edwards' Resolutions).
-    var targets = document.querySelectorAll(
+    const targets = document.querySelectorAll(
       ".faith-doc .faith-section-details, " +
       ".faith-doc .faith-doc-inner > .faith-section, " +
       ".faith-doc .faith-qa, " +
@@ -681,18 +681,18 @@
       ".faith-doc .faith-book-details, " +
       ".faith-doc .faith-topic-row-details"
     );
-    Array.prototype.forEach.call(targets, function (target) {
+    Array.prototype.forEach.call(targets, (target) => {
       if (!target.id) return;
       // Don't double-inject if we've already added actions.
       if (target.querySelector(":scope > .faith-section-actions, :scope > .faith-section-body > .faith-section-actions, :scope > .faith-book-body > .faith-section-actions, :scope > .faith-topic-row-body > .faith-section-actions")) {
         return;
       }
-      var actions = buildActionsRow(target);
+      const actions = buildActionsRow(target);
       if (!actions) return;
       // Where to inject: at the END of the body (for collapsibles)
       // or at the END of the section (for flat).
       if (target.classList.contains("faith-section-details")) {
-        var body = target.querySelector(":scope > .faith-section-body");
+        const body = target.querySelector(":scope > .faith-section-body");
         if (body) {
           // If the section contains Q&A cards, each Q&A injects its
           // own action row — skip the section-level row so the user
@@ -701,7 +701,7 @@
           body.appendChild(actions);
         }
       } else if (target.classList.contains("faith-book-details")) {
-        var bbody = target.querySelector(":scope > .faith-book-body");
+        const bbody = target.querySelector(":scope > .faith-book-body");
         if (bbody) bbody.appendChild(actions);
       } else if (target.classList.contains("faith-topic-row-details")) {
         // Topic rows lazy-load their body; inject the actions row
@@ -709,10 +709,10 @@
         // event and append on first open.
         target.addEventListener("toggle", function inject() {
           if (!target.open) return;
-          var tbody = target.querySelector(":scope > .faith-topic-row-body");
+          const tbody = target.querySelector(":scope > .faith-topic-row-body");
           if (!tbody || tbody.querySelector(":scope > .faith-section-actions")) return;
           // Wait one tick for the lazy-fetch to populate, then inject.
-          setTimeout(function () {
+          setTimeout(() => {
             if (!tbody.querySelector(":scope > .faith-section-actions")) {
               tbody.appendChild(buildActionsRow(target));
             }
@@ -725,36 +725,36 @@
   }
 
   function buildActionsRow(section) {
-    var url = location.origin + location.pathname + "#" + section.id;
-    var actions = document.createElement("div");
+    const url = `${location.origin + location.pathname}#${section.id}`;
+    const actions = document.createElement("div");
     actions.className = "faith-section-actions";
     actions.innerHTML =
-      '<button type="button" class="faith-section-action" data-faith-copy-link>' +
-        iconLink() + '<span class="faith-section-action-label">Copy link</span>' +
-      '</button>' +
-      '<button type="button" class="faith-section-action" data-faith-copy-text>' +
-        iconCopy() + '<span class="faith-section-action-label">Copy passage</span>' +
-      '</button>';
-    actions.querySelector("[data-faith-copy-link]").addEventListener("click", function (e) {
+      `<button type="button" class="faith-section-action" data-faith-copy-link>${ 
+        iconLink()}<span class="faith-section-action-label">Copy link</span>` +
+      `</button>` +
+      `<button type="button" class="faith-section-action" data-faith-copy-text>${ 
+        iconCopy()}<span class="faith-section-action-label">Copy passage</span>` +
+      `</button>`;
+    actions.querySelector("[data-faith-copy-link]").addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      navigator.clipboard.writeText(url).then(function () { flashCopied(e.currentTarget); });
+      navigator.clipboard.writeText(url).then(() => { flashCopied(e.currentTarget); });
     });
-    actions.querySelector("[data-faith-copy-text]").addEventListener("click", function (e) {
+    actions.querySelector("[data-faith-copy-text]").addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      navigator.clipboard.writeText(extractCopyText(section)).then(function () { flashCopied(e.currentTarget); });
+      navigator.clipboard.writeText(extractCopyText(section)).then(() => { flashCopied(e.currentTarget); });
     });
     return actions;
   }
 
   function flashCopied(btn) {
-    var label = btn.querySelector(".faith-section-action-label");
+    const label = btn.querySelector(".faith-section-action-label");
     if (!label) return;
-    var prev = label.textContent;
+    const prev = label.textContent;
     label.textContent = "Copied";
     btn.classList.add("is-copied");
-    setTimeout(function () {
+    setTimeout(() => {
       label.textContent = prev;
       btn.classList.remove("is-copied");
     }, 1600);
@@ -766,49 +766,49 @@
     // toggle buttons), replace verse-ref <button>s with plain text
     // references, then assemble: numeral/eyebrow + title + body +
     // scripture refs.
-    var clone = section.cloneNode(true);
-    var noise = clone.querySelectorAll(
+    const clone = section.cloneNode(true);
+    const noise = clone.querySelectorAll(
       ".faith-section-actions, .faith-chev, .faith-verse-popover, " +
       ".faith-section-action, .faith-verse-sep, " +
       ".faith-topic-row-continue, " +
       "[data-modernizer-toggle]"
     );
-    Array.prototype.forEach.call(noise, function (n) { n.remove(); });
-    var verseBtns = clone.querySelectorAll("[data-faith-verse]");
-    Array.prototype.forEach.call(verseBtns, function (b) {
+    Array.prototype.forEach.call(noise, (n) => { n.remove(); });
+    const verseBtns = clone.querySelectorAll("[data-faith-verse]");
+    Array.prototype.forEach.call(verseBtns, (b) => {
       b.replaceWith(document.createTextNode(b.textContent));
     });
-    var lines = [];
+    const lines = [];
     function pushTrim(text) {
-      var t = String(text || "").replace(/\s+/g, " ").trim();
+      const t = String(text || "").replace(/\s+/g, " ").trim();
       if (t) lines.push(t);
     }
     // Numeral / eyebrow — covers section, Q&A, Lord's Day, thesis,
     // edwards, library book, topic row.
-    var numeral = clone.querySelector(
+    const numeral = clone.querySelector(
       ".faith-section-numeral, .faith-qa-number, .faith-lords-day-numeral, " +
       ".faith-thesis-number, .faith-edwards-number, " +
       ".faith-part-eyebrow, .faith-topic-row-label"
     );
     // Title / heading.
-    var title = clone.querySelector(
+    const title = clone.querySelector(
       ".faith-section-title, .faith-qa-question, " +
       ".faith-book-title, .faith-topic-row-snippet"
     );
     if (numeral) pushTrim(numeral.textContent);
     if (title) pushTrim(title.textContent);
     // Body — broadest selector for any reading-content container.
-    var body = clone.querySelector(
+    const body = clone.querySelector(
       ".faith-section-body, .faith-qa-answer, " +
       ".faith-thesis-text, .faith-edwards-text, " +
       ".faith-book-body, .faith-topic-row-body"
     );
     if (body) {
-      var refsInBody = body.querySelector(".faith-qa-references");
+      const refsInBody = body.querySelector(".faith-qa-references");
       if (refsInBody) refsInBody.remove();
-      var paras = body.querySelectorAll("p, li");
+      const paras = body.querySelectorAll("p, li");
       if (paras.length) {
-        Array.prototype.forEach.call(paras, function (p) { pushTrim(p.textContent); });
+        Array.prototype.forEach.call(paras, (p) => { pushTrim(p.textContent); });
       } else {
         pushTrim(body.textContent);
       }
@@ -816,15 +816,15 @@
       // Theses + Edwards items have no .faith-section-body wrapper —
       // the text is a direct sibling of the number. Pull whatever's
       // left after numeral/title removal.
-      var fallback = clone.querySelector(
+      const fallback = clone.querySelector(
         ".faith-thesis-text, .faith-edwards-text"
       );
       if (fallback) pushTrim(fallback.textContent);
     }
-    var refs = clone.querySelector(".faith-qa-references");
+    const refs = clone.querySelector(".faith-qa-references");
     if (refs) {
-      var refText = refs.textContent.replace(/^Scripture\s*/i, "").trim();
-      if (refText) lines.push("Scripture: " + refText);
+      const refText = refs.textContent.replace(/^Scripture\s*/i, "").trim();
+      if (refText) lines.push(`Scripture: ${refText}`);
     }
     return lines.join("\n\n");
   }
@@ -845,11 +845,11 @@
   initTocDrawer();
 
   function initTocDrawer() {
-    var drawer = document.querySelector("[data-faith-toc-drawer]");
-    var toggle = document.querySelector("[data-faith-toc-toggle]");
+    const drawer = document.querySelector("[data-faith-toc-drawer]");
+    const toggle = document.querySelector("[data-faith-toc-toggle]");
     if (!drawer || !toggle) return;
-    var close = drawer.querySelector("[data-faith-toc-close]");
-    var backdrop = document.querySelector("[data-faith-toc-backdrop]");
+    const close = drawer.querySelector("[data-faith-toc-close]");
+    const backdrop = document.querySelector("[data-faith-toc-backdrop]");
 
     function isMobile() {
       return window.matchMedia("(max-width: 1023px)").matches;
@@ -872,13 +872,13 @@
       toggle.setAttribute("aria-expanded", "false");
       // Hide backdrop after the transition so it's not in the AT tree.
       if (backdrop) {
-        setTimeout(function () {
+        setTimeout(() => {
           if (!backdrop.classList.contains("is-open")) backdrop.hidden = true;
         }, 320);
       }
     }
 
-    toggle.addEventListener("click", function () {
+    toggle.addEventListener("click", () => {
       if (drawer.classList.contains("is-open")) closeFn();
       else open();
     });
@@ -888,19 +888,19 @@
     // Tap a TOC link → navigate, then close the drawer. Both happen
     // since we don't preventDefault — anchor scroll fires, drawer
     // closes after.
-    drawer.addEventListener("click", function (e) {
-      var a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
+    drawer.addEventListener("click", (e) => {
+      const a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
       if (a) closeFn();
     });
 
     // Close on Escape.
-    document.addEventListener("keydown", function (e) {
+    document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && drawer.classList.contains("is-open")) closeFn();
     });
 
     // If the viewport flips to desktop while the drawer is open
     // (rotate, resize), un-stick the body scroll lock.
-    window.addEventListener("resize", function () {
+    window.addEventListener("resize", () => {
       if (!isMobile() && drawer.classList.contains("is-open")) closeFn();
     });
   }
@@ -916,55 +916,55 @@
   initTopicRowExpansion();
 
   function initTopicRowExpansion() {
-    var rows = document.querySelectorAll("[data-faith-topic-row]");
+    const rows = document.querySelectorAll("[data-faith-topic-row]");
     if (!rows.length) return;
-    var pageCache = new Map();
+    const pageCache = new Map();
 
     function fetchSource(url) {
       if (pageCache.has(url)) return pageCache.get(url);
-      var p = fetch(url, { credentials: "same-origin" })
-        .then(function (r) { return r.ok ? r.text() : ""; })
-        .then(function (html) {
+      const p = fetch(url, { credentials: "same-origin" })
+        .then((r) => { return r.ok ? r.text() : ""; })
+        .then((html) => {
           if (!html) return null;
-          var parser = new DOMParser();
+          const parser = new DOMParser();
           return parser.parseFromString(html, "text/html");
         })
-        .catch(function () { return null; });
+        .catch(() => { return null; });
       pageCache.set(url, p);
       return p;
     }
 
     function extractPassage(doc, anchor) {
       if (!doc || !anchor) return "";
-      var node = doc.getElementById(anchor);
+      const node = doc.getElementById(anchor);
       if (!node) return "";
       // The "passage" — pick the right element shape depending on
       // what the anchor points to.
-      var body = node.querySelector(".faith-section-body, .faith-qa-answer");
+      const body = node.querySelector(".faith-section-body, .faith-qa-answer");
       if (body) {
         // Strip section-actions injected client-side on the source page.
-        var clone = body.cloneNode(true);
-        clone.querySelectorAll(".faith-section-actions").forEach(function (n) { n.remove(); });
+        const clone = body.cloneNode(true);
+        clone.querySelectorAll(".faith-section-actions").forEach((n) => { n.remove(); });
         return clone.innerHTML;
       }
       // Fallback for theses / Edwards items where the whole node is
       // the passage.
       if (node.classList.contains("faith-thesis") ||
           node.classList.contains("faith-edwards-item")) {
-        var p = node.querySelector(".faith-thesis-text, .faith-edwards-text");
-        if (p) return "<p>" + p.innerHTML + "</p>";
+        const p = node.querySelector(".faith-thesis-text, .faith-edwards-text");
+        if (p) return `<p>${p.innerHTML}</p>`;
       }
       return "";
     }
 
     function load(row) {
-      var url = row.getAttribute("data-source-url") || "";
-      var anchor = row.getAttribute("data-source-anchor") || "";
-      var body = row.querySelector("[data-faith-topic-body]");
+      const url = row.getAttribute("data-source-url") || "";
+      const anchor = row.getAttribute("data-source-anchor") || "";
+      const body = row.querySelector("[data-faith-topic-body]");
       if (!body || row.dataset.faithLoaded === "1") return;
-      var pageUrl = url.split("#")[0];
-      fetchSource(pageUrl).then(function (doc) {
-        var html = extractPassage(doc, anchor);
+      const pageUrl = url.split("#")[0];
+      fetchSource(pageUrl).then((doc) => {
+        const html = extractPassage(doc, anchor);
         if (html) {
           body.innerHTML = html;
         } else {
@@ -974,8 +974,8 @@
       });
     }
 
-    Array.prototype.forEach.call(rows, function (row) {
-      row.addEventListener("toggle", function () {
+    Array.prototype.forEach.call(rows, (row) => {
+      row.addEventListener("toggle", () => {
         if (row.open) load(row);
       });
     });
@@ -989,35 +989,35 @@
   initActiveSection();
 
   function initActiveSection() {
-    var sidebar = document.querySelector(".faith-toc-sidebar");
+    const sidebar = document.querySelector(".faith-toc-sidebar");
     if (!sidebar || !("IntersectionObserver" in window)) return;
-    var anchors = Array.prototype.slice.call(sidebar.querySelectorAll('a[href^="#"]'));
+    const anchors = Array.prototype.slice.call(sidebar.querySelectorAll('a[href^="#"]'));
     if (!anchors.length) return;
     // Map of id → anchor element.
-    var byId = {};
-    anchors.forEach(function (a) {
-      var id = decodeURIComponent((a.getAttribute("href") || "").slice(1));
+    const byId = {};
+    anchors.forEach((a) => {
+      const id = decodeURIComponent((a.getAttribute("href") || "").slice(1));
       if (id) byId[id] = a;
     });
-    var ids = Object.keys(byId);
+    const ids = Object.keys(byId);
     if (!ids.length) return;
-    var visible = new Set();
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
+    const visible = new Set();
+    const observer = new IntersectionObserver(((entries) => {
+      entries.forEach((e) => {
         if (e.isIntersecting) visible.add(e.target.id);
         else visible.delete(e.target.id);
       });
       // Pick the visible section closest to the top of the viewport.
-      var best = null;
-      var bestTop = Infinity;
-      ids.forEach(function (id) {
+      let best = null;
+      let bestTop = Infinity;
+      ids.forEach((id) => {
         if (!visible.has(id)) return;
-        var node = document.getElementById(id);
+        const node = document.getElementById(id);
         if (!node) return;
-        var top = node.getBoundingClientRect().top;
+        const {top} = node.getBoundingClientRect();
         if (top < bestTop) { bestTop = top; best = id; }
       });
-      anchors.forEach(function (a) { a.classList.remove("is-active"); });
+      anchors.forEach((a) => { a.classList.remove("is-active"); });
       if (best && byId[best]) {
         byId[best].classList.add("is-active");
         // No auto-scroll — the sidebar is static (scrolls with the
@@ -1026,12 +1026,12 @@
         // in the document, fighting the reader's own scrolling. Keep
         // the active-state highlight; let the page scroll be theirs.
       }
-    }, {
+    }), {
       rootMargin: "-80px 0px -60% 0px",
       threshold: 0,
     });
-    ids.forEach(function (id) {
-      var node = document.getElementById(id);
+    ids.forEach((id) => {
+      const node = document.getElementById(id);
       if (node) observer.observe(node);
     });
   }
@@ -1040,23 +1040,23 @@
   initReadingControls();
 
   function initReadingControls() {
-    var controls = document.querySelector("[data-faith-controls]");
+    const controls = document.querySelector("[data-faith-controls]");
     if (!controls) return;
-    var details = function () {
+    const details = function () {
       return Array.prototype.slice.call(
         document.querySelectorAll(".faith-doc-body .faith-section-details")
       );
     };
-    var expand = controls.querySelector("[data-faith-expand-all]");
-    var collapse = controls.querySelector("[data-faith-collapse-all]");
+    const expand = controls.querySelector("[data-faith-expand-all]");
+    const collapse = controls.querySelector("[data-faith-collapse-all]");
     if (expand) {
-      expand.addEventListener("click", function () {
-        details().forEach(function (d) { d.open = true; });
+      expand.addEventListener("click", () => {
+        details().forEach((d) => { d.open = true; });
       });
     }
     if (collapse) {
-      collapse.addEventListener("click", function () {
-        details().forEach(function (d) { d.open = false; });
+      collapse.addEventListener("click", () => {
+        details().forEach((d) => { d.open = false; });
       });
     }
   }
@@ -1070,74 +1070,74 @@
   initViewToggle();
 
   function initViewToggle() {
-    var nav = document.querySelector("[data-faith-view-toggle]");
+    const nav = document.querySelector("[data-faith-view-toggle]");
     if (!nav) return;
-    var wrapper = document.querySelector("[data-faith-view]");
+    const wrapper = document.querySelector("[data-faith-view]");
     if (!wrapper) return;
-    var tabs = nav.querySelectorAll(".faith-view-toggle-tab[data-faith-view-target]");
-    var partSummaries = document.querySelectorAll("[data-faith-part-summary]");
-    var contentBlocks = wrapper.querySelectorAll("[data-faith-view-content]");
+    const tabs = nav.querySelectorAll(".faith-view-toggle-tab[data-faith-view-target]");
+    const partSummaries = document.querySelectorAll("[data-faith-part-summary]");
+    const contentBlocks = wrapper.querySelectorAll("[data-faith-view-content]");
 
-    var layout = wrapper.closest(".faith-doc-layout");
+    const layout = wrapper.closest(".faith-doc-layout");
 
     function setView(view) {
       wrapper.setAttribute("data-faith-view", view);
       // Layout class drives sidebar/reading-controls visibility in CSS.
       if (layout) layout.classList.toggle("is-memorize-view", view === "memorize");
-      Array.prototype.forEach.call(tabs, function (t) {
-        var on = t.getAttribute("data-faith-view-target") === view;
+      Array.prototype.forEach.call(tabs, (t) => {
+        const on = t.getAttribute("data-faith-view-target") === view;
         t.classList.toggle("is-active", on);
         t.setAttribute("aria-pressed", on ? "true" : "false");
       });
       // Show the matching content block, hide the rest. "lords-day"
       // and "section" share the "reading" content block (DOM is the
       // same; CSS swaps presentation via [data-faith-view]).
-      var contentKey = view === "memorize" ? "memorize" : "reading";
-      Array.prototype.forEach.call(contentBlocks, function (b) {
-        var match = b.getAttribute("data-faith-view-content") === contentKey;
+      const contentKey = view === "memorize" ? "memorize" : "reading";
+      Array.prototype.forEach.call(contentBlocks, (b) => {
+        const match = b.getAttribute("data-faith-view-content") === contentKey;
         if (match) b.removeAttribute("hidden");
         else b.setAttribute("hidden", "");
       });
-      var lds = document.querySelectorAll(".faith-lords-day-details");
+      const lds = document.querySelectorAll(".faith-lords-day-details");
       if (view === "section") {
         // In section view the Part containers themselves collapse.
         // Default each Part closed so the reader sees the three Part
         // headings before drilling in. LDs inside auto-open so the
         // Part reads continuously when the reader does open it.
-        Array.prototype.forEach.call(partSummaries, function (s) {
+        Array.prototype.forEach.call(partSummaries, (s) => {
           s.setAttribute("aria-expanded", "false");
-          var part = s.closest(".faith-heidelberg-part");
+          const part = s.closest(".faith-heidelberg-part");
           if (part) part.classList.remove("is-open");
         });
-        Array.prototype.forEach.call(lds, function (d) { d.open = true; });
+        Array.prototype.forEach.call(lds, (d) => { d.open = true; });
       } else if (view === "lords-day") {
         // Lord's Day view: Part containers are inert headers; LDs
         // collapse back to default so the reader picks one to read.
-        Array.prototype.forEach.call(partSummaries, function (s) {
+        Array.prototype.forEach.call(partSummaries, (s) => {
           s.setAttribute("aria-expanded", "true");
-          var part = s.closest(".faith-heidelberg-part");
+          const part = s.closest(".faith-heidelberg-part");
           if (part) part.classList.add("is-open");
         });
-        Array.prototype.forEach.call(lds, function (d) { d.open = false; });
+        Array.prototype.forEach.call(lds, (d) => { d.open = false; });
       }
     }
 
-    Array.prototype.forEach.call(tabs, function (t) {
-      t.addEventListener("click", function (e) {
+    Array.prototype.forEach.call(tabs, (t) => {
+      t.addEventListener("click", (e) => {
         e.preventDefault();
-        var view = t.getAttribute("data-faith-view-target");
+        const view = t.getAttribute("data-faith-view-target");
         if (view) setView(view);
       });
     });
 
     // Part summaries are clickable in section view, inert in LD view.
     // The CSS gates pointer-events; the JS handles the toggle.
-    Array.prototype.forEach.call(partSummaries, function (s) {
-      s.addEventListener("click", function () {
+    Array.prototype.forEach.call(partSummaries, (s) => {
+      s.addEventListener("click", () => {
         if (wrapper.getAttribute("data-faith-view") !== "section") return;
-        var part = s.closest(".faith-heidelberg-part");
+        const part = s.closest(".faith-heidelberg-part");
         if (!part) return;
-        var open = !part.classList.contains("is-open");
+        const open = !part.classList.contains("is-open");
         part.classList.toggle("is-open", open);
         s.setAttribute("aria-expanded", open ? "true" : "false");
       });
@@ -1157,23 +1157,23 @@
 
   function initAnchorOpener() {
     function openTarget() {
-      var hash = window.location.hash || "";
+      const hash = window.location.hash || "";
       if (!hash || hash.length < 2) return;
-      var id = hash.slice(1);
-      var node;
+      const id = hash.slice(1);
+      let node;
       try { node = document.getElementById(decodeURIComponent(id)); }
       catch (_) { node = document.getElementById(id); }
       if (!node) return;
       // Walk up: open every <details> ancestor (and the target itself
       // if it IS a <details>).
-      var cur = node;
+      let cur = node;
       while (cur && cur !== document.body) {
         if (cur.tagName === "DETAILS") cur.open = true;
         cur = cur.parentNode;
       }
       // Re-trigger scroll after open so the browser lands on the
       // element's new (post-open) position.
-      requestAnimationFrame(function () {
+      requestAnimationFrame(() => {
         try { node.scrollIntoView({ behavior: "smooth", block: "start" }); }
         catch (_) { node.scrollIntoView(); }
       });
@@ -1185,10 +1185,10 @@
     }
     // Intercept clicks on in-page anchor links (TOC items, scripture
     // refs, etc.) so the open-target runs before the scroll lands.
-    document.addEventListener("click", function (e) {
-      var a = e.target && e.target.closest && e.target.closest("a[href^='#']");
+    document.addEventListener("click", (e) => {
+      const a = e.target && e.target.closest && e.target.closest("a[href^='#']");
       if (!a) return;
-      var href = a.getAttribute("href") || "";
+      const href = a.getAttribute("href") || "";
       if (href.length < 2) return;
       // Let the browser handle history; we'll catch the hashchange.
       // But also pre-open synchronously so smooth scroll lands right.
@@ -1205,18 +1205,18 @@
   initPrintHandler();
 
   function initPrintHandler() {
-    var saved = null;
+    let saved = null;
     function openAll() {
-      var ds = document.querySelectorAll(".faith-doc details");
+      const ds = document.querySelectorAll(".faith-doc details");
       saved = [];
-      Array.prototype.forEach.call(ds, function (d) {
+      Array.prototype.forEach.call(ds, (d) => {
         saved.push({ node: d, wasOpen: d.open });
         d.open = true;
       });
     }
     function restore() {
       if (!saved) return;
-      saved.forEach(function (s) { s.node.open = s.wasOpen; });
+      saved.forEach((s) => { s.node.open = s.wasOpen; });
       saved = null;
     }
     window.addEventListener("beforeprint", openAll);
@@ -1225,9 +1225,9 @@
     // matchMedia as a fallback.
     if (window.matchMedia) {
       try {
-        var mq = window.matchMedia("print");
+        const mq = window.matchMedia("print");
         if (typeof mq.addEventListener === "function") {
-          mq.addEventListener("change", function (e) {
+          mq.addEventListener("change", (e) => {
             if (e.matches) openAll();
             else restore();
           });
@@ -1247,15 +1247,15 @@
   initModernizer();
 
   function initModernizer() {
-    var toggle = document.querySelector("[data-modernizer-toggle]");
+    const toggle = document.querySelector("[data-modernizer-toggle]");
     if (!toggle || !window.FaithModernize) return;
-    var FM = window.FaithModernize;
+    const FM = window.FaithModernize;
 
     // Targets: every prose-bearing element. We scope tightly to
     // avoid touching nav/UI text. The node walk inside each target
     // ignores nested element structure (e.g. verse-ref buttons stay
     // intact because we only modernize text nodes).
-    var elements = Array.prototype.slice.call(document.querySelectorAll(
+    const elements = Array.prototype.slice.call(document.querySelectorAll(
       ".faith-doc .faith-section-body p, " +
       ".faith-doc .faith-section-body li, " +
       ".faith-doc .faith-qa-answer p, " +
@@ -1268,8 +1268,8 @@
       ".faith-doc .faith-topic-row-body .faith-qa-answer p"
     ));
 
-    var hasArchaic = false;
-    elements.forEach(function (el) {
+    let hasArchaic = false;
+    elements.forEach((el) => {
       // Snapshot the original HTML once so we can flip back without
       // reading text we already mutated.
       el._faithOriginalHTML = el.innerHTML;
@@ -1278,14 +1278,14 @@
     if (!hasArchaic) return;
 
     toggle.hidden = false;
-    toggle.addEventListener("click", function () {
-      var nowOn = toggle.getAttribute("aria-pressed") !== "true";
+    toggle.addEventListener("click", () => {
+      const nowOn = toggle.getAttribute("aria-pressed") !== "true";
       toggle.setAttribute("aria-pressed", String(nowOn));
       document.body.classList.toggle("faith-modernized", nowOn);
-      var label = toggle.querySelector(".faith-modernizer-label");
+      const label = toggle.querySelector(".faith-modernizer-label");
       if (label) label.textContent = nowOn ? "Original language" : "Modernize language";
 
-      elements.forEach(function (el) {
+      elements.forEach((el) => {
         if (nowOn) {
           modernizeTextNodes(el);
         } else {
@@ -1300,17 +1300,17 @@
   // <em>, <strong>, <a>, etc.).
   function modernizeTextNodes(root) {
     if (!window.FaithModernize) return;
-    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
-    var node;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    let node;
     while ((node = walker.nextNode())) {
-      var modern = window.FaithModernize.modernizeText(node.nodeValue);
+      const modern = window.FaithModernize.modernizeText(node.nodeValue);
       if (modern !== node.nodeValue) node.nodeValue = modern;
     }
   }
 
   // ── helpers ────────────────────────────────────────────────────
   function escapeHtml(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }

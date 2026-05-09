@@ -8,16 +8,16 @@
  * 'load' guarantees the deferred tracker has installed the real
  * sender first.
  */
-window.addEventListener("load", function () {
+window.addEventListener("load", () => {
   if (!window.plausible) return;
-  var titleEl = document.querySelector(".article-title");
-  var title = titleEl ? titleEl.textContent.trim().slice(0, 200) : document.title;
+  const titleEl = document.querySelector(".article-title");
+  const title = titleEl ? titleEl.textContent.trim().slice(0, 200) : document.title;
 
-  var tagEls = document.querySelectorAll(".article-topic-tag[data-tag-slug]");
-  var primary_tag = "";
-  var author = "";
-  tagEls.forEach(function (el) {
-    var slug = el.getAttribute("data-tag-slug") || "";
+  const tagEls = document.querySelectorAll(".article-topic-tag[data-tag-slug]");
+  let primary_tag = "";
+  let author = "";
+  tagEls.forEach((el) => {
+    const slug = el.getAttribute("data-tag-slug") || "";
     if (!slug) return;
     if (slug.indexOf("author-") === 0) {
       if (!author) author = slug.replace(/^author-/, "");
@@ -27,6 +27,6 @@ window.addEventListener("load", function () {
   });
 
   window.plausible("Article Read", {
-    props: { title: title, primary_tag: primary_tag, author: author },
+    props: { title, primary_tag, author },
   });
 });

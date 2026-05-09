@@ -43,7 +43,7 @@
         // closure. Anonymous visitors get a plain fetch — Stripe
         // collects their email at checkout.
         const fetcher = isSignedIn ? window.MOAuth.fetch : window.fetch.bind(window);
-        const res = await fetcher(apiBase + '/api/create-lifetime-checkout', {
+        const res = await fetcher(`${apiBase}/api/create-lifetime-checkout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
