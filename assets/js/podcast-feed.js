@@ -283,7 +283,7 @@
     // punctuation mark (comma, period, etc.). No digits, brackets,
     // quotes, slashes, underscores, or `>` — all dead giveaways of
     // CSS / HTML fragments that leaked through broken parsing.
-    var PROSE = /^[A-Za-z][A-Za-z'‘’-]+[.,!?;:]?$/;
+    var PROSE = /^[A-Za-z][A-Za-z’’’-]*[.,!?;:]?$/;
     while (start < parts.length) {
       if (PROSE.test(parts[start])) break;
       start++;
