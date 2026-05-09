@@ -6151,6 +6151,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   padding-bottom: 16px;
   border-bottom: 1px solid var(--color-card-border);
 }
+.pod-show-name a { color: inherit; text-decoration: none; }
+.pod-show-name a:hover { color: var(--color-secondary, #c1593c); }
 .pod-show-ep-label {
   font-family: var(--font-body);
   font-size: 10px;
