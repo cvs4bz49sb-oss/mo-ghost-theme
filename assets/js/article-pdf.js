@@ -24,6 +24,7 @@
   link.addEventListener("click", function (e) {
     if (!hasPaidAccess()) {
       e.preventDefault();
+      // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
       window.location.href = "/membership/";
       return;
     }

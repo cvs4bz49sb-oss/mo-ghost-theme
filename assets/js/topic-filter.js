@@ -64,6 +64,7 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
           if (!data || !data.posts || !data.posts.length) {
+            // eslint-disable-next-line no-restricted-syntax -- href attr is theme-rendered, fallback is same-origin path literal
             window.location.href = pill.getAttribute("href") || ("/tag/" + tag + "/");
             return;
           }
@@ -72,6 +73,7 @@
           tagView.hidden = false;
         })
         .catch(function () {
+          // eslint-disable-next-line no-restricted-syntax -- href attr is theme-rendered, fallback is same-origin path literal
           window.location.href = pill.getAttribute("href") || ("/tag/" + tag + "/");
         });
     });

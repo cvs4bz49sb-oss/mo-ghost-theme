@@ -41,6 +41,7 @@
         console.error('MOSafeRedirect rejected:', url);
         throw new Error('Unexpected checkout redirect destination.');
       }
+      // eslint-disable-next-line no-restricted-syntax -- this IS the validated-redirect helper
       window.location.assign(url);
     },
   };

@@ -73,6 +73,7 @@
       successEl.hidden = false;
       // After 1.5 seconds, bounce the member to their dashboard so
       // they can see their benefits.
+      // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
       setTimeout(() => { window.location.assign('/dashboard/'); }, 1500);
     } catch (err) {
       errorEl.textContent = err.message || 'Something went wrong.';

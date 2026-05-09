@@ -22,6 +22,7 @@
   // pre-fetch of current state since we can't save bookmarks for them.
   if (!hasPaidAccess()) {
     btn.addEventListener("click", function () {
+      // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
       window.location.href = "/membership/";
     });
     return;

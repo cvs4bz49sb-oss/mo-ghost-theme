@@ -28,6 +28,7 @@
 
   trigger.addEventListener("click", function () {
     if (!hasPaidAccess()) {
+      // eslint-disable-next-line no-restricted-syntax -- same-origin path literal, not worker-supplied
       window.location.href = "/membership/";
       return;
     }

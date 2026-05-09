@@ -238,6 +238,7 @@
         // Validate scheme before navigating; a tampered worker
         // response with a javascript: URL here would XSS the visitor.
         var safeUrl = window.MOSafeHref.sanitize(currentResults[activeIndex].url);
+        // eslint-disable-next-line no-restricted-syntax -- already validated by MOSafeHref.sanitize above
         if (safeUrl) window.location.href = safeUrl;
       }
     } else if (e.key === "Escape") {

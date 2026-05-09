@@ -1,0 +1,28 @@
+name: Security Regression Lint
+
+# Runs ESLint with the security-focused ruleset in eslint.config.mjs
+# on every push and PR. Fails the build if any rule fires.
+#
+# Rules pinned today:
+#   - No `?email=` in URL/template literals (audit C3 regression guard)
+#   - No `window.MOAdminAuth` references (removed in D1; use MOAuth.fetch)
+#   - No direct `window.location` assignment (use MOSafeRedirect.go)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Lint
+        run: npm run lint
