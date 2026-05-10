@@ -844,6 +844,10 @@ const LIBRARY_BOOK_TITLES = {
     3: "De Sacrosancta Trinitate et Personis Divinis",
     4: "De Operibus Dei",
   },
+  "1928-bcp": {
+    1: "The Order for Daily Morning Prayer",
+    2: "The Order for Daily Evening Prayer",
+  },
 };
 
 function renderLibraryBooks(doc) {
@@ -859,7 +863,7 @@ function renderLibraryBooks(doc) {
   // editorial book titles ("Book I — Infancy and Boyhood") and a
   // chapter-count subtitle. Other library-books docs keep the
   // existing layout until the pattern is reviewed.
-  const useEditorial = doc.slug === "augustine-confessions" || doc.slug === "polanus-syntagma";
+  const useEditorial = doc.slug === "augustine-confessions" || doc.slug === "polanus-syntagma" || doc.slug === "1928-bcp";
   const allBooks = doc.books ?? [];
   const editorialTitles = LIBRARY_BOOK_TITLES[doc.slug] ?? {};
 
@@ -1195,6 +1199,7 @@ const TRADITION_TAGS = {
   "charnock-attributes":     ["reformed", "scholastic"],
   "polanus-syntagma":        ["reformed", "scholastic"],
   "rerum-novarum":           ["catholic"],
+  "1928-bcp":                ["anglican"],
 };
 
 // Only document JSONs go through the renderer. Underscore-prefixed
@@ -1991,6 +1996,26 @@ for (const file of files) {
   }
 }
 await writeFile(path.join(ASSET_DATA_DIR, "today.json"), JSON.stringify(todayPlan));
+
+// ── Prayer data (dashboard Daily Office) ────────────────────────
+// Slim version of the 1928-bcp.json with just title, subtitle,
+// paragraphs, and modernized arrays — what dashboard-prayer.js needs.
+const bcpPath = path.join(DATA_DIR, "1928-bcp.json");
+if ((await import("node:fs")).existsSync(bcpPath)) {
+  const bcp = JSON.parse(await readFile(bcpPath, "utf-8"));
+  const prayer = {
+    books: (bcp.books || []).map((b) => ({
+      bookTitle: b.bookTitle,
+      chapters: (b.chapters || []).map((c) => ({
+        title: c.title,
+        subtitle: c.subtitle,
+        paragraphs: c.paragraphs,
+        modernized: c.modernized,
+      })),
+    })),
+  };
+  await writeFile(path.join(ASSET_DATA_DIR, "prayer.json"), JSON.stringify(prayer));
+}
 
 // ── Devotional sources ──────────────────────────────────────────
 // For every document, expose a flat ordered sequence of "items" the

@@ -1,0 +1,44 @@
+{{!-- Dashboard prayer body — the Daily Office.
+     Morning Prayer shown before 4pm, Evening Prayer after.
+     JS handles office selection, section expansion, and language toggle.
+     Data is embedded inline as JSON; the JS reads it on load. --}}
+
+<section class="hero dashboard-hero dashboard-prayer-hero">
+  <div class="container">
+    <p class="hero-kicker"><span class="dot"></span> Daily Office</p>
+    <h1 class="hero-headline">
+      <span data-prayer-greeting>Morning</span> <span class="highlight"><em>Prayer</em></span>
+    </h1>
+    <p class="hero-sub" data-prayer-sub>From the 1928 Book of Common Prayer.</p>
+
+    <nav class="prayer-office-toggle" aria-label="Select office">
+      <button type="button" class="prayer-office-btn is-active" data-prayer-office="morning" aria-pressed="true">
+        <em>Morning Prayer</em>
+      </button>
+      <button type="button" class="prayer-office-btn" data-prayer-office="evening" aria-pressed="false">
+        <em>Evening Prayer</em>
+      </button>
+    </nav>
+  </div>
+</section>
+
+<section class="dashboard-body prayer-body">
+  <div class="container container-narrow">
+
+    <div class="prayer-controls">
+      <button type="button" class="prayer-lang-toggle" data-prayer-lang-toggle aria-pressed="true">
+        <span class="prayer-lang-label" data-prayer-lang-label>Modern English</span>
+      </button>
+      <a href="/the-faith-received/1928-bcp/" class="prayer-source-link">Read full text &rarr;</a>
+    </div>
+
+    <div class="prayer-sections" data-prayer-sections>
+      <p class="prayer-loading">Loading the Daily Office&hellip;</p>
+    </div>
+
+    <div class="prayer-back">
+      <a href="/dashboard/">&larr; Back to Dashboard</a>
+    </div>
+
+  </div>
+</section>

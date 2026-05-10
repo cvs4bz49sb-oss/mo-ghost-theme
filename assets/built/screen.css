@@ -13875,6 +13875,176 @@ body[class*="lc-"] .article-header::before {
   color: var(--color-muted);
 }
 
+/* ── Dashboard Prayer (Daily Office) ─────────────────────────── */
+.dashboard-prayer-hero { text-align: center; }
+
+.prayer-office-toggle {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 24px;
+}
+.prayer-office-btn {
+  font-family: var(--font-display);
+  font-size: 15px;
+  padding: 8px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.prayer-office-btn.is-active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.prayer-office-btn:hover:not(.is-active) {
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.prayer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.prayer-lang-toggle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  background: none;
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.prayer-lang-toggle:hover {
+  color: var(--color-dark);
+  border-color: var(--color-dark);
+}
+.prayer-lang-toggle[aria-pressed="false"] {
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+.prayer-source-link {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.prayer-source-link:hover { color: var(--color-secondary); }
+
+/* Section collapsibles */
+.prayer-section {
+  border-bottom: 1px solid var(--color-card-border);
+}
+.prayer-section-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  cursor: pointer;
+  list-style: none;
+}
+.prayer-section-summary::-webkit-details-marker { display: none; }
+.prayer-section-summary::marker { display: none; content: ""; }
+.prayer-section-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+  color: var(--color-dark);
+}
+.prayer-section-subtitle {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: normal;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+.prayer-section-chev {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-right: 1.5px solid var(--color-muted);
+  border-bottom: 1.5px solid var(--color-muted);
+  transform: rotate(45deg);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+.prayer-section[open] > .prayer-section-summary .prayer-section-chev {
+  transform: rotate(-135deg);
+}
+
+/* Prayer text */
+.prayer-section-body {
+  padding: 0 0 24px;
+}
+.prayer-section-body p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+}
+.prayer-section-body p:last-child { margin-bottom: 0; }
+
+/* Versicle / Response styling */
+.prayer-versicle {
+  color: var(--color-muted) !important;
+  font-style: italic;
+}
+.prayer-response {
+  margin-left: 24px !important;
+}
+
+/* Canticle verse lines */
+.prayer-verse {
+  padding-left: 20px;
+  text-indent: -20px;
+}
+
+/* Loading / error */
+.prayer-loading,
+.prayer-error {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  text-align: center;
+  padding: 48px 0;
+}
+.prayer-error a { color: var(--color-secondary); }
+
+/* Back link */
+.prayer-back {
+  padding: 32px 0;
+  text-align: center;
+}
+.prayer-back a {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.prayer-back a:hover { color: var(--color-secondary); }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .prayer-office-toggle { flex-direction: column; align-items: center; }
+  .prayer-office-btn { width: 200px; }
+  .prayer-controls { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .prayer-section-title { font-size: 16px; }
+  .prayer-section-body p { font-size: 15px; }
+}
+
 /* ── Faith Gate (password overlay) ────────────────────────────── */
 .faith-gate {
   position: fixed;

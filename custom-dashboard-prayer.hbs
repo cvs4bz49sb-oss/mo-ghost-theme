@@ -1,0 +1,38 @@
+{{!< default}}
+{{!-- /dashboard/prayer/ — Daily Office from the 1928 BCP.
+     Shows Morning Prayer (before 4pm) or Evening Prayer (after 4pm)
+     with a toggle to switch. Uses modernized text by default with
+     a toggle for original language. Member-gated. --}}
+
+<main class="dashboard dashboard-prayer-page">
+
+  {{#unless @member}}
+    <section class="hero dashboard-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Daily Office</p>
+        <h1 class="hero-headline">Sign in to pray the <span class="highlight"><em>Daily Office</em></span>.</h1>
+        <p class="dashboard-actions">
+          <a href="#/portal/signin" class="btn btn-primary" data-portal="signin">Sign in</a>
+          <a href="/membership/" class="btn btn-ghost">Become a Member</a>
+        </p>
+      </div>
+    </section>
+  {{else}}
+
+    {{#match @member.status "paid"}}{{> "dashboard-prayer-body"}}{{else}}
+    {{#match @member.status "comped"}}{{> "dashboard-prayer-body"}}{{else}}
+      <section class="hero dashboard-hero">
+        <div class="container">
+          <p class="hero-kicker"><span class="dot"></span> Daily Office</p>
+          <h1 class="hero-headline">The Daily Office is a <span class="highlight"><em>member feature</em></span>.</h1>
+          <p class="dashboard-actions"><a href="/membership/" class="btn btn-primary">Become a Member</a></p>
+        </div>
+      </section>
+    {{/match}}
+    {{/match}}
+
+  {{/unless}}
+
+</main>
+
+<script src="{{asset "js/dashboard-prayer.js"}}"></script>
