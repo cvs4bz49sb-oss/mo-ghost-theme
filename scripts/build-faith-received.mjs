@@ -903,6 +903,26 @@ function renderLibraryBooks(doc) {
       chapters = c
         ? `<div class="faith-front-matter-body article-content">${paragraphsArray(c.paragraphs)}</div>`
         : "";
+    } else if (opts.prayerCards) {
+      // Compact prayer-card layout: many short items rendered as
+      // mini collapsibles (title-only summary, no eyebrow numeral).
+      // Used for Prayers & Thanksgivings where each prayer is its
+      // own chapter but the content is typically 1–2 paragraphs.
+      chapters = `<div class="faith-prayer-cards">${
+        (b.chapters ?? []).map((c) => {
+          const chId = `book-${b.bookNumber}-chapter-${c.number}`;
+          return `
+              <details class="faith-prayer-card" id="${chId}">
+                <summary class="faith-prayer-card-summary">
+                  <span class="faith-prayer-card-title">${escape(smarten(titleFor(c)))}</span>
+                  <span class="faith-chev faith-prayer-card-chev" aria-hidden="true"></span>
+                </summary>
+                <div class="faith-prayer-card-body article-content">
+                  ${paragraphsArray(c.paragraphs)}
+                </div>
+              </details>`;
+        }).join("")
+      }</div>`;
     } else {
       chapters = (b.chapters ?? []).map((c) => {
         const chId = b.bookNumber === 0
@@ -999,8 +1019,17 @@ function renderLibraryBooks(doc) {
         </section>`
       : "";
 
+    // Books with many short chapters (like Prayers & Thanksgivings)
+    // render as compact prayer cards instead of full chapter details.
+    const PRAYER_CARD_BOOKS = { "1928-bcp": [4] };
+    const prayerCardSet = new Set(PRAYER_CARD_BOOKS[doc.slug] ?? []);
+
     const numberedBodies = numberedBooks.map((b) =>
-      renderBookCollapsible(b, { editorial: true, idx: 0 })
+      renderBookCollapsible(b, {
+        editorial: true,
+        idx: 0,
+        prayerCards: prayerCardSet.has(b.bookNumber),
+      })
     ).join("\n");
 
     bodyHtml = `${frontSection}

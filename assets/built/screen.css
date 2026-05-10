@@ -11469,6 +11469,58 @@ body.mo-search-open { overflow: hidden; }
 .faith-book .faith-book-chapter .faith-section-numeral { margin-bottom: 4px; }
 .faith-book .faith-book-chapter .faith-section-title { font-size: clamp(22px, 2.4vw, 28px); }
 
+/* ── Prayer cards: compact collapsible sub-cards ───────────────
+   Used inside books with many short chapters (e.g. Prayers &
+   Thanksgivings). Each prayer is a mini collapsible with just a
+   title row — no eyebrow numeral, tighter spacing. */
+.faith-prayer-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.faith-prayer-card {
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-prayer-card:first-child {
+  border-top: 1px solid var(--color-card-border);
+}
+.faith-prayer-card-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  cursor: pointer;
+  list-style: none;
+  gap: 12px;
+}
+.faith-prayer-card-summary::-webkit-details-marker { display: none; }
+.faith-prayer-card-title {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2vw, 19px);
+  font-weight: 500;
+  color: var(--color-dark);
+  line-height: 1.35;
+}
+.faith-prayer-card-summary:hover .faith-prayer-card-title {
+  color: var(--color-secondary);
+}
+.faith-prayer-card-chev {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+.faith-prayer-card[open] .faith-prayer-card-chev {
+  transform: rotate(90deg);
+}
+.faith-prayer-card-body {
+  padding: 0 0 20px;
+  font-size: clamp(15px, 1.8vw, 17px);
+  line-height: 1.7;
+}
+.faith-prayer-card-body p { margin-bottom: 12px; }
+.faith-prayer-card-body p:last-child { margin-bottom: 0; }
+
 /* ── Document layout: left-anchored sidebar + reading column ───
    Matches the original TFR: sidebar is fixed at the left edge of
    the viewport (not sat inside a centered max-width container).
