@@ -1258,6 +1258,8 @@
     const elements = Array.prototype.slice.call(document.querySelectorAll(
       ".faith-doc .faith-section-body p, " +
       ".faith-doc .faith-section-body li, " +
+      ".faith-doc .faith-prayer-card-body p, " +
+      ".faith-doc .faith-prayer-card-body li, " +
       ".faith-doc .faith-qa-answer p, " +
       ".faith-doc .faith-qa-question, " +
       ".faith-doc .faith-edwards-text, " +
