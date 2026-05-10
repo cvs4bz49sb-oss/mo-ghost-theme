@@ -847,6 +847,28 @@ const LIBRARY_BOOK_TITLES = {
   "1928-bcp": {
     1: "The Order for Daily Morning Prayer",
     2: "The Order for Daily Evening Prayer",
+    3: "The Litany, or General Supplication",
+    4: "Prayers and Thanksgivings",
+    5: "The Order for Holy Communion",
+    6: "The Ministration of Holy Baptism",
+    7: "The Catechism",
+    8: "Offices of Instruction",
+    9: "The Order of Confirmation",
+    10: "The Form of Solemnization of Matrimony",
+    11: "The Visitation of the Sick",
+    12: "The Communion of the Sick",
+    13: "The Order for the Burial of the Dead",
+    14: "The Burial of a Child",
+    15: "A Penitential Office for Ash Wednesday",
+    16: "Forms of Prayer for Families",
+    17: "The Thanksgiving of Women After Child-birth",
+    18: "The Form and Manner of Making Deacons",
+    19: "The Form and Manner of Ordering Priests",
+    20: "The Form of Consecrating a Bishop",
+    21: "A Litany for Ordinations",
+    22: "The Consecration of a Church or Chapel",
+    23: "The Institution of Ministers",
+    24: "The Psalter, or Psalms of David",
   },
 };
 
@@ -2003,8 +2025,12 @@ await writeFile(path.join(ASSET_DATA_DIR, "today.json"), JSON.stringify(todayPla
 const bcpPath = path.join(DATA_DIR, "1928-bcp.json");
 if ((await import("node:fs")).existsSync(bcpPath)) {
   const bcp = JSON.parse(await readFile(bcpPath, "utf-8"));
+  // Only include Morning Prayer and Evening Prayer for the dashboard
+  const officeBooks = (bcp.books || []).filter(
+    (b) => b.bookTitle === "Morning Prayer" || b.bookTitle === "Evening Prayer"
+  );
   const prayer = {
-    books: (bcp.books || []).map((b) => ({
+    books: officeBooks.map((b) => ({
       bookTitle: b.bookTitle,
       chapters: (b.chapters || []).map((c) => ({
         title: c.title,
