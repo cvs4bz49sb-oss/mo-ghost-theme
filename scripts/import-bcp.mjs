@@ -458,6 +458,122 @@ async function parseGenericSection(filename) {
   return [makeChapter(1, "The Rite", null, paras)];
 }
 
+// ── Parse Prayers and Thanksgivings ──────────────────────────────
+// Each prayer/collect/thanksgiving becomes its own chapter so
+// the editorial layout renders them as scannable collapsible cards.
+
+async function parsePrayersThanksgivings() {
+  const text = await readSourceFile("1928-bcp-prayers-thanksgivings.txt");
+  const chapters = [];
+  let chNum = 1;
+
+  // Title patterns: short lines ending with a period that precede prayer body
+  // Some titles wrap across lines in the source (e.g., "Memorial\nDays.")
+  // Strategy: join paragraphs, then split on known title patterns.
+
+  // First, rejoin multi-line titles. These are short consecutive lines
+  // that together form a heading (e.g. "For a Sick\nPerson.")
+  // Also handle "Memorial\nDays." and "For Every\nMan in his Work."
+  const joined = text
+    .replace(/^(Memorial)\n(Days\.)$/gm, "$1 $2")
+    .replace(/^((?:For|In|A |The )[^\n]{0,40})\n([a-z][^\n]{0,40}\.)$/gm, "$1 $2")
+    .replace(/^((?:For|In|A |The )[^\n]{0,40})\n([A-Z][^\n]{0,30})\n([a-z][^\n]{0,40}\.?)$/gm, "$1 $2 $3");
+
+  // Split on double-newlines to get paragraph blocks
+  const blocks = joined.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+
+  // Title detection: a paragraph is a prayer title if it's short and
+  // matches common patterns
+  function isTitle(block) {
+    if (block.length > 120) return false;
+    if (/^(?:For |In Time of |A Prayer |A Thanksgiving |A Bidding |Memorial |COLLECTS|THANKSGIVINGS|PRAYERS)/i.test(block)) return true;
+    if (/^(?:Or this)\.\s*$/i.test(block)) return false; // "Or this." is not a standalone title
+    return false;
+  }
+
+  // Rubric detection: "To be used..." lines that appear after titles
+  function isRubric(block) {
+    return block.length < 200 && /^To be used |^To be said |^And NOTE/i.test(block);
+  }
+
+  // Section header detection (PRAYERS., COLLECTS., THANKSGIVINGS.)
+  function isSectionHeader(block) {
+    return /^(?:PRAYERS|COLLECTS|THANKSGIVINGS)\b/i.test(block);
+  }
+
+  let currentTitle = null;
+  let currentSubtitle = null;
+  let currentBody = [];
+  let sectionLabel = "Prayers"; // tracks which major section we're in
+
+  function flush() {
+    if (currentTitle && currentBody.length > 0) {
+      // Prefix thanksgivings with section label for clarity
+      const prefix = sectionLabel === "Thanksgivings" ? "Thanksgiving: " :
+                     sectionLabel === "Collects" ? "" : "";
+      const title = prefix + currentTitle.replace(/\.\s*$/, "");
+      chapters.push(makeChapter(chNum++, title, currentSubtitle, currentBody));
+    }
+    currentTitle = null;
+    currentSubtitle = null;
+    currentBody = [];
+  }
+
+  for (const block of blocks) {
+    // Track major section changes
+    if (isSectionHeader(block)) {
+      flush();
+      if (/^COLLECTS/i.test(block)) {
+        sectionLabel = "Collects";
+        // Collects have no individual titles — create one chapter for all
+        currentTitle = "Collects";
+      } else if (/^THANKSGIVINGS/i.test(block)) {
+        sectionLabel = "Thanksgivings";
+      } else {
+        sectionLabel = "Prayers";
+      }
+      continue;
+    }
+
+    // "Or this." — add the following prayer as an alternative in the same chapter
+    if (/^Or this\.\s*$/i.test(block)) {
+      currentBody.push("Or this:");
+      continue;
+    }
+
+    if (isTitle(block)) {
+      flush();
+      // Clean up the title
+      currentTitle = block
+        .replace(/\s+/g, " ")
+        .trim();
+      continue;
+    }
+
+    if (isRubric(block) && currentBody.length === 0) {
+      // Rubric right after a title becomes the subtitle
+      currentSubtitle = block.replace(/\s+/g, " ").trim();
+      continue;
+    }
+
+    // Everything else is prayer body text
+    if (currentTitle) {
+      currentBody.push(block);
+    }
+    // else: skip pre-title rubrics and section intros
+  }
+  flush();
+
+  // Handle Collects specially — they don't have individual titles in the BCP,
+  // they're just a sequence of short prayers. If we have a Collects section
+  // with no sub-titles, split each "Amen." boundary into a separate collect.
+  const collectStart = chapters.findIndex((c) => c.title === "Introduction" && chapters.indexOf(c) > 10);
+  // Actually, let's just check if collects ended up as one big chapter
+  // and leave them as-is since they're already short.
+
+  return chapters;
+}
+
 // ── Parse Psalter ────────────────────────────────────────────────
 // Splits into 30 chapters (one per day), each containing
 // all psalms for that day's Morning and Evening Prayer.
@@ -535,7 +651,7 @@ const epChapters = await parseEveningPrayer();
 // Build all the remaining sections
 const sections = [
   { file: "1928-bcp-litany.txt", title: "The Litany", parser: "generic" },
-  { file: "1928-bcp-prayers-thanksgivings.txt", title: "Prayers and Thanksgivings", parser: "generic" },
+  { file: "1928-bcp-prayers-thanksgivings.txt", title: "Prayers and Thanksgivings", parser: "prayers" },
   { file: "1928-bcp-holy-communion.txt", title: "The Holy Communion", parser: "generic" },
   { file: "1928-bcp-baptism.txt", title: "Holy Baptism", parser: "generic" },
   { file: "1928-bcp-catechism.txt", title: "The Catechism", parser: "generic" },
@@ -568,6 +684,8 @@ for (const sect of sections) {
   try {
     if (sect.parser === "family") {
       chapters = await parseFamilyPrayer();
+    } else if (sect.parser === "prayers") {
+      chapters = await parsePrayersThanksgivings();
     } else {
       chapters = await parseGenericSection(sect.file);
     }
