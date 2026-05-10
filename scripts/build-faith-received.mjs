@@ -242,7 +242,6 @@ function readingControls(doc) {
   const expandPart = collapsible
     ? `
     <button type="button" class="faith-toggle-switch" data-faith-expand-toggle aria-pressed="false">
-      <span class="faith-toggle-track"><span class="faith-toggle-thumb"></span></span>
       <span class="faith-toggle-label" data-off="Collapsed" data-on="Expanded">Collapsed</span>
     </button>`
     : "";
@@ -259,8 +258,7 @@ function readingControls(doc) {
   return `
   <div class="faith-reading-controls" data-faith-controls>${expandPart}
     <button type="button" class="faith-toggle-switch faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
-      <span class="faith-toggle-track"><span class="faith-toggle-thumb"></span></span>
-      <span class="faith-toggle-label faith-modernizer-label" data-off="Original" data-on="Modern">Original</span>
+      <span class="faith-toggle-label faith-modernizer-label" data-off="Original" data-on="Modern English">Original</span>
     </button>${memorizePart}
   </div>`;
 }
