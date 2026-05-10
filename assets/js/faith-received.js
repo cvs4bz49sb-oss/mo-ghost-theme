@@ -1040,23 +1040,21 @@
   initReadingControls();
 
   function initReadingControls() {
-    const controls = document.querySelector("[data-faith-controls]");
+    var controls = document.querySelector("[data-faith-controls]");
     if (!controls) return;
-    const details = function () {
+    var details = function () {
       return Array.prototype.slice.call(
         document.querySelectorAll(".faith-doc-body .faith-section-details")
       );
     };
-    const expand = controls.querySelector("[data-faith-expand-all]");
-    const collapse = controls.querySelector("[data-faith-collapse-all]");
-    if (expand) {
-      expand.addEventListener("click", () => {
-        details().forEach((d) => { d.open = true; });
-      });
-    }
-    if (collapse) {
-      collapse.addEventListener("click", () => {
-        details().forEach((d) => { d.open = false; });
+    var toggle = controls.querySelector("[data-faith-expand-toggle]");
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        var expanded = toggle.getAttribute("aria-pressed") !== "true";
+        toggle.setAttribute("aria-pressed", String(expanded));
+        var label = toggle.querySelector(".faith-toggle-label");
+        if (label) label.textContent = expanded ? label.dataset.on : label.dataset.off;
+        details().forEach(function (d) { d.open = expanded; });
       });
     }
   }
@@ -1280,14 +1278,14 @@
     if (!hasArchaic) return;
 
     toggle.hidden = false;
-    toggle.addEventListener("click", () => {
-      const nowOn = toggle.getAttribute("aria-pressed") !== "true";
+    toggle.addEventListener("click", function () {
+      var nowOn = toggle.getAttribute("aria-pressed") !== "true";
       toggle.setAttribute("aria-pressed", String(nowOn));
       document.body.classList.toggle("faith-modernized", nowOn);
-      const label = toggle.querySelector(".faith-modernizer-label");
-      if (label) label.textContent = nowOn ? "Original language" : "Modernize language";
+      var label = toggle.querySelector(".faith-toggle-label");
+      if (label) label.textContent = nowOn ? label.dataset.on : label.dataset.off;
 
-      elements.forEach((el) => {
+      elements.forEach(function (el) {
         if (nowOn) {
           modernizeTextNodes(el);
         } else {

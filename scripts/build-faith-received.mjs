@@ -241,10 +241,10 @@ function readingControls(doc) {
   const collapsible = isCollapsible(doc);
   const expandPart = collapsible
     ? `
-    <button type="button" class="faith-reading-control" data-faith-expand-all>Expand all</button>
-    <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>
-    <button type="button" class="faith-reading-control" data-faith-collapse-all>Collapse all</button>
-    <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>`
+    <button type="button" class="faith-toggle-switch" data-faith-expand-toggle aria-pressed="false">
+      <span class="faith-toggle-track"><span class="faith-toggle-thumb"></span></span>
+      <span class="faith-toggle-label" data-off="Collapsed" data-on="Expanded">Collapsed</span>
+    </button>`
     : "";
   // Q&A docs (heidelberg + qa kinds) get a dedicated "Memorize" link
   // pointing at /the-faith-received/{slug}/memorize/. The link doesn't
@@ -254,15 +254,14 @@ function readingControls(doc) {
   const memorizePart =
     (doc.kind === "qa" || (doc.kind === "heidelberg" && doc.slug !== "heidelberg"))
       ? `
-    <a class="faith-reading-control faith-reading-control--link" href="/the-faith-received/${doc.slug}/memorize/">Memorize</a>
-    <span class="faith-reading-controls-sep" aria-hidden="true">&middot;</span>`
+    <a class="faith-reading-control faith-reading-control--link" href="/the-faith-received/${doc.slug}/memorize/">Memorize</a>`
       : "";
   return `
-  <div class="faith-reading-controls" data-faith-controls>
-    <span class="faith-reading-controls-label">Reading</span>${expandPart}${memorizePart}
-    <button type="button" class="faith-reading-control faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
-      <span class="faith-modernizer-label">Modernize language</span>
-    </button>
+  <div class="faith-reading-controls" data-faith-controls>${expandPart}
+    <button type="button" class="faith-toggle-switch faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
+      <span class="faith-toggle-track"><span class="faith-toggle-thumb"></span></span>
+      <span class="faith-toggle-label faith-modernizer-label" data-off="Original" data-on="Modern">Original</span>
+    </button>${memorizePart}
   </div>`;
 }
 
