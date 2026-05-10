@@ -125,6 +125,21 @@
     <script src="{{asset "js/boot/liturgical-class.js"}}"></script>
     <script src="{{asset "js/boot/mo-api-base.js"}}"></script>
 
+    {{!-- admin-auth + safe-href MUST load before {{{body}}} below.
+         Page templates (custom-dashboard.hbs, custom-bookmarks.hbs,
+         etc.) include their own <script> tags inside {{{body}}}, and
+         those scripts call window.MOAuth.fetch / window.MOSafeHref.set
+         synchronously on load. If admin-auth.js is loaded later in
+         default.hbs (after {{{body}}}), the page-template scripts run
+         first and throw "Cannot read properties of undefined (reading
+         'fetch')" — and because that throw happens before a Promise
+         is even constructed, the .catch handlers in dashboard.js
+         never fire and modules stay stuck on their "Loading…"
+         placeholder. See HANDOFF_3.1 for the full debug chain. --}}
+    <script src="{{asset "js/admin-auth.js"}}"></script>
+    <script src="{{asset "js/lib/safe-href.js"}}"></script>
+    <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
+
     <header class="site-header">
         <div class="container header-inner">
             <a href="{{@site.url}}" class="brand" aria-label="{{@site.title}} home">
@@ -288,23 +303,12 @@
     <script src="{{asset "js/boot/breadcrumb-schema.js"}}"></script>
     <script src="{{asset "js/site-settings.js"}}"></script>
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
-    {{!-- admin-auth.js exposes window.MOAuth.fetch — a closure-private
-         JWT helper. The Ghost member token (fetched on demand from
-         /members/api/session/) lives in a closure, never on `window`,
-         so an XSS can't extract the bearer. The single public method
-         is window.MOAuth.fetch(url, init) which delegates to fetch
-         after attaching Authorization. Loaded globally so any
-         page-level script can call worker APIs as the signed-in
-         member. --}}
-    <script src="{{asset "js/admin-auth.js"}}"></script>
-    {{!-- safe-href.js exposes window.MOSafeHref. Loaded globally so
-         any script that assigns <a>.href from worker/API/user data
-         can validate the URL is on an allowed scheme (http(s),
-         mailto, tel, or path-relative) and reject javascript:/data:
-         URIs. Counterpart to MOSafeRedirect (which is for full-page
-         navigation). See assets/js/lib/safe-href.js. --}}
-    <script src="{{asset "js/lib/safe-href.js"}}"></script>
-    <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
+    {{!-- admin-auth.js (window.MOAuth.fetch) and the safe-href pair
+         (window.MOSafeHref / window.MOSafeRedirect) are loaded earlier,
+         right after the boot scripts and BEFORE {{{body}}} — see the
+         comment at the top of <body> for why. Don't move them back
+         down here without also wrapping every page-template hydration
+         script in a "wait for window.MOAuth" guard. --}}
     <script src="{{asset "js/inline-signup.js"}}"></script>
     <script src="{{asset "js/kit-events.js"}}"></script>
     <script src="{{asset "js/dark-mode.js"}}"></script>
