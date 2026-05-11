@@ -2050,6 +2050,16 @@ for (const file of files) {
       if (!r.number) continue;
       tag(r.number, `resolution-${r.number}`, `${doc.title} · Resolution ${r.number}`);
     }
+  } else if (doc.kind === "library-chapters") {
+    for (const c of doc.chapters ?? []) tag(c.number, `chapter-${c.number}`, `${doc.title} · ${c.title || 'Chapter ' + c.number}`);
+  } else if (doc.kind === "library-sections") {
+    for (const s of doc.sections ?? []) tag(s.number ?? 1, `section-${s.number ?? 1}`, `${doc.title}`);
+  } else if (doc.kind === "library-books") {
+    for (const b of doc.books ?? []) {
+      for (const c of b.chapters ?? []) {
+        tag(c.number, `book-${b.bookNumber}-ch-${c.number}`, `${doc.title} · ${b.bookTitle || 'Book ' + b.bookNumber} · ${c.title || 'Chapter ' + c.number}`);
+      }
+    }
   }
 }
 await writeFile(path.join(ASSET_DATA_DIR, "today.json"), JSON.stringify(todayPlan));
@@ -2152,11 +2162,15 @@ await writeFile(
 );
 
 // Scripture index — copy from the source repo if present, and replace
-// each ref's truncated excerpt with the full source text so the
-// Scripture page can show the whole passage. The upstream TFR site
-// truncates excerpts to ~120 chars; we want the entire Q&A answer,
-// section paragraph, article text, etc. Fall back to the original
-// truncated value when we can't resolve the source.
+// each ref's truncated excerpt with a fuller (but still bounded)
+// snippet. Cap at ~250 chars to keep the JSON loadable in-browser.
+function truncateExcerpt(text, max = 250) {
+  if (!text) return "";
+  const s = String(text).replace(/\s+/g, " ").trim();
+  if (s.length <= max) return s;
+  const cut = s.lastIndexOf(" ", max);
+  return s.slice(0, cut > 0 ? cut : max) + "…";
+}
 const SCRIPTURE_SRC = "/Users/ianharber/Dropbox/Mac (2)/Documents/Claude Code Files/the-faith-received/data/scripture-index.json";
 
 function fullPlainText(doc, type, id) {
@@ -2239,9 +2253,10 @@ try {
       const doc = await getDoc(ref.source || "");
       const full = fullPlainText(doc, ref.type, ref.id);
       if (full && full.length > (ref.excerpt || "").length) {
-        ref.excerpt = full;
+        ref.excerpt = truncateExcerpt(full);
         replaced++;
       } else {
+        ref.excerpt = truncateExcerpt(ref.excerpt || "");
         kept++;
       }
     }
@@ -2346,10 +2361,10 @@ try {
     return found;
   }
 
-  // Auto-scan slug list. Add new slugs here as their bodies become
-  // index-eligible (i.e. their content isn't already in the upstream
-  // scripture-index.json).
-  const AUTO_SCAN_SLUGS = ["polanus-syntagma"];
+  // Auto-scan ALL library docs for scripture references.
+  const AUTO_SCAN_SLUGS = manifest
+    .filter((m) => m.category === "library")
+    .map((m) => m.slug);
   let added = 0;
   for (const slug of AUTO_SCAN_SLUGS) {
     const doc = await getDoc(slug);
@@ -2395,7 +2410,7 @@ try {
           type: ch.type,
           id: ch.id,
           title: ch.title,
-          excerpt: ch.text,
+          excerpt: truncateExcerpt(ch.text),
         });
         added++;
       }
