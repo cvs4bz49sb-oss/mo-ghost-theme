@@ -48,12 +48,20 @@
         if (!data || typeof data.url !== "string" || !data.url) {
           throw new Error("sign returned no url");
         }
-        // Validate the URL the worker returned — defense in depth.
-        // MOSafeHref rejects javascript:/data:/file: schemes. If the
-        // worker is ever compromised, we don't want it returning
-        // `javascript:alert(1)` into an <audio src=>.
-        const safeUrl = window.MOSafeHref && window.MOSafeHref.sanitize(data.url);
-        if (!safeUrl) throw new Error("sign returned unsafe url");
+        // Strict check: must be HTTPS on the audio worker host.
+        // Defense in depth — if the worker is ever compromised, we
+        // don't want it returning javascript:alert(1) into <audio src>
+        // or a URL pointing somewhere off-host.
+        const safeUrl = (function validateAudioSignUrl(raw) {
+          try {
+            const u = new URL(raw);
+            if (u.protocol !== "https:") return null;
+            const expected = new URL(base, window.location.origin);
+            if (u.host !== expected.host) return null;
+            return u.toString();
+          } catch (_) { return null; }
+        })(data.url);
+        if (!safeUrl) throw new Error("sign returned unsafe or off-host url");
         buildPlayer(wrap, trigger, safeUrl, { title, author, image });
       })
       .catch((err) => {

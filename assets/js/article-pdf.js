@@ -22,19 +22,6 @@
   if (!postId) return;
 
   link.addEventListener("click", (e) => {
-    // Bypass on programmatic re-click — see end of this handler for
-    // why. The dataset flag is consumed (deleted) on the way through
-    // so the next user click re-mints a fresh signed URL (the cached
-    // one expires after 4h).
-    //
-    // Codex audit P1 (second pass): without this bypass, link.click()
-    // at the end of the then() re-enters the same handler, hits
-    // preventDefault again, and mints another URL → infinite sign
-    // loop, no download.
-    if (link.dataset.moSigned === "1") {
-      delete link.dataset.moSigned;
-      return; // let the browser navigate to the signed href
-    }
     if (!hasPaidAccess()) {
       e.preventDefault();
       // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
@@ -59,23 +46,42 @@
         if (!data || typeof data.url !== "string" || !data.url) {
           throw new Error("sign returned no url");
         }
-        // Validate the URL the worker returned. MOSafeHref rejects
-        // javascript:/data:/file: schemes. Defense in depth — the
-        // worker MUST return its own host, but if it's ever
-        // compromised we don't want it returning javascript:alert(1)
-        // and us setting that on link.href.
-        const safeUrl = window.MOSafeHref && window.MOSafeHref.sanitize(data.url);
-        if (!safeUrl) throw new Error("sign returned unsafe url");
-        link.setAttribute("href", safeUrl);
-        if (slug) link.setAttribute("download", `${slug}.pdf`);
-        link.textContent = prevText;
-        link.style.pointerEvents = "";
-        // Programmatic re-click. The bypass flag at the top of this
-        // handler ensures the listener short-circuits and lets the
-        // browser handle the navigation natively — Content-Disposition
-        // + the download attribute give the pretty filename.
-        link.dataset.moSigned = "1";
-        link.click();
+        // Validate the URL the worker returned. Strict check: must
+        // be an HTTPS URL on the mo-pdf worker host. If the worker
+        // is ever compromised, we don't want it returning
+        // javascript:/data:/mailto: or a URL pointing somewhere
+        // else and us navigating to it.
+        const safeUrl = (function validatePdfSignUrl(raw) {
+          if (typeof raw !== "string" || !raw) return null;
+          try {
+            const u = new URL(raw);
+            if (u.protocol !== "https:") return null;
+            const expected = new URL(PDF_WORKER_BASE);
+            if (u.host !== expected.host) return null;
+            return u.toString();
+          } catch (_) { return null; }
+        })(data.url);
+        if (!safeUrl) throw new Error("sign returned unsafe or off-host url");
+        // Navigate directly via window.location.href rather than
+        // programmatic link.click(). Programmatic clicks from async
+        // promise chains can lose "transient user activation" in
+        // some browsers (especially Safari/iOS), silently failing
+        // to trigger navigation. Direct location assignment doesn't
+        // need the user-gesture context.
+        //
+        // Cross-origin <a download> is ignored per HTML spec, so
+        // the download attribute on the original link would never
+        // have forced a save dialog anyway. The worker returns
+        // Content-Disposition: inline + correct content-type, so
+        // the browser opens the PDF in its native viewer. Browser's
+        // built-in save button works from there.
+        //
+        // This also eliminates the click-recursion bug that Codex
+        // pass-2 caught in the link.click() version (and the
+        // bypass-flag workaround it required).
+        //
+        // eslint-disable-next-line no-restricted-syntax -- safeUrl already host-validated against PDF_WORKER_BASE above; MOSafeHref.sanitize would be looser (allows other schemes)
+        window.location.href = safeUrl;
       })
       .catch((err) => {
         console.error("pdf sign failed", err);
