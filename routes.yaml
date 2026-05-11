@@ -245,6 +245,97 @@ routes:
     template: custom-faith-rerum-novarum
   /the-faith-received/1928-bcp/:
     template: custom-faith-1928-bcp
+  # ── Ante-Nicene Fathers (Vols I–III) ──────────────────────────
+  /the-faith-received/anf-clement-corinthians/:
+    template: custom-faith-anf-clement-corinthians
+  /the-faith-received/anf-barnabas/:
+    template: custom-faith-anf-barnabas
+  /the-faith-received/anf-papias-fragments/:
+    template: custom-faith-anf-papias-fragments
+  /the-faith-received/anf-hermas-shepherd/:
+    template: custom-faith-anf-hermas-shepherd
+  /the-faith-received/anf-polycarp-philippians/:
+    template: custom-faith-anf-polycarp-philippians
+  /the-faith-received/anf-ignatius-epistles/:
+    template: custom-faith-anf-ignatius-epistles
+  /the-faith-received/anf-martyrdom-polycarp/:
+    template: custom-faith-anf-martyrdom-polycarp
+  /the-faith-received/anf-martyrdom-ignatius/:
+    template: custom-faith-anf-martyrdom-ignatius
+  /the-faith-received/anf-justin-first-apology/:
+    template: custom-faith-anf-justin-first-apology
+  /the-faith-received/anf-justin-second-apology/:
+    template: custom-faith-anf-justin-second-apology
+  /the-faith-received/anf-justin-dialogue-trypho/:
+    template: custom-faith-anf-justin-dialogue-trypho
+  /the-faith-received/anf-justin-discourse-greeks/:
+    template: custom-faith-anf-justin-discourse-greeks
+  /the-faith-received/anf-justin-hortatory/:
+    template: custom-faith-anf-justin-hortatory
+  /the-faith-received/anf-justin-sole-government/:
+    template: custom-faith-anf-justin-sole-government
+  /the-faith-received/anf-tatian-address/:
+    template: custom-faith-anf-tatian-address
+  /the-faith-received/anf-athenagoras-plea/:
+    template: custom-faith-anf-athenagoras-plea
+  /the-faith-received/anf-athenagoras-resurrection/:
+    template: custom-faith-anf-athenagoras-resurrection
+  /the-faith-received/anf-theophilus-autolycus/:
+    template: custom-faith-anf-theophilus-autolycus
+  /the-faith-received/anf-irenaeus-against-heresies/:
+    template: custom-faith-anf-irenaeus-against-heresies
+  /the-faith-received/anf-irenaeus-fragments/:
+    template: custom-faith-anf-irenaeus-fragments
+  /the-faith-received/anf-clement-alexandria-exhortation/:
+    template: custom-faith-anf-clement-alexandria-exhortation
+  /the-faith-received/anf-clement-alexandria-instructor/:
+    template: custom-faith-anf-clement-alexandria-instructor
+  /the-faith-received/anf-clement-alexandria-rich-man/:
+    template: custom-faith-anf-clement-alexandria-rich-man
+  /the-faith-received/anf-clement-alexandria-stromata/:
+    template: custom-faith-anf-clement-alexandria-stromata
+  /the-faith-received/anf-tertullian-apology/:
+    template: custom-faith-anf-tertullian-apology
+  /the-faith-received/anf-tertullian-ad-martyras/:
+    template: custom-faith-anf-tertullian-ad-martyras
+  /the-faith-received/anf-tertullian-shows/:
+    template: custom-faith-anf-tertullian-shows
+  /the-faith-received/anf-tertullian-answer-jews/:
+    template: custom-faith-anf-tertullian-answer-jews
+  /the-faith-received/anf-tertullian-on-baptism/:
+    template: custom-faith-anf-tertullian-on-baptism
+  /the-faith-received/anf-tertullian-on-prayer/:
+    template: custom-faith-anf-tertullian-on-prayer
+  /the-faith-received/anf-tertullian-on-repentance/:
+    template: custom-faith-anf-tertullian-on-repentance
+  /the-faith-received/anf-tertullian-idolatry/:
+    template: custom-faith-anf-tertullian-idolatry
+  /the-faith-received/anf-tertullian-prescription/:
+    template: custom-faith-anf-tertullian-prescription
+  /the-faith-received/anf-tertullian-on-patience/:
+    template: custom-faith-anf-tertullian-on-patience
+  /the-faith-received/anf-perpetua-felicitas/:
+    template: custom-faith-anf-perpetua-felicitas
+  /the-faith-received/anf-tertullian-against-hermogenes/:
+    template: custom-faith-anf-tertullian-against-hermogenes
+  /the-faith-received/anf-tertullian-flesh-of-christ/:
+    template: custom-faith-anf-tertullian-flesh-of-christ
+  /the-faith-received/anf-tertullian-resurrection/:
+    template: custom-faith-anf-tertullian-resurrection
+  /the-faith-received/anf-tertullian-against-valentinians/:
+    template: custom-faith-anf-tertullian-against-valentinians
+  /the-faith-received/anf-tertullian-against-marcion/:
+    template: custom-faith-anf-tertullian-against-marcion
+  /the-faith-received/anf-tertullian-soul/:
+    template: custom-faith-anf-tertullian-soul
+  /the-faith-received/anf-tertullian-chaplet/:
+    template: custom-faith-anf-tertullian-chaplet
+  /the-faith-received/anf-tertullian-scorpiace/:
+    template: custom-faith-anf-tertullian-scorpiace
+  /the-faith-received/anf-tertullian-scapula/:
+    template: custom-faith-anf-tertullian-scapula
+  /the-faith-received/anf-tertullian-against-praxeas/:
+    template: custom-faith-anf-tertullian-against-praxeas
 
 collections:
   /transcripts/:
