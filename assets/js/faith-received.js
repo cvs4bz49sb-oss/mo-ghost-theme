@@ -987,20 +987,20 @@
   initTopicFilters();
 
   function initTopicFilters() {
-    var filterBar = document.querySelector("[data-faith-topic-filters]");
+    const filterBar = document.querySelector("[data-faith-topic-filters]");
     if (!filterBar) return;
-    var groups = document.querySelectorAll(".faith-topic-group[data-tradition]");
+    const groups = document.querySelectorAll(".faith-topic-group[data-tradition]");
     if (!groups.length) return;
 
-    var activeTradition = "all";
-    var activePeriod = "all";
+    let activeTradition = "all";
+    let activePeriod = "all";
 
     function applyFilters() {
-      Array.prototype.forEach.call(groups, function (g) {
-        var traditions = (g.getAttribute("data-tradition") || "").split(" ");
-        var period = g.getAttribute("data-period") || "";
-        var showTradition = activeTradition === "all" || traditions.indexOf(activeTradition) >= 0;
-        var showPeriod = activePeriod === "all" || period === activePeriod;
+      Array.prototype.forEach.call(groups, (g) => {
+        const traditions = (g.getAttribute("data-tradition") || "").split(" ");
+        const period = g.getAttribute("data-period") || "";
+        const showTradition = activeTradition === "all" || traditions.indexOf(activeTradition) >= 0;
+        const showPeriod = activePeriod === "all" || period === activePeriod;
         if (showTradition && showPeriod) {
           g.removeAttribute("hidden");
         } else {
@@ -1009,25 +1009,25 @@
       });
     }
 
-    filterBar.addEventListener("click", function (e) {
-      var btn = e.target.closest(".faith-filter-pill");
+    filterBar.addEventListener("click", (e) => {
+      const btn = e.target.closest(".faith-filter-pill");
       if (!btn) return;
 
-      var tradition = btn.getAttribute("data-filter-tradition");
-      var period = btn.getAttribute("data-filter-period");
+      const tradition = btn.getAttribute("data-filter-tradition");
+      const period = btn.getAttribute("data-filter-period");
 
       if (tradition !== null && tradition !== undefined) {
         activeTradition = tradition;
         // Update active state for tradition pills
-        var group = btn.closest(".faith-filter-group");
-        Array.prototype.forEach.call(group.querySelectorAll("[data-filter-tradition]"), function (p) {
+        const group = btn.closest(".faith-filter-group");
+        Array.prototype.forEach.call(group.querySelectorAll("[data-filter-tradition]"), (p) => {
           p.classList.toggle("is-active", p.getAttribute("data-filter-tradition") === tradition);
         });
       }
       if (period !== null && period !== undefined) {
         activePeriod = period;
-        var group2 = btn.closest(".faith-filter-group");
-        Array.prototype.forEach.call(group2.querySelectorAll("[data-filter-period]"), function (p) {
+        const group2 = btn.closest(".faith-filter-group");
+        Array.prototype.forEach.call(group2.querySelectorAll("[data-filter-period]"), (p) => {
           p.classList.toggle("is-active", p.getAttribute("data-filter-period") === period);
         });
       }
@@ -1095,21 +1095,21 @@
   initReadingControls();
 
   function initReadingControls() {
-    var controls = document.querySelector("[data-faith-controls]");
+    const controls = document.querySelector("[data-faith-controls]");
     if (!controls) return;
-    var details = function () {
+    const details = function () {
       return Array.prototype.slice.call(
         document.querySelectorAll(".faith-doc-body .faith-section-details")
       );
     };
-    var toggle = controls.querySelector("[data-faith-expand-toggle]");
+    const toggle = controls.querySelector("[data-faith-expand-toggle]");
     if (toggle) {
-      toggle.addEventListener("click", function () {
-        var expanded = toggle.getAttribute("aria-pressed") !== "true";
+      toggle.addEventListener("click", () => {
+        const expanded = toggle.getAttribute("aria-pressed") !== "true";
         toggle.setAttribute("aria-pressed", String(expanded));
-        var label = toggle.querySelector(".faith-toggle-label");
+        const label = toggle.querySelector(".faith-toggle-label");
         if (label) label.textContent = expanded ? label.dataset.on : label.dataset.off;
-        details().forEach(function (d) { d.open = expanded; });
+        details().forEach((d) => { d.open = expanded; });
       });
     }
   }
@@ -1329,14 +1329,14 @@
     if (!hasArchaic) return;
 
     toggle.hidden = false;
-    toggle.addEventListener("click", function () {
-      var nowOn = toggle.getAttribute("aria-pressed") !== "true";
+    toggle.addEventListener("click", () => {
+      const nowOn = toggle.getAttribute("aria-pressed") !== "true";
       toggle.setAttribute("aria-pressed", String(nowOn));
       document.body.classList.toggle("faith-modernized", nowOn);
-      var label = toggle.querySelector(".faith-toggle-label");
+      const label = toggle.querySelector(".faith-toggle-label");
       if (label) label.textContent = nowOn ? label.dataset.on : label.dataset.off;
 
-      elements.forEach(function (el) {
+      elements.forEach((el) => {
         if (nowOn) {
           modernizeTextNodes(el);
         } else {

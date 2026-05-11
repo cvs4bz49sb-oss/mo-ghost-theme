@@ -47,7 +47,15 @@
 
   const loadContext = async () => {
     try {
-      const response = await fetch(`${window.MO_API_BASE}/api/institution/context?token=${encodeURIComponent(token)}`);
+      // Token rides in the POST body, never the URL — Codex audit
+      // 2026-05-11. URL-borne tokens land in Cloudflare access logs
+      // and the worker request log even if we strip the URL bar
+      // afterward via history.replaceState.
+      const response = await fetch(`${window.MO_API_BASE}/api/institution/context`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
       if (!response.ok) throw new Error('ctx');
       const body = await response.json();
       orgEl.textContent = body.org_name || 'Preview institution';

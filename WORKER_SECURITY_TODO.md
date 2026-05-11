@@ -33,37 +33,37 @@ This is the canonical list of every theme→worker route, the auth model the the
 
 | Worker | Route | Method | Theme auth (current) | Worker should | Status |
 |--------|-------|--------|----------------------|---------------|--------|
-| mo-membership | `/api/member/address` | GET | JWT | Require JWT, derive email from sub | C2/C3 — **SHIPPED** 2026-05-09 |
-| mo-membership | `/api/member/address` | POST | JWT | Require JWT, derive email from sub, ignore body.email | C2/C3 — theme done (commits fac16b2 + 65f3914); worker pending |
-| mo-membership | `/api/create-lifetime-checkout` | POST | JWT when signed-in; anon otherwise | Prefer JWT identity over body when present | C5 — **SHIPPED** 2026-05-09 |
+| mo-membership | `/api/member/address` | GET | JWT | Require JWT, derive email from sub | **SHIPPED** (verified 2026-05-11) |
+| mo-membership | `/api/member/address` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
+| mo-membership | `/api/create-lifetime-checkout` | POST | JWT when signed-in; anon otherwise | Prefer JWT identity over body when present | **SHIPPED** (verified 2026-05-11) |
 | mo-membership | `/api/create-gift-checkout` | POST | None (intentional) | Validate body server-side; Stripe collects identity at checkout | OK |
-| mo-membership | `/api/create-group-checkout` | POST | None (intentional) | Re-derive `seats * (seats >= 20 ? 70 : 80)` server-side; ignore client `amount` | C1 — informational |
+| mo-membership | `/api/create-group-checkout` | POST | None (intentional) | Re-derive price server-side from `seats × STRIPE_PRICE_GROUP_SEAT`; ignore client `amount` | **SHIPPED** (verified 2026-05-11) |
 | mo-membership | `/api/institutional-inquiry` | POST | None (intentional, public form) | Origin allowlist + rate limit | follow-up |
-| mo-membership | `/api/portal` | POST | None (signed-out flow) | 200-always (no `customer_not_found` distinction); rate limit per IP | H5 — **SHIPPED** 2026-05-09 |
-| mo-membership | `/api/institution/context` | GET | Token in query | Move to POST in body; consider TTL/revocation | H1 — partial; worker followup |
-| mo-membership | `/api/institution/add-member` | POST | Token in body | Verify token, scope check | OK pending followup |
-| mo-membership | `/api/institution/remove-member` | POST | Token in body | Verify token, scope check | OK pending followup |
-| mo-membership | `/api/group/context` | GET | Token in query | Move to POST in body | H6 — partial; worker followup |
-| mo-membership | `/api/group/add-member` | POST | Token in body | Verify token, scope check | OK pending followup |
-| mo-membership | `/api/group/remove-member` | POST | Token in body | Verify token, scope check | OK pending followup |
-| mo-membership | `/api/admin/*` | GET/POST | JWT (admin) | Verify JWT + check sub against staff list | OK |
-| mo-gift | `/mint` | POST | JWT | Require JWT, derive email from sub, ignore body.email | C4 — theme done (commit 7e3cbd2); worker pending |
-| mo-kit | `/event` | POST | JWT | Require JWT, derive/verify email from sub | M2 — **SHIPPED** 2026-05-09 |
-| mo-kit | `/bookmarks` | GET | JWT | Require JWT, derive email from sub, drop email param | A2/M2 — theme done (commit 79f283d); worker pending |
-| mo-kit | `/bookmarks/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
-| mo-kit | `/bookmarks/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
-| mo-kit | `/commonplace` | GET | JWT | Require JWT, derive email from sub | A2/M2 — **SHIPPED** 2026-05-09 |
-| mo-kit | `/commonplace/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
-| mo-kit | `/commonplace/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
-| mo-kit | `/history` | GET | JWT | Require JWT, derive email from sub | A2/M2 — **SHIPPED** 2026-05-09 |
-| mo-kit | `/history/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | A2/M2 — **SHIPPED** 2026-05-09 |
-| mo-kit-bridge | `/api/drift` | GET | JWT (admin) | Verify JWT + staff check; sanitize/escape data from mo-kit before returning | OK; consider bridge-side validation since mo-kit feeds member-supplied data |
-| mo-admin | `/settings` | GET | None (public read) | OK; treat output as cosmetic-only on theme side | OK |
-| mo-admin | `/slide-ins` | GET | None (public read) | OK; theme now scheme-validates `button_url`/`image` (A3) | OK |
+| mo-membership | `/api/portal` | POST | None (signed-out flow) | Always-200 (no `customer_not_found` distinction); per-IP burst + 15-min RL | **SHIPPED** (verified 2026-05-11) |
+| mo-membership | `/api/institution/context` | GET | Token in query | **Codex 2026-05-11**: move to POST in body | pending (Tier 2.5 this audit) |
+| mo-membership | `/api/institution/add-member` | POST | Token in body | Verify token, scope check | OK |
+| mo-membership | `/api/institution/remove-member` | POST | Token in body | Verify token, scope check | OK |
+| mo-membership | `/api/group/context` | GET | Token in query | **Codex 2026-05-11**: move to POST in body | pending (Tier 2.5 this audit) |
+| mo-membership | `/api/group/add-member` | POST | Token in body | Verify token, scope check | OK |
+| mo-membership | `/api/group/remove-member` | POST | Token in body | Verify token, scope check | OK |
+| mo-membership | `/api/admin/*` | GET/POST | JWT (admin) | Verify JWT + check sub against staff list | **SHIPPED** (verified 2026-05-11) |
+| mo-gift | `/mint` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/event` | POST | JWT | Require JWT, derive/verify email from sub | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/bookmarks` | GET | JWT | Require JWT, derive email from sub, drop email param | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/bookmarks/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/bookmarks/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/commonplace` | GET | JWT | Require JWT, derive email from sub | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/commonplace/add` | POST | JWT | Require JWT, derive email from sub, ignore body.email; reject non-http(s) sourceUrl | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/commonplace/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/history` | GET | JWT | Require JWT, derive email from sub | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/history/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
+| mo-kit-bridge | `/api/drift` | GET | JWT (admin) | Verify JWT + staff check | **SHIPPED** (verified 2026-05-11); consider bridge-side validation since mo-kit feeds member-supplied data |
+| mo-admin | `/settings` | GET | None (public read) | OK; theme treats output as cosmetic-only | OK |
+| mo-admin | `/slide-ins` | GET | None (public read) | OK; theme scheme-validates `button_url`/`image` (A3) | OK |
 | mo-admin | `/slide-ins/{id}/{type}` | POST (sendBeacon) | None | Origin allowlist + rate limit (analytics forgery only) | follow-up |
-| mo-admin | `/admin/*` | GET/POST | JWT (admin) | Verify JWT + staff check | OK |
-| mo-forms | `/contact` | POST | None | Origin allowlist + rate limit + Turnstile (Phase B) | H7 — pending |
-| mo-forms | `/submissions` | POST (multipart) | None | Origin allowlist + rate limit + Turnstile + MIME validation | H7 — pending |
+| mo-admin | `/admin/*` | GET/POST | JWT (admin) | Verify JWT + staff check | **SHIPPED** (verified 2026-05-11) |
+| mo-forms | `/contact` | POST | None | Origin allowlist + per-IP RL 5/15min | **SHIPPED** (verified 2026-05-11); Turnstile still pending (H7 Option B) |
+| mo-forms | `/submissions` | POST (multipart) | None | Origin allowlist + per-IP RL 3/hr + MIME validation | **SHIPPED** (verified 2026-05-11); Turnstile still pending (H7 Option B) |
 | Ghost Members API | `/members/api/session/` | GET | session cookie | (Ghost-managed) | OK |
 | Ghost Members API | `/members/api/integrity-token/` | GET | session cookie | (Ghost-managed) | OK |
 | Ghost Members API | `/members/api/send-magic-link/` | POST | integrity token | (Ghost-managed) | OK |

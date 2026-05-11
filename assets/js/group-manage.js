@@ -33,7 +33,13 @@
 
   const loadContext = async () => {
     try {
-      const response = await fetch(`${window.MO_API_BASE}/api/group/context?token=${encodeURIComponent(token)}`);
+      // Token rides in the POST body, never the URL — Codex audit
+      // 2026-05-11. See institution-manage.js for the rationale.
+      const response = await fetch(`${window.MO_API_BASE}/api/group/context`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
       if (!response.ok) throw new Error('context fetch failed');
       const body = await response.json();
       orgEl.textContent = body.org_name || 'Preview organization';
