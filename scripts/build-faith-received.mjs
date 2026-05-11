@@ -816,56 +816,67 @@ function renderLibraryChapters(doc) {
   </main>`;
 }
 
-// Editorial book titles (the "— Infancy and Boyhood" half) that the
-// import doesn't carry over from the source TS modules. Keyed by
-// {slug}/{bookNumber}. Falls back to just "Book {N}" if absent.
-const LIBRARY_BOOK_TITLES = {
+// ── Per-document config for library-books ────────────────────
+// Single table for all per-doc overrides. Each entry can specify:
+//   bookTitles  – editorial titles keyed by bookNumber
+//   prayerCards – array of bookNumbers to render as compact cards
+// Presence in this table implies editorial layout (front-matter
+// split, chapter-count subtitles). Docs NOT listed here get the
+// generic library-books layout.
+const LIBRARY_BOOKS_CONFIG = {
   "augustine-confessions": {
-    1: "Infancy and Boyhood",
-    2: "Object of These Confessions",
-    3: "From Age Seventeen to Nineteen",
-    4: "Teaching, Grief, and Restless Thought",
-    5: "Faustus, Rome, and Milan",
-    6: "Ambrose, Alypius, and the Struggle",
-    7: "Finding God Through the Platonists",
-    8: "The Conversion",
-    9: "Cassiciacum, Baptism, and Monica's Death",
-    10: "Memory and Temptation",
-    11: "Time and Eternity",
-    12: "On Genesis: Heaven and Earth",
-    13: "On Genesis: Creation and the Spirit",
+    bookTitles: {
+      1: "Infancy and Boyhood",
+      2: "Object of These Confessions",
+      3: "From Age Seventeen to Nineteen",
+      4: "Teaching, Grief, and Restless Thought",
+      5: "Faustus, Rome, and Milan",
+      6: "Ambrose, Alypius, and the Struggle",
+      7: "Finding God Through the Platonists",
+      8: "The Conversion",
+      9: "Cassiciacum, Baptism, and Monica's Death",
+      10: "Memory and Temptation",
+      11: "Time and Eternity",
+      12: "On Genesis: Heaven and Earth",
+      13: "On Genesis: Creation and the Spirit",
+    },
   },
   "polanus-syntagma": {
-    1: "De Theologiae Principiis",
-    2: "De Dei Essentia et Attributis Divinis",
-    3: "De Sacrosancta Trinitate et Personis Divinis",
-    4: "De Operibus Dei",
+    bookTitles: {
+      1: "De Theologiae Principiis",
+      2: "De Dei Essentia et Attributis Divinis",
+      3: "De Sacrosancta Trinitate et Personis Divinis",
+      4: "De Operibus Dei",
+    },
   },
   "1928-bcp": {
-    1: "The Order for Daily Morning Prayer",
-    2: "The Order for Daily Evening Prayer",
-    3: "The Litany, or General Supplication",
-    4: "Prayers and Thanksgivings",
-    5: "The Order for Holy Communion",
-    6: "The Ministration of Holy Baptism",
-    7: "The Catechism",
-    8: "Offices of Instruction",
-    9: "The Order of Confirmation",
-    10: "The Form of Solemnization of Matrimony",
-    11: "The Visitation of the Sick",
-    12: "The Communion of the Sick",
-    13: "The Order for the Burial of the Dead",
-    14: "The Burial of a Child",
-    15: "A Penitential Office for Ash Wednesday",
-    16: "Forms of Prayer for Families",
-    17: "The Thanksgiving of Women After Child-birth",
-    18: "The Form and Manner of Making Deacons",
-    19: "The Form and Manner of Ordering Priests",
-    20: "The Form of Consecrating a Bishop",
-    21: "A Litany for Ordinations",
-    22: "The Consecration of a Church or Chapel",
-    23: "The Institution of Ministers",
-    24: "The Psalter, or Psalms of David",
+    prayerCards: [4],
+    bookTitles: {
+      1: "The Order for Daily Morning Prayer",
+      2: "The Order for Daily Evening Prayer",
+      3: "The Litany, or General Supplication",
+      4: "Prayers and Thanksgivings",
+      5: "The Order for Holy Communion",
+      6: "The Ministration of Holy Baptism",
+      7: "The Catechism",
+      8: "Offices of Instruction",
+      9: "The Order of Confirmation",
+      10: "The Form of Solemnization of Matrimony",
+      11: "The Visitation of the Sick",
+      12: "The Communion of the Sick",
+      13: "The Order for the Burial of the Dead",
+      14: "The Burial of a Child",
+      15: "A Penitential Office for Ash Wednesday",
+      16: "Forms of Prayer for Families",
+      17: "The Thanksgiving of Women After Child-birth",
+      18: "The Form and Manner of Making Deacons",
+      19: "The Form and Manner of Ordering Priests",
+      20: "The Form of Consecrating a Bishop",
+      21: "A Litany for Ordinations",
+      22: "The Consecration of a Church or Chapel",
+      23: "The Institution of Ministers",
+      24: "The Psalter, or Psalms of David",
+    },
   },
 };
 
@@ -882,9 +893,11 @@ function renderLibraryBooks(doc) {
   // editorial book titles ("Book I — Infancy and Boyhood") and a
   // chapter-count subtitle. Other library-books docs keep the
   // existing layout until the pattern is reviewed.
-  const useEditorial = doc.slug === "augustine-confessions" || doc.slug === "polanus-syntagma" || doc.slug === "1928-bcp";
+  const cfg = LIBRARY_BOOKS_CONFIG[doc.slug];
+  const useEditorial = !!cfg;
   const allBooks = doc.books ?? [];
-  const editorialTitles = LIBRARY_BOOK_TITLES[doc.slug] ?? {};
+  const editorialTitles = (cfg && cfg.bookTitles) || {};
+  const prayerCardSet = new Set((cfg && cfg.prayerCards) || []);
 
   const renderBookCollapsible = (b, opts = {}) => {
     // Front-matter books (bookNumber === 0) typically have a single
@@ -1015,11 +1028,6 @@ function renderLibraryBooks(doc) {
           </div>
         </section>`
       : "";
-
-    // Books with many short chapters (like Prayers & Thanksgivings)
-    // render as compact prayer cards instead of full chapter details.
-    const PRAYER_CARD_BOOKS = { "1928-bcp": [4] };
-    const prayerCardSet = new Set(PRAYER_CARD_BOOKS[doc.slug] ?? []);
 
     const numberedBodies = numberedBooks.map((b) =>
       renderBookCollapsible(b, {

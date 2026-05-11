@@ -10942,7 +10942,6 @@ body.mo-search-open { overflow: hidden; }
   color: var(--color-secondary);
   border-color: var(--color-secondary);
 }
-.faith-toggle-track { display: none; }
 .faith-toggle-label { line-height: 1; }
 .faith-doc-back {
   font-family: var(--font-body);

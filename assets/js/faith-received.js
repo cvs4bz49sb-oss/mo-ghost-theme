@@ -1249,23 +1249,19 @@
     if (!toggle || !window.FaithModernize) return;
     const FM = window.FaithModernize;
 
-    // Targets: every prose-bearing element. We scope tightly to
-    // avoid touching nav/UI text. The node walk inside each target
-    // ignores nested element structure (e.g. verse-ref buttons stay
-    // intact because we only modernize text nodes).
+    // Targets: every prose-bearing element. `.article-content` is the
+    // shared class on all prose containers (section bodies, prayer
+    // cards, QA answers, topic rows, front-matter). The three
+    // standalone selectors cover elements that sit outside an
+    // article-content wrapper. Scoped to `.faith-doc` so nav/UI
+    // text is never touched.
     const elements = Array.prototype.slice.call(document.querySelectorAll(
-      ".faith-doc .faith-section-body p, " +
-      ".faith-doc .faith-section-body li, " +
-      ".faith-doc .faith-prayer-card-body p, " +
-      ".faith-doc .faith-prayer-card-body li, " +
-      ".faith-doc .faith-qa-answer p, " +
+      ".faith-doc .article-content p, " +
+      ".faith-doc .article-content li, " +
       ".faith-doc .faith-qa-question, " +
       ".faith-doc .faith-edwards-text, " +
-      ".faith-doc .faith-thesis-text, " +
       ".faith-doc .faith-edwards-preamble, " +
-      ".faith-doc .faith-topic-row-body p, " +
-      ".faith-doc .faith-topic-row-body li, " +
-      ".faith-doc .faith-topic-row-body .faith-qa-answer p"
+      ".faith-doc .faith-thesis-text"
     ));
 
     let hasArchaic = false;
