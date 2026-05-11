@@ -1,0 +1,25 @@
+{{!-- Standalone <!DOCTYPE> redirect page used by every
+     page-journal-issue-NN-read.hbs when the visitor is anonymous or a
+     free member. The journal-issue templates render full <html>
+     documents (they're standalone reader pages), so the locked
+     fallback is also a full <html> document — not an inline fragment.
+
+     Gates upstream:
+       - Anonymous (@member is null) → outer {{#if @member}}{{else}}
+       - Free member → inner {{#match @member.status "!=" "free"}}{{else}}
+
+     Codex audit 2026-05-11 finding: "Journal issue reader pages allow
+     free members" — the dashboard archive (custom-dashboard-journals.hbs)
+     is paid/comped-gated, but the direct issue URLs only checked
+     `{{#if @member}}` so any signed-in free member could read. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0;url=/dashboard/journals/" />
+  <title>Membership required to read</title>
+</head>
+<body>
+  <p>The journal archive is for Mere Orthodoxy paying members. <a href="/dashboard/journals/">View the journal archive &rarr;</a></p>
+</body>
+</html>

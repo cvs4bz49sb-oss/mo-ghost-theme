@@ -15,6 +15,16 @@
  * message / stack / page-path / line / column / user-agent. The
  * worker rate-limits per-IP to bound storage cost.
  *
+ * IMPORTANT: URL parameters are STRIPPED before reporting. Codex
+ * audit 2026-05-11 caught that earlier versions sent
+ * `pathname + search` for manual reports, unhandled rejections, and
+ * documentURI for CSP events. Some flows in this site put tokens in
+ * the URL before stripping them via history.replaceState (institution
+ * /group context, gift links, magic-link callbacks) — if an error
+ * fires during that brief window, the token would land in D1.
+ * `sanitizePath()` below normalizes anything URL-shaped to its path
+ * component only.
+ *
  * Manual reports from other code:
  *   window.MOReport("manual", "thing happened", { extras: ... });
  */
@@ -27,6 +37,26 @@
     return;
   }
   const endpoint = `${beaconUrl.replace(/\/$/, "")}/report`;
+
+  // Reduce anything URL-shaped to just its path. Drops query strings
+  // (?token=, ?session_id=, ?gift=, etc.) and fragments. Accepts
+  // already-bare paths too. Returns "" for completely malformed input
+  // rather than risk leaking a raw value through unhandled by the
+  // URL parser.
+  function sanitizePath(value) {
+    if (!value) return "";
+    const s = String(value);
+    // Already a bare path with no query/hash — return as-is.
+    if (s.startsWith("/") && !s.includes("?") && !s.includes("#")) return s;
+    try {
+      const u = new URL(s, window.location.origin);
+      return u.pathname || "/";
+    } catch (_) {
+      // Strip anything from the first ? or # onward as a last resort.
+      const idx = s.search(/[?#]/);
+      return idx >= 0 ? s.slice(0, idx) : s;
+    }
+  }
 
   const MAX_REPORTS = 10;
   let sent = 0;
@@ -70,7 +100,7 @@
     send({
       kind: kind || "manual",
       message: String(message || "").slice(0, 2000),
-      url: window.location.pathname + window.location.search,
+      url: sanitizePath(window.location.pathname),
       userAgent: navigator.userAgent,
       extra: extra && typeof extra === "object" ? extra : null,
     });
@@ -82,7 +112,7 @@
       kind: "error",
       message: (event.message || "Error").slice(0, 2000),
       stack: event.error && event.error.stack ? String(event.error.stack).slice(0, 8000) : null,
-      url: (event.filename || window.location.pathname),
+      url: sanitizePath(event.filename || window.location.pathname),
       line: typeof event.lineno === "number" ? event.lineno : null,
       column: typeof event.colno === "number" ? event.colno : null,
       userAgent: navigator.userAgent,
@@ -103,7 +133,7 @@
       kind: "error",
       message: (`Unhandled rejection: ${message}`).slice(0, 2000),
       stack,
-      url: window.location.pathname + window.location.search,
+      url: sanitizePath(window.location.pathname),
       userAgent: navigator.userAgent,
     });
   });
@@ -121,7 +151,7 @@
         event.violatedDirective || "?" 
         } on ${ 
         event.blockedURI || "inline"}`,
-      url: event.documentURI || window.location.pathname,
+      url: sanitizePath(event.documentURI || window.location.pathname),
       line: typeof event.lineNumber === "number" ? event.lineNumber : null,
       column: typeof event.columnNumber === "number" ? event.columnNumber : null,
       userAgent: navigator.userAgent,

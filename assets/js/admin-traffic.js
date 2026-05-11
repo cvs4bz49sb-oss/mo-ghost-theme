@@ -283,16 +283,39 @@
     const max = pages[0].visitors || 1;
     fill("[data-admin-top-pages]", pages.map((p) => {
       const bar = Math.round(((p.visitors || 0) / max) * 100);
+      // Plausible returns paths like "/some/article/". Reject anything
+      // not strictly path-shaped so a polluted upstream can't render
+      // an unsafe href into the admin UI. (Codex audit 2026-05-11:
+      // "Admin traffic page renders upstream page values directly
+      // into href".) escapeAttr alone wouldn't stop a javascript:
+      // value — escapes special chars but doesn't validate scheme.
+      const safePath = safeAdminPath(p.page);
       return (
         `<li class="admin-ranked-item">` +
           `<div class="admin-ranked-bar" style="width: ${bar}%"></div>` +
           `<span class="admin-ranked-label">` +
-            `<a href="${escapeAttr(p.page)}">${escapeHtml(p.page)}</a>` +
+            `<a href="${escapeAttr(safePath)}">${escapeHtml(p.page)}</a>` +
           `</span>` +
           `<span class="admin-ranked-value">${formatNumber(p.visitors)}</span>` +
         `</li>`
       );
     }).join(""));
+  }
+
+  // Strict path-only validator for upstream-supplied page values.
+  // Accepts "/some/path" or "/some/path?query". Rejects absolute URLs,
+  // protocol-relative URLs, javascript:, data:, fragments without a
+  // leading slash, etc. Returns "#" for anything that doesn't match,
+  // which keeps the link clickable (no-op) without breaking the row.
+  function safeAdminPath(value) {
+    if (typeof value !== "string" || !value) return "#";
+    if (value.charAt(0) !== "/") return "#";
+    // Reject protocol-relative ("//attacker.com") and the backslash
+    // variant some browsers historically normalized into //.
+    if (value.length >= 2 && (value.charAt(1) === "/" || value.charAt(1) === "\\")) return "#";
+    // Reject anything containing a colon — paths don't carry schemes.
+    if (value.indexOf(":") !== -1) return "#";
+    return value;
   }
 
   function fillSources(payload) {

