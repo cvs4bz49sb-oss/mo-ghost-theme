@@ -443,8 +443,16 @@
               const node = doc.getElementById(anchor);
               if (!node) return;
               const body = node.querySelector(".faith-section-body, .faith-qa-answer, .faith-edwards-text, .faith-thesis-text");
-              if (body) contentEl.innerHTML = body.innerHTML;
-              else contentEl.textContent = (node.textContent || "").trim().slice(0, 600);
+              // Codex audit 2026-05-11: even same-origin HTML should
+              // be DOMPurify'd before innerHTML — if a Faith Received
+              // page is ever compromised it becomes a stored XSS sink
+              // for every dashboard that paints from it. Fail closed
+              // to textContent if DOMPurify didn't load.
+              if (body) {
+                contentEl.innerHTML = window.DOMPurify
+                  ? window.DOMPurify.sanitize(body.innerHTML)
+                  : (body.textContent || "").trim().slice(0, 600);
+              } else contentEl.textContent = (node.textContent || "").trim().slice(0, 600);
             });
         }
         status.hidden = true;
@@ -945,14 +953,25 @@
         // Strip section-actions injected client-side on the source page.
         const clone = body.cloneNode(true);
         clone.querySelectorAll(".faith-section-actions").forEach((n) => { n.remove(); });
-        return clone.innerHTML;
+        // Codex audit 2026-05-11: pipe through DOMPurify before
+        // returning HTML for innerHTML insertion (see callers in
+        // load() / topic-row render). Fall back to textContent if
+        // DOMPurify is unavailable.
+        return window.DOMPurify
+          ? window.DOMPurify.sanitize(clone.innerHTML)
+          : (clone.textContent || "");
       }
       // Fallback for theses / Edwards items where the whole node is
       // the passage.
       if (node.classList.contains("faith-thesis") ||
           node.classList.contains("faith-edwards-item")) {
         const p = node.querySelector(".faith-thesis-text, .faith-edwards-text");
-        if (p) return `<p>${p.innerHTML}</p>`;
+        if (p) {
+          const inner = window.DOMPurify
+            ? window.DOMPurify.sanitize(p.innerHTML)
+            : (p.textContent || "");
+          return `<p>${inner}</p>`;
+        }
       }
       return "";
     }

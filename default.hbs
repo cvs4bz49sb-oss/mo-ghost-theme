@@ -146,6 +146,14 @@
     <script src="{{asset "js/admin-auth.js"}}"></script>
     <script src="{{asset "js/lib/safe-href.js"}}"></script>
     <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
+    {{!-- DOMPurify (vendored, ~22KB). Loaded globally so any script
+         that pastes HTML into innerHTML has it available. Was
+         previously per-template (custom-events, custom-dashboard-
+         replays, custom-forum); Codex audit 2026-05-11 added
+         faith-received.js to the list. Loading once here is simpler
+         than adding the script tag to all 77 faith-received template
+         files. --}}
+    <script src="{{asset "js/vendor/purify.min.js"}}"></script>
 
     <header class="site-header">
         <div class="container header-inner">

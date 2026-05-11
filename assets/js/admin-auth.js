@@ -73,12 +73,18 @@
   // Destination allowlist
   // ---------------------------------------------------------------------
 
-  // Hosts always allowed even if not present in the DOM. Mostly defensive
-  // — every legitimate worker should be discoverable from the DOM. Add to
-  // this set when a worker is called from JS without a corresponding
-  // data attribute (audit any addition carefully).
+  // Hosts always allowed even if not present in the DOM. Add to this
+  // set when a worker is called from JS without a corresponding data
+  // attribute (audit any addition carefully — anything in this set
+  // can receive the member JWT). Currently:
+  //
+  //   - mo-audio, mo-pdf: hosts are hardcoded in article-audio.js /
+  //     article-pdf.js because the @custom settings hit their 20-cap.
+  //     The /sign endpoint is JWT-required.
   const BUILTIN_TRUSTED_HOSTS = new Set([
     location.host,
+    "mo-audio.mo-podcast-feed.workers.dev",
+    "mo-pdf.mo-podcast-feed.workers.dev",
   ]);
 
   // Filled lazily on first MOAuth.fetch call. We can't fully populate at

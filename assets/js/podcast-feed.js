@@ -165,9 +165,16 @@
       ? `<p class="pod-excerpt">${escapeHtml(summary)}</p>`
       : "";
 
-    const embed = ep.embedUrl
+    // Codex audit 2026-05-11: validate the embedUrl host against the
+    // expected players (Captivate, YouTube, Vimeo, Spotify). CSP
+    // frame-src already blocks unlisted hosts at browser level — this
+    // is belt-and-braces so a polluted upstream can't paint an unsafe
+    // iframe src that triggers a CSP violation report instead of
+    // failing silently.
+    const safeEmbedUrl = isAllowedEmbedHost(ep.embedUrl) ? ep.embedUrl : "";
+    const embed = safeEmbedUrl
       ? `<div class="pod-embed">` +
-        `<iframe src="${escapeAttr(ep.embedUrl)}" loading="lazy" frameborder="0" scrolling="no" title="Listen to ${escapeAttr(ep.title)}"></iframe>` +
+        `<iframe src="${escapeAttr(safeEmbedUrl)}" loading="lazy" frameborder="0" scrolling="no" title="Listen to ${escapeAttr(ep.title)}"></iframe>` +
         `</div>`
       : "";
 
@@ -348,4 +355,28 @@
     });
   }
   function escapeAttr(s) { return escapeHtml(s); }
+
+  // Embed players we render in <iframe>. Mirrors the CSP `frame-src`
+  // allowlist in default.hbs. Keep these in sync — anything added
+  // here must also be allowed by CSP, and anything dropped from CSP
+  // should drop here too.
+  const ALLOWED_EMBED_HOSTS = new Set([
+    "player.captivate.fm",
+    "www.youtube.com",
+    "youtube.com",
+    "www.youtube-nocookie.com",
+    "player.vimeo.com",
+    "embed.spotify.com",
+    "open.spotify.com",
+  ]);
+  function isAllowedEmbedHost(url) {
+    if (!url || typeof url !== "string") return false;
+    try {
+      const u = new URL(url, window.location.origin);
+      if (u.protocol !== "https:" && u.protocol !== "http:") return false;
+      return ALLOWED_EMBED_HOSTS.has(u.host);
+    } catch (_) {
+      return false;
+    }
+  }
 })();

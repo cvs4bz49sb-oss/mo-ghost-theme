@@ -65,7 +65,9 @@
     heroEl.hidden = false;
     document.querySelector("[data-events-title]").textContent = e.title;
     const titleLink = document.querySelector("[data-events-title-link]");
-    if (titleLink) titleLink.href = e.url;
+    // Codex audit 2026-05-11: worker-supplied URL. Route through
+    // MOSafeHref so an unsafe scheme can't slip through to .href.
+    if (titleLink) window.MOSafeHref.set(titleLink, e.url, "#");
     if (e.excerpt) {
       const sub = document.querySelector("[data-events-excerpt]");
       sub.textContent = e.excerpt;
@@ -128,7 +130,8 @@
     const li = document.createElement("li");
     li.className = "events-library-card";
     const a = document.createElement("a");
-    a.href = href;
+    // Codex audit 2026-05-11: worker-supplied URL → MOSafeHref.set.
+    window.MOSafeHref.set(a, href, "#");
     a.className = "events-library-link";
     if (e.featureImage) {
       const thumb = document.createElement("span");

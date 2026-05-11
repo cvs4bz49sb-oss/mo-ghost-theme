@@ -32,9 +32,37 @@
       window.location.href = "/membership/";
       return;
     }
-    const src = `${base.replace(/\/$/, "")}/${postId}.mp3`;
-    buildPlayer(wrap, trigger, src, { title, author, image });
+    // Codex audit 2026-05-11 — mo-audio's GET /:id.mp3 is no longer
+    // public. We POST to /sign with the member JWT to get a short-
+    // lived signed URL, then hand that to <audio src=>.
+    triggerLoadingState(trigger);
+    window.MOAuth.fetch(`${base.replace(/\/$/, "")}/sign`, {
+      method: "POST",
+      mode: "cors",
+      credentials: "omit",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ postId }),
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`sign failed: ${r.status}`))))
+      .then((data) => {
+        if (!data || !data.url) throw new Error("sign returned no url");
+        buildPlayer(wrap, trigger, data.url, { title, author, image });
+      })
+      .catch((err) => {
+        console.error("audio sign failed", err);
+        clearLoadingState(trigger);
+      });
   });
+
+  function triggerLoadingState(btn) {
+    btn.dataset.prevLabel = btn.textContent || "";
+    btn.disabled = true;
+    btn.textContent = "Preparing…";
+  }
+  function clearLoadingState(btn) {
+    btn.disabled = false;
+    if (btn.dataset.prevLabel) btn.textContent = btn.dataset.prevLabel;
+  }
 
   function hasPaidAccess() {
     const status = document.body.getAttribute("data-member-status") || "";

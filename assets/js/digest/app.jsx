@@ -688,7 +688,6 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
                     </div>
                   )}
                 </>
-              )}
             </div>
           </div>
 

@@ -151,8 +151,14 @@
       ? `<p class="entry-byline entry-byline-fallback">By <em>${escapeHtml(fallbackName)}</em></p>`
       : "";
 
+    // Codex audit 2026-05-11: Ghost Content API URLs are theme-trusted
+    // but Codex flagged this as a missing MOSafeHref pass. Belt-and-
+    // braces: validate scheme before render. MOSafeHref.sanitize falls
+    // back to "" for unsafe schemes, which escapeAttr then renders as
+    // a no-op href — far safer than `javascript:` slipping through.
+    const safePostUrl = window.MOSafeHref ? window.MOSafeHref.sanitize(post.url) : post.url;
     return `` +
-      `<a href="${escapeAttr(post.url)}" class="entry">` +
+      `<a href="${escapeAttr(safePostUrl)}" class="entry">` +
         `<div class="entry-plate">` +
           `<div class="entry-plate-inner" ${bgStyle}></div>` +
         `</div>` +

@@ -589,7 +589,7 @@
         }
       },
       "Clear all overrides"
-    ))), ")}")), /* @__PURE__ */ React.createElement("div", { style: {
+    ))))), /* @__PURE__ */ React.createElement("div", { style: {
       display: "flex",
       gap: 24,
       padding: "12px 16px",
