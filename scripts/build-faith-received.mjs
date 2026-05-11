@@ -1698,7 +1698,9 @@ if (topicsBundle) {
       } else if (q) paragraphs = [q.answer || q.question || ""];
     } else if (type === "section") {
       const s = (doc.sections || []).find((s) => s.number === num);
-      if (s) paragraphs = (s.text || "").split(/\n\s*\n|\n/).filter(Boolean);
+      if (s) paragraphs = s.paragraphs && s.paragraphs.length
+        ? s.paragraphs
+        : (s.text || "").split(/\n\s*\n|\n/).filter(Boolean);
     } else if (type === "chapter") {
       const bookMatch = id.match(/book-(\d+)-ch-(\d+)/);
       if (bookMatch) {
@@ -1953,7 +1955,15 @@ function lookupContent(doc, type, id) {
   }
   if (type === "section") {
     const s = (doc.sections || []).find((s) => s.number === num);
-    if (s) return { label: `Section ${roman(s.number)}`, snippet: s.title, body: paragraphs(s.text || "") };
+    if (s) {
+      const bodyText = s.paragraphs && s.paragraphs.length
+        ? paragraphsArray(s.paragraphs)
+        : paragraphs(s.text || "");
+      // If the title is generic ("Section N"), omit it — the excerpt will carry the content.
+      const titleIsGeneric = !s.title || /^(Section|Text)\s*\d*$/.test(s.title);
+      const snippet = titleIsGeneric ? "" : s.title;
+      return { label: `Section ${roman(s.number)}`, snippet, body: bodyText };
+    }
   }
   if (type === "chapter") {
     if (doc.chapters) {
