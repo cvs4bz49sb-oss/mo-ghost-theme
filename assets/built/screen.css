@@ -12495,91 +12495,15 @@ body.mo-search-open { overflow: hidden; }
   .faith-topic-card { border-left: 0 !important; padding: 24px 20px; }
 }
 
-/* ── Per-topic detail page (rows grouped by document) ───────────── */
+/* ── Per-topic detail page ───────────────────────────────────── */
 .faith-topic-header { padding-bottom: 56px; }
 .faith-topic-header .article-title { font-size: clamp(36px, 4.4vw, 56px); }
-
-.faith-topic-group {
-  padding: 0 0 56px;
-  margin: 0 0 56px;
-  border-bottom: 1px solid var(--color-card-border);
-}
-.faith-topic-group:last-child { border-bottom: 0; }
-.faith-topic-group-header {
-  margin-bottom: 28px;
-  text-align: left;
-}
-.faith-topic-group-header .eyebrow { margin: 0 0 8px; }
-.faith-topic-group-header .section-heading {
-  font-size: clamp(26px, 3vw, 34px);
-  margin: 0 0 6px;
-}
-.faith-topic-group-author {
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--color-muted);
-  margin: 0;
-  font-style: italic;
-}
-.faith-topic-row-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.faith-topic-row {
-  border-top: 1px solid var(--color-rule);
-}
-.faith-topic-row:first-child { border-top: 0; }
-.faith-topic-row-link {
-  display: grid;
-  grid-template-columns: minmax(140px, 200px) 1fr auto;
-  gap: 18px;
-  align-items: baseline;
-  padding: 16px 0;
-  text-decoration: none;
-  color: var(--color-dark);
-  transition: color 0.15s;
-}
-.faith-topic-row-link:hover {
-  text-decoration: none;
-  color: var(--color-secondary);
-}
-.faith-topic-row-label {
-  font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--color-primary);
-  white-space: nowrap;
-}
-.faith-topic-row-snippet {
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.5;
-  color: var(--color-dark);
-}
-.faith-topic-row-arrow {
-  font-family: var(--font-body);
-  color: var(--color-muted);
-  transition: transform 0.15s, color 0.15s;
-}
-.faith-topic-row-link:hover .faith-topic-row-arrow {
-  color: var(--color-primary);
-  transform: translateX(3px);
-}
 .faith-topic-empty {
   font-family: var(--font-body);
   font-style: italic;
   color: var(--color-muted);
   padding: 48px 0;
   text-align: center;
-}
-
-@media (max-width: 640px) {
-  .faith-topic-row-link { grid-template-columns: 1fr; gap: 4px; padding: 14px 0; }
-  .faith-topic-row-arrow { display: none; }
-  .faith-topic-row-snippet { font-size: 15px; }
 }
 
 /* ── Mobile tightening ───────────────────────────────────────── */
@@ -12785,72 +12709,179 @@ body.mo-search-open { overflow: hidden; }
   margin: 0;
 }
 
-/* ── Topic page: rows are <details> for inline expansion ─────── */
-.faith-topic-row { border-top: 1px solid var(--color-rule); }
-.faith-topic-row:first-child { border-top: 0; }
-.faith-topic-row-details {
-  padding: 0;
-  scroll-margin-top: 96px;
+/* ── Topic page: filter bar ──────────────────────────────────── */
+.faith-topic-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 0 36px;
+  margin: 0 0 12px;
+  border-bottom: 1px solid var(--color-card-border);
 }
-.faith-topic-row-summary {
+.faith-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.faith-filter-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-right: 4px;
+}
+.faith-filter-pill {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 5px 14px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.faith-filter-pill:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+.faith-filter-pill.is-active {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: #fff;
+}
+
+/* ── Topic page: collapsible document groups ─────────────────── */
+.faith-topic-group {
+  padding: 0;
+  margin: 0;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-topic-group:last-child { border-bottom: 0; }
+.faith-topic-group[hidden] { display: none; }
+.faith-topic-group-header {
   display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  column-gap: 18px;
-  padding: 16px 0;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 0;
   cursor: pointer;
   list-style: none;
   user-select: none;
-  transition: color 0.15s;
 }
-.faith-topic-row-summary::-webkit-details-marker { display: none; }
-.faith-topic-row-summary:hover .faith-topic-row-snippet { color: var(--color-secondary); }
-.faith-topic-row-meta { min-width: 0; display: block; }
-.faith-topic-row-meta .faith-topic-row-label {
-  display: block;
-  margin-bottom: 4px;
+.faith-topic-group-header::-webkit-details-marker { display: none; }
+.faith-topic-group-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
-.faith-topic-row-meta .faith-topic-row-snippet {
-  display: block;
-  transition: color 0.15s;
+.faith-topic-group-header .eyebrow { margin: 0; }
+.faith-topic-group-header .section-heading {
+  font-size: clamp(20px, 2.5vw, 28px);
+  margin: 0;
 }
-.faith-topic-row-details[open] > .faith-topic-row-summary { padding-bottom: 12px; }
-.faith-topic-row-body {
-  padding: 8px 0 28px;
+.faith-topic-group-author {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0;
+  font-style: italic;
+}
+.faith-topic-group-count {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.faith-topic-group-header .faith-chev {
+  transition: transform 0.2s;
+}
+.faith-topic-group[open] > .faith-topic-group-header .faith-chev {
+  transform: rotate(180deg);
+}
+.faith-topic-group > .faith-topic-row-list {
+  padding: 0 0 24px;
   animation: faith-section-fade-in 0.22s ease-out;
-  font-size: 17px;
-  line-height: 1.7;
+}
+
+/* ── Topic page: passage rows ────────────────────────────────── */
+.faith-topic-row-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.faith-topic-row { border-top: 1px solid var(--color-rule); }
+.faith-topic-row:first-child { border-top: 0; }
+.faith-topic-row-link {
+  display: block;
+  padding: 16px 0;
+  text-decoration: none;
+  color: var(--color-dark);
+  transition: color 0.15s;
+}
+.faith-topic-row-link:hover {
+  text-decoration: none;
+  color: var(--color-secondary);
+}
+.faith-topic-row-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.faith-topic-row-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.faith-topic-row-snippet {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
   color: var(--color-dark);
 }
-.faith-topic-row-body p { margin: 0 0 16px; }
-.faith-topic-row-body p:last-child { margin-bottom: 0; }
-/* "Open in source document" — readable italic display link sized to
-   match the rest of the editorial vocabulary, not crammed into a
-   small-caps row. Sits below the lazy-loaded passage with a hairline
-   above and breathing room below. */
-.faith-topic-row-continue {
-  margin: 24px 0 8px !important;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-rule);
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-style: italic;
-  letter-spacing: 0;
-  text-transform: none;
-  font-weight: 400;
+.faith-topic-row-excerpt {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 4px 0 0;
 }
-.faith-topic-row-continue a {
+.faith-topic-row-read {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-style: italic;
   color: var(--color-secondary);
-  text-decoration: none;
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
+  margin-top: 6px;
   transition: color 0.15s;
 }
-.faith-topic-row-continue a:hover { color: var(--color-primary); }
-.faith-topic-row-fallback {
-  color: var(--color-muted);
-  font-style: italic;
+.faith-topic-row-link:hover .faith-topic-row-read {
+  color: var(--color-primary);
+}
+
+@media (max-width: 640px) {
+  .faith-topic-group-header {
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 18px 0;
+  }
+  .faith-topic-group-count { display: none; }
+  .faith-topic-row-meta { flex-direction: column; gap: 4px; }
+  .faith-filter-group { gap: 6px; }
+  .faith-filter-pill { font-size: 12px; padding: 4px 10px; }
 }
 
 /* ── Memorize mode ────────────────────────────────────────────

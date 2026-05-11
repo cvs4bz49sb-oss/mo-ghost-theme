@@ -1257,6 +1257,52 @@ const TRADITION_TAGS = {
   "polanus-syntagma":        ["reformed", "scholastic"],
   "rerum-novarum":           ["catholic"],
   "1928-bcp":                ["anglican"],
+  // Ante-Nicene Fathers (Vols I–III)
+  "anf-barnabas":            ["patristic"],
+  "anf-papias-fragments":    ["patristic"],
+  "anf-clement-corinthians": ["patristic"],
+  "anf-justin-hortatory":    ["patristic"],
+  "anf-justin-sole-government": ["patristic"],
+  "anf-justin-discourse-greeks": ["patristic"],
+  "anf-martyrdom-ignatius":  ["patristic"],
+  "anf-hermas-shepherd":     ["patristic"],
+  "anf-polycarp-philippians":["patristic"],
+  "anf-ignatius-epistles":   ["patristic"],
+  "anf-justin-dialogue-trypho": ["patristic"],
+  "anf-justin-first-apology":["patristic"],
+  "anf-martyrdom-polycarp":  ["patristic"],
+  "anf-justin-second-apology": ["patristic"],
+  "anf-tatian-address":      ["patristic"],
+  "anf-athenagoras-plea":    ["patristic"],
+  "anf-athenagoras-resurrection": ["patristic"],
+  "anf-irenaeus-against-heresies": ["patristic"],
+  "anf-irenaeus-fragments":  ["patristic"],
+  "anf-theophilus-autolycus": ["patristic"],
+  "anf-clement-alexandria-exhortation": ["patristic"],
+  "anf-tertullian-ad-martyras": ["patristic"],
+  "anf-tertullian-answer-jews": ["patristic"],
+  "anf-tertullian-apology":  ["patristic"],
+  "anf-tertullian-shows":    ["patristic"],
+  "anf-tertullian-on-baptism": ["patristic"],
+  "anf-tertullian-idolatry": ["patristic"],
+  "anf-tertullian-on-prayer":["patristic"],
+  "anf-tertullian-on-repentance": ["patristic"],
+  "anf-clement-alexandria-instructor": ["patristic"],
+  "anf-tertullian-against-hermogenes": ["patristic"],
+  "anf-tertullian-on-patience": ["patristic"],
+  "anf-tertullian-prescription": ["patristic"],
+  "anf-clement-alexandria-stromata": ["patristic"],
+  "anf-clement-alexandria-rich-man": ["patristic"],
+  "anf-perpetua-felicitas":  ["patristic"],
+  "anf-tertullian-against-valentinians": ["patristic"],
+  "anf-tertullian-flesh-of-christ": ["patristic"],
+  "anf-tertullian-resurrection": ["patristic"],
+  "anf-tertullian-against-marcion": ["patristic"],
+  "anf-tertullian-soul":     ["patristic"],
+  "anf-tertullian-scorpiace":["patristic"],
+  "anf-tertullian-chaplet":  ["patristic"],
+  "anf-tertullian-scapula":  ["patristic"],
+  "anf-tertullian-against-praxeas": ["patristic"],
 };
 
 // Only document JSONs go through the renderer. Underscore-prefixed
@@ -1586,12 +1632,83 @@ if (topicsBundle) {
     docByslug[d.slug] = d;
   }
 
+  // ── Helper: time-period bucket for filtering ──────────────────
+  function timePeriod(dateStr) {
+    const y = parseDateStart(dateStr);
+    if (y < 100) return "apostolic";
+    if (y < 325) return "ante-nicene";
+    if (y < 500) return "nicene";
+    if (y < 1500) return "medieval";
+    if (y < 1700) return "reformation";
+    return "modern";
+  }
+  const PERIOD_LABELS = {
+    "apostolic": "Apostolic Era",
+    "ante-nicene": "Ante-Nicene",
+    "nicene": "Nicene &amp; Post-Nicene",
+    "medieval": "Medieval",
+    "reformation": "Reformation",
+    "modern": "Modern",
+  };
+
+  // ── Helper: extract a relevant paragraph excerpt ─────────────
+  // Instead of loading the full passage, pull a short excerpt from
+  // the actual content. Returns ≤ 200 chars of the most relevant
+  // paragraph text.
+  function topicExcerpt(doc, type, id, topicSlug) {
+    if (!doc) return "";
+    const num = parseInt((id.match(/\d+$/) || [""])[0], 10);
+    let rawText = "";
+    if (type === "question") {
+      const q = (doc.questions || []).find((q) => q.number === num);
+      if (!q && doc.lordsDays) {
+        for (const ld of doc.lordsDays) {
+          const lq = (ld.questions || []).find((q) => q.number === num);
+          if (lq) { rawText = lq.answer || lq.question || ""; break; }
+        }
+      } else if (q) rawText = q.answer || q.question || "";
+    } else if (type === "section") {
+      const s = (doc.sections || []).find((s) => s.number === num);
+      if (s) rawText = s.text || "";
+    } else if (type === "chapter") {
+      // Could be flat chapters or book-N-ch-M
+      const bookMatch = id.match(/book-(\d+)-ch-(\d+)/);
+      if (bookMatch) {
+        const b = (doc.books || []).find((b) => b.bookNumber === parseInt(bookMatch[1], 10));
+        if (b) {
+          const c = (b.chapters || []).find((c) => c.number === parseInt(bookMatch[2], 10));
+          if (c) rawText = c.paragraphs ? c.paragraphs.join("\n") : (c.text || "");
+        }
+      } else {
+        const c = (doc.chapters || []).find((c) => c.number === num);
+        if (c) rawText = c.paragraphs ? c.paragraphs.join("\n") : (c.text || "");
+      }
+    } else if (type === "article") {
+      const a = (doc.articles || []).find((a) => a.number === num);
+      if (a) rawText = a.text || "";
+    } else if (type === "thesis") {
+      const t = (doc.theses || []).find((t) => t.number === num);
+      if (t) rawText = t.text || "";
+    } else if (type === "resolution") {
+      const r = (doc.resolutions || []).find((r, i) => i === num);
+      if (r) rawText = r.text || "";
+    } else if (type === "discourse") {
+      const d = (doc.discourses || []).find((d) => d.number === num);
+      if (d) rawText = d.paragraphs ? d.paragraphs.join("\n") : (d.text || "");
+    }
+    if (!rawText) return "";
+    // Pick the first paragraph that has some substance
+    const paras = rawText.split(/\n\s*\n|\n/).filter((p) => p.trim().length > 30);
+    const text = paras[0] || rawText;
+    return truncateExcerpt(text.replace(/\s+/g, " ").trim(), 200);
+  }
+
+  // ── Per-topic pages ──────────────────────────────────────────
   for (const slug of topicsBundle.order) {
     const meta = topicsBundle.meta[slug];
     const items = topicsBundle.assignments.filter((a) => a.topics.includes(slug));
 
-    // Group by source document, keep document order from the manifest
-    // (chronological). Inside each group, keep TFR's original order.
+    // Group by source document, chronological order.
     const groups = {};
     for (const a of items) {
       const src = normalizeSource(a.source);
@@ -1602,34 +1719,83 @@ if (topicsBundle) {
       .map((m) => m.slug)
       .filter((s) => groups[s] && groups[s].length);
 
+    // Collect which traditions and periods are present for the filter UI
+    const activeTraditions = new Set();
+    const activePeriods = new Set();
+    for (const src of orderedSources) {
+      const docMeta = chronological.find((m) => m.slug === src);
+      (TRADITION_TAGS[src] || []).forEach((t) => activeTraditions.add(t));
+      activePeriods.add(timePeriod(docMeta.date));
+    }
+
+    // Filter bar: tradition pills + time period pills
+    const traditionFilters = TRADITION_ORDER
+      .filter((t) => activeTraditions.has(t))
+      .map((t) => `<button type="button" class="faith-filter-pill" data-filter-tradition="${t}">${TRADITION_LABELS[t]}</button>`)
+      .join("\n            ");
+    const periodFilters = Object.entries(PERIOD_LABELS)
+      .filter(([k]) => activePeriods.has(k))
+      .map(([k, label]) => `<button type="button" class="faith-filter-pill" data-filter-period="${k}">${label}</button>`)
+      .join("\n            ");
+
+    const filterBar = (activeTraditions.size > 1 || activePeriods.size > 1) ? `
+        <div class="faith-topic-filters" data-faith-topic-filters>
+          ${activeTraditions.size > 1 ? `<div class="faith-filter-group">
+            <span class="faith-filter-label">Tradition</span>
+            <button type="button" class="faith-filter-pill is-active" data-filter-tradition="all">All</button>
+            ${traditionFilters}
+          </div>` : ""}
+          ${activePeriods.size > 1 ? `<div class="faith-filter-group">
+            <span class="faith-filter-label">Period</span>
+            <button type="button" class="faith-filter-pill is-active" data-filter-period="all">All</button>
+            ${periodFilters}
+          </div>` : ""}
+        </div>` : "";
+
+    // Document groups — each is a collapsible <details>
     const groupHtml = orderedSources.map((src) => {
       const docMeta = chronological.find((m) => m.slug === src);
-      const rows = groups[src].map((a) => topicAssignmentRow(a, docByslug[src])).join("\n");
+      const docTraditions = (TRADITION_TAGS[src] || []).join(" ");
+      const docPeriod = timePeriod(docMeta.date);
+      const assignmentCount = groups[src].length;
+
+      // Each section/chapter row inside the document
+      const rows = groups[src].map((a) => {
+        const src2 = normalizeSource(a.source);
+        const anchor = normalizeAnchor(src2, a.type, a.id);
+        const url = `/the-faith-received/${src2}/#${anchor}`;
+        const info = lookupContent(docByslug[src2], a.type, a.id);
+        const excerpt = topicExcerpt(docByslug[src2], a.type, a.id, slug);
+
+        return `
+              <li class="faith-topic-row">
+                <a href="${url}" class="faith-topic-row-link">
+                  <span class="faith-topic-row-meta">
+                    <span class="faith-topic-row-label">${escape(info.label || a.type)}</span>
+                    ${info.snippet ? `<span class="faith-topic-row-snippet">${escape(smarten(info.snippet))}</span>` : ""}
+                  </span>
+                  ${excerpt ? `<p class="faith-topic-row-excerpt">${escape(smarten(excerpt))}</p>` : ""}
+                  <span class="faith-topic-row-read">Read in context <span aria-hidden="true">&rarr;</span></span>
+                </a>
+              </li>`;
+      }).join("\n");
+
       return `
-        <section class="faith-topic-group" id="doc-${src}">
-          <header class="faith-topic-group-header">
-            <p class="eyebrow">${escape(docMeta.date)}</p>
-            <h2 class="section-heading"><em>${escape(smarten(docMeta.title))}</em></h2>
-            ${docMeta.author ? `<p class="faith-topic-group-author"><em>${escape(smarten(docMeta.author))}</em></p>` : ""}
-          </header>
+        <details class="faith-topic-group" id="doc-${src}" data-tradition="${docTraditions}" data-period="${docPeriod}">
+          <summary class="faith-topic-group-header">
+            <span class="faith-topic-group-info">
+              <span class="eyebrow">${escape(docMeta.date)}</span>
+              <span class="section-heading"><em>${escape(smarten(docMeta.title))}</em></span>
+              ${docMeta.author ? `<span class="faith-topic-group-author"><em>${escape(smarten(docMeta.author))}</em></span>` : ""}
+            </span>
+            <span class="faith-topic-group-count">${assignmentCount} passage${assignmentCount === 1 ? "" : "s"}</span>
+            <span class="faith-chev" aria-hidden="true"></span>
+          </summary>
           <ol class="faith-topic-row-list">
             ${rows}
           </ol>
-        </section>`;
+        </details>`;
     }).join("\n");
-
-    // Sidebar TOC of source docs for this topic.
-    const sidebarItems = orderedSources.map((src) => {
-      const m = chronological.find((x) => x.slug === src);
-      return `
-        <li class="faith-toc-item"><a href="#doc-${src}"><span class="faith-toc-num">${escape(m.date)}</span><span class="faith-toc-label">${escape(smarten(m.title))}</span></a></li>`;
-    }).join("");
-    const sidebar = orderedSources.length >= 4 ? `
-  <nav class="faith-toc" aria-label="Documents">
-    <p class="faith-toc-label-heading">Documents</p>
-    <ol class="faith-toc-list">${sidebarItems}
-    </ol>
-  </nav>` : "";
 
     const body = `
   <main class="article faith-doc faith-doc--topic" data-topic-slug="${slug}">
@@ -1638,41 +1804,19 @@ if (topicsBundle) {
         <p class="article-topic"><a href="/the-faith-received/topics/" class="article-topic-tag">All topics</a></p>
         <h1 class="article-title">${escape(smarten(meta.label))}</h1>
         <p class="faith-doc-description">${escape(smarten(meta.description))}</p>
-        <div class="faith-doc-actions">
-          ${sidebar ? `<button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents"><span class="faith-doc-toc-toggle-icon" aria-hidden="true"><span></span><span></span><span></span></span><span class="faith-doc-toc-toggle-label">Documents</span></button>` : ""}
-        </div>
       </div>
     </section>
     {{> "faith-received/_nav"}}
-    ${
-      sidebar
-        ? `
-    <div class="article-body faith-doc-body faith-doc-body--has-sidebar">
-      <div class="faith-doc-layout">
-        <aside class="faith-toc-sidebar" data-faith-toc-drawer aria-label="Documents">
-          <button type="button" class="faith-toc-close" data-faith-toc-close aria-label="Close documents"><span aria-hidden="true">&times;</span></button>${sidebar}
-        </aside>
-        <div class="faith-doc-inner">
-          ${
-            items.length === 0
-              ? `<p class="faith-topic-empty">No passages assigned to this topic yet.</p>`
-              : groupHtml
-          }
-        </div>
-      </div>
-      <div class="faith-toc-backdrop" data-faith-toc-backdrop hidden></div>
-    </div>`
-        : `
     <div class="article-body faith-doc-body">
-      <div class="container container-narrow faith-doc-inner">
+      <div class="container faith-doc-inner">
+        ${filterBar}
         ${
           items.length === 0
             ? `<p class="faith-topic-empty">No passages assigned to this topic yet.</p>`
             : groupHtml
         }
       </div>
-    </div>`
-    }
+    </div>
   </main>
 <script src="{{asset "js/faith-modernize.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>`;

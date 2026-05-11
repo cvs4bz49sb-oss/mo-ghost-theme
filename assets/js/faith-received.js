@@ -981,6 +981,61 @@
     });
   }
 
+  // ── Topic page: tradition / period filters ───────────────────
+  // Filter buttons show/hide document groups based on data-tradition
+  // and data-period attributes. "All" resets the filter.
+  initTopicFilters();
+
+  function initTopicFilters() {
+    var filterBar = document.querySelector("[data-faith-topic-filters]");
+    if (!filterBar) return;
+    var groups = document.querySelectorAll(".faith-topic-group[data-tradition]");
+    if (!groups.length) return;
+
+    var activeTradition = "all";
+    var activePeriod = "all";
+
+    function applyFilters() {
+      Array.prototype.forEach.call(groups, function (g) {
+        var traditions = (g.getAttribute("data-tradition") || "").split(" ");
+        var period = g.getAttribute("data-period") || "";
+        var showTradition = activeTradition === "all" || traditions.indexOf(activeTradition) >= 0;
+        var showPeriod = activePeriod === "all" || period === activePeriod;
+        if (showTradition && showPeriod) {
+          g.removeAttribute("hidden");
+        } else {
+          g.setAttribute("hidden", "");
+        }
+      });
+    }
+
+    filterBar.addEventListener("click", function (e) {
+      var btn = e.target.closest(".faith-filter-pill");
+      if (!btn) return;
+
+      var tradition = btn.getAttribute("data-filter-tradition");
+      var period = btn.getAttribute("data-filter-period");
+
+      if (tradition !== null && tradition !== undefined) {
+        activeTradition = tradition;
+        // Update active state for tradition pills
+        var group = btn.closest(".faith-filter-group");
+        Array.prototype.forEach.call(group.querySelectorAll("[data-filter-tradition]"), function (p) {
+          p.classList.toggle("is-active", p.getAttribute("data-filter-tradition") === tradition);
+        });
+      }
+      if (period !== null && period !== undefined) {
+        activePeriod = period;
+        var group2 = btn.closest(".faith-filter-group");
+        Array.prototype.forEach.call(group2.querySelectorAll("[data-filter-period]"), function (p) {
+          p.classList.toggle("is-active", p.getAttribute("data-filter-period") === period);
+        });
+      }
+
+      applyFilters();
+    });
+  }
+
   // ── Sidebar active-section tracking ──────────────────────────
   // As the reader scrolls, mark the top-most visible section's TOC
   // link with `is-active` so the sidebar shows where they are. Uses
