@@ -7,8 +7,67 @@
  * Contact posts JSON; Submissions posts FormData so file inputs
  * survive. Both talk to the mo-forms worker. Status is shown in
  * [data-form-status] inside the same form.
+ *
+ * Bot protection (Codex audit 2026-05-11 follow-up): every form has
+ * a [data-turnstile-wrap] slot that we render a Cloudflare Turnstile
+ * widget into. The form submit is gated on the Turnstile callback
+ * having fired with a valid token. Token is sent as the
+ * `turnstile_token` field; mo-forms worker verifies via
+ * https://challenges.cloudflare.com/turnstile/v0/siteverify.
  */
 (function () {
+  // ---------------------------------------------------------------------
+  // Turnstile bootstrap
+  // ---------------------------------------------------------------------
+
+  // Site key from default.hbs <meta>. Public — visible in rendered
+  // widget anyway. Hardcoded as meta tag because Ghost @custom is at
+  // the 20-setting cap.
+  const TURNSTILE_SITE_KEY = (function () {
+    const m = document.querySelector('meta[name="turnstile-site-key"]');
+    return m ? (m.getAttribute("content") || "").trim() : "";
+  })();
+
+  // Map of form-element → captured token. Populated by the Turnstile
+  // callback; cleared after each submit so an expired token can't be
+  // reused.
+  const tokenByForm = new WeakMap();
+
+  function renderTurnstileIn(form) {
+    if (!TURNSTILE_SITE_KEY) return;
+    const wrap = form.querySelector("[data-turnstile-wrap]");
+    if (!wrap || wrap.dataset.turnstileRendered === "1") return;
+    // The widget needs the Turnstile JS (loaded async in default.hbs).
+    // If it hasn't arrived yet, retry shortly.
+    if (!window.turnstile) {
+      setTimeout(() => renderTurnstileIn(form), 200);
+      return;
+    }
+    wrap.dataset.turnstileRendered = "1";
+    window.turnstile.render(wrap, {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback(token) { tokenByForm.set(form, token); },
+      "error-callback"() { tokenByForm.delete(form); },
+      "expired-callback"() { tokenByForm.delete(form); },
+      theme: "light",
+    });
+  }
+
+  // Render the widget once the DOM has the forms and the Turnstile
+  // script has loaded.
+  function bootstrapTurnstile() {
+    document.querySelectorAll("[data-site-form]").forEach(renderTurnstileIn);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootstrapTurnstile);
+  } else {
+    bootstrapTurnstile();
+  }
+
+  // ---------------------------------------------------------------------
+  // File-input UX + form submit
+  // ---------------------------------------------------------------------
+
   // Show the selected filename next to the upload button. Event
   // delegation so forms injected dynamically still pick this up.
   document.addEventListener("change", (e) => {
@@ -47,6 +106,16 @@
       return;
     }
 
+    // Require a Turnstile token \u2014 the widget callback populates this.
+    // If the visitor hasn't completed the challenge yet, surface a
+    // friendly message rather than POSTing without proof and getting
+    // a 403 from the worker.
+    const turnstileToken = tokenByForm.get(form) || "";
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setStatus(status, "Please complete the bot check above, then resubmit.", true);
+      return;
+    }
+
     setStatus(status, "Sending\u2026");
     if (submitBtn) { submitBtn.disabled = true; }
 
@@ -58,6 +127,7 @@
         lastName: form.querySelector("[name=lastName]").value,
         email: form.querySelector("[name=email]").value,
         message: form.querySelector("[name=message]").value,
+        turnstile_token: turnstileToken,
       };
       init = {
         method: "POST",
@@ -69,6 +139,7 @@
       const fd = new FormData(form);
       // Normalize the checkbox to the value the worker expects.
       fd.set("aiAttested", form.querySelector("[name=aiAttested]").checked ? "true" : "false");
+      fd.set("turnstile_token", turnstileToken);
       init = { method: "POST", body: fd };
     }
 
@@ -86,12 +157,26 @@
           const msg = (res.body && res.body.error) || "Something went wrong. Try again.";
           setStatus(status, msg, true);
           if (submitBtn) submitBtn.disabled = false;
+          resetTurnstile(form);
         }
       })
       .catch(() => {
         setStatus(status, "Couldn't reach the server. Try again.", true);
         if (submitBtn) submitBtn.disabled = false;
+        resetTurnstile(form);
       });
+  }
+
+  // Turnstile tokens are single-use server-side. On any failed submit,
+  // discard the cached token and ask the widget for a fresh one so the
+  // visitor can retry without seeing "bot check expired" on the next
+  // attempt.
+  function resetTurnstile(form) {
+    tokenByForm.delete(form);
+    const wrap = form.querySelector("[data-turnstile-wrap]");
+    if (wrap && window.turnstile) {
+      try { window.turnstile.reset(wrap); } catch (_) { /* ignore */ }
+    }
   }
 
   function renderSuccess(form, kind) {

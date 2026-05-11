@@ -117,6 +117,9 @@
                 </label>
               </div>
 
+              {{!-- Cloudflare Turnstile widget — see custom-contact.hbs
+                   for the rationale + site-key meta-tag pattern. --}}
+              <div class="site-form-field" data-turnstile-wrap></div>
               <button type="submit" class="site-form-submit">Submit</button>
               <p class="site-form-status" data-form-status></p>
             </form>

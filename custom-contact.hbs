@@ -80,6 +80,11 @@
                 <label for="contact-message">Message</label>
                 <textarea id="contact-message" name="message" rows="5" required></textarea>
               </div>
+              {{!-- Cloudflare Turnstile widget. site-forms.js will not
+                   submit unless data-cf-response is populated. Site
+                   key comes from <meta name="turnstile-site-key"> in
+                   default.hbs so it's not duplicated per template. --}}
+              <div class="site-form-field" data-turnstile-wrap></div>
               <button type="submit" class="site-form-submit">Send</button>
               <p class="site-form-status" data-form-status></p>
             </form>

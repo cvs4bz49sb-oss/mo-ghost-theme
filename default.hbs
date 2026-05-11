@@ -75,6 +75,19 @@
     <meta name="ghost-content-api-key" content="{{@custom.content_api_key}}" />
     {{/if}}
 
+    {{!-- Cloudflare Turnstile site key. Public-by-design (key is
+         visible in the rendered widget anyway). Hardcoded as a meta
+         tag rather than a Ghost @custom setting because @custom is
+         at the 20-setting cap. site-forms.js reads it on contact +
+         submissions pages. Codex audit 2026-05-11 follow-up. --}}
+    <meta name="turnstile-site-key" content="0x4AAAAAADNUmqxNMMwe32iy" />
+
+    {{!-- Turnstile JS. Loads on every page so any future form that
+         wants bot protection can render <div class="cf-turnstile">
+         without per-template script tags. Async + defer so it doesn't
+         block first paint. --}}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
