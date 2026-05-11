@@ -45,8 +45,16 @@
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`sign failed: ${r.status}`))))
       .then((data) => {
-        if (!data || !data.url) throw new Error("sign returned no url");
-        buildPlayer(wrap, trigger, data.url, { title, author, image });
+        if (!data || typeof data.url !== "string" || !data.url) {
+          throw new Error("sign returned no url");
+        }
+        // Validate the URL the worker returned — defense in depth.
+        // MOSafeHref rejects javascript:/data:/file: schemes. If the
+        // worker is ever compromised, we don't want it returning
+        // `javascript:alert(1)` into an <audio src=>.
+        const safeUrl = window.MOSafeHref && window.MOSafeHref.sanitize(data.url);
+        if (!safeUrl) throw new Error("sign returned unsafe url");
+        buildPlayer(wrap, trigger, safeUrl, { title, author, image });
       })
       .catch((err) => {
         console.error("audio sign failed", err);

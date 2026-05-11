@@ -125,15 +125,15 @@
       }
 
       html +=
-        `<details class="prayer-section"${isCore ? " open" : "" 
+        `<details class="prayer-section"${isCore ? " open" : ""
         } id="prayer-${c}">` +
         `<summary class="prayer-section-summary">` +
-        `<h2 class="prayer-section-title"><em>${escHtml(ch.title)}</em></h2>${ 
-        subtitle 
+        `<h2 class="prayer-section-title"><em>${escHtml(ch.title)}</em></h2>${
+        subtitle
         }<span class="prayer-section-chev" aria-hidden="true"></span>` +
         `</summary>` +
-        `<div class="prayer-section-body article-content">${ 
-        bodyHtml 
+        `<div class="prayer-section-body article-content">${
+        bodyHtml
         }</div>` +
         `</details>\n`;
     }

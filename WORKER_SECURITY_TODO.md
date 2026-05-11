@@ -40,10 +40,10 @@ This is the canonical list of every theme→worker route, the auth model the the
 | mo-membership | `/api/create-group-checkout` | POST | None (intentional) | Re-derive price server-side from `seats × STRIPE_PRICE_GROUP_SEAT`; ignore client `amount` | **SHIPPED** (verified 2026-05-11) |
 | mo-membership | `/api/institutional-inquiry` | POST | None (intentional, public form) | Origin allowlist + rate limit | follow-up |
 | mo-membership | `/api/portal` | POST | None (signed-out flow) | Always-200 (no `customer_not_found` distinction); per-IP burst + 15-min RL | **SHIPPED** (verified 2026-05-11) |
-| mo-membership | `/api/institution/context` | GET | Token in query | **Codex 2026-05-11**: move to POST in body | pending (Tier 2.5 this audit) |
+| mo-membership | `/api/institution/context` | POST | Token in body | Verify token, scope check | **SHIPPED** 2026-05-11 — POST with body-only token (worker version 8b6bcf76); GET route returns 404 |
 | mo-membership | `/api/institution/add-member` | POST | Token in body | Verify token, scope check | OK |
 | mo-membership | `/api/institution/remove-member` | POST | Token in body | Verify token, scope check | OK |
-| mo-membership | `/api/group/context` | GET | Token in query | **Codex 2026-05-11**: move to POST in body | pending (Tier 2.5 this audit) |
+| mo-membership | `/api/group/context` | POST | Token in body | Verify token, scope check | **SHIPPED** 2026-05-11 — POST with body-only token (worker version 8b6bcf76); GET route returns 404 |
 | mo-membership | `/api/group/add-member` | POST | Token in body | Verify token, scope check | OK |
 | mo-membership | `/api/group/remove-member` | POST | Token in body | Verify token, scope check | OK |
 | mo-membership | `/api/admin/*` | GET/POST | JWT (admin) | Verify JWT + check sub against staff list | **SHIPPED** (verified 2026-05-11) |

@@ -22,6 +22,19 @@
   if (!postId) return;
 
   link.addEventListener("click", (e) => {
+    // Bypass on programmatic re-click — see end of this handler for
+    // why. The dataset flag is consumed (deleted) on the way through
+    // so the next user click re-mints a fresh signed URL (the cached
+    // one expires after 4h).
+    //
+    // Codex audit P1 (second pass): without this bypass, link.click()
+    // at the end of the then() re-enters the same handler, hits
+    // preventDefault again, and mints another URL → infinite sign
+    // loop, no download.
+    if (link.dataset.moSigned === "1") {
+      delete link.dataset.moSigned;
+      return; // let the browser navigate to the signed href
+    }
     if (!hasPaidAccess()) {
       e.preventDefault();
       // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
@@ -43,15 +56,25 @@
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`sign failed: ${r.status}`))))
       .then((data) => {
-        if (!data || !data.url) throw new Error("sign returned no url");
-        link.setAttribute("href", data.url);
+        if (!data || typeof data.url !== "string" || !data.url) {
+          throw new Error("sign returned no url");
+        }
+        // Validate the URL the worker returned. MOSafeHref rejects
+        // javascript:/data:/file: schemes. Defense in depth — the
+        // worker MUST return its own host, but if it's ever
+        // compromised we don't want it returning javascript:alert(1)
+        // and us setting that on link.href.
+        const safeUrl = window.MOSafeHref && window.MOSafeHref.sanitize(data.url);
+        if (!safeUrl) throw new Error("sign returned unsafe url");
+        link.setAttribute("href", safeUrl);
         if (slug) link.setAttribute("download", `${slug}.pdf`);
         link.textContent = prevText;
         link.style.pointerEvents = "";
-        // Browser navigates to the signed URL via .click() — this
-        // works because the link now has the signed href + download
-        // attribute. Letting the browser handle it gets us
-        // Content-Disposition: inline + the pretty filename.
+        // Programmatic re-click. The bypass flag at the top of this
+        // handler ensures the listener short-circuits and lets the
+        // browser handle the navigation natively — Content-Disposition
+        // + the download attribute give the pretty filename.
+        link.dataset.moSigned = "1";
         link.click();
       })
       .catch((err) => {

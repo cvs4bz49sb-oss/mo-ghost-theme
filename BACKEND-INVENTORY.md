@@ -58,10 +58,11 @@ Companion reference for BACKEND-AGENT.md. This is the complete inventory of ever
 | GET | /traffic/top-topics | JWT+staff | Top topics |
 | GET | /traffic/top-authors | JWT+staff | Top authors |
 
-### mo-audio (2 routes)
+### mo-audio (3 routes)
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
-| GET | /:id.mp3 | Public + 10/min/IP | Serve or generate audio |
+| POST | /sign | JWT (member) + origin allowlist | Mint 4h signed URL for the requesting member's playback |
+| GET | /:id.mp3 | Signed URL (HMAC over postId+exp) + 10/min/IP | Serve or generate audio. Rejects unsigned requests with 403 |
 | POST | /prewarm | Ghost HMAC | Pre-generate on publish |
 
 ### mo-digest (2 routes)
@@ -160,10 +161,11 @@ Adds security headers to all proxied responses: CSP frame-ancestors, X-Frame-Opt
 | POST | /api/admin/submissions/:id/status | JWT+staff | Update status |
 | POST | /api/admin/submissions/:id/notes | JWT+staff | Update notes |
 
-### mo-pdf (2 routes)
+### mo-pdf (3 routes)
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
-| GET | /:id.pdf | Public + 10/min/IP | Serve or generate PDF |
+| POST | /sign | JWT (member) + origin allowlist | Mint 4h signed URL for the requesting member's download |
+| GET | /:id.pdf | Signed URL (HMAC over postId+exp) + 10/min/IP | Serve or generate PDF. Rejects unsigned requests with 403 |
 | POST | /invalidate | Ghost HMAC | Invalidate cache on edit |
 
 ### mo-search (4 routes)
@@ -273,10 +275,10 @@ Adds security headers to all proxied responses: CSP frame-ancestors, X-Frame-Opt
 | admin-slide-ins.js | mo-admin | /slide-ins/* | MOAuth.fetch | GET/POST/PUT/DELETE |
 | admin-table.js | mo-admin | /{endpoint} | MOAuth.fetch | GET |
 | admin-traffic.js | mo-admin | /traffic/* | MOAuth.fetch | GET |
-| article-audio.js | mo-audio | /:id.mp3 | None (public) | GET |
+| article-audio.js | mo-audio | POST /sign + GET signed /:id.mp3 | MOAuth.fetch on /sign; signed URL on GET | POST then GET |
 | article-bookmark.js | mo-kit | /bookmarks/* | MOAuth.fetch | GET/POST |
 | article-gift.js | mo-gift | /mint | MOAuth.fetch | POST {postId} |
-| article-pdf.js | mo-pdf | /:id.pdf | None (public) | GET (hardcoded URL!) |
+| article-pdf.js | mo-pdf | POST /sign + GET signed /:id.pdf | MOAuth.fetch on /sign; signed URL on GET | POST then GET (hardcoded URL — @custom cap) |
 | commonplace.js | mo-kit | /commonplace/add | MOAuth.fetch | POST |
 | complete-membership.js | mo-membership | /api/member/address | MOAuth.fetch | GET/POST |
 | contributors.js | Ghost | /ghost/api/content/tags/ | Content API key | GET |
