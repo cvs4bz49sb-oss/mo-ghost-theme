@@ -1710,10 +1710,10 @@ function normalizeAnchor(source, type, id) {
     const m = id.match(/^(?:ch(?:apter)?-?)(\d+)$/);
     return m ? `chapter-${m[1]}` : id;
   }
-  if (source === "augustine-confessions" || source === "calvin-institutes" ||
-      source === "imitation-of-christ" || source === "polanus-syntagma") {
+  // Any library-books doc: book-N-ch-M → book-N-chapter-M
+  {
     const m = id.match(/^book-(\d+)-ch-(\d+)$/);
-    return m ? `book-${m[1]}-chapter-${m[2]}` : id;
+    if (m) return `book-${m[1]}-chapter-${m[2]}`;
   }
   if (source === "rerum-novarum") {
     const m = id.match(/^section-(\d+)$/);
