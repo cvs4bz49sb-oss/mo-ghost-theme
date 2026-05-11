@@ -8174,7 +8174,6 @@ html[data-theme="dark"] .feature-gate-modal-body {
   align-items: start;
   padding-bottom: 0;
 }
-.gift-banner .digest-submit { padding-bottom: 0; margin-bottom: -8px; }
 /* Three rows: First+Last, Email full width, Subscribe link. */
 .gift-banner .digest-form {
   grid-template-columns: 1fr 1fr;
@@ -8186,6 +8185,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
   grid-column: 1 / -1;
   justify-self: start;
   margin-top: 10px;
+  padding-bottom: 4px;
 }
 @media (max-width: 720px) {
   .gift-banner .digest-form { grid-template-columns: 1fr; }
