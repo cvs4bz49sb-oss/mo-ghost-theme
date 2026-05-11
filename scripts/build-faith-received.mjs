@@ -1651,56 +1651,96 @@ if (topicsBundle) {
     "modern": "Modern",
   };
 
-  // ── Helper: extract a relevant paragraph excerpt ─────────────
-  // Instead of loading the full passage, pull a short excerpt from
-  // the actual content. Returns ≤ 200 chars of the most relevant
-  // paragraph text.
+  // ── Topic keyword dictionaries for paragraph relevance scoring ──
+  // Compact keyword lists per topic. Used to find the most relevant
+  // paragraph in a chapter/section for a given topic page.
+  const TOPIC_SIGNALS = {
+    "god-and-trinity": ["trinity", "triune", "godhead", "three persons", "consubstantial", "homoousios", "one god", "divine nature", "divine essence", "attributes of god", "omnipotent", "omniscient", "nature of god", "god the father", "creator", "sovereign", "logos", "monarchy", "unbegotten", "procession", "almighty", "eternal god", "unity of the godhead"],
+    "scripture-and-revelation": ["scripture", "scriptures", "word of god", "revelation", "inspired", "canonical", "prophetic", "old testament", "new testament", "it is written", "saith the scripture", "the prophet", "moses", "the gospel", "apostolic teaching"],
+    "creation-and-providence": ["creation", "created all things", "maker of heaven", "providence", "god created", "out of nothing", "ex nihilo", "made the world", "formed man", "six days", "angels", "heavenly host", "sustains", "governs"],
+    "sin-and-the-fall": ["original sin", "the fall", "fall of adam", "fallen nature", "total depravity", "corruption", "depravity", "transgression", "iniquity", "wickedness", "devil", "satan", "serpent", "temptation", "disobedience"],
+    "christ-and-the-incarnation": ["incarnation", "word became flesh", "two natures", "god and man", "son of god", "born of the virgin", "virgin mary", "hypostatic union", "person of christ", "messiah", "mediator", "only-begotten", "christ", "jesus", "the son", "saviour", "redeemer", "crucified", "passion", "cross", "resurrection of christ", "ascension"],
+    "salvation-and-justification": ["justification", "justified by faith", "atonement", "redemption", "reconciliation", "propitiation", "imputation", "saving grace", "faith alone", "sola fide", "forgiveness of sins", "remission of sins", "adoption", "sanctification", "regeneration", "new birth", "born again", "election", "predestination", "salvation", "grace", "repentance", "blood of christ"],
+    "the-holy-spirit": ["holy spirit", "holy ghost", "spirit of god", "paraclete", "comforter", "spirit of truth", "gifts of the spirit", "fruit of the spirit", "baptism of the spirit", "filled with the spirit", "anointing of the spirit", "indwelling spirit"],
+    "the-church": ["the church", "body of christ", "communion of saints", "visible church", "invisible church", "marks of the church", "apostolic", "catholic church", "church government", "elders", "deacons", "bishops", "presbyters", "ministry", "church discipline", "excommunication", "fellowship", "congregation", "assembly", "brethren"],
+    "sacraments-and-ordinances": ["baptism", "baptize", "baptized", "lord's supper", "eucharist", "communion", "sacrament", "breaking of bread", "body and blood", "this is my body", "this do in remembrance", "water of baptism", "table of the lord", "consecration"],
+    "the-christian-life": ["christian life", "discipleship", "following christ", "holiness", "godliness", "spiritual growth", "walk with god", "devotion", "perseverance", "good works", "obedience", "self-denial", "mortification", "virtue", "patience", "humility", "charity", "love of neighbor", "almsgiving", "fasting", "modesty", "temperance"],
+    "the-law-and-ethics": ["the law", "ten commandments", "moral law", "thou shalt", "commandment", "decalogue", "natural law", "divine law", "ethics", "duty", "obligation", "conscience", "magistrate", "civil authority", "government", "just war", "oaths", "vows", "idolatry", "blasphemy", "sabbath", "justice"],
+    "prayer": ["prayer", "praying", "pray to god", "lord's prayer", "our father", "supplication", "intercession", "petition", "thanksgiving", "calling upon god", "communion with god", "kneeling"],
+    "last-things": ["resurrection of the dead", "final judgment", "last judgment", "day of judgment", "second coming", "return of christ", "life everlasting", "eternal life", "eternal death", "hell", "heaven", "new heaven", "new earth", "kingdom of god", "age to come", "antichrist", "millennium", "general resurrection", "last day", "day of the lord", "eternal punishment", "immortality"],
+  };
+
+  // Score a paragraph against a topic's keywords.
+  function paragraphTopicScore(text, topicSlug) {
+    const lower = text.toLowerCase();
+    const keywords = TOPIC_SIGNALS[topicSlug] || [];
+    let score = 0;
+    for (const kw of keywords) {
+      if (lower.includes(kw)) score++;
+    }
+    return score;
+  }
+
+  // ── Helper: extract the most relevant paragraph for a topic ───
+  // Scores every paragraph against the topic's keyword signals and
+  // returns the highest-scoring one, truncated to 200 chars.
   function topicExcerpt(doc, type, id, topicSlug) {
     if (!doc) return "";
     const num = parseInt((id.match(/\d+$/) || [""])[0], 10);
-    let rawText = "";
+    let paragraphs = [];
     if (type === "question") {
       const q = (doc.questions || []).find((q) => q.number === num);
       if (!q && doc.lordsDays) {
         for (const ld of doc.lordsDays) {
           const lq = (ld.questions || []).find((q) => q.number === num);
-          if (lq) { rawText = lq.answer || lq.question || ""; break; }
+          if (lq) { paragraphs = [lq.answer || lq.question || ""]; break; }
         }
-      } else if (q) rawText = q.answer || q.question || "";
+      } else if (q) paragraphs = [q.answer || q.question || ""];
     } else if (type === "section") {
       const s = (doc.sections || []).find((s) => s.number === num);
-      if (s) rawText = s.text || "";
+      if (s) paragraphs = (s.text || "").split(/\n\s*\n|\n/).filter(Boolean);
     } else if (type === "chapter") {
-      // Could be flat chapters or book-N-ch-M
       const bookMatch = id.match(/book-(\d+)-ch-(\d+)/);
       if (bookMatch) {
         const b = (doc.books || []).find((b) => b.bookNumber === parseInt(bookMatch[1], 10));
         if (b) {
           const c = (b.chapters || []).find((c) => c.number === parseInt(bookMatch[2], 10));
-          if (c) rawText = c.paragraphs ? c.paragraphs.join("\n") : (c.text || "");
+          if (c) paragraphs = c.paragraphs || (c.text || "").split(/\n\s*\n|\n/).filter(Boolean);
         }
       } else {
         const c = (doc.chapters || []).find((c) => c.number === num);
-        if (c) rawText = c.paragraphs ? c.paragraphs.join("\n") : (c.text || "");
+        if (c) paragraphs = c.paragraphs || (c.text || "").split(/\n\s*\n|\n/).filter(Boolean);
       }
     } else if (type === "article") {
       const a = (doc.articles || []).find((a) => a.number === num);
-      if (a) rawText = a.text || "";
+      if (a) paragraphs = (a.text || "").split(/\n\s*\n|\n/).filter(Boolean);
     } else if (type === "thesis") {
       const t = (doc.theses || []).find((t) => t.number === num);
-      if (t) rawText = t.text || "";
+      if (t) paragraphs = [t.text || ""];
     } else if (type === "resolution") {
       const r = (doc.resolutions || []).find((r, i) => i === num);
-      if (r) rawText = r.text || "";
+      if (r) paragraphs = [r.text || ""];
     } else if (type === "discourse") {
       const d = (doc.discourses || []).find((d) => d.number === num);
-      if (d) rawText = d.paragraphs ? d.paragraphs.join("\n") : (d.text || "");
+      if (d) paragraphs = d.paragraphs || (d.text || "").split(/\n\s*\n|\n/).filter(Boolean);
     }
-    if (!rawText) return "";
-    // Pick the first paragraph that has some substance
-    const paras = rawText.split(/\n\s*\n|\n/).filter((p) => p.trim().length > 30);
-    const text = paras[0] || rawText;
-    return truncateExcerpt(text.replace(/\s+/g, " ").trim(), 200);
+
+    // Filter out very short / empty paragraphs
+    paragraphs = paragraphs.filter((p) => p.trim().length > 30);
+    if (!paragraphs.length) return "";
+
+    // Score each paragraph against the topic and pick the best
+    let bestPara = paragraphs[0];
+    let bestScore = -1;
+    for (const p of paragraphs) {
+      const score = paragraphTopicScore(p, topicSlug);
+      if (score > bestScore) {
+        bestScore = score;
+        bestPara = p;
+      }
+    }
+
+    return truncateExcerpt(bestPara.replace(/\s+/g, " ").trim(), 200);
   }
 
   // ── Per-topic pages ──────────────────────────────────────────
