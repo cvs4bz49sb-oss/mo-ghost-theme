@@ -2524,11 +2524,53 @@ try {
   for (const [canonical, aliases] of Object.entries(BIBLE_BOOKS)) {
     for (const a of aliases) ALIAS_TO_CANONICAL[a.toLowerCase()] = canonical;
   }
+
+  // Convert Roman numeral string to integer (e.g. "iv" → 4, "xxiii" → 23).
+  function romanToArabic(s) {
+    const vals = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+    let total = 0;
+    const upper = s.toUpperCase();
+    for (let i = 0; i < upper.length; i++) {
+      const cur = vals[upper[i]] || 0;
+      const next = vals[upper[i + 1]] || 0;
+      total += cur < next ? -cur : cur;
+    }
+    return total;
+  }
+
+  // Regex matches both Arabic ("Matt 5:3") and Roman ("Matt. v. 3") chapters.
+  // Group 1 = book alias, Group 2 = Arabic chapter OR null,
+  // Group 3 = Roman chapter OR null, Group 4 = verse (optional).
   const aliasRegex = (() => {
     const sorted = Object.values(BIBLE_BOOKS).flat().sort((a, b) => b.length - a.length);
     const escaped = sorted.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-    return new RegExp("(?:^|[^A-Za-z])(" + escaped.join("|") + ")\\.?\\s+(\\d{1,3})(?:[:.]\\s?(\\d{1,3}))?", "g");
+    return new RegExp(
+      "(?:^|[^A-Za-z])(" + escaped.join("|") +
+      ")\\.?\\s+(?:(\\d{1,3})|([ivxlcIVXLC]+)\\.?)(?:[:.;,]\\s?(\\d{1,3}))?",
+      "g"
+    );
   })();
+
+  // Max chapter count per canonical book for false-positive filtering.
+  const MAX_CHAPTERS = {
+    "Genesis": 50, "Exodus": 40, "Leviticus": 27, "Numbers": 36,
+    "Deuteronomy": 34, "Joshua": 24, "Judges": 21, "Ruth": 4,
+    "1 Samuel": 31, "2 Samuel": 24, "1 Kings": 22, "2 Kings": 25,
+    "1 Chronicles": 29, "2 Chronicles": 36, "Ezra": 10, "Nehemiah": 13,
+    "Esther": 10, "Job": 42, "Psalms": 150, "Proverbs": 31,
+    "Ecclesiastes": 12, "Song of Solomon": 8, "Isaiah": 66,
+    "Jeremiah": 52, "Lamentations": 5, "Ezekiel": 48, "Daniel": 12,
+    "Hosea": 14, "Joel": 3, "Amos": 9, "Obadiah": 25, "Jonah": 4,
+    "Micah": 7, "Nahum": 3, "Habakkuk": 3, "Zephaniah": 3, "Haggai": 2,
+    "Zechariah": 14, "Malachi": 4, "Matthew": 28, "Mark": 16,
+    "Luke": 24, "John": 21, "Acts": 28, "Romans": 16,
+    "1 Corinthians": 16, "2 Corinthians": 13, "Galatians": 6,
+    "Ephesians": 6, "Philippians": 4, "Colossians": 4,
+    "1 Thessalonians": 5, "2 Thessalonians": 3, "1 Timothy": 6,
+    "2 Timothy": 4, "Titus": 3, "Philemon": 25, "Hebrews": 13,
+    "James": 5, "1 Peter": 5, "2 Peter": 3, "1 John": 5,
+    "2 John": 25, "3 John": 25, "Jude": 25, "Revelation": 22,
+  };
 
   function detectRefs(text) {
     const found = new Map(); // passage -> count (for de-dup)
@@ -2536,28 +2578,32 @@ try {
     aliasRegex.lastIndex = 0;
     while ((m = aliasRegex.exec(text)) !== null) {
       const alias = m[1];
-      const chapter = parseInt(m[2], 10);
+      const chapter = m[2]
+        ? parseInt(m[2], 10)
+        : romanToArabic(m[3]);
+      if (!chapter) continue;
       const canonical = ALIAS_TO_CANONICAL[alias.toLowerCase()];
-      if (!canonical || !chapter) continue;
+      if (!canonical) continue;
+      // Skip if chapter exceeds actual book length (catches Roman numeral
+      // false positives like "C" → 100).
+      const maxCh = MAX_CHAPTERS[canonical] || 150;
+      if (chapter > maxCh) continue;
       const passage = `${canonical} ${chapter}`;
       found.set(passage, (found.get(passage) || 0) + 1);
     }
     return found;
   }
 
-  // Auto-scan ALL library docs for scripture references.
-  const AUTO_SCAN_SLUGS = manifest
-    .filter((m) => m.category === "library")
-    .map((m) => m.slug);
+  // Auto-scan ALL docs for scripture references (library + documents).
+  const AUTO_SCAN_SLUGS = manifest.map((m) => m.slug);
   let added = 0;
   for (const slug of AUTO_SCAN_SLUGS) {
     const doc = await getDoc(slug);
     if (!doc) continue;
 
-    // Walk every chapter and collect refs. ID format must match the
-    // shape that lookupContent + normalizeAnchor + JS sourceToUrl all
-    // expect: library-books docs use `book-N-ch-M`; flat-list library
-    // docs use plain `chapter-N`.
+    // Walk every chapter/section/article/question and collect refs.
+    // ID format must match the shape that lookupContent + normalizeAnchor
+    // + JS sourceToUrl all expect.
     const chapters = [];
     if (doc.kind === "library-books") {
       for (const b of doc.books || []) {
@@ -2570,14 +2616,72 @@ try {
           });
         }
       }
-    } else if (doc.kind === "library-chapters" || doc.kind === "library-discourses" || doc.kind === "library-sections") {
+    } else if (doc.kind === "library-chapters" || doc.kind === "library-discourses" || doc.kind === "library-sections" || doc.kind === "chapters") {
       const list = doc.chapters || doc.discourses || doc.sections || [];
       for (const c of list) {
         chapters.push({
           id: `chapter-${c.number}`,
           type: "chapter",
           title: c.title || `Chapter ${c.number}`,
-          text: (c.paragraphs || []).join("\n\n"),
+          text: (c.paragraphs || []).join("\n\n") || c.text || "",
+        });
+      }
+    } else if (doc.kind === "sections") {
+      for (const s of doc.sections || []) {
+        chapters.push({
+          id: `section-${s.number}`,
+          type: "section",
+          title: s.title || `Section ${s.number}`,
+          text: s.text || (s.paragraphs || []).join("\n\n"),
+        });
+      }
+    } else if (doc.kind === "articles") {
+      for (const a of doc.articles || []) {
+        chapters.push({
+          id: `article-${a.number}`,
+          type: "article",
+          title: a.title || `Article ${a.number}`,
+          text: (a.paragraphs || []).join("\n\n") || a.text || "",
+        });
+      }
+    } else if (doc.kind === "qa") {
+      for (const q of doc.questions || []) {
+        chapters.push({
+          id: `question-${q.number}`,
+          type: "question",
+          title: q.question || `Question ${q.number}`,
+          text: [q.question || "", q.answer || "", ...(q.paragraphs || [])].join("\n\n"),
+        });
+      }
+    } else if (doc.kind === "heidelberg") {
+      for (const ld of doc.lordsDays || []) {
+        for (const q of ld.questions || []) {
+          chapters.push({
+            id: `question-${q.number}`,
+            type: "question",
+            title: q.question || `Question ${q.number}`,
+            text: [q.question || "", q.answer || ""].join("\n\n"),
+          });
+        }
+      }
+    } else if (doc.kind === "edwards") {
+      // Edwards resolutions - one flat list
+      for (let i = 0; i < (doc.resolutions || []).length; i++) {
+        const r = doc.resolutions[i];
+        chapters.push({
+          id: `resolution-${i + 1}`,
+          type: "resolution",
+          title: `Resolution ${i + 1}`,
+          text: r.text || r || "",
+        });
+      }
+    } else if (doc.kind === "theses") {
+      for (const t of doc.theses || []) {
+        chapters.push({
+          id: `thesis-${t.number}`,
+          type: "thesis",
+          title: `Thesis ${t.number}`,
+          text: t.text || "",
         });
       }
     }
