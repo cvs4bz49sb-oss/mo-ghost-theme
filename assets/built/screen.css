@@ -8185,7 +8185,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
   grid-column: 1 / -1;
   justify-self: start;
   margin-top: 10px;
-  padding-bottom: 4px;
+  padding-bottom: 16px;
 }
 @media (max-width: 720px) {
   .gift-banner .digest-form { grid-template-columns: 1fr; }

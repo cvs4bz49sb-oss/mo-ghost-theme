@@ -58,11 +58,24 @@
   // the gifter with an inline free-subscribe form. Token is signed
   // but not verified client-side — the soft gate is bypassable
   // anyway. See workers/gift/gift.js.
+  //
+  // Post-scoping: the token's `p` field must match the current post's
+  // ID. A token minted for post A can't unlock post B.
   if (!isMember) {
     const giftClaims = readGiftClaims();
     if (giftClaims) {
-      renderGiftBanner(content, giftClaims);
-      return;
+      const currentPostId = content.getAttribute("data-post-id") || "";
+      if (giftClaims.p && currentPostId && giftClaims.p !== currentPostId) {
+        // Token belongs to a different post — strip it from the URL
+        // so the visitor doesn't see a stale/mismatched parameter,
+        // then fall through to the normal gate.
+        const cleaned = new URL(window.location.href);
+        cleaned.searchParams.delete("gift");
+        window.history.replaceState(null, "", cleaned.toString());
+      } else {
+        renderGiftBanner(content, giftClaims);
+        return;
+      }
     }
   }
 
@@ -225,6 +238,7 @@
       const claims = JSON.parse(json);
       if (typeof claims.exp === "number" && claims.exp * 1000 < Date.now()) return null;
       return {
+        p: claims.p ? String(claims.p) : "",
         by: String(claims.by || "A Subscriber"),
         tier: String(claims.tier || "Subscriber"),
       };
