@@ -257,18 +257,15 @@
                                 {{/if}}
                             </div>
                             <div class="author-bio-text-col">
+                                <p class="eyebrow">The Author</p>
+                                <h4 class="author-bio-name"><em>{{name}}</em></h4>
                                 {{#match slug "=~" "^author-"}}
                                     {{#get "posts" filter="tag:{{slug}}" limit="1" as |gposts pagination|}}
                                         {{#match pagination.total "=" 1}}
-                                            <p class="eyebrow">New Contributor</p>
-                                        {{else}}
-                                            <p class="eyebrow">The Author</p>
+                                            <span class="new-contributor-pill">New Contributor</span>
                                         {{/match}}
                                     {{/get}}
-                                {{else}}
-                                    <p class="eyebrow">The Author</p>
                                 {{/match}}
-                                <h4 class="author-bio-name"><em>{{name}}</em></h4>
                                 {{#if description}}<p class="author-bio-text">{{description}}</p>{{/if}}
                                 <p class="author-bio-links"><a href="{{url}}">More essays by {{name}} &rarr;</a></p>
                             </div>
