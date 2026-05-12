@@ -33,18 +33,61 @@
 
 <script>
 (function () {
-  var BASE = "{{asset 'data/bookstore.json'}}";
-  // Ghost asset helper may not resolve data/ files. Fall back to relative path.
-  var url = BASE.indexOf("data/") !== -1 ? BASE : "/assets/data/bookstore.json";
+  var data = {
+    "shopUrl": "https://bookshop.org/shop/mereorthodoxy",
+    "categories": [
+      {
+        "id": "introduction",
+        "label": "Introduction to Mere Orthodoxy",
+        "listUrl": "https://bookshop.org/lists/introduction-to-mere-orthodoxy",
+        "totalCount": 12,
+        "books": [
+          { "title": "Mere Christianity", "author": "C. S. Lewis", "price": "$16.73" },
+          { "title": "Orthodoxy", "author": "G. K. Chesterton", "price": "$9.29" },
+          { "title": "Democracy and Solidarity", "author": "James Davison Hunter", "price": "$22.32" },
+          { "title": "The Year of Our Lord 1943", "author": "Alan Jacobs", "price": "$39.99" },
+          { "title": "Creation Regained", "author": "Albert M. Wolters", "price": "$17.66" },
+          { "title": "The Case for Civility", "author": "Os Guinness", "price": "$7.99" },
+          { "title": "To Change the World", "author": "James Davison Hunter", "price": "$55.19" },
+          { "title": "A Time to Build", "author": "Yuval Levin", "price": "$17.66" }
+        ]
+      },
+      {
+        "id": "contributors",
+        "label": "Mere Orthodoxy Contributors",
+        "listUrl": "https://bookshop.org/lists/mere-orthodoxy-contributors",
+        "totalCount": 61,
+        "books": [
+          { "title": "Christians Reading Classics", "author": "Nadya Williams", "price": "$30.68" },
+          { "title": "Resisting Therapy Culture", "author": "Matthew Loftus and Alan Noble", "price": "$20.45" },
+          { "title": "Digital Liturgies", "author": "Samuel James", "price": "$15.80" },
+          { "title": "Uprooted", "author": "Grace Olmstead", "price": "$25.11" },
+          { "title": "Bulwarks of Unbelief", "author": "Joseph Minich and Carl R. Trueman", "price": "$34.40" },
+          { "title": "The Dignity of Dependence", "author": "Leah Libresco Sargeant", "price": "$26.04" },
+          { "title": "The Church: A Guide to the People of God", "author": "Brad East", "price": "$17.66" },
+          { "title": "What Are Christians For?", "author": "Jake Meador and Karen Swallow Prior", "price": "$21.38" }
+        ]
+      },
+      {
+        "id": "featured",
+        "label": "Featured on Mere O",
+        "listUrl": "https://bookshop.org/lists/featured-on-mere-o",
+        "totalCount": 146,
+        "books": [
+          { "title": "Forty Acres Deep", "author": "Michael Perry", "price": "$12.04" },
+          { "title": "The Ballad of the Lost Dogs of East Nashville", "author": "John J. Thompson", "price": "$22.31" },
+          { "title": "For the Children’s Sake", "author": "Susan Schaeffer Macaulay", "price": "$16.73" },
+          { "title": "Hannah Coulter", "author": "Wendell Berry", "price": "$15.76" },
+          { "title": "Growing in Christ", "author": "J. I. Packer", "price": "$30.68" },
+          { "title": "The Age of Diagnosis", "author": "Suzanne O’Sullivan", "price": "$29.76" },
+          { "title": "The Wake", "author": "Paul Kingsnorth", "price": "$18.60" },
+          { "title": "Cahokia Jazz", "author": "Francis Spufford", "price": "$18.60" }
+        ]
+      }
+    ]
+  };
 
-  fetch(url).then(function (r) { return r.json(); }).then(render).catch(function () {
-    // Try alternate path
-    fetch("/assets/data/bookstore.json").then(function (r) { return r.json(); }).then(render).catch(function (err) {
-      console.error("Bookstore data failed to load:", err);
-      var el = document.querySelector("[data-bookstore-sections]");
-      if (el) el.innerHTML = '<p>Unable to load book recommendations. <a href="https://bookshop.org/shop/mereorthodoxy">Visit our Bookshop.org page</a> instead.</p>';
-    });
-  });
+  render(data);
 
   function render(data) {
     var sections = document.querySelector("[data-bookstore-sections]");
@@ -55,10 +98,8 @@
     var bodyHtml = "";
 
     data.categories.forEach(function (cat) {
-      // Nav link
       navHtml += '<a href="#' + cat.id + '" class="bookstore-nav-link">' + cat.label + '</a>';
 
-      // Section
       bodyHtml += '<div class="bookstore-section" id="' + cat.id + '">';
       bodyHtml += '<div class="bookstore-section-header">';
       bodyHtml += '<h2 class="bookstore-section-title"><em>' + cat.label + '</em></h2>';
