@@ -59,7 +59,7 @@ routes:
     template: custom-contact
   /privacy/:
     template: custom-privacy
-  /bookstore/:
+  /books/:
     template: custom-bookstore
   /submissions/:
     template: custom-submissions

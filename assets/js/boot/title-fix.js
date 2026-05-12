@@ -29,7 +29,7 @@
     "/dashboard/journals/": "Journal Archive",
     "/manage/": "Manage Membership",
     "/success/": "Welcome",
-    "/bookstore/": "Bookstore"
+    "/books/": "Bookstore"
   };
 
   const path = window.location.pathname;

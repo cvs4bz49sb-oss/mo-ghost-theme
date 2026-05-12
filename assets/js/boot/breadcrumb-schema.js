@@ -16,7 +16,7 @@
     "/ebooks/": [{ name: "Ebooks" }],
     "/give/": [{ name: "Gift a Membership" }],
     "/donate/": [{ name: "Donate" }],
-    "/bookstore/": [{ name: "Bookstore" }],
+    "/books/": [{ name: "Bookstore" }],
     "/the-faith-received/": [{ name: "The Faith Received" }],
     "/podcasts/mere-fidelity/": [{ name: "Podcasts", url: "/" }, { name: "Mere Fidelity" }],
     "/podcasts/christians-reading-classics/": [{ name: "Podcasts", url: "/" }, { name: "Christians Reading Classics" }]
