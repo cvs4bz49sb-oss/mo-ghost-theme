@@ -246,6 +246,16 @@
          items from visibly popping into grouped dropdowns. --}}
     <script src="{{asset "js/nav-dropdowns.js"}}"></script>
 
+    {{!-- Header behaviors loaded here (after header + mobile-nav are
+         in the DOM but before {{{body}}} paints). The syncOffset()
+         function measures the fixed header's height and sets
+         body.paddingTop to push page content below it. If this runs
+         in the footer bundle, the hero/content renders at top:0
+         (under the header) and then jumps down when the footer
+         scripts execute — visible as the "everything shifts up then
+         back down" pop-in. --}}
+    <script src="{{asset "js/boot/header-behaviors.js"}}"></script>
+
     {{{body}}}
 
     <footer class="site-footer">

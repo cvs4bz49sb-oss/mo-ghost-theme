@@ -61,7 +61,9 @@ const BUNDLES = [
       "assets/js/dark-mode.js",
       "assets/js/feature-gate.js",
       "assets/js/search.js",
-      "assets/js/boot/header-behaviors.js",
+      // header-behaviors.js is loaded standalone in default.hbs right
+      // after the header + mobile-nav, before {{{body}}}, to prevent
+      // the body-padding-top jump that causes hero shift on load.
       "assets/js/commonplace.js",
       "assets/js/liturgical-calendar.js",
       "assets/js/slide-in.js",
