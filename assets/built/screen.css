@@ -14393,6 +14393,16 @@ body[class*="lc-"] .article-header::before {
   transition: border-color 0.15s;
 }
 .bookstore-book:hover { border-color: var(--color-dark); }
+.bookstore-cover {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  margin-bottom: 14px;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
 .bookstore-book-title {
   font-family: var(--font-serif);
   font-size: 15px;
