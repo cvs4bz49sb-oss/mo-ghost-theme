@@ -376,14 +376,9 @@
   {{> "membership-body"}}
 </div>
 
-<script src="{{asset "js/toc.js"}}"></script>
-<script src="{{asset "js/related.js"}}"></script>
-<script src="{{asset "js/post-gate.js"}}"></script>
-<script src="{{asset "js/article-audio.js"}}"></script>
-<script src="{{asset "js/article-bookmark.js"}}"></script>
-<script src="{{asset "js/article-pdf.js"}}"></script>
-<script src="{{asset "js/article-gift.js"}}"></script>
-<script src="{{asset "js/article-share.js"}}"></script>
+{{!-- Post bundle: toc, related, post-gate, article-audio,
+     article-bookmark, article-pdf, article-gift, article-share --}}
+<script src="{{asset "built/post.min.js"}}"></script>
 
 {{!-- Plausible custom event — "Article Read" — fires once per
      article page load with title, primary_tag, and author as

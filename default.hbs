@@ -43,7 +43,6 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <title>{{meta_title}}</title>
-    <script src="{{asset "js/boot/title-fix.js"}}"></script>
     <meta name="theme-color" content="#1d1b18">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -52,7 +51,7 @@
     <link rel="dns-prefetch" href="https://plausible.io" />
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="{{asset "built/screen.css"}}" />
+    <link rel="stylesheet" type="text/css" href="{{asset "built/screen.min.css"}}" />
 
     {{!-- No-JS fallback: screen.css hides "Parent > Child" nav items
          pre-JS to prevent the flicker before nav-dropdowns.js rebuilds
@@ -158,36 +157,11 @@
       {{#if @custom.error_worker_url}}data-error-worker-url="{{@custom.error_worker_url}}"{{/if}}
       {{#if @member}}data-member-email="{{@member.email}}" data-member-status="{{@member.status}}"{{/if}}>
 
-    {{!-- Liturgical calendar: applies the season class to <body> before
-         first paint to prevent FOUC. Loaded synchronously (no async/
-         defer) so it runs after <body> is parsed but before paint.
-         Full settings UI lives in liturgical-calendar.js further
-         down the body. --}}
-    <script src="{{asset "js/boot/liturgical-class.js"}}"></script>
-    <script src="{{asset "js/boot/mo-api-base.js"}}"></script>
-
-    {{!-- admin-auth + safe-href MUST load before {{{body}}} below.
-         Page templates (custom-dashboard.hbs, custom-bookmarks.hbs,
-         etc.) include their own <script> tags inside {{{body}}}, and
-         those scripts call window.MOAuth.fetch / window.MOSafeHref.set
-         synchronously on load. If admin-auth.js is loaded later in
-         default.hbs (after {{{body}}}), the page-template scripts run
-         first and throw "Cannot read properties of undefined (reading
-         'fetch')" — and because that throw happens before a Promise
-         is even constructed, the .catch handlers in dashboard.js
-         never fire and modules stay stuck on their "Loading…"
-         placeholder. See HANDOFF_3.1 for the full debug chain. --}}
-    <script src="{{asset "js/admin-auth.js"}}"></script>
-    <script src="{{asset "js/lib/safe-href.js"}}"></script>
-    <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
-    {{!-- DOMPurify (vendored, ~22KB). Loaded globally so any script
-         that pastes HTML into innerHTML has it available. Was
-         previously per-template (custom-events, custom-dashboard-
-         replays, custom-forum); Codex audit 2026-05-11 added
-         faith-received.js to the list. Loading once here is simpler
-         than adding the script tag to all 77 faith-received template
-         files. --}}
-    <script src="{{asset "js/vendor/purify.min.js"}}"></script>
+    {{!-- Boot bundle: title-fix, liturgical-class, mo-api-base,
+         admin-auth, safe-href, safe-redirect, DOMPurify. MUST load
+         before {{{body}}} — page templates call window.MOAuth.fetch
+         and window.MOSafeHref synchronously on load. --}}
+    <script src="{{asset "built/boot.min.js"}}"></script>
 
     <header class="site-header">
         <div class="container header-inner">
@@ -338,42 +312,12 @@
         </div>
     </footer>
 
-    {{!-- jsonld-fix.js corrects Ghost's auto-emitted Article JSON-LD
-         to use the real byline (author-* tag) instead of the generic
-         "Mere Orthodoxy" house account, and adds SearchAction to the
-         homepage WebSite block. Loaded high in the body so the fix
-         lands before render-pass crawlers (Googlebot, PerplexityBot,
-         Bingbot) snapshot the page for indexing. See file header for
-         the full rationale. --}}
-    {{!-- Error beacon: posts uncaught JS errors, unhandled promise
-         rejections, and CSP violations to the mo-errors worker so
-         we see what's actually breaking in production browsers. No-
-         op when @custom.error_worker_url is empty. --}}
-    <script src="{{asset "js/error-beacon.js"}}"></script>
-    <script src="{{asset "js/jsonld-fix.js"}}"></script>
-    <script src="{{asset "js/boot/breadcrumb-schema.js"}}"></script>
-    <script src="{{asset "js/site-settings.js"}}"></script>
-    <script src="{{asset "js/nav-dropdowns.js"}}"></script>
-    {{!-- admin-auth.js (window.MOAuth.fetch) and the safe-href pair
-         (window.MOSafeHref / window.MOSafeRedirect) are loaded earlier,
-         right after the boot scripts and BEFORE {{{body}}} — see the
-         comment at the top of <body> for why. Don't move them back
-         down here without also wrapping every page-template hydration
-         script in a "wait for window.MOAuth" guard. --}}
-    <script src="{{asset "js/inline-signup.js"}}"></script>
-    <script src="{{asset "js/kit-events.js"}}"></script>
-    <script src="{{asset "js/dark-mode.js"}}"></script>
-    <script src="{{asset "js/feature-gate.js"}}"></script>
-    <script src="{{asset "js/search.js"}}"></script>
-    <script src="{{asset "js/boot/header-behaviors.js"}}"></script>
-    <script src="{{asset "js/commonplace.js"}}"></script>
-    <script src="{{asset "js/liturgical-calendar.js"}}"></script>
-    <script src="{{asset "js/slide-in.js"}}"></script>
-    <script src="{{asset "js/topic-filter.js"}}"></script>
-    <script src="{{asset "js/podcast-feed.js"}}"></script>
-    <script src="{{asset "js/title-cleanup.js"}}"></script>
-
-    <script src="{{asset "js/boot/viewport-fix.js"}}"></script>
+    {{!-- Site bundle: error-beacon, jsonld-fix, breadcrumb-schema,
+         site-settings, nav-dropdowns, inline-signup, kit-events,
+         dark-mode, feature-gate, search, header-behaviors, commonplace,
+         liturgical-calendar, slide-in, topic-filter, podcast-feed,
+         title-cleanup, viewport-fix. --}}
+    <script src="{{asset "built/site.min.js"}}"></script>
     {{ghost_foot}}
 </body>
 </html>
