@@ -3,22 +3,6 @@
   "shopUrl": "https://bookshop.org/shop/mereorthodoxy",
   "categories": [
     {
-      "id": "contributors",
-      "label": "Mere Orthodoxy Contributors",
-      "listUrl": "https://bookshop.org/lists/mere-orthodoxy-contributors",
-      "totalCount": 61,
-      "books": [
-        { "title": "Christians Reading Classics", "author": "Nadya Williams", "price": "$30.68" },
-        { "title": "Resisting Therapy Culture", "author": "Matthew Loftus and Alan Noble", "price": "$20.45" },
-        { "title": "Digital Liturgies", "author": "Samuel James", "price": "$15.80" },
-        { "title": "Uprooted", "author": "Grace Olmstead", "price": "$25.11" },
-        { "title": "Bulwarks of Unbelief", "author": "Joseph Minich and Carl R. Trueman", "price": "$34.40" },
-        { "title": "The Dignity of Dependence", "author": "Leah Libresco Sargeant", "price": "$26.04" },
-        { "title": "The Church: A Guide to the People of God", "author": "Brad East", "price": "$17.66" },
-        { "title": "What Are Christians For?", "author": "Jake Meador and Karen Swallow Prior", "price": "$21.38" }
-      ]
-    },
-    {
       "id": "introduction",
       "label": "Introduction to Mere Orthodoxy",
       "listUrl": "https://bookshop.org/lists/introduction-to-mere-orthodoxy",
@@ -35,19 +19,19 @@
       ]
     },
     {
-      "id": "nicaea",
-      "label": "Passages: Nicaea",
-      "listUrl": "https://bookshop.org/lists/passages-nicaea",
-      "totalCount": 22,
+      "id": "contributors",
+      "label": "Mere Orthodoxy Contributors",
+      "listUrl": "https://bookshop.org/lists/mere-orthodoxy-contributors",
+      "totalCount": 61,
       "books": [
-        { "title": "Commentary on the Epistle to the Romans, Books 1–5", "author": "Origen", "price": "$51.75" },
-        { "title": "Dialogue with Trypho", "author": "St. Justin Martyr", "price": "$24.95" },
-        { "title": "The Scandal of the Incarnation", "author": "Hans Urs von Balthasar", "price": "$16.69" },
-        { "title": "The Apostolic Tradition of Hippolytus", "author": "Burton Scott Easton", "price": "$49.45" },
-        { "title": "The Life of Saint Macrina", "author": "Gregory of Nyssa", "price": "$13.95" },
-        { "title": "The Life of Moses", "author": "Gregory of Nyssa", "price": "$17.66" },
-        { "title": "Select Orations", "author": "St. Gregory of Nazianzus", "price": "$51.75" },
-        { "title": "Three Poems", "author": "St. Gregory of Nazianzus", "price": "$51.75" }
+        { "title": "Christians Reading Classics", "author": "Nadya Williams", "price": "$30.68" },
+        { "title": "Resisting Therapy Culture", "author": "Matthew Loftus and Alan Noble", "price": "$20.45" },
+        { "title": "Digital Liturgies", "author": "Samuel James", "price": "$15.80" },
+        { "title": "Uprooted", "author": "Grace Olmstead", "price": "$25.11" },
+        { "title": "Bulwarks of Unbelief", "author": "Joseph Minich and Carl R. Trueman", "price": "$34.40" },
+        { "title": "The Dignity of Dependence", "author": "Leah Libresco Sargeant", "price": "$26.04" },
+        { "title": "The Church: A Guide to the People of God", "author": "Brad East", "price": "$17.66" },
+        { "title": "What Are Christians For?", "author": "Jake Meador and Karen Swallow Prior", "price": "$21.38" }
       ]
     },
     {
@@ -58,108 +42,12 @@
       "books": [
         { "title": "Forty Acres Deep", "author": "Michael Perry", "price": "$12.04" },
         { "title": "The Ballad of the Lost Dogs of East Nashville", "author": "John J. Thompson", "price": "$22.31" },
-        { "title": "For the Children’s Sake", "author": "Susan Schaeffer Macaulay", "price": "$16.73" },
+        { "title": "For the Children's Sake", "author": "Susan Schaeffer Macaulay", "price": "$16.73" },
         { "title": "Hannah Coulter", "author": "Wendell Berry", "price": "$15.76" },
         { "title": "Growing in Christ", "author": "J. I. Packer", "price": "$30.68" },
-        { "title": "The Age of Diagnosis", "author": "Suzanne O’Sullivan", "price": "$29.76" },
+        { "title": "The Age of Diagnosis", "author": "Suzanne O'Sullivan", "price": "$29.76" },
         { "title": "The Wake", "author": "Paul Kingsnorth", "price": "$18.60" },
         { "title": "Cahokia Jazz", "author": "Francis Spufford", "price": "$18.60" }
-      ]
-    },
-    {
-      "id": "children",
-      "label": "Children’s Literature",
-      "listUrl": "https://bookshop.org/lists/children-s-literature-85f6db85-c714-4f64-bd34-d9c3aded99d1",
-      "totalCount": 26,
-      "books": [
-        { "title": "The Grey Lady and the Strawberry Snatcher", "author": "Molly Bang", "price": "$9.29" },
-        { "title": "The Complete Book of the Flower Fairies", "author": "Cicely Mary Barker", "price": "$27.90" },
-        { "title": "The Complete Brambly Hedge", "author": "Jill Barklem", "price": "$23.24" },
-        { "title": "Around the Year", "author": "Elsa Beskow", "price": "$9.25" },
-        { "title": "The Color Wizard", "author": "Barbara Brenner", "price": "$9.25" },
-        { "title": "Hildegard of Bingen", "author": "Demi", "price": "$16.69" },
-        { "title": "The Moomins and the Great Flood", "author": "Tove Jansson", "price": "$15.76" },
-        { "title": "Moominvalley in November", "author": "Tove Jansson", "price": "$9.29" }
-      ]
-    },
-    {
-      "id": "protestantism",
-      "label": "Magisterial Protestantism",
-      "listUrl": "https://bookshop.org/lists/magisterial-protestantism",
-      "totalCount": 44,
-      "books": [
-        { "title": "Institutes of the Christian Religion", "author": "John Calvin", "price": "$37.15" },
-        { "title": "John Calvin’s Institutes of the Christian Religion: A Biography", "author": "Bruce Gordon", "price": "$33.54" },
-        { "title": "The Cambridge Companion to John Calvin", "author": "Donald K. McKim", "price": "$73.70" },
-        { "title": "John Calvin: A Pilgrim’s Life", "author": "Herman J. Selderhuis", "price": "$35.33" },
-        { "title": "Instruction in Christian Love", "author": "Martin Bucer", "price": "$10.23" },
-        { "title": "Melanchthon and Bucer", "author": "Henry P. Van Dusen and Wilhelm Pauck", "price": "$51.15" },
-        { "title": "Melanchthon: Orations on Philosophy and Education", "author": "Melanchthon", "price": "$75.90" },
-        { "title": "The Bondage of the Will", "author": "Martin Luther", "price": "$26.03" }
-      ]
-    },
-    {
-      "id": "politics",
-      "label": "Modern Politics and Liberalism",
-      "listUrl": "https://bookshop.org/lists/modern-politics-and-liberalism",
-      "totalCount": 23,
-      "books": [
-        { "title": "Democracy and Tradition", "author": "Jeffrey Stout", "price": "$53.00" },
-        { "title": "From Irenaeus to Grotius", "author": "Oliver O’Donovan", "price": "$68.81" },
-        { "title": "The Desire of the Nations", "author": "Oliver O’Donovan", "price": "$40.70" },
-        { "title": "Tolerance Among the Virtues", "author": "John R. Bowlin", "price": "$39.10" },
-        { "title": "Politics and the Order of Love", "author": "Eric Gregory", "price": "$46.00" },
-        { "title": "Ethics as a Work of Charity", "author": "David Decosimo", "price": "$43.70" },
-        { "title": "The Ways of Judgement", "author": "Oliver O’Donovan", "price": "$33.47" },
-        { "title": "Defending Constantine", "author": "Peter J. Leithart", "price": "$39.05" }
-      ]
-    },
-    {
-      "id": "economy",
-      "label": "Political Economy",
-      "listUrl": "https://bookshop.org/lists/political-economy-mere-orthodoxy",
-      "totalCount": 28,
-      "books": [
-        { "title": "Taming the Octopus", "author": "Kyle Edward Williams", "price": "$27.89" },
-        { "title": "The Great Transformation", "author": "Karl Polanyi", "price": "$31.20" },
-        { "title": "The Market Revolution in America", "author": "John Lauritz Larson", "price": "$37.40" },
-        { "title": "Religion and the Rise of Capitalism", "author": "R. H. Tawney", "price": "$78.19" },
-        { "title": "Unto This Last and Other Writings", "author": "John Ruskin", "price": "$14.88" },
-        { "title": "The Origin of Capitalism", "author": "Ellen Meiksins Wood", "price": "$18.55" },
-        { "title": "The Modern Corporation and Private Property", "author": "Adolf A. Berle", "price": "$230.00" },
-        { "title": "The Visible Hand", "author": "Alfred DuPont Chandler", "price": "$44.40" }
-      ]
-    },
-    {
-      "id": "race",
-      "label": "Race",
-      "listUrl": "https://bookshop.org/lists/race-mere-orthodoxy",
-      "totalCount": 28,
-      "books": [
-        { "title": "Where Do We Go from Here: Chaos or Community?", "author": "Martin Luther King Jr.", "price": "$16.74" },
-        { "title": "No Future in This Country", "author": "Andre E. Johnson", "price": "$42.00" },
-        { "title": "Narrative of the Life of Frederick Douglass", "author": "Frederick Douglass", "price": "$4.19" },
-        { "title": "Black Reconstruction in America", "author": "W. E. B. Du Bois", "price": "$26.00" },
-        { "title": "The Souls of Black Folk", "author": "W. E. B. Du Bois", "price": "$13.02" },
-        { "title": "Up from Slavery", "author": "Booker T. Washington", "price": "$9.99" },
-        { "title": "The Content of Our Character", "author": "Shelby Steele", "price": "$16.99" },
-        { "title": "A Dream Deferred", "author": "Shelby Steele", "price": "$19.99" }
-      ]
-    },
-    {
-      "id": "sexuality",
-      "label": "Sexuality",
-      "listUrl": "https://bookshop.org/lists/sexuality-mere-orthodoxy",
-      "totalCount": 13,
-      "books": [
-        { "title": "What It Means to Be Human", "author": "O. Carter Snead", "price": "$22.95" },
-        { "title": "Theology of the Body in Simple Language", "author": "Pope John Paul II", "price": "$19.99" },
-        { "title": "Walking Through Infertility", "author": "Matthew Arbo", "price": "$14.87" },
-        { "title": "Natality: Toward a Philosophy of Birth", "author": "Jennifer Banks", "price": "$14.87" },
-        { "title": "Hannah’s Children", "author": "Catherine Pakaluk", "price": "$32.55" },
-        { "title": "Mothers, Children, and the Body Politic", "author": "Nadejda Williams", "price": "$26.96" },
-        { "title": "The Rights of Women", "author": "Erika Bachiochi", "price": "$42.00" },
-        { "title": "Earthen Vessels", "author": "Matthew Lee Anderson", "price": "$45.56" }
       ]
     }
   ]
