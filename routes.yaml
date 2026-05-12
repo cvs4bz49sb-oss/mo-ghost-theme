@@ -57,6 +57,8 @@ routes:
     template: custom-success
   /contact/:
     template: custom-contact
+  /privacy/:
+    template: custom-privacy
   /submissions/:
     template: custom-submissions
   /podcasts/mere-fidelity/:

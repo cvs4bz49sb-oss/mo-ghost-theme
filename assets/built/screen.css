@@ -14244,3 +14244,81 @@ body[class*="lc-"] .article-header::before {
 .faith-gate--shake .faith-gate-card {
   animation: faith-gate-shake 0.35s ease;
 }
+
+/* --- /privacy/ --------------------------------------------------------- */
+.privacy-hero {
+  padding: 72px 0 32px;
+  text-align: center;
+}
+.privacy-hero .container { max-width: 760px; }
+.privacy-hero .hero-kicker { justify-content: center; }
+.privacy-headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 1.04;
+  color: var(--color-white);
+  margin: 14px 0 18px;
+}
+.privacy-headline em { font-style: italic; }
+.privacy-sub {
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+.privacy-body {
+  padding: 56px 0 96px;
+}
+.privacy-body p {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0 0 20px;
+}
+.privacy-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 24px;
+}
+.privacy-subheading {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 0 0 8px;
+}
+.privacy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
+.privacy-list li {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  padding-left: 20px;
+  position: relative;
+  margin-bottom: 10px;
+}
+.privacy-list li::before {
+  content: "\B6";
+  position: absolute;
+  left: 0;
+  color: var(--color-primary);
+  font-size: 13px;
+  top: 2px;
+}
+.privacy-entity {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin-top: 32px;
+}
