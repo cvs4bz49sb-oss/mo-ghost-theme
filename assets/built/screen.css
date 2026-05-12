@@ -14362,8 +14362,6 @@ body[class*="lc-"] .article-header::before {
   align-items: baseline;
   justify-content: space-between;
   margin-bottom: 24px;
-  border-bottom: 1px solid var(--color-card-border);
-  padding-bottom: 12px;
 }
 .bookstore-section-title {
   font-family: var(--font-display);
