@@ -145,6 +145,12 @@
          window.plausible(...) on the 'load' event — after pa-*.js has
          installed the real sender. See post.hbs for the one caller. --}}
 
+    {{!-- Preload the logo image so the browser fetches it during
+         parsing, before the <img> is discovered in the body. Eliminates
+         the visible pop-in when the header paints before the logo
+         download completes. --}}
+    <link rel="preload" as="image" href="{{asset "images/mere-o-logo.png"}}" />
+
     <link rel="icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
     <link rel="shortcut icon" type="image/jpeg" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
     <link rel="apple-touch-icon" href="{{asset "images/mere-o-fav-icon.jpg"}}" />
@@ -166,7 +172,7 @@
     <header class="site-header">
         <div class="container header-inner">
             <a href="{{@site.url}}" class="brand" aria-label="{{@site.title}} home">
-                <img src="{{asset "images/mere-o-logo.png"}}" alt="{{@site.title}}" class="brand-logo" />
+                <img src="{{asset "images/mere-o-logo.png"}}" alt="{{@site.title}}" class="brand-logo" width="164" height="72" />
             </a>
             <nav class="nav" aria-label="Primary" data-nav-dropdowns>
                 {{!-- Use this.url so Handlebars resolves the nav item's
