@@ -28,7 +28,8 @@
     "/dashboard/ebooks/": "My Ebooks",
     "/dashboard/journals/": "Journal Archive",
     "/manage/": "Manage Membership",
-    "/success/": "Welcome"
+    "/success/": "Welcome",
+    "/bookstore/": "Bookstore"
   };
 
   const path = window.location.pathname;
