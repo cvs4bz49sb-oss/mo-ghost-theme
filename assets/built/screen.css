@@ -14441,7 +14441,7 @@ details.bookstore-section[open] > .bookstore-section-header::after {
   .bookstore-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
-  .bookstore-grid { grid-template-columns: 1fr; }
+  .bookstore-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bookstore-view-all { font-size: 14px; padding: 13px 0; }
   .bookstore-book-author { font-size: 14px; }
   .bookstore-book-price { font-size: 14px; }
