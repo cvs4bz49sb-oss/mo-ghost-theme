@@ -16,5 +16,5 @@
 {{else}}{{#match slug "author-matthew-loftus"}}<div class="meta-author-sub">Editorial Board Member</div>
 {{else}}{{#match slug "author-susannah-black-roberts"}}<div class="meta-author-sub">Editorial Board Member</div>
 {{else}}{{#match slug "author-tessa-carman"}}<div class="meta-author-sub">Editorial Board Member</div>
-{{else}}{{#if description}}<div class="meta-author-sub">Contributor</div>{{/if}}
+{{else}}{{#get "posts" filter="tag:{{slug}}" limit="1" as |gposts pagination|}}{{#match pagination.total "=" 1}}<div class="meta-author-sub meta-new-contributor">New Contributor</div>{{else}}{{#if description}}<div class="meta-author-sub">Contributor</div>{{/if}}{{/match}}{{/get}}
 {{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}{{/match}}
