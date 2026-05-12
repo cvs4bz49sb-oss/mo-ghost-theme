@@ -14317,6 +14317,17 @@ body[class*="lc-"] .article-header::before {
   font-size: 13px;
   top: 2px;
 }
+.privacy-pilcrow {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--color-dark);
+  line-height: 1;
+}
 .privacy-entity {
   font-size: 14px;
   color: var(--color-muted);
