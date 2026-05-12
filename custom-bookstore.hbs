@@ -1,7 +1,9 @@
 {{!< default}}
 {{!-- /bookstore/ — curated book recommendations from Mere Orthodoxy.
      Static HTML — no JS required. Cover images from Bookshop.org CDN.
-     To update: edit the HTML below directly. --}}
+     Sections are collapsible via native <details>/<summary>.
+     To update: edit the HTML below directly, or ask Claude to
+     scrape fresh data from the Bookshop.org list pages. --}}
 
 <main class="bookstore-page">
 
@@ -17,11 +19,11 @@
     <div class="container">
 
       {{!-- ── Introduction to Mere Orthodoxy ─────────────────────── --}}
-      <div class="bookstore-section" id="introduction">
-        <div class="bookstore-section-header">
+      <details class="bookstore-section" id="introduction" open>
+        <summary class="bookstore-section-header">
           <h2 class="bookstore-section-title"><em>Introduction to Mere&nbsp;Orthodoxy</em></h2>
-          <a href="https://bookshop.org/lists/introduction-to-mere-orthodoxy" class="bookstore-view-all" target="_blank" rel="noopener">View all 12 &rarr;</a>
-        </div>
+          <a href="https://bookshop.org/lists/introduction-to-mere-orthodoxy" class="bookstore-view-all" target="_blank" rel="noopener" onclick="event.stopPropagation()">View all 12 &rarr;</a>
+        </summary>
         <div class="bookstore-grid">
 
           <a href="https://bookshop.org/search?keywords=Mere+Christianity+C.+S.+Lewis" class="bookstore-book" target="_blank" rel="noopener">
@@ -81,14 +83,14 @@
           </a>
 
         </div>
-      </div>
+      </details>
 
       {{!-- ── Mere Orthodoxy Contributors ────────────────────────── --}}
-      <div class="bookstore-section" id="contributors">
-        <div class="bookstore-section-header">
+      <details class="bookstore-section" id="contributors" open>
+        <summary class="bookstore-section-header">
           <h2 class="bookstore-section-title"><em>Mere&nbsp;Orthodoxy Contributors</em></h2>
-          <a href="https://bookshop.org/lists/mere-orthodoxy-contributors" class="bookstore-view-all" target="_blank" rel="noopener">View all 61 &rarr;</a>
-        </div>
+          <a href="https://bookshop.org/lists/mere-orthodoxy-contributors" class="bookstore-view-all" target="_blank" rel="noopener" onclick="event.stopPropagation()">View all 61 &rarr;</a>
+        </summary>
         <div class="bookstore-grid">
 
           <a href="https://bookshop.org/search?keywords=Christians+Reading+Classics+Nadya+Williams" class="bookstore-book" target="_blank" rel="noopener">
@@ -148,14 +150,14 @@
           </a>
 
         </div>
-      </div>
+      </details>
 
       {{!-- ── Featured on Mere O ─────────────────────────────────── --}}
-      <div class="bookstore-section" id="featured">
-        <div class="bookstore-section-header">
+      <details class="bookstore-section" id="featured" open>
+        <summary class="bookstore-section-header">
           <h2 class="bookstore-section-title"><em>Featured on Mere O</em></h2>
-          <a href="https://bookshop.org/lists/featured-on-mere-o" class="bookstore-view-all" target="_blank" rel="noopener">View all 146 &rarr;</a>
-        </div>
+          <a href="https://bookshop.org/lists/featured-on-mere-o" class="bookstore-view-all" target="_blank" rel="noopener" onclick="event.stopPropagation()">View all 146 &rarr;</a>
+        </summary>
         <div class="bookstore-grid">
 
           <a href="https://bookshop.org/search?keywords=Forty+Acres+Deep+Michael+Perry" class="bookstore-book" target="_blank" rel="noopener">
@@ -215,7 +217,7 @@
           </a>
 
         </div>
-      </div>
+      </details>
 
     </div>
   </section>
