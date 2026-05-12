@@ -54,7 +54,8 @@ const BUNDLES = [
       "assets/js/jsonld-fix.js",
       "assets/js/boot/breadcrumb-schema.js",
       "assets/js/site-settings.js",
-      "assets/js/nav-dropdowns.js",
+      // nav-dropdowns.js is loaded standalone in default.hbs right
+      // after the header, before {{{body}}}, to prevent FOUC.
       "assets/js/inline-signup.js",
       "assets/js/kit-events.js",
       "assets/js/dark-mode.js",

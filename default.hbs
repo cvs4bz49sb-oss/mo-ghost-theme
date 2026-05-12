@@ -235,6 +235,11 @@
         </aside>
     </div>
 
+    {{!-- Nav dropdowns loaded here (after header + mobile-nav are in
+         the DOM but before {{{body}}} paints) to prevent the flat-nav
+         items from visibly popping into grouped dropdowns. --}}
+    <script src="{{asset "js/nav-dropdowns.js"}}"></script>
+
     {{{body}}}
 
     <footer class="site-footer">
