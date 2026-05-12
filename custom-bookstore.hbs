@@ -1,0 +1,85 @@
+{{!< default}}
+{{!-- /bookstore/ — curated book recommendations from Mere Orthodoxy.
+     Data is loaded from data/bookstore.json. Each category shows 8
+     featured titles with a link to the full list on Bookshop.org.
+     Purchases through these links support both local bookstores and
+     Mere Orthodoxy through the Bookshop.org affiliate program. --}}
+
+<main class="bookstore-page">
+
+  <section class="hero bookstore-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> The Bookshelf</p>
+      <h1 class="hero-headline">What we're <span class="highlight"><em>reading</em></span>.</h1>
+      <p class="hero-sub">Curated book recommendations from the editors and contributors of Mere Orthodoxy. Purchases support local bookstores through <a href="https://bookshop.org/shop/mereorthodoxy" target="_blank" rel="noopener">Bookshop.org</a>.</p>
+    </div>
+  </section>
+
+  <section class="bookstore-body">
+    <div class="container">
+
+      <nav class="bookstore-nav" aria-label="Book categories">
+        {{!-- Populated by JS from bookstore.json --}}
+      </nav>
+
+      <div class="bookstore-sections" data-bookstore-sections>
+        <p class="bookstore-loading">Loading recommendations&hellip;</p>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  var BASE = "{{asset 'data/bookstore.json'}}";
+  // Ghost asset helper may not resolve data/ files. Fall back to relative path.
+  var url = BASE.indexOf("data/") !== -1 ? BASE : "/assets/data/bookstore.json";
+
+  fetch(url).then(function (r) { return r.json(); }).then(render).catch(function () {
+    // Try alternate path
+    fetch("/assets/data/bookstore.json").then(function (r) { return r.json(); }).then(render).catch(function (err) {
+      console.error("Bookstore data failed to load:", err);
+      var el = document.querySelector("[data-bookstore-sections]");
+      if (el) el.innerHTML = '<p>Unable to load book recommendations. <a href="https://bookshop.org/shop/mereorthodoxy">Visit our Bookshop.org page</a> instead.</p>';
+    });
+  });
+
+  function render(data) {
+    var sections = document.querySelector("[data-bookstore-sections]");
+    var nav = document.querySelector(".bookstore-nav");
+    if (!sections || !data.categories) return;
+
+    var navHtml = "";
+    var bodyHtml = "";
+
+    data.categories.forEach(function (cat) {
+      // Nav link
+      navHtml += '<a href="#' + cat.id + '" class="bookstore-nav-link">' + cat.label + '</a>';
+
+      // Section
+      bodyHtml += '<div class="bookstore-section" id="' + cat.id + '">';
+      bodyHtml += '<div class="bookstore-section-header">';
+      bodyHtml += '<h2 class="bookstore-section-title"><em>' + cat.label + '</em></h2>';
+      bodyHtml += '<a href="' + cat.listUrl + '" class="bookstore-view-all" target="_blank" rel="noopener">View all ' + cat.totalCount + ' &rarr;</a>';
+      bodyHtml += '</div>';
+
+      bodyHtml += '<div class="bookstore-grid">';
+      cat.books.forEach(function (book) {
+        var searchUrl = "https://bookshop.org/search?keywords=" + encodeURIComponent(book.title + " " + book.author);
+        bodyHtml += '<a href="' + searchUrl + '" class="bookstore-book" target="_blank" rel="noopener">';
+        bodyHtml += '<span class="bookstore-book-title">' + book.title + '</span>';
+        bodyHtml += '<span class="bookstore-book-author">' + book.author + '</span>';
+        bodyHtml += '<span class="bookstore-book-price">' + book.price + '</span>';
+        bodyHtml += '</a>';
+      });
+      bodyHtml += '</div>';
+      bodyHtml += '</div>';
+    });
+
+    nav.innerHTML = navHtml;
+    sections.innerHTML = bodyHtml;
+  }
+})();
+</script>

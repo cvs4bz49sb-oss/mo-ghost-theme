@@ -59,6 +59,8 @@ routes:
     template: custom-contact
   /privacy/:
     template: custom-privacy
+  /bookstore/:
+    template: custom-bookstore
   /submissions/:
     template: custom-submissions
   /podcasts/mere-fidelity/:
