@@ -7611,6 +7611,16 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   gap: 0;
   justify-content: center;
 }
+/* Pulse animation for loading states (audio preparing, PDF signing).
+   Icon stays visible; the border breathes to signal activity. */
+@keyframes action-pulse {
+  0%, 100% { border-color: rgba(238, 125, 81, 0.35); opacity: 1; }
+  50% { border-color: var(--color-primary); opacity: 0.6; }
+}
+.article-actions .is-loading {
+  animation: action-pulse 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
 
 /* Dark-mode toggle — matches the pill aesthetic of .article-pdf /
    .article-bookmark / .article-gift. The .article-actions 40x40

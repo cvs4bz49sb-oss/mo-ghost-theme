@@ -71,13 +71,12 @@
   });
 
   function triggerLoadingState(btn) {
-    btn.dataset.prevLabel = btn.textContent || "";
     btn.disabled = true;
-    btn.textContent = "Preparing…";
+    btn.classList.add("is-loading");
   }
   function clearLoadingState(btn) {
     btn.disabled = false;
-    if (btn.dataset.prevLabel) btn.textContent = btn.dataset.prevLabel;
+    btn.classList.remove("is-loading");
   }
 
   function hasPaidAccess() {

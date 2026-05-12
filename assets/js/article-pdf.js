@@ -30,8 +30,7 @@
     }
     // Intercept the default navigation while we mint a signed URL.
     e.preventDefault();
-    const prevText = link.textContent || "";
-    link.textContent = "Preparing…";
+    link.classList.add("is-loading");
     link.style.pointerEvents = "none";
 
     window.MOAuth.fetch(`${PDF_WORKER_BASE}/sign`, {
@@ -85,7 +84,7 @@
       })
       .catch((err) => {
         console.error("pdf sign failed", err);
-        link.textContent = prevText;
+        link.classList.remove("is-loading");
         link.style.pointerEvents = "";
       });
   });
