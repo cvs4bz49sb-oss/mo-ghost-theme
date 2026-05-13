@@ -105,15 +105,6 @@
         <div class="dashboard-rail-sep" aria-hidden="true"></div>
 
         <div class="dashboard-rail-item">
-          <p class="eyebrow">Your Membership</p>
-          <p class="dashboard-rail-tier"><em>{{#match @member.status "paid"}}Paid Member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "free"}}Free Subscriber{{/match}}</em></p>
-          <p class="dashboard-rail-meta">Change your membership type and update your shipping address for the print Journal.</p>
-          <a href="/manage/" class="dashboard-rail-link">Manage Membership &rarr;</a>
-        </div>
-
-        <div class="dashboard-rail-sep" aria-hidden="true"></div>
-
-        <div class="dashboard-rail-item">
           <p class="eyebrow">Online Community</p>
           <p class="dashboard-rail-tier"><em>Society of St. Anne's</em></p>
           <p class="dashboard-rail-meta">Chat with fellow Mere Orthodoxy readers and contributors on the Society of St. Anne's Discord Server.</p>
@@ -178,6 +169,15 @@
             <span class="liturgical-preview-swatch" data-liturgical-swatch></span>
             <span class="liturgical-preview-label" data-liturgical-label></span>
           </div>
+        </div>
+
+        <div class="dashboard-rail-sep" aria-hidden="true"></div>
+
+        <div class="dashboard-rail-item">
+          <p class="eyebrow">Your Membership</p>
+          <p class="dashboard-rail-tier"><em>{{#match @member.status "paid"}}Paid Member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "free"}}Free Subscriber{{/match}}</em></p>
+          <p class="dashboard-rail-meta">Change your membership type and update your shipping address for the print Journal.</p>
+          <a href="/manage/" class="dashboard-rail-link">Manage Membership &rarr;</a>
         </div>
 
       </aside>
