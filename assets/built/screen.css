@@ -6919,6 +6919,9 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   padding-top: 24px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
+.dashboard-form-group[hidden] {
+  display: none;
+}
 .dashboard-form-group:first-child {
   border-top: 0;
   padding-top: 0;
