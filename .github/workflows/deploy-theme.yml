@@ -59,7 +59,7 @@ jobs:
           conn = HTTPSConnection(parsed.hostname)
           conn.request(
               'POST',
-              '/ghost/api/admin/site/routes/yaml/',
+              '/ghost/api/admin/settings/routes/yaml/',
               body=body,
               headers={
                   'Authorization': f'Ghost {jwt}',
