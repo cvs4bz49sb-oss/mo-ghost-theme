@@ -59,8 +59,8 @@
               </label>
             </div>
 
-            {{!-- Poll options (shown/hidden by JS) --}}
-            <div class="dashboard-form-group" data-poll-fields hidden>
+            {{!-- Poll options --}}
+            <div class="dashboard-form-group" data-type-fields="poll" hidden>
               <p class="dashboard-form-legend"><em>Poll Options</em></p>
               <label class="dashboard-form-field">
                 <span class="dashboard-form-label">Option 1</span>
@@ -88,8 +88,8 @@
               </label>
             </div>
 
-            {{!-- Link fields (shown/hidden by JS) --}}
-            <div class="dashboard-form-group" data-link-fields hidden>
+            {{!-- Link fields --}}
+            <div class="dashboard-form-group" data-type-fields="link" hidden>
               <p class="dashboard-form-legend"><em>Link</em></p>
               <label class="dashboard-form-field">
                 <span class="dashboard-form-label">URL</span>
@@ -101,14 +101,14 @@
               </label>
             </div>
 
-            {{!-- Open response options --}}
-            <div class="dashboard-form-group" data-response-fields hidden>
+            {{!-- Open response settings --}}
+            <div class="dashboard-form-group" data-type-fields="open-response" hidden>
               <p class="dashboard-form-legend"><em>Response Settings</em></p>
-              <label class="dashboard-form-field">
-                <span class="dashboard-form-label">
-                  <input type="checkbox" name="allowAnonymous" checked /> Allow anonymous responses
-                </span>
+              <label class="dashboard-form-field dashboard-form-toggle">
+                <input type="checkbox" name="allowAnonymous" checked />
+                <span class="dashboard-form-label">Allow anonymous responses</span>
               </label>
+              <p class="dashboard-form-hint">When on, members can choose to submit their response without their name attached. When off, all responses include the member's email.</p>
             </div>
 
             <div class="dashboard-address-actions" style="margin-top: 24px">

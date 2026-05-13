@@ -6962,6 +6962,18 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-weight: 400;
   font-style: italic;
 }
+.dashboard-form-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.dashboard-form-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
 .dashboard-form-field input,
 .dashboard-form-field select {
   font-family: var(--font-body);

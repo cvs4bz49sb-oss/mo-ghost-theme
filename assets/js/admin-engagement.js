@@ -1,35 +1,34 @@
 (function () {
-  const root = document.querySelector("[data-admin-engagement]");
+  var root = document.querySelector("[data-admin-engagement]");
   if (!root) return;
-  const WORKER = (root.getAttribute("data-worker-url") || "").replace(/\/$/, "");
+  var WORKER = (root.getAttribute("data-worker-url") || "").replace(/\/$/, "");
   if (!WORKER) return;
 
-  const form = root.querySelector("[data-engagement-form]");
-  const statusEl = root.querySelector("[data-engagement-status]");
-  const saveBtn = root.querySelector("[data-engagement-save]");
-  const clearBtn = root.querySelector("[data-engagement-clear]");
-  const responsesMount = root.querySelector("[data-engagement-responses]");
-  const pollFields = root.querySelector("[data-poll-fields]");
-  const linkFields = root.querySelector("[data-link-fields]");
-  const responseFields = root.querySelector("[data-response-fields]");
-  const typeSelect = form.querySelector('[name="type"]');
+  var form = root.querySelector("[data-engagement-form]");
+  var statusEl = root.querySelector("[data-engagement-status]");
+  var saveBtn = root.querySelector("[data-engagement-save]");
+  var clearBtn = root.querySelector("[data-engagement-clear]");
+  var responsesMount = root.querySelector("[data-engagement-responses]");
+  var typeSelect = form.querySelector('[name="type"]');
+  var typeFieldGroups = form.querySelectorAll("[data-type-fields]");
 
-  function field(name) { return form.querySelector(`[name="${name}"]`); }
+  function field(name) { return form.querySelector('[name="' + name + '"]'); }
 
   function showStatus(msg) {
     if (!statusEl) return;
     statusEl.textContent = msg;
     statusEl.hidden = false;
-    setTimeout(() => { statusEl.hidden = true; }, 3000);
+    setTimeout(function () { statusEl.hidden = true; }, 3000);
   }
 
   function toggleTypeFields() {
-    const t = typeSelect.value;
-    pollFields.hidden = t !== "poll";
-    linkFields.hidden = t !== "link";
-    responseFields.hidden = t !== "open-response";
+    var t = typeSelect.value;
+    for (var i = 0; i < typeFieldGroups.length; i++) {
+      typeFieldGroups[i].hidden = typeFieldGroups[i].getAttribute("data-type-fields") !== t;
+    }
   }
   typeSelect.addEventListener("change", toggleTypeFields);
+  toggleTypeFields();
 
   function populate(config) {
     field("active").value = config.active ? "true" : "false";
@@ -37,8 +36,8 @@
     field("title").value = config.title || "";
     field("body").value = config.body || "";
     if (config.options) {
-      config.options.forEach((o, i) => {
-        const f = field("option_" + i);
+      config.options.forEach(function (o, i) {
+        var f = field("option_" + i);
         if (f) f.value = o;
       });
     }
@@ -49,7 +48,7 @@
   }
 
   function collect() {
-    const data = {
+    var data = {
       active: field("active").value === "true",
       type: field("type").value,
       title: field("title").value,
@@ -57,8 +56,8 @@
     };
     if (data.type === "poll") {
       data.options = [];
-      for (let i = 0; i < 6; i++) {
-        const v = (field("option_" + i).value || "").trim();
+      for (var i = 0; i < 6; i++) {
+        var v = (field("option_" + i).value || "").trim();
         if (v) data.options.push(v);
       }
     }
@@ -76,37 +75,34 @@
     return window.MOAuth.fetch(WORKER + path, opts || {});
   }
 
-  // Load config
   authedFetch("/engagement")
-    .then((r) => r.json())
-    .then((data) => { populate(data); })
-    .catch(() => { showStatus("Failed to load config."); });
+    .then(function (r) { return r.json(); })
+    .then(function (data) { populate(data); })
+    .catch(function () { showStatus("Failed to load config."); });
 
-  // Save
-  saveBtn.addEventListener("click", () => {
+  saveBtn.addEventListener("click", function () {
     saveBtn.disabled = true;
     authedFetch("/engagement", {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(collect()),
     })
-      .then((r) => r.json())
-      .then((data) => {
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
         if (data.error) { showStatus("Error: " + data.error); }
         else { showStatus("Saved."); populate(data); }
       })
-      .catch(() => { showStatus("Save failed."); })
-      .finally(() => { saveBtn.disabled = false; });
+      .catch(function () { showStatus("Save failed."); })
+      .finally(function () { saveBtn.disabled = false; });
   });
 
-  // Load responses
   function loadResponses() {
     authedFetch("/engagement/responses")
-      .then((r) => r.json())
-      .then((data) => {
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
         renderResponses(data.config || {}, data.responses || [], data.votes || {});
       })
-      .catch(() => {
+      .catch(function () {
         responsesMount.innerHTML = '<p class="admin-sub">Failed to load responses.</p>';
       });
   }
@@ -115,31 +111,31 @@
     responsesMount.innerHTML = "";
 
     if (config.type === "poll" && Object.keys(votes).length) {
-      const total = Object.values(votes).reduce((s, n) => s + n, 0);
-      const dl = document.createElement("div");
+      var total = Object.values(votes).reduce(function (s, n) { return s + n; }, 0);
+      var dl = document.createElement("div");
       dl.className = "engagement-poll-results";
-      (config.options || Object.keys(votes)).forEach((opt) => {
-        const count = votes[opt] || 0;
-        const pct = total ? Math.round((count / total) * 100) : 0;
-        dl.innerHTML += `<div class="engagement-poll-row">
-          <span class="engagement-poll-label">${esc(opt)}</span>
-          <span class="engagement-poll-bar"><span style="width:${pct}%"></span></span>
-          <span class="engagement-poll-count">${count} (${pct}%)</span>
-        </div>`;
+      (config.options || Object.keys(votes)).forEach(function (opt) {
+        var count = votes[opt] || 0;
+        var pct = total ? Math.round((count / total) * 100) : 0;
+        dl.innerHTML += '<div class="engagement-poll-row">' +
+          '<span class="engagement-poll-label">' + esc(opt) + '</span>' +
+          '<span class="engagement-poll-bar"><span style="width:' + pct + '%"></span></span>' +
+          '<span class="engagement-poll-count">' + count + ' (' + pct + '%)</span>' +
+          '</div>';
       });
-      dl.innerHTML += `<p class="admin-sub" style="margin-top:12px">${total} total vote${total === 1 ? "" : "s"}</p>`;
+      dl.innerHTML += '<p class="admin-sub" style="margin-top:12px">' + total + ' total vote' + (total === 1 ? "" : "s") + '</p>';
       responsesMount.appendChild(dl);
     }
 
     if (responses.length) {
-      const list = document.createElement("ol");
+      var list = document.createElement("ol");
       list.className = "engagement-response-list";
-      responses.slice().reverse().forEach((r) => {
-        const li = document.createElement("li");
+      responses.slice().reverse().forEach(function (r) {
+        var li = document.createElement("li");
         li.className = "engagement-response-item";
-        const who = r.anonymous || !r.email ? "Anonymous" : r.email;
-        const when = new Date(r.createdAt).toLocaleDateString();
-        li.innerHTML = `<p class="engagement-response-meta">${esc(who)} &middot; ${when}</p><p class="engagement-response-text">${esc(r.answer)}</p>`;
+        var who = r.anonymous || !r.email ? "Anonymous" : r.email;
+        var when = new Date(r.createdAt).toLocaleDateString();
+        li.innerHTML = '<p class="engagement-response-meta">' + esc(who) + ' &middot; ' + when + '</p><p class="engagement-response-text">' + esc(r.answer) + '</p>';
         list.appendChild(li);
       });
       responsesMount.appendChild(list);
@@ -151,17 +147,17 @@
   }
 
   function esc(s) {
-    const d = document.createElement("div");
+    var d = document.createElement("div");
     d.textContent = s;
     return d.innerHTML;
   }
 
   loadResponses();
 
-  clearBtn.addEventListener("click", () => {
+  clearBtn.addEventListener("click", function () {
     if (!confirm("Clear all responses? This cannot be undone.")) return;
     authedFetch("/engagement/responses", { method: "DELETE" })
-      .then(() => { loadResponses(); showStatus("Responses cleared."); })
-      .catch(() => { showStatus("Failed to clear."); });
+      .then(function () { loadResponses(); showStatus("Responses cleared."); })
+      .catch(function () { showStatus("Failed to clear."); });
   });
 })();
