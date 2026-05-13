@@ -6683,6 +6683,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .reading-tracker-dots .dot.is-filled {
   background: var(--color-primary);
+  box-shadow: 0 0 6px 2px rgba(238, 125, 81, 0.5);
 }
 .reading-tracker-count {
   font-family: var(--font-display);
