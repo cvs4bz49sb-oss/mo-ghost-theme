@@ -6630,6 +6630,68 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin: 0;
 }
 
+/* --- Reading tracker (dashboard rail) -------------------------------- */
+.reading-tracker { list-style: none; }
+.reading-tracker summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  list-style: none;
+}
+.reading-tracker summary::-webkit-details-marker { display: none; }
+.reading-tracker summary .eyebrow { margin: 0; }
+.reading-tracker summary .dashboard-module-chev {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--color-muted);
+  border-bottom: 2px solid var(--color-muted);
+  transform: rotate(45deg);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.reading-tracker[open] summary .dashboard-module-chev {
+  transform: rotate(-135deg);
+}
+.reading-tracker-body {
+  padding: 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.reading-tracker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.reading-tracker-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.reading-tracker-dots {
+  display: flex;
+  gap: 6px;
+}
+.reading-tracker-dots .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.1);
+  transition: background 0.3s;
+}
+.reading-tracker-dots .dot.is-filled {
+  background: var(--color-primary);
+}
+.reading-tracker-count {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-dark);
+  line-height: 1;
+}
+
 /* --- Dashboard address module ---------------------------------------- */
 /* Editorial styling — no cards, no bordered boxes. Hairline focus
    states on inputs, a bottom rule under each field, italic display

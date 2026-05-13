@@ -73,6 +73,7 @@
   hydrateBookmarks();
   hydrateCommonplace();
   hydrateHistory();
+  hydrateReadingTracker();
 
   // --- Bookmarks ---------------------------------------------------------
 
@@ -262,6 +263,39 @@
       .catch(() => {
         showEmpty(mount, "Couldn't load your reading history right now. Try reloading.");
       });
+  }
+
+  // --- Reading Tracker (rail) --------------------------------------------
+
+  function hydrateReadingTracker() {
+    const tracker = document.querySelector("[data-reading-tracker]");
+    if (!tracker || !WORKER || !EMAIL) return;
+    moKitGet("/history?limit=500")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        const list = (data && data.history) || [];
+        const countEl = tracker.querySelector("[data-reading-count]");
+        if (countEl) countEl.textContent = list.length;
+
+        const dotsEl = tracker.querySelector("[data-reading-dots]");
+        if (!dotsEl) return;
+        const dots = dotsEl.querySelectorAll(".dot");
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - dayOfWeek);
+        weekStart.setHours(0, 0, 0, 0);
+
+        const daysWithReads = new Set();
+        list.forEach((entry) => {
+          const d = new Date(entry.readAt);
+          if (d >= weekStart) daysWithReads.add(d.getDay());
+        });
+        dots.forEach((dot, i) => {
+          if (daysWithReads.has(i)) dot.classList.add("is-filled");
+        });
+      })
+      .catch(() => {});
   }
 
   // --- Shared rendering --------------------------------------------------

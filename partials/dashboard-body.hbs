@@ -83,6 +83,27 @@
 
       <aside class="dashboard-rail" aria-label="Membership">
 
+        <details class="reading-tracker" open data-reading-tracker>
+          <summary>
+            <p class="eyebrow">Reading Tracker</p>
+            <span class="dashboard-module-chev" aria-hidden="true"></span>
+          </summary>
+          <div class="reading-tracker-body">
+            <div class="reading-tracker-row">
+              <span class="reading-tracker-label">Reading Habit</span>
+              <span class="reading-tracker-dots" data-reading-dots aria-label="Reading streak this week">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              </span>
+            </div>
+            <div class="reading-tracker-row">
+              <span class="reading-tracker-label">Total Essays Read</span>
+              <span class="reading-tracker-count" data-reading-count>—</span>
+            </div>
+          </div>
+        </details>
+
+        <div class="dashboard-rail-sep" aria-hidden="true"></div>
+
         <div class="dashboard-rail-item">
           <p class="eyebrow">Your Membership</p>
           <p class="dashboard-rail-tier"><em>{{#match @member.status "paid"}}Paid Member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "free"}}Free Subscriber{{/match}}</em></p>
