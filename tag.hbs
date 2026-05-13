@@ -12,11 +12,13 @@
     {{#match slug "~" "^author-"}}
     <header class="contributor-header tag-page-contributor">
         <div class="contributor-header-inner">
-            {{#if feature_image}}
-                <div class="contributor-portrait" aria-hidden="true">
-                    <img src="{{img_url feature_image size="m"}}" alt="{{name}}" loading="eager" width="148" height="148" />
-                </div>
-            {{/if}}
+            <div class="contributor-portrait" aria-hidden="true">
+                {{#if feature_image}}
+                    <img src="{{img_url feature_image size="m"}}" alt="{{name}}" loading="eager" width="180" height="180" />
+                {{else}}
+                    <span class="contributor-initials">{{name}}</span>
+                {{/if}}
+            </div>
             <div class="contributor-header-body">
                 <p class="eyebrow">Contributor</p>
                 <h1><em>{{name}}</em></h1>
