@@ -282,14 +282,18 @@
         const dots = dotsEl.querySelectorAll(".dot");
         const now = new Date();
         const dayOfWeek = now.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
         const weekStart = new Date(now);
-        weekStart.setDate(now.getDate() - dayOfWeek);
+        weekStart.setDate(now.getDate() + mondayOffset);
         weekStart.setHours(0, 0, 0, 0);
 
         const daysWithReads = new Set();
         list.forEach((entry) => {
           const d = new Date(entry.readAt);
-          if (d >= weekStart) daysWithReads.add(d.getDay());
+          if (d >= weekStart) {
+            const day = d.getDay();
+            if (day >= 1 && day <= 5) daysWithReads.add(day - 1);
+          }
         });
         dots.forEach((dot, i) => {
           if (daysWithReads.has(i)) dot.classList.add("is-filled");
