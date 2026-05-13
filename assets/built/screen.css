@@ -6025,7 +6025,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   color: var(--color-muted);
   background: transparent;
   border: 0;
-  padding: 10px 22px;
+  padding: 14px 22px;
   border-radius: 999px;
   cursor: pointer;
   display: inline-flex;
@@ -14399,4 +14399,33 @@ details.bookstore-section[open] > .bookstore-section-header::after {
   .bookstore-book-author { font-size: 14px; }
   .bookstore-book-price { font-size: 14px; }
   details.bookstore-section { margin-bottom: 40px; }
+}
+
+/* ── Offer page (/offer/) ── */
+.offer-flag {
+  background: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  padding: 6px 14px !important;
+  border-radius: 20px;
+  font-size: 11px !important;
+  letter-spacing: 0.18em !important;
+  left: 50% !important;
+  transform: translateX(-50%);
+  top: -14px !important;
+  white-space: nowrap;
+}
+.offer-flag::after { display: none !important; }
+.price-original {
+  font-family: var(--font-body);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--color-muted);
+  text-decoration: line-through;
+  margin-right: 8px;
+  line-height: 1;
+  align-self: center;
+}
+.offer-price { color: var(--color-primary) !important; }
+@media (max-width: 640px) {
+  .price-original { font-size: 22px; }
 }

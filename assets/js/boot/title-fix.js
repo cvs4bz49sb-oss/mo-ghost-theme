@@ -29,7 +29,8 @@
     "/dashboard/journals/": "Journal Archive",
     "/manage/": "Manage Membership",
     "/success/": "Welcome",
-    "/books/": "Bookstore"
+    "/books/": "Bookstore",
+    "/offer/": "Launch Offer — 20% Off Membership"
   };
 
   const path = window.location.pathname;

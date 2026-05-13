@@ -1,0 +1,99 @@
+{{!-- Offer page body — 20% off launch promotion. Parallels
+     partials/membership-body.hbs but with offer-specific hero copy
+     and pricing that shows the discount. --}}
+
+  <section class="mb-hero offer-hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <p class="eyebrow">New Website Launch</p>
+          <h1 class="mb-hero-headline"><em>Join Mere&nbsp;Orthodoxy</em> and <span class="highlight">save 20%.</span></h1>
+          <p class="mb-hero-sub">
+            We have rebuilt mereorthodoxy.com from the ground up. To celebrate, we are offering 20% off memberships for a limited time.
+          </p>
+          <p class="mb-hero-sub">
+            If you believe in quality Christian media for the sake of renewal, there has never been a better time to join us.
+          </p>
+        </div>
+        <div class="mb-hero-image" aria-hidden="true">
+          <img src="{{asset "images/membership-hero.jpg"}}" alt="Stack of Mere Orthodoxy journals" fetchpriority="high" />
+        </div>
+      </div>
+      <div class="section-intro section-intro-light mb-hero-intro">
+        <p class="eyebrow eyebrow-light">Limited Time Offer</p>
+        <h2 class="section-heading section-heading-light"><em>20% off membership.</em></h2>
+      </div>
+    </div>
+    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+      <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
+        <div class="toggle">
+          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
+            Annual
+            <span class="badge">Best Value</span>
+          </button>
+          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
+        </div>
+      </div>
+    {{/match}}{{/match}}
+  </section>
+
+  {{#match @member.status "paid"}}
+    {{> "membership-already"}}
+  {{else}}{{#match @member.status "comped"}}
+    {{> "membership-already"}}
+  {{else}}
+    {{> "offer-pricing"}}
+  {{/match}}{{/match}}
+
+  <section class="included">
+    <div class="container">
+      <h2 class="included-heading">What You're Supporting</h2>
+      <div class="benefit-grid">
+        <div class="benefit-item">
+          <span class="benefit-numeral">I</span>
+          <h3>Long-Form Essays</h3>
+          <p>Writing on theology, culture, and spiritual formation built for rereading, not the news cycle.</p>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-numeral">II</span>
+          <h3>The Print Journal</h3>
+          <p>A quarterly of serious Protestant thought, printed and mailed four times a year.</p>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-numeral">III</span>
+          <h3>Mere&nbsp;Fidelity</h3>
+          <p>The flagship podcast. Long, patient conversations about theology, church, and the life of faith.</p>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-numeral">IV</span>
+          <h3>Christians Reading Classics</h3>
+          <p>A slow walk through the great books of the Christian and classical tradition, one volume at a time.</p>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-numeral">V</span>
+          <h3>A Community of Readers</h3>
+          <p>A private forum where members read, argue, and think together, away from the noise of public platforms.</p>
+        </div>
+        <div class="benefit-item">
+          <span class="benefit-numeral">VI</span>
+          <h3>Ebooks and Online Forums</h3>
+          <p>Short books, lectures, and live gatherings on the questions that don't go away.</p>
+        </div>
+      </div>
+      <div class="capstone">
+        <h3 class="capstone-title"><em>And the work itself.</em></h3>
+        <p class="capstone-body">Your membership funds the next writer commissioned, the next journal published, and the next essay and episode we can bring to readers and listeners like you.</p>
+      </div>
+      {{#match @member.status "paid"}}{{else}}
+      {{#match @member.status "comped"}}{{else}}
+      <div class="included-cta">
+        <a href="#" class="btn btn-dark btn-inline offer-cta-bottom" data-offer-annual="{{@custom.offer_annual_id}}" data-offer-monthly="{{@custom.offer_monthly_id}}">Claim Your 20% Off</a>
+      </div>
+      {{/match}}
+      {{/match}}
+    </div>
+  </section>
+
+  <script src="{{asset "js/page/offer-checkout.js"}}"></script>
+  <script src="{{asset "js/lifetime-checkout.js"}}"></script>
+  <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
