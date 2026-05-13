@@ -5148,7 +5148,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   white-space: nowrap;
 }
 
-.about-body { padding: 56px 0 32px; }
+.about-body { padding: 56px 0 32px; background-color: #f1e8d5; }
 .about-prose { max-width: 640px; margin: 0 auto; }
 .about-prose + .about-prose { margin-top: 24px; }
 .about-prose p {
