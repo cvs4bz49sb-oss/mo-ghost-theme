@@ -5364,8 +5364,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin-top: auto;
 }
 .about-endorsement-portrait {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
