@@ -1,4 +1,11 @@
 (function () {
+  // Offer expires June 30 2026 at 11:59:59 PM CDT (= July 1 04:59:59 UTC).
+  const EXPIRY = new Date('2026-07-01T05:00:00Z');
+  if (Date.now() >= EXPIRY.getTime()) {
+    window.location.replace('/membership/');
+    return;
+  }
+
   const OFFER_ID_RE = /^[a-zA-Z0-9]+$/;
   let interval = 'annual';
 
