@@ -5160,7 +5160,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .about-prose p em { font-style: italic; }
 .about-prose p:last-child { margin-bottom: 0; }
-.about-lede { font-size: 21px !important; }
+.about-lede { font-size: 19px !important; }
 .about-lede::first-letter {
   font-family: var(--font-display);
   font-style: italic;
