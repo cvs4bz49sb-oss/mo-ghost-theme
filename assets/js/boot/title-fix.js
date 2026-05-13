@@ -30,7 +30,8 @@
     "/manage/": "Manage Membership",
     "/success/": "Welcome",
     "/books/": "Bookstore",
-    "/offer/": "Launch Offer — 20% Off Membership"
+    "/offer/": "Launch Offer — 20% Off Membership",
+    "/admin/engagement/": "Admin — Engagement"
   };
 
   const path = window.location.pathname;

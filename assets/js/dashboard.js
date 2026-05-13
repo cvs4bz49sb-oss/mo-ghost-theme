@@ -70,10 +70,125 @@
     });
   }
 
+  hydrateEngagement();
   hydrateBookmarks();
   hydrateCommonplace();
   hydrateHistory();
   hydrateReadingTracker();
+
+  // --- Engagement module --------------------------------------------------
+
+  function hydrateEngagement() {
+    const mod = document.querySelector("[data-engagement-module]");
+    if (!mod) return;
+    const ADMIN = (body.getAttribute("data-admin-worker-url") || "").replace(/\/$/, "");
+    if (!ADMIN) return;
+
+    fetch(ADMIN + "/engagement")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!data || !data.active) return;
+        mod.hidden = false;
+        mod.querySelector("[data-engagement-title]").textContent = data.title || "";
+        mod.querySelector("[data-engagement-body]").textContent = data.body || "";
+
+        const content = mod.querySelector("[data-engagement-content]");
+        content.innerHTML = "";
+
+        if (data.type === "poll" && data.options) {
+          renderPoll(content, data.options, data.results || {});
+        } else if (data.type === "open-response") {
+          renderOpenResponse(content, data.allowAnonymous);
+        } else if (data.type === "link" && data.url) {
+          const a = document.createElement("a");
+          a.href = data.url;
+          a.className = "btn btn-pill btn-primary engagement-link-btn";
+          a.textContent = data.linkLabel || "Learn more";
+          content.appendChild(a);
+        }
+      })
+      .catch(() => {});
+
+    function renderPoll(mount, options, results) {
+      const total = Object.values(results).reduce((s, n) => s + n, 0);
+      const wrap = document.createElement("div");
+      wrap.className = "engagement-poll";
+      options.forEach((opt) => {
+        const count = results[opt] || 0;
+        const pct = total ? Math.round((count / total) * 100) : 0;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "engagement-poll-option";
+        btn.innerHTML = `<span class="engagement-poll-option-label">${esc(opt)}</span><span class="engagement-poll-option-bar" style="width:${pct}%"></span><span class="engagement-poll-option-pct">${pct}%</span>`;
+        btn.addEventListener("click", () => {
+          if (btn.disabled) return;
+          wrap.querySelectorAll("button").forEach((b) => { b.disabled = true; });
+          window.MOAuth.fetch(ADMIN + "/engagement/vote", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ option: opt }),
+          })
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.results) {
+                const newTotal = Object.values(d.results).reduce((s, n) => s + n, 0);
+                wrap.querySelectorAll(".engagement-poll-option").forEach((b) => {
+                  const label = b.querySelector(".engagement-poll-option-label").textContent;
+                  const c = d.results[label] || 0;
+                  const p = newTotal ? Math.round((c / newTotal) * 100) : 0;
+                  b.querySelector(".engagement-poll-option-bar").style.width = p + "%";
+                  b.querySelector(".engagement-poll-option-pct").textContent = p + "%";
+                });
+              }
+            })
+            .catch(() => {});
+        });
+        wrap.appendChild(btn);
+      });
+      mount.appendChild(wrap);
+    }
+
+    function renderOpenResponse(mount, allowAnon) {
+      const wrap = document.createElement("div");
+      wrap.className = "engagement-respond";
+      wrap.innerHTML = `<textarea class="engagement-respond-input" placeholder="Your response..." rows="3"></textarea>` +
+        (allowAnon ? `<label class="engagement-respond-anon"><input type="checkbox" /> Respond anonymously</label>` : "") +
+        `<button type="button" class="btn btn-pill btn-primary engagement-respond-btn">Submit</button>` +
+        `<p class="engagement-respond-status" hidden></p>`;
+      const textarea = wrap.querySelector("textarea");
+      const anonBox = wrap.querySelector('input[type="checkbox"]');
+      const btn = wrap.querySelector("button");
+      const status = wrap.querySelector(".engagement-respond-status");
+      btn.addEventListener("click", () => {
+        const answer = textarea.value.trim();
+        if (!answer) return;
+        btn.disabled = true;
+        window.MOAuth.fetch(ADMIN + "/engagement/respond", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ answer, anonymous: anonBox ? anonBox.checked : false }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.ok) {
+              status.textContent = "Thanks for your response!";
+              status.hidden = false;
+              textarea.value = "";
+              textarea.disabled = true;
+              btn.hidden = true;
+            } else {
+              status.textContent = d.error || "Something went wrong.";
+              status.hidden = false;
+              btn.disabled = false;
+            }
+          })
+          .catch(() => { status.textContent = "Failed to submit."; status.hidden = false; btn.disabled = false; });
+      });
+      mount.appendChild(wrap);
+    }
+
+    function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+  }
 
   // --- Bookmarks ---------------------------------------------------------
 

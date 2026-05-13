@@ -6630,6 +6630,133 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin: 0;
 }
 
+/* --- Engagement module (dashboard) ----------------------------------- */
+.engagement-module {
+  position: relative;
+  margin-bottom: 72px;
+  padding: 28px 28px 28px 32px;
+  border-left: 4px solid var(--color-primary);
+  background: rgba(238, 125, 81, 0.06);
+}
+.engagement-module details { list-style: none; }
+.engagement-module summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  list-style: none;
+}
+.engagement-module summary::-webkit-details-marker { display: none; }
+.engagement-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.3;
+  color: var(--color-dark);
+  margin: 0;
+}
+.engagement-body { padding: 16px 0 0; }
+.engagement-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-body);
+  margin: 0 0 20px;
+}
+.engagement-link-btn { margin-top: 4px; }
+.engagement-poll { display: flex; flex-direction: column; gap: 8px; }
+.engagement-poll-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 4px;
+  background: var(--color-white);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.engagement-poll-option:hover:not(:disabled) { border-color: var(--color-primary); }
+.engagement-poll-option:disabled { cursor: default; opacity: 0.85; }
+.engagement-poll-option-label { position: relative; z-index: 1; }
+.engagement-poll-option-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(238, 125, 81, 0.12);
+  transition: width 0.4s ease;
+}
+.engagement-poll-option-pct {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+.engagement-respond { display: flex; flex-direction: column; gap: 12px; }
+.engagement-respond-input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 12px 14px;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 4px;
+  resize: vertical;
+  min-height: 72px;
+}
+.engagement-respond-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(238, 125, 81, 0.15);
+}
+.engagement-respond-anon {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.engagement-respond-btn { align-self: flex-start; }
+.engagement-respond-status {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-primary);
+  margin: 0;
+}
+/* Admin engagement page */
+.engagement-poll-results { display: flex; flex-direction: column; gap: 10px; }
+.engagement-poll-row { display: flex; align-items: center; gap: 12px; }
+.engagement-poll-label { font-size: 14px; min-width: 100px; }
+.engagement-poll-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.engagement-poll-bar span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 4px;
+}
+.engagement-poll-count { font-size: 13px; color: var(--color-muted); min-width: 70px; text-align: right; }
+.engagement-response-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.engagement-response-item { border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 16px; }
+.engagement-response-meta { font-size: 12px; color: var(--color-muted); margin: 0 0 4px; }
+.engagement-response-text { font-size: 14px; line-height: 1.5; margin: 0; }
+@media (max-width: 640px) {
+  .engagement-module { padding: 20px 20px 20px 24px; margin-bottom: 48px; }
+  .engagement-title { font-size: 19px; }
+}
+
 /* --- Reading tracker (dashboard rail) -------------------------------- */
 .reading-tracker { list-style: none; }
 .reading-tracker summary {

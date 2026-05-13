@@ -1,0 +1,142 @@
+{{!< default}}
+{{!-- /admin/engagement/ — configure the member dashboard engagement
+     module. Staff-only writes; active config served publicly by
+     GET /engagement on the admin worker. --}}
+
+<main class="admin-page">
+
+  {{#if @member}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Dashboard</p>
+        <h1 class="admin-headline">Member <em><span class="highlight">Engagement</span></em>.</h1>
+        <p class="admin-sub">A branded module at the top of the member dashboard. Configure the type, content, and toggle it on or off.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container container-narrow">
+        <div class="admin-engagement"
+             data-admin-engagement
+             data-worker-url="{{@custom.admin_worker_url}}">
+
+          {{!-- Config form --}}
+          <div class="dashboard-module" data-engagement-form>
+
+            <div class="dashboard-form-group">
+              <p class="dashboard-form-legend"><em>Module Settings</em></p>
+
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Status</span>
+                <select name="active">
+                  <option value="false">Off</option>
+                  <option value="true">On</option>
+                </select>
+              </label>
+
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Type</span>
+                <select name="type">
+                  <option value="announcement">Announcement</option>
+                  <option value="poll">Poll</option>
+                  <option value="open-response">Open Response</option>
+                  <option value="prompt">Prompt</option>
+                  <option value="link">Link</option>
+                </select>
+              </label>
+
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Title</span>
+                <input type="text" name="title" placeholder="e.g. What are you reading?" />
+              </label>
+
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Body</span>
+                <textarea name="body" rows="4" placeholder="The message or question for members."></textarea>
+              </label>
+            </div>
+
+            {{!-- Poll options (shown/hidden by JS) --}}
+            <div class="dashboard-form-group" data-poll-fields hidden>
+              <p class="dashboard-form-legend"><em>Poll Options</em></p>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Option 1</span>
+                <input type="text" name="option_0" />
+              </label>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Option 2</span>
+                <input type="text" name="option_1" />
+              </label>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Option 3</span>
+                <input type="text" name="option_2" />
+              </label>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Option 4</span>
+                <input type="text" name="option_3" />
+              </label>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Option 5</span>
+                <input type="text" name="option_4" />
+              </label>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Option 6</span>
+                <input type="text" name="option_5" />
+              </label>
+            </div>
+
+            {{!-- Link fields (shown/hidden by JS) --}}
+            <div class="dashboard-form-group" data-link-fields hidden>
+              <p class="dashboard-form-legend"><em>Link</em></p>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">URL</span>
+                <input type="url" name="url" placeholder="https://..." />
+              </label>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Button label</span>
+                <input type="text" name="linkLabel" placeholder="e.g. Read now" />
+              </label>
+            </div>
+
+            {{!-- Open response options --}}
+            <div class="dashboard-form-group" data-response-fields hidden>
+              <p class="dashboard-form-legend"><em>Response Settings</em></p>
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">
+                  <input type="checkbox" name="allowAnonymous" checked /> Allow anonymous responses
+                </span>
+              </label>
+            </div>
+
+            <div class="dashboard-address-actions" style="margin-top: 24px">
+              <button type="button" class="btn btn-pill btn-primary" data-engagement-save>Save</button>
+              <p data-engagement-status hidden style="margin-top: 12px; font-size: 13px; color: var(--color-muted)"></p>
+            </div>
+          </div>
+
+          {{!-- Responses viewer --}}
+          <div class="dashboard-module" style="margin-top: 48px" data-engagement-responses-section>
+            <p class="dashboard-form-legend"><em>Responses</em></p>
+            <div data-engagement-responses>
+              <p class="admin-sub">Loading&hellip;</p>
+            </div>
+            <div class="dashboard-address-actions" style="margin-top: 16px">
+              <button type="button" class="btn btn-pill btn-dark" data-engagement-clear>Clear all responses</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-engagement.js"}}"></script>

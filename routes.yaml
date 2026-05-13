@@ -89,6 +89,8 @@ routes:
     template: custom-admin-settings
   /admin/slide-ins/:
     template: custom-admin-slide-ins
+  /admin/engagement/:
+    template: custom-admin-engagement
   /admin/traffic/:
     template: custom-admin-traffic
   /admin/editorial/:
