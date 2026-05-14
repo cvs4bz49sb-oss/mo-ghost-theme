@@ -465,15 +465,15 @@ function LetterFromEditor({ tokens, content }) {
             <table width="100%" cellPadding="0" cellSpacing="0" border="0" role="presentation" style={{ marginTop: 24 }}>
               <tbody>
                 <tr>
-                  <td style={{ width: 56, verticalAlign: 'top', paddingRight: 14 }}>
+                  <td style={{ width: 80, verticalAlign: 'top', paddingRight: 16 }}>
                     <img
                       src={sig.photo}
                       alt={sig.name}
-                      width="48"
-                      height="48"
+                      width="64"
+                      height="64"
                       style={{
-                        width: 48,
-                        height: 48,
+                        width: 64,
+                        height: 64,
                         borderRadius: '50%',
                         objectFit: 'cover',
                         display: 'block',
