@@ -6,15 +6,6 @@
 // All inline-style friendly so it ports cleanly to Kit.
 // =====================================================
 
-// Asset resolver: when embedded in the Ghost theme, the .hbs template
-// injects window.MO_DIGEST_ASSETS = { 'mere-o-logo.png': '/assets/built/...' }
-// before this script loads. Standalone falls back to the relative path.
-function moDigestAsset(rel) {
-  const map = (typeof window !== 'undefined' && window.MO_DIGEST_ASSETS) || {};
-  const file = rel.split('/').pop();
-  return map[file] || rel;
-}
-
 const MO_TOKENS = {
   primary: '#ee7d51',     // orange
   secondary: '#c1593c',   // terracotta
@@ -268,6 +259,26 @@ function Button({ tokens, children, href = '#', variant = 'primary', size = 'md'
   );
 }
 
+// --- Signatures ----------------------------------------------------
+
+const SIGNATURES = {
+  ian: {
+    name: 'Ian Harber',
+    title: 'Director of Communications',
+    photo: 'https://mereorthodoxy.com/hs-fs/hubfs/Mere%20Orthodoxy%20%20Team%20Headshots.png?width=200&height=200&name=Mere%20Orthodoxy%20%20Team%20Headshots.png',
+  },
+  jake: {
+    name: 'Jake Meador',
+    title: 'Editor-in-Chief',
+    photo: 'https://mereorthodoxy.com/hs-fs/hubfs/2-Mar-05-2025-04-48-32-4411-PM.png?width=200&height=200&name=2-Mar-05-2025-04-48-32-4411-PM.png',
+  },
+  mark: {
+    name: 'Mark Kremer',
+    title: 'Executive Director & Publisher',
+    photo: 'https://mereorthodoxy.com/hs-fs/hubfs/1-Mar-05-2025-04-49-11-4177-PM.png?width=200&height=200&name=1-Mar-05-2025-04-49-11-4177-PM.png',
+  },
+};
+
 // --- Default content bundle (shape used everywhere) ----------------
 
 const DEFAULT_CONTENT = {
@@ -289,6 +300,7 @@ const DEFAULT_CONTENT = {
     "That's the test. Will it work? We will find out. But right now, I think it just might. So in that way, I'm hopeful.",
   ].join('\n\n'),
   editorSignature: '— Ian Harber, Director of Communications',
+  signatureKey: 'ian',
   membership: {
     headline: 'Mere Orthodoxy exists because of readers like you.',
     body: "Support Mere Orthodoxy in our mission to produce media that advances Christian renewal for the common good. You'll get the print Journal, access to our online community, and more usable features on MereOrthodoxy.com.",
@@ -357,7 +369,7 @@ function Masthead({ tokens, issueNumber, dateStr, mastheadTitle }) {
         <tbody>
           <tr>
             <td style={{ verticalAlign: 'middle', width: showRightCol ? '50%' : '100%', textAlign: showRightCol ? 'left' : 'center' }}>
-              <img src={moDigestAsset('assets/mere-o-logo.png')} alt="Mere Orthodoxy" style={{ height: 52, display: showRightCol ? 'block' : 'inline-block' }} />
+              <img src="assets/mere-o-logo.png" alt="Mere Orthodoxy" style={{ height: 52, display: showRightCol ? 'block' : 'inline-block' }} />
             </td>
             {showRightCol && (
               <td style={{ verticalAlign: 'middle', textAlign: 'right', width: '50%' }}>
@@ -436,16 +448,75 @@ function LetterFromEditor({ tokens, content }) {
           }} dangerouslySetInnerHTML={{ __html: markdownInline(p, tokens) }} />
         ));
       })()}
-      <p
-        style={{
-          fontFamily: '"IM Fell English", Georgia, serif',
-          fontSize: 16,
-          fontStyle: 'italic',
-          color: tokens.lightText,
-          margin: '20px 0 0',
-        }}
-        dangerouslySetInnerHTML={{ __html: markdownInline(content.editorSignature || '', tokens) }}
-      />
+      {(() => {
+        const sig = content.signatureKey && SIGNATURES[content.signatureKey];
+        if (sig) {
+          return (
+            <table width="100%" cellPadding="0" cellSpacing="0" border="0" role="presentation" style={{ marginTop: 24 }}>
+              <tbody>
+                <tr>
+                  <td style={{ width: 56, verticalAlign: 'top', paddingRight: 14 }}>
+                    <img
+                      src={sig.photo}
+                      alt={sig.name}
+                      width="48"
+                      height="48"
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        display: 'block',
+                      }}
+                    />
+                  </td>
+                  <td style={{ verticalAlign: 'middle' }}>
+                    <div style={{
+                      fontFamily: '"IM Fell English", Georgia, serif',
+                      fontSize: 16,
+                      color: tokens.bodyText,
+                      lineHeight: 1.2,
+                    }}>
+                      {sig.name}
+                    </div>
+                    <div style={{
+                      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+                      fontSize: 12,
+                      color: tokens.mutedText,
+                      letterSpacing: '0.04em',
+                      marginTop: 3,
+                    }}>
+                      {sig.title}
+                    </div>
+                    <div style={{
+                      fontFamily: '"IM Fell English", Georgia, serif',
+                      fontSize: 13,
+                      fontStyle: 'italic',
+                      color: tokens.lightText,
+                      marginTop: 2,
+                    }}>
+                      Mere Orthodoxy
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          );
+        }
+        // Fallback to legacy text signature
+        return (
+          <p
+            style={{
+              fontFamily: '"IM Fell English", Georgia, serif',
+              fontSize: 16,
+              fontStyle: 'italic',
+              color: tokens.lightText,
+              margin: '20px 0 0',
+            }}
+            dangerouslySetInnerHTML={{ __html: markdownInline(content.editorSignature || '', tokens) }}
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -937,7 +1008,7 @@ function Footer({ tokens, isMember }) {
       padding: '36px 40px 32px',
       textAlign: 'center',
     }} className="mo-pad-40">
-      <img src={moDigestAsset('assets/mere-o-logo.png')} alt="Mere Orthodoxy" style={{
+      <img src="assets/mere-o-logo.png" alt="Mere Orthodoxy" style={{
         height: 28,
         display: 'inline-block',
         filter: 'brightness(0) invert(0.92)',
@@ -1083,7 +1154,7 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
 
   // Resolve the section order. Fall back to default if missing; allow
   // any DEFAULT_SECTION_ORDER key OR any current custom-block id to
-  // pass through. Unknown keys (orphans from a stale save) are filtered.
+  // pass through. Unknown keys (orphans) are filtered.
   const KNOWN = new Set([...DEFAULT_SECTION_ORDER, ...Object.keys(blocksById)]);
   const order = (Array.isArray(content.sectionOrder) && content.sectionOrder.length)
     ? content.sectionOrder.filter((k) => KNOWN.has(k))
@@ -1128,4 +1199,4 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
   );
 }
 
-Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER });
+Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER, SIGNATURES });

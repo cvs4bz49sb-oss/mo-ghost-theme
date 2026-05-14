@@ -1,9 +1,4 @@
 (() => {
-  function moDigestAsset(rel) {
-    const map = typeof window !== "undefined" && window.MO_DIGEST_ASSETS || {};
-    const file = rel.split("/").pop();
-    return map[file] || rel;
-  }
   const MO_TOKENS = {
     primary: "#ee7d51",
     // orange
@@ -209,6 +204,23 @@
       borderRadius: 5
     } }, children);
   }
+  const SIGNATURES = {
+    ian: {
+      name: "Ian Harber",
+      title: "Director of Communications",
+      photo: "https://mereorthodoxy.com/hs-fs/hubfs/Mere%20Orthodoxy%20%20Team%20Headshots.png?width=200&height=200&name=Mere%20Orthodoxy%20%20Team%20Headshots.png"
+    },
+    jake: {
+      name: "Jake Meador",
+      title: "Editor-in-Chief",
+      photo: "https://mereorthodoxy.com/hs-fs/hubfs/2-Mar-05-2025-04-48-32-4411-PM.png?width=200&height=200&name=2-Mar-05-2025-04-48-32-4411-PM.png"
+    },
+    mark: {
+      name: "Mark Kremer",
+      title: "Executive Director & Publisher",
+      photo: "https://mereorthodoxy.com/hs-fs/hubfs/1-Mar-05-2025-04-49-11-4177-PM.png?width=200&height=200&name=1-Mar-05-2025-04-49-11-4177-PM.png"
+    }
+  };
   const DEFAULT_CONTENT = {
     issueNumber: "184",
     dateStr: "May 4, 2026",
@@ -228,6 +240,7 @@
       "That's the test. Will it work? We will find out. But right now, I think it just might. So in that way, I'm hopeful."
     ].join("\n\n"),
     editorSignature: "\u2014 Ian Harber, Director of Communications",
+    signatureKey: "ian",
     membership: {
       headline: "Mere Orthodoxy exists because of readers like you.",
       body: "Support Mere Orthodoxy in our mission to produce media that advances Christian renewal for the common good. You'll get the print Journal, access to our online community, and more usable features on MereOrthodoxy.com.",
@@ -284,7 +297,7 @@
     const showTitle = mastheadTitle && mastheadTitle.trim();
     const showMeta = issueNumber && String(issueNumber).trim() || dateStr && dateStr.trim();
     const showRightCol = showTitle || showMeta;
-    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 18px", borderBottom: `1px solid ${tokens.rule}` }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle", width: showRightCol ? "50%" : "100%", textAlign: showRightCol ? "left" : "center" } }, /* @__PURE__ */ React.createElement("img", { src: moDigestAsset("assets/mere-o-logo.png"), alt: "Mere Orthodoxy", style: { height: 52, display: showRightCol ? "block" : "inline-block" } })), showRightCol && /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle", textAlign: "right", width: "50%" } }, showTitle && /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 18px", borderBottom: `1px solid ${tokens.rule}` }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle", width: showRightCol ? "50%" : "100%", textAlign: showRightCol ? "left" : "center" } }, /* @__PURE__ */ React.createElement("img", { src: "assets/mere-o-logo.png", alt: "Mere Orthodoxy", style: { height: 52, display: showRightCol ? "block" : "inline-block" } })), showRightCol && /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle", textAlign: "right", width: "50%" } }, showTitle && /* @__PURE__ */ React.createElement(
       "div",
       {
         style: {
@@ -336,19 +349,57 @@
         color: tokens.bodyText,
         margin: "0 0 14px"
       }, dangerouslySetInnerHTML: { __html: markdownInline(p, tokens) } }));
-    })(), /* @__PURE__ */ React.createElement(
-      "p",
-      {
-        style: {
+    })(), (() => {
+      const sig = content.signatureKey && SIGNATURES[content.signatureKey];
+      if (sig) {
+        return /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", style: { marginTop: 24 } }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { width: 56, verticalAlign: "top", paddingRight: 14 } }, /* @__PURE__ */ React.createElement(
+          "img",
+          {
+            src: sig.photo,
+            alt: sig.name,
+            width: "48",
+            height: "48",
+            style: {
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              objectFit: "cover",
+              display: "block"
+            }
+          }
+        )), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle" } }, /* @__PURE__ */ React.createElement("div", { style: {
           fontFamily: '"IM Fell English", Georgia, serif',
           fontSize: 16,
+          color: tokens.bodyText,
+          lineHeight: 1.2
+        } }, sig.name), /* @__PURE__ */ React.createElement("div", { style: {
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 12,
+          color: tokens.mutedText,
+          letterSpacing: "0.04em",
+          marginTop: 3
+        } }, sig.title), /* @__PURE__ */ React.createElement("div", { style: {
+          fontFamily: '"IM Fell English", Georgia, serif',
+          fontSize: 13,
           fontStyle: "italic",
           color: tokens.lightText,
-          margin: "20px 0 0"
-        },
-        dangerouslySetInnerHTML: { __html: markdownInline(content.editorSignature || "", tokens) }
+          marginTop: 2
+        } }, "Mere Orthodoxy")))));
       }
-    ));
+      return /* @__PURE__ */ React.createElement(
+        "p",
+        {
+          style: {
+            fontFamily: '"IM Fell English", Georgia, serif',
+            fontSize: 16,
+            fontStyle: "italic",
+            color: tokens.lightText,
+            margin: "20px 0 0"
+          },
+          dangerouslySetInnerHTML: { __html: markdownInline(content.editorSignature || "", tokens) }
+        }
+      );
+    })());
   }
   function MembershipCTA({ tokens, accent, content }) {
     const isBold = accent === "bold";
@@ -680,7 +731,7 @@
       color: "#cdbfa9",
       padding: "36px 40px 32px",
       textAlign: "center"
-    }, className: "mo-pad-40" }, /* @__PURE__ */ React.createElement("img", { src: moDigestAsset("assets/mere-o-logo.png"), alt: "Mere Orthodoxy", style: {
+    }, className: "mo-pad-40" }, /* @__PURE__ */ React.createElement("img", { src: "assets/mere-o-logo.png", alt: "Mere Orthodoxy", style: {
       height: 28,
       display: "inline-block",
       filter: "brightness(0) invert(0.92)",
@@ -777,5 +828,5 @@
       boxShadow: "0 1px 3px rgba(45,41,39,0.06), 0 12px 36px rgba(45,41,39,0.10)"
     } }, /* @__PURE__ */ React.createElement(Masthead, { tokens, issueNumber: content.issueNumber, dateStr: content.dateStr, mastheadTitle: content.mastheadTitle }), renderedSections.map(({ key, node }, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key }, i > 0 && /* @__PURE__ */ React.createElement(Divider, null), node)), lastKey !== "sponsorBottom" && /* @__PURE__ */ React.createElement(Spacer, { h: 28 }), /* @__PURE__ */ React.createElement(Footer, { tokens, isMember }));
   }
-  Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER });
+  Object.assign(window, { EmailTemplate, MO_TOKENS, DEFAULT_CONTENT, DEFAULT_SECTION_ORDER, SIGNATURES });
 })();

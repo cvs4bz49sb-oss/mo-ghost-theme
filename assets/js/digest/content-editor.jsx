@@ -853,14 +853,10 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               const blocksById = {};
               blocks.forEach((b) => { if (b && b.id) blocksById[b.id] = b; });
               const blockIds = blocks.map((b) => b && b.id).filter(Boolean);
-              // Allow either fixed keys or current block ids in the
-              // order; filter out unknowns / orphans.
               const KNOWN = new Set([...FIXED_KEYS, ...blockIds]);
               const orderRaw = (Array.isArray(content.sectionOrder) && content.sectionOrder.length)
                 ? content.sectionOrder.filter((k) => KNOWN.has(k))
                 : FIXED_KEYS;
-              // Append any keys missing from the saved order so
-              // newly-added items don't vanish from the editor.
               const missing = [...FIXED_KEYS, ...blockIds].filter((k) => !orderRaw.includes(k));
               const fullOrder = [...orderRaw, ...missing];
 
@@ -868,7 +864,6 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 if (FIXED_SECTION_LABELS[k]) return { label: FIXED_SECTION_LABELS[k], isBlock: false };
                 const block = blocksById[k];
                 if (block) {
-                  // Strip Markdown for the preview snippet
                   const plain = (block.text || '')
                     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
                     .replace(/[*_]+/g, '')
@@ -896,11 +891,6 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                   {fullOrder.map((k, i) => {
                     const enabled = content.sections?.[k] !== false;
                     const { label, isBlock } = labelFor(k);
-                    // Audience filtering: sponsor blocks render only for
-                    // free subscribers; the membership slot swaps content
-                    // (CTA on free, member-thanks on paid) but stays
-                    // visible. Surface the audience-driven hiding here so
-                    // the editor matches what's actually rendered.
                     const audienceHidden = isMember && (k === 'sponsorTop' || k === 'sponsorBottom');
                     const audienceNote = audienceHidden
                       ? '· hidden for paid'
@@ -925,9 +915,6 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                           if (sectionDragOver !== i) setSectionDragOver(i);
                         }}
                         onDragLeave={(e) => {
-                          // Only clear if we're actually leaving this row
-                          // (relatedTarget outside it). Prevents flicker
-                          // from child elements firing dragleave.
                           if (!e.currentTarget.contains(e.relatedTarget)) {
                             setSectionDragOver((c) => (c === i ? null : c));
                           }
@@ -995,7 +982,55 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               rows={14}
               onChange={(v) => updateField('editorBody', v)}
             />
-            <Field label="Signature" value={content.editorSignature} onChange={(v) => updateField('editorSignature', v)} />
+            <div style={{ marginBottom: 12 }}>
+              <label style={fieldStyles.label}>Signature</label>
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                {Object.entries(window.SIGNATURES || {}).map(([key, sig]) => {
+                  const isActive = content.signatureKey === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        updateField('signatureKey', key);
+                        updateField('editorSignature', `— ${sig.name}, ${sig.title}`);
+                      }}
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 14px',
+                        background: isActive ? '#fbf3e3' : '#fff',
+                        border: '1.5px solid ' + (isActive ? '#c1593c' : '#e8d9bd'),
+                        borderRadius: 10,
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: '"Source Sans 3", Arial, sans-serif',
+                      }}
+                    >
+                      <img
+                        src={sig.photo}
+                        alt={sig.name}
+                        width="36"
+                        height="36"
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          flexShrink: 0,
+                          background: '#e8d9bd',
+                        }}
+                      />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#2d2927', lineHeight: 1.2 }}>{sig.name}</div>
+                        <div style={{ fontSize: 10, color: '#9a8773', marginTop: 2, lineHeight: 1.2 }}>{sig.title}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </Group>
 
           <Group title={`Custom blocks (${(content.customBlocks || []).length})`}>
@@ -1006,9 +1041,6 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               Free-form text or button blocks. Each block appears as its own row in the Sections list above — drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>).
             </div>
             {(content.customBlocks || []).map((block, i) => {
-              // Remove a block: drop it from customBlocks AND from
-              // sectionOrder so it doesn't leave an orphaned row in
-              // the Sections panel; clear any sections-map entry too.
               const removeBlock = () => {
                 const next = JSON.parse(JSON.stringify(content));
                 next.customBlocks = (next.customBlocks || []).filter((_, j) => j !== i);
@@ -1021,10 +1053,6 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 }
                 onChange(next);
               };
-              // Reorder within the customBlocks editor list — also
-              // mirror the change into sectionOrder so the email's
-              // render order tracks. (You can also drag in the
-              // Sections panel above; that's the canonical UI.)
               const reorderBlock = (from, to) => {
                 if (from === to) return;
                 const next = JSON.parse(JSON.stringify(content));
@@ -1135,8 +1163,6 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                   const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
                   const next = JSON.parse(JSON.stringify(content));
                   next.customBlocks = [...(next.customBlocks || []), { id, type: 'text', text: '' }];
-                  // Append the new block to sectionOrder so it shows
-                  // up as its own draggable row in the Sections panel.
                   next.sectionOrder = Array.isArray(next.sectionOrder) ? [...next.sectionOrder, id] : [id];
                   onChange(next);
                 }}
@@ -1207,11 +1233,6 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               }}>Removes "by Mere Orthodoxy", "by admin", etc. from all essays.</span>
             </div>
             {(() => {
-              // Resolve which essay holds the Featured spot. Honors an
-              // explicit essay.featured = true; otherwise falls back to
-              // index 0 so the latest pull always lands featured by
-              // default. Only one essay can be featured at a time —
-              // toggling another clears the rest.
               const essays = content.essays || [];
               const explicitFeaturedIdx = essays.findIndex((e) => e && e.featured);
               const featuredIdx = explicitFeaturedIdx >= 0 ? explicitFeaturedIdx : (essays.length ? 0 : -1);
