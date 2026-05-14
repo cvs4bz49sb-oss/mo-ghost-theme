@@ -991,8 +991,10 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                     <button
                       key={key}
                       onClick={() => {
-                        updateField('signatureKey', key);
-                        updateField('editorSignature', `— ${sig.name}, ${sig.title}`);
+                        const next = JSON.parse(JSON.stringify(content));
+                        next.signatureKey = key;
+                        next.editorSignature = `— ${sig.name}, ${sig.title}`;
+                        onChange(next);
                       }}
                       style={{
                         flex: 1,

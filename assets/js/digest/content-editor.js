@@ -795,8 +795,10 @@
             {
               key,
               onClick: () => {
-                updateField("signatureKey", key);
-                updateField("editorSignature", `\u2014 ${sig.name}, ${sig.title}`);
+                const next = JSON.parse(JSON.stringify(content));
+                next.signatureKey = key;
+                next.editorSignature = `\u2014 ${sig.name}, ${sig.title}`;
+                onChange(next);
               },
               style: {
                 flex: 1,

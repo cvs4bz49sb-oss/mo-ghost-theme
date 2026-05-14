@@ -259,6 +259,16 @@ function Button({ tokens, children, href = '#', variant = 'primary', size = 'md'
   );
 }
 
+// --- Asset resolution -----------------------------------------------
+// When running inside the Ghost-hosted digest-gen page,
+// window.MO_DIGEST_ASSETS maps filenames to absolute URLs
+// (set by a meta tag + digest-bootstrap.js). Fall back to relative
+// paths for local preview / non-Ghost contexts.
+
+function moDigestAsset(filename) {
+  return (window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS[filename]) || `assets/${filename}`;
+}
+
 // --- Signatures ----------------------------------------------------
 
 const SIGNATURES = {
@@ -369,7 +379,7 @@ function Masthead({ tokens, issueNumber, dateStr, mastheadTitle }) {
         <tbody>
           <tr>
             <td style={{ verticalAlign: 'middle', width: showRightCol ? '50%' : '100%', textAlign: showRightCol ? 'left' : 'center' }}>
-              <img src="assets/mere-o-logo.png" alt="Mere Orthodoxy" style={{ height: 52, display: showRightCol ? 'block' : 'inline-block' }} />
+              <img src={moDigestAsset('mere-o-logo.png')} alt="Mere Orthodoxy" style={{ height: 52, display: showRightCol ? 'block' : 'inline-block' }} />
             </td>
             {showRightCol && (
               <td style={{ verticalAlign: 'middle', textAlign: 'right', width: '50%' }}>
@@ -1008,7 +1018,7 @@ function Footer({ tokens, isMember }) {
       padding: '36px 40px 32px',
       textAlign: 'center',
     }} className="mo-pad-40">
-      <img src="assets/mere-o-logo.png" alt="Mere Orthodoxy" style={{
+      <img src={moDigestAsset('mere-o-logo.png')} alt="Mere Orthodoxy" style={{
         height: 28,
         display: 'inline-block',
         filter: 'brightness(0) invert(0.92)',
