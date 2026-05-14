@@ -178,6 +178,7 @@ const DEFAULT_SECTION_ORDER = [
   'essays',
   'podcasts',
   'sponsorBottom',
+  'signature',
 ];
 
 // --- Atomic pieces --------------------------------------------------
@@ -355,6 +356,7 @@ const DEFAULT_CONTENT = {
     essays: true,
     podcasts: true,
     sponsorBottom: true,
+    signature: true,
   },
   // The order sections (and individual custom blocks) render in.
   // Editable via drag-and-drop in the editor. loadSavedContent in
@@ -458,75 +460,81 @@ function LetterFromEditor({ tokens, content }) {
           }} dangerouslySetInnerHTML={{ __html: markdownInline(p, tokens) }} />
         ));
       })()}
-      {(() => {
-        const sig = content.signatureKey && SIGNATURES[content.signatureKey];
-        if (sig) {
-          return (
-            <table width="100%" cellPadding="0" cellSpacing="0" border="0" role="presentation" style={{ marginTop: 24 }}>
-              <tbody>
-                <tr>
-                  <td style={{ width: 80, verticalAlign: 'top', paddingRight: 16 }}>
-                    <img
-                      src={sig.photo}
-                      alt={sig.name}
-                      width="64"
-                      height="64"
-                      style={{
-                        width: 64,
-                        height: 64,
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        display: 'block',
-                      }}
-                    />
-                  </td>
-                  <td style={{ verticalAlign: 'middle' }}>
-                    <div style={{
-                      fontFamily: '"IM Fell English", Georgia, serif',
-                      fontSize: 16,
-                      color: tokens.bodyText,
-                      lineHeight: 1.2,
-                    }}>
-                      {sig.name}
-                    </div>
-                    <div style={{
-                      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-                      fontSize: 12,
-                      color: tokens.mutedText,
-                      letterSpacing: '0.04em',
-                      marginTop: 3,
-                    }}>
-                      {sig.title}
-                    </div>
-                    <div style={{
-                      fontFamily: '"IM Fell English", Georgia, serif',
-                      fontSize: 13,
-                      fontStyle: 'italic',
-                      color: tokens.lightText,
-                      marginTop: 2,
-                    }}>
-                      Mere Orthodoxy
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          );
-        }
-        // Fallback to legacy text signature
-        return (
-          <p
-            style={{
-              fontFamily: '"IM Fell English", Georgia, serif',
-              fontSize: 16,
-              fontStyle: 'italic',
-              color: tokens.lightText,
-              margin: '20px 0 0',
-            }}
-            dangerouslySetInnerHTML={{ __html: markdownInline(content.editorSignature || '', tokens) }}
-          />
-        );
-      })()}
+    </div>
+  );
+}
+
+function SignatureBlock({ tokens, content }) {
+  const sig = content.signatureKey && SIGNATURES[content.signatureKey];
+  if (sig) {
+    return (
+      <div style={{ padding: '8px 40px 28px' }} className="mo-letter mo-pad-40">
+        <table width="100%" cellPadding="0" cellSpacing="0" border="0" role="presentation">
+          <tbody>
+            <tr>
+              <td style={{ width: 80, verticalAlign: 'top', paddingRight: 16 }}>
+                <img
+                  src={sig.photo}
+                  alt={sig.name}
+                  width="64"
+                  height="64"
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    display: 'block',
+                  }}
+                />
+              </td>
+              <td style={{ verticalAlign: 'middle' }}>
+                <div style={{
+                  fontFamily: '"IM Fell English", Georgia, serif',
+                  fontSize: 16,
+                  color: tokens.bodyText,
+                  lineHeight: 1.2,
+                }}>
+                  {sig.name}
+                </div>
+                <div style={{
+                  fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+                  fontSize: 12,
+                  color: tokens.mutedText,
+                  letterSpacing: '0.04em',
+                  marginTop: 3,
+                }}>
+                  {sig.title}
+                </div>
+                <div style={{
+                  fontFamily: '"IM Fell English", Georgia, serif',
+                  fontSize: 13,
+                  fontStyle: 'italic',
+                  color: tokens.lightText,
+                  marginTop: 2,
+                }}>
+                  Mere Orthodoxy
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+  // Fallback to legacy text signature
+  if (!content.editorSignature) return null;
+  return (
+    <div style={{ padding: '8px 40px 28px' }} className="mo-letter mo-pad-40">
+      <p
+        style={{
+          fontFamily: '"IM Fell English", Georgia, serif',
+          fontSize: 16,
+          fontStyle: 'italic',
+          color: tokens.lightText,
+          margin: 0,
+        }}
+        dangerouslySetInnerHTML={{ __html: markdownInline(content.editorSignature || '', tokens) }}
+      />
     </div>
   );
 }
@@ -1129,6 +1137,8 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
             <Spacer h={20} />
           </>
         );
+      case 'signature':
+        return <SignatureBlock tokens={tokens} content={content} />;
       default: {
         // Custom block?
         const block = blocksById[key];

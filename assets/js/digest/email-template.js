@@ -151,7 +151,8 @@
     "sponsorTop",
     "essays",
     "podcasts",
-    "sponsorBottom"
+    "sponsorBottom",
+    "signature"
   ];
   function Spacer({ h = 24 }) {
     return /* @__PURE__ */ React.createElement("div", { "aria-hidden": "true", style: { height: h, lineHeight: 0, fontSize: 0 } }, "\xA0");
@@ -287,7 +288,8 @@
       sponsorTop: true,
       essays: true,
       podcasts: true,
-      sponsorBottom: true
+      sponsorBottom: true,
+      signature: true
     },
     // The order sections (and individual custom blocks) render in.
     // Editable via drag-and-drop in the editor. loadSavedContent in
@@ -352,57 +354,59 @@
         color: tokens.bodyText,
         margin: "0 0 14px"
       }, dangerouslySetInnerHTML: { __html: markdownInline(p, tokens) } }));
-    })(), (() => {
-      const sig = content.signatureKey && SIGNATURES[content.signatureKey];
-      if (sig) {
-        return /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", style: { marginTop: 24 } }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { width: 80, verticalAlign: "top", paddingRight: 16 } }, /* @__PURE__ */ React.createElement(
-          "img",
-          {
-            src: sig.photo,
-            alt: sig.name,
-            width: "64",
-            height: "64",
-            style: {
-              width: 64,
-              height: 64,
-              borderRadius: "50%",
-              objectFit: "cover",
-              display: "block"
-            }
+    })());
+  }
+  function SignatureBlock({ tokens, content }) {
+    const sig = content.signatureKey && SIGNATURES[content.signatureKey];
+    if (sig) {
+      return /* @__PURE__ */ React.createElement("div", { style: { padding: "8px 40px 28px" }, className: "mo-letter mo-pad-40" }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { width: 80, verticalAlign: "top", paddingRight: 16 } }, /* @__PURE__ */ React.createElement(
+        "img",
+        {
+          src: sig.photo,
+          alt: sig.name,
+          width: "64",
+          height: "64",
+          style: {
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            objectFit: "cover",
+            display: "block"
           }
-        )), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle" } }, /* @__PURE__ */ React.createElement("div", { style: {
+        }
+      )), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle" } }, /* @__PURE__ */ React.createElement("div", { style: {
+        fontFamily: '"IM Fell English", Georgia, serif',
+        fontSize: 16,
+        color: tokens.bodyText,
+        lineHeight: 1.2
+      } }, sig.name), /* @__PURE__ */ React.createElement("div", { style: {
+        fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+        fontSize: 12,
+        color: tokens.mutedText,
+        letterSpacing: "0.04em",
+        marginTop: 3
+      } }, sig.title), /* @__PURE__ */ React.createElement("div", { style: {
+        fontFamily: '"IM Fell English", Georgia, serif',
+        fontSize: 13,
+        fontStyle: "italic",
+        color: tokens.lightText,
+        marginTop: 2
+      } }, "Mere Orthodoxy"))))));
+    }
+    if (!content.editorSignature) return null;
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "8px 40px 28px" }, className: "mo-letter mo-pad-40" }, /* @__PURE__ */ React.createElement(
+      "p",
+      {
+        style: {
           fontFamily: '"IM Fell English", Georgia, serif',
           fontSize: 16,
-          color: tokens.bodyText,
-          lineHeight: 1.2
-        } }, sig.name), /* @__PURE__ */ React.createElement("div", { style: {
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 12,
-          color: tokens.mutedText,
-          letterSpacing: "0.04em",
-          marginTop: 3
-        } }, sig.title), /* @__PURE__ */ React.createElement("div", { style: {
-          fontFamily: '"IM Fell English", Georgia, serif',
-          fontSize: 13,
           fontStyle: "italic",
           color: tokens.lightText,
-          marginTop: 2
-        } }, "Mere Orthodoxy")))));
+          margin: 0
+        },
+        dangerouslySetInnerHTML: { __html: markdownInline(content.editorSignature || "", tokens) }
       }
-      return /* @__PURE__ */ React.createElement(
-        "p",
-        {
-          style: {
-            fontFamily: '"IM Fell English", Georgia, serif',
-            fontSize: 16,
-            fontStyle: "italic",
-            color: tokens.lightText,
-            margin: "20px 0 0"
-          },
-          dangerouslySetInnerHTML: { __html: markdownInline(content.editorSignature || "", tokens) }
-        }
-      );
-    })());
+    ));
   }
   function MembershipCTA({ tokens, accent, content }) {
     const isBold = accent === "bold";
@@ -794,6 +798,8 @@
         case "sponsorBottom":
           if (!showAds) return null;
           return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(SponsorBlock, { tokens, content: content.sponsorBottom }), /* @__PURE__ */ React.createElement(Spacer, { h: 20 }));
+        case "signature":
+          return /* @__PURE__ */ React.createElement(SignatureBlock, { tokens, content });
         default: {
           const block = blocksById[key];
           if (!block) return null;

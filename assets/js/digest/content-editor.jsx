@@ -847,6 +847,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 essays: 'Essays grid',
                 podcasts: 'Podcasts grid',
                 sponsorBottom: 'Bottom sponsor block',
+                signature: 'Signature',
               };
               const FIXED_KEYS = Object.keys(FIXED_SECTION_LABELS);
               const blocks = content.customBlocks || [];

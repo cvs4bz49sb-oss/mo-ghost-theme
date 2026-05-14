@@ -672,7 +672,8 @@
             sponsorTop: "Top sponsor block",
             essays: "Essays grid",
             podcasts: "Podcasts grid",
-            sponsorBottom: "Bottom sponsor block"
+            sponsorBottom: "Bottom sponsor block",
+            signature: "Signature"
           };
           const FIXED_KEYS = Object.keys(FIXED_SECTION_LABELS);
           const blocks = content.customBlocks || [];
