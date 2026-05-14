@@ -1,0 +1,89 @@
+{{!< default}}
+{{!-- /bible/ — Scripture reading room.
+
+     A focused reading experience for the Bible itself, in the same
+     editorial vocabulary as The Faith Received. Translations are
+     fetched from the mo-bible worker (which proxies api.bible);
+     cross-references to TFR are read from the static scripture-index
+     bundled by the build script.
+
+     URL state: #{bookId}.{chapterNum}, e.g. #JHN.1, drives which
+     chapter is rendered. Translation preference lives in
+     localStorage so a reader's choice persists across sessions.
+
+     Worker is configured via the `mo-bible-base` <meta> tag emitted
+     by default.hbs; bible.js reads it once at boot. --}}
+
+<main class="bible">
+
+  <section class="hero bible-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> Scripture</p>
+      <h1 class="hero-headline">
+        <em>The Bible</em>
+      </h1>
+      <p class="hero-sub">Read with the historic Christian tradition &mdash; the creeds, confessions, and classics gathered at <a href="/the-faith-received/">The Faith Received</a> sit alongside each chapter.</p>
+    </div>
+  </section>
+
+  {{!-- Controls rail. Sticky on scroll so a reader can switch
+       translations / chapters without paging back to the top. --}}
+  <nav class="bible-controls" aria-label="Bible reader controls">
+    <div class="container bible-controls-inner">
+      <label class="bible-control">
+        <span class="bible-control-label">Translation</span>
+        <select data-bible-translation aria-label="Translation">
+          <option>Loading&hellip;</option>
+        </select>
+      </label>
+      <label class="bible-control">
+        <span class="bible-control-label">Book</span>
+        <select data-bible-book aria-label="Book" disabled>
+          <option>&mdash;</option>
+        </select>
+      </label>
+      <label class="bible-control bible-control--chapter">
+        <span class="bible-control-label">Chapter</span>
+        <select data-bible-chapter aria-label="Chapter" disabled>
+          <option>&mdash;</option>
+        </select>
+      </label>
+      <div class="bible-controls-nav">
+        <button type="button" class="bible-nav-btn" data-bible-prev aria-label="Previous chapter" disabled>
+          <span aria-hidden="true">&larr;</span>
+        </button>
+        <button type="button" class="bible-nav-btn" data-bible-next aria-label="Next chapter" disabled>
+          <span aria-hidden="true">&rarr;</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="bible-body">
+    <div class="container container-narrow">
+      <article class="bible-chapter" data-bible-chapter-body>
+        <p class="bible-status" data-bible-status>Loading scripture&hellip;</p>
+      </article>
+
+      {{!-- Cross-references: which TFR docs cite or expound the
+           current chapter. Hidden until populated; the reader can
+           collapse it if they want a distraction-free read. --}}
+      <aside class="bible-cross-refs" data-bible-cross-refs hidden>
+        <details class="bible-cross-refs-details" open>
+          <summary class="bible-cross-refs-summary">
+            <span class="eyebrow">From the historic tradition</span>
+            <span class="bible-cross-refs-count" data-bible-cross-refs-count></span>
+          </summary>
+          <ol class="bible-cross-refs-list" data-bible-cross-refs-list></ol>
+        </details>
+      </aside>
+
+      {{!-- Translation attribution. Filled in by JS once a Bible is
+           selected so the right copyright notice renders. --}}
+      <p class="bible-attribution" data-bible-attribution></p>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/mo-bible.js"}}"></script>
