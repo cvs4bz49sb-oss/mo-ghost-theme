@@ -17,29 +17,29 @@
   "use strict";
 
   // ── Config ─────────────────────────────────────────────────────
-  var meta = document.querySelector('meta[name="mo-bible-base"]');
-  var BIBLE_BASE = (meta && meta.content || "").replace(/\/$/, "");
+  const meta = document.querySelector('meta[name="mo-bible-base"]');
+  const BIBLE_BASE = (meta && meta.content || "").replace(/\/$/, "");
   if (!BIBLE_BASE) {
     console.error("mo-bible: missing <meta name=\"mo-bible-base\">; reader disabled");
     return;
   }
 
-  var LS_TRANSLATION = "mo-bible:translation";
-  var DEFAULT_HASH = "GEN.1";
-  var SCRIPTURE_INDEX_URL = "/assets/data/faith-received/scripture-index.json";
+  const LS_TRANSLATION = "mo-bible:translation";
+  const DEFAULT_HASH = "GEN.1";
+  const SCRIPTURE_INDEX_URL = "/assets/data/faith-received/scripture-index.json";
 
   // ── DOM ────────────────────────────────────────────────────────
-  var $status = document.querySelector("[data-bible-status]");
-  var $body = document.querySelector("[data-bible-chapter-body]");
-  var $translation = document.querySelector("[data-bible-translation]");
-  var $book = document.querySelector("[data-bible-book]");
-  var $chapter = document.querySelector("[data-bible-chapter]");
-  var $prev = document.querySelector("[data-bible-prev]");
-  var $next = document.querySelector("[data-bible-next]");
-  var $attribution = document.querySelector("[data-bible-attribution]");
-  var $xrefs = document.querySelector("[data-bible-cross-refs]");
-  var $xrefsList = document.querySelector("[data-bible-cross-refs-list]");
-  var $xrefsCount = document.querySelector("[data-bible-cross-refs-count]");
+  const $status = document.querySelector("[data-bible-status]");
+  const $body = document.querySelector("[data-bible-chapter-body]");
+  const $translation = document.querySelector("[data-bible-translation]");
+  const $book = document.querySelector("[data-bible-book]");
+  const $chapter = document.querySelector("[data-bible-chapter]");
+  const $prev = document.querySelector("[data-bible-prev]");
+  const $next = document.querySelector("[data-bible-next]");
+  const $attribution = document.querySelector("[data-bible-attribution]");
+  const $xrefs = document.querySelector("[data-bible-cross-refs]");
+  const $xrefsList = document.querySelector("[data-bible-cross-refs-list]");
+  const $xrefsCount = document.querySelector("[data-bible-cross-refs-count]");
 
   if (!$body || !$translation) return;
 
@@ -48,13 +48,13 @@
   // books:     Map<bibleId, Array<bookObj>>      — books per bible (lazy, cached)
   // chapters:  Map<bibleId, Map<bookId, Array>>  — chapters per book per bible
   // bookIndex: Map<bibleId, Map<bookId, bookObj>> — lookup for cross-refs
-  var bibles = new Map();
-  var booksByBible = new Map();
-  var chaptersByBook = new Map();
-  var bookIndexByBible = new Map();
-  var scriptureIndex = null;
+  const bibles = new Map();
+  const booksByBible = new Map();
+  const chaptersByBook = new Map();
+  const bookIndexByBible = new Map();
+  let scriptureIndex = null;
 
-  var current = {
+  const current = {
     bibleId: null,
     bookId: null,
     chapterId: null,
@@ -64,13 +64,13 @@
 
   // ── Helpers ────────────────────────────────────────────────────
   function api(path) {
-    return fetch(BIBLE_BASE + "/api/bible/v1" + path, {
+    return fetch(`${BIBLE_BASE}/api/bible/v1${path}`, {
       method: "GET",
       credentials: "omit",
-    }).then(function (r) {
+    }).then((r) => {
       if (!r.ok) {
-        return r.json().catch(function () { return null; }).then(function (body) {
-          var msg = (body && body.error) || ("HTTP " + r.status);
+        return r.json().catch(() => { return null; }).then((body) => {
+          const msg = (body && body.error) || (`HTTP ${r.status}`);
           throw new Error(msg);
         });
       }
@@ -86,13 +86,13 @@
   }
 
   function hashState() {
-    var h = (window.location.hash || "").replace(/^#/, "");
-    var m = h.match(/^([A-Za-z0-9]+)\.(\d+)$/);
+    const h = (window.location.hash || "").replace(/^#/, "");
+    const m = h.match(/^([A-Za-z0-9]+)\.(\d+)$/);
     return m ? { bookId: m[1].toUpperCase(), chapterNum: parseInt(m[2], 10) } : null;
   }
 
   function setHash(bookId, chapterNum) {
-    var next = "#" + bookId + "." + chapterNum;
+    const next = `#${bookId}.${chapterNum}`;
     if (window.location.hash === next) return;
     history.pushState(null, "", next);
   }
@@ -107,26 +107,26 @@
   // ── Translations (Bibles) ──────────────────────────────────────
   function loadBibles() {
     setStatus("Loading translations…");
-    return api("/bibles?language=eng").then(function (resp) {
-      var list = (resp && resp.data) || [];
+    return api("/bibles?language=eng").then((resp) => {
+      const list = (resp && resp.data) || [];
       // Sort: most common modern translations first, then alphabetical.
       // The order is mostly a UX hint; the picker is the authority.
-      list.sort(function (a, b) {
+      list.sort((a, b) => {
         return (a.abbreviationLocal || a.abbreviation || "").localeCompare(
           (b.abbreviationLocal || b.abbreviation || "")
         );
       });
       $translation.innerHTML = "";
-      list.forEach(function (b) {
+      list.forEach((b) => {
         bibles.set(b.id, b);
-        var opt = document.createElement("option");
+        const opt = document.createElement("option");
         opt.value = b.id;
-        opt.textContent = (b.abbreviationLocal || b.abbreviation || b.name) +
-          " — " + (b.nameLocal || b.name);
+        opt.textContent = `${b.abbreviationLocal || b.abbreviation || b.name 
+          } — ${b.nameLocal || b.name}`;
         $translation.appendChild(opt);
       });
       // Initial selection: localStorage → first in list.
-      var prefer = recalledTranslation();
+      const prefer = recalledTranslation();
       if (prefer && bibles.has(prefer)) {
         $translation.value = prefer;
       } else if (list.length) {
@@ -140,18 +140,18 @@
   function loadBooks(bibleId) {
     if (booksByBible.has(bibleId)) return Promise.resolve(booksByBible.get(bibleId));
     setStatus("Loading books…");
-    return api("/bibles/" + bibleId + "/books?include-chapters=true").then(function (resp) {
-      var list = (resp && resp.data) || [];
+    return api(`/bibles/${bibleId}/books?include-chapters=true`).then((resp) => {
+      const list = (resp && resp.data) || [];
       booksByBible.set(bibleId, list);
       // Per-book chapter list for navigation.
-      var chMap = new Map();
-      var bookIdx = new Map();
-      list.forEach(function (b) {
+      const chMap = new Map();
+      const bookIdx = new Map();
+      list.forEach((b) => {
         bookIdx.set(b.id, b);
         // Filter out the synthetic "intro" pseudo-chapter (id ends in
         // .intro or chapter number is "intro") — the reader can only
         // render real chapters.
-        var chs = (b.chapters || []).filter(function (c) {
+        const chs = (b.chapters || []).filter((c) => {
           return c.number && /^\d+$/.test(String(c.number));
         });
         chMap.set(b.id, chs);
@@ -163,10 +163,10 @@
   }
 
   function populateBookSelect(bibleId) {
-    var books = booksByBible.get(bibleId) || [];
+    const books = booksByBible.get(bibleId) || [];
     $book.innerHTML = "";
-    books.forEach(function (b) {
-      var opt = document.createElement("option");
+    books.forEach((b) => {
+      const opt = document.createElement("option");
       opt.value = b.id;
       opt.textContent = b.name;
       $book.appendChild(opt);
@@ -175,10 +175,10 @@
   }
 
   function populateChapterSelect(bibleId, bookId) {
-    var chs = (chaptersByBook.get(bibleId) || new Map()).get(bookId) || [];
+    const chs = (chaptersByBook.get(bibleId) || new Map()).get(bookId) || [];
     $chapter.innerHTML = "";
-    chs.forEach(function (c) {
-      var opt = document.createElement("option");
+    chs.forEach((c) => {
+      const opt = document.createElement("option");
       opt.value = c.id;
       opt.textContent = c.number;
       $chapter.appendChild(opt);
@@ -190,26 +190,26 @@
   function loadChapter(bibleId, chapterId) {
     setStatus("Loading…");
     $body.classList.remove("is-loaded");
-    var q = "?content-type=html&include-notes=false&include-titles=true" +
+    const q = "?content-type=html&include-notes=false&include-titles=true" +
             "&include-chapter-numbers=false&include-verse-numbers=true" +
             "&include-verse-spans=false";
-    return api("/bibles/" + bibleId + "/chapters/" + chapterId + q).then(function (resp) {
-      var ch = (resp && resp.data) || null;
+    return api(`/bibles/${bibleId}/chapters/${chapterId}${q}`).then((resp) => {
+      const ch = (resp && resp.data) || null;
       if (!ch || !ch.content) {
         setStatus("This chapter is unavailable in the selected translation.", true);
         $body.innerHTML = "";
         return;
       }
       // Render: heading + the api.bible-supplied HTML.
-      var idx = bookIndexByBible.get(bibleId);
-      var book = idx && idx.get(ch.bookId);
-      var bookName = (book && book.name) || ch.bookId;
-      var html =
-        '<header class="bible-chapter-header">' +
-          '<p class="bible-chapter-eyebrow">' + escapeHtml(bookName) + '</p>' +
-          '<h2 class="bible-chapter-heading"><em>Chapter ' + escapeHtml(String(ch.number)) + '</em></h2>' +
-        '</header>' +
-        '<div class="bible-chapter-content article-content">' + ch.content + '</div>';
+      const idx = bookIndexByBible.get(bibleId);
+      const book = idx && idx.get(ch.bookId);
+      const bookName = (book && book.name) || ch.bookId;
+      const html =
+        `<header class="bible-chapter-header">` +
+          `<p class="bible-chapter-eyebrow">${escapeHtml(bookName)}</p>` +
+          `<h2 class="bible-chapter-heading"><em>Chapter ${escapeHtml(String(ch.number))}</em></h2>` +
+        `</header>` +
+        `<div class="bible-chapter-content article-content">${ch.content}</div>`;
       $body.innerHTML = html;
       $body.classList.add("is-loaded");
       setStatus("");
@@ -237,7 +237,7 @@
       renderAttribution(bibleId);
       renderCrossRefs(bookName, ch.number);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }).catch(function (err) {
+    }).catch((err) => {
       console.error("mo-bible chapter load", err);
       setStatus("Could not load this chapter. Try another translation or chapter.", true);
     });
@@ -245,45 +245,45 @@
 
   function renderAttribution(bibleId) {
     if (!$attribution) return;
-    var b = bibles.get(bibleId);
+    const b = bibles.get(bibleId);
     if (!b) { $attribution.textContent = ""; return; }
-    var copyright = (b.copyright || "").trim();
-    var name = b.nameLocal || b.name;
+    const copyright = (b.copyright || "").trim();
+    const name = b.nameLocal || b.name;
     $attribution.innerHTML =
-      "<em>" + escapeHtml(name) + "</em>" +
-      (copyright ? '<span class="bible-attribution-sep">·</span>' + copyright : "");
+      `<em>${escapeHtml(name)}</em>${ 
+      copyright ? `<span class="bible-attribution-sep">·</span>${copyright}` : ""}`;
   }
 
   // ── Cross-references to The Faith Received ─────────────────────
   function loadScriptureIndex() {
     if (scriptureIndex) return Promise.resolve(scriptureIndex);
     return fetch(SCRIPTURE_INDEX_URL, { credentials: "omit" })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) { scriptureIndex = data; return data; })
-      .catch(function () { return null; });
+      .then((r) => { return r.ok ? r.json() : null; })
+      .then((data) => { scriptureIndex = data; return data; })
+      .catch(() => { return null; });
   }
 
   function renderCrossRefs(bookName, chapterNum) {
     if (!$xrefs || !$xrefsList) return;
-    loadScriptureIndex().then(function (data) {
+    loadScriptureIndex().then((data) => {
       if (!data || !data.index) { $xrefs.hidden = true; return; }
-      var key = bookName + " " + chapterNum;
-      var hits = data.index[key] || [];
+      const key = `${bookName} ${chapterNum}`;
+      const hits = data.index[key] || [];
       if (!hits.length) { $xrefs.hidden = true; $xrefsList.innerHTML = ""; return; }
-      $xrefsList.innerHTML = hits.map(function (h) {
-        var href = "/the-faith-received/" + h.source + "/";
-        if (h.id) href += "#" + h.id;
+      $xrefsList.innerHTML = hits.map((h) => {
+        let href = `/the-faith-received/${h.source}/`;
+        if (h.id) href += `#${h.id}`;
         return (
-          '<li class="bible-cross-ref">' +
-            '<a class="bible-cross-ref-link" href="' + href + '">' +
-              '<span class="bible-cross-ref-source">' + escapeHtml(sourceLabel(h.source)) + '</span>' +
-              '<span class="bible-cross-ref-title"><em>' + escapeHtml(h.title || "") + '</em></span>' +
-              (h.excerpt ? '<span class="bible-cross-ref-excerpt">' + escapeHtml(h.excerpt) + '</span>' : "") +
-            '</a>' +
-          '</li>'
+          `<li class="bible-cross-ref">` +
+            `<a class="bible-cross-ref-link" href="${href}">` +
+              `<span class="bible-cross-ref-source">${escapeHtml(sourceLabel(h.source))}</span>` +
+              `<span class="bible-cross-ref-title"><em>${escapeHtml(h.title || "")}</em></span>${ 
+              h.excerpt ? `<span class="bible-cross-ref-excerpt">${escapeHtml(h.excerpt)}</span>` : "" 
+            }</a>` +
+          `</li>`
         );
       }).join("");
-      if ($xrefsCount) $xrefsCount.textContent = hits.length + " " + (hits.length === 1 ? "passage" : "passages");
+      if ($xrefsCount) $xrefsCount.textContent = `${hits.length} ${hits.length === 1 ? "passage" : "passages"}`;
       $xrefs.hidden = false;
     });
   }
@@ -292,7 +292,7 @@
   // The slugs match the TFR document slugs; this table is the visible
   // shorthand. Anything not in the table falls back to a title-cased
   // version of the slug.
-  var SOURCE_LABELS = {
+  const SOURCE_LABELS = {
     "heidelberg": "Heidelberg Catechism",
     "westminster-shorter": "Westminster Shorter Catechism",
     "westminster-larger": "Westminster Larger Catechism",
@@ -319,7 +319,7 @@
   };
   function sourceLabel(slug) {
     if (SOURCE_LABELS[slug]) return SOURCE_LABELS[slug];
-    return slug.replace(/-/g, " ").replace(/\b\w/g, function (m) { return m.toUpperCase(); });
+    return slug.replace(/-/g, " ").replace(/\b\w/g, (m) => { return m.toUpperCase(); });
   }
 
   function escapeHtml(s) {
@@ -335,21 +335,21 @@
   // After translation + books load, resolve the chapter to render
   // from the URL hash, falling back to Genesis 1.
   function resolveInitialChapter(bibleId) {
-    var hs = hashState();
-    var chMap = chaptersByBook.get(bibleId);
+    const hs = hashState();
+    const chMap = chaptersByBook.get(bibleId);
     if (hs && chMap && chMap.has(hs.bookId)) {
-      var chs = chMap.get(hs.bookId);
-      var found = chs.find(function (c) { return parseInt(c.number, 10) === hs.chapterNum; });
+      const chs = chMap.get(hs.bookId);
+      const found = chs.find((c) => { return parseInt(c.number, 10) === hs.chapterNum; });
       if (found) return found.id;
     }
     // Fallback chain: Gen 1 → first book's first chapter → null.
     if (chMap && chMap.has("GEN")) {
-      var gen = chMap.get("GEN");
+      const gen = chMap.get("GEN");
       if (gen && gen.length) return gen[0].id;
     }
-    var firstBook = (booksByBible.get(bibleId) || [])[0];
+    const firstBook = (booksByBible.get(bibleId) || [])[0];
     if (firstBook) {
-      var first = (chMap && chMap.get(firstBook.id)) || [];
+      const first = (chMap && chMap.get(firstBook.id)) || [];
       if (first.length) return first[0].id;
     }
     return null;
@@ -358,14 +358,14 @@
   // ── Wire up ────────────────────────────────────────────────────
   function init() {
     loadBibles()
-      .then(function (bibleId) {
+      .then((bibleId) => {
         if (!bibleId) {
           setStatus("No translations available. Has the api.bible key been set?", true);
           return null;
         }
-        return loadBooks(bibleId).then(function () {
+        return loadBooks(bibleId).then(() => {
           populateBookSelect(bibleId);
-          var chapterId = resolveInitialChapter(bibleId);
+          const chapterId = resolveInitialChapter(bibleId);
           if (!chapterId) {
             setStatus("Could not find an initial chapter.", true);
             return null;
@@ -373,61 +373,61 @@
           return loadChapter(bibleId, chapterId);
         });
       })
-      .catch(function (err) {
+      .catch((err) => {
         console.error("mo-bible init", err);
         setStatus("Bible reader is unavailable right now. Please try again later.", true);
       });
   }
 
-  $translation.addEventListener("change", function () {
-    var bibleId = $translation.value;
+  $translation.addEventListener("change", () => {
+    const bibleId = $translation.value;
     rememberTranslation(bibleId);
-    loadBooks(bibleId).then(function () {
+    loadBooks(bibleId).then(() => {
       populateBookSelect(bibleId);
       // Try to stay on the same book/chapter when switching translations.
-      var bookId = current.bookId;
-      var chapterNum = current.chapterNum;
-      var chMap = chaptersByBook.get(bibleId);
+      const {bookId} = current;
+      const {chapterNum} = current;
+      const chMap = chaptersByBook.get(bibleId);
       if (bookId && chMap && chMap.has(bookId)) {
         $book.value = bookId;
         populateChapterSelect(bibleId, bookId);
-        var match = (chMap.get(bookId) || []).find(function (c) {
+        const match = (chMap.get(bookId) || []).find((c) => {
           return parseInt(c.number, 10) === chapterNum;
         });
         if (match) return loadChapter(bibleId, match.id);
       }
-      var chapterId = resolveInitialChapter(bibleId);
+      const chapterId = resolveInitialChapter(bibleId);
       if (chapterId) return loadChapter(bibleId, chapterId);
     });
   });
 
-  $book.addEventListener("change", function () {
-    var bibleId = current.bibleId || $translation.value;
-    var bookId = $book.value;
+  $book.addEventListener("change", () => {
+    const bibleId = current.bibleId || $translation.value;
+    const bookId = $book.value;
     populateChapterSelect(bibleId, bookId);
-    var firstChapter = $chapter.options[0] && $chapter.options[0].value;
+    const firstChapter = $chapter.options[0] && $chapter.options[0].value;
     if (firstChapter) loadChapter(bibleId, firstChapter);
   });
 
-  $chapter.addEventListener("change", function () {
-    var bibleId = current.bibleId || $translation.value;
-    var chapterId = $chapter.value;
+  $chapter.addEventListener("change", () => {
+    const bibleId = current.bibleId || $translation.value;
+    const chapterId = $chapter.value;
     if (chapterId) loadChapter(bibleId, chapterId);
   });
 
-  $prev.addEventListener("click", function () {
+  $prev.addEventListener("click", () => {
     if ($prev._target) loadChapter(current.bibleId, $prev._target);
   });
-  $next.addEventListener("click", function () {
+  $next.addEventListener("click", () => {
     if ($next._target) loadChapter(current.bibleId, $next._target);
   });
 
-  window.addEventListener("hashchange", function () {
-    var hs = hashState();
+  window.addEventListener("hashchange", () => {
+    const hs = hashState();
     if (!hs || !current.bibleId) return;
-    var chMap = chaptersByBook.get(current.bibleId);
+    const chMap = chaptersByBook.get(current.bibleId);
     if (!chMap || !chMap.has(hs.bookId)) return;
-    var match = (chMap.get(hs.bookId) || []).find(function (c) {
+    const match = (chMap.get(hs.bookId) || []).find((c) => {
       return parseInt(c.number, 10) === hs.chapterNum;
     });
     if (match && match.id !== current.chapterId) {
@@ -436,8 +436,8 @@
   });
 
   // Keyboard: ← / → cycle chapters when no input is focused.
-  document.addEventListener("keydown", function (e) {
-    var t = e.target;
+  document.addEventListener("keydown", (e) => {
+    const t = e.target;
     if (t && (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA")) return;
     if (e.key === "ArrowLeft" && !$prev.disabled) { e.preventDefault(); $prev.click(); }
     if (e.key === "ArrowRight" && !$next.disabled) { e.preventDefault(); $next.click(); }
