@@ -1,0 +1,126 @@
+{{!< default}}
+{{!-- /admin/coverage/ — Coverage Scan.
+
+     Daily editorial radar across 15 peer publications. Pulls
+     headlines via RSS through the mo-admin worker, runs Claude
+     against them for coverage gaps + contested topics + pitches,
+     stores the result in mo-admin's SETTINGS KV. Renders the most
+     recent scan; "Run scan" button triggers an ad-hoc rebuild. --}}
+
+<main class="admin-page admin-coverage">
+
+  {{#if @member}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Coverage</p>
+        <h1 class="admin-headline">Coverage <em><span class="highlight">Scan</span></em>.</h1>
+        <p class="admin-sub">Where 15 peer publications are aiming today — and where Mere Orthodoxy is uniquely positioned to write into the gaps.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container">
+
+        <div class="coverage-app"
+             data-coverage-app
+             data-worker-url="{{@custom.admin_worker_url}}">
+
+          {{!-- Toolbar: last-scan timestamp + manual Run scan. --}}
+          <header class="coverage-toolbar">
+            <div class="coverage-toolbar-meta">
+              <span class="eyebrow">Last scan</span>
+              <span class="coverage-toolbar-time" data-coverage-last>—</span>
+            </div>
+            <button type="button" class="btn btn-pill btn-primary coverage-scan-btn" data-coverage-run>
+              <span class="coverage-scan-btn-label">Run scan</span>
+            </button>
+          </header>
+
+          {{!-- Status / error band. Shown when the worker is busy or
+               something blew up; hidden when a report is on screen. --}}
+          <p class="coverage-status" data-coverage-status hidden></p>
+
+          {{!-- Report root. Filled in by JS from /coverage/latest. --}}
+          <div class="coverage-report" data-coverage-report hidden>
+
+            {{!-- Today's editorial radar — date + summary tiles. --}}
+            <section class="coverage-radar">
+              <div class="coverage-radar-head">
+                <p class="eyebrow">Today's editorial radar</p>
+                <h2 class="coverage-radar-date" data-coverage-date></h2>
+                <p class="coverage-radar-sub" data-coverage-sub></p>
+              </div>
+              <ul class="coverage-stats">
+                <li class="coverage-stat" data-coverage-stat="headlines"><span class="coverage-stat-n">0</span><span class="coverage-stat-l">Headlines</span></li>
+                <li class="coverage-stat" data-coverage-stat="publications"><span class="coverage-stat-n">0</span><span class="coverage-stat-l">Publications</span></li>
+                <li class="coverage-stat" data-coverage-stat="contested"><span class="coverage-stat-n">0</span><span class="coverage-stat-l">Contested</span></li>
+                <li class="coverage-stat" data-coverage-stat="gaps"><span class="coverage-stat-n">0</span><span class="coverage-stat-l">Gaps</span></li>
+                <li class="coverage-stat" data-coverage-stat="pitches"><span class="coverage-stat-n">0</span><span class="coverage-stat-l">Pitches</span></li>
+              </ul>
+            </section>
+
+            {{!-- Headlines grid: one card per publication. --}}
+            <section class="coverage-section">
+              <header class="coverage-section-head">
+                <p class="coverage-section-numeral">01</p>
+                <h3 class="coverage-section-title"><em>Recent headlines</em></h3>
+                <p class="coverage-section-sub" data-coverage-headlines-sub></p>
+              </header>
+              <ul class="coverage-headlines-grid" data-coverage-headlines></ul>
+            </section>
+
+            {{!-- Contested. --}}
+            <section class="coverage-section">
+              <header class="coverage-section-head">
+                <p class="coverage-section-numeral">02</p>
+                <h3 class="coverage-section-title"><em>Contested topics</em></h3>
+                <p class="coverage-section-sub">Where these outlets are framing the same issue differently.</p>
+              </header>
+              <ul class="coverage-blocks coverage-blocks--contested" data-coverage-contested></ul>
+            </section>
+
+            {{!-- Gaps. --}}
+            <section class="coverage-section">
+              <header class="coverage-section-head">
+                <p class="coverage-section-numeral">03</p>
+                <h3 class="coverage-section-title"><em>Coverage gaps</em></h3>
+                <p class="coverage-section-sub">Topics that matter to MO's audience but are thinly or not at all covered.</p>
+              </header>
+              <ul class="coverage-blocks coverage-blocks--gaps" data-coverage-gaps></ul>
+            </section>
+
+            {{!-- Pitches. --}}
+            <section class="coverage-section">
+              <header class="coverage-section-head">
+                <p class="coverage-section-numeral">04</p>
+                <h3 class="coverage-section-title"><em>5 pitches for editors</em></h3>
+                <p class="coverage-section-sub">Original angles that fill the gaps. <button type="button" class="coverage-copy-all" data-coverage-copy-all>Copy all</button></p>
+              </header>
+              <ol class="coverage-pitches" data-coverage-pitches></ol>
+            </section>
+
+          </div>
+
+          {{!-- Empty state, shown until the first scan ever runs. --}}
+          <div class="coverage-empty" data-coverage-empty hidden>
+            <p class="eyebrow">Nothing here yet</p>
+            <h2 class="coverage-empty-title"><em>No scans have been run.</em></h2>
+            <p class="coverage-empty-body">Press <strong>Run scan</strong> to pull today's headlines from all 15 publications and generate the first editorial radar. Takes ~30 seconds.</p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-coverage.js"}}"></script>

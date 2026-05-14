@@ -95,6 +95,8 @@ routes:
     template: custom-admin-traffic
   /admin/editorial/:
     template: custom-admin-editorial
+  /admin/coverage/:
+    template: custom-admin-coverage
   /admin/social/:
     template: custom-admin-social
   /digest-gen/:
