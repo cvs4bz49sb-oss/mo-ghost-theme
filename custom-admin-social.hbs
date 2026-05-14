@@ -1,0 +1,55 @@
+{{!< default}}
+{{!-- /admin/social/ — social media automation dashboard.
+     Displays scheduled posts, errors, and daily status from the
+     social media routine. Staff-only; reads from GET /social/status
+     on the admin worker. --}}
+
+<main class="admin-page">
+
+  {{#if @member}}
+
+    <section class="hero admin-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Communications</p>
+        <h1 class="admin-headline">Social <em><span class="highlight">Media</span></em>.</h1>
+        <p class="admin-sub">Scheduled posts, errors, and daily automation status from the social media routine.</p>
+      </div>
+    </section>
+
+    {{> "admin-nav"}}
+
+    <section class="admin-body">
+      <div class="container container-narrow">
+        <div class="admin-social"
+             data-admin-social
+             data-worker-url="{{@custom.admin_worker_url}}">
+
+          {{!-- Summary stats --}}
+          <div class="dashboard-module" data-social-summary>
+            <p class="dashboard-form-legend"><em>Status</em></p>
+            <p class="admin-sub">Loading&hellip;</p>
+          </div>
+
+          {{!-- Scheduled posts table --}}
+          <div class="dashboard-module" style="margin-top: 48px" data-social-posts>
+            <p class="dashboard-form-legend"><em>Scheduled Posts</em></p>
+            <p class="admin-sub">Loading&hellip;</p>
+          </div>
+
+          {{!-- Errors (hidden when none) --}}
+          <div class="dashboard-module" style="margin-top: 48px" data-social-errors hidden>
+            <p class="dashboard-form-legend"><em>Errors</em></p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-social.js"}}"></script>

@@ -95,6 +95,8 @@ routes:
     template: custom-admin-traffic
   /admin/editorial/:
     template: custom-admin-editorial
+  /admin/social/:
+    template: custom-admin-social
   /digest-gen/:
     template: custom-digest-gen
   # Public ebook catalog. Anonymous-viewable; tiles route through
