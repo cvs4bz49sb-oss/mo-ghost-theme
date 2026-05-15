@@ -15296,6 +15296,16 @@ body[class*="page-template-custom-admin"],
 body.page-template-custom-digest-gen,
 body:has(.admin-workspace) {
   padding-top: 0 !important;
+  background: var(--color-page) !important;
+}
+body:has(.admin-workspace) .site-content {
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+body:has(.admin-workspace) .site-footer-spacer,
+body:has(.admin-workspace) .post-feed-spacer {
+  display: none !important;
 }
 
 /* Digest toolbar: allow wrapping inside the workspace. */
