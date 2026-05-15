@@ -15136,6 +15136,12 @@ details.bookstore-section[open] > .bookstore-section-header::after {
   transition: color 0.15s, border-color 0.15s;
 }
 .coverage-headlines-item a:hover { color: var(--color-secondary); border-bottom-color: var(--color-card-border); }
+.coverage-headlines-author {
+  display: block;
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-top: 1px;
+}
 .coverage-headlines-error {
   font-family: var(--font-body);
   font-size: 12px;

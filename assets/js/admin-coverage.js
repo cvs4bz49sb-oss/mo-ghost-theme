@@ -71,6 +71,7 @@
         return;
       }
       render(data.report);
+      setStatus("");
     } catch (err) {
       console.error("coverage load failed", err);
       setStatus(`Could not load latest scan: ${err.message || err}`, true);
@@ -142,7 +143,8 @@
     const count = group.count || 0;
     const items = (group.items || []).slice(0, 10).map((it) => {
       const safeUrl = it.url || "#";
-      return `<li class="coverage-headlines-item"><a href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(it.title)}</a></li>`;
+      const byline = it.author ? `<span class="coverage-headlines-author">by ${escapeHtml(it.author)}</span>` : "";
+      return `<li class="coverage-headlines-item"><a href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(it.title)}</a>${byline}</li>`;
     }).join("");
     const errorNote = group.error
       ? `<p class="coverage-headlines-error">Feed unavailable: ${escapeHtml(group.error)}</p>`
