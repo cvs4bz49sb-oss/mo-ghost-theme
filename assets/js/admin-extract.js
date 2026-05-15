@@ -34,7 +34,21 @@
       else if (key === "excerpt") text = articleData.excerpt || "";
       else if (key === "tags") text = articleData.tags || "";
       else if (key === "image") text = articleData.feature_image || "";
-      else if (key === "plaintext") text = articleData.plaintext || "";
+      else if (key === "plaintext") {
+        var html = articleData.html || "";
+        var plain = articleData.plaintext || "";
+        if (html) {
+          navigator.clipboard.write([new ClipboardItem({
+            "text/html": new Blob([html], { type: "text/html" }),
+            "text/plain": new Blob([plain], { type: "text/plain" })
+          })]).then(function () {
+            btn.textContent = "Copied";
+            setTimeout(function () { btn.textContent = "Copy all"; }, 1400);
+          });
+          return;
+        }
+        text = plain;
+      }
       if (text) navigator.clipboard.writeText(text).then(function () {
         btn.textContent = "Copied";
         var resetLabel = key === "image" ? "Copy URL" : key === "plaintext" ? "Copy all" : "Copy";
@@ -50,29 +64,25 @@
       if (!url) return;
       $copyImageBtn.textContent = "Copying…";
       try {
-        var resp = await fetch(url);
-        var blob = await resp.blob();
-        var pngBlob = blob;
-        if (blob.type !== "image/png") {
-          var img = new Image();
-          img.crossOrigin = "anonymous";
-          await new Promise(function (resolve, reject) {
-            img.onload = resolve;
-            img.onerror = reject;
-            img.src = URL.createObjectURL(blob);
-          });
-          var canvas = document.createElement("canvas");
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          canvas.getContext("2d").drawImage(img, 0, 0);
-          pngBlob = await new Promise(function (resolve) { canvas.toBlob(resolve, "image/png"); });
-          URL.revokeObjectURL(img.src);
-        }
+        var img = new Image();
+        img.crossOrigin = "anonymous";
+        await new Promise(function (resolve, reject) {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = url;
+        });
+        var canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+        var pngBlob = await new Promise(function (resolve) { canvas.toBlob(resolve, "image/png"); });
         await navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]);
         $copyImageBtn.textContent = "Copied";
       } catch (e) {
         console.error("Copy image failed:", e);
-        $copyImageBtn.textContent = "Failed";
+        navigator.clipboard.writeText(url).then(function () {
+          $copyImageBtn.textContent = "URL copied";
+        });
       }
       setTimeout(function () { $copyImageBtn.textContent = "Copy Image"; }, 1400);
     });
@@ -93,7 +103,7 @@
     try {
       var apiUrl = siteUrl + "/ghost/api/content/posts/slug/" + slug +
         "/?key=" + contentApiKey +
-        "&include=authors,tags&formats=plaintext";
+        "&include=authors,tags&formats=plaintext,html";
       var resp = await fetch(apiUrl);
       var data = await resp.json();
       var post = data.posts && data.posts[0];
@@ -121,7 +131,8 @@
         feature_image: post.feature_image || "",
         published_at: post.published_at || "",
         reading_time: post.reading_time || 0,
-        plaintext: post.plaintext || ""
+        plaintext: post.plaintext || "",
+        html: post.html || ""
       };
 
       renderArticle(articleData);
@@ -161,7 +172,11 @@
       $imageCard.hidden = true;
     }
 
-    $plaintext.textContent = a.plaintext;
+    if (a.html) {
+      $plaintext.innerHTML = a.html;
+    } else {
+      $plaintext.textContent = a.plaintext;
+    }
 
     var words = a.plaintext ? a.plaintext.split(/\s+/).length : 0;
     setStatVal("words", words.toLocaleString());
