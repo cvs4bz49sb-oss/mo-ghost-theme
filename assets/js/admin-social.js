@@ -223,12 +223,12 @@
       for (var j = 0; j < cbs.length; j++) cbs[j].checked = allCb.checked;
     });
 
-    deleteModal.hidden = false;
+    deleteModal.classList.add("is-open");
   });
 
-  deleteCancel.addEventListener("click", function () { deleteModal.hidden = true; });
+  deleteCancel.addEventListener("click", function () { deleteModal.classList.remove("is-open"); });
   deleteModal.addEventListener("click", function (e) {
-    if (e.target === deleteModal) deleteModal.hidden = true;
+    if (e.target === deleteModal) deleteModal.classList.remove("is-open");
   });
 
   deleteConfirm.addEventListener("click", function () {
@@ -241,7 +241,7 @@
       for (var i = 0; i < cbs.length; i++) {
         if (cbs[i].checked) idsToDelete.push(cbs[i].getAttribute("data-modal-id"));
       }
-      if (!idsToDelete.length) { deleteModal.hidden = true; return; }
+      if (!idsToDelete.length) { deleteModal.classList.remove("is-open"); return; }
     }
 
     deleteConfirm.disabled = true;
@@ -271,7 +271,7 @@
       })
       .catch(function () { showStatus("Delete failed.", true); })
       .finally(function () {
-        deleteModal.hidden = true;
+        deleteModal.classList.remove("is-open");
         deleteConfirm.disabled = false;
         deleteConfirm.textContent = "Delete Selected";
       });

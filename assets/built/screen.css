@@ -16196,10 +16196,13 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 500;
+}
+.social-modal-backdrop.is-open {
+  display: flex;
 }
 .social-modal {
   background: #fff;
