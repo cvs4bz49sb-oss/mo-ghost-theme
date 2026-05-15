@@ -84,7 +84,7 @@
     const ADMIN = (body.getAttribute("data-admin-worker-url") || "").replace(/\/$/, "");
     if (!ADMIN) return;
 
-    fetch(ADMIN + "/engagement")
+    fetch(`${ADMIN}/engagement`)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (!data || !data.active) return;
@@ -123,7 +123,7 @@
         btn.addEventListener("click", () => {
           if (btn.disabled) return;
           wrap.querySelectorAll("button").forEach((b) => { b.disabled = true; });
-          window.MOAuth.fetch(ADMIN + "/engagement/vote", {
+          window.MOAuth.fetch(`${ADMIN}/engagement/vote`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ option: opt }),
@@ -136,8 +136,8 @@
                   const label = b.querySelector(".engagement-poll-option-label").textContent;
                   const c = d.results[label] || 0;
                   const p = newTotal ? Math.round((c / newTotal) * 100) : 0;
-                  b.querySelector(".engagement-poll-option-bar").style.width = p + "%";
-                  b.querySelector(".engagement-poll-option-pct").textContent = p + "%";
+                  b.querySelector(".engagement-poll-option-bar").style.width = `${p}%`;
+                  b.querySelector(".engagement-poll-option-pct").textContent = `${p}%`;
                 });
               }
             })
@@ -151,9 +151,9 @@
     function renderOpenResponse(mount, allowAnon) {
       const wrap = document.createElement("div");
       wrap.className = "engagement-respond";
-      wrap.innerHTML = `<textarea class="engagement-respond-input" placeholder="Your response..." rows="3"></textarea>` +
-        (allowAnon ? `<label class="engagement-respond-anon"><input type="checkbox" /> Respond anonymously</label>` : "") +
-        `<button type="button" class="btn btn-pill btn-primary engagement-respond-btn">Submit</button>` +
+      wrap.innerHTML = `<textarea class="engagement-respond-input" placeholder="Your response..." rows="3"></textarea>${ 
+        allowAnon ? `<label class="engagement-respond-anon"><input type="checkbox" /> Respond anonymously</label>` : "" 
+        }<button type="button" class="btn btn-pill btn-primary engagement-respond-btn">Submit</button>` +
         `<p class="engagement-respond-status" hidden></p>`;
       const textarea = wrap.querySelector("textarea");
       const anonBox = wrap.querySelector('input[type="checkbox"]');
@@ -163,7 +163,7 @@
         const answer = textarea.value.trim();
         if (!answer) return;
         btn.disabled = true;
-        window.MOAuth.fetch(ADMIN + "/engagement/respond", {
+        window.MOAuth.fetch(`${ADMIN}/engagement/respond`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ answer, anonymous: anonBox ? anonBox.checked : false }),

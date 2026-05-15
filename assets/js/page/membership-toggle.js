@@ -38,8 +38,8 @@
     if (!active) return;
     const id = OFFERS[interval];
     portalBtns.forEach((btn) => {
-      btn.setAttribute('data-portal', 'offers/' + id);
-      btn.setAttribute('href', '#/portal/offers/' + id);
+      btn.setAttribute('data-portal', `offers/${id}`);
+      btn.setAttribute('href', `#/portal/offers/${id}`);
     });
   }
 

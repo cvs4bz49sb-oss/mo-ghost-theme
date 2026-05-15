@@ -1,36 +1,36 @@
 (function () {
   "use strict";
 
-  var root = document.querySelector("[data-extract-creator]");
+  const root = document.querySelector("[data-extract-creator]");
   if (!root) return;
 
-  var siteUrl = (root.dataset.siteUrl || "").replace(/\/$/, "");
-  var contentApiKey = root.dataset.contentApiKey || "";
+  const siteUrl = (root.dataset.siteUrl || "").replace(/\/$/, "");
+  const contentApiKey = root.dataset.contentApiKey || "";
 
-  var $url = root.querySelector("[data-extract-url]");
-  var $pullBtn = root.querySelector("[data-extract-pull]");
-  var $status = root.querySelector("[data-extract-status]");
-  var $output = root.querySelector("[data-extract-output]");
-  var $title = root.querySelector("[data-extract-title]");
-  var $author = root.querySelector("[data-extract-author]");
-  var $excerpt = root.querySelector("[data-extract-excerpt]");
-  var $excerptCard = root.querySelector("[data-extract-excerpt-card]");
-  var $tags = root.querySelector("[data-extract-tags]");
-  var $tagsCard = root.querySelector("[data-extract-tags-card]");
-  var $image = root.querySelector("[data-extract-image]");
-  var $imageCard = root.querySelector("[data-extract-image-card]");
-  var $plaintext = root.querySelector("[data-extract-plaintext]");
-  var $bio = root.querySelector("[data-extract-bio]");
-  var $bioCard = root.querySelector("[data-extract-bio-card]");
+  const $url = root.querySelector("[data-extract-url]");
+  const $pullBtn = root.querySelector("[data-extract-pull]");
+  const $status = root.querySelector("[data-extract-status]");
+  const $output = root.querySelector("[data-extract-output]");
+  const $title = root.querySelector("[data-extract-title]");
+  const $author = root.querySelector("[data-extract-author]");
+  const $excerpt = root.querySelector("[data-extract-excerpt]");
+  const $excerptCard = root.querySelector("[data-extract-excerpt-card]");
+  const $tags = root.querySelector("[data-extract-tags]");
+  const $tagsCard = root.querySelector("[data-extract-tags-card]");
+  const $image = root.querySelector("[data-extract-image]");
+  const $imageCard = root.querySelector("[data-extract-image-card]");
+  const $plaintext = root.querySelector("[data-extract-plaintext]");
+  const $bio = root.querySelector("[data-extract-bio]");
+  const $bioCard = root.querySelector("[data-extract-bio-card]");
 
-  var articleData = {};
+  let articleData = {};
 
   $pullBtn.addEventListener("click", extract);
 
-  root.querySelectorAll("[data-extract-copy]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var key = btn.dataset.extractCopy;
-      var text = "";
+  root.querySelectorAll("[data-extract-copy]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.extractCopy;
+      let text = "";
       if (key === "title") text = articleData.title || "";
       else if (key === "author") text = articleData.author || "";
       else if (key === "excerpt") text = articleData.excerpt || "";
@@ -38,65 +38,65 @@
       else if (key === "bio") text = articleData.bio || "";
       else if (key === "image") text = articleData.feature_image || "";
       else if (key === "plaintext") {
-        var html = articleData.html || "";
-        var plain = articleData.plaintext || "";
+        const html = articleData.html || "";
+        const plain = articleData.plaintext || "";
         if (html) {
           navigator.clipboard.write([new ClipboardItem({
             "text/html": new Blob([html], { type: "text/html" }),
             "text/plain": new Blob([plain], { type: "text/plain" })
-          })]).then(function () {
+          })]).then(() => {
             btn.textContent = "Copied";
-            setTimeout(function () { btn.textContent = "Copy all"; }, 1400);
+            setTimeout(() => { btn.textContent = "Copy all"; }, 1400);
           });
           return;
         }
         text = plain;
       }
-      if (text) navigator.clipboard.writeText(text).then(function () {
+      if (text) navigator.clipboard.writeText(text).then(() => {
         btn.textContent = "Copied";
-        var resetLabel = key === "image" ? "Copy URL" : key === "plaintext" ? "Copy all" : "Copy";
-        setTimeout(function () { btn.textContent = resetLabel; }, 1400);
+        const resetLabel = key === "image" ? "Copy URL" : key === "plaintext" ? "Copy all" : "Copy";
+        setTimeout(() => { btn.textContent = resetLabel; }, 1400);
       });
     });
   });
 
-  var $copyImageBtn = root.querySelector("[data-extract-copy-image]");
+  const $copyImageBtn = root.querySelector("[data-extract-copy-image]");
   if ($copyImageBtn) {
-    $copyImageBtn.addEventListener("click", async function () {
-      var url = articleData.feature_image;
+    $copyImageBtn.addEventListener("click", async () => {
+      const url = articleData.feature_image;
       if (!url) return;
       $copyImageBtn.textContent = "Copying…";
       try {
-        var img = new Image();
+        const img = new Image();
         img.crossOrigin = "anonymous";
-        await new Promise(function (resolve, reject) {
+        await new Promise((resolve, reject) => {
           img.onload = resolve;
           img.onerror = reject;
           img.src = url;
         });
-        var canvas = document.createElement("canvas");
+        const canvas = document.createElement("canvas");
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         canvas.getContext("2d").drawImage(img, 0, 0);
-        var pngBlob = await new Promise(function (resolve) { canvas.toBlob(resolve, "image/png"); });
+        const pngBlob = await new Promise((resolve) => { canvas.toBlob(resolve, "image/png"); });
         await navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]);
         $copyImageBtn.textContent = "Copied";
       } catch (e) {
         console.error("Copy image failed:", e);
-        navigator.clipboard.writeText(url).then(function () {
+        navigator.clipboard.writeText(url).then(() => {
           $copyImageBtn.textContent = "URL copied";
         });
       }
-      setTimeout(function () { $copyImageBtn.textContent = "Copy Image"; }, 1400);
+      setTimeout(() => { $copyImageBtn.textContent = "Copy Image"; }, 1400);
     });
   }
 
   async function extract() {
-    var url = $url.value.trim();
+    const url = $url.value.trim();
     if (!url) return;
     if (!contentApiKey) { setStatus("Content API key not configured.", true); return; }
 
-    var slug = url.split("/").filter(Boolean).pop();
+    const slug = url.split("/").filter(Boolean).pop();
     if (!slug) { setStatus("Could not extract slug from URL.", true); return; }
 
     $pullBtn.disabled = true;
@@ -104,31 +104,31 @@
     setStatus("");
 
     try {
-      var apiUrl = siteUrl + "/ghost/api/content/posts/slug/" + slug +
-        "/?key=" + contentApiKey +
-        "&include=authors,tags&formats=plaintext,html";
-      var resp = await fetch(apiUrl);
-      var data = await resp.json();
-      var post = data.posts && data.posts[0];
+      const apiUrl = `${siteUrl}/ghost/api/content/posts/slug/${slug 
+        }/?key=${contentApiKey 
+        }&include=authors,tags&formats=plaintext,html`;
+      const resp = await fetch(apiUrl);
+      const data = await resp.json();
+      const post = data.posts && data.posts[0];
       if (!post) throw new Error("Article not found");
 
-      var allTags = post.tags || [];
-      var authorTags = allTags
-        .filter(function (t) { return t.slug && t.slug.indexOf("author-") === 0; })
-        .map(function (t) { return t.name; });
-      var authorName = authorTags.length
+      const allTags = post.tags || [];
+      const authorTags = allTags
+        .filter((t) => { return t.slug && t.slug.indexOf("author-") === 0; })
+        .map((t) => { return t.name; });
+      const authorName = authorTags.length
         ? authorTags.join(", ")
         : (post.primary_author && post.primary_author.name) || "";
 
-      var authorBio = "";
-      var authorTagObj = allTags.find(function (t) { return t.slug && t.slug.indexOf("author-") === 0 && t.description; });
+      let authorBio = "";
+      const authorTagObj = allTags.find((t) => { return t.slug && t.slug.indexOf("author-") === 0 && t.description; });
       if (authorTagObj) authorBio = authorTagObj.description;
 
-      var publicTags = allTags
-        .filter(function (t) {
+      const publicTags = allTags
+        .filter((t) => {
           return t.name && t.name.charAt(0) !== "#" && !(t.slug && t.slug.indexOf("author-") === 0);
         })
-        .map(function (t) { return t.name; });
+        .map((t) => { return t.name; });
 
       articleData = {
         title: post.title || "",
@@ -146,7 +146,7 @@
       renderArticle(articleData);
     } catch (err) {
       console.error("Extract failed:", err);
-      setStatus("Failed: " + (err.message || err), true);
+      setStatus(`Failed: ${err.message || err}`, true);
     } finally {
       $pullBtn.disabled = false;
       $pullBtn.textContent = "Extract";
@@ -193,14 +193,14 @@
       $plaintext.textContent = a.plaintext;
     }
 
-    var words = a.plaintext ? a.plaintext.split(/\s+/).length : 0;
+    const words = a.plaintext ? a.plaintext.split(/\s+/).length : 0;
     setStatVal("words", words.toLocaleString());
-    setStatVal("reading", a.reading_time ? a.reading_time + " min" : "--");
+    setStatVal("reading", a.reading_time ? `${a.reading_time} min` : "--");
     setStatVal("published", a.published_at ? new Date(a.published_at).toLocaleDateString() : "--");
   }
 
   function setStatVal(key, val) {
-    var el = root.querySelector('[data-extract-stat="' + key + '"]');
+    const el = root.querySelector(`[data-extract-stat="${key}"]`);
     if (el) el.textContent = val;
   }
 

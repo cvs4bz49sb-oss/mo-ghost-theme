@@ -1,58 +1,58 @@
 (function () {
   "use strict";
 
-  var root = document.querySelector("[data-asset-creator]");
+  const root = document.querySelector("[data-asset-creator]");
   if (!root) return;
 
-  var siteUrl = (root.dataset.siteUrl || "").replace(/\/$/, "");
-  var contentApiKey = root.dataset.contentApiKey || "";
+  const siteUrl = (root.dataset.siteUrl || "").replace(/\/$/, "");
+  const contentApiKey = root.dataset.contentApiKey || "";
 
-  var canvas = root.querySelector("[data-asset-canvas]");
-  var ctx = canvas.getContext("2d");
+  const canvas = root.querySelector("[data-asset-canvas]");
+  const ctx = canvas.getContext("2d");
 
   // Dimensions per mode.
-  var MODES = { carousel: { w: 1080, h: 1350 }, story: { w: 1080, h: 1920 } };
-  var mode = "carousel";
+  const MODES = { carousel: { w: 1080, h: 1350 }, story: { w: 1080, h: 1920 } };
+  let mode = "carousel";
 
   // Panels (carousel can have up to 12).
-  var panels = [makePanel()];
-  var currentPanel = 0;
+  let panels = [makePanel()];
+  let currentPanel = 0;
 
   // DOM refs.
-  var $modeButtons = root.querySelectorAll("[data-asset-mode]");
-  var $templates = root.querySelectorAll("[data-template]");
-  var $bgSwatches = root.querySelectorAll("[data-bg]");
-  var $fgSwatches = root.querySelectorAll("[data-fg]");
-  var $bgCustom = root.querySelector("[data-asset-bg-custom]");
-  var $fgCustom = root.querySelector("[data-asset-fg-custom]");
-  var $titleField = root.querySelector('[data-asset-field="title"]');
-  var $subtitleField = root.querySelector('[data-asset-field="subtitle"]');
-  var $bodyField = root.querySelector('[data-asset-field="body"]');
-  var $fontSlider = root.querySelector("[data-asset-fontsize]");
-  var $fontVal = root.querySelector("[data-asset-fontsize-val]");
-  var $watermark = root.querySelector("[data-asset-watermark]");
-  var $showBody = root.querySelector("[data-asset-show-body]");
-  var $showAuthor = root.querySelector("[data-asset-show-author]");
-  var $wordmarkSlider = root.querySelector("[data-asset-wordmark-size]");
-  var $wordmarkVal = root.querySelector("[data-asset-wordmark-size-val]");
-  var $authorSlider = root.querySelector("[data-asset-author-size]");
-  var $authorVal = root.querySelector("[data-asset-author-size-val]");
-  var $textPosSlider = root.querySelector("[data-asset-text-pos]");
-  var $textPosVal = root.querySelector("[data-asset-text-pos-val]");
-  var $overlaySlider = root.querySelector("[data-asset-overlay]");
-  var $overlayVal = root.querySelector("[data-asset-overlay-val]");
-  var $urlInput = root.querySelector("[data-asset-url]");
-  var $pullBtn = root.querySelector("[data-asset-pull]");
-  var $panelStrip = root.querySelector("[data-asset-panel-strip]");
-  var $panelAdd = root.querySelector("[data-asset-panel-add]");
-  var $panelRemove = root.querySelector("[data-asset-panel-remove]");
-  var $panelsBar = root.querySelector("[data-asset-panels]");
-  var $exportBtn = root.querySelector("[data-asset-export]");
-  var $exportAllBtn = root.querySelector("[data-asset-export-all]");
-  var $imageUpload = root.querySelector("[data-asset-image-upload]");
-  var $imageFile = root.querySelector("[data-asset-image-file]");
-  var $imageClear = root.querySelector("[data-asset-image-clear]");
-  var $canvasWrap = root.querySelector("[data-asset-canvas-wrap]");
+  const $modeButtons = root.querySelectorAll("[data-asset-mode]");
+  const $templates = root.querySelectorAll("[data-template]");
+  const $bgSwatches = root.querySelectorAll("[data-bg]");
+  const $fgSwatches = root.querySelectorAll("[data-fg]");
+  const $bgCustom = root.querySelector("[data-asset-bg-custom]");
+  const $fgCustom = root.querySelector("[data-asset-fg-custom]");
+  const $titleField = root.querySelector('[data-asset-field="title"]');
+  const $subtitleField = root.querySelector('[data-asset-field="subtitle"]');
+  const $bodyField = root.querySelector('[data-asset-field="body"]');
+  const $fontSlider = root.querySelector("[data-asset-fontsize]");
+  const $fontVal = root.querySelector("[data-asset-fontsize-val]");
+  const $watermark = root.querySelector("[data-asset-watermark]");
+  const $showBody = root.querySelector("[data-asset-show-body]");
+  const $showAuthor = root.querySelector("[data-asset-show-author]");
+  const $wordmarkSlider = root.querySelector("[data-asset-wordmark-size]");
+  const $wordmarkVal = root.querySelector("[data-asset-wordmark-size-val]");
+  const $authorSlider = root.querySelector("[data-asset-author-size]");
+  const $authorVal = root.querySelector("[data-asset-author-size-val]");
+  const $textPosSlider = root.querySelector("[data-asset-text-pos]");
+  const $textPosVal = root.querySelector("[data-asset-text-pos-val]");
+  const $overlaySlider = root.querySelector("[data-asset-overlay]");
+  const $overlayVal = root.querySelector("[data-asset-overlay-val]");
+  const $urlInput = root.querySelector("[data-asset-url]");
+  const $pullBtn = root.querySelector("[data-asset-pull]");
+  const $panelStrip = root.querySelector("[data-asset-panel-strip]");
+  const $panelAdd = root.querySelector("[data-asset-panel-add]");
+  const $panelRemove = root.querySelector("[data-asset-panel-remove]");
+  const $panelsBar = root.querySelector("[data-asset-panels]");
+  const $exportBtn = root.querySelector("[data-asset-export]");
+  const $exportAllBtn = root.querySelector("[data-asset-export-all]");
+  const $imageUpload = root.querySelector("[data-asset-image-upload]");
+  const $imageFile = root.querySelector("[data-asset-image-file]");
+  const $imageClear = root.querySelector("[data-asset-image-clear]");
+  const $canvasWrap = root.querySelector("[data-asset-canvas-wrap]");
 
   function makePanel() {
     return {
@@ -77,18 +77,18 @@
   function p() { return panels[currentPanel]; }
 
   // ---- Mode switching ----
-  $modeButtons.forEach(function (btn) {
-    btn.addEventListener("click", function () {
+  $modeButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
       mode = btn.dataset.assetMode;
-      $modeButtons.forEach(function (b) { b.classList.toggle("is-active", b === btn); });
-      var dim = MODES[mode];
+      $modeButtons.forEach((b) => { b.classList.toggle("is-active", b === btn); });
+      const dim = MODES[mode];
       canvas.width = dim.w;
       canvas.height = dim.h;
       if (mode === "story") {
         $panelsBar.hidden = true;
         panels = [panels[currentPanel] || makePanel()];
         currentPanel = 0;
-        var sp = panels[0];
+        const sp = panels[0];
         if (sp.fontSize < 64) sp.fontSize = 72;
         if (sp.wordmarkSize < 16) sp.wordmarkSize = 18;
         if (sp.authorSize < 28) sp.authorSize = 32;
@@ -102,9 +102,9 @@
   });
 
   // ---- Template switching ----
-  $templates.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      $templates.forEach(function (b) { b.classList.remove("is-active"); });
+  $templates.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $templates.forEach((b) => { b.classList.remove("is-active"); });
       btn.classList.add("is-active");
       p().template = btn.dataset.template;
       render();
@@ -112,78 +112,78 @@
   });
 
   // ---- Background color ----
-  $bgSwatches.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      $bgSwatches.forEach(function (b) { b.classList.remove("is-active"); });
+  $bgSwatches.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $bgSwatches.forEach((b) => { b.classList.remove("is-active"); });
       btn.classList.add("is-active");
       p().bg = btn.dataset.bg;
       $bgCustom.value = p().bg;
       render();
     });
   });
-  $bgCustom.addEventListener("input", function () {
-    $bgSwatches.forEach(function (b) { b.classList.remove("is-active"); });
+  $bgCustom.addEventListener("input", () => {
+    $bgSwatches.forEach((b) => { b.classList.remove("is-active"); });
     p().bg = $bgCustom.value;
     render();
   });
 
   // ---- Text color ----
-  $fgSwatches.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      $fgSwatches.forEach(function (b) { b.classList.remove("is-active"); });
+  $fgSwatches.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $fgSwatches.forEach((b) => { b.classList.remove("is-active"); });
       btn.classList.add("is-active");
       p().fg = btn.dataset.fg;
       $fgCustom.value = p().fg;
       render();
     });
   });
-  $fgCustom.addEventListener("input", function () {
-    $fgSwatches.forEach(function (b) { b.classList.remove("is-active"); });
+  $fgCustom.addEventListener("input", () => {
+    $fgSwatches.forEach((b) => { b.classList.remove("is-active"); });
     p().fg = $fgCustom.value;
     render();
   });
 
   // ---- Content fields ----
-  $titleField.addEventListener("input", function () { p().title = $titleField.value; render(); });
-  $subtitleField.addEventListener("input", function () { p().subtitle = $subtitleField.value; render(); });
-  $bodyField.addEventListener("input", function () { p().body = $bodyField.value; render(); });
-  $fontSlider.addEventListener("input", function () {
+  $titleField.addEventListener("input", () => { p().title = $titleField.value; render(); });
+  $subtitleField.addEventListener("input", () => { p().subtitle = $subtitleField.value; render(); });
+  $bodyField.addEventListener("input", () => { p().body = $bodyField.value; render(); });
+  $fontSlider.addEventListener("input", () => {
     p().fontSize = parseInt($fontSlider.value, 10);
     $fontVal.textContent = $fontSlider.value;
     render();
   });
-  $watermark.addEventListener("change", function () { p().watermark = $watermark.checked; render(); });
-  $showBody.addEventListener("change", function () { p().showBody = $showBody.checked; render(); });
-  $showAuthor.addEventListener("change", function () { p().showAuthor = $showAuthor.checked; render(); });
-  $wordmarkSlider.addEventListener("input", function () {
+  $watermark.addEventListener("change", () => { p().watermark = $watermark.checked; render(); });
+  $showBody.addEventListener("change", () => { p().showBody = $showBody.checked; render(); });
+  $showAuthor.addEventListener("change", () => { p().showAuthor = $showAuthor.checked; render(); });
+  $wordmarkSlider.addEventListener("input", () => {
     p().wordmarkSize = parseInt($wordmarkSlider.value, 10);
     $wordmarkVal.textContent = $wordmarkSlider.value;
     render();
   });
-  $authorSlider.addEventListener("input", function () {
+  $authorSlider.addEventListener("input", () => {
     p().authorSize = parseInt($authorSlider.value, 10);
     $authorVal.textContent = $authorSlider.value;
     render();
   });
-  $textPosSlider.addEventListener("input", function () {
+  $textPosSlider.addEventListener("input", () => {
     p().textPos = parseInt($textPosSlider.value, 10);
     $textPosVal.textContent = $textPosSlider.value;
     render();
   });
-  $overlaySlider.addEventListener("input", function () {
+  $overlaySlider.addEventListener("input", () => {
     p().overlayOpacity = parseInt($overlaySlider.value, 10);
-    $overlayVal.textContent = $overlaySlider.value + "%";
+    $overlayVal.textContent = `${$overlaySlider.value}%`;
     render();
   });
 
   // ---- Background image ----
-  $imageUpload.addEventListener("click", function () { $imageFile.click(); });
-  $imageFile.addEventListener("change", function () {
-    var file = $imageFile.files[0];
+  $imageUpload.addEventListener("click", () => { $imageFile.click(); });
+  $imageFile.addEventListener("change", () => {
+    const file = $imageFile.files[0];
     if (!file) return;
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function (e) {
-      var img = new Image();
+      const img = new Image();
       img.onload = function () {
         p().bgImage = img;
         $imageClear.hidden = false;
@@ -193,7 +193,7 @@
     };
     reader.readAsDataURL(file);
   });
-  $imageClear.addEventListener("click", function () {
+  $imageClear.addEventListener("click", () => {
     p().bgImage = null;
     $imageClear.hidden = true;
     $imageFile.value = "";
@@ -204,25 +204,25 @@
   $pullBtn.addEventListener("click", pullArticle);
 
   function pullArticle() {
-    var url = $urlInput.value.trim();
+    const url = $urlInput.value.trim();
     if (!url || !contentApiKey) return;
-    var slug = extractSlug(url);
+    const slug = extractSlug(url);
     if (!slug) return;
     $pullBtn.disabled = true;
     $pullBtn.textContent = "Pulling...";
-    var apiUrl = siteUrl + "/ghost/api/content/posts/slug/" + slug +
-      "/?key=" + contentApiKey + "&include=authors,tags&formats=plaintext";
+    const apiUrl = `${siteUrl}/ghost/api/content/posts/slug/${slug 
+      }/?key=${contentApiKey}&include=authors,tags&formats=plaintext`;
     fetch(apiUrl)
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var post = data.posts && data.posts[0];
+      .then((r) => { return r.json(); })
+      .then((data) => {
+        const post = data.posts && data.posts[0];
         if (!post) return;
         p().title = post.title || "";
 
-        var allTags = post.tags || [];
-        var authorTags = allTags
-          .filter(function (t) { return t.slug && t.slug.indexOf("author-") === 0; })
-          .map(function (t) { return t.name; });
+        const allTags = post.tags || [];
+        const authorTags = allTags
+          .filter((t) => { return t.slug && t.slug.indexOf("author-") === 0; })
+          .map((t) => { return t.name; });
         p().subtitle = authorTags.length
           ? authorTags.join(", ")
           : (post.primary_author && post.primary_author.name) || "";
@@ -236,20 +236,20 @@
         if (post.feature_image) loadBgImage(post.feature_image);
         render();
       })
-      .catch(function (err) { console.error("Pull failed:", err); })
-      .finally(function () { $pullBtn.disabled = false; $pullBtn.textContent = "Pull"; });
+      .catch((err) => { console.error("Pull failed:", err); })
+      .finally(() => { $pullBtn.disabled = false; $pullBtn.textContent = "Pull"; });
   }
 
   function extractSlug(url) {
     try {
-      var u = new URL(url, window.location.origin);
-      var parts = u.pathname.split("/").filter(Boolean);
+      const u = new URL(url, window.location.origin);
+      const parts = u.pathname.split("/").filter(Boolean);
       return parts[parts.length - 1] || "";
     } catch (e) { return ""; }
   }
 
   function loadBgImage(src) {
-    var img = new Image();
+    const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = function () {
       p().bgImage = img;
@@ -260,7 +260,7 @@
   }
 
   // ---- Panel management (carousel) ----
-  $panelAdd.addEventListener("click", function () {
+  $panelAdd.addEventListener("click", () => {
     if (panels.length >= 12) return;
     panels.push(makePanel());
     currentPanel = panels.length - 1;
@@ -269,7 +269,7 @@
     render();
   });
 
-  $panelRemove.addEventListener("click", function () {
+  $panelRemove.addEventListener("click", () => {
     if (panels.length <= 1) return;
     panels.splice(currentPanel, 1);
     if (currentPanel >= panels.length) currentPanel = panels.length - 1;
@@ -280,13 +280,13 @@
 
   function rebuildPanelStrip() {
     $panelStrip.innerHTML = "";
-    panels.forEach(function (_, i) {
-      var btn = document.createElement("button");
+    panels.forEach((_, i) => {
+      const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "asset-panel-thumb" + (i === currentPanel ? " is-active" : "");
+      btn.className = `asset-panel-thumb${i === currentPanel ? " is-active" : ""}`;
       btn.textContent = i + 1;
       btn.dataset.panelIdx = i;
-      btn.addEventListener("click", function () {
+      btn.addEventListener("click", () => {
         saveFields();
         currentPanel = i;
         rebuildPanelStrip();
@@ -298,7 +298,7 @@
   }
 
   function saveFields() {
-    var panel = p();
+    const panel = p();
     panel.title = $titleField.value;
     panel.subtitle = $subtitleField.value;
     panel.body = $bodyField.value;
@@ -313,7 +313,7 @@
   }
 
   function syncFields() {
-    var panel = p();
+    const panel = p();
     $titleField.value = panel.title;
     $subtitleField.value = panel.subtitle;
     $bodyField.value = panel.body;
@@ -329,22 +329,22 @@
     $textPosSlider.value = panel.textPos;
     $textPosVal.textContent = panel.textPos;
     $overlaySlider.value = panel.overlayOpacity;
-    $overlayVal.textContent = panel.overlayOpacity + "%";
+    $overlayVal.textContent = `${panel.overlayOpacity}%`;
     $bgCustom.value = panel.bg;
     $fgCustom.value = panel.fg;
     $imageClear.hidden = !panel.bgImage;
 
-    $templates.forEach(function (b) { b.classList.toggle("is-active", b.dataset.template === panel.template); });
-    $bgSwatches.forEach(function (b) { b.classList.toggle("is-active", b.dataset.bg === panel.bg); });
-    $fgSwatches.forEach(function (b) { b.classList.toggle("is-active", b.dataset.fg === panel.fg); });
+    $templates.forEach((b) => { b.classList.toggle("is-active", b.dataset.template === panel.template); });
+    $bgSwatches.forEach((b) => { b.classList.toggle("is-active", b.dataset.bg === panel.bg); });
+    $fgSwatches.forEach((b) => { b.classList.toggle("is-active", b.dataset.fg === panel.fg); });
   }
 
   // ---- Canvas rendering ----
   function render() {
-    var panel = p();
-    var w = canvas.width;
-    var h = canvas.height;
-    var pad = 80;
+    const panel = p();
+    const w = canvas.width;
+    const h = canvas.height;
+    const pad = 80;
 
     ctx.clearRect(0, 0, w, h);
 
@@ -353,7 +353,7 @@
     ctx.fillRect(0, 0, w, h);
 
     // Full-bleed image for templates that overlay text on image.
-    var fullBleed = (panel.template === "image-card" || panel.template === "blank");
+    const fullBleed = (panel.template === "image-card" || panel.template === "blank");
     if (panel.bgImage && fullBleed) {
       drawCoverImage(panel.bgImage, 0, 0, w, h);
       ctx.fillStyle = panel.bg;
@@ -366,9 +366,9 @@
       case "title-card": renderTitleCard(panel, w, h, pad); break;
       case "quote-card": renderQuoteCard(panel, w, h, pad); break;
       case "image-card": renderImageCard(panel, w, h, pad); break;
-      case "text-card":  renderTextCard(panel, w, h, pad);  break;
-      case "cta-card":   renderCtaCard(panel, w, h, pad);   break;
-      default:           break;
+      case "text-card": renderTextCard(panel, w, h, pad); break;
+      case "cta-card": renderCtaCard(panel, w, h, pad); break;
+      default: break;
     }
 
     if (mode === "story") drawSafetyZones(w, h);
@@ -381,37 +381,37 @@
     ctx.beginPath();
     ctx.rect(rx, ry, rw, rh);
     ctx.clip();
-    var iw = img.naturalWidth;
-    var ih = img.naturalHeight;
-    var scale = Math.max(rw / iw, rh / ih);
-    var sw = iw * scale;
-    var sh = ih * scale;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+    const scale = Math.max(rw / iw, rh / ih);
+    const sw = iw * scale;
+    const sh = ih * scale;
     ctx.drawImage(img, rx + (rw - sw) / 2, ry + (rh - sh) / 2, sw, sh);
     ctx.restore();
   }
 
   function hexToRgba(hex, a) {
-    var r = parseInt(hex.slice(1, 3), 16);
-    var g = parseInt(hex.slice(3, 5), 16);
-    var b = parseInt(hex.slice(5, 7), 16);
-    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${a})`;
   }
 
   function drawTrackedText(text, x, y, tracking, align) {
     align = align || "center";
-    var oldAlign = ctx.textAlign;
+    const oldAlign = ctx.textAlign;
     ctx.textAlign = "left";
-    var chars = text.split("");
-    var totalW = 0;
-    for (var i = 0; i < chars.length; i++) {
+    const chars = text.split("");
+    let totalW = 0;
+    for (let i = 0; i < chars.length; i++) {
       totalW += ctx.measureText(chars[i]).width;
       if (i < chars.length - 1) totalW += tracking;
     }
-    var sx;
+    let sx;
     if (align === "center") sx = x - totalW / 2;
     else if (align === "right") sx = x - totalW;
     else sx = x;
-    for (var j = 0; j < chars.length; j++) {
+    for (let j = 0; j < chars.length; j++) {
       ctx.fillText(chars[j], sx, y);
       sx += ctx.measureText(chars[j]).width + tracking;
     }
@@ -437,7 +437,7 @@
   function drawMark(panel, w, h, pad, position) {
     if (!panel.watermark) return;
     ctx.save();
-    ctx.font = "600 " + panel.wordmarkSize + "px 'Source Serif Pro', Georgia, serif";
+    ctx.font = `600 ${panel.wordmarkSize}px 'Source Serif Pro', Georgia, serif`;
     ctx.fillStyle = panel.fg;
     ctx.globalAlpha = 0.32;
     if (position === "top-right") {
@@ -453,46 +453,46 @@
   /* -- Template renderers ----------------------------------------------- */
 
   function renderTitleCard(panel, w, h, pad) {
-    var fg = panel.fg;
-    var fs = panel.fontSize;
-    var as = panel.authorSize;
-    var ws = panel.wordmarkSize;
-    var lineH = fs * 1.15;
-    var gapAfterTitle = Math.max(fs * 0.7, 30);
-    var gapHairToAuthor = Math.max(as * 1.4, 28);
-    var showAuth = panel.showAuthor !== false && !!panel.subtitle;
-    var posShift = (panel.textPos || 0) / 50 * (h * 0.15);
+    const {fg} = panel;
+    const fs = panel.fontSize;
+    const as = panel.authorSize;
+    const ws = panel.wordmarkSize;
+    const lineH = fs * 1.15;
+    const gapAfterTitle = Math.max(fs * 0.7, 30);
+    const gapHairToAuthor = Math.max(as * 1.4, 28);
+    const showAuth = panel.showAuthor !== false && !!panel.subtitle;
+    const posShift = (panel.textPos || 0) / 50 * (h * 0.15);
 
     if (panel.bgImage) {
-      var splitRatio = mode === "story" ? 0.48 : 0.52;
-      var imgH = Math.round(h * splitRatio);
-      var gradH = 100;
+      const splitRatio = mode === "story" ? 0.48 : 0.52;
+      const imgH = Math.round(h * splitRatio);
+      const gradH = 100;
 
       drawCoverImage(panel.bgImage, 0, 0, w, imgH + gradH);
 
       ctx.fillStyle = panel.bg;
       ctx.fillRect(0, imgH, w, h - imgH);
 
-      var grad = ctx.createLinearGradient(0, imgH - 20, 0, imgH + gradH);
+      const grad = ctx.createLinearGradient(0, imgH - 20, 0, imgH + gradH);
       grad.addColorStop(0, hexToRgba(panel.bg, 0));
       grad.addColorStop(1, hexToRgba(panel.bg, 1));
       ctx.fillStyle = grad;
       ctx.fillRect(0, imgH - 20, w, gradH + 20);
 
-      var bandTop = imgH;
-      var bandH = h - imgH;
-      var blockH = 0;
+      const bandTop = imgH;
+      const bandH = h - imgH;
+      let blockH = 0;
       if (panel.watermark) blockH += ws + Math.max(ws * 2, 28);
-      var lines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
+      const lines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
       blockH += lines.length * lineH;
       if (showAuth) blockH += gapAfterTitle + gapHairToAuthor + as * 0.3;
 
-      var cursor = bandTop + (bandH - blockH) / 2 + posShift;
+      let cursor = bandTop + (bandH - blockH) / 2 + posShift;
       cursor = Math.max(cursor, bandTop + 20);
 
       if (panel.watermark) {
         ctx.save();
-        ctx.font = "600 " + ws + "px 'Source Serif Pro', Georgia, serif";
+        ctx.font = `600 ${ws}px 'Source Serif Pro', Georgia, serif`;
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.32;
         drawTrackedText("MERE ORTHODOXY", w / 2, cursor + ws, 3.5, "center");
@@ -500,10 +500,10 @@
         cursor += ws + Math.max(ws * 2, 28);
       }
 
-      ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+      ctx.font = `italic ${fs}px 'IM Fell Great Primer', Georgia, serif`;
       ctx.fillStyle = fg;
       ctx.textAlign = "center";
-      for (var i = 0; i < lines.length; i++) {
+      for (let i = 0; i < lines.length; i++) {
         ctx.fillText(lines[i], w / 2, cursor + i * lineH);
       }
       cursor += (lines.length - 1) * lineH;
@@ -519,7 +519,7 @@
         ctx.stroke();
         ctx.globalAlpha = 1;
 
-        ctx.font = "400 " + as + "px 'Source Serif Pro', Georgia, serif";
+        ctx.font = `400 ${as}px 'Source Serif Pro', Georgia, serif`;
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.6;
         ctx.textAlign = "center";
@@ -538,20 +538,20 @@
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+      ctx.font = `italic ${fs}px 'IM Fell Great Primer', Georgia, serif`;
       ctx.fillStyle = fg;
       ctx.textAlign = "center";
-      var noImgLines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
-      var titleH = noImgLines.length * lineH;
-      var totalBlockH = titleH;
+      const noImgLines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
+      const titleH = noImgLines.length * lineH;
+      let totalBlockH = titleH;
       if (showAuth) totalBlockH += gapAfterTitle + 1 + gapHairToAuthor + as * 0.3;
-      var originY = (h - totalBlockH) / 2 + lineH * 0.3 + posShift;
-      for (var j = 0; j < noImgLines.length; j++) {
+      const originY = (h - totalBlockH) / 2 + lineH * 0.3 + posShift;
+      for (let j = 0; j < noImgLines.length; j++) {
         ctx.fillText(noImgLines[j], w / 2, originY + j * lineH);
       }
 
       if (showAuth) {
-        var hairY = originY + (noImgLines.length - 1) * lineH + gapAfterTitle;
+        const hairY = originY + (noImgLines.length - 1) * lineH + gapAfterTitle;
         ctx.strokeStyle = fg;
         ctx.globalAlpha = 0.12;
         ctx.beginPath();
@@ -560,7 +560,7 @@
         ctx.stroke();
         ctx.globalAlpha = 1;
 
-        ctx.font = "400 " + as + "px 'Source Serif Pro', Georgia, serif";
+        ctx.font = `400 ${as}px 'Source Serif Pro', Georgia, serif`;
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.55;
         ctx.textAlign = "center";
@@ -571,8 +571,8 @@
   }
 
   function renderQuoteCard(panel, w, h, pad) {
-    var fg = panel.fg;
-    var fs = panel.fontSize;
+    const {fg} = panel;
+    const fs = panel.fontSize;
 
     drawMark(panel, w, h, pad, "top-right");
 
@@ -586,21 +586,21 @@
 
     // Quote text.
     if (panel.showBody !== false) {
-      ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+      ctx.font = `italic ${fs}px 'IM Fell Great Primer', Georgia, serif`;
       ctx.fillStyle = fg;
       ctx.textAlign = "left";
-      var qLines = getWrappedLines(panel.body || "Enter a quote…", w - pad * 2);
-      var qLineH = fs * 1.4;
-      var qStartY = Math.max(pad + 250, h * 0.30);
-      for (var i = 0; i < qLines.length; i++) {
+      const qLines = getWrappedLines(panel.body || "Enter a quote…", w - pad * 2);
+      const qLineH = fs * 1.4;
+      const qStartY = Math.max(pad + 250, h * 0.30);
+      for (let i = 0; i < qLines.length; i++) {
         ctx.fillText(qLines[i], pad, qStartY + i * qLineH);
       }
     }
 
     // Attribution block.
     if (panel.showAuthor !== false && panel.subtitle) {
-      var as = panel.authorSize;
-      var hairY = h - pad - 100;
+      const as = panel.authorSize;
+      const hairY = h - pad - 100;
       ctx.strokeStyle = fg;
       ctx.globalAlpha = 0.12;
       ctx.lineWidth = 1;
@@ -610,16 +610,16 @@
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      ctx.font = "600 " + as + "px 'Source Serif Pro', Georgia, serif";
+      ctx.font = `600 ${as}px 'Source Serif Pro', Georgia, serif`;
       ctx.fillStyle = fg;
       ctx.globalAlpha = 0.6;
       ctx.textAlign = "left";
-      ctx.fillText("— " + panel.subtitle, pad, hairY + Math.max(as * 1.5, 28));
+      ctx.fillText(`— ${panel.subtitle}`, pad, hairY + Math.max(as * 1.5, 28));
       ctx.globalAlpha = 1;
 
       if (panel.title) {
-        var srcSize = Math.round(as * 0.78);
-        ctx.font = "italic " + srcSize + "px 'Source Serif Pro', Georgia, serif";
+        const srcSize = Math.round(as * 0.78);
+        ctx.font = `italic ${srcSize}px 'Source Serif Pro', Georgia, serif`;
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.4;
         ctx.textAlign = "left";
@@ -630,12 +630,12 @@
   }
 
   function renderImageCard(panel, w, h, pad) {
-    var fs = Math.min(panel.fontSize, 56);
+    const fs = Math.min(panel.fontSize, 56);
 
     // Full-bleed image already drawn by render(). Add gradient at bottom.
     if (panel.bgImage) {
-      var gradStart = h * 0.45;
-      var grad = ctx.createLinearGradient(0, gradStart, 0, h);
+      const gradStart = h * 0.45;
+      const grad = ctx.createLinearGradient(0, gradStart, 0, h);
       grad.addColorStop(0, "rgba(0,0,0,0)");
       grad.addColorStop(0.5, "rgba(0,0,0,0.35)");
       grad.addColorStop(1, "rgba(0,0,0,0.8)");
@@ -643,12 +643,12 @@
       ctx.fillRect(0, gradStart, w, h - gradStart);
     }
 
-    var textColor = panel.bgImage ? "#ffffff" : panel.fg;
+    const textColor = panel.bgImage ? "#ffffff" : panel.fg;
 
     // Wordmark top-right.
     if (panel.watermark) {
       ctx.save();
-      ctx.font = "600 " + panel.wordmarkSize + "px 'Source Serif Pro', Georgia, serif";
+      ctx.font = `600 ${panel.wordmarkSize}px 'Source Serif Pro', Georgia, serif`;
       ctx.fillStyle = textColor;
       ctx.globalAlpha = 0.35;
       drawTrackedText("MERE ORTHODOXY", w - pad, pad + 16, 3.5, "right");
@@ -656,15 +656,15 @@
     }
 
     // Title at bottom.
-    ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+    ctx.font = `italic ${fs}px 'IM Fell Great Primer', Georgia, serif`;
     ctx.fillStyle = textColor;
     ctx.textAlign = "left";
-    var imgLines = getWrappedLines(panel.title || "Title", w - pad * 2);
-    var imgLineH = fs * 1.15;
-    var titleY = h - pad - 35;
+    const imgLines = getWrappedLines(panel.title || "Title", w - pad * 2);
+    const imgLineH = fs * 1.15;
+    let titleY = h - pad - 35;
     if (panel.subtitle) titleY -= 40;
     titleY -= (imgLines.length - 1) * imgLineH;
-    for (var i = 0; i < imgLines.length; i++) {
+    for (let i = 0; i < imgLines.length; i++) {
       ctx.fillText(imgLines[i], pad, titleY + i * imgLineH);
     }
 
@@ -680,8 +680,8 @@
   }
 
   function renderTextCard(panel, w, h, pad) {
-    var fg = panel.fg;
-    var fs = Math.max(panel.fontSize * 0.55, 20);
+    const {fg} = panel;
+    const fs = Math.max(panel.fontSize * 0.55, 20);
 
     drawMark(panel, w, h, pad, "top-center");
 
@@ -697,7 +697,7 @@
 
     // Body text.
     if (panel.showBody !== false) {
-      ctx.font = "400 " + fs + "px 'Source Serif Pro', Georgia, serif";
+      ctx.font = `400 ${fs}px 'Source Serif Pro', Georgia, serif`;
       ctx.fillStyle = fg;
       ctx.textAlign = "left";
       wrapText(panel.body || "Enter body text…", pad, pad + 44 + fs * 1.6, w - pad * 2, fs * 1.65, "left");
@@ -714,8 +714,8 @@
   }
 
   function renderCtaCard(panel, w, h, pad) {
-    var fg = panel.fg;
-    var bg = panel.bg;
+    const {fg} = panel;
+    const {bg} = panel;
 
     // Pilcrow ornament.
     ctx.font = "italic 120px 'IM Fell Great Primer', Georgia, serif";
@@ -750,10 +750,10 @@
     ctx.globalAlpha = 1;
 
     // CTA pill button.
-    var btnW = 360;
-    var btnH = 58;
-    var btnX = (w - btnW) / 2;
-    var btnY = h * 0.60;
+    const btnW = 360;
+    const btnH = 58;
+    const btnX = (w - btnW) / 2;
+    const btnY = h * 0.60;
     ctx.fillStyle = fg;
     ctx.beginPath();
     roundRect(ctx, btnX, btnY, btnW, btnH, 29);
@@ -779,20 +779,20 @@
   function wrapText(text, x, y, maxWidth, lineHeight, align) {
     align = align || "center";
     ctx.textAlign = align;
-    var lines = getWrappedLines(text, maxWidth);
-    for (var i = 0; i < lines.length; i++) {
-      var lx = align === "left" ? x : align === "right" ? x + maxWidth : x;
+    const lines = getWrappedLines(text, maxWidth);
+    for (let i = 0; i < lines.length; i++) {
+      const lx = align === "left" ? x : align === "right" ? x + maxWidth : x;
       ctx.fillText(lines[i], lx, y + i * lineHeight);
     }
     return lines.length;
   }
 
   function getWrappedLines(text, maxWidth) {
-    var words = text.split(" ");
-    var lines = [];
-    var line = "";
-    for (var i = 0; i < words.length; i++) {
-      var test = line ? line + " " + words[i] : words[i];
+    const words = text.split(" ");
+    const lines = [];
+    let line = "";
+    for (let i = 0; i < words.length; i++) {
+      const test = line ? `${line} ${words[i]}` : words[i];
       if (ctx.measureText(test).width > maxWidth && line) {
         lines.push(line);
         line = words[i];
@@ -817,25 +817,25 @@
   }
 
   // ---- Export ----
-  $exportBtn.addEventListener("click", function () {
+  $exportBtn.addEventListener("click", () => {
     saveFields();
     render();
-    downloadCanvas("mo-asset-" + (currentPanel + 1) + ".png");
+    downloadCanvas(`mo-asset-${currentPanel + 1}.png`);
   });
 
-  $exportAllBtn.addEventListener("click", function () {
+  $exportAllBtn.addEventListener("click", () => {
     saveFields();
-    for (var i = 0; i < panels.length; i++) {
+    for (let i = 0; i < panels.length; i++) {
       currentPanel = i;
       syncFields();
       render();
-      downloadCanvas("mo-asset-" + (i + 1) + ".png");
+      downloadCanvas(`mo-asset-${i + 1}.png`);
     }
     rebuildPanelStrip();
   });
 
   function downloadCanvas(filename) {
-    var link = document.createElement("a");
+    const link = document.createElement("a");
     link.download = filename;
     link.href = canvas.toDataURL("image/png");
     link.click();
