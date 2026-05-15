@@ -16057,6 +16057,89 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
 .cc-color-swatch:hover { border-color: var(--color-dark); }
 .cc-color-swatch.is-active { border-color: var(--color-dark); box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-dark); }
 
+/* Category management */
+.cc-cat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.cc-cat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+.cc-cat-row:hover { background: var(--color-page); }
+.cc-cat-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cc-cat-name {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  flex: 1;
+}
+.cc-cat-edit,
+.cc-cat-remove {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.cc-cat-row:hover .cc-cat-edit,
+.cc-cat-row:hover .cc-cat-remove { opacity: 1; }
+.cc-cat-edit:hover { color: var(--color-dark); }
+.cc-cat-remove { font-size: 16px; }
+.cc-cat-remove:hover { color: #c1593c; }
+.cc-cat-edit-input {
+  flex: 0 0 120px;
+  padding: 4px 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  background: var(--color-page);
+  color: var(--color-dark);
+}
+.cc-cat-add-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-rule);
+}
+.cc-cat-add-input {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  background: var(--color-page);
+  color: var(--color-dark);
+}
+.cc-cat-add-colors {
+  flex: 1;
+  min-width: 0;
+}
+.cc-cat-add-colors .cc-color-swatch {
+  width: 18px;
+  height: 18px;
+}
+
 /* Drag and drop */
 .cc-item[draggable="true"],
 .cc-mcell-item[draggable="true"] {
@@ -16177,15 +16260,16 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   color: var(--color-muted);
 }
 .cc-mcell-date.is-today {
-  background: var(--color-accent);
-  color: #fff;
-  width: 22px;
-  height: 22px;
+  background: none;
+  color: var(--color-dark);
+  width: 24px;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   font-size: 11px;
+  border: 2px solid #e67e22;
 }
 .cc-mcell-add {
   background: none;

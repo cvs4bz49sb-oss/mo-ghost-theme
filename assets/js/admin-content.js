@@ -9,10 +9,18 @@
   const DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const FULL_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const CONTENT_TYPES = ["Essay", "Newsletter", "Podcast", "Social", "Event", "Meeting", "Other"];
+  const DEFAULT_CATEGORIES = [
+    { id: "essay", name: "Essay", color: "#c1593c" },
+    { id: "newsletter", name: "Newsletter", color: "#3498db" },
+    { id: "podcast", name: "Podcast", color: "#9b59b6" },
+    { id: "social", name: "Social", color: "#1abc9c" },
+    { id: "event", name: "Event", color: "#f39c12" },
+    { id: "meeting", name: "Meeting", color: "#34495e" },
+    { id: "other", name: "Other", color: "#9a8773" }
+  ];
   const STATUS_OPTIONS = ["Idea", "Drafting", "In Review", "Scheduled", "Published"];
   const STATUS_COLORS = { Idea: "#9a8773", Drafting: "#3498db", "In Review": "#f39c12", Scheduled: "#27ae60", Published: "#2d2927" };
-  const PROJECT_COLORS = ["#c1593c", "#3498db", "#27ae60", "#f39c12", "#9b59b6", "#1abc9c", "#e74c3c", "#34495e"];
+  const SWATCH_COLORS = ["#c1593c", "#3498db", "#27ae60", "#f39c12", "#9b59b6", "#1abc9c", "#e74c3c", "#34495e", "#e67e22", "#2d2927", "#16a085", "#8e44ad"];
 
   const DEFAULT_DATA = {
     projects: [
@@ -25,6 +33,7 @@
       { id: "christians-reading-classics", name: "Christians Reading Classics", group: "podcasts", color: "#c1593c" }
     ],
     people: ["Jake Meador", "Ian Harber", "Mark Kremer", "Nadya Williams"],
+    categories: DEFAULT_CATEGORIES.map((c) => { return {...c}; }),
     items: []
   };
 
@@ -35,6 +44,7 @@
         const d = JSON.parse(raw);
         if (!d.projects) d.projects = DEFAULT_DATA.projects;
         if (!d.people) d.people = DEFAULT_DATA.people;
+        if (!d.categories) d.categories = DEFAULT_CATEGORIES.map((c) => { return {...c}; });
         if (!d.items) d.items = [];
         return d;
       }
@@ -150,13 +160,13 @@
   }
 
   function renderItemChip(it) {
-    const proj = data.projects.find((p) => { return p.id === it.project; });
-    const col = proj ? proj.color : "#9a8773";
+    const cat = data.categories.find((c) => { return c.id === it.type; });
+    const col = cat ? cat.color : "#9a8773";
     const statusCol = STATUS_COLORS[it.status] || "#9a8773";
     return `<div class="cc-item" data-cc-item-id="${it.id}" draggable="true">` +
       `<span class="cc-item-dot" style="background:${col}"></span>` +
-      `<span class="cc-item-title">${esc(it.title)}</span>${ 
-      it.type ? `<span class="cc-item-type">${esc(it.type)}</span>` : '' 
+      `<span class="cc-item-title">${esc(it.title)}</span>${
+      cat ? `<span class="cc-item-type">${esc(cat.name)}</span>` : ''
       }${it.person ? `<span class="cc-item-person">${esc(it.person)}</span>` : '' 
       }${it.status ? `<span class="cc-item-status" style="color:${statusCol}">${esc(it.status)}</span>` : '' 
       }<button type="button" class="cc-item-remove" data-cc-remove-item="${it.id}" title="Remove">&times;</button>` +
@@ -259,8 +269,8 @@
         });
 
         let itemDots = dayItems.slice(0, 4).map((it) => {
-          const proj = data.projects.find((p) => { return p.id === it.project; });
-          const col = proj ? proj.color : "#9a8773";
+          const cat = data.categories.find((c) => { return c.id === it.type; });
+          const col = cat ? cat.color : "#9a8773";
           return `<span class="cc-mcell-dot" style="background:${col}" title="${escAttr(it.title)}"></span>`;
         }).join("");
         if (dayItems.length > 4) {
@@ -268,8 +278,8 @@
         }
 
         const itemList = dayItems.map((it) => {
-          const proj = data.projects.find((p) => { return p.id === it.project; });
-          const col = proj ? proj.color : "#9a8773";
+          const cat = data.categories.find((c) => { return c.id === it.type; });
+          const col = cat ? cat.color : "#9a8773";
           return `<div class="cc-mcell-item" data-cc-item-id="${it.id}" draggable="true">` +
             `<span class="cc-item-dot" style="background:${col}"></span>` +
             `<span class="cc-mcell-item-title">${esc(it.title)}</span>` +
@@ -279,9 +289,8 @@
         cells.push(
           `<div class="cc-month-cell${today ? ' is-today' : ''}${!isCurrentMonth ? ' is-other-month' : ''}" data-cc-date="${dateStr}">` +
             `<div class="cc-mcell-head">` +
-              `<span class="cc-mcell-date">${cell.getDate()}</span>${ 
-              today ? '<span class="cc-mcell-today">Today</span>' : '' 
-              }<button type="button" class="cc-mcell-add" data-cc-add-item="${dateStr}">+</button>` +
+              `<span class="cc-mcell-date${today ? ' is-today' : ''}">${cell.getDate()}</span>` +
+              `<button type="button" class="cc-mcell-add" data-cc-add-item="${dateStr}">+</button>` +
             `</div>` +
             `<div class="cc-mcell-items">${itemList}</div>` +
           `</div>`
@@ -319,7 +328,7 @@
     if (filterKey === "project") {
       options = data.projects.map((p) => { return { label: p.name, value: p.id }; });
     } else if (filterKey === "type") {
-      options = CONTENT_TYPES.map((t) => { return { label: t, value: t }; });
+      options = data.categories.map((c) => { return { label: c.name, value: c.id }; });
     } else if (filterKey === "person") {
       options = data.people.map((p) => { return { label: p, value: p }; });
     } else if (filterKey === "status") {
@@ -345,16 +354,16 @@
         `<label class="cc-modal-field"><span>Project</span><select data-cc-modal-project>${ 
           data.projects.map((p) => { return `<option value="${p.id}">${esc(p.name)}</option>`; }).join("") 
         }</select></label>` +
-        `<label class="cc-modal-field"><span>Content Type</span><select data-cc-modal-type>` +
-          `<option value="">—</option>${ 
-          CONTENT_TYPES.map((t) => { return `<option value="${t}">${t}</option>`; }).join("") 
+        `<label class="cc-modal-field"><span>Category</span><select data-cc-modal-type>` +
+          `<option value="">—</option>${
+          data.categories.map((c) => { return `<option value="${c.id}">${esc(c.name)}</option>`; }).join("")
         }</select></label>` +
-        `<label class="cc-modal-field"><span>Person</span><select data-cc-modal-person>` +
-          `<option value="">—</option>${ 
-          data.people.map((p) => { return `<option value="${esc(p)}">${esc(p)}</option>`; }).join("") 
+        `<label class="cc-modal-field"><span>Assigned To</span><select data-cc-modal-person>` +
+          `<option value="">—</option>${
+          data.people.map((p) => { return `<option value="${esc(p)}">${esc(p)}</option>`; }).join("")
         }</select></label>` +
-        `<label class="cc-modal-field"><span>Status</span><select data-cc-modal-status>${ 
-          STATUS_OPTIONS.map((s) => { return `<option value="${s}">${s}</option>`; }).join("") 
+        `<label class="cc-modal-field"><span>Status</span><select data-cc-modal-status>${
+          STATUS_OPTIONS.map((s) => { return `<option value="${s}">${s}</option>`; }).join("")
         }</select></label>` +
         `<div class="cc-modal-actions">` +
           `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
@@ -403,7 +412,7 @@
         `</select></label>` +
         `<label class="cc-modal-field"><span>Color</span>` +
           `<div class="cc-color-picker">${ 
-            PROJECT_COLORS.map((c) => {
+            SWATCH_COLORS.map((c) => {
               return `<button type="button" class="cc-color-swatch" data-cc-color="${c}" style="background:${c}"></button>`;
             }).join("") 
           }</div>` +
@@ -417,7 +426,7 @@
     document.body.appendChild(overlay);
     const nameInput = overlay.querySelector("[data-cc-modal-name]");
     nameInput.focus();
-    let selectedColor = PROJECT_COLORS[0];
+    let selectedColor = SWATCH_COLORS[0];
     overlay.querySelectorAll(".cc-color-swatch").forEach((sw) => {
       if (sw.dataset.ccColor === selectedColor) sw.classList.add("is-active");
       sw.onclick = function () {
@@ -466,6 +475,118 @@
       data.people = lines;
       save(data);
       overlay.remove();
+    };
+  }
+
+  function showCategoriesModal() {
+    const overlay = document.createElement("div");
+    overlay.className = "cc-modal-overlay";
+
+    function renderCategoryList() {
+      return data.categories.map((c) => {
+        return `<div class="cc-cat-row" data-cc-cat-id="${c.id}">` +
+          `<span class="cc-cat-swatch" style="background:${c.color}"></span>` +
+          `<span class="cc-cat-name">${esc(c.name)}</span>` +
+          `<button type="button" class="cc-cat-edit" data-cc-edit-cat="${c.id}" title="Edit">` +
+            `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>` +
+          `</button>` +
+          `<button type="button" class="cc-cat-remove" data-cc-remove-cat="${c.id}" title="Remove">&times;</button>` +
+        `</div>`;
+      }).join("");
+    }
+
+    overlay.innerHTML =
+      `<div class="cc-modal" style="max-width:480px">` +
+        `<h3 class="cc-modal-title">Manage Categories</h3>` +
+        `<div class="cc-cat-list" data-cc-cat-list>${renderCategoryList()}</div>` +
+        `<div class="cc-cat-add-row">` +
+          `<input type="text" class="cc-cat-add-input" data-cc-cat-name placeholder="New category name">` +
+          `<div class="cc-color-picker cc-cat-add-colors">${
+            SWATCH_COLORS.map((c) => {
+              return `<button type="button" class="cc-color-swatch" data-cc-color="${c}" style="background:${c}"></button>`;
+            }).join("")
+          }</div>` +
+          `<button type="button" class="btn btn-sm btn-primary" data-cc-cat-add-btn>Add</button>` +
+        `</div>` +
+        `<div class="cc-modal-actions" style="margin-top:16px">` +
+          `<button type="button" class="btn btn-sm btn-primary" data-cc-modal-done>Done</button>` +
+        `</div>` +
+      `</div>`;
+
+    document.body.appendChild(overlay);
+    let newCatColor = SWATCH_COLORS[0];
+    const swatches = overlay.querySelectorAll(".cc-cat-add-colors .cc-color-swatch");
+    swatches.forEach((sw) => {
+      if (sw.dataset.ccColor === newCatColor) sw.classList.add("is-active");
+      sw.onclick = function () {
+        swatches.forEach((s) => { s.classList.remove("is-active"); });
+        sw.classList.add("is-active");
+        newCatColor = sw.dataset.ccColor;
+      };
+    });
+
+    overlay.querySelector("[data-cc-cat-add-btn]").onclick = function () {
+      const nameInput = overlay.querySelector("[data-cc-cat-name]");
+      const name = nameInput.value.trim();
+      if (!name) { nameInput.focus(); return; }
+      const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      if (data.categories.some((c) => { return c.id === id; })) { nameInput.focus(); return; }
+      data.categories.push({ id, name, color: newCatColor });
+      save(data);
+      overlay.querySelector("[data-cc-cat-list]").innerHTML = renderCategoryList();
+      nameInput.value = "";
+      nameInput.focus();
+    };
+
+    overlay.addEventListener("click", (ev) => {
+      if (ev.target === overlay) { overlay.remove(); renderCalendar(); return; }
+
+      const removeBtn = ev.target.closest("[data-cc-remove-cat]");
+      if (removeBtn) {
+        data.categories = data.categories.filter((c) => { return c.id !== removeBtn.dataset.ccRemoveCat; });
+        save(data);
+        overlay.querySelector("[data-cc-cat-list]").innerHTML = renderCategoryList();
+        return;
+      }
+
+      const editBtn = ev.target.closest("[data-cc-edit-cat]");
+      if (editBtn) {
+        const catId = editBtn.dataset.ccEditCat;
+        const cat = data.categories.find((c) => { return c.id === catId; });
+        if (!cat) return;
+        const row = editBtn.closest(".cc-cat-row");
+        row.innerHTML =
+          `<input type="text" class="cc-cat-edit-input" value="${escAttr(cat.name)}">` +
+          `<div class="cc-color-picker" style="flex:1">${
+            SWATCH_COLORS.map((c) => {
+              return `<button type="button" class="cc-color-swatch${c === cat.color ? ' is-active' : ''}" data-cc-color="${c}" style="background:${c}"></button>`;
+            }).join("")
+          }</div>` +
+          `<button type="button" class="btn btn-sm btn-primary cc-cat-save-edit">Save</button>`;
+        const editInput = row.querySelector(".cc-cat-edit-input");
+        editInput.focus();
+        let editColor = cat.color;
+        row.querySelectorAll(".cc-color-swatch").forEach((sw) => {
+          sw.onclick = function () {
+            row.querySelectorAll(".cc-color-swatch").forEach((s) => { s.classList.remove("is-active"); });
+            sw.classList.add("is-active");
+            editColor = sw.dataset.ccColor;
+          };
+        });
+        row.querySelector(".cc-cat-save-edit").onclick = function () {
+          const newName = editInput.value.trim();
+          if (newName) cat.name = newName;
+          cat.color = editColor;
+          save(data);
+          overlay.querySelector("[data-cc-cat-list]").innerHTML = renderCategoryList();
+        };
+        return;
+      }
+    });
+
+    overlay.querySelector("[data-cc-modal-done]").onclick = function () {
+      overlay.remove();
+      renderCalendar();
     };
   }
 
@@ -580,6 +701,7 @@
 
     // Add project
     if (e.target.closest("[data-cc-add-project]")) { showAddProjectModal(); return; }
+    if (e.target.closest("[data-cc-categories]")) { showCategoriesModal(); return; }
     if (e.target.closest("[data-cc-settings]")) { showSettingsModal(); return; }
 
     // Close dropdowns on outside click
@@ -603,13 +725,13 @@
         `<label class="cc-modal-field"><span>Project</span><select data-cc-modal-project>${ 
           data.projects.map((p) => { return `<option value="${p.id}"${p.id === item.project ? ' selected' : ''}>${esc(p.name)}</option>`; }).join("") 
         }</select></label>` +
-        `<label class="cc-modal-field"><span>Content Type</span><select data-cc-modal-type>` +
-          `<option value="">—</option>${ 
-          CONTENT_TYPES.map((t) => { return `<option value="${t}"${t === item.type ? ' selected' : ''}>${t}</option>`; }).join("") 
+        `<label class="cc-modal-field"><span>Category</span><select data-cc-modal-type>` +
+          `<option value="">—</option>${
+          data.categories.map((c) => { return `<option value="${c.id}"${c.id === item.type ? ' selected' : ''}>${esc(c.name)}</option>`; }).join("")
         }</select></label>` +
-        `<label class="cc-modal-field"><span>Person</span><select data-cc-modal-person>` +
-          `<option value="">—</option>${ 
-          data.people.map((p) => { return `<option value="${esc(p)}"${p === item.person ? ' selected' : ''}>${esc(p)}</option>`; }).join("") 
+        `<label class="cc-modal-field"><span>Assigned To</span><select data-cc-modal-person>` +
+          `<option value="">—</option>${
+          data.people.map((p) => { return `<option value="${esc(p)}"${p === item.person ? ' selected' : ''}>${esc(p)}</option>`; }).join("")
         }</select></label>` +
         `<label class="cc-modal-field"><span>Status</span><select data-cc-modal-status>${ 
           STATUS_OPTIONS.map((s) => { return `<option value="${s}"${s === item.status ? ' selected' : ''}>${s}</option>`; }).join("") 
