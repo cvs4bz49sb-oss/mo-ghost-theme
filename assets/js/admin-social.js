@@ -227,6 +227,9 @@
   });
 
   deleteCancel.addEventListener("click", function () { deleteModal.hidden = true; });
+  deleteModal.addEventListener("click", function (e) {
+    if (e.target === deleteModal) deleteModal.hidden = true;
+  });
 
   deleteConfirm.addEventListener("click", function () {
     var allCb = deleteBody.querySelector("[data-modal-all]");
