@@ -32,10 +32,13 @@
   var $fontVal = root.querySelector("[data-asset-fontsize-val]");
   var $watermark = root.querySelector("[data-asset-watermark]");
   var $showBody = root.querySelector("[data-asset-show-body]");
+  var $showAuthor = root.querySelector("[data-asset-show-author]");
   var $wordmarkSlider = root.querySelector("[data-asset-wordmark-size]");
   var $wordmarkVal = root.querySelector("[data-asset-wordmark-size-val]");
   var $authorSlider = root.querySelector("[data-asset-author-size]");
   var $authorVal = root.querySelector("[data-asset-author-size-val]");
+  var $textPosSlider = root.querySelector("[data-asset-text-pos]");
+  var $textPosVal = root.querySelector("[data-asset-text-pos-val]");
   var $overlaySlider = root.querySelector("[data-asset-overlay]");
   var $overlayVal = root.querySelector("[data-asset-overlay-val]");
   var $urlInput = root.querySelector("[data-asset-url]");
@@ -64,6 +67,8 @@
       authorSize: 22,
       watermark: true,
       showBody: true,
+      showAuthor: true,
+      textPos: 0,
       bgImage: null,
       overlayOpacity: 60
     };
@@ -149,6 +154,7 @@
   });
   $watermark.addEventListener("change", function () { p().watermark = $watermark.checked; render(); });
   $showBody.addEventListener("change", function () { p().showBody = $showBody.checked; render(); });
+  $showAuthor.addEventListener("change", function () { p().showAuthor = $showAuthor.checked; render(); });
   $wordmarkSlider.addEventListener("input", function () {
     p().wordmarkSize = parseInt($wordmarkSlider.value, 10);
     $wordmarkVal.textContent = $wordmarkSlider.value;
@@ -157,6 +163,11 @@
   $authorSlider.addEventListener("input", function () {
     p().authorSize = parseInt($authorSlider.value, 10);
     $authorVal.textContent = $authorSlider.value;
+    render();
+  });
+  $textPosSlider.addEventListener("input", function () {
+    p().textPos = parseInt($textPosSlider.value, 10);
+    $textPosVal.textContent = $textPosSlider.value;
     render();
   });
   $overlaySlider.addEventListener("input", function () {
@@ -296,6 +307,8 @@
     panel.authorSize = parseInt($authorSlider.value, 10);
     panel.watermark = $watermark.checked;
     panel.showBody = $showBody.checked;
+    panel.showAuthor = $showAuthor.checked;
+    panel.textPos = parseInt($textPosSlider.value, 10);
     panel.overlayOpacity = parseInt($overlaySlider.value, 10);
   }
 
@@ -312,6 +325,9 @@
     $authorVal.textContent = panel.authorSize;
     $watermark.checked = panel.watermark;
     $showBody.checked = panel.showBody;
+    $showAuthor.checked = panel.showAuthor;
+    $textPosSlider.value = panel.textPos;
+    $textPosVal.textContent = panel.textPos;
     $overlaySlider.value = panel.overlayOpacity;
     $overlayVal.textContent = panel.overlayOpacity + "%";
     $bgCustom.value = panel.bg;
@@ -444,6 +460,8 @@
     var lineH = fs * 1.15;
     var gapAfterTitle = Math.max(fs * 0.7, 30);
     var gapHairToAuthor = Math.max(as * 1.4, 28);
+    var showAuth = panel.showAuthor !== false && !!panel.subtitle;
+    var posShift = (panel.textPos || 0) / 50 * (h * 0.15);
 
     if (panel.bgImage) {
       var splitRatio = mode === "story" ? 0.48 : 0.52;
@@ -461,39 +479,46 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, imgH - 20, w, gradH + 20);
 
-      var cursor = imgH + ws + 30;
+      var bandTop = imgH;
+      var bandH = h - imgH;
+      var blockH = 0;
+      if (panel.watermark) blockH += ws + Math.max(ws * 2, 28);
+      var lines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
+      blockH += lines.length * lineH;
+      if (showAuth) blockH += gapAfterTitle + gapHairToAuthor + as * 0.3;
+
+      var cursor = bandTop + (bandH - blockH) / 2 + posShift;
+      cursor = Math.max(cursor, bandTop + 20);
 
       if (panel.watermark) {
         ctx.save();
         ctx.font = "600 " + ws + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.32;
-        drawTrackedText("MERE ORTHODOXY", w / 2, cursor, 3.5, "center");
+        drawTrackedText("MERE ORTHODOXY", w / 2, cursor + ws, 3.5, "center");
         ctx.restore();
-        cursor += Math.max(ws * 2.5, 36);
-      } else {
-        cursor += 20;
+        cursor += ws + Math.max(ws * 2, 28);
       }
 
       ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
       ctx.fillStyle = fg;
       ctx.textAlign = "center";
-      var lines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
       for (var i = 0; i < lines.length; i++) {
         ctx.fillText(lines[i], w / 2, cursor + i * lineH);
       }
-      cursor += (lines.length - 1) * lineH + gapAfterTitle;
+      cursor += (lines.length - 1) * lineH;
 
-      ctx.strokeStyle = fg;
-      ctx.globalAlpha = 0.18;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(w * 0.28, cursor);
-      ctx.lineTo(w * 0.72, cursor);
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+      if (showAuth) {
+        cursor += gapAfterTitle;
+        ctx.strokeStyle = fg;
+        ctx.globalAlpha = 0.18;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.28, cursor);
+        ctx.lineTo(w * 0.72, cursor);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
 
-      if (panel.subtitle) {
         ctx.font = "400 " + as + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.6;
@@ -517,23 +542,24 @@
       ctx.fillStyle = fg;
       ctx.textAlign = "center";
       var noImgLines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
-      var totalH = noImgLines.length * lineH;
-      var blockH = totalH + gapAfterTitle + 1 + gapHairToAuthor + (panel.subtitle ? as : 0);
-      var originY = (h - blockH) / 2 + lineH * 0.3;
+      var titleH = noImgLines.length * lineH;
+      var totalBlockH = titleH;
+      if (showAuth) totalBlockH += gapAfterTitle + 1 + gapHairToAuthor + as * 0.3;
+      var originY = (h - totalBlockH) / 2 + lineH * 0.3 + posShift;
       for (var j = 0; j < noImgLines.length; j++) {
         ctx.fillText(noImgLines[j], w / 2, originY + j * lineH);
       }
-      var hairY = originY + (noImgLines.length - 1) * lineH + gapAfterTitle;
 
-      ctx.strokeStyle = fg;
-      ctx.globalAlpha = 0.12;
-      ctx.beginPath();
-      ctx.moveTo(w * 0.22, hairY);
-      ctx.lineTo(w * 0.78, hairY);
-      ctx.stroke();
-      ctx.globalAlpha = 1;
+      if (showAuth) {
+        var hairY = originY + (noImgLines.length - 1) * lineH + gapAfterTitle;
+        ctx.strokeStyle = fg;
+        ctx.globalAlpha = 0.12;
+        ctx.beginPath();
+        ctx.moveTo(w * 0.22, hairY);
+        ctx.lineTo(w * 0.78, hairY);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
 
-      if (panel.subtitle) {
         ctx.font = "400 " + as + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.55;
@@ -571,37 +597,35 @@
       }
     }
 
-    // Hairline near bottom.
-    var hairY = h - pad - 100;
-    ctx.strokeStyle = fg;
-    ctx.globalAlpha = 0.12;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(pad, hairY);
-    ctx.lineTo(w * 0.45, hairY);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+    // Attribution block.
+    if (panel.showAuthor !== false && panel.subtitle) {
+      var as = panel.authorSize;
+      var hairY = h - pad - 100;
+      ctx.strokeStyle = fg;
+      ctx.globalAlpha = 0.12;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, hairY);
+      ctx.lineTo(w * 0.45, hairY);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
 
-    // Attribution.
-    var as = panel.authorSize;
-    if (panel.subtitle) {
       ctx.font = "600 " + as + "px 'Source Serif Pro', Georgia, serif";
       ctx.fillStyle = fg;
       ctx.globalAlpha = 0.6;
       ctx.textAlign = "left";
       ctx.fillText("— " + panel.subtitle, pad, hairY + Math.max(as * 1.5, 28));
       ctx.globalAlpha = 1;
-    }
 
-    // Source.
-    if (panel.title && panel.subtitle) {
-      var srcSize = Math.round(as * 0.78);
-      ctx.font = "italic " + srcSize + "px 'Source Serif Pro', Georgia, serif";
-      ctx.fillStyle = fg;
-      ctx.globalAlpha = 0.4;
-      ctx.textAlign = "left";
-      ctx.fillText(panel.title, pad + 24, hairY + Math.max(as * 1.5, 28) + Math.max(as * 1.3, 24));
-      ctx.globalAlpha = 1;
+      if (panel.title) {
+        var srcSize = Math.round(as * 0.78);
+        ctx.font = "italic " + srcSize + "px 'Source Serif Pro', Georgia, serif";
+        ctx.fillStyle = fg;
+        ctx.globalAlpha = 0.4;
+        ctx.textAlign = "left";
+        ctx.fillText(panel.title, pad + 24, hairY + Math.max(as * 1.5, 28) + Math.max(as * 1.3, 24));
+        ctx.globalAlpha = 1;
+      }
     }
   }
 
