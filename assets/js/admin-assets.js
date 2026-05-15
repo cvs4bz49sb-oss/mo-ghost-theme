@@ -439,73 +439,71 @@
   function renderTitleCard(panel, w, h, pad) {
     var fg = panel.fg;
     var fs = panel.fontSize;
+    var as = panel.authorSize;
+    var ws = panel.wordmarkSize;
+    var lineH = fs * 1.15;
+    var gapAfterTitle = Math.max(fs * 0.7, 30);
+    var gapHairToAuthor = Math.max(as * 1.4, 28);
 
     if (panel.bgImage) {
-      // Split layout: hero image top, text band bottom.
       var splitRatio = mode === "story" ? 0.48 : 0.52;
       var imgH = Math.round(h * splitRatio);
       var gradH = 100;
 
       drawCoverImage(panel.bgImage, 0, 0, w, imgH + gradH);
 
-      // Solid text band.
       ctx.fillStyle = panel.bg;
       ctx.fillRect(0, imgH, w, h - imgH);
 
-      // Gradient blend from image into band.
       var grad = ctx.createLinearGradient(0, imgH - 20, 0, imgH + gradH);
       grad.addColorStop(0, hexToRgba(panel.bg, 0));
       grad.addColorStop(1, hexToRgba(panel.bg, 1));
       ctx.fillStyle = grad;
       ctx.fillRect(0, imgH - 20, w, gradH + 20);
 
-      // Wordmark in band.
+      var cursor = imgH + ws + 30;
+
       if (panel.watermark) {
         ctx.save();
-        ctx.font = "600 " + panel.wordmarkSize + "px 'Source Serif Pro', Georgia, serif";
+        ctx.font = "600 " + ws + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.32;
-        drawTrackedText("MERE ORTHODOXY", w / 2, imgH + 52, 3.5, "center");
+        drawTrackedText("MERE ORTHODOXY", w / 2, cursor, 3.5, "center");
         ctx.restore();
+        cursor += Math.max(ws * 2.5, 36);
+      } else {
+        cursor += 20;
       }
 
-      // Title.
       ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
       ctx.fillStyle = fg;
       ctx.textAlign = "center";
-      var titleY = imgH + 105;
       var lines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
-      var lineH = fs * 1.15;
       for (var i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], w / 2, titleY + i * lineH);
+        ctx.fillText(lines[i], w / 2, cursor + i * lineH);
       }
-      var titleBottom = titleY + (lines.length - 1) * lineH;
+      cursor += (lines.length - 1) * lineH + gapAfterTitle;
 
-      // Hairline.
-      var hairY = titleBottom + 40;
       ctx.strokeStyle = fg;
       ctx.globalAlpha = 0.18;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(w * 0.28, hairY);
-      ctx.lineTo(w * 0.72, hairY);
+      ctx.moveTo(w * 0.28, cursor);
+      ctx.lineTo(w * 0.72, cursor);
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Author.
       if (panel.subtitle) {
-        ctx.font = "400 " + panel.authorSize + "px 'Source Serif Pro', Georgia, serif";
+        ctx.font = "400 " + as + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.6;
         ctx.textAlign = "center";
-        ctx.fillText(panel.subtitle, w / 2, hairY + 38);
+        ctx.fillText(panel.subtitle, w / 2, cursor + gapHairToAuthor);
         ctx.globalAlpha = 1;
       }
     } else {
-      // No image: elegant centered text.
       drawMark(panel, w, h, pad, "top-center");
 
-      // Top hairline.
       ctx.strokeStyle = fg;
       ctx.globalAlpha = 0.12;
       ctx.lineWidth = 1;
@@ -515,35 +513,32 @@
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Title (vertically centered).
       ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
       ctx.fillStyle = fg;
       ctx.textAlign = "center";
       var noImgLines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
-      var noImgLineH = fs * 1.15;
-      var totalH = noImgLines.length * noImgLineH;
-      var originY = (h - totalH) / 2 + noImgLineH * 0.3;
+      var totalH = noImgLines.length * lineH;
+      var blockH = totalH + gapAfterTitle + 1 + gapHairToAuthor + (panel.subtitle ? as : 0);
+      var originY = (h - blockH) / 2 + lineH * 0.3;
       for (var j = 0; j < noImgLines.length; j++) {
-        ctx.fillText(noImgLines[j], w / 2, originY + j * noImgLineH);
+        ctx.fillText(noImgLines[j], w / 2, originY + j * lineH);
       }
-      var noImgBottom = originY + (noImgLines.length - 1) * noImgLineH;
+      var hairY = originY + (noImgLines.length - 1) * lineH + gapAfterTitle;
 
-      // Bottom hairline.
       ctx.strokeStyle = fg;
       ctx.globalAlpha = 0.12;
       ctx.beginPath();
-      ctx.moveTo(w * 0.22, noImgBottom + 50);
-      ctx.lineTo(w * 0.78, noImgBottom + 50);
+      ctx.moveTo(w * 0.22, hairY);
+      ctx.lineTo(w * 0.78, hairY);
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Author.
       if (panel.subtitle) {
-        ctx.font = "400 " + panel.authorSize + "px 'Source Serif Pro', Georgia, serif";
+        ctx.font = "400 " + as + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.55;
         ctx.textAlign = "center";
-        ctx.fillText(panel.subtitle, w / 2, noImgBottom + 90);
+        ctx.fillText(panel.subtitle, w / 2, hairY + gapHairToAuthor);
         ctx.globalAlpha = 1;
       }
     }
@@ -588,22 +583,24 @@
     ctx.globalAlpha = 1;
 
     // Attribution.
+    var as = panel.authorSize;
     if (panel.subtitle) {
-      ctx.font = "600 21px 'Source Serif Pro', Georgia, serif";
+      ctx.font = "600 " + as + "px 'Source Serif Pro', Georgia, serif";
       ctx.fillStyle = fg;
       ctx.globalAlpha = 0.6;
       ctx.textAlign = "left";
-      ctx.fillText("— " + panel.subtitle, pad, hairY + 38);
+      ctx.fillText("— " + panel.subtitle, pad, hairY + Math.max(as * 1.5, 28));
       ctx.globalAlpha = 1;
     }
 
     // Source.
     if (panel.title && panel.subtitle) {
-      ctx.font = "italic 17px 'Source Serif Pro', Georgia, serif";
+      var srcSize = Math.round(as * 0.78);
+      ctx.font = "italic " + srcSize + "px 'Source Serif Pro', Georgia, serif";
       ctx.fillStyle = fg;
       ctx.globalAlpha = 0.4;
       ctx.textAlign = "left";
-      ctx.fillText(panel.title, pad + 24, hairY + 68);
+      ctx.fillText(panel.title, pad + 24, hairY + Math.max(as * 1.5, 28) + Math.max(as * 1.3, 24));
       ctx.globalAlpha = 1;
     }
   }

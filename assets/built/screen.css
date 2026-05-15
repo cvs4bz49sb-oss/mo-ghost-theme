@@ -15864,6 +15864,21 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   margin-bottom: 8px;
 }
 
+/* Normalize buttons inside the admin workspace —
+   override the public-site .btn-pill mega-padding. */
+.admin-workspace .btn {
+  padding: 9px 18px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+.admin-workspace .btn-sm {
+  padding: 6px 14px;
+  font-size: 11px;
+}
+.admin-workspace .btn-primary {
+  padding: 10px 22px;
+}
+
 /* Canvas preview */
 .asset-preview {
   display: flex;
