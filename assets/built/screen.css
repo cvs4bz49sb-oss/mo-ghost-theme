@@ -15139,6 +15139,7 @@ details.bookstore-section[open] > .bookstore-section-header::after {
 .coverage-headlines-author {
   display: block;
   font-size: 12px;
+  font-style: italic;
   color: var(--color-muted);
   margin-top: 1px;
 }
