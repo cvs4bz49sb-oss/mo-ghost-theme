@@ -23,70 +23,53 @@
                {{#if @custom.content_api_key}}data-content-api-key="{{@custom.content_api_key}}"{{/if}}
                data-site-url="{{@site.url}}">
 
-            <div class="copy-form">
-              <div class="dashboard-module">
-                <div class="dashboard-form-group">
-                  <p class="dashboard-form-legend"><em>Source</em></p>
-                  <label class="dashboard-form-field">
-                    <span class="dashboard-form-label">Article URL</span>
-                    <input type="text" name="url" placeholder="Paste a Mere Orthodoxy article URL..." data-copy-url />
-                    <span class="dashboard-form-hint">We'll pull the title, excerpt, and content for Claude.</span>
-                  </label>
-                  <label class="dashboard-form-field">
-                    <span class="dashboard-form-label">Or paste text directly</span>
-                    <textarea name="text" rows="5" placeholder="Paste article text or key points..." data-copy-text></textarea>
-                  </label>
+            {{!-- Source --}}
+            <div class="copy-section">
+              <label class="copy-field">
+                <span class="copy-field-label">Article URL</span>
+                <div class="copy-url-row">
+                  <input type="text" class="copy-input" placeholder="Paste any Mere Orthodoxy article URL..." data-copy-url />
                 </div>
+              </label>
+              <div class="copy-divider-or"><span>or paste text directly</span></div>
+              <label class="copy-field">
+                <textarea class="copy-textarea" rows="4" placeholder="Paste article text or key points..." data-copy-text></textarea>
+              </label>
+            </div>
 
-                <div class="dashboard-form-group">
-                  <p class="dashboard-form-legend"><em>Platforms</em></p>
-                  <label class="dashboard-form-field asset-settings-field--checkbox">
-                    <input type="checkbox" data-copy-platform="twitter" checked />
-                    <span class="dashboard-form-label">X (Twitter)</span>
-                  </label>
-                  <label class="dashboard-form-field asset-settings-field--checkbox">
-                    <input type="checkbox" data-copy-platform="instagram" checked />
-                    <span class="dashboard-form-label">Instagram caption</span>
-                  </label>
-                  <label class="dashboard-form-field asset-settings-field--checkbox">
-                    <input type="checkbox" data-copy-platform="facebook" checked />
-                    <span class="dashboard-form-label">Facebook</span>
-                  </label>
-                  <label class="dashboard-form-field asset-settings-field--checkbox">
-                    <input type="checkbox" data-copy-platform="linkedin" />
-                    <span class="dashboard-form-label">LinkedIn</span>
-                  </label>
-                  <label class="dashboard-form-field asset-settings-field--checkbox">
-                    <input type="checkbox" data-copy-platform="substack-notes" />
-                    <span class="dashboard-form-label">Substack Notes</span>
-                  </label>
-                </div>
-
-                <div class="dashboard-form-group">
-                  <p class="dashboard-form-legend"><em>Tone</em></p>
-                  <label class="dashboard-form-field">
-                    <span class="dashboard-form-label">Voice</span>
-                    <select data-copy-tone>
-                      <option value="editorial">Editorial (default)</option>
-                      <option value="conversational">Conversational</option>
-                      <option value="provocative">Provocative / debate-starting</option>
-                      <option value="devotional">Devotional / reflective</option>
-                    </select>
-                  </label>
-                </div>
-
-                <div class="dashboard-address-actions">
-                  <button type="button" class="btn btn-pill btn-primary" data-copy-generate>Generate copy</button>
-                </div>
-                <p class="dashboard-form-success" data-copy-status hidden></p>
+            {{!-- Platforms --}}
+            <div class="copy-section">
+              <span class="copy-field-label">Platforms</span>
+              <div class="copy-platform-pills" data-copy-platforms>
+                <button type="button" class="copy-pill is-active" data-copy-platform="twitter">X / Twitter</button>
+                <button type="button" class="copy-pill is-active" data-copy-platform="instagram">Instagram</button>
+                <button type="button" class="copy-pill is-active" data-copy-platform="facebook">Facebook</button>
+                <button type="button" class="copy-pill" data-copy-platform="linkedin">LinkedIn</button>
+                <button type="button" class="copy-pill" data-copy-platform="substack-notes">Substack Notes</button>
               </div>
             </div>
 
-            <div class="copy-output" data-copy-output hidden>
-              <div class="section-intro section-intro-left">
-                <p class="eyebrow">Generated copy</p>
-                <h2 class="section-heading"><em>Ready to post.</em></h2>
+            {{!-- Tone + Generate --}}
+            <div class="copy-section copy-section-row">
+              <label class="copy-field copy-field-tone">
+                <span class="copy-field-label">Voice</span>
+                <select class="copy-select" data-copy-tone>
+                  <option value="editorial">Editorial (default)</option>
+                  <option value="conversational">Conversational</option>
+                  <option value="provocative">Provocative / debate-starting</option>
+                  <option value="devotional">Devotional / reflective</option>
+                </select>
+              </label>
+              <div class="copy-generate-wrap">
+                <button type="button" class="btn btn-pill btn-primary" data-copy-generate>Generate copy</button>
               </div>
+            </div>
+
+            <p class="copy-status" data-copy-status hidden></p>
+
+            {{!-- Results --}}
+            <div class="copy-output" data-copy-output hidden>
+              <div class="copy-output-divider"></div>
               <div data-copy-results></div>
             </div>
 

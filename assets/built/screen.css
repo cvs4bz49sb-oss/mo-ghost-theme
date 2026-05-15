@@ -15989,12 +15989,149 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
    ============================================================= */
 
 .copy-creator { }
-.copy-form {
-  max-width: 640px;
+
+.copy-section {
+  margin-bottom: 28px;
 }
+.copy-section-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.copy-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.copy-field-tone {
+  flex: 1;
+  min-width: 200px;
+}
+.copy-field-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.copy-input,
+.copy-select {
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--color-dark);
+  width: 100%;
+}
+.copy-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+.copy-input:focus,
+.copy-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.12);
+}
+.copy-textarea {
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--color-dark);
+  resize: vertical;
+  width: 100%;
+  min-height: 80px;
+}
+.copy-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.12);
+}
+
+.copy-divider-or {
+  text-align: center;
+  position: relative;
+  margin: 16px 0;
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.copy-divider-or::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-rule);
+}
+.copy-divider-or span {
+  position: relative;
+  background: var(--color-bg, #f6f3f2);
+  padding: 0 12px;
+}
+
+.copy-platform-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.copy-pill {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--color-rule);
+  background: #fff;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.copy-pill:hover {
+  border-color: var(--color-dark);
+  color: var(--color-dark);
+}
+.copy-pill.is-active {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: #fff;
+}
+
+.copy-generate-wrap {
+  flex-shrink: 0;
+  padding-bottom: 2px;
+}
+
+.copy-status {
+  font-family: var(--font-body);
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
 .copy-output {
-  margin-top: 32px;
+  margin-top: 8px;
 }
+.copy-output-divider {
+  height: 1px;
+  background: var(--color-rule);
+  margin-bottom: 28px;
+}
+
 .copy-result-card {
   border: 1px solid var(--color-rule);
   border-radius: var(--radius);
@@ -16022,6 +16159,19 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
 .copy-result-actions {
   display: flex;
   gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .copy-section-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .copy-generate-wrap {
+    width: 100%;
+  }
+  .copy-generate-wrap .btn {
+    width: 100%;
+  }
 }
 
 

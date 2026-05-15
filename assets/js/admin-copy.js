@@ -16,12 +16,19 @@
   var $output = root.querySelector("[data-copy-output]");
   var $results = root.querySelector("[data-copy-results]");
 
+  // Platform pill toggles
+  root.querySelectorAll("[data-copy-platform]").forEach(function (pill) {
+    pill.addEventListener("click", function () {
+      pill.classList.toggle("is-active");
+    });
+  });
+
   $generateBtn.addEventListener("click", generate);
 
   function getSelectedPlatforms() {
-    var checks = root.querySelectorAll("[data-copy-platform]");
+    var pills = root.querySelectorAll("[data-copy-platform].is-active");
     var out = [];
-    checks.forEach(function (c) { if (c.checked) out.push(c.dataset.copyPlatform); });
+    pills.forEach(function (p) { out.push(p.dataset.copyPlatform); });
     return out;
   }
 
@@ -93,7 +100,7 @@
     $results.textContent = "";
     if (!results || !results.length) {
       var empty = document.createElement("p");
-      empty.className = "admin-sub";
+      empty.className = "copy-status";
       empty.textContent = "No results returned.";
       $results.appendChild(empty);
       return;
@@ -136,6 +143,4 @@
     $status.hidden = !text;
     $status.style.color = isError ? "#c1593c" : "var(--color-muted)";
   }
-
-
 })();
