@@ -667,7 +667,7 @@
           marginBottom: 12
         } }, "Drag rows to reorder sections in the email. Toggle the checkbox to show or hide a section without losing its content."), (() => {
           const FIXED_SECTION_LABELS = {
-            letter: "Letter from the editor",
+            letter: "Body block",
             membership: "Membership CTA / thanks",
             sponsorTop: "Top sponsor block",
             essays: "Essays grid",
@@ -780,7 +780,7 @@
               )
             );
           }));
-        })()), /* @__PURE__ */ React.createElement(Group, { title: "Letter from the editor" }, /* @__PURE__ */ React.createElement(Field, { label: "Title", value: content.editorTitle, onChange: (v) => updateField("editorTitle", v) }), /* @__PURE__ */ React.createElement(
+        })()), /* @__PURE__ */ React.createElement(Group, { title: "Body block" }, /* @__PURE__ */ React.createElement(Field, { label: "Title", value: content.editorTitle, onChange: (v) => updateField("editorTitle", v) }), /* @__PURE__ */ React.createElement(
           Field,
           {
             label: "Body \u2014 Markdown supported: **bold**, *italic*, __underline__, [link](url). Blank line = new paragraph.",

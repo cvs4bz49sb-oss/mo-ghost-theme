@@ -841,7 +841,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
             </div>
             {(() => {
               const FIXED_SECTION_LABELS = {
-                letter: 'Letter from the editor',
+                letter: 'Body block',
                 membership: 'Membership CTA / thanks',
                 sponsorTop: 'Top sponsor block',
                 essays: 'Essays grid',
@@ -974,7 +974,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
             })()}
           </Group>
 
-          <Group title="Letter from the editor">
+          <Group title="Body block">
             <Field label="Title" value={content.editorTitle} onChange={(v) => updateField('editorTitle', v)} />
             <Field
               label="Body — Markdown supported: **bold**, *italic*, __underline__, [link](url). Blank line = new paragraph."
