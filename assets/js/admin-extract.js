@@ -120,6 +120,10 @@
         ? authorTags.join(", ")
         : (post.primary_author && post.primary_author.name) || "";
 
+      var authorBio = "";
+      var authorTagObj = allTags.find(function (t) { return t.slug && t.slug.indexOf("author-") === 0 && t.description; });
+      if (authorTagObj) authorBio = authorTagObj.description;
+
       var publicTags = allTags
         .filter(function (t) {
           return t.name && t.name.charAt(0) !== "#" && !(t.slug && t.slug.indexOf("author-") === 0);
@@ -136,7 +140,7 @@
         reading_time: post.reading_time || 0,
         plaintext: post.plaintext || "",
         html: post.html || "",
-        bio: (post.primary_author && post.primary_author.bio) || ""
+        bio: authorBio
       };
 
       renderArticle(articleData);
