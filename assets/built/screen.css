@@ -15295,17 +15295,17 @@ body:has(.admin-workspace) .site-footer {
 body[class*="page-template-custom-admin"],
 body.page-template-custom-digest-gen,
 body:has(.admin-workspace) {
-  padding-top: 0 !important;
-  background: var(--color-page) !important;
-}
-body:has(.admin-workspace) .site-content {
-  min-height: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
+  background: var(--color-page) !important;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
-body:has(.admin-workspace) .site-footer-spacer,
-body:has(.admin-workspace) .post-feed-spacer {
+body:has(.admin-workspace) > *:not(.admin-workspace) {
   display: none !important;
+}
+.admin-workspace {
+  min-height: 100vh;
 }
 
 /* Digest toolbar: allow wrapping inside the workspace. */
