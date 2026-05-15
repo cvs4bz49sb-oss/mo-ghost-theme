@@ -40,6 +40,41 @@
     });
   });
 
+  var $copyImageBtn = root.querySelector("[data-extract-copy-image]");
+  if ($copyImageBtn) {
+    $copyImageBtn.addEventListener("click", async function () {
+      var url = articleData.feature_image;
+      if (!url) return;
+      $copyImageBtn.textContent = "Copying…";
+      try {
+        var resp = await fetch(url);
+        var blob = await resp.blob();
+        var pngBlob = blob;
+        if (blob.type !== "image/png") {
+          var img = new Image();
+          img.crossOrigin = "anonymous";
+          await new Promise(function (resolve, reject) {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = URL.createObjectURL(blob);
+          });
+          var canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext("2d").drawImage(img, 0, 0);
+          pngBlob = await new Promise(function (resolve) { canvas.toBlob(resolve, "image/png"); });
+          URL.revokeObjectURL(img.src);
+        }
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]);
+        $copyImageBtn.textContent = "Copied";
+      } catch (e) {
+        console.error("Copy image failed:", e);
+        $copyImageBtn.textContent = "Failed";
+      }
+      setTimeout(function () { $copyImageBtn.textContent = "Copy Image"; }, 1400);
+    });
+  }
+
   async function extract() {
     var url = $url.value.trim();
     if (!url) return;
@@ -55,7 +90,6 @@
     try {
       var apiUrl = siteUrl + "/ghost/api/content/posts/slug/" + slug +
         "/?key=" + contentApiKey +
-        "&fields=title,custom_excerpt,feature_image,published_at,reading_time,plaintext" +
         "&include=authors,tags&formats=plaintext";
       var resp = await fetch(apiUrl);
       var data = await resp.json();
