@@ -30,12 +30,15 @@
       var key = btn.dataset.extractCopy;
       var text = "";
       if (key === "title") text = articleData.title || "";
+      else if (key === "author") text = articleData.author || "";
       else if (key === "excerpt") text = articleData.excerpt || "";
+      else if (key === "tags") text = articleData.tags || "";
       else if (key === "image") text = articleData.feature_image || "";
       else if (key === "plaintext") text = articleData.plaintext || "";
       if (text) navigator.clipboard.writeText(text).then(function () {
         btn.textContent = "Copied";
-        setTimeout(function () { btn.textContent = key === "image" ? "Copy URL" : "Copy"; }, 1400);
+        var resetLabel = key === "image" ? "Copy URL" : key === "plaintext" ? "Copy all" : "Copy";
+        setTimeout(function () { btn.textContent = resetLabel; }, 1400);
       });
     });
   });
@@ -96,11 +99,27 @@
       var post = data.posts && data.posts[0];
       if (!post) throw new Error("Article not found");
 
+      var authorTags = (post.tags || [])
+        .filter(function (t) { return t.name && t.name.indexOf("#author") === 0; })
+        .map(function (t) {
+          return t.name.replace(/^#author[-\s]*/i, "")
+            .split(/[-\s]+/)
+            .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+            .join(" ");
+        });
+      var authorName = authorTags.length
+        ? authorTags.join(", ")
+        : (post.primary_author && post.primary_author.name) || "";
+
+      var publicTags = (post.tags || [])
+        .filter(function (t) { return !t.name || t.name.charAt(0) !== "#"; })
+        .map(function (t) { return t.name; });
+
       articleData = {
         title: post.title || "",
-        author: (post.primary_author && post.primary_author.name) || (post.authors && post.authors[0] && post.authors[0].name) || "",
+        author: authorName,
         excerpt: post.custom_excerpt || "",
-        tags: (post.tags || []).map(function (t) { return t.name; }).join(", "),
+        tags: publicTags.join(", "),
         feature_image: post.feature_image || "",
         published_at: post.published_at || "",
         reading_time: post.reading_time || 0,
