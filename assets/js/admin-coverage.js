@@ -108,7 +108,7 @@
 
     // Radar block.
     $date.textContent = formatRadarDate(report.date);
-    $sub.textContent = `Captured at ${formatTime(report.scannedAt)} · refreshed weekdays at 6 AM Eastern`;
+    $sub.textContent = `Captured at ${formatTime(report.scannedAt)}`;
 
     // Stat tiles.
     $stats.forEach((el) => {
