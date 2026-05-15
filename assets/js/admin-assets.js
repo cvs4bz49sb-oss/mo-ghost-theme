@@ -175,14 +175,23 @@
     if (!slug) return;
     $pullBtn.disabled = true;
     $pullBtn.textContent = "Pulling...";
-    var apiUrl = siteUrl + "/ghost/api/content/posts/slug/" + slug + "/?key=" + contentApiKey + "&fields=title,custom_excerpt,feature_image,primary_author&include=authors";
+    var apiUrl = siteUrl + "/ghost/api/content/posts/slug/" + slug +
+      "/?key=" + contentApiKey + "&include=authors,tags&formats=plaintext";
     fetch(apiUrl)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var post = data.posts && data.posts[0];
         if (!post) return;
         p().title = post.title || "";
-        p().subtitle = (post.primary_author && post.primary_author.name) || "";
+
+        var allTags = post.tags || [];
+        var authorTags = allTags
+          .filter(function (t) { return t.slug && t.slug.indexOf("author-") === 0; })
+          .map(function (t) { return t.name; });
+        p().subtitle = authorTags.length
+          ? authorTags.join(", ")
+          : (post.primary_author && post.primary_author.name) || "";
+
         $titleField.value = p().title;
         $subtitleField.value = p().subtitle;
         if (post.custom_excerpt) {
@@ -291,20 +300,20 @@
 
     ctx.clearRect(0, 0, w, h);
 
-    // Background color.
+    // Background color (full canvas).
     ctx.fillStyle = panel.bg;
     ctx.fillRect(0, 0, w, h);
 
-    // Background image with overlay.
-    if (panel.bgImage) {
-      drawCoverImage(panel.bgImage, w, h);
+    // Full-bleed image for templates that overlay text on image.
+    var fullBleed = (panel.template === "image-card" || panel.template === "blank");
+    if (panel.bgImage && fullBleed) {
+      drawCoverImage(panel.bgImage, 0, 0, w, h);
       ctx.fillStyle = panel.bg;
       ctx.globalAlpha = panel.overlayOpacity / 100;
       ctx.fillRect(0, 0, w, h);
       ctx.globalAlpha = 1;
     }
 
-    // Dispatch to template renderer.
     switch (panel.template) {
       case "title-card": renderTitleCard(panel, w, h, pad); break;
       case "quote-card": renderQuoteCard(panel, w, h, pad); break;
@@ -314,112 +323,303 @@
       default:           break;
     }
 
-    // Watermark.
-    if (panel.watermark) {
-      ctx.font = "600 14px 'Source Serif Pro', Georgia, serif";
-      ctx.fillStyle = panel.fg;
-      ctx.globalAlpha = 0.35;
-      ctx.textAlign = "center";
-      ctx.fillText("MERE ORTHODOXY", w / 2, h - 40);
-      ctx.globalAlpha = 1;
-    }
+    if (mode === "story") drawSafetyZones(w, h);
   }
 
-  function drawCoverImage(img, w, h) {
+  /* -- Helpers --------------------------------------------------------- */
+
+  function drawCoverImage(img, rx, ry, rw, rh) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(rx, ry, rw, rh);
+    ctx.clip();
     var iw = img.naturalWidth;
     var ih = img.naturalHeight;
-    var scale = Math.max(w / iw, h / ih);
+    var scale = Math.max(rw / iw, rh / ih);
     var sw = iw * scale;
     var sh = ih * scale;
-    ctx.drawImage(img, (w - sw) / 2, (h - sh) / 2, sw, sh);
+    ctx.drawImage(img, rx + (rw - sw) / 2, ry + (rh - sh) / 2, sw, sh);
+    ctx.restore();
   }
 
-  // ---- Template renderers ----
+  function hexToRgba(hex, a) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+  }
+
+  function drawTrackedText(text, x, y, tracking, align) {
+    align = align || "center";
+    var oldAlign = ctx.textAlign;
+    ctx.textAlign = "left";
+    var chars = text.split("");
+    var totalW = 0;
+    for (var i = 0; i < chars.length; i++) {
+      totalW += ctx.measureText(chars[i]).width;
+      if (i < chars.length - 1) totalW += tracking;
+    }
+    var sx;
+    if (align === "center") sx = x - totalW / 2;
+    else if (align === "right") sx = x - totalW;
+    else sx = x;
+    for (var j = 0; j < chars.length; j++) {
+      ctx.fillText(chars[j], sx, y);
+      sx += ctx.measureText(chars[j]).width + tracking;
+    }
+    ctx.textAlign = oldAlign;
+  }
+
+  function drawSafetyZones(w, h) {
+    ctx.save();
+    ctx.strokeStyle = "#ff3b30";
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([12, 8]);
+    ctx.beginPath();
+    ctx.moveTo(0, 200); ctx.lineTo(w, 200);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, h - 200); ctx.lineTo(w, h - 200);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function drawMark(panel, w, h, pad, position) {
+    if (!panel.watermark) return;
+    ctx.save();
+    ctx.font = "600 13px 'Source Serif Pro', Georgia, serif";
+    ctx.fillStyle = panel.fg;
+    ctx.globalAlpha = 0.32;
+    if (position === "top-right") {
+      drawTrackedText("MERE ORTHODOXY", w - pad, pad + 16, 3.5, "right");
+    } else if (position === "bottom-center") {
+      drawTrackedText("MERE ORTHODOXY", w / 2, h - 44, 3.5, "center");
+    } else {
+      drawTrackedText("MERE ORTHODOXY", w / 2, pad + 16, 3.5, "center");
+    }
+    ctx.restore();
+  }
+
+  /* -- Template renderers ----------------------------------------------- */
 
   function renderTitleCard(panel, w, h, pad) {
     var fg = panel.fg;
     var fs = panel.fontSize;
-    var centerY = h * 0.42;
 
-    // Decorative line above title.
-    ctx.strokeStyle = fg;
-    ctx.globalAlpha = 0.3;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(pad, centerY - fs - 20);
-    ctx.lineTo(w - pad, centerY - fs - 20);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+    if (panel.bgImage) {
+      // Split layout: hero image top, text band bottom.
+      var splitRatio = mode === "story" ? 0.48 : 0.52;
+      var imgH = Math.round(h * splitRatio);
+      var gradH = 100;
 
-    // Title.
-    ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
-    ctx.fillStyle = fg;
-    ctx.textAlign = "center";
-    wrapText(panel.title || "Article Title", w / 2, centerY, w - pad * 2, fs * 1.15);
+      drawCoverImage(panel.bgImage, 0, 0, w, imgH + gradH);
 
-    // Subtitle / author.
-    if (panel.subtitle) {
-      ctx.font = "400 22px 'Source Serif Pro', Georgia, serif";
-      ctx.globalAlpha = 0.7;
-      var titleLines = getWrappedLines(panel.title || "Article Title", w - pad * 2, fs + "px 'IM Fell Great Primer', Georgia, serif");
-      var subY = centerY + titleLines.length * (fs * 1.15) + 30;
-      ctx.fillText(panel.subtitle, w / 2, subY);
+      // Solid text band.
+      ctx.fillStyle = panel.bg;
+      ctx.fillRect(0, imgH, w, h - imgH);
+
+      // Gradient blend from image into band.
+      var grad = ctx.createLinearGradient(0, imgH - 20, 0, imgH + gradH);
+      grad.addColorStop(0, hexToRgba(panel.bg, 0));
+      grad.addColorStop(1, hexToRgba(panel.bg, 1));
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, imgH - 20, w, gradH + 20);
+
+      // Wordmark in band.
+      if (panel.watermark) {
+        ctx.save();
+        ctx.font = "600 13px 'Source Serif Pro', Georgia, serif";
+        ctx.fillStyle = fg;
+        ctx.globalAlpha = 0.32;
+        drawTrackedText("MERE ORTHODOXY", w / 2, imgH + 52, 3.5, "center");
+        ctx.restore();
+      }
+
+      // Title.
+      ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+      ctx.fillStyle = fg;
+      ctx.textAlign = "center";
+      var titleY = imgH + 105;
+      var lines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
+      var lineH = fs * 1.15;
+      for (var i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], w / 2, titleY + i * lineH);
+      }
+      var titleBottom = titleY + (lines.length - 1) * lineH;
+
+      // Hairline.
+      var hairY = titleBottom + 40;
+      ctx.strokeStyle = fg;
+      ctx.globalAlpha = 0.18;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(w * 0.28, hairY);
+      ctx.lineTo(w * 0.72, hairY);
+      ctx.stroke();
       ctx.globalAlpha = 1;
-    }
 
-    // Decorative line below.
-    ctx.strokeStyle = fg;
-    ctx.globalAlpha = 0.3;
-    ctx.beginPath();
-    ctx.moveTo(w * 0.35, h * 0.78);
-    ctx.lineTo(w * 0.65, h * 0.78);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+      // Author.
+      if (panel.subtitle) {
+        ctx.font = "400 22px 'Source Serif Pro', Georgia, serif";
+        ctx.fillStyle = fg;
+        ctx.globalAlpha = 0.6;
+        ctx.textAlign = "center";
+        ctx.fillText(panel.subtitle, w / 2, hairY + 38);
+        ctx.globalAlpha = 1;
+      }
+    } else {
+      // No image: elegant centered text.
+      drawMark(panel, w, h, pad, "top-center");
+
+      // Top hairline.
+      ctx.strokeStyle = fg;
+      ctx.globalAlpha = 0.12;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, h * 0.16);
+      ctx.lineTo(w - pad, h * 0.16);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // Title (vertically centered).
+      ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+      ctx.fillStyle = fg;
+      ctx.textAlign = "center";
+      var noImgLines = getWrappedLines(panel.title || "Article Title", w - pad * 2);
+      var noImgLineH = fs * 1.15;
+      var totalH = noImgLines.length * noImgLineH;
+      var originY = (h - totalH) / 2 + noImgLineH * 0.3;
+      for (var j = 0; j < noImgLines.length; j++) {
+        ctx.fillText(noImgLines[j], w / 2, originY + j * noImgLineH);
+      }
+      var noImgBottom = originY + (noImgLines.length - 1) * noImgLineH;
+
+      // Bottom hairline.
+      ctx.strokeStyle = fg;
+      ctx.globalAlpha = 0.12;
+      ctx.beginPath();
+      ctx.moveTo(w * 0.22, noImgBottom + 50);
+      ctx.lineTo(w * 0.78, noImgBottom + 50);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // Author.
+      if (panel.subtitle) {
+        ctx.font = "400 22px 'Source Serif Pro', Georgia, serif";
+        ctx.fillStyle = fg;
+        ctx.globalAlpha = 0.55;
+        ctx.textAlign = "center";
+        ctx.fillText(panel.subtitle, w / 2, noImgBottom + 90);
+        ctx.globalAlpha = 1;
+      }
+    }
   }
 
   function renderQuoteCard(panel, w, h, pad) {
     var fg = panel.fg;
     var fs = panel.fontSize;
 
+    drawMark(panel, w, h, pad, "top-right");
+
     // Large opening quotation mark.
-    ctx.font = "italic 200px 'IM Fell Great Primer', Georgia, serif";
+    ctx.font = "italic 240px 'IM Fell Great Primer', Georgia, serif";
     ctx.fillStyle = fg;
-    ctx.globalAlpha = 0.15;
+    ctx.globalAlpha = 0.08;
     ctx.textAlign = "left";
-    ctx.fillText("“", pad - 20, 240);
+    ctx.fillText("“", pad - 30, pad + 220);
     ctx.globalAlpha = 1;
 
-    // Quote body.
+    // Quote text.
     ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
     ctx.fillStyle = fg;
     ctx.textAlign = "left";
-    wrapText(panel.body || "Enter a quote...", pad, h * 0.3, w - pad * 2, fs * 1.35, "left");
+    var qLines = getWrappedLines(panel.body || "Enter a quote…", w - pad * 2);
+    var qLineH = fs * 1.4;
+    var qStartY = Math.max(pad + 250, h * 0.30);
+    for (var i = 0; i < qLines.length; i++) {
+      ctx.fillText(qLines[i], pad, qStartY + i * qLineH);
+    }
+
+    // Hairline near bottom.
+    var hairY = h - pad - 100;
+    ctx.strokeStyle = fg;
+    ctx.globalAlpha = 0.12;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad, hairY);
+    ctx.lineTo(w * 0.45, hairY);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
 
     // Attribution.
     if (panel.subtitle) {
-      ctx.font = "600 20px 'Source Serif Pro', Georgia, serif";
-      ctx.globalAlpha = 0.65;
+      ctx.font = "600 21px 'Source Serif Pro', Georgia, serif";
+      ctx.fillStyle = fg;
+      ctx.globalAlpha = 0.6;
       ctx.textAlign = "left";
-      ctx.fillText("— " + panel.subtitle, pad, h * 0.85);
+      ctx.fillText("— " + panel.subtitle, pad, hairY + 38);
+      ctx.globalAlpha = 1;
+    }
+
+    // Source.
+    if (panel.title && panel.subtitle) {
+      ctx.font = "italic 17px 'Source Serif Pro', Georgia, serif";
+      ctx.fillStyle = fg;
+      ctx.globalAlpha = 0.4;
+      ctx.textAlign = "left";
+      ctx.fillText(panel.title, pad + 24, hairY + 68);
       ctx.globalAlpha = 1;
     }
   }
 
   function renderImageCard(panel, w, h, pad) {
-    var fg = panel.fg;
     var fs = Math.min(panel.fontSize, 56);
 
-    // Title at bottom third.
-    ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
-    ctx.fillStyle = fg;
-    ctx.textAlign = "left";
-    wrapText(panel.title || "Title", pad, h * 0.68, w - pad * 2, fs * 1.2, "left");
+    // Full-bleed image already drawn by render(). Add gradient at bottom.
+    if (panel.bgImage) {
+      var gradStart = h * 0.45;
+      var grad = ctx.createLinearGradient(0, gradStart, 0, h);
+      grad.addColorStop(0, "rgba(0,0,0,0)");
+      grad.addColorStop(0.5, "rgba(0,0,0,0.35)");
+      grad.addColorStop(1, "rgba(0,0,0,0.8)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, gradStart, w, h - gradStart);
+    }
 
-    // Subtitle.
+    var textColor = panel.bgImage ? "#ffffff" : panel.fg;
+
+    // Wordmark top-right.
+    if (panel.watermark) {
+      ctx.save();
+      ctx.font = "600 13px 'Source Serif Pro', Georgia, serif";
+      ctx.fillStyle = textColor;
+      ctx.globalAlpha = 0.35;
+      drawTrackedText("MERE ORTHODOXY", w - pad, pad + 16, 3.5, "right");
+      ctx.restore();
+    }
+
+    // Title at bottom.
+    ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+    ctx.fillStyle = textColor;
+    ctx.textAlign = "left";
+    var imgLines = getWrappedLines(panel.title || "Title", w - pad * 2);
+    var imgLineH = fs * 1.15;
+    var titleY = h - pad - 35;
+    if (panel.subtitle) titleY -= 40;
+    titleY -= (imgLines.length - 1) * imgLineH;
+    for (var i = 0; i < imgLines.length; i++) {
+      ctx.fillText(imgLines[i], pad, titleY + i * imgLineH);
+    }
+
+    // Author.
     if (panel.subtitle) {
-      ctx.font = "400 20px 'Source Serif Pro', Georgia, serif";
+      ctx.font = "400 21px 'Source Serif Pro', Georgia, serif";
+      ctx.fillStyle = textColor;
       ctx.globalAlpha = 0.7;
-      ctx.fillText(panel.subtitle, pad, h * 0.90);
+      ctx.textAlign = "left";
+      ctx.fillText(panel.subtitle, pad, h - pad - 12);
       ctx.globalAlpha = 1;
     }
   }
@@ -428,45 +628,97 @@
     var fg = panel.fg;
     var fs = Math.max(panel.fontSize * 0.55, 20);
 
+    drawMark(panel, w, h, pad, "top-center");
+
+    // Top hairline.
+    ctx.strokeStyle = fg;
+    ctx.globalAlpha = 0.1;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad, pad + 44);
+    ctx.lineTo(w - pad, pad + 44);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Body text.
     ctx.font = "400 " + fs + "px 'Source Serif Pro', Georgia, serif";
     ctx.fillStyle = fg;
     ctx.textAlign = "left";
-    wrapText(panel.body || "Enter body text...", pad, pad + fs, w - pad * 2, fs * 1.6, "left");
+    wrapText(panel.body || "Enter body text…", pad, pad + 44 + fs * 1.6, w - pad * 2, fs * 1.65, "left");
+
+    // Bottom hairline.
+    ctx.strokeStyle = fg;
+    ctx.globalAlpha = 0.1;
+    ctx.beginPath();
+    ctx.moveTo(pad, h - pad - 10);
+    ctx.lineTo(w - pad, h - pad - 10);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   }
 
   function renderCtaCard(panel, w, h, pad) {
     var fg = panel.fg;
     var bg = panel.bg;
 
-    // "Read more at" label.
-    ctx.font = "600 16px 'Source Serif Pro', Georgia, serif";
+    // Pilcrow ornament.
+    ctx.font = "italic 120px 'IM Fell Great Primer', Georgia, serif";
     ctx.fillStyle = fg;
-    ctx.globalAlpha = 0.5;
+    ctx.globalAlpha = 0.06;
     ctx.textAlign = "center";
-    ctx.fillText("READ MORE AT", w / 2, h * 0.38);
+    ctx.fillText("¶", w / 2, h * 0.30);
+    ctx.globalAlpha = 1;
+
+    // "Read more at" label.
+    ctx.font = "600 15px 'Source Serif Pro', Georgia, serif";
+    ctx.fillStyle = fg;
+    ctx.globalAlpha = 0.4;
+    ctx.textAlign = "center";
+    drawTrackedText("READ MORE AT", w / 2, h * 0.40, 3, "center");
     ctx.globalAlpha = 1;
 
     // Site name.
-    ctx.font = "italic 52px 'IM Fell Great Primer', Georgia, serif";
+    ctx.font = "italic 54px 'IM Fell Great Primer', Georgia, serif";
     ctx.fillStyle = fg;
-    ctx.fillText("Mere Orthodoxy", w / 2, h * 0.48);
+    ctx.textAlign = "center";
+    ctx.fillText("Mere Orthodoxy", w / 2, h * 0.50);
 
-    // CTA button shape.
-    var btnW = 340;
-    var btnH = 56;
+    // Hairlines around CTA.
+    ctx.strokeStyle = fg;
+    ctx.globalAlpha = 0.12;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.2, h * 0.55);
+    ctx.lineTo(w * 0.8, h * 0.55);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // CTA pill button.
+    var btnW = 360;
+    var btnH = 58;
     var btnX = (w - btnW) / 2;
-    var btnY = h * 0.58;
+    var btnY = h * 0.60;
     ctx.fillStyle = fg;
     ctx.beginPath();
-    roundRect(ctx, btnX, btnY, btnW, btnH, 28);
+    roundRect(ctx, btnX, btnY, btnW, btnH, 29);
     ctx.fill();
 
     ctx.font = "600 18px 'Source Serif Pro', Georgia, serif";
     ctx.fillStyle = bg;
-    ctx.fillText(panel.title || "mereorthodoxy.com", w / 2, btnY + 36);
+    ctx.textAlign = "center";
+    ctx.fillText(panel.title || "mereorthodoxy.com", w / 2, btnY + 37);
+
+    // Bottom hairline.
+    ctx.strokeStyle = fg;
+    ctx.globalAlpha = 0.12;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.2, h * 0.69);
+    ctx.lineTo(w * 0.8, h * 0.69);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   }
 
-  // ---- Text wrapping ----
+  /* -- Text helpers ----------------------------------------------------- */
+
   function wrapText(text, x, y, maxWidth, lineHeight, align) {
     align = align || "center";
     ctx.textAlign = align;
@@ -475,6 +727,7 @@
       var lx = align === "left" ? x : align === "right" ? x + maxWidth : x;
       ctx.fillText(lines[i], lx, y + i * lineHeight);
     }
+    return lines.length;
   }
 
   function getWrappedLines(text, maxWidth) {

@@ -50,6 +50,27 @@
            state.bg === "#ee7d51" ? "#ffffff" : "#1d1b18";
   }
 
+  function drawTracked(text, x, y, tracking, align) {
+    align = align || “center”;
+    var old = ctx.textAlign;
+    ctx.textAlign = “left”;
+    var chars = text.split(“”);
+    var tw = 0;
+    for (var i = 0; i < chars.length; i++) {
+      tw += ctx.measureText(chars[i]).width;
+      if (i < chars.length - 1) tw += tracking;
+    }
+    var sx;
+    if (align === “center”) sx = x - tw / 2;
+    else if (align === “right”) sx = x - tw;
+    else sx = x;
+    for (var j = 0; j < chars.length; j++) {
+      ctx.fillText(chars[j], sx, y);
+      sx += ctx.measureText(chars[j]).width + tracking;
+    }
+    ctx.textAlign = old;
+  }
+
   function render() {
     var pad = 90;
     var color = fg();
@@ -58,61 +79,63 @@
     ctx.fillStyle = state.bg;
     ctx.fillRect(0, 0, W, H);
 
-    // Opening quote mark.
-    ctx.font = "italic 220px 'IM Fell Great Primer', Georgia, serif";
+    // Wordmark top-right.
+    if (state.watermark) {
+      ctx.save();
+      ctx.font = “600 13px 'Source Serif Pro', Georgia, serif”;
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.28;
+      drawTracked(“MERE ORTHODOXY”, W - pad, pad + 12, 3.5, “right”);
+      ctx.restore();
+    }
+
+    // Large opening quotation mark.
+    ctx.font = “italic 260px 'IM Fell Great Primer', Georgia, serif”;
     ctx.fillStyle = color;
-    ctx.globalAlpha = 0.12;
-    ctx.textAlign = "left";
-    ctx.fillText("“", pad - 30, 230);
+    ctx.globalAlpha = 0.07;
+    ctx.textAlign = “left”;
+    ctx.fillText(““”, pad - 35, pad + 240);
     ctx.globalAlpha = 1;
 
     // Quote text.
     var fs = state.fontSize;
-    ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+    ctx.font = “italic “ + fs + “px 'IM Fell Great Primer', Georgia, serif”;
     ctx.fillStyle = color;
-    ctx.textAlign = "left";
-    var lines = wrapLines(state.text || "Enter a quote...", W - pad * 2, ctx);
+    ctx.textAlign = “left”;
+    var lines = wrapLines(state.text || “Enter a quote…”, W - pad * 2, ctx);
     var lineH = fs * 1.4;
-    var startY = Math.max(pad + fs + 180, (H - lines.length * lineH) / 2);
+    var startY = Math.max(pad + fs + 220, (H - lines.length * lineH) / 2);
     for (var i = 0; i < lines.length; i++) {
       ctx.fillText(lines[i], pad, startY + i * lineH);
     }
 
-    // Attribution.
-    var attrY = H - pad - 20;
-    if (state.source) {
-      ctx.font = "italic 18px 'Source Serif Pro', Georgia, serif";
-      ctx.fillStyle = color;
-      ctx.globalAlpha = 0.5;
-      ctx.fillText(state.source, pad, attrY);
-      ctx.globalAlpha = 1;
-      attrY -= 30;
-    }
-    if (state.author) {
-      ctx.font = "600 22px 'Source Serif Pro', Georgia, serif";
-      ctx.fillStyle = color;
-      ctx.globalAlpha = 0.7;
-      ctx.fillText("— " + state.author, pad, attrY);
-      ctx.globalAlpha = 1;
-    }
-
     // Hairline.
     ctx.strokeStyle = color;
-    ctx.globalAlpha = 0.2;
+    ctx.globalAlpha = 0.1;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(pad, H - pad - 70);
-    ctx.lineTo(W - pad, H - pad - 70);
+    ctx.moveTo(pad, H - pad - 95);
+    ctx.lineTo(W * 0.45, H - pad - 95);
     ctx.stroke();
     ctx.globalAlpha = 1;
 
-    // Watermark.
-    if (state.watermark) {
-      ctx.font = "600 14px 'Source Serif Pro', Georgia, serif";
+    // Attribution.
+    var attrY = H - pad - 20;
+    if (state.source) {
+      ctx.font = “italic 17px 'Source Serif Pro', Georgia, serif”;
       ctx.fillStyle = color;
-      ctx.globalAlpha = 0.3;
-      ctx.textAlign = "right";
-      ctx.fillText("MERE ORTHODOXY", W - pad, 60);
+      ctx.globalAlpha = 0.4;
+      ctx.textAlign = “left”;
+      ctx.fillText(state.source, pad + 24, attrY);
+      ctx.globalAlpha = 1;
+      attrY -= 34;
+    }
+    if (state.author) {
+      ctx.font = “600 21px 'Source Serif Pro', Georgia, serif”;
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.6;
+      ctx.textAlign = “left”;
+      ctx.fillText(“— “ + state.author, pad, attrY);
       ctx.globalAlpha = 1;
     }
   }
