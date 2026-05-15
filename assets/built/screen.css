@@ -16057,6 +16057,45 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
 .cc-color-swatch:hover { border-color: var(--color-dark); }
 .cc-color-swatch.is-active { border-color: var(--color-dark); box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-dark); }
 
+/* Drag and drop */
+.cc-item[draggable="true"],
+.cc-mcell-item[draggable="true"] {
+  cursor: grab;
+}
+.cc-item[draggable="true"]:active,
+.cc-mcell-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+.cc-item.is-dragging,
+.cc-mcell-item.is-dragging {
+  opacity: 0.35;
+}
+.cc-day-row.cc-drag-over {
+  background: rgba(193, 89, 60, 0.04);
+  border-radius: 6px;
+}
+.cc-month-cell.cc-drag-over {
+  background: rgba(193, 89, 60, 0.08) !important;
+}
+.cc-drop-line {
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 1px;
+  margin: 3px 0;
+  pointer-events: none;
+  position: relative;
+}
+.cc-drop-line::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+  border-radius: 50%;
+}
+
 /* View toggle (week / month) */
 .cc-nav-row {
   display: flex;

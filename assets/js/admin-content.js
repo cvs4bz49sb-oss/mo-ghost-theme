@@ -153,7 +153,7 @@
     const proj = data.projects.find((p) => { return p.id === it.project; });
     const col = proj ? proj.color : "#9a8773";
     const statusCol = STATUS_COLORS[it.status] || "#9a8773";
-    return `<div class="cc-item" data-cc-item-id="${it.id}">` +
+    return `<div class="cc-item" data-cc-item-id="${it.id}" draggable="true">` +
       `<span class="cc-item-dot" style="background:${col}"></span>` +
       `<span class="cc-item-title">${esc(it.title)}</span>${ 
       it.type ? `<span class="cc-item-type">${esc(it.type)}</span>` : '' 
@@ -203,7 +203,7 @@
         itemsHtml = dayItems.map(renderItemChip).join("");
       }
 
-      return `<div class="cc-day-row${today ? ' is-today' : ''}">` +
+      return `<div class="cc-day-row${today ? ' is-today' : ''}" data-cc-date="${dateStr}">` +
         `<div class="cc-day-head">` +
           `<span class="cc-day-name">${DAYS[d.getDay()]}, ${FULL_MONTHS[d.getMonth()]} ${d.getDate()}</span>${ 
           today ? '<span class="cc-day-today-badge">Today</span>' : '' 
@@ -270,14 +270,14 @@
         const itemList = dayItems.map((it) => {
           const proj = data.projects.find((p) => { return p.id === it.project; });
           const col = proj ? proj.color : "#9a8773";
-          return `<div class="cc-mcell-item" data-cc-item-id="${it.id}">` +
+          return `<div class="cc-mcell-item" data-cc-item-id="${it.id}" draggable="true">` +
             `<span class="cc-item-dot" style="background:${col}"></span>` +
             `<span class="cc-mcell-item-title">${esc(it.title)}</span>` +
           `</div>`;
         }).join("");
 
         cells.push(
-          `<div class="cc-month-cell${today ? ' is-today' : ''}${!isCurrentMonth ? ' is-other-month' : ''}" data-cc-cell-date="${dateStr}">` +
+          `<div class="cc-month-cell${today ? ' is-today' : ''}${!isCurrentMonth ? ' is-other-month' : ''}" data-cc-date="${dateStr}">` +
             `<div class="cc-mcell-head">` +
               `<span class="cc-mcell-date">${cell.getDate()}</span>${ 
               today ? '<span class="cc-mcell-today">Today</span>' : '' 
@@ -646,6 +646,98 @@
 
   function esc(s) { return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
   function escAttr(s) { return (s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;"); }
+
+  // ── Drag-and-drop ──────────────────────────────────────────────
+  let dragItemId = null;
+
+  function removeDropLine() {
+    root.querySelectorAll(".cc-drop-line").forEach((el) => { el.remove(); });
+  }
+
+  function clearDragState() {
+    root.querySelectorAll(".is-dragging").forEach((el) => { el.classList.remove("is-dragging"); });
+    root.querySelectorAll(".cc-drag-over").forEach((el) => { el.classList.remove("cc-drag-over"); });
+    removeDropLine();
+    dragItemId = null;
+  }
+
+  function showDropLine(container, clientY) {
+    removeDropLine();
+    const items = Array.from(container.querySelectorAll(".cc-item, .cc-mcell-item"));
+    const line = document.createElement("div");
+    line.className = "cc-drop-line";
+
+    let insertBefore = null;
+    for (const item of items) {
+      if (item.classList.contains("is-dragging")) continue;
+      const rect = item.getBoundingClientRect();
+      if (clientY < rect.top + rect.height / 2) {
+        insertBefore = item;
+        break;
+      }
+    }
+
+    if (insertBefore) {
+      container.insertBefore(line, insertBefore);
+    } else {
+      container.appendChild(line);
+    }
+  }
+
+  root.addEventListener("dragstart", (e) => {
+    const itemEl = e.target.closest("[data-cc-item-id][draggable]");
+    if (!itemEl) return;
+    dragItemId = itemEl.dataset.ccItemId;
+    itemEl.classList.add("is-dragging");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", dragItemId);
+  });
+
+  root.addEventListener("dragend", () => {
+    clearDragState();
+  });
+
+  root.addEventListener("dragover", (e) => {
+    if (!dragItemId) return;
+    const dayContainer = e.target.closest("[data-cc-date]");
+    if (!dayContainer) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+
+    root.querySelectorAll(".cc-drag-over").forEach((el) => {
+      if (el !== dayContainer) el.classList.remove("cc-drag-over");
+    });
+    dayContainer.classList.add("cc-drag-over");
+
+    const itemsContainer = dayContainer.querySelector(".cc-day-items, .cc-mcell-items");
+    if (itemsContainer) {
+      showDropLine(itemsContainer, e.clientY);
+    }
+  });
+
+  root.addEventListener("dragleave", (e) => {
+    const dayContainer = e.target.closest("[data-cc-date]");
+    if (dayContainer && !dayContainer.contains(e.relatedTarget)) {
+      dayContainer.classList.remove("cc-drag-over");
+      removeDropLine();
+    }
+  });
+
+  root.addEventListener("drop", (e) => {
+    if (!dragItemId) return;
+    e.preventDefault();
+    const dayContainer = e.target.closest("[data-cc-date]");
+    if (!dayContainer) { clearDragState(); return; }
+
+    const newDate = dayContainer.dataset.ccDate;
+    const item = data.items.find((it) => { return it.id === dragItemId; });
+    if (item && newDate) {
+      item.date = newDate;
+      save(data);
+      renderCalendar();
+    }
+    clearDragState();
+  });
 
   renderSidebar();
   renderCalendar();
