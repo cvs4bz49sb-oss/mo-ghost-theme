@@ -97,13 +97,27 @@
                     <textarea data-asset-field="body" rows="4" placeholder="Quote or body text..."></textarea>
                   </label>
                   <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Font size</span>
-                    <input type="range" data-asset-fontsize min="24" max="96" value="48" />
+                    <span class="asset-settings-field-label">Title size</span>
+                    <input type="range" data-asset-fontsize min="24" max="120" value="48" />
                     <span class="asset-settings-field-value" data-asset-fontsize-val>48</span>
+                  </label>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Wordmark size</span>
+                    <input type="range" data-asset-wordmark-size min="8" max="28" value="13" />
+                    <span class="asset-settings-field-value" data-asset-wordmark-size-val>13</span>
+                  </label>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Author size</span>
+                    <input type="range" data-asset-author-size min="14" max="48" value="22" />
+                    <span class="asset-settings-field-value" data-asset-author-size-val>22</span>
                   </label>
                   <label class="asset-settings-field asset-settings-field--checkbox">
                     <input type="checkbox" data-asset-watermark checked />
                     <span class="asset-settings-field-label">Show MO wordmark</span>
+                  </label>
+                  <label class="asset-settings-field asset-settings-field--checkbox">
+                    <input type="checkbox" data-asset-show-body checked />
+                    <span class="asset-settings-field-label">Show body text</span>
                   </label>
                 </div>
 

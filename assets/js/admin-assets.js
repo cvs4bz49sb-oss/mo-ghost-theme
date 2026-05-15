@@ -31,6 +31,11 @@
   var $fontSlider = root.querySelector("[data-asset-fontsize]");
   var $fontVal = root.querySelector("[data-asset-fontsize-val]");
   var $watermark = root.querySelector("[data-asset-watermark]");
+  var $showBody = root.querySelector("[data-asset-show-body]");
+  var $wordmarkSlider = root.querySelector("[data-asset-wordmark-size]");
+  var $wordmarkVal = root.querySelector("[data-asset-wordmark-size-val]");
+  var $authorSlider = root.querySelector("[data-asset-author-size]");
+  var $authorVal = root.querySelector("[data-asset-author-size-val]");
   var $overlaySlider = root.querySelector("[data-asset-overlay]");
   var $overlayVal = root.querySelector("[data-asset-overlay-val]");
   var $urlInput = root.querySelector("[data-asset-url]");
@@ -55,7 +60,10 @@
       subtitle: "",
       body: "",
       fontSize: 48,
+      wordmarkSize: 13,
+      authorSize: 22,
       watermark: true,
+      showBody: true,
       bgImage: null,
       overlayOpacity: 60
     };
@@ -75,9 +83,14 @@
         $panelsBar.hidden = true;
         panels = [panels[currentPanel] || makePanel()];
         currentPanel = 0;
+        var sp = panels[0];
+        if (sp.fontSize < 64) sp.fontSize = 72;
+        if (sp.wordmarkSize < 16) sp.wordmarkSize = 18;
+        if (sp.authorSize < 28) sp.authorSize = 32;
       } else {
         $panelsBar.hidden = false;
       }
+      syncFields();
       rebuildPanelStrip();
       render();
     });
@@ -135,6 +148,17 @@
     render();
   });
   $watermark.addEventListener("change", function () { p().watermark = $watermark.checked; render(); });
+  $showBody.addEventListener("change", function () { p().showBody = $showBody.checked; render(); });
+  $wordmarkSlider.addEventListener("input", function () {
+    p().wordmarkSize = parseInt($wordmarkSlider.value, 10);
+    $wordmarkVal.textContent = $wordmarkSlider.value;
+    render();
+  });
+  $authorSlider.addEventListener("input", function () {
+    p().authorSize = parseInt($authorSlider.value, 10);
+    $authorVal.textContent = $authorSlider.value;
+    render();
+  });
   $overlaySlider.addEventListener("input", function () {
     p().overlayOpacity = parseInt($overlaySlider.value, 10);
     $overlayVal.textContent = $overlaySlider.value + "%";
@@ -268,7 +292,10 @@
     panel.subtitle = $subtitleField.value;
     panel.body = $bodyField.value;
     panel.fontSize = parseInt($fontSlider.value, 10);
+    panel.wordmarkSize = parseInt($wordmarkSlider.value, 10);
+    panel.authorSize = parseInt($authorSlider.value, 10);
     panel.watermark = $watermark.checked;
+    panel.showBody = $showBody.checked;
     panel.overlayOpacity = parseInt($overlaySlider.value, 10);
   }
 
@@ -279,7 +306,12 @@
     $bodyField.value = panel.body;
     $fontSlider.value = panel.fontSize;
     $fontVal.textContent = panel.fontSize;
+    $wordmarkSlider.value = panel.wordmarkSize;
+    $wordmarkVal.textContent = panel.wordmarkSize;
+    $authorSlider.value = panel.authorSize;
+    $authorVal.textContent = panel.authorSize;
     $watermark.checked = panel.watermark;
+    $showBody.checked = panel.showBody;
     $overlaySlider.value = panel.overlayOpacity;
     $overlayVal.textContent = panel.overlayOpacity + "%";
     $bgCustom.value = panel.bg;
@@ -389,7 +421,7 @@
   function drawMark(panel, w, h, pad, position) {
     if (!panel.watermark) return;
     ctx.save();
-    ctx.font = "600 13px 'Source Serif Pro', Georgia, serif";
+    ctx.font = "600 " + panel.wordmarkSize + "px 'Source Serif Pro', Georgia, serif";
     ctx.fillStyle = panel.fg;
     ctx.globalAlpha = 0.32;
     if (position === "top-right") {
@@ -430,7 +462,7 @@
       // Wordmark in band.
       if (panel.watermark) {
         ctx.save();
-        ctx.font = "600 13px 'Source Serif Pro', Georgia, serif";
+        ctx.font = "600 " + panel.wordmarkSize + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.32;
         drawTrackedText("MERE ORTHODOXY", w / 2, imgH + 52, 3.5, "center");
@@ -462,7 +494,7 @@
 
       // Author.
       if (panel.subtitle) {
-        ctx.font = "400 22px 'Source Serif Pro', Georgia, serif";
+        ctx.font = "400 " + panel.authorSize + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.6;
         ctx.textAlign = "center";
@@ -507,7 +539,7 @@
 
       // Author.
       if (panel.subtitle) {
-        ctx.font = "400 22px 'Source Serif Pro', Georgia, serif";
+        ctx.font = "400 " + panel.authorSize + "px 'Source Serif Pro', Georgia, serif";
         ctx.fillStyle = fg;
         ctx.globalAlpha = 0.55;
         ctx.textAlign = "center";
@@ -532,14 +564,16 @@
     ctx.globalAlpha = 1;
 
     // Quote text.
-    ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
-    ctx.fillStyle = fg;
-    ctx.textAlign = "left";
-    var qLines = getWrappedLines(panel.body || "Enter a quote…", w - pad * 2);
-    var qLineH = fs * 1.4;
-    var qStartY = Math.max(pad + 250, h * 0.30);
-    for (var i = 0; i < qLines.length; i++) {
-      ctx.fillText(qLines[i], pad, qStartY + i * qLineH);
+    if (panel.showBody !== false) {
+      ctx.font = "italic " + fs + "px 'IM Fell Great Primer', Georgia, serif";
+      ctx.fillStyle = fg;
+      ctx.textAlign = "left";
+      var qLines = getWrappedLines(panel.body || "Enter a quote…", w - pad * 2);
+      var qLineH = fs * 1.4;
+      var qStartY = Math.max(pad + 250, h * 0.30);
+      for (var i = 0; i < qLines.length; i++) {
+        ctx.fillText(qLines[i], pad, qStartY + i * qLineH);
+      }
     }
 
     // Hairline near bottom.
@@ -593,7 +627,7 @@
     // Wordmark top-right.
     if (panel.watermark) {
       ctx.save();
-      ctx.font = "600 13px 'Source Serif Pro', Georgia, serif";
+      ctx.font = "600 " + panel.wordmarkSize + "px 'Source Serif Pro', Georgia, serif";
       ctx.fillStyle = textColor;
       ctx.globalAlpha = 0.35;
       drawTrackedText("MERE ORTHODOXY", w - pad, pad + 16, 3.5, "right");
@@ -641,10 +675,12 @@
     ctx.globalAlpha = 1;
 
     // Body text.
-    ctx.font = "400 " + fs + "px 'Source Serif Pro', Georgia, serif";
-    ctx.fillStyle = fg;
-    ctx.textAlign = "left";
-    wrapText(panel.body || "Enter body text…", pad, pad + 44 + fs * 1.6, w - pad * 2, fs * 1.65, "left");
+    if (panel.showBody !== false) {
+      ctx.font = "400 " + fs + "px 'Source Serif Pro', Georgia, serif";
+      ctx.fillStyle = fg;
+      ctx.textAlign = "left";
+      wrapText(panel.body || "Enter body text…", pad, pad + 44 + fs * 1.6, w - pad * 2, fs * 1.65, "left");
+    }
 
     // Bottom hairline.
     ctx.strokeStyle = fg;
