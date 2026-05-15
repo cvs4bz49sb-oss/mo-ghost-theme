@@ -15,7 +15,7 @@
       "/admin/members/institutions/manage": "members",
       "/admin/members/drift": "members",
       "/admin/traffic": "traffic", "/admin/content": "content",
-      "/admin/settings": "settings",
+      "/admin/agenda": "agenda", "/admin/settings": "settings",
       "/admin/coverage": "coverage", "/admin/editorial": "editorial",
       "/digest-gen": "digest", "/admin/social": "social",
       "/admin/assets": "assets", "/admin/quote": "quote",

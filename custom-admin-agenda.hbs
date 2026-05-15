@@ -1,0 +1,46 @@
+{{!< default}}
+{{!-- /admin/agenda/ — Weekly Meeting Agenda. Shows items from the
+     "weekly-meeting" project grouped by person. Staff-only page
+     with shared localStorage + KV sync. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="agenda"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Meeting Agenda</em></h1>
+        <p class="admin-topbar-sub">Weekly team agenda, grouped by person. <span class="cc-sync cc-sync--idle" data-cc-sync>Saved</span></p>
+      </header>
+
+      <section class="admin-body" style="padding:0;">
+        <div class="ag-root" data-ag-root>
+
+          <div class="ag-toolbar">
+            <button type="button" class="btn btn-sm btn-primary" data-ag-add>+ Add Item</button>
+          </div>
+
+          <div class="ag-groups" data-ag-groups></div>
+
+          <div class="ag-completed-wrap" data-ag-completed-wrap>
+            <button type="button" class="ag-completed-toggle" data-ag-toggle-completed>
+              <svg class="ag-completed-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              Completed <span data-ag-completed-count></span>
+            </button>
+            <div class="ag-completed-list" data-ag-completed></div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-agenda.js"}}"></script>

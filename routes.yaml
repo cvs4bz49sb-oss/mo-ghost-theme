@@ -87,6 +87,8 @@ routes:
     template: custom-admin-drift
   /admin/content/:
     template: custom-admin-content
+  /admin/agenda/:
+    template: custom-admin-agenda
   /admin/settings/:
     template: custom-admin-settings
   /admin/slide-ins/:

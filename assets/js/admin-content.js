@@ -265,6 +265,7 @@
         `<div class="cc-view-toggle">` +
           `<button type="button" class="cc-view-btn is-active" data-cc-set-view="week">Week</button>` +
           `<button type="button" class="cc-view-btn" data-cc-set-view="month">Month</button>` +
+          `<button type="button" class="cc-view-btn" data-cc-set-view="list">List</button>` +
         `</div>` +
       `</div>`;
 
@@ -315,6 +316,7 @@
         `<div class="cc-view-toggle">` +
           `<button type="button" class="cc-view-btn" data-cc-set-view="week">Week</button>` +
           `<button type="button" class="cc-view-btn is-active" data-cc-set-view="month">Month</button>` +
+          `<button type="button" class="cc-view-btn" data-cc-set-view="list">List</button>` +
         `</div>` +
       `</div>`;
 
@@ -384,8 +386,151 @@
       weeks.join("")}`;
   }
 
+  function renderListView() {
+    const headEl = root.querySelector("[data-cc-main-head]");
+    headEl.innerHTML =
+      '<h2 class="cc-main-title">All Items by Category</h2>' +
+      '<div class="cc-nav-row">' +
+        '<div class="cc-week-nav"></div>' +
+        '<div class="cc-view-toggle">' +
+          '<button type="button" class="cc-view-btn" data-cc-set-view="week">Week</button>' +
+          '<button type="button" class="cc-view-btn" data-cc-set-view="month">Month</button>' +
+          '<button type="button" class="cc-view-btn is-active" data-cc-set-view="list">List</button>' +
+        '</div>' +
+      '</div>';
+
+    const container = root.querySelector("[data-cc-days]");
+    container.className = "cc-days cc-list-groups";
+
+    const grouped = {};
+    const uncategorized = [];
+    data.categories.forEach((c) => { grouped[c.id] = []; });
+
+    const filtered = data.items.filter(matchesFilters);
+    filtered.forEach((it) => {
+      if (it.type && grouped[it.type]) {
+        grouped[it.type].push(it);
+      } else {
+        uncategorized.push(it);
+      }
+    });
+
+    const STATUS_COLORS = { Idea: "#9a8773", Drafting: "#3498db", "In Review": "#f39c12", Scheduled: "#27ae60", Published: "#2d2927" };
+
+    let html = "";
+    data.categories.forEach((cat) => {
+      const items = grouped[cat.id] || [];
+      html += `<div class="cc-list-group">` +
+        `<div class="cc-list-group-head">` +
+          `<span class="cc-list-group-dot" style="background:${cat.color}"></span>` +
+          `<h3 class="cc-list-group-name">${esc(cat.name)}</h3>` +
+          `<span class="cc-list-group-count">${items.length}</span>` +
+          `<button type="button" class="cc-list-group-edit" data-cc-list-edit-cat="${cat.id}" title="Edit category">` +
+            `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>` +
+          `</button>` +
+        `</div>`;
+
+      if (items.length === 0) {
+        html += '<p class="cc-list-empty">No items</p>';
+      } else {
+        items.sort((a, b) => { return (a.date || "").localeCompare(b.date || ""); });
+        items.forEach((it) => {
+          const statusCol = STATUS_COLORS[it.status] || "#9a8773";
+          html += `<div class="cc-list-item" data-cc-item-id="${it.id}">` +
+            `<span class="cc-list-item-title">${esc(it.title)}</span>${ 
+            it.person ? `<span class="cc-list-item-person">${esc(it.person)}</span>` : '' 
+            }${it.date ? `<span class="cc-list-item-date">${esc(it.date)}</span>` : '' 
+            }${it.status ? `<span class="cc-list-item-status" style="color:${statusCol}">${esc(it.status)}</span>` : '' 
+          }</div>`;
+        });
+      }
+      html += '</div>';
+    });
+
+    if (uncategorized.length > 0) {
+      html += `<div class="cc-list-group">` +
+        `<div class="cc-list-group-head">` +
+          `<span class="cc-list-group-dot" style="background:#9a8773"></span>` +
+          `<h3 class="cc-list-group-name">Uncategorized</h3>` +
+          `<span class="cc-list-group-count">${uncategorized.length}</span>` +
+        `</div>`;
+      uncategorized.forEach((it) => {
+        const statusCol = STATUS_COLORS[it.status] || "#9a8773";
+        html += `<div class="cc-list-item" data-cc-item-id="${it.id}">` +
+          `<span class="cc-list-item-title">${esc(it.title)}</span>${ 
+          it.person ? `<span class="cc-list-item-person">${esc(it.person)}</span>` : '' 
+          }${it.date ? `<span class="cc-list-item-date">${esc(it.date)}</span>` : '' 
+          }${it.status ? `<span class="cc-list-item-status" style="color:${statusCol}">${esc(it.status)}</span>` : '' 
+        }</div>`;
+      });
+      html += '</div>';
+    }
+
+    container.innerHTML = html;
+  }
+
+  function showEditCategoryInline(catId) {
+    const cat = data.categories.find((c) => { return c.id === catId; });
+    if (!cat) return;
+
+    const overlay = document.createElement("div");
+    overlay.className = "cc-modal-overlay";
+    overlay.innerHTML =
+      `<div class="cc-modal" style="max-width:400px">` +
+        `<h3 class="cc-modal-title">Edit Category</h3>` +
+        `<label class="cc-modal-field"><span>Name</span><input type="text" data-cc-edit-cat-name value="${escAttr(cat.name)}"></label>` +
+        `<label class="cc-modal-field"><span>Color</span>` +
+          `<div class="cc-color-picker">${ 
+            SWATCH_COLORS.map((c) => {
+              return `<button type="button" class="cc-color-swatch${c === cat.color ? ' is-active' : ''}" data-cc-color="${c}" style="background:${c}"></button>`;
+            }).join("") 
+          }</div>` +
+        `</label>` +
+        `<div class="cc-modal-actions">` +
+          `<button type="button" class="btn btn-sm cc-btn-danger" data-cc-edit-cat-delete>Delete Category</button>` +
+          `<span style="flex:1"></span>` +
+          `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
+          `<button type="button" class="btn btn-sm btn-primary" data-cc-edit-cat-save>Save</button>` +
+        `</div>` +
+      `</div>`;
+
+    root.appendChild(overlay);
+    const nameInput = overlay.querySelector("[data-cc-edit-cat-name]");
+    nameInput.focus();
+    let editColor = cat.color;
+
+    overlay.querySelectorAll(".cc-color-swatch").forEach((sw) => {
+      sw.onclick = function () {
+        overlay.querySelectorAll(".cc-color-swatch").forEach((s) => { s.classList.remove("is-active"); });
+        sw.classList.add("is-active");
+        editColor = sw.dataset.ccColor;
+      };
+    });
+
+    overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+
+    overlay.querySelector("[data-cc-edit-cat-delete]").onclick = function () {
+      data.categories = data.categories.filter((c) => { return c.id !== catId; });
+      save(data);
+      renderCalendar();
+      overlay.remove();
+    };
+
+    overlay.querySelector("[data-cc-edit-cat-save]").onclick = function () {
+      const newName = nameInput.value.trim();
+      if (newName) cat.name = newName;
+      cat.color = editColor;
+      save(data);
+      renderCalendar();
+      overlay.remove();
+    };
+  }
+
   function renderCalendar() {
-    if (viewMode === "month") {
+    if (viewMode === "list") {
+      renderListView();
+    } else if (viewMode === "month") {
       renderMonthView();
     } else {
       renderWeekView();
@@ -987,6 +1132,18 @@
       return;
     }
 
+    // Edit category from list view
+    btn = e.target.closest("[data-cc-list-edit-cat]");
+    if (btn) { showEditCategoryInline(btn.dataset.ccListEditCat); return; }
+
+    // List view item click — open edit modal (single click, since no drag-drop)
+    btn = e.target.closest(".cc-list-item[data-cc-item-id]");
+    if (btn && viewMode === "list") {
+      const listItem = data.items.find((it) => { return it.id === btn.dataset.ccItemId; });
+      if (listItem) showEditItemModal(listItem);
+      return;
+    }
+
     // Add project
     if (e.target.closest("[data-cc-add-project]")) { showAddProjectModal(); return; }
     if (e.target.closest("[data-cc-categories]")) { showCategoriesModal(); return; }
@@ -997,13 +1154,7 @@
     if (!e.target.closest(".cc-filter")) closeAllDropdowns();
   });
 
-  // Double-click to edit
-  root.addEventListener("dblclick", (e) => {
-    const itemEl = e.target.closest("[data-cc-item-id]");
-    if (!itemEl) return;
-    const item = data.items.find((it) => { return it.id === itemEl.dataset.ccItemId; });
-    if (!item) return;
-
+  function showEditItemModal(item) {
     const overlay = document.createElement("div");
     overlay.className = "cc-modal-overlay";
     overlay.innerHTML =
@@ -1011,8 +1162,8 @@
         `<h3 class="cc-modal-title">Edit Item</h3>` +
         `<label class="cc-modal-field"><span>Title</span><input type="text" data-cc-modal-title value="${escAttr(item.title)}"></label>` +
         `<label class="cc-modal-field"><span>Date</span><input type="date" data-cc-modal-date value="${item.date}"></label>` +
-        `<label class="cc-modal-field"><span>Project</span><select data-cc-modal-project>${ 
-          data.projects.map((p) => { return `<option value="${p.id}"${p.id === item.project ? ' selected' : ''}>${esc(p.name)}</option>`; }).join("") 
+        `<label class="cc-modal-field"><span>Project</span><select data-cc-modal-project>${
+          data.projects.map((p) => { return `<option value="${p.id}"${p.id === item.project ? ' selected' : ''}>${esc(p.name)}</option>`; }).join("")
         }</select></label>` +
         `<label class="cc-modal-field"><span>Category</span><select data-cc-modal-type>` +
           `<option value="">—</option>${
@@ -1022,8 +1173,8 @@
           `<option value="">—</option>${
           data.people.map((p) => { return `<option value="${esc(p)}"${p === item.person ? ' selected' : ''}>${esc(p)}</option>`; }).join("")
         }</select></label>` +
-        `<label class="cc-modal-field"><span>Status</span><select data-cc-modal-status>${ 
-          STATUS_OPTIONS.map((s) => { return `<option value="${s}"${s === item.status ? ' selected' : ''}>${s}</option>`; }).join("") 
+        `<label class="cc-modal-field"><span>Status</span><select data-cc-modal-status>${
+          STATUS_OPTIONS.map((s) => { return `<option value="${s}"${s === item.status ? ' selected' : ''}>${s}</option>`; }).join("")
         }</select></label>` +
         `<div class="cc-modal-actions">` +
           `<button type="button" class="btn btn-sm cc-btn-danger" data-cc-modal-delete>Delete</button>` +
@@ -1053,6 +1204,14 @@
       renderCalendar();
       overlay.remove();
     };
+  }
+
+  // Double-click to edit
+  root.addEventListener("dblclick", (e) => {
+    const itemEl = e.target.closest("[data-cc-item-id]");
+    if (!itemEl) return;
+    const item = data.items.find((it) => { return it.id === itemEl.dataset.ccItemId; });
+    if (item) showEditItemModal(item);
   });
 
   function esc(s) { return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }

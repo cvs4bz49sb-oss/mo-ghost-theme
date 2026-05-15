@@ -16348,6 +16348,245 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   .cc-mcell-item-title { font-size: 9px; }
 }
 
+/* ---- Meeting Agenda (/admin/agenda/) ---- */
+.ag-root {
+  padding: 24px 32px 48px;
+}
+.ag-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+.ag-group {
+  margin-bottom: 32px;
+}
+.ag-group-title {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ag-group-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-mid);
+  background: var(--color-page);
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+.ag-group-items {
+  border-top: 1px solid var(--color-rule);
+}
+.ag-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-rule);
+  font-family: var(--font-body);
+  transition: background 0.1s;
+}
+.ag-item:hover {
+  background: rgba(238, 125, 81, 0.03);
+}
+.ag-item.is-done {
+  opacity: 0.5;
+}
+.ag-item.is-done .ag-item-title {
+  text-decoration: line-through;
+}
+.ag-check {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-rule);
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: transparent;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.ag-check:hover {
+  border-color: var(--color-muted);
+}
+.ag-check.is-checked {
+  border-color: #27ae60;
+  background: #27ae60;
+  color: #fff;
+}
+.ag-item-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ag-item-date {
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.ag-item-cat {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ag-item-remove {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.ag-item:hover .ag-item-remove { opacity: 1; }
+.ag-item-remove:hover { color: #c1593c; }
+.ag-empty {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-mid);
+  padding: 12px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.ag-completed-wrap {
+  margin-top: 32px;
+  border-top: 1px solid var(--color-rule);
+  padding-top: 16px;
+}
+.ag-completed-toggle {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+.ag-completed-toggle:hover { color: var(--color-dark); }
+.ag-completed-caret {
+  transition: transform 0.15s;
+}
+
+/* ---- Content Calendar list view ---- */
+.cc-list-groups {
+  padding: 0 0 48px;
+}
+.cc-list-group {
+  margin-bottom: 28px;
+}
+.cc-list-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--color-rule);
+  margin-bottom: 0;
+}
+.cc-list-group-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cc-list-group-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin: 0;
+}
+.cc-list-group-count {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-mid);
+  background: var(--color-page);
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+.cc-list-group-edit {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.cc-list-group-head:hover .cc-list-group-edit { opacity: 1; }
+.cc-list-group-edit:hover { color: var(--color-dark); }
+.cc-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 34px;
+  border-bottom: 1px solid var(--color-rule);
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.cc-list-item:hover { background: rgba(238, 125, 81, 0.03); }
+.cc-list-item-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cc-list-item-person {
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.cc-list-item-date {
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.cc-list-item-status {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cc-list-empty {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-mid);
+  padding: 12px 12px 12px 34px;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+@media (max-width: 760px) {
+  .ag-root { padding: 16px; }
+  .ag-item-date, .ag-item-cat { display: none; }
+  .cc-list-item-person { display: none; }
+}
+
 /* ---- Workspace de-branding ----
    Kill the editorial display font and decorative italics everywhere
    inside the admin shell. Headings use the body sans; the basic serif
