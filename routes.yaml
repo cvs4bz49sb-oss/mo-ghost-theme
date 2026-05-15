@@ -99,6 +99,14 @@ routes:
     template: custom-admin-coverage
   /admin/social/:
     template: custom-admin-social
+  /admin/assets/:
+    template: custom-admin-assets
+  /admin/quote/:
+    template: custom-admin-quote
+  /admin/copy/:
+    template: custom-admin-copy
+  /admin/extract/:
+    template: custom-admin-extract
   /digest-gen/:
     template: custom-digest-gen
   # Public ebook catalog. Anonymous-viewable; tiles route through
