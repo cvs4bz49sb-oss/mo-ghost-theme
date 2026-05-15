@@ -25,66 +25,29 @@
      (deploy once; paste resulting .workers.dev URL into the Edit
      Content -> Pull Podcasts panel). --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
 
   {{#if @member}}
 
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Digest Generator</p>
-        <h1 class="admin-headline"><em>Weekly&nbsp;Digest.</em></h1>
-        <p class="admin-sub">Compose, preview, and export the Weekly Digest email. Pull essays from Ghost and podcasts from Captivate. Export flat HTML for Kit.</p>
-      </div>
-    </section>
+    {{> "admin-sidebar" active="digest"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Weekly Digest</em></h1>
+        <p class="admin-topbar-sub">Compose, preview, and export the Weekly Digest email for Kit.</p>
+      </header>
 
-    {{> "admin-nav"}}
+      <section class="admin-body admin-body--digest" style="padding:0;">
+        <div id="mo-digest-root" style="background:#f1e0c9;min-height:calc(100vh - 280px);"></div>
+      </section>
 
-    {{!-- Full-bleed: the digest tool's TopBar + Gmail chrome wants
-         the whole viewport width. Skip the usual .container wrapper
-         and let #mo-digest-root run edge to edge. --}}
-    <section class="admin-body admin-body--digest" style="padding:0;">
-      <div id="mo-digest-root" style="background:#f1e0c9;min-height:calc(100vh - 280px);"></div>
-    </section>
+    </div>
 
-    {{!-- Preconnect + load brand fonts the email template uses. The
-         tool also needs them in the live preview, so we load them at
-         the page level rather than inside the React tree. --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+DW+Pica:ital@0;1&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    {{!-- Inject ABSOLUTE Ghost-hosted URLs for brand assets. The
-         in-page <img> tags use these URLs directly — same-origin in
-         the live preview, so they load normally — and because the
-         URLs already start with https://, the export's rewriteImages
-         step treats them as foreign and preserves them as-is. Kit
-         recipients fetch them straight from mo-test.ghost.io (or
-         mereorthodoxy.com after cutover; @site.url flips automatically).
-
-         Why not the {{asset}} helper? It would output a relative path
-         (/assets/images/X?v=hash) which would (a) get treated as
-         "needs rewriting" by the export, (b) fail filename matching
-         in any URL-override map because of the query string, and
-         (c) end up data-URI-embedded — which Kit handles unreliably. --}}
-    {{!-- Asset URLs that need the absolute @site.url for the digest
-         tool's HTML export. Template can't externalize the JS object
-         (paths contain Handlebars expansions), so emit as JSON in a
-         meta tag and let digest-bootstrap.js parse it into
-         window.MO_DIGEST_ASSETS. --}}
     <meta name="mo-digest-assets" content='{"mere-o-logo.png":"{{@site.url}}/assets/images/mere-o-logo.png","mere-fidelity.jpg":"{{@site.url}}/assets/images/mere-fidelity.jpg","christians-reading-classics.jpg":"{{@site.url}}/assets/images/christians-reading-classics.jpg"}' />
 
-    {{!-- React + the digest tool's compiled JS modules. Order matters:
-         tweaks-panel and email-template define globals (TweaksPanel,
-         EmailTemplate, MO_TOKENS, DEFAULT_CONTENT) that content-editor
-         and app reference.
-
-         No Babel runtime: the JSX is compiled at deploy time via
-         `npm run build:digest` (esbuild) and the .js outputs are
-         committed alongside the .jsx sources. Removing Babel-standalone
-         lets us drop 'unsafe-eval' from the theme's CSP. CI verifies
-         the .js outputs are up to date with their .jsx sources.
-
-         SRI hashes pin each CDN script to a known content hash. --}}
     <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
             integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"
             crossorigin="anonymous"></script>
@@ -92,11 +55,7 @@
             integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
             crossorigin="anonymous"></script>
 
-    {{!-- Bootstrap: parses the mo-digest-assets meta into the global
-         window.MO_DIGEST_ASSETS the React modules expect, and takes
-         over the #root mount point. See digest-bootstrap.js. --}}
     <script src="{{asset "js/page/digest-bootstrap.js"}}"></script>
-
     <script src="{{asset "js/digest/tweaks-panel.js"}}"></script>
     <script src="{{asset "js/digest/email-template.js"}}"></script>
     <script src="{{asset "js/digest/content-editor.js"}}"></script>
@@ -108,3 +67,5 @@
   {{/if}}
 
 </main>
+
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
