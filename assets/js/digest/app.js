@@ -693,82 +693,7 @@
       "Download .html"
     ))));
   }
-  const EMAIL_TEMPLATES = {
-    digest: {
-      label: "Weekly Digest",
-      apply: () => ({
-        ...DEFAULT_CONTENT,
-        mastheadTitle: "The Weekly Digest",
-        sectionOrder: [...DEFAULT_SECTION_ORDER],
-        sections: {
-          letter: true,
-          membership: true,
-          sponsorTop: true,
-          essays: true,
-          podcasts: true,
-          sponsorBottom: true,
-          signature: true
-        },
-        customBlocks: []
-      })
-    },
-    cta: {
-      label: "CTA Email",
-      apply: () => {
-        const b1 = "b_cta_body1";
-        const btn1 = "b_cta_btn1";
-        const b2 = "b_cta_body2";
-        const btn2 = "b_cta_btn2";
-        return {
-          ...DEFAULT_CONTENT,
-          issueNumber: "",
-          mastheadTitle: "",
-          editorTitle: "",
-          editorBody: "",
-          sectionOrder: ["letter", btn1, b2, btn2, "signature"],
-          sections: {
-            letter: true,
-            membership: false,
-            sponsorTop: false,
-            essays: false,
-            podcasts: false,
-            sponsorBottom: false,
-            signature: true,
-            [btn1]: true,
-            [b2]: true,
-            [btn2]: true
-          },
-          customBlocks: [
-            { id: btn1, type: "button", text: "Call to Action", url: "#", variant: "primary" },
-            { id: b2, type: "text", text: "" },
-            { id: btn2, type: "button", text: "Call to Action", url: "#", variant: "primary" }
-          ]
-        };
-      }
-    },
-    resource: {
-      label: "Resource Email",
-      apply: () => ({
-        ...DEFAULT_CONTENT,
-        issueNumber: "",
-        mastheadTitle: "",
-        editorTitle: "",
-        editorBody: "",
-        sectionOrder: ["letter", "essays", "signature"],
-        sections: {
-          letter: true,
-          membership: false,
-          sponsorTop: false,
-          essays: true,
-          podcasts: false,
-          sponsorBottom: false,
-          signature: true
-        },
-        customBlocks: []
-      })
-    }
-  };
-  function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate }) {
+  function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExport }) {
     const Tab = ({ active, onClick, children }) => /* @__PURE__ */ React.createElement("button", { onClick, style: {
       background: active ? "#2d2927" : "transparent",
       color: active ? "#fbf7ee" : "#2d2927",
@@ -791,7 +716,7 @@
       gap: 24,
       flexShrink: 0,
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif'
-    } }, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-brand": true, style: { display: "flex", alignItems: "center", gap: 12 } }, /* @__PURE__ */ React.createElement("img", { src: window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS["mere-o-logo.png"] || "assets/mere-o-logo.png", alt: "", style: { height: 22 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "Template"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6 } }, Object.entries(EMAIL_TEMPLATES).map(([k, t]) => /* @__PURE__ */ React.createElement(Tab, { key: k, active: (templateKey || "digest") === k, onClick: () => onTemplate(k) }, t.label))))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-spacer": true, style: { flex: 1 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "Audience"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, marginLeft: -1 } }, /* @__PURE__ */ React.createElement(Tab, { active: version === "free", onClick: () => onVersion("free") }, "Free Subscriber"), /* @__PURE__ */ React.createElement(Tab, { active: version === "paid", onClick: () => onVersion("paid") }, "Paid Member"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "View"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6 } }, /* @__PURE__ */ React.createElement(Tab, { active: preview === "raw", onClick: () => onPreview("raw") }, "Raw Email"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "client", onClick: () => onPreview("client") }, "In Gmail"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "mobile", onClick: () => onPreview("mobile") }, "Mobile"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement(
+    } }, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-brand": true, style: { display: "flex", alignItems: "center", gap: 12 } }, /* @__PURE__ */ React.createElement("img", { src: window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS["mere-o-logo.png"] || "assets/mere-o-logo.png", alt: "", style: { height: 22 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 22, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#2d2927", fontFamily: '"IM Fell English", Georgia, serif' } }, "The Weekly Digest \u2014 Email Template")), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-spacer": true, style: { flex: 1 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "Audience"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 0, marginLeft: -1 } }, /* @__PURE__ */ React.createElement(Tab, { active: version === "free", onClick: () => onVersion("free") }, "Free Subscriber"), /* @__PURE__ */ React.createElement("div", { style: { width: 0 } }), /* @__PURE__ */ React.createElement(Tab, { active: version === "paid", onClick: () => onVersion("paid") }, "Paid Member"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "View"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 0 } }, /* @__PURE__ */ React.createElement(Tab, { active: preview === "raw", onClick: () => onPreview("raw") }, "Raw Email"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "client", onClick: () => onPreview("client") }, "In Gmail"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "mobile", onClick: () => onPreview("mobile") }, "Mobile"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: onEditContent,
@@ -884,7 +809,6 @@
   function App() {
     const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
     const [content, setContent] = React.useState(loadSavedContent);
-    const [templateKey, setTemplateKey] = React.useState("digest");
     React.useEffect(() => {
       const handle = setTimeout(() => {
         try {
@@ -895,12 +819,6 @@
       }, 300);
       return () => clearTimeout(handle);
     }, [content]);
-    const handleTemplate = (key) => {
-      const tmpl = EMAIL_TEMPLATES[key];
-      if (!tmpl) return;
-      setTemplateKey(key);
-      setContent(tmpl.apply());
-    };
     const [editorOpen, setEditorOpen] = React.useState(false);
     const [exportOpen, setExportOpen] = React.useState(false);
     const isMember = tweaks.version === "paid";
@@ -926,12 +844,10 @@
       {
         version: tweaks.version,
         preview: tweaks.preview,
-        templateKey,
         onVersion: (v) => setTweak("version", v),
         onPreview: (p) => setTweak("preview", p),
         onEditContent: () => setEditorOpen(true),
-        onExport: () => setExportOpen(true),
-        onTemplate: handleTemplate
+        onExport: () => setExportOpen(true)
       }
     ), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, tweaks.preview === "client" ? /* @__PURE__ */ React.createElement(GmailChrome, { content }, email) : tweaks.preview === "mobile" ? /* @__PURE__ */ React.createElement(MobilePreview, null, email) : /* @__PURE__ */ React.createElement(RawPreview, null, email)), /* @__PURE__ */ React.createElement(TweaksPanel, { title: "Tweaks", defaultOpen: false }, /* @__PURE__ */ React.createElement(TweakSection, { title: "Content" }, /* @__PURE__ */ React.createElement(
       "button",

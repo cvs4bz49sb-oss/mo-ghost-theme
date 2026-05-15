@@ -789,7 +789,7 @@
             rows: 14,
             onChange: (v) => updateField("editorBody", v)
           }
-        )), /* @__PURE__ */ React.createElement(Group, { title: "Signature" }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, Object.entries(window.SIGNATURES || {}).map(([key, sig]) => {
+        ), /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, "Signature"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 4 } }, Object.entries(window.SIGNATURES || {}).map(([key, sig]) => {
           const isActive = content.signatureKey === key;
           return /* @__PURE__ */ React.createElement(
             "button",
@@ -834,7 +834,7 @@
             ),
             /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, fontWeight: 600, color: "#2d2927", lineHeight: 1.2 } }, sig.name), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#9a8773", marginTop: 2, lineHeight: 1.2 } }, sig.title))
           );
-        }))), /* @__PURE__ */ React.createElement(Group, { title: `Custom blocks (${(content.customBlocks || []).length})` }, /* @__PURE__ */ React.createElement("div", { style: {
+        })))), /* @__PURE__ */ React.createElement(Group, { title: `Custom blocks (${(content.customBlocks || []).length})` }, /* @__PURE__ */ React.createElement("div", { style: {
           fontFamily: '"Source Sans 3", Arial, sans-serif',
           fontSize: 12,
           color: "#6b6258",
