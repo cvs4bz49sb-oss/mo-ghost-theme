@@ -16907,6 +16907,9 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   align-items: center;
   gap: 8px;
 }
+.ag-inline-add-form[hidden] {
+  display: none;
+}
 .ag-inline-input {
   flex: 1;
   font-family: var(--font-body);
