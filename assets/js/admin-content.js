@@ -590,6 +590,218 @@
     };
   }
 
+  // ── CSV helpers ─────────────────────────────────────────────────
+  function parseCSV(text) {
+    const lines = [];
+    let cur = [];
+    let field = "";
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (inQuotes) {
+        if (ch === '"' && text[i + 1] === '"') { field += '"'; i++; }
+        else if (ch === '"') { inQuotes = false; }
+        else { field += ch; }
+      } else if (ch === '"') { inQuotes = true; }
+        else if (ch === ",") { cur.push(field); field = ""; }
+        else if (ch === "\n" || (ch === "\r" && text[i + 1] === "\n")) {
+          cur.push(field); field = "";
+          if (cur.length > 1 || cur[0] !== "") lines.push(cur);
+          cur = [];
+          if (ch === "\r") i++;
+        } else { field += ch; }
+    }
+    cur.push(field);
+    if (cur.length > 1 || cur[0] !== "") lines.push(cur);
+    return lines;
+  }
+
+  function normalizeDate(raw) {
+    if (!raw) return "";
+    const s = raw.trim();
+    const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s);
+    if (iso) return `${iso[1]}-${iso[2].padStart(2, "0")}-${iso[3].padStart(2, "0")}`;
+    const mdy = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/.exec(s);
+    if (mdy) {
+      const y = mdy[3].length === 2 ? `20${mdy[3]}` : mdy[3];
+      return `${y}-${mdy[1].padStart(2, "0")}-${mdy[2].padStart(2, "0")}`;
+    }
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) return fmtDate(d);
+    return "";
+  }
+
+  function slugify(s) {
+    return (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  function ensureCategory(name) {
+    if (!name) return "";
+    const id = slugify(name);
+    if (!data.categories.some((c) => c.id === id)) {
+      const colorIdx = data.categories.length % SWATCH_COLORS.length;
+      data.categories.push({ id, name: name.trim(), color: SWATCH_COLORS[colorIdx] });
+    }
+    return id;
+  }
+
+  function ensurePerson(name) {
+    if (!name) return "";
+    const trimmed = name.trim();
+    if (!data.people.some((p) => p.toLowerCase() === trimmed.toLowerCase())) {
+      data.people.push(trimmed);
+    }
+    return trimmed;
+  }
+
+  function ensureProject(name) {
+    if (!name) return data.projects.length ? data.projects[0].id : "";
+    const id = slugify(name);
+    if (!data.projects.some((p) => p.id === id)) {
+      const colorIdx = data.projects.length % SWATCH_COLORS.length;
+      data.projects.push({ id, name: name.trim(), group: "operations", color: SWATCH_COLORS[colorIdx] });
+    }
+    return id;
+  }
+
+  function showAsanaImportModal() {
+    const overlay = document.createElement("div");
+    overlay.className = "cc-modal-overlay";
+    overlay.innerHTML =
+      `<div class="cc-modal" style="max-width:560px">` +
+        `<h3 class="cc-modal-title">Import from Asana</h3>` +
+        `<p style="font-family:var(--font-body);font-size:13px;color:var(--color-muted);margin:0 0 16px">` +
+          `Export your Asana project as CSV, then upload it here. Tasks are mapped by Name, Due Date, Assignee, and Section.` +
+        `</p>` +
+        `<label class="cc-modal-field">` +
+          `<span>CSV File</span>` +
+          `<input type="file" accept=".csv,text/csv" data-cc-import-file style="font-family:var(--font-body);font-size:13px">` +
+        `</label>` +
+        `<div data-cc-import-preview style="display:none">` +
+          `<div data-cc-import-summary style="font-family:var(--font-body);font-size:13px;margin-bottom:12px;padding:12px;background:var(--color-page);border-radius:6px;border:1px solid var(--color-rule)"></div>` +
+          `<details style="margin-bottom:12px">` +
+            `<summary style="font-family:var(--font-body);font-size:12px;color:var(--color-muted);cursor:pointer">Preview rows</summary>` +
+            `<div data-cc-import-table style="max-height:200px;overflow:auto;margin-top:8px"></div>` +
+          `</details>` +
+        `</div>` +
+        `<div class="cc-modal-actions">` +
+          `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
+          `<button type="button" class="btn btn-sm btn-primary" data-cc-import-go style="display:none">Import</button>` +
+        `</div>` +
+      `</div>`;
+
+    document.body.appendChild(overlay);
+    overlay.querySelector("[data-cc-modal-cancel]").onclick = () => { overlay.remove(); };
+    overlay.addEventListener("click", (ev) => { if (ev.target === overlay) overlay.remove(); });
+
+    let parsedRows = [];
+    let headerMap = {};
+
+    const fileInput = overlay.querySelector("[data-cc-import-file]");
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const lines = parseCSV(reader.result);
+        if (lines.length < 2) {
+          overlay.querySelector("[data-cc-import-summary]").textContent = "No data rows found.";
+          overlay.querySelector("[data-cc-import-preview]").style.display = "";
+          return;
+        }
+
+        const headers = lines[0].map((h) => h.trim());
+        headerMap = {};
+        headers.forEach((h, i) => { headerMap[h.toLowerCase()] = i; });
+
+        const nameIdx = headerMap["name"] ?? headerMap["task name"] ?? -1;
+        const dateIdx = headerMap["due date"] ?? headerMap["start date"] ?? -1;
+        const assigneeIdx = headerMap["assignee"] ?? -1;
+        const sectionIdx = headerMap["section/column"] ?? headerMap["section"] ?? headerMap["column"] ?? -1;
+        const completedIdx = headerMap["completed at"] ?? -1;
+        const projectIdx = headerMap["projects"] ?? headerMap["project"] ?? -1;
+
+        if (nameIdx === -1) {
+          overlay.querySelector("[data-cc-import-summary]").innerHTML =
+            `<strong style="color:#c1593c">Could not find a "Name" column.</strong><br>` +
+            `Found columns: ${headers.map((h) => `<code>${esc(h)}</code>`).join(", ")}`;
+          overlay.querySelector("[data-cc-import-preview]").style.display = "";
+          return;
+        }
+
+        parsedRows = [];
+        for (let r = 1; r < lines.length; r++) {
+          const row = lines[r];
+          const name = (row[nameIdx] || "").trim();
+          if (!name) continue;
+          const dueRaw = dateIdx >= 0 ? (row[dateIdx] || "") : "";
+          const dateVal = normalizeDate(dueRaw);
+          if (!dateVal) continue;
+          const assignee = assigneeIdx >= 0 ? (row[assigneeIdx] || "").trim() : "";
+          const section = sectionIdx >= 0 ? (row[sectionIdx] || "").trim() : "";
+          const completed = completedIdx >= 0 ? (row[completedIdx] || "").trim() : "";
+          const project = projectIdx >= 0 ? (row[projectIdx] || "").trim() : "";
+
+          let status = "Idea";
+          if (completed) status = "Published";
+
+          parsedRows.push({ name, date: dateVal, assignee, section, status, project });
+        }
+
+        const skipped = (lines.length - 1) - parsedRows.length;
+        let summaryHtml = `<strong>${parsedRows.length}</strong> tasks with dates found.`;
+        if (skipped > 0) summaryHtml += ` <span style="color:var(--color-muted)">(${skipped} skipped — no date)</span>`;
+
+        const sections = [...new Set(parsedRows.map((r) => r.section).filter(Boolean))];
+        if (sections.length) {
+          summaryHtml += `<br><span style="font-size:12px;color:var(--color-muted)">Sections → categories: ${sections.map((s) => esc(s)).join(", ")}</span>`;
+        }
+        const assignees = [...new Set(parsedRows.map((r) => r.assignee).filter(Boolean))];
+        if (assignees.length) {
+          summaryHtml += `<br><span style="font-size:12px;color:var(--color-muted)">Assignees: ${assignees.map((a) => esc(a)).join(", ")}</span>`;
+        }
+
+        overlay.querySelector("[data-cc-import-summary]").innerHTML = summaryHtml;
+        overlay.querySelector("[data-cc-import-preview]").style.display = "";
+        overlay.querySelector("[data-cc-import-go]").style.display = "";
+
+        const tableHtml = `<table style="width:100%;font-family:var(--font-body);font-size:11px;border-collapse:collapse">` +
+          `<thead><tr style="text-align:left;border-bottom:1px solid var(--color-rule)">` +
+            `<th style="padding:4px 6px">Name</th><th style="padding:4px 6px">Date</th><th style="padding:4px 6px">Category</th><th style="padding:4px 6px">Assignee</th><th style="padding:4px 6px">Status</th>` +
+          `</tr></thead><tbody>${
+            parsedRows.slice(0, 50).map((r) => {
+              return `<tr style="border-bottom:1px solid var(--color-rule)"><td style="padding:4px 6px">${esc(r.name)}</td><td style="padding:4px 6px">${r.date}</td><td style="padding:4px 6px">${esc(r.section)}</td><td style="padding:4px 6px">${esc(r.assignee)}</td><td style="padding:4px 6px">${esc(r.status)}</td></tr>`;
+            }).join("")
+          }${parsedRows.length > 50 ? `<tr><td colspan="5" style="padding:4px 6px;color:var(--color-muted)">…and ${parsedRows.length - 50} more</td></tr>` : ""}</tbody></table>`;
+        overlay.querySelector("[data-cc-import-table]").innerHTML = tableHtml;
+      };
+      reader.readAsText(file);
+    });
+
+    overlay.querySelector("[data-cc-import-go]").onclick = () => {
+      let added = 0;
+      for (const row of parsedRows) {
+        const catId = ensureCategory(row.section);
+        const person = ensurePerson(row.assignee);
+        const projectId = ensureProject(row.project);
+        data.items.push({
+          id: `item_${Date.now()}_${added}`,
+          title: row.name,
+          date: row.date,
+          project: projectId,
+          type: catId,
+          person,
+          status: row.status
+        });
+        added++;
+      }
+      save(data);
+      renderSidebar();
+      renderCalendar();
+      overlay.remove();
+    };
+  }
+
   // Event delegation
   root.addEventListener("click", (e) => {
     let btn;
@@ -702,6 +914,7 @@
     // Add project
     if (e.target.closest("[data-cc-add-project]")) { showAddProjectModal(); return; }
     if (e.target.closest("[data-cc-categories]")) { showCategoriesModal(); return; }
+    if (e.target.closest("[data-cc-import-asana]")) { showAsanaImportModal(); return; }
     if (e.target.closest("[data-cc-settings]")) { showSettingsModal(); return; }
 
     // Close dropdowns on outside click
