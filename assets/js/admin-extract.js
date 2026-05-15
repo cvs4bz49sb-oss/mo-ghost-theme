@@ -99,20 +99,18 @@
       var post = data.posts && data.posts[0];
       if (!post) throw new Error("Article not found");
 
-      var authorTags = (post.tags || [])
-        .filter(function (t) { return t.name && t.name.indexOf("#author") === 0; })
-        .map(function (t) {
-          return t.name.replace(/^#author[-\s]*/i, "")
-            .split(/[-\s]+/)
-            .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })
-            .join(" ");
-        });
+      var allTags = post.tags || [];
+      var authorTags = allTags
+        .filter(function (t) { return t.slug && t.slug.indexOf("author-") === 0; })
+        .map(function (t) { return t.name; });
       var authorName = authorTags.length
         ? authorTags.join(", ")
         : (post.primary_author && post.primary_author.name) || "";
 
-      var publicTags = (post.tags || [])
-        .filter(function (t) { return !t.name || t.name.charAt(0) !== "#"; })
+      var publicTags = allTags
+        .filter(function (t) {
+          return t.name && t.name.charAt(0) !== "#" && !(t.slug && t.slug.indexOf("author-") === 0);
+        })
         .map(function (t) { return t.name; });
 
       articleData = {
