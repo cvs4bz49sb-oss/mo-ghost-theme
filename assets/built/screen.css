@@ -15385,6 +15385,7 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   letter-spacing: 0.01em;
 }
 .ws-sidebar-brand--primary:hover { color: #fff; }
+.ws-sidebar-brand--primary .ws-sidebar-icon { opacity: 1; width: 18px; height: 18px; }
 .ws-sidebar-brand--secondary {
   color: rgba(255, 255, 255, 0.45);
   font-size: 12px;
