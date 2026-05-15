@@ -20,6 +20,8 @@
   var $image = root.querySelector("[data-extract-image]");
   var $imageCard = root.querySelector("[data-extract-image-card]");
   var $plaintext = root.querySelector("[data-extract-plaintext]");
+  var $bio = root.querySelector("[data-extract-bio]");
+  var $bioCard = root.querySelector("[data-extract-bio-card]");
 
   var articleData = {};
 
@@ -33,6 +35,7 @@
       else if (key === "author") text = articleData.author || "";
       else if (key === "excerpt") text = articleData.excerpt || "";
       else if (key === "tags") text = articleData.tags || "";
+      else if (key === "bio") text = articleData.bio || "";
       else if (key === "image") text = articleData.feature_image || "";
       else if (key === "plaintext") {
         var html = articleData.html || "";
@@ -132,7 +135,8 @@
         published_at: post.published_at || "",
         reading_time: post.reading_time || 0,
         plaintext: post.plaintext || "",
-        html: post.html || ""
+        html: post.html || "",
+        bio: (post.primary_author && post.primary_author.bio) || ""
       };
 
       renderArticle(articleData);
@@ -150,6 +154,13 @@
 
     $title.textContent = a.title;
     $author.textContent = a.author;
+
+    if (a.bio) {
+      $bioCard.hidden = false;
+      $bio.textContent = a.bio;
+    } else {
+      $bioCard.hidden = true;
+    }
 
     if (a.excerpt) {
       $excerptCard.hidden = false;
