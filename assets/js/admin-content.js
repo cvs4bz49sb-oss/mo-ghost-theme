@@ -37,6 +37,11 @@
     items: []
   };
 
+  const WORKER_URL = (document.body.getAttribute("data-admin-worker-url") || "").replace(/\/$/, "");
+  let syncVersion = 0;
+  let saveTimer = null;
+  let syncStatus = "idle";
+
   function load() {
     try {
       const raw = localStorage.getItem(LS_KEY);
@@ -52,8 +57,74 @@
     return JSON.parse(JSON.stringify(DEFAULT_DATA));
   }
 
-  function save(data) {
-    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  function save(d) {
+    localStorage.setItem(LS_KEY, JSON.stringify(d));
+    debouncedPush(d);
+  }
+
+  function setSyncStatus(s) {
+    syncStatus = s;
+    const el = root.querySelector("[data-cc-sync]");
+    if (!el) return;
+    el.className = `cc-sync cc-sync--${s}`;
+    const labels = { idle: "Saved", saving: "Saving…", saved: "Synced", error: "Offline" };
+    el.textContent = labels[s] || s;
+  }
+
+  function debouncedPush(d) {
+    if (!WORKER_URL || !window.MOAuth) return;
+    clearTimeout(saveTimer);
+    setSyncStatus("saving");
+    saveTimer = setTimeout(() => { pushToServer(d); }, 800);
+  }
+
+  async function pushToServer(d) {
+    try {
+      const resp = await window.MOAuth.fetch(`${WORKER_URL}/calendar`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: { projects: d.projects, people: d.people, categories: d.categories, items: d.items } }),
+      });
+      if (resp.ok) {
+        const result = await resp.json();
+        syncVersion = result.version || 0;
+        setSyncStatus("saved");
+      } else {
+        setSyncStatus("error");
+      }
+    } catch (e) {
+      setSyncStatus("error");
+    }
+  }
+
+  async function syncFromServer() {
+    if (!WORKER_URL || !window.MOAuth) return;
+    setSyncStatus("saving");
+    try {
+      const resp = await window.MOAuth.fetch(`${WORKER_URL}/calendar`, { method: "GET" });
+      if (!resp.ok) { setSyncStatus("error"); return; }
+      const result = await resp.json();
+      if (result.data) {
+        syncVersion = result.version || 0;
+        const server = result.data;
+        if (!Array.isArray(server.projects)) server.projects = DEFAULT_DATA.projects;
+        if (!Array.isArray(server.people)) server.people = DEFAULT_DATA.people;
+        if (!Array.isArray(server.categories)) server.categories = DEFAULT_CATEGORIES.map((c) => ({...c}));
+        if (!Array.isArray(server.items)) server.items = [];
+        data.projects = server.projects;
+        data.people = server.people;
+        data.categories = server.categories;
+        data.items = server.items;
+        localStorage.setItem(LS_KEY, JSON.stringify(data));
+        renderSidebar();
+        renderCalendar();
+        setSyncStatus("saved");
+      } else {
+        pushToServer(data);
+      }
+    } catch (e) {
+      setSyncStatus("error");
+    }
   }
 
   const data = load();
@@ -1081,4 +1152,5 @@
 
   renderSidebar();
   renderCalendar();
+  syncFromServer();
 })();

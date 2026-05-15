@@ -15597,6 +15597,19 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
 }
 
 /* ---- Content Calendar ---- */
+.cc-sync {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+.cc-sync--idle { color: var(--color-mid); }
+.cc-sync--saving { color: #e67e22; }
+.cc-sync--saved { color: #27ae60; }
+.cc-sync--error { color: #c1593c; }
 .cc-layout {
   display: grid;
   grid-template-columns: 220px 1fr;
