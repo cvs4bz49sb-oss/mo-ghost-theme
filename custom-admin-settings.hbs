@@ -1,7 +1,7 @@
 {{!< default}}
-{{!-- /admin/settings/ — site-wide operational settings stored in KV.
-     Journal status, gate config, etc. Staff-only writes; values are
-     read publicly by site-settings.js on every page. --}}
+{{!-- /admin/settings/ — site-wide operational settings + admin user management.
+     Journal status, gate config stored in KV. Admin permissions stored in KV.
+     Staff-only writes; site settings are read publicly by site-settings.js. --}}
 
 <main class="admin-page admin-workspace">
 
@@ -11,7 +11,7 @@
     <div class="admin-main">
       <header class="admin-topbar">
         <h1 class="admin-topbar-title"><em>Settings</em></h1>
-        <p class="admin-topbar-sub">Operational values that affect the public site. Changes take effect within a minute.</p>
+        <p class="admin-topbar-sub">Site configuration and admin access control.</p>
       </header>
 
     <section class="admin-body">
@@ -20,17 +20,20 @@
              data-admin-settings
              data-worker-url="{{@custom.admin_worker_url}}">
 
-          <div class="dashboard-module" data-settings-form>
+          {{!-- Site Settings --}}
+          <div class="settings-section" data-settings-form>
+            <h2 class="settings-section-title"><em>Site</em></h2>
+            <p class="settings-section-desc">Operational values that affect the public site. Changes take effect within a minute.</p>
 
-            <div class="dashboard-form-group">
-              <p class="dashboard-form-legend"><em>Journal Status</em></p>
-              <label class="dashboard-form-field">
-                <span class="dashboard-form-label">Issue label</span>
-                <input type="text" name="journal_status_issue" placeholder="e.g. Summer 2026" />
+            <div class="settings-group">
+              <h3 class="settings-group-title">Journal Status</h3>
+              <label class="settings-field">
+                <span class="settings-field-label">Issue label</span>
+                <input type="text" name="journal_status_issue" class="settings-input" placeholder="e.g. Summer 2026" />
               </label>
-              <label class="dashboard-form-field">
-                <span class="dashboard-form-label">Current stage</span>
-                <select name="journal_status_stage">
+              <label class="settings-field">
+                <span class="settings-field-label">Current stage</span>
+                <select name="journal_status_stage" class="settings-select">
                   <option value="Drafting">Drafting</option>
                   <option value="In Production">In Production</option>
                   <option value="Arriving">Arriving</option>
@@ -38,26 +41,40 @@
               </label>
             </div>
 
-            <div class="dashboard-form-group">
-              <p class="dashboard-form-legend"><em>Subscriber Gate</em></p>
-              <label class="dashboard-form-field">
-                <span class="dashboard-form-label">Gate days</span>
-                <input type="number" name="gate_days" min="0" step="1" placeholder="7" />
-                <span class="dashboard-form-hint">Days after publication before the soft gate appears. 0 disables.</span>
+            <div class="settings-group">
+              <h3 class="settings-group-title">Subscriber Gate</h3>
+              <label class="settings-field">
+                <span class="settings-field-label">Gate days</span>
+                <input type="number" name="gate_days" class="settings-input settings-input--short" min="0" step="1" placeholder="7" />
+                <span class="settings-field-hint">Days after publication before the soft gate appears. 0 disables.</span>
               </label>
-              <label class="dashboard-form-field">
-                <span class="dashboard-form-label">Gate tier</span>
-                <select name="gate_tier">
+              <label class="settings-field">
+                <span class="settings-field-label">Gate tier</span>
+                <select name="gate_tier" class="settings-select">
                   <option value="members">Members (any signed-in)</option>
                   <option value="paid">Paid only</option>
                 </select>
               </label>
             </div>
 
-            <div class="dashboard-address-actions">
+            <div class="settings-actions">
               <button type="button" class="btn btn-pill btn-primary" data-settings-submit>Save settings</button>
+              <span class="settings-status" data-settings-status hidden></span>
             </div>
-            <p class="dashboard-form-success" data-settings-status hidden></p>
+          </div>
+
+          {{!-- Admin Users (staff-only section — hidden for non-staff via JS) --}}
+          <div class="settings-section" data-admin-users-section hidden>
+            <h2 class="settings-section-title"><em>Admin Access</em></h2>
+            <p class="settings-section-desc">Grant dashboard access to people who aren't Ghost staff. Each user gets per-tool permissions enforced on every request.</p>
+
+            <div class="settings-actions settings-actions--top">
+              <button type="button" class="btn btn-pill btn-primary" data-au-add>+ Add user</button>
+            </div>
+
+            <div class="au-list" data-au-list>
+              <p class="au-empty" data-au-empty>No admin users configured yet.</p>
+            </div>
           </div>
 
         </div>

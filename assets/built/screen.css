@@ -15553,6 +15553,298 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   grid-template-columns: 180px 1fr;
 }
 
+/* ---- Settings page ---- */
+.settings-section {
+  background: var(--color-page);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius);
+  padding: 28px 32px 32px;
+}
+.settings-section + .settings-section {
+  margin-top: 32px;
+}
+.settings-section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0 0 4px;
+  color: var(--color-dark);
+}
+.settings-section-title em { font-style: normal; }
+.settings-section-desc {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+.settings-group {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.settings-group:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.settings-group-title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 16px;
+}
+.settings-field {
+  display: block;
+  margin-bottom: 14px;
+}
+.settings-field:last-child { margin-bottom: 0; }
+.settings-field-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-bottom: 6px;
+}
+.settings-field-hint {
+  display: block;
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+.settings-input,
+.settings-select {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--color-dark);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.settings-input:focus,
+.settings-select:focus {
+  border-color: var(--color-primary);
+}
+.settings-input--short { max-width: 160px; }
+.settings-select { cursor: pointer; }
+.settings-actions {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.settings-actions--top { margin-top: 0; margin-bottom: 16px; }
+.settings-status {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-secondary);
+}
+.settings-status.is-error { color: #b94a48; }
+
+/* ---- Admin Users list ---- */
+.au-list { margin-top: 8px; }
+.au-empty {
+  font-size: 14px;
+  color: var(--color-muted);
+  font-style: italic;
+  margin: 0;
+  padding: 16px 0;
+}
+.au-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-rule);
+}
+.au-row:first-of-type { border-top: 0; }
+.au-row-info { flex: 1; min-width: 0; }
+.au-row-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+.au-row-email {
+  display: block;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.au-row-meta {
+  flex-shrink: 0;
+}
+.au-row-count {
+  font-size: 12px;
+  color: var(--color-muted);
+  background: var(--color-background);
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+.au-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.au-row-btn {
+  background: none;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  color: var(--color-muted);
+  transition: color 0.15s, border-color 0.15s;
+  display: inline-flex;
+  align-items: center;
+}
+.au-row-btn:hover {
+  color: var(--color-dark);
+  border-color: var(--color-dark);
+}
+.au-row-btn--danger:hover {
+  color: #b94a48;
+  border-color: #b94a48;
+}
+
+/* ---- Admin Users modal ---- */
+.au-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 41, 39, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 24px;
+}
+.au-modal {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+.au-modal--narrow { max-width: 400px; }
+.au-modal-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0 0 20px;
+  color: var(--color-dark);
+}
+.au-modal-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 20px;
+}
+.au-modal-fields {
+  margin-bottom: 20px;
+}
+.au-modal-fields .settings-field { margin-bottom: 12px; }
+.au-modal-fields input[readonly] {
+  background: var(--color-page);
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+.au-modal-perms {
+  margin-bottom: 24px;
+}
+.au-modal-perms-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin: 0 0 8px;
+}
+.au-modal-select-all {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.au-link-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-body);
+}
+.au-link-btn:hover { color: var(--color-secondary); text-decoration: underline; }
+.au-modal-group {
+  margin-bottom: 16px;
+}
+.au-modal-group:last-child { margin-bottom: 0; }
+.au-modal-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 8px;
+}
+.au-modal-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+.au-modal-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+.au-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+.au-modal-status {
+  font-size: 13px;
+  color: #b94a48;
+  margin: 12px 0 0;
+}
+
+/* Access denied (for permission-blocked pages) */
+.admin-denied-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 24px;
+  text-align: center;
+}
+.admin-denied-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  margin: 0 0 12px;
+  color: var(--color-dark);
+}
+.admin-denied-text {
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 0 0 24px;
+  max-width: 400px;
+}
+
+@media (max-width: 640px) {
+  .settings-section { padding: 20px 16px 24px; }
+  .au-row { flex-wrap: wrap; }
+  .au-modal { padding: 24px 20px; }
+}
+
 /* ---- Landing page (overview) ---- */
 .ws-landing-grid {
   display: grid;

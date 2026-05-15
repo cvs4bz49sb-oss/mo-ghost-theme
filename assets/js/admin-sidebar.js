@@ -21,7 +21,7 @@
       "/admin/assets": "assets", "/admin/quote": "quote",
       "/admin/copy": "copy", "/admin/extract": "extract",
       "/admin/slide-ins": "slide-ins",
-      "/admin/engagement": "engagement"
+      "/admin/engagement": "engagement",
     };
     const page = map[path];
     if (page) links.forEach((a) => {
@@ -29,10 +29,12 @@
     });
   }
 
+  // -----------------------------------------------------------------------
   // Collapsible sections — persisted in localStorage
+  // -----------------------------------------------------------------------
   const COLLAPSE_KEY = "mo_admin_sidebar_collapsed";
   let collapsed = {};
-  try { collapsed = JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; } catch (e) { /* ignore */ }
+  try { collapsed = JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; } catch (_) { /* ignore */ }
 
   sidebar.querySelectorAll("[data-ws-section]").forEach((section) => {
     const key = section.dataset.wsSection;
@@ -50,7 +52,6 @@
     localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapsed));
   });
 
-  // Auto-expand the section containing the active page
   const activeLink = sidebar.querySelector(".ws-sidebar-link.is-active");
   if (activeLink) {
     const parentSection = activeLink.closest("[data-ws-section]");
@@ -65,4 +66,81 @@
   const backdrop = document.querySelector("[data-ws-backdrop]");
   if (toggle) toggle.addEventListener("click", () => { sidebar.classList.toggle("is-open"); });
   if (backdrop) backdrop.addEventListener("click", () => { sidebar.classList.remove("is-open"); });
+
+  // -----------------------------------------------------------------------
+  // Permissions enforcement — hide unauthorized tools, block pages
+  // -----------------------------------------------------------------------
+  const workerUrl = (document.body.getAttribute("data-admin-worker-url") || "").replace(/\/+$/, "");
+  if (!workerUrl || !window.MOAuth) return;
+
+  const PAGE_TO_TOOL = {
+    members: "members",
+    traffic: "traffic",
+    content: "content",
+    agenda: "agenda",
+    settings: "settings",
+    coverage: "coverage",
+    editorial: "editorial",
+    digest: "digest",
+    social: "social",
+    assets: "assets",
+    copy: "copy",
+    extract: "extract",
+    "slide-ins": "slide-ins",
+    engagement: "engagement",
+  };
+
+  window.MOAuth.fetch(`${workerUrl}/my-permissions`)
+    .then((r) => r.json())
+    .then((perms) => {
+      if (!perms.authorized && perms.authorized !== undefined) {
+        blockPage();
+        return;
+      }
+
+      window.__moPerms = perms;
+
+      if (perms.isStaff || perms.tools === null) return;
+
+      const tools = perms.tools || {};
+      links.forEach((link) => {
+        const page = link.getAttribute("data-ws-page");
+        const tool = PAGE_TO_TOOL[page];
+        if (tool && !tools[tool]) {
+          const li = link.closest("li");
+          if (li) li.style.display = "none";
+        }
+      });
+
+      hideSectionsIfEmpty();
+
+      const activePg = sidebar.querySelector(".ws-sidebar-link.is-active");
+      if (activePg) {
+        const pgId = activePg.getAttribute("data-ws-page");
+        const pgTool = PAGE_TO_TOOL[pgId];
+        if (pgTool && !tools[pgTool]) blockPage();
+      }
+    })
+    .catch(() => { /* fail open for staff on network errors — worker still enforces */ });
+
+  function hideSectionsIfEmpty() {
+    sidebar.querySelectorAll("[data-ws-section]").forEach((section) => {
+      const visibleLinks = section.querySelectorAll(".ws-sidebar-list li");
+      let anyVisible = false;
+      visibleLinks.forEach((li) => {
+        if (li.style.display !== "none") anyVisible = true;
+      });
+      if (!anyVisible) section.style.display = "none";
+    });
+  }
+
+  function blockPage() {
+    const main = document.querySelector(".admin-main");
+    if (!main) return;
+    main.innerHTML = `<div class="admin-denied-wrap">` +
+      `<h2 class="admin-denied-title">Access Denied</h2>` +
+      `<p class="admin-denied-text">You don't have permission to view this page. Contact a site administrator to request access.</p>` +
+      `<a href="/admin/" class="btn btn-pill">Back to Dashboard</a>` +
+    `</div>`;
+  }
 })();
