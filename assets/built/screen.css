@@ -15286,12 +15286,36 @@ details.bookstore-section[open] > .bookstore-section-header::after {
 body[class*="page-template-custom-admin"] .site-header,
 body[class*="page-template-custom-admin"] .site-footer,
 body.page-template-custom-digest-gen .site-header,
-body.page-template-custom-digest-gen .site-footer {
+body.page-template-custom-digest-gen .site-footer,
+body:has(.admin-workspace) .site-header,
+body:has(.admin-workspace) .site-footer {
   display: none !important;
 }
 body[class*="page-template-custom-admin"],
-body.page-template-custom-digest-gen {
+body.page-template-custom-digest-gen,
+body:has(.admin-workspace) {
   padding-top: 0 !important;
+}
+
+/* Digest toolbar: allow wrapping inside the workspace. */
+.admin-workspace [data-mo-topbar] {
+  flex-wrap: wrap !important;
+  gap: 10px 20px !important;
+}
+.admin-workspace [data-mo-topbar-spacer] {
+  display: none !important;
+}
+.admin-workspace [data-mo-topbar-brand] {
+  flex: 1 1 100%;
+  border-bottom: 1px solid #d8c4a3;
+  padding-bottom: 10px;
+  margin-bottom: 2px;
+}
+.admin-workspace [data-mo-topbar-group] {
+  flex-wrap: wrap;
+}
+.admin-workspace [data-mo-topbar-divider] {
+  display: none !important;
 }
 
 /* Workspace container: sidebar + main. */
