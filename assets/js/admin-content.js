@@ -371,7 +371,7 @@
         `</div>` +
       `</div>`;
 
-    document.body.appendChild(overlay);
+    root.appendChild(overlay);
     const titleInput = overlay.querySelector("[data-cc-modal-title]");
     titleInput.focus();
     if (activeProject) overlay.querySelector("[data-cc-modal-project]").value = activeProject;
@@ -423,7 +423,7 @@
         `</div>` +
       `</div>`;
 
-    document.body.appendChild(overlay);
+    root.appendChild(overlay);
     const nameInput = overlay.querySelector("[data-cc-modal-name]");
     nameInput.focus();
     let selectedColor = SWATCH_COLORS[0];
@@ -467,7 +467,7 @@
         `</div>` +
       `</div>`;
 
-    document.body.appendChild(overlay);
+    root.appendChild(overlay);
     overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
     overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
     overlay.querySelector("[data-cc-modal-save]").onclick = function () {
@@ -513,7 +513,7 @@
         `</div>` +
       `</div>`;
 
-    document.body.appendChild(overlay);
+    root.appendChild(overlay);
     let newCatColor = SWATCH_COLORS[0];
     const swatches = overlay.querySelectorAll(".cc-cat-add-colors .cc-color-swatch");
     swatches.forEach((sw) => {
@@ -690,7 +690,7 @@
         `</div>` +
       `</div>`;
 
-    document.body.appendChild(overlay);
+    root.appendChild(overlay);
     overlay.querySelector("[data-cc-modal-cancel]").onclick = () => { overlay.remove(); };
     overlay.addEventListener("click", (ev) => { if (ev.target === overlay) overlay.remove(); });
 
@@ -957,7 +957,7 @@
         `</div>` +
       `</div>`;
 
-    document.body.appendChild(overlay);
+    root.appendChild(overlay);
     overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
     overlay.addEventListener("click", (ev) => { if (ev.target === overlay) overlay.remove(); });
     overlay.querySelector("[data-cc-modal-delete]").onclick = function () {
