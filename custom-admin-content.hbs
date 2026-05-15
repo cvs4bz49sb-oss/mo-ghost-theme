@@ -1,12 +1,9 @@
 {{!< default}}
-{{!-- /admin/content/ — Member content calendar. Shows every content
-     offering available to members (journals, ebooks, events, reading
-     paths, community, etc.) in a single overview grid. Links out to
-     the live member dashboard sub-pages and external resources.
-
-     This is the admin-facing mirror of the mere-o-dashboard member
-     hub, placed under Executive so staff can see the full picture of
-     what members have access to. --}}
+{{!-- /admin/content/ — Content Calendar. Weekly editorial calendar
+     showing what's scheduled across all projects. Internal sidebar
+     lists projects and podcasts; main area shows a day-by-day week
+     view with filters. Data stored in localStorage with optional
+     Asana import. --}}
 
 <main class="admin-page admin-workspace">
 
@@ -16,167 +13,102 @@
     <div class="admin-main">
       <header class="admin-topbar">
         <h1 class="admin-topbar-title"><em>Content Calendar</em></h1>
-        <p class="admin-topbar-sub">Everything members can access, in one view.</p>
+        <p class="admin-topbar-sub">What's happening across the publication, week by week.</p>
       </header>
 
-    <section class="admin-body">
-      <div class="container">
+      <section class="admin-body" style="padding:0;">
+        <div class="cc-layout" data-cc-root>
 
-        <div class="content-cal-section">
-          <p class="content-cal-section-title">Member Benefits</p>
-          <div class="content-cal-grid">
+          {{!-- Internal sidebar --}}
+          <aside class="cc-sidebar">
+            <div class="cc-sidebar-inner">
 
-            <a href="/dashboard/journals/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path><path d="M8 7h6"></path><path d="M8 11h4"></path></svg>
-              <span class="content-cal-card-label">Archive</span>
-              <h2 class="content-cal-card-title">Past Journals</h2>
-              <p class="content-cal-card-desc">Digital versions of past issues of the Mere Orthodoxy journal.</p>
-              <span class="content-cal-card-action">
-                View Journals
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
+              <div class="cc-sidebar-section">
+                <div class="cc-sidebar-section-head">
+                  <span class="cc-sidebar-section-label">Projects</span>
+                  <button type="button" class="cc-sidebar-action" data-cc-add-project title="Add project">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  </button>
+                </div>
 
-            <a href="https://discord.gg/mereorthodoxy" target="_blank" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              <span class="content-cal-card-label">Community</span>
-              <h2 class="content-cal-card-title">Online Community</h2>
-              <p class="content-cal-card-desc">The Society of St. Anne's on Discord for conversation and fellowship.</p>
-              <span class="content-cal-card-action">
-                Open Discord
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
+                <div data-cc-group="operations">
+                  <button type="button" class="cc-sidebar-group-toggle" data-cc-toggle-group="operations">
+                    <svg class="cc-sidebar-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <span class="cc-sidebar-group-label">Operations</span>
+                    <span class="cc-sidebar-group-count" data-cc-count="operations"></span>
+                  </button>
+                  <ul class="cc-sidebar-list" data-cc-list="operations"></ul>
+                </div>
 
-            <a href="/ebooks/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"></path></svg>
-              <span class="content-cal-card-label">Library</span>
-              <h2 class="content-cal-card-title">eBooks</h2>
-              <p class="content-cal-card-desc">Topic eBooks collecting our best writing into focused volumes.</p>
-              <span class="content-cal-card-action">
-                View Library
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
+                <div data-cc-group="podcasts">
+                  <button type="button" class="cc-sidebar-group-toggle" data-cc-toggle-group="podcasts">
+                    <svg class="cc-sidebar-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <span class="cc-sidebar-group-label">Podcasts</span>
+                    <span class="cc-sidebar-group-count" data-cc-count="podcasts"></span>
+                  </button>
+                  <ul class="cc-sidebar-list" data-cc-list="podcasts"></ul>
+                </div>
+              </div>
 
-            <a href="/dashboard/replays/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <span class="content-cal-card-label">Exclusive</span>
-              <h2 class="content-cal-card-title">Online Events</h2>
-              <p class="content-cal-card-desc">Replays of member-only live conversations, lectures, and Q&amp;A sessions.</p>
-              <span class="content-cal-card-action">
-                View Events
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
+              <div class="cc-sidebar-foot">
+                <button type="button" class="cc-sidebar-foot-btn" data-cc-sync-podcasts>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                  Sync Podcasts
+                </button>
+                <button type="button" class="cc-sidebar-foot-btn" data-cc-import-asana>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  Import from Asana
+                </button>
+                <button type="button" class="cc-sidebar-foot-btn" data-cc-settings>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  Settings
+                </button>
+              </div>
 
-            <a href="/dashboard/bookmarks/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-              <span class="content-cal-card-label">Personalized</span>
-              <h2 class="content-cal-card-title">Reading List</h2>
-              <p class="content-cal-card-desc">Member-saved articles from across the site, in a personal reading queue.</p>
-              <span class="content-cal-card-action">
-                View Feature
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
+            </div>
+          </aside>
 
-            <a href="/dashboard/commonplace/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
-              <span class="content-cal-card-label">Personal</span>
-              <h2 class="content-cal-card-title">Commonplace Book</h2>
-              <p class="content-cal-card-desc">Highlighted passages collected into a personal anthology.</p>
-              <span class="content-cal-card-action">
-                View Feature
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
+          {{!-- Calendar main --}}
+          <div class="cc-main">
+            <div class="cc-main-head">
+              <h2 class="cc-main-title">What's Happening This Week</h2>
+              <div class="cc-week-nav">
+                <button type="button" class="cc-week-nav-btn" data-cc-prev-week>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button type="button" class="cc-week-nav-label" data-cc-this-week>This Week</button>
+                <button type="button" class="cc-week-nav-btn" data-cc-next-week>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                <span class="cc-week-nav-range" data-cc-week-range></span>
+              </div>
+            </div>
 
-          </div>
-        </div>
+            <div class="cc-filters">
+              <div class="cc-filter" data-cc-filter="project">
+                <button type="button" class="cc-filter-btn">Project <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                <div class="cc-filter-dropdown" hidden></div>
+              </div>
+              <div class="cc-filter" data-cc-filter="type">
+                <button type="button" class="cc-filter-btn">Content Type <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                <div class="cc-filter-dropdown" hidden></div>
+              </div>
+              <div class="cc-filter" data-cc-filter="person">
+                <button type="button" class="cc-filter-btn">Person <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                <div class="cc-filter-dropdown" hidden></div>
+              </div>
+              <div class="cc-filter" data-cc-filter="status">
+                <button type="button" class="cc-filter-btn">Status <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                <div class="cc-filter-dropdown" hidden></div>
+              </div>
+            </div>
 
-        <div class="content-cal-section">
-          <p class="content-cal-section-title">Content Resources</p>
-          <div class="content-cal-grid">
-
-            <a href="/the-faith-received/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
-              <span class="content-cal-card-label">Reading Room</span>
-              <h2 class="content-cal-card-title">The Faith Received</h2>
-              <p class="content-cal-card-desc">22 historic documents with search, topics, scripture index, and daily devotional.</p>
-              <span class="content-cal-card-action">
-                Open
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
-
-            <a href="/bible/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
-              <span class="content-cal-card-label">Scripture</span>
-              <h2 class="content-cal-card-title">Bible Reader</h2>
-              <p class="content-cal-card-desc">Full scripture reader with cross-references to The Faith Received.</p>
-              <span class="content-cal-card-action">
-                Open
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
-
-            <a href="/dashboard/prayer/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 6v6l4 2"></path></svg>
-              <span class="content-cal-card-label">Devotional</span>
-              <h2 class="content-cal-card-title">Daily Prayer</h2>
-              <p class="content-cal-card-desc">BCP-based daily prayer offices for member devotional life.</p>
-              <span class="content-cal-card-action">
-                View Feature
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
+            <div class="cc-days" data-cc-days></div>
 
           </div>
+
         </div>
-
-        <div class="content-cal-section">
-          <p class="content-cal-section-title">External Presence</p>
-          <div class="content-cal-grid">
-
-            <a href="/podcasts/mere-fidelity/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-              <span class="content-cal-card-label">Podcast</span>
-              <h2 class="content-cal-card-title">Mere Fidelity</h2>
-              <p class="content-cal-card-desc">Weekly theology podcast with conversation and debate.</p>
-              <span class="content-cal-card-action">
-                View Page
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
-
-            <a href="/podcasts/christians-reading-classics/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-              <span class="content-cal-card-label">Podcast</span>
-              <h2 class="content-cal-card-title">Christians Reading Classics</h2>
-              <p class="content-cal-card-desc">Walking through classic Christian literature together.</p>
-              <span class="content-cal-card-action">
-                View Page
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
-
-            <a href="/forum/" class="content-cal-card">
-              <svg class="content-cal-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-              <span class="content-cal-card-label">Community</span>
-              <h2 class="content-cal-card-title">Forum</h2>
-              <p class="content-cal-card-desc">Member discussion forum for the Mere Orthodoxy community.</p>
-              <span class="content-cal-card-action">
-                View Forum
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
-              </span>
-            </a>
-
-          </div>
-        </div>
-
-      </div>
-    </section>
+      </section>
 
     </div>
 
@@ -187,3 +119,4 @@
 </main>
 
 <script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-content.js"}}"></script>
