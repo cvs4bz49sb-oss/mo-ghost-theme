@@ -284,7 +284,7 @@
         const itemList = visible.map((it) => {
           const cat = data.categories.find((c) => { return c.id === it.type; });
           const col = cat ? cat.color : "#9a8773";
-          return `<div class="cc-mcell-item" data-cc-item-id="${it.id}" draggable="true" style="background:${col}20;border-left:3px solid ${col}">` +
+          return `<div class="cc-mcell-item" data-cc-item-id="${it.id}" draggable="true" style="background:${col}">` +
             `<span class="cc-mcell-item-title">${esc(it.title)}</span>` +
           `</div>`;
         }).join("");
