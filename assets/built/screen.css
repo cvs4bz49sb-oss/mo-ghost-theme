@@ -15583,6 +15583,36 @@ body:has(.admin-workspace) .post-feed-spacer {
   margin: 0 0 12px;
 }
 
+/* ---- Workspace de-branding ----
+   Kill the editorial display font and decorative italics everywhere
+   inside the admin shell. Headings use the body sans; the basic serif
+   (Source Serif / Georgia) is fine for body text if inherited. */
+.admin-workspace h1,
+.admin-workspace h2,
+.admin-workspace h3,
+.admin-workspace h4,
+.admin-workspace h5,
+.admin-workspace h6,
+.admin-workspace .dashboard-module-title,
+.admin-workspace .dashboard-form-legend,
+.admin-workspace .admin-section-title,
+.admin-workspace .admin-stat-value,
+.admin-workspace .admin-headline,
+.admin-workspace .ws-landing-card-title,
+.admin-workspace .admin-topbar-title,
+.admin-workspace .copy-result-platform {
+  font-family: var(--font-body) !important;
+  font-style: normal !important;
+}
+.admin-workspace .dashboard-form-legend em,
+.admin-workspace .admin-section-title em,
+.admin-workspace .admin-headline em,
+.admin-workspace .admin-topbar-title em,
+.admin-workspace .dashboard-module-title em {
+  font-style: normal !important;
+  color: inherit !important;
+}
+
 /* ---- Mobile sidebar ---- */
 .ws-sidebar-toggle {
   display: none;
