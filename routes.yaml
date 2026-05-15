@@ -101,8 +101,6 @@ routes:
     template: custom-admin-social
   /admin/assets/:
     template: custom-admin-assets
-  /admin/quote/:
-    template: custom-admin-quote
   /admin/copy/:
     template: custom-admin-copy
   /admin/extract/:
