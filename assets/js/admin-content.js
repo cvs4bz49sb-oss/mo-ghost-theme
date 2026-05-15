@@ -277,14 +277,19 @@
           itemDots += `<span class="cc-mcell-more">+${dayItems.length - 4}</span>`;
         }
 
-        const itemList = dayItems.map((it) => {
+        const MAX_VISIBLE = 3;
+        const visible = dayItems.slice(0, MAX_VISIBLE);
+        const overflow = dayItems.length - MAX_VISIBLE;
+
+        const itemList = visible.map((it) => {
           const cat = data.categories.find((c) => { return c.id === it.type; });
           const col = cat ? cat.color : "#9a8773";
-          return `<div class="cc-mcell-item" data-cc-item-id="${it.id}" draggable="true">` +
-            `<span class="cc-item-dot" style="background:${col}"></span>` +
+          return `<div class="cc-mcell-item" data-cc-item-id="${it.id}" draggable="true" style="background:${col}20;border-left:3px solid ${col}">` +
             `<span class="cc-mcell-item-title">${esc(it.title)}</span>` +
           `</div>`;
         }).join("");
+
+        const moreHtml = overflow > 0 ? `<span class="cc-mcell-more">+${overflow} more</span>` : "";
 
         cells.push(
           `<div class="cc-month-cell${today ? ' is-today' : ''}${!isCurrentMonth ? ' is-other-month' : ''}" data-cc-date="${dateStr}">` +
@@ -292,7 +297,7 @@
               `<span class="cc-mcell-date${today ? ' is-today' : ''}">${cell.getDate()}</span>` +
               `<button type="button" class="cc-mcell-add" data-cc-add-item="${dateStr}">+</button>` +
             `</div>` +
-            `<div class="cc-mcell-items">${itemList}</div>` +
+            `<div class="cc-mcell-items">${itemList}${moreHtml}</div>` +
           `</div>`
         );
       }
