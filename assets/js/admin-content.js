@@ -218,6 +218,9 @@
         return `<li><button type="button" class="${cls}" data-cc-project-id="${p.id}">` +
           `<span class="cc-sidebar-dot" style="background:${p.color}"></span>` +
           `<span class="cc-sidebar-item-name">${esc(p.name)}</span>` +
+          `<span class="cc-sidebar-item-edit" data-cc-edit-project="${p.id}" title="Edit project">` +
+            `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>` +
+          `</span>` +
           `</button></li>`;
       }).join("");
 
@@ -673,6 +676,72 @@
     };
   }
 
+  function showEditProjectModal(projectId) {
+    const proj = data.projects.find((p) => p.id === projectId);
+    if (!proj) return;
+
+    const overlay = document.createElement("div");
+    overlay.className = "cc-modal-overlay";
+    overlay.innerHTML =
+      `<div class="cc-modal" style="max-width:400px">` +
+        `<h3 class="cc-modal-title">Edit Project</h3>` +
+        `<label class="cc-modal-field"><span>Name</span><input type="text" data-cc-edit-proj-name value="${escAttr(proj.name)}"></label>` +
+        `<label class="cc-modal-field"><span>Group</span><select data-cc-edit-proj-group>` +
+          `<option value="operations"${proj.group === "operations" ? " selected" : ""}>Operations</option>` +
+          `<option value="podcasts"${proj.group === "podcasts" ? " selected" : ""}>Podcasts</option>` +
+        `</select></label>` +
+        `<label class="cc-modal-field"><span>Color</span>` +
+          `<div class="cc-color-picker">${
+            SWATCH_COLORS.map((c) => {
+              return `<button type="button" class="cc-color-swatch${c === proj.color ? " is-active" : ""}" data-cc-color="${c}" style="background:${c}"></button>`;
+            }).join("")
+          }</div>` +
+        `</label>` +
+        `<div class="cc-modal-actions">` +
+          `<button type="button" class="btn btn-sm cc-btn-danger" data-cc-edit-proj-delete>Delete Project</button>` +
+          `<span style="flex:1"></span>` +
+          `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
+          `<button type="button" class="btn btn-sm btn-primary" data-cc-edit-proj-save>Save</button>` +
+        `</div>` +
+      `</div>`;
+
+    root.appendChild(overlay);
+    const nameInput = overlay.querySelector("[data-cc-edit-proj-name]");
+    nameInput.focus();
+    let editColor = proj.color;
+
+    overlay.querySelectorAll(".cc-color-swatch").forEach((sw) => {
+      sw.onclick = function () {
+        overlay.querySelectorAll(".cc-color-swatch").forEach((s) => { s.classList.remove("is-active"); });
+        sw.classList.add("is-active");
+        editColor = sw.dataset.ccColor;
+      };
+    });
+
+    overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+
+    overlay.querySelector("[data-cc-edit-proj-delete]").onclick = function () {
+      data.projects = data.projects.filter((p) => p.id !== projectId);
+      if (activeProject === projectId) activeProject = null;
+      save(data);
+      renderSidebar();
+      renderCalendar();
+      overlay.remove();
+    };
+
+    overlay.querySelector("[data-cc-edit-proj-save]").onclick = function () {
+      const newName = nameInput.value.trim();
+      if (newName) proj.name = newName;
+      proj.group = overlay.querySelector("[data-cc-edit-proj-group]").value;
+      proj.color = editColor;
+      save(data);
+      renderSidebar();
+      renderCalendar();
+      overlay.remove();
+    };
+  }
+
   function showSettingsModal() {
     const overlay = document.createElement("div");
     overlay.className = "cc-modal-overlay";
@@ -1071,6 +1140,14 @@
       data.items = data.items.filter((it) => { return it.id !== btn.dataset.ccRemoveItem; });
       save(data);
       renderCalendar();
+      return;
+    }
+
+    // Edit project (intercept before project-id toggle)
+    btn = e.target.closest("[data-cc-edit-project]");
+    if (btn) {
+      e.stopPropagation();
+      showEditProjectModal(btn.dataset.ccEditProject);
       return;
     }
 

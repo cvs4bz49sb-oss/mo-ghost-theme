@@ -29,6 +29,38 @@
     });
   }
 
+  // Collapsible sections — persisted in localStorage
+  const COLLAPSE_KEY = "mo_admin_sidebar_collapsed";
+  let collapsed = {};
+  try { collapsed = JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; } catch (e) { /* ignore */ }
+
+  sidebar.querySelectorAll("[data-ws-section]").forEach((section) => {
+    const key = section.dataset.wsSection;
+    if (collapsed[key]) section.classList.add("is-collapsed");
+  });
+
+  sidebar.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-ws-section-toggle]");
+    if (!btn) return;
+    const key = btn.dataset.wsSectionToggle;
+    const section = sidebar.querySelector(`[data-ws-section="${key}"]`);
+    if (!section) return;
+    section.classList.toggle("is-collapsed");
+    collapsed[key] = section.classList.contains("is-collapsed");
+    localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapsed));
+  });
+
+  // Auto-expand the section containing the active page
+  const activeLink = sidebar.querySelector(".ws-sidebar-link.is-active");
+  if (activeLink) {
+    const parentSection = activeLink.closest("[data-ws-section]");
+    if (parentSection && parentSection.classList.contains("is-collapsed")) {
+      parentSection.classList.remove("is-collapsed");
+      delete collapsed[parentSection.dataset.wsSection];
+      localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapsed));
+    }
+  }
+
   const toggle = document.querySelector("[data-ws-toggle]");
   const backdrop = document.querySelector("[data-ws-backdrop]");
   if (toggle) toggle.addEventListener("click", () => { sidebar.classList.toggle("is-open"); });
