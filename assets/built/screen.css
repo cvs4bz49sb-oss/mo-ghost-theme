@@ -15309,7 +15309,7 @@ body:has(.admin-workspace) {
   min-height: 100vh;
   overflow-x: hidden;
 }
-body:has(.admin-workspace) > *:not(.admin-workspace) {
+body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   display: none !important;
 }
 .admin-workspace {
