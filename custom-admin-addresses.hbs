@@ -4,18 +4,14 @@
      member, but the worker rejects non-admin emails with 403 and the
      JS surfaces a denied state. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
   {{#if @member}}
-
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members</p>
-        <h1 class="admin-headline">Shipping <em><span class="highlight">addresses</span></em>.</h1>
-        <p class="admin-sub">Every saved address from members, gift recipients, and group purchases. Download the CSV when you're ready to print labels.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="members"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Shipping Addresses</em></h1>
+        <p class="admin-topbar-sub">Every saved address from members, gift recipients, and group purchases.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container">
@@ -50,10 +46,12 @@
       </div>
     </section>
 
+    </div>
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-table.js"}}"></script>

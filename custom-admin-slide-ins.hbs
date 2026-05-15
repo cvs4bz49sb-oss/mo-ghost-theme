@@ -3,19 +3,16 @@
      Staff-only writes; active slide-ins served publicly by
      GET /slide-ins on the admin worker. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
 
   {{#if @member}}
 
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Settings</p>
-        <h1 class="admin-headline">Slide-in <em><span class="highlight">CTAs</span></em>.</h1>
-        <p class="admin-sub">Subtle prompts that appear on the public site. Targeted by page, audience, and frequency.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="slide-ins"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Slide-in CTAs</em></h1>
+        <p class="admin-topbar-sub">Subtle prompts that appear on the public site. Targeted by page, audience, and frequency.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container container-narrow">
@@ -160,6 +157,8 @@
       </div>
     </section>
 
+    </div>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
@@ -167,4 +166,5 @@
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-slide-ins.js"}}"></script>

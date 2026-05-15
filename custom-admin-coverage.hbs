@@ -7,19 +7,16 @@
      stores the result in mo-admin's SETTINGS KV. Renders the most
      recent scan; "Run scan" button triggers an ad-hoc rebuild. --}}
 
-<main class="admin-page admin-coverage">
+<main class="admin-page admin-workspace admin-coverage">
 
   {{#if @member}}
 
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Coverage</p>
-        <h1 class="admin-headline">Coverage <em><span class="highlight">Scan</span></em>.</h1>
-        <p class="admin-sub">Where 15 peer publications are aiming today — and where Mere Orthodoxy is uniquely positioned to write into the gaps.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="coverage"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Coverage Scan</em></h1>
+        <p class="admin-topbar-sub">Where peer publications are aiming today, and where MO is uniquely positioned to write into the gaps.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container">
@@ -116,6 +113,8 @@
       </div>
     </section>
 
+    </div>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
@@ -123,4 +122,5 @@
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-coverage.js"}}"></script>

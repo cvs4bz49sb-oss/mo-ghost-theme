@@ -3,19 +3,16 @@
      module. Staff-only writes; active config served publicly by
      GET /engagement on the admin worker. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
 
   {{#if @member}}
 
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Dashboard</p>
-        <h1 class="admin-headline">Member <em><span class="highlight">Engagement</span></em>.</h1>
-        <p class="admin-sub">A branded module at the top of the member dashboard. Configure the type, content, and toggle it on or off.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="engagement"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Member Engagement</em></h1>
+        <p class="admin-topbar-sub">A branded module at the top of the member dashboard. Configure the type, content, and toggle it on or off.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container container-narrow">
@@ -132,6 +129,8 @@
       </div>
     </section>
 
+    </div>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
@@ -139,4 +138,5 @@
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-engagement.js"}}"></script>

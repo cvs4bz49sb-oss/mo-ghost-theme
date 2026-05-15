@@ -2,16 +2,6 @@
      /traffic/* endpoints. Page renders a skeleton that the JS
      populates. No cards. --}}
 
-<section class="hero admin-hero">
-  <div class="container">
-    <p class="hero-kicker"><span class="dot"></span> Admin &middot; Analytics</p>
-    <h1 class="admin-headline"><em>Traffic.</em></h1>
-    <p class="admin-sub">Who's reading what, from where, how long. Via Plausible.</p>
-  </div>
-</section>
-
-{{> "admin-nav"}}
-
 <section class="admin-body"
          data-admin-traffic
          data-worker-url="{{@custom.admin_worker_url}}"

@@ -4,17 +4,14 @@
      plus status mismatches where Ghost and Kit disagree on tier.
      Powered by the mo-kit-bridge worker's /api/drift endpoint. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
   {{#if @member}}
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members</p>
-        <h1 class="admin-headline">Drift <em><span class="highlight">Report</span></em>.</h1>
-        <p class="admin-sub">Ghost and Kit should always agree. Anything on this page is out of sync — investigate, then either re-sync or delete.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="members"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Drift Report</em></h1>
+        <p class="admin-topbar-sub">Ghost and Kit should always agree. Anything on this page is out of sync.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container">
@@ -98,10 +95,13 @@
         </div>
       </div>
     </section>
+
+    </div>
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-drift.js"}}"></script>

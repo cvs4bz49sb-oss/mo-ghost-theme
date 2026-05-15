@@ -1,18 +1,14 @@
 {{!< default}}
 {{!-- /admin/members/groups/ — active group subscriptions. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
   {{#if @member}}
-
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members</p>
-        <h1 class="admin-headline">Groups <em><span class="highlight">overview</span></em>.</h1>
-        <p class="admin-sub">Every group membership on the platform. Download the CSV for reporting or cohort work.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="members"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Group Memberships</em></h1>
+        <p class="admin-topbar-sub">Every group membership on the platform. Download the CSV for reporting.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container">
@@ -47,10 +43,12 @@
       </div>
     </section>
 
+    </div>
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-table.js"}}"></script>

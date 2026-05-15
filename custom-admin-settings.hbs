@@ -3,19 +3,16 @@
      Journal status, gate config, etc. Staff-only writes; values are
      read publicly by site-settings.js on every page. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
 
   {{#if @member}}
 
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Settings</p>
-        <h1 class="admin-headline">Site <em><span class="highlight">Settings</span></em>.</h1>
-        <p class="admin-sub">Operational values that affect the public site. Changes take effect within a minute.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="settings"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Settings</em></h1>
+        <p class="admin-topbar-sub">Operational values that affect the public site. Changes take effect within a minute.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container container-narrow">
@@ -67,6 +64,8 @@
       </div>
     </section>
 
+    </div>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
@@ -74,4 +73,5 @@
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-settings.js"}}"></script>

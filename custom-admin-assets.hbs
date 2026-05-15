@@ -1,0 +1,164 @@
+{{!< default}}
+{{!-- /admin/assets/ — Social media asset creator.
+     Canvas-based tool for creating branded Instagram carousels
+     (1080x1350, up to 12 panels) and stories (1080x1920).
+     Pull article content from Ghost Content API via URL. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="assets"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Social Assets</em></h1>
+        <p class="admin-topbar-sub">Create branded carousel and story images for Instagram.</p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container">
+
+          <div class="asset-creator"
+               data-asset-creator
+               {{#if @custom.content_api_key}}data-content-api-key="{{@custom.content_api_key}}"{{/if}}
+               data-site-url="{{@site.url}}">
+
+            {{!-- Mode + article pull toolbar --}}
+            <div class="asset-toolbar">
+              <div class="asset-toolbar-modes">
+                <button type="button" class="asset-mode-btn is-active" data-asset-mode="carousel">Carousel <span class="asset-mode-dim">1080 &times; 1350</span></button>
+                <button type="button" class="asset-mode-btn" data-asset-mode="story">Story <span class="asset-mode-dim">1080 &times; 1920</span></button>
+              </div>
+              <div class="asset-toolbar-pull">
+                <input type="text" class="asset-url-input" data-asset-url placeholder="Paste article URL to pull title, author, and image..." />
+                <button type="button" class="btn btn-pill btn-primary btn-sm" data-asset-pull>Pull</button>
+              </div>
+            </div>
+
+            <div class="asset-workspace">
+
+              {{!-- Left panel: settings --}}
+              <aside class="asset-settings">
+
+                <div class="asset-settings-group">
+                  <p class="asset-settings-label">Template</p>
+                  <div class="asset-template-grid" data-asset-templates>
+                    <button type="button" class="asset-template-btn is-active" data-template="title-card" title="Title card">Title</button>
+                    <button type="button" class="asset-template-btn" data-template="quote-card" title="Quote card">Quote</button>
+                    <button type="button" class="asset-template-btn" data-template="image-card" title="Image + text">Image</button>
+                    <button type="button" class="asset-template-btn" data-template="text-card" title="Body text">Text</button>
+                    <button type="button" class="asset-template-btn" data-template="cta-card" title="Call to action">CTA</button>
+                    <button type="button" class="asset-template-btn" data-template="blank" title="Blank canvas">Blank</button>
+                  </div>
+                </div>
+
+                <div class="asset-settings-group">
+                  <p class="asset-settings-label">Background</p>
+                  <div class="asset-color-swatches" data-asset-bg-swatches>
+                    <button type="button" class="asset-swatch is-active" data-bg="#1d1b18" style="background:#1d1b18" title="Dark"></button>
+                    <button type="button" class="asset-swatch" data-bg="#f1e0c9" style="background:#f1e0c9" title="Warm"></button>
+                    <button type="button" class="asset-swatch" data-bg="#f6f3f2" style="background:#f6f3f2" title="Light"></button>
+                    <button type="button" class="asset-swatch" data-bg="#ee7d51" style="background:#ee7d51" title="Orange"></button>
+                    <button type="button" class="asset-swatch" data-bg="#2d2927" style="background:#2d2927" title="Charcoal"></button>
+                    <button type="button" class="asset-swatch" data-bg="#c1593c" style="background:#c1593c" title="Rust"></button>
+                  </div>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Custom</span>
+                    <input type="color" data-asset-bg-custom value="#1d1b18" />
+                  </label>
+                </div>
+
+                <div class="asset-settings-group">
+                  <p class="asset-settings-label">Text color</p>
+                  <div class="asset-color-swatches" data-asset-fg-swatches>
+                    <button type="button" class="asset-swatch is-active" data-fg="#ffffff" style="background:#ffffff" title="White"></button>
+                    <button type="button" class="asset-swatch" data-fg="#1d1b18" style="background:#1d1b18" title="Dark"></button>
+                    <button type="button" class="asset-swatch" data-fg="#ee7d51" style="background:#ee7d51" title="Orange"></button>
+                    <button type="button" class="asset-swatch" data-fg="#f1e0c9" style="background:#f1e0c9" title="Warm"></button>
+                  </div>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Custom</span>
+                    <input type="color" data-asset-fg-custom value="#ffffff" />
+                  </label>
+                </div>
+
+                <div class="asset-settings-group">
+                  <p class="asset-settings-label">Content</p>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Title</span>
+                    <input type="text" data-asset-field="title" placeholder="Article title..." />
+                  </label>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Subtitle</span>
+                    <input type="text" data-asset-field="subtitle" placeholder="Author or tagline..." />
+                  </label>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Body</span>
+                    <textarea data-asset-field="body" rows="4" placeholder="Quote or body text..."></textarea>
+                  </label>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Font size</span>
+                    <input type="range" data-asset-fontsize min="24" max="96" value="48" />
+                    <span class="asset-settings-field-value" data-asset-fontsize-val>48</span>
+                  </label>
+                  <label class="asset-settings-field asset-settings-field--checkbox">
+                    <input type="checkbox" data-asset-watermark checked />
+                    <span class="asset-settings-field-label">Show MO wordmark</span>
+                  </label>
+                </div>
+
+                <div class="asset-settings-group">
+                  <p class="asset-settings-label">Background image</p>
+                  <div class="asset-image-controls">
+                    <button type="button" class="btn btn-pill btn-ghost btn-sm" data-asset-image-upload>Upload image</button>
+                    <input type="file" accept="image/*" data-asset-image-file hidden />
+                    <button type="button" class="btn btn-pill btn-ghost btn-sm" data-asset-image-clear hidden>Clear image</button>
+                  </div>
+                  <label class="asset-settings-field">
+                    <span class="asset-settings-field-label">Overlay opacity</span>
+                    <input type="range" data-asset-overlay min="0" max="100" value="60" />
+                    <span class="asset-settings-field-value" data-asset-overlay-val>60%</span>
+                  </label>
+                </div>
+
+              </aside>
+
+              {{!-- Canvas preview --}}
+              <div class="asset-preview">
+                <div class="asset-canvas-wrap" data-asset-canvas-wrap>
+                  <canvas data-asset-canvas width="1080" height="1350"></canvas>
+                </div>
+
+                {{!-- Carousel panel navigation --}}
+                <div class="asset-panels" data-asset-panels>
+                  <div class="asset-panels-strip" data-asset-panel-strip>
+                    <button type="button" class="asset-panel-thumb is-active" data-panel-idx="0">1</button>
+                  </div>
+                  <button type="button" class="asset-panel-add" data-asset-panel-add title="Add panel">+</button>
+                  <button type="button" class="asset-panel-remove" data-asset-panel-remove title="Remove current panel">&minus;</button>
+                </div>
+
+                <div class="asset-actions">
+                  <button type="button" class="btn btn-pill btn-primary" data-asset-export>Download this panel</button>
+                  <button type="button" class="btn btn-pill btn-dark" data-asset-export-all>Download all panels</button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-assets.js"}}"></script>

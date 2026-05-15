@@ -1,0 +1,107 @@
+{{!< default}}
+{{!-- /admin/extract/ — Article Extractor.
+     Pulls article data from any MO article URL via Ghost Content API.
+     Displays title, author, excerpt, tags, word count, feature image,
+     and plaintext in a copy-friendly format. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="extract"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Article Extractor</em></h1>
+        <p class="admin-topbar-sub">Pull structured data from any Mere Orthodoxy article.</p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container container-narrow">
+
+          <div class="extract-creator"
+               data-extract-creator
+               {{#if @custom.content_api_key}}data-content-api-key="{{@custom.content_api_key}}"{{/if}}
+               data-site-url="{{@site.url}}">
+
+            <div class="dashboard-module">
+              <div class="dashboard-form-group">
+                <label class="dashboard-form-field">
+                  <span class="dashboard-form-label">Article URL</span>
+                  <div class="asset-toolbar-pull">
+                    <input type="text" class="asset-url-input" data-extract-url placeholder="Paste any Mere Orthodoxy article URL..." />
+                    <button type="button" class="btn btn-pill btn-primary btn-sm" data-extract-pull>Extract</button>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <p class="dashboard-form-success" data-extract-status hidden></p>
+
+            <div data-extract-output hidden style="margin-top: 32px">
+
+              <div class="admin-stats" data-extract-stats>
+                <div class="admin-stat"><span class="admin-stat-label">Words</span><span class="admin-stat-value" data-extract-stat="words">&mdash;</span></div>
+                <div class="admin-stat"><span class="admin-stat-label">Reading time</span><span class="admin-stat-value" data-extract-stat="reading">&mdash;</span></div>
+                <div class="admin-stat"><span class="admin-stat-label">Published</span><span class="admin-stat-value" data-extract-stat="published">&mdash;</span></div>
+              </div>
+
+              <div class="copy-result-card" style="margin-top: 24px">
+                <p class="copy-result-platform">Title</p>
+                <p class="copy-result-text" data-extract-title></p>
+                <div class="copy-result-actions">
+                  <button type="button" class="btn btn-pill btn-ghost btn-sm" data-extract-copy="title">Copy</button>
+                </div>
+              </div>
+
+              <div class="copy-result-card">
+                <p class="copy-result-platform">Author</p>
+                <p class="copy-result-text" data-extract-author></p>
+              </div>
+
+              <div class="copy-result-card" data-extract-excerpt-card hidden>
+                <p class="copy-result-platform">Excerpt</p>
+                <p class="copy-result-text" data-extract-excerpt></p>
+                <div class="copy-result-actions">
+                  <button type="button" class="btn btn-pill btn-ghost btn-sm" data-extract-copy="excerpt">Copy</button>
+                </div>
+              </div>
+
+              <div class="copy-result-card" data-extract-tags-card hidden>
+                <p class="copy-result-platform">Tags</p>
+                <p class="copy-result-text" data-extract-tags></p>
+              </div>
+
+              <div class="copy-result-card" data-extract-image-card hidden>
+                <p class="copy-result-platform">Feature image</p>
+                <img data-extract-image alt="" style="max-width: 100%; border-radius: 6px; margin: 8px 0" />
+                <div class="copy-result-actions">
+                  <button type="button" class="btn btn-pill btn-ghost btn-sm" data-extract-copy="image">Copy URL</button>
+                </div>
+              </div>
+
+              <div class="copy-result-card">
+                <p class="copy-result-platform">Plaintext</p>
+                <p class="copy-result-text" data-extract-plaintext style="max-height: 400px; overflow-y: auto; font-size: 13px"></p>
+                <div class="copy-result-actions">
+                  <button type="button" class="btn btn-pill btn-ghost btn-sm" data-extract-copy="plaintext">Copy all</button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-extract.js"}}"></script>

@@ -4,19 +4,16 @@
      social media routine. Staff-only; reads from GET /social/status
      on the admin worker. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
 
   {{#if @member}}
 
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Communications</p>
-        <h1 class="admin-headline">Social <em><span class="highlight">Media</span></em>.</h1>
-        <p class="admin-sub">Scheduled posts, errors, and daily automation status from the social media routine.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="social"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Social Media</em></h1>
+        <p class="admin-topbar-sub">Scheduled posts, errors, and daily automation status from the social media routine.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container container-narrow">
@@ -45,6 +42,8 @@
       </div>
     </section>
 
+    </div>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
@@ -52,4 +51,5 @@
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-social.js"}}"></script>

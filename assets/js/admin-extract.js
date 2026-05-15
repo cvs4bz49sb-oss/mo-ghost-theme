@@ -1,0 +1,131 @@
+(function () {
+  "use strict";
+
+  var root = document.querySelector("[data-extract-creator]");
+  if (!root) return;
+
+  var siteUrl = (root.dataset.siteUrl || "").replace(/\/$/, "");
+  var contentApiKey = root.dataset.contentApiKey || "";
+
+  var $url = root.querySelector("[data-extract-url]");
+  var $pullBtn = root.querySelector("[data-extract-pull]");
+  var $status = root.querySelector("[data-extract-status]");
+  var $output = root.querySelector("[data-extract-output]");
+  var $title = root.querySelector("[data-extract-title]");
+  var $author = root.querySelector("[data-extract-author]");
+  var $excerpt = root.querySelector("[data-extract-excerpt]");
+  var $excerptCard = root.querySelector("[data-extract-excerpt-card]");
+  var $tags = root.querySelector("[data-extract-tags]");
+  var $tagsCard = root.querySelector("[data-extract-tags-card]");
+  var $image = root.querySelector("[data-extract-image]");
+  var $imageCard = root.querySelector("[data-extract-image-card]");
+  var $plaintext = root.querySelector("[data-extract-plaintext]");
+
+  var articleData = {};
+
+  $pullBtn.addEventListener("click", extract);
+
+  root.querySelectorAll("[data-extract-copy]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var key = btn.dataset.extractCopy;
+      var text = "";
+      if (key === "title") text = articleData.title || "";
+      else if (key === "excerpt") text = articleData.excerpt || "";
+      else if (key === "image") text = articleData.feature_image || "";
+      else if (key === "plaintext") text = articleData.plaintext || "";
+      if (text) navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = key === "image" ? "Copy URL" : "Copy"; }, 1400);
+      });
+    });
+  });
+
+  async function extract() {
+    var url = $url.value.trim();
+    if (!url) return;
+    if (!contentApiKey) { setStatus("Content API key not configured.", true); return; }
+
+    var slug = url.split("/").filter(Boolean).pop();
+    if (!slug) { setStatus("Could not extract slug from URL.", true); return; }
+
+    $pullBtn.disabled = true;
+    $pullBtn.textContent = "Extracting...";
+    setStatus("");
+
+    try {
+      var apiUrl = siteUrl + "/ghost/api/content/posts/slug/" + slug +
+        "/?key=" + contentApiKey +
+        "&fields=title,custom_excerpt,feature_image,published_at,reading_time,plaintext" +
+        "&include=authors,tags&formats=plaintext";
+      var resp = await fetch(apiUrl);
+      var data = await resp.json();
+      var post = data.posts && data.posts[0];
+      if (!post) throw new Error("Article not found");
+
+      articleData = {
+        title: post.title || "",
+        author: (post.primary_author && post.primary_author.name) || (post.authors && post.authors[0] && post.authors[0].name) || "",
+        excerpt: post.custom_excerpt || "",
+        tags: (post.tags || []).map(function (t) { return t.name; }).join(", "),
+        feature_image: post.feature_image || "",
+        published_at: post.published_at || "",
+        reading_time: post.reading_time || 0,
+        plaintext: post.plaintext || ""
+      };
+
+      renderArticle(articleData);
+    } catch (err) {
+      console.error("Extract failed:", err);
+      setStatus("Failed: " + (err.message || err), true);
+    } finally {
+      $pullBtn.disabled = false;
+      $pullBtn.textContent = "Extract";
+    }
+  }
+
+  function renderArticle(a) {
+    $output.hidden = false;
+
+    $title.textContent = a.title;
+    $author.textContent = a.author;
+
+    if (a.excerpt) {
+      $excerptCard.hidden = false;
+      $excerpt.textContent = a.excerpt;
+    } else {
+      $excerptCard.hidden = true;
+    }
+
+    if (a.tags) {
+      $tagsCard.hidden = false;
+      $tags.textContent = a.tags;
+    } else {
+      $tagsCard.hidden = true;
+    }
+
+    if (a.feature_image) {
+      $imageCard.hidden = false;
+      $image.src = a.feature_image;
+    } else {
+      $imageCard.hidden = true;
+    }
+
+    $plaintext.textContent = a.plaintext;
+
+    var words = a.plaintext ? a.plaintext.split(/\s+/).length : 0;
+    setStatVal("words", words.toLocaleString());
+    setStatVal("reading", a.reading_time ? a.reading_time + " min" : "--");
+    setStatVal("published", a.published_at ? new Date(a.published_at).toLocaleDateString() : "--");
+  }
+
+  function setStatVal(key, val) {
+    var el = root.querySelector('[data-extract-stat="' + key + '"]');
+    if (el) el.textContent = val;
+  }
+
+  function setStatus(text, isError) {
+    $status.textContent = text || "";
+    $status.hidden = !text;
+    $status.style.color = isError ? "#c1593c" : "var(--color-muted)";
+  }
+})();

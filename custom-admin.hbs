@@ -3,7 +3,7 @@
      signed-in member; the mo-admin worker gates by Ghost staff
      membership when stats are fetched. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
 
   {{#if @member}}
     {{> "admin-landing"}}
@@ -12,3 +12,5 @@
   {{/if}}
 
 </main>
+
+<script src="{{asset "js/admin-sidebar.js"}}"></script>

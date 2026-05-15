@@ -9,19 +9,16 @@
      five sibling views: Addresses, Gifts, Groups, Institutions,
      Drift. All live under /admin/members/*. --}}
 
-<main class="admin-page">
+<main class="admin-page admin-workspace">
 
   {{#if @member}}
 
-    <section class="hero admin-hero">
-      <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Admin &middot; Members</p>
-        <h1 class="admin-headline">Members <em><span class="highlight">Analytics</span></em>.</h1>
-        <p class="admin-sub">Who's signing up, in what tier, at what rate.</p>
-      </div>
-    </section>
-
-    {{> "admin-nav"}}
+    {{> "admin-sidebar" active="members"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Members Analytics</em></h1>
+        <p class="admin-topbar-sub">Who's signing up, in what tier, at what rate.</p>
+      </header>
 
     <section class="admin-body">
       <div class="container">
@@ -39,6 +36,8 @@
       </div>
     </section>
 
+    </div>
+
   {{else}}
     {{> "admin-denied"}}
   {{/if}}
@@ -46,4 +45,5 @@
 </main>
 
 <script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-members.js"}}"></script>
