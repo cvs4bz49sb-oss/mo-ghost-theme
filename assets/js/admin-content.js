@@ -64,7 +64,7 @@
 
   function setSyncStatus(s) {
     syncStatus = s;
-    const el = root.querySelector("[data-cc-sync]");
+    const el = document.querySelector("[data-cc-sync]");
     if (!el) return;
     el.className = `cc-sync cc-sync--${s}`;
     const labels = { idle: "Saved", saving: "Saving…", saved: "Synced", error: "Offline" };
