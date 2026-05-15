@@ -4,21 +4,24 @@
   var WORKER = (root.getAttribute("data-worker-url") || "").replace(/\/$/, "");
   if (!WORKER) return;
 
-  var summaryMount = root.querySelector("[data-social-summary]");
-  var postsMount = root.querySelector("[data-social-posts]");
-  var errorsMount = root.querySelector("[data-social-errors]");
+  var statusEl = root.querySelector("[data-social-status]");
+  var statusText = root.querySelector("[data-status-text]");
+  var draftsSection = root.querySelector("[data-social-drafts]");
+  var draftsList = root.querySelector("[data-drafts-list]");
+  var selectAllCb = root.querySelector("[data-select-all]");
+  var deleteModal = root.querySelector("[data-delete-modal]");
+  var deleteBody = root.querySelector("[data-delete-body]");
+  var deleteConfirm = root.querySelector("[data-delete-confirm]");
+  var deleteCancel = root.querySelector("[data-delete-cancel]");
 
-  var PLATFORM_COLORS = {
-    x: "#000000",
-    linkedin: "#0A66C2",
-    threads: "#000000"
-  };
+  var btnGenerate = root.querySelector('[data-action="generate"]');
+  var btnDelete = root.querySelector('[data-action="delete"]');
+  var btnPush = root.querySelector('[data-action="push"]');
 
-  /* -- State -------------------------------------------------------- */
-  var groupedPosts = [];
-  var expandedIndex = -1;
+  var drafts = [];
+  var channels = [];
+  var channelMap = {};
 
-  /* -- Helpers ------------------------------------------------------ */
   function esc(s) {
     var d = document.createElement("div");
     d.textContent = s;
@@ -29,313 +32,336 @@
     return window.MOAuth.fetch(WORKER + path, opts || {});
   }
 
-  function relativeTime(iso) {
-    if (!iso) return "Never";
-    var diff = Date.now() - new Date(iso).getTime();
-    var seconds = Math.floor(diff / 1000);
-    if (seconds < 60) return "just now";
-    var minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return minutes + " min ago";
-    var hours = Math.floor(minutes / 60);
-    if (hours < 24) return hours + "h ago";
-    var days = Math.floor(hours / 24);
-    return days + "d ago";
+  function showStatus(msg, isError) {
+    statusEl.hidden = false;
+    statusText.textContent = msg;
+    statusText.style.color = isError ? "#c0392b" : "var(--color-muted)";
   }
 
-  function formatTime(iso) {
-    if (!iso) return "";
-    var d = new Date(iso);
-    try {
-      return d.toLocaleDateString("en-US", {
-        month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
-      });
-    } catch (_) { return d.toLocaleString(); }
+  function hideStatus() { statusEl.hidden = true; }
+
+  function updateButtons() {
+    var hasDrafts = drafts.length > 0;
+    btnDelete.disabled = !hasDrafts;
+    btnPush.disabled = !hasDrafts || !Object.keys(channelMap).length;
   }
 
-  function platformBadge(platform) {
-    var name = (platform || "").toLowerCase();
-    var color = PLATFORM_COLORS[name] || "#666";
-    var label = name.charAt(0).toUpperCase() + name.slice(1);
-    return '<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;color:#fff;background:' + esc(color) + ';margin-right:4px">' + esc(label) + "</span>";
+  function platformLabel(p) {
+    var names = { twitter: "X", linkedin: "LinkedIn", facebook: "Facebook", threads: "Threads" };
+    return names[p] || p;
   }
 
-  /* -- Group flat posts by article ---------------------------------- */
-  function groupByArticle(posts) {
-    var map = {};
-    var order = [];
-    for (var i = 0; i < posts.length; i++) {
-      var p = posts[i];
-      var key = (p.article || "") + "|" + (p.scheduled_time || p.scheduledTime || "");
-      if (!map[key]) {
-        map[key] = {
-          article: p.article || p.title || "(untitled)",
-          article_url: p.article_url || p.articleUrl || "",
-          scheduled: p.scheduled_time || p.scheduledTime || p.scheduled || "",
-          platforms: []
-        };
-        order.push(key);
-      }
-      map[key].platforms.push({
-        platform: p.platform || "",
-        text: p.text || p.preview || "",
-        post_id: p.post_id || p.postId || ""
-      });
-    }
-    var result = [];
-    for (var j = 0; j < order.length; j++) result.push(map[order[j]]);
-    return result;
+  function platformColor(p) {
+    var colors = { twitter: "#000", linkedin: "#0A66C2", facebook: "#1877F2", threads: "#000" };
+    return colors[p] || "#666";
   }
 
-  /* -- Summary ------------------------------------------------------ */
-  function renderSummary(data) {
-    var html = '<p class="dashboard-form-legend"><em>Status</em></p>';
-    var lastRun = data.lastRun ? relativeTime(data.lastRun) : "Never";
-    var summary = data.summary || {};
-    var articles = summary.articles_selected || summary.articlesSelected || 0;
-    var scheduled = summary.posts_scheduled || summary.postsScheduled || 0;
-    var errors = (data.errors || []).length;
-
-    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px">';
-    html += statBox("Last Run", lastRun, "");
-    html += statBox("Articles", String(articles), "");
-    html += statBox("Scheduled", String(scheduled), "");
-    html += statBox("Errors", String(errors), errors > 0 ? "color:#c0392b" : "");
-    html += "</div>";
-    summaryMount.innerHTML = html;
-  }
-
-  function statBox(label, value, style) {
-    return '<div><p class="admin-sub" style="margin:0 0 4px">' + esc(label) + '</p><p style="font-size:16px;font-weight:600;margin:0;' + style + '">' + esc(value) + "</p></div>";
-  }
-
-  /* -- Posts --------------------------------------------------------- */
-  function renderPosts(posts) {
-    groupedPosts = groupByArticle(posts || []);
-    var html = '<p class="dashboard-form-legend"><em>Scheduled Posts</em></p>';
-
-    if (!groupedPosts.length) {
-      html += '<p class="admin-sub">No scheduled posts.</p>';
-      postsMount.innerHTML = html;
+  /* -- Render drafts -------------------------------------------------- */
+  function renderDrafts() {
+    if (!drafts.length) {
+      draftsSection.hidden = true;
       return;
     }
+    draftsSection.hidden = false;
 
-    // Table header
-    html += '<table style="width:100%;border-collapse:collapse;margin-top:16px;table-layout:fixed">';
-    html += "<colgroup>";
-    html += '<col style="width:40%">';   // Article
-    html += '<col style="width:25%">';   // Platforms
-    html += '<col style="width:35%">';   // Scheduled
-    html += "</colgroup>";
-    html += "<thead><tr>";
-    html += th("Article");
-    html += th("Platforms");
-    html += th("Scheduled");
-    html += "</tr></thead><tbody>";
-
-    for (var i = 0; i < groupedPosts.length; i++) {
-      html += renderGroupRow(groupedPosts[i], i);
-    }
-
-    html += "</tbody></table>";
-    postsMount.innerHTML = html;
-    bindClicks();
-  }
-
-  function th(label) {
-    return '<th style="text-align:left;padding:10px 12px;border-bottom:2px solid var(--color-border);font-weight:600;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:var(--color-muted)">' + esc(label) + "</th>";
-  }
-
-  function renderGroupRow(group, idx) {
-    var isExpanded = idx === expandedIndex;
-    var html = "";
-
-    // Summary row
-    html += '<tr data-group-idx="' + idx + '" class="social-group-summary" style="cursor:pointer' + (isExpanded ? ";background:rgba(0,0,0,.02)" : "") + '">';
-    html += '<td style="padding:12px;border-bottom:1px solid var(--color-border);font-size:14px;font-weight:500;vertical-align:middle">' + esc(group.article) + "</td>";
-    // Platform badges
-    html += '<td style="padding:12px;border-bottom:1px solid var(--color-border);vertical-align:middle">';
-    for (var i = 0; i < group.platforms.length; i++) {
-      html += platformBadge(group.platforms[i].platform);
-    }
-    html += "</td>";
-    html += '<td style="padding:12px;border-bottom:1px solid var(--color-border);font-size:14px;color:var(--color-muted);vertical-align:middle;white-space:nowrap">' + esc(formatTime(group.scheduled)) + "</td>";
-    html += "</tr>";
-
-    // Detail panel row
-    if (isExpanded) {
-      html += '<tr><td colspan="3" style="padding:0;border-bottom:2px solid var(--color-accent, #b45309)">';
-      html += renderDetail(group, idx);
-      html += "</td></tr>";
-    }
-
-    return html;
-  }
-
-  function renderDetail(group, groupIdx) {
-    var html = '<div style="padding:16px 12px 24px">';
-
-    // Article URL (editable)
-    html += '<div style="margin-bottom:16px">';
-    html += '<label style="display:block;font-size:12px;font-weight:600;color:var(--color-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em">Article Link</label>';
-    html += '<input data-field="url" data-group="' + groupIdx + '" type="text" value="' + esc(group.article_url) + '" style="width:100%;padding:8px 10px;border:1px solid var(--color-border);border-radius:4px;font-size:14px;font-family:inherit;color:var(--color-dark);background:var(--color-bg,#fff)">';
-    html += "</div>";
-
-    // Scheduled time (editable)
-    html += '<div style="margin-bottom:20px">';
-    html += '<label style="display:block;font-size:12px;font-weight:600;color:var(--color-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em">Scheduled Date &amp; Time</label>';
-    var isoLocal = toLocalISO(group.scheduled);
-    html += '<input data-field="scheduled" data-group="' + groupIdx + '" type="datetime-local" value="' + esc(isoLocal) + '" style="padding:8px 10px;border:1px solid var(--color-border);border-radius:4px;font-size:14px;font-family:inherit;color:var(--color-dark);background:var(--color-bg,#fff)">';
-    html += "</div>";
-
-    // Per-platform posts
-    for (var i = 0; i < group.platforms.length; i++) {
-      var plat = group.platforms[i];
-      var uid = groupIdx + "-" + i;
-      var isFirst = i === 0;
-
-      html += '<div style="' + (isFirst ? "" : "margin-top:20px;padding-top:20px;border-top:1px solid var(--color-border)") + '">';
-      html += '<div style="margin-bottom:8px">' + platformBadge(plat.platform) + "</div>";
-
-      if (plat.post_id) {
-        html += '<textarea data-edit="' + esc(uid) + '" data-post-id="' + esc(plat.post_id) + '" style="width:100%;min-height:120px;padding:10px;border:1px solid var(--color-border);border-radius:4px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;background:var(--color-bg,#fff);color:var(--color-dark)">' + esc(plat.text) + "</textarea>";
-        html += '<div style="display:flex;align-items:center;gap:12px;margin-top:8px">';
-        html += '<button data-save="' + esc(uid) + '" data-post-id="' + esc(plat.post_id) + '" data-group="' + groupIdx + '" data-plat="' + i + '" style="padding:6px 16px;border:none;border-radius:4px;background:var(--color-accent,#b45309);color:#fff;font-size:13px;font-weight:600;cursor:pointer">Save to Buffer</button>';
-        html += '<span data-status="' + esc(uid) + '" style="font-size:13px"></span>';
-        html += "</div>";
-      } else {
-        html += '<div style="padding:10px;border:1px solid var(--color-border);border-radius:4px;font-size:14px;line-height:1.6;white-space:pre-wrap;color:var(--color-dark)">' + esc(plat.text) + "</div>";
-        html += '<p style="margin:6px 0 0;font-size:12px;color:var(--color-muted)">Not scheduled (channel not connected in Buffer).</p>';
+    var grouped = {};
+    var order = [];
+    for (var i = 0; i < drafts.length; i++) {
+      var d = drafts[i];
+      var key = d.article_slug || d.article_title;
+      if (!grouped[key]) {
+        grouped[key] = { title: d.article_title, url: d.article_url, posts: [] };
+        order.push(key);
       }
-      html += "</div>";
+      grouped[key].posts.push(d);
     }
 
-    html += "</div>";
-    return html;
-  }
+    draftsList.innerHTML = "";
+    for (var j = 0; j < order.length; j++) {
+      var group = grouped[order[j]];
+      var card = document.createElement("div");
+      card.className = "social-draft-card";
 
-  function toLocalISO(iso) {
-    if (!iso) return "";
-    var d = new Date(iso);
-    var y = d.getFullYear();
-    var m = String(d.getMonth() + 1).padStart(2, "0");
-    var day = String(d.getDate()).padStart(2, "0");
-    var h = String(d.getHours()).padStart(2, "0");
-    var min = String(d.getMinutes()).padStart(2, "0");
-    return y + "-" + m + "-" + day + "T" + h + ":" + min;
-  }
-
-  /* -- Events ------------------------------------------------------- */
-  function bindClicks() {
-    var rows = postsMount.querySelectorAll(".social-group-summary");
-    for (var i = 0; i < rows.length; i++) {
-      (function (el) {
-        el.addEventListener("click", function () {
-          var idx = parseInt(el.getAttribute("data-group-idx"), 10);
-          expandedIndex = expandedIndex === idx ? -1 : idx;
-          renderPosts(flattenGroups());
-        });
-      })(rows[i]);
-    }
-
-    var saveBtns = postsMount.querySelectorAll("[data-save]");
-    for (var j = 0; j < saveBtns.length; j++) {
-      (function (btn) {
-        btn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          var uid = btn.getAttribute("data-save");
-          var postId = btn.getAttribute("data-post-id");
-          var groupIdx = parseInt(btn.getAttribute("data-group"), 10);
-          var platIdx = parseInt(btn.getAttribute("data-plat"), 10);
-          savePost(uid, postId, groupIdx, platIdx);
-        });
-      })(saveBtns[j]);
-    }
-  }
-
-  function flattenGroups() {
-    var flat = [];
-    for (var i = 0; i < groupedPosts.length; i++) {
-      var g = groupedPosts[i];
-      for (var j = 0; j < g.platforms.length; j++) {
-        flat.push({
-          article: g.article,
-          article_url: g.article_url,
-          scheduled_time: g.scheduled,
-          platform: g.platforms[j].platform,
-          text: g.platforms[j].text,
-          post_id: g.platforms[j].post_id
-        });
+      var header = document.createElement("div");
+      header.className = "social-draft-card-header";
+      var title = document.createElement("h3");
+      title.className = "social-draft-card-title";
+      title.textContent = group.title;
+      header.appendChild(title);
+      if (group.url) {
+        var link = document.createElement("a");
+        link.href = group.url;
+        link.target = "_blank";
+        link.className = "social-draft-card-link";
+        link.textContent = "View article";
+        header.appendChild(link);
       }
+      card.appendChild(header);
+
+      for (var k = 0; k < group.posts.length; k++) {
+        var post = group.posts[k];
+        var row = document.createElement("div");
+        row.className = "social-draft-row";
+        row.setAttribute("data-draft-id", post.id);
+
+        var rowHead = document.createElement("div");
+        rowHead.className = "social-draft-row-head";
+
+        var cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = true;
+        cb.className = "social-draft-cb";
+        cb.setAttribute("data-draft-cb", post.id);
+        rowHead.appendChild(cb);
+
+        var badge = document.createElement("span");
+        badge.className = "social-draft-badge";
+        badge.style.background = platformColor(post.platform);
+        badge.textContent = platformLabel(post.platform);
+        rowHead.appendChild(badge);
+
+        var charCount = document.createElement("span");
+        charCount.className = "social-draft-chars";
+        charCount.textContent = post.text.length + " chars";
+        rowHead.appendChild(charCount);
+
+        row.appendChild(rowHead);
+
+        var textarea = document.createElement("textarea");
+        textarea.className = "social-draft-text";
+        textarea.value = post.text;
+        textarea.setAttribute("data-draft-text", post.id);
+        textarea.addEventListener("input", (function (postRef, countRef) {
+          return function () {
+            postRef.text = this.value;
+            countRef.textContent = this.value.length + " chars";
+          };
+        })(post, charCount));
+        row.appendChild(textarea);
+
+        card.appendChild(row);
+      }
+
+      draftsList.appendChild(card);
     }
-    return flat;
   }
 
-  /* -- Save --------------------------------------------------------- */
-  function savePost(uid, postId, groupIdx, platIdx) {
-    if (!postId) return;
-    var textarea = postsMount.querySelector('[data-edit="' + uid + '"]');
-    var statusEl = postsMount.querySelector('[data-status="' + uid + '"]');
-    var btn = postsMount.querySelector('[data-save="' + uid + '"]');
-    if (!textarea) return;
+  /* -- Generate ------------------------------------------------------- */
+  btnGenerate.addEventListener("click", function () {
+    btnGenerate.disabled = true;
+    btnGenerate.textContent = "Generating…";
+    showStatus("Pulling recent articles and generating social copy with Claude. This may take a minute…");
 
-    var newText = textarea.value.trim();
-    if (!newText) { if (statusEl) statusEl.textContent = "Text cannot be empty."; return; }
-
-    if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
-    if (statusEl) statusEl.textContent = "";
-
-    authedFetch("/social/post/" + postId, {
-      method: "PUT",
+    authedFetch("/social/generate", {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: newText })
+      body: JSON.stringify({ days: 7, platforms: ["twitter", "linkedin", "facebook"] }),
     })
-      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
-      .then(function (res) {
-        if (res.ok) {
-          if (groupedPosts[groupIdx] && groupedPosts[groupIdx].platforms[platIdx]) {
-            groupedPosts[groupIdx].platforms[platIdx].text = newText;
-          }
-          if (statusEl) { statusEl.style.color = "#27ae60"; statusEl.textContent = "Saved."; }
-        } else {
-          if (statusEl) { statusEl.style.color = "#c0392b"; statusEl.textContent = res.data.error || "Failed."; }
-        }
-      })
-      .catch(function () { if (statusEl) { statusEl.style.color = "#c0392b"; statusEl.textContent = "Network error."; } })
-      .finally(function () { if (btn) { btn.disabled = false; btn.textContent = "Save to Buffer"; } });
-  }
-
-  /* -- Errors ------------------------------------------------------- */
-  function renderErrors(errors) {
-    if (!errors || !errors.length) { errorsMount.hidden = true; return; }
-    errorsMount.hidden = false;
-    var html = '<p class="dashboard-form-legend"><em>Errors</em></p><div style="margin-top:16px">';
-    for (var i = 0; i < errors.length; i++) {
-      var err = errors[i];
-      var ts = formatTime(err.timestamp || err.time || "");
-      var msg = err.message || err.error || String(err);
-      html += '<div style="padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px">';
-      if (ts) html += '<span style="color:var(--color-muted);margin-right:8px">' + esc(ts) + "</span>";
-      html += '<span style="color:#c0392b">' + esc(msg) + "</span></div>";
-    }
-    html += "</div>";
-    errorsMount.innerHTML = html;
-  }
-
-  /* -- Load --------------------------------------------------------- */
-  function load() {
-    authedFetch("/social/status")
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        renderSummary(data);
-        renderPosts(data.posts || []);
-        renderErrors(data.errors || []);
+        if (data.error) { showStatus(data.error, true); return; }
+        drafts = data.drafts || [];
+        if (!drafts.length) {
+          showStatus(data.message || "No articles found to generate posts for.");
+        } else {
+          showStatus(drafts.length + " posts generated for " + countArticles(drafts) + " article(s).");
+        }
+        renderDrafts();
+        updateButtons();
       })
-      .catch(function () {
-        summaryMount.innerHTML = '<p class="dashboard-form-legend"><em>Status</em></p><p class="admin-sub">Failed to load.</p>';
-        postsMount.innerHTML = '<p class="dashboard-form-legend"><em>Scheduled Posts</em></p><p class="admin-sub">Failed to load.</p>';
-        errorsMount.hidden = true;
+      .catch(function () { showStatus("Failed to generate. Check network and try again.", true); })
+      .finally(function () {
+        btnGenerate.disabled = false;
+        btnGenerate.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Generate';
       });
+  });
+
+  function countArticles(list) {
+    var seen = {};
+    for (var i = 0; i < list.length; i++) seen[list[i].article_slug || list[i].article_title] = true;
+    return Object.keys(seen).length;
   }
 
-  load();
+  /* -- Delete --------------------------------------------------------- */
+  btnDelete.addEventListener("click", function () {
+    if (!drafts.length) return;
+    deleteBody.innerHTML = "";
+
+    var info = document.createElement("p");
+    info.className = "social-modal-info";
+    info.textContent = "Select posts to delete:";
+    deleteBody.appendChild(info);
+
+    var allLabel = document.createElement("label");
+    allLabel.className = "social-modal-option social-modal-option--all";
+    var allCb = document.createElement("input");
+    allCb.type = "checkbox";
+    allCb.setAttribute("data-modal-all", "");
+    allCb.checked = true;
+    allLabel.appendChild(allCb);
+    allLabel.appendChild(document.createTextNode(" Delete all (" + drafts.length + " posts)"));
+    deleteBody.appendChild(allLabel);
+
+    var itemsDiv = document.createElement("div");
+    itemsDiv.className = "social-modal-items";
+    for (var i = 0; i < drafts.length; i++) {
+      var d = drafts[i];
+      var label = document.createElement("label");
+      label.className = "social-modal-option";
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = true;
+      cb.setAttribute("data-modal-id", d.id);
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(" " + platformLabel(d.platform) + ": " + d.article_title.substring(0, 50)));
+      itemsDiv.appendChild(label);
+    }
+    deleteBody.appendChild(itemsDiv);
+
+    allCb.addEventListener("change", function () {
+      var cbs = itemsDiv.querySelectorAll("input[type=checkbox]");
+      for (var j = 0; j < cbs.length; j++) cbs[j].checked = allCb.checked;
+    });
+
+    deleteModal.hidden = false;
+  });
+
+  deleteCancel.addEventListener("click", function () { deleteModal.hidden = true; });
+
+  deleteConfirm.addEventListener("click", function () {
+    var allCb = deleteBody.querySelector("[data-modal-all]");
+    var deleteAll = allCb && allCb.checked;
+    var idsToDelete = [];
+
+    if (!deleteAll) {
+      var cbs = deleteBody.querySelectorAll("[data-modal-id]");
+      for (var i = 0; i < cbs.length; i++) {
+        if (cbs[i].checked) idsToDelete.push(cbs[i].getAttribute("data-modal-id"));
+      }
+      if (!idsToDelete.length) { deleteModal.hidden = true; return; }
+    }
+
+    deleteConfirm.disabled = true;
+    deleteConfirm.textContent = "Deleting…";
+
+    var promise;
+    if (deleteAll) {
+      promise = authedFetch("/social/drafts", { method: "DELETE" });
+    } else {
+      promise = Promise.all(idsToDelete.map(function (id) {
+        return authedFetch("/social/drafts/" + id, { method: "DELETE" });
+      }));
+    }
+
+    promise
+      .then(function () {
+        if (deleteAll) {
+          drafts = [];
+        } else {
+          var set = {};
+          for (var j = 0; j < idsToDelete.length; j++) set[idsToDelete[j]] = true;
+          drafts = drafts.filter(function (d) { return !set[d.id]; });
+        }
+        renderDrafts();
+        updateButtons();
+        showStatus(deleteAll ? "All drafts deleted." : idsToDelete.length + " post(s) deleted.");
+      })
+      .catch(function () { showStatus("Delete failed.", true); })
+      .finally(function () {
+        deleteModal.hidden = true;
+        deleteConfirm.disabled = false;
+        deleteConfirm.textContent = "Delete Selected";
+      });
+  });
+
+  /* -- Push ----------------------------------------------------------- */
+  btnPush.addEventListener("click", function () {
+    var selected = getSelectedDraftIds();
+    if (!selected.length) { showStatus("No posts selected to push.", true); return; }
+    if (!Object.keys(channelMap).length) { showStatus("No Buffer channels found. Check BUFFER_API_KEY.", true); return; }
+
+    btnPush.disabled = true;
+    btnPush.textContent = "Pushing…";
+    showStatus("Sending " + selected.length + " post(s) to Buffer…");
+
+    authedFetch("/social/push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        channelMap: channelMap,
+        draftIds: selected,
+      }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) { showStatus(data.error, true); return; }
+        var results = data.results || [];
+        var ok = results.filter(function (r) { return r.ok; }).length;
+        var fail = results.filter(function (r) { return !r.ok; }).length;
+        var msg = ok + " post(s) pushed to Buffer.";
+        if (fail) msg += " " + fail + " failed.";
+        showStatus(msg, fail > 0);
+
+        // Remove pushed drafts from local state
+        var pushedIds = {};
+        for (var i = 0; i < results.length; i++) {
+          if (results[i].ok) pushedIds[results[i].id] = true;
+        }
+        drafts = drafts.filter(function (d) { return !pushedIds[d.id]; });
+        renderDrafts();
+        updateButtons();
+      })
+      .catch(function () { showStatus("Push failed. Check network and try again.", true); })
+      .finally(function () {
+        btnPush.disabled = false;
+        btnPush.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Push to Buffer';
+      });
+  });
+
+  function getSelectedDraftIds() {
+    var ids = [];
+    var cbs = draftsList.querySelectorAll("[data-draft-cb]");
+    for (var i = 0; i < cbs.length; i++) {
+      if (cbs[i].checked) ids.push(cbs[i].getAttribute("data-draft-cb"));
+    }
+    return ids;
+  }
+
+  /* -- Select all ----------------------------------------------------- */
+  if (selectAllCb) {
+    selectAllCb.addEventListener("change", function () {
+      var cbs = draftsList.querySelectorAll("[data-draft-cb]");
+      for (var i = 0; i < cbs.length; i++) cbs[i].checked = selectAllCb.checked;
+    });
+  }
+
+  /* -- Load channels + existing drafts -------------------------------- */
+  function init() {
+    authedFetch("/social/channels")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        channels = data.channels || [];
+        for (var i = 0; i < channels.length; i++) {
+          var ch = channels[i];
+          var svc = (ch.service || "").toLowerCase();
+          if (svc === "twitter" || svc === "x") channelMap.twitter = ch.id;
+          else if (svc === "linkedin") channelMap.linkedin = ch.id;
+          else if (svc === "facebook") channelMap.facebook = ch.id;
+          else if (svc === "threads") channelMap.threads = ch.id;
+        }
+        updateButtons();
+      })
+      .catch(function () { /* channels unavailable — push will be disabled */ });
+
+    authedFetch("/social/drafts")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        drafts = data.drafts || [];
+        renderDrafts();
+        updateButtons();
+      })
+      .catch(function () { /* no existing drafts */ });
+  }
+
+  init();
 })();
