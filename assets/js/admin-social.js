@@ -127,6 +127,27 @@
 
         row.appendChild(rowHead);
 
+        var schedRow = document.createElement("div");
+        schedRow.className = "social-draft-schedule";
+        var schedLabel = document.createElement("span");
+        schedLabel.className = "social-draft-schedule-label";
+        schedLabel.textContent = "Publish:";
+        schedRow.appendChild(schedLabel);
+        var schedInput = document.createElement("input");
+        schedInput.type = "datetime-local";
+        schedInput.className = "social-draft-schedule-input";
+        schedInput.setAttribute("data-draft-schedule", post.id);
+        if (post.scheduled_at) {
+          schedInput.value = post.scheduled_at.substring(0, 16);
+        }
+        schedInput.addEventListener("change", (function (postRef) {
+          return function () {
+            postRef.scheduled_at = this.value ? new Date(this.value).toISOString() : null;
+          };
+        })(post));
+        schedRow.appendChild(schedInput);
+        row.appendChild(schedRow);
+
         var textarea = document.createElement("textarea");
         textarea.className = "social-draft-text";
         textarea.value = post.text;
@@ -287,12 +308,20 @@
     btnPush.textContent = "Pushing…";
     showStatus("Sending " + selected.length + " post(s) to Buffer…");
 
+    var schedules = {};
+    for (var s = 0; s < drafts.length; s++) {
+      if (drafts[s].scheduled_at && selected.indexOf(drafts[s].id) !== -1) {
+        schedules[drafts[s].id] = drafts[s].scheduled_at;
+      }
+    }
+
     authedFetch("/social/push", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         channelMap: channelMap,
         draftIds: selected,
+        schedules: schedules,
       }),
     })
       .then(function (r) { return r.json(); })

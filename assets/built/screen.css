@@ -16173,6 +16173,31 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   color: var(--color-muted);
   margin-left: auto;
 }
+.social-draft-schedule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 4px;
+}
+.social-draft-schedule-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.social-draft-schedule-input {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  background: var(--color-page);
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.social-draft-schedule-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
 .social-draft-text {
   width: 100%;
   min-height: 80px;
