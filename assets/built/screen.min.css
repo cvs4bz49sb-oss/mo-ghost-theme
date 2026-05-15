@@ -16238,10 +16238,12 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
 .cc-month-header-cell + .cc-month-header-cell { border-left: 1px solid var(--color-rule); }
 .cc-month-cell {
   min-height: 90px;
+  min-width: 0;
   padding: 6px;
   border-bottom: 1px solid var(--color-rule);
   background: #fff;
   position: relative;
+  overflow: hidden;
 }
 .cc-month-cell + .cc-month-cell { border-left: 1px solid var(--color-rule); }
 .cc-month-row:last-child .cc-month-cell { border-bottom: none; }
@@ -16288,6 +16290,8 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 .cc-mcell-item {
   display: flex;
@@ -16296,7 +16300,9 @@ body:has(.admin-workspace) > *:not(.admin-workspace) {
   border-radius: 4px;
   cursor: pointer;
   overflow: hidden;
-  min-height: 22px;
+  min-height: 20px;
+  min-width: 0;
+  max-width: 100%;
 }
 .cc-mcell-item:hover { filter: brightness(0.9); }
 .cc-mcell-item-title {
