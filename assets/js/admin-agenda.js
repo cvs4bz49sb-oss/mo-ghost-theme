@@ -6,6 +6,7 @@
 
   const LS_KEY = "mo_content_calendar";
   const PROJECT_ID = "weekly-meeting";
+  const COLLAPSE_KEY = "mo_agenda_collapsed";
   const STATUS_OPTIONS = ["Idea", "Drafting", "In Review", "Scheduled", "Published"];
   const WORKER_URL = (document.body.getAttribute("data-admin-worker-url") || "").replace(/\/$/, "");
   let syncVersion = 0;
@@ -33,9 +34,16 @@
       { id: "christians-reading-classics", name: "Christians Reading Classics", group: "podcasts", color: "#c1593c" }
     ],
     people: ["Jake Meador", "Ian Harber", "Mark Kremer", "Nadya Williams"],
-    categories: DEFAULT_CATEGORIES.map((c) => { return { ...c}; }),
+    categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
     items: []
   };
+
+  let collapsed = {};
+  try { collapsed = JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; } catch (_) { /* */ }
+
+  function saveCollapsed() {
+    localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapsed));
+  }
 
   function load() {
     try {
@@ -44,11 +52,11 @@
         const d = JSON.parse(raw);
         if (!d.projects) d.projects = DEFAULT_DATA.projects;
         if (!d.people) d.people = DEFAULT_DATA.people;
-        if (!d.categories) d.categories = DEFAULT_CATEGORIES.map((c) => { return { ...c}; });
+        if (!d.categories) d.categories = DEFAULT_CATEGORIES.map((c) => ({ ...c }));
         if (!d.items) d.items = [];
         return d;
       }
-    } catch (e) { /* ignore */ }
+    } catch (_) { /* */ }
     return JSON.parse(JSON.stringify(DEFAULT_DATA));
   }
 
@@ -102,7 +110,7 @@
           const server = result.data;
           if (!Array.isArray(server.projects)) server.projects = DEFAULT_DATA.projects;
           if (!Array.isArray(server.people)) server.people = DEFAULT_DATA.people;
-          if (!Array.isArray(server.categories)) server.categories = DEFAULT_CATEGORIES.map((c) => { return { ...c}; });
+          if (!Array.isArray(server.categories)) server.categories = DEFAULT_CATEGORIES.map((c) => ({ ...c }));
           if (!Array.isArray(server.items)) server.items = [];
           data.projects = server.projects;
           data.people = server.people;
@@ -126,7 +134,7 @@
   const data = load();
 
   function agendaItems() {
-    return data.items.filter((it) => { return it.project === PROJECT_ID; });
+    return data.items.filter((it) => it.project === PROJECT_ID);
   }
 
   function isCompleted(it) {
@@ -140,26 +148,68 @@
     return `${months[parseInt(parts[1], 10) - 1]} ${parseInt(parts[2], 10)}`;
   }
 
+  // -----------------------------------------------------------------------
+  // Render
+  // -----------------------------------------------------------------------
+
   function renderItem(it) {
     const done = isCompleted(it);
-    const cat = data.categories.find((c) => { return c.id === it.type; });
+    const cat = data.categories.find((c) => c.id === it.type);
     const catLabel = cat ? cat.name : "";
     const catColor = cat ? cat.color : "#9a8773";
-    return `<div class="ag-item${done ? ' is-done' : ''}" data-ag-item-id="${it.id}">` +
-      `<button type="button" class="ag-check${done ? ' is-checked' : ''}" data-ag-toggle="${it.id}" title="${done ? 'Mark incomplete' : 'Mark complete'}">` +
-        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>` +
+    return `<div class="ag-item${done ? " is-done" : ""}" data-ag-item-id="${it.id}" draggable="true">` +
+      `<span class="ag-drag-handle" title="Drag to reorder">` +
+        `<svg width="6" height="10" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1"/><circle cx="5" cy="1" r="1"/><circle cx="1" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="1" cy="9" r="1"/><circle cx="5" cy="9" r="1"/></svg>` +
+      `</span>` +
+      `<button type="button" class="ag-check${done ? " is-checked" : ""}" data-ag-toggle="${it.id}" title="${done ? "Mark incomplete" : "Mark complete"}">` +
+        `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>` +
       `</button>` +
-      `<span class="ag-item-title">${esc(it.title)}</span>${ 
-      it.date ? `<span class="ag-item-date">${fmtDate(it.date)}</span>` : '' 
-      }${catLabel ? `<span class="ag-item-cat" style="color:${catColor}">${esc(catLabel)}</span>` : '' 
-      }<button type="button" class="ag-item-remove" data-ag-remove="${it.id}" title="Remove">&times;</button>` +
+      `<span class="ag-item-title" data-ag-inline-title="${it.id}">${esc(it.title)}</span>` +
+      `<span class="ag-item-meta">${ 
+        it.date ? `<span class="ag-item-date">${fmtDate(it.date)}</span>` : "" 
+        }${catLabel ? `<span class="ag-item-cat" style="--cat-color:${catColor}">${esc(catLabel)}</span>` : "" 
+      }</span>` +
+      `<button type="button" class="ag-item-detail" data-ag-edit="${it.id}" title="Edit details">` +
+        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>` +
+      `</button>` +
+      `<button type="button" class="ag-item-remove" data-ag-remove="${it.id}" title="Remove">&times;</button>` +
+    `</div>`;
+  }
+
+  function renderSection(person, items, key) {
+    const isCollapsed = collapsed[key];
+    const count = items.length;
+    return `<div class="ag-section${isCollapsed ? " is-collapsed" : ""}" data-ag-section="${key}">` +
+      `<div class="ag-section-head" data-ag-section-toggle="${key}">` +
+        `<svg class="ag-section-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>` +
+        `<span class="ag-section-name">${esc(person)}</span>` +
+        `<span class="ag-section-count">${count}</span>` +
+      `</div>` +
+      `<div class="ag-section-body" data-ag-section-body="${key}">` +
+        `<div class="ag-section-items" data-ag-drop-zone="${key}">${ 
+          items.length > 0 ? items.map(renderItem).join("") : "" 
+        }</div>` +
+        `<div class="ag-inline-add" data-ag-inline-add="${key}">` +
+          `<button type="button" class="ag-inline-add-btn" data-ag-show-inline="${key}">` +
+            `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>` +
+            ` Add task…` +
+          `</button>` +
+          `<div class="ag-inline-add-form" data-ag-inline-form="${key}" hidden>` +
+            `<input type="text" class="ag-inline-input" data-ag-inline-input="${key}" placeholder="Task name…" />` +
+            `<div class="ag-inline-actions">` +
+              `<button type="button" class="ag-inline-save" data-ag-inline-save="${key}">Add</button>` +
+              `<button type="button" class="ag-inline-cancel" data-ag-inline-cancel="${key}">&times;</button>` +
+            `</div>` +
+          `</div>` +
+        `</div>` +
+      `</div>` +
     `</div>`;
   }
 
   function render() {
     const items = agendaItems();
-    const active = items.filter((it) => { return !isCompleted(it); });
-    const completed = items.filter((it) => { return isCompleted(it); });
+    const active = items.filter((it) => !isCompleted(it));
+    const completed = items.filter((it) => isCompleted(it));
 
     const groups = {};
     const unassigned = [];
@@ -179,24 +229,11 @@
     let html = "";
 
     if (unassigned.length > 0) {
-      html += `<div class="ag-group">` +
-        `<h3 class="ag-group-title">Unassigned</h3>` +
-        `<div class="ag-group-items">${unassigned.map(renderItem).join("")}</div>` +
-      `</div>`;
+      html += renderSection("Unassigned", unassigned, "__unassigned__");
     }
 
     data.people.forEach((person) => {
-      const personItems = groups[person] || [];
-      html += `<div class="ag-group">` +
-        `<h3 class="ag-group-title">${esc(person) 
-        }<span class="ag-group-count">${personItems.length}</span></h3>` +
-        `<div class="ag-group-items">`;
-      if (personItems.length === 0) {
-        html += '<p class="ag-empty">No items</p>';
-      } else {
-        html += personItems.map(renderItem).join("");
-      }
-      html += '</div></div>';
+      html += renderSection(person, groups[person] || [], person);
     });
 
     root.querySelector("[data-ag-groups]").innerHTML = html;
@@ -216,92 +253,221 @@
     }
   }
 
-  function showAddModal(person) {
-    const overlay = document.createElement("div");
-    overlay.className = "cc-modal-overlay";
-    overlay.innerHTML =
-      `<div class="cc-modal">` +
-        `<h3 class="cc-modal-title">Add Agenda Item</h3>` +
-        `<label class="cc-modal-field"><span>Title</span><input type="text" data-ag-modal-title placeholder="What needs to happen?"></label>` +
-        `<label class="cc-modal-field"><span>Date</span><input type="date" data-ag-modal-date></label>` +
-        `<label class="cc-modal-field"><span>Assigned To</span><select data-ag-modal-person>` +
-          `<option value="">--</option>${ 
-          data.people.map((p) => { return `<option value="${escAttr(p)}"${p === person ? ' selected' : ''}>${esc(p)}</option>`; }).join("") 
-        }</select></label>` +
-        `<label class="cc-modal-field"><span>Category</span><select data-ag-modal-type>` +
-          `<option value="">--</option>${ 
-          data.categories.map((c) => { return `<option value="${c.id}">${esc(c.name)}</option>`; }).join("") 
-        }</select></label>` +
-        `<div class="cc-modal-actions">` +
-          `<button type="button" class="btn btn-sm" data-ag-modal-cancel>Cancel</button>` +
-          `<button type="button" class="btn btn-sm btn-primary" data-ag-modal-save>Add Item</button>` +
-        `</div>` +
-      `</div>`;
+  // -----------------------------------------------------------------------
+  // Inline add
+  // -----------------------------------------------------------------------
 
-    document.body.appendChild(overlay);
-    const titleInput = overlay.querySelector("[data-ag-modal-title]");
-    titleInput.focus();
+  function showInlineAdd(key) {
+    const form = root.querySelector(`[data-ag-inline-form="${key}"]`);
+    const btn = root.querySelector(`[data-ag-show-inline="${key}"]`);
+    if (!form || !btn) return;
+    btn.hidden = true;
+    form.hidden = false;
+    const input = form.querySelector(`[data-ag-inline-input="${key}"]`);
+    input.value = "";
+    input.focus();
+  }
 
-    overlay.querySelector("[data-ag-modal-cancel]").onclick = function () { overlay.remove(); };
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
-    overlay.querySelector("[data-ag-modal-save]").onclick = function () {
-      const title = titleInput.value.trim();
-      if (!title) { titleInput.focus(); return; }
-      data.items.push({
-        id: `item_${Date.now()}`,
-        title,
-        date: overlay.querySelector("[data-ag-modal-date]").value,
-        project: PROJECT_ID,
-        type: overlay.querySelector("[data-ag-modal-type]").value,
-        person: overlay.querySelector("[data-ag-modal-person]").value,
-        status: "Idea"
-      });
-      save(data);
+  function hideInlineAdd(key) {
+    const form = root.querySelector(`[data-ag-inline-form="${key}"]`);
+    const btn = root.querySelector(`[data-ag-show-inline="${key}"]`);
+    if (form) form.hidden = true;
+    if (btn) btn.hidden = false;
+  }
+
+  function commitInlineAdd(key) {
+    const input = root.querySelector(`[data-ag-inline-input="${key}"]`);
+    if (!input) return;
+    const title = input.value.trim();
+    if (!title) { hideInlineAdd(key); return; }
+
+    const person = key === "__unassigned__" ? "" : key;
+    data.items.push({
+      id: `item_${Date.now()}`,
+      title,
+      date: "",
+      project: PROJECT_ID,
+      type: "",
+      person,
+      status: "Idea"
+    });
+    save(data);
+    render();
+    setTimeout(() => showInlineAdd(key), 10);
+  }
+
+  // -----------------------------------------------------------------------
+  // Inline title editing
+  // -----------------------------------------------------------------------
+
+  function startInlineEdit(titleEl, itemId) {
+    const item = data.items.find((it) => it.id === itemId);
+    if (!item) return;
+    const current = item.title;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "ag-inline-title-input";
+    input.value = current;
+    titleEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    function commit() {
+      const val = input.value.trim();
+      if (val && val !== current) {
+        item.title = val;
+        save(data);
+      }
       render();
-      overlay.remove();
-    };
-    titleInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") overlay.querySelector("[data-ag-modal-save]").click();
+    }
+
+    input.addEventListener("blur", commit);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+      if (e.key === "Escape") { input.value = current; input.blur(); }
     });
   }
 
+  // -----------------------------------------------------------------------
+  // Drag and drop
+  // -----------------------------------------------------------------------
+
+  let dragItemId = null;
+
+  root.addEventListener("dragstart", (e) => {
+    const el = e.target.closest("[data-ag-item-id]");
+    if (!el) return;
+    dragItemId = el.dataset.agItemId;
+    el.classList.add("is-dragging");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", dragItemId);
+  });
+
+  root.addEventListener("dragend", (e) => {
+    const el = e.target.closest("[data-ag-item-id]");
+    if (el) el.classList.remove("is-dragging");
+    root.querySelectorAll(".ag-drop-above, .ag-drop-below, .ag-drop-zone-active").forEach((x) => {
+      x.classList.remove("ag-drop-above", "ag-drop-below", "ag-drop-zone-active");
+    });
+    dragItemId = null;
+  });
+
+  root.addEventListener("dragover", (e) => {
+    if (!dragItemId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+
+    root.querySelectorAll(".ag-drop-above, .ag-drop-below, .ag-drop-zone-active").forEach((x) => {
+      x.classList.remove("ag-drop-above", "ag-drop-below", "ag-drop-zone-active");
+    });
+
+    const overItem = e.target.closest("[data-ag-item-id]");
+    if (overItem && overItem.dataset.agItemId !== dragItemId) {
+      const rect = overItem.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) {
+        overItem.classList.add("ag-drop-above");
+      } else {
+        overItem.classList.add("ag-drop-below");
+      }
+    } else {
+      const zone = e.target.closest("[data-ag-drop-zone]");
+      if (zone && zone.children.length === 0) {
+        zone.classList.add("ag-drop-zone-active");
+      }
+    }
+  });
+
+  root.addEventListener("drop", (e) => {
+    if (!dragItemId) return;
+    e.preventDefault();
+
+    const item = data.items.find((it) => it.id === dragItemId);
+    if (!item) return;
+
+    const overItem = e.target.closest("[data-ag-item-id]");
+    const zone = e.target.closest("[data-ag-drop-zone]");
+    if (!zone) return;
+
+    const targetPerson = zone.dataset.agDropZone;
+    item.person = targetPerson === "__unassigned__" ? "" : targetPerson;
+
+    if (overItem && overItem.dataset.agItemId !== dragItemId) {
+      const overItemData = data.items.find((it) => it.id === overItem.dataset.agItemId);
+      if (overItemData) {
+        const fromIdx = data.items.indexOf(item);
+        data.items.splice(fromIdx, 1);
+        let toIdx = data.items.indexOf(overItemData);
+        const rect = overItem.getBoundingClientRect();
+        if (e.clientY > rect.top + rect.height / 2) toIdx++;
+        data.items.splice(toIdx, 0, item);
+      }
+    }
+
+    save(data);
+    render();
+  });
+
+  // -----------------------------------------------------------------------
+  // Edit modal
+  // -----------------------------------------------------------------------
+
   function showEditModal(item) {
     const overlay = document.createElement("div");
-    overlay.className = "cc-modal-overlay";
+    overlay.className = "au-modal-overlay";
     overlay.innerHTML =
-      `<div class="cc-modal">` +
-        `<h3 class="cc-modal-title">Edit Item</h3>` +
-        `<label class="cc-modal-field"><span>Title</span><input type="text" data-ag-modal-title value="${escAttr(item.title)}"></label>` +
-        `<label class="cc-modal-field"><span>Date</span><input type="date" data-ag-modal-date value="${item.date || ''}"></label>` +
-        `<label class="cc-modal-field"><span>Assigned To</span><select data-ag-modal-person>` +
-          `<option value="">--</option>${ 
-          data.people.map((p) => { return `<option value="${escAttr(p)}"${p === item.person ? ' selected' : ''}>${esc(p)}</option>`; }).join("") 
-        }</select></label>` +
-        `<label class="cc-modal-field"><span>Category</span><select data-ag-modal-type>` +
-          `<option value="">--</option>${ 
-          data.categories.map((c) => { return `<option value="${c.id}"${c.id === item.type ? ' selected' : ''}>${esc(c.name)}</option>`; }).join("") 
-        }</select></label>` +
-        `<label class="cc-modal-field"><span>Status</span><select data-ag-modal-status>${ 
-          STATUS_OPTIONS.map((s) => { return `<option value="${s}"${s === item.status ? ' selected' : ''}>${s}</option>`; }).join("") 
-        }</select></label>` +
-        `<div class="cc-modal-actions">` +
-          `<button type="button" class="btn btn-sm cc-btn-danger" data-ag-modal-delete>Delete</button>` +
+      `<div class="au-modal au-modal--narrow">` +
+        `<h3 class="au-modal-title">Edit Task</h3>` +
+        `<div class="au-modal-fields">` +
+          `<label class="settings-field">` +
+            `<span class="settings-field-label">Title</span>` +
+            `<input type="text" class="settings-input" data-ag-modal-title value="${escAttr(item.title)}">` +
+          `</label>` +
+          `<label class="settings-field">` +
+            `<span class="settings-field-label">Date</span>` +
+            `<input type="date" class="settings-input" data-ag-modal-date value="${item.date || ""}">` +
+          `</label>` +
+          `<label class="settings-field">` +
+            `<span class="settings-field-label">Assigned to</span>` +
+            `<select class="settings-select" data-ag-modal-person>` +
+              `<option value="">Unassigned</option>${
+              data.people.map((p) => `<option value="${escAttr(p)}"${p === item.person ? " selected" : ""}>${esc(p)}</option>`).join("")
+            }</select>` +
+          `</label>` +
+          `<label class="settings-field">` +
+            `<span class="settings-field-label">Category</span>` +
+            `<select class="settings-select" data-ag-modal-type>` +
+              `<option value="">None</option>${
+              data.categories.map((c) => `<option value="${c.id}"${c.id === item.type ? " selected" : ""}>${esc(c.name)}</option>`).join("")
+            }</select>` +
+          `</label>` +
+          `<label class="settings-field">` +
+            `<span class="settings-field-label">Status</span>` +
+            `<select class="settings-select" data-ag-modal-status>${
+              STATUS_OPTIONS.map((s) => `<option value="${s}"${s === item.status ? " selected" : ""}>${s}</option>`).join("")
+            }</select>` +
+          `</label>` +
+        `</div>` +
+        `<div class="au-modal-actions">` +
+          `<button type="button" class="btn btn-pill btn-primary" data-ag-modal-save>Save</button>` +
+          `<button type="button" class="btn btn-pill" data-ag-modal-cancel>Cancel</button>` +
           `<span style="flex:1"></span>` +
-          `<button type="button" class="btn btn-sm" data-ag-modal-cancel>Cancel</button>` +
-          `<button type="button" class="btn btn-sm btn-primary" data-ag-modal-save>Save</button>` +
+          `<button type="button" class="btn btn-pill btn-danger" data-ag-modal-delete>Delete</button>` +
         `</div>` +
       `</div>`;
 
     document.body.appendChild(overlay);
-    overlay.querySelector("[data-ag-modal-cancel]").onclick = function () { overlay.remove(); };
+    overlay.querySelector("[data-ag-modal-cancel]").onclick = () => overlay.remove();
     overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
-    overlay.querySelector("[data-ag-modal-delete]").onclick = function () {
-      data.items = data.items.filter((it) => { return it.id !== item.id; });
+
+    overlay.querySelector("[data-ag-modal-delete]").onclick = () => {
+      data.items = data.items.filter((it) => it.id !== item.id);
       save(data);
       render();
       overlay.remove();
     };
-    overlay.querySelector("[data-ag-modal-save]").onclick = function () {
+
+    overlay.querySelector("[data-ag-modal-save]").onclick = () => {
       item.title = overlay.querySelector("[data-ag-modal-title]").value.trim() || item.title;
       item.date = overlay.querySelector("[data-ag-modal-date]").value;
       item.person = overlay.querySelector("[data-ag-modal-person]").value;
@@ -313,12 +479,28 @@
     };
   }
 
+  // -----------------------------------------------------------------------
+  // Event delegation
+  // -----------------------------------------------------------------------
+
   root.addEventListener("click", (e) => {
     let btn;
 
+    btn = e.target.closest("[data-ag-section-toggle]");
+    if (btn) {
+      const key = btn.dataset.agSectionToggle;
+      const section = root.querySelector(`[data-ag-section="${key}"]`);
+      if (section) {
+        section.classList.toggle("is-collapsed");
+        collapsed[key] = section.classList.contains("is-collapsed");
+        saveCollapsed();
+      }
+      return;
+    }
+
     btn = e.target.closest("[data-ag-toggle]");
     if (btn) {
-      const item = data.items.find((it) => { return it.id === btn.dataset.agToggle; });
+      const item = data.items.find((it) => it.id === btn.dataset.agToggle);
       if (item) {
         if (isCompleted(item)) {
           item.status = "Idea";
@@ -335,14 +517,40 @@
 
     btn = e.target.closest("[data-ag-remove]");
     if (btn) {
-      data.items = data.items.filter((it) => { return it.id !== btn.dataset.agRemove; });
+      data.items = data.items.filter((it) => it.id !== btn.dataset.agRemove);
       save(data);
       render();
       return;
     }
 
+    btn = e.target.closest("[data-ag-edit]");
+    if (btn) {
+      const item = data.items.find((it) => it.id === btn.dataset.agEdit);
+      if (item) showEditModal(item);
+      return;
+    }
+
     if (e.target.closest("[data-ag-add]")) {
-      showAddModal("");
+      const firstPerson = data.people[0] || "__unassigned__";
+      showInlineAdd(firstPerson);
+      return;
+    }
+
+    btn = e.target.closest("[data-ag-show-inline]");
+    if (btn) {
+      showInlineAdd(btn.dataset.agShowInline);
+      return;
+    }
+
+    btn = e.target.closest("[data-ag-inline-save]");
+    if (btn) {
+      commitInlineAdd(btn.dataset.agInlineSave);
+      return;
+    }
+
+    btn = e.target.closest("[data-ag-inline-cancel]");
+    if (btn) {
+      hideInlineAdd(btn.dataset.agInlineCancel);
       return;
     }
 
@@ -352,17 +560,27 @@
       return;
     }
 
-    btn = e.target.closest("[data-ag-item-id]");
-    if (btn && !e.target.closest("[data-ag-toggle]") && !e.target.closest("[data-ag-remove]")) {
+    const titleEl = e.target.closest("[data-ag-inline-title]");
+    if (titleEl) {
+      startInlineEdit(titleEl, titleEl.dataset.agInlineTitle);
       return;
     }
   });
 
-  root.addEventListener("dblclick", (e) => {
-    const itemEl = e.target.closest("[data-ag-item-id]");
-    if (!itemEl) return;
-    const item = data.items.find((it) => { return it.id === itemEl.dataset.agItemId; });
-    if (item) showEditModal(item);
+  root.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const input = e.target.closest("[data-ag-inline-input]");
+      if (input) {
+        e.preventDefault();
+        commitInlineAdd(input.dataset.agInlineInput);
+      }
+    }
+    if (e.key === "Escape") {
+      const input = e.target.closest("[data-ag-inline-input]");
+      if (input) {
+        hideInlineAdd(input.dataset.agInlineInput);
+      }
+    }
   });
 
   render();
