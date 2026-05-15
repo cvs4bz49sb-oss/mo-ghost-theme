@@ -15341,23 +15341,36 @@ body:has(.admin-workspace) {
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 .ws-sidebar-head {
-  padding: 20px 20px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 .ws-sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: rgba(255, 255, 255, 0.6);
+  gap: 8px;
   font-family: var(--font-body);
-  font-size: 13px;
   text-decoration: none;
-  letter-spacing: 0.02em;
   transition: color 0.15s;
 }
-.ws-sidebar-brand:hover { color: #fff; text-decoration: none; }
-.ws-sidebar-logo { width: 18px; height: 18px; opacity: 0.7; }
-.ws-sidebar-brand:hover .ws-sidebar-logo { opacity: 1; }
+.ws-sidebar-brand:hover { text-decoration: none; }
+.ws-sidebar-brand--primary {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.ws-sidebar-brand--primary:hover { color: #fff; }
+.ws-sidebar-brand--secondary {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.ws-sidebar-brand--secondary:hover { color: rgba(255, 255, 255, 0.8); }
+.ws-sidebar-logo { width: 14px; height: 14px; opacity: 0.7; flex-shrink: 0; }
+.ws-sidebar-brand--secondary:hover .ws-sidebar-logo { opacity: 1; }
 
 .ws-sidebar-nav {
   flex: 1;
