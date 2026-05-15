@@ -68,38 +68,26 @@
             </div>
           </aside>
 
-          {{!-- Calendar main --}}
+          {{!-- Calendar main — head + filters + grid are rendered by admin-content.js --}}
           <div class="cc-main">
-            <div class="cc-main-head">
-              <h2 class="cc-main-title">What's Happening This Week</h2>
-              <div class="cc-week-nav">
-                <button type="button" class="cc-week-nav-btn" data-cc-prev-week>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </button>
-                <button type="button" class="cc-week-nav-label" data-cc-this-week>This Week</button>
-                <button type="button" class="cc-week-nav-btn" data-cc-next-week>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </button>
-                <span class="cc-week-nav-range" data-cc-week-range></span>
-              </div>
-            </div>
+            <div class="cc-main-head" data-cc-main-head></div>
 
             <div class="cc-filters">
               <div class="cc-filter" data-cc-filter="project">
                 <button type="button" class="cc-filter-btn">Project <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-                <div class="cc-filter-dropdown" hidden></div>
+                <div class="cc-filter-dropdown"></div>
               </div>
               <div class="cc-filter" data-cc-filter="type">
                 <button type="button" class="cc-filter-btn">Content Type <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-                <div class="cc-filter-dropdown" hidden></div>
+                <div class="cc-filter-dropdown"></div>
               </div>
               <div class="cc-filter" data-cc-filter="person">
                 <button type="button" class="cc-filter-btn">Person <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-                <div class="cc-filter-dropdown" hidden></div>
+                <div class="cc-filter-dropdown"></div>
               </div>
               <div class="cc-filter" data-cc-filter="status">
                 <button type="button" class="cc-filter-btn">Status <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
-                <div class="cc-filter-dropdown" hidden></div>
+                <div class="cc-filter-dropdown"></div>
               </div>
             </div>
 

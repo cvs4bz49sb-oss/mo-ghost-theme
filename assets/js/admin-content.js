@@ -6,6 +6,7 @@
 
   var LS_KEY = "mo_content_calendar";
   var DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var DAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var FULL_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var CONTENT_TYPES = ["Essay", "Newsletter", "Podcast", "Social", "Event", "Meeting", "Other"];
@@ -47,11 +48,12 @@
 
   var data = load();
   var weekOffset = 0;
+  var monthOffset = 0;
+  var viewMode = "week";
   var activeFilters = { project: null, type: null, person: null, status: null };
   var activeProject = null;
   var collapsedGroups = {};
 
-  // Week helpers
   function getMonday(offset) {
     var d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -72,6 +74,25 @@
     return days;
   }
 
+  function getMonthDays(offset) {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + offset;
+    while (month < 0) { year--; month += 12; }
+    while (month > 11) { year++; month -= 12; }
+    var first = new Date(year, month, 1);
+    var startDay = first.getDay();
+    var start = new Date(first);
+    start.setDate(1 - (startDay === 0 ? 6 : startDay - 1));
+    var cells = [];
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(start);
+      d.setDate(start.getDate() + i);
+      cells.push(d);
+    }
+    return { year: year, month: month, cells: cells };
+  }
+
   function fmtDate(d) {
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
@@ -81,7 +102,7 @@
     return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth() && d.getDate() === t.getDate();
   }
 
-  function formatRange(days) {
+  function formatWeekRange(days) {
     var first = days[0];
     var last = days[6];
     if (first.getMonth() === last.getMonth()) {
@@ -90,7 +111,15 @@
     return MONTHS[first.getMonth()] + " " + first.getDate() + " – " + MONTHS[last.getMonth()] + " " + last.getDate() + ", " + last.getFullYear();
   }
 
-  // Sidebar rendering
+  function matchesFilters(it) {
+    if (activeProject && it.project !== activeProject) return false;
+    if (activeFilters.project && it.project !== activeFilters.project) return false;
+    if (activeFilters.type && it.type !== activeFilters.type) return false;
+    if (activeFilters.person && it.person !== activeFilters.person) return false;
+    if (activeFilters.status && it.status !== activeFilters.status) return false;
+    return true;
+  }
+
   function renderSidebar() {
     var groups = {};
     data.projects.forEach(function (p) {
@@ -120,43 +149,58 @@
     });
   }
 
-  // Calendar rendering
-  function renderCalendar() {
+  function renderItemChip(it) {
+    var proj = data.projects.find(function (p) { return p.id === it.project; });
+    var col = proj ? proj.color : "#9a8773";
+    var statusCol = STATUS_COLORS[it.status] || "#9a8773";
+    return '<div class="cc-item" data-cc-item-id="' + it.id + '">' +
+      '<span class="cc-item-dot" style="background:' + col + '"></span>' +
+      '<span class="cc-item-title">' + esc(it.title) + '</span>' +
+      (it.type ? '<span class="cc-item-type">' + esc(it.type) + '</span>' : '') +
+      (it.person ? '<span class="cc-item-person">' + esc(it.person) + '</span>' : '') +
+      (it.status ? '<span class="cc-item-status" style="color:' + statusCol + '">' + esc(it.status) + '</span>' : '') +
+      '<button type="button" class="cc-item-remove" data-cc-remove-item="' + it.id + '" title="Remove">&times;</button>' +
+      '</div>';
+  }
+
+  // Week view
+  function renderWeekView() {
     var days = getWeekDays(weekOffset);
-    var rangeEl = root.querySelector("[data-cc-week-range]");
-    rangeEl.textContent = formatRange(days);
+
+    var headEl = root.querySelector("[data-cc-main-head]");
+    headEl.innerHTML =
+      '<h2 class="cc-main-title">What\'s Happening This Week</h2>' +
+      '<div class="cc-nav-row">' +
+        '<div class="cc-week-nav">' +
+          '<button type="button" class="cc-week-nav-btn" data-cc-prev>' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>' +
+          '</button>' +
+          '<button type="button" class="cc-week-nav-label" data-cc-today>This Week</button>' +
+          '<button type="button" class="cc-week-nav-btn" data-cc-next>' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>' +
+          '</button>' +
+          '<span class="cc-week-nav-range">' + formatWeekRange(days) + '</span>' +
+        '</div>' +
+        '<div class="cc-view-toggle">' +
+          '<button type="button" class="cc-view-btn is-active" data-cc-set-view="week">Week</button>' +
+          '<button type="button" class="cc-view-btn" data-cc-set-view="month">Month</button>' +
+        '</div>' +
+      '</div>';
 
     var container = root.querySelector("[data-cc-days]");
+    container.className = "cc-days";
     container.innerHTML = days.map(function (d) {
       var dateStr = fmtDate(d);
       var today = isToday(d);
       var dayItems = data.items.filter(function (it) {
-        if (it.date !== dateStr) return false;
-        if (activeProject && it.project !== activeProject) return false;
-        if (activeFilters.project && it.project !== activeFilters.project) return false;
-        if (activeFilters.type && it.type !== activeFilters.type) return false;
-        if (activeFilters.person && it.person !== activeFilters.person) return false;
-        if (activeFilters.status && it.status !== activeFilters.status) return false;
-        return true;
+        return it.date === dateStr && matchesFilters(it);
       });
 
       var itemsHtml = "";
       if (dayItems.length === 0) {
         itemsHtml = '<p class="cc-day-empty">Nothing scheduled</p>';
       } else {
-        itemsHtml = dayItems.map(function (it) {
-          var proj = data.projects.find(function (p) { return p.id === it.project; });
-          var col = proj ? proj.color : "#9a8773";
-          var statusCol = STATUS_COLORS[it.status] || "#9a8773";
-          return '<div class="cc-item" data-cc-item-id="' + it.id + '">' +
-            '<span class="cc-item-dot" style="background:' + col + '"></span>' +
-            '<span class="cc-item-title">' + esc(it.title) + '</span>' +
-            (it.type ? '<span class="cc-item-type">' + esc(it.type) + '</span>' : '') +
-            (it.person ? '<span class="cc-item-person">' + esc(it.person) + '</span>' : '') +
-            (it.status ? '<span class="cc-item-status" style="color:' + statusCol + '">' + esc(it.status) + '</span>' : '') +
-            '<button type="button" class="cc-item-remove" data-cc-remove-item="' + it.id + '" title="Remove">&times;</button>' +
-            '</div>';
-        }).join("");
+        itemsHtml = dayItems.map(renderItemChip).join("");
       }
 
       return '<div class="cc-day-row' + (today ? ' is-today' : '') + '">' +
@@ -170,31 +214,126 @@
     }).join("");
   }
 
+  // Month view
+  function renderMonthView() {
+    var m = getMonthDays(monthOffset);
+
+    var headEl = root.querySelector("[data-cc-main-head]");
+    headEl.innerHTML =
+      '<h2 class="cc-main-title">' + FULL_MONTHS[m.month] + ' ' + m.year + '</h2>' +
+      '<div class="cc-nav-row">' +
+        '<div class="cc-week-nav">' +
+          '<button type="button" class="cc-week-nav-btn" data-cc-prev>' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>' +
+          '</button>' +
+          '<button type="button" class="cc-week-nav-label" data-cc-today>This Month</button>' +
+          '<button type="button" class="cc-week-nav-btn" data-cc-next>' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>' +
+          '</button>' +
+        '</div>' +
+        '<div class="cc-view-toggle">' +
+          '<button type="button" class="cc-view-btn" data-cc-set-view="week">Week</button>' +
+          '<button type="button" class="cc-view-btn is-active" data-cc-set-view="month">Month</button>' +
+        '</div>' +
+      '</div>';
+
+    var container = root.querySelector("[data-cc-days]");
+    container.className = "cc-days cc-month-grid";
+
+    var headerRow = '<div class="cc-month-header">' +
+      DAYS_SHORT.map(function (d, i) {
+        var idx = (i + 1) % 7;
+        return '<div class="cc-month-header-cell">' + DAYS_SHORT[idx === 0 ? 0 : idx] + '</div>';
+      }).join("") + '</div>';
+
+    var weeks = [];
+    for (var w = 0; w < 6; w++) {
+      var cells = [];
+      for (var d = 0; d < 7; d++) {
+        var cell = m.cells[w * 7 + d];
+        var dateStr = fmtDate(cell);
+        var today = isToday(cell);
+        var isCurrentMonth = cell.getMonth() === m.month;
+        var dayItems = data.items.filter(function (it) {
+          return it.date === dateStr && matchesFilters(it);
+        });
+
+        var itemDots = dayItems.slice(0, 4).map(function (it) {
+          var proj = data.projects.find(function (p) { return p.id === it.project; });
+          var col = proj ? proj.color : "#9a8773";
+          return '<span class="cc-mcell-dot" style="background:' + col + '" title="' + escAttr(it.title) + '"></span>';
+        }).join("");
+        if (dayItems.length > 4) {
+          itemDots += '<span class="cc-mcell-more">+' + (dayItems.length - 4) + '</span>';
+        }
+
+        var itemList = dayItems.map(function (it) {
+          var proj = data.projects.find(function (p) { return p.id === it.project; });
+          var col = proj ? proj.color : "#9a8773";
+          return '<div class="cc-mcell-item" data-cc-item-id="' + it.id + '">' +
+            '<span class="cc-item-dot" style="background:' + col + '"></span>' +
+            '<span class="cc-mcell-item-title">' + esc(it.title) + '</span>' +
+          '</div>';
+        }).join("");
+
+        cells.push(
+          '<div class="cc-month-cell' + (today ? ' is-today' : '') + (!isCurrentMonth ? ' is-other-month' : '') + '" data-cc-cell-date="' + dateStr + '">' +
+            '<div class="cc-mcell-head">' +
+              '<span class="cc-mcell-date">' + cell.getDate() + '</span>' +
+              (today ? '<span class="cc-mcell-today">Today</span>' : '') +
+              '<button type="button" class="cc-mcell-add" data-cc-add-item="' + dateStr + '">+</button>' +
+            '</div>' +
+            '<div class="cc-mcell-items">' + itemList + '</div>' +
+          '</div>'
+        );
+      }
+      weeks.push('<div class="cc-month-row">' + cells.join("") + '</div>');
+    }
+
+    var headerCells = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(function (d) {
+      return '<div class="cc-month-header-cell">' + d + '</div>';
+    }).join("");
+
+    container.innerHTML =
+      '<div class="cc-month-header">' + headerCells + '</div>' +
+      weeks.join("");
+  }
+
+  function renderCalendar() {
+    if (viewMode === "month") {
+      renderMonthView();
+    } else {
+      renderWeekView();
+    }
+  }
+
   // Filter dropdowns
+  function closeAllDropdowns() {
+    root.querySelectorAll(".cc-filter-dropdown").forEach(function (d) { d.classList.remove("is-open"); });
+  }
+
   function renderFilterDropdown(filterKey) {
     var dd = root.querySelector('[data-cc-filter="' + filterKey + '"] .cc-filter-dropdown');
     var options = [];
 
     if (filterKey === "project") {
-      options = data.projects.map(function (p) { return p.name; });
+      options = data.projects.map(function (p) { return { label: p.name, value: p.id }; });
     } else if (filterKey === "type") {
-      options = CONTENT_TYPES.slice();
+      options = CONTENT_TYPES.map(function (t) { return { label: t, value: t }; });
     } else if (filterKey === "person") {
-      options = data.people.slice();
+      options = data.people.map(function (p) { return { label: p, value: p }; });
     } else if (filterKey === "status") {
-      options = STATUS_OPTIONS.slice();
+      options = STATUS_OPTIONS.map(function (s) { return { label: s, value: s }; });
     }
 
     var current = activeFilters[filterKey];
     dd.innerHTML = '<button type="button" class="cc-filter-option' + (!current ? ' is-active' : '') + '" data-cc-filter-val="">All</button>' +
       options.map(function (o) {
-        var matchVal = filterKey === "project" ? data.projects.find(function (p) { return p.name === o; })?.id : o;
-        var cls = current === matchVal ? " is-active" : "";
-        return '<button type="button" class="cc-filter-option' + cls + '" data-cc-filter-val="' + esc(matchVal || o) + '">' + esc(o) + '</button>';
+        var cls = current === o.value ? " is-active" : "";
+        return '<button type="button" class="cc-filter-option' + cls + '" data-cc-filter-val="' + esc(o.value) + '">' + esc(o.label) + '</button>';
       }).join("");
   }
 
-  // Add item modal
   function showAddItemModal(dateStr) {
     var overlay = document.createElement("div");
     overlay.className = "cc-modal-overlay";
@@ -224,18 +363,12 @@
       '</div>';
 
     document.body.appendChild(overlay);
-
     var titleInput = overlay.querySelector("[data-cc-modal-title]");
     titleInput.focus();
-
-    if (activeProject) {
-      var projSelect = overlay.querySelector("[data-cc-modal-project]");
-      projSelect.value = activeProject;
-    }
+    if (activeProject) overlay.querySelector("[data-cc-modal-project]").value = activeProject;
 
     overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
     overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.remove(); });
-
     overlay.querySelector("[data-cc-modal-save]").onclick = function () {
       var title = titleInput.value.trim();
       if (!title) { titleInput.focus(); return; }
@@ -252,13 +385,11 @@
       renderCalendar();
       overlay.remove();
     };
-
     titleInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") overlay.querySelector("[data-cc-modal-save]").click();
     });
   }
 
-  // Add project modal
   function showAddProjectModal() {
     var overlay = document.createElement("div");
     overlay.className = "cc-modal-overlay";
@@ -284,11 +415,9 @@
       '</div>';
 
     document.body.appendChild(overlay);
-
     var nameInput = overlay.querySelector("[data-cc-modal-name]");
     nameInput.focus();
     var selectedColor = PROJECT_COLORS[0];
-
     overlay.querySelectorAll(".cc-color-swatch").forEach(function (sw) {
       if (sw.dataset.ccColor === selectedColor) sw.classList.add("is-active");
       sw.onclick = function () {
@@ -297,10 +426,8 @@
         selectedColor = sw.dataset.ccColor;
       };
     });
-
     overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
     overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.remove(); });
-
     overlay.querySelector("[data-cc-modal-save]").onclick = function () {
       var name = nameInput.value.trim();
       if (!name) { nameInput.focus(); return; }
@@ -316,7 +443,6 @@
     };
   }
 
-  // Settings modal
   function showSettingsModal() {
     var overlay = document.createElement("div");
     overlay.className = "cc-modal-overlay";
@@ -335,7 +461,6 @@
     document.body.appendChild(overlay);
     overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
     overlay.addEventListener("click", function (e) { if (e.target === overlay) overlay.remove(); });
-
     overlay.querySelector("[data-cc-modal-save]").onclick = function () {
       var lines = overlay.querySelector("[data-cc-settings-people]").value.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
       data.people = lines;
@@ -348,19 +473,33 @@
   root.addEventListener("click", function (e) {
     var btn;
 
-    // Week navigation
-    if (e.target.closest("[data-cc-prev-week]")) {
-      weekOffset--;
+    // View toggle
+    btn = e.target.closest("[data-cc-set-view]");
+    if (btn) {
+      var newView = btn.dataset.ccSetView;
+      if (newView !== viewMode) {
+        viewMode = newView;
+        renderCalendar();
+      }
+      return;
+    }
+
+    // Prev/Next/Today navigation
+    if (e.target.closest("[data-cc-prev]")) {
+      if (viewMode === "week") weekOffset--;
+      else monthOffset--;
       renderCalendar();
       return;
     }
-    if (e.target.closest("[data-cc-next-week]")) {
-      weekOffset++;
+    if (e.target.closest("[data-cc-next]")) {
+      if (viewMode === "week") weekOffset++;
+      else monthOffset++;
       renderCalendar();
       return;
     }
-    if (e.target.closest("[data-cc-this-week]")) {
-      weekOffset = 0;
+    if (e.target.closest("[data-cc-today]")) {
+      if (viewMode === "week") weekOffset = 0;
+      else monthOffset = 0;
       renderCalendar();
       return;
     }
@@ -381,14 +520,10 @@
       return;
     }
 
-    // Project sidebar click
+    // Project sidebar
     btn = e.target.closest("[data-cc-project-id]");
     if (btn) {
-      if (activeProject === btn.dataset.ccProjectId) {
-        activeProject = null;
-      } else {
-        activeProject = btn.dataset.ccProjectId;
-      }
+      activeProject = activeProject === btn.dataset.ccProjectId ? null : btn.dataset.ccProjectId;
       renderSidebar();
       renderCalendar();
       return;
@@ -397,35 +532,33 @@
     // Group toggle
     btn = e.target.closest("[data-cc-toggle-group]");
     if (btn) {
-      var g = btn.dataset.ccToggleGroup;
-      collapsedGroups[g] = !collapsedGroups[g];
+      collapsedGroups[btn.dataset.ccToggleGroup] = !collapsedGroups[btn.dataset.ccToggleGroup];
       renderSidebar();
       return;
     }
 
-    // Filter button
+    // Filter button toggle
     btn = e.target.closest(".cc-filter-btn");
     if (btn) {
       var filterEl = btn.closest(".cc-filter");
       var dd = filterEl.querySelector(".cc-filter-dropdown");
-      var wasHidden = dd.hidden;
-      root.querySelectorAll(".cc-filter-dropdown").forEach(function (d) { d.hidden = true; });
-      if (wasHidden) {
-        var key = filterEl.dataset.ccFilter;
-        renderFilterDropdown(key);
-        dd.hidden = false;
+      var wasOpen = dd.classList.contains("is-open");
+      closeAllDropdowns();
+      if (!wasOpen) {
+        renderFilterDropdown(filterEl.dataset.ccFilter);
+        dd.classList.add("is-open");
       }
       return;
     }
 
-    // Filter option
+    // Filter option select
     btn = e.target.closest(".cc-filter-option");
     if (btn) {
       var filterParent = btn.closest(".cc-filter");
       var filterKey = filterParent.dataset.ccFilter;
       var val = btn.dataset.ccFilterVal;
       activeFilters[filterKey] = val || null;
-      filterParent.querySelector(".cc-filter-dropdown").hidden = true;
+      closeAllDropdowns();
 
       var filterBtn = filterParent.querySelector(".cc-filter-btn");
       var labels = { project: "Project", type: "Content Type", person: "Person", status: "Status" };
@@ -446,24 +579,14 @@
     }
 
     // Add project
-    if (e.target.closest("[data-cc-add-project]")) {
-      showAddProjectModal();
-      return;
-    }
+    if (e.target.closest("[data-cc-add-project]")) { showAddProjectModal(); return; }
+    if (e.target.closest("[data-cc-settings]")) { showSettingsModal(); return; }
 
-    // Settings
-    if (e.target.closest("[data-cc-settings]")) {
-      showSettingsModal();
-      return;
-    }
-
-    // Close filter dropdowns on outside click
-    if (!e.target.closest(".cc-filter")) {
-      root.querySelectorAll(".cc-filter-dropdown").forEach(function (d) { d.hidden = true; });
-    }
+    // Close dropdowns on outside click
+    if (!e.target.closest(".cc-filter")) closeAllDropdowns();
   });
 
-  // Click on item to edit
+  // Double-click to edit
   root.addEventListener("dblclick", function (e) {
     var itemEl = e.target.closest("[data-cc-item-id]");
     if (!itemEl) return;
@@ -502,14 +625,12 @@
     document.body.appendChild(overlay);
     overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
     overlay.addEventListener("click", function (ev) { if (ev.target === overlay) overlay.remove(); });
-
     overlay.querySelector("[data-cc-modal-delete]").onclick = function () {
       data.items = data.items.filter(function (it) { return it.id !== item.id; });
       save(data);
       renderCalendar();
       overlay.remove();
     };
-
     overlay.querySelector("[data-cc-modal-save]").onclick = function () {
       item.title = overlay.querySelector("[data-cc-modal-title]").value.trim() || item.title;
       item.date = overlay.querySelector("[data-cc-modal-date]").value;
@@ -526,7 +647,6 @@
   function esc(s) { return (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
   function escAttr(s) { return (s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;"); }
 
-  // Initial render
   renderSidebar();
   renderCalendar();
 })();
