@@ -397,17 +397,17 @@
       }
     };
     const btnStyle = (variant = "primary") => ({
-      background: variant === "primary" ? "#2d2927" : variant === "danger" ? "transparent" : "transparent",
-      color: variant === "primary" ? "#fff" : variant === "danger" ? "#c0392b" : "#2d2927",
-      border: variant === "danger" ? "1px solid #c0392b" : variant === "primary" ? "1px solid #2d2927" : "1px solid #d8c4a3",
-      padding: "7px 16px",
+      background: variant === "primary" ? "#2d2927" : variant === "danger" ? "transparent" : "#fff",
+      color: variant === "primary" ? "#fbf7ee" : variant === "danger" ? "#a43a27" : "#2d2927",
+      border: variant === "danger" ? "1px solid #a43a27" : "1px solid #2d2927",
+      padding: "8px 14px",
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-      fontSize: 13,
-      fontWeight: 600,
-      letterSpacing: "0.02em",
-      textTransform: "none",
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: "0.14em",
+      textTransform: "uppercase",
       cursor: "pointer",
-      borderRadius: 6
+      borderRadius: 10
     });
     return /* @__PURE__ */ React.createElement(
       "div",
