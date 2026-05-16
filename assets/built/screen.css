@@ -16115,6 +16115,13 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   justify-content: center;
   z-index: 9999;
   padding: 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+body:has(.au-modal-overlay) {
+  overflow: hidden;
+  touch-action: none;
 }
 .au-modal {
   background: #fff;
@@ -16124,7 +16131,9 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   max-width: 520px;
   max-height: 85vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  touch-action: pan-y;
 }
 .au-modal--narrow { max-width: 400px; }
 .au-modal-title {
