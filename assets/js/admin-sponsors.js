@@ -30,7 +30,6 @@
   const notesSaveTimers = {};
 
   hydrate();
-  wireDropTargets();
   wireToolbar();
 
   // ---------------------------------------------------------------------------
@@ -93,7 +92,7 @@
     const name = escapeHtml(row.sponsor_name);
     const type = escapeHtml(row.type || "");
     return (
-      `<article class="sponsor-card" draggable="true" data-id="${row.id}">` +
+      `<article class="sponsor-card" data-id="${row.id}">` +
         `<span class="sponsor-card-name" data-action="open-detail" data-id="${row.id}">${name}</span>` +
         `<span class="sponsor-card-type">${type}</span>` +
       `</article>`
@@ -109,8 +108,11 @@
     closeDetailModal();
 
     const name = escapeHtml(row.sponsor_name);
-    const statusLabel = row.status.charAt(0).toUpperCase() + row.status.slice(1);
     const typeLabel = row.type ? row.type.charAt(0).toUpperCase() + row.type.slice(1) : "";
+    const statuses = ["prospecting", "negotiating", "agreed", "active", "completed"];
+    const statusOptions = statuses.map((s) =>
+      `<option value="${s}"${s === row.status ? ' selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
+    ).join('');
 
     const overlay = document.createElement("div");
     overlay.className = "au-modal-overlay sponsor-detail-overlay";
@@ -120,7 +122,7 @@
         `<div class="sponsor-detail-header">` +
           `<div>` +
             `<h3 class="sponsor-detail-name">${name}</h3>` +
-            `<p class="sponsor-detail-meta">${escapeHtml(typeLabel)} &middot; ${escapeHtml(statusLabel)}</p>` +
+            `<p class="sponsor-detail-meta">${escapeHtml(typeLabel)} &middot; <select class="sponsor-status-select" data-action="change-status" data-id="${row.id}">${statusOptions}</select></p>` +
           `</div>` +
           `<button type="button" class="editorial-detail-close" data-action="close-detail" aria-label="Close">&times;</button>` +
         `</div>` +
@@ -201,6 +203,14 @@
   // Modal interactions
 
   function wireModalInteractions(overlay, row) {
+    // Status dropdown
+    const statusSelect = overlay.querySelector('[data-action="change-status"]');
+    if (statusSelect) {
+      statusSelect.addEventListener("change", () => {
+        moveCard(row.id, statusSelect.value);
+      });
+    }
+
     // Financial checkboxes
     overlay.querySelectorAll("[data-field]").forEach((cb) => {
       cb.addEventListener("change", () => {
@@ -582,7 +592,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Card interactions + drag-drop
+  // Card interactions
 
   function wireCards(host) {
     host.querySelectorAll('[data-action="open-detail"]').forEach((el) => {
@@ -590,29 +600,6 @@
         ev.preventDefault();
         ev.stopPropagation();
         openDetailModal(el.getAttribute("data-id"));
-      });
-    });
-    host.querySelectorAll('[draggable="true"]').forEach((card) => {
-      card.addEventListener("dragstart", (ev) => {
-        ev.dataTransfer.setData("text/plain", card.getAttribute("data-id"));
-        ev.dataTransfer.effectAllowed = "move";
-        card.classList.add("is-dragging");
-      });
-      card.addEventListener("dragend", () => { card.classList.remove("is-dragging"); });
-    });
-  }
-
-  function wireDropTargets() {
-    Object.keys(boardCols).forEach((status) => {
-      const col = boardCols[status];
-      if (!col) return;
-      col.addEventListener("dragover", (ev) => { ev.preventDefault(); ev.dataTransfer.dropEffect = "move"; col.classList.add("is-drop-target"); });
-      col.addEventListener("dragleave", () => { col.classList.remove("is-drop-target"); });
-      col.addEventListener("drop", (ev) => {
-        ev.preventDefault();
-        col.classList.remove("is-drop-target");
-        const id = ev.dataTransfer.getData("text/plain");
-        if (id) moveCard(id, status);
       });
     });
   }

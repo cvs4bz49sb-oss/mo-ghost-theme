@@ -9760,7 +9760,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 .editorial-card {
   padding: 8px 10px;
   border: 1px solid var(--color-rule);
-  background: var(--color-background);
+  background: #fff;
   cursor: grab;
   transition: border-color 0.15s;
 }
@@ -9833,7 +9833,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   font-size: 14px;
   line-height: 1.5;
   color: var(--color-dark);
-  background: var(--color-background);
+  background: #fff;
   border: 1px solid var(--color-rule);
   border-radius: 2px;
   resize: vertical;
@@ -10001,23 +10001,17 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   padding: 10px 0;
   min-height: 80px;
 }
-.sponsor-col-body.is-drop-target {
-  background: rgba(238, 125, 81, 0.06);
-  outline: 1px dashed var(--color-primary);
-  outline-offset: -4px;
-}
 .sponsor-card {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
   border: 1px solid var(--color-rule);
-  background: var(--color-background);
-  cursor: grab;
+  background: #fff;
+  cursor: pointer;
   transition: border-color 0.15s;
 }
 .sponsor-card:hover { border-color: var(--color-card-border); }
-.sponsor-card.is-dragging { opacity: 0.4; cursor: grabbing; }
 .sponsor-card-name {
   font-family: var(--font-body);
   font-size: 13px;
@@ -10064,6 +10058,23 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   font-size: 13px;
   color: var(--color-muted);
   margin: 4px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sponsor-status-select {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 2px 6px;
+  border: 1px solid var(--color-rule);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+.sponsor-status-select:focus {
+  outline: 1px solid var(--color-primary);
+  border-color: var(--color-primary);
 }
 .sponsor-detail-body {
   display: flex;
@@ -10179,7 +10190,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   padding: 6px 10px;
   border: 1px solid var(--color-rule);
   border-radius: 2px;
-  background: var(--color-background);
+  background: #fff;
   color: var(--color-dark);
 }
 .sponsor-asset-label-input { width: 160px; }
@@ -10236,7 +10247,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   padding: 8px 10px;
   border: 1px solid var(--color-rule);
   border-radius: 2px;
-  background: var(--color-background);
+  background: #fff;
   color: var(--color-dark);
   width: 100%;
   box-sizing: border-box;
@@ -16065,7 +16076,7 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 .au-row-count {
   font-size: 12px;
   color: var(--color-muted);
-  background: var(--color-background);
+  background: rgba(45, 41, 39, 0.06);
   padding: 3px 10px;
   border-radius: 12px;
 }
