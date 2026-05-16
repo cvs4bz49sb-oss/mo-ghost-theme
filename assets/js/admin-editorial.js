@@ -93,16 +93,27 @@
   }
 
   // -------------------------------------------------------------------------
-  // Card rendering — single template covers both inbox and board variants.
-  // The expanded body is always rendered; CSS hides it until is-expanded.
+  // Card rendering — inbox cards expand inline; board cards are compact
+  // chips that open a detail modal on click.
 
   function renderCard(row, variant) {
+    if (variant === "board") return renderBoardCard(row);
+    return renderInboxCard(row);
+  }
+
+  function renderBoardCard(row) {
+    const name = escapeHtml(`${row.first_name} ${row.last_name || ""}`);
+    return (
+      `<article class="editorial-card" draggable="true" data-id="${row.id}">` +
+        `<span class="editorial-card-name" data-action="open-detail" data-id="${row.id}">${name}</span>` +
+      `</article>`
+    );
+  }
+
+  function renderInboxCard(row) {
     const name = escapeHtml(`${row.first_name} ${row.last_name || ""}`);
     const when = formatDate(row.created_at);
-    const bioFull = escapeHtml(row.bio || "");
-    const notes = escapeAttr(row.notes || "");
     const isExpanded = expanded.has(row.id);
-    const cardClass = (variant === "inbox" ? "editorial-inbox-card" : "editorial-card") + (isExpanded ? " is-expanded" : "");
 
     const head =
       `<div class="editorial-card-head" data-card-toggle data-id="${row.id}">` +
@@ -111,12 +122,22 @@
         `<span class="editorial-card-chevron">${isExpanded ? "&#9652;" : "&#9662;"}</span>` +
       `</div>`;
 
-    // Decision row only for inbox cards — already-on-the-board cards
-    // change status by drag-drop, not buttons. Sized to match the
-    // download buttons above it so the section reads as a quiet
-    // closing action, not a CTA banner.
+    return (
+      `<li class="editorial-inbox-card${isExpanded ? " is-expanded" : ""}" draggable="true" data-id="${row.id}">` +
+        head + renderDetailBody(row, true) +
+      `</li>`
+    );
+  }
+
+  function renderDetailBody(row, isInbox) {
+    const bioFull = escapeHtml(row.bio || "");
+    const notes = escapeAttr(row.notes || "");
+    const contactMeta = [];
+    if (row.email) contactMeta.push(`<a href="mailto:${escapeAttr(row.email)}">${escapeHtml(row.email)}</a>`);
+    if (row.phone) contactMeta.push(escapeHtml(row.phone));
+
     let decision = "";
-    if (variant === "inbox") {
+    if (isInbox) {
       decision =
         `<div class="editorial-card-section editorial-card-decision">` +
           `<p class="eyebrow">Decision</p>` +
@@ -128,11 +149,7 @@
         `</div>`;
     }
 
-    const contactMeta = [];
-    if (row.email) contactMeta.push(`<a href="mailto:${escapeAttr(row.email)}">${escapeHtml(row.email)}</a>`);
-    if (row.phone) contactMeta.push(escapeHtml(row.phone));
-
-    const body =
+    return (
       `<div class="editorial-card-body">` +
         (contactMeta.length ? `<p class="editorial-card-contact">${contactMeta.join(' &middot; ')}</p>` : '') +
         (bioFull ? `<div class="editorial-card-section"><p class="eyebrow">Bio</p><p>${bioFull}</p></div>` : '') +
@@ -150,12 +167,55 @@
             `<span class="editorial-card-notes-state" data-notes-state></span>` +
           `</label>` +
           `<textarea class="editorial-card-notes" id="editorial-notes-${row.id}" data-notes data-id="${row.id}" rows="3" placeholder="Editor notes — saves automatically.">${notes}</textarea>` +
-        `</div>${
-        decision
-      }</div>`;
+        `</div>` +
+        decision +
+        `<div class="editorial-card-section editorial-card-remove-section">` +
+          `<button type="button" class="btn btn-sm btn-danger" data-action="remove" data-id="${row.id}">Remove submission</button>` +
+        `</div>` +
+      `</div>`
+    );
+  }
 
-    const tag = variant === "inbox" ? "li" : "article";
-    return `<${tag} class="${cardClass}" draggable="true" data-id="${row.id}">${head}${body}</${tag}>`;
+  // -------------------------------------------------------------------------
+  // Detail modal — opens when a board card is clicked.
+
+  function openDetailModal(id) {
+    const row = rows[id];
+    if (!row) return;
+    closeDetailModal();
+
+    const name = escapeHtml(`${row.first_name} ${row.last_name || ""}`);
+    const when = formatDate(row.created_at);
+    const statusLabel = row.status.charAt(0).toUpperCase() + row.status.slice(1);
+
+    const overlay = document.createElement("div");
+    overlay.className = "au-modal-overlay editorial-detail-overlay";
+    overlay.setAttribute("data-editorial-detail-overlay", "");
+    overlay.innerHTML =
+      `<div class="au-modal editorial-detail-modal">` +
+        `<div class="editorial-detail-header">` +
+          `<div>` +
+            `<h3 class="editorial-detail-name">${name}</h3>` +
+            `<p class="editorial-detail-meta">${escapeHtml(when)} &middot; ${escapeHtml(statusLabel)}</p>` +
+          `</div>` +
+          `<button type="button" class="editorial-detail-close" data-action="close-detail" aria-label="Close">&times;</button>` +
+        `</div>` +
+        renderDetailBody(row, false) +
+      `</div>`;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector("[data-action='close-detail']").addEventListener("click", closeDetailModal);
+    overlay.addEventListener("click", (ev) => {
+      if (ev.target === overlay) closeDetailModal();
+    });
+
+    wireCard(overlay);
+  }
+
+  function closeDetailModal() {
+    const el = document.querySelector("[data-editorial-detail-overlay]");
+    if (el) el.remove();
   }
 
   // -------------------------------------------------------------------------
@@ -175,6 +235,14 @@
       });
     });
 
+    host.querySelectorAll('[data-action="open-detail"]').forEach((el) => {
+      el.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openDetailModal(el.getAttribute("data-id"));
+      });
+    });
+
     host.querySelectorAll('[data-action="approve"], [data-action="deny"]').forEach((btn) => {
       btn.addEventListener("click", (ev) => {
         ev.preventDefault();
@@ -190,6 +258,19 @@
         ev.preventDefault();
         ev.stopPropagation();
         downloadFile(btn.getAttribute("data-id"), btn.getAttribute("data-which"), btn);
+      });
+    });
+
+    host.querySelectorAll('[data-action="remove"]').forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const id = btn.getAttribute("data-id");
+        const row = rows[id];
+        if (!row) return;
+        const name = `${row.first_name} ${row.last_name || ""}`.trim();
+        if (!confirm(`Remove "${name}" permanently? This cannot be undone.`)) return;
+        removeCard(id, btn);
       });
     });
 
@@ -276,6 +357,36 @@
         console.error("editorial move failed", err);
         row.status = prevStatus; repaint();
         setStatus("Network error saving move. Reverted.");
+      });
+  }
+
+  function removeCard(id, btn) {
+    const origLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Removing…";
+
+    window.MOAuth.fetch(`${apiBase}/api/admin/submissions/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      credentials: "omit",
+    })
+      .then((r) => {
+        if (r.status === 401 || r.status === 403) { showForbidden(); return; }
+        if (!r.ok) {
+          setStatus(`Couldn't remove submission (${r.status}).`);
+          btn.disabled = false;
+          btn.textContent = origLabel;
+          return;
+        }
+        delete rows[id];
+        expanded.delete(id);
+        closeDetailModal();
+        repaint();
+      })
+      .catch((err) => {
+        console.error("editorial remove failed", err);
+        setStatus("Network error removing submission.");
+        btn.disabled = false;
+        btn.textContent = origLabel;
       });
   }
 

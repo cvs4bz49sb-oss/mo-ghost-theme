@@ -9764,17 +9764,20 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   outline-offset: -4px;
 }
 .editorial-card {
-  padding: 12px 14px;
+  padding: 8px 10px;
   border: 1px solid var(--color-rule);
   background: var(--color-background);
   cursor: grab;
-  transition: border-color 0.15s, transform 0.05s;
+  transition: border-color 0.15s;
 }
 .editorial-card:hover { border-color: var(--color-card-border); }
 .editorial-card.is-dragging { opacity: 0.4; cursor: grabbing; }
-.editorial-card .editorial-card-name { font-size: 13px; }
-.editorial-card .editorial-card-date { font-size: 11px; }
-.editorial-card .editorial-card-head { padding: 8px 0; }
+.editorial-card .editorial-card-name {
+  font-size: 13px;
+  cursor: pointer;
+  display: block;
+}
+.editorial-card .editorial-card-name:hover { color: var(--color-secondary); }
 
 @media (max-width: 760px) {
   .editorial-board { grid-template-columns: repeat(5, minmax(180px, 220px)); }
@@ -9882,6 +9885,67 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   font-size: 12px;
   color: var(--color-muted);
   font-style: italic;
+}
+
+/* Detail modal — opened from board card click. Inherits .au-modal-overlay
+   and .au-modal base styles; these add the editorial-specific header. */
+.editorial-detail-modal {
+  max-width: 480px;
+}
+.editorial-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.editorial-detail-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0;
+  color: var(--color-dark);
+}
+.editorial-detail-meta {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 4px 0 0;
+}
+.editorial-detail-close {
+  appearance: none;
+  border: none;
+  background: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0 4px;
+  transition: color 0.12s;
+}
+.editorial-detail-close:hover {
+  color: var(--color-dark);
+}
+.editorial-detail-modal .editorial-card-body {
+  display: block;
+}
+
+/* Remove button — danger variant of .btn-sm */
+.btn-danger {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+.btn-danger:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #991b1b;
+}
+.editorial-card-remove-section {
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid var(--color-rule);
 }
 
 .admin-forbidden { max-width: 560px; }
