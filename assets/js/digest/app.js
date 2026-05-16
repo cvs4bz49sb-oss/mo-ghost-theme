@@ -28,8 +28,8 @@
   }
   [data-mo-topbar] button {
     padding: 6px 10px !important;
-    font-size: 10px !important;
-    letter-spacing: 0.1em !important;
+    font-size: 11px !important;
+    letter-spacing: 0.02em !important;
   }
   [data-mo-topbar-group] {
     gap: 6px !important;
@@ -448,16 +448,16 @@
       color: "#2d2927"
     } }, "Flat HTML for Kit")), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: {
       background: "transparent",
-      border: "1.5px solid #2d2927",
+      border: "1px solid #d8c4a3",
       color: "#2d2927",
-      padding: "7px 14px",
+      padding: "7px 16px",
       fontFamily: '"Source Sans 3", Arial, sans-serif',
-      fontSize: 11,
-      fontWeight: 700,
-      letterSpacing: "0.14em",
-      textTransform: "uppercase",
+      fontSize: 13,
+      fontWeight: 600,
+      letterSpacing: "0.02em",
+      textTransform: "none",
       cursor: "pointer",
-      borderRadius: 10
+      borderRadius: 6
     } }, "Close")), /* @__PURE__ */ React.createElement("div", { "data-mo-modal-body": true, style: { flex: 1, overflowY: "auto", padding: "20px 24px" } }, /* @__PURE__ */ React.createElement("p", { style: {
       fontFamily: '"Source Sans 3", Arial, sans-serif',
       fontSize: 13,
@@ -470,16 +470,16 @@
     ].map((opt) => /* @__PURE__ */ React.createElement("button", { key: opt.v, onClick: () => setTarget(opt.v), style: {
       flex: 1,
       background: target === opt.v ? "#2d2927" : "transparent",
-      color: target === opt.v ? "#fbf7ee" : "#2d2927",
-      border: "1.5px solid #2d2927",
-      padding: "10px 12px",
+      color: target === opt.v ? "#fff" : "#2d2927",
+      border: target === opt.v ? "1px solid #2d2927" : "1px solid #d8c4a3",
+      padding: "7px 16px",
       fontFamily: '"Source Sans 3", Arial, sans-serif',
-      fontSize: 11,
-      fontWeight: 700,
-      letterSpacing: "0.12em",
-      textTransform: "uppercase",
+      fontSize: 13,
+      fontWeight: 600,
+      letterSpacing: "0.02em",
+      textTransform: "none",
       cursor: "pointer",
-      borderRadius: 10
+      borderRadius: 6
     } }, opt.t)))), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: labelStyle }, "Subject Line"), /* @__PURE__ */ React.createElement("input", { type: "text", value: subject, onChange: (e) => setSubject(e.target.value), style: inputStyle })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: labelStyle }, "Preheader (preview text)"), /* @__PURE__ */ React.createElement("input", { type: "text", value: preheader, onChange: (e) => setPreheader(e.target.value), style: inputStyle, placeholder: "Hidden text shown after subject in inbox preview" })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: labelStyle }, "Images"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10 } }, [
       { v: "auto", t: "Auto (recommended)" },
       { v: "placeholder", t: "Hosted URLs only" },
@@ -487,16 +487,16 @@
     ].map((opt) => /* @__PURE__ */ React.createElement("button", { key: opt.v, onClick: () => setImageMode(opt.v), style: {
       flex: 1,
       background: imageMode === opt.v ? "#2d2927" : "transparent",
-      color: imageMode === opt.v ? "#fbf7ee" : "#2d2927",
-      border: "1.5px solid #2d2927",
-      padding: "10px 12px",
+      color: imageMode === opt.v ? "#fff" : "#2d2927",
+      border: imageMode === opt.v ? "1px solid #2d2927" : "1px solid #d8c4a3",
+      padding: "7px 16px",
       fontFamily: '"Source Sans 3", Arial, sans-serif',
-      fontSize: 11,
-      fontWeight: 700,
-      letterSpacing: "0.12em",
-      textTransform: "uppercase",
+      fontSize: 13,
+      fontWeight: 600,
+      letterSpacing: "0.02em",
+      textTransform: "none",
       cursor: "pointer",
-      borderRadius: 10
+      borderRadius: 6
     } }, opt.t))), imageMode === "auto" && /* @__PURE__ */ React.createElement("div", { style: {
       fontFamily: '"Source Sans 3", Arial, sans-serif',
       fontSize: 12,
@@ -528,15 +528,15 @@
           background: "transparent",
           color: "#2d2927",
           border: "none",
-          borderBottom: "1.5px solid #2d2927",
+          borderBottom: "1px solid #2d2927",
           padding: "4px 0",
           fontFamily: '"Source Sans 3", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+          textTransform: "none",
           cursor: "pointer",
-          borderRadius: 10
+          borderRadius: 0
         }
       },
       overridesOpen ? "\u2212 Hide" : "+ Override",
@@ -581,9 +581,9 @@
           border: "none",
           padding: "4px 0",
           fontFamily: '"Source Sans 3", Arial, sans-serif',
-          fontSize: 11,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
+          fontSize: 13,
+          letterSpacing: "0.02em",
+          textTransform: "none",
           cursor: "pointer",
           textDecoration: "underline"
         }
@@ -657,15 +657,15 @@
         style: {
           background: "transparent",
           color: "#2d2927",
-          border: "1.5px solid #2d2927",
-          padding: "9px 18px",
+          border: "1px solid #d8c4a3",
+          padding: "7px 16px",
           fontFamily: '"Source Sans 3", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+          textTransform: "none",
           cursor: output ? "pointer" : "not-allowed",
-          borderRadius: 10,
+          borderRadius: 6,
           opacity: output ? 1 : 0.5
         }
       },
@@ -676,17 +676,17 @@
         onClick: () => downloadString(`weekly-digest-${content.issueNumber || "export"}.html`, output),
         disabled: !output || generating,
         style: {
-          background: "#ee7d51",
+          background: "#2d2927",
           color: "#fff",
-          border: "1.5px solid #ee7d51",
-          padding: "9px 18px",
+          border: "1px solid #2d2927",
+          padding: "7px 16px",
           fontFamily: '"Source Sans 3", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+          textTransform: "none",
           cursor: output ? "pointer" : "not-allowed",
-          borderRadius: 10,
+          borderRadius: 6,
           opacity: output ? 1 : 0.5
         }
       },
@@ -696,16 +696,16 @@
   function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExport }) {
     const Tab = ({ active, onClick, children }) => /* @__PURE__ */ React.createElement("button", { onClick, style: {
       background: active ? "#2d2927" : "transparent",
-      color: active ? "#fbf7ee" : "#2d2927",
-      border: "1.5px solid #2d2927",
+      color: active ? "#fff" : "#2d2927",
+      border: active ? "1px solid #2d2927" : "1px solid #d8c4a3",
       padding: "7px 16px",
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-      fontSize: 11,
-      fontWeight: 700,
-      letterSpacing: "0.14em",
-      textTransform: "uppercase",
+      fontSize: 13,
+      fontWeight: 600,
+      letterSpacing: "0.02em",
+      textTransform: "none",
       cursor: "pointer",
-      borderRadius: 10
+      borderRadius: 6
     } }, children);
     return /* @__PURE__ */ React.createElement("div", { "data-mo-topbar": true, style: {
       background: "#f1e0c9",
@@ -716,25 +716,25 @@
       gap: 24,
       flexShrink: 0,
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif'
-    } }, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-brand": true, style: { display: "flex", alignItems: "center", gap: 12 } }, /* @__PURE__ */ React.createElement("img", { src: window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS["mere-o-logo.png"] || "assets/mere-o-logo.png", alt: "", style: { height: 22 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 22, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#2d2927", fontFamily: '"IM Fell English", Georgia, serif' } }, "The Weekly Digest \u2014 Email Template")), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-spacer": true, style: { flex: 1 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "Audience"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 0, marginLeft: -1 } }, /* @__PURE__ */ React.createElement(Tab, { active: version === "free", onClick: () => onVersion("free") }, "Free Subscriber"), /* @__PURE__ */ React.createElement("div", { style: { width: 0 } }), /* @__PURE__ */ React.createElement(Tab, { active: version === "paid", onClick: () => onVersion("paid") }, "Paid Member"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "View"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 0 } }, /* @__PURE__ */ React.createElement(Tab, { active: preview === "raw", onClick: () => onPreview("raw") }, "Raw Email"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "client", onClick: () => onPreview("client") }, "In Gmail"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "mobile", onClick: () => onPreview("mobile") }, "Mobile"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement(
+    } }, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-brand": true, style: { display: "flex", alignItems: "center", gap: 12 } }, /* @__PURE__ */ React.createElement("img", { src: window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS["mere-o-logo.png"] || "assets/mere-o-logo.png", alt: "", style: { height: 22 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 22, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#2d2927", fontFamily: '"IM Fell English", Georgia, serif' } }, "The Weekly Digest \u2014 Email Template")), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-spacer": true, style: { flex: 1 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "Audience"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Tab, { active: version === "free", onClick: () => onVersion("free") }, "Free Subscriber"), /* @__PURE__ */ React.createElement(Tab, { active: version === "paid", onClick: () => onVersion("paid") }, "Paid Member"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "View"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Tab, { active: preview === "raw", onClick: () => onPreview("raw") }, "Raw Email"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "client", onClick: () => onPreview("client") }, "In Gmail"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "mobile", onClick: () => onPreview("mobile") }, "Mobile"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: onEditContent,
         style: {
-          background: "#ee7d51",
+          background: "#2d2927",
           color: "#fff",
-          border: "1.5px solid #ee7d51",
-          padding: "7px 18px",
+          border: "1px solid #2d2927",
+          padding: "7px 16px",
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+          textTransform: "none",
           cursor: "pointer",
-          borderRadius: 10,
+          borderRadius: 6,
           display: "inline-flex",
           alignItems: "center",
-          gap: 8
+          gap: 6
         }
       },
       /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M12 20h9" }), /* @__PURE__ */ React.createElement("path", { d: "M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" })),
@@ -744,20 +744,20 @@
       {
         onClick: onExport,
         style: {
-          background: "#2d2927",
-          color: "#fbf7ee",
-          border: "1.5px solid #2d2927",
-          padding: "7px 18px",
+          background: "transparent",
+          color: "#2d2927",
+          border: "1px solid #d8c4a3",
+          padding: "7px 16px",
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+          textTransform: "none",
           cursor: "pointer",
-          borderRadius: 10,
+          borderRadius: 6,
           display: "inline-flex",
           alignItems: "center",
-          gap: 8
+          gap: 6
         }
       },
       /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 10 12 15 17 10" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "15", x2: "12", y2: "3" })),
@@ -856,16 +856,16 @@
         style: {
           width: "100%",
           background: "#2d2927",
-          color: "#fbf7ee",
-          border: "1.5px solid #2d2927",
-          padding: "10px 14px",
+          color: "#fff",
+          border: "1px solid #2d2927",
+          padding: "7px 16px",
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+          textTransform: "none",
           cursor: "pointer",
-          borderRadius: 10
+          borderRadius: 6
         }
       },
       "Edit Content / Paste RSS"
