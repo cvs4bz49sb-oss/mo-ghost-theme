@@ -20,10 +20,13 @@
           <div class="ag-groups" data-ag-groups></div>
 
           <div class="ag-completed-wrap" data-ag-completed-wrap>
-            <button type="button" class="ag-completed-toggle" data-ag-toggle-completed>
-              <svg class="ag-completed-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              Completed <span data-ag-completed-count></span>
-            </button>
+            <div class="ag-completed-header">
+              <button type="button" class="ag-completed-toggle" data-ag-toggle-completed>
+                <svg class="ag-completed-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                Completed <span data-ag-completed-count></span>
+              </button>
+              <button type="button" class="ag-clear-completed" data-ag-clear-completed>Clear all</button>
+            </div>
             <div class="ag-completed-list" data-ag-completed></div>
           </div>
 

@@ -17018,6 +17018,23 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   margin-top: 24px;
   padding-top: 12px;
 }
+.ag-completed-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ag-clear-completed {
+  display: none;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-mid);
+  cursor: pointer;
+  padding: 2px 0;
+}
+.ag-completed-header:hover .ag-clear-completed { display: inline; }
+.ag-clear-completed:hover { color: var(--color-accent); }
 .ag-completed-toggle {
   background: none;
   border: none;

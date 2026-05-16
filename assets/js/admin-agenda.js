@@ -721,6 +721,17 @@
       return;
     }
 
+    if (e.target.closest("[data-ag-clear-completed]")) {
+      const completed = agendaItems().filter(isCompleted);
+      if (completed.length > 0 && confirm(`Remove ${completed.length} completed task${completed.length > 1 ? "s" : ""}?`)) {
+        const ids = new Set(completed.map((it) => it.id));
+        data.items = data.items.filter((it) => !ids.has(it.id));
+        save(data);
+        render();
+      }
+      return;
+    }
+
     const titleEl = e.target.closest("[data-ag-inline-title]");
     if (titleEl) {
       startInlineEdit(titleEl, titleEl.dataset.agInlineTitle);
