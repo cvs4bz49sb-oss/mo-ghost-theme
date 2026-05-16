@@ -491,8 +491,7 @@
         `</label>` +
         `<div class="cc-modal-actions">` +
           `<button type="button" class="btn btn-sm btn-danger" data-cc-edit-cat-delete>Delete Category</button>` +
-          `<span style="flex:1"></span>` +
-          `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
+          `<button type="button" class="btn btn-sm" style="margin-left:auto" data-cc-modal-cancel>Cancel</button>` +
           `<button type="button" class="btn btn-sm btn-primary" data-cc-edit-cat-save>Save</button>` +
         `</div>` +
       `</div>`;
@@ -699,8 +698,7 @@
         `</label>` +
         `<div class="cc-modal-actions">` +
           `<button type="button" class="btn btn-sm btn-danger" data-cc-edit-proj-delete>Delete Project</button>` +
-          `<span style="flex:1"></span>` +
-          `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
+          `<button type="button" class="btn btn-sm" style="margin-left:auto" data-cc-modal-cancel>Cancel</button>` +
           `<button type="button" class="btn btn-sm btn-primary" data-cc-edit-proj-save>Save</button>` +
         `</div>` +
       `</div>`;
@@ -798,7 +796,7 @@
           }</div>` +
           `<button type="button" class="btn btn-sm btn-primary" data-cc-cat-add-btn>Add</button>` +
         `</div>` +
-        `<div class="cc-modal-actions" style="margin-top:16px">` +
+        `<div class="cc-modal-actions">` +
           `<button type="button" class="btn btn-sm btn-primary" data-cc-modal-done>Done</button>` +
         `</div>` +
       `</div>`;
@@ -1255,8 +1253,7 @@
         }</select></label>` +
         `<div class="cc-modal-actions">` +
           `<button type="button" class="btn btn-sm btn-danger" data-cc-modal-delete>Delete</button>` +
-          `<span style="flex:1"></span>` +
-          `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
+          `<button type="button" class="btn btn-sm" style="margin-left:auto" data-cc-modal-cancel>Cancel</button>` +
           `<button type="button" class="btn btn-sm btn-primary" data-cc-modal-save>Save</button>` +
         `</div>` +
       `</div>`;

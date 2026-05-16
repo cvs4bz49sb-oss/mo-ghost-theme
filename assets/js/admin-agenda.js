@@ -746,8 +746,7 @@
         `<div class="au-modal-actions">` +
           `<button type="button" class="btn btn-primary" data-ag-modal-save>Save</button>` +
           `<button type="button" class="btn" data-ag-modal-cancel>Cancel</button>` +
-          `<span style="flex:1"></span>` +
-          `<button type="button" class="btn btn-danger" data-ag-modal-delete>Delete</button>` +
+          `<button type="button" class="btn btn-danger" style="margin-left:auto" data-ag-modal-delete>Delete</button>` +
         `</div>` +
       `</div>`;
 

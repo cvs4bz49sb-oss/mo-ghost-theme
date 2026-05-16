@@ -7012,7 +7012,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .dashboard-address-actions {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 10px;
   flex-wrap: wrap;
   padding-top: 8px;
 }
@@ -9906,7 +9906,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 14px;
+  gap: 8px 10px;
   margin-top: 4px;
 }
 .editorial-card-decision-hint {
@@ -14919,10 +14919,11 @@ details.bookstore-section[open] > .bookstore-section-header::after {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 24px;
-  padding: 0 0 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 0 0 20px;
   border-bottom: 1px solid var(--color-rule);
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 .coverage-toolbar-meta {
   display: flex;
@@ -15637,7 +15638,8 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   margin-top: 20px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 .settings-actions--top { margin-top: 0; margin-bottom: 16px; }
 .settings-status {
@@ -15808,7 +15810,9 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 }
 .au-modal-actions {
   display: flex;
+  align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .au-modal-status {
   font-size: 13px;
@@ -16363,7 +16367,8 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 .cc-modal-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
   justify-content: flex-end;
   margin-top: 20px;
 }
@@ -17023,7 +17028,8 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 }
 .ag-inline-actions {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 .ag-inline-save {
@@ -17812,9 +17818,10 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 
 .social-actions {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 .social-action-btn {
   display: inline-flex;
@@ -18059,7 +18066,9 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 }
 .social-modal-actions {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--color-rule);
