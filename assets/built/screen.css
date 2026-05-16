@@ -16718,9 +16718,8 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   align-items: center;
   color: var(--color-mid);
   cursor: grab;
-  padding: 0 2px;
-  margin-left: -16px;
-  margin-right: -2px;
+  padding: 0 6px;
+  margin-left: 4px;
 }
 .ag-section-head:hover .ag-section-drag-handle { display: inline-flex; }
 .ag-section-remove {
@@ -16821,7 +16820,7 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   border-radius: 4px;
 }
 
-/* Drag handle */
+/* Drag handle — right side of item row */
 .ag-drag-handle {
   display: flex;
   align-items: center;
@@ -16832,6 +16831,8 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   color: transparent;
   cursor: grab;
   transition: color 0.1s;
+  margin-left: 4px;
+  padding: 0 4px;
 }
 .ag-item:hover .ag-drag-handle {
   color: var(--color-mid);
@@ -17152,9 +17153,9 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   .ag-root { padding: 16px; }
   .ag-item-meta { display: none; }
   .cc-list-item-person { display: none; }
-  .ag-drag-handle { color: var(--color-mid); touch-action: none; }
-  .ag-section-drag-handle { display: inline-flex; touch-action: none; }
-  .ag-section-remove { display: inline-flex; }
+  .ag-drag-handle { color: var(--color-mid); touch-action: none; padding: 8px 12px; min-width: 32px; min-height: 32px; }
+  .ag-section-drag-handle { display: inline-flex; touch-action: none; padding: 8px 12px; min-width: 32px; min-height: 32px; }
+  .ag-section-remove { display: inline-flex; padding: 8px; min-width: 32px; min-height: 32px; }
   .ag-item-remove { opacity: 1; }
 }
 .ag-drag-handle, .ag-section-drag-handle { touch-action: none; }

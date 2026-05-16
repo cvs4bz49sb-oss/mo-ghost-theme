@@ -158,21 +158,21 @@
     const catLabel = cat ? cat.name : "";
     const catColor = cat ? cat.color : "#9a8773";
     return `<div class="ag-item${done ? " is-done" : ""}" data-ag-item-id="${it.id}" draggable="true">` +
-      `<span class="ag-drag-handle" title="Drag to reorder">` +
-        `<svg width="6" height="10" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1"/><circle cx="5" cy="1" r="1"/><circle cx="1" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="1" cy="9" r="1"/><circle cx="5" cy="9" r="1"/></svg>` +
-      `</span>` +
       `<button type="button" class="ag-check${done ? " is-checked" : ""}" data-ag-toggle="${it.id}" title="${done ? "Mark incomplete" : "Mark complete"}">` +
         `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>` +
       `</button>` +
       `<span class="ag-item-title" data-ag-inline-title="${it.id}">${esc(it.title)}</span>` +
-      `<span class="ag-item-meta">${ 
-        it.date ? `<span class="ag-item-date">${fmtDate(it.date)}</span>` : "" 
-        }${catLabel ? `<span class="ag-item-cat" style="--cat-color:${catColor}">${esc(catLabel)}</span>` : "" 
+      `<span class="ag-item-meta">${
+        it.date ? `<span class="ag-item-date">${fmtDate(it.date)}</span>` : ""
+        }${catLabel ? `<span class="ag-item-cat" style="--cat-color:${catColor}">${esc(catLabel)}</span>` : ""
       }</span>` +
       `<button type="button" class="ag-item-detail" data-ag-edit="${it.id}" title="Edit details">` +
         `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>` +
       `</button>` +
       `<button type="button" class="ag-item-remove" data-ag-remove="${it.id}" title="Remove">&times;</button>` +
+      `<span class="ag-drag-handle" title="Drag to reorder">` +
+        `<svg width="6" height="10" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1"/><circle cx="5" cy="1" r="1"/><circle cx="1" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="1" cy="9" r="1"/><circle cx="5" cy="9" r="1"/></svg>` +
+      `</span>` +
     `</div>`;
   }
 
@@ -181,14 +181,14 @@
     const count = items.length;
     const isUnassigned = key === "__unassigned__";
     return `<div class="ag-section${isCollapsed ? " is-collapsed" : ""}" data-ag-section="${key}">` +
-      `<div class="ag-section-head" data-ag-section-toggle="${key}"${!isUnassigned ? ` draggable="true" data-ag-section-drag="${key}"` : ""}>${ 
-        !isUnassigned ? `<span class="ag-section-drag-handle" title="Drag to reorder">` +
-          `<svg width="6" height="10" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1"/><circle cx="5" cy="1" r="1"/><circle cx="1" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="1" cy="9" r="1"/><circle cx="5" cy="9" r="1"/></svg>` +
-        `</span>` : "" 
-        }<svg class="ag-section-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>` +
+      `<div class="ag-section-head" data-ag-section-toggle="${key}"${!isUnassigned ? ` draggable="true" data-ag-section-drag="${key}"` : ""}>` +
+        `<svg class="ag-section-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>` +
         `<span class="ag-section-name"${!isUnassigned ? ` data-ag-section-rename="${escAttr(key)}"` : ""}>${esc(person)}</span>` +
-        `<span class="ag-section-count">${count}</span>${ 
-        !isUnassigned ? `<button type="button" class="ag-section-remove" data-ag-section-remove="${key}" title="Remove section">&times;</button>` : "" 
+        `<span class="ag-section-count">${count}</span>${
+        !isUnassigned ? `<button type="button" class="ag-section-remove" data-ag-section-remove="${key}" title="Remove section">&times;</button>` +
+          `<span class="ag-section-drag-handle" title="Drag to reorder">` +
+            `<svg width="6" height="10" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1"/><circle cx="5" cy="1" r="1"/><circle cx="1" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="1" cy="9" r="1"/><circle cx="5" cy="9" r="1"/></svg>` +
+          `</span>` : ""
       }</div>` +
       `<div class="ag-section-body" data-ag-section-body="${key}">` +
         `<div class="ag-section-items" data-ag-drop-zone="${key}">${ 
