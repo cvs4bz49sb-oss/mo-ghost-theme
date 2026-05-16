@@ -9698,12 +9698,6 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin-left: auto;
   white-space: nowrap;
 }
-.editorial-card-chevron {
-  font-size: 10px;
-  color: var(--color-muted);
-  margin-left: 12px;
-  transition: color 0.12s;
-}
 .editorial-card-contact {
   font-family: var(--font-body);
   font-size: 13px;
@@ -9784,7 +9778,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .editorial-col { min-width: 180px; }
 }
 
-/* Click-to-expand: head is a tight row; body reveals on .is-expanded. */
+/* Inbox card head — clickable row that opens the detail modal. */
 .editorial-card-head {
   display: flex;
   align-items: center;
@@ -9796,20 +9790,8 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 .editorial-card-head:hover {
   background: rgba(238, 125, 81, 0.04);
 }
-.editorial-card-head:hover .editorial-card-chevron {
-  color: var(--color-primary);
-}
-.editorial-inbox-card.is-expanded .editorial-card-chevron {
-  color: var(--color-primary);
-}
 .editorial-card-body {
-  display: none;
   padding: 12px 0 16px;
-  border-top: 1px dashed var(--color-rule);
-}
-.editorial-inbox-card.is-expanded .editorial-card-body,
-.editorial-card.is-expanded .editorial-card-body {
-  display: block;
 }
 .editorial-card-section { margin-top: 14px; }
 .editorial-card-section:first-child { margin-top: 0; }

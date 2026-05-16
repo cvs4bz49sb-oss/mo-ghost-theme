@@ -44,7 +44,6 @@
   // tracked separately so a status change doesn't collapse cards
   // unrelated to the move.
   const rows = {};
-  const expanded = new Set();
   const notesSaveTimers = {};
 
   hydrate();
@@ -93,8 +92,7 @@
   }
 
   // -------------------------------------------------------------------------
-  // Card rendering — inbox cards expand inline; board cards are compact
-  // chips that open a detail modal on click.
+  // Card rendering — all cards are compact rows that open a detail modal.
 
   function renderCard(row, variant) {
     if (variant === "board") return renderBoardCard(row);
@@ -113,18 +111,12 @@
   function renderInboxCard(row) {
     const name = escapeHtml(`${row.first_name} ${row.last_name || ""}`);
     const when = formatDate(row.created_at);
-    const isExpanded = expanded.has(row.id);
-
-    const head =
-      `<div class="editorial-card-head" data-card-toggle data-id="${row.id}">` +
-        `<span class="editorial-card-name">${name}</span>` +
-        `<span class="editorial-card-date">${escapeHtml(when)}</span>` +
-        `<span class="editorial-card-chevron">${isExpanded ? "&#9652;" : "&#9662;"}</span>` +
-      `</div>`;
-
     return (
-      `<li class="editorial-inbox-card${isExpanded ? " is-expanded" : ""}" draggable="true" data-id="${row.id}">` +
-        head + renderDetailBody(row, true) +
+      `<li class="editorial-inbox-card" draggable="true" data-id="${row.id}">` +
+        `<div class="editorial-card-head" data-action="open-detail" data-id="${row.id}">` +
+          `<span class="editorial-card-name">${name}</span>` +
+          `<span class="editorial-card-date">${escapeHtml(when)}</span>` +
+        `</div>` +
       `</li>`
     );
   }
@@ -200,7 +192,7 @@
           `</div>` +
           `<button type="button" class="editorial-detail-close" data-action="close-detail" aria-label="Close">&times;</button>` +
         `</div>` +
-        renderDetailBody(row, false) +
+        renderDetailBody(row, row.status === "submitted") +
       `</div>`;
 
     document.body.appendChild(overlay);
@@ -223,17 +215,6 @@
 
   function wireCard(host) {
     if (!host) return;
-
-    host.querySelectorAll('[data-card-toggle]').forEach((head) => {
-      head.addEventListener("click", (ev) => {
-        // Buttons inside the head shouldn't toggle the card.
-        if (ev.target.closest("button, a, textarea, input")) return;
-        const id = parseInt(head.getAttribute("data-id"), 10);
-        if (expanded.has(id)) expanded.delete(id);
-        else expanded.add(id);
-        repaint();
-      });
-    });
 
     host.querySelectorAll('[data-action="open-detail"]').forEach((el) => {
       el.addEventListener("click", (ev) => {
@@ -378,7 +359,6 @@
           return;
         }
         delete rows[id];
-        expanded.delete(id);
         closeDetailModal();
         repaint();
       })
