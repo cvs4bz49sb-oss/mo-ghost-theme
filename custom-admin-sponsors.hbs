@@ -1,0 +1,111 @@
+{{!< default}}
+{{!-- /admin/sponsors/ — sponsorship pipeline dashboard.
+     Summary metrics at top, then a five-column kanban board:
+     Prospecting / Negotiating / Agreed / Active / Completed.
+     Click any card to open a detail modal with full info, financials,
+     assets, and notes.
+
+     Data hydrated from mo-membership /api/admin/sponsorships.
+     Auth: standard Ghost-staff JWT. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="sponsors"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Sponsorships</em></h1>
+        <p class="admin-topbar-sub">Track sponsors through the full pipeline. Click any card for details.</p>
+      </header>
+
+    <section class="admin-body"
+             data-admin-sponsors
+             data-api-base="{{@custom.membership_api_base}}">
+      <div class="container">
+
+        {{!-- Summary metrics --}}
+        <div class="sponsor-metrics" data-sponsor-metrics>
+          <div class="sponsor-metric">
+            <span class="sponsor-metric-value" data-metric="active-count">—</span>
+            <span class="sponsor-metric-label">Active</span>
+          </div>
+          <div class="sponsor-metric">
+            <span class="sponsor-metric-value" data-metric="active-revenue">—</span>
+            <span class="sponsor-metric-label">Active revenue</span>
+          </div>
+          <div class="sponsor-metric">
+            <span class="sponsor-metric-value" data-metric="outstanding">—</span>
+            <span class="sponsor-metric-label">Unpaid</span>
+          </div>
+          <div class="sponsor-metric">
+            <span class="sponsor-metric-value" data-metric="upcoming">—</span>
+            <span class="sponsor-metric-label">Upcoming (30 d)</span>
+          </div>
+        </div>
+
+        {{!-- Add new sponsorship --}}
+        <div class="sponsor-toolbar">
+          <button type="button" class="btn btn-sm btn-primary" data-action="new-sponsorship">+ New sponsorship</button>
+        </div>
+
+        {{!-- Pipeline board --}}
+        <div class="section-intro section-intro-left sponsor-board-intro">
+          <p class="eyebrow">Pipeline</p>
+          <h2 class="section-heading"><em>All sponsorships.</em></h2>
+        </div>
+        <p class="admin-sub">Drag between columns to move stages. Click a card for full details.</p>
+        <div class="sponsor-board" data-sponsor-board>
+          <div class="sponsor-col" data-sponsor-col="prospecting">
+            <header class="sponsor-col-head">
+              <p class="eyebrow">Prospecting</p>
+              <span class="sponsor-col-count" data-sponsor-count="prospecting">0</span>
+            </header>
+            <div class="sponsor-col-body" data-sponsor-drop="prospecting"></div>
+          </div>
+          <div class="sponsor-col" data-sponsor-col="negotiating">
+            <header class="sponsor-col-head">
+              <p class="eyebrow">Negotiating</p>
+              <span class="sponsor-col-count" data-sponsor-count="negotiating">0</span>
+            </header>
+            <div class="sponsor-col-body" data-sponsor-drop="negotiating"></div>
+          </div>
+          <div class="sponsor-col" data-sponsor-col="agreed">
+            <header class="sponsor-col-head">
+              <p class="eyebrow">Agreed</p>
+              <span class="sponsor-col-count" data-sponsor-count="agreed">0</span>
+            </header>
+            <div class="sponsor-col-body" data-sponsor-drop="agreed"></div>
+          </div>
+          <div class="sponsor-col" data-sponsor-col="active">
+            <header class="sponsor-col-head">
+              <p class="eyebrow">Active</p>
+              <span class="sponsor-col-count" data-sponsor-count="active">0</span>
+            </header>
+            <div class="sponsor-col-body" data-sponsor-drop="active"></div>
+          </div>
+          <div class="sponsor-col sponsor-col--completed" data-sponsor-col="completed">
+            <header class="sponsor-col-head">
+              <p class="eyebrow">Completed</p>
+              <span class="sponsor-col-count" data-sponsor-count="completed">0</span>
+            </header>
+            <div class="sponsor-col-body" data-sponsor-drop="completed"></div>
+          </div>
+        </div>
+
+        <p class="admin-table-status" data-sponsor-status></p>
+
+      </div>
+    </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-sponsors.js"}}"></script>
