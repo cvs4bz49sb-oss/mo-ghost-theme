@@ -16037,12 +16037,12 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 .cc-sidebar-item-edit {
   margin-left: auto;
   opacity: 0;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--color-muted);
   transition: opacity 0.1s, color 0.1s;
   flex-shrink: 0;
 }
 .cc-sidebar-item:hover .cc-sidebar-item-edit { opacity: 1; }
-.cc-sidebar-item-edit:hover { color: #fff; }
+.cc-sidebar-item-edit:hover { color: var(--color-dark); }
 .cc-sidebar-item-name {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -17611,6 +17611,7 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 .asset-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 860px) {
@@ -18085,3 +18086,167 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   cursor: pointer;
 }
 .social-modal-cancel:hover { background: rgba(0, 0, 0, 0.03); }
+
+
+/* =============================================================
+   Admin Dashboard — Mobile Responsive Fixes
+   ============================================================= */
+
+/* Members sub-pages: fix specificity bug where workspace selector
+   overrides the base 760px collapse rule. Affects: members, addresses,
+   drift, gifts, groups, institutions, institution pages. */
+@media (max-width: 760px) {
+  .admin-workspace .admin-members-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .admin-workspace .admin-members-sidebar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--color-card-border);
+  }
+  .admin-workspace .admin-members-sidebar::-webkit-scrollbar { display: none; }
+  .admin-workspace .admin-members-subnav-list {
+    flex-direction: row;
+    gap: 24px;
+    flex-wrap: nowrap;
+  }
+  .admin-workspace .admin-members-subnav-link {
+    padding: 12px 0;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .admin-workspace .admin-members-subnav-link.is-active {
+    border-left-color: transparent;
+    border-bottom-color: var(--color-primary);
+  }
+}
+
+/* Admin tool links: tighten spacing at narrow widths */
+@media (max-width: 640px) {
+  .admin-tool-link {
+    gap: 12px;
+    padding: 18px 0;
+  }
+  .admin-tool-numeral {
+    font-size: 26px;
+  }
+  .admin-tool-title {
+    font-size: 18px;
+  }
+}
+
+/* Content calendar: week nav needs wrapping */
+@media (max-width: 640px) {
+  .cc-week-nav {
+    flex-wrap: wrap;
+  }
+  .cc-month-cell {
+    min-height: 44px;
+    padding: 3px 2px;
+  }
+  .cc-month-header-cell {
+    padding: 6px 2px;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+  .cc-mcell-date {
+    font-size: 10px;
+  }
+  .cc-mcell-date.is-today {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+  .cc-mcell-item {
+    padding: 2px 3px;
+    min-height: 16px;
+  }
+  .cc-mcell-item-title {
+    font-size: 8px;
+  }
+}
+
+/* Asset creator: pull bar and actions at narrow widths */
+@media (max-width: 540px) {
+  .asset-toolbar-pull {
+    min-width: 0;
+    width: 100%;
+  }
+  .asset-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Social dashboard: no mobile rules existed */
+@media (max-width: 640px) {
+  .social-action-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  .social-draft-card-header {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .social-draft-card-title {
+    font-size: 13px;
+  }
+  .social-draft-schedule {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .social-draft-schedule-label {
+    width: 100%;
+  }
+  .social-draft-schedule-input {
+    width: 100%;
+  }
+}
+
+/* Admin topbar: reduce title at very narrow viewports */
+@media (max-width: 540px) {
+  .admin-topbar-title {
+    font-size: 17px;
+  }
+  .admin-topbar-sub {
+    font-size: 13px;
+  }
+}
+
+/* Modal: tighter padding at phone width */
+@media (max-width: 480px) {
+  .au-modal {
+    padding: 20px 16px;
+  }
+}
+
+/* Editorial kanban: reduce column minimums for narrower scroll */
+@media (max-width: 520px) {
+  .editorial-board {
+    grid-template-columns: repeat(5, minmax(140px, 180px));
+    gap: 10px;
+  }
+  .editorial-col {
+    min-width: 140px;
+  }
+  .editorial-card-name {
+    font-size: 13px;
+  }
+  .editorial-card-meta {
+    font-size: 10px;
+  }
+}
+
+/* Editorial kanban: scroll affordance shadow */
+.editorial-board {
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+}
+.editorial-board:hover,
+.editorial-board:focus-within {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
