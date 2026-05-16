@@ -17465,19 +17465,76 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   margin-bottom: 8px;
 }
 
-/* Normalize buttons inside the admin workspace —
-   override the public-site .btn-pill mega-padding. */
+/* ── Admin button system ──────────────────────────────────────
+   Compact, neutral buttons for tool UIs. No CTA styling —
+   primary actions use dark bg, destructive uses red outline,
+   secondary uses border only. */
 .admin-workspace .btn {
-  padding: 9px 18px;
+  padding: 7px 16px;
   font-size: 13px;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 6px;
+  box-shadow: none;
+  border: 1px solid transparent;
+}
+.admin-workspace .btn:hover {
+  transform: none;
+  box-shadow: none;
+}
+.admin-workspace .btn-pill {
+  border-radius: 6px;
+  padding: 7px 16px;
 }
 .admin-workspace .btn-sm {
-  padding: 6px 14px;
+  padding: 5px 12px;
   font-size: 11px;
 }
 .admin-workspace .btn-primary {
-  padding: 10px 22px;
+  background: var(--color-dark);
+  color: #fff;
+  padding: 7px 16px;
+  box-shadow: none;
+  border-color: var(--color-dark);
+}
+.admin-workspace .btn-primary:hover {
+  background: #1a1816;
+  border-color: #1a1816;
+}
+.admin-workspace .btn-dark {
+  box-shadow: none;
+}
+.admin-workspace .btn-danger {
+  background: transparent;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+}
+.admin-workspace .btn-danger:hover {
+  background: #c0392b;
+  color: #fff;
+}
+.admin-workspace .btn-ghost {
+  background: transparent;
+  color: var(--color-dark);
+  border: 1px solid var(--color-rule);
+}
+.admin-workspace .btn-ghost:hover {
+  border-color: var(--color-dark);
+  background: transparent;
+  color: var(--color-dark);
+}
+.admin-workspace .btn:not(.btn-primary):not(.btn-dark):not(.btn-danger):not(.btn-ghost) {
+  background: transparent;
+  color: var(--color-dark);
+  border: 1px solid var(--color-rule);
+}
+.admin-workspace .btn:not(.btn-primary):not(.btn-dark):not(.btn-danger):not(.btn-ghost):hover {
+  border-color: var(--color-dark);
+}
+.admin-workspace .btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* Canvas preview */

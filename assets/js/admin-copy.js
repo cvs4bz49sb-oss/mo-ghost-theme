@@ -123,7 +123,7 @@
       actions.className = "copy-result-actions";
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "btn btn-pill btn-ghost btn-sm";
+      btn.className = "btn btn-ghost btn-sm";
       btn.textContent = "Copy";
       btn.addEventListener("click", () => {
         navigator.clipboard.writeText(r.text).then(() => {

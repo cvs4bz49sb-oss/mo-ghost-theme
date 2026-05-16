@@ -136,8 +136,8 @@
         `<div class="editorial-card-section editorial-card-decision">` +
           `<p class="eyebrow">Decision</p>` +
           `<div class="editorial-card-decision-actions">` +
-            `<button type="button" class="btn btn-sm btn-pill btn-primary" data-action="approve" data-id="${row.id}">Approve</button>` +
-            `<button type="button" class="btn btn-sm btn-pill" data-action="deny" data-id="${row.id}">Deny</button>` +
+            `<button type="button" class="btn btn-sm btn-primary" data-action="approve" data-id="${row.id}">Approve</button>` +
+            `<button type="button" class="btn btn-sm" data-action="deny" data-id="${row.id}">Deny</button>` +
             `<span class="editorial-card-decision-hint">Approving moves this card into the workflow board below.</span>` +
           `</div>` +
         `</div>`;
@@ -149,8 +149,8 @@
         }<div class="editorial-card-section">` +
           `<p class="eyebrow">Files</p>` +
           `<div class="editorial-card-files">${ 
-            row.essay_key ? `<button type="button" class="btn btn-sm btn-pill" data-action="download" data-id="${row.id}" data-which="essay">Download essay</button>` : '' 
-            }${row.headshot_key ? `<button type="button" class="btn btn-sm btn-pill" data-action="download" data-id="${row.id}" data-which="headshot">Download headshot</button>` : '' 
+            row.essay_key ? `<button type="button" class="btn btn-sm" data-action="download" data-id="${row.id}" data-which="essay">Download essay</button>` : '' 
+            }${row.headshot_key ? `<button type="button" class="btn btn-sm" data-action="download" data-id="${row.id}" data-which="headshot">Download headshot</button>` : '' 
             }${!row.essay_key && !row.headshot_key ? '<p class="editorial-card-empty">No files archived.</p>' : '' 
           }</div>` +
         `</div>` +

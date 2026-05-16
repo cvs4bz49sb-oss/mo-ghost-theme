@@ -490,7 +490,7 @@
           }</div>` +
         `</label>` +
         `<div class="cc-modal-actions">` +
-          `<button type="button" class="btn btn-sm cc-btn-danger" data-cc-edit-cat-delete>Delete Category</button>` +
+          `<button type="button" class="btn btn-sm btn-danger" data-cc-edit-cat-delete>Delete Category</button>` +
           `<span style="flex:1"></span>` +
           `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
           `<button type="button" class="btn btn-sm btn-primary" data-cc-edit-cat-save>Save</button>` +
@@ -698,7 +698,7 @@
           }</div>` +
         `</label>` +
         `<div class="cc-modal-actions">` +
-          `<button type="button" class="btn btn-sm cc-btn-danger" data-cc-edit-proj-delete>Delete Project</button>` +
+          `<button type="button" class="btn btn-sm btn-danger" data-cc-edit-proj-delete>Delete Project</button>` +
           `<span style="flex:1"></span>` +
           `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
           `<button type="button" class="btn btn-sm btn-primary" data-cc-edit-proj-save>Save</button>` +
@@ -1254,7 +1254,7 @@
           STATUS_OPTIONS.map((s) => { return `<option value="${s}"${s === item.status ? ' selected' : ''}>${s}</option>`; }).join("")
         }</select></label>` +
         `<div class="cc-modal-actions">` +
-          `<button type="button" class="btn btn-sm cc-btn-danger" data-cc-modal-delete>Delete</button>` +
+          `<button type="button" class="btn btn-sm btn-danger" data-cc-modal-delete>Delete</button>` +
           `<span style="flex:1"></span>` +
           `<button type="button" class="btn btn-sm" data-cc-modal-cancel>Cancel</button>` +
           `<button type="button" class="btn btn-sm btn-primary" data-cc-modal-save>Save</button>` +

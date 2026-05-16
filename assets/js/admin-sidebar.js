@@ -140,7 +140,7 @@
     main.innerHTML = `<div class="admin-denied-wrap">` +
       `<h2 class="admin-denied-title">Access Denied</h2>` +
       `<p class="admin-denied-text">You don't have permission to view this page. Contact a site administrator to request access.</p>` +
-      `<a href="/admin/" class="btn btn-pill">Back to Dashboard</a>` +
+      `<a href="/admin/" class="btn">Back to Dashboard</a>` +
     `</div>`;
   }
 })();

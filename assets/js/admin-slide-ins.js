@@ -224,9 +224,9 @@
          }</p>`
         + `</div>`
         + `<div class="admin-slide-in-actions">`
-        + `<button type="button" class="btn btn-pill btn-ghost btn-sm" data-toggle="${item.id}">${item.active ? 'Deactivate' : 'Activate'}</button>`
-        + `<button type="button" class="btn btn-pill btn-ghost btn-sm" data-edit="${item.id}">Edit</button>`
-        + `<button type="button" class="btn btn-pill btn-ghost btn-sm btn-danger" data-delete="${item.id}">Delete</button>`
+        + `<button type="button" class="btn btn-ghost btn-sm" data-toggle="${item.id}">${item.active ? 'Deactivate' : 'Activate'}</button>`
+        + `<button type="button" class="btn btn-ghost btn-sm" data-edit="${item.id}">Edit</button>`
+        + `<button type="button" class="btn btn-ghost btn-sm btn-danger" data-delete="${item.id}">Delete</button>`
         + `</div>`
         + `</li>`;
     });

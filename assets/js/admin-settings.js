@@ -232,8 +232,8 @@
           checkboxesHtml 
         }</div>` +
         `<div class="au-modal-actions">` +
-          `<button type="button" class="btn btn-pill btn-primary" data-au-save>${isEdit ? "Save" : "Add user"}</button>` +
-          `<button type="button" class="btn btn-pill" data-au-cancel>Cancel</button>` +
+          `<button type="button" class="btn btn-primary" data-au-save>${isEdit ? "Save" : "Add user"}</button>` +
+          `<button type="button" class="btn" data-au-cancel>Cancel</button>` +
         `</div>` +
         `<p class="au-modal-status" data-au-modal-status hidden></p>` +
       `</div>` +
@@ -307,8 +307,8 @@
         `<h3 class="au-modal-title">Remove Admin User</h3>` +
         `<p class="au-modal-body">Remove <strong>${esc(user.name)}</strong> (${esc(user.email)}) from admin access? They will no longer be able to use any admin tools.</p>` +
         `<div class="au-modal-actions">` +
-          `<button type="button" class="btn btn-pill btn-danger" data-au-confirm-remove>Remove</button>` +
-          `<button type="button" class="btn btn-pill" data-au-cancel>Cancel</button>` +
+          `<button type="button" class="btn btn-danger" data-au-confirm-remove>Remove</button>` +
+          `<button type="button" class="btn" data-au-cancel>Cancel</button>` +
         `</div>` +
       `</div>` +
     `</div>`;
