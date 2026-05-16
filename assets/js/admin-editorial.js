@@ -99,31 +99,16 @@
   function renderCard(row, variant) {
     const name = escapeHtml(`${row.first_name} ${row.last_name || ""}`);
     const when = formatDate(row.created_at);
-    const bioPreview = escapeHtml((row.bio || "").slice(0, 180));
     const bioFull = escapeHtml(row.bio || "");
     const notes = escapeAttr(row.notes || "");
-    const meta = [];
-    if (row.email) meta.push(`<a href="mailto:${escapeAttr(row.email)}">${escapeHtml(row.email)}</a>`);
-    if (row.phone) meta.push(escapeHtml(row.phone));
-    meta.push(escapeHtml(when));
     const isExpanded = expanded.has(row.id);
     const cardClass = (variant === "inbox" ? "editorial-inbox-card" : "editorial-card") + (isExpanded ? " is-expanded" : "");
 
-    const hint = variant === "inbox"
-      ? (isExpanded ? "Hide details" : "View details")
-      : (isExpanded ? "Hide" : "View");
-
     const head =
       `<div class="editorial-card-head" data-card-toggle data-id="${row.id}">` +
-        `<div class="editorial-card-headline">` +
-          `<p class="editorial-card-name">${name}</p>` +
-          `<p class="editorial-card-meta">${meta.join(' &middot; ')}</p>${ 
-          variant === "inbox" && bioPreview ? `<p class="editorial-card-bio">${bioPreview}${row.bio && row.bio.length > 180 ? "&hellip;" : ""}</p>` : "" 
-        }</div>` +
-        `<span class="editorial-card-toggle" aria-hidden="true">` +
-          `<span class="editorial-card-toggle-label">${hint}</span>` +
-          `<span class="editorial-card-toggle-chevron">${isExpanded ? "&#9652;" : "&#9662;"}</span>` +
-        `</span>` +
+        `<span class="editorial-card-name">${name}</span>` +
+        `<span class="editorial-card-date">${escapeHtml(when)}</span>` +
+        `<span class="editorial-card-chevron">${isExpanded ? "&#9652;" : "&#9662;"}</span>` +
       `</div>`;
 
     // Decision row only for inbox cards — already-on-the-board cards
@@ -143,15 +128,20 @@
         `</div>`;
     }
 
+    const contactMeta = [];
+    if (row.email) contactMeta.push(`<a href="mailto:${escapeAttr(row.email)}">${escapeHtml(row.email)}</a>`);
+    if (row.phone) contactMeta.push(escapeHtml(row.phone));
+
     const body =
-      `<div class="editorial-card-body">${ 
-        bioFull ? `<div class="editorial-card-section"><p class="eyebrow">Bio</p><p>${bioFull}</p></div>` : "" 
-        }<div class="editorial-card-section">` +
+      `<div class="editorial-card-body">` +
+        (contactMeta.length ? `<p class="editorial-card-contact">${contactMeta.join(' &middot; ')}</p>` : '') +
+        (bioFull ? `<div class="editorial-card-section"><p class="eyebrow">Bio</p><p>${bioFull}</p></div>` : '') +
+        `<div class="editorial-card-section">` +
           `<p class="eyebrow">Files</p>` +
-          `<div class="editorial-card-files">${ 
-            row.essay_key ? `<button type="button" class="btn btn-sm" data-action="download" data-id="${row.id}" data-which="essay">Download essay</button>` : '' 
-            }${row.headshot_key ? `<button type="button" class="btn btn-sm" data-action="download" data-id="${row.id}" data-which="headshot">Download headshot</button>` : '' 
-            }${!row.essay_key && !row.headshot_key ? '<p class="editorial-card-empty">No files archived.</p>' : '' 
+          `<div class="editorial-card-files">${
+            row.essay_key ? `<button type="button" class="btn btn-sm" data-action="download" data-id="${row.id}" data-which="essay">Download essay</button>` : ''
+            }${row.headshot_key ? `<button type="button" class="btn btn-sm" data-action="download" data-id="${row.id}" data-which="headshot">Download headshot</button>` : ''
+            }${!row.essay_key && !row.headshot_key ? '<p class="editorial-card-empty">No files archived.</p>' : ''
           }</div>` +
         `</div>` +
         `<div class="editorial-card-section">` +
@@ -160,8 +150,8 @@
             `<span class="editorial-card-notes-state" data-notes-state></span>` +
           `</label>` +
           `<textarea class="editorial-card-notes" id="editorial-notes-${row.id}" data-notes data-id="${row.id}" rows="3" placeholder="Editor notes — saves automatically.">${notes}</textarea>` +
-        `</div>${ 
-        decision 
+        `</div>${
+        decision
       }</div>`;
 
     const tag = variant === "inbox" ? "li" : "article";

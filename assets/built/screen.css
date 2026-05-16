@@ -9680,49 +9680,38 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   border-top: 1px solid var(--color-card-border);
 }
 .editorial-inbox-card {
-  padding: 18px 0;
   border-bottom: 1px solid var(--color-rule);
   cursor: grab;
 }
 .editorial-inbox-card.is-dragging { opacity: 0.4; cursor: grabbing; }
-.editorial-inbox-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-}
 .editorial-card-name {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
   color: var(--color-dark);
-  margin: 0 0 4px;
+  margin: 0;
 }
-.editorial-card-meta {
+.editorial-card-date {
   font-family: var(--font-body);
   font-size: 12px;
   color: var(--color-muted);
-  margin: 0;
+  margin-left: auto;
+  white-space: nowrap;
 }
-.editorial-card-meta a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-.editorial-card-bio {
+.editorial-card-chevron {
+  font-size: 10px;
+  color: var(--color-muted);
+  margin-left: 12px;
+  transition: color 0.12s;
+}
+.editorial-card-contact {
   font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--color-dark);
-  margin: 10px 0 0;
-  max-width: 70ch;
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0 0 12px;
 }
-.editorial-card-link {
-  font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--color-primary);
-  text-decoration: none;
-}
-.editorial-card-link:hover { text-decoration: underline; }
+.editorial-card-contact a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.editorial-card-contact a:hover { color: var(--color-secondary); }
 .editorial-inbox-sub { color: var(--color-muted); margin: 8px 0 0; }
 
 /* Spacing between inbox section and workflow section. */
@@ -9783,57 +9772,36 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 }
 .editorial-card:hover { border-color: var(--color-card-border); }
 .editorial-card.is-dragging { opacity: 0.4; cursor: grabbing; }
-.editorial-card .editorial-card-name { font-size: 16px; margin: 0 0 4px; }
-.editorial-card .editorial-card-meta { font-size: 11px; }
-.editorial-card .editorial-card-link { display: inline-block; margin-top: 8px; }
+.editorial-card .editorial-card-name { font-size: 13px; }
+.editorial-card .editorial-card-date { font-size: 11px; }
+.editorial-card .editorial-card-head { padding: 8px 0; }
 
 @media (max-width: 760px) {
   .editorial-board { grid-template-columns: repeat(5, minmax(180px, 220px)); }
   .editorial-col { min-width: 180px; }
-  .editorial-card-name { font-size: 18px; }
 }
 
-/* Click-to-expand: head is always visible; body reveals on
-   .is-expanded. Body holds full bio, file download buttons, an editor
-   notes textarea that saves on input/blur, and (inbox-only) the
-   approve/deny decision row at the bottom. */
+/* Click-to-expand: head is a tight row; body reveals on .is-expanded. */
 .editorial-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.12s;
 }
 .editorial-card-head:hover {
   background: rgba(238, 125, 81, 0.04);
 }
-.editorial-card-head:hover .editorial-card-toggle-label {
+.editorial-card-head:hover .editorial-card-chevron {
   color: var(--color-primary);
 }
-.editorial-card-headline { min-width: 0; flex: 1 1 auto; }
-.editorial-card-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--color-muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: color 0.12s;
-}
-.editorial-card-toggle-chevron {
-  font-size: 10px;
-  line-height: 1;
-}
-.editorial-inbox-card.is-expanded .editorial-card-toggle,
-.editorial-card.is-expanded .editorial-card-toggle {
+.editorial-inbox-card.is-expanded .editorial-card-chevron {
   color: var(--color-primary);
 }
 .editorial-card-body {
   display: none;
-  padding-top: 14px;
-  margin-top: 12px;
+  padding: 12px 0 16px;
   border-top: 1px dashed var(--color-rule);
 }
 .editorial-inbox-card.is-expanded .editorial-card-body,
