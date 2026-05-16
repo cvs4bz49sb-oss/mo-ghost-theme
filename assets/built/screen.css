@@ -16713,6 +16713,53 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   color: var(--color-mid);
   margin-left: 2px;
 }
+.ag-section-drag-handle {
+  display: none;
+  align-items: center;
+  color: var(--color-mid);
+  cursor: grab;
+  padding: 0 2px;
+  margin-left: -16px;
+  margin-right: -2px;
+}
+.ag-section-head:hover .ag-section-drag-handle { display: inline-flex; }
+.ag-section-remove {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--color-mid);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+  margin-left: auto;
+}
+.ag-section-head:hover .ag-section-remove { display: inline-flex; }
+.ag-section-remove:hover { color: var(--color-accent); }
+.ag-section.is-section-dragging { opacity: 0.4; }
+.ag-section.ag-section-drop-above { border-top: 2px solid var(--color-accent); }
+.ag-section.ag-section-drop-below { border-bottom: 2px solid var(--color-accent); }
+.ag-add-section { padding: 12px 4px; }
+.ag-add-section-btn {
+  background: none;
+  border: none;
+  color: var(--color-mid);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+}
+.ag-add-section-btn:hover { color: var(--color-accent); }
+.ag-add-section-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.ag-add-section-form[hidden] { display: none; }
 .ag-section-body {
   overflow: hidden;
   transition: max-height 0.2s ease;

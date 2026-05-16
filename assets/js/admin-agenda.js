@@ -179,12 +179,17 @@
   function renderSection(person, items, key) {
     const isCollapsed = collapsed[key];
     const count = items.length;
+    const isUnassigned = key === "__unassigned__";
     return `<div class="ag-section${isCollapsed ? " is-collapsed" : ""}" data-ag-section="${key}">` +
-      `<div class="ag-section-head" data-ag-section-toggle="${key}">` +
-        `<svg class="ag-section-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>` +
+      `<div class="ag-section-head" data-ag-section-toggle="${key}"${!isUnassigned ? ` draggable="true" data-ag-section-drag="${key}"` : ""}>${ 
+        !isUnassigned ? `<span class="ag-section-drag-handle" title="Drag to reorder">` +
+          `<svg width="6" height="10" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1"/><circle cx="5" cy="1" r="1"/><circle cx="1" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="1" cy="9" r="1"/><circle cx="5" cy="9" r="1"/></svg>` +
+        `</span>` : "" 
+        }<svg class="ag-section-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>` +
         `<span class="ag-section-name">${esc(person)}</span>` +
-        `<span class="ag-section-count">${count}</span>` +
-      `</div>` +
+        `<span class="ag-section-count">${count}</span>${ 
+        !isUnassigned ? `<button type="button" class="ag-section-remove" data-ag-section-remove="${key}" title="Remove section">&times;</button>` : "" 
+      }</div>` +
       `<div class="ag-section-body" data-ag-section-body="${key}">` +
         `<div class="ag-section-items" data-ag-drop-zone="${key}">${ 
           items.length > 0 ? items.map(renderItem).join("") : "" 
@@ -235,6 +240,20 @@
     data.people.forEach((person) => {
       html += renderSection(person, groups[person] || [], person);
     });
+
+    html += `<div class="ag-add-section" data-ag-add-section>` +
+      `<button type="button" class="ag-add-section-btn" data-ag-show-add-section>` +
+        `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>` +
+        ` Add section…` +
+      `</button>` +
+      `<div class="ag-add-section-form" data-ag-add-section-form hidden>` +
+        `<input type="text" class="ag-inline-input" data-ag-section-name-input placeholder="Section name…" />` +
+        `<div class="ag-inline-actions">` +
+          `<button type="button" class="ag-inline-save" data-ag-save-section>Add</button>` +
+          `<button type="button" class="ag-inline-cancel" data-ag-cancel-add-section>&times;</button>` +
+        `</div>` +
+      `</div>` +
+    `</div>`;
 
     root.querySelector("[data-ag-groups]").innerHTML = html;
 
@@ -297,6 +316,50 @@
   }
 
   // -----------------------------------------------------------------------
+  // Section management
+  // -----------------------------------------------------------------------
+
+  function showAddSection() {
+    const form = root.querySelector("[data-ag-add-section-form]");
+    const btn = root.querySelector("[data-ag-show-add-section]");
+    if (!form || !btn) return;
+    btn.hidden = true;
+    form.hidden = false;
+    const input = form.querySelector("[data-ag-section-name-input]");
+    input.value = "";
+    input.focus();
+  }
+
+  function hideAddSection() {
+    const form = root.querySelector("[data-ag-add-section-form]");
+    const btn = root.querySelector("[data-ag-show-add-section]");
+    if (form) form.hidden = true;
+    if (btn) btn.hidden = false;
+  }
+
+  function commitAddSection() {
+    const input = root.querySelector("[data-ag-section-name-input]");
+    if (!input) return;
+    const name = input.value.trim();
+    if (!name) { hideAddSection(); return; }
+    if (data.people.includes(name)) { hideAddSection(); return; }
+    data.people.push(name);
+    save(data);
+    render();
+  }
+
+  function removeSection(key) {
+    const sectionItems = agendaItems().filter((it) => it.person === key && !isCompleted(it));
+    if (sectionItems.length > 0) {
+      if (!confirm(`"${key}" has ${sectionItems.length} task${sectionItems.length > 1 ? "s" : ""}. Remove section and move tasks to Unassigned?`)) return;
+      sectionItems.forEach((it) => { it.person = ""; });
+    }
+    data.people = data.people.filter((p) => p !== key);
+    save(data);
+    render();
+  }
+
+  // -----------------------------------------------------------------------
   // Inline title editing
   // -----------------------------------------------------------------------
 
@@ -333,8 +396,18 @@
   // -----------------------------------------------------------------------
 
   let dragItemId = null;
+  let dragSectionKey = null;
 
   root.addEventListener("dragstart", (e) => {
+    const sectionHead = e.target.closest("[data-ag-section-drag]");
+    if (sectionHead) {
+      dragSectionKey = sectionHead.dataset.agSectionDrag;
+      sectionHead.closest(".ag-section").classList.add("is-section-dragging");
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", `section:${dragSectionKey}`);
+      return;
+    }
+
     const el = e.target.closest("[data-ag-item-id]");
     if (!el) return;
     dragItemId = el.dataset.agItemId;
@@ -343,16 +416,36 @@
     e.dataTransfer.setData("text/plain", dragItemId);
   });
 
-  root.addEventListener("dragend", (e) => {
-    const el = e.target.closest("[data-ag-item-id]");
-    if (el) el.classList.remove("is-dragging");
-    root.querySelectorAll(".ag-drop-above, .ag-drop-below, .ag-drop-zone-active").forEach((x) => {
-      x.classList.remove("ag-drop-above", "ag-drop-below", "ag-drop-zone-active");
+  root.addEventListener("dragend", () => {
+    root.querySelectorAll(".is-section-dragging, .ag-section-drop-above, .ag-section-drop-below").forEach((x) => {
+      x.classList.remove("is-section-dragging", "ag-section-drop-above", "ag-section-drop-below");
+    });
+    root.querySelectorAll(".is-dragging, .ag-drop-above, .ag-drop-below, .ag-drop-zone-active").forEach((x) => {
+      x.classList.remove("is-dragging", "ag-drop-above", "ag-drop-below", "ag-drop-zone-active");
     });
     dragItemId = null;
+    dragSectionKey = null;
   });
 
   root.addEventListener("dragover", (e) => {
+    if (dragSectionKey) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      root.querySelectorAll(".ag-section-drop-above, .ag-section-drop-below").forEach((x) => {
+        x.classList.remove("ag-section-drop-above", "ag-section-drop-below");
+      });
+      const overSection = e.target.closest("[data-ag-section]");
+      if (overSection && overSection.dataset.agSection !== dragSectionKey && overSection.dataset.agSection !== "__unassigned__") {
+        const rect = overSection.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) {
+          overSection.classList.add("ag-section-drop-above");
+        } else {
+          overSection.classList.add("ag-section-drop-below");
+        }
+      }
+      return;
+    }
+
     if (!dragItemId) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
@@ -379,9 +472,27 @@
   });
 
   root.addEventListener("drop", (e) => {
-    if (!dragItemId) return;
     e.preventDefault();
 
+    if (dragSectionKey) {
+      const overSection = e.target.closest("[data-ag-section]");
+      if (!overSection) return;
+      const overKey = overSection.dataset.agSection;
+      if (overKey === dragSectionKey || overKey === "__unassigned__") return;
+      const fromIdx = data.people.indexOf(dragSectionKey);
+      if (fromIdx === -1) return;
+      data.people.splice(fromIdx, 1);
+      let toIdx = data.people.indexOf(overKey);
+      if (toIdx === -1) return;
+      const rect = overSection.getBoundingClientRect();
+      if (e.clientY > rect.top + rect.height / 2) toIdx++;
+      data.people.splice(toIdx, 0, dragSectionKey);
+      save(data);
+      render();
+      return;
+    }
+
+    if (!dragItemId) return;
     const item = data.items.find((it) => it.id === dragItemId);
     if (!item) return;
 
@@ -486,6 +597,12 @@
   root.addEventListener("click", (e) => {
     let btn;
 
+    btn = e.target.closest("[data-ag-section-remove]");
+    if (btn) {
+      removeSection(btn.dataset.agSectionRemove);
+      return;
+    }
+
     btn = e.target.closest("[data-ag-section-toggle]");
     if (btn) {
       const key = btn.dataset.agSectionToggle;
@@ -554,6 +671,21 @@
       return;
     }
 
+    if (e.target.closest("[data-ag-show-add-section]")) {
+      showAddSection();
+      return;
+    }
+
+    if (e.target.closest("[data-ag-save-section]")) {
+      commitAddSection();
+      return;
+    }
+
+    if (e.target.closest("[data-ag-cancel-add-section]")) {
+      hideAddSection();
+      return;
+    }
+
     if (e.target.closest("[data-ag-toggle-completed]")) {
       showCompleted = !showCompleted;
       render();
@@ -573,12 +705,25 @@
       if (input) {
         e.preventDefault();
         commitInlineAdd(input.dataset.agInlineInput);
+        return;
+      }
+      const sectionInput = e.target.closest("[data-ag-section-name-input]");
+      if (sectionInput) {
+        e.preventDefault();
+        commitAddSection();
+        return;
       }
     }
     if (e.key === "Escape") {
       const input = e.target.closest("[data-ag-inline-input]");
       if (input) {
         hideInlineAdd(input.dataset.agInlineInput);
+        return;
+      }
+      const sectionInput = e.target.closest("[data-ag-section-name-input]");
+      if (sectionInput) {
+        hideAddSection();
+        return;
       }
     }
   });
