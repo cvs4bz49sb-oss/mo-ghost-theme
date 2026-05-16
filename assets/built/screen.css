@@ -17151,9 +17151,14 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 @media (max-width: 760px) {
   .ag-root { padding: 16px; }
   .ag-item-meta { display: none; }
-  .ag-drag-handle { display: none; }
   .cc-list-item-person { display: none; }
+  .ag-drag-handle { color: var(--color-mid); touch-action: none; }
+  .ag-section-drag-handle { display: inline-flex; touch-action: none; }
+  .ag-section-remove { display: inline-flex; }
+  .ag-item-remove { opacity: 1; }
 }
+.ag-drag-handle, .ag-section-drag-handle { touch-action: none; }
+.ag-touch-dragging { opacity: 0.4; pointer-events: none; }
 
 /* ---- Workspace de-branding ----
    Kill the editorial display font and decorative italics everywhere

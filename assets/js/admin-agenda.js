@@ -549,6 +549,138 @@
   });
 
   // -----------------------------------------------------------------------
+  // Touch drag and drop (mobile)
+  // -----------------------------------------------------------------------
+
+  let touchDragType = null;
+  let touchDragKey = null;
+  let touchOrigEl = null;
+
+  root.addEventListener("touchstart", (e) => {
+    const sectionHandle = e.target.closest(".ag-section-drag-handle");
+    if (sectionHandle) {
+      const head = sectionHandle.closest("[data-ag-section-drag]");
+      if (head) {
+        touchDragType = "section";
+        touchDragKey = head.dataset.agSectionDrag;
+        touchOrigEl = head.closest(".ag-section");
+        touchOrigEl.classList.add("is-section-dragging");
+        e.preventDefault();
+        return;
+      }
+    }
+    const itemHandle = e.target.closest(".ag-drag-handle");
+    if (itemHandle) {
+      const item = itemHandle.closest("[data-ag-item-id]");
+      if (item) {
+        touchDragType = "item";
+        touchDragKey = item.dataset.agItemId;
+        touchOrigEl = item;
+        item.classList.add("is-dragging");
+        e.preventDefault();
+      }
+    }
+  }, { passive: false });
+
+  root.addEventListener("touchmove", (e) => {
+    if (!touchDragType) return;
+    e.preventDefault();
+    const y = e.touches[0].clientY;
+    const x = e.touches[0].clientX;
+
+    root.querySelectorAll(".ag-section-drop-above, .ag-section-drop-below, .ag-drop-above, .ag-drop-below, .ag-drop-zone-active").forEach((el) => {
+      el.classList.remove("ag-section-drop-above", "ag-section-drop-below", "ag-drop-above", "ag-drop-below", "ag-drop-zone-active");
+    });
+
+    const target = document.elementFromPoint(x, y);
+    if (!target) return;
+
+    if (touchDragType === "section") {
+      const overSection = target.closest("[data-ag-section]");
+      if (overSection && overSection.dataset.agSection !== touchDragKey && overSection.dataset.agSection !== "__unassigned__") {
+        const rect = overSection.getBoundingClientRect();
+        if (y < rect.top + rect.height / 2) {
+          overSection.classList.add("ag-section-drop-above");
+        } else {
+          overSection.classList.add("ag-section-drop-below");
+        }
+      }
+    } else {
+      const overItem = target.closest("[data-ag-item-id]");
+      if (overItem && overItem.dataset.agItemId !== touchDragKey) {
+        const rect = overItem.getBoundingClientRect();
+        if (y < rect.top + rect.height / 2) {
+          overItem.classList.add("ag-drop-above");
+        } else {
+          overItem.classList.add("ag-drop-below");
+        }
+      } else {
+        const zone = target.closest("[data-ag-drop-zone]");
+        if (zone && zone.children.length === 0) {
+          zone.classList.add("ag-drop-zone-active");
+        }
+      }
+    }
+  }, { passive: false });
+
+  root.addEventListener("touchend", (e) => {
+    if (!touchDragType) return;
+    const y = e.changedTouches[0].clientY;
+    const x = e.changedTouches[0].clientX;
+    const target = document.elementFromPoint(x, y);
+
+    if (touchDragType === "section" && target) {
+      const overSection = target.closest("[data-ag-section]");
+      if (overSection) {
+        const overKey = overSection.dataset.agSection;
+        if (overKey !== touchDragKey && overKey !== "__unassigned__") {
+          const fromIdx = data.people.indexOf(touchDragKey);
+          if (fromIdx !== -1) {
+            data.people.splice(fromIdx, 1);
+            let toIdx = data.people.indexOf(overKey);
+            if (toIdx !== -1) {
+              const rect = overSection.getBoundingClientRect();
+              if (y > rect.top + rect.height / 2) toIdx++;
+              data.people.splice(toIdx, 0, touchDragKey);
+              save(data);
+            }
+          }
+        }
+      }
+    } else if (touchDragType === "item" && target) {
+      const item = data.items.find((it) => it.id === touchDragKey);
+      if (item) {
+        const zone = target.closest("[data-ag-drop-zone]");
+        if (zone) {
+          const targetPerson = zone.dataset.agDropZone;
+          item.person = targetPerson === "__unassigned__" ? "" : targetPerson;
+          const overItem = target.closest("[data-ag-item-id]");
+          if (overItem && overItem.dataset.agItemId !== touchDragKey) {
+            const overItemData = data.items.find((it) => it.id === overItem.dataset.agItemId);
+            if (overItemData) {
+              const fromIdx = data.items.indexOf(item);
+              data.items.splice(fromIdx, 1);
+              let toIdx = data.items.indexOf(overItemData);
+              const rect = overItem.getBoundingClientRect();
+              if (y > rect.top + rect.height / 2) toIdx++;
+              data.items.splice(toIdx, 0, item);
+            }
+          }
+          save(data);
+        }
+      }
+    }
+
+    root.querySelectorAll(".is-section-dragging, .ag-section-drop-above, .ag-section-drop-below, .is-dragging, .ag-drop-above, .ag-drop-below, .ag-drop-zone-active").forEach((el) => {
+      el.classList.remove("is-section-dragging", "ag-section-drop-above", "ag-section-drop-below", "is-dragging", "ag-drop-above", "ag-drop-below", "ag-drop-zone-active");
+    });
+    touchDragType = null;
+    touchDragKey = null;
+    touchOrigEl = null;
+    render();
+  });
+
+  // -----------------------------------------------------------------------
   // Edit modal
   // -----------------------------------------------------------------------
 
