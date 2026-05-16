@@ -16753,6 +16753,7 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   padding: 6px 0;
 }
 .ag-add-section-btn:hover { color: var(--color-accent); }
+.ag-add-section-btn[hidden] { display: none; }
 .ag-add-section-form {
   display: flex;
   align-items: center;
