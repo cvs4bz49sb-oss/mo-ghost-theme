@@ -197,10 +197,10 @@
         `<div class="ag-inline-add" data-ag-inline-add="${key}">` +
           `<button type="button" class="ag-inline-add-btn" data-ag-show-inline="${key}">` +
             `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>` +
-            ` Add task…` +
+            ` Add item…` +
           `</button>` +
           `<div class="ag-inline-add-form" data-ag-inline-form="${key}" hidden>` +
-            `<input type="text" class="ag-inline-input" data-ag-inline-input="${key}" placeholder="Task name…" />` +
+            `<input type="text" class="ag-inline-input" data-ag-inline-input="${key}" placeholder="Item name…" />` +
             `<div class="ag-inline-actions">` +
               `<button type="button" class="ag-inline-save" data-ag-inline-save="${key}">Add</button>` +
               `<button type="button" class="ag-inline-cancel" data-ag-inline-cancel="${key}">&times;</button>` +
@@ -351,7 +351,7 @@
   function removeSection(key) {
     const sectionItems = agendaItems().filter((it) => it.person === key && !isCompleted(it));
     if (sectionItems.length > 0) {
-      if (!confirm(`"${key}" has ${sectionItems.length} task${sectionItems.length > 1 ? "s" : ""}. Remove section and move tasks to Unassigned?`)) return;
+      if (!confirm(`"${key}" has ${sectionItems.length} item${sectionItems.length > 1 ? "s" : ""}. Remove section and move items to Unassigned?`)) return;
       sectionItems.forEach((it) => { it.person = ""; });
     }
     data.people = data.people.filter((p) => p !== key);
@@ -555,6 +555,23 @@
   let touchDragType = null;
   let touchDragKey = null;
   let touchOrigEl = null;
+  let touchGhost = null;
+
+  function createGhost(el, x, y) {
+    const ghost = el.cloneNode(true);
+    const rect = el.getBoundingClientRect();
+    ghost.style.cssText = `position:fixed;left:0;top:${y - 20}px;width:${rect.width}px;opacity:0.85;z-index:9999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.18);border-radius:4px;background:var(--color-page,#fff);`;
+    document.body.appendChild(ghost);
+    return ghost;
+  }
+
+  function moveGhost(y) {
+    if (touchGhost) touchGhost.style.top = `${y - 20}px`;
+  }
+
+  function removeGhost() {
+    if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+  }
 
   root.addEventListener("touchstart", (e) => {
     const sectionHandle = e.target.closest(".ag-section-drag-handle");
@@ -565,6 +582,8 @@
         touchDragKey = head.dataset.agSectionDrag;
         touchOrigEl = head.closest(".ag-section");
         touchOrigEl.classList.add("is-section-dragging");
+        const t = e.touches[0];
+        touchGhost = createGhost(touchOrigEl.querySelector(".ag-section-head"), t.clientX, t.clientY);
         e.preventDefault();
         return;
       }
@@ -577,6 +596,8 @@
         touchDragKey = item.dataset.agItemId;
         touchOrigEl = item;
         item.classList.add("is-dragging");
+        const t = e.touches[0];
+        touchGhost = createGhost(item, t.clientX, t.clientY);
         e.preventDefault();
       }
     }
@@ -587,6 +608,7 @@
     e.preventDefault();
     const y = e.touches[0].clientY;
     const x = e.touches[0].clientX;
+    moveGhost(y);
 
     root.querySelectorAll(".ag-section-drop-above, .ag-section-drop-below, .ag-drop-above, .ag-drop-below, .ag-drop-zone-active").forEach((el) => {
       el.classList.remove("ag-section-drop-above", "ag-section-drop-below", "ag-drop-above", "ag-drop-below", "ag-drop-zone-active");
@@ -625,6 +647,7 @@
 
   root.addEventListener("touchend", (e) => {
     if (!touchDragType) return;
+    removeGhost();
     const y = e.changedTouches[0].clientY;
     const x = e.changedTouches[0].clientX;
     const target = document.elementFromPoint(x, y);
@@ -689,7 +712,7 @@
     overlay.className = "au-modal-overlay";
     overlay.innerHTML =
       `<div class="au-modal au-modal--narrow">` +
-        `<h3 class="au-modal-title">Edit Task</h3>` +
+        `<h3 class="au-modal-title">Edit Item</h3>` +
         `<div class="au-modal-fields">` +
           `<label class="settings-field">` +
             `<span class="settings-field-label">Title</span>` +
@@ -855,7 +878,7 @@
 
     if (e.target.closest("[data-ag-clear-completed]")) {
       const completed = agendaItems().filter(isCompleted);
-      if (completed.length > 0 && confirm(`Remove ${completed.length} completed task${completed.length > 1 ? "s" : ""}?`)) {
+      if (completed.length > 0 && confirm(`Remove ${completed.length} completed item${completed.length > 1 ? "s" : ""}?`)) {
         const ids = new Set(completed.map((it) => it.id));
         data.items = data.items.filter((it) => !ids.has(it.id));
         save(data);
