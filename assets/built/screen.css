@@ -16739,6 +16739,19 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 .ag-section.is-section-dragging { opacity: 0.4; }
 .ag-section.ag-section-drop-above { border-top: 2px solid var(--color-accent); }
 .ag-section.ag-section-drop-below { border-bottom: 2px solid var(--color-accent); }
+.ag-inline-section-input {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-dark);
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  padding: 2px 6px;
+  outline: none;
+  background: #fff;
+  min-width: 120px;
+}
+.ag-section-name[data-ag-section-rename] { cursor: text; }
 .ag-add-section { padding: 12px 4px; }
 .ag-add-section-btn {
   background: none;

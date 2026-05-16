@@ -186,7 +186,7 @@
           `<svg width="6" height="10" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1"/><circle cx="5" cy="1" r="1"/><circle cx="1" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="1" cy="9" r="1"/><circle cx="5" cy="9" r="1"/></svg>` +
         `</span>` : "" 
         }<svg class="ag-section-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>` +
-        `<span class="ag-section-name">${esc(person)}</span>` +
+        `<span class="ag-section-name"${!isUnassigned ? ` data-ag-section-rename="${escAttr(key)}"` : ""}>${esc(person)}</span>` +
         `<span class="ag-section-count">${count}</span>${ 
         !isUnassigned ? `<button type="button" class="ag-section-remove" data-ag-section-remove="${key}" title="Remove section">&times;</button>` : "" 
       }</div>` +
@@ -357,6 +357,35 @@
     data.people = data.people.filter((p) => p !== key);
     save(data);
     render();
+  }
+
+  function startSectionRename(nameEl, key) {
+    const current = key;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "ag-inline-section-input";
+    input.value = current;
+    nameEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    function commit() {
+      const val = input.value.trim();
+      if (val && val !== current && !data.people.includes(val)) {
+        const idx = data.people.indexOf(current);
+        if (idx !== -1) data.people[idx] = val;
+        data.items.forEach((it) => { if (it.person === current) it.person = val; });
+        if (collapsed[current]) { collapsed[val] = collapsed[current]; delete collapsed[current]; saveCollapsed(); }
+        save(data);
+      }
+      render();
+    }
+
+    input.addEventListener("blur", commit);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+      if (e.key === "Escape") { input.value = current; input.blur(); }
+    });
   }
 
   // -----------------------------------------------------------------------
@@ -696,6 +725,14 @@
     if (titleEl) {
       startInlineEdit(titleEl, titleEl.dataset.agInlineTitle);
       return;
+    }
+  });
+
+  root.addEventListener("dblclick", (e) => {
+    const nameEl = e.target.closest("[data-ag-section-rename]");
+    if (nameEl) {
+      e.preventDefault();
+      startSectionRename(nameEl, nameEl.dataset.agSectionRename);
     }
   });
 
