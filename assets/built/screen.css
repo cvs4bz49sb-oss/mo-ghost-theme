@@ -17875,7 +17875,8 @@ body:has(.au-modal-overlay) {
    Compact, neutral buttons for tool UIs. No CTA styling —
    primary actions use dark bg, destructive uses red outline,
    secondary uses border only. */
-.admin-workspace .btn {
+.admin-workspace .btn,
+.au-modal-overlay .btn {
   padding: 7px 16px;
   font-size: 13px;
   font-weight: 600;
@@ -17884,60 +17885,73 @@ body:has(.au-modal-overlay) {
   box-shadow: none;
   border: 1px solid transparent;
 }
-.admin-workspace .btn:hover {
+.admin-workspace .btn:hover,
+.au-modal-overlay .btn:hover {
   transform: none;
   box-shadow: none;
 }
-.admin-workspace .btn-pill {
+.admin-workspace .btn-pill,
+.au-modal-overlay .btn-pill {
   border-radius: 6px;
   padding: 7px 16px;
 }
-.admin-workspace .btn-sm {
+.admin-workspace .btn-sm,
+.au-modal-overlay .btn-sm {
   padding: 5px 12px;
   font-size: 11px;
 }
-.admin-workspace .btn-primary {
+.admin-workspace .btn-primary,
+.au-modal-overlay .btn-primary {
   background: var(--color-dark);
   color: #fff;
   padding: 7px 16px;
   box-shadow: none;
   border-color: var(--color-dark);
 }
-.admin-workspace .btn-primary:hover {
+.admin-workspace .btn-primary:hover,
+.au-modal-overlay .btn-primary:hover {
   background: #1a1816;
   border-color: #1a1816;
 }
-.admin-workspace .btn-dark {
+.admin-workspace .btn-dark,
+.au-modal-overlay .btn-dark {
   box-shadow: none;
 }
-.admin-workspace .btn-danger {
+.admin-workspace .btn-danger,
+.au-modal-overlay .btn-danger {
   background: transparent;
   color: #c0392b;
   border: 1px solid #c0392b;
 }
-.admin-workspace .btn-danger:hover {
+.admin-workspace .btn-danger:hover,
+.au-modal-overlay .btn-danger:hover {
   background: #c0392b;
   color: #fff;
 }
-.admin-workspace .btn-ghost {
+.admin-workspace .btn-ghost,
+.au-modal-overlay .btn-ghost {
   background: transparent;
   color: var(--color-dark);
   border: 1px solid var(--color-rule);
 }
-.admin-workspace .btn-ghost:hover {
+.admin-workspace .btn-ghost:hover,
+.au-modal-overlay .btn-ghost:hover {
   border-color: var(--color-dark);
   background: transparent;
   color: var(--color-dark);
 }
-.admin-workspace .btn:not(.btn-primary):not(.btn-dark):not(.btn-danger):not(.btn-ghost) {
+.admin-workspace .btn:not(.btn-primary):not(.btn-dark):not(.btn-danger):not(.btn-ghost),
+.au-modal-overlay .btn:not(.btn-primary):not(.btn-dark):not(.btn-danger):not(.btn-ghost) {
   background: transparent;
   color: var(--color-dark);
   border: 1px solid var(--color-rule);
 }
-.admin-workspace .btn:not(.btn-primary):not(.btn-dark):not(.btn-danger):not(.btn-ghost):hover {
+.admin-workspace .btn:not(.btn-primary):not(.btn-dark):not(.btn-danger):not(.btn-ghost):hover,
+.au-modal-overlay .btn:not(.btn-primary):not(.btn-dark):not(.btn-danger):not(.btn-ghost):hover {
   border-color: var(--color-dark);
 }
-.admin-workspace .btn:disabled {
+.admin-workspace .btn:disabled,
+.au-modal-overlay .btn:disabled {
   opacity: 0.4;
   cursor: default;
   pointer-events: none;
