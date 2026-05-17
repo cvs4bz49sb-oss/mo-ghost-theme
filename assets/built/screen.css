@@ -16121,7 +16121,6 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 }
 body:has(.au-modal-overlay) {
   overflow: hidden;
-  touch-action: none;
 }
 .au-modal {
   background: #fff;
