@@ -24,6 +24,13 @@
     }
   }
 
+  const greetingEl = document.querySelector("[data-greeting]");
+  if (greetingEl) {
+    const hour = new Date().getHours();
+    if (hour >= 12 && hour < 17) greetingEl.textContent = "Good afternoon";
+    else if (hour >= 17 || hour < 5) greetingEl.textContent = "Good evening";
+  }
+
   // On narrow viewports (tablet and phone), collapse every
   // dashboard-module at load so the page isn't an endless scroll.
   // Native <details> toggles on tap; belt-and-braces, we also bind
