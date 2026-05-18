@@ -142,10 +142,10 @@
     }
 
     return (
-      `<div class="editorial-card-body">` +
-        (contactMeta.length ? `<p class="editorial-card-contact">${contactMeta.join(' &middot; ')}</p>` : '') +
-        (bioFull ? `<div class="editorial-card-section"><p class="eyebrow">Bio</p><p>${bioFull}</p></div>` : '') +
-        `<div class="editorial-card-section">` +
+      `<div class="editorial-card-body">${ 
+        contactMeta.length ? `<p class="editorial-card-contact">${contactMeta.join(' &middot; ')}</p>` : '' 
+        }${bioFull ? `<div class="editorial-card-section"><p class="eyebrow">Bio</p><p>${bioFull}</p></div>` : '' 
+        }<div class="editorial-card-section">` +
           `<p class="eyebrow">Files</p>` +
           `<div class="editorial-card-files">${
             row.essay_key ? `<button type="button" class="btn btn-sm" data-action="download" data-id="${row.id}" data-which="essay">Download essay</button>` : ''
@@ -159,9 +159,9 @@
             `<span class="editorial-card-notes-state" data-notes-state></span>` +
           `</label>` +
           `<textarea class="editorial-card-notes" id="editorial-notes-${row.id}" data-notes data-id="${row.id}" rows="3" placeholder="Editor notes — saves automatically.">${notes}</textarea>` +
-        `</div>` +
-        decision +
-        `<div class="editorial-card-section editorial-card-remove-section">` +
+        `</div>${ 
+        decision 
+        }<div class="editorial-card-section editorial-card-remove-section">` +
           `<button type="button" class="btn btn-sm btn-danger" data-action="remove" data-id="${row.id}">Remove submission</button>` +
         `</div>` +
       `</div>`
@@ -191,9 +191,9 @@
             `<p class="editorial-detail-meta">${escapeHtml(when)} &middot; ${escapeHtml(statusLabel)}</p>` +
           `</div>` +
           `<button type="button" class="editorial-detail-close" data-action="close-detail" aria-label="Close">&times;</button>` +
-        `</div>` +
-        renderDetailBody(row, row.status === "submitted") +
-      `</div>`;
+        `</div>${ 
+        renderDetailBody(row, row.status === "submitted") 
+      }</div>`;
 
     document.body.appendChild(overlay);
 

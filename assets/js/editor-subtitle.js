@@ -284,7 +284,7 @@
 
   let lastHash = "";
   const observer = new MutationObserver(() => {
-    const hash = location.hash;
+    const {hash} = location;
     if (hash !== lastHash) {
       lastHash = hash;
       if (hash.includes("/editor/")) {

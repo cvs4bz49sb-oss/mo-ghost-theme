@@ -125,9 +125,9 @@
             `<p class="sponsor-detail-meta">${escapeHtml(typeLabel)} &middot; <select class="sponsor-status-select" data-action="change-status" data-id="${row.id}">${statusOptions}</select></p>` +
           `</div>` +
           `<button type="button" class="editorial-detail-close" data-action="close-detail" aria-label="Close">&times;</button>` +
-        `</div>` +
-        renderDetailBody(row) +
-      `</div>`;
+        `</div>${ 
+        renderDetailBody(row) 
+      }</div>`;
 
     document.body.appendChild(overlay);
     overlay.querySelector("[data-action='close-detail']").addEventListener("click", closeDetailModal);
@@ -152,16 +152,16 @@
     const notes = escapeAttr(row.notes || "");
 
     return (
-      `<div class="sponsor-detail-body">` +
+      `<div class="sponsor-detail-body">${ 
         // Contact
-        (contact.length ? `<div class="sponsor-detail-section"><p class="eyebrow">Contact</p><p class="sponsor-detail-text">${contact.join(' &middot; ')}</p></div>` : '') +
+        contact.length ? `<div class="sponsor-detail-section"><p class="eyebrow">Contact</p><p class="sponsor-detail-text">${contact.join(' &middot; ')}</p></div>` : '' 
         // Placement + description
-        (row.placement ? `<div class="sponsor-detail-section"><p class="eyebrow">Placement</p><p class="sponsor-detail-text">${escapeHtml(row.placement)}</p></div>` : '') +
-        (row.description ? `<div class="sponsor-detail-section"><p class="eyebrow">Description</p><p class="sponsor-detail-text">${escapeHtml(row.description)}</p></div>` : '') +
+        }${row.placement ? `<div class="sponsor-detail-section"><p class="eyebrow">Placement</p><p class="sponsor-detail-text">${escapeHtml(row.placement)}</p></div>` : '' 
+        }${row.description ? `<div class="sponsor-detail-section"><p class="eyebrow">Description</p><p class="sponsor-detail-text">${escapeHtml(row.description)}</p></div>` : '' 
         // Dates
-        (dates.length ? `<div class="sponsor-detail-section"><p class="eyebrow">Schedule</p><p class="sponsor-detail-text">${dates.join(' &middot; ')}</p></div>` : '') +
+        }${dates.length ? `<div class="sponsor-detail-section"><p class="eyebrow">Schedule</p><p class="sponsor-detail-text">${dates.join(' &middot; ')}</p></div>` : '' 
         // Financials
-        `<div class="sponsor-detail-section">` +
+        }<div class="sponsor-detail-section">` +
           `<p class="eyebrow">Financials</p>` +
           `<div class="sponsor-financials">` +
             `<span class="sponsor-amount">${row.amount_cents ? formatCents(row.amount_cents) : '—'}</span>` +
@@ -299,18 +299,18 @@
           `<h3 class="sponsor-detail-name">${isNew ? 'New sponsorship' : 'Edit sponsorship'}</h3>` +
           `<button type="button" class="editorial-detail-close" data-action="close-edit" aria-label="Close">&times;</button>` +
         `</div>` +
-        `<form class="sponsor-form" data-sponsor-form>` +
-          formField("Sponsor name", "sponsor_name", row.sponsor_name || "", "text", true) +
-          formField("Contact name", "contact_name", row.contact_name || "") +
-          formField("Contact email", "contact_email", row.contact_email || "", "email") +
-          formSelect("Type", "type", row.type || "newsletter", ["newsletter", "podcast", "website", "event", "bundle"]) +
-          formField("Placement", "placement", row.placement || "", "text", false, "e.g. Tuesday newsletter, Mere Fidelity") +
-          formField("Amount ($)", "amount_display", row.amount_cents ? (row.amount_cents / 100).toFixed(2) : "", "number", false, "0.00") +
-          formField("Start date", "start_date", row.start_date || "", "date") +
-          formField("End date", "end_date", row.end_date || "", "date") +
-          formTextarea("Description", "description", row.description || "", "What the sponsor gets") +
-          (isNew ? formSelect("Status", "status", "prospecting", ["prospecting", "negotiating", "agreed", "active", "completed"]) : '') +
-          `<div class="sponsor-form-actions">` +
+        `<form class="sponsor-form" data-sponsor-form>${ 
+          formField("Sponsor name", "sponsor_name", row.sponsor_name || "", "text", true) 
+          }${formField("Contact name", "contact_name", row.contact_name || "") 
+          }${formField("Contact email", "contact_email", row.contact_email || "", "email") 
+          }${formSelect("Type", "type", row.type || "newsletter", ["newsletter", "podcast", "website", "event", "bundle"]) 
+          }${formField("Placement", "placement", row.placement || "", "text", false, "e.g. Tuesday newsletter, Mere Fidelity") 
+          }${formField("Amount ($)", "amount_display", row.amount_cents ? (row.amount_cents / 100).toFixed(2) : "", "number", false, "0.00") 
+          }${formField("Start date", "start_date", row.start_date || "", "date") 
+          }${formField("End date", "end_date", row.end_date || "", "date") 
+          }${formTextarea("Description", "description", row.description || "", "What the sponsor gets") 
+          }${isNew ? formSelect("Status", "status", "prospecting", ["prospecting", "negotiating", "agreed", "active", "completed"]) : '' 
+          }<div class="sponsor-form-actions">` +
             `<button type="submit" class="btn btn-sm btn-primary">${isNew ? 'Create' : 'Save'}</button>` +
             `<button type="button" class="btn btn-sm" data-action="close-edit">Cancel</button>` +
           `</div>` +
@@ -619,7 +619,7 @@
   }
   function formatCents(cents) {
     if (!cents) return "$0";
-    return "$" + (cents / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   }
   function formatDate(iso) {
     if (!iso) return "";
