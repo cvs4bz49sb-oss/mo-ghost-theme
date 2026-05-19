@@ -31,7 +31,8 @@
     "/success/": "Welcome",
     "/books/": "Bookstore",
     "/offer/": "Launch Offer — 20% Off Membership",
-    "/admin/engagement/": "Admin — Engagement"
+    "/admin/engagement/": "Admin — Engagement",
+    "/sponsorship/": "Sponsorship Opportunities"
   };
 
   const path = window.location.pathname;
