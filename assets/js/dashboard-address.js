@@ -41,6 +41,8 @@
     // the newlines intact in the display paragraph.
     const lines = [];
     if (a.name) lines.push(a.name);
+    if (a.organization) lines.push(a.organization);
+    if (a.church) lines.push(a.church);
     lines.push(a.line1);
     if (a.line2) lines.push(a.line2);
     lines.push(`${a.city}, ${a.state} ${a.postal_code}`);
@@ -68,7 +70,7 @@
     errorEl.textContent = '';
     hide(successEl);
     const a = currentAddress || {};
-    ['name', 'line1', 'line2', 'city', 'state', 'postal_code', 'country'].forEach((field) => {
+    ['name', 'organization', 'church', 'line1', 'line2', 'city', 'state', 'postal_code', 'country'].forEach((field) => {
       const input = form.elements.namedItem(field);
       if (!input) return;
       input.value = a[field] || (field === 'name' ? (root.dataset.memberName || '') : field === 'country' ? 'US' : '');
@@ -116,6 +118,8 @@
       currentAddress = {
         email,
         name: data.name,
+        organization: data.organization || null,
+        church: data.church || null,
         line1: data.line1,
         line2: data.line2 || null,
         city: data.city,

@@ -35,7 +35,7 @@
       const body = await response.json();
       if (!body.found) return;
       const a = body.address || {};
-      ['name', 'line1', 'line2', 'city', 'state', 'postal_code', 'country'].forEach((field) => {
+      ['name', 'organization', 'church', 'line1', 'line2', 'city', 'state', 'postal_code', 'country'].forEach((field) => {
         const input = form.elements.namedItem(field);
         if (input && a[field]) input.value = a[field];
       });
