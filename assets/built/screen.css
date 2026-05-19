@@ -2403,8 +2403,8 @@ body {
 }
 .meta-author:hover { text-decoration: none; }
 .meta-avatar {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ee7d51, #c1593c);
   display: flex;
