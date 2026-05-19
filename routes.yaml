@@ -59,6 +59,8 @@ routes:
     template: custom-forum
   /success/:
     template: custom-success
+  /sponsorship/:
+    template: custom-sponsorship
   /contact/:
     template: custom-contact
   /privacy/:

@@ -1,0 +1,220 @@
+{{!< default}}
+{{!-- /sponsorship/ — public sponsorship info page. Shows ad inventory
+     with live availability (fetched from admin worker settings), plus a
+     contact form for prospective sponsors. Wired in routes.yaml. --}}
+
+<main class="sponsorship-page">
+
+  <section class="hero sponsorship-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> Partner With Us</p>
+      <h1 class="sponsorship-headline"><em>Sponsorship <span class="highlight">Opportunities</span></em></h1>
+      <p class="sponsorship-sub">Reach a theologically literate, highly engaged audience of pastors, writers, academics, and serious readers.</p>
+    </div>
+  </section>
+
+  <section class="sponsorship-inventory">
+    <div class="container container-narrow">
+
+      <div class="sponsorship-intro">
+        <p>Mere Orthodoxy offers sponsorship placements across our newsletter, podcasts, and website. Each spot is individually managed to ensure quality and relevance for our readers.</p>
+      </div>
+
+      <div class="sponsorship-grid" data-sponsor-inventory data-admin-url="{{@custom.admin_worker_url}}">
+
+        {{!-- Newsletter --}}
+        <div class="sponsor-category">
+          <div class="sponsor-category-header">
+            <h2 class="sponsor-category-title"><em>Weekly Newsletter</em></h2>
+            <p class="sponsor-category-desc">Our weekly newsletter reaches thousands of subscribers with curated content and editorial commentary.</p>
+          </div>
+          <div class="sponsor-slots">
+            <div class="sponsor-slot" data-slot="nl_top">
+              <span class="sponsor-slot-name">Top Ad</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+            <div class="sponsor-slot" data-slot="nl_bottom">
+              <span class="sponsor-slot-name">Bottom Ad</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Mere Fidelity --}}
+        <div class="sponsor-category">
+          <div class="sponsor-category-header">
+            <h2 class="sponsor-category-title"><em>Mere Fidelity</em></h2>
+            <p class="sponsor-category-desc">A weekly theology podcast featuring lively discussion on faith, culture, and ideas.</p>
+          </div>
+          <div class="sponsor-slots">
+            <div class="sponsor-slot" data-slot="mf_preroll">
+              <span class="sponsor-slot-name">Pre-Roll</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+            <div class="sponsor-slot" data-slot="mf_midroll">
+              <span class="sponsor-slot-name">Mid-Roll</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+            <div class="sponsor-slot" data-slot="mf_postroll">
+              <span class="sponsor-slot-name">Post-Roll</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Christians Reading Classics --}}
+        <div class="sponsor-category">
+          <div class="sponsor-category-header">
+            <h2 class="sponsor-category-title"><em>Christians Reading Classics</em></h2>
+            <p class="sponsor-category-desc">A literary podcast exploring the great books of the Christian tradition.</p>
+          </div>
+          <div class="sponsor-slots">
+            <div class="sponsor-slot" data-slot="crc_preroll">
+              <span class="sponsor-slot-name">Pre-Roll</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+            <div class="sponsor-slot" data-slot="crc_midroll">
+              <span class="sponsor-slot-name">Mid-Roll</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+            <div class="sponsor-slot" data-slot="crc_postroll">
+              <span class="sponsor-slot-name">Post-Roll</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Website --}}
+        <div class="sponsor-category">
+          <div class="sponsor-category-header">
+            <h2 class="sponsor-category-title"><em>Website</em></h2>
+            <p class="sponsor-category-desc">Targeted placements on our website, reaching readers as they engage with our content.</p>
+          </div>
+          <div class="sponsor-slots">
+            <div class="sponsor-slot" data-slot="web_homepage">
+              <span class="sponsor-slot-name">Homepage Slide-In</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+            <div class="sponsor-slot" data-slot="web_category">
+              <span class="sponsor-slot-name">Category Slide-In</span>
+              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="sponsorship-form-section">
+    <div class="container container-narrow">
+      <div class="sponsorship-form-header">
+        <p class="eyebrow">Get Started</p>
+        <h2 class="sponsorship-form-title"><em>Interested? Let's talk.</em></h2>
+        <p class="sponsorship-form-sub">Fill out the form below and we'll be in touch with rates, specs, and availability.</p>
+      </div>
+
+      <form class="site-form sponsorship-form" data-site-form="sponsorship" data-worker-url="{{@custom.forms_worker_url}}" novalidate>
+
+        <div class="site-form-row">
+          <div class="site-form-field">
+            <label for="sponsor-first">First name</label>
+            <input id="sponsor-first" name="firstName" type="text" autocomplete="given-name" required />
+          </div>
+          <div class="site-form-field">
+            <label for="sponsor-last">Last name</label>
+            <input id="sponsor-last" name="lastName" type="text" autocomplete="family-name" required />
+          </div>
+        </div>
+
+        <div class="site-form-row">
+          <div class="site-form-field">
+            <label for="sponsor-email">Email</label>
+            <input id="sponsor-email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="site-form-field">
+            <label for="sponsor-org">Organization</label>
+            <input id="sponsor-org" name="organization" type="text" autocomplete="organization" />
+          </div>
+        </div>
+
+        <fieldset class="site-form-field sponsor-interests">
+          <legend>Which placements interest you?</legend>
+          <div class="sponsor-check-grid">
+            <p class="sponsor-check-group-label">Newsletter</p>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="nl_top" />
+              <span>Top Ad</span>
+            </label>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="nl_bottom" />
+              <span>Bottom Ad</span>
+            </label>
+
+            <p class="sponsor-check-group-label">Mere Fidelity</p>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="mf_preroll" />
+              <span>Pre-Roll</span>
+            </label>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="mf_midroll" />
+              <span>Mid-Roll</span>
+            </label>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="mf_postroll" />
+              <span>Post-Roll</span>
+            </label>
+
+            <p class="sponsor-check-group-label">Christians Reading Classics</p>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="crc_preroll" />
+              <span>Pre-Roll</span>
+            </label>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="crc_midroll" />
+              <span>Mid-Roll</span>
+            </label>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="crc_postroll" />
+              <span>Post-Roll</span>
+            </label>
+
+            <p class="sponsor-check-group-label">Website</p>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="web_homepage" />
+              <span>Homepage Slide-In</span>
+            </label>
+            <label class="site-form-field-check">
+              <input type="checkbox" name="interests" value="web_category" />
+              <span>Category Slide-In</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="site-form-row">
+          <div class="site-form-field">
+            <label for="sponsor-start">Desired start date</label>
+            <input id="sponsor-start" name="startDate" type="date" required />
+          </div>
+          <div class="site-form-field">
+            <label for="sponsor-months">How many months?</label>
+            <input id="sponsor-months" name="months" type="number" min="1" max="24" placeholder="e.g. 3" required />
+          </div>
+        </div>
+
+        <div class="site-form-field">
+          <label for="sponsor-message">Anything else we should know?</label>
+          <textarea id="sponsor-message" name="message" rows="4"></textarea>
+        </div>
+
+        <div class="site-form-field" data-turnstile-wrap></div>
+        <button type="submit" class="site-form-submit">Send inquiry</button>
+        <p class="site-form-status" data-form-status></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/sponsorship.js"}}"></script>
+<script src="{{asset "js/site-forms.js"}}"></script>

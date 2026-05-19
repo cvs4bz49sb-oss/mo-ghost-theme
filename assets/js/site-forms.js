@@ -134,6 +134,31 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       };
+    } else if (kind === "sponsorship") {
+      url = `${worker}/sponsorship`;
+      const checked = Array.from(form.querySelectorAll('[name="interests"]:checked'))
+        .map((cb) => cb.value);
+      if (!checked.length) {
+        setStatus(status, "Please select at least one placement.", true);
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+      const body = {
+        firstName: form.querySelector("[name=firstName]").value,
+        lastName: form.querySelector("[name=lastName]").value,
+        email: form.querySelector("[name=email]").value,
+        organization: (form.querySelector("[name=organization]") || {}).value || "",
+        interests: checked,
+        startDate: form.querySelector("[name=startDate]").value,
+        months: form.querySelector("[name=months]").value,
+        message: (form.querySelector("[name=message]") || {}).value || "",
+        turnstile_token: turnstileToken,
+      };
+      init = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      };
     } else {
       url = `${worker}/submissions`;
       const fd = new FormData(form);
@@ -183,10 +208,16 @@
     const success = document.createElement("div");
     success.className = "site-form-success";
     success.setAttribute("role", "status");
-    const title = kind === "contact" ? "Thanks — message sent." : "Thanks — submission received.";
-    const body = kind === "contact"
-      ? "We'll be in touch soon."
-      : "We'll read your essay and be in touch within two weeks.";
+    const titles = {
+      contact: "Thanks — message sent.",
+      sponsorship: "Thanks — inquiry received.",
+    };
+    const bodies = {
+      contact: "We'll be in touch soon.",
+      sponsorship: "We'll follow up with rates and availability shortly.",
+    };
+    const title = titles[kind] || "Thanks — submission received.";
+    const body = bodies[kind] || "We'll read your essay and be in touch within two weeks.";
     success.innerHTML =
       `<p class="eyebrow">Sent</p>` +
       `<h3><em>${title}</em></h3>` +

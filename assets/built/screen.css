@@ -8686,6 +8686,221 @@ html[data-theme="dark"] .feature-gate-modal-body {
   margin: 0;
 }
 
+/* --- /sponsorship/ page ------------------------------------------------
+   Inventory grid showing ad-slot availability, plus a contact form.
+   Fetches status from admin worker settings (public, no auth).        */
+
+.sponsorship-hero {
+  padding: 72px 0 32px;
+  text-align: center;
+}
+.sponsorship-hero .container { max-width: 760px; }
+.sponsorship-hero .hero-kicker { justify-content: center; }
+.sponsorship-headline {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 400;
+  margin: 8px 0 16px;
+  color: var(--color-dark);
+}
+.sponsorship-sub {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Inventory section */
+.sponsorship-inventory {
+  padding: 48px 0 64px;
+}
+.sponsorship-intro {
+  max-width: 640px;
+  margin: 0 auto 48px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.sponsorship-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+@media (max-width: 768px) {
+  .sponsorship-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Category cards */
+.sponsor-category {
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.sponsor-category-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.sponsor-category-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-dark);
+  margin: 0 0 6px;
+}
+.sponsor-category-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* Individual slots */
+.sponsor-slots {
+  padding: 0;
+}
+.sponsor-slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.sponsor-slot:last-child {
+  border-bottom: none;
+}
+.sponsor-slot-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+.sponsor-slot-badge {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.sponsor-slot-badge.is-available {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.sponsor-slot-badge.is-filled {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+/* Form section */
+.sponsorship-form-section {
+  padding: 64px 0 96px;
+  border-top: 1px solid var(--color-card-border);
+}
+.sponsorship-form-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.sponsorship-form-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 400;
+  color: var(--color-dark);
+  margin: 8px 0 12px;
+}
+.sponsorship-form-sub {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  max-width: 480px;
+  margin: 0 auto;
+}
+.sponsorship-form {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Checkbox grid for interest selection */
+.sponsor-interests {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.sponsor-interests legend {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--color-muted);
+  margin-bottom: 12px;
+}
+.sponsor-check-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 24px;
+}
+@media (max-width: 480px) {
+  .sponsor-check-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.sponsor-check-group-label {
+  grid-column: 1 / -1;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin: 12px 0 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-card-border);
+}
+.sponsor-check-group-label:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Admin settings: sponsor subgroup headers + side-by-side rows */
+.settings-subgroup-title {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted);
+  margin: 20px 0 8px;
+}
+.settings-subgroup-title:first-of-type {
+  margin-top: 0;
+}
+.settings-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+}
+@media (max-width: 640px) {
+  .settings-row {
+    grid-template-columns: 1fr;
+  }
+}
+.settings-group-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: -4px 0 16px;
+  line-height: 1.5;
+}
+
 /* --- /podcasts/mere-fidelity/ and /podcasts/christians-reading-classics/ ---
    Hero: header left, square artwork right. Body: episode feed left,
    host list right. Matches the editorial-but-warm feel of the rest
@@ -16089,6 +16304,37 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   text-transform: uppercase;
   color: var(--color-muted);
   margin: 0 0 16px;
+}
+.settings-group-desc {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: -4px 0 16px;
+  line-height: 1.5;
+}
+.settings-subgroup-title {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted);
+  margin: 20px 0 8px;
+}
+.settings-subgroup-title:first-of-type {
+  margin-top: 0;
+}
+.settings-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+}
+@media (max-width: 640px) {
+  .settings-row {
+    grid-template-columns: 1fr;
+  }
+}
+.settings-field--half {
+  /* grid handles layout */
 }
 .settings-field {
   display: block;
