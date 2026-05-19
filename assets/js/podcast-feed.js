@@ -99,6 +99,7 @@
         all.sort((a, b) => { return b.ts - a.ts; });
         const top = all.slice(0, showLimit);
         grid.innerHTML = top.map(isShowPage ? renderShowCard : renderCompactCard).join("");
+        if (isShowPage) wireAudioPlayers();
       }
 
       // Most Listened sidebar — Buzzsprout total_plays, only shown
@@ -164,23 +165,32 @@
       ? `<p class="pod-excerpt">${escapeHtml(summary)}</p>`
       : "";
 
-    // Codex audit 2026-05-11: validate the embedUrl host against the
-    // expected players (Buzzsprout, YouTube, Vimeo, Spotify). CSP
-    // frame-src already blocks unlisted hosts at browser level — this
-    // is belt-and-braces so a polluted upstream can't paint an unsafe
-    // iframe src that triggers a CSP violation report instead of
-    // failing silently.
-    const safeEmbedUrl = isAllowedEmbedHost(ep.embedUrl) ? ep.embedUrl : "";
-    const embed = safeEmbedUrl
-      ? `<div class="pod-embed">` +
-        `<iframe src="${escapeAttr(safeEmbedUrl)}" loading="lazy" frameborder="0" scrolling="no" title="Listen to ${escapeAttr(ep.title)}"></iframe>` +
+    // Custom audio player using the direct audio URL from Buzzsprout.
+    const audioSrc = ep.embedUrl ? (ep.audioUrl || "") : "";
+    const durationSecs = parseInt(ep.duration, 10) || 0;
+    const durationDisplay = durationSecs ? formatDuration(durationSecs) : "";
+    const player = audioSrc
+      ? `<div class="pod-player" data-audio-src="${escapeAttr(audioSrc)}">` +
+          `<button class="pod-player-play" aria-label="Play ${escapeAttr(ep.title)}">` +
+            `<svg class="pod-player-icon pod-player-icon--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6,3 20,12 6,21"/></svg>` +
+            `<svg class="pod-player-icon pod-player-icon--pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>` +
+          `</button>` +
+          `<div class="pod-player-track">` +
+            `<div class="pod-player-progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">` +
+              `<div class="pod-player-fill"></div>` +
+            `</div>` +
+            `<div class="pod-player-time">` +
+              `<span class="pod-player-current">0:00</span>` +
+              `<span class="pod-player-duration">${escapeHtml(durationDisplay)}</span>` +
+            `</div>` +
+          `</div>` +
+          `<button class="pod-player-speed" aria-label="Playback speed">1&times;</button>` +
         `</div>`
       : "";
 
-    // Always show the title — Buzzsprout's small player doesn't display it.
     const titleHtml = `<h3 class="pod-title"><em>${escapeHtml(ep.title)}</em></h3>`;
 
-    const linksBlock = renderListenLinks(ep);
+    const linksBlock = renderShowListenLinks(ep);
 
     const transcriptLink = ep.hasTranscript && ep.transcriptUrl
       ? `<a class="pod-transcript-link" href="${escapeAttr(absoluteWorkerUrl(ep.transcriptUrl))}">Read transcript &rarr;</a>`
@@ -192,16 +202,31 @@
 
     const idAttr = ep.id ? ` id="ep-${escapeAttr(ep.id)}"` : "";
     return (
-      `<article class="pod-entry pod-entry--episode pod-entry--full"${idAttr} data-show="${escapeAttr(ep.showSlug)}">${ 
-      metaHtml 
-      }${titleHtml 
-      }${embed 
-      }${excerpt 
-      }${footer 
+      `<article class="pod-entry pod-entry--episode pod-entry--full"${idAttr} data-show="${escapeAttr(ep.showSlug)}">${
+      metaHtml
+      }${titleHtml
+      }${player
+      }${excerpt
+      }${footer
       }</article>`
     );
   }
 
+  // Episode-specific listen links for show pages — links to the
+  // Buzzsprout episode page which has Apple/Spotify/etc. links.
+  function renderShowListenLinks(ep) {
+    const episodePageUrl = ep.embedUrl
+      ? ep.embedUrl.split("?")[0]
+      : "";
+    if (!episodePageUrl) return renderListenLinks(ep);
+    return (
+      `<div class="pod-listen">` +
+        `<a href="${escapeAttr(episodePageUrl)}" class="pod-listen-episode-link" target="_blank" rel="noopener">Listen on Apple, Spotify &amp; more &rarr;</a>` +
+      `</div>`
+    );
+  }
+
+  // Show-level listen links for compact cards (homepage).
   function renderListenLinks(ep) {
     const p = platforms[ep.showSlug] || {};
     const links = [];
@@ -213,8 +238,8 @@
     }
     if (!links.length) return "";
     return (
-      `<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">${ 
-      links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>') 
+      `<div class="pod-listen"><p class="pod-listen-label">Listen</p><p class="pod-listen-platforms">${
+      links.join('<span class="pod-listen-sep" aria-hidden="true"> | </span>')
       }</p></div>`
     );
   }
@@ -338,6 +363,114 @@
         summary ? `<p class="pod-excerpt">${escapeHtml(summary)}</p>` : '' 
         }${listenHtml}`;
     }
+  }
+
+  // ─── Custom audio player wiring ────────────────────────────────
+  //
+  // Each .pod-player has a data-audio-src attribute. On first play,
+  // we create an <audio> element, wire up controls, and manage
+  // play/pause, progress scrubbing, and speed cycling. Only one
+  // player plays at a time (pausing others).
+
+  var activeAudio = null;
+
+  function wireAudioPlayers() {
+    var players = grid.querySelectorAll(".pod-player");
+    for (var i = 0; i < players.length; i++) {
+      (function (el) {
+        var audio = null;
+        var playBtn = el.querySelector(".pod-player-play");
+        var iconPlay = el.querySelector(".pod-player-icon--play");
+        var iconPause = el.querySelector(".pod-player-icon--pause");
+        var progressWrap = el.querySelector(".pod-player-progress");
+        var fill = el.querySelector(".pod-player-fill");
+        var currentEl = el.querySelector(".pod-player-current");
+        var durationEl = el.querySelector(".pod-player-duration");
+        var speedBtn = el.querySelector(".pod-player-speed");
+        var speeds = [1, 1.25, 1.5, 1.75, 2];
+        var speedIdx = 0;
+
+        function ensureAudio() {
+          if (audio) return audio;
+          audio = new Audio(el.getAttribute("data-audio-src"));
+          audio.preload = "metadata";
+          audio.addEventListener("loadedmetadata", function () {
+            durationEl.textContent = formatDuration(Math.floor(audio.duration));
+          });
+          audio.addEventListener("timeupdate", function () {
+            if (!audio.duration) return;
+            var pct = (audio.currentTime / audio.duration) * 100;
+            fill.style.width = pct + "%";
+            currentEl.textContent = formatDuration(Math.floor(audio.currentTime));
+          });
+          audio.addEventListener("ended", function () {
+            showPlayIcon(true);
+            fill.style.width = "0%";
+            currentEl.textContent = "0:00";
+            activeAudio = null;
+          });
+          return audio;
+        }
+
+        function showPlayIcon(isPlay) {
+          iconPlay.style.display = isPlay ? "" : "none";
+          iconPause.style.display = isPlay ? "none" : "";
+          playBtn.setAttribute("aria-label", isPlay ? "Play" : "Pause");
+        }
+
+        playBtn.addEventListener("click", function () {
+          ensureAudio();
+          if (audio.paused) {
+            // Pause any other playing audio.
+            if (activeAudio && activeAudio !== audio) {
+              activeAudio.pause();
+              var prev = activeAudio._playerEl;
+              if (prev) {
+                prev.querySelector(".pod-player-icon--play").style.display = "";
+                prev.querySelector(".pod-player-icon--pause").style.display = "none";
+              }
+            }
+            audio._playerEl = el;
+            audio.play();
+            activeAudio = audio;
+            showPlayIcon(false);
+          } else {
+            audio.pause();
+            showPlayIcon(true);
+          }
+        });
+
+        // Click-to-seek on progress bar.
+        progressWrap.addEventListener("click", function (e) {
+          ensureAudio();
+          if (!audio.duration) return;
+          var rect = progressWrap.getBoundingClientRect();
+          var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          audio.currentTime = pct * audio.duration;
+        });
+
+        // Playback speed cycling.
+        speedBtn.addEventListener("click", function () {
+          ensureAudio();
+          speedIdx = (speedIdx + 1) % speeds.length;
+          audio.playbackRate = speeds[speedIdx];
+          speedBtn.textContent = speeds[speedIdx] + "×";
+        });
+      })(players[i]);
+    }
+  }
+
+  function formatDuration(totalSeconds) {
+    if (!totalSeconds || totalSeconds <= 0) return "";
+    var h = Math.floor(totalSeconds / 3600);
+    var m = Math.floor((totalSeconds % 3600) / 60);
+    var s = totalSeconds % 60;
+    var pad = s < 10 ? "0" + s : String(s);
+    if (h > 0) {
+      var pm = m < 10 ? "0" + m : String(m);
+      return h + ":" + pm + ":" + pad;
+    }
+    return m + ":" + pad;
   }
 
   function firstParagraph(text) {
