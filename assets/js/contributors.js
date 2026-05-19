@@ -229,11 +229,13 @@
     return tokens[tokens.length - 1] || "";
   }
 
+  // Returns everything before the last name (first + middle names).
   function firstName(name) {
     if (!name) return "";
     var stripped = name.replace(/,?\s+(jr\.?|sr\.?|ii|iii|iv|v|phd|m\.?d\.?)\s*$/i, "").trim();
     var tokens = stripped.split(/\s+/);
-    return tokens[0] || "";
+    if (tokens.length <= 1) return tokens[0] || "";
+    return tokens.slice(0, -1).join(" ");
   }
 
   function renderCard(tag) {
