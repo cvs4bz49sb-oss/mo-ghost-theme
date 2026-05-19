@@ -8784,18 +8784,22 @@ html[data-theme="dark"] .feature-gate-modal-body {
 .sponsorship-grid {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 32px;
+  max-width: 1060px;
+  margin: 0 auto;
 }
 
 /* Row of three: Digest / MF / CRC */
 .sponsor-row--trio {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 28px;
+  gap: 24px;
 }
 @media (max-width: 900px) {
   .sponsor-row--trio {
     grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto;
   }
 }
 
@@ -8833,6 +8837,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 14px 24px;
   border-bottom: 1px solid var(--color-card-border);
 }
@@ -8844,6 +8849,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
   font-size: 14px;
   font-weight: 600;
   color: var(--color-dark);
+  white-space: nowrap;
 }
 .sponsor-slot-badge {
   font-family: var(--font-body);
@@ -8853,6 +8859,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
   padding: 4px 12px;
   border-radius: 999px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .sponsor-slot-badge.is-available {
   background: #e8f5e9;
@@ -8869,12 +8876,12 @@ html[data-theme="dark"] .feature-gate-modal-body {
 }
 .sponsor-subgroup-title {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--color-muted);
-  padding: 16px 24px 0;
+  padding: 20px 24px 4px;
   margin: 0;
 }
 .sponsor-slots--grid {
@@ -8882,25 +8889,38 @@ html[data-theme="dark"] .feature-gate-modal-body {
   grid-template-columns: repeat(4, 1fr);
 }
 .sponsor-slots--grid .sponsor-slot {
-  padding: 12px 24px;
+  padding: 12px 20px;
   border-bottom: none;
   border-right: 1px solid var(--color-card-border);
 }
 .sponsor-slots--grid .sponsor-slot:nth-child(4n) {
   border-right: none;
 }
-/* Bottom row of 3 — no right border on last */
 .sponsor-slots--grid .sponsor-slot:nth-child(n+5) {
   border-top: 1px solid var(--color-card-border);
 }
 .sponsor-slots--grid .sponsor-slot:last-child {
   border-right: none;
 }
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .sponsor-slots--grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .sponsor-slots--grid .sponsor-slot:nth-child(4n) {
+    border-right: 1px solid var(--color-card-border);
+  }
+  .sponsor-slots--grid .sponsor-slot:nth-child(3n) {
+    border-right: none;
+  }
+  .sponsor-slots--grid .sponsor-slot:nth-child(n+4) {
+    border-top: 1px solid var(--color-card-border);
+  }
+}
+@media (max-width: 480px) {
   .sponsor-slots--grid {
     grid-template-columns: 1fr 1fr;
   }
-  .sponsor-slots--grid .sponsor-slot:nth-child(4n) {
+  .sponsor-slots--grid .sponsor-slot:nth-child(3n) {
     border-right: 1px solid var(--color-card-border);
   }
   .sponsor-slots--grid .sponsor-slot:nth-child(2n) {
