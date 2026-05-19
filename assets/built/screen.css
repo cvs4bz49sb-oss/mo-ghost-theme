@@ -2951,8 +2951,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   align-items: flex-start;
 }
 .author-bio-portrait {
-  width: 96px;
-  height: 96px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -3610,7 +3610,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .meta-dot { display: none; }
   .author-bio { margin-top: 24px; }
   .author-bio-layout { gap: 18px; }
-  .author-bio-portrait { width: 72px; height: 72px; font-size: 30px; }
+  .author-bio-portrait { width: 96px; height: 96px; font-size: 30px; }
   .author-bio-initial::first-letter { font-size: 30px; }
   .author-bio-name { font-size: 22px; }
   .article-content { font-size: 17px; }
