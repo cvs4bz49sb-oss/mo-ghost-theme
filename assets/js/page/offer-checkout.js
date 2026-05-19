@@ -1,3 +1,7 @@
+/*
+ * /offer/ page — billing-interval toggle and Portal offer checkout.
+ * Redirects to /membership/ if the offer has expired.
+ */
 (function () {
   // Offer expires June 30 2026 at 11:59:59 PM CDT (= July 1 04:59:59 UTC).
   const EXPIRY = new Date('2026-07-01T05:00:00Z');
@@ -49,6 +53,8 @@
   document.querySelectorAll('[data-offer-annual]').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
+      // Mark checkout started for post-checkout redirect
+      sessionStorage.setItem('mo_checkout_pending', Date.now().toString());
       const offerId = btn.getAttribute(`data-offer-${interval}`);
       if (offerId && OFFER_ID_RE.test(offerId)) {
         window.location.hash = `/portal/offers/${offerId}`;

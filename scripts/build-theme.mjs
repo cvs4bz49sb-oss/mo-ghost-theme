@@ -71,6 +71,7 @@ const BUNDLES = [
       "assets/js/podcast-feed.js",
       "assets/js/title-cleanup.js",
       "assets/js/boot/viewport-fix.js",
+      "assets/js/boot/checkout-redirect.js",
     ],
   },
   {
