@@ -805,9 +805,90 @@ function ExportModal({ open, onClose, isMember, accent, density, divider, conten
 }
 
 // =====================================================
+// Template presets — each defines a label and an apply() that returns
+// a content blob suitable for setContent(). The TopBar renders these
+// as pill buttons; switching templates replaces the current content.
+// =====================================================
+const EMAIL_TEMPLATES = {
+  digest: {
+    label: 'Weekly Digest',
+    apply: () => ({
+      ...DEFAULT_CONTENT,
+      mastheadTitle: 'The Weekly Digest',
+      sectionOrder: [...DEFAULT_SECTION_ORDER],
+      sections: {
+        letter: true,
+        membership: true,
+        sponsorTop: true,
+        essays: true,
+        podcasts: true,
+        sponsorBottom: true,
+        signature: true,
+      },
+      customBlocks: [],
+    }),
+  },
+  cta: {
+    label: 'CTA Email',
+    apply: () => {
+      const b1 = 'b_cta_body1';
+      const btn1 = 'b_cta_btn1';
+      const b2 = 'b_cta_body2';
+      const btn2 = 'b_cta_btn2';
+      return {
+        ...DEFAULT_CONTENT,
+        issueNumber: '',
+        mastheadTitle: '',
+        editorTitle: '',
+        editorBody: '',
+        sectionOrder: ['letter', btn1, b2, btn2, 'signature'],
+        sections: {
+          letter: true,
+          membership: false,
+          sponsorTop: false,
+          essays: false,
+          podcasts: false,
+          sponsorBottom: false,
+          signature: true,
+          [btn1]: true,
+          [b2]: true,
+          [btn2]: true,
+        },
+        customBlocks: [
+          { id: btn1, type: 'button', text: 'Call to Action', url: '#', variant: 'primary' },
+          { id: b2, type: 'text', text: '' },
+          { id: btn2, type: 'button', text: 'Call to Action', url: '#', variant: 'primary' },
+        ],
+      };
+    },
+  },
+  resource: {
+    label: 'Resource Email',
+    apply: () => ({
+      ...DEFAULT_CONTENT,
+      issueNumber: '',
+      mastheadTitle: '',
+      editorTitle: '',
+      editorBody: '',
+      sectionOrder: ['letter', 'essays', 'signature'],
+      sections: {
+        letter: true,
+        membership: false,
+        sponsorTop: false,
+        essays: true,
+        podcasts: false,
+        sponsorBottom: false,
+        signature: true,
+      },
+      customBlocks: [],
+    }),
+  },
+};
+
+// =====================================================
 // Top bar — version + preview toggles (always visible above the preview)
 // =====================================================
-function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExport }) {
+function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate }) {
   const Tab = ({ active, onClick, children }) => (
     <button onClick={onClick} style={{
       background: active ? '#2d2927' : 'transparent',
@@ -836,9 +917,16 @@ function TopBar({ version, preview, onVersion, onPreview, onEditContent, onExpor
     }}>
       <div data-mo-topbar-brand style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <img src={(window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS['mere-o-logo.png']) || 'assets/mere-o-logo.png'} alt="" style={{ height: 22 }} />
-        <div data-mo-topbar-divider style={{ width: 1, height: 22, background: '#d8c4a3' }} />
-        <div style={{ fontSize: 13, color: '#2d2927', fontFamily: '"IM Fell English", Georgia, serif' }}>
-          The Weekly Digest — Email Template
+        <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
+        <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span data-mo-topbar-grouplabel style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9a8773' }}>
+            Template
+          </span>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {Object.entries(EMAIL_TEMPLATES).map(([k, t]) => (
+              <Tab key={k} active={(templateKey || 'digest') === k} onClick={() => onTemplate(k)}>{t.label}</Tab>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -996,6 +1084,7 @@ function loadSavedContent() {
 function App() {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [content, setContent] = React.useState(loadSavedContent);
+  const [templateKey, setTemplateKey] = React.useState('digest');
 
   // Persist content on every change (debounced so quick edits don't thrash
   // localStorage). We also write immediately on unmount so the last edit
@@ -1007,6 +1096,14 @@ function App() {
     }, 300);
     return () => clearTimeout(handle);
   }, [content]);
+
+  const handleTemplate = (key) => {
+    const tmpl = EMAIL_TEMPLATES[key];
+    if (!tmpl) return;
+    setTemplateKey(key);
+    setContent(tmpl.apply());
+  };
+
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [exportOpen, setExportOpen] = React.useState(false);
 
@@ -1033,10 +1130,12 @@ function App() {
       <TopBar
         version={tweaks.version}
         preview={tweaks.preview}
+        templateKey={templateKey}
         onVersion={(v) => setTweak('version', v)}
         onPreview={(p) => setTweak('preview', p)}
         onEditContent={() => setEditorOpen(true)}
         onExport={() => setExportOpen(true)}
+        onTemplate={handleTemplate}
       />
 
       <div style={{ flex: 1 }}>
