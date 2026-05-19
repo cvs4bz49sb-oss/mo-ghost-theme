@@ -8872,6 +8872,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
 /* Subgroup — "Category Slide-Ins" inside Website card */
 .sponsor-subgroup {
   border-top: 1px solid var(--color-card-border);
+  padding-bottom: 20px;
 }
 .sponsor-subgroup-title {
   font-family: var(--font-body);
@@ -8900,6 +8901,11 @@ html[data-theme="dark"] .feature-gate-modal-body {
 }
 .sponsor-slots--grid .sponsor-slot:last-child {
   border-right: none;
+}
+/* Fill empty trailing cells so border lines extend to the edge */
+.sponsor-slots--grid::after {
+  content: '';
+  border-top: 1px solid var(--color-card-border);
 }
 @media (max-width: 768px) {
   .sponsor-slots--grid {
