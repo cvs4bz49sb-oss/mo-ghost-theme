@@ -3227,11 +3227,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .archive-curious-btn {
   display: inline-block;
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 8px 22px;
+  padding: 6px 18px;
   color: var(--color-secondary);
   background: transparent;
   border: 1.5px solid var(--color-secondary);
