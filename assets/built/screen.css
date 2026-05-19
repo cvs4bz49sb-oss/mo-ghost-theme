@@ -4869,6 +4869,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   text-align: center;
   margin-top: 48px;
 }
+/* "+ View All Contributors" link on the curated page. */
+.contributors-view-all {
+  text-align: center;
+  margin-top: 48px;
+}
 
 @media (max-width: 760px) {
   .contributors-rail-label { font-size: 10px; }

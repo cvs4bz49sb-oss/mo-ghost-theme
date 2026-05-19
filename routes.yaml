@@ -13,6 +13,8 @@ routes:
     template: custom-offer
   /contributors/:
     template: custom-contributors
+  /contributors/all/:
+    template: custom-all-contributors
   /about/:
     template: custom-about
   /archive/:
