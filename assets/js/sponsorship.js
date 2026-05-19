@@ -89,14 +89,24 @@
             if (crEl) { crEl.textContent = stats.clickRate + "%"; hasAny = true; }
           }
 
-          // Downloads — prefer monthly, fall back to total
-          var dlValue = stats.monthlyDownloads || stats.totalDownloads;
-          var dlLabel = stats.monthlyDownloads ? "Monthly Downloads" : "Total Downloads";
-          if (dlValue) {
-            var dlEl = statsSection.querySelector('[data-stat="downloads"] [data-stat-number]');
-            var dlLabelEl = statsSection.querySelector('[data-stat="downloads"] .stat-label');
-            if (dlEl) { dlEl.textContent = formatNumber(dlValue); hasAny = true; }
-            if (dlLabelEl) { dlLabelEl.textContent = dlLabel; }
+          // Mere Fidelity downloads — prefer monthly, fall back to total
+          var mfValue = stats.mfMonthlyDownloads || stats.mfTotalDownloads;
+          var mfLabel = stats.mfMonthlyDownloads ? "MF Monthly" : "MF Downloads";
+          if (mfValue) {
+            var mfEl = statsSection.querySelector('[data-stat="mfDownloads"] [data-stat-number]');
+            var mfLabelEl = statsSection.querySelector('[data-stat="mfDownloads"] .stat-label');
+            if (mfEl) { mfEl.textContent = formatNumber(mfValue); hasAny = true; }
+            if (mfLabelEl) { mfLabelEl.textContent = mfLabel; }
+          }
+
+          // CRC downloads — prefer monthly, fall back to total
+          var crcValue = stats.crcMonthlyDownloads || stats.crcTotalDownloads;
+          var crcLabel = stats.crcMonthlyDownloads ? "CRC Monthly" : "CRC Downloads";
+          if (crcValue) {
+            var crcEl = statsSection.querySelector('[data-stat="crcDownloads"] [data-stat-number]');
+            var crcLabelEl = statsSection.querySelector('[data-stat="crcDownloads"] .stat-label');
+            if (crcEl) { crcEl.textContent = formatNumber(crcValue); hasAny = true; }
+            if (crcLabelEl) { crcLabelEl.textContent = crcLabel; }
           }
 
           // Pageviews
