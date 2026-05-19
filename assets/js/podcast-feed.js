@@ -85,6 +85,8 @@
             season: ep.season || "",
             duration: ep.duration || "",
             artwork: ep.artwork || "",
+            // Audio + embed.
+            audioUrl: ep.audioUrl || "",
             // Transcripts + embed.
             hasTranscript: !!ep.hasTranscript,
             transcriptUrl: ep.transcriptUrl || "",
