@@ -60,8 +60,20 @@
     sponsor_crc_postroll_until: form.querySelector('[name="sponsor_crc_postroll_until"]'),
     sponsor_web_homepage_status: form.querySelector('[name="sponsor_web_homepage_status"]'),
     sponsor_web_homepage_until: form.querySelector('[name="sponsor_web_homepage_until"]'),
-    sponsor_web_category_status: form.querySelector('[name="sponsor_web_category_status"]'),
-    sponsor_web_category_until: form.querySelector('[name="sponsor_web_category_until"]'),
+    sponsor_web_cat_church_status: form.querySelector('[name="sponsor_web_cat_church_status"]'),
+    sponsor_web_cat_church_until: form.querySelector('[name="sponsor_web_cat_church_until"]'),
+    sponsor_web_cat_culture_status: form.querySelector('[name="sponsor_web_cat_culture_status"]'),
+    sponsor_web_cat_culture_until: form.querySelector('[name="sponsor_web_cat_culture_until"]'),
+    sponsor_web_cat_formation_status: form.querySelector('[name="sponsor_web_cat_formation_status"]'),
+    sponsor_web_cat_formation_until: form.querySelector('[name="sponsor_web_cat_formation_until"]'),
+    sponsor_web_cat_family_status: form.querySelector('[name="sponsor_web_cat_family_status"]'),
+    sponsor_web_cat_family_until: form.querySelector('[name="sponsor_web_cat_family_until"]'),
+    sponsor_web_cat_theology_status: form.querySelector('[name="sponsor_web_cat_theology_status"]'),
+    sponsor_web_cat_theology_until: form.querySelector('[name="sponsor_web_cat_theology_until"]'),
+    sponsor_web_cat_technology_status: form.querySelector('[name="sponsor_web_cat_technology_status"]'),
+    sponsor_web_cat_technology_until: form.querySelector('[name="sponsor_web_cat_technology_until"]'),
+    sponsor_web_cat_bookreviews_status: form.querySelector('[name="sponsor_web_cat_bookreviews_status"]'),
+    sponsor_web_cat_bookreviews_until: form.querySelector('[name="sponsor_web_cat_bookreviews_until"]'),
   };
 
   function showStatus(msg, isError) {
