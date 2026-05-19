@@ -8662,7 +8662,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
 
 .site-form-divider {
   border: none;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
   margin: 8px 0 24px;
 }
 
