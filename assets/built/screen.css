@@ -3227,21 +3227,21 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .archive-curious-btn {
   display: inline-block;
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 12px 36px;
-  color: var(--color-dark);
+  padding: 8px 22px;
+  color: var(--color-secondary);
   background: transparent;
-  border: 2px solid var(--color-dark);
+  border: 1.5px solid var(--color-secondary);
   border-radius: 999px;
   text-decoration: none;
   transition: background 0.15s, color 0.15s;
   cursor: pointer;
 }
 .archive-curious-btn:hover {
-  background: var(--color-dark);
+  background: var(--color-secondary);
   color: var(--color-white);
   text-decoration: none;
 }
