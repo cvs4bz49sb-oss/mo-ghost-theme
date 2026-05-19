@@ -3606,8 +3606,10 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 
   /* Article page */
   .article-header { padding: 48px 0 72px; }
-  .article-meta { gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .article-meta { gap: 8px 14px; flex-wrap: wrap; justify-content: center; }
+  .meta-authors, .meta-authors-fallback { width: 100%; display: flex; justify-content: center; }
   .meta-dot { display: none; }
+  .meta-dot.meta-dot--date { display: inline; }
   .author-bio { margin-top: 24px; }
   .author-bio-layout { gap: 18px; }
   .author-bio-portrait { width: 112px; height: 112px; font-size: 30px; }
