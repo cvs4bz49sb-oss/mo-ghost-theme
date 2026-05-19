@@ -77,6 +77,18 @@
             if (subEl) { subEl.textContent = formatNumber(stats.subscribers); hasAny = true; }
           }
 
+          // Open rate
+          if (stats.openRate != null) {
+            var orEl = statsSection.querySelector('[data-stat="openRate"] [data-stat-number]');
+            if (orEl) { orEl.textContent = stats.openRate + "%"; hasAny = true; }
+          }
+
+          // Click rate
+          if (stats.clickRate != null) {
+            var crEl = statsSection.querySelector('[data-stat="clickRate"] [data-stat-number]');
+            if (crEl) { crEl.textContent = stats.clickRate + "%"; hasAny = true; }
+          }
+
           // Downloads — prefer monthly, fall back to total
           var dlValue = stats.monthlyDownloads || stats.totalDownloads;
           var dlLabel = stats.monthlyDownloads ? "Monthly Downloads" : "Total Downloads";

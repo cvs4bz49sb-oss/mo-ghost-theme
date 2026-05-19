@@ -8660,6 +8660,12 @@ html[data-theme="dark"] .feature-gate-modal-body {
 .site-form-submit:hover::after { transform: translateX(4px); }
 .site-form-submit[disabled] { opacity: 0.5; cursor: default; }
 
+.site-form-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 8px 0 24px;
+}
+
 .site-form-status {
   font-family: var(--font-body);
   font-size: 13px;
