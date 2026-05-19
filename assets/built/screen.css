@@ -8701,13 +8701,13 @@ html[data-theme="dark"] .feature-gate-modal-body {
   font-size: clamp(40px, 5vw, 64px);
   font-weight: 400;
   margin: 8px 0 16px;
-  color: var(--color-dark);
+  color: var(--color-white);
 }
 .sponsorship-sub {
   font-family: var(--font-body);
   font-size: 17px;
   line-height: 1.55;
-  color: var(--color-muted);
+  color: rgba(255, 255, 255, 0.75);
   max-width: 560px;
   margin: 0 auto;
 }
