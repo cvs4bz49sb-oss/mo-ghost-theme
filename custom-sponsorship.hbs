@@ -51,26 +51,75 @@
 
       <div class="sponsorship-grid" data-sponsor-inventory data-admin-url="{{@custom.admin_worker_url}}">
 
-        {{!-- Weekly Digest --}}
-        <div class="sponsor-category">
-          <div class="sponsor-category-header">
-            <h2 class="sponsor-category-title"><em>Weekly Digest</em></h2>
-            <p class="sponsor-category-desc">Our weekly digest reaches thousands of subscribers with curated content and editorial commentary.</p>
-          </div>
-          <div class="sponsor-slots">
-            <div class="sponsor-slot" data-slot="nl_top">
-              <span class="sponsor-slot-name">Top Ad</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+        {{!-- Row 1: Digest + MF + CRC (3 columns) --}}
+        <div class="sponsor-row sponsor-row--trio">
+
+          {{!-- Weekly Digest --}}
+          <div class="sponsor-category">
+            <div class="sponsor-category-header">
+              <h2 class="sponsor-category-title"><em>Weekly Digest</em></h2>
+              <p class="sponsor-category-desc">Our weekly digest reaches thousands of subscribers with curated content and editorial commentary.</p>
             </div>
-            <div class="sponsor-slot" data-slot="nl_bottom">
-              <span class="sponsor-slot-name">Bottom Ad</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+            <div class="sponsor-slots">
+              <div class="sponsor-slot" data-slot="nl_top">
+                <span class="sponsor-slot-name">Top Ad</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="nl_bottom">
+                <span class="sponsor-slot-name">Bottom Ad</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
             </div>
           </div>
+
+          {{!-- Mere Fidelity --}}
+          <div class="sponsor-category">
+            <div class="sponsor-category-header">
+              <h2 class="sponsor-category-title"><em>Mere Fidelity</em></h2>
+              <p class="sponsor-category-desc">A weekly theology podcast featuring lively discussion on faith, culture, and ideas.</p>
+            </div>
+            <div class="sponsor-slots">
+              <div class="sponsor-slot" data-slot="mf_preroll">
+                <span class="sponsor-slot-name">Pre-Roll</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="mf_midroll">
+                <span class="sponsor-slot-name">Mid-Roll</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="mf_postroll">
+                <span class="sponsor-slot-name">Post-Roll</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+            </div>
+          </div>
+
+          {{!-- Christians Reading Classics --}}
+          <div class="sponsor-category">
+            <div class="sponsor-category-header">
+              <h2 class="sponsor-category-title"><em>Christians Reading Classics</em></h2>
+              <p class="sponsor-category-desc">A literary podcast exploring the great books of the Christian tradition.</p>
+            </div>
+            <div class="sponsor-slots">
+              <div class="sponsor-slot" data-slot="crc_preroll">
+                <span class="sponsor-slot-name">Pre-Roll</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="crc_midroll">
+                <span class="sponsor-slot-name">Mid-Roll</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="crc_postroll">
+                <span class="sponsor-slot-name">Post-Roll</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {{!-- Website --}}
-        <div class="sponsor-category">
+        {{!-- Row 2: Website (full width) --}}
+        <div class="sponsor-category sponsor-category--wide">
           <div class="sponsor-category-header">
             <h2 class="sponsor-category-title"><em>Website</em></h2>
             <p class="sponsor-category-desc">Targeted placements on our website, reaching readers as they engage with our content.</p>
@@ -80,77 +129,38 @@
               <span class="sponsor-slot-name">Homepage Slide-In</span>
               <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
             </div>
-            <div class="sponsor-slot" data-slot="web_cat_church">
-              <span class="sponsor-slot-name">Church</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="web_cat_culture">
-              <span class="sponsor-slot-name">Culture</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="web_cat_formation">
-              <span class="sponsor-slot-name">Formation</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="web_cat_family">
-              <span class="sponsor-slot-name">Family</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="web_cat_theology">
-              <span class="sponsor-slot-name">Theology</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="web_cat_technology">
-              <span class="sponsor-slot-name">Technology</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="web_cat_bookreviews">
-              <span class="sponsor-slot-name">Book Reviews</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
           </div>
-        </div>
-
-        {{!-- Mere Fidelity --}}
-        <div class="sponsor-category">
-          <div class="sponsor-category-header">
-            <h2 class="sponsor-category-title"><em>Mere Fidelity</em></h2>
-            <p class="sponsor-category-desc">A weekly theology podcast featuring lively discussion on faith, culture, and ideas.</p>
-          </div>
-          <div class="sponsor-slots">
-            <div class="sponsor-slot" data-slot="mf_preroll">
-              <span class="sponsor-slot-name">Pre-Roll</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="mf_midroll">
-              <span class="sponsor-slot-name">Mid-Roll</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="mf_postroll">
-              <span class="sponsor-slot-name">Post-Roll</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-          </div>
-        </div>
-
-        {{!-- Christians Reading Classics --}}
-        <div class="sponsor-category">
-          <div class="sponsor-category-header">
-            <h2 class="sponsor-category-title"><em>Christians Reading Classics</em></h2>
-            <p class="sponsor-category-desc">A literary podcast exploring the great books of the Christian tradition.</p>
-          </div>
-          <div class="sponsor-slots">
-            <div class="sponsor-slot" data-slot="crc_preroll">
-              <span class="sponsor-slot-name">Pre-Roll</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="crc_midroll">
-              <span class="sponsor-slot-name">Mid-Roll</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
-            </div>
-            <div class="sponsor-slot" data-slot="crc_postroll">
-              <span class="sponsor-slot-name">Post-Roll</span>
-              <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+          <div class="sponsor-subgroup">
+            <h3 class="sponsor-subgroup-title">Category Slide-Ins</h3>
+            <div class="sponsor-slots sponsor-slots--grid">
+              <div class="sponsor-slot" data-slot="web_cat_church">
+                <span class="sponsor-slot-name">Church</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="web_cat_culture">
+                <span class="sponsor-slot-name">Culture</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="web_cat_formation">
+                <span class="sponsor-slot-name">Formation</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="web_cat_family">
+                <span class="sponsor-slot-name">Family</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="web_cat_theology">
+                <span class="sponsor-slot-name">Theology</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="web_cat_technology">
+                <span class="sponsor-slot-name">Technology</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
+              <div class="sponsor-slot" data-slot="web_cat_bookreviews">
+                <span class="sponsor-slot-name">Book Reviews</span>
+                <span class="sponsor-slot-badge" data-slot-badge>Loading&hellip;</span>
+              </div>
             </div>
           </div>
         </div>

@@ -8780,12 +8780,19 @@ html[data-theme="dark"] .feature-gate-modal-body {
   color: var(--color-muted);
 }
 .sponsorship-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 28px;
 }
-@media (max-width: 768px) {
-  .sponsorship-grid {
+
+/* Row of three: Digest / MF / CRC */
+.sponsor-row--trio {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 28px;
+}
+@media (max-width: 900px) {
+  .sponsor-row--trio {
     grid-template-columns: 1fr;
   }
 }
@@ -8852,6 +8859,54 @@ html[data-theme="dark"] .feature-gate-modal-body {
 .sponsor-slot-badge.is-filled {
   background: #fff3e0;
   color: #e65100;
+}
+
+/* Subgroup — "Category Slide-Ins" inside Website card */
+.sponsor-subgroup {
+  border-top: 1px solid var(--color-card-border);
+}
+.sponsor-subgroup-title {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  padding: 16px 24px 0;
+  margin: 0;
+}
+.sponsor-slots--grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.sponsor-slots--grid .sponsor-slot {
+  padding: 12px 24px;
+  border-bottom: none;
+  border-right: 1px solid var(--color-card-border);
+}
+.sponsor-slots--grid .sponsor-slot:nth-child(4n) {
+  border-right: none;
+}
+/* Bottom row of 3 — no right border on last */
+.sponsor-slots--grid .sponsor-slot:nth-child(n+5) {
+  border-top: 1px solid var(--color-card-border);
+}
+.sponsor-slots--grid .sponsor-slot:last-child {
+  border-right: none;
+}
+@media (max-width: 640px) {
+  .sponsor-slots--grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .sponsor-slots--grid .sponsor-slot:nth-child(4n) {
+    border-right: 1px solid var(--color-card-border);
+  }
+  .sponsor-slots--grid .sponsor-slot:nth-child(2n) {
+    border-right: none;
+  }
+  .sponsor-slots--grid .sponsor-slot:nth-child(n+3) {
+    border-top: 1px solid var(--color-card-border);
+  }
 }
 
 /* Form section */
