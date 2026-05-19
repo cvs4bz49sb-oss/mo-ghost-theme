@@ -91,7 +91,7 @@
 
           // Mere Fidelity downloads — prefer monthly, fall back to total
           var mfValue = stats.mfMonthlyDownloads || stats.mfTotalDownloads;
-          var mfLabel = stats.mfMonthlyDownloads ? "MF Monthly" : "MF Downloads";
+          var mfLabel = stats.mfMonthlyDownloads ? "Mere Fidelity Monthly" : "Mere Fidelity Downloads";
           if (mfValue) {
             var mfEl = statsSection.querySelector('[data-stat="mfDownloads"] [data-stat-number]');
             var mfLabelEl = statsSection.querySelector('[data-stat="mfDownloads"] .stat-label');
@@ -101,7 +101,7 @@
 
           // CRC downloads — prefer monthly, fall back to total
           var crcValue = stats.crcMonthlyDownloads || stats.crcTotalDownloads;
-          var crcLabel = stats.crcMonthlyDownloads ? "CRC Monthly" : "CRC Downloads";
+          var crcLabel = stats.crcMonthlyDownloads ? "CRC Monthly" : "Christians Reading Classics Downloads";
           if (crcValue) {
             var crcEl = statsSection.querySelector('[data-stat="crcDownloads"] [data-stat-number]');
             var crcLabelEl = statsSection.querySelector('[data-stat="crcDownloads"] .stat-label');
