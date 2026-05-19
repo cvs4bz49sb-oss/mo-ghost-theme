@@ -1,14 +1,13 @@
 /*
  * Podcast feed wiring.
  *
- * Fetches the Cloudflare Worker proxy (which now hits Captivate's
- * API for Mere Fidelity and falls back to RSS for shows still on
- * Libsyn/Anchor), flattens episodes across shows, sorts by publish
- * date descending, and renders cards in any [data-show] grid on
- * the page. The worker's enriched payload includes per-episode
- * artwork, episode/season numbers, slugs, transcript availability,
- * and a Captivate player embed URL when available — those drive
- * the show-page card variant.
+ * Fetches the Cloudflare Worker proxy (which hits Buzzsprout's API
+ * for both Mere Fidelity and Christians Reading Classics), flattens
+ * episodes across shows, sorts by publish date descending, and
+ * renders cards in any [data-show] grid on the page. The worker's
+ * enriched payload includes per-episode artwork, episode/season
+ * numbers, slugs, transcript availability, and a Buzzsprout player
+ * embed URL — those drive the show-page card variant.
  *
  * Per-show Apple/Spotify URLs are read from data-* attributes on
  * the .listen-grid so they can be edited in Ghost admin via
@@ -76,8 +75,8 @@
             showSlug: slug,
             showTitle,
             // Episode core.
-            id: ep.id || ep.captivateId || "",
-            captivateId: ep.captivateId || "",
+            id: ep.id || ep.buzzsproutId || "",
+            buzzsproutId: ep.buzzsproutId || "",
             episodeSlug: ep.slug || "",
             title: ep.title || "",
             description: ep.description || "",
@@ -86,7 +85,7 @@
             season: ep.season || "",
             duration: ep.duration || "",
             artwork: ep.artwork || "",
-            // Transcripts + embed (Captivate-only fields).
+            // Transcripts + embed.
             hasTranscript: !!ep.hasTranscript,
             transcriptUrl: ep.transcriptUrl || "",
             embedUrl: ep.embedUrl || "",
@@ -102,8 +101,8 @@
         grid.innerHTML = top.map(isShowPage ? renderShowCard : renderCompactCard).join("");
       }
 
-      // Most Listened sidebar — Captivate insights, only shown when
-      // the worker returned a topEpisodes array for the current
+      // Most Listened sidebar — Buzzsprout total_plays, only shown
+      // when the worker returned a topEpisodes array for the current
       // show. Silent failure: if the array is empty or missing, the
       // <section hidden> stays hidden.
       if (mostListenedRoot && data[showFilter] && Array.isArray(data[showFilter].topEpisodes)) {
@@ -144,7 +143,7 @@
   // Layout:
   //   meta row  : SHOW · DATE · EP NN
   //   title     : italic display
-  //   embed     : Captivate iframe (lazy-loaded, only if embedUrl set)
+  //   embed     : Buzzsprout iframe (lazy-loaded, only if embedUrl set)
   //   excerpt   : description
   //   footer    : "Listen on Apple | Spotify"  ·  "Read transcript →"
 
@@ -166,7 +165,7 @@
       : "";
 
     // Codex audit 2026-05-11: validate the embedUrl host against the
-    // expected players (Captivate, YouTube, Vimeo, Spotify). CSP
+    // expected players (Buzzsprout, YouTube, Vimeo, Spotify). CSP
     // frame-src already blocks unlisted hosts at browser level — this
     // is belt-and-braces so a polluted upstream can't paint an unsafe
     // iframe src that triggers a CSP violation report instead of
@@ -361,7 +360,7 @@
   // here must also be allowed by CSP, and anything dropped from CSP
   // should drop here too.
   const ALLOWED_EMBED_HOSTS = new Set([
-    "player.captivate.fm",
+    "www.buzzsprout.com",
     "www.youtube.com",
     "youtube.com",
     "www.youtube-nocookie.com",

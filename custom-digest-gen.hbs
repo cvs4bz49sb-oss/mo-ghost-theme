@@ -3,27 +3,22 @@
 
      Single-page React tool (loaded via Babel-standalone) that lets
      admin users compose a Weekly Digest, pull essays from Ghost
-     Content API, pull podcasts from Captivate (via the user-deployed
-     mo-captivate-proxy worker), preview Free vs Paid versions, and
-     export flat HTML for paste-into-Kit.
+     Content API, pull podcasts from Buzzsprout (via the mo-podcast-feed
+     worker), preview Free vs Paid versions, and export flat HTML for
+     paste-into-Kit.
 
      Auth pattern matches the other /admin/* tools: shell renders for
      any signed-in member; the actual sensitive bits (Ghost Content
-     API key, Captivate creds, Cloudflare Worker URL) are user-supplied
-     and stored in the user's own browser localStorage. Non-staff who
-     navigate here see the tool but can't pull anything until they
-     paste their own keys, which only Ian holds.
+     API key, Cloudflare Worker URL) are user-supplied and stored in
+     the user's own browser localStorage. Non-staff who navigate here
+     see the tool but can't pull anything until they paste their own
+     keys, which only Ian holds.
 
      Source-of-truth for the tool lives in
      emails/weekly-digest-tool/ in the MOCA repo. Changes there should
      be mirrored here in assets/js/digest/. The two diverge only by
      the moDigestAsset() lookup added to email-template.jsx and the
-     window-global lookup in app.jsx.
-
-     Cloudflare Worker for Captivate proxy:
-     emails/weekly-digest-tool/cloudflare-worker/captivate-proxy.js
-     (deploy once; paste resulting .workers.dev URL into the Edit
-     Content -> Pull Podcasts panel). --}}
+     window-global lookup in app.jsx. --}}
 
 <main class="admin-page admin-workspace">
 

@@ -214,10 +214,9 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   const [showRssPanel, setShowRssPanel] = useState(false);
   const [showPodcastPanel, setShowPodcastPanel] = useState(false);
   // Cloudflare Worker URL — points at the existing mo-podcast-feed worker
-  // that already speaks Captivate (and RSS for shows on other hosts). The
-  // worker holds Captivate User ID + API Token as env secrets, so the
-  // browser doesn't see them at all.
-  const [captivateWorkerUrl, setCaptivateWorkerUrl] = useState(() => localStorage.getItem('mo_captivate_worker') || '');
+  // that speaks Buzzsprout API for both shows. The worker holds the
+  // BUZZSPROUT_API_TOKEN as an env secret, so the browser doesn't see it.
+  const [podcastWorkerUrl, setPodcastWorkerUrl] = useState(() => localStorage.getItem('mo_podcast_worker') || localStorage.getItem('mo_captivate_worker') || '');
   // Per-row mapping: each row → one slot in content.podcasts. Slug is
   // the show's URL slug as configured in mo-podcast-feed (mere-fidelity,
   // christians-reading-classics).
@@ -226,8 +225,8 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
       const saved = localStorage.getItem('mo_podcast_shows');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Migrate legacy { label, showId } rows (Captivate UUIDs from
-        // the old captivate-proxy flow) to { label, slug } rows so the
+        // Migrate legacy { label, showId } rows (from the old
+        // captivate-proxy flow) to { label, slug } rows so the
         // worker call hits the right show.
         if (Array.isArray(parsed) && parsed.length && parsed[0] && 'showId' in parsed[0]) {
           return [
@@ -250,7 +249,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   // Persist API creds + show mappings locally so user doesn't re-enter every visit.
   useEffect(() => { localStorage.setItem('mo_ghost_url', ghostUrl); }, [ghostUrl]);
   useEffect(() => { localStorage.setItem('mo_ghost_key', ghostKey); }, [ghostKey]);
-  useEffect(() => { localStorage.setItem('mo_captivate_worker', captivateWorkerUrl); }, [captivateWorkerUrl]);
+  useEffect(() => { localStorage.setItem('mo_podcast_worker', podcastWorkerUrl); }, [podcastWorkerUrl]);
   useEffect(() => { localStorage.setItem('mo_podcast_shows', JSON.stringify(podcastFeeds)); }, [podcastFeeds]);
 
   if (!open) return null;
@@ -323,15 +322,14 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
 
   // Fetch latest episode of each show via the existing mo-podcast-feed
   // worker (the same one the homepage podcast cards consume). The worker
-  // owns Captivate auth (env-stored CAPTIVATE_USER_ID + CAPTIVATE_API_TOKEN,
-  // 23h token cache) and falls back to RSS for shows on other hosts, so
-  // the browser only needs to GET ?show=<slug>&limit=1.
+  // owns Buzzsprout auth (env-stored BUZZSPROUT_API_TOKEN) so the browser
+  // only needs to GET ?show=<slug>&limit=1.
   //
   // Worker response shape: { "<slug>": { show: {title, slug, source}, episodes: [{title, description, link, artwork, episode, audioUrl, ...}] } }
   const fetchPodcastFeeds = async () => {
     setPodcastError(null);
     setPodcastMessage(null);
-    if (!captivateWorkerUrl.trim()) {
+    if (!podcastWorkerUrl.trim()) {
       setPodcastError('Worker URL is required. Paste your mo-podcast-feed worker URL above (e.g. https://mo-podcast-feed.<your-subdomain>.workers.dev/).');
       return;
     }
@@ -343,7 +341,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
 
     setPodcastLoading(true);
     try {
-      const workerBase = captivateWorkerUrl.trim().replace(/\/+$/, '');
+      const workerBase = podcastWorkerUrl.trim().replace(/\/+$/, '');
 
       // One GET per show — mo-podcast-feed accepts ?show=<slug>&limit=N
       // and returns { <slug>: { show, episodes } }. Could fetch all in
@@ -674,15 +672,15 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               marginBottom: 12,
               lineHeight: 1.55,
             }}>
-              Pulls the latest episode of each show via the existing <strong>mo-podcast-feed</strong> worker (the same one the homepage podcast cards consume). The worker holds Captivate credentials as env secrets, so this page doesn't need them. Each row maps to a slot in the email; show name + CTA stay as you've edited them, while <strong>title, summary, episode number, image, and link</strong> get replaced.
+              Pulls the latest episode of each show via the existing <strong>mo-podcast-feed</strong> worker (the same one the homepage podcast cards consume). The worker holds the Buzzsprout API token as an env secret, so this page doesn't need it. Each row maps to a slot in the email; show name + CTA stay as you've edited them, while <strong>title, summary, episode number, image, and link</strong> get replaced.
             </div>
 
             <div style={{ marginBottom: 12 }}>
               <label style={fieldStyles.label}>Worker URL</label>
               <input
                 type="url"
-                value={captivateWorkerUrl}
-                onChange={(e) => setCaptivateWorkerUrl(e.target.value)}
+                value={podcastWorkerUrl}
+                onChange={(e) => setPodcastWorkerUrl(e.target.value)}
                 placeholder="https://mo-podcast-feed.your-subdomain.workers.dev/"
                 style={{ ...fieldStyles.input, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12 }}
               />
@@ -763,8 +761,8 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 fontFamily: '"Source Sans 3", sans-serif',
               }}>
                 <div><strong>Worker URL:</strong> the same <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>mo-podcast-feed</code> worker URL the site uses for its homepage Listen rail (look in your Cloudflare dashboard → Workers).</div>
-                <div><strong>Show slug:</strong> the slug configured in <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>workers/podcast-feed.js</code>'s <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>SHOWS</code> map. Currently <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>mere-fidelity</code> (Captivate) and <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>christians-reading-classics</code> (RSS). Add new shows by editing that map and redeploying.</div>
-                <div style={{ marginTop: 6, color: '#9a8773' }}><em>Why this worker?</em> It already does Captivate auth (with token caching) and falls back to RSS for shows on other hosts. Reusing it means one worker to maintain instead of two, and credentials never leave Cloudflare.</div>
+                <div><strong>Show slug:</strong> the slug configured in <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>workers/podcast-feed.js</code>'s <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>SHOWS</code> map. Currently <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>mere-fidelity</code> and <code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>christians-reading-classics</code> (both Buzzsprout). Add new shows by editing that map and redeploying.</div>
+                <div style={{ marginTop: 6, color: '#9a8773' }}><em>Why this worker?</em> It already handles Buzzsprout auth and caching. Reusing it means one worker to maintain instead of two, and credentials never leave Cloudflare.</div>
               </div>
             </details>
           </div>

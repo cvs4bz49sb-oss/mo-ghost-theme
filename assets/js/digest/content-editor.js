@@ -161,7 +161,7 @@
     const [podcastCount, setPodcastCount] = useState(2);
     const [showRssPanel, setShowRssPanel] = useState(false);
     const [showPodcastPanel, setShowPodcastPanel] = useState(false);
-    const [captivateWorkerUrl, setCaptivateWorkerUrl] = useState(() => localStorage.getItem("mo_captivate_worker") || "");
+    const [podcastWorkerUrl, setPodcastWorkerUrl] = useState(() => localStorage.getItem("mo_podcast_worker") || localStorage.getItem("mo_captivate_worker") || "");
     const [podcastFeeds, setPodcastFeeds] = useState(() => {
       try {
         const saved = localStorage.getItem("mo_podcast_shows");
@@ -192,8 +192,8 @@
       localStorage.setItem("mo_ghost_key", ghostKey);
     }, [ghostKey]);
     useEffect(() => {
-      localStorage.setItem("mo_captivate_worker", captivateWorkerUrl);
-    }, [captivateWorkerUrl]);
+      localStorage.setItem("mo_podcast_worker", podcastWorkerUrl);
+    }, [podcastWorkerUrl]);
     useEffect(() => {
       localStorage.setItem("mo_podcast_shows", JSON.stringify(podcastFeeds));
     }, [podcastFeeds]);
@@ -261,7 +261,7 @@
     const fetchPodcastFeeds = async () => {
       setPodcastError(null);
       setPodcastMessage(null);
-      if (!captivateWorkerUrl.trim()) {
+      if (!podcastWorkerUrl.trim()) {
         setPodcastError("Worker URL is required. Paste your mo-podcast-feed worker URL above (e.g. https://mo-podcast-feed.<your-subdomain>.workers.dev/).");
         return;
       }
@@ -272,7 +272,7 @@
       }
       setPodcastLoading(true);
       try {
-        const workerBase = captivateWorkerUrl.trim().replace(/\/+$/, "");
+        const workerBase = podcastWorkerUrl.trim().replace(/\/+$/, "");
         const results = await Promise.all(
           rows.map(async (row) => {
             try {
@@ -538,12 +538,12 @@
           color: "#6b6258",
           marginBottom: 12,
           lineHeight: 1.55
-        } }, "Pulls the latest episode of each show via the existing ", /* @__PURE__ */ React.createElement("strong", null, "mo-podcast-feed"), " worker (the same one the homepage podcast cards consume). The worker holds Captivate credentials as env secrets, so this page doesn't need them. Each row maps to a slot in the email; show name + CTA stay as you've edited them, while ", /* @__PURE__ */ React.createElement("strong", null, "title, summary, episode number, image, and link"), " get replaced."), /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, "Worker URL"), /* @__PURE__ */ React.createElement(
+        } }, "Pulls the latest episode of each show via the existing ", /* @__PURE__ */ React.createElement("strong", null, "mo-podcast-feed"), " worker (the same one the homepage podcast cards consume). The worker holds the Buzzsprout API token as an env secret, so this page doesn't need it. Each row maps to a slot in the email; show name + CTA stay as you've edited them, while ", /* @__PURE__ */ React.createElement("strong", null, "title, summary, episode number, image, and link"), " get replaced."), /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, "Worker URL"), /* @__PURE__ */ React.createElement(
           "input",
           {
             type: "url",
-            value: captivateWorkerUrl,
-            onChange: (e) => setCaptivateWorkerUrl(e.target.value),
+            value: podcastWorkerUrl,
+            onChange: (e) => setPodcastWorkerUrl(e.target.value),
             placeholder: "https://mo-podcast-feed.your-subdomain.workers.dev/",
             style: { ...fieldStyles.input, fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12 }
           }
@@ -597,7 +597,7 @@
           lineHeight: 1.7,
           color: "#6b6258",
           fontFamily: '"Source Sans 3", sans-serif'
-        } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Worker URL:"), " the same ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "mo-podcast-feed"), " worker URL the site uses for its homepage Listen rail (look in your Cloudflare dashboard \u2192 Workers)."), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Show slug:"), " the slug configured in ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "workers/podcast-feed.js"), "'s ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "SHOWS"), " map. Currently ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "mere-fidelity"), " (Captivate) and ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "christians-reading-classics"), " (RSS). Add new shows by editing that map and redeploying."), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 6, color: "#9a8773" } }, /* @__PURE__ */ React.createElement("em", null, "Why this worker?"), " It already does Captivate auth (with token caching) and falls back to RSS for shows on other hosts. Reusing it means one worker to maintain instead of two, and credentials never leave Cloudflare.")))),
+        } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Worker URL:"), " the same ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "mo-podcast-feed"), " worker URL the site uses for its homepage Listen rail (look in your Cloudflare dashboard \u2192 Workers)."), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Show slug:"), " the slug configured in ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "workers/podcast-feed.js"), "'s ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "SHOWS"), " map. Currently ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "mere-fidelity"), " and ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "christians-reading-classics"), " (both Buzzsprout). Add new shows by editing that map and redeploying."), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 6, color: "#9a8773" } }, /* @__PURE__ */ React.createElement("em", null, "Why this worker?"), " It already handles Buzzsprout auth and caching. Reusing it means one worker to maintain instead of two, and credentials never leave Cloudflare.")))),
         /* @__PURE__ */ React.createElement("div", { "data-mo-modal-body": true, style: { overflowY: "auto", padding: "0 24px 20px", flex: 1 } }, /* @__PURE__ */ React.createElement(Group, { title: "Header", defaultOpen: true }, /* @__PURE__ */ React.createElement(
           Field,
           {

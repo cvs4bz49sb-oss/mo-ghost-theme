@@ -8790,7 +8790,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
 /* Show-page (full-detail) episode card. The compact .pod-entry on
    the homepage stays as-is; .pod-entry--full is rendered when the
    listen-grid has data-show set, and it includes a meta row, an
-   embedded Captivate player iframe, and a transcript link. */
+   embedded Buzzsprout player iframe, and a transcript link. */
 .podcast-episode-list .pod-entry--full {
   display: flex;
   flex-direction: column;
