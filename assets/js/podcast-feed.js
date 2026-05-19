@@ -374,38 +374,38 @@
   // play/pause, progress scrubbing, and speed cycling. Only one
   // player plays at a time (pausing others).
 
-  var activeAudio = null;
+  let activeAudio = null;
 
   function wireAudioPlayers() {
-    var players = grid.querySelectorAll(".pod-player");
-    for (var i = 0; i < players.length; i++) {
+    const players = grid.querySelectorAll(".pod-player");
+    for (let i = 0; i < players.length; i++) {
       (function (el) {
-        var audio = null;
-        var playBtn = el.querySelector(".pod-player-play");
-        var iconPlay = el.querySelector(".pod-player-icon--play");
-        var iconPause = el.querySelector(".pod-player-icon--pause");
-        var progressWrap = el.querySelector(".pod-player-progress");
-        var fill = el.querySelector(".pod-player-fill");
-        var currentEl = el.querySelector(".pod-player-current");
-        var durationEl = el.querySelector(".pod-player-duration");
-        var speedBtn = el.querySelector(".pod-player-speed");
-        var speeds = [1, 1.25, 1.5, 1.75, 2];
-        var speedIdx = 0;
+        let audio = null;
+        const playBtn = el.querySelector(".pod-player-play");
+        const iconPlay = el.querySelector(".pod-player-icon--play");
+        const iconPause = el.querySelector(".pod-player-icon--pause");
+        const progressWrap = el.querySelector(".pod-player-progress");
+        const fill = el.querySelector(".pod-player-fill");
+        const currentEl = el.querySelector(".pod-player-current");
+        const durationEl = el.querySelector(".pod-player-duration");
+        const speedBtn = el.querySelector(".pod-player-speed");
+        const speeds = [1, 1.25, 1.5, 1.75, 2];
+        let speedIdx = 0;
 
         function ensureAudio() {
           if (audio) return audio;
           audio = new Audio(el.getAttribute("data-audio-src"));
           audio.preload = "metadata";
-          audio.addEventListener("loadedmetadata", function () {
+          audio.addEventListener("loadedmetadata", () => {
             durationEl.textContent = formatDuration(Math.floor(audio.duration));
           });
-          audio.addEventListener("timeupdate", function () {
+          audio.addEventListener("timeupdate", () => {
             if (!audio.duration) return;
-            var pct = (audio.currentTime / audio.duration) * 100;
-            fill.style.width = pct + "%";
+            const pct = (audio.currentTime / audio.duration) * 100;
+            fill.style.width = `${pct}%`;
             currentEl.textContent = formatDuration(Math.floor(audio.currentTime));
           });
-          audio.addEventListener("ended", function () {
+          audio.addEventListener("ended", () => {
             showPlayIcon(true);
             fill.style.width = "0%";
             currentEl.textContent = "0:00";
@@ -420,13 +420,13 @@
           playBtn.setAttribute("aria-label", isPlay ? "Play" : "Pause");
         }
 
-        playBtn.addEventListener("click", function () {
+        playBtn.addEventListener("click", () => {
           ensureAudio();
           if (audio.paused) {
             // Pause any other playing audio.
             if (activeAudio && activeAudio !== audio) {
               activeAudio.pause();
-              var prev = activeAudio._playerEl;
+              const prev = activeAudio._playerEl;
               if (prev) {
                 prev.querySelector(".pod-player-icon--play").style.display = "";
                 prev.querySelector(".pod-player-icon--pause").style.display = "none";
@@ -443,20 +443,20 @@
         });
 
         // Click-to-seek on progress bar.
-        progressWrap.addEventListener("click", function (e) {
+        progressWrap.addEventListener("click", (e) => {
           ensureAudio();
           if (!audio.duration) return;
-          var rect = progressWrap.getBoundingClientRect();
-          var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          const rect = progressWrap.getBoundingClientRect();
+          const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
           audio.currentTime = pct * audio.duration;
         });
 
         // Playback speed cycling.
-        speedBtn.addEventListener("click", function () {
+        speedBtn.addEventListener("click", () => {
           ensureAudio();
           speedIdx = (speedIdx + 1) % speeds.length;
           audio.playbackRate = speeds[speedIdx];
-          speedBtn.textContent = speeds[speedIdx] + "×";
+          speedBtn.textContent = `${speeds[speedIdx]}×`;
         });
       })(players[i]);
     }
@@ -464,15 +464,15 @@
 
   function formatDuration(totalSeconds) {
     if (!totalSeconds || totalSeconds <= 0) return "";
-    var h = Math.floor(totalSeconds / 3600);
-    var m = Math.floor((totalSeconds % 3600) / 60);
-    var s = totalSeconds % 60;
-    var pad = s < 10 ? "0" + s : String(s);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    const pad = s < 10 ? `0${s}` : String(s);
     if (h > 0) {
-      var pm = m < 10 ? "0" + m : String(m);
-      return h + ":" + pm + ":" + pad;
+      const pm = m < 10 ? `0${m}` : String(m);
+      return `${h}:${pm}:${pad}`;
     }
-    return m + ":" + pad;
+    return `${m}:${pad}`;
   }
 
   function firstParagraph(text) {
