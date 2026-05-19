@@ -8887,53 +8887,27 @@ html[data-theme="dark"] .feature-gate-modal-body {
 .sponsor-slots--grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  background: var(--color-card-border);
+  gap: 1px;
 }
 .sponsor-slots--grid .sponsor-slot {
   padding: 12px 20px;
-  border-bottom: none;
-  border-right: 1px solid var(--color-card-border);
+  border: none;
+  background: var(--color-white);
 }
-.sponsor-slots--grid .sponsor-slot:nth-child(4n) {
-  border-right: none;
-}
-.sponsor-slots--grid .sponsor-slot:nth-child(n+5) {
-  border-top: 1px solid var(--color-card-border);
-}
-.sponsor-slots--grid .sponsor-slot:last-child {
-  border-right: none;
-}
-/* Fill empty trailing cells so border lines extend to the edge */
+/* Fill empty trailing cells so lines extend uniformly */
 .sponsor-slots--grid::after {
   content: '';
-  border-top: 1px solid var(--color-card-border);
-  border-left: 1px solid var(--color-card-border);
+  background: var(--color-white);
 }
 @media (max-width: 768px) {
   .sponsor-slots--grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  .sponsor-slots--grid .sponsor-slot:nth-child(4n) {
-    border-right: 1px solid var(--color-card-border);
-  }
-  .sponsor-slots--grid .sponsor-slot:nth-child(3n) {
-    border-right: none;
-  }
-  .sponsor-slots--grid .sponsor-slot:nth-child(n+4) {
-    border-top: 1px solid var(--color-card-border);
-  }
 }
 @media (max-width: 480px) {
   .sponsor-slots--grid {
     grid-template-columns: 1fr 1fr;
-  }
-  .sponsor-slots--grid .sponsor-slot:nth-child(3n) {
-    border-right: 1px solid var(--color-card-border);
-  }
-  .sponsor-slots--grid .sponsor-slot:nth-child(2n) {
-    border-right: none;
-  }
-  .sponsor-slots--grid .sponsor-slot:nth-child(n+3) {
-    border-top: 1px solid var(--color-card-border);
   }
 }
 
