@@ -19,6 +19,8 @@
   }
 
   const statusEl = root.querySelector("[data-sponsor-status]");
+  const inboxEl = root.querySelector("[data-sponsor-inbox]");
+  const inboxEmpty = root.querySelector("[data-sponsor-inbox-empty]");
   const boardCols = {};
   const boardCounts = {};
   ["prospecting", "negotiating", "agreed", "active", "completed"].forEach((s) => {
@@ -56,6 +58,23 @@
 
   function repaint() {
     updateMetrics();
+
+    // Inbox — inquiries from the public form
+    if (inboxEl) {
+      const inboxRows = Object.values(rows)
+        .filter((r) => r.status === "inquiry")
+        .sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+      if (!inboxRows.length) {
+        inboxEl.innerHTML = "";
+        if (inboxEmpty) inboxEmpty.removeAttribute("hidden");
+      } else {
+        if (inboxEmpty) inboxEmpty.setAttribute("hidden", "");
+        inboxEl.innerHTML = inboxRows.map(renderInboxCard).join("");
+      }
+      wireInboxCards(inboxEl);
+    }
+
+    // Board columns
     Object.keys(boardCols).forEach((status) => {
       const col = boardCols[status];
       const count = boardCounts[status];
@@ -99,6 +118,120 @@
     );
   }
 
+  function renderInboxCard(row) {
+    const name = escapeHtml(row.sponsor_name);
+    const contact = escapeHtml(row.contact_name || "");
+    const when = formatDate(row.created_at);
+    const type = escapeHtml(row.type || "");
+    const placement = escapeHtml(row.placement || "");
+    return (
+      `<li class="editorial-inbox-card sponsor-inbox-card" data-id="${row.id}">` +
+        `<div class="editorial-card-head" data-action="open-inbox-detail" data-id="${row.id}">` +
+          `<span class="editorial-card-name">${name}${contact && contact !== name ? ` <span class="sponsor-inbox-contact">(${contact})</span>` : ''}</span>` +
+          `<span class="editorial-card-date">${escapeHtml(when)}</span>` +
+        `</div>` +
+        `<div class="sponsor-inbox-meta">` +
+          `<span class="sponsor-card-type">${type}</span>${ 
+          placement ? `<span class="sponsor-inbox-placement">${placement}</span>` : '' 
+        }</div>` +
+      `</li>`
+    );
+  }
+
+  function wireInboxCards(host) {
+    host.querySelectorAll('[data-action="open-inbox-detail"]').forEach((el) => {
+      el.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        openInboxDetailModal(el.getAttribute("data-id"));
+      });
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Inbox detail modal — for form inquiries before they enter the pipeline
+
+  function openInboxDetailModal(id) {
+    const row = rows[id];
+    if (!row) return;
+    closeDetailModal();
+    closeInboxDetailModal();
+
+    const name = escapeHtml(row.sponsor_name);
+    const contact = escapeHtml(row.contact_name || "");
+    const email = row.contact_email || "";
+    const type = row.type ? row.type.charAt(0).toUpperCase() + row.type.slice(1) : "";
+    const placement = escapeHtml(row.placement || "");
+    const description = escapeHtml(row.description || "");
+    const notes = escapeHtml(row.notes || "");
+    const when = formatDate(row.created_at);
+    const startDate = row.start_date ? escapeHtml(row.start_date) : "";
+
+    const overlay = document.createElement("div");
+    overlay.className = "au-modal-overlay sponsor-inbox-detail-overlay";
+    overlay.setAttribute("data-sponsor-inbox-detail-overlay", "");
+    overlay.innerHTML =
+      `<div class="au-modal sponsor-detail-modal">` +
+        `<div class="sponsor-detail-header">` +
+          `<div>` +
+            `<h3 class="sponsor-detail-name">${name}</h3>` +
+            `<p class="sponsor-detail-meta">Inquiry &middot; ${escapeHtml(type)} &middot; ${escapeHtml(when)}</p>` +
+          `</div>` +
+          `<button type="button" class="editorial-detail-close" data-action="close-inbox-detail" aria-label="Close">&times;</button>` +
+        `</div>` +
+        `<div class="sponsor-detail-body">` +
+          // Contact
+          `<div class="sponsor-detail-section">` +
+            `<p class="eyebrow">Contact</p>` +
+            `<p class="sponsor-detail-text">${escapeHtml(contact)}${email ? ` &middot; <a href="mailto:${escapeAttr(email)}">${escapeHtml(email)}</a>` : ''}</p>` +
+          `</div>${ 
+          // Placements requested
+          placement ? `<div class="sponsor-detail-section"><p class="eyebrow">Interested in</p><p class="sponsor-detail-text">${placement}</p></div>` : '' 
+          // Duration + start
+          }${description || startDate ? `<div class="sponsor-detail-section"><p class="eyebrow">Details</p><p class="sponsor-detail-text">${description}${startDate ? ` &middot; Start: ${startDate}` : ''}</p></div>` : '' 
+          // Message / notes from form
+          }${notes ? `<div class="sponsor-detail-section"><p class="eyebrow">Message</p><p class="sponsor-detail-text" style="white-space:pre-wrap">${notes}</p></div>` : '' 
+          // Decision
+          }<div class="sponsor-detail-section editorial-card-decision">` +
+            `<p class="eyebrow">Decision</p>` +
+            `<div class="editorial-card-decision-actions">` +
+              `<button type="button" class="btn btn-sm btn-primary" data-action="inbox-promote" data-id="${row.id}">Move to Pipeline</button>` +
+              `<button type="button" class="btn btn-sm btn-danger" data-action="inbox-dismiss" data-id="${row.id}">Dismiss</button>` +
+              `<span class="editorial-card-decision-hint">Moving to pipeline places this in the Prospecting column.</span>` +
+            `</div>` +
+          `</div>` +
+        `</div>` +
+      `</div>`;
+
+    document.body.appendChild(overlay);
+    overlay.querySelector("[data-action='close-inbox-detail']").addEventListener("click", closeInboxDetailModal);
+    overlay.addEventListener("click", (ev) => { if (ev.target === overlay) closeInboxDetailModal(); });
+
+    // Promote to pipeline
+    const promoteBtn = overlay.querySelector('[data-action="inbox-promote"]');
+    if (promoteBtn) {
+      promoteBtn.addEventListener("click", () => {
+        moveCard(row.id, "prospecting");
+        closeInboxDetailModal();
+      });
+    }
+
+    // Dismiss (delete)
+    const dismissBtn = overlay.querySelector('[data-action="inbox-dismiss"]');
+    if (dismissBtn) {
+      dismissBtn.addEventListener("click", () => {
+        if (!confirm(`Dismiss this inquiry from "${row.sponsor_name}"? This cannot be undone.`)) return;
+        removeSponsorship(row.id, dismissBtn);
+        closeInboxDetailModal();
+      });
+    }
+  }
+
+  function closeInboxDetailModal() {
+    const el = document.querySelector("[data-sponsor-inbox-detail-overlay]");
+    if (el) el.remove();
+  }
+
   // ---------------------------------------------------------------------------
   // Detail modal
 
@@ -109,7 +242,7 @@
 
     const name = escapeHtml(row.sponsor_name);
     const typeLabel = row.type ? row.type.charAt(0).toUpperCase() + row.type.slice(1) : "";
-    const statuses = ["prospecting", "negotiating", "agreed", "active", "completed"];
+    const statuses = ["inquiry", "prospecting", "negotiating", "agreed", "active", "completed"];
     const statusOptions = statuses.map((s) =>
       `<option value="${s}"${s === row.status ? ' selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
     ).join('');
