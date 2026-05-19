@@ -177,16 +177,17 @@
         `</div>`
       : "";
 
-    const titleHtml = ep.embedUrl
-      ? ""
-      : `<h3 class="pod-title"><em>${escapeHtml(ep.title)}</em></h3>`;
+    // Always show the title — Buzzsprout's small player doesn't display it.
+    const titleHtml = `<h3 class="pod-title"><em>${escapeHtml(ep.title)}</em></h3>`;
+
+    const linksBlock = renderListenLinks(ep);
 
     const transcriptLink = ep.hasTranscript && ep.transcriptUrl
       ? `<a class="pod-transcript-link" href="${escapeAttr(absoluteWorkerUrl(ep.transcriptUrl))}">Read transcript &rarr;</a>`
       : "";
 
-    const footer = transcriptLink
-      ? `<div class="pod-footer">${transcriptLink}</div>`
+    const footer = (linksBlock || transcriptLink)
+      ? `<div class="pod-footer">${linksBlock}${transcriptLink}</div>`
       : "";
 
     const idAttr = ep.id ? ` id="ep-${escapeAttr(ep.id)}"` : "";
