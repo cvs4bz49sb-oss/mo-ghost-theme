@@ -10938,6 +10938,12 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin-top: 4px;
 }
 .podcast-section-intro { margin-top: 24px; }
+.podcast-section-intro .section-sub {
+  font-size: .85rem;
+  color: var(--color-secondary-text, #666);
+  margin: 6px 0 0;
+  font-style: normal;
+}
 
 /* Timeline */
 .podcast-timeline { margin-bottom: 48px; }
