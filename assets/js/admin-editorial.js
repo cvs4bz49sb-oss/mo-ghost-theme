@@ -580,9 +580,9 @@
     if (!body) return;
     body.innerHTML =
       '<div class="admin-forbidden">' +
-        '<p class="eyebrow">Staff only</p>' +
-        '<h2 class="section-heading"><em>Not authorized.</em></h2>' +
-        "<p>Your member email isn't on the Ghost staff list. Add yourself in Ghost Admin &rarr; Settings &rarr; Staff, then reload.</p>" +
+        '<p class="eyebrow">Setup required</p>' +
+        '<h2 class="section-heading"><em>One more step.</em></h2>' +
+        "<p>You have editorial permissions, but the submissions database requires Ghost staff access. Ask Ian to add your email under Ghost Admin &rarr; Settings &rarr; Staff (Contributor role), then reload.</p>" +
       '</div>';
   }
 

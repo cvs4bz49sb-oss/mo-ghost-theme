@@ -82,6 +82,7 @@
     settings: "settings",
     coverage: "coverage",
     editorial: "editorial",
+    sponsors: "sponsors",
     digest: "digest",
     social: "social",
     assets: "assets",
