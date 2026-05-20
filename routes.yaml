@@ -115,6 +115,8 @@ routes:
     template: custom-admin-extract
   /admin/sponsors/:
     template: custom-admin-sponsors
+  /admin/podcasts/:
+    template: custom-admin-podcasts
   /digest-gen/:
     template: custom-digest-gen
   # Public ebook catalog. Anonymous-viewable; tiles route through

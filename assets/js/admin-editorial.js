@@ -48,6 +48,7 @@
 
   hydrate();
   wireDropTargets();
+  wireToolbar();
 
   function hydrate() {
     setStatus("");
@@ -436,6 +437,140 @@
         btn.disabled = false;
         btn.textContent = origLabel;
       });
+  }
+
+  // -------------------------------------------------------------------------
+  // "+ New submission" button + edit modal
+
+  function wireToolbar() {
+    const btn = root.querySelector('[data-action="new-submission"]');
+    if (btn) btn.addEventListener("click", () => { openEditModal(null); });
+  }
+
+  function openEditModal(id) {
+    const row = id ? rows[id] : {};
+    const isNew = !id;
+    closeDetailModal();
+    closeEditModal();
+
+    const overlay = document.createElement("div");
+    overlay.className = "au-modal-overlay editorial-edit-overlay";
+    overlay.setAttribute("data-editorial-edit-overlay", "");
+    overlay.innerHTML =
+      `<div class="au-modal sponsor-edit-modal">` +
+        `<div class="sponsor-detail-header">` +
+          `<h3 class="sponsor-detail-name">${isNew ? 'New submission' : 'Edit submission'}</h3>` +
+          `<button type="button" class="editorial-detail-close" data-action="close-edit" aria-label="Close">&times;</button>` +
+        `</div>` +
+        `<form class="sponsor-form" data-editorial-form>${
+          formField("First name", "first_name", row.first_name || "", "text", true)
+          }${formField("Last name", "last_name", row.last_name || "", "text", true)
+          }${formField("Email", "email", row.email || "", "email")
+          }${formField("Phone", "phone", row.phone || "")
+          }${formTextarea("Bio", "bio", row.bio || "", "Author bio")
+          }${formSelect("Status", "status", row.status || "submitted", ["submitted", "approved", "edited", "scheduled", "published", "denied"])
+          }${formTextarea("Notes", "notes", row.notes || "", "Editor notes")
+          }<div class="sponsor-form-actions">` +
+            `<button type="submit" class="btn btn-sm btn-primary">${isNew ? 'Create' : 'Save'}</button>` +
+            `<button type="button" class="btn btn-sm" data-action="close-edit">Cancel</button>` +
+          `</div>` +
+        `</form>` +
+      `</div>`;
+
+    document.body.appendChild(overlay);
+    const returnId = isNew ? null : id;
+    overlay.querySelectorAll('[data-action="close-edit"]').forEach((b) => {
+      b.addEventListener("click", () => { closeEditModal(); if (returnId) openDetailModal(returnId); });
+    });
+    overlay.addEventListener("click", (ev) => { if (ev.target === overlay) { closeEditModal(); if (returnId) openDetailModal(returnId); } });
+
+    const form = overlay.querySelector("[data-editorial-form]");
+    form.addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const fd = new FormData(form);
+      const payload = {};
+      payload.first_name = fd.get("first_name");
+      payload.last_name = fd.get("last_name");
+      payload.email = fd.get("email") || "";
+      payload.phone = fd.get("phone") || null;
+      payload.bio = fd.get("bio") || null;
+      payload.status = fd.get("status") || "submitted";
+      payload.notes = fd.get("notes") || null;
+
+      if (!payload.first_name) { setStatus("First name is required."); return; }
+      if (!payload.last_name) { setStatus("Last name is required."); return; }
+
+      if (isNew) {
+        createSubmission(payload);
+      }
+    });
+  }
+
+  function closeEditModal() {
+    const el = document.querySelector("[data-editorial-edit-overlay]");
+    if (el) el.remove();
+  }
+
+  function formField(label, name, value, type, required, placeholder) {
+    return (
+      `<div class="sponsor-form-field">` +
+        `<label class="sponsor-form-label">${escapeHtml(label)}</label>` +
+        `<input type="${type || 'text'}" name="${name}" value="${escapeAttr(value)}" class="sponsor-form-input" ${required ? 'required' : ''} ${placeholder ? `placeholder="${escapeAttr(placeholder)}"` : ''} />` +
+      `</div>`
+    );
+  }
+
+  function formTextarea(label, name, value, placeholder) {
+    return (
+      `<div class="sponsor-form-field">` +
+        `<label class="sponsor-form-label">${escapeHtml(label)}</label>` +
+        `<textarea name="${name}" class="sponsor-form-input sponsor-form-textarea" rows="3" placeholder="${escapeAttr(placeholder || '')}">${escapeHtml(value)}</textarea>` +
+      `</div>`
+    );
+  }
+
+  function formSelect(label, name, value, options) {
+    const opts = options.map((o) => `<option value="${o}" ${o === value ? 'selected' : ''}>${o.charAt(0).toUpperCase() + o.slice(1)}</option>`).join("");
+    return (
+      `<div class="sponsor-form-field">` +
+        `<label class="sponsor-form-label">${escapeHtml(label)}</label>` +
+        `<select name="${name}" class="sponsor-form-input">${opts}</select>` +
+      `</div>`
+    );
+  }
+
+  function createSubmission(payload) {
+    setStatus("");
+    window.MOAuth.fetch(`${apiBase}/api/admin/submissions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "omit",
+      body: JSON.stringify(payload),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) { setStatus(data.error); return; }
+        rows[data.id] = {
+          id: data.id,
+          first_name: payload.first_name,
+          last_name: payload.last_name,
+          email: payload.email,
+          phone: payload.phone,
+          bio: payload.bio,
+          ai_attested: 0,
+          essay_key: null,
+          essay_name: null,
+          headshot_key: null,
+          headshot_name: null,
+          status: payload.status,
+          notes: payload.notes,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        closeEditModal();
+        repaint();
+      })
+      .catch((err) => { console.error(err); setStatus("Network error creating submission."); });
   }
 
   // -------------------------------------------------------------------------

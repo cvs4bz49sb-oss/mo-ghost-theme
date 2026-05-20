@@ -91,15 +91,24 @@
       </ul>
     </div>
 
+    <div class="ws-sidebar-section" data-ws-section="content-ops">
+      <button type="button" class="ws-sidebar-label" data-ws-section-toggle="content-ops">
+        <svg class="ws-sidebar-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        Content
+      </button>
+      <ul class="ws-sidebar-list">
+        <li><a href="/admin/podcasts/" class="ws-sidebar-link{{#match active "podcasts"}} is-active{{/match}}" data-ws-page="podcasts">
+          <svg class="ws-sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+          Podcasts</a></li>
+      </ul>
+    </div>
+
     <div class="ws-sidebar-section ws-sidebar-section--muted" data-ws-section="coming-soon">
       <button type="button" class="ws-sidebar-label" data-ws-section-toggle="coming-soon">
         <svg class="ws-sidebar-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
         Coming soon
       </button>
       <ul class="ws-sidebar-list">
-        <li><span class="ws-sidebar-link ws-sidebar-link--disabled" data-ws-page="podcasts">
-          <svg class="ws-sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-          Podcasts</span></li>
         <li><span class="ws-sidebar-link ws-sidebar-link--disabled" data-ws-page="flows">
           <svg class="ws-sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
           Flows</span></li>

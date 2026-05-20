@@ -1,0 +1,145 @@
+{{!< default}}
+{{!-- /admin/podcasts/ — podcast dashboard for both shows.
+     Combined metrics at top, show-by-show cards with latest episodes,
+     combined recent timeline, top episodes leaderboard.
+
+     Data hydrated from:
+       - mo-podcast-feed worker (episode lists + top episodes)
+       - mo-admin /sponsor-stats (download totals + monthly estimates)
+
+     Auth: standard Ghost-staff JWT (admin-auth.js + sidebar permissions). --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="podcasts"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Podcasts</em></h1>
+        <p class="admin-topbar-sub">Live episode data from Buzzsprout for both shows.</p>
+      </header>
+
+    <section class="admin-body"
+             data-admin-podcasts
+             data-podcast-feed="{{@custom.podcast_feed_url}}"
+             data-admin-url="{{@custom.admin_worker_url}}">
+      <div class="container">
+
+        {{!-- Combined metrics --}}
+        <div class="sponsor-metrics podcast-metrics" data-podcast-metrics>
+          <div class="sponsor-metric">
+            <span class="sponsor-metric-value" data-metric="combined-monthly">—</span>
+            <span class="sponsor-metric-label">Monthly downloads</span>
+          </div>
+          <div class="sponsor-metric">
+            <span class="sponsor-metric-value" data-metric="combined-total">—</span>
+            <span class="sponsor-metric-label">All-time downloads</span>
+          </div>
+          <div class="sponsor-metric">
+            <span class="sponsor-metric-value" data-metric="combined-episodes">—</span>
+            <span class="sponsor-metric-label">Total episodes</span>
+          </div>
+          <div class="sponsor-metric">
+            <span class="sponsor-metric-value" data-metric="latest-date">—</span>
+            <span class="sponsor-metric-label">Latest episode</span>
+          </div>
+        </div>
+
+        {{!-- Show cards --}}
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow">Shows</p>
+          <h2 class="section-heading"><em>At a glance.</em></h2>
+        </div>
+        <div class="podcast-shows" data-podcast-shows>
+          <div class="podcast-show-card" data-show-card="mere-fidelity">
+            <div class="podcast-show-head">
+              <div class="podcast-show-badge podcast-show-badge--mf">MF</div>
+              <div class="podcast-show-info">
+                <h3 class="podcast-show-name">Mere Fidelity</h3>
+                <p class="podcast-show-meta" data-show-meta="mere-fidelity">Loading&hellip;</p>
+              </div>
+            </div>
+            <div class="podcast-show-stats">
+              <div class="podcast-show-stat">
+                <span class="podcast-show-stat-val" data-show-stat="mf-monthly">—</span>
+                <span class="podcast-show-stat-label">Monthly</span>
+              </div>
+              <div class="podcast-show-stat">
+                <span class="podcast-show-stat-val" data-show-stat="mf-total">—</span>
+                <span class="podcast-show-stat-label">All-time</span>
+              </div>
+              <div class="podcast-show-stat">
+                <span class="podcast-show-stat-val" data-show-stat="mf-episodes">—</span>
+                <span class="podcast-show-stat-label">Episodes</span>
+              </div>
+            </div>
+            <div class="podcast-show-latest" data-show-latest="mere-fidelity">
+              <p class="podcast-latest-placeholder">Loading latest episode&hellip;</p>
+            </div>
+          </div>
+
+          <div class="podcast-show-card" data-show-card="christians-reading-classics">
+            <div class="podcast-show-head">
+              <div class="podcast-show-badge podcast-show-badge--crc">CRC</div>
+              <div class="podcast-show-info">
+                <h3 class="podcast-show-name">Christians Reading Classics</h3>
+                <p class="podcast-show-meta" data-show-meta="christians-reading-classics">Loading&hellip;</p>
+              </div>
+            </div>
+            <div class="podcast-show-stats">
+              <div class="podcast-show-stat">
+                <span class="podcast-show-stat-val" data-show-stat="crc-monthly">—</span>
+                <span class="podcast-show-stat-label">Monthly</span>
+              </div>
+              <div class="podcast-show-stat">
+                <span class="podcast-show-stat-val" data-show-stat="crc-total">—</span>
+                <span class="podcast-show-stat-label">All-time</span>
+              </div>
+              <div class="podcast-show-stat">
+                <span class="podcast-show-stat-val" data-show-stat="crc-episodes">—</span>
+                <span class="podcast-show-stat-label">Episodes</span>
+              </div>
+            </div>
+            <div class="podcast-show-latest" data-show-latest="christians-reading-classics">
+              <p class="podcast-latest-placeholder">Loading latest episode&hellip;</p>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Recent episodes — combined timeline --}}
+        <div class="section-intro section-intro-left podcast-section-intro">
+          <p class="eyebrow">Timeline</p>
+          <h2 class="section-heading"><em>Recent episodes.</em></h2>
+        </div>
+        <p class="admin-sub">Latest episodes across both shows, newest first. Click any row to expand.</p>
+        <div class="podcast-timeline" data-podcast-timeline>
+          <p class="podcast-timeline-loading">Loading episodes&hellip;</p>
+        </div>
+
+        {{!-- Top episodes leaderboard --}}
+        <div class="section-intro section-intro-left podcast-section-intro">
+          <p class="eyebrow">Leaderboard</p>
+          <h2 class="section-heading"><em>Most listened.</em></h2>
+        </div>
+        <p class="admin-sub">Top episodes by total plays, all time.</p>
+        <div class="podcast-leaderboard" data-podcast-leaderboard>
+          <p class="podcast-leaderboard-loading">Loading top episodes&hellip;</p>
+        </div>
+
+        <p class="admin-table-status" data-podcast-status></p>
+
+      </div>
+    </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-podcasts.js"}}"></script>
