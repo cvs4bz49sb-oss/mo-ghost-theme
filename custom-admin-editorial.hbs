@@ -4,12 +4,13 @@
      Board below: five workflow columns with drag-drop between them
      (Approved / Edited / Scheduled / Published / Denied).
 
-     Data is hydrated client-side from mo-membership's
-     /api/admin/submissions endpoint. Status changes (drag-drop or
-     the inline buttons in the inbox) persist via
-     POST /api/admin/submissions/<id>/status.
+     Data is hydrated client-side from mo-admin worker's
+     /editorial/submissions endpoint (KV-backed — no Ghost staff seat
+     required). Status changes persist via
+     POST /editorial/submissions/<id>/status.
 
-     Auth: standard Ghost-staff JWT (admin-auth.js + worker isStaff). --}}
+     Auth: Ghost member JWT verified against mo-admin permissions
+     (requires "editorial" tool access). --}}
 
 <main class="admin-page admin-workspace">
 
@@ -24,7 +25,7 @@
 
     <section class="admin-body"
              data-admin-editorial
-             data-api-base="{{@custom.membership_api_base}}">
+             data-admin-url="{{@custom.admin_worker_url}}">
       <div class="container">
 
         <div class="section-intro section-intro-left">

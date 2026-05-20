@@ -23,9 +23,9 @@
   const root = document.querySelector("[data-admin-editorial]");
   if (!root) return;
 
-  const apiBase = (root.getAttribute("data-api-base") || "").replace(/\/$/, "");
-  if (!apiBase) {
-    setStatus("Editorial admin is not configured — set @custom.membership_api_base in theme settings.");
+  const adminUrl = (root.getAttribute("data-admin-url") || "").replace(/\/$/, "");
+  if (!adminUrl) {
+    setStatus("Editorial admin is not configured — set @custom.admin_worker_url in theme settings.");
     return;
   }
 
@@ -52,7 +52,7 @@
 
   function hydrate() {
     setStatus("");
-    window.MOAuth.fetch(`${apiBase}/api/admin/submissions`, { credentials: "omit" })
+    window.MOAuth.fetch(`${adminUrl}/editorial/submissions`, { credentials: "omit" })
       .then((r) => {
         if (r.status === 401 || r.status === 403) { showForbidden(); return null; }
         if (!r.ok) { setStatus(`Could not load submissions (${r.status}).`); return null; }
@@ -320,7 +320,7 @@
     repaint();
     setStatus("");
 
-    window.MOAuth.fetch(`${apiBase}/api/admin/submissions/${encodeURIComponent(id)}/status`, {
+    window.MOAuth.fetch(`${adminUrl}/editorial/submissions/${encodeURIComponent(id)}/status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "omit",
@@ -347,7 +347,7 @@
     btn.disabled = true;
     btn.textContent = "Removing…";
 
-    window.MOAuth.fetch(`${apiBase}/api/admin/submissions/${encodeURIComponent(id)}`, {
+    window.MOAuth.fetch(`${adminUrl}/editorial/submissions/${encodeURIComponent(id)}`, {
       method: "DELETE",
       credentials: "omit",
     })
@@ -381,7 +381,7 @@
     }
     if (stateEl) stateEl.textContent = "Saving…";
 
-    window.MOAuth.fetch(`${apiBase}/api/admin/submissions/${encodeURIComponent(id)}/notes`, {
+    window.MOAuth.fetch(`${adminUrl}/editorial/submissions/${encodeURIComponent(id)}/notes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "omit",
@@ -408,7 +408,7 @@
     const origLabel = btn.textContent;
     btn.disabled = true;
     btn.textContent = "Downloading…";
-    window.MOAuth.fetch(`${apiBase}/api/admin/submissions/${encodeURIComponent(id)}/${which}`, {
+    window.MOAuth.fetch(`${adminUrl}/editorial/submissions/${encodeURIComponent(id)}/${which}`, {
       credentials: "omit",
     })
       .then((r) => {
@@ -541,7 +541,7 @@
 
   function createSubmission(payload) {
     setStatus("");
-    window.MOAuth.fetch(`${apiBase}/api/admin/submissions`, {
+    window.MOAuth.fetch(`${adminUrl}/editorial/submissions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "omit",

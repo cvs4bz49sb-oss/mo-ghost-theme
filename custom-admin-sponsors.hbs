@@ -5,8 +5,9 @@
      Click any card to open a detail modal with full info, financials,
      assets, and notes.
 
-     Data hydrated from mo-membership /api/admin/sponsorships.
-     Auth: standard Ghost-staff JWT. --}}
+     Data hydrated from mo-admin worker /sponsors/sponsorships (KV-backed).
+     Auth: Ghost member JWT verified against mo-admin permissions
+     (requires "sponsors" tool access). --}}
 
 <main class="admin-page admin-workspace">
 
@@ -21,7 +22,7 @@
 
     <section class="admin-body"
              data-admin-sponsors
-             data-api-base="{{@custom.membership_api_base}}">
+             data-admin-url="{{@custom.admin_worker_url}}">
       <div class="container">
 
         {{!-- Summary metrics --}}

@@ -12,9 +12,9 @@
   const root = document.querySelector("[data-admin-sponsors]");
   if (!root) return;
 
-  const apiBase = (root.getAttribute("data-api-base") || "").replace(/\/$/, "");
-  if (!apiBase) {
-    setStatus("Sponsorship admin is not configured — set @custom.membership_api_base in theme settings.");
+  const adminUrl = (root.getAttribute("data-admin-url") || "").replace(/\/$/, "");
+  if (!adminUrl) {
+    setStatus("Sponsorship admin is not configured — set @custom.admin_worker_url in theme settings.");
     return;
   }
 
@@ -39,7 +39,7 @@
 
   function hydrate() {
     setStatus("");
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships`, { credentials: "omit" })
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships`, { credentials: "omit" })
       .then((r) => {
         if (r.status === 401 || r.status === 403) { showForbidden(); return null; }
         if (!r.ok) { setStatus(`Could not load sponsorships (${r.status}).`); return null; }
@@ -522,7 +522,7 @@
 
   function createSponsorship(payload) {
     setStatus("");
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships`, {
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "omit",
@@ -540,7 +540,7 @@
 
   function updateSponsorship(id, payload) {
     setStatus("");
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}`, {
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "omit",
@@ -557,7 +557,7 @@
   }
 
   function updateField(id, fields) {
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}`, {
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "omit",
@@ -574,7 +574,7 @@
     row.status = nextStatus;
     repaint();
 
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}/status`, {
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}/status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "omit",
@@ -591,7 +591,7 @@
     btn.disabled = true;
     btn.textContent = "Removing…";
 
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}`, {
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}`, {
       method: "DELETE",
       credentials: "omit",
     })
@@ -620,7 +620,7 @@
     if (!container) return;
     container.innerHTML = '<p class="admin-empty">Loading…</p>';
 
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}/assets`, { credentials: "omit" })
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}/assets`, { credentials: "omit" })
       .then((r) => r.json())
       .then((data) => {
         const assets = data.assets || [];
@@ -650,7 +650,7 @@
     fd.append("label", label);
     fd.append("file", file);
 
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}/assets`, {
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}/assets`, {
       method: "POST",
       credentials: "omit",
       body: fd,
@@ -672,7 +672,7 @@
     fd.append("label", label);
     fd.append("url", url);
 
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}/assets`, {
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}/assets`, {
       method: "POST",
       credentials: "omit",
       body: fd,
@@ -691,7 +691,7 @@
 
   function downloadAsset(id, assetId, btn) {
     btn.disabled = true;
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}/file`, { credentials: "omit" })
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}/file`, { credentials: "omit" })
       .then((r) => {
         if (!r.ok) throw new Error(r.status);
         const disp = r.headers.get("content-disposition") || "";
@@ -713,7 +713,7 @@
   }
 
   function deleteAsset(id, assetId, overlay) {
-    window.MOAuth.fetch(`${apiBase}/api/admin/sponsorships/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}`, {
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}`, {
       method: "DELETE",
       credentials: "omit",
     })
