@@ -122,10 +122,12 @@
     let url, init;
     if (kind === "contact") {
       url = `${worker}/contact`;
+      const typeEl = form.querySelector("[name=type]");
       const body = {
         firstName: form.querySelector("[name=firstName]").value,
         lastName: form.querySelector("[name=lastName]").value,
         email: form.querySelector("[name=email]").value,
+        type: typeEl ? typeEl.value : "other",
         message: form.querySelector("[name=message]").value,
         turnstile_token: turnstileToken,
       };

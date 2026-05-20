@@ -19541,3 +19541,184 @@ body:has(.au-modal-overlay) {
   -webkit-mask-image: none;
   mask-image: none;
 }
+
+/* ---------------------------------------------------------------------------
+   Contact Inbox — /admin/contact/
+   --------------------------------------------------------------------------- */
+
+.contact-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.contact-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--color-light, #f6f5f3);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-muted, #888);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.contact-filter-btn:hover {
+  background: #ede9e3;
+  color: var(--color-dark, #1e1c1a);
+}
+
+.contact-filter-btn.is-active {
+  background: var(--color-dark, #1e1c1a);
+  color: var(--color-white, #fff);
+  border-color: var(--color-dark, #1e1c1a);
+}
+
+.contact-filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 9px;
+  font-weight: 700;
+  background: var(--color-primary, #ee7d51);
+  color: #fff;
+  border-radius: 8px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.contact-filter-count.has-count { opacity: 1; }
+
+.contact-filter-btn.is-active .contact-filter-count {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Message list */
+.contact-msg-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--color-border, #e8e4de);
+}
+
+.contact-msg-row {
+  border-bottom: 1px solid var(--color-border, #e8e4de);
+}
+
+.contact-msg-head {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.contact-msg-head:hover .contact-msg-name {
+  color: var(--color-primary, #ee7d51);
+}
+
+.contact-msg-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-dark, #1e1c1a);
+  transition: color 0.12s;
+}
+
+.contact-msg-row.is-unread .contact-msg-name {
+  font-weight: 700;
+}
+
+.contact-msg-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-primary, #ee7d51);
+  flex-shrink: 0;
+}
+
+.contact-msg-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Type badge colours */
+.contact-type-partnership_request { background: #e8f4e8; color: #2d6a2d; }
+.contact-type-technical_support   { background: #e8eef8; color: #2a4a8a; }
+.contact-type-media_query         { background: #f8f0e8; color: #7a4a10; }
+.contact-type-general_feedback    { background: #f0e8f8; color: #5a2a8a; }
+.contact-type-other               { background: #f0eeea; color: #666; }
+
+.contact-msg-date {
+  font-size: 11px;
+  color: var(--color-muted, #888);
+  white-space: nowrap;
+}
+
+/* Expanded body */
+.contact-msg-body {
+  padding: 0 0 20px;
+}
+
+.contact-msg-email {
+  font-size: 12px;
+  color: var(--color-muted, #888);
+  margin: 0 0 12px;
+}
+
+.contact-msg-email a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.contact-msg-text {
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  color: var(--color-dark, #1e1c1a);
+  margin: 0 0 16px;
+  max-width: 640px;
+}
+
+.contact-msg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .contact-msg-head {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+  .contact-msg-date {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .contact-msg-badge {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: start;
+  }
+}

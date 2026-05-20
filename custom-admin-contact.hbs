@@ -1,0 +1,66 @@
+{{!< default}}
+{{!-- /admin/contact/ — contact form inbox.
+     Filterable by message type. Click to expand. Auto-marks read
+     on open. Unread counts per filter tab.
+
+     Data hydrated from mo-admin /contact/messages (KV-backed).
+     Written by mo-forms when a contact form is submitted.
+     Auth: Ghost member JWT verified against mo-admin permissions
+     (requires "contact" tool access). --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="contact"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Contact Inbox</em></h1>
+        <p class="admin-topbar-sub">Messages from the contact form, organized by type. Opens auto-mark as read.</p>
+      </header>
+
+      <section class="admin-body"
+               data-admin-contact
+               data-admin-url="{{@custom.admin_worker_url}}">
+        <div class="container">
+
+          <div class="contact-filters">
+            <button type="button" class="contact-filter-btn is-active" data-contact-filter="all">
+              All<span class="contact-filter-count" data-count></span>
+            </button>
+            <button type="button" class="contact-filter-btn" data-contact-filter="partnership_request">
+              Partnership Request<span class="contact-filter-count" data-count></span>
+            </button>
+            <button type="button" class="contact-filter-btn" data-contact-filter="technical_support">
+              Technical Support<span class="contact-filter-count" data-count></span>
+            </button>
+            <button type="button" class="contact-filter-btn" data-contact-filter="media_query">
+              Media Query<span class="contact-filter-count" data-count></span>
+            </button>
+            <button type="button" class="contact-filter-btn" data-contact-filter="general_feedback">
+              General Feedback<span class="contact-filter-count" data-count></span>
+            </button>
+            <button type="button" class="contact-filter-btn" data-contact-filter="other">
+              Other<span class="contact-filter-count" data-count></span>
+            </button>
+          </div>
+
+          <p class="admin-sub" data-contact-empty hidden>No messages yet. New submissions from the contact form will appear here.</p>
+          <ul class="contact-msg-list" data-contact-list></ul>
+
+          <p class="admin-table-status" data-contact-status></p>
+
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-contact.js"}}"></script>

@@ -77,6 +77,17 @@
                 <input id="contact-email" name="email" type="email" autocomplete="email" required />
               </div>
               <div class="site-form-field">
+                <label for="contact-type">How can we help?</label>
+                <select id="contact-type" name="type" required>
+                  <option value="" disabled selected>Select a topic</option>
+                  <option value="partnership_request">Partnership Request</option>
+                  <option value="technical_support">Technical Support</option>
+                  <option value="media_query">Media Query</option>
+                  <option value="general_feedback">General Feedback</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="site-form-field">
                 <label for="contact-message">Message</label>
                 <textarea id="contact-message" name="message" rows="5" required></textarea>
               </div>
