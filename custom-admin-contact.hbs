@@ -25,24 +25,14 @@
         <div class="container">
 
           <div class="contact-filters">
-            <button type="button" class="contact-filter-btn is-active" data-contact-filter="all">
-              All<span class="contact-filter-count" data-count></span>
-            </button>
-            <button type="button" class="contact-filter-btn" data-contact-filter="partnership_request">
-              Partnership Request<span class="contact-filter-count" data-count></span>
-            </button>
-            <button type="button" class="contact-filter-btn" data-contact-filter="technical_support">
-              Technical Support<span class="contact-filter-count" data-count></span>
-            </button>
-            <button type="button" class="contact-filter-btn" data-contact-filter="media_query">
-              Media Query<span class="contact-filter-count" data-count></span>
-            </button>
-            <button type="button" class="contact-filter-btn" data-contact-filter="general_feedback">
-              General Feedback<span class="contact-filter-count" data-count></span>
-            </button>
-            <button type="button" class="contact-filter-btn" data-contact-filter="other">
-              Other<span class="contact-filter-count" data-count></span>
-            </button>
+            <select class="contact-filter-select" data-contact-filter-select>
+              <option value="all">All Messages</option>
+              <option value="partnership_request">Partnership Request</option>
+              <option value="technical_support">Technical Support</option>
+              <option value="media_query">Media Query</option>
+              <option value="general_feedback">General Feedback</option>
+              <option value="other">Other</option>
+            </select>
           </div>
 
           <p class="admin-sub" data-contact-empty hidden>No messages yet. New submissions from the contact form will appear here.</p>

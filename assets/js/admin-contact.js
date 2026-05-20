@@ -1,9 +1,9 @@
 /*
  * /admin/contact/ — contact form inbox.
  *
- * All contact form submissions in one place, filterable by type.
- * Click a message to expand it. Auto-marks as read on open.
- * Unread count badges update per filter tab.
+ * All contact form submissions in one place, filterable by type via
+ * a dropdown. Click a message to expand it. Auto-marks as read on open.
+ * Unread counts update in the dropdown option labels.
  *
  * Auth: window.MOAuth.fetch — Ghost member JWT verified against
  * mo-admin permissions (requires "contact" tool access).
@@ -21,6 +21,7 @@
   }
 
   const TYPE_LABELS = {
+    all: "All Messages",
     partnership_request: "Partnership Request",
     technical_support: "Technical Support",
     media_query: "Media Query",
@@ -31,7 +32,7 @@
   const listEl = root.querySelector("[data-contact-list]");
   const emptyEl = root.querySelector("[data-contact-empty]");
   const statusEl = root.querySelector("[data-contact-status]");
-  const filterBtns = root.querySelectorAll("[data-contact-filter]");
+  const filterSelect = root.querySelector("[data-contact-filter-select]");
 
   let messages = {};
   let activeFilter = "all";
@@ -158,12 +159,10 @@
   }
 
   function wireFilters() {
-    filterBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        activeFilter = btn.getAttribute("data-contact-filter");
-        filterBtns.forEach((b) => b.classList.toggle("is-active", b === btn));
-        repaint();
-      });
+    if (!filterSelect) return;
+    filterSelect.addEventListener("change", () => {
+      activeFilter = filterSelect.value;
+      repaint();
     });
   }
 
@@ -202,19 +201,18 @@
   }
 
   // -------------------------------------------------------------------------
-  // Unread count badges on filter tabs
+  // Unread count labels on dropdown options
 
   function updateUnreadCounts() {
+    if (!filterSelect) return;
     const all = Object.values(messages);
-    filterBtns.forEach((btn) => {
-      const filter = btn.getAttribute("data-contact-filter");
-      const badge = btn.querySelector("[data-count]");
-      if (!badge) return;
+    filterSelect.querySelectorAll("option").forEach((opt) => {
+      const filter = opt.value;
       const unread = filter === "all"
         ? all.filter((m) => !m.read).length
         : all.filter((m) => m.type === filter && !m.read).length;
-      badge.textContent = unread || "";
-      badge.classList.toggle("has-count", unread > 0);
+      const base = TYPE_LABELS[filter] || filter;
+      opt.textContent = unread > 0 ? `${base} (${unread} unread)` : base;
     });
   }
 

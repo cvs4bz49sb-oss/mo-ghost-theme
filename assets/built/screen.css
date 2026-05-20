@@ -19547,61 +19547,36 @@ body:has(.au-modal-overlay) {
    --------------------------------------------------------------------------- */
 
 .contact-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
   margin-bottom: 24px;
 }
 
-.contact-filter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 14px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: var(--color-light, #f6f5f3);
-  border: 1px solid transparent;
-  border-radius: 4px;
-  cursor: pointer;
-  color: var(--color-muted, #888);
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-
-.contact-filter-btn:hover {
-  background: #ede9e3;
+.contact-filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  padding: 8px 36px 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--color-dark, #1e1c1a);
+  background: var(--color-light, #f6f5f3)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 12px center;
+  border: 1px solid var(--color-border, #e8e4de);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.contact-filter-btn.is-active {
-  background: var(--color-dark, #1e1c1a);
-  color: var(--color-white, #fff);
+.contact-filter-select:hover {
+  border-color: #c8c2bb;
+}
+
+.contact-filter-select:focus {
+  outline: none;
   border-color: var(--color-dark, #1e1c1a);
-}
-
-.contact-filter-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  font-size: 9px;
-  font-weight: 700;
-  background: var(--color-primary, #ee7d51);
-  color: #fff;
-  border-radius: 8px;
-  line-height: 1;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.contact-filter-count.has-count { opacity: 1; }
-
-.contact-filter-btn.is-active .contact-filter-count {
-  background: rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 3px rgba(30,28,26,0.08);
 }
 
 /* Message list */
