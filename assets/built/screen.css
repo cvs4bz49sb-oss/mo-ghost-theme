@@ -8593,6 +8593,7 @@ html[data-theme="dark"] .feature-gate-modal-body {
 .site-form-field input[type="tel"],
 .site-form-field input[type="date"],
 .site-form-field input[type="number"],
+.site-form-field select,
 .site-form-field textarea {
   font-family: var(--font-body);
   font-size: 16px;
@@ -8608,6 +8609,18 @@ html[data-theme="dark"] .feature-gate-modal-body {
   box-sizing: border-box;
   min-height: 48px;
 }
+
+.site-form-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  cursor: pointer;
+}
+
+.site-form-field select:focus { border-bottom-color: var(--color-primary); }
 .site-form-field input[type="date"] {
   -webkit-appearance: none;
   appearance: none;
