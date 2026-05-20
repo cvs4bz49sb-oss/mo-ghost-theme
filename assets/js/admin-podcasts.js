@@ -27,6 +27,7 @@
   let showData = {}; // { "mere-fidelity": { show, episodes, topEpisodes }, ... }
   let downloadStats = {}; // { mfMonthlyDownloads, mfTotalDownloads, crcMonthlyDownloads, crcTotalDownloads }
   let expandedId = null; // Currently expanded timeline card.
+  const collapsedPanels = new Set(); // Collapsed leaderboard panel ids.
 
   hydrate();
 
@@ -208,11 +209,17 @@
     });
   }
 
-  // -- Leaderboard ---
+  // -- Leaderboards (All Time + This Quarter) ---
 
   function renderLeaderboard() {
-    const el = root.querySelector("[data-podcast-leaderboard]");
-    if (!el) return;
+    renderLeaderboardAllTime();
+    renderLeaderboardQuarter();
+    wireLeaderboardToggles();
+  }
+
+  function renderLeaderboardAllTime() {
+    const body = root.querySelector('[data-lb-body="all-time"]');
+    if (!body) return;
 
     const mfTop = getTopEpisodes("mere-fidelity").map((e) => ({ ...e, _show: "mere-fidelity", _badge: "MF" }));
     const crcTop = getTopEpisodes("christians-reading-classics").map((e) => ({ ...e, _show: "christians-reading-classics", _badge: "CRC" }));
@@ -220,33 +227,101 @@
     combined.sort((a, b) => (b.plays || 0) - (a.plays || 0));
     const top10 = combined.slice(0, 10);
 
-    if (!top10.length) {
-      el.innerHTML = `<p class="podcast-empty">No play data available.</p>`;
-      return;
+    body.innerHTML = buildLeaderboardHtml(top10, "No play data available.");
+  }
+
+  function renderLeaderboardQuarter() {
+    const body = root.querySelector('[data-lb-body="this-quarter"]');
+    if (!body) return;
+
+    const { start, end } = getQuarterRange();
+    const mfEps = getEpisodes("mere-fidelity").map((e) => ({ ...e, _show: "mere-fidelity", _badge: "MF" }));
+    const crcEps = getEpisodes("christians-reading-classics").map((e) => ({ ...e, _show: "christians-reading-classics", _badge: "CRC" }));
+    const all = mfEps.concat(crcEps);
+
+    const inQuarter = all.filter((ep) => {
+      const d = new Date(ep.pubDate);
+      return !isNaN(d.getTime()) && d >= start && d < end;
+    });
+
+    // Use totalPlays if available (requires updated worker), fall back to 0.
+    inQuarter.forEach((ep) => { ep.plays = ep.totalPlays || 0; });
+    inQuarter.sort((a, b) => (b.plays || 0) - (a.plays || 0));
+    const top10 = inQuarter.slice(0, 10);
+
+    body.innerHTML = buildLeaderboardHtml(top10, "No episodes published this quarter yet.");
+  }
+
+  function buildLeaderboardHtml(episodes, emptyMsg) {
+    if (!episodes.length) {
+      return `<p class="podcast-empty">${escapeHtml(emptyMsg)}</p>`;
     }
 
-    const maxPlays = top10[0].plays || 1;
+    const maxPlays = episodes[0].plays || 1;
 
-    el.innerHTML =
-      `<div class="podcast-lb-list">${
-        top10.map((ep, i) => {
-          const pct = Math.round(((ep.plays || 0) / maxPlays) * 100);
-          const badgeClass = ep._show === "mere-fidelity" ? "podcast-badge--mf" : "podcast-badge--crc";
-          return (
-            `<div class="podcast-lb-row">` +
-              `<span class="podcast-lb-rank">${i + 1}</span>` +
-              `<span class="podcast-badge ${badgeClass}">${escapeHtml(ep._badge)}</span>` +
-              `<div class="podcast-lb-info">` +
-                `<span class="podcast-lb-title">${escapeHtml(ep.title)}</span>` +
-                `<div class="podcast-lb-bar-track">` +
-                  `<div class="podcast-lb-bar" style="width:${pct}%"></div>` +
-                `</div>` +
+    return `<div class="podcast-lb-list">${
+      episodes.map((ep, i) => {
+        const pct = maxPlays > 0 ? Math.round(((ep.plays || 0) / maxPlays) * 100) : 0;
+        const badgeClass = ep._show === "mere-fidelity" ? "podcast-badge--mf" : "podcast-badge--crc";
+        return (
+          `<div class="podcast-lb-row">` +
+            `<span class="podcast-lb-rank">${i + 1}</span>` +
+            `<span class="podcast-badge ${badgeClass}">${escapeHtml(ep._badge)}</span>` +
+            `<div class="podcast-lb-info">` +
+              `<span class="podcast-lb-title">${escapeHtml(ep.title)}</span>` +
+              `<div class="podcast-lb-bar-track">` +
+                `<div class="podcast-lb-bar" style="width:${pct}%"></div>` +
               `</div>` +
-              `<span class="podcast-lb-plays">${formatNumber(ep.plays || 0)}</span>` +
-            `</div>`
-          );
-        }).join("")
-      }</div>`;
+            `</div>` +
+            `<span class="podcast-lb-plays">${formatNumber(ep.plays || 0)}</span>` +
+          `</div>`
+        );
+      }).join("")
+    }</div>`;
+  }
+
+  function wireLeaderboardToggles() {
+    root.querySelectorAll('[data-action="toggle-lb"]').forEach((btn) => {
+      // Avoid re-wiring.
+      if (btn._lbWired) return;
+      btn._lbWired = true;
+
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-lb-target");
+        const panel = root.querySelector(`[data-lb-panel="${target}"]`);
+        if (!panel) return;
+
+        const isCollapsed = collapsedPanels.has(target);
+        if (isCollapsed) {
+          collapsedPanels.delete(target);
+          panel.classList.remove("is-collapsed");
+          btn.setAttribute("aria-expanded", "true");
+        } else {
+          collapsedPanels.add(target);
+          panel.classList.add("is-collapsed");
+          btn.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      // Apply initial state.
+      const target = btn.getAttribute("data-lb-target");
+      if (collapsedPanels.has(target)) {
+        const panel = root.querySelector(`[data-lb-panel="${target}"]`);
+        if (panel) panel.classList.add("is-collapsed");
+        btn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  function getQuarterRange() {
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    const qStart = Math.floor(month / 3) * 3;
+    return {
+      start: new Date(year, qStart, 1),
+      end: new Date(year, qStart + 3, 1),
+    };
   }
 
   // ---------------------------------------------------------------------------

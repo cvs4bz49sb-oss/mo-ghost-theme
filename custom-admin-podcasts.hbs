@@ -107,14 +107,31 @@
           </div>
         </div>
 
-        {{!-- Top episodes leaderboard --}}
+        {{!-- Top episodes leaderboards --}}
         <div class="section-intro section-intro-left podcast-section-intro">
           <p class="eyebrow">Leaderboard</p>
           <h2 class="section-heading"><em>Most listened.</em></h2>
-          <p class="section-sub">Top episodes by total plays, all time.</p>
+          <p class="section-sub">Top episodes ranked by total plays.</p>
         </div>
-        <div class="podcast-leaderboard" data-podcast-leaderboard>
-          <p class="podcast-leaderboard-loading">Loading top episodes&hellip;</p>
+
+        <div class="podcast-lb-panel" data-lb-panel="all-time">
+          <button type="button" class="podcast-lb-toggle" data-action="toggle-lb" data-lb-target="all-time" aria-expanded="true">
+            <span class="podcast-lb-toggle-title">All Time</span>
+            <svg class="podcast-lb-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="podcast-lb-body" data-lb-body="all-time">
+            <p class="podcast-leaderboard-loading">Loading top episodes&hellip;</p>
+          </div>
+        </div>
+
+        <div class="podcast-lb-panel" data-lb-panel="this-quarter">
+          <button type="button" class="podcast-lb-toggle" data-action="toggle-lb" data-lb-target="this-quarter" aria-expanded="true">
+            <span class="podcast-lb-toggle-title">This Quarter</span>
+            <svg class="podcast-lb-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="podcast-lb-body" data-lb-body="this-quarter">
+            <p class="podcast-leaderboard-loading">Loading episodes&hellip;</p>
+          </div>
         </div>
 
         {{!-- Recent episodes — combined timeline --}}
