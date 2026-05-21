@@ -19,6 +19,14 @@
 
   <nav class="ws-sidebar-nav" aria-label="Admin tools">
 
+    <div class="ws-sidebar-inbox-link">
+      <a href="/admin/inbox/" class="ws-sidebar-link ws-sidebar-link--inbox{{#match active "inbox"}} is-active{{/match}}" data-ws-page="inbox">
+        <svg class="ws-sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+        Inbox
+        <span class="ws-inbox-badge" data-inbox-badge></span>
+      </a>
+    </div>
+
     <div class="ws-sidebar-section" data-ws-section="executive">
       <button type="button" class="ws-sidebar-label" data-ws-section-toggle="executive">
         <svg class="ws-sidebar-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>

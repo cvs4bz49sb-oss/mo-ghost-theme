@@ -1,0 +1,60 @@
+{{!< default}}
+{{!-- /admin/inbox/ — personal inbox (mentions + assignments) and to-do list.
+     Two-pane layout: inbox feed left, personal to-do list right.
+     Auth: Ghost member JWT — available to all authenticated admin users. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="inbox"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Inbox</em></h1>
+        <p class="admin-topbar-sub">Mentions, assignments, and items that need your attention.</p>
+      </header>
+
+      <section class="admin-body admin-body--inbox">
+        <div class="inbox-workspace"
+             data-admin-url="{{@custom.admin_worker_url}}">
+
+          <div class="inbox-pane"
+               data-admin-inbox
+               data-admin-url="{{@custom.admin_worker_url}}">
+            <div class="inbox-filter-bar">
+              <button type="button" class="inbox-filter-btn is-active" data-inbox-filter="all">
+                All<span class="inbox-filter-count" data-count></span>
+              </button>
+              <button type="button" class="inbox-filter-btn" data-inbox-filter="mention">
+                Mentions<span class="inbox-filter-count" data-count></span>
+              </button>
+              <button type="button" class="inbox-filter-btn" data-inbox-filter="assignment">
+                Assigned<span class="inbox-filter-count" data-count></span>
+              </button>
+            </div>
+            <p class="admin-sub" data-inbox-empty hidden>Nothing here yet. You'll see @mentions and assignments as they come in.</p>
+            <ul class="inbox-list" data-inbox-list></ul>
+            <p class="admin-table-status" data-inbox-status></p>
+          </div>
+
+          <aside class="todos-pane"
+                 data-admin-todos
+                 data-admin-url="{{@custom.admin_worker_url}}">
+          </aside>
+
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-mentions.js"}}"></script>
+<script src="{{asset "js/admin-inbox.js"}}"></script>
+<script src="{{asset "js/admin-todos.js"}}"></script>

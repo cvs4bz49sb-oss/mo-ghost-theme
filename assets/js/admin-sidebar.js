@@ -18,6 +18,7 @@
       "/admin/agenda": "agenda", "/admin/settings": "settings",
       "/admin/coverage": "coverage", "/admin/editorial": "editorial",
       "/admin/contact": "contact",
+      "/admin/inbox": "inbox",
       "/digest-gen": "digest", "/admin/social": "social",
       "/admin/assets": "assets", "/admin/quote": "quote",
       "/admin/copy": "copy", "/admin/extract": "extract",
@@ -84,6 +85,7 @@
     coverage: "coverage",
     editorial: "editorial",
     contact: "contact",
+    inbox: "inbox",
     sponsors: "sponsors",
     digest: "digest",
     social: "social",
@@ -148,4 +150,22 @@
       `<a href="/admin/" class="btn">Back to Dashboard</a>` +
     `</div>`;
   }
+
+  // -----------------------------------------------------------------------
+  // Inbox unread badge
+  // -----------------------------------------------------------------------
+  function refreshInboxBadge() {
+    const badge = sidebar.querySelector("[data-inbox-badge]");
+    if (!badge || !workerUrl || !window.MOAuth) return;
+    window.MOAuth.fetch(`${workerUrl}/inbox/notifications`, { credentials: "omit" })
+      .then((r) => r.ok ? r.json() : { notifications: [] })
+      .then((data) => {
+        const unread = (data.notifications || []).filter((n) => !n.read).length;
+        badge.textContent = unread || "";
+        badge.classList.toggle("has-count", unread > 0);
+      })
+      .catch(() => {});
+  }
+
+  refreshInboxBadge();
 })();
