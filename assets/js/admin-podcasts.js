@@ -78,12 +78,22 @@
     const crcEps = getEpisodes("christians-reading-classics");
     const totalEps = mfEps.length + crcEps.length;
 
+    const days = downloadStats.downloadDaysTracked || 0;
+    const periodLabel = days >= 28 ? "Monthly downloads"
+      : days > 0 ? `Downloads (last ${days} days)`
+      : "Monthly downloads";
+
     const mfMonthly = downloadStats.mfMonthlyDownloads || 0;
     const crcMonthly = downloadStats.crcMonthlyDownloads || 0;
     const mfTotal = downloadStats.mfTotalDownloads || 0;
     const crcTotal = downloadStats.crcTotalDownloads || 0;
 
-    setMetric("combined-monthly", formatNumber(mfMonthly + crcMonthly));
+    const combinedMonthly = (days > 0 && (mfMonthly || crcMonthly))
+      ? mfMonthly + crcMonthly
+      : null;
+
+    setMetric("combined-monthly", combinedMonthly != null ? formatNumber(combinedMonthly) : "—");
+    setMetricLabel("combined-monthly", periodLabel);
     setMetric("combined-total", formatNumber(mfTotal + crcTotal));
     setMetric("combined-episodes", totalEps || "—");
 
@@ -103,7 +113,8 @@
 
   function renderShowCard(slug, prefix) {
     const episodes = getEpisodes(slug);
-    const monthly = downloadStats[`${prefix}MonthlyDownloads`] || 0;
+    const days = downloadStats.downloadDaysTracked || 0;
+    const monthly = downloadStats[`${prefix}MonthlyDownloads`];
     const total = downloadStats[`${prefix}TotalDownloads`] || 0;
 
     const metaEl = root.querySelector(`[data-show-meta="${slug}"]`);
@@ -113,7 +124,12 @@
         : "No episodes loaded";
     }
 
-    setShowStat(`${prefix}-monthly`, formatNumber(monthly));
+    const showMonthlyLabel = days >= 28 ? "Monthly"
+      : days > 0 ? `Last ${days} days`
+      : "Monthly";
+
+    setShowStat(`${prefix}-monthly`, (days > 0 && monthly != null) ? formatNumber(monthly) : "—");
+    setShowStatLabel(`${prefix}-monthly`, showMonthlyLabel);
     setShowStat(`${prefix}-total`, formatNumber(total));
     setShowStat(`${prefix}-episodes`, episodes.length || "—");
 
@@ -345,9 +361,23 @@
     if (el) el.textContent = val;
   }
 
+  function setMetricLabel(key, val) {
+    const valueEl = root.querySelector(`[data-metric="${key}"]`);
+    if (!valueEl) return;
+    const labelEl = valueEl.closest(".sponsor-metric")?.querySelector(".sponsor-metric-label");
+    if (labelEl) labelEl.textContent = val;
+  }
+
   function setShowStat(key, val) {
     const el = root.querySelector(`[data-show-stat="${key}"]`);
     if (el) el.textContent = val;
+  }
+
+  function setShowStatLabel(key, val) {
+    const valueEl = root.querySelector(`[data-show-stat="${key}"]`);
+    if (!valueEl) return;
+    const labelEl = valueEl.closest(".podcast-show-stat")?.querySelector(".podcast-show-stat-label");
+    if (labelEl) labelEl.textContent = val;
   }
 
   function setStatus(msg) { if (statusEl) statusEl.textContent = msg || ""; }

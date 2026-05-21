@@ -89,9 +89,20 @@
             if (crEl) { crEl.textContent = `${stats.clickRate}%`; hasAny = true; }
           }
 
-          // Mere Fidelity downloads — prefer monthly, fall back to total
-          const mfValue = stats.mfMonthlyDownloads || stats.mfTotalDownloads;
-          const mfLabel = stats.mfMonthlyDownloads ? "Mere Fidelity Monthly" : "Mere Fidelity Downloads";
+          // Mere Fidelity downloads — prefer rolling monthly, fall back to all-time total.
+          // downloadDaysTracked tells us how many real days the monthly figure covers:
+          //   >= 28 → full month, label "Monthly"
+          //   1–27  → partial window, label "Last N Days"
+          //   0 / missing → still building baseline, fall back to total
+          const days = stats.downloadDaysTracked || 0;
+          const periodLabel = days >= 28 ? "Monthly" : days > 0 ? `Last ${days} Days` : null;
+
+          const mfValue = (days > 0 && stats.mfMonthlyDownloads != null)
+            ? stats.mfMonthlyDownloads
+            : stats.mfTotalDownloads;
+          const mfLabel = (days > 0 && stats.mfMonthlyDownloads != null)
+            ? `Mere Fidelity ${periodLabel}`
+            : "Mere Fidelity Downloads";
           if (mfValue) {
             const mfEl = statsSection.querySelector('[data-stat="mfDownloads"] [data-stat-number]');
             const mfLabelEl = statsSection.querySelector('[data-stat="mfDownloads"] .stat-label');
@@ -99,9 +110,12 @@
             if (mfLabelEl) { mfLabelEl.textContent = mfLabel; }
           }
 
-          // CRC downloads — prefer monthly, fall back to total
-          const crcValue = stats.crcMonthlyDownloads || stats.crcTotalDownloads;
-          const crcLabel = stats.crcMonthlyDownloads ? "CRC Monthly" : "Christians Reading Classics Downloads";
+          const crcValue = (days > 0 && stats.crcMonthlyDownloads != null)
+            ? stats.crcMonthlyDownloads
+            : stats.crcTotalDownloads;
+          const crcLabel = (days > 0 && stats.crcMonthlyDownloads != null)
+            ? `CRC ${periodLabel}`
+            : "Christians Reading Classics Downloads";
           if (crcValue) {
             const crcEl = statsSection.querySelector('[data-stat="crcDownloads"] [data-stat-number]');
             const crcLabelEl = statsSection.querySelector('[data-stat="crcDownloads"] .stat-label');
