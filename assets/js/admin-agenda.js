@@ -270,9 +270,10 @@
       `</div>` +
     `</div>`;
 
-    root.querySelector("[data-ag-groups]").innerHTML = html;
+    const groupsEl = root.querySelector("[data-ag-groups]");
+    groupsEl.innerHTML = html;
 
-    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(root, WORKER_URL);
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(groupsEl, WORKER_URL);
 
     const completedWrap = root.querySelector("[data-ag-completed-wrap]");
     root.querySelector("[data-ag-completed-count]").textContent = `(${completed.length})`;
@@ -721,10 +722,38 @@
   });
 
   // -----------------------------------------------------------------------
+  // Notifications
+  // -----------------------------------------------------------------------
+
+  function notifyAssigned(item, personName) {
+    if (!window.MOAdmin || !window.MOAdmin.getUsers || !WORKER_URL || !window.MOAuth) return;
+    window.MOAdmin.getUsers(WORKER_URL).then(function (users) {
+      const needle = personName.trim().toLowerCase();
+      const user = users.find(function (u) { return u.name === personName || u.name.trim().toLowerCase() === needle; });
+      if (!user) return;
+      window.MOAuth.fetch(`${WORKER_URL}/inbox/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "omit",
+        body: JSON.stringify({
+          to_emails: [user.email],
+          type: "assigned",
+          source: "weekly-meeting",
+          source_id: item.id,
+          source_title: item.title,
+          source_url: "/admin/agenda/",
+          snippet: `You've been assigned "${item.title}" on the meeting agenda.`
+        })
+      }).catch(function () {});
+    });
+  }
+
+  // -----------------------------------------------------------------------
   // Edit modal
   // -----------------------------------------------------------------------
 
   function showEditModal(item) {
+    const oldPerson = item.person;
     const overlay = document.createElement("div");
     overlay.className = "au-modal-overlay";
     overlay.innerHTML =
@@ -782,12 +811,14 @@
     overlay.querySelector("[data-ag-modal-save]").onclick = () => {
       item.title = overlay.querySelector("[data-ag-modal-title]").value.trim() || item.title;
       item.date = overlay.querySelector("[data-ag-modal-date]").value;
-      item.person = overlay.querySelector("[data-ag-modal-person]").value;
+      const newPerson = overlay.querySelector("[data-ag-modal-person]").value;
+      item.person = newPerson;
       item.type = overlay.querySelector("[data-ag-modal-type]").value;
       item.status = overlay.querySelector("[data-ag-modal-status]").value;
       save(data);
       render();
       overlay.remove();
+      if (newPerson && newPerson !== oldPerson) notifyAssigned(item, newPerson);
     };
   }
 

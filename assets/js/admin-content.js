@@ -48,7 +48,10 @@
       if (raw) {
         const d = JSON.parse(raw);
         if (!d.projects) d.projects = DEFAULT_DATA.projects;
-        if (!d.people) d.people = DEFAULT_DATA.people;
+        if (!d.people || d.people.length === 0) {
+          const fromItems = [...new Set((d.items || []).map((it) => it.person).filter(Boolean))];
+          d.people = fromItems.length > 0 ? fromItems : DEFAULT_DATA.people.slice();
+        }
         if (!d.categories) d.categories = DEFAULT_CATEGORIES.map((c) => { return {...c}; });
         if (!d.items) d.items = [];
         return d;
@@ -112,7 +115,12 @@
         if (!Array.isArray(server.categories)) server.categories = DEFAULT_CATEGORIES.map((c) => ({...c}));
         if (!Array.isArray(server.items)) server.items = [];
         data.projects = server.projects;
-        data.people = server.people;
+        if (server.people.length > 0) {
+          data.people = server.people;
+        } else {
+          const fromItems = [...new Set(server.items.map((it) => it.person).filter(Boolean))];
+          data.people = fromItems.length > 0 ? fromItems : DEFAULT_DATA.people.slice();
+        }
         data.categories = server.categories;
         data.items = server.items;
         localStorage.setItem(LS_KEY, JSON.stringify(data));
@@ -566,6 +574,29 @@
       }).join("")}`;
   }
 
+  function notifyAssigned(item, personName) {
+    if (!window.MOAdmin || !window.MOAdmin.getUsers || !WORKER_URL || !window.MOAuth) return;
+    window.MOAdmin.getUsers(WORKER_URL).then(function (users) {
+      const needle = personName.trim().toLowerCase();
+      const user = users.find(function (u) { return u.name === personName || u.name.trim().toLowerCase() === needle; });
+      if (!user) return;
+      window.MOAuth.fetch(`${WORKER_URL}/inbox/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "omit",
+        body: JSON.stringify({
+          to_emails: [user.email],
+          type: "assigned",
+          source: "content-calendar",
+          source_id: item.id,
+          source_title: item.title,
+          source_url: "/admin/content/",
+          snippet: `You've been assigned to "${item.title}" on ${item.date || "the content calendar"}.`
+        })
+      }).catch(function () {});
+    });
+  }
+
   function showAddItemModal(dateStr) {
     const overlay = document.createElement("div");
     overlay.className = "cc-modal-overlay";
@@ -595,6 +626,7 @@
       `</div>`;
 
     root.appendChild(overlay);
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(overlay, WORKER_URL);
     const titleInput = overlay.querySelector("[data-cc-modal-title]");
     titleInput.focus();
     if (activeProject) overlay.querySelector("[data-cc-modal-project]").value = activeProject;
@@ -604,18 +636,21 @@
     overlay.querySelector("[data-cc-modal-save]").onclick = function () {
       const title = titleInput.value.trim();
       if (!title) { titleInput.focus(); return; }
-      data.items.push({
+      const personVal = overlay.querySelector("[data-cc-modal-person]").value;
+      const newItem = {
         id: `item_${Date.now()}`,
         title,
         date: overlay.querySelector("[data-cc-modal-date]").value,
         project: overlay.querySelector("[data-cc-modal-project]").value,
         type: overlay.querySelector("[data-cc-modal-type]").value,
-        person: overlay.querySelector("[data-cc-modal-person]").value,
+        person: personVal,
         status: overlay.querySelector("[data-cc-modal-status]").value
-      });
+      };
+      data.items.push(newItem);
       save(data);
       renderCalendar();
       overlay.remove();
+      if (personVal) notifyAssigned(newItem, personVal);
     };
     titleInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") overlay.querySelector("[data-cc-modal-save]").click();
@@ -1230,6 +1265,7 @@
   });
 
   function showEditItemModal(item) {
+    const oldPerson = item.person;
     const overlay = document.createElement("div");
     overlay.className = "cc-modal-overlay";
     overlay.innerHTML =
@@ -1259,6 +1295,7 @@
       `</div>`;
 
     root.appendChild(overlay);
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(overlay, WORKER_URL);
     overlay.querySelector("[data-cc-modal-cancel]").onclick = function () { overlay.remove(); };
     overlay.addEventListener("click", (ev) => { if (ev.target === overlay) overlay.remove(); });
     overlay.querySelector("[data-cc-modal-delete]").onclick = function () {
@@ -1272,11 +1309,13 @@
       item.date = overlay.querySelector("[data-cc-modal-date]").value;
       item.project = overlay.querySelector("[data-cc-modal-project]").value;
       item.type = overlay.querySelector("[data-cc-modal-type]").value;
-      item.person = overlay.querySelector("[data-cc-modal-person]").value;
+      const newPerson = overlay.querySelector("[data-cc-modal-person]").value;
+      item.person = newPerson;
       item.status = overlay.querySelector("[data-cc-modal-status]").value;
       save(data);
       renderCalendar();
       overlay.remove();
+      if (newPerson && newPerson !== oldPerson) notifyAssigned(item, newPerson);
     };
   }
 
