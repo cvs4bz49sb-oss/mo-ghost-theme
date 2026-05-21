@@ -7455,6 +7455,9 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   text-decoration: none;
   color: inherit;
 }
+.events-library-link--no-thumb {
+  grid-template-columns: 1fr;
+}
 .events-library-thumb {
   display: block;
   width: 100%;
@@ -7502,6 +7505,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .events-register-title,
   .events-library-title { font-size: 26px; }
   .events-library-link { grid-template-columns: 96px 1fr; gap: 16px; }
+  .events-library-link--no-thumb { grid-template-columns: 1fr; }
   .events-library-card-title { font-size: 18px; }
 }
 

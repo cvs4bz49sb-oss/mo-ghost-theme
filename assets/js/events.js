@@ -132,7 +132,9 @@
     const a = document.createElement("a");
     // Codex audit 2026-05-11: worker-supplied URL → MOSafeHref.set.
     window.MOSafeHref.set(a, href, "#");
-    a.className = "events-library-link";
+    a.className = e.featureImage
+      ? "events-library-link"
+      : "events-library-link events-library-link--no-thumb";
     if (e.featureImage) {
       const thumb = document.createElement("span");
       thumb.className = "events-library-thumb";
