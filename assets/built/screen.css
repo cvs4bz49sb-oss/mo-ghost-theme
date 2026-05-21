@@ -4223,6 +4223,39 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin: 0;
 }
 
+/* --- Radio + checkbox groups (demographics) --- */
+.membership-support .radio-group,
+.membership-support .checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.membership-support .radio-option,
+.membership-support .checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  font-size: 15px;
+  color: var(--color-dark);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 120ms ease;
+}
+.membership-support .radio-option:hover,
+.membership-support .checkbox-option:hover {
+  background: var(--color-bg-muted, #f6f3f2);
+}
+.membership-support .radio-option input,
+.membership-support .checkbox-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 /* --- Tier options (gift page) --- */
 .membership-support .tier-options {
   display: grid;
@@ -7021,6 +7054,39 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   border-bottom-width: 2px;
   padding-bottom: 7px;
 }
+/* --- Radio + checkbox groups (dashboard demographics) --- */
+.dashboard-address .radio-group,
+.dashboard-address .checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.dashboard-address .radio-option,
+.dashboard-address .checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 120ms ease;
+}
+.dashboard-address .radio-option:hover,
+.dashboard-address .checkbox-option:hover {
+  background: var(--color-bg-muted, #f6f3f2);
+}
+.dashboard-address .radio-option input,
+.dashboard-address .checkbox-option input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .dashboard-address-actions {
   display: flex;
   align-items: center;

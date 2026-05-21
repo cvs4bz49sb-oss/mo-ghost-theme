@@ -58,6 +58,7 @@
 
           <fieldset class="form-group">
             <legend class="form-legend">Address</legend>
+            <p class="form-intro">Please provide your mailing address to receive your print Journal.</p>
             <label class="form-field">
               <span class="form-label">Street</span>
               <input type="text" name="line1" autocomplete="address-line1" required />
@@ -90,6 +91,45 @@
                 </select>
               </label>
             </div>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <legend class="form-legend">About You <span class="form-hint">(all optional)</span></legend>
+            <div class="form-field">
+              <span class="form-label">Age range</span>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="age_range" value="Under 18" /> Under 18</label>
+                <label class="radio-option"><input type="radio" name="age_range" value="18-24" /> 18&ndash;24</label>
+                <label class="radio-option"><input type="radio" name="age_range" value="25-34" /> 25&ndash;34</label>
+                <label class="radio-option"><input type="radio" name="age_range" value="35-44" /> 35&ndash;44</label>
+                <label class="radio-option"><input type="radio" name="age_range" value="45-54" /> 45&ndash;54</label>
+                <label class="radio-option"><input type="radio" name="age_range" value="55-64" /> 55&ndash;64</label>
+                <label class="radio-option"><input type="radio" name="age_range" value="65-74" /> 65&ndash;74</label>
+                <label class="radio-option"><input type="radio" name="age_range" value="75+" /> 75+</label>
+              </div>
+            </div>
+            <div class="form-field">
+              <span class="form-label">Gender</span>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="gender" value="Male" /> Male</label>
+                <label class="radio-option"><input type="radio" name="gender" value="Female" /> Female</label>
+              </div>
+            </div>
+            <div class="form-field">
+              <span class="form-label">Relationship to the church</span>
+              <div class="checkbox-group">
+                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Pastor" /> Pastor</label>
+                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Academic" /> Academic</label>
+                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Elder/Deacon" /> Elder/Deacon</label>
+                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Member/Lay Person" /> Member/Lay Person</label>
+                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Parachurch Ministry" /> Parachurch Ministry</label>
+                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Not currently attending church" /> Not currently attending church</label>
+              </div>
+            </div>
+            <label class="form-field">
+              <span class="form-label">Church tradition / denomination</span>
+              <input type="text" name="denomination" placeholder="e.g. Presbyterian, Anglican, Catholic" />
+            </label>
           </fieldset>
 
           <button type="submit" class="btn btn-pill btn-primary btn-wide" id="address-submit">

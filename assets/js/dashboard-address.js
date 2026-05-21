@@ -70,11 +70,28 @@
     errorEl.textContent = '';
     hide(successEl);
     const a = currentAddress || {};
-    ['name', 'organization', 'church', 'line1', 'line2', 'city', 'state', 'postal_code', 'country'].forEach((field) => {
+    ['name', 'organization', 'church', 'line1', 'line2', 'city', 'state', 'postal_code', 'country', 'denomination'].forEach((field) => {
       const input = form.elements.namedItem(field);
       if (!input) return;
       input.value = a[field] || (field === 'name' ? (root.dataset.memberName || '') : field === 'country' ? 'US' : '');
     });
+    // Pre-fill radio buttons (age_range, gender)
+    ['age_range', 'gender'].forEach((field) => {
+      // Clear any previous selection first
+      form.querySelectorAll(`input[name="${field}"]`).forEach((r) => { r.checked = false; });
+      if (a[field]) {
+        const radio = form.querySelector(`input[name="${field}"][value="${CSS.escape(a[field])}"]`);
+        if (radio) radio.checked = true;
+      }
+    });
+    // Pre-fill church_role checkboxes
+    form.querySelectorAll('input[name="church_role"]').forEach((cb) => { cb.checked = false; });
+    if (a.church_role) {
+      a.church_role.split(',').map((r) => r.trim()).forEach((role) => {
+        const cb = form.querySelector(`input[name="church_role"][value="${CSS.escape(role)}"]`);
+        if (cb) cb.checked = true;
+      });
+    }
     show(form);
   };
 
@@ -101,7 +118,15 @@
     hide(successEl);
     if (!form.checkValidity()) { form.reportValidity(); return; }
 
-    const data = Object.fromEntries(new FormData(form).entries());
+    const fd = new FormData(form);
+    const data = Object.fromEntries(fd.entries());
+    // Multi-select checkboxes: join into a comma-separated string.
+    const roles = fd.getAll('church_role');
+    if (roles.length) {
+      data.church_role = roles.join(', ');
+    } else {
+      delete data.church_role;
+    }
     // Email is derived from the JWT server-side; do not echo it in
     // the body even if it survived a future copy/paste of this code.
     delete data.email;
@@ -126,6 +151,10 @@
         state: data.state,
         postal_code: data.postal_code,
         country: data.country,
+        age_range: data.age_range || null,
+        gender: data.gender || null,
+        church_role: data.church_role || null,
+        denomination: data.denomination || null,
       };
       show(successEl);
       setTimeout(renderView, 700);
