@@ -84,16 +84,36 @@
       priceInterval.getAttribute(`data-price-${interval}-interval`) || priceInterval.textContent;
   }
 
+  // Track cloned buttons so the toggle can update them later.
+  const offerBtns = [];
+
   function setPortal(interval) {
     if (!offerActive) return;
     const slug = OFFER_SLUGS[interval];
-    portalBtns.forEach((btn) => {
-      // Remove data-portal so Ghost Portal doesn't intercept the click
-      // and skip the signup form. The offer page URL (/{slug}) opens
-      // Portal with Name + Email + offer details + Continue button.
-      btn.removeAttribute('data-portal');
-      btn.setAttribute('href', `/${slug}`);
-    });
+
+    // On first call, clone each button to strip Ghost Portal's event
+    // listeners (Portal binds to data-portal on init; removing the
+    // attribute doesn't unbind the handler — the click still gets
+    // intercepted and sent to Stripe Checkout directly). Cloning the
+    // node produces a fresh element with no listeners attached.
+    if (!offerBtns.length) {
+      portalBtns.forEach((btn) => {
+        const clone = btn.cloneNode(true);
+        clone.removeAttribute('data-portal');
+        clone.setAttribute('href', `/${slug}`);
+        // Re-attach checkout-pending flag for post-checkout redirect
+        clone.addEventListener('click', () => {
+          sessionStorage.setItem('mo_checkout_pending', Date.now().toString());
+        });
+        btn.parentNode.replaceChild(clone, btn);
+        offerBtns.push(clone);
+      });
+    } else {
+      // Subsequent calls (toggle switch) just update the href.
+      offerBtns.forEach((btn) => {
+        btn.setAttribute('href', `/${slug}`);
+      });
+    }
   }
 
   let currentInterval = 'annual';
@@ -112,11 +132,13 @@
   setPortal('annual');
 
   // --- Post-checkout redirect wiring ---
-  // When the user clicks a Portal CTA, mark that checkout was started
-  // so the redirect script can detect a just-completed checkout.
-  portalBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      sessionStorage.setItem('mo_checkout_pending', Date.now().toString());
+  // When NOT in offer mode, attach checkout-pending to the original
+  // Portal buttons. (During offer mode, the clones already have it.)
+  if (!offerActive) {
+    portalBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        sessionStorage.setItem('mo_checkout_pending', Date.now().toString());
+      });
     });
-  });
+  }
 })();
