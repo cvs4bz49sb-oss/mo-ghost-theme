@@ -218,18 +218,51 @@
                  data-post-visibility="{{visibility}}">
                 {{content}}
 
-                {{#unless @member}}
+                {{!-- Inline article CTA. State-aware:
+                     * paid / comped     → nothing
+                     * free subscriber   → "Become a Member" pitch
+                     * anonymous visitor → weekly digest signup --}}
+                {{#match @member.status "paid"}}{{else}}
+                {{#match @member.status "comped"}}{{else}}
+                {{#if @member}}
+                    {{!-- Free subscriber — already on the list; upgrade nudge. --}}
                     <div class="inline-support">
                         <p class="eyebrow">A Reader-Supported Publication</p>
                         <h3><em>You're reading the kind of essay we exist to publish.</em></h3>
                         <p>
-                            {{@site.title}} publishes long-form essays on theology, culture, and spiritual formation because readers like you make them possible. If this piece is worth your time, consider supporting the work.
+                            Mere Orthodoxy publishes long-form essays on theology, culture, and spiritual formation because readers like you make them possible. If this piece is worth your time, consider supporting the work.
                         </p>
                         <div class="inline-support-ctas">
                             <a href="#join" class="btn btn-primary">Become a Member</a>
                         </div>
                     </div>
-                {{/unless}}
+                {{else}}
+                    {{!-- Anonymous visitor — convert to digest subscriber first. --}}
+                    <div class="inline-support">
+                        <p class="eyebrow">The Weekly Digest</p>
+                        <h3><em>Premier Thought Every Thursday.</em></h3>
+                        <p>All of our recent essays and podcasts, delivered to you. Free.</p>
+                        <div class="digest-form" data-inline-signup data-source="article">
+                            <div class="digest-field">
+                                <label for="article-digest-first">First Name</label>
+                                <input id="article-digest-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
+                            </div>
+                            <div class="digest-field">
+                                <label for="article-digest-last">Last Name</label>
+                                <input id="article-digest-last" type="text" autocomplete="family-name" placeholder="Last" data-signup-last required />
+                            </div>
+                            <div class="digest-field">
+                                <label for="article-digest-email">Email</label>
+                                <input id="article-digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
+                            </div>
+                            <button type="button" class="digest-submit" data-signup-submit>Subscribe</button>
+                            <p class="digest-fineprint">Free. Delivered Thursday mornings.</p>
+                            <p class="digest-status" data-signup-status></p>
+                        </div>
+                    </div>
+                {{/if}}
+                {{/match}}
+                {{/match}}
             </div>
 
             <aside class="article-rail article-rail-toc" aria-label="Contents" data-toc hidden>
