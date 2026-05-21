@@ -63,7 +63,8 @@
       // the member is created in Ghost before Stripe payment.
       const slug = OFFER_SLUGS[interval];
       if (slug) {
-        window.location.href = `/${slug}`;
+        // eslint-disable-next-line no-restricted-syntax -- same-origin path from hardcoded OFFER_SLUGS constant
+        window.location.assign(`/${slug}`);
       } else {
         window.location.hash = '/portal/signup';
       }
