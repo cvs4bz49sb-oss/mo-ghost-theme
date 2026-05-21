@@ -257,6 +257,8 @@
 
     root.querySelector("[data-ag-groups]").innerHTML = html;
 
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(root, WORKER_URL);
+
     const completedWrap = root.querySelector("[data-ag-completed-wrap]");
     root.querySelector("[data-ag-completed-count]").textContent = `(${completed.length})`;
     if (completed.length === 0) {
@@ -751,6 +753,7 @@
       `</div>`;
 
     document.body.appendChild(overlay);
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(overlay, WORKER_URL);
     overlay.querySelector("[data-ag-modal-cancel]").onclick = () => overlay.remove();
     overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
 

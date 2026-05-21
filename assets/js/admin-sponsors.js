@@ -315,6 +315,13 @@
             `<button type="button" class="btn btn-sm" data-action="add-link-asset" data-id="${row.id}">Add link</button>` +
           `</div>` +
         `</div>` +
+        // Assigned to
+        `<div class="sponsor-detail-section">` +
+          `<p class="eyebrow">Assigned to</p>` +
+          `<select class="sponsor-status-select assign-to-select" data-assign-sponsors="${row.id}" data-id="${row.id}">` +
+            `<option value="">Unassigned</option>` +
+          `</select>` +
+        `</div>` +
         // Notes
         `<div class="sponsor-detail-section">` +
           `<label class="sponsor-notes-label" for="sponsor-notes-${row.id}">` +
@@ -410,6 +417,28 @@
       });
     }
 
+    // Assigned-to select
+    const assignSel = overlay.querySelector(`[data-assign-sponsors="${row.id}"]`);
+    if (assignSel && window.MOAdmin && window.MOAdmin.getUsers) {
+      window.MOAdmin.getUsers(adminUrl).then((users) => {
+        const current = row.assigned_to || "";
+        users.forEach((u) => {
+          const opt = document.createElement("option");
+          opt.value = u.email;
+          opt.textContent = u.name;
+          if (u.email === current) opt.selected = true;
+          assignSel.appendChild(opt);
+        });
+      });
+      assignSel.addEventListener("change", () => {
+        const email = assignSel.value || null;
+        const name = email ? assignSel.options[assignSel.selectedIndex].textContent : null;
+        assignSponsorship(row.id, email, name);
+      });
+    }
+
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(overlay, adminUrl);
+
     // Load assets
     loadAssets(row.id, overlay);
   }
@@ -456,6 +485,8 @@
       b.addEventListener("click", () => { closeEditModal(); if (returnId) openDetailModal(returnId); });
     });
     overlay.addEventListener("click", (ev) => { if (ev.target === overlay) { closeEditModal(); if (returnId) openDetailModal(returnId); } });
+
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(overlay, adminUrl);
 
     const form = overlay.querySelector("[data-sponsor-form]");
     form.addEventListener("submit", (ev) => {
@@ -761,5 +792,29 @@
   }
   function escapeHtml(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
   function escapeAttr(s) { return String(s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function assignSponsorship(id, email, name) {
+    const row = rows[id];
+    if (!row) return;
+    row.assigned_to = email || null;
+    window.MOAuth.fetch(`${adminUrl}/sponsors/sponsorships/${encodeURIComponent(id)}/assign`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "omit",
+      body: JSON.stringify({ assigned_to: email || null }),
+    }).catch(() => {});
+    if (email) {
+      window.MOAuth.fetch(`${adminUrl}/inbox/notify`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "omit",
+        body: JSON.stringify({
+          to_emails: [email],
+          type: "assignment",
+          source: "sponsors",
+          source_id: id,
+          source_title: row.sponsor_name || "Sponsorship",
+          source_url: "/admin/sponsors/",
+          snippet: `You were assigned to: ${row.sponsor_name || "a sponsorship"}`,
+        }),
+      }).catch(() => {});
+    }
+  }
+
   function showForbidden() { root.innerHTML = '<div class="admin-forbidden"><p class="eyebrow">Access Denied</p><h2 class="section-heading">You don\'t have permission to view sponsorships.</h2><p>Ask an administrator to grant you access.</p></div>'; }
 })();

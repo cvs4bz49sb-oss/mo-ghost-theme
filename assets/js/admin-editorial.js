@@ -155,13 +155,21 @@
           }</div>` +
         `</div>` +
         `<div class="editorial-card-section">` +
+          `<label class="editorial-card-notes-label">` +
+            `<span class="eyebrow">Assigned to</span>` +
+          `</label>` +
+          `<select class="sponsor-form-input assign-to-select" data-assign-editorial="${row.id}" data-id="${row.id}">` +
+            `<option value="">Unassigned</option>` +
+          `</select>` +
+        `</div>` +
+        `<div class="editorial-card-section">` +
           `<label class="editorial-card-notes-label" for="editorial-notes-${row.id}">` +
             `<span class="eyebrow">Notes</span>` +
             `<span class="editorial-card-notes-state" data-notes-state></span>` +
           `</label>` +
           `<textarea class="editorial-card-notes" id="editorial-notes-${row.id}" data-notes data-id="${row.id}" rows="3" placeholder="Editor notes — saves automatically.">${notes}</textarea>` +
-        `</div>${ 
-        decision 
+        `</div>${
+        decision
         }<div class="editorial-card-section editorial-card-remove-section">` +
           `<button type="button" class="btn btn-sm btn-danger" data-action="remove" data-id="${row.id}">Remove submission</button>` +
         `</div>` +
@@ -204,6 +212,23 @@
     });
 
     wireCard(overlay);
+
+    // Populate assigned-to select
+    if (window.MOAdmin && window.MOAdmin.getUsers) {
+      window.MOAdmin.getUsers(adminUrl).then((users) => {
+        const sel = overlay.querySelector(`[data-assign-editorial="${id}"]`);
+        if (!sel) return;
+        const current = row.assigned_to || "";
+        users.forEach((u) => {
+          const opt = document.createElement("option");
+          opt.value = u.email;
+          opt.textContent = u.name;
+          if (u.email === current) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      });
+    }
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(overlay, adminUrl);
   }
 
   function closeDetailModal() {
@@ -269,6 +294,17 @@
         clearTimeout(notesSaveTimers[id]);
         const stateEl = ta.closest(".editorial-card-body").querySelector("[data-notes-state]");
         saveNotes(id, ta.value, stateEl);
+      });
+    });
+
+    // Assign-to selects
+    host.querySelectorAll("[data-assign-editorial]").forEach((sel) => {
+      sel.addEventListener("change", (ev) => {
+        ev.stopPropagation();
+        const id = sel.getAttribute("data-id");
+        const email = sel.value || null;
+        const name = email ? sel.options[sel.selectedIndex].textContent : null;
+        assignSubmission(id, email, name);
       });
     });
 
@@ -484,6 +520,8 @@
     });
     overlay.addEventListener("click", (ev) => { if (ev.target === overlay) { closeEditModal(); if (returnId) openDetailModal(returnId); } });
 
+    if (window.MOAdmin && window.MOAdmin.initMentions) window.MOAdmin.initMentions(overlay, adminUrl);
+
     const form = overlay.querySelector("[data-editorial-form]");
     form.addEventListener("submit", (ev) => {
       ev.preventDefault();
@@ -574,6 +612,31 @@
   }
 
   // -------------------------------------------------------------------------
+
+  function assignSubmission(id, email, name) {
+    const row = rows[id];
+    if (!row) return;
+    row.assigned_to = email || null;
+    window.MOAuth.fetch(`${adminUrl}/editorial/submissions/${encodeURIComponent(id)}/assign`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "omit",
+      body: JSON.stringify({ assigned_to: email || null }),
+    }).catch(() => {});
+    if (email) {
+      const subName = `${row.first_name} ${row.last_name || ""}`.trim();
+      window.MOAuth.fetch(`${adminUrl}/inbox/notify`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "omit",
+        body: JSON.stringify({
+          to_emails: [email],
+          type: "assignment",
+          source: "editorial",
+          source_id: id,
+          source_title: subName,
+          source_url: "/admin/editorial/",
+          snippet: `You were assigned to review: ${subName}`,
+        }),
+      }).catch(() => {});
+    }
+  }
 
   function showForbidden() {
     const body = root.querySelector(".container");

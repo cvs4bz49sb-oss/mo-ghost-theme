@@ -28,6 +28,12 @@
     );
   };
 
+  // Return a Promise<[{email, name}]> — cached after first fetch
+  window.MOAdmin.getUsers = function(url) {
+    if (url) adminUrl = url;
+    return loadUsers();
+  };
+
   // Wire all textareas + text inputs in a container
   window.MOAdmin.initMentions = function(container, url) {
     adminUrl = url;

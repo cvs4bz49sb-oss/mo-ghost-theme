@@ -109,6 +109,7 @@
             `</button>` +
             `<a href="mailto:${escapeAttr(m.email)}?subject=${encodeURIComponent("Re: Your message to Mere Orthodoxy")}" class="btn btn-sm">Reply</a>` +
             `<button type="button" class="btn btn-sm btn-danger" data-action="delete" data-id="${m.id}">Delete</button>` +
+            `<select class="contact-assign-select" data-assign-contact="${escapeAttr(m.id)}" data-id="${escapeAttr(m.id)}"><option value="">Assign to…</option></select>` +
           `</div>` +
         `</div>` +
       `</li>`
@@ -154,6 +155,31 @@
         const name = `${m.first_name} ${m.last_name || ""}`.trim();
         if (!confirm(`Delete message from "${name}"? This cannot be undone.`)) return;
         deleteMessage(id, btn);
+      });
+    });
+
+    // Assign-to selects — populate async, wire change
+    listEl.querySelectorAll("[data-assign-contact]").forEach((sel) => {
+      const id = sel.getAttribute("data-id");
+      const m = messages[id];
+      if (!m) return;
+      if (window.MOAdmin && window.MOAdmin.getUsers) {
+        window.MOAdmin.getUsers(adminUrl).then((users) => {
+          const current = m.assigned_to || "";
+          users.forEach((u) => {
+            const opt = document.createElement("option");
+            opt.value = u.email;
+            opt.textContent = u.name;
+            if (u.email === current) opt.selected = true;
+            sel.appendChild(opt);
+          });
+        });
+      }
+      sel.addEventListener("change", (ev) => {
+        ev.stopPropagation();
+        const email = sel.value || null;
+        const name = email ? sel.options[sel.selectedIndex].textContent : null;
+        assignMessage(id, email, name);
       });
     });
   }
@@ -218,6 +244,31 @@
 
   // -------------------------------------------------------------------------
   // Helpers
+
+  function assignMessage(id, email, name) {
+    const m = messages[id];
+    if (!m) return;
+    m.assigned_to = email || null;
+    window.MOAuth.fetch(`${adminUrl}/contact/messages/${encodeURIComponent(id)}/assign`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "omit",
+      body: JSON.stringify({ assigned_to: email || null }),
+    }).catch(() => {});
+    if (email) {
+      const senderName = `${m.first_name} ${m.last_name || ""}`.trim();
+      window.MOAuth.fetch(`${adminUrl}/inbox/notify`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "omit",
+        body: JSON.stringify({
+          to_emails: [email],
+          type: "assignment",
+          source: "contact",
+          source_id: id,
+          source_title: `Message from ${senderName}`,
+          source_url: "/admin/contact/",
+          snippet: `You were assigned a message from ${senderName}`,
+        }),
+      }).catch(() => {});
+    }
+  }
 
   function showForbidden() {
     const container = root.querySelector(".container");
