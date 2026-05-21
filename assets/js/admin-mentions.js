@@ -99,8 +99,8 @@
     // Position near field
     const rect = field.getBoundingClientRect();
     dropdown.style.position = "fixed";
-    dropdown.style.top = (rect.bottom + 2) + "px";
-    dropdown.style.left = rect.left + "px";
+    dropdown.style.top = `${rect.bottom + 2}px`;
+    dropdown.style.left = `${rect.left}px`;
     dropdown.style.zIndex = "9999";
     document.body.appendChild(dropdown);
     document.addEventListener("click", onDocClick, { once: true });

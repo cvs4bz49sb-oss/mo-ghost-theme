@@ -112,15 +112,15 @@
           `<span class="inbox-row-from">${fromName}</span>` +
           `<span class="inbox-row-date">${escapeHtml(when)}</span>` +
         `</div>` +
-        `<div class="inbox-row-body" hidden>` +
-          (snippet ? `<p class="inbox-snippet">${snippet}</p>` : "") +
-          `<div class="inbox-row-actions">` +
+        `<div class="inbox-row-body" hidden>${ 
+          snippet ? `<p class="inbox-snippet">${snippet}</p>` : "" 
+          }<div class="inbox-row-actions">` +
             `<a href="${escapeAttr(n.source_url || "#")}" class="btn btn-sm">View</a>` +
             `<button type="button" class="btn btn-sm" data-action="${unread ? "mark-read" : "mark-unread"}" data-id="${escapeAttr(n.id)}">${unread ? "Mark read" : "Mark unread"}</button>` +
             `<button type="button" class="btn btn-sm btn-danger" data-action="dismiss" data-id="${escapeAttr(n.id)}">Dismiss</button>` +
-            `<button type="button" class="btn btn-sm" data-action="add-to-todo" data-id="${escapeAttr(n.id)}" data-title="${escapeAttr(n.source_title || "")}" data-url="${escapeAttr(n.source_url || "")}">+ To&#8209;Do</button>` +
-            inlineActions +
-          `</div>` +
+            `<button type="button" class="btn btn-sm" data-action="add-to-todo" data-id="${escapeAttr(n.id)}" data-title="${escapeAttr(n.source_title || "")}" data-url="${escapeAttr(n.source_url || "")}">+ To&#8209;Do</button>${ 
+            inlineActions 
+          }</div>` +
         `</div>` +
       `</li>`
     );

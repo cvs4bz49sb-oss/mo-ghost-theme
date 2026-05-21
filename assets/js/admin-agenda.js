@@ -727,9 +727,9 @@
 
   function notifyAssigned(item, personName) {
     if (!window.MOAdmin || !window.MOAdmin.getUsers || !WORKER_URL || !window.MOAuth) return;
-    window.MOAdmin.getUsers(WORKER_URL).then(function (users) {
+    window.MOAdmin.getUsers(WORKER_URL).then((users) => {
       const needle = personName.trim().toLowerCase();
-      const user = users.find(function (u) { return u.name === personName || u.name.trim().toLowerCase() === needle; });
+      const user = users.find((u) => { return u.name === personName || u.name.trim().toLowerCase() === needle; });
       if (!user) return;
       window.MOAuth.fetch(`${WORKER_URL}/inbox/notify`, {
         method: "POST",
@@ -744,7 +744,7 @@
           source_url: "/admin/agenda/",
           snippet: `You've been assigned "${item.title}" on the meeting agenda.`
         })
-      }).catch(function () {});
+      }).catch(() => {});
     });
   }
 

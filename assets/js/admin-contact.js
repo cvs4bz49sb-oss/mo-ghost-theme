@@ -92,9 +92,9 @@
     return (
       `<li class="contact-msg-row${unread ? " is-unread" : ""}" data-id="${m.id}">` +
         `<div class="contact-msg-head" data-action="toggle" data-id="${m.id}">` +
-          `<span class="contact-msg-name">${name}` +
-            (unread ? `<span class="contact-msg-dot"></span>` : "") +
-          `</span>` +
+          `<span class="contact-msg-name">${name}${ 
+            unread ? `<span class="contact-msg-dot"></span>` : "" 
+          }</span>` +
           `<span class="contact-msg-badge contact-type-${escapeAttr(m.type || "other")}">${typeLabel}</span>` +
           `<span class="contact-msg-date">${escapeHtml(when)}</span>` +
         `</div>` +
@@ -104,9 +104,9 @@
           `</p>` +
           `<p class="contact-msg-text">${escapeHtml(m.message || "")}</p>` +
           `<div class="contact-msg-actions">` +
-            `<button type="button" class="btn btn-sm" data-action="${unread ? "mark-read" : "mark-unread"}" data-id="${m.id}">` +
-              (unread ? "Mark read" : "Mark unread") +
-            `</button>` +
+            `<button type="button" class="btn btn-sm" data-action="${unread ? "mark-read" : "mark-unread"}" data-id="${m.id}">${ 
+              unread ? "Mark read" : "Mark unread" 
+            }</button>` +
             `<a href="mailto:${escapeAttr(m.email)}?subject=${encodeURIComponent("Re: Your message to Mere Orthodoxy")}" class="btn btn-sm">Reply</a>` +
             `<button type="button" class="btn btn-sm btn-danger" data-action="delete" data-id="${m.id}">Delete</button>` +
             `<select class="contact-assign-select" data-assign-contact="${escapeAttr(m.id)}" data-id="${escapeAttr(m.id)}"><option value="">Assign to…</option></select>` +

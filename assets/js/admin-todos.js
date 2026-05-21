@@ -13,7 +13,7 @@
   try { collapsed = JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; } catch (_) {}
 
   // Expose for inbox "Add to To-Do" button
-  window.MOTodos = { addItem: function(text, category, source_url) { createTodo(text, category || "today", source_url); } };
+  window.MOTodos = { addItem(text, category, source_url) { createTodo(text, category || "today", source_url); } };
 
   hydrate();
 
