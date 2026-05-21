@@ -2722,9 +2722,14 @@ body {
   max-width: 100%;
   width: 100%;
 }
-.article-content iframe {
+/* aspect-ratio + height must be on the higher-specificity selector so
+   they win over Ghost's cards.min.css which loads after screen.min.css
+   via {{ghost_head}} and would otherwise override same-specificity rules. */
+.article-content iframe,
+.article-content .kg-embed-card iframe {
   aspect-ratio: 16 / 9;
   height: auto;
+  display: block;
 }
 .article-content figcaption {
   font-size: 13px;
