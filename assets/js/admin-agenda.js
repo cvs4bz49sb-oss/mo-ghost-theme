@@ -51,7 +51,11 @@
       if (raw) {
         const d = JSON.parse(raw);
         if (!d.projects) d.projects = DEFAULT_DATA.projects;
-        if (!d.people) d.people = DEFAULT_DATA.people;
+        if (!d.people || d.people.length === 0) {
+          // Rebuild people from items if the list was accidentally cleared
+          const fromItems = [...new Set((d.items || []).map((it) => it.person).filter(Boolean))];
+          d.people = fromItems.length > 0 ? fromItems : DEFAULT_DATA.people.slice();
+        }
         if (!d.categories) d.categories = DEFAULT_CATEGORIES.map((c) => ({ ...c }));
         if (!d.items) d.items = [];
         return d;
@@ -113,7 +117,13 @@
           if (!Array.isArray(server.categories)) server.categories = DEFAULT_CATEGORIES.map((c) => ({ ...c }));
           if (!Array.isArray(server.items)) server.items = [];
           data.projects = server.projects;
-          data.people = server.people;
+          // Don't overwrite local people with empty server list — rebuild from items instead
+          if (server.people.length > 0) {
+            data.people = server.people;
+          } else {
+            const fromItems = [...new Set(server.items.map((it) => it.person).filter(Boolean))];
+            data.people = fromItems.length > 0 ? fromItems : DEFAULT_DATA.people.slice();
+          }
           data.categories = server.categories;
           data.items = server.items;
           localStorage.setItem(LS_KEY, JSON.stringify(data));
@@ -229,6 +239,11 @@
       } else {
         unassigned.push(it);
       }
+    });
+
+    // Recover: if data.people is missing anyone referenced by items, add them back
+    Object.keys(groups).forEach((person) => {
+      if (person && !data.people.includes(person)) data.people.push(person);
     });
 
     let html = "";
