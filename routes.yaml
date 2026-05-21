@@ -384,6 +384,12 @@ collections:
   /transcripts/:
     permalink: /transcripts/{slug}/
     filter: tag:hash-podcast-transcript
+  # Event posts are excluded from the main collection so they don't
+  # appear in the editorial feed. This collection gives them a permalink
+  # so their individual post pages are reachable (e.g. from /events/).
+  /event-posts/:
+    permalink: /{slug}/
+    filter: tag:hash-event
   /:
     permalink: /{slug}/
     template: index
