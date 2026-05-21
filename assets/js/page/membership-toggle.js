@@ -10,6 +10,13 @@
     annual: '6a04ee5c015d2700011cab3c',
     monthly: '6a04ee28015d2700011cab39'
   };
+  // Offer page slugs — navigating to /{slug} opens Portal with the
+  // signup form + coupon, instead of #/portal/offers/{id} which skips
+  // the signup step and goes straight to Stripe Checkout.
+  const OFFER_SLUGS = {
+    annual: 'new-website-launch-annual',
+    monthly: 'new-website-launch-monthly'
+  };
   const offerActive = Date.now() < EXPIRY.getTime();
 
   const toggles = document.querySelectorAll('.toggle-option[data-interval]');
@@ -79,10 +86,13 @@
 
   function setPortal(interval) {
     if (!offerActive) return;
-    const id = OFFERS[interval];
+    const slug = OFFER_SLUGS[interval];
     portalBtns.forEach((btn) => {
-      btn.setAttribute('data-portal', `offers/${id}`);
-      btn.setAttribute('href', `#/portal/offers/${id}`);
+      // Remove data-portal so Ghost Portal doesn't intercept the click
+      // and skip the signup form. The offer page URL (/{slug}) opens
+      // Portal with Name + Email + offer details + Continue button.
+      btn.removeAttribute('data-portal');
+      btn.setAttribute('href', `/${slug}`);
     });
   }
 

@@ -10,7 +10,10 @@
     return;
   }
 
-  const OFFER_ID_RE = /^[a-zA-Z0-9]+$/;
+  const OFFER_SLUGS = {
+    annual: 'new-website-launch-annual',
+    monthly: 'new-website-launch-monthly'
+  };
   let interval = 'annual';
 
   const toggles = document.querySelectorAll('.toggle-option[data-interval]');
@@ -55,9 +58,12 @@
       e.preventDefault();
       // Mark checkout started for post-checkout redirect
       sessionStorage.setItem('mo_checkout_pending', Date.now().toString());
-      const offerId = btn.getAttribute(`data-offer-${interval}`);
-      if (offerId && OFFER_ID_RE.test(offerId)) {
-        window.location.hash = `/portal/offers/${offerId}`;
+      // Navigate to the offer page URL, which opens Portal with the
+      // signup form (Name + Email) + coupon details. This ensures
+      // the member is created in Ghost before Stripe payment.
+      const slug = OFFER_SLUGS[interval];
+      if (slug) {
+        window.location.href = `/${slug}`;
       } else {
         window.location.hash = '/portal/signup';
       }
