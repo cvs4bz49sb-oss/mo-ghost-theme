@@ -16558,8 +16558,8 @@ body:has(.admin-workspace) {
   padding: 0 !important;
   margin: 0 !important;
   background: var(--color-page) !important;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
 }
 body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   display: none !important;
@@ -16593,7 +16593,8 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 /* Workspace container: sidebar + main. */
 .admin-workspace {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: var(--color-page);
 }
 
@@ -16601,18 +16602,18 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 .ws-sidebar {
   width: 240px;
   min-width: 240px;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
   background: #1d1b18;
   color: rgba(255, 255, 255, 0.72);
   z-index: 100;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 .ws-sidebar-inner {
-  position: sticky;
-  top: 0;
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  min-height: 100%;
 }
 .ws-sidebar-head {
   padding: 16px 20px;
@@ -16757,6 +16758,8 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
 .admin-main {
   flex: 1;
   min-width: 0;
+  height: 100vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
