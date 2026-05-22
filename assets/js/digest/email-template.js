@@ -273,6 +273,8 @@
       cta: "Start Your Application \u2192",
       href: "#sponsor2"
     },
+    essaysHeading: "This Week\u2019s Essays",
+    podcastsHeading: "This Week\u2019s Podcasts",
     essays: SAMPLE_ESSAYS,
     podcasts: SAMPLE_PODCASTS,
     // Free-form content blocks rendered in the customBlocks slot.
@@ -615,7 +617,7 @@
       paddingBottom: 2
     } }, "Continue Reading \u2192")));
   }
-  function EssaysGrid({ tokens, accent, density, essays }) {
+  function EssaysGrid({ tokens, accent, density, essays, heading }) {
     const featuredIdx = essays.findIndex((e) => e && e.featured);
     const fallbackIdx = essays.length ? 0 : -1;
     const useIdx = featuredIdx >= 0 ? featuredIdx : fallbackIdx;
@@ -626,7 +628,7 @@
       pairs.push([rest[i], rest[i + 1]]);
     }
     const gap = density === "compact" ? 24 : density === "roomy" ? 44 : 32;
-    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 12px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, "This Week's Essays"), featured && /* @__PURE__ */ React.createElement(FeaturedEssay, { tokens, essay: featured, accent }), featured && /* @__PURE__ */ React.createElement("div", { style: { height: gap + 8 } }), featured && /* @__PURE__ */ React.createElement(Rule, { tokens, style: "solid" }), featured && /* @__PURE__ */ React.createElement("div", { style: { height: gap } }), pairs.map((pair, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key: i }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingRight: 12 }, className: "mo-stack-cell" }, pair[0] && /* @__PURE__ */ React.createElement(EssayCard, { tokens, essay: pair[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingLeft: 12 }, className: "mo-stack-cell" }, pair[1] && /* @__PURE__ */ React.createElement(EssayCard, { tokens, essay: pair[1], accent }))))), i < pairs.length - 1 && /* @__PURE__ */ React.createElement("div", { style: { height: gap } }))));
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 12px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, heading || "This Week's Essays"), featured && /* @__PURE__ */ React.createElement(FeaturedEssay, { tokens, essay: featured, accent }), featured && /* @__PURE__ */ React.createElement("div", { style: { height: gap + 8 } }), featured && /* @__PURE__ */ React.createElement(Rule, { tokens, style: "solid" }), featured && /* @__PURE__ */ React.createElement("div", { style: { height: gap } }), pairs.map((pair, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key: i }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingRight: 12 }, className: "mo-stack-cell" }, pair[0] && /* @__PURE__ */ React.createElement(EssayCard, { tokens, essay: pair[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingLeft: 12 }, className: "mo-stack-cell" }, pair[1] && /* @__PURE__ */ React.createElement(EssayCard, { tokens, essay: pair[1], accent }))))), i < pairs.length - 1 && /* @__PURE__ */ React.createElement("div", { style: { height: gap } }))));
   }
   function PodcastCard({ tokens, pod, accent }) {
     const href = pod.url || pod.href || "#";
@@ -676,8 +678,8 @@
       }
     ), /* @__PURE__ */ React.createElement(Button, { tokens, variant: "secondary", size: "sm", accent, href }, pod.cta)));
   }
-  function PodcastsGrid({ tokens, accent, podcasts }) {
-    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, "This Week's Podcasts"), /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingRight: 12 }, className: "mo-stack-cell" }, podcasts[0] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingLeft: 12 }, className: "mo-stack-cell" }, podcasts[1] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[1], accent }))))));
+  function PodcastsGrid({ tokens, accent, podcasts, heading }) {
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, heading || "This Week's Podcasts"), /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingRight: 12 }, className: "mo-stack-cell" }, podcasts[0] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingLeft: 12 }, className: "mo-stack-cell" }, podcasts[1] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[1], accent }))))));
   }
   function MemberThanks({ tokens, content }) {
     return /* @__PURE__ */ React.createElement("div", { style: {
@@ -792,9 +794,9 @@
           if (!showAds) return null;
           return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(SponsorBlock, { tokens, content: content.sponsorTop }), /* @__PURE__ */ React.createElement(Spacer, { h: 6 }));
         case "essays":
-          return /* @__PURE__ */ React.createElement(EssaysGrid, { tokens, accent, density, essays: content.essays });
+          return /* @__PURE__ */ React.createElement(EssaysGrid, { tokens, accent, density, essays: content.essays, heading: content.essaysHeading });
         case "podcasts":
-          return /* @__PURE__ */ React.createElement(PodcastsGrid, { tokens, accent, podcasts: content.podcasts });
+          return /* @__PURE__ */ React.createElement(PodcastsGrid, { tokens, accent, podcasts: content.podcasts, heading: content.podcastsHeading });
         case "sponsorBottom":
           if (!showAds) return null;
           return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(SponsorBlock, { tokens, content: content.sponsorBottom }), /* @__PURE__ */ React.createElement(Spacer, { h: 20 }));

@@ -1216,6 +1216,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
           ))}
 
           <Group title={`Essays (${content.essays?.length || 0})`}>
+            <Field label="Section heading" value={content.essaysHeading} placeholder="This Week's Essays" onChange={(v) => updateField('essaysHeading', v)} />
             <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center', flexWrap: 'wrap' }}>
               <button
                 onClick={() => {
@@ -1302,6 +1303,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
           </Group>
 
           <Group title={`Podcasts (${content.podcasts?.length || 0})`}>
+            <Field label="Section heading" value={content.podcastsHeading} placeholder="This Week's Podcasts" onChange={(v) => updateField('podcastsHeading', v)} />
             {(content.podcasts || []).map((pod, i) => (
               <div key={i} style={{
                 marginBottom: 18,

@@ -340,6 +340,8 @@ const DEFAULT_CONTENT = {
     cta: 'Start Your Application →',
     href: '#sponsor2',
   },
+  essaysHeading: "This Week’s Essays",
+  podcastsHeading: "This Week’s Podcasts",
   essays: SAMPLE_ESSAYS,
   podcasts: SAMPLE_PODCASTS,
   // Free-form content blocks rendered in the customBlocks slot.
@@ -829,7 +831,7 @@ function EssayCard({ tokens, essay, accent }) {
   );
 }
 
-function EssaysGrid({ tokens, accent, density, essays }) {
+function EssaysGrid({ tokens, accent, density, essays, heading }) {
   // Featured essay: honor an explicit essay.featured flag if any row
   // has it set; otherwise fall back to index 0 so the latest pull
   // always lands featured by default. The remaining essays render in
@@ -847,7 +849,7 @@ function EssaysGrid({ tokens, accent, density, essays }) {
 
   return (
     <div style={{ padding: '28px 32px 12px' }} className="mo-pad-32">
-      <SectionLabel tokens={tokens} accent={accent}>This Week's Essays</SectionLabel>
+      <SectionLabel tokens={tokens} accent={accent}>{heading || "This Week's Essays"}</SectionLabel>
 
       {featured && <FeaturedEssay tokens={tokens} essay={featured} accent={accent} />}
 
@@ -938,10 +940,10 @@ function PodcastCard({ tokens, pod, accent }) {
   );
 }
 
-function PodcastsGrid({ tokens, accent, podcasts }) {
+function PodcastsGrid({ tokens, accent, podcasts, heading }) {
   return (
     <div style={{ padding: '28px 32px 8px' }} className="mo-pad-32">
-      <SectionLabel tokens={tokens} accent={accent}>This Week's Podcasts</SectionLabel>
+      <SectionLabel tokens={tokens} accent={accent}>{heading || "This Week's Podcasts"}</SectionLabel>
       <table width="100%" cellPadding="0" cellSpacing="0" border="0" role="presentation" className="mo-stack">
         <tbody>
           <tr>
@@ -1126,9 +1128,9 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
           </>
         );
       case 'essays':
-        return <EssaysGrid tokens={tokens} accent={accent} density={density} essays={content.essays} />;
+        return <EssaysGrid tokens={tokens} accent={accent} density={density} essays={content.essays} heading={content.essaysHeading} />;
       case 'podcasts':
-        return <PodcastsGrid tokens={tokens} accent={accent} podcasts={content.podcasts} />;
+        return <PodcastsGrid tokens={tokens} accent={accent} podcasts={content.podcasts} heading={content.podcastsHeading} />;
       case 'sponsorBottom':
         if (!showAds) return null;
         return (
