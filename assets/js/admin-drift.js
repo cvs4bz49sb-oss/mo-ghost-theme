@@ -10,6 +10,9 @@
  * Sections auto-hide if their count is 0. If all three are 0, an
  * "all clear" block shows instead.
  *
+ * "Reconcile Drift" button pushes only_in_ghost members to Kit in
+ * batches of 50 via POST /api/reconcile.
+ *
  * Worker rejects non-admin emails with 403.
  */
 (function () {
@@ -23,6 +26,9 @@
     setStatus("Kit bridge URL not configured. Set @custom.kit_bridge_url in theme settings.");
     return;
   }
+
+  // State for reconciliation
+  let driftData = null;
 
   window.MOAuth.fetch(`${workerUrl}/api/drift`, { credentials: "omit" })
     .then((res) => {
@@ -38,6 +44,7 @@
     })
     .then((data) => {
       if (!data) return;
+      driftData = data;
       render(data);
     })
     .catch((err) => {
@@ -60,6 +67,12 @@
     if (!onlyGhost.length && !onlyKit.length && !mismatch.length) {
       const clean = root.querySelector("[data-drift-clean]");
       if (clean) clean.hidden = false;
+    }
+
+    // Show reconcile button if there are Ghost members missing from Kit
+    if (onlyGhost.length > 0) {
+      const reconcileWrap = root.querySelector("[data-drift-reconcile]");
+      if (reconcileWrap) reconcileWrap.hidden = false;
     }
   }
 
@@ -110,12 +123,115 @@
     if (statusEl) statusEl.textContent = msg;
   }
   function formatNumber(n) {
-    if (typeof n !== "number") return String(n || "—");
+    if (typeof n !== "number") return String(n || "\u2014");
     return n.toLocaleString("en-US");
   }
   function formatDate(s) {
     if (!s) return "";
     try { return new Date(s).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }); }
     catch (_) { return s; }
+  }
+
+  // ── Reconcile Drift ─────────────────────────────────────────────
+  const BATCH_SIZE = 50;
+
+  const btn = root.querySelector("[data-reconcile-btn]");
+  const progressEl = root.querySelector("[data-reconcile-progress]");
+
+  if (btn) {
+    btn.addEventListener("click", startReconcile);
+  }
+
+  async function startReconcile() {
+    if (!driftData || !driftData.only_in_ghost || !driftData.only_in_ghost.length) return;
+
+    const members = driftData.only_in_ghost;
+    const total = members.length;
+
+    btn.disabled = true;
+    btn.textContent = "Syncing\u2026";
+    setProgress(`0 / ${formatNumber(total)}`);
+
+    let synced = 0;
+    let failed = 0;
+    const allFailures = [];
+
+    // Process in batches of BATCH_SIZE
+    for (let offset = 0; offset < total; offset += BATCH_SIZE) {
+      const batch = members.slice(offset, offset + BATCH_SIZE);
+
+      try {
+        const res = await window.MOAuth.fetch(`${workerUrl}/api/reconcile`, {
+          method: "POST",
+          credentials: "omit",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ members: batch }),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => "");
+          throw new Error(`HTTP ${res.status}: ${errText.slice(0, 200)}`);
+        }
+
+        const result = await res.json();
+        synced += result.synced || 0;
+        failed += result.failed || 0;
+        if (result.failures) allFailures.push(...result.failures);
+      } catch (err) {
+        // Network error or worker error — count whole batch as failed
+        failed += batch.length;
+        allFailures.push({ email: "(batch)", error: err.message });
+        console.error("reconcile batch failed", err);
+      }
+
+      setProgress(`${formatNumber(synced + failed)} / ${formatNumber(total)} (${formatNumber(synced)} synced, ${formatNumber(failed)} failed)`);
+    }
+
+    // Done — show final state
+    btn.textContent = "Done";
+    if (failed === 0) {
+      setProgress(`${formatNumber(synced)} synced. Refreshing drift report\u2026`);
+    } else {
+      setProgress(`${formatNumber(synced)} synced, ${formatNumber(failed)} failed. Refreshing\u2026`);
+      console.warn("reconcile failures:", allFailures);
+    }
+
+    // Refresh the drift report after a short pause
+    setTimeout(() => refreshDrift(), 2000);
+  }
+
+  function setProgress(msg) {
+    if (progressEl) progressEl.textContent = msg;
+  }
+
+  function refreshDrift() {
+    // Re-fetch drift data and re-render the page
+    setStatus("Refreshing drift report\u2026");
+
+    // Hide all sections for clean re-render
+    root.querySelectorAll("[data-drift-section]").forEach((s) => { s.hidden = true; });
+    const clean = root.querySelector("[data-drift-clean]");
+    if (clean) clean.hidden = true;
+    const reconcileWrap = root.querySelector("[data-drift-reconcile]");
+    if (reconcileWrap) reconcileWrap.hidden = true;
+
+    window.MOAuth.fetch(`${workerUrl}/api/drift`, { credentials: "omit" })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (!data) {
+          setStatus("Couldn't refresh drift report.");
+          return;
+        }
+        driftData = data;
+        render(data);
+
+        // Reset button
+        btn.disabled = false;
+        btn.textContent = "Reconcile Drift";
+        setProgress("");
+      })
+      .catch(() => {
+        setStatus("Network error refreshing drift report.");
+      });
   }
 })();

@@ -36,6 +36,12 @@
 
           <p class="admin-table-status" data-drift-status>Loading drift report (this takes 10-20 seconds — we're pulling both full lists)&hellip;</p>
 
+          {{!-- Reconcile button + progress — shown by JS when drift exists --}}
+          <div class="drift-reconcile" data-drift-reconcile hidden>
+            <button class="btn btn-primary" data-reconcile-btn>Reconcile Drift</button>
+            <span class="drift-reconcile-progress" data-reconcile-progress></span>
+          </div>
+
 
           {{!-- Only in Ghost — member exists in Ghost but NOT in Kit. --}}
           <section class="drift-section" data-drift-section="only_in_ghost" hidden>

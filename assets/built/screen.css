@@ -5602,6 +5602,17 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   color: #4a4440;
   max-width: 62ch;
 }
+.drift-reconcile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0 0;
+}
+.drift-reconcile-progress {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-secondary);
+}
 .admin-table {
   width: 100%;
   border-collapse: collapse;
