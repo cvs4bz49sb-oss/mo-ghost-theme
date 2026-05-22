@@ -1,0 +1,17 @@
+[
+  {"from": "^/jake/(.*)$", "to": "/$1", "permanent": true},
+  {"from": "^/matthewloftus/(.*)$", "to": "/$1", "permanent": true},
+  {"from": "^/suzania/(.*)$", "to": "/$1", "permanent": true},
+  {"from": "^/trivial/(.*)$", "to": "/$1", "permanent": true},
+  {"from": "^/sacred-season/(.*)$", "to": "/$1", "permanent": true},
+  {"from": "^/passages/(.*)$", "to": "/$1", "permanent": true},
+  {"from": "^/category/(.*)$", "to": "/tag/$1", "permanent": true},
+  {"from": "^/author/(.*)/?$", "to": "/tag/author-$1/", "permanent": true},
+  {"from": "^/feed/?$", "to": "/rss/", "permanent": true},
+  {"from": "^/rss\\.xml$", "to": "/rss/", "permanent": true},
+  {"from": "^/atom\\.xml$", "to": "/rss/", "permanent": true},
+  {"from": "^/family/?$", "to": "/ebook/spiritual-formation-for-the-family/", "permanent": false},
+  {"from": "^/fracture/?$", "to": "/ebook/navigating-the-fracture/", "permanent": false},
+  {"from": "^/ai/?$", "to": "/ebook/ai-and-the-church/", "permanent": false},
+  {"from": "^/llms\\.txt$", "to": "/assets/llms.txt", "permanent": true}
+]

@@ -64,6 +64,19 @@
 # redirects (no query-string matching). These will 404 naturally.
 # Google Search Console can track and verify they drop off over time.
 
+# ── Ebook vanity URLs ───────────────────────────────────────────────
+- from: ^/family/?$
+  to: /ebook/spiritual-formation-for-the-family/
+  permanent: false
+
+- from: ^/fracture/?$
+  to: /ebook/navigating-the-fracture/
+  permanent: false
+
+- from: ^/ai/?$
+  to: /ebook/ai-and-the-church/
+  permanent: false
+
 # ── Static assets ───────────────────────────────────────────────────
 # /llms.txt — the llmstxt.org convention is a markdown manifest at
 # the site root that AI crawlers (and humans) can read to find the

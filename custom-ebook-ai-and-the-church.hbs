@@ -1,0 +1,41 @@
+{{!< default}}
+{{!-- /ebook/ai-and-the-church/ — free-subscriber landing page.
+     See sibling templates + partials/ebook-signup.hbs for the model.
+     Free signup → label ebook:ai-and-the-church →
+     access to this ebook only. --}}
+
+<main class="ebook-page">
+
+  <section class="hero ebook-hero">
+    <div class="container">
+      <div class="ebook-hero-grid">
+        <div class="ebook-hero-content">
+          <p class="hero-kicker"><span class="dot"></span> A Mere Orthodoxy Ebook</p>
+          <h1 class="hero-headline ebook-hero-headline">
+            The church in an age of <span class="highlight"><em>artificial intelligence</em></span>.
+          </h1>
+          <p class="hero-sub">Fourteen essays on AI, formation, and faithful life in a world of intelligent machines.</p>
+
+          <div class="ebook-hero-meta">
+            <p class="ebook-meta-row"><span class="eyebrow">For</span> Pastors, parents, educators, and thoughtful Christians.</p>
+            <p class="ebook-meta-row"><span class="eyebrow">Cost</span> Free with a Mere Orthodoxy subscription.</p>
+          </div>
+
+          <div class="ebook-hero-prose">
+            <p>AI is not a future problem. It is already reshaping how we learn, how we parent, how we counsel, and how we think about what it means to be human. The question for Christians is not whether to engage but how to do so with wisdom, conviction, and theological depth.</p>
+            <p><em>AI and the Church</em> brings together fourteen writers on the questions that matter most: What does faithful education look like when machines can write essays? How should pastors think about AI in counseling and sermon prep? What does Wendell Berry have to teach us about technology and the soul? And what would it mean to sanctify the machine rather than be sanctified by it?</p>
+          </div>
+        </div>
+
+        {{> "ebook-signup"
+            slug="ai-and-the-church"
+            title="AI and the Church"
+            read_url="/ebook/ai-and-the-church/read/"
+            tier_slug="ebook-ai-and-the-church"}}
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/ebook-landing.js"}}"></script>
