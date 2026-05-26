@@ -104,7 +104,7 @@ Threats are listed by entry point. Each carries the audit-finding ID it traces b
 
 ### T4. Cross-origin form abuse
 **Origin:** audit H7. Pre-fix: mo-forms accepted any Origin, no rate limit, no MIME validation.
-**Shipped:** Origin allowlist enforced (mereorthodoxy.com / www / mo-test.ghost.io); per-IP sliding-window rate limits (5/15min on `/contact`, 3/hour on `/submissions`); MIME-type allowlist on file uploads (`.docx` for essay; jpeg/png/webp/heic for headshot).
+**Shipped:** Origin allowlist enforced (mereorthodoxy.com / www / mereorthodoxy.com); per-IP sliding-window rate limits (5/15min on `/contact`, 3/hour on `/submissions`); MIME-type allowlist on file uploads (`.docx` for essay; jpeg/png/webp/heic for headshot).
 **Residual:** Origin headers can be spoofed by non-browser clients. Realistic attacker still bounded by rate limits.
 
 ### T5. Ebook signup spam (Ghost member creation + magic-link email cost)

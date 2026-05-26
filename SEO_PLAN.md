@@ -1,6 +1,6 @@
 # Mere Orthodoxy Ghost Theme: SEO Plan
 
-Audited 2026-05-09. Covers every template, partial, JS file, and the live site at mo-test.ghost.io.
+Audited 2026-05-09. Covers every template, partial, JS file, and the live site at mereorthodoxy.com.
 
 ---
 
@@ -89,7 +89,7 @@ Add a persistent Organization block in `default.hbs` `<head>`. Ghost's auto-emit
   "@type": "Organization",
   "name": "Mere Orthodoxy",
   "url": "https://mereorthodoxy.com",
-  "logo": "https://mo-test.ghost.io/content/images/...",
+  "logo": "https://mereorthodoxy.com/content/images/...",
   "sameAs": [
     "https://twitter.com/maborodoxy",
     "https://www.facebook.com/mereorthodoxy",

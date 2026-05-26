@@ -29,7 +29,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'Brian Pell',
     title: 'Rebelling Against Nostalgia and Self-Deception',
     byline: 'Jake Meador',
-    href: 'https://mo-test.ghost.io/rebelling-against-nostalgia-and-self-deception/',
+    href: 'https://mereorthodoxy.com/rebelling-against-nostalgia-and-self-deception/',
     summary: 'How does the sensibility of punk, with its rebelliousness and irreverence, change with age? The latest record from Joyce Manor suggests an answer.',
   },
   {
@@ -37,7 +37,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'Phil Cotnoir',
     title: 'Buildings That Preach: The 2025 World Building of the Year and the Crisis of Beauty',
     byline: 'Susannah Black Roberts',
-    href: 'https://mo-test.ghost.io/buildings-that-preach-the-2025-world-building-of-the-year-and-the-crisis-of-beauty/',
+    href: 'https://mereorthodoxy.com/buildings-that-preach-the-2025-world-building-of-the-year-and-the-crisis-of-beauty/',
     summary: "Why should we care that one of the world's ugliest churches just won a major architectural award? There are several reasons.",
   },
   {
@@ -45,7 +45,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'Andrew Barber',
     title: 'A Farewell to Cinema from a Christian Who Loves It',
     byline: 'Brad Littlejohn',
-    href: 'https://mo-test.ghost.io/a-farewell-to-cinema-from-a-christian-who-loves-it/',
+    href: 'https://mereorthodoxy.com/a-farewell-to-cinema-from-a-christian-who-loves-it/',
     summary: 'There was a time when film was a window into broader cultural conversations, even a form of common life. But that world has disappeared.',
   },
   {
@@ -53,7 +53,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'E. J. Hutchinson',
     title: '1 Corinthians 13:1, 6',
     byline: 'Hannah Anderson',
-    href: 'https://mo-test.ghost.io/1-corinthians-131-6/',
+    href: 'https://mereorthodoxy.com/1-corinthians-131-6/',
     summary: "A poetic reflection on Paul's discourse on love",
   },
   {
@@ -61,7 +61,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'Michael Porter',
     title: 'The Church, the Medical Profession, and Applied Ethics',
     byline: 'Matthew Lee Anderson',
-    href: 'https://mo-test.ghost.io/the-church-the-medical-profession-and-applied-ethics/',
+    href: 'https://mereorthodoxy.com/the-church-the-medical-profession-and-applied-ethics/',
     summary: 'Because we have lost the idea of medicine as a profession we have lost a clear idea of what medicine is actually for.',
   },
   {
@@ -69,7 +69,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'James Drimalla',
     title: 'A Prayer for the Teaching of Mathematics',
     byline: 'Onsi A. Kamel',
-    href: 'https://mo-test.ghost.io/a-prayer-for-the-teaching-of-mathematics/',
+    href: 'https://mereorthodoxy.com/a-prayer-for-the-teaching-of-mathematics/',
     summary: "Mathematical learning environments that are characterized by unconditional love serve as a signpost pointing towards God's kingdom of peace.",
   },
   {
@@ -77,7 +77,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'Derek King',
     title: 'We Need a Warrior: Reflections on Revelation and Wake Up Dead Man',
     byline: 'Joseph Minich',
-    href: 'https://mo-test.ghost.io/we-need-a-warrior-reflections-on-revelation-and-wake-up-dead-man/',
+    href: 'https://mereorthodoxy.com/we-need-a-warrior-reflections-on-revelation-and-wake-up-dead-man/',
     summary: "'Wake Up Dead Man' presents viewers with two competing accounts of strength, both of which can be found in Christian churches and social circles.",
   },
   {
@@ -85,7 +85,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'Nadya Williams',
     title: 'Complementarianism and the Dignity of Women',
     byline: 'Kirsten Sanders',
-    href: 'https://mo-test.ghost.io/sex-realist-feminism-and-complementarianism/',
+    href: 'https://mereorthodoxy.com/sex-realist-feminism-and-complementarianism/',
     summary: 'The idea that men and women are different was obvious to the ancient world. That they were different yet equal was not.',
   },
   {
@@ -93,7 +93,7 @@ const SAMPLE_ESSAYS = [
     kicker: 'Daniel K. Williams',
     title: 'The Emptiness of Atheism for a Romantic Idealist',
     byline: 'Andrew Wilson',
-    href: 'https://mo-test.ghost.io/the-emptiness-of-atheism-for-a-romantic-idealist/',
+    href: 'https://mereorthodoxy.com/the-emptiness-of-atheism-for-a-romantic-idealist/',
     summary: "Beha's book is a moving account of how a romantic materialist might embrace Christianity, but it is too dismissive of other approaches to belief.",
   },
   {
@@ -101,27 +101,27 @@ const SAMPLE_ESSAYS = [
     kicker: 'Elizabeth Stice',
     title: 'The Myth of the American West',
     byline: 'Tim Keller (archive)',
-    href: 'https://mo-test.ghost.io/the-myth-of-the-american-west/',
+    href: 'https://mereorthodoxy.com/the-myth-of-the-american-west/',
     summary: "Whether or not readers agree with Nelson's interpretation of the American Dream, many will find the people in this book worth reading about.",
   },
 ];
 
 const SAMPLE_PODCASTS = [
   {
-    img: 'https://mo-test.ghost.io/assets/images/mere-fidelity.jpg?v=1ee6737382',
+    img: 'https://mereorthodoxy.com/assets/images/mere-fidelity.jpg?v=1ee6737382',
     label: 'Mere Fidelity',
     episode: 'Episode 412',
     title: 'On Paul and The Law',
-    href: 'https://mo-test.ghost.io/podcasts/mere-fidelity/',
+    href: 'https://mereorthodoxy.com/podcasts/mere-fidelity/',
     summary: 'Was the Apostle Paul Torah-observant — not just before the Damascus road, but throughout his apostleship to the nations?',
     cta: 'Listen to the episode',
   },
   {
-    img: 'https://mo-test.ghost.io/assets/images/christians-reading-classics.jpg?v=1ee6737382',
+    img: 'https://mereorthodoxy.com/assets/images/christians-reading-classics.jpg?v=1ee6737382',
     label: 'Christians Reading Classics',
     episode: 'Episode 38',
     title: 'Great American Sermons with John Wilsey and Daniel K. Williams',
-    href: 'https://mo-test.ghost.io/podcasts/christians-reading-classics/',
+    href: 'https://mereorthodoxy.com/podcasts/christians-reading-classics/',
     summary: 'What does it mean for a nation to read its own sermons? This America 250 conversation takes up four of them.',
     cta: 'Listen to the episode',
   },
@@ -316,7 +316,7 @@ const DEFAULT_CONTENT = {
     headline: 'Mere Orthodoxy exists because of readers like you.',
     body: "Support Mere Orthodoxy in our mission to produce media that advances Christian renewal for the common good. You'll get the print Journal, access to our online community, and more usable features on MereOrthodoxy.com.",
     cta: 'Join Mere Orthodoxy',
-    href: 'http://mo-test.ghost.io/membership',
+    href: 'https://mereorthodoxy.com/membership',
   },
   memberThanks: {
     headline: 'Thank you for keeping this work going.',

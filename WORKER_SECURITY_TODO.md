@@ -160,7 +160,7 @@ The body still includes `text`, `sourceTitle`, `sourceAuthor`, `sourceUrl`. Even
 - Add Origin header allowlist on `/contact` and `/submissions`:
   - `https://mereorthodoxy.com`
   - `https://www.mereorthodoxy.com`
-  - `https://mo-test.ghost.io`
+  - `https://mereorthodoxy.com`
 - Reject any other Origin (or missing Origin from a browser context).
 - Add per-IP rate limit:
   - `/contact`: 5 per 15 minutes per IP.

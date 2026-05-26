@@ -245,7 +245,7 @@ Adds security headers to all proxied responses: CSP frame-ancestors, X-Frame-Opt
 
 | Worker | Policy |
 |--------|--------|
-| mo-admin | Allowlist: mo-test.ghost.io, mereorthodoxy.com, www.mereorthodoxy.com |
+| mo-admin | Allowlist: mereorthodoxy.com, mereorthodoxy.com, www.mereorthodoxy.com |
 | mo-audio | `*` |
 | mo-digest | `*` |
 | mo-ebook-access | Allowlist (echo matching origin) |

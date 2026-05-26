@@ -203,7 +203,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   // dragend so the highlight doesn't linger.
   const [sectionDragOver, setSectionDragOver] = useState(null);
   const [blockDragOver, setBlockDragOver] = useState(null);
-  const [ghostUrl, setGhostUrl] = useState(() => localStorage.getItem('mo_ghost_url') || 'https://mo-test.ghost.io');
+  const [ghostUrl, setGhostUrl] = useState(() => localStorage.getItem('mo_ghost_url') || 'https://mereorthodoxy.com');
   const [ghostKey, setGhostKey] = useState(() => localStorage.getItem('mo_ghost_key') || '');
   const [ghostError, setGhostError] = useState(null);
   const [ghostMessage, setGhostMessage] = useState(null);

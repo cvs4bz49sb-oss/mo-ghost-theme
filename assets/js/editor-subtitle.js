@@ -14,7 +14,7 @@
  * the button injected as the SPA navigates between posts.
  *
  *   Bookmarklet — drag to your bookmark bar:
- *     javascript:void(fetch('https://mo-test.ghost.io/assets/js/editor-subtitle.js').then(r=>r.text()).then(eval))
+ *     javascript:void(fetch('https://mereorthodoxy.com/assets/js/editor-subtitle.js').then(r=>r.text()).then(eval))
  *
  *   Or paste the minified version directly (see build output).
  */
