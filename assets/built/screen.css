@@ -18,6 +18,7 @@
      weight. Was #e9dec8 (lighter) until a visible inconsistency
      between nav-rail underline and card-grid hairlines was flagged. */
   --color-rule: #d9c6a7;
+  --color-primary-text: #b45f3d;
 
   --font-display: 'IM Fell Great Primer', 'Source Serif Pro', Georgia, serif;
   --font-body: 'Source Serif Pro', Georgia, serif;
@@ -77,7 +78,7 @@ img { max-width: 100%; height: auto; }
   font-size: 12px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 16px;
 }
@@ -835,7 +836,7 @@ img { max-width: 100%; height: auto; }
   font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 18px;
   font-variant: small-caps;
@@ -933,7 +934,7 @@ img { max-width: 100%; height: auto; }
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 14px;
 }
@@ -1061,7 +1062,7 @@ img { max-width: 100%; height: auto; }
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 6px;
 }
@@ -1411,7 +1412,7 @@ img { max-width: 100%; height: auto; }
   font-size: 10px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 12px;
   font-variant: small-caps;
@@ -2191,7 +2192,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-weight: 600;
   padding: 6px 14px;
   border: 1px solid rgba(238,125,81,0.4);
