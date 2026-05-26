@@ -39,8 +39,14 @@
     s = s.replace(new RegExp(`(^|[${OPEN_CTX}'\\u2018\\u2019])"(?=\\w)`, "g"), "$1“");
     s = s.replace(/"/g, "”");
     // --- Already-curly but wrong direction ---
-    s = s.replace(new RegExp(`(^|[${OPEN_CTX}"\\u201C])\\u2019(?=\\w)`, "g"), "$1‘");
-    s = s.replace(new RegExp(`(^|[${OPEN_CTX}'\\u2018])\\u201D(?=\\w)`, "g"), "$1“");
+    // After whitespace / punctuation: fix direction unconditionally.
+    // At start of text node (^): only fix when followed by uppercase —
+    // lowercase after ^ is an apostrophe split by inline markup (e.g.
+    // <em>Mere O</em>’s) or a leading contraction (‘twas, ‘bout).
+    s = s.replace(new RegExp(`([${OPEN_CTX}”\\u201C])\\u2019(?=\\w)`, "g"), "$1‘");
+    s = s.replace(/^\u2019(?=[A-Z])/g, "\u2018");
+    s = s.replace(new RegExp(`([${OPEN_CTX}’\\u2018])\\u201D(?=\\w)`, "g"), "$1“");
+    s = s.replace(/^\u201D(?=[A-Z])/g, "\u201C");
     return s;
   }
 
