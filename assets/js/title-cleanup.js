@@ -67,23 +67,23 @@
   function wrapQuoteGlyphs(root) {
     if (!root) return;
     const SKIP = { CODE: 1, PRE: 1, KBD: 1, SCRIPT: 1, STYLE: 1 };
-    var nodes = [];
-    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    var n;
+    const nodes = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let n;
     while ((n = walker.nextNode())) {
       if (SKIP[n.parentNode.nodeName]) continue;
       if (n.parentNode.classList && n.parentNode.classList.contains("q")) continue;
       if (QUOTE_RE.test(n.nodeValue)) nodes.push(n);
     }
-    nodes.forEach(function (textNode) {
-      var text = textNode.nodeValue;
-      var frag = document.createDocumentFragment();
-      var last = 0;
-      for (var i = 0; i < text.length; i++) {
-        var code = text.charCodeAt(i);
+    nodes.forEach((textNode) => {
+      const text = textNode.nodeValue;
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      for (let i = 0; i < text.length; i++) {
+        const code = text.charCodeAt(i);
         if (code === 0x2018 || code === 0x2019 || code === 0x201C || code === 0x201D) {
           if (i > last) frag.appendChild(document.createTextNode(text.substring(last, i)));
-          var span = document.createElement("span");
+          const span = document.createElement("span");
           span.className = "q";
           span.textContent = text[i];
           frag.appendChild(span);
@@ -149,7 +149,7 @@
     wrapQuoteGlyphs(el);
   }
 
-  var DISPLAY_HEADING_SELECTORS = [
+  const DISPLAY_HEADING_SELECTORS = [
     ".article-content h2",
     ".article-content h3",
   ];
