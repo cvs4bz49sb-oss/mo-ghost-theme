@@ -1,5 +1,6 @@
 /*
- * Title cleanup: suffix removal + smart-quote direction fix.
+ * Title cleanup: suffix removal + smart-quote direction fix +
+ * quote glyph substitution for IM Fell Great Primer.
  *
  * 1. Suffix: older posts carry "- Mere Orthodoxy | Christianity,
  *    Politics, and Culture" in their Ghost title. Strip it.
@@ -7,6 +8,11 @@
  * 2. Quotes: HubSpot-imported titles have straight ASCII quotes
  *    or mis-directed curly quotes. Convert to proper typographic
  *    open/close pairs based on surrounding context.
+ *
+ * 3. Glyph fix: IM Fell Great Primer renders U+2019 (right single
+ *    quote / apostrophe) nearly identical to U+2018 (left single
+ *    quote). Wrap curly quotes in display-font headings with a
+ *    span that uses the body font for correct glyph shapes.
  */
 (function () {
   const SUFFIX_RE = /\s*[-–—]\s*Mere\s*Orthodoxy\s*(?:\|[^|]*)?\s*$/i;
@@ -48,6 +54,39 @@
       const fixed = fixQuotes(node.nodeValue);
       if (fixed !== node.nodeValue) node.nodeValue = fixed;
     }
+  }
+
+  const QUOTE_RE = /[‘’“”]/;
+
+  function wrapQuoteGlyphs(root) {
+    if (!root) return;
+    const SKIP = { CODE: 1, PRE: 1, KBD: 1, SCRIPT: 1, STYLE: 1 };
+    var nodes = [];
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var n;
+    while ((n = walker.nextNode())) {
+      if (SKIP[n.parentNode.nodeName]) continue;
+      if (n.parentNode.classList && n.parentNode.classList.contains("q")) continue;
+      if (QUOTE_RE.test(n.nodeValue)) nodes.push(n);
+    }
+    nodes.forEach(function (textNode) {
+      var text = textNode.nodeValue;
+      var frag = document.createDocumentFragment();
+      var last = 0;
+      for (var i = 0; i < text.length; i++) {
+        var code = text.charCodeAt(i);
+        if (code === 0x2018 || code === 0x2019 || code === 0x201C || code === 0x201D) {
+          if (i > last) frag.appendChild(document.createTextNode(text.substring(last, i)));
+          var span = document.createElement("span");
+          span.className = "q";
+          span.textContent = text[i];
+          frag.appendChild(span);
+          last = i + 1;
+        }
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.substring(last)));
+      textNode.parentNode.replaceChild(frag, textNode);
+    });
   }
 
   function cleanMeta(selector, attr) {
@@ -101,7 +140,13 @@
       }
     }
     fixQuotesInTree(el);
+    wrapQuoteGlyphs(el);
   }
+
+  var DISPLAY_HEADING_SELECTORS = [
+    ".article-content h2",
+    ".article-content h3",
+  ];
 
   function cleanAll() {
     cleanDocument();
@@ -110,6 +155,9 @@
     });
     document.querySelectorAll(".article-content, .article-dek, .entry-excerpt")
       .forEach(fixQuotesInTree);
+    DISPLAY_HEADING_SELECTORS.forEach((sel) => {
+      document.querySelectorAll(sel).forEach(wrapQuoteGlyphs);
+    });
   }
 
   if (document.readyState === "loading") {

@@ -29,6 +29,8 @@
   --shadow-card-hover: 0 2px 4px rgba(45, 41, 39, 0.05), 0 14px 38px rgba(45, 41, 39, 0.12);
 }
 
+.q { font-family: var(--font-body); }
+
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 /* max-width: 100vw prevents the html element from ever exceeding the
