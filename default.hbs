@@ -39,7 +39,7 @@
          that BACKEND-INVENTORY.md §6 lists as theme-callable. New
          worker → add it here AND to the MOAuth.fetch allowlist
          harvest in admin-auth.js. --}}
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com https://js.stripe.com https://plausible.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.buzzsprout.com https://js.stripe.com https://challenges.cloudflare.com https://embed.spotify.com https://open.spotify.com https://mereorthodoxy.com https://mo-test.ghost.io; connect-src 'self' https://mo-test.ghost.io https://mo-admin.mo-podcast-feed.workers.dev https://mo-audio.mo-podcast-feed.workers.dev https://mo-bible.mo-podcast-feed.workers.dev https://mo-ebook-access.mo-podcast-feed.workers.dev https://mo-errors.mo-podcast-feed.workers.dev https://mo-forms.mo-podcast-feed.workers.dev https://mo-gift.mo-podcast-feed.workers.dev https://mo-kit.mo-podcast-feed.workers.dev https://mo-kit-bridge.mo-podcast-feed.workers.dev https://mo-membership.mo-podcast-feed.workers.dev https://mo-pdf.mo-podcast-feed.workers.dev https://mo-podcast-feed.mo-podcast-feed.workers.dev https://mo-search.mo-podcast-feed.workers.dev https://mereorthodoxy.com https://www.mereorthodoxy.com https://api.stripe.com https://plausible.io https://challenges.cloudflare.com; form-action 'self' https://challenges.cloudflare.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com https://js.stripe.com https://plausible.io https://mo-admin.mo-podcast-feed.workers.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.buzzsprout.com https://js.stripe.com https://challenges.cloudflare.com https://embed.spotify.com https://open.spotify.com https://mereorthodoxy.com https://mo-test.ghost.io; connect-src 'self' https://mo-test.ghost.io https://mo-admin.mo-podcast-feed.workers.dev https://mo-audio.mo-podcast-feed.workers.dev https://mo-bible.mo-podcast-feed.workers.dev https://mo-ebook-access.mo-podcast-feed.workers.dev https://mo-errors.mo-podcast-feed.workers.dev https://mo-forms.mo-podcast-feed.workers.dev https://mo-gift.mo-podcast-feed.workers.dev https://mo-kit.mo-podcast-feed.workers.dev https://mo-kit-bridge.mo-podcast-feed.workers.dev https://mo-membership.mo-podcast-feed.workers.dev https://mo-pdf.mo-podcast-feed.workers.dev https://mo-podcast-feed.mo-podcast-feed.workers.dev https://mo-search.mo-podcast-feed.workers.dev https://mereorthodoxy.com https://www.mereorthodoxy.com https://api.stripe.com https://plausible.io https://challenges.cloudflare.com; form-action 'self' https://challenges.cloudflare.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <title>{{meta_title}}</title>
@@ -134,18 +134,18 @@
 
     {{ghost_head}}
 
-    {{!-- Plausible tracker is injected by Ghost's official Plausible
-         Integration via ghost_head (proxied through the Ghost domain
-         as pa-*.js, which bypasses ad blockers). Do NOT add a direct
-         <script src="plausible.io/..."> here: plausible.io/js/* is on
-         every major blocklist, so the request fails, and Ghost's
-         proxied build installs its own window.plausible without
-         replaying a queue shim — any event pushed to the shim before
-         the real sender loads is silently dropped.
+    {{!-- Plausible tracker: Ghost also injects its own Plausible script
+         via ghost_head, but it loads from plausible.io which ad blockers
+         intercept. This proxied copy goes through mo-admin, bypassing
+         blocklists. data-api tells the script to POST events to our
+         proxy instead of plausible.io directly.
 
          Custom events (e.g. "Article Read" on posts) fire via
-         window.plausible(...) on the 'load' event — after pa-*.js has
-         installed the real sender. See post.hbs for the one caller. --}}
+         window.plausible(...) on the 'load' event. See post.hbs. --}}
+    <script defer
+      data-domain="mereorthodoxy.com"
+      data-api="{{@custom.admin_worker_url}}/pa/e"
+      src="{{@custom.admin_worker_url}}/pa/js"></script>
 
     {{!-- Preload the logo image so the browser fetches it during
          parsing, before the <img> is discovered in the body. Eliminates
