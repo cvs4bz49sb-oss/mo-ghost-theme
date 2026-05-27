@@ -152,7 +152,7 @@
     const [sectionDragOver, setSectionDragOver] = useState(null);
     const [blockDragOver, setBlockDragOver] = useState(null);
     const [ghostUrl, setGhostUrl] = useState(() => localStorage.getItem("mo_ghost_url") || "https://mereorthodoxy.com");
-    const [ghostKey, setGhostKey] = useState(() => localStorage.getItem("mo_ghost_key") || "");
+    const [ghostKey, setGhostKey] = useState(() => localStorage.getItem("mo_ghost_key") || "ee3868113846e980e3ce9039e7");
     const [ghostError, setGhostError] = useState(null);
     const [ghostMessage, setGhostMessage] = useState(null);
     const [ghostLoading, setGhostLoading] = useState(false);
@@ -161,7 +161,7 @@
     const [podcastCount, setPodcastCount] = useState(2);
     const [showRssPanel, setShowRssPanel] = useState(false);
     const [showPodcastPanel, setShowPodcastPanel] = useState(false);
-    const [podcastWorkerUrl, setPodcastWorkerUrl] = useState(() => localStorage.getItem("mo_podcast_worker") || localStorage.getItem("mo_captivate_worker") || "");
+    const [podcastWorkerUrl, setPodcastWorkerUrl] = useState(() => localStorage.getItem("mo_podcast_worker") || localStorage.getItem("mo_captivate_worker") || "https://mo-podcast-feed.mo-podcast-feed.workers.dev/");
     const [podcastFeeds, setPodcastFeeds] = useState(() => {
       try {
         const saved = localStorage.getItem("mo_podcast_shows");
