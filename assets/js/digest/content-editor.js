@@ -277,15 +277,16 @@
           rows.map(async (row) => {
             try {
               const slug = row.slug.trim();
-              const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1`);
+              const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true`);
               if (!res.ok) throw new Error(`HTTP ${res.status}`);
               const data = await res.json().catch(() => ({}));
               const showData = data && data[slug];
               if (!showData) throw new Error(`Worker returned no data for slug "${slug}".`);
               if (showData.error) throw new Error(showData.error);
               const episodes = showData.episodes || [];
-              if (!episodes.length) throw new Error("No episodes returned for this show.");
-              return { row, show: showData.show, episode: episodes[0] };
+              const ep = showData.nextScheduled || episodes[0];
+              if (!ep) throw new Error("No episodes returned for this show.");
+              return { row, show: showData.show, episode: ep };
             } catch (err) {
               return { row, error: err.message };
             }
