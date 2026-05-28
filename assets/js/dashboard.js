@@ -106,15 +106,11 @@
     }
 
     if (!WORKER) return;
-    moKitGet("/tags")
+    moKitGet("/migration-status")
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
-        if (!data || !data.tags) return;
-        var tags = data.tags;
-        if (tags.indexOf("source:hubspot-migration") === -1) return;
-        var migrated = tags.indexOf("ghost-status-paid") !== -1
-          || tags.indexOf("tier:lifetime") !== -1;
-        showBanner(migrated);
+        if (!data || !data.show) return;
+        showBanner(data.migrated);
       })
       .catch(function () {});
 
