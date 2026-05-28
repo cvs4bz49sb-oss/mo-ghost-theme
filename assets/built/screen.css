@@ -6718,9 +6718,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin-bottom: 14px;
 }
 .migration-banner-btn {
-  display: inline-block;
   font-size: 13px;
   padding: 8px 20px;
+}
+.migration-banner-btn[hidden] {
+  display: none;
 }
 
 /* --- Engagement module (dashboard) ----------------------------------- */
