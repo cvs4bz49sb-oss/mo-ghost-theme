@@ -152,7 +152,7 @@
     const [sectionDragOver, setSectionDragOver] = useState(null);
     const [blockDragOver, setBlockDragOver] = useState(null);
     const [ghostUrl, setGhostUrl] = useState(() => localStorage.getItem("mo_ghost_url") || "https://mereorthodoxy.com");
-    const [ghostKey, setGhostKey] = useState(() => localStorage.getItem("mo_ghost_key") || "ee3868113846e980e3ce9039e7");
+    const [ghostKey, setGhostKey] = useState(() => localStorage.getItem("mo_ghost_key") || "");
     const [ghostError, setGhostError] = useState(null);
     const [ghostMessage, setGhostMessage] = useState(null);
     const [ghostLoading, setGhostLoading] = useState(false);
@@ -161,7 +161,7 @@
     const [podcastCount, setPodcastCount] = useState(2);
     const [showRssPanel, setShowRssPanel] = useState(false);
     const [showPodcastPanel, setShowPodcastPanel] = useState(false);
-    const [podcastWorkerUrl, setPodcastWorkerUrl] = useState(() => localStorage.getItem("mo_podcast_worker") || localStorage.getItem("mo_captivate_worker") || "https://mo-podcast-feed.mo-podcast-feed.workers.dev/");
+    const [podcastWorkerUrl, setPodcastWorkerUrl] = useState(() => localStorage.getItem("mo_podcast_worker") || localStorage.getItem("mo_captivate_worker") || "");
     const [podcastFeeds, setPodcastFeeds] = useState(() => {
       try {
         const saved = localStorage.getItem("mo_podcast_shows");
@@ -277,16 +277,15 @@
           rows.map(async (row) => {
             try {
               const slug = row.slug.trim();
-              const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true`);
+              const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1`);
               if (!res.ok) throw new Error(`HTTP ${res.status}`);
               const data = await res.json().catch(() => ({}));
               const showData = data && data[slug];
               if (!showData) throw new Error(`Worker returned no data for slug "${slug}".`);
               if (showData.error) throw new Error(showData.error);
               const episodes = showData.episodes || [];
-              const ep = showData.nextScheduled || episodes[0];
-              if (!ep) throw new Error("No episodes returned for this show.");
-              return { row, show: showData.show, episode: ep };
+              if (!episodes.length) throw new Error("No episodes returned for this show.");
+              return { row, show: showData.show, episode: episodes[0] };
             } catch (err) {
               return { row, error: err.message };
             }
