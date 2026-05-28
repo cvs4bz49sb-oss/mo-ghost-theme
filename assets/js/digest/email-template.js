@@ -304,7 +304,7 @@
     const showTitle = mastheadTitle && mastheadTitle.trim();
     const showMeta = issueNumber && String(issueNumber).trim() || dateStr && dateStr.trim();
     const showRightCol = showTitle || showMeta;
-    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 18px", borderBottom: `1px solid ${tokens.rule}` }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle", width: showRightCol ? "50%" : "100%", textAlign: showRightCol ? "left" : "center" } }, /* @__PURE__ */ React.createElement("img", { src: moDigestAsset("mere-o-logo.png"), alt: "Mere Orthodoxy", style: { height: 52, display: showRightCol ? "block" : "inline-block" } })), showRightCol && /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle", textAlign: "right", width: "50%" } }, showTitle && /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 18px", borderBottom: `1px solid ${tokens.rule}` }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle", width: showRightCol ? "50%" : "100%", textAlign: showRightCol ? "left" : "center" } }, /* @__PURE__ */ React.createElement("img", { src: moDigestAsset("mere-o-logo.png"), alt: "Mere Orthodoxy", width: "120", height: "52", style: { width: 120, height: 52, display: showRightCol ? "block" : "inline-block" } })), showRightCol && /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "middle", textAlign: "right", width: "50%" } }, showTitle && /* @__PURE__ */ React.createElement(
       "div",
       {
         style: {
@@ -740,7 +740,8 @@
       color: "#cdbfa9",
       padding: "36px 40px 32px",
       textAlign: "center"
-    }, className: "mo-pad-40" }, /* @__PURE__ */ React.createElement("img", { src: moDigestAsset("mere-o-logo.png"), alt: "Mere Orthodoxy", style: {
+    }, className: "mo-pad-40" }, /* @__PURE__ */ React.createElement("img", { src: moDigestAsset("mere-o-logo.png"), alt: "Mere Orthodoxy", width: "64", height: "28", style: {
+      width: 64,
       height: 28,
       display: "inline-block",
       filter: "brightness(0) invert(0.92)",
