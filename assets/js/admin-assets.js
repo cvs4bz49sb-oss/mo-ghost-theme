@@ -213,7 +213,10 @@
     const apiUrl = `${siteUrl}/ghost/api/content/posts/slug/${slug 
       }/?key=${contentApiKey}&include=authors,tags&formats=plaintext`;
     fetch(apiUrl)
-      .then((r) => { return r.json(); })
+      .then((r) => {
+        if (!r.ok) throw new Error(`Ghost API ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
         const post = data.posts && data.posts[0];
         if (!post) return;

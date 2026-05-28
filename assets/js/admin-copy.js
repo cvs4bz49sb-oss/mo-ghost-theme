@@ -81,6 +81,7 @@
       const slug = url.split("/").filter(Boolean).pop();
       const apiUrl = `${siteUrl}/ghost/api/content/posts/slug/${slug}/?key=${contentApiKey}&fields=title,custom_excerpt,plaintext&formats=plaintext`;
       const resp = await fetch(apiUrl);
+      if (!resp.ok) throw new Error(`Ghost API ${resp.status}`);
       const data = await resp.json();
       const post = data.posts && data.posts[0];
       if (!post) return "";

@@ -6690,6 +6690,39 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin: 0;
 }
 
+/* --- Migration banner (dashboard rail) ------------------------------- */
+.migration-banner { margin: 0; }
+.migration-banner-inner {
+  padding: 20px 24px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+}
+.migration-banner-text {
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
+.migration-banner--success {
+  background: rgba(46, 125, 50, 0.08);
+  border-left: 3px solid #2e7d32;
+}
+.migration-banner--success .migration-banner-text {
+  color: #1b5e20;
+}
+.migration-banner--action {
+  background: rgba(238, 125, 81, 0.08);
+  border-left: 3px solid var(--color-primary);
+}
+.migration-banner--action .migration-banner-text {
+  color: var(--color-dark);
+  margin-bottom: 14px;
+}
+.migration-banner-btn {
+  display: inline-block;
+  font-size: 13px;
+  padding: 8px 20px;
+}
+
 /* --- Engagement module (dashboard) ----------------------------------- */
 .engagement-module {
   position: relative;

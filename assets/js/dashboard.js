@@ -77,11 +77,59 @@
     });
   }
 
+  hydrateMigrationBanner();
   hydrateEngagement();
   hydrateBookmarks();
   hydrateCommonplace();
   hydrateHistory();
   hydrateReadingTracker();
+
+  // --- Migration banner ---------------------------------------------------
+
+  function hydrateMigrationBanner() {
+    const banner = document.querySelector("[data-migration-banner]");
+    if (!banner) return;
+    const textEl = banner.querySelector("[data-migration-banner-text]");
+    const btnEl = banner.querySelector("[data-migration-banner-btn]");
+    const inner = banner.querySelector("[data-migration-banner-inner]");
+
+    // Preview mode: ?migration=preview-migrated or ?migration=preview-pending
+    const params = new URLSearchParams(window.location.search);
+    const preview = params.get("migration");
+    if (preview === "preview-migrated") {
+      showBanner(true);
+      return;
+    }
+    if (preview === "preview-pending") {
+      showBanner(false);
+      return;
+    }
+
+    if (!WORKER) return;
+    moKitGet("/tags")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.tags) return;
+        var tags = data.tags;
+        if (tags.indexOf("source:hubspot-migration") === -1) return;
+        var migrated = tags.indexOf("ghost-status-paid") !== -1
+          || tags.indexOf("tier:lifetime") !== -1;
+        showBanner(migrated);
+      })
+      .catch(function () {});
+
+    function showBanner(migrated) {
+      if (migrated) {
+        inner.classList.add("migration-banner--success");
+        textEl.textContent = "You have successfully migrated your membership. Thank you!";
+      } else {
+        inner.classList.add("migration-banner--action");
+        textEl.textContent = "You still need to migrate your membership. You can do so here.";
+        btnEl.hidden = false;
+      }
+      banner.hidden = false;
+    }
+  }
 
   // --- Engagement module --------------------------------------------------
 

@@ -309,5 +309,4 @@
     setTimeout(injectButton, 3000);
   }
 
-  console.log("[MO] Subtitle generator ready.");
 })();
