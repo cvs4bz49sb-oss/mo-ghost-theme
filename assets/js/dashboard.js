@@ -107,12 +107,12 @@
 
     if (!WORKER) return;
     moKitGet("/migration-status")
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
+      .then((r) => { return r.ok ? r.json() : null; })
+      .then((data) => {
         if (!data || !data.show) return;
         showBanner(data.migrated);
       })
-      .catch(function () {});
+      .catch(() => {});
 
     function showBanner(migrated) {
       if (migrated) {
