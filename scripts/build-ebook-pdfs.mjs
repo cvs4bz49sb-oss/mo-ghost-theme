@@ -57,6 +57,12 @@ const BOOKS = [
     title: "Spiritual Formation for the Family",
     subtitle: "",
   },
+  {
+    slug: "ai-and-the-church",
+    src: "page-ebook-ai-and-the-church-read.hbs",
+    title: "Christians and Artificial Intelligence",
+    subtitle: "Fourteen essays on artificial intelligence, formation, and faithfulness.",
+  },
 ];
 
 function extractArticle(hbsPath) {
@@ -332,7 +338,17 @@ function main() {
   ensureDir(BUILD_DIR);
   ensureDir(OUT_DIR);
 
-  for (const book of BOOKS) {
+  // Optional CLI slug filter: `node build-ebook-pdfs.mjs <slug>` builds
+  // only that book. No arg builds all. Lets you regenerate a single
+  // ebook without churning the others' outputs.
+  const only = process.argv[2];
+  const books = only ? BOOKS.filter((b) => b.slug === only) : BOOKS;
+  if (only && books.length === 0) {
+    console.error(`No book with slug "${only}". Known: ${BOOKS.map((b) => b.slug).join(", ")}`);
+    process.exit(1);
+  }
+
+  for (const book of books) {
     const srcPath = resolve(THEME_ROOT, book.src);
     if (!existsSync(srcPath)) {
       console.error(`SKIP ${book.slug}: ${book.src} not found`);
