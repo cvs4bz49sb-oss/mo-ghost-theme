@@ -121,6 +121,86 @@
       fontStyle: "italic"
     } }, hint) : null);
   }
+  function ImageUrlField({ value, onChange }) {
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState("");
+    const inputRef = React.useRef(null);
+    const root = typeof document !== "undefined" ? document.getElementById("mo-digest-root") : null;
+    const workerUrl = (root && root.dataset && root.dataset.workerUrl || "").replace(/\/$/, "");
+    const canUpload = !!(workerUrl && window.MOAuth && typeof window.MOAuth.fetch === "function");
+    const handleFile = (file) => {
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image is larger than 5MB. Please use a smaller file.");
+        return;
+      }
+      setError("");
+      setUploading(true);
+      const fd = new FormData();
+      fd.append("file", file);
+      window.MOAuth.fetch(`${workerUrl}/images/upload`, { method: "POST", body: fd }).then((r) => r.ok ? r.json() : r.json().then((d) => {
+        throw new Error(d.error || `Upload failed (${r.status})`);
+      })).then((data) => {
+        onChange(data.url);
+        setUploading(false);
+      }).catch((err) => {
+        setError(err.message || "Upload failed.");
+        setUploading(false);
+      });
+    };
+    const uploadBtnStyle = {
+      flexShrink: 0,
+      background: "#fff",
+      color: "#2d2927",
+      border: "1px solid #2d2927",
+      padding: "8px 14px",
+      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: "0.14em",
+      textTransform: "uppercase",
+      cursor: uploading ? "wait" : "pointer",
+      borderRadius: 10,
+      opacity: uploading ? 0.6 : 1,
+      whiteSpace: "nowrap"
+    };
+    return /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, "Image URL"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "stretch" } }, /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        style: { ...fieldStyles.input, flex: 1 },
+        type: "text",
+        value: value || "",
+        placeholder: canUpload ? "Paste a hosted image URL, or upload \u2192" : "Paste a hosted image URL",
+        onChange: (e) => onChange(e.target.value)
+      }
+    ), canUpload && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        ref: inputRef,
+        type: "file",
+        accept: "image/jpeg,image/png,image/gif,image/webp,image/svg+xml",
+        style: { display: "none" },
+        onChange: (e) => {
+          handleFile(e.target.files && e.target.files[0]);
+          e.target.value = "";
+        }
+      }
+    ), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        type: "button",
+        disabled: uploading,
+        onClick: () => inputRef.current && inputRef.current.click(),
+        style: uploadBtnStyle
+      },
+      uploading ? "Uploading\u2026" : "Upload"
+    ))), error ? /* @__PURE__ */ React.createElement("div", { style: {
+      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+      fontSize: 11,
+      color: "#a43a27",
+      marginTop: 4
+    } }, error) : null);
+  }
   function Group({ title, children, defaultOpen = false }) {
     const [open, setOpen] = useState(defaultOpen);
     return /* @__PURE__ */ React.createElement("div", { style: { borderTop: "1px solid #e8d9bd", padding: "14px 0" } }, /* @__PURE__ */ React.createElement(
@@ -705,10 +785,9 @@
                 return { label: `Button \u2014 ${snippet || "untitled"}`, isBlock: true };
               }
               if (block.type === "image") {
-                const hasLink = !!(block.url || "").trim();
                 const cap = (block.linkText || "").trim();
                 const alt = (block.alt || "").trim();
-                const desc = hasLink && cap ? cap : alt || "untitled";
+                const desc = cap || alt || "untitled";
                 return { label: `Image \u2014 ${desc}`, isBlock: true };
               }
               return { label: `Text \u2014 ${snippet || "(empty)"}`, isBlock: true };
@@ -953,7 +1032,7 @@
               const arr = [...content.customBlocks || []];
               arr[i] = { ...arr[i], url: v };
               updateField("customBlocks", arr);
-            } })) : block.type === "image" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Field, { label: "Image URL", value: block.src, placeholder: "https://\u2026 (paste a hosted image URL)", onChange: (v) => {
+            } })) : block.type === "image" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(ImageUrlField, { value: block.src, onChange: (v) => {
               const arr = [...content.customBlocks || []];
               arr[i] = { ...arr[i], src: v };
               updateField("customBlocks", arr);
@@ -964,11 +1043,10 @@
             } }), /* @__PURE__ */ React.createElement(
               Field,
               {
-                label: "Caption (links below the image)",
+                label: "Caption (appears below the image)",
                 value: block.linkText,
                 placeholder: "e.g. Read the full story \u2192",
-                disabled: !(block.url || "").trim(),
-                hint: !(block.url || "").trim() ? "Add a link above to show a caption below the image." : "Appears below the image and links to the URL above.",
+                hint: (block.url || "").trim() ? "Shown as a clickable link to the URL above." : "Shown as a plain caption. Add a link above to make it clickable.",
                 onChange: (v) => {
                   const arr = [...content.customBlocks || []];
                   arr[i] = { ...arr[i], linkText: v };

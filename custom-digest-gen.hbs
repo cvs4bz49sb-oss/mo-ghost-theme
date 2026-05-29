@@ -32,7 +32,7 @@
       </header>
 
       <section class="admin-body admin-body--digest" style="padding:0;">
-        <div id="mo-digest-root" style="background:#f1e0c9;min-height:calc(100vh - 280px);"></div>
+        <div id="mo-digest-root" data-worker-url="{{@custom.admin_worker_url}}" style="background:#f1e0c9;min-height:calc(100vh - 280px);"></div>
       </section>
 
     </div>
@@ -55,6 +55,7 @@
     <script src="{{asset "js/digest/email-template.js"}}"></script>
     <script src="{{asset "js/digest/content-editor.js"}}"></script>
     <script src="{{asset "js/digest/export-html.js"}}"></script>
+    <script src="{{asset "js/admin-auth.js"}}"></script>
     <script src="{{asset "js/digest/app.js"}}"></script>
 
   {{else}}

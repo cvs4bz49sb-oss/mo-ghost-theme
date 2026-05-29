@@ -1175,21 +1175,33 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
               {linkHref
                 ? <a href={linkHref} style={{ textDecoration: 'none', display: 'block' }}>{img}</a>
                 : img}
-              {linkHref && caption && (
+              {caption && (
                 <div style={{ textAlign: 'center', marginTop: 12 }}>
-                  <a href={linkHref} style={{
-                    fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: '0.16em',
-                    textTransform: 'uppercase',
-                    color: tokens.tertiary,
-                    textDecoration: 'none',
-                    borderBottom: `1.5px solid ${tokens.tertiary}`,
-                    paddingBottom: 2,
-                  }}>
-                    {caption}
-                  </a>
+                  {linkHref ? (
+                    <a href={linkHref} style={{
+                      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: '0.16em',
+                      textTransform: 'uppercase',
+                      color: tokens.tertiary,
+                      textDecoration: 'none',
+                      borderBottom: `1.5px solid ${tokens.tertiary}`,
+                      paddingBottom: 2,
+                    }}>
+                      {caption}
+                    </a>
+                  ) : (
+                    <span style={{
+                      fontFamily: 'Georgia, "Times New Roman", serif',
+                      fontStyle: 'italic',
+                      fontSize: 13,
+                      lineHeight: 1.5,
+                      color: tokens.mutedText,
+                    }}>
+                      {caption}
+                    </span>
+                  )}
                 </div>
               )}
             </div>

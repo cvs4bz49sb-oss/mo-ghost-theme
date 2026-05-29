@@ -822,7 +822,7 @@
               display: "block",
               borderRadius: 5
             } });
-            return /* @__PURE__ */ React.createElement("div", { style: { padding: "24px 40px 8px" }, className: "mo-letter mo-pad-40" }, linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: { textDecoration: "none", display: "block" } }, img) : img, linkHref && caption && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginTop: 12 } }, /* @__PURE__ */ React.createElement("a", { href: linkHref, style: {
+            return /* @__PURE__ */ React.createElement("div", { style: { padding: "24px 40px 8px" }, className: "mo-letter mo-pad-40" }, linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: { textDecoration: "none", display: "block" } }, img) : img, caption && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginTop: 12 } }, linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: {
               fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
               fontSize: 11,
               fontWeight: 700,
@@ -832,6 +832,12 @@
               textDecoration: "none",
               borderBottom: `1.5px solid ${tokens.tertiary}`,
               paddingBottom: 2
+            } }, caption) : /* @__PURE__ */ React.createElement("span", { style: {
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontStyle: "italic",
+              fontSize: 13,
+              lineHeight: 1.5,
+              color: tokens.mutedText
             } }, caption)));
           }
           const paras = markdownParagraphs(block.text || "");
