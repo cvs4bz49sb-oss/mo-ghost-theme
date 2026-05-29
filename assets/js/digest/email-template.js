@@ -278,8 +278,10 @@
     essays: SAMPLE_ESSAYS,
     podcasts: SAMPLE_PODCASTS,
     // Free-form content blocks rendered in the customBlocks slot.
-    // Each block: {id, type: 'text'|'button', text, url?, variant?}
+    // Each block: {id, type: 'text'|'button'|'image', text?, url?, variant?, src?, linkText?, alt?}
     // Text blocks accept Markdown. Button blocks render as a centered CTA.
+    // Image blocks render a full-width image; if `url` is set the image
+    // links, and an optional `linkText` caption renders as a link below it.
     customBlocks: [],
     // Visibility map. Keys are fixed-section names ('letter',
     // 'membership', etc.) AND/OR custom-block ids ('b_abc123…').
@@ -808,6 +810,28 @@
           if (!block) return null;
           if (block.type === "button") {
             return /* @__PURE__ */ React.createElement("div", { style: { padding: "14px 40px 18px", textAlign: "center" }, className: "mo-pad-40" }, /* @__PURE__ */ React.createElement(Button, { tokens, variant: block.variant || "primary", size: "lg", accent, href: block.url || "#" }, block.text || "Button"));
+          }
+          if (block.type === "image") {
+            if (!block.src) return null;
+            const linkHref = (block.url || "").trim();
+            const caption = (block.linkText || "").trim();
+            const img = /* @__PURE__ */ React.createElement("img", { src: block.src, alt: block.alt || "", style: {
+              width: "100%",
+              height: "auto",
+              display: "block",
+              borderRadius: 5
+            } });
+            return /* @__PURE__ */ React.createElement("div", { style: { padding: "24px 40px 8px" }, className: "mo-letter mo-pad-40" }, linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: { textDecoration: "none", display: "block" } }, img) : img, linkHref && caption && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginTop: 12 } }, /* @__PURE__ */ React.createElement("a", { href: linkHref, style: {
+              fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: tokens.tertiary,
+              textDecoration: "none",
+              borderBottom: `1.5px solid ${tokens.tertiary}`,
+              paddingBottom: 2
+            } }, caption)));
           }
           const paras = markdownParagraphs(block.text || "");
           if (!paras.length) return null;

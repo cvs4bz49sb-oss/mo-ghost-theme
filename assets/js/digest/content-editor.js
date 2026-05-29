@@ -92,25 +92,34 @@
       minHeight: 70
     }
   };
-  function Field({ label, value, onChange, multiline, rows = 3, placeholder }) {
-    return /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, label), multiline ? /* @__PURE__ */ React.createElement(
+  function Field({ label, value, onChange, multiline, rows = 3, placeholder, disabled, hint }) {
+    const disabledInput = disabled ? { background: "#f1ece2", color: "#9a8773", cursor: "not-allowed" } : null;
+    return /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("label", { style: { ...fieldStyles.label, ...disabled ? { color: "#bcae99" } : null } }, label), multiline ? /* @__PURE__ */ React.createElement(
       "textarea",
       {
-        style: { ...fieldStyles.textarea, minHeight: rows * 22 },
+        style: { ...fieldStyles.textarea, minHeight: rows * 22, ...disabledInput },
         value: value || "",
         placeholder,
+        disabled,
         onChange: (e) => onChange(e.target.value)
       }
     ) : /* @__PURE__ */ React.createElement(
       "input",
       {
-        style: fieldStyles.input,
+        style: { ...fieldStyles.input, ...disabledInput },
         type: "text",
         value: value || "",
         placeholder,
+        disabled,
         onChange: (e) => onChange(e.target.value)
       }
-    ));
+    ), hint ? /* @__PURE__ */ React.createElement("div", { style: {
+      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+      fontSize: 11,
+      color: "#9a8773",
+      marginTop: 4,
+      fontStyle: "italic"
+    } }, hint) : null);
   }
   function Group({ title, children, defaultOpen = false }) {
     const [open, setOpen] = useState(defaultOpen);
@@ -695,6 +704,13 @@
               if (block.type === "button") {
                 return { label: `Button \u2014 ${snippet || "untitled"}`, isBlock: true };
               }
+              if (block.type === "image") {
+                const hasLink = !!(block.url || "").trim();
+                const cap = (block.linkText || "").trim();
+                const alt = (block.alt || "").trim();
+                const desc = hasLink && cap ? cap : alt || "untitled";
+                return { label: `Image \u2014 ${desc}`, isBlock: true };
+              }
               return { label: `Text \u2014 ${snippet || "(empty)"}`, isBlock: true };
             }
             return { label: k, isBlock: false };
@@ -840,7 +856,7 @@
           color: "#6b6258",
           lineHeight: 1.5,
           marginBottom: 12
-        } }, "Free-form text or button blocks. Each block appears as its own row in the Sections list above \u2014 drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "**bold**"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "*italic*"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "__underline__"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "[link](url)"), ")."), (content.customBlocks || []).map((block, i) => {
+        } }, "Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above \u2014 drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "**bold**"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "*italic*"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "__underline__"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "[link](url)"), "). Image blocks take a hosted image URL plus an optional link and a caption that links below the image."), (content.customBlocks || []).map((block, i) => {
           const removeBlock = () => {
             const next = JSON.parse(JSON.stringify(content));
             next.customBlocks = (next.customBlocks || []).filter((_, j) => j !== i);
@@ -913,7 +929,7 @@
                 textTransform: "uppercase",
                 color: "#c1593c",
                 flex: 1
-              } }, block.type === "button" ? `Button \xB7 #${i + 1}` : `Text \xB7 #${i + 1}`),
+              } }, block.type === "button" ? `Button \xB7 #${i + 1}` : block.type === "image" ? `Image \xB7 #${i + 1}` : `Text \xB7 #${i + 1}`),
               /* @__PURE__ */ React.createElement("button", { onClick: removeBlock, style: { ...btnStyle("danger"), padding: "4px 10px" }, title: "Remove" }, "\xD7")
             ),
             block.type === "button" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Button text", value: block.text, onChange: (v) => {
@@ -937,7 +953,41 @@
               const arr = [...content.customBlocks || []];
               arr[i] = { ...arr[i], url: v };
               updateField("customBlocks", arr);
-            } })) : /* @__PURE__ */ React.createElement(
+            } })) : block.type === "image" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Field, { label: "Image URL", value: block.src, placeholder: "https://\u2026 (paste a hosted image URL)", onChange: (v) => {
+              const arr = [...content.customBlocks || []];
+              arr[i] = { ...arr[i], src: v };
+              updateField("customBlocks", arr);
+            } }), /* @__PURE__ */ React.createElement(Field, { label: "Link (optional) \u2014 where the image and caption point", value: block.url, placeholder: "https://\u2026", onChange: (v) => {
+              const arr = [...content.customBlocks || []];
+              arr[i] = { ...arr[i], url: v };
+              updateField("customBlocks", arr);
+            } }), /* @__PURE__ */ React.createElement(
+              Field,
+              {
+                label: "Caption (links below the image)",
+                value: block.linkText,
+                placeholder: "e.g. Read the full story \u2192",
+                disabled: !(block.url || "").trim(),
+                hint: !(block.url || "").trim() ? "Add a link above to show a caption below the image." : "Appears below the image and links to the URL above.",
+                onChange: (v) => {
+                  const arr = [...content.customBlocks || []];
+                  arr[i] = { ...arr[i], linkText: v };
+                  updateField("customBlocks", arr);
+                }
+              }
+            ), /* @__PURE__ */ React.createElement(
+              Field,
+              {
+                label: "Alt text (describes the image for accessibility)",
+                value: block.alt,
+                hint: (block.src || "").trim() && !(block.alt || "").trim() ? "No alt text \u2014 screen readers will skip this image. Add a description, or leave blank if it is purely decorative." : "",
+                onChange: (v) => {
+                  const arr = [...content.customBlocks || []];
+                  arr[i] = { ...arr[i], alt: v };
+                  updateField("customBlocks", arr);
+                }
+              }
+            )) : /* @__PURE__ */ React.createElement(
               Field,
               {
                 label: "Text \u2014 Markdown supported",
@@ -952,7 +1002,7 @@
               }
             )
           );
-        }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(
+        }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => {
@@ -978,6 +1028,19 @@
             style: btnStyle("secondary")
           },
           "+ Add Button"
+        ), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => {
+              const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+              const next = JSON.parse(JSON.stringify(content));
+              next.customBlocks = [...next.customBlocks || [], { id, type: "image", src: "", url: "", linkText: "", alt: "" }];
+              next.sectionOrder = Array.isArray(next.sectionOrder) ? [...next.sectionOrder, id] : [id];
+              onChange(next);
+            },
+            style: btnStyle("secondary")
+          },
+          "+ Add Image"
         ))), /* @__PURE__ */ React.createElement(Group, { title: "Membership CTA (free version)" }, /* @__PURE__ */ React.createElement(Field, { label: "Headline (use \\\\n for line break)", value: content.membership?.headline, multiline: true, rows: 2, onChange: (v) => updateField("membership.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.membership?.body, multiline: true, rows: 3, onChange: (v) => updateField("membership.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.membership?.cta, onChange: (v) => updateField("membership.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.membership?.href, onChange: (v) => updateField("membership.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "Member thanks (paid version)" }, /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.memberThanks?.headline, onChange: (v) => updateField("memberThanks.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.memberThanks?.body, multiline: true, rows: 2, onChange: (v) => updateField("memberThanks.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.memberThanks?.cta, onChange: (v) => updateField("memberThanks.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.memberThanks?.href, onChange: (v) => updateField("memberThanks.href", v) }))), ["sponsorTop", "sponsorBottom"].map((key) => /* @__PURE__ */ React.createElement(Group, { key, title: key === "sponsorTop" ? "Sponsor \u2014 top slot" : "Sponsor \u2014 bottom slot" }, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Section label", value: content[key]?.label, onChange: (v) => updateField(`${key}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Sponsor name", value: content[key]?.name, onChange: (v) => updateField(`${key}.name`, v) })), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content[key]?.headline, onChange: (v) => updateField(`${key}.headline`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content[key]?.body, multiline: true, rows: 3, onChange: (v) => updateField(`${key}.body`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content[key]?.cta, onChange: (v) => updateField(`${key}.cta`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content[key]?.href, onChange: (v) => updateField(`${key}.href`, v) })))), /* @__PURE__ */ React.createElement(Group, { title: `Essays (${content.essays?.length || 0})` }, /* @__PURE__ */ React.createElement(Field, { label: "Section heading", value: content.essaysHeading, placeholder: "This Week's Essays", onChange: (v) => updateField("essaysHeading", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement(
           "button",
           {

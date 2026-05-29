@@ -305,6 +305,9 @@ function listImageFilenames(content) {
   (content.podcasts || []).forEach((p) => {
     if (p.img) set.add(p.img.split('/').pop());
   });
+  (content.customBlocks || []).forEach((b) => {
+    if (b && b.type === 'image' && b.src) set.add(b.src.split('/').pop());
+  });
   return Array.from(set);
 }
 

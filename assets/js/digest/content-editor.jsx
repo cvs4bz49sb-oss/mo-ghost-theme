@@ -125,26 +125,35 @@ const fieldStyles = {
   },
 };
 
-function Field({ label, value, onChange, multiline, rows = 3, placeholder }) {
+function Field({ label, value, onChange, multiline, rows = 3, placeholder, disabled, hint }) {
+  const disabledInput = disabled ? { background: '#f1ece2', color: '#9a8773', cursor: 'not-allowed' } : null;
   return (
     <div style={{ marginBottom: 12 }}>
-      <label style={fieldStyles.label}>{label}</label>
+      <label style={{ ...fieldStyles.label, ...(disabled ? { color: '#bcae99' } : null) }}>{label}</label>
       {multiline ? (
         <textarea
-          style={{ ...fieldStyles.textarea, minHeight: rows * 22 }}
+          style={{ ...fieldStyles.textarea, minHeight: rows * 22, ...disabledInput }}
           value={value || ''}
           placeholder={placeholder}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
         />
       ) : (
         <input
-          style={fieldStyles.input}
+          style={{ ...fieldStyles.input, ...disabledInput }}
           type="text"
           value={value || ''}
           placeholder={placeholder}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
         />
       )}
+      {hint ? (
+        <div style={{
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11, color: '#9a8773', marginTop: 4, fontStyle: 'italic',
+        }}>{hint}</div>
+      ) : null}
     </div>
   );
 }
@@ -872,6 +881,13 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                   if (block.type === 'button') {
                     return { label: `Button — ${snippet || 'untitled'}`, isBlock: true };
                   }
+                  if (block.type === 'image') {
+                    const hasLink = !!(block.url || '').trim();
+                    const cap = (block.linkText || '').trim();
+                    const alt = (block.alt || '').trim();
+                    const desc = (hasLink && cap) ? cap : (alt || 'untitled');
+                    return { label: `Image — ${desc}`, isBlock: true };
+                  }
                   return { label: `Text — ${snippet || '(empty)'}`, isBlock: true };
                 }
                 return { label: k, isBlock: false };
@@ -1039,7 +1055,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               fontFamily: '"Source Sans 3", Arial, sans-serif',
               fontSize: 12, color: '#6b6258', lineHeight: 1.5, marginBottom: 12,
             }}>
-              Free-form text or button blocks. Each block appears as its own row in the Sections list above — drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>).
+              Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above — drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>). Image blocks take a hosted image URL plus an optional link and a caption that links below the image.
             </div>
             {(content.customBlocks || []).map((block, i) => {
               const removeBlock = () => {
@@ -1108,7 +1124,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                       fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
                       color: '#c1593c', flex: 1,
                     }}>
-                      {block.type === 'button' ? `Button · #${i + 1}` : `Text · #${i + 1}`}
+                      {block.type === 'button' ? `Button · #${i + 1}` : block.type === 'image' ? `Image · #${i + 1}` : `Text · #${i + 1}`}
                     </div>
                     <button onClick={removeBlock} style={{ ...btnStyle('danger'), padding: '4px 10px' }} title="Remove">×</button>
                   </div>
@@ -1142,6 +1158,41 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                         updateField('customBlocks', arr);
                       }} />
                     </>
+                  ) : block.type === 'image' ? (
+                    <>
+                      <Field label="Image URL" value={block.src} placeholder="https://… (paste a hosted image URL)" onChange={(v) => {
+                        const arr = [...(content.customBlocks || [])];
+                        arr[i] = { ...arr[i], src: v };
+                        updateField('customBlocks', arr);
+                      }} />
+                      <Field label="Link (optional) — where the image and caption point" value={block.url} placeholder="https://…" onChange={(v) => {
+                        const arr = [...(content.customBlocks || [])];
+                        arr[i] = { ...arr[i], url: v };
+                        updateField('customBlocks', arr);
+                      }} />
+                      <Field
+                        label="Caption (links below the image)"
+                        value={block.linkText}
+                        placeholder="e.g. Read the full story →"
+                        disabled={!((block.url || '').trim())}
+                        hint={!((block.url || '').trim()) ? 'Add a link above to show a caption below the image.' : 'Appears below the image and links to the URL above.'}
+                        onChange={(v) => {
+                          const arr = [...(content.customBlocks || [])];
+                          arr[i] = { ...arr[i], linkText: v };
+                          updateField('customBlocks', arr);
+                        }}
+                      />
+                      <Field
+                        label="Alt text (describes the image for accessibility)"
+                        value={block.alt}
+                        hint={((block.src || '').trim() && !((block.alt || '').trim())) ? 'No alt text — screen readers will skip this image. Add a description, or leave blank if it is purely decorative.' : ''}
+                        onChange={(v) => {
+                          const arr = [...(content.customBlocks || [])];
+                          arr[i] = { ...arr[i], alt: v };
+                          updateField('customBlocks', arr);
+                        }}
+                      />
+                    </>
                   ) : (
                     <Field
                       label="Text — Markdown supported"
@@ -1158,7 +1209,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 </div>
               );
             })}
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
               <button
                 onClick={() => {
                   const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
@@ -1179,6 +1230,16 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 }}
                 style={btnStyle('secondary')}
               >+ Add Button</button>
+              <button
+                onClick={() => {
+                  const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+                  const next = JSON.parse(JSON.stringify(content));
+                  next.customBlocks = [...(next.customBlocks || []), { id, type: 'image', src: '', url: '', linkText: '', alt: '' }];
+                  next.sectionOrder = Array.isArray(next.sectionOrder) ? [...next.sectionOrder, id] : [id];
+                  onChange(next);
+                }}
+                style={btnStyle('secondary')}
+              >+ Add Image</button>
             </div>
           </Group>
 

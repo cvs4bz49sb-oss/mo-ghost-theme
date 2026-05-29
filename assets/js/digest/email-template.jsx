@@ -345,8 +345,10 @@ const DEFAULT_CONTENT = {
   essays: SAMPLE_ESSAYS,
   podcasts: SAMPLE_PODCASTS,
   // Free-form content blocks rendered in the customBlocks slot.
-  // Each block: {id, type: 'text'|'button', text, url?, variant?}
+  // Each block: {id, type: 'text'|'button'|'image', text?, url?, variant?, src?, linkText?, alt?}
   // Text blocks accept Markdown. Button blocks render as a centered CTA.
+  // Image blocks render a full-width image; if `url` is set the image
+  // links, and an optional `linkText` caption renders as a link below it.
   customBlocks: [],
   // Visibility map. Keys are fixed-section names ('letter',
   // 'membership', etc.) AND/OR custom-block ids ('b_abc123…').
@@ -1152,6 +1154,43 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
               <Button tokens={tokens} variant={block.variant || 'primary'} size="lg" accent={accent} href={block.url || '#'}>
                 {block.text || 'Button'}
               </Button>
+            </div>
+          );
+        }
+        if (block.type === 'image') {
+          if (!block.src) return null;
+          const linkHref = (block.url || '').trim();
+          const caption = (block.linkText || '').trim();
+          const img = (
+            <img src={block.src} alt={block.alt || ''} style={{
+              width: '100%',
+              height: 'auto',
+              display: 'block',
+              borderRadius: 5,
+            }} />
+          );
+          return (
+            <div style={{ padding: '24px 40px 8px' }} className="mo-letter mo-pad-40">
+              {linkHref
+                ? <a href={linkHref} style={{ textDecoration: 'none', display: 'block' }}>{img}</a>
+                : img}
+              {linkHref && caption && (
+                <div style={{ textAlign: 'center', marginTop: 12 }}>
+                  <a href={linkHref} style={{
+                    fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    color: tokens.tertiary,
+                    textDecoration: 'none',
+                    borderBottom: `1.5px solid ${tokens.tertiary}`,
+                    paddingBottom: 2,
+                  }}>
+                    {caption}
+                  </a>
+                </div>
+              )}
             </div>
           );
         }
