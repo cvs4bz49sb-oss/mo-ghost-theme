@@ -1162,8 +1162,9 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
           const linkHref = (block.url || '').trim();
           const caption = (block.linkText || '').trim();
           const img = (
-            <img src={block.src} alt={block.alt || ''} style={{
+            <img src={block.src} alt={block.alt || ''} width="520" style={{
               width: '100%',
+              maxWidth: 520,
               height: 'auto',
               display: 'block',
               borderRadius: 5,

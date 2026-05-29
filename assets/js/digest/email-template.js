@@ -815,8 +815,9 @@
             if (!block.src) return null;
             const linkHref = (block.url || "").trim();
             const caption = (block.linkText || "").trim();
-            const img = /* @__PURE__ */ React.createElement("img", { src: block.src, alt: block.alt || "", style: {
+            const img = /* @__PURE__ */ React.createElement("img", { src: block.src, alt: block.alt || "", width: "520", style: {
               width: "100%",
+              maxWidth: 520,
               height: "auto",
               display: "block",
               borderRadius: 5
