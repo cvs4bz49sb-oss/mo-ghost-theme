@@ -29,6 +29,34 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from "node
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { PostHog } from "posthog-node";
+
+// Load .env from repo root if present (for local dev).
+(function loadDotenv() {
+  try {
+    const envPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", ".env");
+    if (existsSync(envPath)) {
+      const lines = readFileSync(envPath, "utf8").split(/\r?\n/);
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+        const eq = trimmed.indexOf("=");
+        if (eq < 1) continue;
+        const key = trimmed.slice(0, eq).trim();
+        const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
+        if (key && !(key in process.env)) process.env[key] = val;
+      }
+    }
+  } catch (_) {}
+})();
+
+const posthog = new PostHog(process.env.POSTHOG_API_KEY || "", {
+  host: process.env.POSTHOG_HOST || "https://us.i.posthog.com",
+  flushAt: 1,
+  flushInterval: 0,
+  enableExceptionAutocapture: true,
+});
+const DISTINCT_ID = "ian@mereorthodoxy.com";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -62,6 +90,12 @@ const BOOKS = [
     src: "page-ebook-ai-and-the-church-read.hbs",
     title: "Christians and Artificial Intelligence",
     subtitle: "Fourteen essays on artificial intelligence, formation, and faithfulness.",
+  },
+  {
+    slug: "formation",
+    src: "page-ebook-formation-read.hbs",
+    title: "Christian Formation in the Modern World",
+    subtitle: "A Mere Orthodoxy Collection",
   },
 ];
 
@@ -334,7 +368,7 @@ function renderEpub(htmlPath, epubPath, { title, subtitle }) {
   execSync(cmd, { stdio: "inherit" });
 }
 
-function main() {
+async function main() {
   ensureDir(BUILD_DIR);
   ensureDir(OUT_DIR);
 
@@ -363,14 +397,51 @@ function main() {
 
     const pdfPath = resolve(OUT_DIR, `${book.slug}.pdf`);
     console.log(`  rendering PDF → ${pdfPath}`);
-    renderPdf(htmlPath, pdfPath);
+    try {
+      renderPdf(htmlPath, pdfPath);
+      posthog.capture({
+        distinctId: DISTINCT_ID,
+        event: "ebook_pdf_built",
+        properties: {
+          slug: book.slug,
+          title: book.title,
+          size_kb: Math.round(html.length / 1024),
+        },
+      });
+    } catch (err) {
+      posthog.captureException(err, DISTINCT_ID, { slug: book.slug, format: "pdf" });
+      posthog.capture({
+        distinctId: DISTINCT_ID,
+        event: "ebook_build_failed",
+        properties: { slug: book.slug, format: "pdf", error: String(err.message || err) },
+      });
+      throw err;
+    }
 
     const epubPath = resolve(OUT_DIR, `${book.slug}.epub`);
     console.log(`  rendering EPUB → ${epubPath}`);
-    renderEpub(htmlPath, epubPath, book);
+    try {
+      renderEpub(htmlPath, epubPath, book);
+      posthog.capture({
+        distinctId: DISTINCT_ID,
+        event: "ebook_epub_built",
+        properties: { slug: book.slug, title: book.title },
+      });
+    } catch (err) {
+      posthog.captureException(err, DISTINCT_ID, { slug: book.slug, format: "epub" });
+      posthog.capture({
+        distinctId: DISTINCT_ID,
+        event: "ebook_build_failed",
+        properties: { slug: book.slug, format: "epub", error: String(err.message || err) },
+      });
+      throw err;
+    }
   }
 
   console.log("\nDone.");
+  await posthog.shutdown();
 }
 
-main();
+main().catch((err) => {
+  posthog.shutdown().finally(() => { process.exit(1); });
+});

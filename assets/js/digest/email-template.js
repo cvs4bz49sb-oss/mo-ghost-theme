@@ -212,17 +212,17 @@
     ian: {
       name: "Ian Harber",
       title: "Director of Communications",
-      photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/04/ghost-upload-1776705432479-126119-Untitled_20design_20_15_.png"
+      photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/05/sig-ian-256.png"
     },
     jake: {
       name: "Jake Meador",
       title: "Editor-in-Chief",
-      photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/04/2-Mar-05-2025-04-48-32-4411-PM.png"
+      photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/05/sig-jake-256.png"
     },
     mark: {
       name: "Mark Kremer",
       title: "Executive Director & Publisher",
-      photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/04/Mere-Orthodoxy--Team-Headshots.png"
+      photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/05/sig-mark-256.png"
     }
   };
   const DEFAULT_CONTENT = {

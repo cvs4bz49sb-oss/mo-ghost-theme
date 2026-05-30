@@ -1,0 +1,41 @@
+{{!< default}}
+{{!-- /ebook/formation/ — free-subscriber landing page.
+     See sibling templates + partials/ebook-signup.hbs for the model.
+     Free signup → label ebook:formation →
+     access to this ebook only. --}}
+
+<main class="ebook-page">
+
+  <section class="hero ebook-hero">
+    <div class="container">
+      <div class="ebook-hero-grid">
+        <div class="ebook-hero-content">
+          <p class="hero-kicker"><span class="dot"></span> A Mere Orthodoxy Ebook</p>
+          <h1 class="hero-headline ebook-hero-headline">
+            What it means to be <span class="highlight"><em>formed in Christ</em></span>.
+          </h1>
+          <p class="hero-sub">Eleven essays on Christian formation across theology, pastoral care, work, technology, the body, and the life of the mind.</p>
+
+          <div class="ebook-hero-meta">
+            <p class="ebook-meta-row"><span class="eyebrow">For</span> Pastors, teachers, and Christians who want to grow.</p>
+            <p class="ebook-meta-row"><span class="eyebrow">Cost</span> Free with a Mere Orthodoxy subscription.</p>
+          </div>
+
+          <div class="ebook-hero-prose">
+            <p>What does it mean to be formed as a Christian, not merely to know the right things, but to become the right kind of person? These essays take that question seriously, approaching it from theology, pastoral care, psychology, technology, work, the body, and the life of the mind.</p>
+            <p>Taken together, they offer something more than a practical guide. They are themselves an act of formation: patient, careful, rooted in tradition, and convinced that the renewal of the church and culture depends not on better strategies but on deeper formation in Christ.</p>
+          </div>
+        </div>
+
+        {{> "ebook-signup"
+            slug="formation"
+            title="Christian Formation in the Modern World"
+            read_url="/ebook/formation/read/"
+            tier_slug="ebook-formation"}}
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/ebook-landing.js"}}"></script>
