@@ -86,13 +86,34 @@
     </div>
 
 
-    {{!-- Top Regions — 2-column grid for geography. --}}
+    {{!-- Top Countries — 2-column grid for geography. --}}
     <div class="section-intro section-intro-left">
-      <h2 class="section-heading"><em>Top Regions.</em></h2>
+      <h2 class="section-heading"><em>Top Countries.</em></h2>
     </div>
     <ol class="admin-ranked admin-ranked--columns" data-admin-top-countries>
       <li class="admin-empty" data-countries-placeholder>Loading&hellip;</li>
     </ol>
+
+
+    {{!-- Two-column: top states + top cities. --}}
+    <div class="admin-split">
+      <div class="admin-split-main">
+        <div class="section-intro section-intro-left">
+          <h2 class="section-heading"><em>Top States.</em></h2>
+        </div>
+        <ol class="admin-ranked" data-admin-top-regions>
+          <li class="admin-empty" data-regions-placeholder>Loading&hellip;</li>
+        </ol>
+      </div>
+      <aside class="admin-split-side">
+        <div class="section-intro section-intro-left">
+          <h2 class="section-heading"><em>Top Cities.</em></h2>
+        </div>
+        <ol class="admin-ranked" data-admin-top-cities>
+          <li class="admin-empty" data-cities-placeholder>Loading&hellip;</li>
+        </ol>
+      </aside>
+    </div>
 
   </div>
 </section>

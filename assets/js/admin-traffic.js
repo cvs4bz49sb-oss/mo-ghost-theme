@@ -51,6 +51,8 @@
     fill("[data-admin-top-pages]", '<li class="admin-empty">Loading…</li>');
     fill("[data-admin-top-sources]", '<li class="admin-empty">Loading…</li>');
     fill("[data-admin-top-countries]", '<li class="admin-empty">Loading…</li>');
+    fill("[data-admin-top-regions]", '<li class="admin-empty">Loading…</li>');
+    fill("[data-admin-top-cities]", '<li class="admin-empty">Loading…</li>');
     root.querySelectorAll('[data-stat]').forEach((el) => { el.textContent = "…"; });
 
     api("/traffic/summary").then((res) => {
@@ -63,35 +65,45 @@
       if (res.forbidden) return showForbidden();
       fillChart(res.body);
     });
-    api("/traffic/top-articles?limit=20").then((res) => {
+    api("/traffic/top-articles?limit=10").then((res) => {
       if (!res) return fill("[data-admin-top-articles]", '<li class="admin-empty">Couldn’t load articles.</li>');
       if (res.forbidden) return showForbidden();
       fillArticles(res.body);
     });
-    api("/traffic/top-topics?limit=20").then((res) => {
+    api("/traffic/top-topics?limit=10").then((res) => {
       if (!res) return fill("[data-admin-top-topics]", '<li class="admin-empty">Couldn’t load topics.</li>');
       if (res.forbidden) return showForbidden();
       fillTopics(res.body);
     });
-    api("/traffic/top-authors?limit=20").then((res) => {
+    api("/traffic/top-authors?limit=10").then((res) => {
       if (!res) return fill("[data-admin-top-authors]", '<li class="admin-empty">Couldn’t load contributors.</li>');
       if (res.forbidden) return showForbidden();
       fillAuthors(res.body);
     });
-    api("/traffic/top-pages?limit=20").then((res) => {
+    api("/traffic/top-pages?limit=10").then((res) => {
       if (!res) return fill("[data-admin-top-pages]", '<li class="admin-empty">Couldn’t load pages.</li>');
       if (res.forbidden) return showForbidden();
       fillPages(res.body);
     });
-    api("/traffic/top-sources?limit=15").then((res) => {
+    api("/traffic/top-sources?limit=10").then((res) => {
       if (!res) return fill("[data-admin-top-sources]", '<li class="admin-empty">Couldn’t load sources.</li>');
       if (res.forbidden) return showForbidden();
       fillSources(res.body);
     });
-    api("/traffic/top-countries?limit=20").then((res) => {
+    api("/traffic/top-countries?limit=10").then((res) => {
       if (!res) return fill("[data-admin-top-countries]", '<li class="admin-empty">Couldn’t load countries.</li>');
       if (res.forbidden) return showForbidden();
       fillCountries(res.body);
+    });
+    api("/traffic/top-regions?limit=10").then((res) => {
+      if (!res) return fill("[data-admin-top-regions]", '<li class="admin-empty">Couldn’t load states.</li>');
+      if (res.forbidden) return showForbidden();
+      fillRegions(res.body);
+    });
+    api("/traffic/top-cities?limit=10").then((res) => {
+      if (!res) return fill("[data-admin-top-cities]", '<li class="admin-empty">Couldn’t load cities.</li>');
+      if (res.forbidden) return showForbidden();
+      fillCities(res.body);
     });
   }
 
@@ -344,6 +356,38 @@
         `<li class="admin-ranked-item">` +
           `<div class="admin-ranked-bar" style="width: ${bar}%"></div>` +
           `<span class="admin-ranked-label">${escapeHtml(c.country)}</span>` +
+          `<span class="admin-ranked-value">${formatNumber(c.visitors)}</span>` +
+        `</li>`
+      );
+    }).join(""));
+  }
+
+  function fillRegions(payload) {
+    const regions = (payload && payload.regions) || [];
+    if (!regions.length) return fill("[data-admin-top-regions]", '<li class="admin-empty">No data.</li>');
+    const max = regions[0].visitors || 1;
+    fill("[data-admin-top-regions]", regions.map((r) => {
+      const bar = Math.round(((r.visitors || 0) / max) * 100);
+      return (
+        `<li class="admin-ranked-item">` +
+          `<div class="admin-ranked-bar" style="width: ${bar}%"></div>` +
+          `<span class="admin-ranked-label">${escapeHtml(r.region)}</span>` +
+          `<span class="admin-ranked-value">${formatNumber(r.visitors)}</span>` +
+        `</li>`
+      );
+    }).join(""));
+  }
+
+  function fillCities(payload) {
+    const cities = (payload && payload.cities) || [];
+    if (!cities.length) return fill("[data-admin-top-cities]", '<li class="admin-empty">No data.</li>');
+    const max = cities[0].visitors || 1;
+    fill("[data-admin-top-cities]", cities.map((c) => {
+      const bar = Math.round(((c.visitors || 0) / max) * 100);
+      return (
+        `<li class="admin-ranked-item">` +
+          `<div class="admin-ranked-bar" style="width: ${bar}%"></div>` +
+          `<span class="admin-ranked-label">${escapeHtml(c.city)}</span>` +
           `<span class="admin-ranked-value">${formatNumber(c.visitors)}</span>` +
         `</li>`
       );
