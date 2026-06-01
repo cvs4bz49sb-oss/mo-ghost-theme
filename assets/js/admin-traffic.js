@@ -4,9 +4,10 @@
  * Fetches from mo-admin worker /traffic/* endpoints and renders:
  *   - Summary stats (visitors, pageviews, visit duration, bounce)
  *   - Visitors-per-day sparkline SVG
- *   - Top pages (left column)
- *   - Top sources (right column)
- *   - Top countries (grid)
+ *   - Top articles, topics, contributors
+ *   - Top pages + top sources (split)
+ *   - Top countries (grid), then top states + top cities (split)
+ * Every ranked list is capped at 10 entries.
  *
  * Period buttons at the top re-fetch everything with the selected
  * period param ("7d", "30d", "month", "6mo", "12mo"). Worker passes
