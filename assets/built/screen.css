@@ -2075,6 +2075,34 @@ img { max-width: 100%; height: auto; }
   display: block;
 }
 
+/* Default (regular-width) in-content images render at a consistent
+   max display width regardless of the uploaded file's pixel size, so
+   editors and contributors don't have to pre-resize screenshots. A
+   2048px phone screenshot and a 700px image both land at 500px wide.
+   `min()` keeps it safe on phones (never wider than the column).
+   `max-width` (not `width`) avoids upscaling/blurring small images.
+   Wide and full-width images are an explicit author choice, so they
+   are left untouched. Specificity here clears Ghost's cards.min.css,
+   which loads after screen.min.css. */
+.article-content .kg-image-card:not(.kg-width-wide):not(.kg-width-full) .kg-image {
+  display: inline-block;
+  max-width: min(500px, 100%);
+  /* Also cap height so tall portrait phone screenshots don't swallow
+     the whole screen. Aspect ratio is preserved (width/height stay
+     auto), so this only constrains very tall images; landscape photos
+     never reach 640px tall and are unaffected. */
+  max-height: 640px;
+  width: auto;
+  /* Subtle plate radius — brand spec: "no razor edges". */
+  border-radius: 6px;
+}
+/* Center the constrained image (and its caption). When max-height is
+   the limiting dimension the image's width is "auto", so margin:auto
+   can't center it — center the inline-block image via the figure. */
+.article-content .kg-image-card:not(.kg-width-wide):not(.kg-width-full) {
+  text-align: center;
+}
+
 .kg-image-card figcaption,
 .kg-embed-card figcaption,
 .kg-gallery-card figcaption {
