@@ -15040,6 +15040,7 @@ body.mo-search-open { overflow: hidden; }
 .slide-in-eyebrow {
   color: var(--color-primary);
   margin: 0 0 4px;
+  padding-right: 32px;
 }
 .slide-in-headline {
   font-family: var(--font-display);
