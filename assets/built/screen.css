@@ -15268,6 +15268,134 @@ body.mo-search-open { overflow: hidden; }
   display: none !important;
 }
 
+/* Audience checkbox group */
+.dashboard-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.dashboard-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-dark);
+}
+.dashboard-checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* Slide-in preview panel */
+.slide-in-preview-panel {
+  margin-top: 32px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.slide-in-preview-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--color-wash, #faf9f7);
+  border-bottom: 1px solid var(--color-rule);
+}
+.slide-in-preview-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-right: auto;
+}
+.slide-in-preview-modes {
+  display: flex;
+  gap: 4px;
+}
+.slide-in-preview-modes .btn.is-active {
+  background: var(--color-primary);
+  color: #fff;
+}
+.slide-in-preview-viewport {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 40px 24px;
+  min-height: 260px;
+  background: repeating-conic-gradient(#f5f4f2 0% 25%, #faf9f7 0% 50%) 0 0 / 20px 20px;
+  transition: padding 0.2s;
+}
+.slide-in-preview-stage {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: flex-end;
+}
+/* Mobile preview: constrain width to phone-like viewport */
+[data-preview-viewport="mobile"] {
+  padding: 40px 24px 0;
+}
+[data-preview-viewport="mobile"] .slide-in-preview-stage {
+  max-width: 375px;
+  justify-content: stretch;
+}
+[data-preview-viewport="mobile"] .slide-in,
+[data-preview-viewport="mobile"] .slide-in.has-image {
+  width: 100%;
+  display: grid;
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: none;
+}
+[data-preview-viewport="mobile"] .slide-in:not(.has-image) {
+  grid-template-columns: 1fr;
+}
+[data-preview-viewport="mobile"] .slide-in.has-image {
+  grid-template-columns: 110px 1fr;
+}
+[data-preview-viewport="mobile"] .slide-in:not(.has-image) .slide-in-image {
+  display: none;
+}
+[data-preview-viewport="mobile"] .slide-in.has-image .slide-in-image {
+  grid-row: 1 / -1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.12) saturate(0.85) contrast(1.02);
+  border-right: 1px solid var(--color-card-border);
+  border-radius: var(--radius) 0 0 0;
+}
+[data-preview-viewport="mobile"] .slide-in-close {
+  width: 24px;
+  height: 24px;
+  font-size: 15px;
+}
+[data-preview-viewport="mobile"] .slide-in-content {
+  padding: 12px 40px 14px 14px;
+}
+[data-preview-viewport="mobile"] .slide-in-eyebrow {
+  margin: 0 0 2px;
+  font-size: 10px;
+}
+[data-preview-viewport="mobile"] .slide-in-headline {
+  font-size: 16px;
+  margin: 0 0 8px;
+}
+[data-preview-viewport="mobile"] .slide-in-body {
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+[data-preview-viewport="mobile"] .slide-in-btn {
+  font-size: 12px;
+  padding: 6px 16px;
+}
+.slide-in-preview-panel[hidden] { display: none; }
+
 /* ═══════════════════════════════════════════════════════════════
    Liturgical Calendar Theme
    Members-only church-year color system. Each lc-* class on <body>

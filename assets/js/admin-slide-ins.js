@@ -23,6 +23,14 @@
   const triggerValueField = form.querySelector("[data-trigger-value-field]");
   const triggerValueInput = form.querySelector('[name="trigger_value"]');
   const triggerHint = form.querySelector("[data-trigger-hint]");
+  const audienceGroup = form.querySelector("[data-audience-group]");
+  const audienceBoxes = form.querySelectorAll('[name="audience"]');
+  const previewBtn = host.querySelector("[data-slide-in-preview]");
+  const previewPanel = host.querySelector("[data-slide-in-preview-panel]");
+  const previewStage = host.querySelector("[data-slide-in-preview-stage]");
+  const previewCloseBtn = host.querySelector("[data-slide-in-preview-close]");
+  const previewViewport = host.querySelector("[data-preview-viewport]");
+  const previewModeBtns = host.querySelectorAll("[data-preview-mode]");
 
   // Image upload elements
   const imageHidden = form.querySelector('[name="image"]');
@@ -38,6 +46,18 @@
 
   pagesSelect.addEventListener("change", () => {
     tagField.hidden = pagesSelect.value !== "tag";
+  });
+
+  // Audience checkbox logic: "everyone" clears the rest, picking specifics clears "everyone"
+  audienceBoxes.forEach((box) => {
+    box.addEventListener("change", () => {
+      if (box.value === "everyone" && box.checked) {
+        audienceBoxes.forEach((b) => { if (b.value !== "everyone") b.checked = false; });
+      } else if (box.value !== "everyone" && box.checked) {
+        var everyoneBox = form.querySelector('[name="audience"][value="everyone"]');
+        if (everyoneBox) everyoneBox.checked = false;
+      }
+    });
   });
 
   function updateTriggerUI() {
@@ -132,7 +152,9 @@
       form.querySelector('[name="body"]').value = item.body || "";
       form.querySelector('[name="button_text"]').value = item.button_text || "";
       form.querySelector('[name="button_url"]').value = item.button_url || "";
-      form.querySelector('[name="audience"]').value = item.audience || "everyone";
+      // Populate audience checkboxes
+      var aud = (item.audience || "everyone").split(",");
+      audienceBoxes.forEach((b) => { b.checked = aud.indexOf(b.value) >= 0; });
       form.querySelector('[name="frequency"]').value = item.frequency || "weekly";
       form.querySelector('[name="priority"]').value = item.priority || 0;
       form.querySelector('[name="active"]').checked = item.active !== false;
@@ -153,7 +175,9 @@
     } else {
       editingId = null;
       form.querySelectorAll("input:not([type=file]):not([type=hidden]), textarea, select").forEach((el) => {
-        if (el.type === "checkbox") el.checked = true;
+        if (el.name === "audience") { el.checked = el.value === "everyone"; }
+        else if (el.name === "active" && el.type === "checkbox") el.checked = true;
+        else if (el.type === "checkbox") el.checked = false;
         else if (el.type === "number") el.value = "0";
         else if (el.tagName === "SELECT") el.selectedIndex = 0;
         else el.value = "";
@@ -180,7 +204,7 @@
       button_text: form.querySelector('[name="button_text"]').value.trim(),
       button_url: form.querySelector('[name="button_url"]').value.trim(),
       pages,
-      audience: form.querySelector('[name="audience"]').value,
+      audience: Array.from(audienceBoxes).filter(function (b) { return b.checked; }).map(function (b) { return b.value; }).join(",") || "everyone",
       frequency: form.querySelector('[name="frequency"]').value,
       priority: parseInt(form.querySelector('[name="priority"]').value, 10) || 0,
       active: form.querySelector('[name="active"]').checked,
@@ -203,10 +227,11 @@
         item.pages === "homepage" ? "Homepage" :
         item.pages === "posts" ? "All posts" :
         item.pages.indexOf("tag:") === 0 ? `Tag: ${item.pages.slice(4)}` : item.pages;
-      const audience = {
+      const audLabels = {
         everyone: "Everyone", "not-signed-in": "Not signed in",
         "signed-in": "Signed in", free: "Free", paid: "Paid"
-      }[item.audience] || item.audience;
+      };
+      const audience = (item.audience || "everyone").split(",").map(function (a) { return audLabels[a] || a; }).join(", ");
 
       let triggerLabel = { delay: "Delay", exit: "Exit intent", scroll: "Scroll" }[item.trigger || "delay"] || "Delay";
       if (item.trigger === "scroll" && item.trigger_value) triggerLabel += ` ${item.trigger_value}%`;
@@ -319,6 +344,86 @@
       })
       .catch((err) => { showStatus(err.message || "Save failed.", true); })
       .finally(() => { saveBtn.disabled = false; });
+  });
+
+  // ── Preview ──────────────────────────────────────────────────
+  function renderPreview() {
+    var data = collect();
+    previewStage.innerHTML = "";
+
+    var el = document.createElement("aside");
+    el.className = "slide-in" + (data.image ? " has-image" : "") + " is-visible";
+    el.setAttribute("role", "complementary");
+    el.style.position = "relative";
+    el.style.transform = "none";
+
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "slide-in-close";
+    close.setAttribute("aria-label", "Dismiss");
+    close.innerHTML = "&times;";
+    el.appendChild(close);
+
+    if (data.image) {
+      var img = document.createElement("img");
+      img.className = "slide-in-image";
+      img.src = data.image;
+      img.alt = "";
+      el.appendChild(img);
+    }
+
+    var content = document.createElement("div");
+    content.className = "slide-in-content";
+
+    if (data.eyebrow) {
+      var ey = document.createElement("p");
+      ey.className = "eyebrow slide-in-eyebrow";
+      ey.textContent = data.eyebrow;
+      content.appendChild(ey);
+    }
+
+    var h = document.createElement("h3");
+    h.className = "slide-in-headline";
+    var em = document.createElement("em");
+    em.textContent = data.headline || "(no headline)";
+    h.appendChild(em);
+    content.appendChild(h);
+
+    if (data.body) {
+      var p = document.createElement("p");
+      p.className = "slide-in-body";
+      p.textContent = data.body;
+      content.appendChild(p);
+    }
+
+    var btn = document.createElement("a");
+    btn.href = "#";
+    btn.className = "btn btn-primary slide-in-btn";
+    btn.textContent = data.button_text || "(no button text)";
+    btn.addEventListener("click", function (e) { e.preventDefault(); });
+    content.appendChild(btn);
+
+    el.appendChild(content);
+    previewStage.appendChild(el);
+    previewPanel.hidden = false;
+  }
+
+  previewBtn.addEventListener("click", renderPreview);
+
+  previewCloseBtn.addEventListener("click", function () {
+    previewPanel.hidden = true;
+    previewStage.innerHTML = "";
+  });
+
+  previewModeBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var mode = btn.getAttribute("data-preview-mode");
+      previewViewport.setAttribute("data-preview-viewport", mode);
+      previewModeBtns.forEach(function (b) { b.classList.remove("is-active"); });
+      btn.classList.add("is-active");
+      // Re-render to pick up size changes
+      renderPreview();
+    });
   });
 
   // MOAuth.fetch attaches the JWT internally; loadAll's first call

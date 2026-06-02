@@ -68,13 +68,15 @@
   }
 
   function matchesAudience(item) {
-    const a = item.audience;
-    if (a === "everyone") return true;
-    if (a === "not-signed-in") return !isMember;
-    if (a === "signed-in") return isMember;
-    if (a === "free") return isFree;
-    if (a === "paid") return isPaid;
-    return false;
+    const parts = (item.audience || "everyone").split(",");
+    return parts.some(function (a) {
+      if (a === "everyone") return true;
+      if (a === "not-signed-in") return !isMember;
+      if (a === "signed-in") return isMember;
+      if (a === "free") return isFree;
+      if (a === "paid") return isPaid;
+      return false;
+    });
   }
 
   function isDismissed(item) {

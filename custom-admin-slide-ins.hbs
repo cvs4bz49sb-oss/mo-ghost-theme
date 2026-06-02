@@ -96,16 +96,32 @@
                   <input type="text" name="tag_slug" placeholder="e.g. family" />
                   <span class="dashboard-form-hint">The tag's URL slug, not its display name.</span>
                 </label>
-                <label class="dashboard-form-field">
+                <fieldset class="dashboard-form-field" data-audience-group>
                   <span class="dashboard-form-label">Audience</span>
-                  <select name="audience">
-                    <option value="everyone">Everyone</option>
-                    <option value="not-signed-in">Not signed in</option>
-                    <option value="signed-in">Any signed-in member</option>
-                    <option value="free">Free subscribers only</option>
-                    <option value="paid">Paid members only</option>
-                  </select>
-                </label>
+                  <div class="dashboard-checkbox-group">
+                    <label class="dashboard-checkbox-item">
+                      <input type="checkbox" name="audience" value="everyone" />
+                      <span>Everyone</span>
+                    </label>
+                    <label class="dashboard-checkbox-item">
+                      <input type="checkbox" name="audience" value="not-signed-in" />
+                      <span>Not signed in</span>
+                    </label>
+                    <label class="dashboard-checkbox-item">
+                      <input type="checkbox" name="audience" value="signed-in" />
+                      <span>Any signed-in member</span>
+                    </label>
+                    <label class="dashboard-checkbox-item">
+                      <input type="checkbox" name="audience" value="free" />
+                      <span>Free subscribers only</span>
+                    </label>
+                    <label class="dashboard-checkbox-item">
+                      <input type="checkbox" name="audience" value="paid" />
+                      <span>Paid members only</span>
+                    </label>
+                  </div>
+                  <span class="dashboard-form-hint">Select one or more. "Everyone" overrides other selections.</span>
+                </fieldset>
               </div>
 
               <div class="dashboard-form-group">
@@ -147,9 +163,25 @@
 
               <div class="dashboard-address-actions">
                 <button type="button" class="btn btn-primary" data-slide-in-save>Save</button>
+                <button type="button" class="btn btn-ghost" data-slide-in-preview>Preview</button>
                 <button type="button" class="btn btn-ghost" data-slide-in-cancel>Cancel</button>
               </div>
               <p class="dashboard-form-success" data-slide-in-status hidden></p>
+
+              {{!-- Live preview panel --}}
+              <div class="slide-in-preview-panel" data-slide-in-preview-panel hidden>
+                <div class="slide-in-preview-toolbar">
+                  <span class="slide-in-preview-title">Preview</span>
+                  <div class="slide-in-preview-modes">
+                    <button type="button" class="btn btn-sm btn-ghost is-active" data-preview-mode="desktop">Desktop</button>
+                    <button type="button" class="btn btn-sm btn-ghost" data-preview-mode="mobile">Mobile</button>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-ghost" data-slide-in-preview-close>&times;</button>
+                </div>
+                <div class="slide-in-preview-viewport" data-preview-viewport="desktop">
+                  <div class="slide-in-preview-stage" data-slide-in-preview-stage></div>
+                </div>
+              </div>
             </div>
           </div>
 
