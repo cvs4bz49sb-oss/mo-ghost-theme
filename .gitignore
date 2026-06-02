@@ -19,3 +19,9 @@ scripts/.ebook-build/
 # to data/faith-received/ (also gitignored); the partial under
 # partials/faith-received/polanus-syntagma.hbs IS committed.
 scripts/polanus-source/
+
+# Claude Code skills folder (not part of the theme)
+.claude/
+
+# PostHog wizard report (not part of the theme)
+posthog-setup-report.md
