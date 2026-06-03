@@ -312,14 +312,14 @@
     if (!s) return "";
     const parts = s.split(/\s+/);
     let start = 0;
-    // Strict prose-token test: the whole token must be letters,
-    // apostrophes, or hyphens, optionally with a single trailing
-    // punctuation mark (comma, period, etc.). No digits, brackets,
-    // quotes, slashes, underscores, or `>` — all dead giveaways of
-    // CSS / HTML fragments that leaked through broken parsing.
-    const PROSE = /^[A-Za-z][A-Za-z’’’-]*[.,!?;:]?$/;
+    // Skip tokens that are clearly CSS/HTML fragments leaked from broken
+    // HTML-stripping (e.g. `[&_pre>div]:border-0.5`, `class="foo"`).
+    // These all contain bracket, slash, underscore, equals, or quote
+    // characters. Real prose words — including things like "Audio.1776"
+    // or "1776" at the start of a sentence — don’t contain those.
+    const JUNK = /[[\]\\/_=<>"’{}|@#^*~`]/;
     while (start < parts.length) {
-      if (PROSE.test(parts[start])) break;
+      if (!JUNK.test(parts[start])) break;
       start++;
     }
     if (start >= parts.length) return "";
