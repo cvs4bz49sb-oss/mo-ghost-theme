@@ -212,16 +212,19 @@
     ian: {
       name: "Ian Harber",
       title: "Director of Communications",
+      // 256px resized — original was 6.2 MB which exceeded Gmail's image proxy limit
       photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/05/sig-ian-256.png"
     },
     jake: {
       name: "Jake Meador",
       title: "Editor-in-Chief",
+      // 256px resized — original was 5.6 MB
       photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/05/sig-jake-256.png"
     },
     mark: {
       name: "Mark Kremer",
       title: "Executive Director & Publisher",
+      // 256px resized — original was 3.9 MB
       photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/05/sig-mark-256.png"
     }
   };

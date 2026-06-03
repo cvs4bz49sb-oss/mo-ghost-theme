@@ -73,7 +73,7 @@
 
   function matchesAudience(item) {
     const parts = (item.audience || "everyone").split(",");
-    return parts.some(function (a) {
+    return parts.some((a) => {
       if (a === "everyone") return true;
       if (a === "not-signed-in") return !isMember;
       if (a === "signed-in") return isMember;

@@ -153,6 +153,12 @@ async function checkM4() {
     if (f.includes("SECURITY-AGENT.md")) continue;
     if (f.endsWith(".jsx")) continue;
     if (f.includes("vendor/")) continue;
+    // Skip generated/minified bundles. Their source .js is already scanned
+    // here, so the bundle is redundant; worse, minifier variable-renaming
+    // (e.g. API_KEY -> y) defeats the source-form whitelists below and
+    // guarantees false positives on the intended-public Ghost key URL.
+    // Mirrors the .min.js exclusion M5 already has (see checkM5).
+    if (f.endsWith(".min.js")) continue;
     const text = await read(f);
     const lines = text.split("\n");
     for (let i = 0; i < lines.length; i++) {

@@ -413,9 +413,12 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   // Fetch latest episode of each show via the existing mo-podcast-feed
   // worker (the same one the homepage podcast cards consume). The worker
   // owns Buzzsprout auth (env-stored BUZZSPROUT_API_TOKEN) so the browser
-  // only needs to GET ?show=<slug>&limit=1.
+  // only needs to GET ?show=<slug>&limit=1&scheduled=true. The scheduled
+  // flag asks the worker to surface the next upcoming episode (nextScheduled)
+  // so the weekly digest features the episode going out the next day rather
+  // than the most recently published one.
   //
-  // Worker response shape: { "<slug>": { show: {title, slug, source}, episodes: [{title, description, link, artwork, episode, audioUrl, ...}] } }
+  // Worker response shape: { "<slug>": { show: {title, slug, source}, episodes: [...], nextScheduled?: {title, description, link, artwork, episode, audioUrl, ...} } }
   const fetchPodcastFeeds = async () => {
     setPodcastError(null);
     setPodcastMessage(null);
@@ -441,15 +444,20 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
         rows.map(async (row) => {
           try {
             const slug = row.slug.trim();
-            const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1`);
+            const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json().catch(() => ({}));
             const showData = data && data[slug];
             if (!showData) throw new Error(`Worker returned no data for slug "${slug}".`);
             if (showData.error) throw new Error(showData.error);
             const episodes = showData.episodes || [];
-            if (!episodes.length) throw new Error('No episodes returned for this show.');
-            return { row, show: showData.show, episode: episodes[0] };
+            // Prefer the upcoming scheduled episode (the one going out the
+            // next day) over the most recently published one. The worker
+            // returns it as nextScheduled when ?scheduled=true is passed;
+            // fall back to episodes[0] when there's nothing scheduled.
+            const ep = showData.nextScheduled || episodes[0];
+            if (!ep) throw new Error('No episodes returned for this show.');
+            return { row, show: showData.show, episode: ep };
           } catch (err) {
             return { row, error: err.message };
           }
