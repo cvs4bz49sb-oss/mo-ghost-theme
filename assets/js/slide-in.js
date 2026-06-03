@@ -32,8 +32,12 @@
   const memberEmail = document.body.getAttribute("data-member-email") || "";
   const memberStatus = document.body.getAttribute("data-member-status") || "";
   const isMember = !!memberEmail;
-  const isPaid = memberStatus === "paid";
-  const isFree = isMember && !isPaid;
+  // Ghost member.status is "free", "paid", or "comped". Comped members
+  // have complimentary full access, so treat them as paid — they must
+  // NOT match a "free subscribers only" audience. Only a true "free"
+  // status is a free subscriber.
+  const isPaid = memberStatus === "paid" || memberStatus === "comped";
+  const isFree = isMember && memberStatus === "free";
 
   // ── Fetch ─────────────────────────────────────────────────────
   function load(cb) {
