@@ -971,9 +971,10 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                     return { label: `Button — ${snippet || 'untitled'}`, isBlock: true };
                   }
                   if (block.type === 'image') {
+                    const head = (block.heading || '').replace(/[*_]+/g, '').trim();
                     const cap = (block.linkText || '').trim();
                     const alt = (block.alt || '').trim();
-                    const desc = cap || alt || 'untitled';
+                    const desc = head || cap || alt || 'untitled';
                     return { label: `Image — ${desc}`, isBlock: true };
                   }
                   return { label: `Text — ${snippet || '(empty)'}`, isBlock: true };
@@ -1143,7 +1144,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
               fontFamily: '"Source Sans 3", Arial, sans-serif',
               fontSize: 12, color: '#6b6258', lineHeight: 1.5, marginBottom: 12,
             }}>
-              Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above — drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>). Image blocks take a hosted image URL plus an optional link and a caption that links below the image.
+              Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above — drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (<code style={{ fontFamily: 'ui-monospace, monospace' }}>**bold**</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>*italic*</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>__underline__</code>, <code style={{ fontFamily: 'ui-monospace, monospace' }}>[link](url)</code>). Image blocks take a hosted image URL plus an optional headline (above the image), body text (below the image, Markdown), a link, and a caption that links below the image.
             </div>
             {(content.customBlocks || []).map((block, i) => {
               const removeBlock = () => {
@@ -1248,11 +1249,34 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                     </>
                   ) : block.type === 'image' ? (
                     <>
+                      <Field
+                        label="Headline (optional) — appears above the image"
+                        value={block.heading}
+                        placeholder="e.g. Get the Journal"
+                        hint="Markdown supported. Leave blank for no headline."
+                        onChange={(v) => {
+                          const arr = [...(content.customBlocks || [])];
+                          arr[i] = { ...arr[i], heading: v };
+                          updateField('customBlocks', arr);
+                        }}
+                      />
                       <ImageUrlField value={block.src} onChange={(v) => {
                         const arr = [...(content.customBlocks || [])];
                         arr[i] = { ...arr[i], src: v };
                         updateField('customBlocks', arr);
                       }} />
+                      <Field
+                        label="Body text (optional) — appears below the image, Markdown supported"
+                        value={block.body}
+                        multiline
+                        rows={5}
+                        hint="Leave blank for no body text."
+                        onChange={(v) => {
+                          const arr = [...(content.customBlocks || [])];
+                          arr[i] = { ...arr[i], body: v };
+                          updateField('customBlocks', arr);
+                        }}
+                      />
                       <Field label="Link (optional) — where the image and caption point" value={block.url} placeholder="https://…" onChange={(v) => {
                         const arr = [...(content.customBlocks || [])];
                         arr[i] = { ...arr[i], url: v };
@@ -1321,7 +1345,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 onClick={() => {
                   const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
                   const next = JSON.parse(JSON.stringify(content));
-                  next.customBlocks = [...(next.customBlocks || []), { id, type: 'image', src: '', url: '', linkText: '', alt: '' }];
+                  next.customBlocks = [...(next.customBlocks || []), { id, type: 'image', heading: '', src: '', body: '', url: '', linkText: '', alt: '' }];
                   next.sectionOrder = Array.isArray(next.sectionOrder) ? [...next.sectionOrder, id] : [id];
                   onChange(next);
                 }}

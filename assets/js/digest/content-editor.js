@@ -786,9 +786,10 @@
                 return { label: `Button \u2014 ${snippet || "untitled"}`, isBlock: true };
               }
               if (block.type === "image") {
+                const head = (block.heading || "").replace(/[*_]+/g, "").trim();
                 const cap = (block.linkText || "").trim();
                 const alt = (block.alt || "").trim();
-                const desc = cap || alt || "untitled";
+                const desc = head || cap || alt || "untitled";
                 return { label: `Image \u2014 ${desc}`, isBlock: true };
               }
               return { label: `Text \u2014 ${snippet || "(empty)"}`, isBlock: true };
@@ -936,7 +937,7 @@
           color: "#6b6258",
           lineHeight: 1.5,
           marginBottom: 12
-        } }, "Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above \u2014 drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "**bold**"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "*italic*"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "__underline__"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "[link](url)"), "). Image blocks take a hosted image URL plus an optional link and a caption that links below the image."), (content.customBlocks || []).map((block, i) => {
+        } }, "Free-form text, button, or image blocks. Each block appears as its own row in the Sections list above \u2014 drag it there to position it anywhere in the email (between essays and podcasts, before the membership CTA, etc.). Text blocks accept Markdown (", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "**bold**"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "*italic*"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "__underline__"), ", ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace" } }, "[link](url)"), "). Image blocks take a hosted image URL plus an optional headline (above the image), body text (below the image, Markdown), a link, and a caption that links below the image."), (content.customBlocks || []).map((block, i) => {
           const removeBlock = () => {
             const next = JSON.parse(JSON.stringify(content));
             next.customBlocks = (next.customBlocks || []).filter((_, j) => j !== i);
@@ -1033,11 +1034,38 @@
               const arr = [...content.customBlocks || []];
               arr[i] = { ...arr[i], url: v };
               updateField("customBlocks", arr);
-            } })) : block.type === "image" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(ImageUrlField, { value: block.src, onChange: (v) => {
+            } })) : block.type === "image" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(
+              Field,
+              {
+                label: "Headline (optional) \u2014 appears above the image",
+                value: block.heading,
+                placeholder: "e.g. Get the Journal",
+                hint: "Markdown supported. Leave blank for no headline.",
+                onChange: (v) => {
+                  const arr = [...content.customBlocks || []];
+                  arr[i] = { ...arr[i], heading: v };
+                  updateField("customBlocks", arr);
+                }
+              }
+            ), /* @__PURE__ */ React.createElement(ImageUrlField, { value: block.src, onChange: (v) => {
               const arr = [...content.customBlocks || []];
               arr[i] = { ...arr[i], src: v };
               updateField("customBlocks", arr);
-            } }), /* @__PURE__ */ React.createElement(Field, { label: "Link (optional) \u2014 where the image and caption point", value: block.url, placeholder: "https://\u2026", onChange: (v) => {
+            } }), /* @__PURE__ */ React.createElement(
+              Field,
+              {
+                label: "Body text (optional) \u2014 appears below the image, Markdown supported",
+                value: block.body,
+                multiline: true,
+                rows: 5,
+                hint: "Leave blank for no body text.",
+                onChange: (v) => {
+                  const arr = [...content.customBlocks || []];
+                  arr[i] = { ...arr[i], body: v };
+                  updateField("customBlocks", arr);
+                }
+              }
+            ), /* @__PURE__ */ React.createElement(Field, { label: "Link (optional) \u2014 where the image and caption point", value: block.url, placeholder: "https://\u2026", onChange: (v) => {
               const arr = [...content.customBlocks || []];
               arr[i] = { ...arr[i], url: v };
               updateField("customBlocks", arr);
@@ -1113,7 +1141,7 @@
             onClick: () => {
               const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
               const next = JSON.parse(JSON.stringify(content));
-              next.customBlocks = [...next.customBlocks || [], { id, type: "image", src: "", url: "", linkText: "", alt: "" }];
+              next.customBlocks = [...next.customBlocks || [], { id, type: "image", heading: "", src: "", body: "", url: "", linkText: "", alt: "" }];
               next.sectionOrder = Array.isArray(next.sectionOrder) ? [...next.sectionOrder, id] : [id];
               onChange(next);
             },

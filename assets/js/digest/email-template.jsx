@@ -348,10 +348,12 @@ const DEFAULT_CONTENT = {
   essays: SAMPLE_ESSAYS,
   podcasts: SAMPLE_PODCASTS,
   // Free-form content blocks rendered in the customBlocks slot.
-  // Each block: {id, type: 'text'|'button'|'image', text?, url?, variant?, src?, linkText?, alt?}
+  // Each block: {id, type: 'text'|'button'|'image', text?, url?, variant?, src?, heading?, body?, linkText?, alt?}
   // Text blocks accept Markdown. Button blocks render as a centered CTA.
-  // Image blocks render a full-width image; if `url` is set the image
-  // links, and an optional `linkText` caption renders as a link below it.
+  // Image blocks render a full-width image with an optional `heading`
+  // (Markdown, above the image) and `body` (Markdown paragraphs, below
+  // the image); if `url` is set the image links, and an optional
+  // `linkText` caption renders as a link below it.
   customBlocks: [],
   // Visibility map. Keys are fixed-section names ('letter',
   // 'membership', etc.) AND/OR custom-block ids ('b_abc123…').
@@ -1164,6 +1166,8 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
           if (!block.src) return null;
           const linkHref = (block.url || '').trim();
           const caption = (block.linkText || '').trim();
+          const heading = (block.heading || '').trim();
+          const bodyParas = markdownParagraphs(block.body || '');
           const img = (
             <img src={block.src} alt={block.alt || ''} width="520" style={{
               width: '100%',
@@ -1175,9 +1179,32 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
           );
           return (
             <div style={{ padding: '24px 40px 8px' }} className="mo-letter mo-pad-40">
+              {heading && (
+                <h3 style={{
+                  fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
+                  fontSize: 24,
+                  lineHeight: 1.25,
+                  fontWeight: 400,
+                  color: tokens.bodyText,
+                  margin: '0 0 14px',
+                }} dangerouslySetInnerHTML={{ __html: markdownInline(heading, tokens) }} />
+              )}
               {linkHref
                 ? <a href={linkHref} style={{ textDecoration: 'none', display: 'block' }}>{img}</a>
                 : img}
+              {bodyParas.length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  {bodyParas.map((p, j) => (
+                    <p key={j} style={{
+                      fontFamily: 'Georgia, "Times New Roman", serif',
+                      fontSize: 16,
+                      lineHeight: 1.65,
+                      color: tokens.bodyText,
+                      margin: '0 0 14px',
+                    }} dangerouslySetInnerHTML={{ __html: markdownInline(p, tokens) }} />
+                  ))}
+                </div>
+              )}
               {caption && (
                 <div style={{ textAlign: 'center', marginTop: 12 }}>
                   {linkHref ? (

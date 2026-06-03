@@ -281,10 +281,12 @@
     essays: SAMPLE_ESSAYS,
     podcasts: SAMPLE_PODCASTS,
     // Free-form content blocks rendered in the customBlocks slot.
-    // Each block: {id, type: 'text'|'button'|'image', text?, url?, variant?, src?, linkText?, alt?}
+    // Each block: {id, type: 'text'|'button'|'image', text?, url?, variant?, src?, heading?, body?, linkText?, alt?}
     // Text blocks accept Markdown. Button blocks render as a centered CTA.
-    // Image blocks render a full-width image; if `url` is set the image
-    // links, and an optional `linkText` caption renders as a link below it.
+    // Image blocks render a full-width image with an optional `heading`
+    // (Markdown, above the image) and `body` (Markdown paragraphs, below
+    // the image); if `url` is set the image links, and an optional
+    // `linkText` caption renders as a link below it.
     customBlocks: [],
     // Visibility map. Keys are fixed-section names ('letter',
     // 'membership', etc.) AND/OR custom-block ids ('b_abc123…').
@@ -818,6 +820,8 @@
             if (!block.src) return null;
             const linkHref = (block.url || "").trim();
             const caption = (block.linkText || "").trim();
+            const heading = (block.heading || "").trim();
+            const bodyParas = markdownParagraphs(block.body || "");
             const img = /* @__PURE__ */ React.createElement("img", { src: block.src, alt: block.alt || "", width: "520", style: {
               width: "100%",
               maxWidth: 520,
@@ -825,7 +829,20 @@
               display: "block",
               borderRadius: 5
             } });
-            return /* @__PURE__ */ React.createElement("div", { style: { padding: "24px 40px 8px" }, className: "mo-letter mo-pad-40" }, linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: { textDecoration: "none", display: "block" } }, img) : img, caption && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginTop: 12 } }, linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: {
+            return /* @__PURE__ */ React.createElement("div", { style: { padding: "24px 40px 8px" }, className: "mo-letter mo-pad-40" }, heading && /* @__PURE__ */ React.createElement("h3", { style: {
+              fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
+              fontSize: 24,
+              lineHeight: 1.25,
+              fontWeight: 400,
+              color: tokens.bodyText,
+              margin: "0 0 14px"
+            }, dangerouslySetInnerHTML: { __html: markdownInline(heading, tokens) } }), linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: { textDecoration: "none", display: "block" } }, img) : img, bodyParas.length > 0 && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16 } }, bodyParas.map((p, j) => /* @__PURE__ */ React.createElement("p", { key: j, style: {
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontSize: 16,
+              lineHeight: 1.65,
+              color: tokens.bodyText,
+              margin: "0 0 14px"
+            }, dangerouslySetInnerHTML: { __html: markdownInline(p, tokens) } }))), caption && /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", marginTop: 12 } }, linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: {
               fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
               fontSize: 11,
               fontWeight: 700,
