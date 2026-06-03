@@ -1184,8 +1184,9 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
                   fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
                   fontSize: 24,
                   lineHeight: 1.25,
-                  fontWeight: 400,
-                  color: tokens.bodyText,
+                  fontWeight: 700,
+                  color: tokens.tertiary,
+                  textAlign: 'center',
                   margin: '0 0 14px',
                 }} dangerouslySetInnerHTML={{ __html: markdownInline(heading, tokens) }} />
               )}

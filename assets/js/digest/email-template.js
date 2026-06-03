@@ -833,8 +833,9 @@
               fontFamily: '"IM Fell English", "IM Fell DW Pica", Georgia, serif',
               fontSize: 24,
               lineHeight: 1.25,
-              fontWeight: 400,
-              color: tokens.bodyText,
+              fontWeight: 700,
+              color: tokens.tertiary,
+              textAlign: "center",
               margin: "0 0 14px"
             }, dangerouslySetInnerHTML: { __html: markdownInline(heading, tokens) } }), linkHref ? /* @__PURE__ */ React.createElement("a", { href: linkHref, style: { textDecoration: "none", display: "block" } }, img) : img, bodyParas.length > 0 && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16 } }, bodyParas.map((p, j) => /* @__PURE__ */ React.createElement("p", { key: j, style: {
               fontFamily: 'Georgia, "Times New Roman", serif',
