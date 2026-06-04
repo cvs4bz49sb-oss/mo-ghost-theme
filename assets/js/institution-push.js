@@ -248,7 +248,7 @@
       const titleEl = document.querySelector('.article-title');
       const title = titleEl ? titleEl.textContent.trim() : '';
       const slug = window.location.pathname.split('/').filter(Boolean).pop() || '';
-      const imgEl = document.querySelector('.article-feature-image img, .kg-image');
+      const imgEl = document.querySelector('.article-feature-img img');
       const feature_image = imgEl ? imgEl.src : '';
       return { title, slug, feature_image };
     }

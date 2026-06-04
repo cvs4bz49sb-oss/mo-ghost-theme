@@ -45,6 +45,10 @@
           </details>
         </div>
 
+        {{!-- Institution curated content — dynamic modules injected by JS.
+             Hidden if the member doesn't belong to an institution. --}}
+        <div data-dashboard-institutions></div>
+
         <details class="dashboard-module" open>
           <summary>
             <h2 class="dashboard-module-title"><em>Bookmarks</em></h2>
@@ -92,9 +96,6 @@
           </div>
         </details>
 
-        {{!-- Institution curated content — dynamic modules injected by JS.
-             Hidden if the member doesn't belong to an institution. --}}
-        <div data-dashboard-institutions></div>
 
       </div>
 
