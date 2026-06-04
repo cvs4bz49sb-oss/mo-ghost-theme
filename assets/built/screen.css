@@ -4463,7 +4463,6 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
-  margin-bottom: 32px;
 }
 .membership-support .admin-summary-item {
   background: var(--color-white);
@@ -4491,12 +4490,32 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-size: 14px;
 }
 
+/* Vertical rhythm between sections inside .form-section .container.
+   Use the lobotomised-owl on .container children so every major
+   block (summary-note, stacked-form, bulk-add, admin-list) gets
+   consistent 44px spacing without double-margin risk. The first
+   child (.admin-summary) relies on its own margin-bottom instead. */
+.membership-support .admin-summary { margin-bottom: 44px; }
+.membership-support .form-section .container > .admin-summary-note,
+.membership-support .form-section .container > .stacked-form,
+.membership-support .form-section .container > .bulk-add,
+.membership-support .form-section .container > .admin-list {
+  margin-top: 44px;
+}
+/* The admin-summary-note sits right after admin-summary; the 44px
+   bottom on admin-summary already covers the gap, so remove the
+   double-up. */
+.membership-support .admin-summary + .admin-summary-note {
+  margin-top: 0;
+}
+
+/* Legacy adjacent combinator fallback */
 .membership-support .stacked-form + .stacked-form,
 .membership-support .stacked-form + .bulk-add,
 .membership-support .bulk-add + .stacked-form,
 .membership-support .bulk-add + .admin-list,
 .membership-support .stacked-form + .admin-list {
-  margin-top: 24px;
+  margin-top: 44px;
 }
 .membership-support .stacked-form--nested {
   box-shadow: none;
@@ -5844,7 +5863,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 
 /* ── /institution-manage/ — read-only domain pills ─────────────── */
 .admin-summary-note {
-  margin: 24px 0 8px;
+  margin: 0;
   padding: 18px 22px;
   background: rgba(238,125,81,0.04);
   border: 1px solid var(--color-card-border);
@@ -5884,6 +5903,44 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 
 .btn-sm { padding: 8px 18px; font-size: 11px; letter-spacing: 0.18em; }
+
+/* Inline stacked-form variant for membership-support admin sections */
+.membership-support .stacked-form--inline {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+  margin: 16px 0 18px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+}
+.membership-support .stacked-form--inline .form-field {
+  margin: 0;
+  flex: 1 1 240px;
+}
+.membership-support .stacked-form--inline .form-field--grow { flex-grow: 1; }
+.membership-support .stacked-form--inline input[type="email"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: var(--color-white);
+  font: inherit;
+  color: var(--color-dark);
+}
+.membership-support .stacked-form--inline input[type="email"]:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  border-color: var(--color-primary);
+}
+.membership-support .stacked-form--inline .btn-error {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 13px;
+  color: #B33A1F;
+}
 
 /* Role eyebrow inside .contributor-card — sits between the display
    name and the bio, styled like .contributor-card-count but carrying

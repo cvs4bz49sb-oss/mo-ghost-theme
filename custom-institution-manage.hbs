@@ -93,6 +93,27 @@
           <li class="admin-list-empty" data-curated-empty>No content curated yet. Use the push button on any article or podcast episode.</li>
         </ul>
       </section>
+
+      <section class="admin-list" data-admins-section hidden>
+        <header class="admin-list-header">
+          <h2 class="admin-list-title"><em>Administrators</em></h2>
+          <p class="admin-list-hint">People who can push content and manage members for this institution.</p>
+        </header>
+        <form class="stacked-form stacked-form--inline" data-admin-add novalidate>
+          <label class="form-field form-field--grow">
+            <span class="form-label visually-hidden">Email</span>
+            <input type="email" name="admin_email" placeholder="colleague@example.edu" autocomplete="off" required />
+          </label>
+          <button type="submit" class="btn btn-primary btn-sm" data-admin-add-submit>
+            <span class="btn-label">Add admin</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="btn-error" data-admin-add-error role="alert"></p>
+        </form>
+        <ul class="admin-list-items" data-admins-list aria-live="polite">
+          <li class="admin-list-empty" data-admins-empty>Loading...</li>
+        </ul>
+      </section>
     </div>
   </section>
 

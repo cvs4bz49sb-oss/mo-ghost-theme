@@ -18,6 +18,12 @@
   const curatedSection = document.querySelector('[data-curated-section]');
   const curatedList = document.querySelector('[data-curated-list]');
   const curatedEmpty = document.querySelector('[data-curated-empty]');
+  const adminsSection = document.querySelector('[data-admins-section]');
+  const adminsList = document.querySelector('[data-admins-list]');
+  const adminsEmpty = document.querySelector('[data-admins-empty]');
+  const adminAddForm = document.querySelector('[data-admin-add]');
+  const adminAddSubmit = document.querySelector('[data-admin-add-submit]');
+  const adminAddError = document.querySelector('[data-admin-add-error]');
 
   let useJwt = false;
   let currentInst = null; // the first institution in JWT mode
@@ -131,6 +137,11 @@
       renderCurated(inst.curated);
       curatedSection.hidden = false;
     }
+    // Show admins section
+    if (adminsSection && Array.isArray(inst.admins)) {
+      renderAdmins(inst.admins);
+      adminsSection.hidden = false;
+    }
   }
 
   // --- Render ---
@@ -195,6 +206,38 @@
       li.appendChild(removeBtn);
 
       curatedList.appendChild(li);
+    });
+  }
+
+  function renderAdmins(admins) {
+    if (!adminsList) return;
+    adminsList.querySelectorAll('.admin-list-row').forEach(n => n.remove());
+    if (adminsEmpty) adminsEmpty.hidden = admins.length > 0;
+    admins.forEach(admin => {
+      const li = document.createElement('li');
+      li.className = 'admin-list-row';
+
+      const info = document.createElement('div');
+      info.className = 'admin-list-person';
+
+      const emailSpan = document.createElement('span');
+      emailSpan.className = 'admin-list-name';
+      emailSpan.textContent = admin.email || admin.admin_email || '';
+      info.appendChild(emailSpan);
+
+      li.appendChild(info);
+
+      // Don't allow removing the last admin
+      if (admins.length > 1) {
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'admin-list-remove';
+        removeBtn.textContent = 'Remove';
+        removeBtn.dataset.adminEmail = admin.email || admin.admin_email || '';
+        li.appendChild(removeBtn);
+      }
+
+      adminsList.appendChild(li);
     });
   }
 
@@ -326,6 +369,73 @@
         if (!curatedList.querySelector('.admin-list-row') && curatedEmpty) {
           curatedEmpty.hidden = false;
         }
+      } catch (e) {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // --- Admin add/remove handlers ---
+
+  async function refreshInstitution() {
+    try {
+      const res = await jwtFetch('/api/institution/my-admin');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.institutions && data.institutions.length) {
+          currentInst = data.institutions[0];
+          renderFromJwt(currentInst);
+        }
+      }
+    } catch (e) { /* swallow */ }
+  }
+
+  if (adminAddForm) {
+    adminAddForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!useJwt || !currentInst) return;
+      if (adminAddError) adminAddError.textContent = '';
+      if (!adminAddForm.checkValidity()) { adminAddForm.reportValidity(); return; }
+      const email = adminAddForm.admin_email.value.trim();
+      if (!email) return;
+      if (adminAddSubmit) {
+        adminAddSubmit.classList.add('is-loading');
+        adminAddSubmit.disabled = true;
+      }
+      try {
+        const res = await jwtPost('/api/institution/admin/add', {
+          institution_id: currentInst.id,
+          email: email,
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || 'Unable to add admin.');
+        adminAddForm.reset();
+        await refreshInstitution();
+      } catch (err) {
+        if (adminAddError) adminAddError.textContent = err.message || 'Something went wrong.';
+      } finally {
+        if (adminAddSubmit) {
+          adminAddSubmit.classList.remove('is-loading');
+          adminAddSubmit.disabled = false;
+        }
+      }
+    });
+  }
+
+  if (adminsList) {
+    adminsList.addEventListener('click', async (event) => {
+      const btn = event.target.closest('.admin-list-remove');
+      if (!btn || !btn.dataset.adminEmail) return;
+      if (!useJwt || !currentInst) return;
+      btn.disabled = true;
+      try {
+        const res = await jwtPost('/api/institution/admin/remove', {
+          institution_id: currentInst.id,
+          email: btn.dataset.adminEmail,
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || 'Unable to remove admin.');
+        await refreshInstitution();
       } catch (e) {
         btn.disabled = false;
       }
