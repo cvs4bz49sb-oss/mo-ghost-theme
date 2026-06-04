@@ -395,17 +395,25 @@
 
   /* ── Code regeneration ───────────────────────────────────── */
 
+  function randomCode() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var arr = new Uint8Array(8);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, function (b) { return chars[b % chars.length]; }).join('');
+  }
+
   if (regenerateCodeBtn) {
     regenerateCodeBtn.addEventListener('click', async function () {
-      if (!editId) return;
+      var codeInput = formEl.querySelector('[name="signup_code"]');
+      if (!editId) {
+        if (codeInput) codeInput.value = randomCode();
+        return;
+      }
       if (!confirm('Regenerate signup code? The old code will stop working immediately.')) return;
       setLoading(regenerateCodeBtn, true);
       try {
         var result = await postJson('/api/admin/institutions/' + encodeURIComponent(editId) + '/regenerate-code', {});
-        if (result.signup_code) {
-          var codeInput = formEl.querySelector('[name="signup_code"]');
-          if (codeInput) codeInput.value = result.signup_code;
-        }
+        if (result.signup_code && codeInput) codeInput.value = result.signup_code;
       } catch (err) {
         alert(err.message || 'Could not regenerate code.');
       } finally {
