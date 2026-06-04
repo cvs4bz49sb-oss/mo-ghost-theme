@@ -7258,7 +7258,15 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .article-bookmark.is-bookmarked .article-bookmark-outline { display: none; }
 .article-bookmark.is-bookmarked .article-bookmark-fill { display: block; }
 
-/* Institution push button — admin-only, hidden by default */
+/* Institution push bar — injected by JS, only for institution admins */
+.institution-push-bar {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-card-border);
+}
+.institution-push[hidden] {
+  display: none !important;
+}
 .institution-push {
   display: inline-flex;
   align-items: center;

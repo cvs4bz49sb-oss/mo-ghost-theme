@@ -51,25 +51,37 @@
   // --- Article push button ---
 
   async function initArticleButton() {
-    const btn = document.querySelector('[data-institution-push]');
-    if (!btn) return;
+    const contentEl = document.querySelector('[data-post-gate]');
+    if (!contentEl) return;
 
     const insts = await getAdminInstitutions();
     if (!insts.length) return;
 
-    const postId = btn.getAttribute('data-post-id') || '';
-    const contentType = btn.getAttribute('data-content-type') || 'article';
+    const postId = contentEl.getAttribute('data-post-id') || '';
     if (!postId) return;
+
+    // Create the button dynamically — never server-rendered
+    const btn = document.createElement('div');
+    btn.className = 'institution-push-bar';
+    btn.innerHTML = '<button class="institution-push" type="button" aria-label="Push to institution" aria-pressed="false">' +
+      '<svg class="institution-push-icon" viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="M12 2L4 10h3v6h10v-6h3L12 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>' +
+      '<rect x="4" y="18" width="16" height="2" rx="1" fill="currentColor"/>' +
+      '</svg>' +
+      '<span class="institution-push-label">Push to ' + (insts.length === 1 ? insts[0].name : 'Institution') + '</span>' +
+      '</button>';
+    contentEl.parentNode.insertBefore(btn, contentEl.nextSibling);
+
+    const pushBtn = btn.querySelector('.institution-push');
 
     // Get current push status
     const statusData = await fetchJson(
-      `/api/institution/curate/status?content_type=${encodeURIComponent(contentType)}&content_id=${encodeURIComponent(postId)}`
+      '/api/institution/curate/status?content_type=article&content_id=' + encodeURIComponent(postId)
     );
     const pushed = (statusData && statusData.pushed) || [];
-    const pushedIds = new Set(pushed.map(p => p.institution_id));
+    const pushedIds = new Set(pushed.map(function (p) { return p.institution_id; }));
 
-    btn.hidden = false;
-    setupPushButton(btn, insts, contentType, postId, pushedIds);
+    setupPushButton(pushBtn, insts, 'article', postId, pushedIds);
   }
 
   // --- Podcast push buttons ---
