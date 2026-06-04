@@ -94,7 +94,7 @@
     }
     // No auth available
     orgEl.textContent = 'No institution found';
-    adminEl.textContent = 'Sign in as an institution admin or use a magic link.';
+    if (adminEl) adminEl.textContent = 'Sign in as an institution admin or use a magic link.';
     endDateEl.textContent = '—';
   }
 
@@ -120,14 +120,14 @@
       }
     } catch {
       orgEl.textContent = 'Preview institution';
-      adminEl.textContent = 'admin@example.edu';
+      if (adminEl) adminEl.textContent = 'admin@example.edu';
       endDateEl.textContent = '—';
     }
   }
 
   function renderFromJwt(inst) {
     orgEl.textContent = inst.display_name || inst.org_name || '—';
-    adminEl.textContent = inst.admin_email || '—';
+    if (adminEl) adminEl.textContent = inst.admin_email || '—';
     endDateEl.textContent = inst.contract_end || '—';
 
     if (codeEl && inst.signup_code) {
