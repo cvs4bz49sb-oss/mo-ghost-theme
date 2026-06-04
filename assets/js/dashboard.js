@@ -495,6 +495,8 @@
         var nameEl = linkEl.querySelector("[data-institution-admin-name]");
         if (nameEl) nameEl.textContent = insts[0].name;
         linkEl.hidden = false;
+        var sepEl = document.querySelector("[data-institution-admin-sep]");
+        if (sepEl) sepEl.hidden = false;
       })
       .catch(function () {});
 
