@@ -6541,6 +6541,10 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
    own editorial beat. Flourish sits mid-way between. */
 .dashboard-module + .flourish { margin: 72px 0; }
 .dashboard-module + .dashboard-module { margin-top: 72px; }
+/* Institution wrapper: space its children like normal modules and
+   bridge the gap to the next sibling module (Bookmarks). */
+[data-dashboard-institutions][data-has-content] + .dashboard-module { margin-top: 72px; }
+[data-dashboard-institutions] .dashboard-module + .dashboard-module { margin-top: 72px; }
 .dashboard-module summary {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -7198,6 +7202,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .dashboard-essay-title { font-size: 18px; }
   .dashboard-module + .flourish { margin: 56px 0; }
   .dashboard-module + .dashboard-module { margin-top: 56px; }
+  [data-dashboard-institutions][data-has-content] + .dashboard-module { margin-top: 56px; }
+  [data-dashboard-institutions] .dashboard-module + .dashboard-module { margin-top: 56px; }
   .dashboard-form-row { grid-template-columns: 1fr; gap: 22px; }
   .dashboard-form-legend { font-size: 20px; }
   .dashboard-rail-select select {

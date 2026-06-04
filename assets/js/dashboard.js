@@ -510,6 +510,7 @@
 
           const details = document.createElement("details");
           details.className = "dashboard-module";
+          details.setAttribute("open", "");
 
           const summary = document.createElement("summary");
           const title = document.createElement("h2");
@@ -555,6 +556,13 @@
             emptyMsg: "No content curated yet.",
           });
         });
+
+        // Flag the mount so CSS can apply spacing (the wrapper div
+        // breaks the adjacent-sibling selector that normally spaces
+        // .dashboard-module elements).
+        if (mount.children.length) {
+          mount.setAttribute("data-has-content", "");
+        }
       })
       .catch(() => {
         // Silent — institution module just doesn't show
