@@ -73,17 +73,25 @@
     // Try JWT
     if (apiBase && window.MOAuth) {
       try {
+        console.log('[inst-manage] trying JWT, apiBase:', apiBase);
         const res = await jwtFetch('/api/institution/my-admin');
+        console.log('[inst-manage] my-admin response:', res.status);
         if (res.ok) {
           const data = await res.json();
+          console.log('[inst-manage] my-admin data:', JSON.stringify(data).slice(0, 200));
           if (data.institutions && data.institutions.length) {
             useJwt = true;
             currentInst = data.institutions[0];
             renderFromJwt(currentInst);
             return;
           }
+        } else {
+          const errBody = await res.text().catch(function() { return ''; });
+          console.log('[inst-manage] my-admin error:', res.status, errBody.slice(0, 200));
         }
-      } catch (e) { /* fall through */ }
+      } catch (e) { console.error('[inst-manage] JWT path failed:', e); }
+    } else {
+      console.log('[inst-manage] no JWT path: apiBase=', apiBase, 'MOAuth=', !!window.MOAuth);
     }
     // No auth available
     orgEl.textContent = 'No institution found';
