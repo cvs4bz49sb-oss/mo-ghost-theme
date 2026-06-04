@@ -484,6 +484,20 @@
     if (!mount) return;
     if (!MEMBERSHIP_API || !EMAIL) return;
 
+    // Show institution admin link in sidebar if this member is an admin
+    moMembershipGet("/api/institution/am-i-admin")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var insts = (data && data.institutions) || [];
+        if (!insts.length) return;
+        var linkEl = document.querySelector("[data-institution-admin-link]");
+        if (!linkEl) return;
+        var nameEl = linkEl.querySelector("[data-institution-admin-name]");
+        if (nameEl) nameEl.textContent = insts[0].name;
+        linkEl.hidden = false;
+      })
+      .catch(function () {});
+
     moMembershipGet("/api/institution/curated-for-me")
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
