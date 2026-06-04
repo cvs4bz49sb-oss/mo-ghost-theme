@@ -66,32 +66,31 @@
 
   // --- Load context ---
 
+  async function tryJwt() {
+    var res = await jwtFetch('/api/institution/my-admin');
+    if (!res.ok) return false;
+    var data = await res.json();
+    if (!data.institutions || !data.institutions.length) return false;
+    useJwt = true;
+    currentInst = data.institutions[0];
+    renderFromJwt(currentInst);
+    return true;
+  }
+
   async function loadContext() {
     if (token) {
       return loadMagicLink();
     }
-    // Try JWT
+    // Try JWT — retry once after a short delay if the first attempt
+    // fails (token pre-warm may not have completed yet).
     if (apiBase && window.MOAuth) {
       try {
-        console.log('[inst-manage] trying JWT, apiBase:', apiBase);
-        const res = await jwtFetch('/api/institution/my-admin');
-        console.log('[inst-manage] my-admin response:', res.status);
-        if (res.ok) {
-          const data = await res.json();
-          console.log('[inst-manage] my-admin data:', JSON.stringify(data).slice(0, 200));
-          if (data.institutions && data.institutions.length) {
-            useJwt = true;
-            currentInst = data.institutions[0];
-            renderFromJwt(currentInst);
-            return;
-          }
-        } else {
-          const errBody = await res.text().catch(function() { return ''; });
-          console.log('[inst-manage] my-admin error:', res.status, errBody.slice(0, 200));
-        }
-      } catch (e) { console.error('[inst-manage] JWT path failed:', e); }
-    } else {
-      console.log('[inst-manage] no JWT path: apiBase=', apiBase, 'MOAuth=', !!window.MOAuth);
+        if (await tryJwt()) return;
+      } catch (_) {}
+      await new Promise(function (r) { setTimeout(r, 1500); });
+      try {
+        if (await tryJwt()) return;
+      } catch (_) {}
     }
     // No auth available
     orgEl.textContent = 'No institution found';
