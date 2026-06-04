@@ -12,7 +12,9 @@
   const adminEl = document.getElementById('inst-admin');
   const endDateEl = document.getElementById('inst-end-date');
   const codeEl = document.getElementById('inst-code');
+  const codeRow = document.getElementById('inst-code-row');
   const shareLinkEl = document.getElementById('inst-share-link');
+  const linkRow = document.getElementById('inst-link-row');
   const membersList = document.getElementById('members-list');
   const membersEmpty = document.getElementById('members-empty');
   const domainsReadonlyList = document.getElementById('domains-readonly-list');
@@ -132,11 +134,13 @@
 
     if (codeEl && inst.signup_code) {
       codeEl.textContent = inst.signup_code;
+      if (codeRow) codeRow.hidden = false;
     }
     if (shareLinkEl && inst.slug) {
       var url = window.location.origin + '/join/?i=' + encodeURIComponent(inst.slug);
       shareLinkEl.href = url;
       shareLinkEl.textContent = url;
+      if (linkRow) linkRow.hidden = false;
     }
 
     if (Array.isArray(inst.members)) {
@@ -459,6 +463,21 @@
       }
     });
   }
+
+  // --- Copy to clipboard ---
+  document.querySelectorAll('.inst-detail-copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var targetId = btn.getAttribute('data-copy');
+      var el = document.getElementById(targetId);
+      if (!el) return;
+      var text = el.textContent || '';
+      navigator.clipboard.writeText(text).then(function () {
+        var orig = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = orig; }, 1500);
+      }).catch(function () {});
+    });
+  });
 
   loadContext();
   renderMembers();

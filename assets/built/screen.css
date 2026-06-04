@@ -4498,6 +4498,75 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
    consistent 44px spacing without double-margin risk. The first
    child (.admin-summary) relies on its own margin-bottom instead. */
 .membership-support .admin-summary { margin-bottom: 44px; }
+.membership-support .admin-summary--two-col {
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 20px;
+}
+
+/* Inline detail rows for code + share link */
+.membership-support .inst-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+.membership-support .inst-detail-label {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--color-secondary);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  min-width: 90px;
+}
+.membership-support .inst-detail-value {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.membership-support .inst-detail-mono {
+  font-family: monospace;
+  letter-spacing: 2px;
+  font-size: 16px;
+}
+.membership-support .inst-detail-link {
+  color: var(--color-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+}
+.membership-support .inst-detail-link:hover {
+  text-decoration: underline;
+}
+.membership-support .inst-detail-copy {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.membership-support .inst-detail-copy:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.membership-support .inst-detail-row + .admin-summary-note {
+  margin-top: 34px;
+}
 .membership-support .form-section .container > .admin-summary-note,
 .membership-support .form-section .container > .stacked-form,
 .membership-support .form-section .container > .bulk-add,

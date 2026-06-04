@@ -13,7 +13,7 @@
 
   <section class="form-section">
     <div class="container">
-      <div class="admin-summary">
+      <div class="admin-summary admin-summary--two-col">
         <div class="admin-summary-item">
           <p class="admin-summary-label">Institution</p>
           <p class="admin-summary-value" id="inst-org">&mdash;</p>
@@ -22,14 +22,17 @@
           <p class="admin-summary-label">Contract ends</p>
           <p class="admin-summary-value" id="inst-end-date">&mdash;</p>
         </div>
-        <div class="admin-summary-item">
-          <p class="admin-summary-label">Signup Code</p>
-          <p class="admin-summary-value" id="inst-code" style="font-family:monospace;letter-spacing:2px;">&mdash;</p>
-        </div>
-        <div class="admin-summary-item">
-          <p class="admin-summary-label">Share Link</p>
-          <p class="admin-summary-value"><a id="inst-share-link" href="#" style="font-size:0.85em;word-break:break-all;">&mdash;</a></p>
-        </div>
+      </div>
+
+      <div class="inst-detail-row" id="inst-code-row" hidden>
+        <span class="inst-detail-label">Signup Code</span>
+        <span class="inst-detail-value inst-detail-mono" id="inst-code"></span>
+        <button type="button" class="inst-detail-copy" data-copy="inst-code" aria-label="Copy code">Copy</button>
+      </div>
+      <div class="inst-detail-row" id="inst-link-row" hidden>
+        <span class="inst-detail-label">Share Link</span>
+        <a class="inst-detail-value inst-detail-link" id="inst-share-link" href="#" target="_blank"></a>
+        <button type="button" class="inst-detail-copy" data-copy="inst-share-link" aria-label="Copy link">Copy</button>
       </div>
 
       <section class="admin-summary-note">
