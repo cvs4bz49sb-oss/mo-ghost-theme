@@ -323,8 +323,9 @@
     submit.classList.add('is-loading');
     submit.disabled = true;
     try {
-      await addMember(data.member_name.trim(), data.member_email.trim());
-      pushMember(data.member_name.trim(), data.member_email.trim());
+      var fullName = [data.member_first, data.member_last].map(function(s) { return (s || '').trim(); }).filter(Boolean).join(' ');
+      await addMember(fullName, data.member_email.trim());
+      pushMember(fullName, data.member_email.trim());
       form.reset();
     } catch (err) {
       errorEl.textContent = err.message || 'Something went wrong.';
