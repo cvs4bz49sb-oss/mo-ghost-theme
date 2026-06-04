@@ -1,33 +1,28 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token') || '';
-  // Strip the token from the URL so it doesn't sit in browser history,
-  // referrer headers, or screenshots. The token is held in this
-  // closure for the lifetime of the page; reload = back to preview
-  // state, which is the existing fallback.
   if (token) {
     history.replaceState(null, '', window.location.pathname);
   }
+
+  const mainEl = document.querySelector('main');
+  const apiBase = (mainEl && mainEl.dataset.apiBase || '').replace(/\/$/, '');
 
   const orgEl = document.getElementById('inst-org');
   const adminEl = document.getElementById('inst-admin');
   const endDateEl = document.getElementById('inst-end-date');
   const membersList = document.getElementById('members-list');
   const membersEmpty = document.getElementById('members-empty');
-  // Domain list is read-only on this page — MO admins manage it from
-  // /admin/members/institutions/manage/. We still surface the list so
-  // institutional admins can confirm coverage.
   const domainsReadonlyList = document.getElementById('domains-readonly-list');
   const domainsReadonlyEmpty = document.getElementById('domains-readonly-empty');
+  const curatedSection = document.querySelector('[data-curated-section]');
+  const curatedList = document.querySelector('[data-curated-list]');
+  const curatedEmpty = document.querySelector('[data-curated-empty]');
 
-  // FNV-1a hash of the token, truncated to 8 hex chars. The H1 fix
-  // strips the token from the URL bar but the previous storage-key
-  // pattern (`mo-inst-members:${token}`) still echoed the raw token
-  // in Object.keys(sessionStorage). Hash so the storage namespace
-  // doesn't leak the bearer token even with momentary script access.
-  const tokenSlug = token ? hashSlug(token) : 'preview';
-  const membersKey = `mo-inst-members:${tokenSlug}`;
-  const domainsKey = `mo-inst-domains:${tokenSlug}`;
+  let useJwt = false;
+  let currentInst = null; // the first institution in JWT mode
+
+  // --- Helpers ---
 
   function hashSlug(str) {
     let h = 0x811c9dc5;
@@ -38,6 +33,10 @@
     return h.toString(16).padStart(8, '0');
   }
 
+  const tokenSlug = token ? hashSlug(token) : 'jwt';
+  const membersKey = `mo-inst-members:${tokenSlug}`;
+  const domainsKey = `mo-inst-domains:${tokenSlug}`;
+
   const readStore = (key) => {
     try { return JSON.parse(sessionStorage.getItem(key) || '[]'); } catch { return []; }
   };
@@ -45,12 +44,47 @@
     try { sessionStorage.setItem(key, JSON.stringify(value)); } catch {}
   };
 
-  const loadContext = async () => {
+  async function jwtFetch(path, opts = {}) {
+    return window.MOAuth.fetch(apiBase + path, { credentials: 'omit', ...opts });
+  }
+
+  async function jwtPost(path, body) {
+    return jwtFetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  }
+
+  // --- Load context ---
+
+  async function loadContext() {
+    if (token) {
+      return loadMagicLink();
+    }
+    // Try JWT
+    if (apiBase && window.MOAuth) {
+      try {
+        const res = await jwtFetch('/api/institution/my-admin');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.institutions && data.institutions.length) {
+            useJwt = true;
+            currentInst = data.institutions[0];
+            renderFromJwt(currentInst);
+            return;
+          }
+        }
+      } catch (e) { /* fall through */ }
+    }
+    // No auth available
+    orgEl.textContent = 'No institution found';
+    adminEl.textContent = 'Sign in as an institution admin or use a magic link.';
+    endDateEl.textContent = '—';
+  }
+
+  async function loadMagicLink() {
     try {
-      // Token rides in the POST body, never the URL — Codex audit
-      // 2026-05-11. URL-borne tokens land in Cloudflare access logs
-      // and the worker request log even if we strip the URL bar
-      // afterward via history.replaceState.
       const response = await fetch(`${window.MO_API_BASE}/api/institution/context`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -61,9 +95,6 @@
       orgEl.textContent = body.org_name || 'Preview institution';
       adminEl.textContent = body.admin_email || 'admin@example.edu';
       endDateEl.textContent = body.contract_end_date || '—';
-      // Server is authoritative for members + domains. Replace local
-      // sessionStorage caches so the dashboard survives browser
-      // close/reopen.
       if (Array.isArray(body.members)) {
         writeStore(membersKey, body.members.map((m) => ({ name: m.name || '', email: m.email })));
         renderMembers();
@@ -77,43 +108,110 @@
       adminEl.textContent = 'admin@example.edu';
       endDateEl.textContent = '—';
     }
-  };
+  }
 
-  const renderMembers = () => {
+  function renderFromJwt(inst) {
+    orgEl.textContent = inst.display_name || inst.org_name || '—';
+    adminEl.textContent = inst.admin_email || '—';
+    endDateEl.textContent = inst.contract_end || '—';
+
+    if (Array.isArray(inst.members)) {
+      writeStore(membersKey, inst.members.map(m => ({
+        name: [m.first_name, m.last_name].filter(Boolean).join(' '),
+        email: m.member_email,
+      })));
+      renderMembers();
+    }
+    if (Array.isArray(inst.domains)) {
+      writeStore(domainsKey, inst.domains);
+      renderDomains();
+    }
+    // Show curated section
+    if (curatedSection && Array.isArray(inst.curated)) {
+      renderCurated(inst.curated);
+      curatedSection.hidden = false;
+    }
+  }
+
+  // --- Render ---
+
+  function renderMembers() {
     const members = readStore(membersKey);
-    membersList.querySelectorAll('.admin-list-row').forEach((n) => n.remove());
+    membersList.querySelectorAll('.admin-list-row').forEach(n => n.remove());
     membersEmpty.hidden = members.length > 0;
-    members.forEach((m) => {
+    members.forEach(m => {
       const li = document.createElement('li');
       li.className = 'admin-list-row';
-      li.innerHTML = `
-        <div class="admin-list-person">
-          <span class="admin-list-name"></span>
-          <span class="admin-list-email"></span>
-        </div>
-        <button type="button" class="admin-list-remove" data-email="">Remove</button>
-      `;
+      li.innerHTML = '<div class="admin-list-person"><span class="admin-list-name"></span><span class="admin-list-email"></span></div><button type="button" class="admin-list-remove" data-email="">Remove</button>';
       li.querySelector('.admin-list-name').textContent = m.name;
       li.querySelector('.admin-list-email').textContent = m.email;
       li.querySelector('.admin-list-remove').dataset.email = m.email;
       membersList.appendChild(li);
     });
-  };
+  }
 
-  const renderDomains = () => {
+  function renderDomains() {
     if (!domainsReadonlyList) return;
     const domains = readStore(domainsKey);
-    domainsReadonlyList.querySelectorAll('.admin-domain-pill').forEach((n) => n.remove());
+    domainsReadonlyList.querySelectorAll('.admin-domain-pill').forEach(n => n.remove());
     if (domainsReadonlyEmpty) domainsReadonlyEmpty.hidden = domains.length > 0;
-    domains.forEach((d) => {
+    domains.forEach(d => {
       const li = document.createElement('li');
       li.className = 'admin-domain-pill';
       li.textContent = `@${d}`;
       domainsReadonlyList.appendChild(li);
     });
-  };
+  }
 
-  const addMember = async (name, email) => {
+  function renderCurated(items) {
+    if (!curatedList) return;
+    curatedList.querySelectorAll('.admin-list-row').forEach(n => n.remove());
+    if (curatedEmpty) curatedEmpty.hidden = items.length > 0;
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'admin-list-row';
+
+      const info = document.createElement('div');
+      info.className = 'admin-list-person';
+
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'admin-list-name';
+      titleSpan.textContent = item.title || item.content_id;
+      info.appendChild(titleSpan);
+
+      const metaSpan = document.createElement('span');
+      metaSpan.className = 'admin-list-email';
+      metaSpan.textContent = `${item.content_type} · ${new Date(item.pushed_at).toLocaleDateString()}`;
+      info.appendChild(metaSpan);
+
+      li.appendChild(info);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'admin-list-remove';
+      removeBtn.textContent = 'Remove';
+      removeBtn.dataset.contentType = item.content_type;
+      removeBtn.dataset.contentId = item.content_id;
+      li.appendChild(removeBtn);
+
+      curatedList.appendChild(li);
+    });
+  }
+
+  // --- Actions ---
+
+  async function addMember(name, email) {
+    if (useJwt && currentInst) {
+      const res = await jwtPost('/api/institution/add-member', {
+        institution_id: currentInst.id,
+        member_name: name,
+        member_email: email,
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || 'Unable to add member.');
+      return body;
+    }
+    // Magic-link mode
     const response = await fetch(`${window.MO_API_BASE}/api/institution/add-member`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -122,23 +220,32 @@
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || 'Unable to add member.');
     return body;
-  };
+  }
 
-  const removeMember = async (email) => {
+  async function removeMember(email) {
+    if (useJwt && currentInst) {
+      await jwtPost('/api/institution/remove-member', {
+        institution_id: currentInst.id,
+        member_email: email,
+      }).catch(() => {});
+      return;
+    }
     await fetch(`${window.MO_API_BASE}/api/institution/remove-member`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token, member_email: email }),
     }).catch(() => {});
-  };
+  }
 
-  const pushMember = (name, email) => {
+  function pushMember(name, email) {
     const members = readStore(membersKey);
-    if (members.some((m) => m.email.toLowerCase() === email.toLowerCase())) return;
+    if (members.some(m => m.email.toLowerCase() === email.toLowerCase())) return;
     members.push({ name, email });
     writeStore(membersKey, members);
     renderMembers();
-  };
+  }
+
+  // --- Event listeners ---
 
   document.getElementById('single-add-form').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -146,11 +253,7 @@
     const errorEl = document.getElementById('single-add-error');
     const submit = document.getElementById('single-add-submit');
     errorEl.textContent = '';
-
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
+    if (!form.checkValidity()) { form.reportValidity(); return; }
     const data = Object.fromEntries(new FormData(form).entries());
     submit.classList.add('is-loading');
     submit.disabled = true;
@@ -172,47 +275,62 @@
     const errorEl = document.getElementById('bulk-add-error');
     const submit = document.getElementById('bulk-add-submit');
     errorEl.textContent = '';
-
     const raw = form.bulk.value.trim();
     if (!raw) return;
-    const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const failures = [];
-
     submit.classList.add('is-loading');
     submit.disabled = true;
     for (const line of lines) {
-      const parts = line.split(/[,\t]/).map((p) => p.trim());
-      if (parts.length < 2) {
-        failures.push(`${line} (missing email)`);
-        continue;
-      }
+      const parts = line.split(/[,\t]/).map(p => p.trim());
+      if (parts.length < 2) { failures.push(`${line} (missing email)`); continue; }
       const [name, email] = [parts[0], parts[parts.length - 1]];
       try {
         await addMember(name, email);
         pushMember(name, email);
-      } catch (err) {
-        failures.push(`${email}: ${err.message}`);
-      }
+      } catch (err) { failures.push(`${email}: ${err.message}`); }
     }
     submit.classList.remove('is-loading');
     submit.disabled = false;
-
     if (failures.length) {
       errorEl.textContent = `${failures.length} failed. ${failures.slice(0, 3).join(' · ')}${failures.length > 3 ? '…' : ''}`;
-    } else {
-      form.reset();
-    }
+    } else { form.reset(); }
   });
 
   membersList.addEventListener('click', async (event) => {
     const btn = event.target.closest('.admin-list-remove');
     if (!btn) return;
-    const {email} = btn.dataset;
+    const { email } = btn.dataset;
+    if (!email) return;
     btn.disabled = true;
     await removeMember(email);
-    writeStore(membersKey, readStore(membersKey).filter((m) => m.email.toLowerCase() !== email.toLowerCase()));
+    writeStore(membersKey, readStore(membersKey).filter(m => m.email.toLowerCase() !== email.toLowerCase()));
     renderMembers();
   });
+
+  // Curated content remove handler
+  if (curatedList) {
+    curatedList.addEventListener('click', async (event) => {
+      const btn = event.target.closest('.admin-list-remove');
+      if (!btn || !btn.dataset.contentType) return;
+      if (!useJwt || !currentInst) return;
+      btn.disabled = true;
+      try {
+        await jwtPost('/api/institution/curate/remove', {
+          institution_id: currentInst.id,
+          content_type: btn.dataset.contentType,
+          content_id: btn.dataset.contentId,
+        });
+        btn.closest('.admin-list-row').remove();
+        // Update empty state
+        if (!curatedList.querySelector('.admin-list-row') && curatedEmpty) {
+          curatedEmpty.hidden = false;
+        }
+      } catch (e) {
+        btn.disabled = false;
+      }
+    });
+  }
 
   loadContext();
   renderMembers();

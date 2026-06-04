@@ -112,3 +112,6 @@
 </main>
 
 <script src="{{asset "js/podcast-feed.js"}}"></script>
+{{#if @custom.membership_api_base}}
+    <script src="{{asset "js/institution-push.js"}}"></script>
+{{/if}}

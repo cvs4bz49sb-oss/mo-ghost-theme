@@ -77,12 +77,21 @@
     });
   }
 
+  const MEMBERSHIP_API = (document.querySelector('meta[name="mo-api-base"]') || {}).content || "";
+  function moMembershipGet(path) {
+    if (!MEMBERSHIP_API) return Promise.resolve({ ok: false });
+    return window.MOAuth.fetch(MEMBERSHIP_API.replace(/\/$/, "") + path, {
+      method: "GET", mode: "cors", credentials: "omit",
+    });
+  }
+
   hydrateMigrationBanner();
   hydrateEngagement();
   hydrateBookmarks();
   hydrateCommonplace();
   hydrateHistory();
   hydrateReadingTracker();
+  hydrateInstitutions();
 
   // --- Migration banner ---------------------------------------------------
 
@@ -466,6 +475,76 @@
         });
       })
       .catch(() => {});
+  }
+
+  // --- Institution curated content ----------------------------------------
+
+  function hydrateInstitutions() {
+    const mount = document.querySelector("[data-dashboard-institutions]");
+    if (!mount) return;
+    if (!MEMBERSHIP_API || !EMAIL) return;
+
+    moMembershipGet("/api/institution/curated-for-me")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        const institutions = (data && data.institutions) || [];
+        if (!institutions.length) return;
+
+        institutions.forEach((inst) => {
+          const items = inst.curated || [];
+          if (!items.length) return;
+
+          const details = document.createElement("details");
+          details.className = "dashboard-module";
+
+          const summary = document.createElement("summary");
+          const title = document.createElement("h2");
+          title.className = "dashboard-module-title";
+          const em = document.createElement("em");
+          em.textContent = inst.name || "Your Institution";
+          title.appendChild(em);
+          summary.appendChild(title);
+          const chev = document.createElement("span");
+          chev.className = "dashboard-module-chev";
+          chev.setAttribute("aria-hidden", "true");
+          summary.appendChild(chev);
+          details.appendChild(summary);
+
+          const body = document.createElement("div");
+          body.className = "dashboard-module-body";
+
+          const listMount = document.createElement("div");
+          listMount.className = "dashboard-institutions";
+          listMount.setAttribute("data-limit", "4");
+          listMount.setAttribute("data-view-all", "/dashboard/institution/");
+
+          body.appendChild(listMount);
+          details.appendChild(body);
+          mount.appendChild(details);
+
+          // Convert curated items to the shape renderList expects
+          const entries = items.map((item) => ({
+            postId: item.content_id,
+            title: item.title || item.content_id,
+            slug: item.slug || "",
+            url: item.content_type === "podcast"
+              ? `/podcasts/${item.show_slug || "mere-fidelity"}/#ep-${item.content_id.replace("podcast:", "")}`
+              : `/${item.slug || ""}`,
+            feature_image: item.feature_image || null,
+            primary_tag: item.content_type === "podcast"
+              ? { name: "Podcast" }
+              : null,
+            savedAt: item.pushed_at,
+          }));
+
+          renderList(listMount, entries, "institutions", {
+            emptyMsg: "No content curated yet.",
+          });
+        });
+      })
+      .catch(() => {
+        // Silent — institution module just doesn't show
+      });
   }
 
   // --- Shared rendering --------------------------------------------------

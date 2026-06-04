@@ -7258,6 +7258,73 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .article-bookmark.is-bookmarked .article-bookmark-outline { display: none; }
 .article-bookmark.is-bookmarked .article-bookmark-fill { display: block; }
 
+/* Institution push button — admin-only, hidden by default */
+.institution-push {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.institution-push:hover {
+  color: var(--color-primary);
+  background: rgba(238, 125, 81, 0.08);
+}
+.institution-push.is-pushed {
+  color: var(--color-primary);
+}
+.institution-push.is-pushed .institution-push-icon path {
+  fill: var(--color-primary);
+}
+.institution-push.is-loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.institution-push-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.institution-push-label {
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+
+/* Podcast push button variant */
+.institution-push--podcast {
+  margin-top: 8px;
+}
+
+/* Multi-institution dropdown */
+.institution-push-dropdown {
+  background: var(--color-background, #fff);
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  padding: 8px 0;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.institution-push-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.institution-push-dropdown-item:hover {
+  background: rgba(238, 125, 81, 0.05);
+}
+.institution-push-dropdown-item input[type="checkbox"] {
+  accent-color: var(--color-primary);
+}
+
 /* --- Dashboard "Remove" button inline on bookmark list items ------ */
 .dashboard-essay-remove {
   margin-top: 10px;

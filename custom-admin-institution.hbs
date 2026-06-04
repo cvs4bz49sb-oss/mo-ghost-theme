@@ -1,21 +1,17 @@
 {{!< default}}
-{{!-- /admin/members/institutions/manage/?id=... — per-institution detail.
-     Admin-only. Lists org info (read-only), shows the domain allowlist
-     with add/remove, and surfaces the recent member roster. Domain
-     control lives here, not on /institution-manage/, so MO controls
-     which domains grant blanket access. --}}
+{{!-- /admin/members/institutions/manage/?id=... — institution create/edit --}}
 
 <main class="admin-page admin-workspace">
   {{#if @member}}
     {{> "admin-sidebar" active="members"}}
     <div class="admin-main">
       <header class="admin-topbar">
-        <h1 class="admin-topbar-title" data-inst-headline><em>Institution Detail</em></h1>
-        <p class="admin-topbar-sub">Domain allowlist, contract details, and member roster for a single institution.</p>
+        <h1 class="admin-topbar-title" data-page-headline><em>New Institution</em></h1>
+        <p class="admin-topbar-sub">Create and manage institutional membership partnerships.</p>
       </header>
 
     <section class="admin-body">
-      <div class="container">
+      <div class="container container-narrow">
         <div class="admin-members-layout">
           <aside class="admin-members-sidebar">
             {{> "admin-members-subnav" active="institutions"}}
@@ -24,75 +20,204 @@
                data-admin-institution
                data-api-base="{{@custom.membership_api_base}}">
 
-            <p class="admin-table-status" data-status>Loading institution&hellip;</p>
+            <p class="admin-table-status" data-status>Loading...</p>
 
-            <div class="admin-institution-detail" data-detail hidden>
+            <div data-institution-form hidden>
               <p class="admin-back-link"><a href="/admin/members/institutions/"><span aria-hidden="true">&larr;</span> All institutions</a></p>
 
-              <header class="admin-detail-header">
-                <h2 class="admin-detail-title" data-org-name>&mdash;</h2>
-                <p class="admin-detail-sub" data-org-sub>&mdash;</p>
-              </header>
-
-              <dl class="admin-summary admin-summary--grid">
-                <div class="admin-summary-item">
-                  <dt class="admin-summary-label">Type</dt>
-                  <dd class="admin-summary-value" data-org-type>&mdash;</dd>
-                </div>
-                <div class="admin-summary-item">
-                  <dt class="admin-summary-label">Headcount</dt>
-                  <dd class="admin-summary-value" data-org-headcount>&mdash;</dd>
-                </div>
-                <div class="admin-summary-item">
-                  <dt class="admin-summary-label">Status</dt>
-                  <dd class="admin-summary-value" data-org-status>&mdash;</dd>
-                </div>
-                <div class="admin-summary-item">
-                  <dt class="admin-summary-label">Contract ends</dt>
-                  <dd class="admin-summary-value" data-org-contract-end>&mdash;</dd>
-                </div>
-                <div class="admin-summary-item">
-                  <dt class="admin-summary-label">Granted tier</dt>
-                  <dd class="admin-summary-value" data-org-tier>&mdash;</dd>
-                </div>
-                <div class="admin-summary-item">
-                  <dt class="admin-summary-label">Members</dt>
-                  <dd class="admin-summary-value" data-org-member-count>&mdash;</dd>
-                </div>
-              </dl>
-
-              <section class="admin-section">
-                <header class="admin-section-header">
-                  <h3 class="admin-section-title"><em>Domain allowlist</em></h3>
-                  <p class="admin-section-hint">Anyone signing up with an email at one of these domains is auto-promoted to the institution's tier. MO admins manage this list — institutional admins no longer can.</p>
-                </header>
-
-                <form class="stacked-form stacked-form--inline" data-domain-add novalidate>
-                  <label class="form-field form-field--grow">
-                    <span class="form-label visually-hidden">Domain</span>
-                    <input type="text" name="domain" placeholder="dbu.edu" autocomplete="off" required />
+              <!-- SECTION 1: Organization -->
+              <div class="dashboard-module">
+                <div class="dashboard-form-group">
+                  <p class="dashboard-form-legend"><em>Organization</em></p>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Organization name</span>
+                    <input type="text" name="org_name" placeholder="e.g. Reformed Theological Seminary" required />
                   </label>
-                  <button type="submit" class="btn btn-primary" data-domain-add-submit>
-                    <span class="btn-label">Add domain</span>
-                    <span class="btn-spinner" aria-hidden="true"></span>
-                  </button>
-                  <p class="btn-error" data-domain-add-error role="alert"></p>
-                </form>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Display name</span>
+                    <input type="text" name="display_name" placeholder="Defaults to org name if empty" />
+                    <span class="dashboard-form-hint">Shown on the public signup page. Leave blank to use the org name.</span>
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Description</span>
+                    <textarea name="description" rows="3" placeholder="A short blurb for the signup landing page."></textarea>
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Logo URL</span>
+                    <input type="url" name="logo_url" placeholder="https://..." />
+                    <span class="dashboard-form-hint">Optional. Displayed on the signup landing page.</span>
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Type</span>
+                    <select name="org_type">
+                      <option value="">Select...</option>
+                      <option value="seminary">Seminary</option>
+                      <option value="college">College / University</option>
+                      <option value="denomination">Denomination</option>
+                      <option value="research_center">Research Center</option>
+                      <option value="church">Church</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Headcount</span>
+                    <input type="number" name="headcount" min="0" placeholder="Approximate size" />
+                  </label>
+                </div>
+              </div>
 
-                <ul class="admin-list-items admin-list-items--compact" data-domains-list aria-live="polite">
-                  <li class="admin-list-empty" data-domains-empty>No domains added yet.</li>
-                </ul>
-              </section>
+              <!-- SECTION 2: Contacts -->
+              <div class="dashboard-module">
+                <div class="dashboard-form-group">
+                  <p class="dashboard-form-legend"><em>Contacts</em></p>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Contact email</span>
+                    <input type="email" name="contact_email" placeholder="billing@school.edu" required />
+                    <span class="dashboard-form-hint">Billing or contract contact.</span>
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Contact name</span>
+                    <input type="text" name="contact_name" placeholder="Dr. Smith" />
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Administrator email</span>
+                    <input type="email" name="admin_email" placeholder="prof@school.edu" required />
+                    <span class="dashboard-form-hint">The Ghost member who manages this institution. Gets the push button on articles and sees the institution dashboard.</span>
+                  </label>
+                </div>
+              </div>
 
-              <section class="admin-section">
-                <header class="admin-section-header">
-                  <h3 class="admin-section-title"><em>Members</em></h3>
-                  <p class="admin-section-hint">Recent members provisioned for this institution, by domain match or explicit invite. Read-only here; the institutional admin invites individuals from <a href="/institution-manage/">/institution-manage/</a>.</p>
-                </header>
-                <ul class="admin-list-items" data-members-list aria-live="polite">
-                  <li class="admin-list-empty" data-members-empty>No members yet.</li>
-                </ul>
-              </section>
+              <!-- SECTION 3: Access & Signup -->
+              <div class="dashboard-module">
+                <div class="dashboard-form-group">
+                  <p class="dashboard-form-legend"><em>Access</em></p>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Signup mode</span>
+                    <select name="signup_mode">
+                      <option value="code">Code only</option>
+                      <option value="domain">Domain only</option>
+                      <option value="both">Code + domain</option>
+                    </select>
+                    <span class="dashboard-form-hint">Code: members enter a code on the signup page. Domain: anyone with a matching email domain is auto-comped. Both: either method works.</span>
+                  </label>
+                  <div class="dashboard-form-field" data-code-section>
+                    <span class="dashboard-form-label">Signup code</span>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <input type="text" name="signup_code" readonly style="flex:1;font-family:monospace;font-size:1.1em;letter-spacing:2px;" />
+                      <button type="button" class="btn btn-ghost btn-sm" data-regenerate-code>Regenerate</button>
+                    </div>
+                    <span class="dashboard-form-hint">Auto-generated. Members enter this on the signup page.</span>
+                  </div>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Seat limit</span>
+                    <input type="number" name="seat_limit" min="1" placeholder="Leave blank for unlimited" />
+                    <span class="dashboard-form-hint">Maximum number of members. Leave blank for no limit.</span>
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Comp duration (days)</span>
+                    <input type="number" name="comp_duration_days" min="1" value="365" />
+                    <span class="dashboard-form-hint">How long each member's complimentary access lasts from signup.</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- SECTION 4: Contract -->
+              <div class="dashboard-module">
+                <div class="dashboard-form-group">
+                  <p class="dashboard-form-legend"><em>Contract</em></p>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Contract start</span>
+                    <input type="date" name="contract_start" required />
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Contract end</span>
+                    <input type="date" name="contract_end" required />
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Status</span>
+                    <select name="status">
+                      <option value="active">Active</option>
+                      <option value="inquiry">Inquiry</option>
+                      <option value="expired">Expired</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </label>
+                  <label class="dashboard-form-field">
+                    <span class="dashboard-form-label">Notes</span>
+                    <textarea name="notes" rows="3" placeholder="Internal notes..."></textarea>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Save button -->
+              <div class="dashboard-address-actions" style="margin-top:24px;">
+                <button type="button" class="btn btn-primary" data-save-institution>
+                  <span class="btn-label" data-save-label>Create institution</span>
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                </button>
+                <p class="btn-error" data-save-error role="alert"></p>
+                <p class="btn-success" data-save-success role="status" hidden></p>
+              </div>
+
+              <!-- Landing page URL (edit mode only) -->
+              <div data-landing-url-section hidden style="margin-top:24px;">
+                <div class="dashboard-module">
+                  <div class="dashboard-form-group">
+                    <p class="dashboard-form-legend"><em>Landing page</em></p>
+                    <p class="dashboard-form-hint">Share this link with the institution:</p>
+                    <p style="font-family:monospace;font-size:0.95em;padding:12px;background:var(--color-card-border);border-radius:6px;" data-landing-url></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Magic link (edit mode only) -->
+              <div data-manage-link-section hidden style="margin-top:24px;">
+                <div class="dashboard-module">
+                  <div class="dashboard-form-group">
+                    <p class="dashboard-form-legend"><em>Magic link</em></p>
+                    <p class="dashboard-form-hint">Legacy admin link (for institution admins not signed in to Ghost):</p>
+                    <p style="font-family:monospace;font-size:0.85em;padding:12px;background:var(--color-card-border);border-radius:6px;word-break:break-all;" data-manage-url></p>
+                    <button type="button" class="btn btn-ghost btn-sm" data-regenerate-link style="margin-top:8px;">Regenerate link</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Domain allowlist (edit mode only, shown when signup_mode is 'domain' or 'both') -->
+              <div data-domains-section hidden style="margin-top:24px;">
+                <div class="dashboard-module">
+                  <div class="dashboard-form-group">
+                    <p class="dashboard-form-legend"><em>Domain allowlist</em></p>
+                    <p class="dashboard-form-hint">Anyone signing up with an email at one of these domains is auto-comped.</p>
+                    <form class="stacked-form stacked-form--inline" data-domain-add novalidate>
+                      <label class="form-field form-field--grow">
+                        <span class="form-label visually-hidden">Domain</span>
+                        <input type="text" name="domain" placeholder="school.edu" autocomplete="off" required />
+                      </label>
+                      <button type="submit" class="btn btn-primary btn-sm" data-domain-add-submit>
+                        <span class="btn-label">Add</span>
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                      </button>
+                      <p class="btn-error" data-domain-add-error role="alert"></p>
+                    </form>
+                    <ul class="admin-list-items admin-list-items--compact" data-domains-list aria-live="polite">
+                      <li class="admin-list-empty" data-domains-empty>No domains added yet.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Member roster (edit mode only) -->
+              <div data-members-section hidden style="margin-top:24px;">
+                <div class="dashboard-module">
+                  <div class="dashboard-form-group">
+                    <p class="dashboard-form-legend"><em>Members</em> <span data-seat-badge style="font-size:0.8em;opacity:0.7;"></span></p>
+                    <ul class="admin-list-items" data-members-list aria-live="polite">
+                      <li class="admin-list-empty" data-members-empty>No members yet.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

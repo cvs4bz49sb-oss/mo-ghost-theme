@@ -1,0 +1,131 @@
+{{!< default}}
+{{!-- /dashboard/institution/ — full institution curated content page --}}
+
+{{#if @member}}
+{{#match @member.status "!=" "free"}}
+
+<main class="dashboard-page">
+  <section class="hero dashboard-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+      <h1 class="hero-headline"><em>Institution</em> <span class="highlight"><em>Reading</em></span></h1>
+      <p class="hero-sub">Content curated by your institution's administrator.</p>
+    </div>
+  </section>
+
+  <section class="dashboard-body">
+    <div class="container">
+      <p class="admin-back-link"><a href="/dashboard/"><span aria-hidden="true">&larr;</span> Back to dashboard</a></p>
+      <div data-dashboard-institution-full></div>
+      <p class="dashboard-empty" data-institution-loading>Loading curated content...</p>
+    </div>
+  </section>
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script>
+(function() {
+  var apiBase = (document.querySelector('meta[name="mo-api-base"]') || {}).content || '';
+  if (!apiBase || !window.MOAuth) return;
+  var mount = document.querySelector('[data-dashboard-institution-full]');
+  var loadingEl = document.querySelector('[data-institution-loading]');
+  if (!mount) return;
+
+  window.MOAuth.fetch(apiBase.replace(/\/$/, '') + '/api/institution/curated-for-me', {
+    credentials: 'omit'
+  })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (loadingEl) loadingEl.hidden = true;
+      var institutions = (data && data.institutions) || [];
+      if (!institutions.length) {
+        mount.innerHTML = '<p class="dashboard-empty">You are not a member of any institution, or no content has been curated yet.</p>';
+        return;
+      }
+      institutions.forEach(function(inst) {
+        var items = inst.curated || [];
+        var section = document.createElement('div');
+        section.style.marginBottom = '48px';
+
+        var heading = document.createElement('h2');
+        heading.className = 'dashboard-module-title';
+        var em = document.createElement('em');
+        em.textContent = inst.name || 'Your Institution';
+        heading.appendChild(em);
+        section.appendChild(heading);
+
+        if (!items.length) {
+          var empty = document.createElement('p');
+          empty.className = 'dashboard-empty';
+          empty.textContent = 'No content curated yet.';
+          section.appendChild(empty);
+          mount.appendChild(section);
+          return;
+        }
+
+        var grid = document.createElement('div');
+        grid.className = 'week-grid dashboard-entry-grid';
+        items.forEach(function(item) {
+          var entry = document.createElement('article');
+          entry.className = 'entry';
+          var url = item.content_type === 'podcast'
+            ? '/podcasts/' + (item.show_slug || 'mere-fidelity') + '/#ep-' + item.content_id.replace('podcast:', '')
+            : '/' + (item.slug || '');
+
+          var a = document.createElement('a');
+          a.href = url;
+          a.className = 'entry-link';
+
+          if (item.feature_image) {
+            var imgWrap = document.createElement('div');
+            imgWrap.className = 'entry-image';
+            var img = document.createElement('img');
+            img.src = item.feature_image;
+            img.alt = '';
+            img.loading = 'lazy';
+            imgWrap.appendChild(img);
+            a.appendChild(imgWrap);
+          }
+
+          var body = document.createElement('div');
+          body.className = 'entry-body';
+          var titleEl = document.createElement('h3');
+          titleEl.className = 'entry-title';
+          titleEl.textContent = item.title || item.content_id;
+          body.appendChild(titleEl);
+
+          if (item.content_type === 'podcast') {
+            var badge = document.createElement('p');
+            badge.className = 'entry-meta';
+            badge.textContent = 'Podcast';
+            body.appendChild(badge);
+          }
+
+          var dateEl = document.createElement('p');
+          dateEl.className = 'entry-meta';
+          dateEl.textContent = item.pushed_at ? 'Curated ' + new Date(item.pushed_at).toLocaleDateString() : '';
+          body.appendChild(dateEl);
+
+          a.appendChild(body);
+          entry.appendChild(a);
+          grid.appendChild(entry);
+        });
+        section.appendChild(grid);
+        mount.appendChild(section);
+      });
+    })
+    .catch(function() {
+      if (loadingEl) loadingEl.hidden = true;
+      mount.innerHTML = '<p class="dashboard-empty">Could not load curated content. Try reloading.</p>';
+    });
+})();
+</script>
+
+{{else}}
+  {{!-- Free subscriber: redirect to membership --}}
+  <script>window.location.href = '/membership/';</script>
+{{/match}}
+{{else}}
+  {{!-- Not signed in --}}
+  <script>window.location.href = '/#/portal/signin';</script>
+{{/if}}

@@ -33,6 +33,8 @@ routes:
     template: custom-institutions
   /institution-manage/:
     template: custom-institution-manage
+  /join/:
+    template: custom-institution-join
   /manage/:
     template: custom-manage
   /migrate/:
@@ -47,6 +49,8 @@ routes:
     template: custom-dashboard-commonplace
   /dashboard/history/:
     template: custom-dashboard-history
+  /dashboard/institution/:
+    template: custom-dashboard-institution
   /dashboard/replays/:
     template: custom-dashboard-replays
   /dashboard/ebooks/:

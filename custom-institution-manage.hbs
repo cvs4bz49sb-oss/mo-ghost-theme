@@ -1,7 +1,7 @@
 {{!< default}}
 {{!-- custom-institution-manage: Mere Orthodoxy institutional admin dashboard --}}
 
-<main class="membership membership-support">
+<main class="membership membership-support" data-api-base="{{@custom.membership_api_base}}">
 
   <section class="page-hero">
     <div class="container">
@@ -83,8 +83,19 @@
           <li class="admin-list-empty" id="members-empty">No members invited yet.</li>
         </ul>
       </section>
+
+      <section class="admin-list" data-curated-section hidden>
+        <header class="admin-list-header">
+          <h2 class="admin-list-title"><em>Curated content</em></h2>
+          <p class="admin-list-hint">Articles and episodes you've pushed to your members. They see these on their dashboards.</p>
+        </header>
+        <ul class="admin-list-items" data-curated-list aria-live="polite">
+          <li class="admin-list-empty" data-curated-empty>No content curated yet. Use the push button on any article or podcast episode.</li>
+        </ul>
+      </section>
     </div>
   </section>
 
+  <script src="{{asset "js/admin-auth.js"}}"></script>
   <script src="{{asset "js/institution-manage.js"}}"></script>
 </main>

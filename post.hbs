@@ -105,6 +105,21 @@
                             <span class="article-bookmark-label">Bookmark</span>
                         </button>
                     {{/if}}
+                    {{#if @custom.membership_api_base}}
+                        <button class="institution-push" type="button"
+                                data-institution-push
+                                data-post-id="{{id}}"
+                                data-content-type="article"
+                                aria-label="Push to institution"
+                                aria-pressed="false"
+                                hidden>
+                            <svg class="institution-push-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 2L4 10h3v6h10v-6h3L12 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                <rect x="4" y="18" width="16" height="2" rx="1" fill="currentColor"/>
+                            </svg>
+                            <span class="institution-push-label">Push</span>
+                        </button>
+                    {{/if}}
                     {{!-- PDF + Gift + Audio + Bookmark all render for every
                          visitor now. feature-gate.js intercepts clicks from
                          users who don't have access and shows a popup with
@@ -429,6 +444,10 @@
      selectors already rely on. --}}
 {{#if @custom.plausible_domain}}
 <script src="{{asset "js/page/article-plausible.js"}}"></script>
+{{/if}}
+
+{{#if @custom.membership_api_base}}
+    <script src="{{asset "js/institution-push.js"}}"></script>
 {{/if}}
 
 {{/post}}

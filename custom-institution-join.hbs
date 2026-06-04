@@ -1,0 +1,92 @@
+{{!< default}}
+{{!-- /join/?i=<slug> — public institution signup landing page.
+     Loads institution info via the membership API, validates the code,
+     and signs the member up as a comped paid member. --}}
+
+<main class="membership membership-support" data-institution-join data-api-base="{{@custom.membership_api_base}}">
+
+  {{!-- Loading state --}}
+  <section class="page-hero" data-join-loading>
+    <div class="container">
+      <p class="eyebrow">Institutional Access</p>
+      <h1 class="page-hero-headline"><em>Loading...</em></h1>
+    </div>
+  </section>
+
+  {{!-- Error state (institution not found, expired, etc.) --}}
+  <section class="page-hero" data-join-error hidden>
+    <div class="container">
+      <p class="eyebrow">Institutional Access</p>
+      <h1 class="page-hero-headline"><em>Not available</em></h1>
+      <p class="page-hero-sub" data-join-error-msg>This institution link is not valid or has expired.</p>
+    </div>
+  </section>
+
+  {{!-- Main content (shown after institution loads) --}}
+  <div data-join-content hidden>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Institutional Access</p>
+        <h1 class="page-hero-headline"><em data-join-name></em></h1>
+        <p class="page-hero-sub" data-join-description></p>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="container">
+        <div data-join-logo-wrap hidden style="text-align:center;margin-bottom:32px;">
+          <img data-join-logo alt="" style="max-height:80px;max-width:280px;" />
+        </div>
+
+        <form class="stacked-form" data-join-form novalidate>
+          <p class="form-intro">Enter your details and the access code provided by your institution.</p>
+
+          <fieldset class="form-group">
+            <legend class="form-legend">Your information</legend>
+            <div class="form-row">
+              <label class="form-field">
+                <span class="form-label">First name</span>
+                <input type="text" name="first_name" autocomplete="given-name" required />
+              </label>
+              <label class="form-field">
+                <span class="form-label">Last name</span>
+                <input type="text" name="last_name" autocomplete="family-name" required />
+              </label>
+            </div>
+            <label class="form-field">
+              <span class="form-label">Email</span>
+              <input type="email" name="email" autocomplete="email" required />
+            </label>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <legend class="form-legend">Access code</legend>
+            <label class="form-field">
+              <span class="form-label">Code</span>
+              <input type="text" name="code" autocomplete="off" placeholder="e.g. ABCD1234" style="font-family:monospace;font-size:1.1em;letter-spacing:2px;text-transform:uppercase;" required />
+              <span class="form-hint">Provided by your institution's administrator.</span>
+            </label>
+          </fieldset>
+
+          <p class="form-seats" data-join-seats hidden></p>
+
+          <button type="submit" class="btn btn-pill btn-primary btn-wide" data-join-submit>
+            <span class="btn-label">Sign up</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="btn-error" data-join-form-error role="alert"></p>
+        </form>
+
+        <div data-join-success hidden>
+          <div class="form-success">
+            <h2>You're in.</h2>
+            <p>Your membership is now active. You have full access to all Mere Orthodoxy content.</p>
+            <a href="/" class="btn btn-pill btn-primary" style="margin-top:16px;">Start reading</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="{{asset "js/institution-join.js"}}"></script>
+</main>
