@@ -258,7 +258,12 @@
       const titleEl = epEl ? epEl.querySelector('.pod-title') : null;
       const title = titleEl ? titleEl.textContent.trim() : '';
       const show_slug = epEl ? (epEl.getAttribute('data-show') || '') : '';
-      return { title, show_slug };
+      var coverMap = {
+        'mere-fidelity': '/assets/images/mere-fidelity.jpg',
+        'christians-reading-classics': '/assets/images/christians-reading-classics.jpg',
+      };
+      var feature_image = coverMap[show_slug] ? (window.location.origin + coverMap[show_slug]) : '';
+      return { title, show_slug, feature_image };
     }
     return {};
   }
