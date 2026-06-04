@@ -4461,7 +4461,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 /* --- Admin dashboards (group + institution manage) --- */
 .membership-support .admin-summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 14px;
 }
 .membership-support .admin-summary-item {

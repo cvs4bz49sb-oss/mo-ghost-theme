@@ -11,6 +11,8 @@
   const orgEl = document.getElementById('inst-org');
   const adminEl = document.getElementById('inst-admin');
   const endDateEl = document.getElementById('inst-end-date');
+  const codeEl = document.getElementById('inst-code');
+  const shareLinkEl = document.getElementById('inst-share-link');
   const membersList = document.getElementById('members-list');
   const membersEmpty = document.getElementById('members-empty');
   const domainsReadonlyList = document.getElementById('domains-readonly-list');
@@ -120,6 +122,15 @@
     orgEl.textContent = inst.display_name || inst.org_name || '—';
     adminEl.textContent = inst.admin_email || '—';
     endDateEl.textContent = inst.contract_end || '—';
+
+    if (codeEl && inst.signup_code) {
+      codeEl.textContent = inst.signup_code;
+    }
+    if (shareLinkEl && inst.slug) {
+      var url = window.location.origin + '/join/?i=' + encodeURIComponent(inst.slug);
+      shareLinkEl.href = url;
+      shareLinkEl.textContent = url;
+    }
 
     if (Array.isArray(inst.members)) {
       writeStore(membersKey, inst.members.map(m => ({
