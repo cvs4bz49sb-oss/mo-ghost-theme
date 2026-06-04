@@ -4483,6 +4483,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   color: var(--color-dark);
   margin: 0;
   font-weight: 600;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .membership-support .admin-summary-subtle {
   font-weight: 400;
