@@ -1,0 +1,170 @@
+{{!< default}}
+{{!-- Dynamic reader for The Faith Received library works.
+     Renders works from R2/CDN JSON (meta.json + work.json) instead of
+     baking content into the template. URL: /the-faith-received/reader/?w=slug
+
+     Header fields, TOC, and content are populated by faith-reader.js
+     from the work's meta.json and pages data. --}}
+
+<main class="article faith-doc faith-doc--library faith-doc--books faith-doc--editorial">
+
+  <section class="article-header faith-doc-header faith-doc-header--library">
+    <div class="article-header-inner">
+      <p class="article-topic">
+        <a href="/the-faith-received/" class="article-topic-tag">The Faith Received</a>
+        <a href="/the-faith-received/#traditions" class="article-topic-tag" data-fr-tradition></a>
+      </p>
+      <h1 class="article-title" data-fr-title>Loading&hellip;</h1>
+      <p class="article-dek faith-doc-dek" data-fr-dek></p>
+      <p class="faith-doc-translator" data-fr-translator></p>
+      <p class="faith-doc-description" data-fr-description></p>
+      <hr class="faith-doc-rule" aria-hidden="true">
+
+      <div class="faith-doc-actions">
+        <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
+          <span class="faith-doc-toc-toggle-icon" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span class="faith-doc-toc-toggle-label">Contents</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  {{> "faith-received/_nav"}}
+
+  <div class="article-body faith-doc-body faith-doc-body--has-sidebar">
+    <div class="faith-doc-layout">
+      <aside class="faith-toc-sidebar" data-faith-toc-drawer aria-label="Document contents">
+        <button type="button" class="faith-toc-close" data-faith-toc-close aria-label="Close contents">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <nav class="faith-toc faith-toc--books" aria-label="Contents" data-fr-toc>
+          <p class="faith-toc-label-heading">Contents</p>
+          <p class="faith-toc-loading">Loading contents&hellip;</p>
+        </nav>
+      </aside>
+
+      <div class="faith-doc-inner">
+        <div class="faith-reading-controls" data-faith-controls>
+          <button type="button" class="faith-toggle-switch" data-faith-expand-toggle aria-pressed="false">
+            <span class="faith-toggle-label" data-off="Collapsed" data-on="Expanded">Collapsed</span>
+          </button>
+
+          <div class="faith-lang-toggle" data-faith-lang-toggle>
+            <button type="button" class="faith-lang-btn" data-lang="en" aria-pressed="true">English</button>
+            <button type="button" class="faith-lang-btn" data-lang="la" aria-pressed="false">Latin</button>
+            <button type="button" class="faith-lang-btn" data-lang="parallel" aria-pressed="false">Parallel</button>
+          </div>
+        </div>
+
+        {{!-- Loading state --}}
+        <div class="faith-reader-loading" data-fr-loading>
+          <p class="faith-reader-loading-text">Loading work&hellip;</p>
+        </div>
+
+        {{!-- Error state --}}
+        <div class="faith-reader-error" data-fr-error hidden>
+          <p class="faith-reader-error-text">Could not load this work. Please check the URL and try again.</p>
+        </div>
+
+        {{!-- Content container: sections rendered here by JS --}}
+        <section class="faith-books-section faith-lang-en" aria-label="Content" data-fr-content>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<style>
+/* ── Language toggle ──────────────────────────────────────────── */
+.faith-lang-toggle {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-left: 1rem;
+}
+.faith-lang-btn {
+  font: 600 0.72rem/1 -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 0.45rem 0.75rem;
+  border: 0;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-page);
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.faith-lang-btn:last-child { border-right: 0; }
+.faith-lang-btn[aria-pressed="true"] {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+/* ── Parallel columns ─────────────────────────────────────────── */
+.faith-parallel-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.faith-lang-en .faith-col-la,
+.faith-lang-la .faith-col-en { display: none; }
+.faith-lang-en .faith-parallel-block,
+.faith-lang-la .faith-parallel-block {
+  grid-template-columns: 1fr;
+}
+
+/* ── Latin text styling ───────────────────────────────────────── */
+.faith-col-la {
+  font-style: italic;
+  color: var(--color-secondary);
+}
+
+/* ── Mobile: stack parallel columns ───────────────────────────── */
+@media (max-width: 768px) {
+  .faith-parallel-block {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .faith-lang-parallel .faith-col-la {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+  }
+}
+
+/* ── Page number markers ──────────────────────────────────────── */
+.faith-page-marker {
+  font: 600 0.65rem/1 -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--color-secondary);
+  opacity: 0.5;
+  margin-right: 0.5rem;
+}
+
+/* ── Loading / error states ───────────────────────────────────── */
+.faith-reader-loading,
+.faith-reader-error {
+  padding: 3rem 0;
+  text-align: center;
+}
+.faith-reader-loading-text,
+.faith-reader-error-text {
+  font: 400 0.9rem/1.6 -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--color-secondary);
+}
+.faith-reader-error-text { color: var(--color-error, #b91c1c); }
+
+.faith-toc-loading {
+  font: 400 0.8rem/1.4 -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--color-secondary);
+  padding: 0.5rem 0;
+}
+</style>
+
+{{!-- CDN base URL for fetching work data. Read by faith-reader.js.
+     Uses a <meta> tag instead of inline JS so the CSP can remain
+     free of 'unsafe-inline' on script-src. --}}
+<meta name="tfr-library-base" content="https://mo-tfr-library.mo-podcast-feed.workers.dev" />
+<script src="{{asset "js/faith-modernize.js"}}"></script>
+<script src="{{asset "js/faith-received.js"}}"></script>
+<script src="{{asset "js/faith-reader.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>
