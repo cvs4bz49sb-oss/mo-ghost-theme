@@ -21,19 +21,17 @@
 (function () {
   "use strict";
 
-  var REF_RE = /^[A-Za-z0-9_-]{1,64}$/;
-  var COOKIE = "mo_ref";
+  const REF_RE = /^[A-Za-z0-9_-]{1,64}$/;
+  const COOKIE = "mo_ref";
 
   function setCookie(name, value, maxAge) {
-    document.cookie =
-      name + "=" + encodeURIComponent(value) +
-      ";path=/;max-age=" + maxAge + ";SameSite=Lax" +
-      (location.protocol === "https:" ? ";Secure" : "");
+    const secure = location.protocol === "https:" ? ";Secure" : "";
+    document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=${maxAge};SameSite=Lax${secure}`;
   }
   function getCookie(name) {
-    var all = document.cookie ? document.cookie.split("; ") : [];
-    for (var i = 0; i < all.length; i++) {
-      var eq = all[i].indexOf("=");
+    const all = document.cookie ? document.cookie.split("; ") : [];
+    for (let i = 0; i < all.length; i++) {
+      const eq = all[i].indexOf("=");
       if (eq > -1 && all[i].slice(0, eq) === name) {
         return decodeURIComponent(all[i].slice(eq + 1));
       }
@@ -41,19 +39,19 @@
     return null;
   }
   function clearCookie(name) {
-    document.cookie = name + "=;path=/;max-age=0;SameSite=Lax";
+    document.cookie = `${name}=;path=/;max-age=0;SameSite=Lax`;
   }
 
   function metaContent(name) {
-    var el = document.querySelector('meta[name="' + name + '"]');
-    var v = el && el.getAttribute("content");
+    const el = document.querySelector(`meta[name="${name}"]`);
+    const v = el && el.getAttribute("content");
     return v && v.trim() ? v.trim() : null;
   }
 
-  var API = window.MO_API_BASE || null;
+  const API = window.MO_API_BASE || null;
 
   // --- 1. Capture ?ref into a cookie (365 days) ---------------------------
-  var refParam = null;
+  let refParam = null;
   try {
     refParam = new URLSearchParams(location.search).get("ref");
   } catch (e) { /* no URLSearchParams */ }
@@ -61,16 +59,16 @@
     setCookie(COOKIE, refParam, 60 * 60 * 24 * 365);
   }
 
-  var storedRef = getCookie(COOKIE);
+  const storedRef = getCookie(COOKIE);
 
   // --- 2. Repoint membership CTAs at the new-member Offer -----------------
   // Only when we actually have a referral in play; never alter the CTA for
   // ordinary (non-referred) visitors.
   if (storedRef) {
-    var offer = metaContent("mo-referral-offer");
+    const offer = metaContent("mo-referral-offer");
     if (offer) {
-      var ctas = document.querySelectorAll('[data-portal="signup"]');
-      for (var c = 0; c < ctas.length; c++) {
+      const ctas = document.querySelectorAll('[data-portal="signup"]');
+      for (let c = 0; c < ctas.length; c++) {
         ctas[c].setAttribute("href", offer);
         ctas[c].removeAttribute("data-portal"); // stop the Portal handler hijacking it
       }
@@ -78,35 +76,35 @@
   }
 
   // --- 3. Attribute once the visitor is a signed-in member ---------------
-  var memberEmail = document.body ? document.body.getAttribute("data-member-email") : null;
-  var isMember = !!(memberEmail && memberEmail.indexOf("@") > -1);
+  const memberEmail = document.body ? document.body.getAttribute("data-member-email") : null;
+  const isMember = !!(memberEmail && memberEmail.indexOf("@") > -1);
 
   if (isMember && storedRef && API && window.MOAuth && REF_RE.test(storedRef)) {
-    window.MOAuth.fetch(API + "/api/referral/attribute", {
+    window.MOAuth.fetch(`${API}/api/referral/attribute`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ ref: storedRef })
     })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
+      .then((r) => { return r.ok ? r.json() : null; })
+      .then((data) => {
         // Any definitive answer (attributed, self, already, unknown,
         // pre-existing) means stop trying. Only a network/401 (null)
         // keeps the cookie so a later navigation retries.
         if (data) clearCookie(COOKIE);
       })
-      .catch(function () { /* keep cookie, retry next navigation */ });
+      .catch(() => { /* keep cookie, retry next navigation */ });
   }
 
   // --- 4. Dashboard widget -----------------------------------------------
-  var widget = document.querySelector("[data-mo-referral-widget]");
+  const widget = document.querySelector("[data-mo-referral-widget]");
   if (widget && API && window.MOAuth) {
     renderWidget(widget);
   }
 
   function renderWidget(root) {
-    window.MOAuth.fetch(API + "/api/referral/me")
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
+    window.MOAuth.fetch(`${API}/api/referral/me`)
+      .then((r) => { return r.ok ? r.json() : null; })
+      .then((data) => {
         if (!data) return;
         if (!data.eligible) {
           // Free members: invite them to upgrade rather than showing a
@@ -114,27 +112,27 @@
           root.hidden = true;
           return;
         }
-        var linkEl = root.querySelector("[data-referral-link]");
-        var copyEl = root.querySelector("[data-referral-copy]");
-        var s = data.stats || {};
+        const linkEl = root.querySelector("[data-referral-link]");
+        const copyEl = root.querySelector("[data-referral-copy]");
+        const s = data.stats || {};
         if (linkEl) {
           linkEl.value = data.link;
         }
         setText(root, "[data-referral-converted]", s.converted || 0);
         setText(root, "[data-referral-pending]", s.pending || 0);
-        setText(root, "[data-referral-earned]", "$" + (((s.earned_cents || 0) / 100).toFixed(2)));
+        setText(root, "[data-referral-earned]", `$${((s.earned_cents || 0) / 100).toFixed(2)}`);
         root.hidden = false;
 
         if (copyEl && linkEl) {
-          copyEl.addEventListener("click", function () {
+          copyEl.addEventListener("click", () => {
             linkEl.select();
-            var done = function () {
-              var label = copyEl.textContent;
+            const done = function () {
+              const label = copyEl.textContent;
               copyEl.textContent = "Copied";
-              setTimeout(function () { copyEl.textContent = label; }, 1500);
+              setTimeout(() => { copyEl.textContent = label; }, 1500);
             };
             if (navigator.clipboard && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(linkEl.value).then(done, function () {
+              navigator.clipboard.writeText(linkEl.value).then(done, () => {
                 try { document.execCommand("copy"); done(); } catch (e) {}
               });
             } else {
@@ -143,11 +141,11 @@
           });
         }
       })
-      .catch(function () { root.hidden = true; });
+      .catch(() => { root.hidden = true; });
   }
 
   function setText(root, sel, value) {
-    var el = root.querySelector(sel);
+    const el = root.querySelector(sel);
     if (el) el.textContent = value;
   }
 })();
