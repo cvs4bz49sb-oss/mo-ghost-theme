@@ -492,6 +492,9 @@
       var textEl = errorEl.querySelector(".faith-reader-error-text");
       if (textEl) textEl.textContent = msg;
     }
+    if (titleEl) titleEl.textContent = "The Faith Received";
+    var tocLoading = tocNav && tocNav.querySelector(".faith-toc-loading");
+    if (tocLoading) tocLoading.hidden = true;
   }
 
   function hideLoading() {
