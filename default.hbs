@@ -74,6 +74,13 @@
     <meta name="ghost-content-api-key" content="{{@custom.content_api_key}}" />
     {{/if}}
 
+    {{!-- New-member Offer for the referral program. referral.js reads
+         this to repoint the /membership/ CTA when a visitor arrives via
+         a ?ref= link. Empty = single-sided referral (no new-member offer). --}}
+    {{#if @custom.referral_offer_url}}
+    <meta name="mo-referral-offer" content="{{@custom.referral_offer_url}}" />
+    {{/if}}
+
     {{!-- Trusted destinations for MOAuth.fetch. admin-auth.js reads
          this ONCE at IIFE time (before {{{body}}} renders, before any
          page-template scripts run) and freezes the set. Pipe-separated

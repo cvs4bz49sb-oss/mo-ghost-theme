@@ -97,6 +97,38 @@
         </details>
 
 
+        {{!-- Refer a friend. Hidden until referral.js confirms the member
+             is paid/comped via /api/referral/me, then filled with their
+             share link and running stats. --}}
+        <details class="dashboard-module" data-mo-referral-widget hidden>
+          <summary>
+            <h2 class="dashboard-module-title"><em>Refer a Friend</em></h2>
+            <span class="dashboard-module-chev" aria-hidden="true"></span>
+          </summary>
+          <div class="dashboard-module-body">
+            <p class="referral-blurb">Share Mere Orthodoxy with someone who would value it. When they become a paying member, you get a free month and they get a discount on their first term.</p>
+            <div class="referral-link-row">
+              <input type="text" class="referral-link-input" data-referral-link readonly aria-label="Your referral link" />
+              <button type="button" class="btn btn-primary referral-copy-btn" data-referral-copy aria-live="polite">Copy</button>
+            </div>
+            <div class="referral-stats">
+              <div class="referral-stat">
+                <span class="referral-stat-num" data-referral-converted>0</span>
+                <span class="referral-stat-label">Joined</span>
+              </div>
+              <div class="referral-stat">
+                <span class="referral-stat-num" data-referral-pending>0</span>
+                <span class="referral-stat-label">Pending</span>
+              </div>
+              <div class="referral-stat">
+                <span class="referral-stat-num" data-referral-earned>$0.00</span>
+                <span class="referral-stat-label">Earned</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+
       </div>
 
       <aside class="dashboard-rail" aria-label="Membership">
