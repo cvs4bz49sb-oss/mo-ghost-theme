@@ -1,27 +1,26 @@
 /*
- * The Faith Received — Latin Library Browse
+ * The Faith Received — Latin Library Integration
  *
- * Fetches the works index from R2 and renders a filterable card grid
- * on the Library tab of /the-faith-received/.
+ * Fetches the 503-work index from R2 and injects cards into:
+ *   1. The Library tab card grid
+ *   2. The matching Traditions tab grids
+ *   3. The search index (if search is active)
  */
 
 (function () {
   "use strict";
 
-  var grid = document.querySelector("[data-fr-library-grid]");
-  if (!grid) return;
-
-  var filtersEl = document.querySelector("[data-fr-filters]");
   var baseMeta = document.querySelector('meta[name="tfr-library-base"]');
   var BASE = ((baseMeta && baseMeta.getAttribute("content")) || "").replace(/\/+$/, "");
+  if (!BASE) return;
 
-  if (!BASE) {
-    grid.innerHTML = '<p>Library configuration missing.</p>';
-    return;
-  }
-
-  var works = [];
-  var activeFilter = "all";
+  var TRADITION_MAP = {
+    "Catholic": "catholic",
+    "Reformed": "reformed",
+    "Lutheran": "lutheran",
+    "Humanism": "scholastic",
+    "Unsorted": null
+  };
 
   fetch(BASE + "/v1/works-index.json")
     .then(function (r) {
@@ -29,63 +28,60 @@
       return r.json();
     })
     .then(function (data) {
-      works = data.works || [];
-      var traditions = data.traditions || [];
-      buildFilters(traditions);
-      renderGrid(works);
+      var works = data.works || [];
+      injectLibraryCards(works);
+      injectTraditionCards(works);
+      injectSearchEntries(works);
     })
-    .catch(function (err) {
-      grid.innerHTML = '<p>Could not load the library. (' + err.message + ')</p>';
-    });
+    .catch(function () {});
 
-  function buildFilters(traditions) {
-    if (!filtersEl || !traditions.length) return;
-    traditions.forEach(function (t) {
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "faith-lang-btn";
-      btn.setAttribute("data-fr-filter", t);
-      btn.setAttribute("aria-pressed", "false");
-      btn.textContent = t;
-      filtersEl.appendChild(btn);
-    });
+  function buildCard(w) {
+    var tradition = escapeHtml(w.tradition || "");
+    var title = escapeHtml(w.title || w.slug);
+    var author = escapeHtml(w.author || "");
+    var pages = w.n_pages ? w.n_pages + " pp." : "";
+    return '<a class="faith-card" href="/the-faith-received/reader/?w=' + encodeURIComponent(w.slug) + '">' +
+      (tradition ? '<p class="faith-card-date">' + tradition + '</p>' : '') +
+      '<h3 class="faith-card-title"><em>' + title + '</em></h3>' +
+      (author ? '<p class="faith-card-author"><em>' + author + '</em></p>' : '') +
+      (pages ? '<p class="faith-card-desc">' + pages + '</p>' : '') +
+      '<span class="faith-card-link">Read <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span>' +
+      '</a>';
+  }
 
-    filtersEl.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-fr-filter]");
-      if (!btn) return;
-      activeFilter = btn.getAttribute("data-fr-filter");
-      filtersEl.querySelectorAll("[data-fr-filter]").forEach(function (b) {
-        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
-      });
-      renderGrid(works);
+  function injectLibraryCards(works) {
+    var grid = document.querySelector('[data-faith-section="library"] .faith-card-grid');
+    if (!grid) return;
+    var html = works.map(buildCard).join("");
+    grid.insertAdjacentHTML("beforeend", html);
+  }
+
+  function injectTraditionCards(works) {
+    works.forEach(function (w) {
+      var key = TRADITION_MAP[w.tradition];
+      if (!key) return;
+      var section = document.querySelector('[data-faith-tradition="' + key + '"]');
+      if (!section) return;
+      var grid = section.querySelector(".faith-card-grid");
+      if (!grid) return;
+      grid.insertAdjacentHTML("beforeend", buildCard(w));
     });
   }
 
-  function renderGrid(allWorks) {
-    var filtered = activeFilter === "all"
-      ? allWorks
-      : allWorks.filter(function (w) { return w.tradition === activeFilter; });
-
-    if (!filtered.length) {
-      grid.innerHTML = '<p>No works found.</p>';
-      return;
-    }
-
-    var html = filtered.map(function (w) {
-      var tradition = escapeHtml(w.tradition || "");
-      var title = escapeHtml(w.title || w.slug);
-      var author = escapeHtml(w.author || "");
-      var pages = w.n_pages ? w.n_pages + " pp." : "";
-      return '<a class="faith-card" href="/the-faith-received/reader/?w=' + encodeURIComponent(w.slug) + '">' +
-        (tradition ? '<p class="faith-card-date">' + tradition + '</p>' : '') +
-        '<h3 class="faith-card-title"><em>' + title + '</em></h3>' +
-        (author ? '<p class="faith-card-author"><em>' + author + '</em></p>' : '') +
-        (pages ? '<p class="faith-card-desc">' + pages + '</p>' : '') +
-        '<span class="faith-card-link">Read <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span>' +
-        '</a>';
-    }).join("");
-
-    grid.innerHTML = html;
+  function injectSearchEntries(works) {
+    if (!window.__tfrSearchAppend) return;
+    var entries = works.map(function (w) {
+      return {
+        type: "library",
+        slug: w.slug,
+        url: "/the-faith-received/reader/?w=" + encodeURIComponent(w.slug),
+        title: w.title || w.slug,
+        author: w.author || null,
+        date: null,
+        snippet: (w.tradition || "") + (w.n_pages ? " — " + w.n_pages + " pages" : "")
+      };
+    });
+    window.__tfrSearchAppend(entries);
   }
 
   function escapeHtml(s) {

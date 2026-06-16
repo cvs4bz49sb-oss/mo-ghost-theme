@@ -45,19 +45,6 @@
     <section class="faith-section-band faith-band-library" data-faith-section="library" hidden>
       <div class="container">
         {{> "faith-received/_cards-library"}}
-
-        <div class="faith-latin-library" data-fr-library>
-          <h2 class="faith-latin-library-heading">Latin Library</h2>
-          <p class="faith-latin-library-dek">503 works of early modern Latin theology, with English translation and parallel text.</p>
-
-          <div class="faith-latin-library-filters" data-fr-filters>
-            <button type="button" class="faith-lang-btn" data-fr-filter="all" aria-pressed="true">All</button>
-          </div>
-
-          <div class="faith-card-grid" data-fr-library-grid>
-            <p class="faith-latin-library-loading">Loading works&hellip;</p>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -94,14 +81,6 @@
   </div>
 
 </main>
-
-<style>
-.faith-latin-library { margin-top: 3rem; padding-top: 3rem; border-top: 1px solid var(--color-border); }
-.faith-latin-library-heading { font: 600 1.4rem/1.2 var(--font-serif); margin: 0 0 0.5rem; }
-.faith-latin-library-dek { font: 400 0.9rem/1.5 -apple-system, BlinkMacSystemFont, sans-serif; color: var(--color-secondary); margin: 0 0 1.5rem; }
-.faith-latin-library-filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
-.faith-latin-library-loading { font: 400 0.85rem/1.5 -apple-system, BlinkMacSystemFont, sans-serif; color: var(--color-secondary); }
-</style>
 
 <meta name="tfr-library-base" content="https://mo-tfr-library.mo-podcast-feed.workers.dev" />
 <script src="{{asset "js/faith-modernize.js"}}"></script>

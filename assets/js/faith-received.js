@@ -58,6 +58,10 @@
             minMatchCharLength: 2,
             includeScore: true,
           });
+          window.__tfrSearchAppend = function (entries) {
+            index.push.apply(index, entries);
+            fuse.setCollection(index);
+          };
           return fuse;
         })
         .catch((err) => {
