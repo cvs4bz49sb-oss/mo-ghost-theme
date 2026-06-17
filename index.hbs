@@ -369,3 +369,11 @@
 <div class="membership homepage-membership" id="join">
   {{> "membership-body"}}
 </div>
+
+{{!-- Populates the .pod-show-latest containers in the "Patient
+     conversations" section with each show's latest episode via the
+     mo-podcast-feed worker. Only meaningful when @custom.podcast_feed_url
+     is set (same condition that renders the section above). --}}
+{{#if @custom.podcast_feed_url}}
+<script src="{{asset "js/podcast-feed.js"}}"></script>
+{{/if}}
