@@ -235,7 +235,69 @@
     { tag: "{{ unsubscribe_url }}", label: "Unsubscribe URL (already in the footer)" },
     { tag: "{{ subscriber_preferences_url }}", label: "Manage preferences URL (already in the footer)" }
   ];
+  const SPONSOR_FIELDS = ["name", "label", "headline", "body", "cta", "href"];
+  const BUILTIN_SPONSORS = [
+    {
+      id: "builtin-beeson-preaching-2026",
+      name: "Beeson Divinity School",
+      label: "Ministry Partner",
+      headline: "Preach The Word Well",
+      body: 'Join Beeson Divinity School July 14-16 in Birmingham for the 2026 Preaching Conference: "Manifold Wisdom: The Wisdom of Preaching Across Christian Traditions."',
+      cta: "Learn More & Register \u2192",
+      href: ""
+      // set the registration link before sending
+    },
+    {
+      id: "builtin-crossway-botm",
+      name: "Crossway Books",
+      label: "Ministry Partner",
+      headline: "Book of the Month",
+      body: "Crossway's Book of the Month is From Dust To Dust by Jen Wilkin.",
+      cta: "Get The Book \u2192",
+      href: ""
+    },
+    {
+      id: "builtin-beeson-mdiv",
+      name: "Beeson Divinity School",
+      label: "Ministry Partner",
+      headline: "Start Your M.Div With A Scholarship",
+      body: "Start your M.Div this Fall at Beeson Divinity School.",
+      cta: "Start Your Application \u2192",
+      href: ""
+    }
+  ];
+  const SPONSOR_LIB_KEY = "mo:sponsorLibrary";
+  function loadSponsorLibrary() {
+    try {
+      const raw = localStorage.getItem(SPONSOR_LIB_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter((s) => s && s.id) : [];
+    } catch (_) {
+      return [];
+    }
+  }
+  function saveSponsorLibrary(arr) {
+    try {
+      localStorage.setItem(SPONSOR_LIB_KEY, JSON.stringify(arr || []));
+    } catch (_) {
+    }
+  }
+  function sponsorFields(src) {
+    const s = src || {};
+    const out = {};
+    SPONSOR_FIELDS.forEach((f) => {
+      out[f] = s[f] || "";
+    });
+    return out;
+  }
+  function sponsorTitle(s) {
+    const name = (s.savedLabel || s.name || "").trim();
+    const headline = (s.headline || "").trim();
+    if (name && headline && !s.savedLabel) return `${name} \xB7 ${headline}`;
+    return name || headline || "Untitled sponsor";
+  }
   function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
+    const [sponsorLib, setSponsorLib] = React.useState(() => loadSponsorLibrary());
     const [rssText, setRssText] = useState("");
     const [copiedTag, setCopiedTag] = useState(null);
     const [sectionDragOver, setSectionDragOver] = useState(null);
@@ -499,6 +561,79 @@
       cursor: "pointer",
       borderRadius: 10
     });
+    const loadSponsorIntoSlot = (slotKey, sponsorId) => {
+      const all = [...BUILTIN_SPONSORS, ...sponsorLib];
+      const sel = all.find((s) => s.id === sponsorId);
+      if (sel) updateField(slotKey, sponsorFields(sel));
+    };
+    const saveSlotToLibrary = (slotKey) => {
+      const slot = sponsorFields(content[slotKey]);
+      if (!slot.name && !slot.headline) {
+        alert("Add a sponsor name or headline before saving this block.");
+        return;
+      }
+      const suggested = sponsorTitle(slot);
+      const name = window.prompt("Save this sponsor block to your library as:", suggested);
+      if (name == null) return;
+      const entry = {
+        ...slot,
+        id: "spon_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        savedLabel: name.trim() || suggested
+      };
+      const next = [...sponsorLib, entry];
+      setSponsorLib(next);
+      saveSponsorLibrary(next);
+    };
+    const deleteSavedSponsor = (sponsorId) => {
+      const next = sponsorLib.filter((s) => s.id !== sponsorId);
+      setSponsorLib(next);
+      saveSponsorLibrary(next);
+    };
+    const renderSponsorTools = (slotKey) => /* @__PURE__ */ React.createElement("div", { style: {
+      marginBottom: 14,
+      paddingBottom: 14,
+      borderBottom: "1px dashed #d8c4a3"
+    } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 220px" } }, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, "Load a saved sponsor"), /* @__PURE__ */ React.createElement(
+      "select",
+      {
+        value: "",
+        onChange: (e) => {
+          loadSponsorIntoSlot(slotKey, e.target.value);
+          e.target.value = "";
+        },
+        style: { ...fieldStyles.input, height: 38 }
+      },
+      /* @__PURE__ */ React.createElement("option", { value: "" }, "Choose a sponsor\u2026"),
+      /* @__PURE__ */ React.createElement("optgroup", { label: "Built-in" }, BUILTIN_SPONSORS.map((s) => /* @__PURE__ */ React.createElement("option", { key: s.id, value: s.id }, sponsorTitle(s)))),
+      sponsorLib.length > 0 && /* @__PURE__ */ React.createElement("optgroup", { label: "Saved by you" }, sponsorLib.map((s) => /* @__PURE__ */ React.createElement("option", { key: s.id, value: s.id }, sponsorTitle(s))))
+    )), /* @__PURE__ */ React.createElement("button", { type: "button", style: btnStyle("secondary"), onClick: () => saveSlotToLibrary(slotKey) }, "Save this slot")), sponsorLib.length > 0 && /* @__PURE__ */ React.createElement("details", { style: { marginTop: 10 } }, /* @__PURE__ */ React.createElement("summary", { style: {
+      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+      fontSize: 11,
+      letterSpacing: "0.06em",
+      color: "#9a8773",
+      cursor: "pointer"
+    } }, "Manage saved sponsors (", sponsorLib.length, ")"), /* @__PURE__ */ React.createElement("ul", { style: { listStyle: "none", margin: "8px 0 0", padding: 0 } }, sponsorLib.map((s) => /* @__PURE__ */ React.createElement("li", { key: s.id, style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 10,
+      padding: "5px 0",
+      borderTop: "1px solid #ece1cf"
+    } }, /* @__PURE__ */ React.createElement("span", { style: {
+      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+      fontSize: 13,
+      color: "#2d2927"
+    } }, sponsorTitle(s)), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        type: "button",
+        style: { ...btnStyle("danger"), padding: "4px 10px" },
+        onClick: () => {
+          if (window.confirm(`Delete "${sponsorTitle(s)}" from your saved sponsors?`)) deleteSavedSponsor(s.id);
+        }
+      },
+      "Delete"
+    ))))));
     return /* @__PURE__ */ React.createElement(
       "div",
       {
@@ -1148,7 +1283,7 @@
             style: btnStyle("secondary")
           },
           "+ Add Image"
-        ))), /* @__PURE__ */ React.createElement(Group, { title: "Membership CTA (free version)" }, /* @__PURE__ */ React.createElement(Field, { label: "Headline (use \\\\n for line break)", value: content.membership?.headline, multiline: true, rows: 2, onChange: (v) => updateField("membership.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.membership?.body, multiline: true, rows: 3, onChange: (v) => updateField("membership.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.membership?.cta, onChange: (v) => updateField("membership.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.membership?.href, onChange: (v) => updateField("membership.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "Member thanks (paid version)" }, /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.memberThanks?.headline, onChange: (v) => updateField("memberThanks.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.memberThanks?.body, multiline: true, rows: 2, onChange: (v) => updateField("memberThanks.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.memberThanks?.cta, onChange: (v) => updateField("memberThanks.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.memberThanks?.href, onChange: (v) => updateField("memberThanks.href", v) }))), ["sponsorTop", "sponsorBottom"].map((key) => /* @__PURE__ */ React.createElement(Group, { key, title: key === "sponsorTop" ? "Sponsor \u2014 top slot" : "Sponsor \u2014 bottom slot" }, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Section label", value: content[key]?.label, onChange: (v) => updateField(`${key}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Sponsor name", value: content[key]?.name, onChange: (v) => updateField(`${key}.name`, v) })), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content[key]?.headline, onChange: (v) => updateField(`${key}.headline`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content[key]?.body, multiline: true, rows: 3, onChange: (v) => updateField(`${key}.body`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content[key]?.cta, onChange: (v) => updateField(`${key}.cta`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content[key]?.href, onChange: (v) => updateField(`${key}.href`, v) })))), /* @__PURE__ */ React.createElement(Group, { title: `Essays (${content.essays?.length || 0})` }, /* @__PURE__ */ React.createElement(Field, { label: "Section heading", value: content.essaysHeading, placeholder: "This Week's Essays", onChange: (v) => updateField("essaysHeading", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement(
+        ))), /* @__PURE__ */ React.createElement(Group, { title: "Membership CTA (free version)" }, /* @__PURE__ */ React.createElement(Field, { label: "Headline (use \\\\n for line break)", value: content.membership?.headline, multiline: true, rows: 2, onChange: (v) => updateField("membership.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.membership?.body, multiline: true, rows: 3, onChange: (v) => updateField("membership.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.membership?.cta, onChange: (v) => updateField("membership.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.membership?.href, onChange: (v) => updateField("membership.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "Member thanks (paid version)" }, /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.memberThanks?.headline, onChange: (v) => updateField("memberThanks.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.memberThanks?.body, multiline: true, rows: 2, onChange: (v) => updateField("memberThanks.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.memberThanks?.cta, onChange: (v) => updateField("memberThanks.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.memberThanks?.href, onChange: (v) => updateField("memberThanks.href", v) }))), ["sponsorTop", "sponsorBottom"].map((key) => /* @__PURE__ */ React.createElement(Group, { key, title: key === "sponsorTop" ? "Sponsor \u2014 top slot" : "Sponsor \u2014 bottom slot" }, renderSponsorTools(key), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Section label", value: content[key]?.label, onChange: (v) => updateField(`${key}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Sponsor name", value: content[key]?.name, onChange: (v) => updateField(`${key}.name`, v) })), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content[key]?.headline, onChange: (v) => updateField(`${key}.headline`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content[key]?.body, multiline: true, rows: 3, onChange: (v) => updateField(`${key}.body`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content[key]?.cta, onChange: (v) => updateField(`${key}.cta`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content[key]?.href, onChange: (v) => updateField(`${key}.href`, v) })))), /* @__PURE__ */ React.createElement(Group, { title: `Essays (${content.essays?.length || 0})` }, /* @__PURE__ */ React.createElement(Field, { label: "Section heading", value: content.essaysHeading, placeholder: "This Week's Essays", onChange: (v) => updateField("essaysHeading", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => {

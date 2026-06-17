@@ -286,7 +286,76 @@ const KIT_TAGS = [
   { tag: '{{ subscriber_preferences_url }}', label: 'Manage preferences URL (already in the footer)' },
 ];
 
+// ── Saved sponsor library ───────────────────────────────────────────────
+// Reusable sponsor blocks the editor can drop into either slot instead of
+// retyping them each issue. Two sources, merged in the picker:
+//   1. BUILTIN_SPONSORS — shipped in code, always available on any device.
+//   2. localStorage 'mo:sponsorLibrary' — blocks the user saves themselves.
+// A sponsor block is exactly the six fields a slot renders.
+const SPONSOR_FIELDS = ['name', 'label', 'headline', 'body', 'cta', 'href'];
+
+const BUILTIN_SPONSORS = [
+  {
+    id: 'builtin-beeson-preaching-2026',
+    name: 'Beeson Divinity School',
+    label: 'Ministry Partner',
+    headline: 'Preach The Word Well',
+    body: 'Join Beeson Divinity School July 14-16 in Birmingham for the 2026 Preaching Conference: "Manifold Wisdom: The Wisdom of Preaching Across Christian Traditions."',
+    cta: 'Learn More & Register →',
+    href: '', // set the registration link before sending
+  },
+  {
+    id: 'builtin-crossway-botm',
+    name: 'Crossway Books',
+    label: 'Ministry Partner',
+    headline: 'Book of the Month',
+    body: "Crossway's Book of the Month is From Dust To Dust by Jen Wilkin.",
+    cta: 'Get The Book →',
+    href: '',
+  },
+  {
+    id: 'builtin-beeson-mdiv',
+    name: 'Beeson Divinity School',
+    label: 'Ministry Partner',
+    headline: 'Start Your M.Div With A Scholarship',
+    body: 'Start your M.Div this Fall at Beeson Divinity School.',
+    cta: 'Start Your Application →',
+    href: '',
+  },
+];
+
+const SPONSOR_LIB_KEY = 'mo:sponsorLibrary';
+
+function loadSponsorLibrary() {
+  try {
+    const raw = localStorage.getItem(SPONSOR_LIB_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter((s) => s && s.id) : [];
+  } catch (_) { return []; }
+}
+
+function saveSponsorLibrary(arr) {
+  try { localStorage.setItem(SPONSOR_LIB_KEY, JSON.stringify(arr || [])); } catch (_) {}
+}
+
+// Pull just the six block fields out of a stored slot or library entry.
+function sponsorFields(src) {
+  const s = src || {};
+  const out = {};
+  SPONSOR_FIELDS.forEach((f) => { out[f] = s[f] || ''; });
+  return out;
+}
+
+// Label for a picker option / manage row.
+function sponsorTitle(s) {
+  const name = (s.savedLabel || s.name || '').trim();
+  const headline = (s.headline || '').trim();
+  if (name && headline && !s.savedLabel) return `${name} · ${headline}`;
+  return name || headline || 'Untitled sponsor';
+}
+
 function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
+  const [sponsorLib, setSponsorLib] = React.useState(() => loadSponsorLibrary());
   const [rssText, setRssText] = useState('');
   const [copiedTag, setCopiedTag] = useState(null);
   // Drag-and-drop hover targets for visual feedback. Cleared on drop /
@@ -593,6 +662,101 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
     cursor: 'pointer',
     borderRadius: 10,
   });
+
+  // ── Sponsor library actions ───────────────────────────────────────────
+  const loadSponsorIntoSlot = (slotKey, sponsorId) => {
+    const all = [...BUILTIN_SPONSORS, ...sponsorLib];
+    const sel = all.find((s) => s.id === sponsorId);
+    if (sel) updateField(slotKey, sponsorFields(sel));
+  };
+
+  const saveSlotToLibrary = (slotKey) => {
+    const slot = sponsorFields(content[slotKey]);
+    if (!slot.name && !slot.headline) {
+      alert('Add a sponsor name or headline before saving this block.');
+      return;
+    }
+    const suggested = sponsorTitle(slot);
+    const name = window.prompt('Save this sponsor block to your library as:', suggested);
+    if (name == null) return; // cancelled
+    const entry = {
+      ...slot,
+      id: 'spon_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      savedLabel: (name.trim() || suggested),
+    };
+    const next = [...sponsorLib, entry];
+    setSponsorLib(next);
+    saveSponsorLibrary(next);
+  };
+
+  const deleteSavedSponsor = (sponsorId) => {
+    const next = sponsorLib.filter((s) => s.id !== sponsorId);
+    setSponsorLib(next);
+    saveSponsorLibrary(next);
+  };
+
+  // Picker + save/manage controls shown at the top of each sponsor slot.
+  const renderSponsorTools = (slotKey) => (
+    <div style={{
+      marginBottom: 14, paddingBottom: 14, borderBottom: '1px dashed #d8c4a3',
+    }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 220px' }}>
+          <label style={fieldStyles.label}>Load a saved sponsor</label>
+          <select
+            value=""
+            onChange={(e) => { loadSponsorIntoSlot(slotKey, e.target.value); e.target.value = ''; }}
+            style={{ ...fieldStyles.input, height: 38 }}
+          >
+            <option value="">Choose a sponsor…</option>
+            <optgroup label="Built-in">
+              {BUILTIN_SPONSORS.map((s) => (
+                <option key={s.id} value={s.id}>{sponsorTitle(s)}</option>
+              ))}
+            </optgroup>
+            {sponsorLib.length > 0 && (
+              <optgroup label="Saved by you">
+                {sponsorLib.map((s) => (
+                  <option key={s.id} value={s.id}>{sponsorTitle(s)}</option>
+                ))}
+              </optgroup>
+            )}
+          </select>
+        </div>
+        <button type="button" style={btnStyle('secondary')} onClick={() => saveSlotToLibrary(slotKey)}>
+          Save this slot
+        </button>
+      </div>
+      {sponsorLib.length > 0 && (
+        <details style={{ marginTop: 10 }}>
+          <summary style={{
+            fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+            fontSize: 11, letterSpacing: '0.06em', color: '#9a8773', cursor: 'pointer',
+          }}>Manage saved sponsors ({sponsorLib.length})</summary>
+          <ul style={{ listStyle: 'none', margin: '8px 0 0', padding: 0 }}>
+            {sponsorLib.map((s) => (
+              <li key={s.id} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: 10, padding: '5px 0', borderTop: '1px solid #ece1cf',
+              }}>
+                <span style={{
+                  fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+                  fontSize: 13, color: '#2d2927',
+                }}>{sponsorTitle(s)}</span>
+                <button
+                  type="button"
+                  style={{ ...btnStyle('danger'), padding: '4px 10px' }}
+                  onClick={() => {
+                    if (window.confirm(`Delete "${sponsorTitle(s)}" from your saved sponsors?`)) deleteSavedSponsor(s.id);
+                  }}
+                >Delete</button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
+  );
 
   return (
     <div
@@ -1374,6 +1538,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
 
           {['sponsorTop', 'sponsorBottom'].map((key) => (
             <Group key={key} title={key === 'sponsorTop' ? 'Sponsor — top slot' : 'Sponsor — bottom slot'}>
+              {renderSponsorTools(key)}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <Field label="Section label" value={content[key]?.label} onChange={(v) => updateField(`${key}.label`, v)} />
                 <Field label="Sponsor name" value={content[key]?.name} onChange={(v) => updateField(`${key}.name`, v)} />
