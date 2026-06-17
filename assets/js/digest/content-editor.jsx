@@ -354,8 +354,58 @@ function sponsorTitle(s) {
   return name || headline || 'Untitled sponsor';
 }
 
+// ── Saved custom-block library ──────────────────────────────────────────
+// Same idea as the sponsor library, for free-form custom blocks (text /
+// button / image). A library entry holds the block's CONTENT only — no id,
+// no drag state. A fresh `b_…` id is minted when the block is inserted.
+const BUILTIN_BLOCKS = [
+  {
+    id: 'builtin-summer-journal',
+    type: 'image',
+    savedLabel: 'Summer Journal promo',
+    heading: 'Your Summer Reading Is Almost Here',
+    src: '', // paste the hosted image URL before sending
+    body: 'Get the Summer Issue of the Mere Orthodoxy Journal for premier essays you can read in print all Summer long.\n\nBecome a Member now to receive the Journal and get 20% off.',
+    url: '', // link target for the image + caption
+    linkText: 'Get Your Journal',
+    alt: 'Open book and a cup of coffee on a wooden table',
+  },
+];
+
+const BLOCK_LIB_KEY = 'mo:blockLibrary';
+
+function loadBlockLibrary() {
+  try {
+    const raw = localStorage.getItem(BLOCK_LIB_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter((b) => b && b.id && b.type) : [];
+  } catch (_) { return []; }
+}
+
+function saveBlockLibrary(arr) {
+  try { localStorage.setItem(BLOCK_LIB_KEY, JSON.stringify(arr || [])); } catch (_) {}
+}
+
+// Copy just the content fields relevant to a block's type.
+function blockFields(b) {
+  const src = b || {};
+  const type = (src.type === 'button' || src.type === 'image') ? src.type : 'text';
+  if (type === 'button') return { type, text: src.text || '', url: src.url || '', variant: src.variant || 'primary' };
+  if (type === 'image') return { type, heading: src.heading || '', src: src.src || '', body: src.body || '', url: src.url || '', linkText: src.linkText || '', alt: src.alt || '' };
+  return { type, text: src.text || '' };
+}
+
+// Label for a picker option / manage row.
+function blockTitle(b) {
+  if (b.savedLabel && b.savedLabel.trim()) return b.savedLabel.trim();
+  const typeLabel = b.type === 'button' ? 'Button' : b.type === 'image' ? 'Image' : 'Text';
+  const snippet = String(b.heading || b.text || b.linkText || '').replace(/[#*_>[\]`]/g, '').trim();
+  return snippet ? `${typeLabel}: ${snippet.slice(0, 40)}` : `${typeLabel} block`;
+}
+
 function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   const [sponsorLib, setSponsorLib] = React.useState(() => loadSponsorLibrary());
+  const [blockLib, setBlockLib] = React.useState(() => loadBlockLibrary());
   const [rssText, setRssText] = useState('');
   const [copiedTag, setCopiedTag] = useState(null);
   // Drag-and-drop hover targets for visual feedback. Cleared on drop /
@@ -748,6 +798,101 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                   style={{ ...btnStyle('danger'), padding: '4px 10px' }}
                   onClick={() => {
                     if (window.confirm(`Delete "${sponsorTitle(s)}" from your saved sponsors?`)) deleteSavedSponsor(s.id);
+                  }}
+                >Delete</button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
+  );
+
+  // ── Custom-block library actions ──────────────────────────────────────
+  const insertBlockFromLibrary = (blockId) => {
+    const all = [...BUILTIN_BLOCKS, ...blockLib];
+    const sel = all.find((b) => b.id === blockId);
+    if (!sel) return;
+    const id = `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+    const next = JSON.parse(JSON.stringify(content));
+    next.customBlocks = [...(next.customBlocks || []), { id, ...blockFields(sel) }];
+    next.sectionOrder = Array.isArray(next.sectionOrder) ? [...next.sectionOrder, id] : [id];
+    onChange(next);
+  };
+
+  const saveBlockToLibrary = (block) => {
+    const fields = blockFields(block);
+    const hasContent = fields.text || fields.heading || fields.src || fields.body || fields.linkText || fields.url;
+    if (!hasContent) { alert('Add some content to this block before saving it.'); return; }
+    const suggested = blockTitle(fields);
+    const name = window.prompt('Save this block to your library as:', suggested);
+    if (name == null) return; // cancelled
+    const entry = {
+      ...fields,
+      id: 'blk_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      savedLabel: (name.trim() || suggested),
+    };
+    const nextLib = [...blockLib, entry];
+    setBlockLib(nextLib);
+    saveBlockLibrary(nextLib);
+  };
+
+  const deleteSavedBlock = (blockId) => {
+    const next = blockLib.filter((b) => b.id !== blockId);
+    setBlockLib(next);
+    saveBlockLibrary(next);
+  };
+
+  // Insert picker + manage list shown under the "+ Add" buttons.
+  const renderBlockLibraryTools = () => (
+    <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #d8c4a3' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 220px' }}>
+          <label style={fieldStyles.label}>Insert a saved block</label>
+          <select
+            value=""
+            onChange={(e) => { insertBlockFromLibrary(e.target.value); e.target.value = ''; }}
+            style={{ ...fieldStyles.input, height: 38 }}
+          >
+            <option value="">Choose a block…</option>
+            {BUILTIN_BLOCKS.length > 0 && (
+              <optgroup label="Built-in">
+                {BUILTIN_BLOCKS.map((b) => (
+                  <option key={b.id} value={b.id}>{blockTitle(b)}</option>
+                ))}
+              </optgroup>
+            )}
+            {blockLib.length > 0 && (
+              <optgroup label="Saved by you">
+                {blockLib.map((b) => (
+                  <option key={b.id} value={b.id}>{blockTitle(b)}</option>
+                ))}
+              </optgroup>
+            )}
+          </select>
+        </div>
+      </div>
+      {blockLib.length > 0 && (
+        <details style={{ marginTop: 10 }}>
+          <summary style={{
+            fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+            fontSize: 11, letterSpacing: '0.06em', color: '#9a8773', cursor: 'pointer',
+          }}>Manage saved blocks ({blockLib.length})</summary>
+          <ul style={{ listStyle: 'none', margin: '8px 0 0', padding: 0 }}>
+            {blockLib.map((b) => (
+              <li key={b.id} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: 10, padding: '5px 0', borderTop: '1px solid #ece1cf',
+              }}>
+                <span style={{
+                  fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+                  fontSize: 13, color: '#2d2927',
+                }}>{blockTitle(b)}</span>
+                <button
+                  type="button"
+                  style={{ ...btnStyle('danger'), padding: '4px 10px' }}
+                  onClick={() => {
+                    if (window.confirm(`Delete "${blockTitle(b)}" from your saved blocks?`)) deleteSavedBlock(b.id);
                   }}
                 >Delete</button>
               </li>
@@ -1379,6 +1524,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                     }}>
                       {block.type === 'button' ? `Button · #${i + 1}` : block.type === 'image' ? `Image · #${i + 1}` : `Text · #${i + 1}`}
                     </div>
+                    <button onClick={() => saveBlockToLibrary(block)} style={{ ...btnStyle('secondary'), padding: '4px 10px' }} title="Save this block to your library">Save</button>
                     <button onClick={removeBlock} style={{ ...btnStyle('danger'), padding: '4px 10px' }} title="Remove">×</button>
                   </div>
                   {block.type === 'button' ? (
@@ -1516,6 +1662,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 style={btnStyle('secondary')}
               >+ Add Image</button>
             </div>
+            {renderBlockLibraryTools()}
           </Group>
 
           <Group title="Membership CTA (free version)">
