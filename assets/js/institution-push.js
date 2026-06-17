@@ -1,5 +1,5 @@
 (() => {
-  const body = document.body;
+  const {body} = document;
   const status = body.getAttribute("data-member-status") || "";
   if (status !== "paid" && status !== "comped") return;
 
@@ -78,10 +78,10 @@
 
     // Get current push status
     const statusData = await fetchJson(
-      '/api/institution/curate/status?content_type=article&content_id=' + encodeURIComponent(postId)
+      `/api/institution/curate/status?content_type=article&content_id=${encodeURIComponent(postId)}`
     );
     const pushed = (statusData && statusData.pushed) || [];
-    const pushedIds = new Set(pushed.map(function (p) { return p.institution_id; }));
+    const pushedIds = new Set(pushed.map((p) => { return p.institution_id; }));
 
     setupPushButton(btn, insts, 'article', postId, pushedIds);
   }
@@ -258,11 +258,11 @@
       const titleEl = epEl ? epEl.querySelector('.pod-title') : null;
       const title = titleEl ? titleEl.textContent.trim() : '';
       const show_slug = epEl ? (epEl.getAttribute('data-show') || '') : '';
-      var coverMap = {
+      const coverMap = {
         'mere-fidelity': '/assets/images/mere-fidelity.jpg',
         'christians-reading-classics': '/assets/images/christians-reading-classics.jpg',
       };
-      var feature_image = coverMap[show_slug] ? (window.location.origin + coverMap[show_slug]) : '';
+      const feature_image = coverMap[show_slug] ? (window.location.origin + coverMap[show_slug]) : '';
       return { title, show_slug, feature_image };
     }
     return {};

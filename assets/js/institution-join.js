@@ -6,19 +6,19 @@
   const params = new URLSearchParams(window.location.search);
   const slug = params.get('i') || '';
 
-  const loadingEl   = host.querySelector('[data-join-loading]');
-  const errorEl     = host.querySelector('[data-join-error]');
-  const errorMsgEl  = host.querySelector('[data-join-error-msg]');
-  const contentEl   = host.querySelector('[data-join-content]');
-  const nameEl      = host.querySelector('[data-join-name]');
-  const descEl      = host.querySelector('[data-join-description]');
-  const logoWrap    = host.querySelector('[data-join-logo-wrap]');
-  const logoImg     = host.querySelector('[data-join-logo]');
-  const seatsEl     = host.querySelector('[data-join-seats]');
-  const formEl      = host.querySelector('[data-join-form]');
-  const submitBtn   = host.querySelector('[data-join-submit]');
+  const loadingEl = host.querySelector('[data-join-loading]');
+  const errorEl = host.querySelector('[data-join-error]');
+  const errorMsgEl = host.querySelector('[data-join-error-msg]');
+  const contentEl = host.querySelector('[data-join-content]');
+  const nameEl = host.querySelector('[data-join-name]');
+  const descEl = host.querySelector('[data-join-description]');
+  const logoWrap = host.querySelector('[data-join-logo-wrap]');
+  const logoImg = host.querySelector('[data-join-logo]');
+  const seatsEl = host.querySelector('[data-join-seats]');
+  const formEl = host.querySelector('[data-join-form]');
+  const submitBtn = host.querySelector('[data-join-submit]');
   const formErrorEl = host.querySelector('[data-join-form-error]');
-  const successEl   = host.querySelector('[data-join-success]');
+  const successEl = host.querySelector('[data-join-success]');
 
   if (!slug) {
     showError('No institution specified. Check the link you were given.');

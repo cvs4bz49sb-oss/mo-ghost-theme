@@ -59,7 +59,7 @@
             includeScore: true,
           });
           window.__tfrSearchAppend = function (entries) {
-            index.push.apply(index, entries);
+            index.push(...entries);
             fuse.setCollection(index);
           };
           return fuse;

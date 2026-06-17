@@ -69,9 +69,9 @@
   // --- Load context ---
 
   async function tryJwt() {
-    var res = await jwtFetch('/api/institution/my-admin');
+    const res = await jwtFetch('/api/institution/my-admin');
     if (!res.ok) return false;
-    var data = await res.json();
+    const data = await res.json();
     if (!data.institutions || !data.institutions.length) return false;
     useJwt = true;
     currentInst = data.institutions[0];
@@ -89,7 +89,7 @@
       try {
         if (await tryJwt()) return;
       } catch (_) {}
-      await new Promise(function (r) { setTimeout(r, 1500); });
+      await new Promise((r) => { setTimeout(r, 1500); });
       try {
         if (await tryJwt()) return;
       } catch (_) {}
@@ -137,7 +137,7 @@
       if (codeRow) codeRow.hidden = false;
     }
     if (shareLinkEl && inst.slug) {
-      var url = window.location.origin + '/join/?i=' + encodeURIComponent(inst.slug);
+      const url = `${window.location.origin}/join/?i=${encodeURIComponent(inst.slug)}`;
       shareLinkEl.href = url;
       shareLinkEl.textContent = url;
       if (linkRow) linkRow.hidden = false;
@@ -323,7 +323,7 @@
     submit.classList.add('is-loading');
     submit.disabled = true;
     try {
-      var fullName = [data.member_first, data.member_last].map(function(s) { return (s || '').trim(); }).filter(Boolean).join(' ');
+      const fullName = [data.member_first, data.member_last].map((s) => { return (s || '').trim(); }).filter(Boolean).join(' ');
       await addMember(fullName, data.member_email.trim());
       pushMember(fullName, data.member_email.trim());
       form.reset();
@@ -428,7 +428,7 @@
       try {
         const res = await jwtPost('/api/institution/admin/add', {
           institution_id: currentInst.id,
-          email: email,
+          email,
         });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(body.error || 'Unable to add admin.');
@@ -466,17 +466,17 @@
   }
 
   // --- Copy to clipboard ---
-  document.querySelectorAll('.inst-detail-copy').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var targetId = btn.getAttribute('data-copy');
-      var el = document.getElementById(targetId);
+  document.querySelectorAll('.inst-detail-copy').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-copy');
+      const el = document.getElementById(targetId);
       if (!el) return;
-      var text = el.textContent || '';
-      navigator.clipboard.writeText(text).then(function () {
-        var orig = btn.textContent;
+      const text = el.textContent || '';
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
         btn.textContent = 'Copied';
-        setTimeout(function () { btn.textContent = orig; }, 1500);
-      }).catch(function () {});
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      }).catch(() => {});
     });
   });
 

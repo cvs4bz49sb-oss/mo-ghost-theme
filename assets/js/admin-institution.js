@@ -26,41 +26,41 @@
   if (!host) return;
 
   const apiBase = (host.dataset.apiBase || '').replace(/\/$/, '');
-  const params  = new URLSearchParams(window.location.search);
-  const editId  = params.get('id') || '';
-  const isEdit  = !!editId;
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('id') || '';
+  const isEdit = !!editId;
 
   /* ── DOM refs ─────────────────────────────────────────────── */
 
-  const statusEl     = host.querySelector('[data-status]');
-  const formEl       = host.querySelector('[data-institution-form]');
-  const headlineEl   = document.querySelector('[data-page-headline]');
-  const saveBtn      = host.querySelector('[data-save-institution]');
-  const saveLabelEl  = host.querySelector('[data-save-label]');
-  const saveErrorEl  = host.querySelector('[data-save-error]');
+  const statusEl = host.querySelector('[data-status]');
+  const formEl = host.querySelector('[data-institution-form]');
+  const headlineEl = document.querySelector('[data-page-headline]');
+  const saveBtn = host.querySelector('[data-save-institution]');
+  const saveLabelEl = host.querySelector('[data-save-label]');
+  const saveErrorEl = host.querySelector('[data-save-error]');
   const saveSuccessEl = host.querySelector('[data-save-success]');
 
-  const codeSection      = host.querySelector('[data-code-section]');
+  const codeSection = host.querySelector('[data-code-section]');
   const regenerateCodeBtn = host.querySelector('[data-regenerate-code]');
 
   const landingSection = host.querySelector('[data-landing-url-section]');
-  const landingUrlEl   = host.querySelector('[data-landing-url]');
+  const landingUrlEl = host.querySelector('[data-landing-url]');
 
   const manageLinkSection = host.querySelector('[data-manage-link-section]');
-  const manageUrlEl       = host.querySelector('[data-manage-url]');
+  const manageUrlEl = host.querySelector('[data-manage-url]');
   const regenerateLinkBtn = host.querySelector('[data-regenerate-link]');
 
-  const domainsSection  = host.querySelector('[data-domains-section]');
-  const domainAddForm   = host.querySelector('[data-domain-add]');
+  const domainsSection = host.querySelector('[data-domains-section]');
+  const domainAddForm = host.querySelector('[data-domain-add]');
   const domainAddSubmit = host.querySelector('[data-domain-add-submit]');
-  const domainAddError  = host.querySelector('[data-domain-add-error]');
-  const domainsList     = host.querySelector('[data-domains-list]');
-  const domainsEmpty    = host.querySelector('[data-domains-empty]');
+  const domainAddError = host.querySelector('[data-domain-add-error]');
+  const domainsList = host.querySelector('[data-domains-list]');
+  const domainsEmpty = host.querySelector('[data-domains-empty]');
 
   const membersSection = host.querySelector('[data-members-section]');
-  const membersList    = host.querySelector('[data-members-list]');
-  const membersEmpty   = host.querySelector('[data-members-empty]');
-  const seatBadgeEl    = host.querySelector('[data-seat-badge]');
+  const membersList = host.querySelector('[data-members-list]');
+  const membersEmpty = host.querySelector('[data-members-empty]');
+  const seatBadgeEl = host.querySelector('[data-seat-badge]');
 
   /* All form field names */
   const FIELD_NAMES = [
@@ -86,11 +86,11 @@
   }
 
   function getFormData() {
-    var data = {};
-    FIELD_NAMES.forEach(function (name) {
-      var input = formEl.querySelector('[name="' + name + '"]');
+    const data = {};
+    FIELD_NAMES.forEach((name) => {
+      const input = formEl.querySelector(`[name="${name}"]`);
       if (!input) return;
-      var val = input.value;
+      const val = input.value;
       /* Convert numeric fields */
       if (name === 'headcount' || name === 'seat_limit' || name === 'comp_duration_days') {
         data[name] = val === '' ? null : Number(val);
@@ -102,38 +102,38 @@
   }
 
   function setFormData(inst) {
-    FIELD_NAMES.forEach(function (name) {
-      var input = formEl.querySelector('[name="' + name + '"]');
+    FIELD_NAMES.forEach((name) => {
+      const input = formEl.querySelector(`[name="${name}"]`);
       if (!input) return;
-      var val = inst[name];
+      const val = inst[name];
       input.value = val != null ? String(val) : '';
     });
   }
 
   async function apiFetch(path, opts) {
-    var res = await window.MOAuth.fetch(apiBase + path, Object.assign({ credentials: 'omit' }, opts || {}));
+    const res = await window.MOAuth.fetch(apiBase + path, {credentials: 'omit', ...opts || {}});
     return res;
   }
 
   async function postJson(path, body) {
-    var res = await apiFetch(path, {
+    const res = await apiFetch(path, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
-    var json = await res.json().catch(function () { return {}; });
-    if (!res.ok) throw new Error(json.error || ('Request failed: ' + res.status));
+    const json = await res.json().catch(() => { return {}; });
+    if (!res.ok) throw new Error(json.error || (`Request failed: ${res.status}`));
     return json;
   }
 
   async function putJson(path, body) {
-    var res = await apiFetch(path, {
+    const res = await apiFetch(path, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
-    var json = await res.json().catch(function () { return {}; });
-    if (!res.ok) throw new Error(json.error || ('Request failed: ' + res.status));
+    const json = await res.json().catch(() => { return {}; });
+    if (!res.ok) throw new Error(json.error || (`Request failed: ${res.status}`));
     return json;
   }
 
@@ -146,9 +146,9 @@
   /* ── Signup mode visibility ──────────────────────────────── */
 
   function syncSignupMode() {
-    var modeInput = formEl.querySelector('[name="signup_mode"]');
+    const modeInput = formEl.querySelector('[name="signup_mode"]');
     if (!modeInput) return;
-    var mode = modeInput.value;
+    const mode = modeInput.value;
 
     if (codeSection) {
       codeSection.hidden = (mode === 'domain');
@@ -164,9 +164,9 @@
   function setHeadline(name) {
     if (!headlineEl) return;
     headlineEl.replaceChildren();
-    headlineEl.appendChild(document.createTextNode(name + ' '));
-    var em = document.createElement('em');
-    var span = document.createElement('span');
+    headlineEl.appendChild(document.createTextNode(`${name} `));
+    const em = document.createElement('em');
+    const span = document.createElement('span');
     span.className = 'highlight';
     span.textContent = 'detail';
     em.appendChild(span);
@@ -179,22 +179,22 @@
   function renderDomains(domains) {
     if (!domainsList) return;
     /* Remove existing rows */
-    domainsList.querySelectorAll('.admin-list-row').forEach(function (n) { n.remove(); });
+    domainsList.querySelectorAll('.admin-list-row').forEach((n) => { n.remove(); });
     if (domainsEmpty) domainsEmpty.hidden = domains.length > 0;
 
-    domains.forEach(function (d) {
-      var li = document.createElement('li');
+    domains.forEach((d) => {
+      const li = document.createElement('li');
       li.className = 'admin-list-row';
 
-      var personDiv = document.createElement('div');
+      const personDiv = document.createElement('div');
       personDiv.className = 'admin-list-person';
 
-      var nameSpan = document.createElement('span');
+      const nameSpan = document.createElement('span');
       nameSpan.className = 'admin-list-name';
-      nameSpan.textContent = '@' + d;
+      nameSpan.textContent = `@${d}`;
       personDiv.appendChild(nameSpan);
 
-      var removeBtn = document.createElement('button');
+      const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.className = 'admin-list-remove';
       removeBtn.textContent = 'Remove';
@@ -210,23 +210,23 @@
 
   function renderMembers(members, inst) {
     if (!membersList) return;
-    membersList.querySelectorAll('.admin-list-row').forEach(function (n) { n.remove(); });
+    membersList.querySelectorAll('.admin-list-row').forEach((n) => { n.remove(); });
     if (membersEmpty) membersEmpty.hidden = members.length > 0;
 
-    members.forEach(function (m) {
-      var li = document.createElement('li');
+    members.forEach((m) => {
+      const li = document.createElement('li');
       li.className = 'admin-list-row';
 
-      var personDiv = document.createElement('div');
+      const personDiv = document.createElement('div');
       personDiv.className = 'admin-list-person';
 
-      var nameSpan = document.createElement('span');
+      const nameSpan = document.createElement('span');
       nameSpan.className = 'admin-list-name';
-      var fullName = [m.first_name || m.name || '', m.last_name || ''].join(' ').trim();
+      const fullName = [m.first_name || m.name || '', m.last_name || ''].join(' ').trim();
       nameSpan.textContent = fullName || '(no name)';
       personDiv.appendChild(nameSpan);
 
-      var emailSpan = document.createElement('span');
+      const emailSpan = document.createElement('span');
       emailSpan.className = 'admin-list-email';
       emailSpan.textContent = m.email || '';
       personDiv.appendChild(emailSpan);
@@ -235,7 +235,7 @@
 
       /* Signup method badge */
       if (m.signup_method) {
-        var badge = document.createElement('span');
+        const badge = document.createElement('span');
         badge.className = 'admin-badge';
         badge.textContent = m.signup_method;
         li.appendChild(badge);
@@ -243,9 +243,9 @@
 
       /* Comp until date */
       if (m.comp_until) {
-        var compSpan = document.createElement('span');
+        const compSpan = document.createElement('span');
         compSpan.className = 'admin-list-meta';
-        compSpan.textContent = 'until ' + m.comp_until;
+        compSpan.textContent = `until ${m.comp_until}`;
         li.appendChild(compSpan);
       }
 
@@ -254,12 +254,12 @@
 
     /* Seat badge */
     if (seatBadgeEl && inst) {
-      var count = inst.member_count != null ? inst.member_count : members.length;
-      var limit = inst.seat_limit;
+      const count = inst.member_count != null ? inst.member_count : members.length;
+      const limit = inst.seat_limit;
       if (limit && limit > 0) {
-        seatBadgeEl.textContent = count + ' / ' + limit + ' seats';
+        seatBadgeEl.textContent = `${count} / ${limit} seats`;
       } else {
-        seatBadgeEl.textContent = count + ' seats (unlimited)';
+        seatBadgeEl.textContent = `${count} seats (unlimited)`;
       }
     }
   }
@@ -282,8 +282,8 @@
     /* Landing URL */
     if (landingSection) landingSection.hidden = false;
     if (landingUrlEl && inst.slug) {
-      landingUrlEl.textContent = 'https://mereorthodoxy.com/join/?i=' + inst.slug;
-      landingUrlEl.href = 'https://mereorthodoxy.com/join/?i=' + inst.slug;
+      landingUrlEl.textContent = `https://mereorthodoxy.com/join/?i=${inst.slug}`;
+      landingUrlEl.href = `https://mereorthodoxy.com/join/?i=${inst.slug}`;
     }
 
     /* Manage URL */
@@ -331,12 +331,12 @@
   async function load() {
     setStatus('Loading...');
     try {
-      var res = await apiFetch('/api/admin/institutions/' + encodeURIComponent(editId));
+      const res = await apiFetch(`/api/admin/institutions/${encodeURIComponent(editId)}`);
       if (res.status === 401) return setStatus('Sign in required.', true);
       if (res.status === 403) return setStatus('Forbidden — your email is not in the admin list.', true);
       if (res.status === 404) return setStatus('Institution not found.', true);
-      if (!res.ok) return setStatus('Could not load institution. (' + res.status + ')', true);
-      var body = await res.json();
+      if (!res.ok) return setStatus(`Could not load institution. (${res.status})`, true);
+      const body = await res.json();
       renderEdit(body.institution || body);
     } catch (err) {
       console.error('admin-institution load failed', err);
@@ -350,24 +350,26 @@
     if (saveErrorEl) saveErrorEl.textContent = '';
     if (saveSuccessEl) saveSuccessEl.textContent = '';
 
-    var data = getFormData();
+    const data = getFormData();
     setLoading(saveBtn, true);
 
     try {
       if (isEdit) {
         /* PUT update */
-        await putJson('/api/admin/institutions/' + encodeURIComponent(editId), data);
+        await putJson(`/api/admin/institutions/${encodeURIComponent(editId)}`, data);
         if (saveSuccessEl) saveSuccessEl.textContent = 'Saved.';
         /* Re-fetch to reflect any server-side changes */
         await load();
       } else {
         /* POST create */
-        var result = await postJson('/api/admin/institutions', data);
+        const result = await postJson('/api/admin/institutions', data);
         if (result.id) {
           /* Redirect to edit mode */
-          var url = new URL(window.location.href);
+          const url = new URL(window.location.href);
           url.searchParams.set('id', result.id);
-          window.location.href = url.toString();
+          const safeUrl = window.MOSafeHref.sanitize(url.toString());
+          // eslint-disable-next-line no-restricted-syntax -- same-origin self URL, already validated by MOSafeHref.sanitize above
+          if (safeUrl) window.location.href = safeUrl;
           return; /* page will navigate */
         }
         if (saveSuccessEl) saveSuccessEl.textContent = 'Created.';
@@ -380,7 +382,7 @@
   }
 
   if (saveBtn) {
-    saveBtn.addEventListener('click', function (e) {
+    saveBtn.addEventListener('click', (e) => {
       e.preventDefault();
       handleSave();
     });
@@ -388,7 +390,7 @@
 
   /* ── Signup mode toggle listener ─────────────────────────── */
 
-  var signupModeInput = formEl ? formEl.querySelector('[name="signup_mode"]') : null;
+  const signupModeInput = formEl ? formEl.querySelector('[name="signup_mode"]') : null;
   if (signupModeInput) {
     signupModeInput.addEventListener('change', syncSignupMode);
   }
@@ -396,15 +398,15 @@
   /* ── Code regeneration ───────────────────────────────────── */
 
   function randomCode() {
-    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    var arr = new Uint8Array(8);
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const arr = new Uint8Array(8);
     crypto.getRandomValues(arr);
-    return Array.from(arr, function (b) { return chars[b % chars.length]; }).join('');
+    return Array.from(arr, (b) => { return chars[b % chars.length]; }).join('');
   }
 
   if (regenerateCodeBtn) {
-    regenerateCodeBtn.addEventListener('click', async function () {
-      var codeInput = formEl.querySelector('[name="signup_code"]');
+    regenerateCodeBtn.addEventListener('click', async () => {
+      const codeInput = formEl.querySelector('[name="signup_code"]');
       if (!editId) {
         if (codeInput) codeInput.value = randomCode();
         return;
@@ -412,7 +414,7 @@
       if (!confirm('Regenerate signup code? The old code will stop working immediately.')) return;
       setLoading(regenerateCodeBtn, true);
       try {
-        var result = await postJson('/api/admin/institutions/' + encodeURIComponent(editId) + '/regenerate-code', {});
+        const result = await postJson(`/api/admin/institutions/${encodeURIComponent(editId)}/regenerate-code`, {});
         if (result.signup_code && codeInput) codeInput.value = result.signup_code;
       } catch (err) {
         alert(err.message || 'Could not regenerate code.');
@@ -425,11 +427,11 @@
   /* ── Link regeneration ───────────────────────────────────── */
 
   if (regenerateLinkBtn) {
-    regenerateLinkBtn.addEventListener('click', async function () {
+    regenerateLinkBtn.addEventListener('click', async () => {
       if (!editId) return;
       setLoading(regenerateLinkBtn, true);
       try {
-        var result = await postJson('/api/admin/institutions/' + encodeURIComponent(editId) + '/regenerate-link', {});
+        const result = await postJson(`/api/admin/institutions/${encodeURIComponent(editId)}/regenerate-link`, {});
         if (result.manage_url && manageUrlEl) {
           manageUrlEl.textContent = result.manage_url;
           if (manageUrlEl.tagName === 'A') manageUrlEl.href = result.manage_url;
@@ -445,11 +447,11 @@
   /* ── Domain add ──────────────────────────────────────────── */
 
   if (domainAddForm) {
-    domainAddForm.addEventListener('submit', async function (e) {
+    domainAddForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (domainAddError) domainAddError.textContent = '';
 
-      var raw = (domainAddForm.domain.value || '').trim().replace(/^@/, '').toLowerCase();
+      const raw = (domainAddForm.domain.value || '').trim().replace(/^@/, '').toLowerCase();
       if (!raw || !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(raw)) {
         if (domainAddError) domainAddError.textContent = 'Enter a valid domain, e.g. dbu.edu';
         return;
@@ -471,15 +473,15 @@
   /* ── Domain remove (delegated) ───────────────────────────── */
 
   if (domainsList) {
-    domainsList.addEventListener('click', async function (e) {
-      var btn = e.target.closest('.admin-list-remove');
+    domainsList.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.admin-list-remove');
       if (!btn) return;
-      var domain = btn.dataset.domain;
+      const {domain} = btn.dataset;
       if (!domain) return;
-      if (!confirm('Remove @' + domain + '? Members already provisioned under this domain keep their access until contract end; future signups will not match.')) return;
+      if (!confirm(`Remove @${domain}? Members already provisioned under this domain keep their access until contract end; future signups will not match.`)) return;
       btn.disabled = true;
       try {
-        await postJson('/api/admin/institution/remove-domain', { id: editId, domain: domain });
+        await postJson('/api/admin/institution/remove-domain', { id: editId, domain });
         await load();
       } catch (err) {
         btn.disabled = false;
