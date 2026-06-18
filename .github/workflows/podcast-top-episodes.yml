@@ -1,0 +1,45 @@
+name: Podcast Top Episodes
+
+# Rebuilds assets/data/top-episodes.json ("Most Listened") from the Buzzsprout
+# JSON API. Runs on a GitHub-hosted (non-Cloudflare) runner because Buzzsprout's
+# Cloudflare WAF blocks Cloudflare Workers' egress IPs but not GitHub's. The
+# mo-podcast-feed Worker reads the committed JSON from GitHub raw.
+#
+# Commits use [skip ci] so they don't trigger the theme deploy/lint workflows;
+# the Worker reads the file from raw.githubusercontent.com, so no deploy needed.
+
+on:
+  schedule:
+    - cron: "17 8 * * *"   # daily, ~08:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: podcast-top-episodes
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build top-episodes.json
+        env:
+          BUZZSPROUT_API_TOKEN: ${{ secrets.BUZZSPROUT_API_TOKEN }}
+        run: node scripts/build-top-episodes.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "mo-bot"
+          git config user.email "bot@users.noreply.github.com"
+          if git diff --quiet -- assets/data/top-episodes.json; then
+            echo "No change to Most Listened."
+          else
+            git add assets/data/top-episodes.json
+            git commit -m "Update podcast Most Listened [skip ci]"
+            git push
+          fi
