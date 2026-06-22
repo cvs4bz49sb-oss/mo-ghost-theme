@@ -3923,8 +3923,14 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .other-ways-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
+}
+/* Tablet: 2x2 so four cards don't get cramped. Hide the divider on the
+   first card of the second row (otherwise it reads as a stray left line). */
+@media (min-width: 821px) and (max-width: 1100px) {
+  .other-ways-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .other-way:nth-child(3)::before { display: none; }
 }
 .other-way {
   display: flex;
