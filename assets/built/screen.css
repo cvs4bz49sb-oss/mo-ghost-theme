@@ -12009,6 +12009,8 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   border-color: var(--color-primary);
   box-shadow: 0 0 0 1px var(--color-primary);
 }
+.student-field-select { cursor: pointer; appearance: auto; }
+.student-field-select:invalid { color: var(--color-muted); }
 .student-field-hint {
   margin: 8px 0 0;
   font-family: var(--font-body);

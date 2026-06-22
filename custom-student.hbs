@@ -50,6 +50,41 @@
         </fieldset>
 
         <div class="student-field">
+          <label class="student-field-label" for="student-school">Your school</label>
+          <input
+            class="student-field-input"
+            type="text"
+            id="student-school"
+            name="student-school"
+            autocomplete="organization"
+            placeholder="e.g. Wheaton College"
+            maxlength="120"
+            data-student-school
+            required
+          >
+        </div>
+
+        <div class="student-field">
+          <label class="student-field-label" for="student-grad-year">Graduation year</label>
+          <select
+            class="student-field-input student-field-select"
+            id="student-grad-year"
+            name="student-grad-year"
+            data-student-grad-year
+            required
+          >
+            <option value="" selected disabled>Select a year</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+            <option value="2031">2031</option>
+            <option value="2032">2032</option>
+          </select>
+        </div>
+
+        <div class="student-field">
           <label class="student-field-label" for="student-email">Student email</label>
           <input
             class="student-field-input"
