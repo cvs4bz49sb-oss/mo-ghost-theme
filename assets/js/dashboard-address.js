@@ -1,8 +1,9 @@
 /*
  * Dashboard shipping-address module.
  *
- * Lives inside partials/dashboard-body.hbs, only rendered for
- * non-free members. Reads + writes via the mo-membership Worker's
+ * Rendered on /manage/ via partials/manage-address.hbs (shown by
+ * manage-tier.js for paid + student members). Reads + writes via the
+ * mo-membership Worker's
  * /api/member/address endpoints, which in turn keep D1 + Ghost
  * note + (via mo-kit webhook on member update) Kit custom fields
  * in sync.
