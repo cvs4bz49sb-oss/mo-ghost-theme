@@ -1,28 +1,28 @@
 {
   "mere-fidelity": [
     {
-      "id": 19198723,
-      "title": "The Christian Life with Kelly Kapic",
-      "slug": "the-christian-life-with-kelly-kapic",
-      "pubDate": "2026-05-20T06:00:00.000-04:00",
-      "episode": 18,
-      "season": 3,
-      "plays": 3384,
-      "embedUrl": "https://www.buzzsprout.com/2612792/19198723?client_source=small_player&iframe=true",
-      "hasTranscript": true,
-      "transcriptUrl": "/transcript/mere-fidelity/the-christian-life-with-kelly-kapic/"
-    },
-    {
       "id": 19242937,
       "title": "Idolatry And The Shape Of Worship",
       "slug": "idolatry-and-the-shape-of-worship",
       "pubDate": "2026-05-27T06:00:00.000-04:00",
       "episode": 18,
       "season": 3,
-      "plays": 3367,
+      "plays": 3437,
       "embedUrl": "https://www.buzzsprout.com/2612792/19242937?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/idolatry-and-the-shape-of-worship/"
+    },
+    {
+      "id": 19198723,
+      "title": "The Christian Life with Kelly Kapic",
+      "slug": "the-christian-life-with-kelly-kapic",
+      "pubDate": "2026-05-20T06:00:00.000-04:00",
+      "episode": 18,
+      "season": 3,
+      "plays": 3434,
+      "embedUrl": "https://www.buzzsprout.com/2612792/19198723?client_source=small_player&iframe=true",
+      "hasTranscript": true,
+      "transcriptUrl": "/transcript/mere-fidelity/the-christian-life-with-kelly-kapic/"
     },
     {
       "id": 19305161,
@@ -31,7 +31,7 @@
       "pubDate": "2026-06-10T06:00:00.000-04:00",
       "episode": 19,
       "season": 3,
-      "plays": 2849,
+      "plays": 3034,
       "embedUrl": "https://www.buzzsprout.com/2612792/19305161?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/online-and-outside-the-institutions/"
@@ -43,22 +43,22 @@
       "pubDate": "2026-06-03T17:00:00.000-04:00",
       "episode": 18,
       "season": 3,
-      "plays": 2700,
+      "plays": 2798,
       "embedUrl": "https://www.buzzsprout.com/2612792/19290425?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/replay-how-1776-remade-the-world-with-andrew-wilson-fixed-audio/"
     },
     {
-      "id": 19198400,
-      "title": "The Desecration of Man with Dr. Carl Trueman",
-      "slug": "the-desecration-of-man-with-dr-carl-trueman",
-      "pubDate": "2026-05-13T07:00:00.000-04:00",
-      "episode": 17,
+      "id": 19356094,
+      "title": "Magnifica Humanitas with Brad Littlejohn",
+      "slug": "magnifica-humanitas-with-brad-littlejohn",
+      "pubDate": "2026-06-17T06:00:00.000-04:00",
+      "episode": 20,
       "season": 3,
-      "plays": 922,
-      "embedUrl": "https://www.buzzsprout.com/2612792/19198400?client_source=small_player&iframe=true",
+      "plays": 2678,
+      "embedUrl": "https://www.buzzsprout.com/2612792/19356094?client_source=small_player&iframe=true",
       "hasTranscript": true,
-      "transcriptUrl": "/transcript/mere-fidelity/the-desecration-of-man-with-dr-carl-trueman/"
+      "transcriptUrl": "/transcript/mere-fidelity/magnifica-humanitas-with-brad-littlejohn/"
     }
   ],
   "christians-reading-classics": [
@@ -69,7 +69,7 @@
       "pubDate": "2026-05-28T07:00:00.000-04:00",
       "episode": 17,
       "season": 2,
-      "plays": 867,
+      "plays": 870,
       "embedUrl": "https://www.buzzsprout.com/2612793/19250148?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/augustine-s-confessions-with-joey-sherrard/"
@@ -81,7 +81,7 @@
       "pubDate": "2026-06-04T07:00:00.000-04:00",
       "episode": 18,
       "season": 2,
-      "plays": 760,
+      "plays": 762,
       "embedUrl": "https://www.buzzsprout.com/2612793/19278201?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/the-journals-of-lewis-and-clark-with-craig-fehrman/"
@@ -93,7 +93,7 @@
       "pubDate": "2026-05-21T06:00:00.000-04:00",
       "episode": 16,
       "season": 2,
-      "plays": 717,
+      "plays": 719,
       "embedUrl": "https://www.buzzsprout.com/2612793/19211012?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/cassiodorus-and-classical-education-with-joseph-griffith-and-joshua-kinlaw/"
@@ -105,7 +105,7 @@
       "pubDate": "2026-06-11T06:00:00.000-04:00",
       "episode": 19,
       "season": 2,
-      "plays": 691,
+      "plays": 695,
       "embedUrl": "https://www.buzzsprout.com/2612793/19305141?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/james-fenimore-cooper-with-dr-wayne-franklin/"
@@ -117,7 +117,7 @@
       "pubDate": "2026-06-18T07:00:00.000-04:00",
       "episode": 20,
       "season": 2,
-      "plays": 598,
+      "plays": 645,
       "embedUrl": "https://www.buzzsprout.com/2612793/19361771?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/east-of-eden-with-philip-bunn-matthew-h-young/"
