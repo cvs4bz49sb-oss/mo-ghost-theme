@@ -49,6 +49,35 @@
           </label>
         </fieldset>
 
+        <div class="student-name-row">
+          <div class="student-field">
+            <label class="student-field-label" for="student-first-name">First name</label>
+            <input
+              class="student-field-input"
+              type="text"
+              id="student-first-name"
+              name="student-first-name"
+              autocomplete="given-name"
+              maxlength="60"
+              data-student-first-name
+              required
+            >
+          </div>
+          <div class="student-field">
+            <label class="student-field-label" for="student-last-name">Last name</label>
+            <input
+              class="student-field-input"
+              type="text"
+              id="student-last-name"
+              name="student-last-name"
+              autocomplete="family-name"
+              maxlength="60"
+              data-student-last-name
+              required
+            >
+          </div>
+        </div>
+
         <div class="student-field">
           <label class="student-field-label" for="student-school">Your school</label>
           <input

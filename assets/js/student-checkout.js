@@ -17,6 +17,8 @@
 
   const apiBase = (window.MO_API_BASE || '').replace(/\/$/, '');
   const emailEl = form.querySelector('[data-student-email]');
+  const firstNameEl = form.querySelector('[data-student-first-name]');
+  const lastNameEl = form.querySelector('[data-student-last-name]');
   const schoolEl = form.querySelector('[data-student-school]');
   const gradYearEl = form.querySelector('[data-student-grad-year]');
   const errorEl = form.querySelector('[data-student-error]');
@@ -46,12 +48,16 @@
     if (errorEl) errorEl.textContent = '';
 
     const email = (emailEl && emailEl.value || '').trim().toLowerCase();
+    const firstName = (firstNameEl && firstNameEl.value || '').trim();
+    const lastName = (lastNameEl && lastNameEl.value || '').trim();
     const school = (schoolEl && schoolEl.value || '').trim();
     const gradYear = (gradYearEl && gradYearEl.value || '').trim();
     const checked = form.querySelector('input[name="student-variant"]:checked');
     const variant = checked && checked.value;
 
     if (!variant) { fail('Choose a membership option.'); return; }
+    if (!firstName) { fail('Enter your first name.'); return; }
+    if (!lastName) { fail('Enter your last name.'); return; }
     if (!school) { fail('Enter the name of your school.'); return; }
     if (!gradYear) { fail('Select your graduation year.'); return; }
     if (!EDU_EMAIL_RE.test(email)) {
@@ -67,7 +73,7 @@
       const res = await fetch(`${apiBase}/api/student/verify-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, variant, school, grad_year: gradYear }),
+        body: JSON.stringify({ email, variant, first_name: firstName, last_name: lastName, school, grad_year: gradYear }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok || !body.ok) {

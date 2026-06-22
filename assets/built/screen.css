@@ -11985,6 +11985,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   color: var(--color-muted);
 }
 .student-field { margin: 0 0 20px; }
+.student-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .student-field-label {
   display: block;
   font-family: var(--font-body);
@@ -12102,6 +12103,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 @media (max-width: 640px) {
   .student-included-heading { font-size: 21px; }
   .student-option-price { font-size: 20px; }
+  .student-name-row { grid-template-columns: 1fr; gap: 0; }
 }
 
 .migrate-warning {
