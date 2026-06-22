@@ -24,9 +24,22 @@
   const errorEl = form.querySelector('[data-student-error]');
   const submitBtn = form.querySelector('[data-student-submit]');
   const successEl = document.querySelector('[data-student-success]');
+  const addressEl = form.querySelector('[data-student-address]');
+  const addr = {
+    line1: form.querySelector('[data-student-addr-line1]'),
+    line2: form.querySelector('[data-student-addr-line2]'),
+    city: form.querySelector('[data-student-addr-city]'),
+    state: form.querySelector('[data-student-addr-state]'),
+    postal: form.querySelector('[data-student-addr-postal]'),
+    country: form.querySelector('[data-student-addr-country]'),
+  };
 
   // Mirror of the server's EDU_EMAIL_RE in workers/membership/lib/student.js.
   const EDU_EMAIL_RE = /^[^\s@]+@[^\s@]+\.edu$/i;
+  const isPrint = () => {
+    const c = form.querySelector('input[name="student-variant"]:checked');
+    return !!c && c.value === 'print';
+  };
 
   const fail = (msg) => {
     if (errorEl) errorEl.textContent = msg;
@@ -34,14 +47,16 @@
     submitBtn.classList.remove('is-loading');
   };
 
-  // Keep the button disabled until an option is chosen.
+  // Keep the button disabled until an option is chosen, and reveal the
+  // mailing-address fields only for "Print + Digital".
   const variantInputs = form.querySelectorAll('input[name="student-variant"]');
-  const syncSubmitState = () => {
+  const syncVariantState = () => {
     const chosen = form.querySelector('input[name="student-variant"]:checked');
     submitBtn.disabled = !chosen;
+    if (addressEl) addressEl.hidden = !isPrint();
   };
-  variantInputs.forEach((el) => el.addEventListener('change', syncSubmitState));
-  syncSubmitState();
+  variantInputs.forEach((el) => el.addEventListener('change', syncVariantState));
+  syncVariantState();
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -60,6 +75,28 @@
     if (!lastName) { fail('Enter your last name.'); return; }
     if (!school) { fail('Enter the name of your school.'); return; }
     if (!gradYear) { fail('Select your graduation year.'); return; }
+
+    // Print + Digital needs a mailing address for the journal.
+    let addressPayload = null;
+    if (variant === 'print') {
+      const line1 = (addr.line1 && addr.line1.value || '').trim();
+      const city = (addr.city && addr.city.value || '').trim();
+      const state = (addr.state && addr.state.value || '').trim();
+      const postal = (addr.postal && addr.postal.value || '').trim();
+      if (!line1) { fail('Enter your street address.'); return; }
+      if (!city) { fail('Enter your city.'); return; }
+      if (!state) { fail('Enter your state or province.'); return; }
+      if (!postal) { fail('Enter your ZIP or postal code.'); return; }
+      addressPayload = {
+        addr_line1: line1,
+        addr_line2: (addr.line2 && addr.line2.value || '').trim(),
+        addr_city: city,
+        addr_state: state,
+        addr_postal: postal,
+        addr_country: (addr.country && addr.country.value) || 'US',
+      };
+    }
+
     if (!EDU_EMAIL_RE.test(email)) {
       fail('Enter your school email address ending in .edu.');
       return;
@@ -73,7 +110,10 @@
       const res = await fetch(`${apiBase}/api/student/verify-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, variant, first_name: firstName, last_name: lastName, school, grad_year: gradYear }),
+        body: JSON.stringify({
+          email, variant, first_name: firstName, last_name: lastName,
+          school, grad_year: gradYear, ...(addressPayload || {}),
+        }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok || !body.ok) {

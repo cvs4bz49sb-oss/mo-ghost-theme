@@ -12012,6 +12012,19 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 }
 .student-field-select { cursor: pointer; appearance: auto; }
 .student-field-select:invalid { color: var(--color-muted); }
+.student-address {
+  margin: 0 0 20px;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--color-card-border);
+}
+.student-address[hidden] { display: none; }
+.student-address-legend {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--color-dark);
+  margin: 0 0 14px;
+}
+.student-field-optional { color: var(--color-muted); font-weight: 400; }
 .student-field-hint {
   margin: 8px 0 0;
   font-family: var(--font-body);

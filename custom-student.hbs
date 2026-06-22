@@ -49,6 +49,45 @@
           </label>
         </fieldset>
 
+        {{!-- Mailing address — revealed by student-checkout.js only when
+             "Print + Digital" is selected (the journal ships physically).
+             Carried through the confirm token → Stripe metadata →
+             provisionStudent → member_addresses. --}}
+        <div class="student-address" data-student-address hidden>
+          <p class="student-address-legend">Where should we mail the journal?</p>
+          <div class="student-field">
+            <label class="student-field-label" for="student-addr-line1">Street address</label>
+            <input class="student-field-input" type="text" id="student-addr-line1" name="student-addr-line1" autocomplete="address-line1" maxlength="120" data-student-addr-line1>
+          </div>
+          <div class="student-field">
+            <label class="student-field-label" for="student-addr-line2">Apt, suite, etc. <span class="student-field-optional">(optional)</span></label>
+            <input class="student-field-input" type="text" id="student-addr-line2" name="student-addr-line2" autocomplete="address-line2" maxlength="120" data-student-addr-line2>
+          </div>
+          <div class="student-name-row">
+            <div class="student-field">
+              <label class="student-field-label" for="student-addr-city">City</label>
+              <input class="student-field-input" type="text" id="student-addr-city" name="student-addr-city" autocomplete="address-level2" maxlength="80" data-student-addr-city>
+            </div>
+            <div class="student-field">
+              <label class="student-field-label" for="student-addr-state">State / Province</label>
+              <input class="student-field-input" type="text" id="student-addr-state" name="student-addr-state" autocomplete="address-level1" maxlength="80" data-student-addr-state>
+            </div>
+          </div>
+          <div class="student-name-row">
+            <div class="student-field">
+              <label class="student-field-label" for="student-addr-postal">ZIP / Postal code</label>
+              <input class="student-field-input" type="text" id="student-addr-postal" name="student-addr-postal" autocomplete="postal-code" maxlength="20" data-student-addr-postal>
+            </div>
+            <div class="student-field">
+              <label class="student-field-label" for="student-addr-country">Country</label>
+              <select class="student-field-input student-field-select" id="student-addr-country" name="student-addr-country" data-student-addr-country>
+                <option value="US" selected>United States</option>
+                <option value="CA">Canada</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <div class="student-name-row">
           <div class="student-field">
             <label class="student-field-label" for="student-first-name">First name</label>
