@@ -1,0 +1,133 @@
+{{!< default}}
+{{!-- /student/ — .edu-gated student membership signup. Two options:
+     Print + Digital ($50/yr) and Digital Only ($20/yr). The student
+     email is validated client-side (student-checkout.js) and again by
+     the mo-membership Worker (/api/create-student-checkout) before a
+     Stripe Checkout subscription session is created. Like the group
+     flow, the member is comped in Ghost via the Stripe webhook and
+     revoked on customer.subscription.deleted.
+     See website/workers/membership/lib/student.js. --}}
+
+<main class="membership membership-support student-page">
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Student Membership</p>
+      <h1 class="page-hero-headline"><em>Mere&nbsp;Orthodoxy</em> for students.</h1>
+      <p class="page-hero-sub">
+        A discounted membership for students, verified with your school email. Full access to everything we publish, at a student rate.
+      </p>
+    </div>
+  </section>
+
+  <section class="student-signup">
+    <div class="container container-narrow">
+      <form class="student-form" data-student-form novalidate>
+        <fieldset class="student-options">
+          <legend class="student-legend">Choose your membership</legend>
+
+          <label class="student-option">
+            <input type="radio" name="student-variant" value="print">
+            <span class="student-option-body">
+              <span class="student-option-head">
+                <span class="student-option-name">Print + Digital</span>
+                <span class="student-option-price">$50<span class="student-option-per">/year</span></span>
+              </span>
+              <span class="student-option-desc">Everything digital, plus the quarterly print journal mailed to you.</span>
+            </span>
+          </label>
+
+          <label class="student-option">
+            <input type="radio" name="student-variant" value="digital">
+            <span class="student-option-body">
+              <span class="student-option-head">
+                <span class="student-option-name">Digital Only</span>
+                <span class="student-option-price">$20<span class="student-option-per">/year</span></span>
+              </span>
+              <span class="student-option-desc">Full digital access. Everything except the print journal.</span>
+            </span>
+          </label>
+        </fieldset>
+
+        <div class="student-field">
+          <label class="student-field-label" for="student-email">Student email</label>
+          <input
+            class="student-field-input"
+            type="email"
+            id="student-email"
+            name="student-email"
+            inputmode="email"
+            autocomplete="email"
+            placeholder="you@school.edu"
+            data-student-email
+            required
+          >
+          <p class="student-field-hint">Use your school email ending in <strong>.edu</strong>. It's how we verify you're a student.</p>
+        </div>
+
+        <p class="student-error" data-student-error role="alert"></p>
+
+        <button type="submit" class="btn btn-primary btn-lg" data-student-submit disabled>Email me a confirmation link</button>
+        <p class="student-fineprint">We'll email a link to confirm your school address, then take you to checkout. Renews annually at the student rate. Cancel anytime from your dashboard.</p>
+      </form>
+
+      <div class="student-success" data-student-success hidden>
+        <h2 class="student-success-heading"><em>Check your email</em></h2>
+        <p>We sent a confirmation link to <strong data-student-success-email></strong>. Click it to confirm your school address and finish signing up.</p>
+        <p class="student-success-note">The link works for one hour. If it doesn't arrive, check your spam folder, then try again.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="student-included">
+    <div class="container container-narrow">
+      <h2 class="student-included-heading"><em>What's included</em></h2>
+      <ul class="student-included-list">
+        <li>Every essay and the full 20-year archive</li>
+        <li>Audio versions of essays</li>
+        <li>Mere&nbsp;Fidelity and Christians Reading Classics</li>
+        <li>The Weekly Digest</li>
+        <li>The private Discord community of readers</li>
+        <li>Member dashboard, bookmarks, and the commonplace book</li>
+        <li>The quarterly print journal <span class="student-included-tag">Print + Digital</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="migrate-faq">
+    <div class="container container-narrow">
+      <details class="migrate-faq-item">
+        <summary class="migrate-faq-summary">
+          <h2 class="migrate-faq-title"><em>Who qualifies?</em></h2>
+          <span class="migrate-faq-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="migrate-faq-body">
+          <p>Anyone with a valid school email address ending in .edu. We verify by sending checkout to that address, and your membership stays at the student rate as long as you keep a valid .edu address on file.</p>
+        </div>
+      </details>
+
+      <details class="migrate-faq-item">
+        <summary class="migrate-faq-summary">
+          <h2 class="migrate-faq-title"><em>What's the difference between the two options?</em></h2>
+          <span class="migrate-faq-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="migrate-faq-body">
+          <p>Both give you full digital access to everything Mere&nbsp;Orthodoxy publishes. The $50 option adds the quarterly print journal, mailed to you. The $20 option is digital only.</p>
+        </div>
+      </details>
+
+      <details class="migrate-faq-item">
+        <summary class="migrate-faq-summary">
+          <h2 class="migrate-faq-title"><em>What happens when I graduate?</em></h2>
+          <span class="migrate-faq-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="migrate-faq-body">
+          <p>Your student membership keeps renewing at the student rate while your .edu address is valid. When you're ready, you can move to a full membership any time from your dashboard.</p>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <script src="{{asset "js/student-checkout.js"}}"></script>
+
+</main>

@@ -36,8 +36,11 @@ This is the canonical list of every theme→worker route, the auth model the the
 | mo-membership | `/api/member/address` | GET | JWT | Require JWT, derive email from sub | **SHIPPED** (verified 2026-05-11) |
 | mo-membership | `/api/member/address` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
 | mo-membership | `/api/create-lifetime-checkout` | POST | JWT when signed-in; anon otherwise | Prefer JWT identity over body when present | **SHIPPED** (verified 2026-05-11) |
-| mo-membership | `/api/create-gift-checkout` | POST | None (intentional) | Validate body server-side; Stripe collects identity at checkout | OK |
-| mo-membership | `/api/create-group-checkout` | POST | None (intentional) | Re-derive price server-side from `seats × STRIPE_PRICE_GROUP_SEAT`; ignore client `amount` | **SHIPPED** (verified 2026-05-11) |
+| mo-membership | `/api/create-gift-checkout` | POST | None (intentional) | Validate body server-side; Stripe collects identity at checkout; **origin allowlist + rate limit (5/15min/IP)** | **SHIPPED** (origin+RL added 2026-06-22) |
+| mo-membership | `/api/create-group-checkout` | POST | None (intentional) | Re-derive price server-side from `seats × STRIPE_PRICE_GROUP_SEAT`; ignore client `amount`; **origin allowlist + rate limit** | **SHIPPED** (origin+RL added 2026-06-22) |
+| mo-membership | `/api/create-lifetime-checkout` | POST | JWT when signed-in; anon otherwise | (above) **+ origin allowlist + rate limit** | **SHIPPED** (origin+RL added 2026-06-22) |
+| mo-membership | `/api/student/verify-email` | POST | None (.edu + email-confirmation is the gate) | Validate `.edu` + variant, sign 1h token, email confirm link; origin allowlist + rate limit (5/15min/IP) | NEW 2026-06-22 |
+| mo-membership | `/api/student/checkout` | GET | Signed 1h token (proves inbox control) | Verify token, re-validate `.edu`, re-derive price from `variant → STRIPE_PRICE_STUDENT_*`, `customer_email` locked, 302 to Stripe; light per-IP RL | NEW 2026-06-22 |
 | mo-membership | `/api/institutional-inquiry` | POST | None (intentional, public form) | Origin allowlist + rate limit | follow-up |
 | mo-membership | `/api/portal` | POST | None (signed-out flow) | Always-200 (no `customer_not_found` distinction); per-IP burst + 15-min RL | **SHIPPED** (verified 2026-05-11) |
 | mo-membership | `/api/institution/context` | POST | Token in body | Verify token, scope check | **SHIPPED** 2026-05-11 — POST with body-only token (worker version 8b6bcf76); GET route returns 404 |

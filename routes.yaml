@@ -39,6 +39,8 @@ routes:
     template: custom-manage
   /migrate/:
     template: custom-migrate
+  /student/:
+    template: custom-student
   /complete-membership/:
     template: custom-complete-membership
   /dashboard/:

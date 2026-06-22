@@ -11915,6 +11915,193 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .migrate-faq-body { font-size: 15px; padding-bottom: 24px; }
 }
 
+/* ── Student membership (/student/) ──────────────────────────────
+   Scoped under .student-page. Reuses .page-hero and the .migrate-faq
+   accordion; only the signup form + "what's included" need new rules. */
+.student-page .student-signup { background: var(--color-page); padding: 40px 0; }
+.student-form { max-width: 560px; margin: 0 auto; }
+.student-options {
+  border: 0;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.student-legend {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--color-dark);
+  padding: 0;
+  margin: 0 0 6px;
+}
+.student-option {
+  display: block;
+  position: relative;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  padding: 18px 20px 18px 52px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.student-option input {
+  position: absolute;
+  top: 22px;
+  left: 20px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+.student-option:hover { border-color: var(--color-primary); }
+.student-option:has(input:checked) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+.student-option-body { display: block; }
+.student-option-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.student-option-name {
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--color-dark);
+}
+.student-option-price {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--color-secondary);
+  white-space: nowrap;
+}
+.student-option-per { font-size: 13px; color: var(--color-muted); }
+.student-option-desc {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.student-field { margin: 0 0 20px; }
+.student-field-label {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-dark);
+  margin: 0 0 8px;
+}
+.student-field-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 16px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+}
+.student-field-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+.student-field-hint {
+  margin: 8px 0 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.student-error {
+  min-height: 1em;
+  margin: 0 0 14px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #b94a48;
+}
+.student-error:empty { min-height: 0; margin: 0; }
+.student-page [data-student-submit] { width: 100%; }
+.student-page [data-student-submit].is-loading { opacity: 0.7; pointer-events: none; }
+.student-fineprint {
+  margin: 14px 0 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.student-success {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+.student-success[hidden] { display: none; }
+.student-success-heading {
+  font-family: var(--font-display);
+  font-size: 26px;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+}
+.student-success p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+}
+.student-success-note { color: var(--color-muted); font-size: 14px; }
+.student-included { background: var(--color-page); padding: 24px 0 8px; }
+.student-included-heading {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--color-dark);
+  margin: 0 0 18px;
+}
+.student-included-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.student-included-list li {
+  position: relative;
+  padding-left: 26px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-dark);
+}
+.student-included-list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+.student-included-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-secondary);
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  vertical-align: middle;
+}
+@media (max-width: 640px) {
+  .student-included-heading { font-size: 21px; }
+  .student-option-price { font-size: 20px; }
+}
+
 .migrate-warning {
   background: var(--color-page);
   padding: 28px 0 8px;
