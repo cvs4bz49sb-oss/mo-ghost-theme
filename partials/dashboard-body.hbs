@@ -148,6 +148,16 @@
           </div>
         </div>
 
+        {{!-- Student renewal banner — shown by dashboard.js in the last
+             month before a student membership expires (one-time annual,
+             no auto-renew). Reuses the migration-banner styling. --}}
+        <div class="migration-banner" data-renewal-banner hidden>
+          <div class="migration-banner-inner migration-banner--action" data-renewal-banner-inner>
+            <p class="migration-banner-text" data-renewal-banner-text></p>
+            <a class="btn btn-primary migration-banner-btn" data-renewal-banner-btn href="/student/">Renew Membership</a>
+          </div>
+        </div>
+
         <details class="reading-tracker" open data-reading-tracker>
           <summary>
             <p class="eyebrow">Reading Habit</p>

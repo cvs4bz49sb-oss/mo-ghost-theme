@@ -92,6 +92,7 @@
   hydrateHistory();
   hydrateReadingTracker();
   hydrateInstitutions();
+  hydrateRenewalBanner();
 
   // --- Migration banner ---------------------------------------------------
 
@@ -134,6 +135,31 @@
       }
       banner.hidden = false;
     }
+  }
+
+  // --- Student renewal banner ---------------------------------------------
+  // Student memberships are one-time annual payments. In the last month
+  // before expiry, /api/student/me returns needs_renewal:true and we
+  // surface a banner linking to /student/ to renew.
+
+  function hydrateRenewalBanner() {
+    const banner = document.querySelector("[data-renewal-banner]");
+    if (!banner) return;
+    const textEl = banner.querySelector("[data-renewal-banner-text]");
+    if (!MEMBERSHIP_API) return;
+
+    moMembershipGet("/api/student/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data || !data.is_student || !data.needs_renewal) return;
+        const days = data.days_left;
+        const when = days <= 0
+          ? "today"
+          : days === 1 ? "tomorrow" : `in ${days} days`;
+        textEl.textContent = `Your student membership expires ${when} (${data.expires_at}). Renew to keep your access.`;
+        banner.hidden = false;
+      })
+      .catch(() => {});
   }
 
   // --- Engagement module --------------------------------------------------
