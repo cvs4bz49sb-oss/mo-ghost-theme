@@ -2409,7 +2409,7 @@ body {
 
 .article-dek {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-size: clamp(18px, 2vw, 22px);
   color: rgba(255,255,255,0.82);
   line-height: 1.5;
