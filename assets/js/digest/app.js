@@ -768,7 +768,7 @@
       })
     }
   };
-  function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate }) {
+  function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate, onSave, onRestore, savedAt, justSaved }) {
     const Tab = ({ active, onClick, children }) => /* @__PURE__ */ React.createElement("button", { onClick, style: {
       background: active ? "#2d2927" : "transparent",
       color: active ? "#fbf7ee" : "#2d2927",
@@ -815,6 +815,51 @@
       /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M12 20h9" }), /* @__PURE__ */ React.createElement("path", { d: "M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" })),
       "Edit Content"
     ), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: onSave,
+        title: "Save your progress to this browser. Use Restore to bring it back if anything changes.",
+        style: {
+          background: justSaved ? "#1d9e75" : "#2d2927",
+          color: "#fff",
+          border: justSaved ? "1.5px solid #1d9e75" : "1.5px solid #2d2927",
+          padding: "7px 18px",
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          cursor: "pointer",
+          borderRadius: 10,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          transition: "background 0.2s"
+        }
+      },
+      /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }), /* @__PURE__ */ React.createElement("polyline", { points: "17 21 17 13 7 13 7 21" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 3 7 8 15 8" })),
+      justSaved ? "Saved \u2713" : "Save"
+    ), savedAt ? /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-saved": true, style: { display: "inline-flex", alignItems: "center", gap: 10 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9a8773", whiteSpace: "nowrap" } }, "Saved ", new Date(savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })), /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: onRestore,
+        title: "Replace the current draft with your last saved version.",
+        style: {
+          background: "transparent",
+          color: "#2d2927",
+          border: "1.5px solid #d8c4a3",
+          padding: "6px 12px",
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          cursor: "pointer",
+          borderRadius: 10
+        }
+      },
+      "Restore"
+    )) : null, /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: onExport,
@@ -895,6 +940,41 @@
       }, 300);
       return () => clearTimeout(handle);
     }, [content]);
+    const SAVED_KEY = "mo:content:saved";
+    const [savedAt, setSavedAt] = React.useState(() => {
+      try {
+        const r = JSON.parse(localStorage.getItem(SAVED_KEY) || "null");
+        return r && r.savedAt || null;
+      } catch (_) {
+        return null;
+      }
+    });
+    const [justSaved, setJustSaved] = React.useState(false);
+    const handleSave = () => {
+      try {
+        const now = Date.now();
+        localStorage.setItem(SAVED_KEY, JSON.stringify({ savedAt: now, content }));
+        localStorage.setItem("mo:content", JSON.stringify(content));
+        setSavedAt(now);
+        setJustSaved(true);
+        setTimeout(() => setJustSaved(false), 1600);
+      } catch (e) {
+        window.alert("Could not save: " + (e && e.message || e));
+      }
+    };
+    const handleRestore = () => {
+      try {
+        const r = JSON.parse(localStorage.getItem(SAVED_KEY) || "null");
+        if (!r || !r.content) {
+          window.alert("No saved version yet. Click Save first.");
+          return;
+        }
+        if (!window.confirm("Restore your last saved version? This replaces the current draft.")) return;
+        setContent(r.content);
+      } catch (e) {
+        window.alert("Could not restore: " + (e && e.message || e));
+      }
+    };
     const handleTemplate = (key) => {
       const tmpl = EMAIL_TEMPLATES[key];
       if (!tmpl) return;
@@ -931,7 +1011,11 @@
         onPreview: (p) => setTweak("preview", p),
         onEditContent: () => setEditorOpen(true),
         onExport: () => setExportOpen(true),
-        onTemplate: handleTemplate
+        onTemplate: handleTemplate,
+        onSave: handleSave,
+        onRestore: handleRestore,
+        savedAt,
+        justSaved
       }
     ), /* @__PURE__ */ React.createElement("div", { style: { flex: 1 } }, tweaks.preview === "client" ? /* @__PURE__ */ React.createElement(GmailChrome, { content }, email) : tweaks.preview === "mobile" ? /* @__PURE__ */ React.createElement(MobilePreview, null, email) : /* @__PURE__ */ React.createElement(RawPreview, null, email)), /* @__PURE__ */ React.createElement(TweaksPanel, { title: "Tweaks", defaultOpen: false }, /* @__PURE__ */ React.createElement(TweakSection, { title: "Content" }, /* @__PURE__ */ React.createElement(
       "button",

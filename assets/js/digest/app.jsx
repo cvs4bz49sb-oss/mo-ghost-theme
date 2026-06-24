@@ -888,7 +888,7 @@ const EMAIL_TEMPLATES = {
 // =====================================================
 // Top bar — version + preview toggles (always visible above the preview)
 // =====================================================
-function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate }) {
+function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate, onSave, onRestore, savedAt, justSaved }) {
   const Tab = ({ active, onClick, children }) => (
     <button onClick={onClick} style={{
       background: active ? '#2d2927' : 'transparent',
@@ -983,6 +983,60 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </svg>
         Edit Content
       </button>
+
+      <button
+        onClick={onSave}
+        title="Save your progress to this browser. Use Restore to bring it back if anything changes."
+        style={{
+          background: justSaved ? '#1d9e75' : '#2d2927',
+          color: '#fff',
+          border: justSaved ? '1.5px solid #1d9e75' : '1.5px solid #2d2927',
+          padding: '7px 18px',
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+          borderRadius: 10,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          transition: 'background 0.2s',
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        {justSaved ? 'Saved ✓' : 'Save'}
+      </button>
+
+      {savedAt ? (
+        <div data-mo-topbar-saved style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9a8773', whiteSpace: 'nowrap' }}>
+            Saved {new Date(savedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+          </span>
+          <button
+            onClick={onRestore}
+            title="Replace the current draft with your last saved version."
+            style={{
+              background: 'transparent',
+              color: '#2d2927',
+              border: '1.5px solid #d8c4a3',
+              padding: '6px 12px',
+              fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              borderRadius: 10,
+            }}
+          >Restore</button>
+        </div>
+      ) : null}
 
       <button
         onClick={onExport}
@@ -1097,6 +1151,42 @@ function App() {
     return () => clearTimeout(handle);
   }, [content]);
 
+  // Manual save checkpoint — a deliberate snapshot kept SEPARATELY from the
+  // silent auto-save above. Restore brings it back unchanged if a later pull,
+  // template switch, or stray edit alters the working draft. This is the
+  // "save my progress without reverting anything" guarantee.
+  const SAVED_KEY = 'mo:content:saved';
+  const [savedAt, setSavedAt] = React.useState(() => {
+    try { const r = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null'); return (r && r.savedAt) || null; }
+    catch (_) { return null; }
+  });
+  const [justSaved, setJustSaved] = React.useState(false);
+
+  const handleSave = () => {
+    try {
+      const now = Date.now();
+      localStorage.setItem(SAVED_KEY, JSON.stringify({ savedAt: now, content }));
+      // Flush the working copy immediately too (don't wait for the debounce).
+      localStorage.setItem('mo:content', JSON.stringify(content));
+      setSavedAt(now);
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 1600);
+    } catch (e) {
+      window.alert('Could not save: ' + ((e && e.message) || e));
+    }
+  };
+
+  const handleRestore = () => {
+    try {
+      const r = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
+      if (!r || !r.content) { window.alert('No saved version yet. Click Save first.'); return; }
+      if (!window.confirm('Restore your last saved version? This replaces the current draft.')) return;
+      setContent(r.content);
+    } catch (e) {
+      window.alert('Could not restore: ' + ((e && e.message) || e));
+    }
+  };
+
   const handleTemplate = (key) => {
     const tmpl = EMAIL_TEMPLATES[key];
     if (!tmpl) return;
@@ -1136,6 +1226,10 @@ function App() {
         onEditContent={() => setEditorOpen(true)}
         onExport={() => setExportOpen(true)}
         onTemplate={handleTemplate}
+        onSave={handleSave}
+        onRestore={handleRestore}
+        savedAt={savedAt}
+        justSaved={justSaved}
       />
 
       <div style={{ flex: 1 }}>
