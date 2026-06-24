@@ -197,6 +197,16 @@
 {{/match}}
 {{/match}}
 
+{{!-- OTHER MEMBERSHIPS — visible to any logged-in member (gift, group,
+     institutions, student). Hidden from anonymous visitors. --}}
+{{#if @member}}
+<section class="home-other-memberships" aria-label="Other memberships">
+    <div class="container">
+        {{> "other-memberships"}}
+    </div>
+</section>
+{{/if}}
+
 {{!-- THIS WEEK: posts 3-8 --}}
 <section class="this-week">
     <div class="container">
