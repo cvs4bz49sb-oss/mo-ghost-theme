@@ -114,13 +114,40 @@
         }
         const linkEl = root.querySelector("[data-referral-link]");
         const copyEl = root.querySelector("[data-referral-copy]");
-        const s = data.stats || {};
+        const referrals = data.referrals || {};
+        const rewards = data.rewards || {};
         if (linkEl) {
           linkEl.value = data.link;
         }
-        setText(root, "[data-referral-converted]", s.converted || 0);
-        setText(root, "[data-referral-pending]", s.pending || 0);
-        setText(root, "[data-referral-earned]", `$${((s.earned_cents || 0) / 100).toFixed(2)}`);
+
+        setText(root, "[data-referral-joined]", referrals.joined || 0);
+
+        // Reward display depends on the referrer's tier.
+        const progressStat = root.querySelector("[data-referral-progress-stat]");
+        if (data.tier === "annual") {
+          const pct = rewards.percent_off || 50;
+          const size = rewards.milestone || 5;
+          setText(root, "[data-referral-blurb]",
+            `Every ${size} friends who join earns you ${pct}% off your next year, and each friend gets 20% off their first year.`);
+          setText(root, "[data-referral-reward-num]", rewards.halfoffs_earned || 0);
+          setText(root, "[data-referral-reward-label]", `${pct}%-off years earned`);
+          setText(root, "[data-referral-progress]", `${rewards.toward_next || 0} of ${size}`);
+          if (progressStat) progressStat.hidden = false;
+        } else if (data.tier === "monthly") {
+          setText(root, "[data-referral-blurb]",
+            "Every friend who joins earns you a free month, and they get 20% off their first year.");
+          setText(root, "[data-referral-reward-num]", rewards.months_earned || 0);
+          setText(root, "[data-referral-reward-label]", "Free months earned");
+          if (progressStat) progressStat.hidden = true;
+        } else {
+          // Lifetime / unknown: rewards are handled manually. Keep it simple.
+          setText(root, "[data-referral-blurb]",
+            "Share Mere Orthodoxy with a friend. They get 20% off their first year, and we will be in touch about thanking you.");
+          const rewardNum = (rewards.months_earned || 0) + (rewards.halfoffs_earned || 0);
+          setText(root, "[data-referral-reward-num]", rewardNum);
+          setText(root, "[data-referral-reward-label]", "Rewards earned");
+          if (progressStat) progressStat.hidden = true;
+        }
         root.hidden = false;
 
         if (copyEl && linkEl) {
