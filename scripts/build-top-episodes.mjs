@@ -103,6 +103,14 @@ async function fetchShow(slug, podcastId) {
   const list = await res.json();
   const now = Date.now();
 
+  // TEMP DEBUG: surface how scheduled/private/future episodes are represented
+  // so we can fix the detection. Remove after diagnosing.
+  const dbg = (Array.isArray(list) ? list : [])
+    .filter((ep) => ep && (ep.private === true || ep.draft === true || Date.parse(ep.published_at || 0) > now))
+    .map((ep) => ({ id: ep.id, title: ep.title, private: ep.private, draft: ep.draft, published_at: ep.published_at }));
+  console.log(`DEBUG ${slug}: ${Array.isArray(list) ? list.length : 0} total; candidates=${JSON.stringify(dbg)}`);
+  console.log(`DEBUG ${slug} first-episode-keys=${JSON.stringify(Object.keys((Array.isArray(list) && list[0]) || {}))}`);
+
   const top = (Array.isArray(list) ? list : [])
     .filter((ep) => isReleasable(ep, now) && typeof ep.total_plays === "number")
     .sort((a, b) => (b.total_plays || 0) - (a.total_plays || 0))
