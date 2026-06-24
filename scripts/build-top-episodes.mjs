@@ -60,12 +60,14 @@ function isReleasable(ep, now) {
   return pub && pub <= now;
 }
 
-// A scheduled episode is future-dated AND private:true. (private alone with a
-// PAST date is an unscheduled draft — don't surface it.) Returns the soonest
-// upcoming one, shaped for the digest builder's nextScheduled, or null.
+// A scheduled episode is one with a FUTURE published_at (Buzzsprout will
+// auto-release it then). It may be private:false or true — the gate is the
+// future date, not privacy (a private episode with a PAST date is just an
+// unlisted/draft, not "upcoming"). Returns the soonest upcoming one shaped
+// for the digest builder's nextScheduled, or null.
 function nextScheduled(list, now, slug, podcastId) {
   const upcoming = (Array.isArray(list) ? list : [])
-    .filter((ep) => ep && ep.private === true && Date.parse(ep.published_at || 0) > now)
+    .filter((ep) => ep && Date.parse(ep.published_at || 0) > now)
     .sort((a, b) => Date.parse(a.published_at || 0) - Date.parse(b.published_at || 0));
   const ep = upcoming[0];
   if (!ep) return null;
@@ -102,14 +104,6 @@ async function fetchShow(slug, podcastId) {
   if (!res.ok) throw new Error(`${slug}: buzzsprout ${res.status}`);
   const list = await res.json();
   const now = Date.now();
-
-  // TEMP DEBUG: surface how scheduled/private/future episodes are represented
-  // so we can fix the detection. Remove after diagnosing.
-  const dbg = (Array.isArray(list) ? list : [])
-    .filter((ep) => ep && (ep.private === true || ep.draft === true || Date.parse(ep.published_at || 0) > now))
-    .map((ep) => ({ id: ep.id, title: ep.title, private: ep.private, draft: ep.draft, published_at: ep.published_at }));
-  console.log(`DEBUG ${slug}: ${Array.isArray(list) ? list.length : 0} total; candidates=${JSON.stringify(dbg)}`);
-  console.log(`DEBUG ${slug} first-episode-keys=${JSON.stringify(Object.keys((Array.isArray(list) && list[0]) || {}))}`);
 
   const top = (Array.isArray(list) ? list : [])
     .filter((ep) => isReleasable(ep, now) && typeof ep.total_plays === "number")
