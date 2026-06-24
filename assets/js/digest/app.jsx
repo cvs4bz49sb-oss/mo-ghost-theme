@@ -888,7 +888,7 @@ const EMAIL_TEMPLATES = {
 // =====================================================
 // Top bar — version + preview toggles (always visible above the preview)
 // =====================================================
-function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate, onSave, onRestore, savedAt, justSaved }) {
+function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate, onSave, onRestore, onHistory, savedAt, justSaved }) {
   const Tab = ({ active, onClick, children }) => (
     <button onClick={onClick} style={{
       background: active ? '#2d2927' : 'transparent',
@@ -1039,6 +1039,34 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
       ) : null}
 
       <button
+        onClick={onHistory}
+        title="Browse past saved versions and reuse one as a starting point."
+        style={{
+          background: 'transparent',
+          color: '#2d2927',
+          border: '1.5px solid #2d2927',
+          padding: '7px 16px',
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+          borderRadius: 10,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3v5h5"/>
+          <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+          <path d="M12 7v5l4 2"/>
+        </svg>
+        History
+      </button>
+
+      <button
         onClick={onExport}
         style={{
           background: '#2d2927',
@@ -1064,6 +1092,77 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </svg>
         Export HTML
       </button>
+    </div>
+  );
+}
+
+// =====================================================
+// Version History modal
+// =====================================================
+function HistoryModal({ open, history, onClose, onRestore, onDelete }) {
+  if (!open) return null;
+  const fmt = (ts) => {
+    try { return new Date(ts).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+    catch (_) { return ''; }
+  };
+  const label = (c) => {
+    const x = c || {};
+    const issue = x.issueNumber ? `Issue ${x.issueNumber}` : '';
+    const date = x.dateStr || '';
+    return (issue && date) ? `${issue} · ${date}` : (issue || date || 'Untitled email');
+  };
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(20,16,12,0.55)',
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        padding: '6vh 16px', overflowY: 'auto',
+        fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+      }}
+    >
+      <div onClick={(e) => e.stopPropagation()} style={{
+        background: '#fbf7ee', width: 'min(640px, 100%)', borderRadius: 16,
+        border: '1.5px solid #d8c4a3', overflow: 'hidden',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid #e7d8bf' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#2d2927', letterSpacing: '0.02em' }}>Version History</h2>
+            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#9a8773' }}>Saved versions of this email, newest first. Reuse one as a starting point.</p>
+          </div>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: 22, lineHeight: 1, color: '#2d2927', cursor: 'pointer', padding: '2px 6px' }}>×</button>
+        </div>
+        <div style={{ maxHeight: '60vh', overflowY: 'auto', padding: '12px 16px' }}>
+          {(!history || !history.length) ? (
+            <p style={{ padding: '24px 8px', textAlign: 'center', color: '#9a8773', fontSize: 14 }}>
+              No saved versions yet. Click <strong>Save</strong> to snapshot the current email.
+            </p>
+          ) : history.map((h, i) => {
+            const c = h.content || {};
+            const sub = c.editorTitle || c.mastheadTitle || '';
+            return (
+              <div key={h.id} style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '12px', borderRadius: 10, border: '1px solid #e7d8bf',
+                marginBottom: 8, background: i === 0 ? '#f5ecdb' : '#fff',
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#2d2927' }}>
+                    {label(c)}
+                    {i === 0 ? <span style={{ fontSize: 10, fontWeight: 700, color: '#1d9e75', letterSpacing: '0.08em', textTransform: 'uppercase', marginLeft: 6 }}>Latest</span> : null}
+                  </p>
+                  {sub ? <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#6b6660', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub}</p> : null}
+                  <p style={{ margin: '4px 0 0', fontSize: 11, color: '#9a8773' }}>Saved {fmt(h.savedAt)}</p>
+                </div>
+                <button onClick={() => onRestore(h.id)} style={{ background: '#ee7d51', color: '#fff', border: 'none', padding: '8px 14px', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 9, cursor: 'pointer', whiteSpace: 'nowrap' }}>Use this</button>
+                <button onClick={() => onDelete(h.id)} title="Delete this saved version" style={{ background: 'transparent', color: '#9a8773', border: '1.5px solid #d8c4a3', padding: '8px 10px', fontSize: 11, fontWeight: 700, borderRadius: 9, cursor: 'pointer' }}>Delete</button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1151,24 +1250,52 @@ function App() {
     return () => clearTimeout(handle);
   }, [content]);
 
-  // Manual save checkpoint — a deliberate snapshot kept SEPARATELY from the
-  // silent auto-save above. Restore brings it back unchanged if a later pull,
-  // template switch, or stray edit alters the working draft. This is the
-  // "save my progress without reverting anything" guarantee.
-  const SAVED_KEY = 'mo:content:saved';
-  const [savedAt, setSavedAt] = React.useState(() => {
-    try { const r = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null'); return (r && r.savedAt) || null; }
-    catch (_) { return null; }
+  // Saved version HISTORY — every Save snapshots the current email, kept
+  // SEPARATELY from the silent auto-save above. Browse past issues in the
+  // History panel and reuse any as a starting point; Restore brings back the
+  // most recent save unchanged. Newest first, capped. This is the "save my
+  // progress / go back to old versions without reverting anything" guarantee.
+  const HISTORY_KEY = 'mo:content:history';
+  const HISTORY_MAX = 50;
+  const [history, setHistory] = React.useState(() => {
+    try {
+      const a = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      if (Array.isArray(a) && a.length) return a;
+      // Migrate the legacy single checkpoint (mo:content:saved) into history
+      // so an earlier Save isn't orphaned.
+      const legacy = JSON.parse(localStorage.getItem('mo:content:saved') || 'null');
+      if (legacy && legacy.content) {
+        const ts = legacy.savedAt || Date.now();
+        return [{ id: 'v_' + ts, savedAt: ts, content: legacy.content }];
+      }
+      return Array.isArray(a) ? a : [];
+    } catch (_) { return []; }
   });
   const [justSaved, setJustSaved] = React.useState(false);
+  const [historyOpen, setHistoryOpen] = React.useState(false);
+  const savedAt = history[0] && history[0].savedAt;
+
+  const persistHistory = (arr) => {
+    setHistory(arr);
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr)); }
+    catch (e) { console.warn('Could not save history', e); }
+  };
 
   const handleSave = () => {
     try {
       const now = Date.now();
-      localStorage.setItem(SAVED_KEY, JSON.stringify({ savedAt: now, content }));
+      const snapshot = JSON.parse(JSON.stringify(content));
+      const prev = history[0];
+      let next;
+      if (prev && JSON.stringify(prev.content) === JSON.stringify(snapshot)) {
+        // Unchanged since the last save — just bump its timestamp, no dupe.
+        next = [{ ...prev, savedAt: now }, ...history.slice(1)];
+      } else {
+        next = [{ id: 'v_' + now, savedAt: now, content: snapshot }, ...history].slice(0, HISTORY_MAX);
+      }
+      persistHistory(next);
       // Flush the working copy immediately too (don't wait for the debounce).
       localStorage.setItem('mo:content', JSON.stringify(content));
-      setSavedAt(now);
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 1600);
     } catch (e) {
@@ -1177,14 +1304,22 @@ function App() {
   };
 
   const handleRestore = () => {
-    try {
-      const r = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
-      if (!r || !r.content) { window.alert('No saved version yet. Click Save first.'); return; }
-      if (!window.confirm('Restore your last saved version? This replaces the current draft.')) return;
-      setContent(r.content);
-    } catch (e) {
-      window.alert('Could not restore: ' + ((e && e.message) || e));
-    }
+    const prev = history[0];
+    if (!prev) { window.alert('No saved version yet. Click Save first.'); return; }
+    if (!window.confirm('Restore your last saved version? This replaces the current draft.')) return;
+    setContent(JSON.parse(JSON.stringify(prev.content)));
+  };
+
+  const handleRestoreVersion = (id) => {
+    const entry = history.find((h) => h.id === id);
+    if (!entry) return;
+    if (!window.confirm('Use this saved version as your current draft? This replaces what you have now.')) return;
+    setContent(JSON.parse(JSON.stringify(entry.content)));
+    setHistoryOpen(false);
+  };
+
+  const handleDeleteVersion = (id) => {
+    persistHistory(history.filter((h) => h.id !== id));
   };
 
   const handleTemplate = (key) => {
@@ -1228,6 +1363,7 @@ function App() {
         onTemplate={handleTemplate}
         onSave={handleSave}
         onRestore={handleRestore}
+        onHistory={() => setHistoryOpen(true)}
         savedAt={savedAt}
         justSaved={justSaved}
       />
@@ -1323,6 +1459,14 @@ function App() {
           />
         </TweakSection>
       </TweaksPanel>
+
+      <HistoryModal
+        open={historyOpen}
+        history={history}
+        onClose={() => setHistoryOpen(false)}
+        onRestore={handleRestoreVersion}
+        onDelete={handleDeleteVersion}
+      />
 
       <ContentEditor
         open={editorOpen}
