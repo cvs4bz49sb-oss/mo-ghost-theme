@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 /*
- * Builds assets/data/top-episodes.json — the "Most Listened" ranking per show.
+ * Builds two JSON files from the Buzzsprout JSON API:
+ *   - assets/data/top-episodes.json       — "Most Listened" ranking per show
+ *   - assets/data/scheduled-episodes.json — next SCHEDULED episode per show
  *
- * WHY THIS RUNS IN CI (not the Worker): "Most Listened" ranks by Buzzsprout
- * `total_plays`, which only the JSON API exposes. Buzzsprout's Cloudflare WAF
- * blocks Cloudflare Workers' egress IPs, but NOT GitHub Actions runners — so
- * we fetch the API here, on a non-Cloudflare runner, and commit the result.
- * The mo-podcast-feed Worker then reads this file from GitHub raw and serves
- * it as each show's `topEpisodes`. See .github/workflows/podcast-top-episodes.yml.
+ * WHY THIS RUNS IN CI (not the Worker): both rankings and scheduled episodes
+ * are only exposed by the Buzzsprout JSON API. "Most Listened" needs
+ * `total_plays`; the next scheduled episode is future-dated + private and
+ * never appears in the public RSS feed the Worker reads. Buzzsprout's
+ * Cloudflare WAF blocks Cloudflare Workers' egress IPs, but NOT GitHub
+ * Actions runners — so we fetch the API here, on a non-Cloudflare runner,
+ * and commit the results. The mo-podcast-feed Worker reads both files from
+ * GitHub raw (Fastly) and serves them as `topEpisodes` / `nextScheduled`.
+ * See .github/workflows/podcast-top-episodes.yml.
  *
  * Env: BUZZSPROUT_API_TOKEN (required).
  */
@@ -20,7 +25,8 @@ const SHOWS = {
   "christians-reading-classics": "2612793",
 };
 const TOP_N = 5;
-const OUT = fileURLToPath(new URL("../assets/data/top-episodes.json", import.meta.url));
+const TOP_OUT = fileURLToPath(new URL("../assets/data/top-episodes.json", import.meta.url));
+const SCHED_OUT = fileURLToPath(new URL("../assets/data/scheduled-episodes.json", import.meta.url));
 
 const token = process.env.BUZZSPROUT_API_TOKEN;
 if (!token) {
@@ -40,6 +46,10 @@ function slugFromAudio(audioUrl, id, title) {
   return { slug: s || String(id || ""), fromAudio: false };
 }
 
+function stripHtml(s) {
+  return String(s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 function isReleasable(ep, now) {
   if (!ep || ep.private === true) return false;
   if (ep.inactive_at) {
@@ -48,6 +58,37 @@ function isReleasable(ep, now) {
   }
   const pub = Date.parse(ep.published_at || 0);
   return pub && pub <= now;
+}
+
+// A scheduled episode is future-dated AND private:true. (private alone with a
+// PAST date is an unscheduled draft — don't surface it.) Returns the soonest
+// upcoming one, shaped for the digest builder's nextScheduled, or null.
+function nextScheduled(list, now, slug, podcastId) {
+  const upcoming = (Array.isArray(list) ? list : [])
+    .filter((ep) => ep && ep.private === true && Date.parse(ep.published_at || 0) > now)
+    .sort((a, b) => Date.parse(a.published_at || 0) - Date.parse(b.published_at || 0));
+  const ep = upcoming[0];
+  if (!ep) return null;
+  const { slug: epSlug, fromAudio } = slugFromAudio(ep.audio_url, ep.id, ep.title);
+  return {
+    id: ep.id || null,
+    title: ep.title || "",
+    slug: epSlug,
+    pubDate: ep.published_at || "",
+    episode: ep.episode_number || "",
+    season: ep.season_number || "",
+    description: stripHtml(ep.description || ep.summary || "").slice(0, 800),
+    artwork: ep.artwork_url || "",
+    audioUrl: ep.audio_url || "",
+    // The episode page isn't live until release; link to the show page, which
+    // always resolves and lists the episode once it publishes.
+    link: `https://mereorthodoxy.com/podcasts/${slug}/`,
+    embedUrl: ep.id
+      ? `https://www.buzzsprout.com/${podcastId}/${ep.id}?client_source=small_player&iframe=true`
+      : null,
+    hasTranscript: fromAudio && !!ep.id,
+    transcriptUrl: fromAudio && ep.id ? `/transcript/${slug}/${epSlug}/` : null,
+  };
 }
 
 async function fetchShow(slug, podcastId) {
@@ -62,7 +103,7 @@ async function fetchShow(slug, podcastId) {
   const list = await res.json();
   const now = Date.now();
 
-  return (Array.isArray(list) ? list : [])
+  const top = (Array.isArray(list) ? list : [])
     .filter((ep) => isReleasable(ep, now) && typeof ep.total_plays === "number")
     .sort((a, b) => (b.total_plays || 0) - (a.total_plays || 0))
     .slice(0, TOP_N)
@@ -86,14 +127,21 @@ async function fetchShow(slug, podcastId) {
         transcriptUrl: fromAudio && ep.id ? `/transcript/${slug}/${epSlug}/` : null,
       };
     });
+
+  return { top, scheduled: nextScheduled(list, now, slug, podcastId) };
 }
 
-const out = {};
+const topOut = {};
+const schedOut = {};
 for (const [slug, podcastId] of Object.entries(SHOWS)) {
-  out[slug] = await fetchShow(slug, podcastId);
-  console.log(`${slug}: ${out[slug].length} top episodes`);
+  const { top, scheduled } = await fetchShow(slug, podcastId);
+  topOut[slug] = top;
+  schedOut[slug] = scheduled;
+  console.log(`${slug}: ${top.length} top episodes; scheduled: ${scheduled ? scheduled.title : "none"}`);
 }
 
-await mkdir(dirname(OUT), { recursive: true });
-await writeFile(OUT, JSON.stringify(out, null, 2) + "\n");
-console.log(`Wrote ${OUT}`);
+await mkdir(dirname(TOP_OUT), { recursive: true });
+await writeFile(TOP_OUT, JSON.stringify(topOut, null, 2) + "\n");
+await writeFile(SCHED_OUT, JSON.stringify(schedOut, null, 2) + "\n");
+console.log(`Wrote ${TOP_OUT}`);
+console.log(`Wrote ${SCHED_OUT}`);

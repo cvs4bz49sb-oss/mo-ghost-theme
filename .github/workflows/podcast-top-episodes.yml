@@ -1,16 +1,22 @@
 name: Podcast Top Episodes
 
-# Rebuilds assets/data/top-episodes.json ("Most Listened") from the Buzzsprout
-# JSON API. Runs on a GitHub-hosted (non-Cloudflare) runner because Buzzsprout's
+# Rebuilds two files from the Buzzsprout JSON API:
+#   assets/data/top-episodes.json       — "Most Listened" ranking per show
+#   assets/data/scheduled-episodes.json — next scheduled episode per show
+# Runs on a GitHub-hosted (non-Cloudflare) runner because Buzzsprout's
 # Cloudflare WAF blocks Cloudflare Workers' egress IPs but not GitHub's. The
 # mo-podcast-feed Worker reads the committed JSON from GitHub raw.
 #
 # Commits use [skip ci] so they don't trigger the theme deploy/lint workflows;
-# the Worker reads the file from raw.githubusercontent.com, so no deploy needed.
+# the Worker reads the files from raw.githubusercontent.com, so no deploy needed.
+#
+# Scheduled episodes are time-sensitive (they go out in the weekly digest), so
+# this runs every 6h. If you just scheduled an episode and want it now, trigger
+# manually: gh workflow run "Podcast Top Episodes" --ref main
 
 on:
   schedule:
-    - cron: "17 8 * * *"   # daily, ~08:17 UTC
+    - cron: "17 */6 * * *"   # every 6 hours, at :17
   workflow_dispatch: {}
 
 permissions:
@@ -28,7 +34,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Build top-episodes.json
+      - name: Build podcast data (top + scheduled)
         env:
           BUZZSPROUT_API_TOKEN: ${{ secrets.BUZZSPROUT_API_TOKEN }}
         run: node scripts/build-top-episodes.mjs
@@ -36,10 +42,10 @@ jobs:
         run: |
           git config user.name "mo-bot"
           git config user.email "bot@users.noreply.github.com"
-          if git diff --quiet -- assets/data/top-episodes.json; then
-            echo "No change to Most Listened."
+          if git diff --quiet -- assets/data/top-episodes.json assets/data/scheduled-episodes.json; then
+            echo "No change to podcast data."
           else
-            git add assets/data/top-episodes.json
-            git commit -m "Update podcast Most Listened [skip ci]"
+            git add assets/data/top-episodes.json assets/data/scheduled-episodes.json
+            git commit -m "Update podcast data (Most Listened + scheduled) [skip ci]"
             git push
           fi
