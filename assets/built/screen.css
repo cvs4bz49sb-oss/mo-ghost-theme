@@ -8095,8 +8095,9 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 36px;
+  row-gap: 8px;
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.5;
@@ -8133,7 +8134,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
     margin: 0 auto;
     align-items: stretch;
   }
-  .home-upgrade-cta .home-upgrade-list { margin: 0; }
+  .home-upgrade-cta .home-upgrade-list { margin: 0; grid-template-columns: 1fr; }
   .home-upgrade-cta .home-upgrade-btn { align-self: center; }
 }
 
