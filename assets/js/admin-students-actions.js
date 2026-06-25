@@ -34,8 +34,8 @@
     panel.hidden = false;
     let data;
     try {
-      const res = await window.MOAuth.fetch(apiBase + '/api/admin/students', { credentials: 'omit' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const res = await window.MOAuth.fetch(`${apiBase}/api/admin/students`, { credentials: 'omit' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       data = await res.json();
     } catch (e) {
       listEl.innerHTML = '<li class="admin-student-pending-error">Could not load students.</li>';
@@ -56,16 +56,16 @@
     li.className = 'admin-student-pending-row';
     const name = [s.first_name, s.last_name].filter(Boolean).join(' ') || '(no name)';
     li.innerHTML =
-      '<div class="admin-student-pending-meta">' +
-        '<strong>' + esc(name) + '</strong>' +
-        '<span>' + esc(s.email) + '</span>' +
-        '<span>' + esc(s.school || 'No school given') + ' &middot; ' + esc(s.variant || 'digital') + '</span>' +
-      '</div>' +
-      '<div class="admin-student-pending-actions">' +
-        '<button type="button" class="btn btn-sm btn-primary" data-act="link">Copy payment link</button>' +
-        '<button type="button" class="btn btn-sm" data-act="comp">Mark comped</button>' +
-      '</div>' +
-      '<p class="admin-student-pending-feedback" data-feedback hidden></p>';
+      `<div class="admin-student-pending-meta">` +
+        `<strong>${esc(name)}</strong>` +
+        `<span>${esc(s.email)}</span>` +
+        `<span>${esc(s.school || 'No school given')} &middot; ${esc(s.variant || 'digital')}</span>` +
+      `</div>` +
+      `<div class="admin-student-pending-actions">` +
+        `<button type="button" class="btn btn-sm btn-primary" data-act="link">Copy payment link</button>` +
+        `<button type="button" class="btn btn-sm" data-act="comp">Mark comped</button>` +
+      `</div>` +
+      `<p class="admin-student-pending-feedback" data-feedback hidden></p>`;
 
     const feedback = li.querySelector('[data-feedback]');
     const setFeedback = (msg, ok) => {
@@ -78,7 +78,7 @@
       const btn = e.currentTarget;
       btn.disabled = true;
       try {
-        const res = await window.MOAuth.fetch(apiBase + '/api/admin/student/checkout-link', {
+        const res = await window.MOAuth.fetch(`${apiBase}/api/admin/student/checkout-link`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: s.email }),
@@ -87,7 +87,7 @@
         if (!res.ok || !body.url) throw new Error(body.error || 'Could not create link.');
         try {
           await navigator.clipboard.writeText(body.url);
-          setFeedback('Payment link copied. Paste it into your reply to ' + s.email + '.', true);
+          setFeedback(`Payment link copied. Paste it into your reply to ${s.email}.`, true);
         } catch (_) {
           setFeedback(body.url, true);
         }
@@ -100,16 +100,16 @@
 
     li.querySelector('[data-act="comp"]').addEventListener('click', async (e) => {
       const variant = s.variant || 'digital';
-      if (!window.confirm('Comp ' + s.email + ' as a ' + variant + ' student now? This grants a free year without payment.')) return;
+      if (!window.confirm(`Comp ${s.email} as a ${variant} student now? This grants a free year without payment.`)) return;
       const btn = e.currentTarget;
       btn.disabled = true;
       try {
-        const res = await window.MOAuth.fetch(apiBase + '/api/admin/student/comp', {
+        const res = await window.MOAuth.fetch(`${apiBase}/api/admin/student/comp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: s.email,
-            variant: variant,
+            variant,
             first_name: s.first_name,
             last_name: s.last_name,
             school: s.school,

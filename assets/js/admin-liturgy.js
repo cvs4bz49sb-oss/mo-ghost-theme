@@ -41,8 +41,8 @@
 
   // State
   let viewMonth = startOfMonth(new Date());
-  let days = [];           // [{date, subject, state, sendAt, broadcastId, hasContent}]
-  let selected = null;     // currently open date (YYYY-MM-DD)
+  let days = []; // [{date, subject, state, sendAt, broadcastId, hasContent}]
+  let selected = null; // currently open date (YYYY-MM-DD)
   let saveTimer = null;
 
   // --- Auth gate ----------------------------------------------------------
@@ -88,15 +88,15 @@
 
   function setSync(text, cls) {
     sync.textContent = text;
-    sync.className = "lit-sync" + (cls ? " " + cls : "");
+    sync.className = `lit-sync${cls ? ` ${cls}` : ""}`;
   }
   function setActionStatus(text, cls) {
     actionStatus.textContent = text;
-    actionStatus.className = "lit-action-status" + (cls ? " " + cls : "");
+    actionStatus.className = `lit-action-status${cls ? ` ${cls}` : ""}`;
   }
   function setSave(text, cls) {
     elSave.textContent = text;
-    elSave.className = "lit-editor-save" + (cls ? " " + cls : "");
+    elSave.className = `lit-editor-save${cls ? ` ${cls}` : ""}`;
   }
 
   // --- Load + render month ------------------------------------------------
@@ -128,7 +128,7 @@
     for (const d of days) {
       const row = document.createElement("button");
       row.type = "button";
-      row.className = "lit-row" + (d.date === selected ? " is-active" : "");
+      row.className = `lit-row${d.date === selected ? " is-active" : ""}`;
       row.dataset.date = d.date;
       const subjectClass = d.subject ? "lit-row-subject" : "lit-row-subject is-empty";
       const subjectText = d.subject || "No content yet";
@@ -180,8 +180,8 @@
     const doc =
       `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">` +
       `</head><body style="background:#f6f3f2;margin:0;padding:24px 14px;">` +
-      `<div style="max-width:600px;margin:0 auto;background:#fff;padding:32px 28px;border:1px solid #d9c6a7;border-radius:10px;">` +
-      (html || "") + `</div></body></html>`;
+      `<div style="max-width:600px;margin:0 auto;background:#fff;padding:32px 28px;border:1px solid #d9c6a7;border-radius:10px;">${ 
+      html || ""}</div></body></html>`;
     previewFrame.srcdoc = doc;
   }
 
