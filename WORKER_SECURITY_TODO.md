@@ -62,6 +62,8 @@ This is the canonical list of every theme→worker route, the auth model the the
 | mo-kit | `/history` | GET | JWT | Require JWT, derive email from sub | **SHIPPED** (verified 2026-05-11) |
 | mo-kit | `/history/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
 | mo-kit | `/newsletter-subscribe` | POST | None (public) | Origin allowlist + Turnstile (when secret set) + per-IP RL 5/15min | NEW 2026-06-25; Turnstile enforced once TURNSTILE_SECRET set |
+| mo-kit | `/liturgy/*` | GET/PUT/POST | `LITURGY_TOKEN` query param | Daily Liturgy content store + scheduling (days, day GET/PUT, import, schedule, cancel, test, status). Token-gated server-to-server (above origin check, like `/backfill-*`). All broadcast creation goes through `createKitBroadcast`, which refuses an empty `subscriber_filter` (Kit would send to ALL subscribers); the target tag is a fixed constant; the test send is scoped to the `liturgy-test` tag. | NEW 2026-06-25 (Daily Liturgy dashboard) |
+| mo-admin | `/liturgy/*` | GET/PUT/POST | Ghost staff JWT + `liturgy` tool permission | Dashboard backend. Verifies staff (or the `liturgy` tool grant), then proxies to mo-kit with `LITURGY_TOKEN` (never exposed to the browser). Test send defaults to the caller's own JWT-derived email. | NEW 2026-06-25 |
 | mo-kit-bridge | `/api/drift` | GET | JWT (admin) | Verify JWT + staff check | **SHIPPED** (verified 2026-05-11); consider bridge-side validation since mo-kit feeds member-supplied data |
 | mo-admin | `/settings` | GET | None (public read) | OK; theme treats output as cosmetic-only | OK |
 | mo-admin | `/slide-ins` | GET | None (public read) | OK; theme scheme-validates `button_url`/`image` (A3) | OK |

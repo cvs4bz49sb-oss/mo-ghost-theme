@@ -122,6 +122,8 @@ routes:
     template: custom-admin-coverage
   /admin/social/:
     template: custom-admin-social
+  /admin/liturgy/:
+    template: custom-admin-liturgy
   /admin/assets/:
     template: custom-admin-assets
   /admin/copy/:
