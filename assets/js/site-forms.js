@@ -136,6 +136,22 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       };
+    } else if (kind === "newsletter") {
+      // Daily Liturgy signup → mo-kit /newsletter-subscribe. JSON body;
+      // worker subscribes to Kit (double opt-in form) + ensures a Ghost
+      // free member. Only an email (and optional name) is collected.
+      url = `${worker}/newsletter-subscribe`;
+      const nameEl = form.querySelector("[name=name]");
+      const body = {
+        email: form.querySelector("[name=email]").value,
+        name: nameEl ? nameEl.value : "",
+        turnstile_token: turnstileToken,
+      };
+      init = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      };
     } else if (kind === "sponsorship") {
       url = `${worker}/sponsorship`;
       const checked = Array.from(form.querySelectorAll('[name="interests"]:checked'))
@@ -179,7 +195,7 @@
       })
       .then((res) => {
         if (res.ok && res.body && res.body.ok) {
-          renderSuccess(form, kind);
+          renderSuccess(form, kind, res.body);
         } else {
           const msg = (res.body && res.body.error) || "Something went wrong. Try again.";
           setStatus(status, msg, true);
@@ -206,7 +222,7 @@
     }
   }
 
-  function renderSuccess(form, kind) {
+  function renderSuccess(form, kind, resBody) {
     const success = document.createElement("div");
     success.className = "site-form-success";
     success.setAttribute("role", "status");
@@ -218,13 +234,32 @@
       contact: "We'll be in touch soon.",
       sponsorship: "We'll follow up with rates and availability shortly.",
     };
-    const title = titles[kind] || "Thanks — submission received.";
-    const body = bodies[kind] || "We'll read your essay and be in touch within two weeks.";
+    let eyebrow = "Sent";
+    let title = titles[kind] || "Thanks — submission received.";
+    let body = bodies[kind] || "We'll read your essay and be in touch within two weeks.";
+    if (kind === "newsletter") {
+      // Double opt-in returns pending:true — tell them to confirm. The
+      // single-opt-in fallback (no Kit form configured) returns pending:false.
+      if (resBody && resBody.pending) {
+        eyebrow = "Almost there";
+        title = "Check your inbox.";
+        body = "We sent a confirmation link. Click it and the daily devotional starts arriving each morning.";
+      } else {
+        eyebrow = "You're in";
+        title = "Welcome.";
+        body = "The daily devotional will arrive in your inbox each morning.";
+      }
+    }
     success.innerHTML =
-      `<p class="eyebrow">Sent</p>` +
+      `<p class="eyebrow">${eyebrow}</p>` +
       `<h3><em>${title}</em></h3>` +
       `<p>${body}</p>`;
+    // Make the success block programmatically focusable and move focus to
+    // it so keyboard / screen-reader users aren't dropped to <body> when
+    // the form they were in is removed from the DOM.
+    success.setAttribute("tabindex", "-1");
     form.parentNode.replaceChild(success, form);
+    try { success.focus(); } catch (_) { /* ignore */ }
   }
 
   function setStatus(el, msg, isError) {

@@ -61,6 +61,7 @@ This is the canonical list of every theme→worker route, the auth model the the
 | mo-kit | `/commonplace/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
 | mo-kit | `/history` | GET | JWT | Require JWT, derive email from sub | **SHIPPED** (verified 2026-05-11) |
 | mo-kit | `/history/remove` | POST | JWT | Require JWT, derive email from sub, ignore body.email | **SHIPPED** (verified 2026-05-11) |
+| mo-kit | `/newsletter-subscribe` | POST | None (public) | Origin allowlist + Turnstile (when secret set) + per-IP RL 5/15min | NEW 2026-06-25; Turnstile enforced once TURNSTILE_SECRET set |
 | mo-kit-bridge | `/api/drift` | GET | JWT (admin) | Verify JWT + staff check | **SHIPPED** (verified 2026-05-11); consider bridge-side validation since mo-kit feeds member-supplied data |
 | mo-admin | `/settings` | GET | None (public read) | OK; theme treats output as cosmetic-only | OK |
 | mo-admin | `/slide-ins` | GET | None (public read) | OK; theme scheme-validates `button_url`/`image` (A3) | OK |

@@ -9831,6 +9831,115 @@ label.site-form-field-check {
   .podcast-about p { font-size: 16px; }
 }
 
+/* ── Daily Liturgy product page ──────────────────────────────────────
+   Co-equal "two paths" band (newsletter + podcast) between the hero and
+   the episode feed. Scoped under .daily-liturgy-page so nothing leaks to
+   the other show pages. Reuses brand tokens; no cards (hairline rule
+   between the two columns, matching the site's "no cards" rule). */
+.dl-paths {
+  padding: 72px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.dl-paths-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: start;
+}
+/* Hairline divider between the two equal columns. */
+.dl-paths-grid .dl-path--read {
+  padding-right: 56px;
+  border-right: 1px solid var(--color-rule);
+}
+.dl-path .section-heading { margin-top: 4px; }
+.dl-path-lede {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  max-width: 46ch;
+  margin: 14px 0 26px;
+}
+/* Newsletter signup form */
+.dl-signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 420px;
+}
+.dl-field { display: block; }
+.dl-field-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 6px;
+}
+.dl-signup-form input[type="email"] {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 17px;
+  padding: 13px 16px;
+  color: var(--color-dark);
+  background: #fff;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+}
+.dl-signup-form input[type="email"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.18);
+}
+.dl-signup-form .site-form-submit { align-self: flex-start; }
+.dl-turnstile:empty { margin: 0; }
+.dl-form-status {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 0;
+  min-height: 1.2em;
+}
+.dl-form-status.is-error { color: var(--color-secondary); }
+.dl-form-fine {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 14px 0 0;
+}
+.dl-listen-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+/* Success block (form is replaced by .site-form-success on submit) */
+.dl-path .site-form-success { max-width: 420px; }
+/* Receives programmatic focus on submit (tabindex=-1); suppress the
+   stray outline since it's not a user-tabbable control. */
+.site-form-success:focus { outline: none; }
+
+@media (max-width: 880px) {
+  .dl-paths { padding: 48px 0; }
+  .dl-paths-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .dl-paths-grid .dl-path--read {
+    padding-right: 0;
+    padding-bottom: 40px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-rule);
+  }
+}
+@media (max-width: 640px) {
+  .dl-path-lede { font-size: 16px; }
+  .dl-signup-form .site-form-submit { align-self: stretch; }
+  .dl-listen-ctas .btn { flex: 1 1 auto; text-align: center; }
+}
+
 /* Most-Listened sidebar block: lives inside the .podcast-hosts
    aside, below the host portraits. Editorial treatment — Roman
    numerals (matching the brand vocabulary used on About + Member-

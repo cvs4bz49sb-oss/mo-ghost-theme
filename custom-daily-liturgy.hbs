@@ -1,25 +1,67 @@
 {{!< default}}
-{{!-- /podcasts/daily-liturgy/ — routed via routes.yaml.
-     Modeled on custom-mere-fidelity.hbs / custom-christians-reading-classics.hbs.
-     No transcript section: this show feeds a separate newsletter. --}}
+{{!-- /podcasts/daily-liturgy/ — routed via routes.yaml with
+     `data: page.daily-liturgy` so {{ghost_head}} derives OG title/
+     description/image from the backing Ghost Page.
 
-<main class="podcast-page">
+     Unlike Mere Fidelity / Christians Reading Classics, this is a
+     product/landing page for a daily practice offered in two formats:
+     a daily PODCAST and a daily NEWSLETTER. It markets both co-equally
+     and carries the newsletter signup (mo-kit /newsletter-subscribe →
+     Kit double opt-in + Newsletter:daily-liturgy tag, plus a Ghost free
+     member). No transcript section (separate newsletter). --}}
+
+<main class="podcast-page daily-liturgy-page">
 
   <section class="hero podcast-hero">
     <div class="container">
       <div class="podcast-hero-grid">
         <div class="podcast-hero-content">
-          <p class="hero-kicker"><span class="dot"></span> Podcast</p>
-          <h1 class="podcast-hero-headline">A daily rhythm of <span class="highlight"><em>prayer and Scripture</em></span>.</h1>
-          <p class="podcast-hero-sub"><em>The Daily Liturgy Podcast</em> gives Christians everywhere a historically informed, biblically rich daily devotional in audio format, presented in partnership with Coram Deo Church.</p>
+          <p class="hero-kicker"><span class="dot"></span> Daily devotional</p>
+          <h1 class="podcast-hero-headline">Begin each day in <span class="highlight"><em>prayer and Scripture</em></span>.</h1>
+          <p class="podcast-hero-sub"><em>The Daily Liturgy</em> is a short, historically rooted devotional for every day, offered two ways: listen to the podcast, or read it in your inbox each morning. Take it however the day allows.</p>
           <div class="podcast-hero-ctas">
-            <a href="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357" class="btn btn-primary btn-lg" target="_blank" rel="noopener">Apple Podcasts</a>
-            <a href="https://open.spotify.com/show/5QgbJ8qxN4W7ftSn7dyK6u" class="btn btn-ghost btn-lg" target="_blank" rel="noopener">Spotify</a>
+            <a href="#read" class="btn btn-primary btn-lg">Read daily</a>
+            <a href="#listen" class="btn btn-ghost btn-lg">Listen daily</a>
           </div>
         </div>
         <div class="podcast-hero-art" aria-hidden="true">
-          <img src="{{asset "images/daily-liturgy.jpg"}}" alt="The Daily Liturgy Podcast" />
+          <img src="{{asset "images/daily-liturgy.jpg"}}" alt="The Daily Liturgy, a daily devotional from Mere Orthodoxy" width="440" height="440" fetchpriority="high" />
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dl-paths">
+    <div class="container">
+      <div class="dl-paths-grid">
+
+        <div class="dl-path dl-path--read" id="read">
+          <p class="eyebrow">Read daily</p>
+          <h2 class="section-heading"><em>The newsletter.</em></h2>
+          <p class="dl-path-lede">A short devotional in your inbox every morning: a call to worship, confession, Scripture, and benediction. Read it in two minutes before the day takes over.</p>
+          <form class="dl-signup-form" data-site-form="newsletter" data-worker-url="{{@custom.kit_worker_url}}">
+            <label class="dl-field">
+              <span class="dl-field-label">Email address</span>
+              <input type="email" name="email" required placeholder="you@example.com" autocomplete="email" inputmode="email" />
+            </label>
+            <div class="dl-turnstile" data-turnstile-wrap></div>
+            <button type="submit" class="btn btn-primary btn-lg site-form-submit">Subscribe</button>
+            <p class="dl-form-status" data-form-status role="status" aria-live="polite"></p>
+          </form>
+          <p class="dl-form-fine">Free. One short email each morning. Unsubscribe anytime.</p>
+        </div>
+
+        <div class="dl-path dl-path--listen" id="listen">
+          <p class="eyebrow">Listen daily</p>
+          <h2 class="section-heading"><em>The podcast.</em></h2>
+          <p class="dl-path-lede">The same devotional, read aloud. A new episode every day, wherever you keep your habit of prayer. Subscribe on your platform of choice.</p>
+          <div class="dl-listen-ctas">
+            <a href="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357" class="btn btn-primary btn-lg" target="_blank" rel="noopener">Apple Podcasts</a>
+            <a href="https://open.spotify.com/show/5QgbJ8qxN4W7ftSn7dyK6u" class="btn btn-outline btn-lg" target="_blank" rel="noopener">Spotify</a>
+          </div>
+          <p class="dl-form-fine">A new episode every morning.</p>
+        </div>
+
       </div>
     </div>
   </section>
@@ -51,14 +93,6 @@
             <p>Each episode walks through a short order of daily prayer drawn from the historic liturgies of the church: a call to worship, confession, Scripture, and benediction. It is a simple way to begin or close the day in the presence of God.</p>
             <p>The Daily Liturgy Podcast is produced by Coram Deo Church and Mere&nbsp;Orthodoxy.</p>
           </div>
-
-          <section class="podcast-most-listened" data-most-listened data-show="daily-liturgy" hidden>
-            <div class="section-intro section-intro-left">
-              <p class="eyebrow">Most Listened</p>
-              <h2 class="section-heading"><em>Listener favorites.</em></h2>
-            </div>
-            <ol class="podcast-most-listened-list" data-most-listened-list></ol>
-          </section>
         </aside>
 
       </div>
@@ -68,6 +102,7 @@
 </main>
 
 <script src="{{asset "js/podcast-feed.js"}}"></script>
+<script src="{{asset "js/site-forms.js"}}"></script>
 {{#if @custom.membership_api_base}}
     <script src="{{asset "js/institution-push.js"}}"></script>
 {{/if}}
