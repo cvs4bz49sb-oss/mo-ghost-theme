@@ -159,6 +159,14 @@
     // Form location, e.g. "home", "article-inline", "footer".
     const source = root.getAttribute("data-source");
     if (source) out.push(`source:${source}`);
+    // Explicit newsletter opt-in for this form, e.g.
+    // data-newsletter="weekly-digest" → "Newsletter:weekly-digest" label.
+    // This makes the weekly digest an explicit opt-in that's independent of
+    // the Daily Liturgy signup: mo-kit reads this label so a member who took
+    // Daily Liturgy (held out of the digest by default) can still be on the
+    // digest too, and neither signup auto-subscribes to the other.
+    const newsletter = root.getAttribute("data-newsletter");
+    if (newsletter) out.push(`Newsletter:${newsletter}`);
     // Article topic(s): read the article's visible topic links if
     // present. Any tag outside TOPIC_TAGS is skipped to keep Ghost
     // labels/Kit tags bounded.
