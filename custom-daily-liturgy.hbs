@@ -1,0 +1,73 @@
+{{!< default}}
+{{!-- /podcasts/daily-liturgy/ — routed via routes.yaml.
+     Modeled on custom-mere-fidelity.hbs / custom-christians-reading-classics.hbs.
+     No transcript section: this show feeds a separate newsletter. --}}
+
+<main class="podcast-page">
+
+  <section class="hero podcast-hero">
+    <div class="container">
+      <div class="podcast-hero-grid">
+        <div class="podcast-hero-content">
+          <p class="hero-kicker"><span class="dot"></span> Podcast</p>
+          <h1 class="podcast-hero-headline">A daily rhythm of <span class="highlight"><em>prayer and Scripture</em></span>.</h1>
+          <p class="podcast-hero-sub"><em>The Daily Liturgy Podcast</em> gives Christians everywhere a historically informed, biblically rich daily devotional in audio format, presented in partnership with Coram Deo Church.</p>
+          <div class="podcast-hero-ctas">
+            <a href="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357" class="btn btn-primary btn-lg" target="_blank" rel="noopener">Apple Podcasts</a>
+            <a href="https://open.spotify.com/show/5QgbJ8qxN4W7ftSn7dyK6u" class="btn btn-ghost btn-lg" target="_blank" rel="noopener">Spotify</a>
+          </div>
+        </div>
+        <div class="podcast-hero-art" aria-hidden="true">
+          <img src="{{asset "images/daily-liturgy.jpg"}}" alt="The Daily Liturgy Podcast" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="podcast-body">
+    <div class="container">
+      <div class="podcast-grid">
+
+        <div class="podcast-episodes">
+          <div class="section-intro section-intro-left">
+            <p class="eyebrow">Latest Episodes</p>
+            <h2 class="section-heading"><em>Listen now.</em></h2>
+          </div>
+          <div class="listen-grid podcast-episode-list"
+               data-show="daily-liturgy"
+               data-show-limit="8"
+               data-dlp-apple="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357"
+               data-dlp-spotify="https://open.spotify.com/show/5QgbJ8qxN4W7ftSn7dyK6u">
+            <p class="podcast-episodes-loading">Loading episodes&hellip;</p>
+          </div>
+        </div>
+
+        <aside class="podcast-hosts">
+          <div class="section-intro section-intro-left">
+            <p class="eyebrow">About the Show</p>
+            <h2 class="section-heading"><em>A devotional for every day.</em></h2>
+          </div>
+          <div class="podcast-about">
+            <p>Each episode walks through a short order of daily prayer drawn from the historic liturgies of the church: a call to worship, confession, Scripture, and benediction. It is a simple way to begin or close the day in the presence of God.</p>
+            <p>The Daily Liturgy Podcast is produced by Coram Deo Church and carried on the Mere Orthodoxy Podcast Network.</p>
+          </div>
+
+          <section class="podcast-most-listened" data-most-listened data-show="daily-liturgy" hidden>
+            <div class="section-intro section-intro-left">
+              <p class="eyebrow">Most Listened</p>
+              <h2 class="section-heading"><em>Listener favorites.</em></h2>
+            </div>
+            <ol class="podcast-most-listened-list" data-most-listened-list></ol>
+          </section>
+        </aside>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/podcast-feed.js"}}"></script>
+{{#if @custom.membership_api_base}}
+    <script src="{{asset "js/institution-push.js"}}"></script>
+{{/if}}

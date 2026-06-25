@@ -44,6 +44,10 @@
       apple: grid.getAttribute("data-crc-apple") || "",
       spotify: grid.getAttribute("data-crc-spotify") || "",
     },
+    "daily-liturgy": {
+      apple: grid.getAttribute("data-dlp-apple") || "",
+      spotify: grid.getAttribute("data-dlp-spotify") || "",
+    },
   };
 
   // Most-Listened side rail. Show page only. Lives outside the

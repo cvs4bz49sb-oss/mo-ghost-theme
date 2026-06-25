@@ -79,6 +79,8 @@ routes:
     template: custom-mere-fidelity
   /podcasts/christians-reading-classics/:
     template: custom-christians-reading-classics
+  /podcasts/daily-liturgy/:
+    template: custom-daily-liturgy
   /admin/:
     template: custom-admin
   /admin/members/:
