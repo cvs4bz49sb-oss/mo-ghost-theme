@@ -448,14 +448,22 @@
           guests: { eye: "Browse by Guest", head: "Start with a voice." },
         };
 
+        // Toggle which panel shows. Uses explicit `display` rather than the
+        // `hidden` attribute: .podcast-episode-list sets `display:flex` in
+        // the stylesheet, and an author `display` overrides `[hidden]`, so
+        // grid.hidden=true would NOT actually hide the episode list.
+        function showGrid(on) {
+          grid.style.display = on ? "" : "none";
+          catview.style.display = on ? "none" : "block";
+        }
+
         function setLens(next) {
           lensEl.querySelectorAll("button").forEach((b) =>
             b.setAttribute("aria-pressed", String(b.getAttribute("data-lens") === next)));
           if (eyebrow) eyebrow.textContent = COPY[next].eye;
           if (heading) heading.innerHTML = `<em>${escapeHtml(COPY[next].head)}</em>`;
           if (next === "latest") {
-            catview.hidden = true;
-            grid.hidden = false;
+            showGrid(true);
             renderLatest();
           } else {
             renderCats(next);
@@ -463,8 +471,7 @@
         }
 
         function renderCats(mode) {
-          grid.hidden = true;
-          catview.hidden = false;
+          showGrid(false);
           const idx = mode === "topics" ? topicIndex : guestIndex;
           const kind = mode === "topics" ? "Topic" : "Guest";
           const keys = Object.keys(idx).sort((a, b) => idx[b].length - idx[a].length || a.localeCompare(b));
@@ -488,8 +495,7 @@
         function showCatList(mode, key) {
           const idx = mode === "topics" ? topicIndex : guestIndex;
           const items = (idx[key] || []).map((i) => episodes[i]).sort((a, b) => b.ts - a.ts);
-          catview.hidden = true;
-          grid.hidden = false;
+          showGrid(true);
           if (eyebrow) eyebrow.textContent = mode === "topics" ? "Topic" : "Guest";
           if (heading) heading.innerHTML = `<em>${escapeHtml(key)}</em>`;
           grid.innerHTML =
