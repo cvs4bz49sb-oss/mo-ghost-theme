@@ -34,9 +34,7 @@ const OUT = fileURLToPath(new URL("../assets/data/podcast-wiki.json", import.met
 // Per-show config. `topicMode` selects how topics are assigned.
 const SHOWS = {
   "christians-reading-classics": { id: "2612793", topicMode: "title" },
-  // Mere Fidelity is added once the transcript pass has produced
-  // data/mere-fidelity-topics.json:
-  // "mere-fidelity": { id: "2612792", topicMode: "transcript" },
+  "mere-fidelity": { id: "2612792", topicMode: "transcript" },
 };
 
 // ─── Topic rules (title mode) ────────────────────────────────────
@@ -105,7 +103,8 @@ function topicsByTitle(slug, title) {
   return rules.filter((r) => r[1].test(hay)).map((r) => r[0]);
 }
 
-// Load a committed transcript-derived topic map: { "<episodeId>": ["Topic", …] }.
+// Load a committed transcript-derived map: { "<episodeId>": { topics: [...], guests: [...] } }.
+// Produced by the transcript classification pass (see memory/ghost-theme.md).
 async function loadTranscriptTopics(slug) {
   const path = fileURLToPath(new URL(`../data/${slug}-topics.json`, import.meta.url));
   try {
@@ -135,10 +134,17 @@ async function fetchShow(slug, cfg) {
     .sort((a, b) => Date.parse(b.published_at || 0) - Date.parse(a.published_at || 0))
     .map((ep) => {
       const { slug: epSlug, fromAudio } = slugFromAudio(ep.audio_url, ep.id, ep.title);
-      const topics =
-        cfg.topicMode === "transcript"
-          ? transcriptTopics[String(ep.id)] || []
-          : topicsByTitle(slug, ep.title || "");
+      let topics, guests;
+      if (cfg.topicMode === "transcript") {
+        const m = transcriptTopics[String(ep.id)] || {};
+        topics = Array.isArray(m.topics) ? m.topics : [];
+        // Prefer transcript-extracted guests (they catch panelists not named
+        // in the title); fall back to title parsing when none were captured.
+        guests = Array.isArray(m.guests) && m.guests.length ? m.guests : parseGuests(ep.title || "");
+      } else {
+        topics = topicsByTitle(slug, ep.title || "");
+        guests = parseGuests(ep.title || "");
+      }
       return {
         id: ep.id || null,
         title: ep.title || "",
@@ -155,7 +161,7 @@ async function fetchShow(slug, cfg) {
           : null,
         hasTranscript: fromAudio && !!ep.id,
         transcriptUrl: fromAudio && ep.id ? `/transcript/${slug}/${epSlug}/` : null,
-        guests: parseGuests(ep.title || ""),
+        guests,
         topics,
       };
     });

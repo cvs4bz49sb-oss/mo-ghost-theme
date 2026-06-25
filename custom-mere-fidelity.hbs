@@ -32,12 +32,19 @@
 
         <div class="podcast-episodes">
           <div class="section-intro section-intro-left">
-            <p class="eyebrow">Latest Episodes</p>
-            <h2 class="section-heading"><em>Listen now.</em></h2>
+            <p class="eyebrow" data-wiki-eyebrow>Latest Episodes</p>
+            <h2 class="section-heading" data-wiki-heading><em>Listen now.</em></h2>
           </div>
+          <div class="wiki-lens" role="group" aria-label="Browse episodes by" hidden>
+            <button type="button" data-lens="latest" aria-pressed="true">Latest</button>
+            <button type="button" data-lens="topics" aria-pressed="false">By Topic</button>
+            <button type="button" data-lens="guests" aria-pressed="false">By Guest</button>
+          </div>
+          <div class="wiki-catview" data-wiki-catview hidden></div>
           <div class="listen-grid podcast-episode-list"
                data-show="mere-fidelity"
                data-show-limit="8"
+               data-wiki="{{asset "data/podcast-wiki.json"}}"
                data-mf-apple="https://podcasts.apple.com/us/podcast/mere-fidelity/id885758537"
                data-mf-spotify="https://open.spotify.com/show/2MO8K1HMGp9Y0PTZ7c07Tz"
                data-crc-apple="https://podcasts.apple.com/us/podcast/christians-reading-classics/id1832749498"
