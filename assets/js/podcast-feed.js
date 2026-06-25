@@ -35,6 +35,15 @@
   let showLimit = parseInt(grid.getAttribute("data-show-limit"), 10);
   if (!showLimit || showLimit <= 0) showLimit = isShowPage ? 8 : 4;
 
+  // Wiki lens (opt-in via data-wiki="<json url>"): lets the show page
+  // browse the FULL archive by topic/guest, not just the latest N. The
+  // index is a same-origin static asset (assets/data/podcast-wiki.json),
+  // rebuilt daily by a GitHub Action — the live worker still drives the
+  // "Latest" lens, so its freshness and Most Listened are unchanged.
+  const WIKI_URL = grid.getAttribute("data-wiki") || "";
+  const wikiEnabled = !!WIKI_URL && isShowPage;
+  let liveEpisodes = []; // latest-lens episodes from the live worker
+
   const platforms = {
     "mere-fidelity": {
       apple: grid.getAttribute("data-mf-apple") || "",
@@ -103,9 +112,9 @@
         renderCoversLayout(data);
       } else if (all.length) {
         all.sort((a, b) => { return b.ts - a.ts; });
-        const top = all.slice(0, showLimit);
-        grid.innerHTML = top.map(isShowPage ? renderShowCard : renderCompactCard).join("");
-        if (isShowPage) wireAudioPlayers();
+        liveEpisodes = all;
+        renderLatest();
+        if (wikiEnabled) initWiki();
       }
 
       // Most Listened sidebar — Buzzsprout total_plays, only shown
@@ -162,6 +171,13 @@
     if (ep.showTitle) metaParts.push(`<span class="pod-meta-show">${escapeHtml(ep.showTitle)}</span>`);
     if (date) metaParts.push(`<span class="pod-meta-date">${escapeHtml(date)}</span>`);
     if (ep.episode) metaParts.push(`<span class="pod-meta-ep">Ep ${escapeHtml(String(ep.episode))}</span>`);
+    const guests = Array.isArray(ep.guests) ? ep.guests : parseGuestsFromTitle(ep.title);
+    if (guests && guests.length) {
+      const gl = wikiEnabled
+        ? guests.map((g) => `<a href="#" data-guest="${escapeAttr(g)}">${escapeHtml(g)}</a>`).join(", ")
+        : guests.map((g) => escapeHtml(g)).join(", ");
+      metaParts.push(`<span class="pod-meta-guest">with ${gl}</span>`);
+    }
     const metaHtml = metaParts.length
       ? `<p class="pod-meta">${metaParts.join('<span class="pod-meta-sep" aria-hidden="true"> · </span>')}</p>`
       : "";
@@ -371,6 +387,141 @@
     }
   }
 
+  // ─── Wiki lens (topic / guest browse over the full archive) ────
+
+  function renderLatest() {
+    const top = liveEpisodes.slice(0, showLimit);
+    grid.innerHTML = top.map(isShowPage ? renderShowCard : renderCompactCard).join("");
+    if (isShowPage) wireAudioPlayers();
+  }
+
+  // Guest(s) from a title's "… with X (& Y)". Mirrors build-podcast-wiki.mjs
+  // so live (worker) cards and static (wiki) cards label guests identically.
+  function parseGuestsFromTitle(title) {
+    const t = String(title || "");
+    if (!/\bwith\b/i.test(t)) return [];
+    let after = t.split(/\swith\s/i).slice(1).join(" with ");
+    after = after.split(/\s*[|[]/)[0];
+    return after
+      .split(/\s*(?:&|,| and )\s*/)
+      .map((s) => s.trim().replace(/\.$/, ""))
+      .filter((s) => s.length > 2);
+  }
+
+  function initWiki() {
+    const lensEl = document.querySelector(".wiki-lens");
+    const catview = document.querySelector("[data-wiki-catview]");
+    const eyebrow = document.querySelector("[data-wiki-eyebrow]");
+    const heading = document.querySelector("[data-wiki-heading]");
+    if (!lensEl || !catview) return;
+
+    fetch(WIKI_URL, { cache: "default" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const payload = data && data[showFilter];
+        if (!payload || !Array.isArray(payload.episodes) || !payload.episodes.length) return;
+
+        const showTitle = (liveEpisodes[0] && liveEpisodes[0].showTitle) || "";
+        const episodes = payload.episodes.map((ep) => ({
+          showSlug: showFilter,
+          showTitle,
+          id: ep.id || "",
+          title: ep.title || "",
+          description: ep.description || "",
+          ts: ep.pubDate ? Date.parse(ep.pubDate) : 0,
+          episode: ep.episode || "",
+          duration: ep.duration || "",
+          audioUrl: ep.audioUrl || "",
+          embedUrl: ep.embedUrl || "",
+          hasTranscript: !!ep.hasTranscript,
+          transcriptUrl: ep.transcriptUrl || "",
+          guests: Array.isArray(ep.guests) ? ep.guests : [],
+          topics: Array.isArray(ep.topics) ? ep.topics : [],
+        }));
+
+        const topicIndex = buildWikiIndex(episodes, "topics");
+        const guestIndex = buildWikiIndex(episodes, "guests");
+
+        const COPY = {
+          latest: { eye: "Latest Episodes", head: "Listen now." },
+          topics: { eye: "Browse by Topic", head: "Start with an idea." },
+          guests: { eye: "Browse by Guest", head: "Start with a voice." },
+        };
+
+        function setLens(next) {
+          lensEl.querySelectorAll("button").forEach((b) =>
+            b.setAttribute("aria-pressed", String(b.getAttribute("data-lens") === next)));
+          if (eyebrow) eyebrow.textContent = COPY[next].eye;
+          if (heading) heading.innerHTML = `<em>${escapeHtml(COPY[next].head)}</em>`;
+          if (next === "latest") {
+            catview.hidden = true;
+            grid.hidden = false;
+            renderLatest();
+          } else {
+            renderCats(next);
+          }
+        }
+
+        function renderCats(mode) {
+          grid.hidden = true;
+          catview.hidden = false;
+          const idx = mode === "topics" ? topicIndex : guestIndex;
+          const kind = mode === "topics" ? "Topic" : "Guest";
+          const keys = Object.keys(idx).sort((a, b) => idx[b].length - idx[a].length || a.localeCompare(b));
+          const cards = keys.map((k) => {
+            const items = idx[k];
+            const sample = items.slice(0, 3).map((i) => escapeHtml(cleanWikiTitle(episodes[i].title))).join(" &middot; ");
+            return (
+              `<button class="wiki-cat" type="button" data-key="${escapeAttr(k)}" data-mode="${mode}">` +
+                `<span class="wiki-cat-kind">${kind}</span>` +
+                `<span class="wiki-cat-name">${escapeHtml(k)}</span>` +
+                `<span class="wiki-cat-count">${items.length} episode${items.length > 1 ? "s" : ""}</span>` +
+                `<span class="wiki-cat-sample">${sample}</span>` +
+              `</button>`
+            );
+          }).join("");
+          catview.innerHTML = `<div class="wiki-cats">${cards}</div>`;
+          catview.querySelectorAll(".wiki-cat").forEach((c) =>
+            c.addEventListener("click", () => showCatList(c.getAttribute("data-mode"), c.getAttribute("data-key"))));
+        }
+
+        function showCatList(mode, key) {
+          const idx = mode === "topics" ? topicIndex : guestIndex;
+          const items = (idx[key] || []).map((i) => episodes[i]).sort((a, b) => b.ts - a.ts);
+          catview.hidden = true;
+          grid.hidden = false;
+          if (eyebrow) eyebrow.textContent = mode === "topics" ? "Topic" : "Guest";
+          if (heading) heading.innerHTML = `<em>${escapeHtml(key)}</em>`;
+          grid.innerHTML =
+            `<button class="wiki-back" type="button" data-wiki-back>&larr; All ${mode === "topics" ? "topics" : "guests"}</button>` +
+            `<p class="wiki-listcount">${items.length} episode${items.length > 1 ? "s" : ""}</p>${ 
+            items.map(renderShowCard).join("")}`;
+          const back = grid.querySelector("[data-wiki-back]");
+          if (back) back.addEventListener("click", () => setLens(mode));
+          wireAudioPlayers();
+        }
+
+        // Expose for guest links inside cards (wired in wireAudioPlayers).
+        grid._wikiShowCatList = showCatList;
+
+        lensEl.querySelectorAll("button").forEach((b) =>
+          b.addEventListener("click", () => setLens(b.getAttribute("data-lens"))));
+        lensEl.hidden = false;
+      })
+      .catch(() => { /* wiki stays hidden; Latest lens already rendered */ });
+  }
+
+  function buildWikiIndex(episodes, key) {
+    const idx = {};
+    episodes.forEach((ep, i) => (ep[key] || []).forEach((v) => { (idx[v] = idx[v] || []).push(i); }));
+    return idx;
+  }
+
+  // Drop trailing series tags ("… | America 250", "[FULL EPISODE]") for display.
+  function cleanWikiTitle(t) {
+    return String(t || "").replace(/\s*[|[].*$/, "").trim();
+  }
+
   // ─── Custom audio player wiring ────────────────────────────────
   //
   // Each .pod-player has a data-audio-src attribute. On first play,
@@ -463,6 +614,15 @@
           speedBtn.textContent = `${speeds[speedIdx]}×`;
         });
       })(players[i]);
+    }
+
+    // Wiki: guest names in the meta row jump to that guest's episode list.
+    if (wikiEnabled && typeof grid._wikiShowCatList === "function") {
+      grid.querySelectorAll(".pod-meta-guest a[data-guest]").forEach((a) =>
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          grid._wikiShowCatList("guests", a.getAttribute("data-guest"));
+        }));
     }
   }
 

@@ -1,0 +1,52 @@
+name: Podcast Wiki
+
+# Rebuilds assets/data/podcast-wiki.json — the full per-show episode index
+# (each episode tagged with guest[s] + topic[s]) that powers the "Browse by
+# Topic / Guest" lenses on the show pages. The mo-podcast-feed Worker caps
+# live requests at 20 episodes, so the wiki reads this committed asset for
+# the WHOLE archive. A daily run means a newly published episode is
+# auto-sorted into the wiki with no manual tagging.
+#
+# Runs on a GitHub-hosted (non-Cloudflare) runner because Buzzsprout's
+# Cloudflare WAF blocks Cloudflare Workers' egress IPs but not GitHub's
+# (same reason as podcast-top-episodes.yml). The theme loads the JSON as a
+# same-origin asset, so the commit DOES need to deploy — it omits [skip ci]
+# so the Deploy Ghost Theme action picks up the refreshed data.
+#
+# Force a refresh now: gh workflow run "Podcast Wiki" --ref main
+
+on:
+  schedule:
+    - cron: "37 7 * * *"   # daily at 07:37 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: podcast-wiki
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build podcast wiki index
+        env:
+          BUZZSPROUT_API_TOKEN: ${{ secrets.BUZZSPROUT_API_TOKEN }}
+        run: node scripts/build-podcast-wiki.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "mo-bot"
+          git config user.email "bot@users.noreply.github.com"
+          if git diff --quiet -- assets/data/podcast-wiki.json; then
+            echo "No change to podcast wiki."
+          else
+            git add assets/data/podcast-wiki.json
+            git commit -m "Update podcast wiki index"
+            git push
+          fi
