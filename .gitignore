@@ -25,3 +25,5 @@ scripts/polanus-source/
 
 # PostHog wizard report (not part of the theme)
 posthog-setup-report.md
+
+assets/js/.wrangler/
