@@ -8116,7 +8116,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   height: 2px;
   background: var(--color-primary);
 }
-.home-upgrade-btn { align-self: flex-start; }
+.home-upgrade-btn { margin-top: 24px; }
 
 /* Tablet/mobile: the parent .digest-cta switches to text-align: center
    at ≤1024px, which cascades into the upgrade list. Each <li> uses an
