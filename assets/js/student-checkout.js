@@ -35,7 +35,7 @@
   };
 
   // Mirror of the server's EDU_EMAIL_RE in workers/membership/lib/student.js.
-  const EDU_EMAIL_RE = /^[^\s@]+@[^\s@]+\.edu$/i;
+  const EDU_EMAIL_RE = /^[^\s@]+@[^\s@]+\.(edu|ac\.[a-z]{2,3}|edu\.[a-z]{2,3})$/i;
   const isPrint = () => {
     const c = form.querySelector('input[name="student-variant"]:checked');
     return !!c && c.value === 'print';
@@ -98,7 +98,7 @@
     }
 
     if (!EDU_EMAIL_RE.test(email)) {
-      fail('Enter your school email address ending in .edu.');
+      fail('Enter your school email (e.g. .edu, .ac.uk, .edu.au).');
       return;
     }
     if (!apiBase) { fail('Signup is unavailable right now. Please try again later.'); return; }
