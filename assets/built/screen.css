@@ -21263,3 +21263,46 @@ body:has(.au-modal-overlay) {
 @media (max-width: 640px) {
   .wiki-cats { grid-template-columns: 1fr; }
 }
+
+/* ─── Episode cards (experiment 2026-06-25) ─────────────────────────
+   Re-skins the show-page episode list from flat hairline-separated rows
+   into card tiles matching the .wiki-cat topic/guest vocabulary: 2-up
+   grid, white plate, hairline border, radius, soft shadow. Scoped to
+   .podcast-episode-list .pod-entry--full so the homepage compact rail is
+   untouched. Self-contained + appended so it can be reverted in one diff.
+   Applies to the Latest lens AND the topic/guest drilldown lists. */
+.podcast-episode-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+/* wiki drilldown controls (Back / count) sit above the grid, full width */
+.podcast-episode-list .wiki-back,
+.podcast-episode-list .wiki-listcount { grid-column: 1 / -1; }
+.podcast-episode-list .pod-entry--full {
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  border-top: 0;            /* override the row hairline */
+  padding: 22px 22px 24px;
+  gap: 12px;
+  transition: box-shadow 0.14s ease, border-color 0.14s ease;
+}
+/* override the flat-list :first-child reset that removed top padding */
+.podcast-episode-list .pod-entry--full:first-child { padding-top: 22px; }
+.podcast-episode-list .pod-entry--full:hover {
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-rule);
+}
+/* keep card heights even-ish */
+.podcast-episode-list .pod-entry--full .pod-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .podcast-episode-list { grid-template-columns: 1fr; }
+}
