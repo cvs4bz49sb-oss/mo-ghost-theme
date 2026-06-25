@@ -20,6 +20,18 @@
             {{> "admin-members-subnav" active="students"}}
           </aside>
           <div class="admin-members-main">
+            {{!-- Pending-student rescue: students who filled the form but
+                 haven't paid (often the confirmation email was blocked by
+                 their school inbox). Send the payment link directly, or
+                 comp a student whose school issues no academic email.
+                 Hydrated by admin-students-actions.js. --}}
+            <div class="admin-student-actions" data-student-actions
+                 data-api-base="{{@custom.membership_api_base}}" hidden>
+              <h2 class="admin-section-heading">Pending &mdash; needs payment link</h2>
+              <p class="admin-section-sub">Filled out the form but haven't paid yet. Copy their payment link and send it from your own email, or comp a student whose school issues no academic email.</p>
+              <ul class="admin-student-pending-list" data-pending-list></ul>
+              <p class="admin-student-actions-empty" data-pending-empty hidden>No pending students right now.</p>
+            </div>
             <div class="admin-table-host"
                  data-admin-table
                  data-title="Students"
@@ -55,3 +67,4 @@
 <script src="{{asset "js/admin-auth.js"}}"></script>
 <script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-table.js"}}"></script>
+<script src="{{asset "js/admin-students-actions.js"}}"></script>
