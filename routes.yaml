@@ -81,6 +81,7 @@ routes:
     template: custom-christians-reading-classics
   /podcasts/daily-liturgy/:
     template: custom-daily-liturgy
+    data: page.daily-liturgy
   /admin/:
     template: custom-admin
   /admin/members/:

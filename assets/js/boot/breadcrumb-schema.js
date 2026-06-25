@@ -21,6 +21,7 @@
     "/offer/": [{ name: "Membership", url: "/membership/" }, { name: "Launch Offer" }],
     "/podcasts/mere-fidelity/": [{ name: "Podcasts", url: "/" }, { name: "Mere Fidelity" }],
     "/podcasts/christians-reading-classics/": [{ name: "Podcasts", url: "/" }, { name: "Christians Reading Classics" }],
+    "/podcasts/daily-liturgy/": [{ name: "Podcasts", url: "/" }, { name: "The Daily Liturgy Podcast" }],
     "/sponsorship/": [{ name: "Sponsorship" }]
   };
 

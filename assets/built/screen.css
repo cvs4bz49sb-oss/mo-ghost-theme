@@ -9811,6 +9811,26 @@ label.site-form-field-check {
 /* CRC has one host — center it rather than leaving a blank column. */
 .podcast-host-list--single { grid-template-columns: minmax(0, 200px); justify-content: center; }
 
+/* About-the-show prose block — used in place of .podcast-host-list
+   on shows with no host portraits (e.g. Daily Liturgy). Constrained
+   measure + controlled paragraph rhythm so the aside reads cleanly
+   at narrow widths instead of inheriting the browser default 1em
+   margins. */
+.podcast-about {
+  max-width: 60ch;
+}
+.podcast-about p {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0 0 18px;
+}
+.podcast-about p:last-child { margin-bottom: 0; }
+@media (max-width: 640px) {
+  .podcast-about p { font-size: 16px; }
+}
+
 /* Most-Listened sidebar block: lives inside the .podcast-hosts
    aside, below the host portraits. Editorial treatment — Roman
    numerals (matching the brand vocabulary used on About + Member-

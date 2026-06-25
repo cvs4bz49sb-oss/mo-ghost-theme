@@ -122,6 +122,19 @@
          block first paint. --}}
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
+    {{!-- Fallback social-share image. Only emitted when the current
+         context has NO feature image of its own, so a page/post with a
+         feature image still unfurls with that image (Ghost's own
+         og:image from {{ghost_head}} wins). Routes with no image (home,
+         custom routes.yaml pages without a data-bound page) fall back to
+         the house share card instead of unfurling blank.
+         See SEO-AGENT S6.2 / S6.11. Share card is 1200x630. --}}
+    {{#unless feature_image}}
+    <meta property="og:image" content="{{asset "images/mo-share-card.jpg"}}" />
+    <meta name="twitter:image" content="{{asset "images/mo-share-card.jpg"}}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    {{/unless}}
+
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
