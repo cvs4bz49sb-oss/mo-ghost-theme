@@ -93,7 +93,7 @@
     const kind = form.getAttribute("data-site-form");
     const worker = (form.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
     const status = form.querySelector("[data-form-status]");
-    const submitBtn = form.querySelector(".site-form-submit");
+    const submitBtn = form.querySelector(".site-form-submit, button[type=submit]");
 
     if (!worker) {
       setStatus(status, "The form isn't configured yet. Email us instead.", true);
@@ -141,10 +141,12 @@
       // worker subscribes to Kit (double opt-in form) + ensures a Ghost
       // free member. Only an email (and optional name) is collected.
       url = `${worker}/newsletter-subscribe`;
-      const nameEl = form.querySelector("[name=name]");
+      const firstEl = form.querySelector("[name=firstName]");
+      const lastEl = form.querySelector("[name=lastName]");
       const body = {
         email: form.querySelector("[name=email]").value,
-        name: nameEl ? nameEl.value : "",
+        firstName: firstEl ? firstEl.value : "",
+        lastName: lastEl ? lastEl.value : "",
         turnstile_token: turnstileToken,
       };
       init = {

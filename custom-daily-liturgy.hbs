@@ -39,13 +39,23 @@
           <p class="eyebrow">Read daily</p>
           <h2 class="section-heading"><em>The newsletter.</em></h2>
           <p class="dl-path-lede">A short devotional in your inbox every morning: a call to worship, confession, Scripture, and benediction. Read it in two minutes before the day takes over.</p>
-          <form class="dl-signup-form" data-site-form="newsletter" data-worker-url="{{@custom.kit_worker_url}}">
+          <form class="dl-signup-form" data-site-form="newsletter" data-worker-url="{{@custom.kit_worker_url}}" novalidate>
+            <div class="dl-field-row">
+              <label class="dl-field">
+                <span class="dl-field-label">First name</span>
+                <input type="text" name="firstName" required autocomplete="given-name" />
+              </label>
+              <label class="dl-field">
+                <span class="dl-field-label">Last name</span>
+                <input type="text" name="lastName" required autocomplete="family-name" />
+              </label>
+            </div>
             <label class="dl-field">
               <span class="dl-field-label">Email address</span>
               <input type="email" name="email" required placeholder="you@example.com" autocomplete="email" inputmode="email" />
             </label>
             <div class="dl-turnstile" data-turnstile-wrap></div>
-            <button type="submit" class="btn btn-primary btn-lg site-form-submit">Subscribe</button>
+            <button type="submit" class="btn btn-primary btn-lg">Subscribe</button>
             <p class="dl-form-status" data-form-status role="status" aria-live="polite"></p>
           </form>
           <p class="dl-form-fine">Free. One short email each morning. Unsubscribe anytime.</p>
