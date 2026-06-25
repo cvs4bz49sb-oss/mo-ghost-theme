@@ -49,52 +49,32 @@
              Hidden if the member doesn't belong to an institution. --}}
         <div data-dashboard-institutions></div>
 
-        <details class="dashboard-module" open>
-          <summary>
-            <h2 class="dashboard-module-title"><em>Bookmarks</em></h2>
-            <span class="dashboard-module-chev" aria-hidden="true"></span>
-          </summary>
-          <div class="dashboard-module-body">
-            <div class="dashboard-bookmarks"
-                 data-dashboard-bookmarks
-                 data-limit="4"
-                 data-view-all="/dashboard/bookmarks/">
-              <p class="dashboard-empty" data-bookmarks-placeholder>Loading your bookmarks&hellip;</p>
-            </div>
-          </div>
-        </details>
-
-
-        <details class="dashboard-module">
-          <summary>
-            <h2 class="dashboard-module-title"><em>Commonplace Book</em></h2>
-            <span class="dashboard-module-chev" aria-hidden="true"></span>
-          </summary>
-          <div class="dashboard-module-body">
-            <div class="dashboard-commonplace"
-                 data-dashboard-commonplace
-                 data-limit="4"
-                 data-view-all="/dashboard/commonplace/">
-              <p class="dashboard-empty" data-commonplace-placeholder>Loading your commonplace book&hellip;</p>
-            </div>
-          </div>
-        </details>
-
-
-        <details class="dashboard-module">
-          <summary>
-            <h2 class="dashboard-module-title"><em>Reading History</em></h2>
-            <span class="dashboard-module-chev" aria-hidden="true"></span>
-          </summary>
-          <div class="dashboard-module-body">
-            <div class="dashboard-history"
-                 data-dashboard-history
-                 data-limit="4"
-                 data-view-all="/dashboard/history/">
-              <p class="dashboard-empty" data-history-placeholder>Loading your reading history&hellip;</p>
-            </div>
-          </div>
-        </details>
+        {{!-- Saved-content categories as click-through cards (was: <details>
+             accordions with inline previews). Each links to its existing full
+             page (/dashboard/bookmarks|commonplace|history/), which renders the
+             same server-stored data via the same dashboard.js — so this is a
+             navigation change only; nothing about the data changes. Counts are
+             filled read-only by dashboard.js (hydrateCardCounts). --}}
+        <div class="dash-cards">
+          <a class="dash-card" href="/dashboard/bookmarks/">
+            <span class="dash-card-kind">Saved</span>
+            <h2 class="dash-card-title"><em>Bookmarks</em></h2>
+            <p class="dash-card-meta">Articles you've saved to read later.</p>
+            <span class="dash-card-foot"><span class="dash-card-count" data-card-count="bookmarks"></span><span class="dash-card-open">Open &rarr;</span></span>
+          </a>
+          <a class="dash-card" href="/dashboard/commonplace/">
+            <span class="dash-card-kind">Collected</span>
+            <h2 class="dash-card-title"><em>Commonplace Book</em></h2>
+            <p class="dash-card-meta">Passages and quotations you've kept.</p>
+            <span class="dash-card-foot"><span class="dash-card-count" data-card-count="commonplace"></span><span class="dash-card-open">Open &rarr;</span></span>
+          </a>
+          <a class="dash-card" href="/dashboard/history/">
+            <span class="dash-card-kind">Read</span>
+            <h2 class="dash-card-title"><em>Reading History</em></h2>
+            <p class="dash-card-meta">Everything you've read, most recent first.</p>
+            <span class="dash-card-foot"><span class="dash-card-count" data-card-count="history"></span><span class="dash-card-open">Open &rarr;</span></span>
+          </a>
+        </div>
 
 
         {{!-- Refer a friend. Hidden until referral.js confirms the member

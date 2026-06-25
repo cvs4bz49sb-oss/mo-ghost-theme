@@ -91,6 +91,7 @@
   hydrateCommonplace();
   hydrateHistory();
   hydrateReadingTracker();
+  hydrateCardCounts();
   hydrateInstitutions();
   hydrateRenewalBanner();
 
@@ -277,6 +278,32 @@
   }
 
   // --- Bookmarks ---------------------------------------------------------
+
+  // Hub cards: fill the read-only count on each saved-content card
+  // (Bookmarks / Commonplace / Reading History). Hub-only — no-ops on the
+  // full pages and anywhere the cards aren't present. Read-only; a failed
+  // fetch just leaves the count blank, never blocks navigation.
+  function hydrateCardCounts() {
+    const cards = document.querySelectorAll("[data-card-count]");
+    if (!cards.length || !WORKER || !EMAIL) return;
+    const CFG = {
+      bookmarks: { path: "/bookmarks", key: "bookmarks", noun: "saved" },
+      commonplace: { path: "/commonplace", key: "entries", noun: "entries" },
+      history: { path: "/history?limit=500", key: "history", noun: "essays" },
+    };
+    cards.forEach((el) => {
+      const c = CFG[el.getAttribute("data-card-count")];
+      if (!c) return;
+      moKitGet(c.path)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          const list = (data && data[c.key]) || [];
+          const n = Array.isArray(list) ? list.length : 0;
+          el.textContent = `${n} ${c.noun}`;
+        })
+        .catch(() => { /* leave the count blank */ });
+    });
+  }
 
   function hydrateBookmarks() {
     const mount = document.querySelector("[data-dashboard-bookmarks]");
