@@ -21316,7 +21316,12 @@ body:has(.au-modal-overlay) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  align-items: start;
 }
+/* A class display:flex overrides the [hidden] attribute, so spell the
+   hidden state out — the institution and referral cards default hidden
+   and are revealed by JS only when applicable. */
+.dash-card[hidden] { display: none; }
 .dash-card {
   display: flex;
   flex-direction: column;
@@ -21378,3 +21383,15 @@ body:has(.au-modal-overlay) {
 @media (max-width: 640px) {
   .dash-cards { grid-template-columns: 1fr; }
 }
+
+/* Referral "action" card — a card-styled block (not a link) carrying the
+   copy-link + stats. No hover lift (it isn't a navigation target). */
+.dash-card--action { cursor: default; }
+.dash-card--action:hover {
+  transform: none;
+  border-color: var(--color-card-border);
+  box-shadow: var(--shadow-card);
+}
+.dash-card--action .dash-card-meta { margin-bottom: 14px; }
+.dash-card--action .referral-link-row { margin: 0 0 16px; }
+.dash-card--action .referral-stats { margin-top: auto; }

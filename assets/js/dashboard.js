@@ -557,67 +557,20 @@
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         const institutions = (data && data.institutions) || [];
-        if (!institutions.length) return;
+        const withItems = institutions.filter((inst) => (inst.curated || []).length);
+        if (!withItems.length) return;
 
-        institutions.forEach((inst) => {
-          const items = inst.curated || [];
-          if (!items.length) return;
-
-          const details = document.createElement("details");
-          details.className = "dashboard-module";
-          details.setAttribute("open", "");
-
-          const summary = document.createElement("summary");
-          const title = document.createElement("h2");
-          title.className = "dashboard-module-title";
-          const em = document.createElement("em");
-          em.textContent = inst.name || "Your Institution";
-          title.appendChild(em);
-          summary.appendChild(title);
-          const chev = document.createElement("span");
-          chev.className = "dashboard-module-chev";
-          chev.setAttribute("aria-hidden", "true");
-          summary.appendChild(chev);
-          details.appendChild(summary);
-
-          const body = document.createElement("div");
-          body.className = "dashboard-module-body";
-
-          const listMount = document.createElement("div");
-          listMount.className = "dashboard-institutions";
-          listMount.setAttribute("data-limit", "4");
-          listMount.setAttribute("data-view-all", "/dashboard/institution/");
-
-          body.appendChild(listMount);
-          details.appendChild(body);
-          mount.appendChild(details);
-
-          // Convert curated items to the shape renderList expects
-          const entries = items.map((item) => ({
-            postId: item.content_id,
-            title: item.title || item.content_id,
-            slug: item.slug || "",
-            url: item.content_type === "podcast"
-              ? `/podcasts/${item.show_slug || "mere-fidelity"}/#ep-${item.content_id.replace("podcast:", "")}`
-              : `/${item.slug || ""}`,
-            feature_image: item.feature_image || null,
-            primary_tag: item.content_type === "podcast"
-              ? { name: "Podcast" }
-              : null,
-            savedAt: item.pushed_at,
-          }));
-
-          renderList(listMount, entries, "institutions", {
-            emptyMsg: "No content curated yet.",
-          });
-        });
-
-        // Flag the mount so CSS can apply spacing (the wrapper div
-        // breaks the adjacent-sibling selector that normally spaces
-        // .dashboard-module elements).
-        if (mount.children.length) {
-          mount.setAttribute("data-has-content", "");
-        }
+        // Reveal the institution card. The curated list itself lives on the
+        // full page (/dashboard/institution/) the card links to — same
+        // click-through pattern as the other saved-content cards.
+        const card = document.querySelector("[data-institution-card]");
+        if (!card) return;
+        const total = withItems.reduce((sum, inst) => sum + (inst.curated || []).length, 0);
+        const kindEl = card.querySelector("[data-institution-card-kind]");
+        if (kindEl && withItems[0].name) kindEl.textContent = withItems[0].name;
+        const countEl = card.querySelector("[data-institution-card-count]");
+        if (countEl) countEl.textContent = total + (total === 1 ? " reading" : " readings");
+        card.hidden = false;
       })
       .catch(() => {
         // Silent — institution module just doesn't show

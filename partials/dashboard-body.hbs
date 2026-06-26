@@ -74,39 +74,35 @@
             <p class="dash-card-meta">Everything you've read, most recent first.</p>
             <span class="dash-card-foot"><span class="dash-card-count" data-card-count="history"></span><span class="dash-card-open">Open &rarr;</span></span>
           </a>
-        </div>
 
+          {{!-- Institution card — revealed by dashboard.js (hydrateInstitutions)
+               only when the member belongs to an institution with curated
+               content. Click-through to the existing full page. --}}
+          <a class="dash-card" href="/dashboard/institution/" data-institution-card hidden>
+            <span class="dash-card-kind" data-institution-card-kind>Institution</span>
+            <h2 class="dash-card-title"><em>Institution Reading</em></h2>
+            <p class="dash-card-meta">Content curated by your institution.</p>
+            <span class="dash-card-foot"><span class="dash-card-count" data-institution-card-count></span><span class="dash-card-open">Open &rarr;</span></span>
+          </a>
 
-        {{!-- Refer a friend. Hidden until referral.js confirms the member
-             is paid/comped via /api/referral/me, then filled with their
-             share link and running stats. --}}
-        <details class="dashboard-module" data-mo-referral-widget hidden>
-          <summary>
-            <h2 class="dashboard-module-title"><em>Refer a Friend</em></h2>
-            <span class="dashboard-module-chev" aria-hidden="true"></span>
-          </summary>
-          <div class="dashboard-module-body">
-            <p class="referral-blurb" data-referral-blurb>Share Mere Orthodoxy with someone who would value it. When a friend becomes a paying member, you earn a reward and they get 20% off their first year.</p>
+          {{!-- Refer a Friend — an action card (no standalone page; it carries
+               the copy-link). referral.js reveals it for eligible members and
+               fills the link + stats. Same data hooks as the old widget. --}}
+          <div class="dash-card dash-card--action" data-mo-referral-widget hidden>
+            <span class="dash-card-kind">Invite</span>
+            <h2 class="dash-card-title"><em>Refer a Friend</em></h2>
+            <p class="dash-card-meta" data-referral-blurb>Share Mere Orthodoxy with someone who would value it. When a friend becomes a paying member, you earn a reward and they get 20% off their first year.</p>
             <div class="referral-link-row">
               <input type="text" class="referral-link-input" data-referral-link readonly aria-label="Your referral link" />
               <button type="button" class="btn btn-primary referral-copy-btn" data-referral-copy aria-live="polite">Copy</button>
             </div>
             <div class="referral-stats">
-              <div class="referral-stat">
-                <span class="referral-stat-num" data-referral-joined>0</span>
-                <span class="referral-stat-label">Friends joined</span>
-              </div>
-              <div class="referral-stat">
-                <span class="referral-stat-num" data-referral-reward-num>0</span>
-                <span class="referral-stat-label" data-referral-reward-label>Rewards earned</span>
-              </div>
-              <div class="referral-stat" data-referral-progress-stat hidden>
-                <span class="referral-stat-num" data-referral-progress>0 of 5</span>
-                <span class="referral-stat-label">To next reward</span>
-              </div>
+              <div class="referral-stat"><span class="referral-stat-num" data-referral-joined>0</span><span class="referral-stat-label">Friends joined</span></div>
+              <div class="referral-stat"><span class="referral-stat-num" data-referral-reward-num>0</span><span class="referral-stat-label" data-referral-reward-label>Rewards earned</span></div>
+              <div class="referral-stat" data-referral-progress-stat hidden><span class="referral-stat-num" data-referral-progress>0 of 5</span><span class="referral-stat-label">To next reward</span></div>
             </div>
           </div>
-        </details>
+        </div>
 
 
       </div>
