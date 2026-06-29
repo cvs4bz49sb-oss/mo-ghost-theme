@@ -4838,6 +4838,52 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   margin-left: 14px;
 }
 
+/* Multi-author: shrink avatars, own row */
+.meta-authors[data-byline]:has(
+  .meta-author--candidate[data-tag-slug^="author-"]
+  ~ .meta-author--candidate[data-tag-slug^="author-"]
+) {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+}
+.meta-authors[data-byline]:has(
+  .meta-author--candidate[data-tag-slug^="author-"]
+  ~ .meta-author--candidate[data-tag-slug^="author-"]
+) .meta-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 13px;
+}
+.meta-authors[data-byline]:has(
+  .meta-author--candidate[data-tag-slug^="author-"]
+  ~ .meta-author--candidate[data-tag-slug^="author-"]
+) .meta-author--candidate[data-tag-slug^="author-"] {
+  gap: 8px;
+}
+.meta-authors[data-byline]:has(
+  .meta-author--candidate[data-tag-slug^="author-"]
+  ~ .meta-author--candidate[data-tag-slug^="author-"]
+) .meta-author-name {
+  font-size: 14px;
+}
+.meta-authors[data-byline]:has(
+  .meta-author--candidate[data-tag-slug^="author-"]
+  ~ .meta-author--candidate[data-tag-slug^="author-"]
+) .meta-author-sub {
+  font-size: 10px;
+}
+.meta-authors[data-byline]:has(
+  .meta-author--candidate[data-tag-slug^="author-"]
+  ~ .meta-author--candidate[data-tag-slug^="author-"]
+) .meta-author--candidate[data-tag-slug^="author-"] + .meta-author--candidate[data-tag-slug^="author-"] {
+  border-left: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
 .entry-byline-contributors[data-byline] .entry-contributor--candidate { display: none; }
 .entry-byline-contributors[data-byline] .entry-contributor--candidate[data-tag-slug^="author-"] { display: inline; font-style: italic; }
 .entry-byline-contributors[data-byline]:has([data-tag-slug^="author-"]) + .entry-byline-fallback { display: none; }
