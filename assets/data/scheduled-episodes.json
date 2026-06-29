@@ -1,4 +1,18 @@
 {
   "mere-fidelity": null,
-  "christians-reading-classics": null
+  "christians-reading-classics": {
+    "id": 19420408,
+    "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
+    "slug": "the-declaration-of-independence-with-matthew-spalding-and-jake-meador",
+    "pubDate": "2026-07-02T07:00:00.000-04:00",
+    "episode": 22,
+    "season": 2,
+    "description": "The Declaration of Independence is only a few paragraphs long, but it tries to do something enormous: justify a political break while teaching a moral vision of human equality, liberty, and rightful government. Nadya Williams and Jake Meador sit down with Dr Matthew Spaulding of Hillsdale College, a leading scholar of the Declaration and author of The Making of the American Mind, to read the document as an American classic that still forms our public arguments and our private conscience. — Christians Reading Classics is a podcast from Mere Orthodoxy and is listener-supported. If you would like to support this work, become a Mere Orthodoxy Member today at http://mereorthodoxy.com/membership . Register for Beeson Divinity School's 2026 Preaching Conference, July 14-16 in Birmingham, Alabama:",
+    "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19420408-the-declaration-of-independence-with-matthew-spalding-and-jake-meador.mp3",
+    "link": "https://mereorthodoxy.com/podcasts/christians-reading-classics/",
+    "embedUrl": "https://www.buzzsprout.com/2612793/19420408?client_source=small_player&iframe=true",
+    "hasTranscript": true,
+    "transcriptUrl": "/transcript/christians-reading-classics/the-declaration-of-independence-with-matthew-spalding-and-jake-meador/"
+  }
 }
