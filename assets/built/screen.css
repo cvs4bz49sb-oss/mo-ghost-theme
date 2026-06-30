@@ -326,6 +326,31 @@ img { max-width: 100%; height: auto; }
 }
 .sign-in:hover { color: var(--color-dark); text-decoration: none; }
 
+.sign-out {
+  font-size: 14px;
+  color: var(--color-muted);
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  white-space: nowrap;
+}
+.sign-out:hover { color: var(--color-dark); text-decoration: none; }
+
+.mobile-nav-signout {
+  font-size: 15px;
+  color: var(--color-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  padding: 8px 0;
+  margin-top: 4px;
+}
+.mobile-nav-signout:hover { color: var(--color-dark); }
+
 /* Search trigger — magnifier icon button next to Sign in. Opens
    Ghost's built-in sodo-search modal (loaded via ghost_head).
    Keyboard "/" also opens it. */

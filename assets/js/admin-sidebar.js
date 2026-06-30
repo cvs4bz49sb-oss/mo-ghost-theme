@@ -14,6 +14,7 @@
       "/admin/members/institutions": "members",
       "/admin/members/institutions/manage": "members",
       "/admin/members/drift": "members",
+      "/admin/members/referrals": "referrals",
       "/admin/traffic": "traffic", "/admin/content": "content",
       "/admin/agenda": "agenda", "/admin/settings": "settings",
       "/admin/coverage": "coverage", "/admin/editorial": "editorial",
@@ -95,6 +96,7 @@
     "slide-ins": "slide-ins",
     engagement: "engagement",
     podcasts: "podcasts",
+    referrals: "members",
   };
 
   window.MOAuth.fetch(`${workerUrl}/my-permissions`)

@@ -98,6 +98,8 @@ routes:
     template: custom-admin-institution
   /admin/members/students/:
     template: custom-admin-students
+  /admin/members/referrals/:
+    template: custom-admin-referrals
   /admin/members/drift/:
     template: custom-admin-drift
   /admin/content/:

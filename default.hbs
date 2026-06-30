@@ -222,6 +222,7 @@
                     <button class="sign-in" data-portal="signin">Sign in</button>
                     <a href="/offer/" class="btn btn-primary">Become a Member</a>
                 {{else}}
+                    <button class="sign-out" data-portal="signout">Sign out</button>
                     <a href="/dashboard/" class="btn btn-primary btn-account">{{#if @member.name}}{{@member.name}}{{else}}Dashboard{{/if}}</a>
                 {{/unless}}
             </div>
@@ -258,6 +259,7 @@
                     <a href="/offer/" class="btn btn-primary">Become a Member</a>
                 {{else}}
                     <a href="/dashboard/" class="btn btn-primary btn-account">{{#if @member.name}}{{@member.name}}{{else}}Dashboard{{/if}}</a>
+                    <button class="mobile-nav-signout" data-portal="signout">Sign out</button>
                 {{/unless}}
             </div>
         </aside>
