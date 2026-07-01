@@ -1,0 +1,192 @@
+{{!< default}}
+{{!-- custom-kirk-offer: July 2025 book offer — Russell Kirk's
+     "On America" as a thank-you gift for major donors and new
+     Lifetime members. Temporary promotional page. --}}
+
+<main class="membership kirk-offer">
+
+  <section class="mb-hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <p class="eyebrow">July Book Offer</p>
+          <h2 class="mb-hero-headline"><em>Russell Kirk's</em> <span class="highlight">On America</span></h2>
+          <p class="mb-hero-sub">
+            This July, we are offering Russell Kirk's <em>On America</em> as our thank-you gift to those who help sustain the work of Mere Orthodoxy.
+          </p>
+          <p class="mb-hero-sub">
+            Edited by our board member James Lucchese, this collection brings together Kirk's reflections on the American order, its roots in the Western moral tradition, and the challenges of preserving a civilization worth inheriting.
+          </p>
+        </div>
+        <div class="mb-hero-image kirk-hero-image" aria-hidden="true">
+          <img src="{{asset "images/on-america-russell-kirk.JPG"}}" alt="On America by Russell Kirk" fetchpriority="high" />
+        </div>
+      </div>
+      <div class="section-intro section-intro-light mb-hero-intro">
+        <p class="eyebrow eyebrow-light">About the Book</p>
+        <h2 class="section-heading section-heading-light"><em>The American order, reconsidered.</em></h2>
+      </div>
+    </div>
+  </section>
+
+  <section class="kirk-about">
+    <div class="container">
+      <div class="kirk-about-inner">
+        <p>
+          Russell Kirk (1918-1994) was one of the foremost American men of letters of the twentieth century. A prolific author of fiction and nonfiction, Kirk is best known for <em>The Conservative Mind</em>, which helped launch the modern conservative intellectual movement. In <em>On America</em>, Kirk turns his attention to the deeper question of what America is and what sustains it: not ideology or economics, but the moral imagination, inherited institutions, and the permanent things that anchor a republic.
+        </p>
+        <p>
+          Jake Meador will also be highlighting this offer in the Editor's Mailbag, alongside our ongoing America 250 Forum.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing kirk-pricing">
+    <div class="container">
+      <div class="section-intro">
+        <p class="eyebrow">How to Receive Your Copy</p>
+        <h2 class="section-heading"><em>Three ways to give.</em></h2>
+      </div>
+
+      <div class="cards kirk-cards">
+        <article class="card card-member is-featured">
+          <span class="card-flag">One-Time Gift</span>
+          <p class="card-label"><em>Donate</em></p>
+          <div class="card-price">
+            <span class="price-amount">$500</span>
+            <span class="price-interval">+</span>
+          </div>
+          <p class="card-subtext">One-time donation</p>
+          <p class="card-pitch">A single gift of $500 or more to Mere Orthodoxy this July.</p>
+          <a
+            class="btn btn-pill btn-primary"
+            href="https://secure.anedot.com/institute-for-christianity-and-common-life/donate"
+            target="_blank"
+            rel="noopener"
+          >Make a Donation</a>
+        </article>
+
+        <article class="card">
+          <span class="card-flag">Monthly</span>
+          <p class="card-label"><em>Recurring</em></p>
+          <div class="card-price">
+            <span class="price-amount">$50</span>
+            <span class="price-interval">/mo</span>
+          </div>
+          <p class="card-subtext">New monthly recurring gift</p>
+          <p class="card-pitch">Start a new monthly recurring donation of $50 or more.</p>
+          <a
+            class="btn btn-pill btn-dark"
+            href="https://secure.anedot.com/institute-for-christianity-and-common-life/donate"
+            target="_blank"
+            rel="noopener"
+          >Start Monthly Giving</a>
+        </article>
+
+        <article class="card card-lifetime">
+          <span class="card-flag">Lifetime</span>
+          <p class="card-label"><em>Lifetime</em></p>
+          <div class="card-price">
+            <span class="price-amount">$995</span>
+          </div>
+          <p class="card-subtext">One-time payment</p>
+          <p class="card-pitch">Become a Lifetime Member and receive the book along with all membership benefits, permanently.</p>
+          <button
+            type="button"
+            class="btn btn-pill btn-dark"
+            data-lifetime-checkout
+            data-member-email="{{#if @member}}{{@member.email}}{{/if}}"
+            data-member-name="{{#if @member}}{{@member.name}}{{/if}}"
+          >
+            <span class="btn-label">Become a Lifetime Member</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="btn-tagline">One-time. No renewal.</p>
+          <p class="btn-error" data-lifetime-error role="alert"></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="kirk-note">
+    <div class="container">
+      <div class="kirk-note-inner">
+        <p class="eyebrow">A Note</p>
+        <p>
+          After donating or joining as a Lifetime Member, we will follow up with you to arrange shipment of your copy of <em>On America</em>. This offer is available through the month of July.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .kirk-hero-image img {
+      border-radius: 6px;
+      box-shadow: 0 12px 40px -8px rgba(0,0,0,0.25);
+      max-width: 320px;
+    }
+    .kirk-about {
+      padding: 60px 0;
+      background: var(--color-background);
+    }
+    .kirk-about-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--color-dark);
+    }
+    .kirk-about-inner p {
+      margin: 0 0 20px;
+    }
+    .kirk-about-inner em {
+      font-style: italic;
+    }
+    .kirk-pricing {
+      padding-bottom: 60px;
+    }
+    .kirk-pricing .section-intro {
+      margin-bottom: 48px;
+    }
+    .kirk-cards {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .kirk-note {
+      padding: 48px 0 80px;
+      background: var(--color-background);
+    }
+    .kirk-note-inner {
+      max-width: 540px;
+      margin: 0 auto;
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--color-muted);
+    }
+    .kirk-note-inner .eyebrow {
+      margin-bottom: 12px;
+    }
+    .kirk-note-inner em {
+      font-style: italic;
+    }
+
+    @media (max-width: 1024px) {
+      .kirk-cards {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+        margin: 0 auto;
+      }
+    }
+    @media (max-width: 640px) {
+      .kirk-hero-image img {
+        max-width: 260px;
+      }
+    }
+  </style>
+
+  <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
+  <script src="{{asset "js/lifetime-checkout.js"}}"></script>
+</main>

@@ -11,6 +11,8 @@ routes:
     template: custom-membership
   /offer/:
     template: custom-offer
+  /kirk-offer/:
+    template: custom-kirk-offer
   /contributors/:
     template: custom-contributors
   /contributors/all/:

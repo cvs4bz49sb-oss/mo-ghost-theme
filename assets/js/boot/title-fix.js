@@ -33,7 +33,8 @@
     "/books/": "Bookstore",
     "/admin/engagement/": "Admin — Engagement",
     "/admin/podcasts/": "Admin — Podcasts",
-    "/sponsorship/": "Sponsorship Opportunities"
+    "/sponsorship/": "Sponsorship Opportunities",
+    "/kirk-offer/": "July Book Offer — Russell Kirk's On America"
   };
 
   const path = window.location.pathname;
