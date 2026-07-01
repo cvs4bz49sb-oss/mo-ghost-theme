@@ -292,7 +292,7 @@ const KIT_TAGS = [
 //   1. BUILTIN_SPONSORS — shipped in code, always available on any device.
 //   2. localStorage 'mo:sponsorLibrary' — blocks the user saves themselves.
 // A sponsor block is exactly the six fields a slot renders.
-const SPONSOR_FIELDS = ['name', 'label', 'headline', 'body', 'cta', 'href'];
+const SPONSOR_FIELDS = ['name', 'label', 'image', 'headline', 'body', 'cta', 'href'];
 
 const BUILTIN_SPONSORS = [
   {
@@ -1690,6 +1690,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 <Field label="Section label" value={content[key]?.label} onChange={(v) => updateField(`${key}.label`, v)} />
                 <Field label="Sponsor name" value={content[key]?.name} onChange={(v) => updateField(`${key}.name`, v)} />
               </div>
+              <ImageUrlField value={content[key]?.image} onChange={(v) => updateField(`${key}.image`, v)} />
               <Field label="Headline" value={content[key]?.headline} onChange={(v) => updateField(`${key}.headline`, v)} />
               <Field label="Body" value={content[key]?.body} multiline rows={3} onChange={(v) => updateField(`${key}.body`, v)} />
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>

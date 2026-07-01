@@ -330,6 +330,7 @@ const DEFAULT_CONTENT = {
   sponsorTop: {
     label: 'Ministry Partner',
     name: 'Crossway Books',
+    image: '',
     headline: 'Book of the Month',
     body: "Crossway's Book of the Month is From Dust To Dust by Jen Wilkin.",
     cta: 'Get The Book →',
@@ -338,6 +339,7 @@ const DEFAULT_CONTENT = {
   sponsorBottom: {
     label: 'Ministry Partner',
     name: 'Beeson Divinity School',
+    image: '',
     headline: 'Start Your M.Div With A Scholarship',
     body: 'Start your M.Div this Fall at Beeson Divinity School.',
     cta: 'Start Your Application →',
@@ -672,6 +674,16 @@ function SponsorBlock({ tokens, content }) {
           }}>
             {content.name}
           </div>
+          {content.image && (
+            <img src={content.image} alt="" style={{
+              display: 'block',
+              width: '100%',
+              maxWidth: 380,
+              height: 'auto',
+              margin: '0 auto 14px',
+              borderRadius: 4,
+            }} />
+          )}
           <div
             style={{
               fontFamily: '"IM Fell English", Georgia, serif',

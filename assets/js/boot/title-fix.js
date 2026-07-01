@@ -31,7 +31,6 @@
     "/manage/": "Manage Membership",
     "/success/": "Welcome",
     "/books/": "Bookstore",
-    "/offer/": "Launch Offer — 20% Off Membership",
     "/admin/engagement/": "Admin — Engagement",
     "/admin/podcasts/": "Admin — Podcasts",
     "/sponsorship/": "Sponsorship Opportunities"

@@ -263,6 +263,7 @@
     sponsorTop: {
       label: "Ministry Partner",
       name: "Crossway Books",
+      image: "",
       headline: "Book of the Month",
       body: "Crossway's Book of the Month is From Dust To Dust by Jen Wilkin.",
       cta: "Get The Book \u2192",
@@ -271,6 +272,7 @@
     sponsorBottom: {
       label: "Ministry Partner",
       name: "Beeson Divinity School",
+      image: "",
       headline: "Start Your M.Div With A Scholarship",
       body: "Start your M.Div this Fall at Beeson Divinity School.",
       cta: "Start Your Application \u2192",
@@ -487,7 +489,14 @@
       letterSpacing: "0.18em",
       textTransform: "uppercase",
       marginBottom: 10
-    } }, content.name), /* @__PURE__ */ React.createElement(
+    } }, content.name), content.image && /* @__PURE__ */ React.createElement("img", { src: content.image, alt: "", style: {
+      display: "block",
+      width: "100%",
+      maxWidth: 380,
+      height: "auto",
+      margin: "0 auto 14px",
+      borderRadius: 4
+    } }), /* @__PURE__ */ React.createElement(
       "div",
       {
         style: {
