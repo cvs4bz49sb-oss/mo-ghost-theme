@@ -20,6 +20,37 @@
             {{> "admin-members-subnav" active="influencers"}}
           </aside>
           <div class="admin-members-main">
+
+            <div class="admin-influencer-add" data-influencer-form
+                 data-api-base="{{@custom.admin_worker_url}}">
+              <button type="button" class="btn btn-primary btn-sm" data-toggle-form>+ Add Influencer</button>
+              <form data-form hidden>
+                <div class="admin-influencer-fields">
+                  <label>
+                    <span>Name</span>
+                    <input type="text" name="name" placeholder="Walter Shaw" />
+                  </label>
+                  <label>
+                    <span>Email <em>(required)</em></span>
+                    <input type="email" name="email" required placeholder="name@example.com" />
+                  </label>
+                  <label>
+                    <span>Tier</span>
+                    <select name="tier">
+                      <option value="print">Print + Digital</option>
+                      <option value="digital">Digital Only</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Shipping Address</span>
+                    <input type="text" name="address" placeholder="120 Ulmer Ave, Oreland PA 19075" />
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm" data-submit>Add Influencer</button>
+              </form>
+              <p class="admin-influencer-feedback" data-feedback hidden></p>
+            </div>
+
             <div class="admin-table-host"
                  data-admin-table
                  data-title="Influencers"
@@ -52,6 +83,66 @@
   {{/if}}
 </main>
 
+<style>
+  .admin-influencer-add {
+    margin-bottom: 32px;
+  }
+  .admin-influencer-add [data-form] {
+    margin-top: 16px;
+    padding: 20px;
+    background: var(--color-background, #faf9f7);
+    border: 1px solid var(--color-border, #e5e2dc);
+    border-radius: 8px;
+  }
+  .admin-influencer-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .admin-influencer-fields label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    font-family: var(--font-body);
+    color: var(--color-dark);
+  }
+  .admin-influencer-fields label span {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+    color: var(--color-muted);
+  }
+  .admin-influencer-fields label em {
+    font-style: normal;
+    color: var(--color-accent, #b86740);
+  }
+  .admin-influencer-fields input,
+  .admin-influencer-fields select {
+    padding: 8px 10px;
+    border: 1px solid var(--color-border, #e5e2dc);
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: var(--font-body);
+    background: #fff;
+  }
+  .admin-influencer-feedback {
+    margin-top: 12px;
+    font-size: 13px;
+    font-family: var(--font-body);
+  }
+  .admin-influencer-feedback.is-ok { color: #2a7d4f; }
+  .admin-influencer-feedback.is-error { color: #c0392b; }
+  @media (max-width: 640px) {
+    .admin-influencer-fields {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
 <script src="{{asset "js/admin-auth.js"}}"></script>
 <script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-table.js"}}"></script>
+<script src="{{asset "js/admin-influencer-form.js"}}"></script>
