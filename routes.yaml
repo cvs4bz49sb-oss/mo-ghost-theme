@@ -13,6 +13,7 @@ routes:
     template: custom-offer
   /kirk-offer/:
     template: custom-kirk-offer
+    data: page.kirk-offer
   /contributors/:
     template: custom-contributors
   /contributors/all/:
