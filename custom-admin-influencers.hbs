@@ -1,0 +1,57 @@
+{{!< default}}
+{{!-- /admin/members/influencers/ — comped influencer memberships.
+     Data comes from Ghost Admin API (label:source:influencer) via
+     GET /members/influencers on mo-admin; the generic admin-table.js
+     hydrates the table and wires the CSV download. --}}
+
+<main class="admin-page admin-workspace">
+  {{#if @member}}
+    {{> "admin-sidebar" active="members"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Influencers</em></h1>
+        <p class="admin-topbar-sub">Comped memberships for social media creators who post about the print journal.</p>
+      </header>
+
+    <section class="admin-body">
+      <div class="container">
+        <div class="admin-members-layout">
+          <aside class="admin-members-sidebar">
+            {{> "admin-members-subnav" active="influencers"}}
+          </aside>
+          <div class="admin-members-main">
+            <div class="admin-table-host"
+                 data-admin-table
+                 data-title="Influencers"
+                 data-endpoint="/members/influencers"
+                 data-collection="influencers"
+                 data-api-base="{{@custom.membership_api_base}}"
+                 data-member-email="{{@member.email}}"
+                 data-columns="name,email,status,tier,address,created_at"
+                 data-column-labels="Name,Email,Status,Tier,Address,Added">
+              <div class="admin-table-toolbar">
+                <p class="admin-table-count" data-count-label>Loading&hellip;</p>
+                <a href="#" class="btn btn-primary btn-sm" data-download-csv hidden>Download CSV</a>
+              </div>
+              <p class="admin-table-status" data-status></p>
+              <div class="admin-table-wrap">
+                <table class="admin-table" data-table hidden>
+                  <thead><tr data-thead></tr></thead>
+                  <tbody data-tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    </div>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-table.js"}}"></script>

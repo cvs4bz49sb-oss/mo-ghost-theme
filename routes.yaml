@@ -13,7 +13,6 @@ routes:
     template: custom-offer
   /kirk-offer/:
     template: custom-kirk-offer
-    data: page.kirk-offer
   /contributors/:
     template: custom-contributors
   /contributors/all/:
@@ -103,6 +102,8 @@ routes:
     template: custom-admin-students
   /admin/members/referrals/:
     template: custom-admin-referrals
+  /admin/members/influencers/:
+    template: custom-admin-influencers
   /admin/members/drift/:
     template: custom-admin-drift
   /admin/content/:
