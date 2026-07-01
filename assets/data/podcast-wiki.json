@@ -1,6 +1,6 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-06-30T10:43:53.008Z",
+    "updated": "2026-07-01T10:55:34.835Z",
     "episodes": [
       {
         "id": 19397594,
@@ -869,8 +869,25 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-06-30T10:43:56.867Z",
+    "updated": "2026-07-01T10:55:38.815Z",
     "episodes": [
+      {
+        "id": 19425853,
+        "title": "How to Read Outside Your Tradition",
+        "slug": "how-to-read-outside-your-tradition",
+        "pubDate": "2026-07-01T06:00:00.000-04:00",
+        "episode": 22,
+        "season": 3,
+        "duration": 2753,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19425853-how-to-read-outside-your-tradition.mp3",
+        "description": "If you only read what you know you'll agree with, how will you learn? But if you read something from another theological tradition, do you risk weakening your faith? In this episode, James Wood and Joseph Minich explore the importance of reading widely across Christian traditions, the role of ecumenism, and how to deepen your understanding within one's own tradition while remaining open to others.",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19425853?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/how-to-read-outside-your-tradition/",
+        "guests": [],
+        "topics": []
+      },
       {
         "id": 19385140,
         "title": "How Theology Nerds Are Made",
