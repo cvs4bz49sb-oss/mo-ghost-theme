@@ -1,7 +1,27 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-07-02T10:19:11.547Z",
+    "updated": "2026-07-03T10:15:10.525Z",
     "episodes": [
+      {
+        "id": 19420408,
+        "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
+        "slug": "the-declaration-of-independence-with-matthew-spalding-and-jake-meador",
+        "pubDate": "2026-07-02T07:00:00.000-04:00",
+        "episode": 22,
+        "season": 2,
+        "duration": 3946,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19420408-the-declaration-of-independence-with-matthew-spalding-and-jake-meador.mp3",
+        "description": "The Declaration of Independence is only a few paragraphs long, but it tries to do something enormous: justify a political break while teaching a moral vision of human equality, liberty, and rightful government. Nadya Williams and Jake Meador sit down with Dr Matthew Spaulding of Hillsdale College, a leading scholar of the Declaration and author of The Making of the American Mind, to read the docum",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19420408?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/the-declaration-of-independence-with-matthew-spalding-and-jake-meador/",
+        "guests": [
+          "Matthew Spalding",
+          "Jake Meador"
+        ],
+        "topics": []
+      },
       {
         "id": 19397594,
         "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
@@ -869,7 +889,7 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-07-02T10:19:15.743Z",
+    "updated": "2026-07-03T10:15:14.542Z",
     "episodes": [
       {
         "id": 19425853,
