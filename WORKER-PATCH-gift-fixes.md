@@ -211,6 +211,61 @@ This runs the cron daily at noon UTC, which picks up any gifts whose
 
 ---
 
+## 5. Enrich gift status with Ghost activation data
+
+The theme now displays `provisioned` as "Sent" and `activated` as
+"Activated". To populate the `activated` status, update `handleAdminGifts`
+to cross-reference Ghost members:
+
+**Replace** the `handleAdminGifts` function:
+
+```js
+async function handleAdminGifts(request, env, ctx) {
+  const err = await assertAdmin(request, env);
+  if (err) return err;
+  const url = new URL(request.url);
+  const showAll = url.searchParams.get("status") === "all";
+  const rows = await env.DB.prepare(
+    showAll
+      ? `SELECT id, tier, purchaser_name, purchaser_email, recipient_name, recipient_email,
+              status, comp_until, provisioned_at, created_at
+         FROM gift_memberships ORDER BY created_at DESC`
+      : `SELECT id, tier, purchaser_name, purchaser_email, recipient_name, recipient_email,
+              status, comp_until, provisioned_at, created_at
+         FROM gift_memberships WHERE status IN ('provisioned', 'scheduled')
+         ORDER BY created_at DESC`
+  ).all();
+  const results = rows.results || [];
+
+  // Enrich provisioned gifts with Ghost member last_seen_at
+  const ghost = new GhostClient(env);
+  for (const row of results) {
+    if (row.status !== 'provisioned') continue;
+    try {
+      const member = await ghost.findByEmail(row.recipient_email);
+      if (member && member.last_seen_at) {
+        row.status = 'activated';
+      }
+    } catch (_) {
+      // Ghost lookup failed — leave status as-is
+    }
+  }
+
+  if (format(request) === "csv") {
+    return csv(results, `mo-gifts-${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+  return json({ count: results.length, gifts: results });
+}
+```
+
+The theme maps these statuses to friendly labels:
+- `pending` → "Pending"
+- `scheduled` → "Scheduled"
+- `provisioned` → "Sent" (email sent, recipient hasn't signed in yet)
+- `activated` → "Activated" (recipient has signed in at least once)
+
+---
+
 ## After deploying
 
 1. Go to `/admin/members/gifts/` and use the **Resend email** button on
