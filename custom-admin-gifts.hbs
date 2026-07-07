@@ -17,16 +17,6 @@
             {{> "admin-members-subnav" active="gifts"}}
           </aside>
           <div class="admin-members-main">
-            {{!-- Gift action panel: resend the gift notification email
-                 or copy a fresh sign-in link to paste into a direct reply.
-                 Hydrated by admin-gifts-actions.js. --}}
-            <div class="admin-gift-actions-panel" data-gift-actions
-                 data-api-base="{{@custom.membership_api_base}}" hidden>
-              <h2 class="admin-section-heading">Provisioned gifts</h2>
-              <p class="admin-section-sub">Re-send the welcome email (generates a fresh sign-in link) or copy the link to paste into your own reply.</p>
-              <ul class="admin-gift-list" data-gift-list></ul>
-              <p class="admin-gift-actions-empty" data-gift-empty hidden>No provisioned gifts yet.</p>
-            </div>
             <div class="admin-table-host"
                  data-admin-table
                  data-title="Gifts"
