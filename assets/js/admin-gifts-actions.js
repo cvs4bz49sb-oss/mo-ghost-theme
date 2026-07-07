@@ -46,6 +46,17 @@
     el.className = ok ? 'admin-gift-inline-ok' : 'admin-gift-inline-err';
   }
 
+  const STATUS_LABELS = {
+    pending: 'Pending',
+    scheduled: 'Scheduled',
+    provisioned: 'Sent',
+    activated: 'Activated',
+  };
+
+  function friendlyStatus(raw) {
+    return STATUS_LABELS[raw] || raw;
+  }
+
   function injectActions(table) {
     const thead = table.querySelector('[data-thead]');
     if (thead) {
@@ -58,11 +69,19 @@
     for (let i = 0; i < rows.length; i++) {
       const tr = rows[i];
       const cells = tr.querySelectorAll('td');
+
+      if (STATUS_COL_INDEX >= 0 && cells[STATUS_COL_INDEX]) {
+        const raw = cells[STATUS_COL_INDEX].textContent.trim();
+        const label = friendlyStatus(raw);
+        cells[STATUS_COL_INDEX].textContent = label;
+        cells[STATUS_COL_INDEX].setAttribute('data-status', raw);
+      }
+
       const td = document.createElement('td');
       td.className = 'admin-gift-actions-cell';
 
       const status = STATUS_COL_INDEX >= 0 && cells[STATUS_COL_INDEX]
-        ? cells[STATUS_COL_INDEX].textContent.trim() : '';
+        ? (cells[STATUS_COL_INDEX].getAttribute('data-status') || '') : '';
       const email = EMAIL_COL_INDEX >= 0 && cells[EMAIL_COL_INDEX]
         ? cells[EMAIL_COL_INDEX].textContent.trim() : '';
 
