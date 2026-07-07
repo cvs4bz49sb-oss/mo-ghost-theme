@@ -1,123 +1,140 @@
 /*
- * Gift membership action panel for /admin/members/gifts/.
+ * Inline gift actions for /admin/members/gifts/.
  *
- * Lists every provisioned gift and lets staff:
- *
- *   - Resend email → POST /api/admin/gifts/resend, re-sends the gift
- *     notification with a fresh magic-link so the recipient can sign in
- *     even if the original email was missed or the link expired.
- *   - Copy sign-in link → POST /api/admin/gifts/signin-link, copies a
- *     one-click Ghost magic-link URL so staff can paste it into a direct
- *     reply to the purchaser or recipient.
+ * Waits for admin-table.js to render the gifts table, then appends an
+ * "Actions" column with Resend / Copy-link buttons on provisioned rows.
  *
  * Auth: window.MOAuth.fetch (admin-auth.js) attaches the Ghost identity
  * bearer. Loaded after admin-auth.js + admin-table.js.
  */
 (function () {
-  const panel = document.querySelector('[data-gift-actions]');
-  if (!panel || !window.MOAuth) return;
+  const host = document.querySelector('[data-admin-table]');
+  if (!host || !window.MOAuth) return;
 
-  const apiBase = (panel.dataset.apiBase || '').replace(/\/$/, '');
-  const listEl = panel.querySelector('[data-gift-list]');
-  const emptyEl = panel.querySelector('[data-gift-empty]');
-  if (!apiBase || !listEl) return;
+  const apiBase = (host.dataset.apiBase || '').replace(/\/$/, '');
+  if (!apiBase) return;
 
-  const esc = function (s) {
-    return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  let STATUS_COL_INDEX = -1;
+  let EMAIL_COL_INDEX = -1;
+  const cols = (host.dataset.columns || '').split(',');
+  for (let i = 0; i < cols.length; i++) {
+    if (cols[i].trim() === 'status') STATUS_COL_INDEX = i;
+    if (cols[i].trim() === 'recipient_email') EMAIL_COL_INDEX = i;
+  }
+
+  function waitForTable(cb) {
+    const table = host.querySelector('[data-table]');
+    if (!table) return;
+    const obs = new MutationObserver(() => {
+      if (!table.hidden && table.querySelector('tbody tr td')) {
+        obs.disconnect();
+        cb(table);
+      }
     });
-  };
+    obs.observe(table, { attributes: true, childList: true, subtree: true });
+    if (!table.hidden && table.querySelector('tbody tr td')) {
+      obs.disconnect();
+      cb(table);
+    }
+  }
 
-  function setFeedback(li, msg, ok) {
-    const el = li.querySelector('[data-feedback]');
+  function setFeedback(tr, msg, ok) {
+    const el = tr.querySelector('[data-feedback]');
+    if (!el) return;
     el.hidden = false;
     el.textContent = msg;
-    el.classList.toggle('is-error', !ok);
+    el.className = ok ? 'admin-gift-inline-ok' : 'admin-gift-inline-err';
   }
 
-  async function load() {
-    panel.hidden = false;
-    let data;
-    try {
-      const res = await window.MOAuth.fetch(`${apiBase}/api/admin/gifts`, { credentials: 'omit' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      data = await res.json();
-    } catch (e) {
-      listEl.innerHTML = '<li class="admin-gift-row-error">Could not load gifts.</li>';
-      return;
+  function injectActions(table) {
+    const thead = table.querySelector('[data-thead]');
+    if (thead) {
+      const th = document.createElement('th');
+      th.textContent = 'Actions';
+      thead.appendChild(th);
     }
-    const gifts = (data.gifts || []).filter((g) => { return g.status === 'provisioned'; });
-    listEl.innerHTML = '';
-    if (!gifts.length) {
-      if (emptyEl) emptyEl.hidden = false;
-      return;
-    }
-    if (emptyEl) emptyEl.hidden = true;
-    gifts.forEach((g) => { listEl.appendChild(renderRow(g)); });
-  }
 
-  function renderRow(g) {
-    const li = document.createElement('li');
-    li.className = 'admin-gift-row';
-    const created = (g.created_at || '').slice(0, 10);
-    li.innerHTML =
-      `<div class="admin-gift-meta">` +
-        `<strong>${esc(g.recipient_name || '(no name)')}</strong>` +
-        `<span>${esc(g.recipient_email)}</span>` +
-        `<span>${esc(g.tier)} &middot; from ${esc(g.purchaser_name)} &middot; ${esc(created)}</span>` +
-      `</div>` +
-      `<div class="admin-gift-actions">` +
-        `<button type="button" class="btn btn-sm btn-primary" data-act="resend">Resend email</button>` +
-        `<button type="button" class="btn btn-sm" data-act="link">Copy sign-in link</button>` +
-      `</div>` +
-      `<p class="admin-gift-feedback" data-feedback hidden></p>`;
+    const rows = table.querySelectorAll('tbody tr');
+    for (let i = 0; i < rows.length; i++) {
+      const tr = rows[i];
+      const cells = tr.querySelectorAll('td');
+      const td = document.createElement('td');
+      td.className = 'admin-gift-actions-cell';
 
-    li.querySelector('[data-act="resend"]').addEventListener('click', async (e) => {
-      const btn = e.currentTarget;
-      if (!window.confirm(`Resend gift email to ${g.recipient_email}?`)) return;
-      btn.disabled = true;
-      try {
-        const res = await window.MOAuth.fetch(`${apiBase}/api/admin/gifts/resend`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: g.id }),
-        });
-        const body = await res.json().catch(() => { return {}; });
-        if (!res.ok || !body.ok) throw new Error(body.error || 'Could not resend.');
-        setFeedback(li, `Gift email resent to ${g.recipient_email}.`, true);
-      } catch (err) {
-        setFeedback(li, err.message || 'Could not resend.', false);
-      } finally {
-        btn.disabled = false;
+      const status = STATUS_COL_INDEX >= 0 && cells[STATUS_COL_INDEX]
+        ? cells[STATUS_COL_INDEX].textContent.trim() : '';
+      const email = EMAIL_COL_INDEX >= 0 && cells[EMAIL_COL_INDEX]
+        ? cells[EMAIL_COL_INDEX].textContent.trim() : '';
+
+      if (status === 'provisioned' && email) {
+        td.appendChild(makeActions(tr, email));
       }
+      tr.appendChild(td);
+    }
+  }
+
+  function makeActions(tr, email) {
+    const wrap = document.createElement('span');
+    wrap.className = 'admin-gift-actions-inline';
+
+    const resendBtn = document.createElement('button');
+    resendBtn.type = 'button';
+    resendBtn.className = 'btn btn-sm btn-primary';
+    resendBtn.textContent = 'Resend';
+    resendBtn.addEventListener('click', () => {
+      if (!window.confirm(`Resend gift email to ${email}?`)) return;
+      resendBtn.disabled = true;
+      window.MOAuth.fetch(`${apiBase}/api/admin/gifts/resend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient_email: email }),
+      }).then((res) => {
+        return res.json().catch(() => { return {}; }).then((b) => {
+          if (!res.ok || !b.ok) throw new Error(b.error || 'Could not resend.');
+          setFeedback(tr, `Resent to ${email}`, true);
+        });
+      }).catch((err) => {
+        setFeedback(tr, err.message || 'Could not resend.', false);
+      }).then(() => {
+        resendBtn.disabled = false;
+      });
     });
 
-    li.querySelector('[data-act="link"]').addEventListener('click', async (e) => {
-      const btn = e.currentTarget;
-      btn.disabled = true;
-      try {
-        const res = await window.MOAuth.fetch(`${apiBase}/api/admin/gifts/signin-link`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: g.id }),
+    const linkBtn = document.createElement('button');
+    linkBtn.type = 'button';
+    linkBtn.className = 'btn btn-sm';
+    linkBtn.textContent = 'Copy link';
+    linkBtn.addEventListener('click', () => {
+      linkBtn.disabled = true;
+      window.MOAuth.fetch(`${apiBase}/api/admin/gifts/signin-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient_email: email }),
+      }).then((res) => {
+        return res.json().catch(() => { return {}; }).then((b) => {
+          if (!res.ok || !b.url) throw new Error(b.error || 'Could not create link.');
+          return navigator.clipboard.writeText(b.url).then(() => {
+            setFeedback(tr, 'Link copied', true);
+          }).catch(() => {
+            setFeedback(tr, b.url, true);
+          });
         });
-        const body = await res.json().catch(() => { return {}; });
-        if (!res.ok || !body.url) throw new Error(body.error || 'Could not create link.');
-        try {
-          await navigator.clipboard.writeText(body.url);
-          setFeedback(li, `Sign-in link copied. Send it to ${g.recipient_email}.`, true);
-        } catch (_) {
-          setFeedback(li, body.url, true);
-        }
-      } catch (err) {
-        setFeedback(li, err.message || 'Could not create link.', false);
-      } finally {
-        btn.disabled = false;
-      }
+      }).catch((err) => {
+        setFeedback(tr, err.message || 'Could not create link.', false);
+      }).then(() => {
+        linkBtn.disabled = false;
+      });
     });
 
-    return li;
+    const feedback = document.createElement('span');
+    feedback.setAttribute('data-feedback', '');
+    feedback.hidden = true;
+
+    wrap.appendChild(resendBtn);
+    wrap.appendChild(linkBtn);
+    wrap.appendChild(feedback);
+    return wrap;
   }
 
-  load();
+  waitForTable(injectActions);
 })();
