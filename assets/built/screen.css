@@ -21741,6 +21741,11 @@ html[data-theme="light"] .dlr-page {
   color: var(--dlr-text-secondary);
   margin: 0 0 16px;
 }
+.dlr-produced {
+  font-size: 12px;
+  color: var(--dlr-text-secondary);
+  margin: 0 0 16px;
+}
 .dlr-footer-links {
   font-size: 12px;
   color: var(--dlr-text-secondary);
