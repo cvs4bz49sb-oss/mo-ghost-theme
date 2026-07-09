@@ -84,6 +84,8 @@ routes:
   /podcasts/daily-liturgy/:
     template: custom-daily-liturgy
     data: page.daily-liturgy
+  /daily-liturgy/read/:
+    template: custom-daily-liturgy-reader
   /admin/:
     template: custom-admin
   /admin/members/:

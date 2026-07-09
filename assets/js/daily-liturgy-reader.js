@@ -290,28 +290,23 @@
   }
 
   // ── Translation switching ─────────────────────────────────────
+  const $translationSelect = $("[data-dlr-translation-select]");
   if ($translations) {
     try {
       const saved = localStorage.getItem(LS_TRANSLATION);
       if (saved && TRANSLATION_CODES[saved] !== undefined) translation = saved;
     } catch (e) {}
 
-    // Set initial active pill
-    const pills = $translations.querySelectorAll("[data-dlr-translation]");
-    pills.forEach((pill) => {
-      pill.classList.toggle("is-active", pill.dataset.dlrTranslation === translation);
-    });
-
-    $translations.addEventListener("click", (e) => {
-      const pill = e.target.closest("[data-dlr-translation]");
-      if (!pill) return;
-      const t = pill.dataset.dlrTranslation;
-      if (t === translation) return;
-      translation = t;
-      try { localStorage.setItem(LS_TRANSLATION, t); } catch (e) {}
-      pills.forEach((p) => p.classList.toggle("is-active", p.dataset.dlrTranslation === t));
-      if (currentDate) renderDevotional(currentDate);
-    });
+    if ($translationSelect) {
+      $translationSelect.value = translation;
+      $translationSelect.addEventListener("change", function () {
+        var t = $translationSelect.value;
+        if (t === translation) return;
+        translation = t;
+        try { localStorage.setItem(LS_TRANSLATION, t); } catch (e) {}
+        if (currentDate) renderDevotional(currentDate);
+      });
+    }
   }
 
   // ── Navigation ────────────────────────────────────────────────

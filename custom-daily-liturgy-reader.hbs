@@ -24,14 +24,17 @@
   {{!-- Catch-up notice --}}
   <p class="dlr-catchup" data-dlr-catchup hidden>You're viewing a past devotional.</p>
 
-  {{!-- Translation selector (members only) --}}
-  {{#if @member}}
-  <div class="dlr-translations" data-dlr-translations>
-    <button class="dlr-translation-pill is-active" data-dlr-translation="CSB">CSB</button>
-    <button class="dlr-translation-pill" data-dlr-translation="ESV">ESV</button>
-    <button class="dlr-translation-pill" data-dlr-translation="NIV">NIV</button>
-    <button class="dlr-translation-pill" data-dlr-translation="NASB">NASB</button>
-    <button class="dlr-translation-pill" data-dlr-translation="KJV">KJV</button>
+  {{!-- Translation setting (paid members only) --}}
+  {{#if @member.paid}}
+  <div class="dlr-setting" data-dlr-translations>
+    <label class="dlr-setting-label" for="dlr-translation-select">Translation</label>
+    <select class="dlr-setting-select" id="dlr-translation-select" data-dlr-translation-select>
+      <option value="CSB">CSB</option>
+      <option value="ESV">ESV</option>
+      <option value="NIV">NIV</option>
+      <option value="NASB">NASB</option>
+      <option value="KJV">KJV</option>
+    </select>
   </div>
   {{/if}}
 
