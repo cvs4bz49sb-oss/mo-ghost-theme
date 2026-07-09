@@ -494,23 +494,67 @@
       });
   }
 
-  // ── Podcast embed (fire-and-forget) ────────────────────────────
+  // ── Podcast player (fire-and-forget) ───────────────────────────
   (function () {
     var $podcast = $("[data-dlr-podcast]");
-    var $embed = $("[data-dlr-podcast-embed]");
-    if (!$podcast || !$embed) return;
+    var $audio = $("[data-dlr-audio]");
+    var $playBtn = $("[data-dlr-play]");
+    var $playIcon = $podcast && $podcast.querySelector(".dlr-play-icon");
+    var $pauseIcon = $podcast && $podcast.querySelector(".dlr-pause-icon");
+    var $title = $("[data-dlr-player-title]");
+    var $progress = $("[data-dlr-progress]");
+    var $bar = $("[data-dlr-bar]");
+    var $time = $("[data-dlr-time]");
+    if (!$podcast || !$audio) return;
+
+    function fmt(s) {
+      var m = Math.floor(s / 60);
+      var sec = Math.floor(s % 60);
+      return m + ":" + (sec < 10 ? "0" : "") + sec;
+    }
+
     fetch(PODCAST_FEED_URL + "?show=daily-liturgy&limit=1", { credentials: "omit" })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var show = data["daily-liturgy"];
         if (!show || !show.episodes || !show.episodes.length) return;
         var ep = show.episodes[0];
-        var title = ep.title || "Latest Episode";
-        $embed.innerHTML =
-          '<iframe src="' + ep.embedUrl + '" loading="lazy" width="100%" height="200" frameborder="0" scrolling="no" title="' + title + '"></iframe>';
+        $audio.src = ep.audioUrl;
+        $title.textContent = ep.title || "Latest Episode";
+        if (ep.duration) $time.textContent = fmt(ep.duration);
         $podcast.hidden = false;
       })
       .catch(function () {});
+
+    $playBtn.addEventListener("click", function () {
+      if ($audio.paused) {
+        $audio.play();
+      } else {
+        $audio.pause();
+      }
+    });
+
+    $audio.addEventListener("play", function () {
+      $playIcon.hidden = true;
+      $pauseIcon.hidden = false;
+    });
+    $audio.addEventListener("pause", function () {
+      $playIcon.hidden = false;
+      $pauseIcon.hidden = true;
+    });
+    $audio.addEventListener("timeupdate", function () {
+      if (!$audio.duration) return;
+      var pct = ($audio.currentTime / $audio.duration) * 100;
+      $bar.style.width = pct + "%";
+      $time.textContent = fmt($audio.currentTime) + " / " + fmt($audio.duration);
+    });
+
+    $progress.addEventListener("click", function (e) {
+      if (!$audio.duration) return;
+      var rect = $progress.getBoundingClientRect();
+      var pct = (e.clientX - rect.left) / rect.width;
+      $audio.currentTime = pct * $audio.duration;
+    });
   })();
 
   // Restore saved preferences

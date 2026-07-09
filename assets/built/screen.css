@@ -10084,25 +10084,18 @@ label.site-form-field-check {
   color: var(--color-muted);
   margin: 14px 0 0;
 }
-/* Latest episode embed */
+/* Latest episode player (landing page) */
 .dl-latest-episode {
   margin-bottom: 24px;
 }
-.dl-latest-loading {
-  font-size: 14px;
-  color: var(--color-muted);
-  font-style: italic;
-}
-.dl-latest-title {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-dark);
-  margin-bottom: 10px;
-}
-.dl-latest-episode iframe {
-  border-radius: 8px;
-  max-width: 100%;
+.dl-latest-episode.dlr-podcast {
+  --dlr-accent: #96694C;
+  --dlr-accent-light: #b8866a;
+  --dlr-rule: #d9c6a7;
+  --dlr-text-secondary: #4a4540;
+  --dlr-scripture-bg: #f1e0c9;
+  border-color: var(--dlr-rule);
+  background: var(--dlr-scripture-bg);
 }
 
 .dl-listen-ctas {
@@ -21950,19 +21943,70 @@ html[data-theme="dark"] .dlr-header-logo {
   margin-right: auto;
 }
 
-/* Podcast embed */
+/* Podcast player */
 .dlr-podcast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 28px;
   border: 1px solid var(--dlr-rule);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 999px;
+  padding: 6px 14px 6px 6px;
   background: var(--dlr-scripture-bg);
 }
-.dlr-podcast .dlr-label {
-  margin-bottom: 10px;
+.dlr-play-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--dlr-accent);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
 }
-.dlr-podcast iframe {
-  border-radius: 6px;
+.dlr-play-btn:hover {
+  background: var(--dlr-accent-light);
+}
+.dlr-player-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dlr-player-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dlr-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dlr-player-progress {
+  height: 3px;
+  background: var(--dlr-rule);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.dlr-player-bar {
+  height: 100%;
+  background: var(--dlr-accent);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.dlr-player-time {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--dlr-text-secondary);
+  min-width: 36px;
+  text-align: right;
 }
 
 /* Dark mode toggle */

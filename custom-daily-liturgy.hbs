@@ -54,8 +54,24 @@
           <p class="dl-path-eyebrow">Listen daily</p>
           <h2 class="dl-path-title">The podcast.</h2>
           <p class="dl-path-desc">The same devotional, read aloud. A new episode every morning, wherever you keep your habit of prayer.</p>
-          <div class="dl-latest-episode" data-dl-latest>
-            <p class="dl-latest-loading">Loading latest episode&hellip;</p>
+          <div class="dl-latest-episode dlr-podcast" data-dl-latest hidden>
+            <button class="dlr-play-btn" data-dl-play aria-label="Play episode">
+              <svg class="dlr-play-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <polygon points="6,3 20,12 6,21" fill="currentColor"/>
+              </svg>
+              <svg class="dlr-pause-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden>
+                <rect x="5" y="3" width="4" height="18" fill="currentColor"/>
+                <rect x="15" y="3" width="4" height="18" fill="currentColor"/>
+              </svg>
+            </button>
+            <div class="dlr-player-info">
+              <span class="dlr-player-title" data-dl-player-title></span>
+              <div class="dlr-player-progress" data-dl-progress>
+                <div class="dlr-player-bar" data-dl-bar></div>
+              </div>
+            </div>
+            <span class="dlr-player-time" data-dl-time></span>
+            <audio data-dl-audio preload="none"></audio>
           </div>
           <div class="dl-listen-ctas">
             <a href="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357" class="btn btn-outline-copper" target="_blank" rel="noopener">Apple Podcasts</a>
@@ -98,25 +114,52 @@
 <script src="{{asset "js/site-forms.js"}}"></script>
 <script>
 (function () {
-  var el = document.querySelector("[data-dl-latest]");
-  if (!el) return;
-  var feedUrl = document.body.getAttribute("data-podcast-feed-url") || "https://mo-podcast-feed.mo-podcast-feed.workers.dev";
-  if (!feedUrl) { el.innerHTML = ""; return; }
+  var $el = document.querySelector("[data-dl-latest]");
+  var $audio = $el && $el.querySelector("[data-dl-audio]");
+  var $playBtn = $el && $el.querySelector("[data-dl-play]");
+  var $playIcon = $el && $el.querySelector(".dlr-play-icon");
+  var $pauseIcon = $el && $el.querySelector(".dlr-pause-icon");
+  var $title = $el && $el.querySelector("[data-dl-player-title]");
+  var $progress = $el && $el.querySelector("[data-dl-progress]");
+  var $bar = $el && $el.querySelector("[data-dl-bar]");
+  var $time = $el && $el.querySelector("[data-dl-time]");
+  if (!$el || !$audio) return;
+
+  function fmt(s) {
+    var m = Math.floor(s / 60);
+    var sec = Math.floor(s % 60);
+    return m + ":" + (sec < 10 ? "0" : "") + sec;
+  }
+
+  var feedUrl = "https://mo-podcast-feed.mo-podcast-feed.workers.dev";
   fetch(feedUrl + "?show=daily-liturgy&limit=1", { credentials: "omit" })
     .then(function (r) { return r.json(); })
     .then(function (data) {
       var show = data["daily-liturgy"];
-      if (!show || !show.episodes || !show.episodes.length) {
-        el.innerHTML = "";
-        return;
-      }
+      if (!show || !show.episodes || !show.episodes.length) return;
       var ep = show.episodes[0];
-      var title = ep.title || "Latest Episode";
-      el.innerHTML =
-        '<p class="dl-latest-title">' + title + '</p>' +
-        '<iframe src="' + ep.embedUrl + '" loading="lazy" width="100%" height="200" frameborder="0" scrolling="no" title="' + title + '"></iframe>';
+      $audio.src = ep.audioUrl;
+      $title.textContent = ep.title || "Latest Episode";
+      if (ep.duration) $time.textContent = fmt(ep.duration);
+      $el.hidden = false;
     })
-    .catch(function () { el.innerHTML = ""; });
+    .catch(function () {});
+
+  $playBtn.addEventListener("click", function () {
+    if ($audio.paused) { $audio.play(); } else { $audio.pause(); }
+  });
+  $audio.addEventListener("play", function () { $playIcon.hidden = true; $pauseIcon.hidden = false; });
+  $audio.addEventListener("pause", function () { $playIcon.hidden = false; $pauseIcon.hidden = true; });
+  $audio.addEventListener("timeupdate", function () {
+    if (!$audio.duration) return;
+    $bar.style.width = ($audio.currentTime / $audio.duration) * 100 + "%";
+    $time.textContent = fmt($audio.currentTime) + " / " + fmt($audio.duration);
+  });
+  $progress.addEventListener("click", function (e) {
+    if (!$audio.duration) return;
+    var rect = $progress.getBoundingClientRect();
+    $audio.currentTime = ((e.clientX - rect.left) / rect.width) * $audio.duration;
+  });
 })();
 </script>
 {{#if @custom.membership_api_base}}

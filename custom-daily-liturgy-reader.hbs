@@ -55,8 +55,23 @@
 
   {{!-- Latest podcast episode --}}
   <div class="dlr-podcast" data-dlr-podcast hidden>
-    <p class="dlr-label">Listen to today's episode</p>
-    <div data-dlr-podcast-embed></div>
+    <button class="dlr-play-btn" data-dlr-play aria-label="Play episode">
+      <svg class="dlr-play-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <polygon points="6,3 20,12 6,21" fill="currentColor"/>
+      </svg>
+      <svg class="dlr-pause-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden>
+        <rect x="5" y="3" width="4" height="18" fill="currentColor"/>
+        <rect x="15" y="3" width="4" height="18" fill="currentColor"/>
+      </svg>
+    </button>
+    <div class="dlr-player-info">
+      <span class="dlr-player-title" data-dlr-player-title></span>
+      <div class="dlr-player-progress" data-dlr-progress>
+        <div class="dlr-player-bar" data-dlr-bar></div>
+      </div>
+    </div>
+    <span class="dlr-player-time" data-dlr-time></span>
+    <audio data-dlr-audio preload="none"></audio>
   </div>
 
   {{!-- Devotional body --}}
