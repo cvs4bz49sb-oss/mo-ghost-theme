@@ -21701,6 +21701,7 @@ body:has(.au-modal-overlay) {
   padding: 48px 28px 64px;
   font-family: var(--font-body);
   color: var(--dlr-text);
+  background-color: var(--dlr-ground);
 }
 html[data-theme="dark"] .dlr-page {
   --dlr-ground: #1a1714;
