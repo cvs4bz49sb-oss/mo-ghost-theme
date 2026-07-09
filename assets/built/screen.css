@@ -21945,6 +21945,9 @@ html[data-theme="dark"] .dlr-header-logo {
   gap: 10px;
   margin-bottom: 32px;
   flex-wrap: wrap;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Dark mode toggle */
