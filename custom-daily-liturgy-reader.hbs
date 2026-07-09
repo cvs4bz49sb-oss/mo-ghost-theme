@@ -8,6 +8,12 @@
 <main class="dlr-page" data-dlr-page>
   <meta name="mo-bible-base" content="{{@custom.bible_worker_url}}" />
 
+  {{!-- Mode toggle --}}
+  <div class="dlr-mode-toggle" data-dlr-mode-toggle>
+    <button class="dlr-mode-btn is-active" data-dlr-mode="devotional">Devotional</button>
+    <button class="dlr-mode-btn" data-dlr-mode="bi2y">Bible in 2 Years</button>
+  </div>
+
   {{!-- Header --}}
   <header class="dlr-header">
     <p class="dlr-kicker">The Daily Liturgy</p>
@@ -144,6 +150,39 @@
       <p class="dlr-ornament" aria-hidden="true">&#10013;&#xFE0E;</p>
       <p class="dlr-label dlr-label--center">Benediction</p>
       <div class="dlr-prayer-text dlr-prayer-text--benediction" data-dlr-benediction></div>
+    </section>
+
+  </article>
+
+  {{!-- Bible in 2 Years body --}}
+  <article class="dlr-body dlr-bi2y-body" data-dlr-bi2y-body hidden>
+
+    <section class="dlr-section">
+      <p class="dlr-label">Old Testament</p>
+      <div class="dlr-scripture" data-dlr-bi2y-ot>
+        <span class="dlr-scripture-ref" data-dlr-bi2y-ot-ref></span>
+        <div class="dlr-scripture-text" data-dlr-bi2y-ot-text>Loading Scripture&hellip;</div>
+      </div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    <section class="dlr-section">
+      <p class="dlr-label">New Testament</p>
+      <div class="dlr-scripture" data-dlr-bi2y-nt>
+        <span class="dlr-scripture-ref" data-dlr-bi2y-nt-ref></span>
+        <div class="dlr-scripture-text" data-dlr-bi2y-nt-text>Loading Scripture&hellip;</div>
+      </div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    <section class="dlr-section">
+      <p class="dlr-label">Psalms, Proverbs &amp; Ecclesiastes</p>
+      <div class="dlr-scripture" data-dlr-bi2y-wisdom>
+        <span class="dlr-scripture-ref" data-dlr-bi2y-wisdom-ref></span>
+        <div class="dlr-scripture-text" data-dlr-bi2y-wisdom-text>Loading Scripture&hellip;</div>
+      </div>
     </section>
 
   </article>

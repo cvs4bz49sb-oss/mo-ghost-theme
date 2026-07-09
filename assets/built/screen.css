@@ -21730,6 +21730,40 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
   color: #e8ddd0;
 }
 
+/* Mode toggle (Devotional | Bible in 2 Years) */
+.dlr-mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 32px;
+  border: 1px solid var(--dlr-rule);
+  border-radius: 999px;
+  overflow: hidden;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.dlr-mode-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--dlr-text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.dlr-mode-btn.is-active {
+  background: var(--dlr-accent);
+  color: #fff;
+}
+.dlr-mode-btn:not(.is-active):hover {
+  background: rgba(150, 105, 76, 0.08);
+}
+
 /* Header */
 .dlr-header {
   text-align: center;

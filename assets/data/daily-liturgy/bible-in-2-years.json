@@ -1,0 +1,4418 @@
+{
+  "1": {
+    "day": 1,
+    "ot": "Genesis 1",
+    "nt": "Matthew 1",
+    "wisdom": "Psalm 1"
+  },
+  "2": {
+    "day": 2,
+    "ot": "Genesis 2",
+    "nt": "Matthew 2",
+    "wisdom": "Psalm 2"
+  },
+  "3": {
+    "day": 3,
+    "ot": "Genesis 3",
+    "nt": "Matthew 3",
+    "wisdom": "Psalm 3"
+  },
+  "4": {
+    "day": 4,
+    "ot": "Genesis 4",
+    "nt": "Matthew 4",
+    "wisdom": "Psalm 4"
+  },
+  "5": {
+    "day": 5,
+    "ot": "Genesis 5",
+    "nt": "Matthew 5",
+    "wisdom": "Psalm 5"
+  },
+  "6": {
+    "day": 6,
+    "ot": "Genesis 6",
+    "nt": "Matthew 6",
+    "wisdom": "Psalm 6"
+  },
+  "7": {
+    "day": 7,
+    "ot": "Genesis 7",
+    "nt": "Matthew 7",
+    "wisdom": "Psalm 7"
+  },
+  "8": {
+    "day": 8,
+    "ot": "Genesis 8",
+    "nt": "Matthew 8",
+    "wisdom": "Psalm 8"
+  },
+  "9": {
+    "day": 9,
+    "ot": "Genesis 9",
+    "nt": "Matthew 9",
+    "wisdom": "Psalm 9"
+  },
+  "10": {
+    "day": 10,
+    "ot": "Genesis 10",
+    "nt": "Matthew 10",
+    "wisdom": "Psalm 10"
+  },
+  "11": {
+    "day": 11,
+    "ot": "Genesis 11",
+    "nt": "Matthew 11",
+    "wisdom": "Psalm 11"
+  },
+  "12": {
+    "day": 12,
+    "ot": "Genesis 12",
+    "nt": "Matthew 12",
+    "wisdom": "Psalm 12"
+  },
+  "13": {
+    "day": 13,
+    "ot": "Genesis 13",
+    "nt": "Matthew 13",
+    "wisdom": "Psalm 13"
+  },
+  "14": {
+    "day": 14,
+    "ot": "Genesis 14",
+    "nt": "Matthew 14",
+    "wisdom": "Psalm 14"
+  },
+  "15": {
+    "day": 15,
+    "ot": "Genesis 15",
+    "nt": "Matthew 15",
+    "wisdom": "Psalm 15"
+  },
+  "16": {
+    "day": 16,
+    "ot": "Genesis 16",
+    "nt": "Matthew 16",
+    "wisdom": "Psalm 16"
+  },
+  "17": {
+    "day": 17,
+    "ot": "Genesis 17",
+    "nt": "Matthew 17",
+    "wisdom": "Psalm 17"
+  },
+  "18": {
+    "day": 18,
+    "ot": "Genesis 18",
+    "nt": "Matthew 18",
+    "wisdom": "Psalm 18"
+  },
+  "19": {
+    "day": 19,
+    "ot": "Genesis 19",
+    "nt": "Matthew 19",
+    "wisdom": "Psalm 19"
+  },
+  "20": {
+    "day": 20,
+    "ot": "Genesis 20",
+    "nt": "Matthew 20",
+    "wisdom": "Psalm 20"
+  },
+  "21": {
+    "day": 21,
+    "ot": "Genesis 21",
+    "nt": "Matthew 21",
+    "wisdom": "Psalm 21"
+  },
+  "22": {
+    "day": 22,
+    "ot": "Genesis 22",
+    "nt": "Matthew 22",
+    "wisdom": "Psalm 22"
+  },
+  "23": {
+    "day": 23,
+    "ot": "Genesis 23",
+    "nt": "Matthew 23",
+    "wisdom": "Psalm 23"
+  },
+  "24": {
+    "day": 24,
+    "ot": "Genesis 24",
+    "nt": "Matthew 24",
+    "wisdom": "Psalm 24"
+  },
+  "25": {
+    "day": 25,
+    "ot": "Genesis 25",
+    "nt": "Matthew 25",
+    "wisdom": "Psalm 25"
+  },
+  "26": {
+    "day": 26,
+    "ot": "Genesis 26",
+    "nt": "Matthew 26",
+    "wisdom": "Psalm 26"
+  },
+  "27": {
+    "day": 27,
+    "ot": "Genesis 27",
+    "nt": "Matthew 27",
+    "wisdom": "Psalm 27"
+  },
+  "28": {
+    "day": 28,
+    "ot": "Genesis 28",
+    "nt": "Matthew 28",
+    "wisdom": "Psalm 28"
+  },
+  "29": {
+    "day": 29,
+    "ot": "Genesis 29",
+    "nt": "Romans 1",
+    "wisdom": "Psalm 29"
+  },
+  "30": {
+    "day": 30,
+    "ot": "Genesis 30",
+    "nt": "Romans 2",
+    "wisdom": "Psalm 30"
+  },
+  "31": {
+    "day": 31,
+    "ot": "Genesis 31",
+    "nt": "Romans 3",
+    "wisdom": "Psalm 31"
+  },
+  "32": {
+    "day": 32,
+    "ot": "Genesis 32",
+    "nt": "Romans 4",
+    "wisdom": "Psalm 32"
+  },
+  "33": {
+    "day": 33,
+    "ot": "Genesis 33",
+    "nt": "Romans 5",
+    "wisdom": "Psalm 33"
+  },
+  "34": {
+    "day": 34,
+    "ot": "Genesis 34",
+    "nt": "Romans 6",
+    "wisdom": "Psalm 34"
+  },
+  "35": {
+    "day": 35,
+    "ot": "Genesis 35",
+    "nt": "Romans 7",
+    "wisdom": "Psalm 35"
+  },
+  "36": {
+    "day": 36,
+    "ot": "Genesis 36",
+    "nt": "Romans 8",
+    "wisdom": "Psalm 36"
+  },
+  "37": {
+    "day": 37,
+    "ot": "Genesis 37",
+    "nt": "Romans 9",
+    "wisdom": "Psalm 37"
+  },
+  "38": {
+    "day": 38,
+    "ot": "Genesis 38",
+    "nt": "Romans 10",
+    "wisdom": "Psalm 38"
+  },
+  "39": {
+    "day": 39,
+    "ot": "Genesis 39",
+    "nt": "Romans 11",
+    "wisdom": "Psalm 39"
+  },
+  "40": {
+    "day": 40,
+    "ot": "Genesis 40",
+    "nt": "Romans 12",
+    "wisdom": "Psalm 40"
+  },
+  "41": {
+    "day": 41,
+    "ot": "Genesis 41",
+    "nt": "Romans 13",
+    "wisdom": "Psalm 41"
+  },
+  "42": {
+    "day": 42,
+    "ot": "Genesis 42",
+    "nt": "Romans 14",
+    "wisdom": "Psalm 42"
+  },
+  "43": {
+    "day": 43,
+    "ot": "Genesis 43",
+    "nt": "Romans 15",
+    "wisdom": "Psalm 43"
+  },
+  "44": {
+    "day": 44,
+    "ot": "Genesis 44",
+    "nt": "Romans 16",
+    "wisdom": "Psalm 44"
+  },
+  "45": {
+    "day": 45,
+    "ot": "Genesis 45",
+    "nt": "1 Corinthians 1",
+    "wisdom": "Psalm 45"
+  },
+  "46": {
+    "day": 46,
+    "ot": "Genesis 46",
+    "nt": "1 Corinthians 2",
+    "wisdom": "Psalm 46"
+  },
+  "47": {
+    "day": 47,
+    "ot": "Genesis 47",
+    "nt": "1 Corinthians 3",
+    "wisdom": "Psalm 47"
+  },
+  "48": {
+    "day": 48,
+    "ot": "Genesis 48",
+    "nt": "1 Corinthians 4",
+    "wisdom": "Psalm 48"
+  },
+  "49": {
+    "day": 49,
+    "ot": "Genesis 49",
+    "nt": "1 Corinthians 5",
+    "wisdom": "Psalm 49"
+  },
+  "50": {
+    "day": 50,
+    "ot": "Genesis 50",
+    "nt": "1 Corinthians 6",
+    "wisdom": "Psalm 50"
+  },
+  "51": {
+    "day": 51,
+    "ot": "Exodus 1",
+    "nt": "1 Corinthians 7",
+    "wisdom": "Psalm 51"
+  },
+  "52": {
+    "day": 52,
+    "ot": "Exodus 2",
+    "nt": "1 Corinthians 8",
+    "wisdom": "Psalm 52"
+  },
+  "53": {
+    "day": 53,
+    "ot": "Exodus 3",
+    "nt": "1 Corinthians 9",
+    "wisdom": "Psalm 53"
+  },
+  "54": {
+    "day": 54,
+    "ot": "Exodus 4",
+    "nt": "1 Corinthians 10",
+    "wisdom": "Psalm 54"
+  },
+  "55": {
+    "day": 55,
+    "ot": "Exodus 5",
+    "nt": "1 Corinthians 11",
+    "wisdom": "Psalm 55"
+  },
+  "56": {
+    "day": 56,
+    "ot": "Exodus 6",
+    "nt": "1 Corinthians 12",
+    "wisdom": "Psalm 56"
+  },
+  "57": {
+    "day": 57,
+    "ot": "Exodus 7",
+    "nt": "1 Corinthians 13",
+    "wisdom": "Psalm 57"
+  },
+  "58": {
+    "day": 58,
+    "ot": "Exodus 8",
+    "nt": "1 Corinthians 14",
+    "wisdom": "Psalm 58"
+  },
+  "59": {
+    "day": 59,
+    "ot": "Exodus 9",
+    "nt": "1 Corinthians 15",
+    "wisdom": "Psalm 59"
+  },
+  "60": {
+    "day": 60,
+    "ot": "Exodus 10",
+    "nt": "1 Corinthians 16",
+    "wisdom": "Psalm 60"
+  },
+  "61": {
+    "day": 61,
+    "ot": "Exodus 11",
+    "nt": "2 Corinthians 1",
+    "wisdom": "Psalm 61"
+  },
+  "62": {
+    "day": 62,
+    "ot": "Exodus 12",
+    "nt": "2 Corinthians 2",
+    "wisdom": "Psalm 62"
+  },
+  "63": {
+    "day": 63,
+    "ot": "Exodus 13",
+    "nt": "2 Corinthians 3",
+    "wisdom": "Psalm 63"
+  },
+  "64": {
+    "day": 64,
+    "ot": "Exodus 14",
+    "nt": "2 Corinthians 4",
+    "wisdom": "Psalm 64"
+  },
+  "65": {
+    "day": 65,
+    "ot": "Exodus 15",
+    "nt": "2 Corinthians 5",
+    "wisdom": "Psalm 65"
+  },
+  "66": {
+    "day": 66,
+    "ot": "Exodus 16",
+    "nt": "2 Corinthians 6",
+    "wisdom": "Psalm 66"
+  },
+  "67": {
+    "day": 67,
+    "ot": "Exodus 17",
+    "nt": "2 Corinthians 7",
+    "wisdom": "Psalm 67"
+  },
+  "68": {
+    "day": 68,
+    "ot": "Exodus 18",
+    "nt": "2 Corinthians 8",
+    "wisdom": "Psalm 68"
+  },
+  "69": {
+    "day": 69,
+    "ot": "Exodus 19",
+    "nt": "2 Corinthians 9",
+    "wisdom": "Psalm 69"
+  },
+  "70": {
+    "day": 70,
+    "ot": "Exodus 20",
+    "nt": "2 Corinthians 10",
+    "wisdom": "Psalm 70"
+  },
+  "71": {
+    "day": 71,
+    "ot": "Exodus 21",
+    "nt": "2 Corinthians 11",
+    "wisdom": "Psalm 71"
+  },
+  "72": {
+    "day": 72,
+    "ot": "Exodus 22",
+    "nt": "2 Corinthians 12",
+    "wisdom": "Psalm 72"
+  },
+  "73": {
+    "day": 73,
+    "ot": "Exodus 23",
+    "nt": "2 Corinthians 13",
+    "wisdom": "Psalm 73"
+  },
+  "74": {
+    "day": 74,
+    "ot": "Exodus 24",
+    "nt": "Mark 1",
+    "wisdom": "Psalm 74"
+  },
+  "75": {
+    "day": 75,
+    "ot": "Exodus 25",
+    "nt": "Mark 2",
+    "wisdom": "Psalm 75"
+  },
+  "76": {
+    "day": 76,
+    "ot": "Exodus 26",
+    "nt": "Mark 3",
+    "wisdom": "Psalm 76"
+  },
+  "77": {
+    "day": 77,
+    "ot": "Exodus 27",
+    "nt": "Mark 4",
+    "wisdom": "Psalm 77"
+  },
+  "78": {
+    "day": 78,
+    "ot": "Exodus 28",
+    "nt": "Mark 5",
+    "wisdom": "Psalm 78"
+  },
+  "79": {
+    "day": 79,
+    "ot": "Exodus 29",
+    "nt": "Mark 6",
+    "wisdom": "Psalm 79"
+  },
+  "80": {
+    "day": 80,
+    "ot": "Exodus 30",
+    "nt": "Mark 7",
+    "wisdom": "Psalm 80"
+  },
+  "81": {
+    "day": 81,
+    "ot": "Exodus 31",
+    "nt": "Mark 8",
+    "wisdom": "Psalm 81"
+  },
+  "82": {
+    "day": 82,
+    "ot": "Exodus 32",
+    "nt": "Mark 9",
+    "wisdom": "Psalm 82"
+  },
+  "83": {
+    "day": 83,
+    "ot": "Exodus 33",
+    "nt": "Mark 10",
+    "wisdom": "Psalm 83"
+  },
+  "84": {
+    "day": 84,
+    "ot": "Exodus 34",
+    "nt": "Mark 11",
+    "wisdom": "Psalm 84"
+  },
+  "85": {
+    "day": 85,
+    "ot": "Exodus 35",
+    "nt": "Mark 12",
+    "wisdom": "Psalm 85"
+  },
+  "86": {
+    "day": 86,
+    "ot": "Exodus 36",
+    "nt": "Mark 13",
+    "wisdom": "Psalm 86"
+  },
+  "87": {
+    "day": 87,
+    "ot": "Exodus 37",
+    "nt": "Mark 14",
+    "wisdom": "Psalm 87"
+  },
+  "88": {
+    "day": 88,
+    "ot": "Exodus 38",
+    "nt": "Mark 15",
+    "wisdom": "Psalm 88"
+  },
+  "89": {
+    "day": 89,
+    "ot": "Exodus 39",
+    "nt": "Mark 16",
+    "wisdom": "Psalm 89"
+  },
+  "90": {
+    "day": 90,
+    "ot": "Exodus 40",
+    "nt": "Galatians 1",
+    "wisdom": "Psalm 90"
+  },
+  "91": {
+    "day": 91,
+    "ot": "Leviticus 1",
+    "nt": "Galatians 2",
+    "wisdom": "Psalm 91"
+  },
+  "92": {
+    "day": 92,
+    "ot": "Leviticus 2",
+    "nt": "Galatians 3",
+    "wisdom": "Psalm 92"
+  },
+  "93": {
+    "day": 93,
+    "ot": "Leviticus 3",
+    "nt": "Galatians 4",
+    "wisdom": "Psalm 93"
+  },
+  "94": {
+    "day": 94,
+    "ot": "Leviticus 4",
+    "nt": "Galatians 5",
+    "wisdom": "Psalm 94"
+  },
+  "95": {
+    "day": 95,
+    "ot": "Leviticus 5",
+    "nt": "Galatians 6",
+    "wisdom": "Psalm 95"
+  },
+  "96": {
+    "day": 96,
+    "ot": "Leviticus 6",
+    "nt": "Ephesians 1",
+    "wisdom": "Psalm 96"
+  },
+  "97": {
+    "day": 97,
+    "ot": "Leviticus 7",
+    "nt": "Ephesians 2",
+    "wisdom": "Psalm 97"
+  },
+  "98": {
+    "day": 98,
+    "ot": "Leviticus 8",
+    "nt": "Ephesians 3",
+    "wisdom": "Psalm 98"
+  },
+  "99": {
+    "day": 99,
+    "ot": "Leviticus 9",
+    "nt": "Ephesians 4",
+    "wisdom": "Psalm 99"
+  },
+  "100": {
+    "day": 100,
+    "ot": "Leviticus 10",
+    "nt": "Ephesians 5",
+    "wisdom": "Psalm 100"
+  },
+  "101": {
+    "day": 101,
+    "ot": "Leviticus 11",
+    "nt": "Ephesians 6",
+    "wisdom": "Psalm 101"
+  },
+  "102": {
+    "day": 102,
+    "ot": "Leviticus 12",
+    "nt": "Philippians 1",
+    "wisdom": "Psalm 102"
+  },
+  "103": {
+    "day": 103,
+    "ot": "Leviticus 13",
+    "nt": "Philippians 2",
+    "wisdom": "Psalm 103"
+  },
+  "104": {
+    "day": 104,
+    "ot": "Leviticus 14",
+    "nt": "Philippians 3",
+    "wisdom": "Psalm 104"
+  },
+  "105": {
+    "day": 105,
+    "ot": "Leviticus 15",
+    "nt": "Philippians 4",
+    "wisdom": "Psalm 105"
+  },
+  "106": {
+    "day": 106,
+    "ot": "Leviticus 16",
+    "nt": "Colossians 1",
+    "wisdom": "Psalm 106"
+  },
+  "107": {
+    "day": 107,
+    "ot": "Leviticus 17",
+    "nt": "Colossians 2",
+    "wisdom": "Psalm 107"
+  },
+  "108": {
+    "day": 108,
+    "ot": "Leviticus 18",
+    "nt": "Colossians 3",
+    "wisdom": "Psalm 108"
+  },
+  "109": {
+    "day": 109,
+    "ot": "Leviticus 19",
+    "nt": "Colossians 4",
+    "wisdom": "Psalm 109"
+  },
+  "110": {
+    "day": 110,
+    "ot": "Leviticus 20",
+    "nt": "1 Thessalonians 1",
+    "wisdom": "Psalm 110"
+  },
+  "111": {
+    "day": 111,
+    "ot": "Leviticus 21",
+    "nt": "1 Thessalonians 2",
+    "wisdom": "Psalm 111"
+  },
+  "112": {
+    "day": 112,
+    "ot": "Leviticus 22",
+    "nt": "1 Thessalonians 3",
+    "wisdom": "Psalm 112"
+  },
+  "113": {
+    "day": 113,
+    "ot": "Leviticus 23",
+    "nt": "1 Thessalonians 4",
+    "wisdom": "Psalm 113"
+  },
+  "114": {
+    "day": 114,
+    "ot": "Leviticus 24",
+    "nt": "1 Thessalonians 5",
+    "wisdom": "Psalm 114"
+  },
+  "115": {
+    "day": 115,
+    "ot": "Leviticus 25",
+    "nt": "2 Thessalonians 1",
+    "wisdom": "Psalm 115"
+  },
+  "116": {
+    "day": 116,
+    "ot": "Leviticus 26",
+    "nt": "2 Thessalonians 2",
+    "wisdom": "Psalm 116"
+  },
+  "117": {
+    "day": 117,
+    "ot": "Leviticus 27",
+    "nt": "2 Thessalonians 3",
+    "wisdom": "Psalm 117"
+  },
+  "118": {
+    "day": 118,
+    "ot": "Numbers 1",
+    "nt": "1 Timothy 1",
+    "wisdom": "Psalm 118"
+  },
+  "119": {
+    "day": 119,
+    "ot": "Numbers 2",
+    "nt": "1 Timothy 2",
+    "wisdom": "Psalm 119"
+  },
+  "120": {
+    "day": 120,
+    "ot": "Numbers 3",
+    "nt": "1 Timothy 3",
+    "wisdom": "Psalm 120"
+  },
+  "121": {
+    "day": 121,
+    "ot": "Numbers 4",
+    "nt": "1 Timothy 4",
+    "wisdom": "Psalm 121"
+  },
+  "122": {
+    "day": 122,
+    "ot": "Numbers 5",
+    "nt": "1 Timothy 5",
+    "wisdom": "Psalm 122"
+  },
+  "123": {
+    "day": 123,
+    "ot": "Numbers 6",
+    "nt": "1 Timothy 6",
+    "wisdom": "Psalm 123"
+  },
+  "124": {
+    "day": 124,
+    "ot": "Numbers 7",
+    "nt": "2 Timothy 1",
+    "wisdom": "Psalm 124"
+  },
+  "125": {
+    "day": 125,
+    "ot": "Numbers 8",
+    "nt": "2 Timothy 2",
+    "wisdom": "Psalm 125"
+  },
+  "126": {
+    "day": 126,
+    "ot": "Numbers 9",
+    "nt": "2 Timothy 3",
+    "wisdom": "Psalm 126"
+  },
+  "127": {
+    "day": 127,
+    "ot": "Numbers 10",
+    "nt": "2 Timothy 4",
+    "wisdom": "Psalm 127"
+  },
+  "128": {
+    "day": 128,
+    "ot": "Numbers 11",
+    "nt": "Luke 1",
+    "wisdom": "Psalm 128"
+  },
+  "129": {
+    "day": 129,
+    "ot": "Numbers 12",
+    "nt": "Luke 2",
+    "wisdom": "Psalm 129"
+  },
+  "130": {
+    "day": 130,
+    "ot": "Numbers 13",
+    "nt": "Luke 3",
+    "wisdom": "Psalm 130"
+  },
+  "131": {
+    "day": 131,
+    "ot": "Numbers 14",
+    "nt": "Luke 4",
+    "wisdom": "Psalm 131"
+  },
+  "132": {
+    "day": 132,
+    "ot": "Numbers 15",
+    "nt": "Luke 5",
+    "wisdom": "Psalm 132"
+  },
+  "133": {
+    "day": 133,
+    "ot": "Numbers 16",
+    "nt": "Luke 6",
+    "wisdom": "Psalm 133"
+  },
+  "134": {
+    "day": 134,
+    "ot": "Numbers 17",
+    "nt": "Luke 7",
+    "wisdom": "Psalm 134"
+  },
+  "135": {
+    "day": 135,
+    "ot": "Numbers 18",
+    "nt": "Luke 8",
+    "wisdom": "Psalm 135"
+  },
+  "136": {
+    "day": 136,
+    "ot": "Numbers 19",
+    "nt": "Luke 9",
+    "wisdom": "Psalm 136"
+  },
+  "137": {
+    "day": 137,
+    "ot": "Numbers 20",
+    "nt": "Luke 10",
+    "wisdom": "Psalm 137"
+  },
+  "138": {
+    "day": 138,
+    "ot": "Numbers 21",
+    "nt": "Luke 11",
+    "wisdom": "Psalm 138"
+  },
+  "139": {
+    "day": 139,
+    "ot": "Numbers 22",
+    "nt": "Luke 12",
+    "wisdom": "Psalm 139"
+  },
+  "140": {
+    "day": 140,
+    "ot": "Numbers 23",
+    "nt": "Luke 13",
+    "wisdom": "Psalm 140"
+  },
+  "141": {
+    "day": 141,
+    "ot": "Numbers 24",
+    "nt": "Luke 14",
+    "wisdom": "Psalm 141"
+  },
+  "142": {
+    "day": 142,
+    "ot": "Numbers 25",
+    "nt": "Luke 15",
+    "wisdom": "Psalm 142"
+  },
+  "143": {
+    "day": 143,
+    "ot": "Numbers 26",
+    "nt": "Luke 16",
+    "wisdom": "Psalm 143"
+  },
+  "144": {
+    "day": 144,
+    "ot": "Numbers 27",
+    "nt": "Luke 17",
+    "wisdom": "Psalm 144"
+  },
+  "145": {
+    "day": 145,
+    "ot": "Numbers 28",
+    "nt": "Luke 18",
+    "wisdom": "Psalm 145"
+  },
+  "146": {
+    "day": 146,
+    "ot": "Numbers 29",
+    "nt": "Luke 19",
+    "wisdom": "Psalm 146"
+  },
+  "147": {
+    "day": 147,
+    "ot": "Numbers 30",
+    "nt": "Luke 20",
+    "wisdom": "Psalm 147"
+  },
+  "148": {
+    "day": 148,
+    "ot": "Numbers 31",
+    "nt": "Luke 21",
+    "wisdom": "Psalm 148"
+  },
+  "149": {
+    "day": 149,
+    "ot": "Numbers 32",
+    "nt": "Luke 22",
+    "wisdom": "Psalm 149"
+  },
+  "150": {
+    "day": 150,
+    "ot": "Numbers 33",
+    "nt": "Luke 23",
+    "wisdom": "Psalm 150"
+  },
+  "151": {
+    "day": 151,
+    "ot": "Numbers 34",
+    "nt": "Luke 24",
+    "wisdom": "Proverbs 1"
+  },
+  "152": {
+    "day": 152,
+    "ot": "Numbers 35",
+    "nt": "Acts 1",
+    "wisdom": "Proverbs 2"
+  },
+  "153": {
+    "day": 153,
+    "ot": "Numbers 36",
+    "nt": "Acts 2",
+    "wisdom": "Proverbs 3"
+  },
+  "154": {
+    "day": 154,
+    "ot": "Deuteronomy 1",
+    "nt": "Acts 3",
+    "wisdom": "Proverbs 4"
+  },
+  "155": {
+    "day": 155,
+    "ot": "Deuteronomy 2",
+    "nt": "Acts 4",
+    "wisdom": "Proverbs 5"
+  },
+  "156": {
+    "day": 156,
+    "ot": "Deuteronomy 3",
+    "nt": "Acts 5",
+    "wisdom": "Proverbs 6"
+  },
+  "157": {
+    "day": 157,
+    "ot": "Deuteronomy 4",
+    "nt": "Acts 6",
+    "wisdom": "Proverbs 7"
+  },
+  "158": {
+    "day": 158,
+    "ot": "Deuteronomy 5",
+    "nt": "Acts 7",
+    "wisdom": "Proverbs 8"
+  },
+  "159": {
+    "day": 159,
+    "ot": "Deuteronomy 6",
+    "nt": "Acts 8",
+    "wisdom": "Proverbs 9"
+  },
+  "160": {
+    "day": 160,
+    "ot": "Deuteronomy 7",
+    "nt": "Acts 9",
+    "wisdom": "Proverbs 10"
+  },
+  "161": {
+    "day": 161,
+    "ot": "Deuteronomy 8",
+    "nt": "Acts 10",
+    "wisdom": "Proverbs 11"
+  },
+  "162": {
+    "day": 162,
+    "ot": "Deuteronomy 9",
+    "nt": "Acts 11",
+    "wisdom": "Proverbs 12"
+  },
+  "163": {
+    "day": 163,
+    "ot": "Deuteronomy 10",
+    "nt": "Acts 12",
+    "wisdom": "Proverbs 13"
+  },
+  "164": {
+    "day": 164,
+    "ot": "Deuteronomy 11",
+    "nt": "Acts 13",
+    "wisdom": "Proverbs 14"
+  },
+  "165": {
+    "day": 165,
+    "ot": "Deuteronomy 12",
+    "nt": "Acts 14",
+    "wisdom": "Proverbs 15"
+  },
+  "166": {
+    "day": 166,
+    "ot": "Deuteronomy 13",
+    "nt": "Acts 15",
+    "wisdom": "Proverbs 16"
+  },
+  "167": {
+    "day": 167,
+    "ot": "Deuteronomy 14",
+    "nt": "Acts 16",
+    "wisdom": "Proverbs 17"
+  },
+  "168": {
+    "day": 168,
+    "ot": "Deuteronomy 15",
+    "nt": "Acts 17",
+    "wisdom": "Proverbs 18"
+  },
+  "169": {
+    "day": 169,
+    "ot": "Deuteronomy 16",
+    "nt": "Acts 18",
+    "wisdom": "Proverbs 19"
+  },
+  "170": {
+    "day": 170,
+    "ot": "Deuteronomy 17",
+    "nt": "Acts 19",
+    "wisdom": "Proverbs 20"
+  },
+  "171": {
+    "day": 171,
+    "ot": "Deuteronomy 18",
+    "nt": "Acts 20",
+    "wisdom": "Proverbs 21"
+  },
+  "172": {
+    "day": 172,
+    "ot": "Deuteronomy 19",
+    "nt": "Acts 21",
+    "wisdom": "Proverbs 22"
+  },
+  "173": {
+    "day": 173,
+    "ot": "Deuteronomy 20",
+    "nt": "Acts 22",
+    "wisdom": "Proverbs 23"
+  },
+  "174": {
+    "day": 174,
+    "ot": "Deuteronomy 21",
+    "nt": "Acts 23",
+    "wisdom": "Proverbs 24"
+  },
+  "175": {
+    "day": 175,
+    "ot": "Deuteronomy 22",
+    "nt": "Acts 24",
+    "wisdom": "Proverbs 25"
+  },
+  "176": {
+    "day": 176,
+    "ot": "Deuteronomy 23",
+    "nt": "Acts 25",
+    "wisdom": "Proverbs 26"
+  },
+  "177": {
+    "day": 177,
+    "ot": "Deuteronomy 24",
+    "nt": "Acts 26",
+    "wisdom": "Proverbs 27"
+  },
+  "178": {
+    "day": 178,
+    "ot": "Deuteronomy 25",
+    "nt": "Acts 27",
+    "wisdom": "Proverbs 28"
+  },
+  "179": {
+    "day": 179,
+    "ot": "Deuteronomy 26",
+    "nt": "Acts 28",
+    "wisdom": "Proverbs 29"
+  },
+  "180": {
+    "day": 180,
+    "ot": "Deuteronomy 27",
+    "nt": "Titus 1",
+    "wisdom": "Proverbs 30"
+  },
+  "181": {
+    "day": 181,
+    "ot": "Deuteronomy 28",
+    "nt": "Titus 2",
+    "wisdom": "Proverbs 31"
+  },
+  "182": {
+    "day": 182,
+    "ot": "Deuteronomy 29",
+    "nt": "Titus 3",
+    "wisdom": "Ecclesiastes 1"
+  },
+  "183": {
+    "day": 183,
+    "ot": "Deuteronomy 30",
+    "nt": "Philemon 1",
+    "wisdom": "Ecclesiastes 2"
+  },
+  "184": {
+    "day": 184,
+    "ot": "Deuteronomy 31",
+    "nt": "Hebrews 1",
+    "wisdom": "Ecclesiastes 3"
+  },
+  "185": {
+    "day": 185,
+    "ot": "Deuteronomy 32",
+    "nt": "Hebrews 2",
+    "wisdom": "Ecclesiastes 4"
+  },
+  "186": {
+    "day": 186,
+    "ot": "Deuteronomy 33",
+    "nt": "Hebrews 3",
+    "wisdom": "Ecclesiastes 5"
+  },
+  "187": {
+    "day": 187,
+    "ot": "Deuteronomy 34",
+    "nt": "Hebrews 4",
+    "wisdom": "Ecclesiastes 6"
+  },
+  "188": {
+    "day": 188,
+    "ot": "Joshua 1",
+    "nt": "Hebrews 5",
+    "wisdom": "Ecclesiastes 7"
+  },
+  "189": {
+    "day": 189,
+    "ot": "Joshua 2",
+    "nt": "Hebrews 6",
+    "wisdom": "Ecclesiastes 8"
+  },
+  "190": {
+    "day": 190,
+    "ot": "Joshua 3",
+    "nt": "Hebrews 7",
+    "wisdom": "Ecclesiastes 9"
+  },
+  "191": {
+    "day": 191,
+    "ot": "Joshua 4",
+    "nt": "Hebrews 8",
+    "wisdom": "Ecclesiastes 10"
+  },
+  "192": {
+    "day": 192,
+    "ot": "Joshua 5",
+    "nt": "Hebrews 9",
+    "wisdom": "Ecclesiastes 11"
+  },
+  "193": {
+    "day": 193,
+    "ot": "Joshua 6",
+    "nt": "Hebrews 10",
+    "wisdom": "Ecclesiastes 12"
+  },
+  "194": {
+    "day": 194,
+    "ot": "Joshua 7",
+    "nt": "Hebrews 11",
+    "wisdom": "Psalm 1"
+  },
+  "195": {
+    "day": 195,
+    "ot": "Joshua 8",
+    "nt": "Hebrews 12",
+    "wisdom": "Psalm 2"
+  },
+  "196": {
+    "day": 196,
+    "ot": "Joshua 9",
+    "nt": "Hebrews 13",
+    "wisdom": "Psalm 3"
+  },
+  "197": {
+    "day": 197,
+    "ot": "Joshua 10",
+    "nt": "James 1",
+    "wisdom": "Psalm 4"
+  },
+  "198": {
+    "day": 198,
+    "ot": "Joshua 11",
+    "nt": "James 2",
+    "wisdom": "Psalm 5"
+  },
+  "199": {
+    "day": 199,
+    "ot": "Joshua 12",
+    "nt": "James 3",
+    "wisdom": "Psalm 6"
+  },
+  "200": {
+    "day": 200,
+    "ot": "Joshua 13",
+    "nt": "James 4",
+    "wisdom": "Psalm 7"
+  },
+  "201": {
+    "day": 201,
+    "ot": "Joshua 14",
+    "nt": "James 5",
+    "wisdom": "Psalm 8"
+  },
+  "202": {
+    "day": 202,
+    "ot": "Joshua 15",
+    "nt": "1 Peter 1",
+    "wisdom": "Psalm 9"
+  },
+  "203": {
+    "day": 203,
+    "ot": "Joshua 16",
+    "nt": "1 Peter 2",
+    "wisdom": "Psalm 10"
+  },
+  "204": {
+    "day": 204,
+    "ot": "Joshua 17",
+    "nt": "1 Peter 3",
+    "wisdom": "Psalm 11"
+  },
+  "205": {
+    "day": 205,
+    "ot": "Joshua 18",
+    "nt": "1 Peter 4",
+    "wisdom": "Psalm 12"
+  },
+  "206": {
+    "day": 206,
+    "ot": "Joshua 19",
+    "nt": "1 Peter 5",
+    "wisdom": "Psalm 13"
+  },
+  "207": {
+    "day": 207,
+    "ot": "Joshua 20",
+    "nt": "2 Peter 1",
+    "wisdom": "Psalm 14"
+  },
+  "208": {
+    "day": 208,
+    "ot": "Joshua 21",
+    "nt": "2 Peter 2",
+    "wisdom": "Psalm 15"
+  },
+  "209": {
+    "day": 209,
+    "ot": "Joshua 22",
+    "nt": "2 Peter 3",
+    "wisdom": "Psalm 16"
+  },
+  "210": {
+    "day": 210,
+    "ot": "Joshua 23",
+    "nt": "1 John 1",
+    "wisdom": "Psalm 17"
+  },
+  "211": {
+    "day": 211,
+    "ot": "Joshua 24",
+    "nt": "1 John 2",
+    "wisdom": "Psalm 18"
+  },
+  "212": {
+    "day": 212,
+    "ot": "Judges 1",
+    "nt": "1 John 3",
+    "wisdom": "Psalm 19"
+  },
+  "213": {
+    "day": 213,
+    "ot": "Judges 2",
+    "nt": "1 John 4",
+    "wisdom": "Psalm 20"
+  },
+  "214": {
+    "day": 214,
+    "ot": "Judges 3",
+    "nt": "1 John 5",
+    "wisdom": "Psalm 21"
+  },
+  "215": {
+    "day": 215,
+    "ot": "Judges 4",
+    "nt": "2 John 1",
+    "wisdom": "Psalm 22"
+  },
+  "216": {
+    "day": 216,
+    "ot": "Judges 5",
+    "nt": "3 John 1",
+    "wisdom": "Psalm 23"
+  },
+  "217": {
+    "day": 217,
+    "ot": "Judges 6",
+    "nt": "Jude 1",
+    "wisdom": "Psalm 24"
+  },
+  "218": {
+    "day": 218,
+    "ot": "Judges 7",
+    "nt": "John 1",
+    "wisdom": "Psalm 25"
+  },
+  "219": {
+    "day": 219,
+    "ot": "Judges 8",
+    "nt": "John 2",
+    "wisdom": "Psalm 26"
+  },
+  "220": {
+    "day": 220,
+    "ot": "Judges 9",
+    "nt": "John 3",
+    "wisdom": "Psalm 27"
+  },
+  "221": {
+    "day": 221,
+    "ot": "Judges 10",
+    "nt": "John 4",
+    "wisdom": "Psalm 28"
+  },
+  "222": {
+    "day": 222,
+    "ot": "Judges 11",
+    "nt": "John 5",
+    "wisdom": "Psalm 29"
+  },
+  "223": {
+    "day": 223,
+    "ot": "Judges 12",
+    "nt": "John 6",
+    "wisdom": "Psalm 30"
+  },
+  "224": {
+    "day": 224,
+    "ot": "Judges 13",
+    "nt": "John 7",
+    "wisdom": "Psalm 31"
+  },
+  "225": {
+    "day": 225,
+    "ot": "Judges 14",
+    "nt": "John 8",
+    "wisdom": "Psalm 32"
+  },
+  "226": {
+    "day": 226,
+    "ot": "Judges 15",
+    "nt": "John 9",
+    "wisdom": "Psalm 33"
+  },
+  "227": {
+    "day": 227,
+    "ot": "Judges 16",
+    "nt": "John 10",
+    "wisdom": "Psalm 34"
+  },
+  "228": {
+    "day": 228,
+    "ot": "Judges 17",
+    "nt": "John 11",
+    "wisdom": "Psalm 35"
+  },
+  "229": {
+    "day": 229,
+    "ot": "Judges 18",
+    "nt": "John 12",
+    "wisdom": "Psalm 36"
+  },
+  "230": {
+    "day": 230,
+    "ot": "Judges 19",
+    "nt": "John 13",
+    "wisdom": "Psalm 37"
+  },
+  "231": {
+    "day": 231,
+    "ot": "Judges 20",
+    "nt": "John 14",
+    "wisdom": "Psalm 38"
+  },
+  "232": {
+    "day": 232,
+    "ot": "Judges 21",
+    "nt": "John 15",
+    "wisdom": "Psalm 39"
+  },
+  "233": {
+    "day": 233,
+    "ot": "Ruth 1",
+    "nt": "John 16",
+    "wisdom": "Psalm 40"
+  },
+  "234": {
+    "day": 234,
+    "ot": "Ruth 2",
+    "nt": "John 17",
+    "wisdom": "Psalm 41"
+  },
+  "235": {
+    "day": 235,
+    "ot": "Ruth 3",
+    "nt": "John 18",
+    "wisdom": "Psalm 42"
+  },
+  "236": {
+    "day": 236,
+    "ot": "Ruth 4",
+    "nt": "John 19",
+    "wisdom": "Psalm 43"
+  },
+  "237": {
+    "day": 237,
+    "ot": "1 Samuel 1",
+    "nt": "John 20",
+    "wisdom": "Psalm 44"
+  },
+  "238": {
+    "day": 238,
+    "ot": "1 Samuel 2",
+    "nt": "John 21",
+    "wisdom": "Psalm 45"
+  },
+  "239": {
+    "day": 239,
+    "ot": "1 Samuel 3",
+    "nt": "Revelation 1",
+    "wisdom": "Psalm 46"
+  },
+  "240": {
+    "day": 240,
+    "ot": "1 Samuel 4",
+    "nt": "Revelation 2",
+    "wisdom": "Psalm 47"
+  },
+  "241": {
+    "day": 241,
+    "ot": "1 Samuel 5",
+    "nt": "Revelation 3",
+    "wisdom": "Psalm 48"
+  },
+  "242": {
+    "day": 242,
+    "ot": "1 Samuel 6",
+    "nt": "Revelation 4",
+    "wisdom": "Psalm 49"
+  },
+  "243": {
+    "day": 243,
+    "ot": "1 Samuel 7",
+    "nt": "Revelation 5",
+    "wisdom": "Psalm 50"
+  },
+  "244": {
+    "day": 244,
+    "ot": "1 Samuel 8",
+    "nt": "Revelation 6",
+    "wisdom": "Psalm 51"
+  },
+  "245": {
+    "day": 245,
+    "ot": "1 Samuel 9",
+    "nt": "Revelation 7",
+    "wisdom": "Psalm 52"
+  },
+  "246": {
+    "day": 246,
+    "ot": "1 Samuel 10",
+    "nt": "Revelation 8",
+    "wisdom": "Psalm 53"
+  },
+  "247": {
+    "day": 247,
+    "ot": "1 Samuel 11",
+    "nt": "Revelation 9",
+    "wisdom": "Psalm 54"
+  },
+  "248": {
+    "day": 248,
+    "ot": "1 Samuel 12",
+    "nt": "Revelation 10",
+    "wisdom": "Psalm 55"
+  },
+  "249": {
+    "day": 249,
+    "ot": "1 Samuel 13",
+    "nt": "Revelation 11",
+    "wisdom": "Psalm 56"
+  },
+  "250": {
+    "day": 250,
+    "ot": "1 Samuel 14",
+    "nt": "Revelation 12",
+    "wisdom": "Psalm 57"
+  },
+  "251": {
+    "day": 251,
+    "ot": "1 Samuel 15",
+    "nt": "Revelation 13",
+    "wisdom": "Psalm 58"
+  },
+  "252": {
+    "day": 252,
+    "ot": "1 Samuel 16",
+    "nt": "Revelation 14",
+    "wisdom": "Psalm 59"
+  },
+  "253": {
+    "day": 253,
+    "ot": "1 Samuel 17",
+    "nt": "Revelation 15",
+    "wisdom": "Psalm 60"
+  },
+  "254": {
+    "day": 254,
+    "ot": "1 Samuel 18",
+    "nt": "Revelation 16",
+    "wisdom": "Psalm 61"
+  },
+  "255": {
+    "day": 255,
+    "ot": "1 Samuel 19",
+    "nt": "Revelation 17",
+    "wisdom": "Psalm 62"
+  },
+  "256": {
+    "day": 256,
+    "ot": "1 Samuel 20",
+    "nt": "Revelation 18",
+    "wisdom": "Psalm 63"
+  },
+  "257": {
+    "day": 257,
+    "ot": "1 Samuel 21",
+    "nt": "Revelation 19",
+    "wisdom": "Psalm 64"
+  },
+  "258": {
+    "day": 258,
+    "ot": "1 Samuel 22",
+    "nt": "Revelation 20",
+    "wisdom": "Psalm 65"
+  },
+  "259": {
+    "day": 259,
+    "ot": "1 Samuel 23",
+    "nt": "Revelation 21",
+    "wisdom": "Psalm 66"
+  },
+  "260": {
+    "day": 260,
+    "ot": "1 Samuel 24",
+    "nt": "Revelation 22",
+    "wisdom": "Psalm 67"
+  },
+  "261": {
+    "day": 261,
+    "ot": "1 Samuel 25",
+    "nt": "Matthew 1",
+    "wisdom": "Psalm 68"
+  },
+  "262": {
+    "day": 262,
+    "ot": "1 Samuel 26",
+    "nt": "Matthew 2",
+    "wisdom": "Psalm 69"
+  },
+  "263": {
+    "day": 263,
+    "ot": "1 Samuel 27",
+    "nt": "Matthew 3",
+    "wisdom": "Psalm 70"
+  },
+  "264": {
+    "day": 264,
+    "ot": "1 Samuel 28",
+    "nt": "Matthew 4",
+    "wisdom": "Psalm 71"
+  },
+  "265": {
+    "day": 265,
+    "ot": "1 Samuel 29",
+    "nt": "Matthew 5",
+    "wisdom": "Psalm 72"
+  },
+  "266": {
+    "day": 266,
+    "ot": "1 Samuel 30",
+    "nt": "Matthew 6",
+    "wisdom": "Psalm 73"
+  },
+  "267": {
+    "day": 267,
+    "ot": "1 Samuel 31",
+    "nt": "Matthew 7",
+    "wisdom": "Psalm 74"
+  },
+  "268": {
+    "day": 268,
+    "ot": "2 Samuel 1",
+    "nt": "Matthew 8",
+    "wisdom": "Psalm 75"
+  },
+  "269": {
+    "day": 269,
+    "ot": "2 Samuel 2",
+    "nt": "Matthew 9",
+    "wisdom": "Psalm 76"
+  },
+  "270": {
+    "day": 270,
+    "ot": "2 Samuel 3",
+    "nt": "Matthew 10",
+    "wisdom": "Psalm 77"
+  },
+  "271": {
+    "day": 271,
+    "ot": "2 Samuel 4",
+    "nt": "Matthew 11",
+    "wisdom": "Psalm 78"
+  },
+  "272": {
+    "day": 272,
+    "ot": "2 Samuel 5",
+    "nt": "Matthew 12",
+    "wisdom": "Psalm 79"
+  },
+  "273": {
+    "day": 273,
+    "ot": "2 Samuel 6",
+    "nt": "Matthew 13",
+    "wisdom": "Psalm 80"
+  },
+  "274": {
+    "day": 274,
+    "ot": "2 Samuel 7",
+    "nt": "Matthew 14",
+    "wisdom": "Psalm 81"
+  },
+  "275": {
+    "day": 275,
+    "ot": "2 Samuel 8",
+    "nt": "Matthew 15",
+    "wisdom": "Psalm 82"
+  },
+  "276": {
+    "day": 276,
+    "ot": "2 Samuel 9",
+    "nt": "Matthew 16",
+    "wisdom": "Psalm 83"
+  },
+  "277": {
+    "day": 277,
+    "ot": "2 Samuel 10",
+    "nt": "Matthew 17",
+    "wisdom": "Psalm 84"
+  },
+  "278": {
+    "day": 278,
+    "ot": "2 Samuel 11",
+    "nt": "Matthew 18",
+    "wisdom": "Psalm 85"
+  },
+  "279": {
+    "day": 279,
+    "ot": "2 Samuel 12",
+    "nt": "Matthew 19",
+    "wisdom": "Psalm 86"
+  },
+  "280": {
+    "day": 280,
+    "ot": "2 Samuel 13",
+    "nt": "Matthew 20",
+    "wisdom": "Psalm 87"
+  },
+  "281": {
+    "day": 281,
+    "ot": "2 Samuel 14",
+    "nt": "Matthew 21",
+    "wisdom": "Psalm 88"
+  },
+  "282": {
+    "day": 282,
+    "ot": "2 Samuel 15",
+    "nt": "Matthew 22",
+    "wisdom": "Psalm 89"
+  },
+  "283": {
+    "day": 283,
+    "ot": "2 Samuel 16",
+    "nt": "Matthew 23",
+    "wisdom": "Psalm 90"
+  },
+  "284": {
+    "day": 284,
+    "ot": "2 Samuel 17",
+    "nt": "Matthew 24",
+    "wisdom": "Psalm 91"
+  },
+  "285": {
+    "day": 285,
+    "ot": "2 Samuel 18",
+    "nt": "Matthew 25",
+    "wisdom": "Psalm 92"
+  },
+  "286": {
+    "day": 286,
+    "ot": "2 Samuel 19",
+    "nt": "Matthew 26",
+    "wisdom": "Psalm 93"
+  },
+  "287": {
+    "day": 287,
+    "ot": "2 Samuel 20",
+    "nt": "Matthew 27",
+    "wisdom": "Psalm 94"
+  },
+  "288": {
+    "day": 288,
+    "ot": "2 Samuel 21",
+    "nt": "Matthew 28",
+    "wisdom": "Psalm 95"
+  },
+  "289": {
+    "day": 289,
+    "ot": "2 Samuel 22",
+    "nt": "Romans 1",
+    "wisdom": "Psalm 96"
+  },
+  "290": {
+    "day": 290,
+    "ot": "2 Samuel 23",
+    "nt": "Romans 2",
+    "wisdom": "Psalm 97"
+  },
+  "291": {
+    "day": 291,
+    "ot": "2 Samuel 24",
+    "nt": "Romans 3",
+    "wisdom": "Psalm 98"
+  },
+  "292": {
+    "day": 292,
+    "ot": "1 Kings 1",
+    "nt": "Romans 4",
+    "wisdom": "Psalm 99"
+  },
+  "293": {
+    "day": 293,
+    "ot": "1 Kings 2",
+    "nt": "Romans 5",
+    "wisdom": "Psalm 100"
+  },
+  "294": {
+    "day": 294,
+    "ot": "1 Kings 3",
+    "nt": "Romans 6",
+    "wisdom": "Psalm 101"
+  },
+  "295": {
+    "day": 295,
+    "ot": "1 Kings 4",
+    "nt": "Romans 7",
+    "wisdom": "Psalm 102"
+  },
+  "296": {
+    "day": 296,
+    "ot": "1 Kings 5",
+    "nt": "Romans 8",
+    "wisdom": "Psalm 103"
+  },
+  "297": {
+    "day": 297,
+    "ot": "1 Kings 6",
+    "nt": "Romans 9",
+    "wisdom": "Psalm 104"
+  },
+  "298": {
+    "day": 298,
+    "ot": "1 Kings 7",
+    "nt": "Romans 10",
+    "wisdom": "Psalm 105"
+  },
+  "299": {
+    "day": 299,
+    "ot": "1 Kings 8",
+    "nt": "Romans 11",
+    "wisdom": "Psalm 106"
+  },
+  "300": {
+    "day": 300,
+    "ot": "1 Kings 9",
+    "nt": "Romans 12",
+    "wisdom": "Psalm 107"
+  },
+  "301": {
+    "day": 301,
+    "ot": "1 Kings 10",
+    "nt": "Romans 13",
+    "wisdom": "Psalm 108"
+  },
+  "302": {
+    "day": 302,
+    "ot": "1 Kings 11",
+    "nt": "Romans 14",
+    "wisdom": "Psalm 109"
+  },
+  "303": {
+    "day": 303,
+    "ot": "1 Kings 12",
+    "nt": "Romans 15",
+    "wisdom": "Psalm 110"
+  },
+  "304": {
+    "day": 304,
+    "ot": "1 Kings 13",
+    "nt": "Romans 16",
+    "wisdom": "Psalm 111"
+  },
+  "305": {
+    "day": 305,
+    "ot": "1 Kings 14",
+    "nt": "1 Corinthians 1",
+    "wisdom": "Psalm 112"
+  },
+  "306": {
+    "day": 306,
+    "ot": "1 Kings 15",
+    "nt": "1 Corinthians 2",
+    "wisdom": "Psalm 113"
+  },
+  "307": {
+    "day": 307,
+    "ot": "1 Kings 16",
+    "nt": "1 Corinthians 3",
+    "wisdom": "Psalm 114"
+  },
+  "308": {
+    "day": 308,
+    "ot": "1 Kings 17",
+    "nt": "1 Corinthians 4",
+    "wisdom": "Psalm 115"
+  },
+  "309": {
+    "day": 309,
+    "ot": "1 Kings 18",
+    "nt": "1 Corinthians 5",
+    "wisdom": "Psalm 116"
+  },
+  "310": {
+    "day": 310,
+    "ot": "1 Kings 19",
+    "nt": "1 Corinthians 6",
+    "wisdom": "Psalm 117"
+  },
+  "311": {
+    "day": 311,
+    "ot": "1 Kings 20",
+    "nt": "1 Corinthians 7",
+    "wisdom": "Psalm 118"
+  },
+  "312": {
+    "day": 312,
+    "ot": "1 Kings 21",
+    "nt": "1 Corinthians 8",
+    "wisdom": "Psalm 119"
+  },
+  "313": {
+    "day": 313,
+    "ot": "1 Kings 22",
+    "nt": "1 Corinthians 9",
+    "wisdom": "Psalm 120"
+  },
+  "314": {
+    "day": 314,
+    "ot": "2 Kings 1",
+    "nt": "1 Corinthians 10",
+    "wisdom": "Psalm 121"
+  },
+  "315": {
+    "day": 315,
+    "ot": "2 Kings 2",
+    "nt": "1 Corinthians 11",
+    "wisdom": "Psalm 122"
+  },
+  "316": {
+    "day": 316,
+    "ot": "2 Kings 3",
+    "nt": "1 Corinthians 12",
+    "wisdom": "Psalm 123"
+  },
+  "317": {
+    "day": 317,
+    "ot": "2 Kings 4",
+    "nt": "1 Corinthians 13",
+    "wisdom": "Psalm 124"
+  },
+  "318": {
+    "day": 318,
+    "ot": "2 Kings 5",
+    "nt": "1 Corinthians 14",
+    "wisdom": "Psalm 125"
+  },
+  "319": {
+    "day": 319,
+    "ot": "2 Kings 6",
+    "nt": "1 Corinthians 15",
+    "wisdom": "Psalm 126"
+  },
+  "320": {
+    "day": 320,
+    "ot": "2 Kings 7",
+    "nt": "1 Corinthians 16",
+    "wisdom": "Psalm 127"
+  },
+  "321": {
+    "day": 321,
+    "ot": "2 Kings 8",
+    "nt": "2 Corinthians 1",
+    "wisdom": "Psalm 128"
+  },
+  "322": {
+    "day": 322,
+    "ot": "2 Kings 9",
+    "nt": "2 Corinthians 2",
+    "wisdom": "Psalm 129"
+  },
+  "323": {
+    "day": 323,
+    "ot": "2 Kings 10",
+    "nt": "2 Corinthians 3",
+    "wisdom": "Psalm 130"
+  },
+  "324": {
+    "day": 324,
+    "ot": "2 Kings 11",
+    "nt": "2 Corinthians 4",
+    "wisdom": "Psalm 131"
+  },
+  "325": {
+    "day": 325,
+    "ot": "2 Kings 12",
+    "nt": "2 Corinthians 5",
+    "wisdom": "Psalm 132"
+  },
+  "326": {
+    "day": 326,
+    "ot": "2 Kings 13",
+    "nt": "2 Corinthians 6",
+    "wisdom": "Psalm 133"
+  },
+  "327": {
+    "day": 327,
+    "ot": "2 Kings 14",
+    "nt": "2 Corinthians 7",
+    "wisdom": "Psalm 134"
+  },
+  "328": {
+    "day": 328,
+    "ot": "2 Kings 15",
+    "nt": "2 Corinthians 8",
+    "wisdom": "Psalm 135"
+  },
+  "329": {
+    "day": 329,
+    "ot": "2 Kings 16",
+    "nt": "2 Corinthians 9",
+    "wisdom": "Psalm 136"
+  },
+  "330": {
+    "day": 330,
+    "ot": "2 Kings 17",
+    "nt": "2 Corinthians 10",
+    "wisdom": "Psalm 137"
+  },
+  "331": {
+    "day": 331,
+    "ot": "2 Kings 18",
+    "nt": "2 Corinthians 11",
+    "wisdom": "Psalm 138"
+  },
+  "332": {
+    "day": 332,
+    "ot": "2 Kings 19",
+    "nt": "2 Corinthians 12",
+    "wisdom": "Psalm 139"
+  },
+  "333": {
+    "day": 333,
+    "ot": "2 Kings 20",
+    "nt": "2 Corinthians 13",
+    "wisdom": "Psalm 140"
+  },
+  "334": {
+    "day": 334,
+    "ot": "2 Kings 21",
+    "nt": "Mark 1",
+    "wisdom": "Psalm 141"
+  },
+  "335": {
+    "day": 335,
+    "ot": "2 Kings 22",
+    "nt": "Mark 2",
+    "wisdom": "Psalm 142"
+  },
+  "336": {
+    "day": 336,
+    "ot": "2 Kings 23",
+    "nt": "Mark 3",
+    "wisdom": "Psalm 143"
+  },
+  "337": {
+    "day": 337,
+    "ot": "2 Kings 24",
+    "nt": "Mark 4",
+    "wisdom": "Psalm 144"
+  },
+  "338": {
+    "day": 338,
+    "ot": "2 Kings 25",
+    "nt": "Mark 5",
+    "wisdom": "Psalm 145"
+  },
+  "339": {
+    "day": 339,
+    "ot": "1 Chronicles 1",
+    "nt": "Mark 6",
+    "wisdom": "Psalm 146"
+  },
+  "340": {
+    "day": 340,
+    "ot": "1 Chronicles 2",
+    "nt": "Mark 7",
+    "wisdom": "Psalm 147"
+  },
+  "341": {
+    "day": 341,
+    "ot": "1 Chronicles 3",
+    "nt": "Mark 8",
+    "wisdom": "Psalm 148"
+  },
+  "342": {
+    "day": 342,
+    "ot": "1 Chronicles 4",
+    "nt": "Mark 9",
+    "wisdom": "Psalm 149"
+  },
+  "343": {
+    "day": 343,
+    "ot": "1 Chronicles 5",
+    "nt": "Mark 10",
+    "wisdom": "Psalm 150"
+  },
+  "344": {
+    "day": 344,
+    "ot": "1 Chronicles 6",
+    "nt": "Mark 11",
+    "wisdom": "Proverbs 1"
+  },
+  "345": {
+    "day": 345,
+    "ot": "1 Chronicles 7",
+    "nt": "Mark 12",
+    "wisdom": "Proverbs 2"
+  },
+  "346": {
+    "day": 346,
+    "ot": "1 Chronicles 8",
+    "nt": "Mark 13",
+    "wisdom": "Proverbs 3"
+  },
+  "347": {
+    "day": 347,
+    "ot": "1 Chronicles 9",
+    "nt": "Mark 14",
+    "wisdom": "Proverbs 4"
+  },
+  "348": {
+    "day": 348,
+    "ot": "1 Chronicles 10",
+    "nt": "Mark 15",
+    "wisdom": "Proverbs 5"
+  },
+  "349": {
+    "day": 349,
+    "ot": "1 Chronicles 11",
+    "nt": "Mark 16",
+    "wisdom": "Proverbs 6"
+  },
+  "350": {
+    "day": 350,
+    "ot": "1 Chronicles 12",
+    "nt": "Galatians 1",
+    "wisdom": "Proverbs 7"
+  },
+  "351": {
+    "day": 351,
+    "ot": "1 Chronicles 13",
+    "nt": "Galatians 2",
+    "wisdom": "Proverbs 8"
+  },
+  "352": {
+    "day": 352,
+    "ot": "1 Chronicles 14",
+    "nt": "Galatians 3",
+    "wisdom": "Proverbs 9"
+  },
+  "353": {
+    "day": 353,
+    "ot": "1 Chronicles 15",
+    "nt": "Galatians 4",
+    "wisdom": "Proverbs 10"
+  },
+  "354": {
+    "day": 354,
+    "ot": "1 Chronicles 16",
+    "nt": "Galatians 5",
+    "wisdom": "Proverbs 11"
+  },
+  "355": {
+    "day": 355,
+    "ot": "1 Chronicles 17",
+    "nt": "Galatians 6",
+    "wisdom": "Proverbs 12"
+  },
+  "356": {
+    "day": 356,
+    "ot": "1 Chronicles 18",
+    "nt": "Ephesians 1",
+    "wisdom": "Proverbs 13"
+  },
+  "357": {
+    "day": 357,
+    "ot": "1 Chronicles 19",
+    "nt": "Ephesians 2",
+    "wisdom": "Proverbs 14"
+  },
+  "358": {
+    "day": 358,
+    "ot": "1 Chronicles 20",
+    "nt": "Ephesians 3",
+    "wisdom": "Proverbs 15"
+  },
+  "359": {
+    "day": 359,
+    "ot": "1 Chronicles 21",
+    "nt": "Ephesians 4",
+    "wisdom": "Proverbs 16"
+  },
+  "360": {
+    "day": 360,
+    "ot": "1 Chronicles 22",
+    "nt": "Ephesians 5",
+    "wisdom": "Proverbs 17"
+  },
+  "361": {
+    "day": 361,
+    "ot": "1 Chronicles 23",
+    "nt": "Ephesians 6",
+    "wisdom": "Proverbs 18"
+  },
+  "362": {
+    "day": 362,
+    "ot": "1 Chronicles 24",
+    "nt": "Philippians 1",
+    "wisdom": "Proverbs 19"
+  },
+  "363": {
+    "day": 363,
+    "ot": "1 Chronicles 25",
+    "nt": "Philippians 2",
+    "wisdom": "Proverbs 20"
+  },
+  "364": {
+    "day": 364,
+    "ot": "1 Chronicles 26",
+    "nt": "Philippians 3",
+    "wisdom": "Proverbs 21"
+  },
+  "365": {
+    "day": 365,
+    "ot": "1 Chronicles 27",
+    "nt": "Philippians 4",
+    "wisdom": "Proverbs 22"
+  },
+  "366": {
+    "day": 366,
+    "ot": "1 Chronicles 28",
+    "nt": "Colossians 1",
+    "wisdom": "Proverbs 23"
+  },
+  "367": {
+    "day": 367,
+    "ot": "1 Chronicles 29",
+    "nt": "Colossians 2",
+    "wisdom": "Proverbs 24"
+  },
+  "368": {
+    "day": 368,
+    "ot": "2 Chronicles 1",
+    "nt": "Colossians 3",
+    "wisdom": "Proverbs 25"
+  },
+  "369": {
+    "day": 369,
+    "ot": "2 Chronicles 2",
+    "nt": "Colossians 4",
+    "wisdom": "Proverbs 26"
+  },
+  "370": {
+    "day": 370,
+    "ot": "2 Chronicles 3",
+    "nt": "1 Thessalonians 1",
+    "wisdom": "Proverbs 27"
+  },
+  "371": {
+    "day": 371,
+    "ot": "2 Chronicles 4",
+    "nt": "1 Thessalonians 2",
+    "wisdom": "Proverbs 28"
+  },
+  "372": {
+    "day": 372,
+    "ot": "2 Chronicles 5",
+    "nt": "1 Thessalonians 3",
+    "wisdom": "Proverbs 29"
+  },
+  "373": {
+    "day": 373,
+    "ot": "2 Chronicles 6",
+    "nt": "1 Thessalonians 4",
+    "wisdom": "Proverbs 30"
+  },
+  "374": {
+    "day": 374,
+    "ot": "2 Chronicles 7",
+    "nt": "1 Thessalonians 5",
+    "wisdom": "Proverbs 31"
+  },
+  "375": {
+    "day": 375,
+    "ot": "2 Chronicles 8",
+    "nt": "2 Thessalonians 1",
+    "wisdom": "Ecclesiastes 1"
+  },
+  "376": {
+    "day": 376,
+    "ot": "2 Chronicles 9",
+    "nt": "2 Thessalonians 2",
+    "wisdom": "Ecclesiastes 2"
+  },
+  "377": {
+    "day": 377,
+    "ot": "2 Chronicles 10",
+    "nt": "2 Thessalonians 3",
+    "wisdom": "Ecclesiastes 3"
+  },
+  "378": {
+    "day": 378,
+    "ot": "2 Chronicles 11",
+    "nt": "1 Timothy 1",
+    "wisdom": "Ecclesiastes 4"
+  },
+  "379": {
+    "day": 379,
+    "ot": "2 Chronicles 12",
+    "nt": "1 Timothy 2",
+    "wisdom": "Ecclesiastes 5"
+  },
+  "380": {
+    "day": 380,
+    "ot": "2 Chronicles 13",
+    "nt": "1 Timothy 3",
+    "wisdom": "Ecclesiastes 6"
+  },
+  "381": {
+    "day": 381,
+    "ot": "2 Chronicles 14",
+    "nt": "1 Timothy 4",
+    "wisdom": "Ecclesiastes 7"
+  },
+  "382": {
+    "day": 382,
+    "ot": "2 Chronicles 15",
+    "nt": "1 Timothy 5",
+    "wisdom": "Ecclesiastes 8"
+  },
+  "383": {
+    "day": 383,
+    "ot": "2 Chronicles 16",
+    "nt": "1 Timothy 6",
+    "wisdom": "Ecclesiastes 9"
+  },
+  "384": {
+    "day": 384,
+    "ot": "2 Chronicles 17",
+    "nt": "2 Timothy 1",
+    "wisdom": "Ecclesiastes 10"
+  },
+  "385": {
+    "day": 385,
+    "ot": "2 Chronicles 18",
+    "nt": "2 Timothy 2",
+    "wisdom": "Ecclesiastes 11"
+  },
+  "386": {
+    "day": 386,
+    "ot": "2 Chronicles 19",
+    "nt": "2 Timothy 3",
+    "wisdom": "Ecclesiastes 12"
+  },
+  "387": {
+    "day": 387,
+    "ot": "2 Chronicles 20",
+    "nt": "2 Timothy 4",
+    "wisdom": "Psalm 1"
+  },
+  "388": {
+    "day": 388,
+    "ot": "2 Chronicles 21",
+    "nt": "Luke 1",
+    "wisdom": "Psalm 2"
+  },
+  "389": {
+    "day": 389,
+    "ot": "2 Chronicles 22",
+    "nt": "Luke 2",
+    "wisdom": "Psalm 3"
+  },
+  "390": {
+    "day": 390,
+    "ot": "2 Chronicles 23",
+    "nt": "Luke 3",
+    "wisdom": "Psalm 4"
+  },
+  "391": {
+    "day": 391,
+    "ot": "2 Chronicles 24",
+    "nt": "Luke 4",
+    "wisdom": "Psalm 5"
+  },
+  "392": {
+    "day": 392,
+    "ot": "2 Chronicles 25",
+    "nt": "Luke 5",
+    "wisdom": "Psalm 6"
+  },
+  "393": {
+    "day": 393,
+    "ot": "2 Chronicles 26",
+    "nt": "Luke 6",
+    "wisdom": "Psalm 7"
+  },
+  "394": {
+    "day": 394,
+    "ot": "2 Chronicles 27",
+    "nt": "Luke 7",
+    "wisdom": "Psalm 8"
+  },
+  "395": {
+    "day": 395,
+    "ot": "2 Chronicles 28",
+    "nt": "Luke 8",
+    "wisdom": "Psalm 9"
+  },
+  "396": {
+    "day": 396,
+    "ot": "2 Chronicles 29",
+    "nt": "Luke 9",
+    "wisdom": "Psalm 10"
+  },
+  "397": {
+    "day": 397,
+    "ot": "2 Chronicles 30",
+    "nt": "Luke 10",
+    "wisdom": "Psalm 11"
+  },
+  "398": {
+    "day": 398,
+    "ot": "2 Chronicles 31",
+    "nt": "Luke 11",
+    "wisdom": "Psalm 12"
+  },
+  "399": {
+    "day": 399,
+    "ot": "2 Chronicles 32",
+    "nt": "Luke 12",
+    "wisdom": "Psalm 13"
+  },
+  "400": {
+    "day": 400,
+    "ot": "2 Chronicles 33",
+    "nt": "Luke 13",
+    "wisdom": "Psalm 14"
+  },
+  "401": {
+    "day": 401,
+    "ot": "2 Chronicles 34",
+    "nt": "Luke 14",
+    "wisdom": "Psalm 15"
+  },
+  "402": {
+    "day": 402,
+    "ot": "2 Chronicles 35",
+    "nt": "Luke 15",
+    "wisdom": "Psalm 16"
+  },
+  "403": {
+    "day": 403,
+    "ot": "2 Chronicles 36",
+    "nt": "Luke 16",
+    "wisdom": "Psalm 17"
+  },
+  "404": {
+    "day": 404,
+    "ot": "Ezra 1",
+    "nt": "Luke 17",
+    "wisdom": "Psalm 18"
+  },
+  "405": {
+    "day": 405,
+    "ot": "Ezra 2",
+    "nt": "Luke 18",
+    "wisdom": "Psalm 19"
+  },
+  "406": {
+    "day": 406,
+    "ot": "Ezra 3",
+    "nt": "Luke 19",
+    "wisdom": "Psalm 20"
+  },
+  "407": {
+    "day": 407,
+    "ot": "Ezra 4",
+    "nt": "Luke 20",
+    "wisdom": "Psalm 21"
+  },
+  "408": {
+    "day": 408,
+    "ot": "Ezra 5",
+    "nt": "Luke 21",
+    "wisdom": "Psalm 22"
+  },
+  "409": {
+    "day": 409,
+    "ot": "Ezra 6",
+    "nt": "Luke 22",
+    "wisdom": "Psalm 23"
+  },
+  "410": {
+    "day": 410,
+    "ot": "Ezra 7",
+    "nt": "Luke 23",
+    "wisdom": "Psalm 24"
+  },
+  "411": {
+    "day": 411,
+    "ot": "Ezra 8",
+    "nt": "Luke 24",
+    "wisdom": "Psalm 25"
+  },
+  "412": {
+    "day": 412,
+    "ot": "Ezra 9",
+    "nt": "Acts 1",
+    "wisdom": "Psalm 26"
+  },
+  "413": {
+    "day": 413,
+    "ot": "Ezra 10",
+    "nt": "Acts 2",
+    "wisdom": "Psalm 27"
+  },
+  "414": {
+    "day": 414,
+    "ot": "Nehemiah 1",
+    "nt": "Acts 3",
+    "wisdom": "Psalm 28"
+  },
+  "415": {
+    "day": 415,
+    "ot": "Nehemiah 2",
+    "nt": "Acts 4",
+    "wisdom": "Psalm 29"
+  },
+  "416": {
+    "day": 416,
+    "ot": "Nehemiah 3",
+    "nt": "Acts 5",
+    "wisdom": "Psalm 30"
+  },
+  "417": {
+    "day": 417,
+    "ot": "Nehemiah 4",
+    "nt": "Acts 6",
+    "wisdom": "Psalm 31"
+  },
+  "418": {
+    "day": 418,
+    "ot": "Nehemiah 5",
+    "nt": "Acts 7",
+    "wisdom": "Psalm 32"
+  },
+  "419": {
+    "day": 419,
+    "ot": "Nehemiah 6",
+    "nt": "Acts 8",
+    "wisdom": "Psalm 33"
+  },
+  "420": {
+    "day": 420,
+    "ot": "Nehemiah 7",
+    "nt": "Acts 9",
+    "wisdom": "Psalm 34"
+  },
+  "421": {
+    "day": 421,
+    "ot": "Nehemiah 8",
+    "nt": "Acts 10",
+    "wisdom": "Psalm 35"
+  },
+  "422": {
+    "day": 422,
+    "ot": "Nehemiah 9",
+    "nt": "Acts 11",
+    "wisdom": "Psalm 36"
+  },
+  "423": {
+    "day": 423,
+    "ot": "Nehemiah 10",
+    "nt": "Acts 12",
+    "wisdom": "Psalm 37"
+  },
+  "424": {
+    "day": 424,
+    "ot": "Nehemiah 11",
+    "nt": "Acts 13",
+    "wisdom": "Psalm 38"
+  },
+  "425": {
+    "day": 425,
+    "ot": "Nehemiah 12",
+    "nt": "Acts 14",
+    "wisdom": "Psalm 39"
+  },
+  "426": {
+    "day": 426,
+    "ot": "Nehemiah 13",
+    "nt": "Acts 15",
+    "wisdom": "Psalm 40"
+  },
+  "427": {
+    "day": 427,
+    "ot": "Esther 1",
+    "nt": "Acts 16",
+    "wisdom": "Psalm 41"
+  },
+  "428": {
+    "day": 428,
+    "ot": "Esther 2",
+    "nt": "Acts 17",
+    "wisdom": "Psalm 42"
+  },
+  "429": {
+    "day": 429,
+    "ot": "Esther 3",
+    "nt": "Acts 18",
+    "wisdom": "Psalm 43"
+  },
+  "430": {
+    "day": 430,
+    "ot": "Esther 4",
+    "nt": "Acts 19",
+    "wisdom": "Psalm 44"
+  },
+  "431": {
+    "day": 431,
+    "ot": "Esther 5",
+    "nt": "Acts 20",
+    "wisdom": "Psalm 45"
+  },
+  "432": {
+    "day": 432,
+    "ot": "Esther 6",
+    "nt": "Acts 21",
+    "wisdom": "Psalm 46"
+  },
+  "433": {
+    "day": 433,
+    "ot": "Esther 7",
+    "nt": "Acts 22",
+    "wisdom": "Psalm 47"
+  },
+  "434": {
+    "day": 434,
+    "ot": "Esther 8",
+    "nt": "Acts 23",
+    "wisdom": "Psalm 48"
+  },
+  "435": {
+    "day": 435,
+    "ot": "Esther 9",
+    "nt": "Acts 24",
+    "wisdom": "Psalm 49"
+  },
+  "436": {
+    "day": 436,
+    "ot": "Esther 10",
+    "nt": "Acts 25",
+    "wisdom": "Psalm 50"
+  },
+  "437": {
+    "day": 437,
+    "ot": "Job 1",
+    "nt": "Acts 26",
+    "wisdom": "Psalm 51"
+  },
+  "438": {
+    "day": 438,
+    "ot": "Job 2",
+    "nt": "Acts 27",
+    "wisdom": "Psalm 52"
+  },
+  "439": {
+    "day": 439,
+    "ot": "Job 3",
+    "nt": "Acts 28",
+    "wisdom": "Psalm 53"
+  },
+  "440": {
+    "day": 440,
+    "ot": "Job 4",
+    "nt": "Titus 1",
+    "wisdom": "Psalm 54"
+  },
+  "441": {
+    "day": 441,
+    "ot": "Job 5",
+    "nt": "Titus 2",
+    "wisdom": "Psalm 55"
+  },
+  "442": {
+    "day": 442,
+    "ot": "Job 6",
+    "nt": "Titus 3",
+    "wisdom": "Psalm 56"
+  },
+  "443": {
+    "day": 443,
+    "ot": "Job 7",
+    "nt": "Philemon 1",
+    "wisdom": "Psalm 57"
+  },
+  "444": {
+    "day": 444,
+    "ot": "Job 8",
+    "nt": "Hebrews 1",
+    "wisdom": "Psalm 58"
+  },
+  "445": {
+    "day": 445,
+    "ot": "Job 9",
+    "nt": "Hebrews 2",
+    "wisdom": "Psalm 59"
+  },
+  "446": {
+    "day": 446,
+    "ot": "Job 10",
+    "nt": "Hebrews 3",
+    "wisdom": "Psalm 60"
+  },
+  "447": {
+    "day": 447,
+    "ot": "Job 11",
+    "nt": "Hebrews 4",
+    "wisdom": "Psalm 61"
+  },
+  "448": {
+    "day": 448,
+    "ot": "Job 12",
+    "nt": "Hebrews 5",
+    "wisdom": "Psalm 62"
+  },
+  "449": {
+    "day": 449,
+    "ot": "Job 13",
+    "nt": "Hebrews 6",
+    "wisdom": "Psalm 63"
+  },
+  "450": {
+    "day": 450,
+    "ot": "Job 14",
+    "nt": "Hebrews 7",
+    "wisdom": "Psalm 64"
+  },
+  "451": {
+    "day": 451,
+    "ot": "Job 15",
+    "nt": "Hebrews 8",
+    "wisdom": "Psalm 65"
+  },
+  "452": {
+    "day": 452,
+    "ot": "Job 16",
+    "nt": "Hebrews 9",
+    "wisdom": "Psalm 66"
+  },
+  "453": {
+    "day": 453,
+    "ot": "Job 17",
+    "nt": "Hebrews 10",
+    "wisdom": "Psalm 67"
+  },
+  "454": {
+    "day": 454,
+    "ot": "Job 18",
+    "nt": "Hebrews 11",
+    "wisdom": "Psalm 68"
+  },
+  "455": {
+    "day": 455,
+    "ot": "Job 19",
+    "nt": "Hebrews 12",
+    "wisdom": "Psalm 69"
+  },
+  "456": {
+    "day": 456,
+    "ot": "Job 20",
+    "nt": "Hebrews 13",
+    "wisdom": "Psalm 70"
+  },
+  "457": {
+    "day": 457,
+    "ot": "Job 21",
+    "nt": "James 1",
+    "wisdom": "Psalm 71"
+  },
+  "458": {
+    "day": 458,
+    "ot": "Job 22",
+    "nt": "James 2",
+    "wisdom": "Psalm 72"
+  },
+  "459": {
+    "day": 459,
+    "ot": "Job 23",
+    "nt": "James 3",
+    "wisdom": "Psalm 73"
+  },
+  "460": {
+    "day": 460,
+    "ot": "Job 24",
+    "nt": "James 4",
+    "wisdom": "Psalm 74"
+  },
+  "461": {
+    "day": 461,
+    "ot": "Job 25",
+    "nt": "James 5",
+    "wisdom": "Psalm 75"
+  },
+  "462": {
+    "day": 462,
+    "ot": "Job 26",
+    "nt": "1 Peter 1",
+    "wisdom": "Psalm 76"
+  },
+  "463": {
+    "day": 463,
+    "ot": "Job 27",
+    "nt": "1 Peter 2",
+    "wisdom": "Psalm 77"
+  },
+  "464": {
+    "day": 464,
+    "ot": "Job 28",
+    "nt": "1 Peter 3",
+    "wisdom": "Psalm 78"
+  },
+  "465": {
+    "day": 465,
+    "ot": "Job 29",
+    "nt": "1 Peter 4",
+    "wisdom": "Psalm 79"
+  },
+  "466": {
+    "day": 466,
+    "ot": "Job 30",
+    "nt": "1 Peter 5",
+    "wisdom": "Psalm 80"
+  },
+  "467": {
+    "day": 467,
+    "ot": "Job 31",
+    "nt": "2 Peter 1",
+    "wisdom": "Psalm 81"
+  },
+  "468": {
+    "day": 468,
+    "ot": "Job 32",
+    "nt": "2 Peter 2",
+    "wisdom": "Psalm 82"
+  },
+  "469": {
+    "day": 469,
+    "ot": "Job 33",
+    "nt": "2 Peter 3",
+    "wisdom": "Psalm 83"
+  },
+  "470": {
+    "day": 470,
+    "ot": "Job 34",
+    "nt": "1 John 1",
+    "wisdom": "Psalm 84"
+  },
+  "471": {
+    "day": 471,
+    "ot": "Job 35",
+    "nt": "1 John 2",
+    "wisdom": "Psalm 85"
+  },
+  "472": {
+    "day": 472,
+    "ot": "Job 36",
+    "nt": "1 John 3",
+    "wisdom": "Psalm 86"
+  },
+  "473": {
+    "day": 473,
+    "ot": "Job 37",
+    "nt": "1 John 4",
+    "wisdom": "Psalm 87"
+  },
+  "474": {
+    "day": 474,
+    "ot": "Job 38",
+    "nt": "1 John 5",
+    "wisdom": "Psalm 88"
+  },
+  "475": {
+    "day": 475,
+    "ot": "Job 39",
+    "nt": "2 John 1",
+    "wisdom": "Psalm 89"
+  },
+  "476": {
+    "day": 476,
+    "ot": "Job 40",
+    "nt": "3 John 1",
+    "wisdom": "Psalm 90"
+  },
+  "477": {
+    "day": 477,
+    "ot": "Job 41",
+    "nt": "Jude 1",
+    "wisdom": "Psalm 91"
+  },
+  "478": {
+    "day": 478,
+    "ot": "Job 42",
+    "nt": "John 1",
+    "wisdom": "Psalm 92"
+  },
+  "479": {
+    "day": 479,
+    "ot": "Song of Solomon 1",
+    "nt": "John 2",
+    "wisdom": "Psalm 93"
+  },
+  "480": {
+    "day": 480,
+    "ot": "Song of Solomon 2",
+    "nt": "John 3",
+    "wisdom": "Psalm 94"
+  },
+  "481": {
+    "day": 481,
+    "ot": "Song of Solomon 3",
+    "nt": "John 4",
+    "wisdom": "Psalm 95"
+  },
+  "482": {
+    "day": 482,
+    "ot": "Song of Solomon 4",
+    "nt": "John 5",
+    "wisdom": "Psalm 96"
+  },
+  "483": {
+    "day": 483,
+    "ot": "Song of Solomon 5",
+    "nt": "John 6",
+    "wisdom": "Psalm 97"
+  },
+  "484": {
+    "day": 484,
+    "ot": "Song of Solomon 6",
+    "nt": "John 7",
+    "wisdom": "Psalm 98"
+  },
+  "485": {
+    "day": 485,
+    "ot": "Song of Solomon 7",
+    "nt": "John 8",
+    "wisdom": "Psalm 99"
+  },
+  "486": {
+    "day": 486,
+    "ot": "Song of Solomon 8",
+    "nt": "John 9",
+    "wisdom": "Psalm 100"
+  },
+  "487": {
+    "day": 487,
+    "ot": "Isaiah 1",
+    "nt": "John 10",
+    "wisdom": "Psalm 101"
+  },
+  "488": {
+    "day": 488,
+    "ot": "Isaiah 2",
+    "nt": "John 11",
+    "wisdom": "Psalm 102"
+  },
+  "489": {
+    "day": 489,
+    "ot": "Isaiah 3",
+    "nt": "John 12",
+    "wisdom": "Psalm 103"
+  },
+  "490": {
+    "day": 490,
+    "ot": "Isaiah 4",
+    "nt": "John 13",
+    "wisdom": "Psalm 104"
+  },
+  "491": {
+    "day": 491,
+    "ot": "Isaiah 5",
+    "nt": "John 14",
+    "wisdom": "Psalm 105"
+  },
+  "492": {
+    "day": 492,
+    "ot": "Isaiah 6",
+    "nt": "John 15",
+    "wisdom": "Psalm 106"
+  },
+  "493": {
+    "day": 493,
+    "ot": "Isaiah 7",
+    "nt": "John 16",
+    "wisdom": "Psalm 107"
+  },
+  "494": {
+    "day": 494,
+    "ot": "Isaiah 8",
+    "nt": "John 17",
+    "wisdom": "Psalm 108"
+  },
+  "495": {
+    "day": 495,
+    "ot": "Isaiah 9",
+    "nt": "John 18",
+    "wisdom": "Psalm 109"
+  },
+  "496": {
+    "day": 496,
+    "ot": "Isaiah 10",
+    "nt": "John 19",
+    "wisdom": "Psalm 110"
+  },
+  "497": {
+    "day": 497,
+    "ot": "Isaiah 11",
+    "nt": "John 20",
+    "wisdom": "Psalm 111"
+  },
+  "498": {
+    "day": 498,
+    "ot": "Isaiah 12",
+    "nt": "John 21",
+    "wisdom": "Psalm 112"
+  },
+  "499": {
+    "day": 499,
+    "ot": "Isaiah 13",
+    "nt": "Revelation 1",
+    "wisdom": "Psalm 113"
+  },
+  "500": {
+    "day": 500,
+    "ot": "Isaiah 14",
+    "nt": "Revelation 2",
+    "wisdom": "Psalm 114"
+  },
+  "501": {
+    "day": 501,
+    "ot": "Isaiah 15",
+    "nt": "Revelation 3",
+    "wisdom": "Psalm 115"
+  },
+  "502": {
+    "day": 502,
+    "ot": "Isaiah 16",
+    "nt": "Revelation 4",
+    "wisdom": "Psalm 116"
+  },
+  "503": {
+    "day": 503,
+    "ot": "Isaiah 17",
+    "nt": "Revelation 5",
+    "wisdom": "Psalm 117"
+  },
+  "504": {
+    "day": 504,
+    "ot": "Isaiah 18",
+    "nt": "Revelation 6",
+    "wisdom": "Psalm 118"
+  },
+  "505": {
+    "day": 505,
+    "ot": "Isaiah 19",
+    "nt": "Revelation 7",
+    "wisdom": "Psalm 119"
+  },
+  "506": {
+    "day": 506,
+    "ot": "Isaiah 20",
+    "nt": "Revelation 8",
+    "wisdom": "Psalm 120"
+  },
+  "507": {
+    "day": 507,
+    "ot": "Isaiah 21",
+    "nt": "Revelation 9",
+    "wisdom": "Psalm 121"
+  },
+  "508": {
+    "day": 508,
+    "ot": "Isaiah 22",
+    "nt": "Revelation 10",
+    "wisdom": "Psalm 122"
+  },
+  "509": {
+    "day": 509,
+    "ot": "Isaiah 23",
+    "nt": "Revelation 11",
+    "wisdom": "Psalm 123"
+  },
+  "510": {
+    "day": 510,
+    "ot": "Isaiah 24",
+    "nt": "Revelation 12",
+    "wisdom": "Psalm 124"
+  },
+  "511": {
+    "day": 511,
+    "ot": "Isaiah 25",
+    "nt": "Revelation 13",
+    "wisdom": "Psalm 125"
+  },
+  "512": {
+    "day": 512,
+    "ot": "Isaiah 26",
+    "nt": "Revelation 14",
+    "wisdom": "Psalm 126"
+  },
+  "513": {
+    "day": 513,
+    "ot": "Isaiah 27",
+    "nt": "Revelation 15",
+    "wisdom": "Psalm 127"
+  },
+  "514": {
+    "day": 514,
+    "ot": "Isaiah 28",
+    "nt": "Revelation 16",
+    "wisdom": "Psalm 128"
+  },
+  "515": {
+    "day": 515,
+    "ot": "Isaiah 29",
+    "nt": "Revelation 17",
+    "wisdom": "Psalm 129"
+  },
+  "516": {
+    "day": 516,
+    "ot": "Isaiah 30",
+    "nt": "Revelation 18",
+    "wisdom": "Psalm 130"
+  },
+  "517": {
+    "day": 517,
+    "ot": "Isaiah 31",
+    "nt": "Revelation 19",
+    "wisdom": "Psalm 131"
+  },
+  "518": {
+    "day": 518,
+    "ot": "Isaiah 32",
+    "nt": "Revelation 20",
+    "wisdom": "Psalm 132"
+  },
+  "519": {
+    "day": 519,
+    "ot": "Isaiah 33",
+    "nt": "Revelation 21",
+    "wisdom": "Psalm 133"
+  },
+  "520": {
+    "day": 520,
+    "ot": "Isaiah 34",
+    "nt": "Revelation 22",
+    "wisdom": "Psalm 134"
+  },
+  "521": {
+    "day": 521,
+    "ot": "Isaiah 35",
+    "nt": "Matthew 1",
+    "wisdom": "Psalm 135"
+  },
+  "522": {
+    "day": 522,
+    "ot": "Isaiah 36",
+    "nt": "Matthew 2",
+    "wisdom": "Psalm 136"
+  },
+  "523": {
+    "day": 523,
+    "ot": "Isaiah 37",
+    "nt": "Matthew 3",
+    "wisdom": "Psalm 137"
+  },
+  "524": {
+    "day": 524,
+    "ot": "Isaiah 38",
+    "nt": "Matthew 4",
+    "wisdom": "Psalm 138"
+  },
+  "525": {
+    "day": 525,
+    "ot": "Isaiah 39",
+    "nt": "Matthew 5",
+    "wisdom": "Psalm 139"
+  },
+  "526": {
+    "day": 526,
+    "ot": "Isaiah 40",
+    "nt": "Matthew 6",
+    "wisdom": "Psalm 140"
+  },
+  "527": {
+    "day": 527,
+    "ot": "Isaiah 41",
+    "nt": "Matthew 7",
+    "wisdom": "Psalm 141"
+  },
+  "528": {
+    "day": 528,
+    "ot": "Isaiah 42",
+    "nt": "Matthew 8",
+    "wisdom": "Psalm 142"
+  },
+  "529": {
+    "day": 529,
+    "ot": "Isaiah 43",
+    "nt": "Matthew 9",
+    "wisdom": "Psalm 143"
+  },
+  "530": {
+    "day": 530,
+    "ot": "Isaiah 44",
+    "nt": "Matthew 10",
+    "wisdom": "Psalm 144"
+  },
+  "531": {
+    "day": 531,
+    "ot": "Isaiah 45",
+    "nt": "Matthew 11",
+    "wisdom": "Psalm 145"
+  },
+  "532": {
+    "day": 532,
+    "ot": "Isaiah 46",
+    "nt": "Matthew 12",
+    "wisdom": "Psalm 146"
+  },
+  "533": {
+    "day": 533,
+    "ot": "Isaiah 47",
+    "nt": "Matthew 13",
+    "wisdom": "Psalm 147"
+  },
+  "534": {
+    "day": 534,
+    "ot": "Isaiah 48",
+    "nt": "Matthew 14",
+    "wisdom": "Psalm 148"
+  },
+  "535": {
+    "day": 535,
+    "ot": "Isaiah 49",
+    "nt": "Matthew 15",
+    "wisdom": "Psalm 149"
+  },
+  "536": {
+    "day": 536,
+    "ot": "Isaiah 50",
+    "nt": "Matthew 16",
+    "wisdom": "Psalm 150"
+  },
+  "537": {
+    "day": 537,
+    "ot": "Isaiah 51",
+    "nt": "Matthew 17",
+    "wisdom": "Proverbs 1"
+  },
+  "538": {
+    "day": 538,
+    "ot": "Isaiah 52",
+    "nt": "Matthew 18",
+    "wisdom": "Proverbs 2"
+  },
+  "539": {
+    "day": 539,
+    "ot": "Isaiah 53",
+    "nt": "Matthew 19",
+    "wisdom": "Proverbs 3"
+  },
+  "540": {
+    "day": 540,
+    "ot": "Isaiah 54",
+    "nt": "Matthew 20",
+    "wisdom": "Proverbs 4"
+  },
+  "541": {
+    "day": 541,
+    "ot": "Isaiah 55",
+    "nt": "Matthew 21",
+    "wisdom": "Proverbs 5"
+  },
+  "542": {
+    "day": 542,
+    "ot": "Isaiah 56",
+    "nt": "Matthew 22",
+    "wisdom": "Proverbs 6"
+  },
+  "543": {
+    "day": 543,
+    "ot": "Isaiah 57",
+    "nt": "Matthew 23",
+    "wisdom": "Proverbs 7"
+  },
+  "544": {
+    "day": 544,
+    "ot": "Isaiah 58",
+    "nt": "Matthew 24",
+    "wisdom": "Proverbs 8"
+  },
+  "545": {
+    "day": 545,
+    "ot": "Isaiah 59",
+    "nt": "Matthew 25",
+    "wisdom": "Proverbs 9"
+  },
+  "546": {
+    "day": 546,
+    "ot": "Isaiah 60",
+    "nt": "Matthew 26",
+    "wisdom": "Proverbs 10"
+  },
+  "547": {
+    "day": 547,
+    "ot": "Isaiah 61",
+    "nt": "Matthew 27",
+    "wisdom": "Proverbs 11"
+  },
+  "548": {
+    "day": 548,
+    "ot": "Isaiah 62",
+    "nt": "Matthew 28",
+    "wisdom": "Proverbs 12"
+  },
+  "549": {
+    "day": 549,
+    "ot": "Isaiah 63",
+    "nt": "Romans 1",
+    "wisdom": "Proverbs 13"
+  },
+  "550": {
+    "day": 550,
+    "ot": "Isaiah 64",
+    "nt": "Romans 2",
+    "wisdom": "Proverbs 14"
+  },
+  "551": {
+    "day": 551,
+    "ot": "Isaiah 65",
+    "nt": "Romans 3",
+    "wisdom": "Proverbs 15"
+  },
+  "552": {
+    "day": 552,
+    "ot": "Isaiah 66",
+    "nt": "Romans 4",
+    "wisdom": "Proverbs 16"
+  },
+  "553": {
+    "day": 553,
+    "ot": "Jeremiah 1",
+    "nt": "Romans 5",
+    "wisdom": "Proverbs 17"
+  },
+  "554": {
+    "day": 554,
+    "ot": "Jeremiah 2",
+    "nt": "Romans 6",
+    "wisdom": "Proverbs 18"
+  },
+  "555": {
+    "day": 555,
+    "ot": "Jeremiah 3",
+    "nt": "Romans 7",
+    "wisdom": "Proverbs 19"
+  },
+  "556": {
+    "day": 556,
+    "ot": "Jeremiah 4",
+    "nt": "Romans 8",
+    "wisdom": "Proverbs 20"
+  },
+  "557": {
+    "day": 557,
+    "ot": "Jeremiah 5",
+    "nt": "Romans 9",
+    "wisdom": "Proverbs 21"
+  },
+  "558": {
+    "day": 558,
+    "ot": "Jeremiah 6",
+    "nt": "Romans 10",
+    "wisdom": "Proverbs 22"
+  },
+  "559": {
+    "day": 559,
+    "ot": "Jeremiah 7",
+    "nt": "Romans 11",
+    "wisdom": "Proverbs 23"
+  },
+  "560": {
+    "day": 560,
+    "ot": "Jeremiah 8",
+    "nt": "Romans 12",
+    "wisdom": "Proverbs 24"
+  },
+  "561": {
+    "day": 561,
+    "ot": "Jeremiah 9",
+    "nt": "Romans 13",
+    "wisdom": "Proverbs 25"
+  },
+  "562": {
+    "day": 562,
+    "ot": "Jeremiah 10",
+    "nt": "Romans 14",
+    "wisdom": "Proverbs 26"
+  },
+  "563": {
+    "day": 563,
+    "ot": "Jeremiah 11",
+    "nt": "Romans 15",
+    "wisdom": "Proverbs 27"
+  },
+  "564": {
+    "day": 564,
+    "ot": "Jeremiah 12",
+    "nt": "Romans 16",
+    "wisdom": "Proverbs 28"
+  },
+  "565": {
+    "day": 565,
+    "ot": "Jeremiah 13",
+    "nt": "1 Corinthians 1",
+    "wisdom": "Proverbs 29"
+  },
+  "566": {
+    "day": 566,
+    "ot": "Jeremiah 14",
+    "nt": "1 Corinthians 2",
+    "wisdom": "Proverbs 30"
+  },
+  "567": {
+    "day": 567,
+    "ot": "Jeremiah 15",
+    "nt": "1 Corinthians 3",
+    "wisdom": "Proverbs 31"
+  },
+  "568": {
+    "day": 568,
+    "ot": "Jeremiah 16",
+    "nt": "1 Corinthians 4",
+    "wisdom": "Ecclesiastes 1"
+  },
+  "569": {
+    "day": 569,
+    "ot": "Jeremiah 17",
+    "nt": "1 Corinthians 5",
+    "wisdom": "Ecclesiastes 2"
+  },
+  "570": {
+    "day": 570,
+    "ot": "Jeremiah 18",
+    "nt": "1 Corinthians 6",
+    "wisdom": "Ecclesiastes 3"
+  },
+  "571": {
+    "day": 571,
+    "ot": "Jeremiah 19",
+    "nt": "1 Corinthians 7",
+    "wisdom": "Ecclesiastes 4"
+  },
+  "572": {
+    "day": 572,
+    "ot": "Jeremiah 20",
+    "nt": "1 Corinthians 8",
+    "wisdom": "Ecclesiastes 5"
+  },
+  "573": {
+    "day": 573,
+    "ot": "Jeremiah 21",
+    "nt": "1 Corinthians 9",
+    "wisdom": "Ecclesiastes 6"
+  },
+  "574": {
+    "day": 574,
+    "ot": "Jeremiah 22",
+    "nt": "1 Corinthians 10",
+    "wisdom": "Ecclesiastes 7"
+  },
+  "575": {
+    "day": 575,
+    "ot": "Jeremiah 23",
+    "nt": "1 Corinthians 11",
+    "wisdom": "Ecclesiastes 8"
+  },
+  "576": {
+    "day": 576,
+    "ot": "Jeremiah 24",
+    "nt": "1 Corinthians 12",
+    "wisdom": "Ecclesiastes 9"
+  },
+  "577": {
+    "day": 577,
+    "ot": "Jeremiah 25",
+    "nt": "1 Corinthians 13",
+    "wisdom": "Ecclesiastes 10"
+  },
+  "578": {
+    "day": 578,
+    "ot": "Jeremiah 26",
+    "nt": "1 Corinthians 14",
+    "wisdom": "Ecclesiastes 11"
+  },
+  "579": {
+    "day": 579,
+    "ot": "Jeremiah 27",
+    "nt": "1 Corinthians 15",
+    "wisdom": "Ecclesiastes 12"
+  },
+  "580": {
+    "day": 580,
+    "ot": "Jeremiah 28",
+    "nt": "1 Corinthians 16",
+    "wisdom": "Psalm 1"
+  },
+  "581": {
+    "day": 581,
+    "ot": "Jeremiah 29",
+    "nt": "2 Corinthians 1",
+    "wisdom": "Psalm 2"
+  },
+  "582": {
+    "day": 582,
+    "ot": "Jeremiah 30",
+    "nt": "2 Corinthians 2",
+    "wisdom": "Psalm 3"
+  },
+  "583": {
+    "day": 583,
+    "ot": "Jeremiah 31",
+    "nt": "2 Corinthians 3",
+    "wisdom": "Psalm 4"
+  },
+  "584": {
+    "day": 584,
+    "ot": "Jeremiah 32",
+    "nt": "2 Corinthians 4",
+    "wisdom": "Psalm 5"
+  },
+  "585": {
+    "day": 585,
+    "ot": "Jeremiah 33",
+    "nt": "2 Corinthians 5",
+    "wisdom": "Psalm 6"
+  },
+  "586": {
+    "day": 586,
+    "ot": "Jeremiah 34",
+    "nt": "2 Corinthians 6",
+    "wisdom": "Psalm 7"
+  },
+  "587": {
+    "day": 587,
+    "ot": "Jeremiah 35",
+    "nt": "2 Corinthians 7",
+    "wisdom": "Psalm 8"
+  },
+  "588": {
+    "day": 588,
+    "ot": "Jeremiah 36",
+    "nt": "2 Corinthians 8",
+    "wisdom": "Psalm 9"
+  },
+  "589": {
+    "day": 589,
+    "ot": "Jeremiah 37",
+    "nt": "2 Corinthians 9",
+    "wisdom": "Psalm 10"
+  },
+  "590": {
+    "day": 590,
+    "ot": "Jeremiah 38",
+    "nt": "2 Corinthians 10",
+    "wisdom": "Psalm 11"
+  },
+  "591": {
+    "day": 591,
+    "ot": "Jeremiah 39",
+    "nt": "2 Corinthians 11",
+    "wisdom": "Psalm 12"
+  },
+  "592": {
+    "day": 592,
+    "ot": "Jeremiah 40",
+    "nt": "2 Corinthians 12",
+    "wisdom": "Psalm 13"
+  },
+  "593": {
+    "day": 593,
+    "ot": "Jeremiah 41",
+    "nt": "2 Corinthians 13",
+    "wisdom": "Psalm 14"
+  },
+  "594": {
+    "day": 594,
+    "ot": "Jeremiah 42",
+    "nt": "Mark 1",
+    "wisdom": "Psalm 15"
+  },
+  "595": {
+    "day": 595,
+    "ot": "Jeremiah 43",
+    "nt": "Mark 2",
+    "wisdom": "Psalm 16"
+  },
+  "596": {
+    "day": 596,
+    "ot": "Jeremiah 44",
+    "nt": "Mark 3",
+    "wisdom": "Psalm 17"
+  },
+  "597": {
+    "day": 597,
+    "ot": "Jeremiah 45",
+    "nt": "Mark 4",
+    "wisdom": "Psalm 18"
+  },
+  "598": {
+    "day": 598,
+    "ot": "Jeremiah 46",
+    "nt": "Mark 5",
+    "wisdom": "Psalm 19"
+  },
+  "599": {
+    "day": 599,
+    "ot": "Jeremiah 47",
+    "nt": "Mark 6",
+    "wisdom": "Psalm 20"
+  },
+  "600": {
+    "day": 600,
+    "ot": "Jeremiah 48",
+    "nt": "Mark 7",
+    "wisdom": "Psalm 21"
+  },
+  "601": {
+    "day": 601,
+    "ot": "Jeremiah 49",
+    "nt": "Mark 8",
+    "wisdom": "Psalm 22"
+  },
+  "602": {
+    "day": 602,
+    "ot": "Jeremiah 50",
+    "nt": "Mark 9",
+    "wisdom": "Psalm 23"
+  },
+  "603": {
+    "day": 603,
+    "ot": "Jeremiah 51",
+    "nt": "Mark 10",
+    "wisdom": "Psalm 24"
+  },
+  "604": {
+    "day": 604,
+    "ot": "Jeremiah 52",
+    "nt": "Mark 11",
+    "wisdom": "Psalm 25"
+  },
+  "605": {
+    "day": 605,
+    "ot": "Lamentations 1",
+    "nt": "Mark 12",
+    "wisdom": "Psalm 26"
+  },
+  "606": {
+    "day": 606,
+    "ot": "Lamentations 2",
+    "nt": "Mark 13",
+    "wisdom": "Psalm 27"
+  },
+  "607": {
+    "day": 607,
+    "ot": "Lamentations 3",
+    "nt": "Mark 14",
+    "wisdom": "Psalm 28"
+  },
+  "608": {
+    "day": 608,
+    "ot": "Lamentations 4",
+    "nt": "Mark 15",
+    "wisdom": "Psalm 29"
+  },
+  "609": {
+    "day": 609,
+    "ot": "Lamentations 5",
+    "nt": "Mark 16",
+    "wisdom": "Psalm 30"
+  },
+  "610": {
+    "day": 610,
+    "ot": "Ezekiel 1",
+    "nt": "Galatians 1",
+    "wisdom": "Psalm 31"
+  },
+  "611": {
+    "day": 611,
+    "ot": "Ezekiel 2",
+    "nt": "Galatians 2",
+    "wisdom": "Psalm 32"
+  },
+  "612": {
+    "day": 612,
+    "ot": "Ezekiel 3",
+    "nt": "Galatians 3",
+    "wisdom": "Psalm 33"
+  },
+  "613": {
+    "day": 613,
+    "ot": "Ezekiel 4",
+    "nt": "Galatians 4",
+    "wisdom": "Psalm 34"
+  },
+  "614": {
+    "day": 614,
+    "ot": "Ezekiel 5",
+    "nt": "Galatians 5",
+    "wisdom": "Psalm 35"
+  },
+  "615": {
+    "day": 615,
+    "ot": "Ezekiel 6",
+    "nt": "Galatians 6",
+    "wisdom": "Psalm 36"
+  },
+  "616": {
+    "day": 616,
+    "ot": "Ezekiel 7",
+    "nt": "Ephesians 1",
+    "wisdom": "Psalm 37"
+  },
+  "617": {
+    "day": 617,
+    "ot": "Ezekiel 8",
+    "nt": "Ephesians 2",
+    "wisdom": "Psalm 38"
+  },
+  "618": {
+    "day": 618,
+    "ot": "Ezekiel 9",
+    "nt": "Ephesians 3",
+    "wisdom": "Psalm 39"
+  },
+  "619": {
+    "day": 619,
+    "ot": "Ezekiel 10",
+    "nt": "Ephesians 4",
+    "wisdom": "Psalm 40"
+  },
+  "620": {
+    "day": 620,
+    "ot": "Ezekiel 11",
+    "nt": "Ephesians 5",
+    "wisdom": "Psalm 41"
+  },
+  "621": {
+    "day": 621,
+    "ot": "Ezekiel 12",
+    "nt": "Ephesians 6",
+    "wisdom": "Psalm 42"
+  },
+  "622": {
+    "day": 622,
+    "ot": "Ezekiel 13",
+    "nt": "Philippians 1",
+    "wisdom": "Psalm 43"
+  },
+  "623": {
+    "day": 623,
+    "ot": "Ezekiel 14",
+    "nt": "Philippians 2",
+    "wisdom": "Psalm 44"
+  },
+  "624": {
+    "day": 624,
+    "ot": "Ezekiel 15",
+    "nt": "Philippians 3",
+    "wisdom": "Psalm 45"
+  },
+  "625": {
+    "day": 625,
+    "ot": "Ezekiel 16",
+    "nt": "Philippians 4",
+    "wisdom": "Psalm 46"
+  },
+  "626": {
+    "day": 626,
+    "ot": "Ezekiel 17",
+    "nt": "Colossians 1",
+    "wisdom": "Psalm 47"
+  },
+  "627": {
+    "day": 627,
+    "ot": "Ezekiel 18",
+    "nt": "Colossians 2",
+    "wisdom": "Psalm 48"
+  },
+  "628": {
+    "day": 628,
+    "ot": "Ezekiel 19",
+    "nt": "Colossians 3",
+    "wisdom": "Psalm 49"
+  },
+  "629": {
+    "day": 629,
+    "ot": "Ezekiel 20",
+    "nt": "Colossians 4",
+    "wisdom": "Psalm 50"
+  },
+  "630": {
+    "day": 630,
+    "ot": "Ezekiel 21",
+    "nt": "1 Thessalonians 1",
+    "wisdom": "Psalm 51"
+  },
+  "631": {
+    "day": 631,
+    "ot": "Ezekiel 22",
+    "nt": "1 Thessalonians 2",
+    "wisdom": "Psalm 52"
+  },
+  "632": {
+    "day": 632,
+    "ot": "Ezekiel 23",
+    "nt": "1 Thessalonians 3",
+    "wisdom": "Psalm 53"
+  },
+  "633": {
+    "day": 633,
+    "ot": "Ezekiel 24",
+    "nt": "1 Thessalonians 4",
+    "wisdom": "Psalm 54"
+  },
+  "634": {
+    "day": 634,
+    "ot": "Ezekiel 25",
+    "nt": "1 Thessalonians 5",
+    "wisdom": "Psalm 55"
+  },
+  "635": {
+    "day": 635,
+    "ot": "Ezekiel 26",
+    "nt": "2 Thessalonians 1",
+    "wisdom": "Psalm 56"
+  },
+  "636": {
+    "day": 636,
+    "ot": "Ezekiel 27",
+    "nt": "2 Thessalonians 2",
+    "wisdom": "Psalm 57"
+  },
+  "637": {
+    "day": 637,
+    "ot": "Ezekiel 28",
+    "nt": "2 Thessalonians 3",
+    "wisdom": "Psalm 58"
+  },
+  "638": {
+    "day": 638,
+    "ot": "Ezekiel 29",
+    "nt": "1 Timothy 1",
+    "wisdom": "Psalm 59"
+  },
+  "639": {
+    "day": 639,
+    "ot": "Ezekiel 30",
+    "nt": "1 Timothy 2",
+    "wisdom": "Psalm 60"
+  },
+  "640": {
+    "day": 640,
+    "ot": "Ezekiel 31",
+    "nt": "1 Timothy 3",
+    "wisdom": "Psalm 61"
+  },
+  "641": {
+    "day": 641,
+    "ot": "Ezekiel 32",
+    "nt": "1 Timothy 4",
+    "wisdom": "Psalm 62"
+  },
+  "642": {
+    "day": 642,
+    "ot": "Ezekiel 33",
+    "nt": "1 Timothy 5",
+    "wisdom": "Psalm 63"
+  },
+  "643": {
+    "day": 643,
+    "ot": "Ezekiel 34",
+    "nt": "1 Timothy 6",
+    "wisdom": "Psalm 64"
+  },
+  "644": {
+    "day": 644,
+    "ot": "Ezekiel 35",
+    "nt": "2 Timothy 1",
+    "wisdom": "Psalm 65"
+  },
+  "645": {
+    "day": 645,
+    "ot": "Ezekiel 36",
+    "nt": "2 Timothy 2",
+    "wisdom": "Psalm 66"
+  },
+  "646": {
+    "day": 646,
+    "ot": "Ezekiel 37",
+    "nt": "2 Timothy 3",
+    "wisdom": "Psalm 67"
+  },
+  "647": {
+    "day": 647,
+    "ot": "Ezekiel 38",
+    "nt": "2 Timothy 4",
+    "wisdom": "Psalm 68"
+  },
+  "648": {
+    "day": 648,
+    "ot": "Ezekiel 39",
+    "nt": "Luke 1",
+    "wisdom": "Psalm 69"
+  },
+  "649": {
+    "day": 649,
+    "ot": "Ezekiel 40",
+    "nt": "Luke 2",
+    "wisdom": "Psalm 70"
+  },
+  "650": {
+    "day": 650,
+    "ot": "Ezekiel 41",
+    "nt": "Luke 3",
+    "wisdom": "Psalm 71"
+  },
+  "651": {
+    "day": 651,
+    "ot": "Ezekiel 42",
+    "nt": "Luke 4",
+    "wisdom": "Psalm 72"
+  },
+  "652": {
+    "day": 652,
+    "ot": "Ezekiel 43",
+    "nt": "Luke 5",
+    "wisdom": "Psalm 73"
+  },
+  "653": {
+    "day": 653,
+    "ot": "Ezekiel 44",
+    "nt": "Luke 6",
+    "wisdom": "Psalm 74"
+  },
+  "654": {
+    "day": 654,
+    "ot": "Ezekiel 45",
+    "nt": "Luke 7",
+    "wisdom": "Psalm 75"
+  },
+  "655": {
+    "day": 655,
+    "ot": "Ezekiel 46",
+    "nt": "Luke 8",
+    "wisdom": "Psalm 76"
+  },
+  "656": {
+    "day": 656,
+    "ot": "Ezekiel 47",
+    "nt": "Luke 9",
+    "wisdom": "Psalm 77"
+  },
+  "657": {
+    "day": 657,
+    "ot": "Ezekiel 48",
+    "nt": "Luke 10",
+    "wisdom": "Psalm 78"
+  },
+  "658": {
+    "day": 658,
+    "ot": "Daniel 1",
+    "nt": "Luke 11",
+    "wisdom": "Psalm 79"
+  },
+  "659": {
+    "day": 659,
+    "ot": "Daniel 2",
+    "nt": "Luke 12",
+    "wisdom": "Psalm 80"
+  },
+  "660": {
+    "day": 660,
+    "ot": "Daniel 3",
+    "nt": "Luke 13",
+    "wisdom": "Psalm 81"
+  },
+  "661": {
+    "day": 661,
+    "ot": "Daniel 4",
+    "nt": "Luke 14",
+    "wisdom": "Psalm 82"
+  },
+  "662": {
+    "day": 662,
+    "ot": "Daniel 5",
+    "nt": "Luke 15",
+    "wisdom": "Psalm 83"
+  },
+  "663": {
+    "day": 663,
+    "ot": "Daniel 6",
+    "nt": "Luke 16",
+    "wisdom": "Psalm 84"
+  },
+  "664": {
+    "day": 664,
+    "ot": "Daniel 7",
+    "nt": "Luke 17",
+    "wisdom": "Psalm 85"
+  },
+  "665": {
+    "day": 665,
+    "ot": "Daniel 8",
+    "nt": "Luke 18",
+    "wisdom": "Psalm 86"
+  },
+  "666": {
+    "day": 666,
+    "ot": "Daniel 9",
+    "nt": "Luke 19",
+    "wisdom": "Psalm 87"
+  },
+  "667": {
+    "day": 667,
+    "ot": "Daniel 10",
+    "nt": "Luke 20",
+    "wisdom": "Psalm 88"
+  },
+  "668": {
+    "day": 668,
+    "ot": "Daniel 11",
+    "nt": "Luke 21",
+    "wisdom": "Psalm 89"
+  },
+  "669": {
+    "day": 669,
+    "ot": "Daniel 12",
+    "nt": "Luke 22",
+    "wisdom": "Psalm 90"
+  },
+  "670": {
+    "day": 670,
+    "ot": "Hosea 1",
+    "nt": "Luke 23",
+    "wisdom": "Psalm 91"
+  },
+  "671": {
+    "day": 671,
+    "ot": "Hosea 2",
+    "nt": "Luke 24",
+    "wisdom": "Psalm 92"
+  },
+  "672": {
+    "day": 672,
+    "ot": "Hosea 3",
+    "nt": "Acts 1",
+    "wisdom": "Psalm 93"
+  },
+  "673": {
+    "day": 673,
+    "ot": "Hosea 4",
+    "nt": "Acts 2",
+    "wisdom": "Psalm 94"
+  },
+  "674": {
+    "day": 674,
+    "ot": "Hosea 5",
+    "nt": "Acts 3",
+    "wisdom": "Psalm 95"
+  },
+  "675": {
+    "day": 675,
+    "ot": "Hosea 6",
+    "nt": "Acts 4",
+    "wisdom": "Psalm 96"
+  },
+  "676": {
+    "day": 676,
+    "ot": "Hosea 7",
+    "nt": "Acts 5",
+    "wisdom": "Psalm 97"
+  },
+  "677": {
+    "day": 677,
+    "ot": "Hosea 8",
+    "nt": "Acts 6",
+    "wisdom": "Psalm 98"
+  },
+  "678": {
+    "day": 678,
+    "ot": "Hosea 9",
+    "nt": "Acts 7",
+    "wisdom": "Psalm 99"
+  },
+  "679": {
+    "day": 679,
+    "ot": "Hosea 10",
+    "nt": "Acts 8",
+    "wisdom": "Psalm 100"
+  },
+  "680": {
+    "day": 680,
+    "ot": "Hosea 11",
+    "nt": "Acts 9",
+    "wisdom": "Psalm 101"
+  },
+  "681": {
+    "day": 681,
+    "ot": "Hosea 12",
+    "nt": "Acts 10",
+    "wisdom": "Psalm 102"
+  },
+  "682": {
+    "day": 682,
+    "ot": "Hosea 13",
+    "nt": "Acts 11",
+    "wisdom": "Psalm 103"
+  },
+  "683": {
+    "day": 683,
+    "ot": "Hosea 14",
+    "nt": "Acts 12",
+    "wisdom": "Psalm 104"
+  },
+  "684": {
+    "day": 684,
+    "ot": "Joel 1",
+    "nt": "Acts 13",
+    "wisdom": "Psalm 105"
+  },
+  "685": {
+    "day": 685,
+    "ot": "Joel 2",
+    "nt": "Acts 14",
+    "wisdom": "Psalm 106"
+  },
+  "686": {
+    "day": 686,
+    "ot": "Joel 3",
+    "nt": "Acts 15",
+    "wisdom": "Psalm 107"
+  },
+  "687": {
+    "day": 687,
+    "ot": "Amos 1",
+    "nt": "Acts 16",
+    "wisdom": "Psalm 108"
+  },
+  "688": {
+    "day": 688,
+    "ot": "Amos 2",
+    "nt": "Acts 17",
+    "wisdom": "Psalm 109"
+  },
+  "689": {
+    "day": 689,
+    "ot": "Amos 3",
+    "nt": "Acts 18",
+    "wisdom": "Psalm 110"
+  },
+  "690": {
+    "day": 690,
+    "ot": "Amos 4",
+    "nt": "Acts 19",
+    "wisdom": "Psalm 111"
+  },
+  "691": {
+    "day": 691,
+    "ot": "Amos 5",
+    "nt": "Acts 20",
+    "wisdom": "Psalm 112"
+  },
+  "692": {
+    "day": 692,
+    "ot": "Amos 6",
+    "nt": "Acts 21",
+    "wisdom": "Psalm 113"
+  },
+  "693": {
+    "day": 693,
+    "ot": "Amos 7",
+    "nt": "Acts 22",
+    "wisdom": "Psalm 114"
+  },
+  "694": {
+    "day": 694,
+    "ot": "Amos 8",
+    "nt": "Acts 23",
+    "wisdom": "Psalm 115"
+  },
+  "695": {
+    "day": 695,
+    "ot": "Amos 9",
+    "nt": "Acts 24",
+    "wisdom": "Psalm 116"
+  },
+  "696": {
+    "day": 696,
+    "ot": "Obadiah 1",
+    "nt": "Acts 25",
+    "wisdom": "Psalm 117"
+  },
+  "697": {
+    "day": 697,
+    "ot": "Jonah 1",
+    "nt": "Acts 26",
+    "wisdom": "Psalm 118"
+  },
+  "698": {
+    "day": 698,
+    "ot": "Jonah 2",
+    "nt": "Acts 27",
+    "wisdom": "Psalm 119"
+  },
+  "699": {
+    "day": 699,
+    "ot": "Jonah 3",
+    "nt": "Acts 28",
+    "wisdom": "Psalm 120"
+  },
+  "700": {
+    "day": 700,
+    "ot": "Jonah 4",
+    "nt": "Titus 1",
+    "wisdom": "Psalm 121"
+  },
+  "701": {
+    "day": 701,
+    "ot": "Micah 1",
+    "nt": "Titus 2",
+    "wisdom": "Psalm 122"
+  },
+  "702": {
+    "day": 702,
+    "ot": "Micah 2",
+    "nt": "Titus 3",
+    "wisdom": "Psalm 123"
+  },
+  "703": {
+    "day": 703,
+    "ot": "Micah 3",
+    "nt": "Philemon 1",
+    "wisdom": "Psalm 124"
+  },
+  "704": {
+    "day": 704,
+    "ot": "Micah 4",
+    "nt": "Hebrews 1",
+    "wisdom": "Psalm 125"
+  },
+  "705": {
+    "day": 705,
+    "ot": "Micah 5",
+    "nt": "Hebrews 2",
+    "wisdom": "Psalm 126"
+  },
+  "706": {
+    "day": 706,
+    "ot": "Micah 6",
+    "nt": "Hebrews 3",
+    "wisdom": "Psalm 127"
+  },
+  "707": {
+    "day": 707,
+    "ot": "Micah 7",
+    "nt": "Hebrews 4",
+    "wisdom": "Psalm 128"
+  },
+  "708": {
+    "day": 708,
+    "ot": "Nahum 1",
+    "nt": "Hebrews 5",
+    "wisdom": "Psalm 129"
+  },
+  "709": {
+    "day": 709,
+    "ot": "Nahum 2",
+    "nt": "Hebrews 6",
+    "wisdom": "Psalm 130"
+  },
+  "710": {
+    "day": 710,
+    "ot": "Nahum 3",
+    "nt": "Hebrews 7",
+    "wisdom": "Psalm 131"
+  },
+  "711": {
+    "day": 711,
+    "ot": "Habakkuk 1",
+    "nt": "Hebrews 8",
+    "wisdom": "Psalm 132"
+  },
+  "712": {
+    "day": 712,
+    "ot": "Habakkuk 2",
+    "nt": "Hebrews 9",
+    "wisdom": "Psalm 133"
+  },
+  "713": {
+    "day": 713,
+    "ot": "Habakkuk 3",
+    "nt": "Hebrews 10",
+    "wisdom": "Psalm 134"
+  },
+  "714": {
+    "day": 714,
+    "ot": "Zephaniah 1",
+    "nt": "Hebrews 11",
+    "wisdom": "Psalm 135"
+  },
+  "715": {
+    "day": 715,
+    "ot": "Zephaniah 2",
+    "nt": "Hebrews 12",
+    "wisdom": "Psalm 136"
+  },
+  "716": {
+    "day": 716,
+    "ot": "Zephaniah 3",
+    "nt": "Hebrews 13",
+    "wisdom": "Psalm 137"
+  },
+  "717": {
+    "day": 717,
+    "ot": "Haggai 1",
+    "nt": "James 1",
+    "wisdom": "Psalm 138"
+  },
+  "718": {
+    "day": 718,
+    "ot": "Haggai 2",
+    "nt": "James 2",
+    "wisdom": "Psalm 139"
+  },
+  "719": {
+    "day": 719,
+    "ot": "Zechariah 1",
+    "nt": "James 3",
+    "wisdom": "Psalm 140"
+  },
+  "720": {
+    "day": 720,
+    "ot": "Zechariah 2",
+    "nt": "James 4",
+    "wisdom": "Psalm 141"
+  },
+  "721": {
+    "day": 721,
+    "ot": "Zechariah 3",
+    "nt": "James 5",
+    "wisdom": "Psalm 142"
+  },
+  "722": {
+    "day": 722,
+    "ot": "Zechariah 4",
+    "nt": "1 Peter 1",
+    "wisdom": "Psalm 143"
+  },
+  "723": {
+    "day": 723,
+    "ot": "Zechariah 5",
+    "nt": "1 Peter 2",
+    "wisdom": "Psalm 144"
+  },
+  "724": {
+    "day": 724,
+    "ot": "Zechariah 6",
+    "nt": "1 Peter 3",
+    "wisdom": "Psalm 145"
+  },
+  "725": {
+    "day": 725,
+    "ot": "Zechariah 7",
+    "nt": "1 Peter 4",
+    "wisdom": "Psalm 146"
+  },
+  "726": {
+    "day": 726,
+    "ot": "Zechariah 8",
+    "nt": "1 Peter 5",
+    "wisdom": "Psalm 147"
+  },
+  "727": {
+    "day": 727,
+    "ot": "Zechariah 9",
+    "nt": "2 Peter 1",
+    "wisdom": "Psalm 148"
+  },
+  "728": {
+    "day": 728,
+    "ot": "Zechariah 10",
+    "nt": "2 Peter 2",
+    "wisdom": "Psalm 149"
+  },
+  "729": {
+    "day": 729,
+    "ot": "Zechariah 11",
+    "nt": "2 Peter 3",
+    "wisdom": "Psalm 150"
+  },
+  "730": {
+    "day": 730,
+    "ot": "Zechariah 12",
+    "nt": "1 John 1",
+    "wisdom": "Proverbs 1"
+  },
+  "731": {
+    "day": 731,
+    "ot": "Zechariah 13",
+    "nt": "1 John 2",
+    "wisdom": "Proverbs 2"
+  },
+  "732": {
+    "day": 732,
+    "ot": "Zechariah 14",
+    "nt": "1 John 3",
+    "wisdom": "Proverbs 3"
+  },
+  "733": {
+    "day": 733,
+    "ot": "Malachi 1",
+    "nt": "1 John 4",
+    "wisdom": "Proverbs 4"
+  },
+  "734": {
+    "day": 734,
+    "ot": "Malachi 2",
+    "nt": "1 John 5",
+    "wisdom": "Proverbs 5"
+  },
+  "735": {
+    "day": 735,
+    "ot": "Malachi 3",
+    "nt": "2 John 1",
+    "wisdom": "Proverbs 6"
+  },
+  "736": {
+    "day": 736,
+    "ot": "Malachi 4",
+    "nt": "3 John 1",
+    "wisdom": "Proverbs 7"
+  }
+}

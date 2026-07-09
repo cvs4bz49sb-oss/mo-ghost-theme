@@ -1,24 +1,23 @@
 /*
- * Daily Liturgy Reader — displays one devotional per day with
- * backward navigation and member translation switching.
+ * Daily Liturgy Reader — two modes:
+ *   1. Devotional: liturgical devotional from calendar.json + devotionals.json
+ *   2. Bible in 2 Years: sequential OT/NT/Wisdom reading plan from bible-in-2-years.json
  *
- * Data lives in /assets/data/daily-liturgy/:
- *   calendar.json   — { "2026-11-30": { key, season }, ... }
- *   devotionals.json — { "advent-w1-mon": { ...fields }, ... }
- *
- * Scripture is fetched live from the mo-bible worker (API.Bible proxy).
- * Translation preference stored in localStorage.
+ * Mode preference + translation saved to localStorage.
  */
 (function () {
   "use strict";
 
-  const CALENDAR_URL = "/assets/data/daily-liturgy/calendar.json";
-  const DEVOTIONALS_URL = "/assets/data/daily-liturgy/devotionals.json";
-  const LS_TRANSLATION = "mo-liturgy-translation";
-  const DEFAULT_TRANSLATION = "CSB";
+  var CALENDAR_URL = "/assets/data/daily-liturgy/calendar.json";
+  var DEVOTIONALS_URL = "/assets/data/daily-liturgy/devotionals.json";
+  var BI2Y_URL = "/assets/data/daily-liturgy/bible-in-2-years.json";
+  var BI2Y_START = "2026-01-01";
+  var BI2Y_TOTAL_DAYS = 736;
+  var LS_TRANSLATION = "mo-liturgy-translation";
+  var LS_MODE = "mo-liturgy-mode";
+  var DEFAULT_TRANSLATION = "CSB";
 
-  // bolls.life translation codes
-  const TRANSLATION_CODES = {
+  var TRANSLATION_CODES = {
     CSB: "CSB17",
     KJV: "KJV",
     ESV: "ESV",
@@ -27,44 +26,55 @@
   };
 
   // ── DOM refs ──────────────────────────────────────────────────
-  const page = document.querySelector("[data-dlr-page]");
+  var page = document.querySelector("[data-dlr-page]");
   if (!page) return;
 
-  const $ = (sel) => page.querySelector(sel);
-  const $title = $("[data-dlr-title]");
-  const $season = $("[data-dlr-season]");
-  const $prev = $("[data-dlr-prev]");
-  const $next = $("[data-dlr-next]");
-  const $today = $("[data-dlr-today]");
-  const $catchup = $("[data-dlr-catchup]");
-  const $body = $("[data-dlr-body]");
-  const $loading = $("[data-dlr-loading]");
-  const $error = $("[data-dlr-error]");
-  const $errorMsg = $("[data-dlr-error-msg]");
-  const $retry = $("[data-dlr-retry]");
-  const $empty = $("[data-dlr-empty]");
-  const $nav = $("[data-dlr-nav]");
-  const $translationSelect = $("[data-dlr-translation-select]");
+  var $ = function (sel) { return page.querySelector(sel); };
+  var $title = $("[data-dlr-title]");
+  var $season = $("[data-dlr-season]");
+  var $prev = $("[data-dlr-prev]");
+  var $next = $("[data-dlr-next]");
+  var $today = $("[data-dlr-today]");
+  var $catchup = $("[data-dlr-catchup]");
+  var $body = $("[data-dlr-body]");
+  var $bi2yBody = $("[data-dlr-bi2y-body]");
+  var $loading = $("[data-dlr-loading]");
+  var $error = $("[data-dlr-error]");
+  var $errorMsg = $("[data-dlr-error-msg]");
+  var $retry = $("[data-dlr-retry]");
+  var $empty = $("[data-dlr-empty]");
+  var $nav = $("[data-dlr-nav]");
+  var $translationSelect = $("[data-dlr-translation-select]");
+  var $modeToggle = $("[data-dlr-mode-toggle]");
 
-  const bibleMeta = page.querySelector('meta[name="mo-bible-base"]');
-  const BIBLE_BASE = (bibleMeta && bibleMeta.content || "").replace(/\/$/, "");
+  var bibleMeta = page.querySelector('meta[name="mo-bible-base"]');
+  var BIBLE_BASE = (bibleMeta && bibleMeta.content || "").replace(/\/$/, "");
 
   // ── State ─────────────────────────────────────────────────────
-  let calendar = null;
-  let devotionals = null;
-  let currentDate = null;
-  let translation = DEFAULT_TRANSLATION;
+  var calendar = null;
+  var devotionals = null;
+  var bi2yPlan = null;
+  var currentDate = null;
+  var currentBi2yDay = null;
+  var translation = DEFAULT_TRANSLATION;
+  var mode = "devotional";
 
   // ── Helpers ───────────────────────────────────────────────────
   function todayStr() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
 
   function addDaysStr(dateStr, n) {
-    const d = new Date(dateStr + "T12:00:00");
+    var d = new Date(dateStr + "T12:00:00");
     d.setDate(d.getDate() + n);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function daysBetween(a, b) {
+    var da = new Date(a + "T12:00:00");
+    var db = new Date(b + "T12:00:00");
+    return Math.round((db - da) / 86400000);
   }
 
   function isSunday(dateStr) {
@@ -72,8 +82,8 @@
   }
 
   function findPrevDate(dateStr) {
-    let d = addDaysStr(dateStr, -1);
-    for (let i = 0; i < 7; i++) {
+    var d = addDaysStr(dateStr, -1);
+    for (var i = 0; i < 7; i++) {
       if (calendar[d]) return d;
       d = addDaysStr(d, -1);
     }
@@ -81,9 +91,9 @@
   }
 
   function findNextDate(dateStr) {
-    const today = todayStr();
-    let d = addDaysStr(dateStr, 1);
-    for (let i = 0; i < 7; i++) {
+    var today = todayStr();
+    var d = addDaysStr(dateStr, 1);
+    for (var i = 0; i < 7; i++) {
       if (d > today) return null;
       if (calendar[d]) return d;
       d = addDaysStr(d, 1);
@@ -92,26 +102,38 @@
   }
 
   function findTodayOrLatest() {
-    const today = todayStr();
+    var today = todayStr();
     if (calendar[today]) return today;
     return findPrevDate(today);
   }
 
+  function bi2yDayForToday() {
+    var diff = daysBetween(BI2Y_START, todayStr()) + 1;
+    if (diff < 1) return 1;
+    if (diff > BI2Y_TOTAL_DAYS) return BI2Y_TOTAL_DAYS;
+    return diff;
+  }
+
   function showState(state) {
-    $body.hidden = state !== "content";
+    var isContent = state === "content";
     $loading.hidden = state !== "loading";
     $error.hidden = state !== "error";
     $empty.hidden = state !== "empty";
     $nav.hidden = state === "loading" || state === "error";
     var $bar = $(".dlr-settings-bar");
-    if ($bar) $bar.hidden = state !== "content";
+    if ($bar) $bar.hidden = !isContent;
+
+    if (mode === "devotional") {
+      $body.hidden = !isContent;
+      if ($bi2yBody) $bi2yBody.hidden = true;
+    } else {
+      $body.hidden = true;
+      if ($bi2yBody) $bi2yBody.hidden = !isContent;
+    }
   }
 
   // ── Scripture reference parser ────────────────────────────────
-  // Converts "Isaiah 55" → { book: 23, chapter: 55 }
-  // Converts "Isaiah 2:1-5" → { book: 23, chapter: 2, vStart: 1, vEnd: 5 }
-  // Book numbers use standard Protestant order (Genesis=1 … Revelation=66)
-  const BOOK_NUMS = {
+  var BOOK_NUMS = {
     "genesis": 1, "exodus": 2, "leviticus": 3, "numbers": 4,
     "deuteronomy": 5, "joshua": 6, "judges": 7, "ruth": 8,
     "1 samuel": 9, "2 samuel": 10, "1 kings": 11, "2 kings": 12,
@@ -149,7 +171,7 @@
   }
 
   // ── Scripture fetching ────────────────────────────────────────
-  const scriptureCache = {};
+  var scriptureCache = {};
 
   function fetchScripture(ref, translationKey) {
     var bollsCode = TRANSLATION_CODES[translationKey];
@@ -191,9 +213,9 @@
       });
   }
 
-  // ── Render ────────────────────────────────────────────────────
+  // ── Render: Devotional ───────────────────────────────────────
   function renderDevotional(dateStr) {
-    const entry = calendar[dateStr];
+    var entry = calendar[dateStr];
     if (!entry) {
       if (isSunday(dateStr)) {
         showState("empty");
@@ -204,7 +226,7 @@
       return;
     }
 
-    const dev = devotionals[entry.key];
+    var dev = devotionals[entry.key];
     if (!dev) {
       $errorMsg.textContent = "Devotional content missing for " + entry.key;
       showState("error");
@@ -212,15 +234,13 @@
     }
 
     currentDate = dateStr;
-    const isToday = dateStr === todayStr();
+    var isToday = dateStr === todayStr();
 
-    // Header
     $title.textContent = dev.title;
     $season.textContent = entry.season;
 
-    // Navigation
-    const prevDate = findPrevDate(dateStr);
-    const nextDate = findNextDate(dateStr);
+    var prevDate = findPrevDate(dateStr);
+    var nextDate = findNextDate(dateStr);
     $prev.disabled = !prevDate;
     $next.disabled = !nextDate;
     $prev._date = prevDate;
@@ -228,53 +248,48 @@
     $today.hidden = isToday;
     $catchup.hidden = isToday;
 
-    // Prayer content
     renderPrayer("[data-dlr-opening-prayer]", dev.openingPrayerText, true);
     renderPrayer("[data-dlr-confession]", dev.confession);
     renderPrayer("[data-dlr-adoration]", dev.adoration);
     renderPrayer("[data-dlr-consecration]", dev.consecration);
     renderPrayer("[data-dlr-benediction]", dev.benediction);
 
-    // Scripture references
     $("[data-dlr-ot-ref]").textContent = dev.otReading + " (" + translation + ")";
     $("[data-dlr-nt-ref]").textContent = dev.ntReading + " (" + translation + ")";
     $("[data-dlr-psalm-ref]").textContent = dev.psalmReading + " (" + translation + ")";
 
     showState("content");
 
-    // Fetch Scripture texts
     loadScripture(dev.otReading, "[data-dlr-ot-text]");
     loadScripture(dev.ntReading, "[data-dlr-nt-text]");
     loadScripture(dev.psalmReading, "[data-dlr-psalm-text]");
 
-    // Smooth scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function renderPrayer(selector, text, asLines) {
-    const el = $(selector);
+    var el = $(selector);
     if (!el || !text) return;
     if (asLines) {
       el.innerHTML = text.split("\n")
-        .filter((l) => l.trim())
-        .map((l) => `<span class="dlr-line">${escapeHtml(l)}</span>`)
+        .filter(function (l) { return l.trim(); })
+        .map(function (l) { return '<span class="dlr-line">' + escapeHtml(l) + "</span>"; })
         .join("");
     } else {
-      el.innerHTML = `<p>${escapeHtml(text)}</p>`;
+      el.innerHTML = "<p>" + escapeHtml(text) + "</p>";
     }
   }
 
   function loadScripture(ref, textSelector) {
-    const el = $(textSelector);
+    var el = $(textSelector);
     if (!el) return;
     el.innerHTML = "Loading&hellip;";
 
-    let activeTranslation = translation;
-    fetchScripture(ref, activeTranslation).then((result) => {
+    fetchScripture(ref, translation).then(function (result) {
       if (result.fallback) {
-        return fetchScripture(ref, "CSB").then((csb) => {
+        return fetchScripture(ref, "CSB").then(function (csb) {
           el.innerHTML = result.html + csb.html;
-          const refEl = el.parentElement.querySelector(".dlr-scripture-ref");
+          var refEl = el.parentElement.querySelector(".dlr-scripture-ref");
           if (refEl) refEl.textContent = ref + " (CSB)";
         });
       }
@@ -290,10 +305,82 @@
       .replace(/"/g, "&quot;");
   }
 
+  // ── Render: Bible in 2 Years ─────────────────────────────────
+  function renderBi2y(dayNum) {
+    var entry = bi2yPlan[String(dayNum)];
+    if (!entry) {
+      $errorMsg.textContent = "No reading found for day " + dayNum + ".";
+      showState("error");
+      return;
+    }
+
+    currentBi2yDay = dayNum;
+    var todayDay = bi2yDayForToday();
+    var isToday = dayNum === todayDay;
+
+    $title.textContent = "Day " + dayNum + " of " + BI2Y_TOTAL_DAYS;
+    $season.textContent = "Bible in Two Years";
+
+    $prev.disabled = dayNum <= 1;
+    $next.disabled = dayNum >= todayDay;
+    $prev._bi2yDay = dayNum - 1;
+    $next._bi2yDay = dayNum + 1;
+    $today.hidden = isToday;
+    $catchup.hidden = isToday;
+
+    $("[data-dlr-bi2y-ot-ref]").textContent = entry.ot + " (" + translation + ")";
+    $("[data-dlr-bi2y-nt-ref]").textContent = entry.nt + " (" + translation + ")";
+    $("[data-dlr-bi2y-wisdom-ref]").textContent = entry.wisdom + " (" + translation + ")";
+
+    showState("content");
+
+    loadScripture(entry.ot, "[data-dlr-bi2y-ot-text]");
+    loadScripture(entry.nt, "[data-dlr-bi2y-nt-text]");
+    loadScripture(entry.wisdom, "[data-dlr-bi2y-wisdom-text]");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ── Mode switching ───────────────────────────────────────────
+  function setMode(newMode) {
+    mode = newMode;
+    try { localStorage.setItem(LS_MODE, mode); } catch (e) {}
+
+    var buttons = $modeToggle.querySelectorAll("[data-dlr-mode]");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].classList.toggle("is-active", buttons[i].getAttribute("data-dlr-mode") === mode);
+    }
+
+    if (mode === "devotional") {
+      if (calendar && devotionals) {
+        var d = currentDate || findTodayOrLatest();
+        if (d) renderDevotional(d);
+      } else {
+        initDevotional();
+      }
+    } else {
+      if (bi2yPlan) {
+        renderBi2y(currentBi2yDay || bi2yDayForToday());
+      } else {
+        initBi2y();
+      }
+    }
+  }
+
+  if ($modeToggle) {
+    var buttons = $modeToggle.querySelectorAll("[data-dlr-mode]");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", function () {
+        var m = this.getAttribute("data-dlr-mode");
+        if (m !== mode) setMode(m);
+      });
+    }
+  }
+
   // ── Translation switching ─────────────────────────────────────
   if ($translationSelect) {
     try {
-      const saved = localStorage.getItem(LS_TRANSLATION);
+      var saved = localStorage.getItem(LS_TRANSLATION);
       if (saved && TRANSLATION_CODES[saved] !== undefined) translation = saved;
     } catch (e) {}
 
@@ -303,61 +390,111 @@
       if (t === translation) return;
       translation = t;
       try { localStorage.setItem(LS_TRANSLATION, t); } catch (e) {}
-      if (currentDate) renderDevotional(currentDate);
+      if (mode === "devotional" && currentDate) {
+        renderDevotional(currentDate);
+      } else if (mode === "bi2y" && currentBi2yDay) {
+        renderBi2y(currentBi2yDay);
+      }
     });
   }
 
   // ── Navigation ────────────────────────────────────────────────
-  $prev.addEventListener("click", () => {
-    if ($prev._date) renderDevotional($prev._date);
+  $prev.addEventListener("click", function () {
+    if (mode === "devotional") {
+      if ($prev._date) renderDevotional($prev._date);
+    } else {
+      if ($prev._bi2yDay >= 1) renderBi2y($prev._bi2yDay);
+    }
   });
-  $next.addEventListener("click", () => {
-    if ($next._date) renderDevotional($next._date);
+  $next.addEventListener("click", function () {
+    if (mode === "devotional") {
+      if ($next._date) renderDevotional($next._date);
+    } else {
+      if ($next._bi2yDay <= bi2yDayForToday()) renderBi2y($next._bi2yDay);
+    }
   });
-  $today.addEventListener("click", () => {
-    const d = findTodayOrLatest();
-    if (d) renderDevotional(d);
+  $today.addEventListener("click", function () {
+    if (mode === "devotional") {
+      var d = findTodayOrLatest();
+      if (d) renderDevotional(d);
+    } else {
+      renderBi2y(bi2yDayForToday());
+    }
   });
   if ($retry) {
-    $retry.addEventListener("click", () => init());
+    $retry.addEventListener("click", function () {
+      if (mode === "devotional") initDevotional();
+      else initBi2y();
+    });
   }
 
-  // Keyboard nav
-  document.addEventListener("keydown", (e) => {
-    const t = e.target;
+  document.addEventListener("keydown", function (e) {
+    var t = e.target;
     if (t.tagName === "INPUT" || t.tagName === "SELECT" || t.tagName === "TEXTAREA") return;
     if (e.key === "ArrowLeft" && !$prev.disabled) { e.preventDefault(); $prev.click(); }
     if (e.key === "ArrowRight" && !$next.disabled) { e.preventDefault(); $next.click(); }
   });
 
   // ── Init ──────────────────────────────────────────────────────
-  function init() {
+  function initDevotional() {
     showState("loading");
     Promise.all([
-      fetch(CALENDAR_URL).then((r) => r.ok ? r.json() : Promise.reject(new Error("Calendar not found"))),
-      fetch(DEVOTIONALS_URL).then((r) => r.ok ? r.json() : Promise.reject(new Error("Devotionals not found"))),
+      fetch(CALENDAR_URL).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("Calendar not found")); }),
+      fetch(DEVOTIONALS_URL).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("Devotionals not found")); }),
     ])
-      .then(([cal, devs]) => {
-        calendar = cal;
-        devotionals = devs;
-        const startDate = findTodayOrLatest();
+      .then(function (results) {
+        calendar = results[0];
+        devotionals = results[1];
+        var startDate = findTodayOrLatest();
         if (!startDate) {
           if (isSunday(todayStr())) {
             showState("empty");
           } else {
-            $errorMsg.textContent = "No devotional available for today. The Daily Liturgy may not have started yet.";
+            $errorMsg.textContent = "No devotional available for today.";
             showState("error");
           }
           return;
         }
         renderDevotional(startDate);
       })
-      .catch((err) => {
+      .catch(function (err) {
         console.error("dlr init", err);
         $errorMsg.textContent = "Could not load devotional data.";
         showState("error");
       });
   }
 
-  init();
+  function initBi2y() {
+    showState("loading");
+    fetch(BI2Y_URL)
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("Plan not found")); })
+      .then(function (plan) {
+        bi2yPlan = plan;
+        renderBi2y(bi2yDayForToday());
+      })
+      .catch(function (err) {
+        console.error("bi2y init", err);
+        $errorMsg.textContent = "Could not load reading plan data.";
+        showState("error");
+      });
+  }
+
+  // Restore saved mode
+  try {
+    var savedMode = localStorage.getItem(LS_MODE);
+    if (savedMode === "bi2y") mode = "bi2y";
+  } catch (e) {}
+
+  if ($modeToggle) {
+    var allBtns = $modeToggle.querySelectorAll("[data-dlr-mode]");
+    for (var j = 0; j < allBtns.length; j++) {
+      allBtns[j].classList.toggle("is-active", allBtns[j].getAttribute("data-dlr-mode") === mode);
+    }
+  }
+
+  if (mode === "bi2y") {
+    initBi2y();
+  } else {
+    initDevotional();
+  }
 })();
