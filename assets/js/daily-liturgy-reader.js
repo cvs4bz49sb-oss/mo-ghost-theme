@@ -44,7 +44,7 @@
   const $retry = $("[data-dlr-retry]");
   const $empty = $("[data-dlr-empty]");
   const $nav = $("[data-dlr-nav]");
-  const $translations = $("[data-dlr-translations]");
+  const $translationSelect = $("[data-dlr-translation-select]");
 
   const bibleMeta = page.querySelector('meta[name="mo-bible-base"]');
   const BIBLE_BASE = (bibleMeta && bibleMeta.content || "").replace(/\/$/, "");
@@ -103,7 +103,8 @@
     $error.hidden = state !== "error";
     $empty.hidden = state !== "empty";
     $nav.hidden = state === "loading" || state === "error";
-    if ($translations) $translations.hidden = state !== "content";
+    var $bar = $(".dlr-settings-bar");
+    if ($bar) $bar.hidden = state !== "content";
   }
 
   // ── Scripture reference parser ────────────────────────────────
@@ -290,23 +291,20 @@
   }
 
   // ── Translation switching ─────────────────────────────────────
-  const $translationSelect = $("[data-dlr-translation-select]");
-  if ($translations) {
+  if ($translationSelect) {
     try {
       const saved = localStorage.getItem(LS_TRANSLATION);
       if (saved && TRANSLATION_CODES[saved] !== undefined) translation = saved;
     } catch (e) {}
 
-    if ($translationSelect) {
-      $translationSelect.value = translation;
-      $translationSelect.addEventListener("change", function () {
-        var t = $translationSelect.value;
-        if (t === translation) return;
-        translation = t;
-        try { localStorage.setItem(LS_TRANSLATION, t); } catch (e) {}
-        if (currentDate) renderDevotional(currentDate);
-      });
-    }
+    $translationSelect.value = translation;
+    $translationSelect.addEventListener("change", function () {
+      var t = $translationSelect.value;
+      if (t === translation) return;
+      translation = t;
+      try { localStorage.setItem(LS_TRANSLATION, t); } catch (e) {}
+      if (currentDate) renderDevotional(currentDate);
+    });
   }
 
   // ── Navigation ────────────────────────────────────────────────
