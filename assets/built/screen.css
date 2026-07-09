@@ -22201,7 +22201,8 @@ html[data-theme="dark"] .dlr-header-logo {
   .dlr-header { padding-bottom: 24px; margin-bottom: 22px; }
   .dlr-header-logo { max-width: 160px; }
   .dlr-title { font-size: 20px; }
-  .dlr-mode-row { max-width: 280px; }
+  .dlr-mode-row,
+  .dlr-settings-bar { max-width: 100%; }
   .dlr-mode-btn { font-size: 12px; padding: 5px 10px; }
   .dlr-scripture-toggle-btn { font-size: 11px; padding: 5px 9px; }
   .dlr-nav { gap: 12px; margin-bottom: 22px; }
