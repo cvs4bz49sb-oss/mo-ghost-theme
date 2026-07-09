@@ -21804,26 +21804,12 @@ html[data-theme="dark"] .dlr-page {
   margin: -16px 0 24px;
 }
 
-/* Translation setting */
-.dlr-setting {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 32px;
-}
-.dlr-setting-label {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--dlr-text-secondary);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
+/* Translation select */
 .dlr-setting-select {
   appearance: none;
   -webkit-appearance: none;
-  padding: 6px 32px 6px 14px;
+  height: 36px;
+  padding: 0 32px 0 14px;
   border-radius: 999px;
   border: 1px solid var(--dlr-rule);
   background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 12px center;
@@ -22073,8 +22059,9 @@ html[data-theme="dark"] .dlr-page {
   .dlr-prayer-text { font-size: 15px; }
   .dlr-prayer-lines { font-size: 15px; line-height: 1.7; }
   .dlr-section--benediction { padding: 8px 16px 0; }
-  .dlr-setting { gap: 8px; }
-  .dlr-setting-select { font-size: 13px; padding: 5px 28px 5px 12px; }
+  .dlr-settings-bar { gap: 10px; }
+  .dlr-setting-select { font-size: 13px; height: 32px; padding: 0 28px 0 12px; }
+  .dlr-theme-toggle { width: 32px; height: 32px; }
   .dlr-footer { margin-top: 24px; padding-top: 22px; }
   .dlr-gate { min-height: 50vh; padding: 48px 18px; }
   .dlr-gate-logo { max-width: 240px; }
