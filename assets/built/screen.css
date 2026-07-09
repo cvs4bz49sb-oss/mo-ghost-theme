@@ -21717,19 +21717,6 @@ html[data-theme="dark"] .dlr-page {
 html[data-theme="dark"] body:has(.dlr-page) {
   background: #1a1714;
 }
-html[data-theme="dark"] body:has(.dlr-page) .site-header {
-  background-color: #1a1714;
-  border-bottom-color: #3d3530;
-  box-shadow: none;
-}
-html[data-theme="dark"] body:has(.dlr-page) .site-header::before {
-  display: none;
-}
-html[data-theme="dark"] body:has(.dlr-page) .header-inner,
-html[data-theme="dark"] body:has(.dlr-page) .nav-link,
-html[data-theme="dark"] body:has(.dlr-page) .header-logo-text {
-  color: #e8ddd0;
-}
 html[data-theme="dark"] body:has(.dlr-page) .site-footer {
   background: #1a1714;
   border-top-color: #3d3530;
