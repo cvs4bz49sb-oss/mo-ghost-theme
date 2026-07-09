@@ -240,23 +240,42 @@ function Button({ tokens, children, href = '#', variant = 'primary', size = 'md'
   }[variant];
   const pad = size === 'sm' ? '8px 16px' : size === 'lg' ? '14px 28px' : '11px 22px';
   const fs = size === 'sm' ? 12 : size === 'lg' ? 14 : 13;
+  const hasBg = palette.bg !== 'transparent';
+  // Bulletproof button: Outlook (Word engine) drops padding on inline/
+  // inline-block <a>, collapsing the button to bare text. Putting the
+  // padding + background + border on a <td> instead survives every client.
+  // The table is inline-block so parent text-align still governs placement.
   return (
-    <a href={href} style={{
-      display: 'inline-block',
-      background: palette.bg,
-      color: palette.fg,
-      border: `1.5px solid ${palette.border}`,
-      padding: pad,
-      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-      fontSize: fs,
-      fontWeight: 600,
-      letterSpacing: isBold ? '0.14em' : '0.1em',
-      textTransform: 'uppercase',
-      textDecoration: 'none',
-      borderRadius: 5,
-    }}>
-      {children}
-    </a>
+    <table role="presentation" cellPadding="0" cellSpacing="0" border="0" style={{ borderCollapse: 'separate', display: 'inline-block', verticalAlign: 'middle' }}>
+      <tbody>
+        <tr>
+          <td
+            {...(hasBg ? { bgcolor: palette.bg } : {})}
+            style={{
+              background: palette.bg,
+              border: `1.5px solid ${palette.border}`,
+              borderRadius: 5,
+              textAlign: 'center',
+            }}
+          >
+            <a href={href} style={{
+              display: 'inline-block',
+              padding: pad,
+              color: palette.fg,
+              fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+              fontSize: fs,
+              fontWeight: 600,
+              lineHeight: 1,
+              letterSpacing: isBold ? '0.14em' : '0.1em',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+            }}>
+              {children}
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 }
 
@@ -591,15 +610,15 @@ function CustomBlocks({ tokens, accent, blocks }) {
 function MembershipCTA({ tokens, accent, content }) {
   const isBold = accent === 'bold';
   return (
+    <div style={{ padding: '0 32px 8px' }} className="mo-pad-32">
     <div style={{
-      margin: '0 32px 8px',
       padding: '32px 28px',
       background: isBold ? tokens.tertiary : tokens.bgCream,
       color: isBold ? '#fff' : tokens.bodyText,
       textAlign: 'center',
       border: isBold ? 'none' : `1px solid ${tokens.ruleSoft}`,
       borderRadius: 5,
-    }} className="mo-pad-32-tight mo-margin-32">
+    }} className="mo-pad-32-tight">
       <div style={{
         fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
         fontSize: 11,
@@ -639,6 +658,7 @@ function MembershipCTA({ tokens, accent, content }) {
         {content.cta}
       </Button>
     </div>
+    </div>
   );
 }
 
@@ -675,7 +695,7 @@ function SponsorBlock({ tokens, content }) {
             {content.name}
           </div>
           {content.image && (
-            <img src={content.image} alt="" style={{
+            <img src={content.image} alt="" width="380" style={{
               display: 'block',
               width: '100%',
               maxWidth: 380,
@@ -729,10 +749,10 @@ function FeaturedEssay({ tokens, essay, accent }) {
   return (
     <div>
       <a href={href} style={{ textDecoration: 'none', display: 'block' }}>
-        <img src={essay.img} alt="" className="mo-essay-img" style={{
+        <img src={essay.img} alt="" width="536" className="mo-essay-img" style={{
           width: '100%',
-          height: 280,
-          objectFit: 'cover',
+          maxWidth: 536,
+          height: 'auto',
           display: 'block',
           borderRadius: 5,
         }} />
@@ -787,10 +807,10 @@ function EssayCard({ tokens, essay, accent }) {
   return (
     <div style={{ width: '100%' }}>
       <a href={href} style={{ textDecoration: 'none', display: 'block' }}>
-        <img src={essay.img} alt="" className="mo-essay-img" style={{
+        <img src={essay.img} alt="" width="252" className="mo-essay-img" style={{
           width: '100%',
-          height: 130,
-          objectFit: 'cover',
+          maxWidth: 252,
+          height: 'auto',
           display: 'block',
           borderRadius: 5,
         }} />
@@ -881,11 +901,11 @@ function EssaysGrid({ tokens, accent, density, essays, heading }) {
           <table width="100%" cellPadding="0" cellSpacing="0" border="0" role="presentation" className="mo-stack">
             <tbody>
               <tr>
-                <td style={{ verticalAlign: 'top', width: '47%', paddingRight: 12 }} className="mo-stack-cell">
+                <td style={{ verticalAlign: 'top', width: '47%' }} className="mo-stack-cell">
                   {pair[0] && <EssayCard tokens={tokens} essay={pair[0]} accent={accent} />}
                 </td>
                 <td style={{ width: '6%' }} className="mo-stack-gap"></td>
-                <td style={{ verticalAlign: 'top', width: '47%', paddingLeft: 12 }} className="mo-stack-cell">
+                <td style={{ verticalAlign: 'top', width: '47%' }} className="mo-stack-cell">
                   {pair[1] && <EssayCard tokens={tokens} essay={pair[1]} accent={accent} />}
                 </td>
               </tr>
@@ -966,11 +986,11 @@ function PodcastsGrid({ tokens, accent, podcasts, heading }) {
       <table width="100%" cellPadding="0" cellSpacing="0" border="0" role="presentation" className="mo-stack">
         <tbody>
           <tr>
-            <td style={{ verticalAlign: 'top', width: '47%', paddingRight: 12 }} className="mo-stack-cell">
+            <td style={{ verticalAlign: 'top', width: '47%' }} className="mo-stack-cell">
               {podcasts[0] && <PodcastCard tokens={tokens} pod={podcasts[0]} accent={accent} />}
             </td>
             <td style={{ width: '6%' }} className="mo-stack-gap"></td>
-            <td style={{ verticalAlign: 'top', width: '47%', paddingLeft: 12 }} className="mo-stack-cell">
+            <td style={{ verticalAlign: 'top', width: '47%' }} className="mo-stack-cell">
               {podcasts[1] && <PodcastCard tokens={tokens} pod={podcasts[1]} accent={accent} />}
             </td>
           </tr>
@@ -982,14 +1002,14 @@ function PodcastsGrid({ tokens, accent, podcasts, heading }) {
 
 function MemberThanks({ tokens, content }) {
   return (
+    <div style={{ padding: '0 32px' }} className="mo-pad-32">
     <div style={{
-      margin: '0 32px',
       padding: '24px 28px',
       background: tokens.bgCream,
       textAlign: 'center',
       border: `1px solid ${tokens.ruleSoft}`,
       borderRadius: 5,
-    }} className="mo-pad-32-tight mo-margin-32">
+    }} className="mo-pad-32-tight">
       <div style={{
         fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
         fontSize: 10.5,
@@ -1036,6 +1056,7 @@ function MemberThanks({ tokens, content }) {
         {content.cta}
       </a>
     </div>
+    </div>
   );
 }
 
@@ -1047,11 +1068,10 @@ function Footer({ tokens, isMember }) {
       padding: '36px 40px 32px',
       textAlign: 'center',
     }} className="mo-pad-40">
-      <img src={moDigestAsset('mere-o-logo.png')} alt="Mere Orthodoxy" width="64" height="28" style={{
+      <img src={moDigestAsset('mere-o-logo-white.png')} alt="Mere Orthodoxy" width="64" height="28" style={{
         width: 64,
         height: 28,
         display: 'inline-block',
-        filter: 'brightness(0) invert(0.92)',
         marginBottom: 14,
       }} />
       <div style={{

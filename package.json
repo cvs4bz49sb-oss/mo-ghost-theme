@@ -83,6 +83,10 @@
       "referral_offer_url": {
         "type": "text",
         "description": "New-member Ghost Offer link for the referral program (e.g. https://mereorthodoxy.com/#/portal/offers/abc123). When a visitor arrives via a /membership/?ref= link, the 'Become a Member' CTA is repointed here so the referred person gets the first-period discount. Empty = referral still works but single-sided (no new-member offer). Create the offer in Ghost Admin → Membership → Offers."
+      },
+      "bible_worker_url": {
+        "type": "text",
+        "description": "Full URL of the deployed mo-bible Cloudflare Worker (e.g. https://mo-bible.mo-podcast-feed.workers.dev). Powers the Scripture reader and Daily Liturgy passage lookups. Empty disables Scripture display."
       }
     }
   }

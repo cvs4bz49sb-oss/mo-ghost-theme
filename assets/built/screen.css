@@ -21466,3 +21466,327 @@ body:has(.au-modal-overlay) {
 .dash-card--action .dash-card-meta { margin-bottom: 14px; }
 .dash-card--action .referral-link-row { margin: 0 0 16px; }
 .dash-card--action .referral-stats { margin-top: auto; }
+
+/* ================================================================
+   Daily Liturgy Reader — /daily-liturgy/read/
+   Prayer-book aesthetic: wine accent, gold rules, parchment ground.
+   ================================================================ */
+
+.dlr-page {
+  --dlr-ground: #F7F4EE;
+  --dlr-text: #2A2622;
+  --dlr-text-secondary: #8A837A;
+  --dlr-accent: #6B2D3E;
+  --dlr-rule: #C4B998;
+  --dlr-scripture-bg: #EFEAE2;
+  --dlr-scripture-border: #C4B998;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 28px 64px;
+  font-family: var(--font-body);
+  color: var(--dlr-text);
+}
+html[data-theme="dark"] .dlr-page {
+  --dlr-ground: #1C1A17;
+  --dlr-text: #D5CFC5;
+  --dlr-text-secondary: #7A746A;
+  --dlr-accent: #C08090;
+  --dlr-rule: #3A3530;
+  --dlr-scripture-bg: #242220;
+  --dlr-scripture-border: #3A3530;
+}
+@media (prefers-color-scheme: dark) {
+  .dlr-page {
+    --dlr-ground: #1C1A17;
+    --dlr-text: #D5CFC5;
+    --dlr-text-secondary: #7A746A;
+    --dlr-accent: #C08090;
+    --dlr-rule: #3A3530;
+    --dlr-scripture-bg: #242220;
+    --dlr-scripture-border: #3A3530;
+  }
+}
+html[data-theme="light"] .dlr-page {
+  --dlr-ground: #F7F4EE;
+  --dlr-text: #2A2622;
+  --dlr-text-secondary: #8A837A;
+  --dlr-accent: #6B2D3E;
+  --dlr-rule: #C4B998;
+  --dlr-scripture-bg: #EFEAE2;
+  --dlr-scripture-border: #C4B998;
+}
+
+/* Header */
+.dlr-header {
+  text-align: center;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--dlr-rule);
+  margin-bottom: 28px;
+}
+.dlr-kicker {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--dlr-text-secondary);
+  margin: 0 0 8px;
+}
+.dlr-title {
+  font-family: var(--font-body);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--dlr-text);
+  margin: 0;
+  text-wrap: balance;
+}
+.dlr-season {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--dlr-accent);
+  margin: 6px 0 0;
+}
+
+/* Navigation */
+.dlr-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.dlr-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--dlr-rule);
+  background: transparent;
+  color: var(--dlr-text);
+  font-size: 18px;
+  cursor: pointer;
+  transition: border-color 0.15s, opacity 0.15s;
+}
+.dlr-nav-btn:hover:not(:disabled) {
+  border-color: var(--dlr-accent);
+}
+.dlr-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.dlr-nav-today {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--dlr-accent);
+  background: transparent;
+  color: var(--dlr-accent);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.dlr-nav-today:hover {
+  background: var(--dlr-accent);
+  color: #fff;
+}
+
+/* Catch-up notice */
+.dlr-catchup {
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--dlr-text-secondary);
+  margin: -16px 0 24px;
+}
+
+/* Translation pills */
+.dlr-translations {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.dlr-translation-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--dlr-rule);
+  background: transparent;
+  color: var(--dlr-text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.dlr-translation-pill:hover {
+  border-color: var(--dlr-accent);
+  color: var(--dlr-text);
+}
+.dlr-translation-pill.is-active {
+  border-color: var(--dlr-accent);
+  color: var(--dlr-accent);
+}
+
+/* Sections */
+.dlr-section { margin-bottom: 0; }
+.dlr-rule {
+  border: none;
+  border-top: 1px solid var(--dlr-rule);
+  margin: 28px 0;
+}
+
+/* Section labels */
+.dlr-label {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--dlr-accent);
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+.dlr-label--center { text-align: center; }
+
+/* Transition phrases */
+.dlr-transition {
+  font-style: italic;
+  color: var(--dlr-text-secondary);
+  font-size: 15px;
+  text-align: center;
+  margin: 0 0 20px;
+}
+
+/* Prayer text */
+.dlr-prayer-text {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--dlr-text);
+}
+.dlr-prayer-text p { margin: 0; }
+.dlr-prayer-text--benediction {
+  text-align: center;
+  font-style: italic;
+}
+
+/* Prayer lines (opening prayer, Lord's Prayer) */
+.dlr-prayer-lines {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--dlr-text);
+}
+.dlr-line { display: block; }
+
+/* Scripture blocks */
+.dlr-scripture {
+  background: var(--dlr-scripture-bg);
+  border-left: 3px solid var(--dlr-scripture-border);
+  padding: 20px 24px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--dlr-text);
+}
+.dlr-scripture-ref {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dlr-accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.dlr-scripture .verse-num,
+.dlr-scripture sup {
+  font-size: 11px;
+  vertical-align: super;
+  color: var(--dlr-text-secondary);
+  font-weight: 700;
+  margin-right: 1px;
+}
+
+/* Benediction ornament */
+.dlr-ornament {
+  text-align: center;
+  font-size: 18px;
+  color: var(--dlr-rule);
+  margin: 0 0 8px;
+  user-select: none;
+}
+.dlr-section--benediction {
+  padding: 8px 24px 0;
+}
+
+/* Footer */
+.dlr-footer {
+  text-align: center;
+  padding-top: 28px;
+  border-top: 1px solid var(--dlr-rule);
+  margin-top: 32px;
+}
+.dlr-closing {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--dlr-text-secondary);
+  margin: 0 0 16px;
+}
+.dlr-footer-links {
+  font-size: 12px;
+  color: var(--dlr-text-secondary);
+  margin: 0;
+}
+.dlr-footer-links a {
+  color: var(--dlr-accent);
+  text-decoration: none;
+}
+.dlr-footer-links span { margin: 0 4px; }
+
+/* Loading / error / empty states */
+.dlr-loading,
+.dlr-error,
+.dlr-empty {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--dlr-text-secondary);
+  font-size: 15px;
+}
+.dlr-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  padding: 8px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--dlr-accent);
+  background: transparent;
+  color: var(--dlr-accent);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dlr-empty-msg {
+  font-style: italic;
+  margin-bottom: 16px;
+}
+.dlr-empty-link {
+  color: var(--dlr-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .dlr-page { padding: 32px 18px 48px; }
+  .dlr-title { font-size: 20px; }
+  .dlr-scripture { padding: 16px 18px; }
+  .dlr-translations { gap: 6px; }
+  .dlr-translation-pill { padding: 5px 12px; font-size: 12px; }
+}

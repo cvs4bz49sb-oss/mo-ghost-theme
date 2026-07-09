@@ -1,0 +1,170 @@
+{{!< default}}
+{{!-- /daily-liturgy/read/ — routed via routes.yaml with
+     `data: page.daily-liturgy-reader`. Displays one devotional per
+     day from the Daily Liturgy, with backward navigation to catch up.
+     Members can choose Scripture translations (CSB default). --}}
+
+<main class="dlr-page" data-dlr-page>
+  <meta name="mo-bible-base" content="{{@custom.bible_worker_url}}" />
+
+  {{!-- Header --}}
+  <header class="dlr-header">
+    <p class="dlr-kicker">The Daily Liturgy</p>
+    <h1 class="dlr-title" data-dlr-title>Loading&hellip;</h1>
+    <p class="dlr-season" data-dlr-season></p>
+  </header>
+
+  {{!-- Navigation --}}
+  <nav class="dlr-nav" data-dlr-nav>
+    <button class="dlr-nav-btn" data-dlr-prev aria-label="Previous day">&larr;</button>
+    <button class="dlr-nav-today" data-dlr-today>Today</button>
+    <button class="dlr-nav-btn" data-dlr-next aria-label="Next day" disabled>&rarr;</button>
+  </nav>
+
+  {{!-- Catch-up notice --}}
+  <p class="dlr-catchup" data-dlr-catchup hidden>You're viewing a past devotional.</p>
+
+  {{!-- Translation selector (members only) --}}
+  {{#if @member}}
+  <div class="dlr-translations" data-dlr-translations>
+    <button class="dlr-translation-pill is-active" data-dlr-translation="CSB">CSB</button>
+    <button class="dlr-translation-pill" data-dlr-translation="ESV">ESV</button>
+    <button class="dlr-translation-pill" data-dlr-translation="NIV">NIV</button>
+    <button class="dlr-translation-pill" data-dlr-translation="NASB">NASB</button>
+    <button class="dlr-translation-pill" data-dlr-translation="KJV">KJV</button>
+  </div>
+  {{/if}}
+
+  {{!-- Devotional body --}}
+  <article class="dlr-body" data-dlr-body>
+
+    {{!-- Opening Prayer --}}
+    <section class="dlr-section">
+      <p class="dlr-label">Opening Prayer</p>
+      <div class="dlr-prayer-lines" data-dlr-opening-prayer></div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    {{!-- Confession --}}
+    <section class="dlr-section">
+      <p class="dlr-transition">A Prayer of Confession</p>
+      <p class="dlr-label">Confession of Sin &amp; Prayer for Grace</p>
+      <div class="dlr-prayer-text" data-dlr-confession></div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    {{!-- OT Reading --}}
+    <section class="dlr-section">
+      <p class="dlr-transition">The word of the Lord, from the Old Testament</p>
+      <p class="dlr-label">Old Testament Reading</p>
+      <div class="dlr-scripture" data-dlr-ot-reading>
+        <span class="dlr-scripture-ref" data-dlr-ot-ref></span>
+        <div class="dlr-scripture-text" data-dlr-ot-text>Loading Scripture&hellip;</div>
+      </div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    {{!-- Lord's Prayer --}}
+    <section class="dlr-section">
+      <p class="dlr-transition">And now we pray</p>
+      <p class="dlr-label">The Lord's Prayer</p>
+      <div class="dlr-prayer-lines">
+        <span class="dlr-line">Our Father who art in heaven,</span>
+        <span class="dlr-line">Hallowed be thy Name.</span>
+        <span class="dlr-line">Thy kingdom come.</span>
+        <span class="dlr-line">Thy will be done,</span>
+        <span class="dlr-line">On earth as it is in heaven.</span>
+        <span class="dlr-line">Give us this day our daily bread.</span>
+        <span class="dlr-line">And forgive us our debts, as we forgive our debtors.</span>
+        <span class="dlr-line">And lead us not into temptation,</span>
+        <span class="dlr-line">But deliver us from evil.</span>
+        <span class="dlr-line">For thine is the kingdom,</span>
+        <span class="dlr-line">and the power, and the glory,</span>
+        <span class="dlr-line">for ever.</span>
+        <span class="dlr-line">Amen.</span>
+      </div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    {{!-- NT Reading --}}
+    <section class="dlr-section">
+      <p class="dlr-transition">The word of the Lord, from the New Testament</p>
+      <p class="dlr-label">New Testament Reading</p>
+      <div class="dlr-scripture" data-dlr-nt-reading>
+        <span class="dlr-scripture-ref" data-dlr-nt-ref></span>
+        <div class="dlr-scripture-text" data-dlr-nt-text>Loading Scripture&hellip;</div>
+      </div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    {{!-- Prayer of Adoration --}}
+    <section class="dlr-section">
+      <p class="dlr-transition">A Prayer of Adoration</p>
+      <p class="dlr-label">Prayer of Adoration</p>
+      <div class="dlr-prayer-text" data-dlr-adoration></div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    {{!-- Psalm Reading --}}
+    <section class="dlr-section">
+      <p class="dlr-transition">The word of the Lord, from the Psalms</p>
+      <p class="dlr-label">Psalm Reading</p>
+      <div class="dlr-scripture" data-dlr-psalm-reading>
+        <span class="dlr-scripture-ref" data-dlr-psalm-ref></span>
+        <div class="dlr-scripture-text" data-dlr-psalm-text>Loading Scripture&hellip;</div>
+      </div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    {{!-- Prayer of Consecration --}}
+    <section class="dlr-section">
+      <p class="dlr-label">Prayer of Consecration</p>
+      <div class="dlr-prayer-text" data-dlr-consecration></div>
+    </section>
+
+    <hr class="dlr-rule" />
+
+    {{!-- Benediction --}}
+    <section class="dlr-section dlr-section--benediction">
+      <p class="dlr-ornament" aria-hidden="true">&#10013;</p>
+      <p class="dlr-label dlr-label--center">Benediction</p>
+      <div class="dlr-prayer-text dlr-prayer-text--benediction" data-dlr-benediction></div>
+    </section>
+
+  </article>
+
+  {{!-- Footer --}}
+  <footer class="dlr-footer">
+    <p class="dlr-closing">We'll see you again tomorrow for another episode of the Daily Liturgy.</p>
+    <p class="dlr-footer-links">
+      <a href="/podcasts/daily-liturgy/">Subscribe</a>
+      <span>&middot;</span>
+      <a href="/">Mere Orthodoxy</a>
+    </p>
+  </footer>
+
+  {{!-- Loading / error states --}}
+  <div class="dlr-loading" data-dlr-loading hidden>
+    <p>Loading today's devotional&hellip;</p>
+  </div>
+  <div class="dlr-error" data-dlr-error hidden>
+    <p data-dlr-error-msg>Something went wrong loading today's devotional.</p>
+    <button class="dlr-retry-btn" data-dlr-retry>Try again</button>
+  </div>
+
+  {{!-- No-content state (Sunday or outside liturgical year) --}}
+  <div class="dlr-empty" data-dlr-empty hidden>
+    <p class="dlr-empty-msg">Today is the Lord's Day. Rest, worship, and we'll see you tomorrow.</p>
+    <a href="/podcasts/daily-liturgy/" class="dlr-empty-link">Back to the Daily Liturgy</a>
+  </div>
+
+</main>
+
+<script src="{{asset "js/daily-liturgy-reader.js"}}"></script>

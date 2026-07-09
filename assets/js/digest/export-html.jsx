@@ -167,6 +167,8 @@ async function exportEmailHtml({
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="x-apple-disable-message-reformatting">
   <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
   <title>${escapeHtml(subject)}</title>
   <!--[if mso]>
   <xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml>
@@ -176,6 +178,7 @@ async function exportEmailHtml({
   <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+DW+Pica:ital@0;1&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* Reset */
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
@@ -195,7 +198,7 @@ async function exportEmailHtml({
       .mo-letter p { font-size: 17px !important; line-height: 1.7 !important; }
       .mo-essay-title { font-size: 22px !important; line-height: 1.22 !important; }
       .mo-essay-summary { font-size: 16px !important; line-height: 1.6 !important; }
-      .mo-essay-img { height: auto !important; max-height: 280px !important; }
+      .mo-essay-img { width: 100% !important; max-width: 100% !important; height: auto !important; }
       .mo-podcast-title { font-size: 19px !important; line-height: 1.25 !important; }
       .mo-podcast-summary { font-size: 15px !important; line-height: 1.55 !important; }
       .mo-podcast-img { max-width: 220px !important; }
@@ -214,7 +217,13 @@ async function exportEmailHtml({
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#fbf7ee" style="background:#fbf7ee;">
     <tr>
       <td align="center" style="padding:0;">
+        <!--[if mso]>
+        <table role="presentation" align="center" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr><td width="600" style="width:600px;">
+        <![endif]-->
         ${innerHtml}
+        <!--[if mso]>
+        </td></tr></table>
+        <![endif]-->
       </td>
     </tr>
   </table>${target === 'kit' ? `

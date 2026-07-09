@@ -190,20 +190,31 @@
     }[variant];
     const pad = size === "sm" ? "8px 16px" : size === "lg" ? "14px 28px" : "11px 22px";
     const fs = size === "sm" ? 12 : size === "lg" ? 14 : 13;
-    return /* @__PURE__ */ React.createElement("a", { href, style: {
-      display: "inline-block",
-      background: palette.bg,
-      color: palette.fg,
-      border: `1.5px solid ${palette.border}`,
-      padding: pad,
-      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-      fontSize: fs,
-      fontWeight: 600,
-      letterSpacing: isBold ? "0.14em" : "0.1em",
-      textTransform: "uppercase",
-      textDecoration: "none",
-      borderRadius: 5
-    } }, children);
+    const hasBg = palette.bg !== "transparent";
+    return /* @__PURE__ */ React.createElement("table", { role: "presentation", cellPadding: "0", cellSpacing: "0", border: "0", style: { borderCollapse: "separate", display: "inline-block", verticalAlign: "middle" } }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement(
+      "td",
+      {
+        ...hasBg ? { bgcolor: palette.bg } : {},
+        style: {
+          background: palette.bg,
+          border: `1.5px solid ${palette.border}`,
+          borderRadius: 5,
+          textAlign: "center"
+        }
+      },
+      /* @__PURE__ */ React.createElement("a", { href, style: {
+        display: "inline-block",
+        padding: pad,
+        color: palette.fg,
+        fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+        fontSize: fs,
+        fontWeight: 600,
+        lineHeight: 1,
+        letterSpacing: isBold ? "0.14em" : "0.1em",
+        textTransform: "uppercase",
+        textDecoration: "none"
+      } }, children)
+    ))));
   }
   function moDigestAsset(filename) {
     return window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS[filename] || `assets/${filename}`;
@@ -421,15 +432,14 @@
   }
   function MembershipCTA({ tokens, accent, content }) {
     const isBold = accent === "bold";
-    return /* @__PURE__ */ React.createElement("div", { style: {
-      margin: "0 32px 8px",
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("div", { style: {
       padding: "32px 28px",
       background: isBold ? tokens.tertiary : tokens.bgCream,
       color: isBold ? "#fff" : tokens.bodyText,
       textAlign: "center",
       border: isBold ? "none" : `1px solid ${tokens.ruleSoft}`,
       borderRadius: 5
-    }, className: "mo-pad-32-tight mo-margin-32" }, /* @__PURE__ */ React.createElement("div", { style: {
+    }, className: "mo-pad-32-tight" }, /* @__PURE__ */ React.createElement("div", { style: {
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
       fontSize: 11,
       color: isBold ? "#f1e0c9" : tokens.secondary,
@@ -465,7 +475,7 @@
         },
         dangerouslySetInnerHTML: { __html: markdownInline(content.body || "", tokens) }
       }
-    ), /* @__PURE__ */ React.createElement(Button, { tokens, variant: isBold ? "ghost" : "primary", size: "lg", accent, href: content.href }, content.cta));
+    ), /* @__PURE__ */ React.createElement(Button, { tokens, variant: isBold ? "ghost" : "primary", size: "lg", accent, href: content.href }, content.cta)));
   }
   function SponsorBlock({ tokens, content }) {
     return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("div", { style: {
@@ -489,7 +499,7 @@
       letterSpacing: "0.18em",
       textTransform: "uppercase",
       marginBottom: 10
-    } }, content.name), content.image && /* @__PURE__ */ React.createElement("img", { src: content.image, alt: "", style: {
+    } }, content.name), content.image && /* @__PURE__ */ React.createElement("img", { src: content.image, alt: "", width: "380", style: {
       display: "block",
       width: "100%",
       maxWidth: 380,
@@ -535,10 +545,10 @@
   }
   function FeaturedEssay({ tokens, essay, accent }) {
     const href = essay.url || essay.href || "#";
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("a", { href, style: { textDecoration: "none", display: "block" } }, /* @__PURE__ */ React.createElement("img", { src: essay.img, alt: "", className: "mo-essay-img", style: {
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("a", { href, style: { textDecoration: "none", display: "block" } }, /* @__PURE__ */ React.createElement("img", { src: essay.img, alt: "", width: "536", className: "mo-essay-img", style: {
       width: "100%",
-      height: 280,
-      objectFit: "cover",
+      maxWidth: 536,
+      height: "auto",
       display: "block",
       borderRadius: 5
     } })), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 16 } }, /* @__PURE__ */ React.createElement("div", { style: {
@@ -580,10 +590,10 @@
   }
   function EssayCard({ tokens, essay, accent }) {
     const href = essay.url || essay.href || "#";
-    return /* @__PURE__ */ React.createElement("div", { style: { width: "100%" } }, /* @__PURE__ */ React.createElement("a", { href, style: { textDecoration: "none", display: "block" } }, /* @__PURE__ */ React.createElement("img", { src: essay.img, alt: "", className: "mo-essay-img", style: {
+    return /* @__PURE__ */ React.createElement("div", { style: { width: "100%" } }, /* @__PURE__ */ React.createElement("a", { href, style: { textDecoration: "none", display: "block" } }, /* @__PURE__ */ React.createElement("img", { src: essay.img, alt: "", width: "252", className: "mo-essay-img", style: {
       width: "100%",
-      height: 130,
-      objectFit: "cover",
+      maxWidth: 252,
+      height: "auto",
       display: "block",
       borderRadius: 5
     } })), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 12 } }, /* @__PURE__ */ React.createElement("div", { style: {
@@ -644,7 +654,7 @@
       pairs.push([rest[i], rest[i + 1]]);
     }
     const gap = density === "compact" ? 24 : density === "roomy" ? 44 : 32;
-    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 12px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, heading || "This Week's Essays"), featured && /* @__PURE__ */ React.createElement(FeaturedEssay, { tokens, essay: featured, accent }), featured && /* @__PURE__ */ React.createElement("div", { style: { height: gap + 8 } }), featured && /* @__PURE__ */ React.createElement(Rule, { tokens, style: "solid" }), featured && /* @__PURE__ */ React.createElement("div", { style: { height: gap } }), pairs.map((pair, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key: i }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingRight: 12 }, className: "mo-stack-cell" }, pair[0] && /* @__PURE__ */ React.createElement(EssayCard, { tokens, essay: pair[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingLeft: 12 }, className: "mo-stack-cell" }, pair[1] && /* @__PURE__ */ React.createElement(EssayCard, { tokens, essay: pair[1], accent }))))), i < pairs.length - 1 && /* @__PURE__ */ React.createElement("div", { style: { height: gap } }))));
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 12px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, heading || "This Week's Essays"), featured && /* @__PURE__ */ React.createElement(FeaturedEssay, { tokens, essay: featured, accent }), featured && /* @__PURE__ */ React.createElement("div", { style: { height: gap + 8 } }), featured && /* @__PURE__ */ React.createElement(Rule, { tokens, style: "solid" }), featured && /* @__PURE__ */ React.createElement("div", { style: { height: gap } }), pairs.map((pair, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key: i }, /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%" }, className: "mo-stack-cell" }, pair[0] && /* @__PURE__ */ React.createElement(EssayCard, { tokens, essay: pair[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%" }, className: "mo-stack-cell" }, pair[1] && /* @__PURE__ */ React.createElement(EssayCard, { tokens, essay: pair[1], accent }))))), i < pairs.length - 1 && /* @__PURE__ */ React.createElement("div", { style: { height: gap } }))));
   }
   function PodcastCard({ tokens, pod, accent }) {
     const href = pod.url || pod.href || "#";
@@ -695,17 +705,16 @@
     ), /* @__PURE__ */ React.createElement(Button, { tokens, variant: "secondary", size: "sm", accent, href }, pod.cta)));
   }
   function PodcastsGrid({ tokens, accent, podcasts, heading }) {
-    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, heading || "This Week's Podcasts"), /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingRight: 12 }, className: "mo-stack-cell" }, podcasts[0] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%", paddingLeft: 12 }, className: "mo-stack-cell" }, podcasts[1] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[1], accent }))))));
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, heading || "This Week's Podcasts"), /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%" }, className: "mo-stack-cell" }, podcasts[0] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%" }, className: "mo-stack-cell" }, podcasts[1] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[1], accent }))))));
   }
   function MemberThanks({ tokens, content }) {
-    return /* @__PURE__ */ React.createElement("div", { style: {
-      margin: "0 32px",
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("div", { style: {
       padding: "24px 28px",
       background: tokens.bgCream,
       textAlign: "center",
       border: `1px solid ${tokens.ruleSoft}`,
       borderRadius: 5
-    }, className: "mo-pad-32-tight mo-margin-32" }, /* @__PURE__ */ React.createElement("div", { style: {
+    }, className: "mo-pad-32-tight" }, /* @__PURE__ */ React.createElement("div", { style: {
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
       fontSize: 10.5,
       color: tokens.secondary,
@@ -748,7 +757,7 @@
       textDecoration: "none",
       borderBottom: `1.5px solid ${tokens.tertiary}`,
       paddingBottom: 2
-    } }, content.cta));
+    } }, content.cta)));
   }
   function Footer({ tokens, isMember }) {
     return /* @__PURE__ */ React.createElement("div", { style: {
@@ -756,11 +765,10 @@
       color: "#cdbfa9",
       padding: "36px 40px 32px",
       textAlign: "center"
-    }, className: "mo-pad-40" }, /* @__PURE__ */ React.createElement("img", { src: moDigestAsset("mere-o-logo.png"), alt: "Mere Orthodoxy", width: "64", height: "28", style: {
+    }, className: "mo-pad-40" }, /* @__PURE__ */ React.createElement("img", { src: moDigestAsset("mere-o-logo-white.png"), alt: "Mere Orthodoxy", width: "64", height: "28", style: {
       width: 64,
       height: 28,
       display: "inline-block",
-      filter: "brightness(0) invert(0.92)",
       marginBottom: 14
     } }), /* @__PURE__ */ React.createElement("div", { style: {
       fontFamily: '"IM Fell English", Georgia, serif',
