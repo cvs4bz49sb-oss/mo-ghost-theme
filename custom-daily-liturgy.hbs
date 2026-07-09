@@ -102,7 +102,7 @@
   if (!el) return;
   var feedUrl = document.body.getAttribute("data-podcast-feed-url") || "https://mo-podcast-feed.mo-podcast-feed.workers.dev";
   if (!feedUrl) { el.innerHTML = ""; return; }
-  fetch(feedUrl, { credentials: "omit" })
+  fetch(feedUrl + "?show=daily-liturgy&limit=1", { credentials: "omit" })
     .then(function (r) { return r.json(); })
     .then(function (data) {
       var show = data["daily-liturgy"];

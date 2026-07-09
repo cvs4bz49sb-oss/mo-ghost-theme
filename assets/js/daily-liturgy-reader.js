@@ -14,6 +14,7 @@
   var BI2Y_URL = "/assets/data/daily-liturgy/bible-in-2-years.json";
   var BI2Y_START = "2026-01-01";
   var BI2Y_TOTAL_DAYS = 736;
+  var PODCAST_FEED_URL = "https://mo-podcast-feed.mo-podcast-feed.workers.dev";
   var LS_TRANSLATION = "mo-liturgy-translation";
   var LS_MODE = "mo-liturgy-mode";
   var LS_SCRIPTURE = "mo-liturgy-scripture";
@@ -492,6 +493,25 @@
         showState("error");
       });
   }
+
+  // ── Podcast embed (fire-and-forget) ────────────────────────────
+  (function () {
+    var $podcast = $("[data-dlr-podcast]");
+    var $embed = $("[data-dlr-podcast-embed]");
+    if (!$podcast || !$embed) return;
+    fetch(PODCAST_FEED_URL + "?show=daily-liturgy&limit=1", { credentials: "omit" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var show = data["daily-liturgy"];
+        if (!show || !show.episodes || !show.episodes.length) return;
+        var ep = show.episodes[0];
+        var title = ep.title || "Latest Episode";
+        $embed.innerHTML =
+          '<iframe src="' + ep.embedUrl + '" loading="lazy" width="100%" height="200" frameborder="0" scrolling="no" title="' + title + '"></iframe>';
+        $podcast.hidden = false;
+      })
+      .catch(function () {});
+  })();
 
   // Restore saved preferences
   try {

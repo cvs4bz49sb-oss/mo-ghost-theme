@@ -21950,6 +21950,21 @@ html[data-theme="dark"] .dlr-header-logo {
   margin-right: auto;
 }
 
+/* Podcast embed */
+.dlr-podcast {
+  margin-bottom: 28px;
+  border: 1px solid var(--dlr-rule);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--dlr-scripture-bg);
+}
+.dlr-podcast .dlr-label {
+  margin-bottom: 10px;
+}
+.dlr-podcast iframe {
+  border-radius: 6px;
+}
+
 /* Dark mode toggle */
 .dlr-theme-toggle {
   display: inline-flex;
