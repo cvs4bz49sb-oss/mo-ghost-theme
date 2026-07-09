@@ -236,7 +236,7 @@
     currentDate = dateStr;
     var isToday = dateStr === todayStr();
 
-    $title.textContent = dev.title;
+    $title.textContent = dev.title.replace(/\s+of\s+.*$/, "");
     $season.textContent = entry.season;
 
     var prevDate = findPrevDate(dateStr);
