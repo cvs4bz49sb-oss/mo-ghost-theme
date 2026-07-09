@@ -17,13 +17,13 @@
   const LS_TRANSLATION = "mo-liturgy-translation";
   const DEFAULT_TRANSLATION = "CSB";
 
-  // API.Bible translation IDs (mapped by abbreviation)
-  const BIBLE_IDS = {
-    CSB: "a556c5305ee15c3f-01",
-    KJV: "de4e12af7f28f599-02",
-    ESV: null,
-    NIV: null,
-    NASB: null,
+  // bolls.life translation codes
+  const TRANSLATION_CODES = {
+    CSB: "CSB17",
+    KJV: "KJV",
+    ESV: "ESV",
+    NIV: "NIV",
+    NASB: "NASB",
   };
 
   // ── DOM refs ──────────────────────────────────────────────────
@@ -107,101 +107,86 @@
   }
 
   // ── Scripture reference parser ────────────────────────────────
-  // Converts "Isaiah 2:1-5" → "ISA.2.1-ISA.2.5" for API.Bible
-  const BOOK_ABBREVS = {
-    "genesis": "GEN", "exodus": "EXO", "leviticus": "LEV",
-    "numbers": "NUM", "deuteronomy": "DEU", "joshua": "JOS",
-    "judges": "JDG", "ruth": "RUT", "1 samuel": "1SA",
-    "2 samuel": "2SA", "1 kings": "1KI", "2 kings": "2KI",
-    "1 chronicles": "1CH", "2 chronicles": "2CH", "ezra": "EZR",
-    "nehemiah": "NEH", "esther": "EST", "job": "JOB",
-    "psalms": "PSA", "psalm": "PSA", "proverbs": "PRO",
-    "ecclesiastes": "ECC", "song of solomon": "SNG",
-    "song of songs": "SNG", "isaiah": "ISA", "jeremiah": "JER",
-    "lamentations": "LAM", "ezekiel": "EZK", "daniel": "DAN",
-    "hosea": "HOS", "joel": "JOL", "amos": "AMO",
-    "obadiah": "OBA", "jonah": "JON", "micah": "MIC",
-    "nahum": "NAM", "habakkuk": "HAB", "zephaniah": "ZEP",
-    "haggai": "HAG", "zechariah": "ZEC", "malachi": "MAL",
-    "matthew": "MAT", "mark": "MRK", "luke": "LUK",
-    "john": "JHN", "acts": "ACT", "romans": "ROM",
-    "1 corinthians": "1CO", "2 corinthians": "2CO",
-    "galatians": "GAL", "ephesians": "EPH", "philippians": "PHP",
-    "colossians": "COL", "1 thessalonians": "1TH",
-    "2 thessalonians": "2TH", "1 timothy": "1TI",
-    "2 timothy": "2TI", "titus": "TIT", "philemon": "PHM",
-    "hebrews": "HEB", "james": "JAS", "1 peter": "1PE",
-    "2 peter": "2PE", "1 john": "1JN", "2 john": "2JN",
-    "3 john": "3JN", "jude": "JUD", "revelation": "REV",
+  // Converts "Isaiah 55" → { book: 23, chapter: 55 }
+  // Converts "Isaiah 2:1-5" → { book: 23, chapter: 2, vStart: 1, vEnd: 5 }
+  // Book numbers use standard Protestant order (Genesis=1 … Revelation=66)
+  const BOOK_NUMS = {
+    "genesis": 1, "exodus": 2, "leviticus": 3, "numbers": 4,
+    "deuteronomy": 5, "joshua": 6, "judges": 7, "ruth": 8,
+    "1 samuel": 9, "2 samuel": 10, "1 kings": 11, "2 kings": 12,
+    "1 chronicles": 13, "2 chronicles": 14, "ezra": 15,
+    "nehemiah": 16, "esther": 17, "job": 18,
+    "psalms": 19, "psalm": 19, "proverbs": 20,
+    "ecclesiastes": 21, "song of solomon": 22, "song of songs": 22,
+    "isaiah": 23, "jeremiah": 24, "lamentations": 25,
+    "ezekiel": 26, "daniel": 27, "hosea": 28, "joel": 29,
+    "amos": 30, "obadiah": 31, "jonah": 32, "micah": 33,
+    "nahum": 34, "habakkuk": 35, "zephaniah": 36,
+    "haggai": 37, "zechariah": 38, "malachi": 39,
+    "matthew": 40, "mark": 41, "luke": 42, "john": 43,
+    "acts": 44, "romans": 45, "1 corinthians": 46,
+    "2 corinthians": 47, "galatians": 48, "ephesians": 49,
+    "philippians": 50, "colossians": 51, "1 thessalonians": 52,
+    "2 thessalonians": 53, "1 timothy": 54, "2 timothy": 55,
+    "titus": 56, "philemon": 57, "hebrews": 58, "james": 59,
+    "1 peter": 60, "2 peter": 61, "1 john": 62, "2 john": 63,
+    "3 john": 64, "jude": 65, "revelation": 66,
   };
 
   function parseScriptureRef(ref) {
     if (!ref) return null;
     ref = ref.trim();
-    // Match: "Book Chapter:VerseStart-VerseEnd" or "Book Chapter"
-    // Also handles "Psalm 122" (whole chapter) and "Isaiah 2:1-5"
-    const m = ref.match(/^(.+?)\s+(\d+)(?::(\d+)(?:\s*[-–]\s*(\d+))?)?$/);
+    var m = ref.match(/^(.+?)\s+(\d+)(?::(\d+)(?:\s*[-–]\s*(\d+))?)?$/);
     if (!m) return null;
-    const bookName = m[1].toLowerCase().trim();
-    const chapter = m[2];
-    const vStart = m[3] || null;
-    const vEnd = m[4] || null;
-    const bookId = BOOK_ABBREVS[bookName];
-    if (!bookId) return null;
-
-    if (vStart && vEnd) {
-      return `${bookId}.${chapter}.${vStart}-${bookId}.${chapter}.${vEnd}`;
-    }
-    if (vStart) {
-      return `${bookId}.${chapter}.${vStart}`;
-    }
-    return `${bookId}.${chapter}`;
+    var bookName = m[1].toLowerCase().trim();
+    var chapter = parseInt(m[2], 10);
+    var vStart = m[3] ? parseInt(m[3], 10) : null;
+    var vEnd = m[4] ? parseInt(m[4], 10) : null;
+    var bookNum = BOOK_NUMS[bookName];
+    if (!bookNum) return null;
+    return { book: bookNum, chapter: chapter, vStart: vStart, vEnd: vEnd };
   }
 
   // ── Scripture fetching ────────────────────────────────────────
   const scriptureCache = {};
 
   function fetchScripture(ref, translationKey) {
-    const bibleId = BIBLE_IDS[translationKey];
-    if (!bibleId) {
+    var bollsCode = TRANSLATION_CODES[translationKey];
+    if (!bollsCode) {
       return Promise.resolve({
-        html: `<em>${translationKey} is not yet available. Showing CSB.</em>`,
+        html: "<em>" + translationKey + " is not yet available. Showing CSB.</em>",
         fallback: true,
       });
     }
 
-    const passageId = parseScriptureRef(ref);
-    if (!passageId) {
-      return Promise.resolve({ html: `<em>Could not parse reference: ${escapeHtml(ref)}</em>` });
+    var parsed = parseScriptureRef(ref);
+    if (!parsed) {
+      return Promise.resolve({ html: "<em>Could not parse reference: " + escapeHtml(ref) + "</em>" });
     }
 
-    const cacheKey = `${bibleId}:${passageId}`;
+    var url = BIBLE_BASE + "/chapter/" + bollsCode + "/" + parsed.book + "/" + parsed.chapter;
+    if (parsed.vStart !== null) {
+      url += "?v=" + parsed.vStart + (parsed.vEnd && parsed.vEnd !== parsed.vStart ? "-" + parsed.vEnd : "");
+    }
+
+    var cacheKey = bollsCode + ":" + parsed.book + ":" + parsed.chapter + ":" + (parsed.vStart || "") + "-" + (parsed.vEnd || "");
     if (scriptureCache[cacheKey]) return Promise.resolve(scriptureCache[cacheKey]);
 
     if (!BIBLE_BASE) {
-      return Promise.resolve({ html: `<em>Bible worker not configured.</em>` });
+      return Promise.resolve({ html: "<em>Bible worker not configured.</em>" });
     }
 
-    const isChapter = !passageId.includes(".");
-    const endpoint = passageId.split("-").length > 1 || passageId.split(".").length > 2
-      ? "passages" : "chapters";
-
-    const q = "?content-type=html&include-notes=false&include-titles=true" +
-      "&include-chapter-numbers=false&include-verse-numbers=true&include-verse-spans=false";
-
-    return fetch(`${BIBLE_BASE}/api/bible/v1/bibles/${bibleId}/${endpoint}/${passageId}${q}`, {
-      credentials: "omit",
-    })
-      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
-      .then((resp) => {
-        const content = resp && resp.data && resp.data.content;
-        if (!content) return { html: `<em>This passage is unavailable.</em>` };
-        const result = { html: content };
+    return fetch(url, { credentials: "omit" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)); })
+      .then(function (resp) {
+        var content = resp && resp.data && resp.data.content;
+        if (!content) return { html: "<em>This passage is unavailable.</em>" };
+        var result = { html: content };
         scriptureCache[cacheKey] = result;
         return result;
       })
-      .catch(() => {
-        return { html: `<em>Could not load this passage. Try reloading.</em>` };
+      .catch(function () {
+        return { html: "<em>Could not load this passage. Try reloading.</em>" };
       });
   }
 
@@ -308,7 +293,7 @@
   if ($translations) {
     try {
       const saved = localStorage.getItem(LS_TRANSLATION);
-      if (saved && BIBLE_IDS[saved] !== undefined) translation = saved;
+      if (saved && TRANSLATION_CODES[saved] !== undefined) translation = saved;
     } catch (e) {}
 
     // Set initial active pill
