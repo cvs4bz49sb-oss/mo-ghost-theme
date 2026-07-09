@@ -20,7 +20,7 @@
     "/the-faith-received/": [{ name: "The Faith Received" }],
     "/podcasts/mere-fidelity/": [{ name: "Podcasts", url: "/" }, { name: "Mere Fidelity" }],
     "/podcasts/christians-reading-classics/": [{ name: "Podcasts", url: "/" }, { name: "Christians Reading Classics" }],
-    "/podcasts/daily-liturgy/": [{ name: "Podcasts", url: "/" }, { name: "The Daily Liturgy Podcast" }],
+    "/daily-liturgy/": [{ name: "The Daily Liturgy" }],
     "/sponsorship/": [{ name: "Sponsorship" }],
     "/kirk-offer/": [{ name: "Membership", url: "/membership/" }, { name: "July Book Offer" }]
   };

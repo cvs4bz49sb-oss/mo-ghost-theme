@@ -81,9 +81,8 @@ routes:
     template: custom-mere-fidelity
   /podcasts/christians-reading-classics/:
     template: custom-christians-reading-classics
-  /podcasts/daily-liturgy/:
+  /daily-liturgy/:
     template: custom-daily-liturgy
-    data: page.daily-liturgy
   /daily-liturgy/read/:
     template: custom-daily-liturgy-reader
   /admin/:

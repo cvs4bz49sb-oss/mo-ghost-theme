@@ -20,7 +20,7 @@
     "/forum/": "Forum",
     "/podcasts/mere-fidelity/": "Mere Fidelity Podcast",
     "/podcasts/christians-reading-classics/": "Christians Reading Classics Podcast",
-    "/podcasts/daily-liturgy/": "The Daily Liturgy Podcast",
+    "/daily-liturgy/": "The Daily Liturgy",
     "/dashboard/": "Dashboard",
     "/dashboard/bookmarks/": "Bookmarks",
     "/dashboard/commonplace/": "Commonplace Book",
