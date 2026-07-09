@@ -21840,6 +21840,34 @@ html[data-theme="dark"] .dlr-page {
   outline: none;
 }
 
+/* Settings bar */
+.dlr-settings-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+/* Dark mode toggle */
+.dlr-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--dlr-rule);
+  background: transparent;
+  color: var(--dlr-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.dlr-theme-toggle:hover {
+  border-color: var(--dlr-accent);
+  color: var(--dlr-accent);
+}
+
 /* Sections */
 .dlr-section { margin-bottom: 0; }
 .dlr-rule {

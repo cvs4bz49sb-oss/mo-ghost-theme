@@ -25,19 +25,26 @@
   {{!-- Catch-up notice --}}
   <p class="dlr-catchup" data-dlr-catchup hidden>You're viewing a past devotional.</p>
 
-  {{!-- Translation setting (paid members only) --}}
-  {{#if @member.paid}}
-  <div class="dlr-setting" data-dlr-translations>
-    <label class="dlr-setting-label" for="dlr-translation-select">Translation</label>
-    <select class="dlr-setting-select" id="dlr-translation-select" data-dlr-translation-select>
-      <option value="CSB">CSB</option>
-      <option value="ESV">ESV</option>
-      <option value="NIV">NIV</option>
-      <option value="NASB">NASB</option>
-      <option value="KJV">KJV</option>
-    </select>
+  {{!-- Settings bar: translation (paid) + dark mode toggle --}}
+  <div class="dlr-settings-bar">
+    {{#if @member.paid}}
+    <div class="dlr-setting" data-dlr-translations>
+      <label class="dlr-setting-label" for="dlr-translation-select">Translation</label>
+      <select class="dlr-setting-select" id="dlr-translation-select" data-dlr-translation-select>
+        <option value="CSB">CSB</option>
+        <option value="ESV">ESV</option>
+        <option value="NIV">NIV</option>
+        <option value="NASB">NASB</option>
+        <option value="KJV">KJV</option>
+      </select>
+    </div>
+    {{/if}}
+    <button class="dlr-theme-toggle" type="button" data-dark-mode-toggle aria-label="Toggle dark mode" aria-pressed="false">
+      <svg class="dlr-theme-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
-  {{/if}}
 
   {{!-- Devotional body --}}
   <article class="dlr-body" data-dlr-body>
