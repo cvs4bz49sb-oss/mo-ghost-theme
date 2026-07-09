@@ -1,4 +1,1252 @@
 {
+  "2025-12-01": {
+    "key": "advent-w1-mon",
+    "season": "Advent"
+  },
+  "2025-12-02": {
+    "key": "advent-w1-tue",
+    "season": "Advent"
+  },
+  "2025-12-03": {
+    "key": "advent-w1-wed",
+    "season": "Advent"
+  },
+  "2025-12-04": {
+    "key": "advent-w1-thu",
+    "season": "Advent"
+  },
+  "2025-12-05": {
+    "key": "advent-w1-fri",
+    "season": "Advent"
+  },
+  "2025-12-06": {
+    "key": "advent-w1-sat",
+    "season": "Advent"
+  },
+  "2025-12-08": {
+    "key": "advent-w2-mon",
+    "season": "Advent"
+  },
+  "2025-12-09": {
+    "key": "advent-w2-tue",
+    "season": "Advent"
+  },
+  "2025-12-10": {
+    "key": "advent-w2-wed",
+    "season": "Advent"
+  },
+  "2025-12-11": {
+    "key": "advent-w2-thu",
+    "season": "Advent"
+  },
+  "2025-12-12": {
+    "key": "advent-w2-fri",
+    "season": "Advent"
+  },
+  "2025-12-13": {
+    "key": "advent-w2-sat",
+    "season": "Advent"
+  },
+  "2025-12-15": {
+    "key": "advent-w3-mon",
+    "season": "Advent"
+  },
+  "2025-12-16": {
+    "key": "advent-w3-tue",
+    "season": "Advent"
+  },
+  "2025-12-17": {
+    "key": "advent-w3-wed",
+    "season": "Advent"
+  },
+  "2025-12-18": {
+    "key": "advent-w3-thu",
+    "season": "Advent"
+  },
+  "2025-12-19": {
+    "key": "advent-w3-fri",
+    "season": "Advent"
+  },
+  "2025-12-20": {
+    "key": "advent-w3-sat",
+    "season": "Advent"
+  },
+  "2025-12-22": {
+    "key": "advent-w4-mon",
+    "season": "Advent"
+  },
+  "2025-12-23": {
+    "key": "advent-w4-tue",
+    "season": "Advent"
+  },
+  "2025-12-24": {
+    "key": "advent-w4-wed",
+    "season": "Advent"
+  },
+  "2025-12-25": {
+    "key": "christmas-day-01",
+    "season": "Christmas"
+  },
+  "2025-12-26": {
+    "key": "christmas-day-02",
+    "season": "Christmas"
+  },
+  "2025-12-27": {
+    "key": "christmas-day-03",
+    "season": "Christmas"
+  },
+  "2025-12-29": {
+    "key": "christmas-day-04",
+    "season": "Christmas"
+  },
+  "2025-12-30": {
+    "key": "christmas-day-05",
+    "season": "Christmas"
+  },
+  "2025-12-31": {
+    "key": "christmas-day-06",
+    "season": "Christmas"
+  },
+  "2026-01-01": {
+    "key": "christmas-day-07",
+    "season": "Christmas"
+  },
+  "2026-01-02": {
+    "key": "christmas-day-08",
+    "season": "Christmas"
+  },
+  "2026-01-03": {
+    "key": "christmas-day-09",
+    "season": "Christmas"
+  },
+  "2026-01-05": {
+    "key": "christmas-day-10",
+    "season": "Christmas"
+  },
+  "2026-01-06": {
+    "key": "epiphany-day-01",
+    "season": "Epiphany"
+  },
+  "2026-01-07": {
+    "key": "epiphany-day-02",
+    "season": "Epiphany"
+  },
+  "2026-01-08": {
+    "key": "epiphany-day-03",
+    "season": "Epiphany"
+  },
+  "2026-01-09": {
+    "key": "epiphany-day-04",
+    "season": "Epiphany"
+  },
+  "2026-01-10": {
+    "key": "epiphany-day-05",
+    "season": "Epiphany"
+  },
+  "2026-01-12": {
+    "key": "epiphany-day-06",
+    "season": "Epiphany"
+  },
+  "2026-01-13": {
+    "key": "epiphany-day-07",
+    "season": "Epiphany"
+  },
+  "2026-01-14": {
+    "key": "epiphany-day-08",
+    "season": "Epiphany"
+  },
+  "2026-01-15": {
+    "key": "epiphany-day-09",
+    "season": "Epiphany"
+  },
+  "2026-01-16": {
+    "key": "epiphany-day-10",
+    "season": "Epiphany"
+  },
+  "2026-01-17": {
+    "key": "epiphany-day-11",
+    "season": "Epiphany"
+  },
+  "2026-01-19": {
+    "key": "epiphany-day-12",
+    "season": "Epiphany"
+  },
+  "2026-01-20": {
+    "key": "epiphany-day-13",
+    "season": "Epiphany"
+  },
+  "2026-01-21": {
+    "key": "epiphany-day-14",
+    "season": "Epiphany"
+  },
+  "2026-01-22": {
+    "key": "epiphany-day-15",
+    "season": "Epiphany"
+  },
+  "2026-01-23": {
+    "key": "epiphany-day-16",
+    "season": "Epiphany"
+  },
+  "2026-01-24": {
+    "key": "epiphany-day-17",
+    "season": "Epiphany"
+  },
+  "2026-01-26": {
+    "key": "epiphany-day-18",
+    "season": "Epiphany"
+  },
+  "2026-01-27": {
+    "key": "epiphany-day-19",
+    "season": "Epiphany"
+  },
+  "2026-01-28": {
+    "key": "epiphany-day-20",
+    "season": "Epiphany"
+  },
+  "2026-01-29": {
+    "key": "epiphany-day-21",
+    "season": "Epiphany"
+  },
+  "2026-01-30": {
+    "key": "epiphany-day-22",
+    "season": "Epiphany"
+  },
+  "2026-01-31": {
+    "key": "epiphany-day-23",
+    "season": "Epiphany"
+  },
+  "2026-02-02": {
+    "key": "epiphany-day-24",
+    "season": "Epiphany"
+  },
+  "2026-02-03": {
+    "key": "epiphany-day-25",
+    "season": "Epiphany"
+  },
+  "2026-02-04": {
+    "key": "epiphany-day-26",
+    "season": "Epiphany"
+  },
+  "2026-02-05": {
+    "key": "epiphany-day-27",
+    "season": "Epiphany"
+  },
+  "2026-02-06": {
+    "key": "epiphany-day-28",
+    "season": "Epiphany"
+  },
+  "2026-02-07": {
+    "key": "epiphany-day-29",
+    "season": "Epiphany"
+  },
+  "2026-02-09": {
+    "key": "epiphany-day-30",
+    "season": "Epiphany"
+  },
+  "2026-02-10": {
+    "key": "epiphany-day-31",
+    "season": "Epiphany"
+  },
+  "2026-02-11": {
+    "key": "epiphany-day-32",
+    "season": "Epiphany"
+  },
+  "2026-02-12": {
+    "key": "epiphany-day-33",
+    "season": "Epiphany"
+  },
+  "2026-02-13": {
+    "key": "epiphany-day-34",
+    "season": "Epiphany"
+  },
+  "2026-02-14": {
+    "key": "epiphany-day-35",
+    "season": "Epiphany"
+  },
+  "2026-02-16": {
+    "key": "epiphany-day-36",
+    "season": "Epiphany"
+  },
+  "2026-02-17": {
+    "key": "epiphany-day-37",
+    "season": "Epiphany"
+  },
+  "2026-02-18": {
+    "key": "lent-day-01",
+    "season": "Lent"
+  },
+  "2026-02-19": {
+    "key": "lent-day-02",
+    "season": "Lent"
+  },
+  "2026-02-20": {
+    "key": "lent-day-03",
+    "season": "Lent"
+  },
+  "2026-02-21": {
+    "key": "lent-day-04",
+    "season": "Lent"
+  },
+  "2026-02-23": {
+    "key": "lent-day-05",
+    "season": "Lent"
+  },
+  "2026-02-24": {
+    "key": "lent-day-06",
+    "season": "Lent"
+  },
+  "2026-02-25": {
+    "key": "lent-day-07",
+    "season": "Lent"
+  },
+  "2026-02-26": {
+    "key": "lent-day-08",
+    "season": "Lent"
+  },
+  "2026-02-27": {
+    "key": "lent-day-09",
+    "season": "Lent"
+  },
+  "2026-02-28": {
+    "key": "lent-day-10",
+    "season": "Lent"
+  },
+  "2026-03-02": {
+    "key": "lent-day-11",
+    "season": "Lent"
+  },
+  "2026-03-03": {
+    "key": "lent-day-12",
+    "season": "Lent"
+  },
+  "2026-03-04": {
+    "key": "lent-day-13",
+    "season": "Lent"
+  },
+  "2026-03-05": {
+    "key": "lent-day-14",
+    "season": "Lent"
+  },
+  "2026-03-06": {
+    "key": "lent-day-15",
+    "season": "Lent"
+  },
+  "2026-03-07": {
+    "key": "lent-day-16",
+    "season": "Lent"
+  },
+  "2026-03-09": {
+    "key": "lent-day-17",
+    "season": "Lent"
+  },
+  "2026-03-10": {
+    "key": "lent-day-18",
+    "season": "Lent"
+  },
+  "2026-03-11": {
+    "key": "lent-day-19",
+    "season": "Lent"
+  },
+  "2026-03-12": {
+    "key": "lent-day-20",
+    "season": "Lent"
+  },
+  "2026-03-13": {
+    "key": "lent-day-21",
+    "season": "Lent"
+  },
+  "2026-03-14": {
+    "key": "lent-day-22",
+    "season": "Lent"
+  },
+  "2026-03-16": {
+    "key": "lent-day-23",
+    "season": "Lent"
+  },
+  "2026-03-17": {
+    "key": "lent-day-24",
+    "season": "Lent"
+  },
+  "2026-03-18": {
+    "key": "lent-day-25",
+    "season": "Lent"
+  },
+  "2026-03-19": {
+    "key": "lent-day-26",
+    "season": "Lent"
+  },
+  "2026-03-20": {
+    "key": "lent-day-27",
+    "season": "Lent"
+  },
+  "2026-03-21": {
+    "key": "lent-day-28",
+    "season": "Lent"
+  },
+  "2026-03-23": {
+    "key": "lent-day-29",
+    "season": "Lent"
+  },
+  "2026-03-24": {
+    "key": "lent-day-30",
+    "season": "Lent"
+  },
+  "2026-03-25": {
+    "key": "lent-day-31",
+    "season": "Lent"
+  },
+  "2026-03-26": {
+    "key": "lent-day-32",
+    "season": "Lent"
+  },
+  "2026-03-27": {
+    "key": "lent-day-33",
+    "season": "Lent"
+  },
+  "2026-03-28": {
+    "key": "lent-day-34",
+    "season": "Lent"
+  },
+  "2026-03-30": {
+    "key": "lent-day-35",
+    "season": "Lent"
+  },
+  "2026-03-31": {
+    "key": "lent-day-36",
+    "season": "Lent"
+  },
+  "2026-04-01": {
+    "key": "lent-day-37",
+    "season": "Lent"
+  },
+  "2026-04-02": {
+    "key": "lent-day-38",
+    "season": "Lent"
+  },
+  "2026-04-03": {
+    "key": "lent-day-39",
+    "season": "Lent"
+  },
+  "2026-04-04": {
+    "key": "lent-day-40",
+    "season": "Lent"
+  },
+  "2026-04-06": {
+    "key": "easter-w1-mon",
+    "season": "Easter"
+  },
+  "2026-04-07": {
+    "key": "easter-w1-tue",
+    "season": "Easter"
+  },
+  "2026-04-08": {
+    "key": "easter-w1-wed",
+    "season": "Easter"
+  },
+  "2026-04-09": {
+    "key": "easter-w1-thu",
+    "season": "Easter"
+  },
+  "2026-04-10": {
+    "key": "easter-w1-fri",
+    "season": "Easter"
+  },
+  "2026-04-11": {
+    "key": "easter-w1-sat",
+    "season": "Easter"
+  },
+  "2026-04-13": {
+    "key": "easter-w2-mon",
+    "season": "Easter"
+  },
+  "2026-04-14": {
+    "key": "easter-w2-tue",
+    "season": "Easter"
+  },
+  "2026-04-15": {
+    "key": "easter-w2-wed",
+    "season": "Easter"
+  },
+  "2026-04-16": {
+    "key": "easter-w2-thu",
+    "season": "Easter"
+  },
+  "2026-04-17": {
+    "key": "easter-w2-fri",
+    "season": "Easter"
+  },
+  "2026-04-18": {
+    "key": "easter-w2-sat",
+    "season": "Easter"
+  },
+  "2026-04-20": {
+    "key": "easter-w3-mon",
+    "season": "Easter"
+  },
+  "2026-04-21": {
+    "key": "easter-w3-tue",
+    "season": "Easter"
+  },
+  "2026-04-22": {
+    "key": "easter-w3-wed",
+    "season": "Easter"
+  },
+  "2026-04-23": {
+    "key": "easter-w3-thu",
+    "season": "Easter"
+  },
+  "2026-04-24": {
+    "key": "easter-w3-fri",
+    "season": "Easter"
+  },
+  "2026-04-25": {
+    "key": "easter-w3-sat",
+    "season": "Easter"
+  },
+  "2026-04-27": {
+    "key": "easter-w4-mon",
+    "season": "Easter"
+  },
+  "2026-04-28": {
+    "key": "easter-w4-tue",
+    "season": "Easter"
+  },
+  "2026-04-29": {
+    "key": "easter-w4-wed",
+    "season": "Easter"
+  },
+  "2026-04-30": {
+    "key": "easter-w4-thu",
+    "season": "Easter"
+  },
+  "2026-05-01": {
+    "key": "easter-w4-fri",
+    "season": "Easter"
+  },
+  "2026-05-02": {
+    "key": "easter-w4-sat",
+    "season": "Easter"
+  },
+  "2026-05-04": {
+    "key": "easter-w5-mon",
+    "season": "Easter"
+  },
+  "2026-05-05": {
+    "key": "easter-w5-tue",
+    "season": "Easter"
+  },
+  "2026-05-06": {
+    "key": "easter-w5-wed",
+    "season": "Easter"
+  },
+  "2026-05-07": {
+    "key": "easter-w5-thu",
+    "season": "Easter"
+  },
+  "2026-05-08": {
+    "key": "easter-w5-fri",
+    "season": "Easter"
+  },
+  "2026-05-09": {
+    "key": "easter-w5-sat",
+    "season": "Easter"
+  },
+  "2026-05-11": {
+    "key": "easter-w6-mon",
+    "season": "Easter"
+  },
+  "2026-05-12": {
+    "key": "easter-w6-tue",
+    "season": "Easter"
+  },
+  "2026-05-13": {
+    "key": "easter-w6-wed",
+    "season": "Easter"
+  },
+  "2026-05-14": {
+    "key": "easter-w6-thu",
+    "season": "Easter"
+  },
+  "2026-05-15": {
+    "key": "easter-w6-fri",
+    "season": "Easter"
+  },
+  "2026-05-16": {
+    "key": "easter-w6-sat",
+    "season": "Easter"
+  },
+  "2026-05-18": {
+    "key": "easter-w7-mon",
+    "season": "Easter"
+  },
+  "2026-05-19": {
+    "key": "easter-w7-tue",
+    "season": "Easter"
+  },
+  "2026-05-20": {
+    "key": "easter-w7-wed",
+    "season": "Easter"
+  },
+  "2026-05-21": {
+    "key": "easter-w7-thu",
+    "season": "Easter"
+  },
+  "2026-05-22": {
+    "key": "easter-w7-fri",
+    "season": "Easter"
+  },
+  "2026-05-23": {
+    "key": "easter-w7-sat",
+    "season": "Easter"
+  },
+  "2026-05-25": {
+    "key": "ot-w01-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-05-26": {
+    "key": "ot-w01-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-05-27": {
+    "key": "ot-w01-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-05-28": {
+    "key": "ot-w01-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-05-29": {
+    "key": "ot-w01-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-05-30": {
+    "key": "ot-w01-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-06-01": {
+    "key": "ot-w02-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-06-02": {
+    "key": "ot-w02-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-06-03": {
+    "key": "ot-w02-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-06-04": {
+    "key": "ot-w02-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-06-05": {
+    "key": "ot-w02-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-06-06": {
+    "key": "ot-w02-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-06-08": {
+    "key": "ot-w03-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-06-09": {
+    "key": "ot-w03-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-06-10": {
+    "key": "ot-w03-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-06-11": {
+    "key": "ot-w03-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-06-12": {
+    "key": "ot-w03-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-06-13": {
+    "key": "ot-w03-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-06-15": {
+    "key": "ot-w04-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-06-16": {
+    "key": "ot-w04-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-06-17": {
+    "key": "ot-w04-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-06-18": {
+    "key": "ot-w04-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-06-19": {
+    "key": "ot-w04-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-06-20": {
+    "key": "ot-w04-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-06-22": {
+    "key": "ot-w05-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-06-23": {
+    "key": "ot-w05-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-06-24": {
+    "key": "ot-w05-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-06-25": {
+    "key": "ot-w05-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-06-26": {
+    "key": "ot-w05-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-06-27": {
+    "key": "ot-w05-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-06-29": {
+    "key": "ot-w06-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-06-30": {
+    "key": "ot-w06-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-07-01": {
+    "key": "ot-w06-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-07-02": {
+    "key": "ot-w06-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-07-03": {
+    "key": "ot-w06-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-07-04": {
+    "key": "ot-w06-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-07-06": {
+    "key": "ot-w07-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-07-07": {
+    "key": "ot-w07-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-07-08": {
+    "key": "ot-w07-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-07-09": {
+    "key": "ot-w07-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-07-10": {
+    "key": "ot-w07-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-07-11": {
+    "key": "ot-w07-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-07-13": {
+    "key": "ot-w08-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-07-14": {
+    "key": "ot-w08-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-07-15": {
+    "key": "ot-w08-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-07-16": {
+    "key": "ot-w08-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-07-17": {
+    "key": "ot-w08-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-07-18": {
+    "key": "ot-w08-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-07-20": {
+    "key": "ot-w09-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-07-21": {
+    "key": "ot-w09-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-07-22": {
+    "key": "ot-w09-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-07-23": {
+    "key": "ot-w09-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-07-24": {
+    "key": "ot-w09-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-07-25": {
+    "key": "ot-w09-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-07-27": {
+    "key": "ot-w10-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-07-28": {
+    "key": "ot-w10-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-07-29": {
+    "key": "ot-w10-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-07-30": {
+    "key": "ot-w10-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-07-31": {
+    "key": "ot-w10-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-08-01": {
+    "key": "ot-w10-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-08-03": {
+    "key": "ot-w11-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-08-04": {
+    "key": "ot-w11-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-08-05": {
+    "key": "ot-w11-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-08-06": {
+    "key": "ot-w11-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-08-07": {
+    "key": "ot-w11-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-08-08": {
+    "key": "ot-w11-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-08-10": {
+    "key": "ot-w12-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-08-11": {
+    "key": "ot-w12-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-08-12": {
+    "key": "ot-w12-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-08-13": {
+    "key": "ot-w12-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-08-14": {
+    "key": "ot-w12-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-08-15": {
+    "key": "ot-w12-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-08-17": {
+    "key": "ot-w13-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-08-18": {
+    "key": "ot-w13-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-08-19": {
+    "key": "ot-w13-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-08-20": {
+    "key": "ot-w13-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-08-21": {
+    "key": "ot-w13-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-08-22": {
+    "key": "ot-w13-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-08-24": {
+    "key": "ot-w14-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-08-25": {
+    "key": "ot-w14-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-08-26": {
+    "key": "ot-w14-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-08-27": {
+    "key": "ot-w14-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-08-28": {
+    "key": "ot-w14-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-08-29": {
+    "key": "ot-w14-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-08-31": {
+    "key": "ot-w15-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-09-01": {
+    "key": "ot-w15-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-09-02": {
+    "key": "ot-w15-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-09-03": {
+    "key": "ot-w15-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-09-04": {
+    "key": "ot-w15-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-09-05": {
+    "key": "ot-w15-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-09-07": {
+    "key": "ot-w16-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-09-08": {
+    "key": "ot-w16-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-09-09": {
+    "key": "ot-w16-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-09-10": {
+    "key": "ot-w16-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-09-11": {
+    "key": "ot-w16-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-09-12": {
+    "key": "ot-w16-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-09-14": {
+    "key": "ot-w17-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-09-15": {
+    "key": "ot-w17-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-09-16": {
+    "key": "ot-w17-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-09-17": {
+    "key": "ot-w17-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-09-18": {
+    "key": "ot-w17-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-09-19": {
+    "key": "ot-w17-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-09-21": {
+    "key": "ot-w18-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-09-22": {
+    "key": "ot-w18-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-09-23": {
+    "key": "ot-w18-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-09-24": {
+    "key": "ot-w18-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-09-25": {
+    "key": "ot-w18-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-09-26": {
+    "key": "ot-w18-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-09-28": {
+    "key": "ot-w19-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-09-29": {
+    "key": "ot-w19-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-09-30": {
+    "key": "ot-w19-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-10-01": {
+    "key": "ot-w19-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-10-02": {
+    "key": "ot-w19-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-10-03": {
+    "key": "ot-w19-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-10-05": {
+    "key": "ot-w20-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-10-06": {
+    "key": "ot-w20-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-10-07": {
+    "key": "ot-w20-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-10-08": {
+    "key": "ot-w20-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-10-09": {
+    "key": "ot-w20-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-10-10": {
+    "key": "ot-w20-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-10-12": {
+    "key": "ot-w21-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-10-13": {
+    "key": "ot-w21-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-10-14": {
+    "key": "ot-w21-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-10-15": {
+    "key": "ot-w21-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-10-16": {
+    "key": "ot-w21-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-10-17": {
+    "key": "ot-w21-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-10-19": {
+    "key": "ot-w22-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-10-20": {
+    "key": "ot-w22-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-10-21": {
+    "key": "ot-w22-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-10-22": {
+    "key": "ot-w22-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-10-23": {
+    "key": "ot-w22-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-10-24": {
+    "key": "ot-w22-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-10-26": {
+    "key": "ot-w23-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-10-27": {
+    "key": "ot-w23-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-10-28": {
+    "key": "ot-w23-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-10-29": {
+    "key": "ot-w23-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-10-30": {
+    "key": "ot-w23-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-10-31": {
+    "key": "ot-w23-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-11-02": {
+    "key": "ot-w24-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-11-03": {
+    "key": "ot-w24-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-11-04": {
+    "key": "ot-w24-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-11-05": {
+    "key": "ot-w24-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-11-06": {
+    "key": "ot-w24-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-11-07": {
+    "key": "ot-w24-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-11-09": {
+    "key": "ot-w25-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-11-10": {
+    "key": "ot-w25-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-11-11": {
+    "key": "ot-w25-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-11-12": {
+    "key": "ot-w25-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-11-13": {
+    "key": "ot-w25-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-11-14": {
+    "key": "ot-w25-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-11-16": {
+    "key": "ot-w26-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-11-17": {
+    "key": "ot-w26-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-11-18": {
+    "key": "ot-w26-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-11-19": {
+    "key": "ot-w26-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-11-20": {
+    "key": "ot-w26-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-11-21": {
+    "key": "ot-w26-sat",
+    "season": "Ordinary Time"
+  },
+  "2026-11-23": {
+    "key": "ot-w27-mon",
+    "season": "Ordinary Time"
+  },
+  "2026-11-24": {
+    "key": "ot-w27-tue",
+    "season": "Ordinary Time"
+  },
+  "2026-11-25": {
+    "key": "ot-w27-wed",
+    "season": "Ordinary Time"
+  },
+  "2026-11-26": {
+    "key": "ot-w27-thu",
+    "season": "Ordinary Time"
+  },
+  "2026-11-27": {
+    "key": "ot-w27-fri",
+    "season": "Ordinary Time"
+  },
+  "2026-11-28": {
+    "key": "ot-w27-sat",
+    "season": "Ordinary Time"
+  },
   "2026-11-30": {
     "key": "advent-w1-mon",
     "season": "Advent"
