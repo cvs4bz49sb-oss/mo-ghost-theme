@@ -1,6 +1,6 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-07-08T09:57:40.153Z",
+    "updated": "2026-07-09T10:44:07.725Z",
     "episodes": [
       {
         "id": 19420408,
@@ -889,8 +889,25 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-07-08T09:57:44.501Z",
+    "updated": "2026-07-09T10:44:12.020Z",
     "episodes": [
+      {
+        "id": 19458498,
+        "title": "Divided We Stand: On Denominations",
+        "slug": "divided-we-stand-on-denominations",
+        "pubDate": "2026-07-08T07:00:00.000-04:00",
+        "episode": 23,
+        "season": 3,
+        "duration": 3791,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19458498-divided-we-stand-on-denominations.mp3",
+        "description": "How often do you think about denominations? Is this the way Jesus meant for the church to be? Are we actually united without realizing it? Derek, Brad, and Alistair examine the pros and cons of denominations, poke at Rome a little, and pursue authentic catholicity. &nbsp; — Mere Fidelity is a podcast from Mere Orthodoxy and is listener-supported. If you would like to support this work, become a Me",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19458498?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/divided-we-stand-on-denominations/",
+        "guests": [],
+        "topics": []
+      },
       {
         "id": 19425853,
         "title": "How to Read Outside Your Tradition",
