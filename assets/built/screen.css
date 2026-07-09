@@ -10196,7 +10196,7 @@ label.site-form-field-check {
 }
 
 @media (max-width: 880px) {
-  .dl-hero { padding: 80px 0 88px; }
+  .dl-hero { padding: 72px 0 80px; }
   .dl-hero-logo { max-width: 320px; }
   .dl-paths { padding: 56px 0; }
   .dl-paths-grid {
@@ -10213,12 +10213,27 @@ label.site-form-field-check {
   .dl-benefit-inner { flex-direction: column; text-align: center; gap: 20px; }
 }
 @media (max-width: 640px) {
-  .dl-hero-logo { max-width: 260px; margin-bottom: 24px; }
-  .dl-hero-tagline { font-size: 16px; }
+  .dl-hero { padding: 56px 0 64px; }
+  .dl-hero-logo { max-width: 240px; margin-bottom: 20px; }
+  .dl-hero-tagline { font-size: 16px; line-height: 1.6; margin-bottom: 28px; }
+  .dl-hero-ctas { flex-direction: column; align-items: center; gap: 10px; }
+  .dl-hero-ctas .btn { width: 100%; max-width: 280px; text-align: center; }
+  .dl-paths { padding: 40px 0; }
+  .dl-paths-grid { gap: 36px; }
+  .dl-path--subscribe { padding-bottom: 36px; }
+  .dl-path-title { font-size: 24px; }
   .dl-path-desc { font-size: 15px; }
   .dl-field-row { grid-template-columns: 1fr; }
   .dl-signup-form button[type="submit"] { align-self: stretch; }
-  .dl-listen-ctas .btn { flex: 1 1 auto; text-align: center; }
+  .dl-listen-ctas { flex-direction: column; }
+  .dl-listen-ctas .btn { text-align: center; }
+  .dl-benefit { padding: 40px 0; }
+  .dl-benefit-icon { width: 48px; height: 48px; font-size: 18px; }
+  .dl-benefit-title { font-size: 18px; }
+  .dl-benefit-desc { font-size: 15px; }
+  .dl-about { padding: 48px 0 56px; }
+  .dl-about-heading { font-size: 22px; }
+  .dl-about-text { font-size: 15px; }
 }
 
 /* Most-Listened sidebar block: lives inside the .podcast-hosts
@@ -22038,11 +22053,26 @@ html[data-theme="light"] .dlr-page {
 
 /* Responsive */
 @media (max-width: 640px) {
-  .dlr-page { padding: 32px 18px 48px; }
+  .dlr-page { padding: 28px 16px 44px; }
+  .dlr-header { padding-bottom: 24px; margin-bottom: 22px; }
+  .dlr-kicker { font-size: 11px; }
   .dlr-title { font-size: 20px; }
-  .dlr-scripture { padding: 16px 18px; }
+  .dlr-nav { gap: 12px; margin-bottom: 22px; }
+  .dlr-nav-btn { width: 36px; height: 36px; font-size: 16px; }
+  .dlr-nav-today { padding: 5px 16px; font-size: 12px; }
+  .dlr-rule { margin: 22px 0; }
+  .dlr-transition { font-size: 14px; margin-bottom: 16px; }
+  .dlr-scripture { padding: 16px 18px; font-size: 14px; }
+  .dlr-prayer-text { font-size: 15px; }
+  .dlr-prayer-lines { font-size: 15px; line-height: 1.7; }
+  .dlr-section--benediction { padding: 8px 16px 0; }
   .dlr-setting { gap: 8px; }
   .dlr-setting-select { font-size: 13px; padding: 5px 28px 5px 12px; }
+  .dlr-footer { margin-top: 24px; padding-top: 22px; }
   .dlr-gate { min-height: 50vh; padding: 48px 18px; }
+  .dlr-gate-logo { max-width: 240px; }
   .dlr-gate-title { font-size: 24px; }
+  .dlr-gate-desc { font-size: 15px; }
+  .dlr-gate-ctas { flex-direction: column; align-items: center; gap: 10px; }
+  .dlr-gate-ctas .btn { width: 100%; max-width: 260px; text-align: center; }
 }

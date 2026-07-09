@@ -100,7 +100,7 @@
 (function () {
   var el = document.querySelector("[data-dl-latest]");
   if (!el) return;
-  var feedUrl = document.body.getAttribute("data-podcast-feed-url");
+  var feedUrl = document.body.getAttribute("data-podcast-feed-url") || "https://mo-podcast-feed.mo-podcast-feed.workers.dev";
   if (!feedUrl) { el.innerHTML = ""; return; }
   fetch(feedUrl, { credentials: "omit" })
     .then(function (r) { return r.json(); })
