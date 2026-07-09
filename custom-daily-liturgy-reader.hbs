@@ -25,33 +25,36 @@
   {{!-- Catch-up notice --}}
   <p class="dlr-catchup" data-dlr-catchup hidden>You're viewing a past devotional.</p>
 
-  {{!-- Mode toggle (own line) --}}
-  <div class="dlr-mode-row" data-dlr-mode-toggle>
-    <button class="dlr-mode-btn is-active" data-dlr-mode="devotional">Devotional</button>
-    <button class="dlr-mode-btn" data-dlr-mode="bi2y">Bible in 2 Years</button>
-  </div>
-
-  {{!-- Settings bar: scripture toggle + translation (paid) + dark mode --}}
-  <div class="dlr-settings-bar">
-    <div class="dlr-scripture-toggle" data-dlr-scripture-toggle>
-      <button class="dlr-scripture-toggle-btn is-active" data-dlr-expand="expand">Expand Scripture</button>
-      <button class="dlr-scripture-toggle-btn" data-dlr-expand="collapse">Collapse</button>
+  {{!-- Collapsible options --}}
+  <details class="dlr-options" data-dlr-options>
+    <summary class="dlr-options-toggle">Options</summary>
+    <div class="dlr-options-body">
+      <div class="dlr-mode-row" data-dlr-mode-toggle>
+        <button class="dlr-mode-btn is-active" data-dlr-mode="devotional">Devotional</button>
+        <button class="dlr-mode-btn" data-dlr-mode="bi2y">Bible in 2 Years</button>
+      </div>
+      <div class="dlr-settings-bar">
+        <div class="dlr-scripture-toggle" data-dlr-scripture-toggle>
+          <button class="dlr-scripture-toggle-btn is-active" data-dlr-expand="expand">Expand Scripture</button>
+          <button class="dlr-scripture-toggle-btn" data-dlr-expand="collapse">Collapse</button>
+        </div>
+        {{#if @member.paid}}
+        <select class="dlr-setting-select" id="dlr-translation-select" data-dlr-translation-select aria-label="Translation">
+          <option value="CSB">CSB</option>
+          <option value="ESV">ESV</option>
+          <option value="NIV">NIV</option>
+          <option value="NASB">NASB</option>
+          <option value="KJV">KJV</option>
+        </select>
+        {{/if}}
+        <button class="dlr-theme-toggle" type="button" data-dark-mode-toggle aria-label="Toggle dark mode" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
     </div>
-    {{#if @member.paid}}
-    <select class="dlr-setting-select" id="dlr-translation-select" data-dlr-translation-select aria-label="Translation">
-      <option value="CSB">CSB</option>
-      <option value="ESV">ESV</option>
-      <option value="NIV">NIV</option>
-      <option value="NASB">NASB</option>
-      <option value="KJV">KJV</option>
-    </select>
-    {{/if}}
-    <button class="dlr-theme-toggle" type="button" data-dark-mode-toggle aria-label="Toggle dark mode" aria-pressed="false">
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-      </svg>
-    </button>
-  </div>
+  </details>
 
   {{!-- Latest podcast episode --}}
   <div class="dlr-podcast" data-dlr-podcast hidden>
@@ -69,6 +72,7 @@
       <div class="dlr-player-progress" data-dlr-progress>
         <div class="dlr-player-bar" data-dlr-bar></div>
       </div>
+      <span class="dlr-player-subtitle">Follows Devotional Plan</span>
     </div>
     <span class="dlr-player-time" data-dlr-time></span>
     <audio data-dlr-audio preload="none"></audio>

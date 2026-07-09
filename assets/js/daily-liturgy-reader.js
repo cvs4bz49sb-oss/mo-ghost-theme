@@ -128,10 +128,8 @@
     $empty.hidden = state !== "empty";
     $nav.hidden = state === "loading" || state === "error";
     $body.hidden = !isContent;
-    var $bar = $(".dlr-settings-bar");
-    if ($bar) $bar.hidden = !isContent;
-    var $modeRow = $(".dlr-mode-row");
-    if ($modeRow) $modeRow.hidden = !isContent;
+    var $options = $(".dlr-options");
+    if ($options) $options.hidden = !isContent;
   }
 
   // ── Scripture reference parser ────────────────────────────────
@@ -520,7 +518,7 @@
         if (!show || !show.episodes || !show.episodes.length) return;
         var ep = show.episodes[0];
         $audio.src = ep.audioUrl;
-        $title.textContent = ep.title || "Latest Episode";
+        $title.textContent = "Listen: " + (ep.title || "Latest Episode");
         if (ep.duration) $time.textContent = fmt(ep.duration);
         $podcast.hidden = false;
       })

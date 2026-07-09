@@ -21724,6 +21724,45 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
 }
 
 /* Mode toggle row (own line above settings bar) */
+/* Collapsible options */
+.dlr-options {
+  max-width: 340px;
+  margin: 0 auto 28px;
+  text-align: center;
+}
+.dlr-options-toggle {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dlr-text-secondary);
+  cursor: pointer;
+  list-style: none;
+  padding: 6px 0;
+}
+.dlr-options-toggle::-webkit-details-marker { display: none; }
+.dlr-options-toggle::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid var(--dlr-text-secondary);
+  border-bottom: 1.5px solid var(--dlr-text-secondary);
+  transform: rotate(45deg);
+  margin-left: 6px;
+  vertical-align: 2px;
+  transition: transform 0.2s;
+}
+.dlr-options[open] .dlr-options-toggle::after {
+  transform: rotate(-135deg);
+  vertical-align: -1px;
+}
+.dlr-options-body {
+  padding-top: 12px;
+}
+
 .dlr-mode-row {
   display: flex;
   justify-content: center;
@@ -21936,7 +21975,6 @@ html[data-theme="dark"] .dlr-header-logo {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 32px;
   flex-wrap: wrap;
   max-width: 340px;
   margin-left: auto;
@@ -21999,6 +22037,12 @@ html[data-theme="dark"] .dlr-header-logo {
   border-radius: 2px;
   width: 0%;
   transition: width 0.1s linear;
+}
+.dlr-player-subtitle {
+  font-size: 10px;
+  color: var(--dlr-text-secondary);
+  opacity: 0.6;
+  letter-spacing: 0.02em;
 }
 .dlr-player-time {
   flex-shrink: 0;
