@@ -54,11 +54,13 @@
           <p class="dl-path-eyebrow">Listen daily</p>
           <h2 class="dl-path-title">The podcast.</h2>
           <p class="dl-path-desc">The same devotional, read aloud. A new episode every morning, wherever you keep your habit of prayer.</p>
+          <div class="dl-latest-episode" data-dl-latest>
+            <p class="dl-latest-loading">Loading latest episode&hellip;</p>
+          </div>
           <div class="dl-listen-ctas">
             <a href="https://podcasts.apple.com/us/podcast/the-daily-liturgy-podcast/id1177180357" class="btn btn-outline-copper" target="_blank" rel="noopener">Apple Podcasts</a>
             <a href="https://open.spotify.com/show/5QgbJ8qxN4W7ftSn7dyK6u" class="btn btn-outline-copper" target="_blank" rel="noopener">Spotify</a>
           </div>
-          <p class="dl-form-fine">A new episode every morning.</p>
         </div>
 
       </div>
@@ -94,6 +96,29 @@
 </main>
 
 <script src="{{asset "js/site-forms.js"}}"></script>
+<script>
+(function () {
+  var el = document.querySelector("[data-dl-latest]");
+  if (!el) return;
+  var feedUrl = document.body.getAttribute("data-podcast-feed-url");
+  if (!feedUrl) { el.innerHTML = ""; return; }
+  fetch(feedUrl, { credentials: "omit" })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var show = data["daily-liturgy"];
+      if (!show || !show.episodes || !show.episodes.length) {
+        el.innerHTML = "";
+        return;
+      }
+      var ep = show.episodes[0];
+      var title = ep.title || "Latest Episode";
+      el.innerHTML =
+        '<p class="dl-latest-title">' + title + '</p>' +
+        '<iframe src="' + ep.embedUrl + '" loading="lazy" width="100%" height="200" frameborder="0" scrolling="no" title="' + title + '"></iframe>';
+    })
+    .catch(function () { el.innerHTML = ""; });
+})();
+</script>
 {{#if @custom.membership_api_base}}
     <script src="{{asset "js/institution-push.js"}}"></script>
 {{/if}}

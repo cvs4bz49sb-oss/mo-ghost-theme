@@ -10084,6 +10084,27 @@ label.site-form-field-check {
   color: var(--color-muted);
   margin: 14px 0 0;
 }
+/* Latest episode embed */
+.dl-latest-episode {
+  margin-bottom: 24px;
+}
+.dl-latest-loading {
+  font-size: 14px;
+  color: var(--color-muted);
+  font-style: italic;
+}
+.dl-latest-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-bottom: 10px;
+}
+.dl-latest-episode iframe {
+  border-radius: 8px;
+  max-width: 100%;
+}
+
 .dl-listen-ctas {
   display: flex;
   flex-wrap: wrap;
