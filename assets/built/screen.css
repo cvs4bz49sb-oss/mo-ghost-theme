@@ -21689,8 +21689,8 @@ body:has(.au-modal-overlay) {
 
 .dlr-page {
   --dlr-ground: #f6f3f2;
-  --dlr-text: #2d2927;
-  --dlr-text-secondary: #6b6660;
+  --dlr-text: #1c1917;
+  --dlr-text-secondary: #4a4540;
   --dlr-accent: #96694C;
   --dlr-accent-light: #b8866a;
   --dlr-rule: #d9c6a7;
@@ -21726,8 +21726,8 @@ html[data-theme="dark"] .dlr-page {
 }
 html[data-theme="light"] .dlr-page {
   --dlr-ground: #f6f3f2;
-  --dlr-text: #2d2927;
-  --dlr-text-secondary: #6b6660;
+  --dlr-text: #1c1917;
+  --dlr-text-secondary: #4a4540;
   --dlr-accent: #96694C;
   --dlr-accent-light: #b8866a;
   --dlr-rule: #d9c6a7;
