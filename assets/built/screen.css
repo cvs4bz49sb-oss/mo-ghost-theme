@@ -21730,22 +21730,16 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
   color: #e8ddd0;
 }
 
-/* Mode toggle (Devotional | Bible in 2 Years) */
+/* Mode toggle (Devotional | Bible in 2 Years) — inline in settings bar */
 .dlr-mode-toggle {
   display: flex;
-  justify-content: center;
   gap: 0;
-  margin-bottom: 32px;
   border: 1px solid var(--dlr-rule);
   border-radius: 999px;
   overflow: hidden;
-  max-width: 340px;
-  margin-left: auto;
-  margin-right: auto;
 }
 .dlr-mode-btn {
-  flex: 1;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border: none;
   background: transparent;
   color: var(--dlr-text-secondary);
@@ -21755,6 +21749,7 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
 }
 .dlr-mode-btn.is-active {
   background: var(--dlr-accent);
@@ -21771,13 +21766,14 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
   border-bottom: 1px solid var(--dlr-rule);
   margin-bottom: 28px;
 }
-.dlr-kicker {
-  font-size: 12px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--dlr-text-secondary);
-  margin: 0 0 8px;
+.dlr-header-logo {
+  display: block;
+  max-width: 200px;
+  height: auto;
+  margin: 0 auto 12px;
+}
+html[data-theme="dark"] .dlr-header-logo {
+  filter: brightness(0) invert(0.88) sepia(0.15) saturate(0.5);
 }
 .dlr-title {
   font-family: var(--font-body);
@@ -21881,8 +21877,9 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 10px;
   margin-bottom: 32px;
+  flex-wrap: wrap;
 }
 
 /* Dark mode toggle */
@@ -22125,8 +22122,9 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
 @media (max-width: 640px) {
   .dlr-page { padding: 28px 16px 44px; }
   .dlr-header { padding-bottom: 24px; margin-bottom: 22px; }
-  .dlr-kicker { font-size: 11px; }
+  .dlr-header-logo { max-width: 160px; }
   .dlr-title { font-size: 20px; }
+  .dlr-mode-btn { font-size: 12px; padding: 5px 10px; }
   .dlr-nav { gap: 12px; margin-bottom: 22px; }
   .dlr-nav-btn { width: 36px; height: 36px; font-size: 16px; }
   .dlr-nav-today { padding: 5px 16px; font-size: 12px; }

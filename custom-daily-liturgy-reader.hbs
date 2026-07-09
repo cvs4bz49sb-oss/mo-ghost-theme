@@ -8,15 +8,9 @@
 <main class="dlr-page" data-dlr-page>
   <meta name="mo-bible-base" content="{{@custom.bible_worker_url}}" />
 
-  {{!-- Mode toggle --}}
-  <div class="dlr-mode-toggle" data-dlr-mode-toggle>
-    <button class="dlr-mode-btn is-active" data-dlr-mode="devotional">Devotional</button>
-    <button class="dlr-mode-btn" data-dlr-mode="bi2y">Bible in 2 Years</button>
-  </div>
-
   {{!-- Header --}}
   <header class="dlr-header">
-    <p class="dlr-kicker">The Daily Liturgy</p>
+    <img src="{{asset "images/daily-liturgy-logo.png"}}" alt="The Daily Liturgy" class="dlr-header-logo" />
     <h1 class="dlr-title" data-dlr-title>Loading&hellip;</h1>
     <p class="dlr-season" data-dlr-season></p>
   </header>
@@ -31,8 +25,12 @@
   {{!-- Catch-up notice --}}
   <p class="dlr-catchup" data-dlr-catchup hidden>You're viewing a past devotional.</p>
 
-  {{!-- Settings bar: translation (paid) + dark mode toggle --}}
+  {{!-- Settings bar: mode toggle + translation (paid) + dark mode --}}
   <div class="dlr-settings-bar">
+    <div class="dlr-mode-toggle" data-dlr-mode-toggle>
+      <button class="dlr-mode-btn is-active" data-dlr-mode="devotional">Devotional</button>
+      <button class="dlr-mode-btn" data-dlr-mode="bi2y">Bible in 2 Years</button>
+    </div>
     {{#if @member.paid}}
     <select class="dlr-setting-select" id="dlr-translation-select" data-dlr-translation-select aria-label="Translation">
       <option value="CSB">CSB</option>
