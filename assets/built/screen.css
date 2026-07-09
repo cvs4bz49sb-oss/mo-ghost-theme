@@ -21713,6 +21713,35 @@ html[data-theme="dark"] .dlr-page {
   --dlr-scripture-bg: #2a2320;
   --dlr-scripture-border: #3d3530;
 }
+/* Full-page dark when DLR reader is in dark mode */
+html[data-theme="dark"] body:has(.dlr-page) {
+  background: #1a1714;
+}
+html[data-theme="dark"] body:has(.dlr-page) .site-header {
+  background-color: #1a1714;
+  border-bottom-color: #3d3530;
+  box-shadow: none;
+}
+html[data-theme="dark"] body:has(.dlr-page) .site-header::before {
+  display: none;
+}
+html[data-theme="dark"] body:has(.dlr-page) .header-inner,
+html[data-theme="dark"] body:has(.dlr-page) .nav-link,
+html[data-theme="dark"] body:has(.dlr-page) .header-logo-text {
+  color: #e8ddd0;
+}
+html[data-theme="dark"] body:has(.dlr-page) .site-footer {
+  background: #1a1714;
+  border-top-color: #3d3530;
+  color: #9a8e82;
+}
+html[data-theme="dark"] body:has(.dlr-page) .site-footer a {
+  color: #b8866a;
+}
+html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
+  background: #1a1714;
+  color: #e8ddd0;
+}
 
 /* Header */
 .dlr-header {
