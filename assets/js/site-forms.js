@@ -120,15 +120,19 @@
     if (submitBtn) { submitBtn.disabled = true; }
 
     let url, init;
+    // Null-safe field read: a form variant that omits a field would
+    // otherwise throw on `.value` (checkValidity only catches empty
+    // present fields, not absent ones), leaving submit stuck disabled.
+    const val = (sel) => { const el = form.querySelector(sel); return el ? el.value : ""; };
     if (kind === "contact") {
       url = `${worker}/contact`;
       const typeEl = form.querySelector("[name=type]");
       const body = {
-        firstName: form.querySelector("[name=firstName]").value,
-        lastName: form.querySelector("[name=lastName]").value,
-        email: form.querySelector("[name=email]").value,
+        firstName: val("[name=firstName]"),
+        lastName: val("[name=lastName]"),
+        email: val("[name=email]"),
         type: typeEl ? typeEl.value : "other",
-        message: form.querySelector("[name=message]").value,
+        message: val("[name=message]"),
         turnstile_token: turnstileToken,
       };
       init = {
@@ -141,12 +145,10 @@
       // worker subscribes to Kit (double opt-in form) + ensures a Ghost
       // free member. Only an email (and optional name) is collected.
       url = `${worker}/newsletter-subscribe`;
-      const firstEl = form.querySelector("[name=firstName]");
-      const lastEl = form.querySelector("[name=lastName]");
       const body = {
-        email: form.querySelector("[name=email]").value,
-        firstName: firstEl ? firstEl.value : "",
-        lastName: lastEl ? lastEl.value : "",
+        email: val("[name=email]"),
+        firstName: val("[name=firstName]"),
+        lastName: val("[name=lastName]"),
         turnstile_token: turnstileToken,
       };
       init = {
@@ -164,14 +166,14 @@
         return;
       }
       const body = {
-        firstName: form.querySelector("[name=firstName]").value,
-        lastName: form.querySelector("[name=lastName]").value,
-        email: form.querySelector("[name=email]").value,
-        organization: (form.querySelector("[name=organization]") || {}).value || "",
+        firstName: val("[name=firstName]"),
+        lastName: val("[name=lastName]"),
+        email: val("[name=email]"),
+        organization: val("[name=organization]"),
         interests: checked,
-        startDate: form.querySelector("[name=startDate]").value,
-        months: form.querySelector("[name=months]").value,
-        message: (form.querySelector("[name=message]") || {}).value || "",
+        startDate: val("[name=startDate]"),
+        months: val("[name=months]"),
+        message: val("[name=message]"),
         turnstile_token: turnstileToken,
       };
       init = {
@@ -183,7 +185,8 @@
       url = `${worker}/submissions`;
       const fd = new FormData(form);
       // Normalize the checkbox to the value the worker expects.
-      fd.set("aiAttested", form.querySelector("[name=aiAttested]").checked ? "true" : "false");
+      const attEl = form.querySelector("[name=aiAttested]");
+      fd.set("aiAttested", attEl && attEl.checked ? "true" : "false");
       fd.set("turnstile_token", turnstileToken);
       init = { method: "POST", body: fd };
     }

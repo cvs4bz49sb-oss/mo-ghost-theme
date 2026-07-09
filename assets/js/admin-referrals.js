@@ -70,7 +70,9 @@
   function fillStats(summary) {
     var counts = { pending: 0, converted: 0, rewarded: 0, void: 0 };
     for (var i = 0; i < summary.length; i++) {
-      if (summary[i].status in counts) counts[summary[i].status] = summary[i].n;
+      var st = summary[i].status;
+      if (st === "rewarding") st = "converted"; // rewarding = converted, mid-reward
+      if (st in counts) counts[st] += summary[i].n || 0;
     }
     var keys = Object.keys(counts);
     for (var j = 0; j < keys.length; j++) {

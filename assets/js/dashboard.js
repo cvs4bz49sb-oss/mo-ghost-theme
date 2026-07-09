@@ -126,13 +126,14 @@
       .catch(() => {});
 
     function showBanner(migrated) {
+      if (!inner || !textEl) return;
       if (migrated) {
         inner.classList.add("migration-banner--success");
         textEl.textContent = "You have successfully migrated your membership. Thank you!";
       } else {
         inner.classList.add("migration-banner--action");
         textEl.textContent = "You still need to migrate your membership. You can do so here.";
-        btnEl.hidden = false;
+        if (btnEl) btnEl.hidden = false;
       }
       banner.hidden = false;
     }
