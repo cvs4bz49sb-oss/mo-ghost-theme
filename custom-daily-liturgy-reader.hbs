@@ -2,8 +2,9 @@
 {{!-- /daily-liturgy/read/ — routed via routes.yaml with
      `data: page.daily-liturgy-reader`. Displays one devotional per
      day from the Daily Liturgy, with backward navigation to catch up.
-     Members can choose Scripture translations (CSB default). --}}
+     Gated to subscribers/members. Paid members get translation switching. --}}
 
+{{#if @member}}
 <main class="dlr-page" data-dlr-page>
   <meta name="mo-bible-base" content="{{@custom.bible_worker_url}}" />
 
@@ -172,3 +173,18 @@
 </main>
 
 <script src="{{asset "js/daily-liturgy-reader.js"}}"></script>
+
+{{else}}
+{{!-- Not signed in: show gate --}}
+<main class="dlr-gate">
+  <div class="dlr-gate-inner">
+    <img src="{{asset "images/daily-liturgy-logo.png"}}" alt="The Daily Liturgy" class="dlr-gate-logo" width="320" height="97" />
+    <h1 class="dlr-gate-title">Subscribe to read online.</h1>
+    <p class="dlr-gate-desc">The online Daily Liturgy reader is available to subscribers. Sign up free to access today's devotional, Scripture readings, and the full archive.</p>
+    <div class="dlr-gate-ctas">
+      <a href="/podcasts/daily-liturgy/#subscribe" class="btn btn-copper btn-lg">Subscribe free</a>
+      <a href="#/portal/signin" class="btn btn-outline btn-lg">Sign in</a>
+    </div>
+  </div>
+</main>
+{{/if}}

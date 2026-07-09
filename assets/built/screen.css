@@ -9917,11 +9917,11 @@ label.site-form-field-check {
 /* Hero */
 .dl-hero {
   background:
-    linear-gradient(to bottom, rgba(45, 41, 39, 0.90) 0%, rgba(45, 41, 39, 1) 50%),
+    linear-gradient(to bottom, rgba(45, 41, 39, 0.82) 0%, rgba(45, 41, 39, 0.92) 100%),
     url("../images/mo-header-bg.jpg") center/cover no-repeat,
     var(--color-dark);
   color: #fff;
-  padding: 96px 0 108px;
+  padding: 108px 0 120px;
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -9938,32 +9938,20 @@ label.site-form-field-check {
   pointer-events: none;
 }
 .dl-hero .container { position: relative; z-index: 1; }
-.dl-hero-cross {
-  font-size: 28px;
-  color: var(--dl-copper);
-  margin-bottom: 20px;
-  letter-spacing: 0.1em;
+.dl-hero-logo {
+  display: block;
+  margin: 0 auto 32px;
+  max-width: 420px;
+  width: 100%;
+  height: auto;
 }
-.dl-hero-title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(38px, 5vw, 58px);
-  line-height: 1.1;
-  color: #fff;
-  margin-bottom: 24px;
-  letter-spacing: -0.01em;
-}
-.dl-hero-title em {
-  font-style: italic;
-  color: var(--dl-copper-light);
-}
-.dl-hero-sub {
+.dl-hero-tagline {
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.72);
-  max-width: 540px;
-  margin: 0 auto 36px;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 560px;
+  margin: 0 auto 40px;
 }
 .dl-hero-ctas {
   display: flex;
@@ -10187,7 +10175,8 @@ label.site-form-field-check {
 }
 
 @media (max-width: 880px) {
-  .dl-hero { padding: 72px 0 80px; }
+  .dl-hero { padding: 80px 0 88px; }
+  .dl-hero-logo { max-width: 320px; }
   .dl-paths { padding: 56px 0; }
   .dl-paths-grid {
     grid-template-columns: 1fr;
@@ -10203,7 +10192,8 @@ label.site-form-field-check {
   .dl-benefit-inner { flex-direction: column; text-align: center; gap: 20px; }
 }
 @media (max-width: 640px) {
-  .dl-hero-sub { font-size: 16px; }
+  .dl-hero-logo { max-width: 260px; margin-bottom: 24px; }
+  .dl-hero-tagline { font-size: 16px; }
   .dl-path-desc { font-size: 15px; }
   .dl-field-row { grid-template-columns: 1fr; }
   .dl-signup-form button[type="submit"] { align-self: stretch; }
@@ -21980,6 +21970,47 @@ html[data-theme="light"] .dlr-page {
   font-weight: 600;
 }
 
+/* Subscriber gate */
+.dlr-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 72px 24px;
+  text-align: center;
+}
+.dlr-gate-inner {
+  max-width: 480px;
+}
+.dlr-gate-logo {
+  display: block;
+  margin: 0 auto 28px;
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+}
+.dlr-gate-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  font-style: italic;
+  color: var(--color-dark);
+  margin-bottom: 14px;
+}
+.dlr-gate-desc {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-muted);
+  margin-bottom: 28px;
+}
+.dlr-gate-ctas {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .dlr-page { padding: 32px 18px 48px; }
@@ -21987,4 +22018,6 @@ html[data-theme="light"] .dlr-page {
   .dlr-scripture { padding: 16px 18px; }
   .dlr-setting { gap: 8px; }
   .dlr-setting-select { font-size: 13px; padding: 5px 28px 5px 12px; }
+  .dlr-gate { min-height: 50vh; padding: 48px 18px; }
+  .dlr-gate-title { font-size: 24px; }
 }
