@@ -21673,13 +21673,14 @@ body:has(.au-modal-overlay) {
    ================================================================ */
 
 .dlr-page {
-  --dlr-ground: #F7F4EE;
-  --dlr-text: #2A2622;
-  --dlr-text-secondary: #8A837A;
-  --dlr-accent: #6B2D3E;
-  --dlr-rule: #C4B998;
-  --dlr-scripture-bg: #EFEAE2;
-  --dlr-scripture-border: #C4B998;
+  --dlr-ground: #f6f3f2;
+  --dlr-text: #2d2927;
+  --dlr-text-secondary: #6b6660;
+  --dlr-accent: #96694C;
+  --dlr-accent-light: #b8866a;
+  --dlr-rule: #d9c6a7;
+  --dlr-scripture-bg: #f1e0c9;
+  --dlr-scripture-border: #d9c6a7;
   max-width: 720px;
   margin: 0 auto;
   padding: 48px 28px 64px;
@@ -21687,33 +21688,36 @@ body:has(.au-modal-overlay) {
   color: var(--dlr-text);
 }
 html[data-theme="dark"] .dlr-page {
-  --dlr-ground: #1C1A17;
-  --dlr-text: #D5CFC5;
-  --dlr-text-secondary: #7A746A;
-  --dlr-accent: #C08090;
-  --dlr-rule: #3A3530;
-  --dlr-scripture-bg: #242220;
-  --dlr-scripture-border: #3A3530;
+  --dlr-ground: #1a1714;
+  --dlr-text: #e8ddd0;
+  --dlr-text-secondary: #9a8e82;
+  --dlr-accent: #b8866a;
+  --dlr-accent-light: #cfa080;
+  --dlr-rule: #3d3530;
+  --dlr-scripture-bg: #2a2320;
+  --dlr-scripture-border: #3d3530;
 }
 @media (prefers-color-scheme: dark) {
   .dlr-page {
-    --dlr-ground: #1C1A17;
-    --dlr-text: #D5CFC5;
-    --dlr-text-secondary: #7A746A;
-    --dlr-accent: #C08090;
-    --dlr-rule: #3A3530;
-    --dlr-scripture-bg: #242220;
-    --dlr-scripture-border: #3A3530;
+    --dlr-ground: #1a1714;
+    --dlr-text: #e8ddd0;
+    --dlr-text-secondary: #9a8e82;
+    --dlr-accent: #b8866a;
+    --dlr-accent-light: #cfa080;
+    --dlr-rule: #3d3530;
+    --dlr-scripture-bg: #2a2320;
+    --dlr-scripture-border: #3d3530;
   }
 }
 html[data-theme="light"] .dlr-page {
-  --dlr-ground: #F7F4EE;
-  --dlr-text: #2A2622;
-  --dlr-text-secondary: #8A837A;
-  --dlr-accent: #6B2D3E;
-  --dlr-rule: #C4B998;
-  --dlr-scripture-bg: #EFEAE2;
-  --dlr-scripture-border: #C4B998;
+  --dlr-ground: #f6f3f2;
+  --dlr-text: #2d2927;
+  --dlr-text-secondary: #6b6660;
+  --dlr-accent: #96694C;
+  --dlr-accent-light: #b8866a;
+  --dlr-rule: #d9c6a7;
+  --dlr-scripture-bg: #f1e0c9;
+  --dlr-scripture-border: #d9c6a7;
 }
 
 /* Header */
