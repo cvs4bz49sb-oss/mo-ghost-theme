@@ -9903,35 +9903,143 @@ label.site-form-field-check {
   .podcast-about p { font-size: 16px; }
 }
 
-/* ── Daily Liturgy product page ──────────────────────────────────────
-   Co-equal "two paths" band (newsletter + podcast) between the hero and
-   the episode feed. Scoped under .daily-liturgy-page so nothing leaks to
-   the other show pages. Reuses brand tokens; no cards (hairline rule
-   between the two columns, matching the site's "no cards" rule). */
+/* ── Daily Liturgy landing page ──────────────────────────────────────
+   Merged brand: MO design system + Daily Liturgy copper (#96694C).
+   Hero, two-path band (subscribe + listen), subscriber benefit
+   callout, and about section. No episode feed on this page. */
+
+/* DL-specific tokens */
+.daily-liturgy-page {
+  --dl-copper: #96694C;
+  --dl-copper-light: #b8866a;
+}
+
+/* Hero */
+.dl-hero {
+  background:
+    linear-gradient(to bottom, rgba(45, 41, 39, 0.90) 0%, rgba(45, 41, 39, 1) 50%),
+    url("../images/mo-header-bg.jpg") center/cover no-repeat,
+    var(--color-dark);
+  color: #fff;
+  padding: 96px 0 108px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.dl-hero::before {
+  content: "";
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(150, 105, 76, 0.18), transparent 60%);
+  pointer-events: none;
+}
+.dl-hero .container { position: relative; z-index: 1; }
+.dl-hero-cross {
+  font-size: 28px;
+  color: var(--dl-copper);
+  margin-bottom: 20px;
+  letter-spacing: 0.1em;
+}
+.dl-hero-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 1.1;
+  color: #fff;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+}
+.dl-hero-title em {
+  font-style: italic;
+  color: var(--dl-copper-light);
+}
+.dl-hero-sub {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 540px;
+  margin: 0 auto 36px;
+}
+.dl-hero-ctas {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* Copper button */
+.btn-copper {
+  background: var(--dl-copper);
+  color: #fff;
+}
+.btn-copper:hover { background: var(--dl-copper-light); }
+/* Ghost-light button (hero only) */
+.btn-ghost-light {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.btn-ghost-light:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+/* Copper outline button */
+.btn-outline-copper {
+  background: transparent;
+  color: var(--dl-copper);
+  border: 1px solid var(--color-rule);
+}
+.btn-outline-copper:hover { border-color: var(--dl-copper); }
+
+/* Two-path band */
 .dl-paths {
-  padding: 72px 0;
+  padding: 80px 0;
   border-bottom: 1px solid var(--color-rule);
 }
 .dl-paths-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 56px;
+  gap: 0;
   align-items: start;
 }
-/* Hairline divider between the two equal columns. */
-.dl-paths-grid .dl-path--read {
+.dl-path--subscribe {
   padding-right: 56px;
   border-right: 1px solid var(--color-rule);
 }
-.dl-path .section-heading { margin-top: 4px; }
-.dl-path-lede {
-  font-family: var(--font-body);
-  font-size: 18px;
-  line-height: 1.6;
-  color: var(--color-muted);
-  max-width: 46ch;
-  margin: 14px 0 26px;
+.dl-path--listen {
+  padding-left: 56px;
 }
+.dl-path-eyebrow {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dl-copper);
+  margin-bottom: 6px;
+}
+.dl-path-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  font-style: italic;
+  color: var(--color-dark);
+  margin-bottom: 14px;
+}
+.dl-path-desc {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--color-muted);
+  max-width: 44ch;
+  margin-bottom: 24px;
+}
+
 /* Newsletter signup form */
 .dl-signup-form {
   display: flex;
@@ -9940,7 +10048,6 @@ label.site-form-field-check {
   max-width: 420px;
 }
 .dl-field { display: block; }
-/* First + last name share a row on desktop, stack on phones. */
 .dl-field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -9970,8 +10077,8 @@ label.site-form-field-check {
 .dl-signup-form input[type="email"]:focus,
 .dl-signup-form input[type="text"]:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(238, 125, 81, 0.18);
+  border-color: var(--dl-copper);
+  box-shadow: 0 0 0 3px rgba(150, 105, 76, 0.15);
 }
 .dl-signup-form button[type="submit"] { align-self: flex-start; margin-top: 4px; }
 .dl-turnstile:empty { margin: 0; }
@@ -9995,27 +10102,109 @@ label.site-form-field-check {
   gap: 14px;
   margin-bottom: 4px;
 }
-/* Success block (form is replaced by .site-form-success on submit) */
 .dl-path .site-form-success { max-width: 420px; }
-/* Receives programmatic focus on submit (tabindex=-1); suppress the
-   stray outline since it's not a user-tabbable control. */
 .site-form-success:focus { outline: none; }
 
+/* Subscriber benefit callout */
+.dl-benefit {
+  padding: 56px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.dl-benefit-inner {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+.dl-benefit-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: var(--color-card-featured-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--dl-copper);
+}
+.dl-benefit-body { flex: 1; }
+.dl-benefit-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  font-style: italic;
+  color: var(--color-dark);
+  margin-bottom: 6px;
+}
+.dl-benefit-desc {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.dl-benefit-desc a {
+  color: var(--dl-copper);
+  text-decoration: none;
+  font-weight: 600;
+}
+.dl-benefit-desc a:hover { text-decoration: underline; }
+
+/* About */
+.dl-about {
+  padding: 72px 0 80px;
+  text-align: center;
+}
+.dl-about-inner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.dl-about-fleuron {
+  font-size: 20px;
+  color: var(--dl-copper);
+  margin-bottom: 20px;
+}
+.dl-about-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  font-style: italic;
+  color: var(--color-dark);
+  margin-bottom: 16px;
+}
+.dl-about-text {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-muted);
+  margin-bottom: 12px;
+}
+.dl-about-credit {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin-top: 24px;
+  font-style: italic;
+}
+
 @media (max-width: 880px) {
-  .dl-paths { padding: 48px 0; }
+  .dl-hero { padding: 72px 0 80px; }
+  .dl-paths { padding: 56px 0; }
   .dl-paths-grid {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 48px;
   }
-  .dl-paths-grid .dl-path--read {
+  .dl-path--subscribe {
     padding-right: 0;
-    padding-bottom: 40px;
+    padding-bottom: 48px;
     border-right: none;
     border-bottom: 1px solid var(--color-rule);
   }
+  .dl-path--listen { padding-left: 0; }
+  .dl-benefit-inner { flex-direction: column; text-align: center; gap: 20px; }
 }
 @media (max-width: 640px) {
-  .dl-path-lede { font-size: 16px; }
+  .dl-hero-sub { font-size: 16px; }
+  .dl-path-desc { font-size: 15px; }
   .dl-field-row { grid-template-columns: 1fr; }
   .dl-signup-form button[type="submit"] { align-self: stretch; }
   .dl-listen-ctas .btn { flex: 1 1 auto; text-align: center; }
