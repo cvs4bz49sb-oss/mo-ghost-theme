@@ -1,9 +1,10 @@
 /*
- * Daily Liturgy Reader — two modes:
- *   1. Devotional: liturgical devotional from calendar.json + devotionals.json
- *   2. Bible in 2 Years: sequential OT/NT/Wisdom reading plan from bible-in-2-years.json
+ * Daily Liturgy Reader
  *
- * Mode preference + translation saved to localStorage.
+ * Two scripture modes (toggle saved to localStorage):
+ *   Devotional  — readings from the daily devotional data
+ *   Bible in 2 Years — 736-day plan replaces the three scripture
+ *                       blocks; prayers/liturgy still from devotional
  */
 (function () {
   "use strict";
@@ -37,7 +38,6 @@
   var $today = $("[data-dlr-today]");
   var $catchup = $("[data-dlr-catchup]");
   var $body = $("[data-dlr-body]");
-  var $bi2yBody = $("[data-dlr-bi2y-body]");
   var $loading = $("[data-dlr-loading]");
   var $error = $("[data-dlr-error]");
   var $errorMsg = $("[data-dlr-error-msg]");
@@ -47,6 +47,11 @@
   var $translationSelect = $("[data-dlr-translation-select]");
   var $modeToggle = $("[data-dlr-mode-toggle]");
 
+  // Section labels we swap between modes
+  var $psalmSection = page.querySelector("[data-dlr-psalm-reading]");
+  var $psalmLabel = $psalmSection ? $psalmSection.closest(".dlr-section").querySelector(".dlr-label") : null;
+  var $psalmTransition = $psalmSection ? $psalmSection.closest(".dlr-section").querySelector(".dlr-transition") : null;
+
   var bibleMeta = page.querySelector('meta[name="mo-bible-base"]');
   var BIBLE_BASE = (bibleMeta && bibleMeta.content || "").replace(/\/$/, "");
 
@@ -55,7 +60,6 @@
   var devotionals = null;
   var bi2yPlan = null;
   var currentDate = null;
-  var currentBi2yDay = null;
   var translation = DEFAULT_TRANSLATION;
   var mode = "devotional";
 
@@ -107,8 +111,8 @@
     return findPrevDate(today);
   }
 
-  function bi2yDayForToday() {
-    var diff = daysBetween(BI2Y_START, todayStr()) + 1;
+  function bi2yDayForDate(dateStr) {
+    var diff = daysBetween(BI2Y_START, dateStr) + 1;
     if (diff < 1) return 1;
     if (diff > BI2Y_TOTAL_DAYS) return BI2Y_TOTAL_DAYS;
     return diff;
@@ -120,16 +124,9 @@
     $error.hidden = state !== "error";
     $empty.hidden = state !== "empty";
     $nav.hidden = state === "loading" || state === "error";
+    $body.hidden = !isContent;
     var $bar = $(".dlr-settings-bar");
     if ($bar) $bar.hidden = !isContent;
-
-    if (mode === "devotional") {
-      $body.hidden = !isContent;
-      if ($bi2yBody) $bi2yBody.hidden = true;
-    } else {
-      $body.hidden = true;
-      if ($bi2yBody) $bi2yBody.hidden = !isContent;
-    }
   }
 
   // ── Scripture reference parser ────────────────────────────────
@@ -213,8 +210,8 @@
       });
   }
 
-  // ── Render: Devotional ───────────────────────────────────────
-  function renderDevotional(dateStr) {
+  // ── Render ────────────────────────────────────────────────────
+  function render(dateStr) {
     var entry = calendar[dateStr];
     if (!entry) {
       if (isSunday(dateStr)) {
@@ -248,21 +245,47 @@
     $today.hidden = isToday;
     $catchup.hidden = isToday;
 
+    // Prayers always from devotional
     renderPrayer("[data-dlr-opening-prayer]", dev.openingPrayerText, true);
     renderPrayer("[data-dlr-confession]", dev.confession);
     renderPrayer("[data-dlr-adoration]", dev.adoration);
     renderPrayer("[data-dlr-consecration]", dev.consecration);
     renderPrayer("[data-dlr-benediction]", dev.benediction);
 
-    $("[data-dlr-ot-ref]").textContent = dev.otReading + " (" + translation + ")";
-    $("[data-dlr-nt-ref]").textContent = dev.ntReading + " (" + translation + ")";
-    $("[data-dlr-psalm-ref]").textContent = dev.psalmReading + " (" + translation + ")";
+    // Scripture: BI2Y overrides if active and data loaded
+    var otRef = dev.otReading;
+    var ntRef = dev.ntReading;
+    var psalmRef = dev.psalmReading;
+
+    if (mode === "bi2y" && bi2yPlan) {
+      var dayNum = bi2yDayForDate(dateStr);
+      var bi2y = bi2yPlan[String(dayNum)];
+      if (bi2y) {
+        otRef = bi2y.ot;
+        ntRef = bi2y.nt;
+        psalmRef = bi2y.wisdom;
+      }
+    }
+
+    // Update the Psalm section label for BI2Y
+    if ($psalmLabel) {
+      $psalmLabel.textContent = mode === "bi2y" ? "Psalms, Proverbs & Ecclesiastes" : "Psalm Reading";
+    }
+    if ($psalmTransition) {
+      $psalmTransition.textContent = mode === "bi2y"
+        ? "The word of the Lord"
+        : "The word of the Lord, from the Psalms";
+    }
+
+    $("[data-dlr-ot-ref]").textContent = otRef + " (" + translation + ")";
+    $("[data-dlr-nt-ref]").textContent = ntRef + " (" + translation + ")";
+    $("[data-dlr-psalm-ref]").textContent = psalmRef + " (" + translation + ")";
 
     showState("content");
 
-    loadScripture(dev.otReading, "[data-dlr-ot-text]");
-    loadScripture(dev.ntReading, "[data-dlr-nt-text]");
-    loadScripture(dev.psalmReading, "[data-dlr-psalm-text]");
+    loadScripture(otRef, "[data-dlr-ot-text]");
+    loadScripture(ntRef, "[data-dlr-nt-text]");
+    loadScripture(psalmRef, "[data-dlr-psalm-text]");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -305,65 +328,30 @@
       .replace(/"/g, "&quot;");
   }
 
-  // ── Render: Bible in 2 Years ─────────────────────────────────
-  function renderBi2y(dayNum) {
-    var entry = bi2yPlan[String(dayNum)];
-    if (!entry) {
-      $errorMsg.textContent = "No reading found for day " + dayNum + ".";
-      showState("error");
-      return;
-    }
-
-    currentBi2yDay = dayNum;
-    var todayDay = bi2yDayForToday();
-    var isToday = dayNum === todayDay;
-
-    $title.textContent = "Day " + dayNum + " of " + BI2Y_TOTAL_DAYS;
-    $season.textContent = "Bible in Two Years";
-
-    $prev.disabled = dayNum <= 1;
-    $next.disabled = dayNum >= todayDay;
-    $prev._bi2yDay = dayNum - 1;
-    $next._bi2yDay = dayNum + 1;
-    $today.hidden = isToday;
-    $catchup.hidden = isToday;
-
-    $("[data-dlr-bi2y-ot-ref]").textContent = entry.ot + " (" + translation + ")";
-    $("[data-dlr-bi2y-nt-ref]").textContent = entry.nt + " (" + translation + ")";
-    $("[data-dlr-bi2y-wisdom-ref]").textContent = entry.wisdom + " (" + translation + ")";
-
-    showState("content");
-
-    loadScripture(entry.ot, "[data-dlr-bi2y-ot-text]");
-    loadScripture(entry.nt, "[data-dlr-bi2y-nt-text]");
-    loadScripture(entry.wisdom, "[data-dlr-bi2y-wisdom-text]");
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
   // ── Mode switching ───────────────────────────────────────────
   function setMode(newMode) {
     mode = newMode;
     try { localStorage.setItem(LS_MODE, mode); } catch (e) {}
 
-    var buttons = $modeToggle.querySelectorAll("[data-dlr-mode]");
-    for (var i = 0; i < buttons.length; i++) {
-      buttons[i].classList.toggle("is-active", buttons[i].getAttribute("data-dlr-mode") === mode);
+    if ($modeToggle) {
+      var buttons = $modeToggle.querySelectorAll("[data-dlr-mode]");
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.toggle("is-active", buttons[i].getAttribute("data-dlr-mode") === mode);
+      }
     }
 
-    if (mode === "devotional") {
-      if (calendar && devotionals) {
-        var d = currentDate || findTodayOrLatest();
-        if (d) renderDevotional(d);
-      } else {
-        initDevotional();
-      }
-    } else {
-      if (bi2yPlan) {
-        renderBi2y(currentBi2yDay || bi2yDayForToday());
-      } else {
-        initBi2y();
-      }
+    if (mode === "bi2y" && !bi2yPlan) {
+      fetch(BI2Y_URL)
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("Plan not found")); })
+        .then(function (plan) {
+          bi2yPlan = plan;
+          if (currentDate) render(currentDate);
+        })
+        .catch(function (err) {
+          console.error("bi2y load", err);
+        });
+    } else if (currentDate) {
+      render(currentDate);
     }
   }
 
@@ -390,42 +378,23 @@
       if (t === translation) return;
       translation = t;
       try { localStorage.setItem(LS_TRANSLATION, t); } catch (e) {}
-      if (mode === "devotional" && currentDate) {
-        renderDevotional(currentDate);
-      } else if (mode === "bi2y" && currentBi2yDay) {
-        renderBi2y(currentBi2yDay);
-      }
+      if (currentDate) render(currentDate);
     });
   }
 
   // ── Navigation ────────────────────────────────────────────────
   $prev.addEventListener("click", function () {
-    if (mode === "devotional") {
-      if ($prev._date) renderDevotional($prev._date);
-    } else {
-      if ($prev._bi2yDay >= 1) renderBi2y($prev._bi2yDay);
-    }
+    if ($prev._date) render($prev._date);
   });
   $next.addEventListener("click", function () {
-    if (mode === "devotional") {
-      if ($next._date) renderDevotional($next._date);
-    } else {
-      if ($next._bi2yDay <= bi2yDayForToday()) renderBi2y($next._bi2yDay);
-    }
+    if ($next._date) render($next._date);
   });
   $today.addEventListener("click", function () {
-    if (mode === "devotional") {
-      var d = findTodayOrLatest();
-      if (d) renderDevotional(d);
-    } else {
-      renderBi2y(bi2yDayForToday());
-    }
+    var d = findTodayOrLatest();
+    if (d) render(d);
   });
   if ($retry) {
-    $retry.addEventListener("click", function () {
-      if (mode === "devotional") initDevotional();
-      else initBi2y();
-    });
+    $retry.addEventListener("click", function () { init(); });
   }
 
   document.addEventListener("keydown", function (e) {
@@ -436,15 +405,26 @@
   });
 
   // ── Init ──────────────────────────────────────────────────────
-  function initDevotional() {
+  function init() {
     showState("loading");
-    Promise.all([
+
+    var fetches = [
       fetch(CALENDAR_URL).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("Calendar not found")); }),
       fetch(DEVOTIONALS_URL).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("Devotionals not found")); }),
-    ])
+    ];
+
+    if (mode === "bi2y") {
+      fetches.push(
+        fetch(BI2Y_URL).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("Plan not found")); })
+      );
+    }
+
+    Promise.all(fetches)
       .then(function (results) {
         calendar = results[0];
         devotionals = results[1];
+        if (results[2]) bi2yPlan = results[2];
+
         var startDate = findTodayOrLatest();
         if (!startDate) {
           if (isSunday(todayStr())) {
@@ -455,26 +435,11 @@
           }
           return;
         }
-        renderDevotional(startDate);
+        render(startDate);
       })
       .catch(function (err) {
         console.error("dlr init", err);
         $errorMsg.textContent = "Could not load devotional data.";
-        showState("error");
-      });
-  }
-
-  function initBi2y() {
-    showState("loading");
-    fetch(BI2Y_URL)
-      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error("Plan not found")); })
-      .then(function (plan) {
-        bi2yPlan = plan;
-        renderBi2y(bi2yDayForToday());
-      })
-      .catch(function (err) {
-        console.error("bi2y init", err);
-        $errorMsg.textContent = "Could not load reading plan data.";
         showState("error");
       });
   }
@@ -492,9 +457,5 @@
     }
   }
 
-  if (mode === "bi2y") {
-    initBi2y();
-  } else {
-    initDevotional();
-  }
+  init();
 })();
