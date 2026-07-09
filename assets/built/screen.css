@@ -21730,16 +21730,22 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
   color: #e8ddd0;
 }
 
-/* Mode toggle (Devotional | Bible in 2 Years) — inline in settings bar */
-.dlr-mode-toggle {
+/* Mode toggle row (own line above settings bar) */
+.dlr-mode-row {
   display: flex;
+  justify-content: center;
   gap: 0;
+  margin-bottom: 12px;
   border: 1px solid var(--dlr-rule);
   border-radius: 999px;
   overflow: hidden;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .dlr-mode-btn {
-  padding: 6px 14px;
+  flex: 1;
+  padding: 7px 16px;
   border: none;
   background: transparent;
   color: var(--dlr-text-secondary);
@@ -21757,6 +21763,65 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
 }
 .dlr-mode-btn:not(.is-active):hover {
   background: rgba(150, 105, 76, 0.08);
+}
+
+/* Scripture expand/collapse toggle */
+.dlr-scripture-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--dlr-rule);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.dlr-scripture-toggle-btn {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--dlr-text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.dlr-scripture-toggle-btn.is-active {
+  background: var(--dlr-accent);
+  color: #fff;
+}
+.dlr-scripture-toggle-btn:not(.is-active):hover {
+  background: rgba(150, 105, 76, 0.08);
+}
+
+/* Collapsible scripture text */
+.dlr-scripture-text {
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease;
+  overflow: hidden;
+}
+.dlr-scripture.is-collapsed .dlr-scripture-text {
+  max-height: 0 !important;
+  opacity: 0;
+  margin-top: 0;
+}
+.dlr-scripture-ref {
+  cursor: pointer;
+}
+.dlr-scripture-ref::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--dlr-text-secondary);
+  border-bottom: 2px solid var(--dlr-text-secondary);
+  transform: rotate(45deg);
+  margin-left: 6px;
+  vertical-align: 2px;
+  transition: transform 0.2s;
+}
+.dlr-scripture.is-collapsed .dlr-scripture-ref::after {
+  transform: rotate(-45deg);
+  vertical-align: -1px;
 }
 
 /* Header */
@@ -21965,6 +22030,15 @@ html[data-theme="dark"] .dlr-header-logo {
   color: var(--dlr-accent);
   letter-spacing: 0.05em;
   margin-bottom: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+}
+.dlr-scripture.is-collapsed .dlr-scripture-ref {
+  margin-bottom: 0;
 }
 .dlr-scripture .verse-num,
 .dlr-scripture sup {
@@ -22124,7 +22198,9 @@ html[data-theme="dark"] .dlr-header-logo {
   .dlr-header { padding-bottom: 24px; margin-bottom: 22px; }
   .dlr-header-logo { max-width: 160px; }
   .dlr-title { font-size: 20px; }
+  .dlr-mode-row { max-width: 280px; }
   .dlr-mode-btn { font-size: 12px; padding: 5px 10px; }
+  .dlr-scripture-toggle-btn { font-size: 11px; padding: 5px 9px; }
   .dlr-nav { gap: 12px; margin-bottom: 22px; }
   .dlr-nav-btn { width: 36px; height: 36px; font-size: 16px; }
   .dlr-nav-today { padding: 5px 16px; font-size: 12px; }

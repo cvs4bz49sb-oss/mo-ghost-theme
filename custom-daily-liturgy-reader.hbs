@@ -25,11 +25,17 @@
   {{!-- Catch-up notice --}}
   <p class="dlr-catchup" data-dlr-catchup hidden>You're viewing a past devotional.</p>
 
-  {{!-- Settings bar: mode toggle + translation (paid) + dark mode --}}
+  {{!-- Mode toggle (own line) --}}
+  <div class="dlr-mode-row" data-dlr-mode-toggle>
+    <button class="dlr-mode-btn is-active" data-dlr-mode="devotional">Devotional</button>
+    <button class="dlr-mode-btn" data-dlr-mode="bi2y">Bible in 2 Years</button>
+  </div>
+
+  {{!-- Settings bar: scripture toggle + translation (paid) + dark mode --}}
   <div class="dlr-settings-bar">
-    <div class="dlr-mode-toggle" data-dlr-mode-toggle>
-      <button class="dlr-mode-btn is-active" data-dlr-mode="devotional">Devotional</button>
-      <button class="dlr-mode-btn" data-dlr-mode="bi2y">Bible in 2 Years</button>
+    <div class="dlr-scripture-toggle" data-dlr-scripture-toggle>
+      <button class="dlr-scripture-toggle-btn is-active" data-dlr-expand="expand">Expand Scripture</button>
+      <button class="dlr-scripture-toggle-btn" data-dlr-expand="collapse">Collapse</button>
     </div>
     {{#if @member.paid}}
     <select class="dlr-setting-select" id="dlr-translation-select" data-dlr-translation-select aria-label="Translation">
@@ -72,7 +78,7 @@
       <p class="dlr-transition">The word of the Lord, from the Old Testament</p>
       <p class="dlr-label">Old Testament Reading</p>
       <div class="dlr-scripture" data-dlr-ot-reading>
-        <span class="dlr-scripture-ref" data-dlr-ot-ref></span>
+        <button class="dlr-scripture-ref" data-dlr-ot-ref aria-expanded="true"></button>
         <div class="dlr-scripture-text" data-dlr-ot-text>Loading Scripture&hellip;</div>
       </div>
     </section>
@@ -107,7 +113,7 @@
       <p class="dlr-transition">The word of the Lord, from the New Testament</p>
       <p class="dlr-label">New Testament Reading</p>
       <div class="dlr-scripture" data-dlr-nt-reading>
-        <span class="dlr-scripture-ref" data-dlr-nt-ref></span>
+        <button class="dlr-scripture-ref" data-dlr-nt-ref aria-expanded="true"></button>
         <div class="dlr-scripture-text" data-dlr-nt-text>Loading Scripture&hellip;</div>
       </div>
     </section>
@@ -128,7 +134,7 @@
       <p class="dlr-transition">The word of the Lord, from the Psalms</p>
       <p class="dlr-label">Psalm Reading</p>
       <div class="dlr-scripture" data-dlr-psalm-reading>
-        <span class="dlr-scripture-ref" data-dlr-psalm-ref></span>
+        <button class="dlr-scripture-ref" data-dlr-psalm-ref aria-expanded="true"></button>
         <div class="dlr-scripture-text" data-dlr-psalm-text>Loading Scripture&hellip;</div>
       </div>
     </section>

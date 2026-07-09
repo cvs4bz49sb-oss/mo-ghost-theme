@@ -16,6 +16,7 @@
   var BI2Y_TOTAL_DAYS = 736;
   var LS_TRANSLATION = "mo-liturgy-translation";
   var LS_MODE = "mo-liturgy-mode";
+  var LS_SCRIPTURE = "mo-liturgy-scripture";
   var DEFAULT_TRANSLATION = "CSB";
 
   var TRANSLATION_CODES = {
@@ -62,6 +63,7 @@
   var currentDate = null;
   var translation = DEFAULT_TRANSLATION;
   var mode = "devotional";
+  var scriptureExpanded = true;
 
   // ── Helpers ───────────────────────────────────────────────────
   function todayStr() {
@@ -127,6 +129,8 @@
     $body.hidden = !isContent;
     var $bar = $(".dlr-settings-bar");
     if ($bar) $bar.hidden = !isContent;
+    var $modeRow = $(".dlr-mode-row");
+    if ($modeRow) $modeRow.hidden = !isContent;
   }
 
   // ── Scripture reference parser ────────────────────────────────
@@ -382,6 +386,51 @@
     });
   }
 
+  // ── Scripture expand/collapse ──────────────────────────────────
+  var $scriptureToggle = $("[data-dlr-scripture-toggle]");
+  var allScriptures = page.querySelectorAll(".dlr-scripture");
+
+  function setScriptureExpanded(expanded) {
+    scriptureExpanded = expanded;
+    try { localStorage.setItem(LS_SCRIPTURE, expanded ? "expand" : "collapse"); } catch (e) {}
+
+    for (var i = 0; i < allScriptures.length; i++) {
+      allScriptures[i].classList.toggle("is-collapsed", !expanded);
+      var ref = allScriptures[i].querySelector(".dlr-scripture-ref");
+      if (ref) ref.setAttribute("aria-expanded", String(expanded));
+    }
+
+    if ($scriptureToggle) {
+      var btns = $scriptureToggle.querySelectorAll("[data-dlr-expand]");
+      for (var j = 0; j < btns.length; j++) {
+        var isExpand = btns[j].getAttribute("data-dlr-expand") === "expand";
+        btns[j].classList.toggle("is-active", isExpand === expanded);
+      }
+    }
+  }
+
+  if ($scriptureToggle) {
+    var sBtns = $scriptureToggle.querySelectorAll("[data-dlr-expand]");
+    for (var si = 0; si < sBtns.length; si++) {
+      sBtns[si].addEventListener("click", function () {
+        setScriptureExpanded(this.getAttribute("data-dlr-expand") === "expand");
+      });
+    }
+  }
+
+  // Individual scripture ref click toggles that one block
+  for (var ri = 0; ri < allScriptures.length; ri++) {
+    (function (scripture) {
+      var ref = scripture.querySelector(".dlr-scripture-ref");
+      if (ref) {
+        ref.addEventListener("click", function () {
+          var collapsed = scripture.classList.toggle("is-collapsed");
+          ref.setAttribute("aria-expanded", String(!collapsed));
+        });
+      }
+    })(allScriptures[ri]);
+  }
+
   // ── Navigation ────────────────────────────────────────────────
   $prev.addEventListener("click", function () {
     if ($prev._date) render($prev._date);
@@ -444,10 +493,15 @@
       });
   }
 
-  // Restore saved mode
+  // Restore saved preferences
   try {
     var savedMode = localStorage.getItem(LS_MODE);
     if (savedMode === "bi2y") mode = "bi2y";
+    var savedScripture = localStorage.getItem(LS_SCRIPTURE);
+    if (savedScripture === "collapse") {
+      scriptureExpanded = false;
+      setScriptureExpanded(false);
+    }
   } catch (e) {}
 
   if ($modeToggle) {
