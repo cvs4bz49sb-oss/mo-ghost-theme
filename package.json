@@ -31,6 +31,17 @@
     "posts_per_page": 12,
     "card_assets": true,
     "custom": {
+      "journal_status_issue": {
+        "type": "text",
+        "default": "Summer 2026",
+        "description": "Label for the next journal issue (e.g. Summer 2026). Shown on the homepage status tracker."
+      },
+      "journal_status_stage": {
+        "type": "select",
+        "options": ["Drafting", "In Production", "Arriving"],
+        "default": "Arriving",
+        "description": "Current production stage of the next journal issue."
+      },
       "podcast_feed_url": {
         "type": "text",
         "description": "URL of the deployed podcast-feed Worker. Leave empty to hide the podcast section."
