@@ -271,7 +271,7 @@
                      he bumps the issue label in @custom.journal_status_issue
                      and sets the stage back to "Drafting" for the next cycle. --}}
                 <h3 class="journal-status-section"><em>Journal Status</em></h3>
-                <p class="journal-status-heading">Next Issue <span class="journal-status-sep" aria-hidden="true">|</span> <em data-journal-issue>&hellip;</em></p>
+                <p class="journal-status-heading">Next Issue <span class="journal-status-sep" aria-hidden="true">|</span> <em>{{@custom.journal_status_issue}}</em></p>
                 {{!-- Lifecycle triptych: drafted page → bound book →
                      sealed letter. Currentcolor on every stroke/fill so
                      the .is-active class can flip the whole glyph from
@@ -279,12 +279,8 @@
                      via screen.css. --}}
                 <ol class="journal-status" aria-label="Current journal status">
                     <li class="journal-status-step">
-                        <span class="journal-status-mark" data-journal-stage="Drafting" aria-hidden="true">
+                        <span class="journal-status-mark {{#match @custom.journal_status_stage "Drafting"}}is-active{{/match}}" aria-hidden="true">
                             <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                {{!-- Quill: feather body as a leaf shape from the
-                                     upper-right tip down to the base, with a center
-                                     spine, a short nib continuation, and an ink stroke
-                                     on the page beneath. --}}
                                 <path d="M40 8 Q46 18 36 26 Q24 30 16 34 Q20 22 28 14 Q34 10 40 8 Z"/>
                                 <path d="M38 10 L18 32" stroke-width="1"/>
                                 <path d="M16 34 L12 38"/>
@@ -294,7 +290,7 @@
                         <span class="journal-status-label">Drafting</span>
                     </li>
                     <li class="journal-status-step">
-                        <span class="journal-status-mark" data-journal-stage="In Production" aria-hidden="true">
+                        <span class="journal-status-mark {{#match @custom.journal_status_stage "In Production"}}is-active{{/match}}" aria-hidden="true">
                             <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="12" y="8" width="24" height="32" rx="1"/>
                                 <line x1="12" y1="16" x2="36" y2="16"/>
@@ -305,7 +301,7 @@
                         <span class="journal-status-label">In Production</span>
                     </li>
                     <li class="journal-status-step">
-                        <span class="journal-status-mark" data-journal-stage="Arriving" aria-hidden="true">
+                        <span class="journal-status-mark {{#match @custom.journal_status_stage "Arriving"}}is-active{{/match}}" aria-hidden="true">
                             <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="8" y="12" width="32" height="24" rx="1"/>
                                 <path d="M8 12 L24 24 L40 12"/>
