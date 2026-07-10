@@ -10205,6 +10205,8 @@ label.site-form-field-check {
   box-shadow: 0 4px 24px rgba(45,41,39,0.12);
   width: 280px;
   height: 280px;
+  min-height: 280px;
+  max-height: 280px;
   position: relative;
 }
 .dl-mockup-body {
