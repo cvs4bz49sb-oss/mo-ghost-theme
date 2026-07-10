@@ -18,7 +18,7 @@
   var LS_TRANSLATION = "mo-liturgy-translation";
   var LS_MODE = "mo-liturgy-mode";
   var LS_SCRIPTURE = "mo-liturgy-scripture";
-  var DEFAULT_TRANSLATION = "CSB";
+  var DEFAULT_TRANSLATION = "ESV";
 
   var TRANSLATION_CODES = {
     CSB: "CSB17",
@@ -177,7 +177,7 @@
     var bollsCode = TRANSLATION_CODES[translationKey];
     if (!bollsCode) {
       return Promise.resolve({
-        html: "<em>" + translationKey + " is not yet available. Showing CSB.</em>",
+        html: "<em>" + translationKey + " is not yet available. Showing ESV.</em>",
         fallback: true,
       });
     }
@@ -313,10 +313,10 @@
 
     fetchScripture(ref, translation).then(function (result) {
       if (result.fallback) {
-        return fetchScripture(ref, "CSB").then(function (csb) {
+        return fetchScripture(ref, "ESV").then(function (csb) {
           el.innerHTML = result.html + csb.html;
           var refEl = el.parentElement.querySelector(".dlr-scripture-ref");
-          if (refEl) refEl.textContent = ref + " (CSB)";
+          if (refEl) refEl.textContent = ref + " (ESV)";
         });
       }
       el.innerHTML = result.html;
