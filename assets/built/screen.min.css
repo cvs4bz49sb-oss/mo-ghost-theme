@@ -9803,146 +9803,204 @@ label.site-form-field-check {
  overflow: hidden;
  box-shadow: 0 4px 24px rgba(45,41,39,0.12);
  max-width: 380px;
+ position: relative;
 }
 .dl-mockup--email {
- max-width: 340px;
-}
-.dl-mockup-chrome {
- display: flex;
- gap: 6px;
- padding: 10px 14px;
- background: #e8e3dd;
-}
-.dl-mockup-chrome--dark {
- background: #2d2927;
-}
-.dl-mockup-dot {
- width: 8px;
- height: 8px;
- border-radius: 50%;
- background: rgba(45,41,39,0.2);
-}
-.dl-mockup-chrome--dark .dl-mockup-dot {
- background: rgba(255,255,255,0.2);
+ max-width: 360px;
 }
 .dl-mockup-body {
- background: #fff;
- padding: 24px 22px 28px;
+ padding: 28px 24px 0;
  text-align: center;
+}
+.dl-mockup-body--email {
+ background: #fff;
+ font-family: Georgia, 'Times New Roman', serif;
+ color: #2d2927;
+ line-height: 1.7;
 }
 .dl-mockup-body--reader {
  background: var(--color-page, #f6f3f2);
+ padding-bottom: 0;
 }
 .dl-mockup-logo {
  display: block;
- margin: 0 auto 12px;
+ margin: 0 auto 10px;
  height: auto;
 }
+.dl-mockup-logo--reader {
+ margin-bottom: 14px;
+}
+.dl-mockup-fade {
+ height: 80px;
+ background: linear-gradient(to bottom, transparent, #fff);
+ margin-top: -80px;
+ position: relative;
+}
+.dl-mockup-body--reader .dl-mockup-fade {
+ background: linear-gradient(to bottom, transparent, var(--color-page, #f6f3f2));
+}
+/* Email mockup typography — matches liturgy-render.js STYLE */
 .dl-mockup-date {
- font-family: Georgia, serif;
  font-size: 11px;
  font-style: italic;
  color: #6b6660;
- margin: 0 0 18px;
+ margin: 0 0 20px;
 }
-.dl-mockup-label {
+.dl-mockup-section-label {
  font-size: 9px;
- letter-spacing: 0.16em;
+ letter-spacing: 0.18em;
  text-transform: uppercase;
- color: var(--dl-copper, #c1593c);
+ color: #c1593c;
  font-weight: 700;
- margin: 0 0 8px;
+ margin: 0 0 6px;
+ text-align: left;
+}
+.dl-mockup-prayer {
+ font-size: 12px;
+ line-height: 1.7;
+ color: #2d2927;
+ margin: 0 0 4px;
+ text-align: left;
+}
+.dl-mockup-text {
+ font-size: 12px;
+ line-height: 1.7;
+ color: #2d2927;
+ margin: 0 0 4px;
  text-align: left;
 }
 .dl-mockup-ref {
- font-family: Georgia, serif;
  font-size: 11px;
  font-weight: 700;
  color: #2d2927;
- margin: 0 0 8px;
+ margin: 0 0 6px;
  text-align: left;
 }
-.dl-mockup-lines {
- display: flex;
- flex-direction: column;
- gap: 6px;
- margin-bottom: 4px;
+.dl-mockup-scripture {
+ font-size: 12px;
+ line-height: 1.7;
+ color: #2d2927;
+ margin: 0 0 4px;
+ text-align: left;
 }
-.dl-mockup-lines span {
- display: block;
- height: 6px;
- border-radius: 3px;
- background: #e8e3dd;
-}
-.dl-mockup-lines span:nth-child(1) { width: 100%; }
-.dl-mockup-lines span:nth-child(2) { width: 88%; }
-.dl-mockup-lines span:nth-child(3) { width: 72%; }
-.dl-mockup-lines span:nth-child(4) { width: 94%; }
-.dl-mockup-lines span:nth-child(5) { width: 60%; }
-.dl-mockup-lines--scripture span {
- background: #ddd8d0;
+.dl-mockup-scripture strong {
+ font-weight: 700;
+ font-size: 10px;
 }
 .dl-mockup-rule {
  border: none;
  border-top: 1px solid #d9c6a7;
- margin: 14px 0;
+ margin: 16px 0;
 }
+/* Reader mockup — matches dlr-* styles */
 .dl-mockup-reader-title {
- font-family: var(--font-display, Georgia, serif);
- font-size: 14px;
+ font-family: var(--font-body, Georgia, serif);
+ font-size: 16px;
+ font-weight: 400;
+ line-height: 1.3;
+ color: var(--color-dark, #2d2927);
+ margin: 0;
+ text-wrap: balance;
+}
+.dl-mockup-reader-season {
+ font-size: 11px;
  font-style: italic;
- color: #2d2927;
- margin: 0 0 12px;
+ color: var(--dl-copper, #c1593c);
+ margin: 4px 0 14px;
 }
 .dl-mockup-nav {
  display: flex;
  align-items: center;
  justify-content: center;
  gap: 12px;
- margin-bottom: 12px;
+ margin-bottom: 16px;
 }
-.dl-mockup-nav-btn {
- width: 26px;
- height: 26px;
- border: 1px solid #d9c6a7;
- border-radius: 6px;
+.dl-mockup-nav-arrow {
+ width: 30px;
+ height: 30px;
+ border: 1px solid var(--color-rule, #d9c6a7);
+ border-radius: 999px;
  display: inline-flex;
  align-items: center;
  justify-content: center;
- font-size: 11px;
- color: #2d2927;
- background: #fff;
+ font-size: 13px;
+ color: var(--color-dark, #2d2927);
+ background: transparent;
 }
 .dl-mockup-nav-today {
- font-size: 10px;
+ font-family: var(--font-body, Georgia, serif);
+ font-size: 11px;
  font-weight: 600;
- letter-spacing: 0.04em;
- color: #2d2927;
- padding: 4px 12px;
- border: 1px solid #d9c6a7;
- border-radius: 6px;
- background: #fff;
+ letter-spacing: 0.05em;
+ color: var(--dl-copper, #c1593c);
+ padding: 5px 16px;
+ border: 1px solid var(--dl-copper, #c1593c);
+ border-radius: 999px;
+ background: transparent;
 }
 .dl-mockup-toggle-row {
  display: flex;
  gap: 0;
- margin-bottom: 16px;
- border: 1px solid #d9c6a7;
- border-radius: 6px;
+ margin-bottom: 18px;
+ border: 1px solid var(--color-rule, #d9c6a7);
+ border-radius: 8px;
  overflow: hidden;
 }
 .dl-mockup-toggle {
  flex: 1;
- font-size: 9px;
+ font-size: 10px;
  font-weight: 600;
- padding: 5px 8px;
+ padding: 6px 10px;
  text-align: center;
- color: #6b6660;
- background: #fff;
+ color: var(--color-muted, #6b6660);
+ background: transparent;
 }
 .dl-mockup-toggle.is-active {
  background: var(--dl-copper, #c1593c);
  color: #fff;
+}
+.dl-mockup-reader-content {
+ text-align: left;
+ padding-bottom: 0;
+}
+.dl-mockup-reader-transition {
+ font-style: italic;
+ font-size: 11px;
+ color: var(--color-muted, #6b6660);
+ text-align: center;
+ margin: 0 0 10px;
+}
+.dl-mockup-reader-label {
+ font-size: 9px;
+ letter-spacing: 0.15em;
+ text-transform: uppercase;
+ color: var(--dl-copper, #c1593c);
+ font-weight: 700;
+ margin: 0 0 8px;
+}
+.dl-mockup-reader-prayer {
+ font-size: 12px;
+ line-height: 1.8;
+ color: var(--color-dark, #2d2927);
+ margin: 0 0 4px;
+}
+.dl-mockup-reader-text {
+ font-size: 12px;
+ line-height: 1.7;
+ color: var(--color-dark, #2d2927);
+ margin: 0 0 4px;
+}
+.dl-mockup-reader-scripture {
+ background: rgba(217,198,167,0.15);
+ border-radius: 10px;
+ padding: 14px 16px;
+ margin-bottom: 4px;
+}
+.dl-mockup-reader-ref {
+ font-size: 12px;
+ font-weight: 600;
+ color: var(--dl-copper, #c1593c);
+ cursor: default;
 }
 /* About / online reader */
 .dl-about {
