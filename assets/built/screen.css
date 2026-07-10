@@ -10204,9 +10204,7 @@ label.site-form-field-check {
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(45,41,39,0.12);
   width: 280px;
-  height: 280px;
-  min-height: 280px;
-  max-height: 280px;
+  aspect-ratio: 1 / 1;
   position: relative;
 }
 .dl-mockup-body {
@@ -10506,7 +10504,7 @@ label.site-form-field-check {
   .dl-about { padding: 40px 0 48px; }
   .dl-about-heading { font-size: 22px; }
   .dl-about-text { font-size: 15px; }
-  .dl-mockup { width: 280px; height: 280px; }
+  .dl-mockup { width: 280px; aspect-ratio: 1 / 1; }
   .dl-podcast-cover { width: 220px; height: 220px; }
 }
 
