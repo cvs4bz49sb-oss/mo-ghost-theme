@@ -2159,6 +2159,16 @@ img { max-width: 100%; height: auto; }
 .kg-gallery-row:not(:first-of-type) { margin: 0.75em 0 0 0; }
 .kg-gallery-image:not(:first-of-type) { margin: 0 0 0 0.75em; }
 
+/* -------- Markdown hard-wrap fix --------
+   Ghost's Markdown card renderer converts single newlines in the
+   source to <br> tags inside <p> elements. These hard wraps were
+   authored for a fixed-width editor column; on the live site they
+   prevent text from reflowing to the actual viewport/column width,
+   creating short choppy lines on mobile and rigid breaks on desktop.
+   Hiding them lets the text reflow naturally while preserving real
+   paragraph breaks (which are </p><p> boundaries). */
+.article-content p br { display: none; }
+
 .kg-bookmark-card {
   width: 100%;
   margin: 24px 0;
@@ -3676,13 +3686,8 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .author-bio-portrait { width: 112px; height: 112px; font-size: 30px; }
   .author-bio-initial::first-letter { font-size: 30px; }
   .author-bio-name { font-size: 22px; }
-  .article-body { overflow-x: hidden; }
-  .article-body-inner { padding: 0 20px; max-width: 100%; }
-  .article-content { font-size: 17px; min-width: 0; overflow-wrap: break-word; }
+  .article-content { font-size: 17px; }
   .article-content > p:first-of-type::first-letter { font-size: 1.6em; }
-  .article-content p br { display: none; }
-  .article-content .kg-width-wide,
-  .article-content .kg-width-full { max-width: 100%; margin-left: 0; transform: none; }
 }
 
 /* =============================================================
