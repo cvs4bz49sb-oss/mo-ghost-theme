@@ -3678,8 +3678,9 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .author-bio-name { font-size: 22px; }
   .article-body { overflow-x: hidden; }
   .article-body-inner { padding: 0 20px; max-width: 100%; }
-  .article-content { font-size: 15px; line-height: 1.6; min-width: 0; overflow-wrap: break-word; }
+  .article-content { font-size: 17px; min-width: 0; overflow-wrap: break-word; }
   .article-content > p:first-of-type::first-letter { font-size: 1.6em; }
+  .article-content p br { display: none; }
   .article-content .kg-width-wide,
   .article-content .kg-width-full { max-width: 100%; margin-left: 0; transform: none; }
 }
