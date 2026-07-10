@@ -10203,11 +10203,9 @@ label.site-form-field-check {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(45,41,39,0.12);
-  max-width: 380px;
+  width: 280px;
+  height: 280px;
   position: relative;
-}
-.dl-mockup--email {
-  max-width: 360px;
 }
 .dl-mockup-body {
   padding: 28px 24px 0;
@@ -10478,7 +10476,7 @@ label.site-form-field-check {
   .dl-plans-grid { grid-template-columns: 1fr; gap: 24px; }
   .dl-about-grid { grid-template-columns: 1fr; gap: 32px; }
   .dl-about-copy { text-align: center; order: 1; }
-  .dl-mockup--reader { max-width: 340px; order: 2; }
+  .dl-mockup--reader { order: 2; }
   .dl-about-grid > .dl-partnership-logo { order: 3; }
   .dl-mockup--email { margin: 0 auto; }
 }
@@ -10503,7 +10501,7 @@ label.site-form-field-check {
   .dl-about { padding: 40px 0 48px; }
   .dl-about-heading { font-size: 22px; }
   .dl-about-text { font-size: 15px; }
-  .dl-mockup { max-width: 300px; }
+  .dl-mockup { width: 280px; height: 280px; }
   .dl-podcast-cover { width: 220px; height: 220px; }
 }
 
