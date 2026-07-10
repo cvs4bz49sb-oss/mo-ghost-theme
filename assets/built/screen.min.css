@@ -9632,6 +9632,15 @@ label.site-form-field-check {
  color: var(--color-dark);
  margin-bottom: 14px;
 }
+.dl-podcast-cover {
+ display: block;
+ width: 280px;
+ height: 280px;
+ border-radius: var(--radius-lg, 14px);
+ box-shadow: var(--shadow-card);
+ margin-bottom: 20px;
+ object-fit: cover;
+}
 .dl-path-desc {
  font-family: var(--font-body);
  font-size: 16px;
