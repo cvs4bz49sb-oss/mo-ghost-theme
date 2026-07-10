@@ -17,7 +17,7 @@
   const workerUrl = (root.dataset.workerUrl || "").replace(/\/$/, "");
 
   const $ = (sel) => root.querySelector(sel);
-  const sync = $("[data-lit-sync]");
+  const sync = $("[data-lit-sync]") || document.querySelector("[data-lit-sync]");
   const list = $("[data-lit-list]");
   const monthLabel = $("[data-lit-month-label]");
   const hint = $("[data-lit-hint]");
