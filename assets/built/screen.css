@@ -2159,6 +2159,90 @@ img { max-width: 100%; height: auto; }
 .kg-gallery-row:not(:first-of-type) { margin: 0.75em 0 0 0; }
 .kg-gallery-image:not(:first-of-type) { margin: 0 0 0 0.75em; }
 
+/* -------- Markdown card --------
+   Ghost wraps Markdown-card content in .kg-card.kg-markdown-card,
+   nesting <p>, <h2>, etc. one level deeper than normal editor output.
+   Ghost's cards.min.css (loaded after our stylesheet) sets its own
+   font-size on these elements. We override here with enough
+   specificity to win, ensuring markdown-card articles look identical
+   to normal ones. */
+.article-content .kg-markdown-card {
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  font-family: inherit;
+}
+.article-content .kg-markdown-card p { margin: 0 0 24px; }
+.article-content .kg-markdown-card > p:first-child::first-letter {
+  font-family: var(--font-display);
+  font-size: 1.8em;
+  line-height: 1;
+  padding-right: 0.08em;
+  color: var(--color-secondary);
+  font-style: italic;
+}
+.article-content .kg-markdown-card h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 1.2;
+  margin: 56px 0 20px;
+  color: var(--color-dark);
+  position: relative;
+  padding-top: 24px;
+}
+.article-content .kg-markdown-card h2::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--color-primary);
+}
+.article-content .kg-markdown-card h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.25;
+  margin: 40px 0 14px;
+}
+.article-content .kg-markdown-card blockquote {
+  margin: 40px -40px;
+  padding: 0 60px;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--color-dark);
+  position: relative;
+}
+.article-content .kg-markdown-card a:not(.btn) {
+  color: var(--color-dark);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-primary);
+}
+.article-content .kg-markdown-card a:not(.btn):hover { color: var(--color-primary); border-bottom-color: var(--color-primary); text-decoration: none; }
+.article-content .kg-markdown-card em { font-style: italic; }
+.article-content .kg-markdown-card strong { font-weight: 600; }
+.article-content .kg-markdown-card ul,
+.article-content .kg-markdown-card ol {
+  margin: 0 0 24px 20px;
+  padding: 0;
+}
+.article-content .kg-markdown-card li { margin-bottom: 10px; }
+.article-content .kg-markdown-card hr {
+  border: none;
+  position: relative;
+  height: 48px;
+  margin: 32px 0;
+}
+.article-content .kg-markdown-card img {
+  max-width: 100%;
+  height: auto;
+}
+
 .kg-bookmark-card {
   width: 100%;
   margin: 24px 0;
@@ -3676,13 +3760,12 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .author-bio-portrait { width: 112px; height: 112px; font-size: 30px; }
   .author-bio-initial::first-letter { font-size: 30px; }
   .author-bio-name { font-size: 22px; }
-  .article-body { overflow-x: hidden; }
-  .article-body-inner { padding: 0 20px; max-width: 100%; }
-  .article-content { font-size: 17px; min-width: 0; overflow-wrap: break-word; }
+  .article-content { font-size: 17px; }
   .article-content > p:first-of-type::first-letter { font-size: 1.6em; }
-  .article-content p br { display: none; }
-  .article-content .kg-width-wide,
-  .article-content .kg-width-full { max-width: 100%; margin-left: 0; transform: none; }
+  .article-content .kg-markdown-card > p:first-child::first-letter { font-size: 1.6em; }
+  .article-content .kg-markdown-card h2 { font-size: 28px; }
+  .article-content .kg-markdown-card h3 { font-size: 21px; }
+  .article-content .kg-markdown-card blockquote { margin: 40px 0; padding: 0 20px 0 40px; font-size: 17px; }
 }
 
 /* =============================================================
