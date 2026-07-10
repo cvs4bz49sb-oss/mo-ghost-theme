@@ -9796,22 +9796,176 @@ label.site-form-field-check {
 .dl-plan-features li:last-child {
  padding-bottom: 0;
 }
-/* About / online reader */
-.dl-about {
- padding: 56px 0 64px;
+/* Mockup previews */
+.dl-mockup {
+ margin-top: 28px;
+ border-radius: 12px;
+ overflow: hidden;
+ box-shadow: 0 4px 24px rgba(45,41,39,0.12);
+ max-width: 380px;
+}
+.dl-mockup--email {
+ max-width: 340px;
+}
+.dl-mockup-chrome {
+ display: flex;
+ gap: 6px;
+ padding: 10px 14px;
+ background: #e8e3dd;
+}
+.dl-mockup-chrome--dark {
+ background: #2d2927;
+}
+.dl-mockup-dot {
+ width: 8px;
+ height: 8px;
+ border-radius: 50%;
+ background: rgba(45,41,39,0.2);
+}
+.dl-mockup-chrome--dark .dl-mockup-dot {
+ background: rgba(255,255,255,0.2);
+}
+.dl-mockup-body {
+ background: #fff;
+ padding: 24px 22px 28px;
  text-align: center;
 }
-.dl-about-inner {
- max-width: 600px;
+.dl-mockup-body--reader {
+ background: var(--color-page, #f6f3f2);
+}
+.dl-mockup-logo {
+ display: block;
+ margin: 0 auto 12px;
+ height: auto;
+}
+.dl-mockup-date {
+ font-family: Georgia, serif;
+ font-size: 11px;
+ font-style: italic;
+ color: #6b6660;
+ margin: 0 0 18px;
+}
+.dl-mockup-label {
+ font-size: 9px;
+ letter-spacing: 0.16em;
+ text-transform: uppercase;
+ color: var(--dl-copper, #c1593c);
+ font-weight: 700;
+ margin: 0 0 8px;
+ text-align: left;
+}
+.dl-mockup-ref {
+ font-family: Georgia, serif;
+ font-size: 11px;
+ font-weight: 700;
+ color: #2d2927;
+ margin: 0 0 8px;
+ text-align: left;
+}
+.dl-mockup-lines {
+ display: flex;
+ flex-direction: column;
+ gap: 6px;
+ margin-bottom: 4px;
+}
+.dl-mockup-lines span {
+ display: block;
+ height: 6px;
+ border-radius: 3px;
+ background: #e8e3dd;
+}
+.dl-mockup-lines span:nth-child(1) { width: 100%; }
+.dl-mockup-lines span:nth-child(2) { width: 88%; }
+.dl-mockup-lines span:nth-child(3) { width: 72%; }
+.dl-mockup-lines span:nth-child(4) { width: 94%; }
+.dl-mockup-lines span:nth-child(5) { width: 60%; }
+.dl-mockup-lines--scripture span {
+ background: #ddd8d0;
+}
+.dl-mockup-rule {
+ border: none;
+ border-top: 1px solid #d9c6a7;
+ margin: 14px 0;
+}
+.dl-mockup-reader-title {
+ font-family: var(--font-display, Georgia, serif);
+ font-size: 14px;
+ font-style: italic;
+ color: #2d2927;
+ margin: 0 0 12px;
+}
+.dl-mockup-nav {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: 12px;
+ margin-bottom: 12px;
+}
+.dl-mockup-nav-btn {
+ width: 26px;
+ height: 26px;
+ border: 1px solid #d9c6a7;
+ border-radius: 6px;
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 11px;
+ color: #2d2927;
+ background: #fff;
+}
+.dl-mockup-nav-today {
+ font-size: 10px;
+ font-weight: 600;
+ letter-spacing: 0.04em;
+ color: #2d2927;
+ padding: 4px 12px;
+ border: 1px solid #d9c6a7;
+ border-radius: 6px;
+ background: #fff;
+}
+.dl-mockup-toggle-row {
+ display: flex;
+ gap: 0;
+ margin-bottom: 16px;
+ border: 1px solid #d9c6a7;
+ border-radius: 6px;
+ overflow: hidden;
+}
+.dl-mockup-toggle {
+ flex: 1;
+ font-size: 9px;
+ font-weight: 600;
+ padding: 5px 8px;
+ text-align: center;
+ color: #6b6660;
+ background: #fff;
+}
+.dl-mockup-toggle.is-active {
+ background: var(--dl-copper, #c1593c);
+ color: #fff;
+}
+/* About / online reader */
+.dl-about {
+ padding: 64px 0 72px;
+}
+.dl-about-grid {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 48px;
+ align-items: center;
+ max-width: 920px;
  margin: 0 auto;
+}
+.dl-about-copy {
+ text-align: left;
 }
 .dl-about-heading {
  font-family: var(--font-display);
  font-weight: 400;
- font-size: 22px;
+ font-size: 26px;
  font-style: italic;
  color: var(--color-dark);
- margin-bottom: 12px;
+ margin-bottom: 14px;
 }
 .dl-about-text {
  font-family: var(--font-body);
@@ -9839,6 +9993,13 @@ label.site-form-field-check {
  height: auto;
  opacity: 0.8;
 }
+.dl-partnership-logo--left {
+ margin-left: 0;
+ margin-right: auto;
+}
+.dl-mockup--reader {
+ justify-self: center;
+}
 @media (max-width: 880px) {
  .dl-hero { padding: 72px 0 80px; }
  .dl-hero-logo { max-width: 320px; }
@@ -9855,6 +10016,11 @@ label.site-form-field-check {
  }
  .dl-path--listen { padding-left: 0; }
  .dl-plans-grid { grid-template-columns: 1fr; gap: 24px; }
+ .dl-about-grid { grid-template-columns: 1fr; gap: 32px; }
+ .dl-about-copy { text-align: center; }
+ .dl-partnership-logo--left { margin: 28px auto 0; }
+ .dl-mockup--email { margin: 0 auto; }
+ .dl-mockup--reader { max-width: 340px; }
 }
 @media (max-width: 640px) {
  .dl-hero { padding: 56px 0 64px; }
@@ -9877,6 +10043,8 @@ label.site-form-field-check {
  .dl-about { padding: 40px 0 48px; }
  .dl-about-heading { font-size: 22px; }
  .dl-about-text { font-size: 15px; }
+ .dl-mockup { max-width: 300px; }
+ .dl-podcast-cover { width: 220px; height: 220px; }
 }
 /* Most-Listened sidebar block: lives inside the .podcast-hosts
  aside, below the host portraits. Editorial treatment — Roman
