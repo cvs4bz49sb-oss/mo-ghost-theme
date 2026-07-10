@@ -316,20 +316,60 @@
     }
   }
 
+  function rangeToFromTo(range) {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = today.getMonth();
+    const d = today.getDate();
+    const dow = today.getDay(); // 0=Sun
+    switch (range) {
+      case "tomorrow": {
+        const t = new Date(y, m, d + 1);
+        const s = ymd(t);
+        return { from: s, to: s, label: "tomorrow" };
+      }
+      case "this-week": {
+        // remaining days this week (Mon-Sat). If today is Sun, start tomorrow.
+        const daysUntilSat = (6 - dow + 7) % 7 || 7;
+        const from = new Date(y, m, d + 1);
+        const to = new Date(y, m, d + daysUntilSat);
+        return { from: ymd(from), to: ymd(to), label: "this week" };
+      }
+      case "next-week": {
+        const daysUntilNextMon = ((1 - dow + 7) % 7) || 7;
+        const mon = new Date(y, m, d + daysUntilNextMon);
+        const sat = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 5);
+        return { from: ymd(mon), to: ymd(sat), label: "next week" };
+      }
+      case "this-month": {
+        const from = new Date(y, m, d + 1);
+        const to = new Date(y, m + 1, 0);
+        return { from: ymd(from), to: ymd(to), label: "this month" };
+      }
+      case "next-month": {
+        const from = new Date(y, m + 1, 1);
+        const to = new Date(y, m + 2, 0);
+        return { from: ymd(from), to: ymd(to), label: "next month" };
+      }
+      default:
+        return { from: ymd(new Date(y, m, d + 1)), to: ymd(new Date(y, m, d + 7)), label: "the next 7 days" };
+    }
+  }
+
   async function generateWeek() {
-    const daysInput = $("[data-lit-days]");
-    const n = Math.max(1, Math.min(31, parseInt(daysInput.value, 10) || 7));
-    daysInput.value = n;
-    if (!confirm(`Generate content for the next ${n} day${n === 1 ? "" : "s"} and schedule Kit broadcasts?\n\nDays that already have content will be skipped.`)) return;
+    const sel = $("[data-lit-range]");
+    const range = sel ? sel.value : "this-week";
+    const { from, to, label } = rangeToFromTo(range);
+    if (!confirm(`Generate content and schedule for ${label} (${from} to ${to})?\n\nDays that already have content will be skipped.`)) return;
     const btn = $("[data-lit-generate]");
     btn.disabled = true;
-    btn.textContent = "Generating…";
+    btn.textContent = "Scheduling…";
     setSync("Generating liturgy content…", "is-saving");
     try {
       const data = await api("/liturgy/generate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ daysAhead: n, schedule: true }),
+        body: JSON.stringify({ from, to, schedule: true }),
       });
       const msg = `Generated ${data.generated || 0}, scheduled ${(data.scheduleResult && data.scheduleResult.scheduled) || 0}`;
       setSync(msg);
@@ -338,7 +378,7 @@
       setSync(`Generate failed: ${err.message}`, "is-error");
     } finally {
       btn.disabled = false;
-      btn.textContent = "Generate & Schedule";
+      btn.textContent = "Schedule";
     }
   }
 

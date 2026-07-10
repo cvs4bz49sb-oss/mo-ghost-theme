@@ -30,8 +30,14 @@
               <span><i class="lit-dot lit-dot--scheduled"></i>Scheduled</span>
               <span><i class="lit-dot lit-dot--sent"></i>Sent</span>
             </div>
-            <input type="number" class="lit-days-input" data-lit-days value="7" min="1" max="31" />
-            <button type="button" class="btn btn-primary btn-sm" data-lit-generate>Generate &amp; Schedule</button>
+            <select class="lit-range-select" data-lit-range>
+              <option value="tomorrow">Tomorrow</option>
+              <option value="this-week">This Week</option>
+              <option value="next-week">Next Week</option>
+              <option value="this-month">This Month</option>
+              <option value="next-month">Next Month</option>
+            </select>
+            <button type="button" class="btn btn-primary btn-sm" data-lit-generate>Schedule</button>
             <button type="button" class="btn btn-outline btn-sm" data-lit-schedule-month>Schedule all drafts</button>
           </div>
         </div>
@@ -116,10 +122,10 @@
   .lit-dot--scheduled { background: #4a9460; }
   .lit-dot--sent { background: #b9b4ab; }
   .btn-sm { padding: 7px 14px; font-size: 12px; letter-spacing: 0.04em; }
-  .lit-days-input { width: 52px; padding: 6px 8px; border: 1px solid var(--color-rule, #d9c6a7);
-    border-radius: 8px; font-size: 13px; text-align: center; color: var(--color-dark, #2d2927);
-    background: var(--color-white, #fff); }
-  .lit-days-input:focus { outline: none; border-color: var(--color-primary, #ee7d51); }
+  .lit-range-select { padding: 7px 10px; border: 1px solid var(--color-rule, #d9c6a7);
+    border-radius: 8px; font-size: 12px; color: var(--color-dark, #2d2927);
+    background: var(--color-white, #fff); cursor: pointer; }
+  .lit-range-select:focus { outline: none; border-color: var(--color-primary, #ee7d51); }
 
   .lit-layout { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 0; min-height: 60vh; }
   .lit-list-wrap { border-right: 1px solid var(--color-rule, #d9c6a7); overflow-y: auto; max-height: 78vh; }
