@@ -10230,10 +10230,13 @@ label.site-form-field-check {
   margin-bottom: 14px;
 }
 .dl-mockup-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 80px;
   background: linear-gradient(to bottom, transparent, #fff);
-  margin-top: -80px;
-  position: relative;
+  pointer-events: none;
 }
 .dl-mockup-body--reader .dl-mockup-fade {
   background: linear-gradient(to bottom, transparent, var(--color-page, #f6f3f2));
