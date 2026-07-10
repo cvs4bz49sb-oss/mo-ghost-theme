@@ -9823,6 +9823,13 @@ label.site-form-field-check {
  margin-top: 20px;
  font-style: italic;
 }
+.dl-partnership-logo {
+ display: block;
+ margin: 28px auto 0;
+ max-width: 320px;
+ height: auto;
+ opacity: 0.8;
+}
 @media (max-width: 880px) {
  .dl-hero { padding: 72px 0 80px; }
  .dl-hero-logo { max-width: 320px; }
