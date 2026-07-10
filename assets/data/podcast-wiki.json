@@ -1,7 +1,26 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-07-09T10:44:07.725Z",
+    "updated": "2026-07-10T10:35:56.951Z",
     "episodes": [
+      {
+        "id": 19465890,
+        "title": "The Declaration of Independence and the Classics with Brad Birzer",
+        "slug": "the-declaration-of-independence-and-the-classics-with-brad-birzer",
+        "pubDate": "2026-07-09T07:00:00.000-04:00",
+        "episode": 23,
+        "season": 2,
+        "duration": 3682,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19465890-the-declaration-of-independence-and-the-classics-with-brad-birzer.mp3",
+        "description": "A single sentence can reorder a civilization, and “we hold these truths to be self-evident” is one of those sentences. Nadya Williams sits down with historian Dr Brad Birzer to read the Declaration of Independence closely and ask why it still sends a jolt through American politics, moral imagination, and public life 250 years later.",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19465890?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/the-declaration-of-independence-and-the-classics-with-brad-birzer/",
+        "guests": [
+          "Brad Birzer"
+        ],
+        "topics": []
+      },
       {
         "id": 19420408,
         "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
@@ -889,7 +908,7 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-07-09T10:44:12.020Z",
+    "updated": "2026-07-10T10:36:01.318Z",
     "episodes": [
       {
         "id": 19458498,
