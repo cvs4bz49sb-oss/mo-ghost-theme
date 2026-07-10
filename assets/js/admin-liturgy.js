@@ -317,7 +317,10 @@
   }
 
   async function generateWeek() {
-    if (!confirm("Generate content for the next 7 days and schedule Kit broadcasts?\n\nDays that already have content will be skipped.")) return;
+    const daysInput = $("[data-lit-days]");
+    const n = Math.max(1, Math.min(31, parseInt(daysInput.value, 10) || 7));
+    daysInput.value = n;
+    if (!confirm(`Generate content for the next ${n} day${n === 1 ? "" : "s"} and schedule Kit broadcasts?\n\nDays that already have content will be skipped.`)) return;
     const btn = $("[data-lit-generate]");
     btn.disabled = true;
     btn.textContent = "Generating…";
@@ -326,7 +329,7 @@
       const data = await api("/liturgy/generate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ daysAhead: 7, schedule: true }),
+        body: JSON.stringify({ daysAhead: n, schedule: true }),
       });
       const msg = `Generated ${data.generated || 0}, scheduled ${(data.scheduleResult && data.scheduleResult.scheduled) || 0}`;
       setSync(msg);
@@ -335,7 +338,7 @@
       setSync(`Generate failed: ${err.message}`, "is-error");
     } finally {
       btn.disabled = false;
-      btn.textContent = "Generate & Schedule Week";
+      btn.textContent = "Generate & Schedule";
     }
   }
 
