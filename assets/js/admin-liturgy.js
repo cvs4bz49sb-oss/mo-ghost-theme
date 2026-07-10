@@ -235,6 +235,7 @@
   $("[data-lit-next]").addEventListener("click", () => { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1); closeEditor(); loadMonth(); });
   $("[data-lit-close]").addEventListener("click", closeEditor);
   $("[data-lit-schedule-month]").addEventListener("click", scheduleMonth);
+  $("[data-lit-generate]").addEventListener("click", generateWeek);
 
   function closeEditor() { editor.hidden = true; if (hint) hint.hidden = false; selected = null; renderList(); }
 
@@ -312,6 +313,29 @@
       await loadMonth();
     } catch (err) {
       setSync(`Failed: ${err.message}`, "is-error");
+    }
+  }
+
+  async function generateWeek() {
+    if (!confirm("Generate content for the next 7 days and schedule Kit broadcasts?\n\nDays that already have content will be skipped.")) return;
+    const btn = $("[data-lit-generate]");
+    btn.disabled = true;
+    btn.textContent = "Generating…";
+    setSync("Generating liturgy content…", "is-saving");
+    try {
+      const data = await api("/liturgy/generate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ daysAhead: 7, schedule: true }),
+      });
+      const msg = `Generated ${data.generated || 0}, scheduled ${(data.scheduleResult && data.scheduleResult.scheduled) || 0}`;
+      setSync(msg);
+      await loadMonth();
+    } catch (err) {
+      setSync(`Generate failed: ${err.message}`, "is-error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Generate & Schedule Week";
     }
   }
 
