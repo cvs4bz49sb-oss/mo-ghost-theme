@@ -3676,8 +3676,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .author-bio-portrait { width: 112px; height: 112px; font-size: 30px; }
   .author-bio-initial::first-letter { font-size: 30px; }
   .author-bio-name { font-size: 22px; }
-  .article-content { font-size: 17px; }
+  .article-content { font-size: 16px; line-height: 1.65; }
   .article-content > p:first-of-type::first-letter { font-size: 1.6em; }
+  .article-content h2 { font-size: 28px; margin-top: 40px; }
+  .article-content h3 { font-size: 21px; margin-top: 32px; }
+  .article-content blockquote { font-size: 17px; }
 }
 
 /* =============================================================
