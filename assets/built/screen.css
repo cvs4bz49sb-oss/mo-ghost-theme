@@ -10454,10 +10454,7 @@ label.site-form-field-check {
   max-width: 320px;
   height: auto;
   opacity: 0.8;
-}
-.dl-partnership-logo--left {
-  margin-left: 0;
-  margin-right: auto;
+  grid-column: 1 / -1;
 }
 .dl-mockup--reader {
   justify-self: center;
@@ -10480,10 +10477,10 @@ label.site-form-field-check {
   .dl-path--listen { padding-left: 0; }
   .dl-plans-grid { grid-template-columns: 1fr; gap: 24px; }
   .dl-about-grid { grid-template-columns: 1fr; gap: 32px; }
-  .dl-about-copy { text-align: center; }
-  .dl-partnership-logo--left { margin: 28px auto 0; }
+  .dl-about-copy { text-align: center; order: 1; }
+  .dl-mockup--reader { max-width: 340px; order: 2; }
+  .dl-about-grid > .dl-partnership-logo { order: 3; }
   .dl-mockup--email { margin: 0 auto; }
-  .dl-mockup--reader { max-width: 340px; }
 }
 @media (max-width: 640px) {
   .dl-hero { padding: 56px 0 64px; }
