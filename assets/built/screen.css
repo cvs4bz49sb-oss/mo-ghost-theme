@@ -3676,8 +3676,12 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .author-bio-portrait { width: 112px; height: 112px; font-size: 30px; }
   .author-bio-initial::first-letter { font-size: 30px; }
   .author-bio-name { font-size: 22px; }
-  .article-content { font-size: 17px; }
+  .article-body { overflow-x: hidden; }
+  .article-body-inner { padding: 0 20px; max-width: 100%; }
+  .article-content { font-size: 17px; min-width: 0; overflow-wrap: break-word; }
   .article-content > p:first-of-type::first-letter { font-size: 1.6em; }
+  .article-content .kg-width-wide,
+  .article-content .kg-width-full { max-width: 100%; margin-left: 0; transform: none; }
 }
 
 /* =============================================================
