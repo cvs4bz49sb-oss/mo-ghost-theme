@@ -21459,6 +21459,13 @@ html[data-theme="dark"] .dlr-header-logo {
  color: var(--dlr-text-secondary);
  margin: 0 0 16px;
 }
+.dlr-partnership-logo {
+ display: block;
+ margin: 0 auto 16px;
+ max-width: 260px;
+ height: auto;
+ opacity: 0.7;
+}
 .dlr-footer-links {
  font-size: 12px;
  color: var(--dlr-text-secondary);
