@@ -10299,7 +10299,7 @@ label.site-form-field-check {
 /* Reader mockup — matches dlr-* styles */
 .dl-mockup-reader-title {
   font-family: var(--font-body, Georgia, serif);
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 400;
   line-height: 1.3;
   color: var(--color-dark, #2d2927);
