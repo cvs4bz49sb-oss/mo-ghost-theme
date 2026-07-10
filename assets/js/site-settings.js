@@ -5,10 +5,8 @@
  * so repeat navigations are instant.
  *
  * Consumers:
+ *   - Homepage journal status: [data-journal-issue], [data-journal-stage]
  *   - Post gate: [data-post-gate] gets data-gate-days / data-gate-tier
- *
- * Journal status (issue label + stage) is now rendered server-side
- * from Ghost custom settings (@custom.journal_status_*) in index.hbs.
  *
  * Fires a "mo:settings" CustomEvent on document when values are ready.
  */
@@ -21,6 +19,19 @@
 
   function apply(settings) {
     window.MO_SITE_SETTINGS = settings;
+
+    const issueEl = document.querySelector("[data-journal-issue]");
+    if (issueEl) issueEl.textContent = settings.journal_status_issue || "";
+
+    const stages = document.querySelectorAll("[data-journal-stage]");
+    for (let i = 0; i < stages.length; i++) {
+      const el = stages[i];
+      if (el.getAttribute("data-journal-stage") === settings.journal_status_stage) {
+        el.classList.add("is-active");
+      } else {
+        el.classList.remove("is-active");
+      }
+    }
 
     const gateEl = document.querySelector("[data-post-gate]");
     if (gateEl) {
