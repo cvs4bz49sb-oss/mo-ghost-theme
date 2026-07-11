@@ -19,7 +19,7 @@
       "pubDate": "2026-05-20T06:00:00.000-04:00",
       "episode": 18,
       "season": 3,
-      "plays": 3507,
+      "plays": 3508,
       "embedUrl": "https://www.buzzsprout.com/2612792/19198723?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/the-christian-life-with-kelly-kapic/"
@@ -55,7 +55,7 @@
       "pubDate": "2026-06-24T06:00:00.000-04:00",
       "episode": 21,
       "season": 3,
-      "plays": 3210,
+      "plays": 3212,
       "embedUrl": "https://www.buzzsprout.com/2612792/19385140?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/how-theology-nerds-are-made/"
@@ -75,6 +75,18 @@
       "transcriptUrl": "/transcript/christians-reading-classics/augustine-s-confessions-with-joey-sherrard/"
     },
     {
+      "id": 19397594,
+      "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
+      "slug": "till-we-have-faces-by-c-s-lewis-with-oliver-traldi",
+      "pubDate": "2026-06-25T06:00:00.000-04:00",
+      "episode": 21,
+      "season": 2,
+      "plays": 947,
+      "embedUrl": "https://www.buzzsprout.com/2612793/19397594?client_source=small_player&iframe=true",
+      "hasTranscript": true,
+      "transcriptUrl": "/transcript/christians-reading-classics/till-we-have-faces-by-c-s-lewis-with-oliver-traldi/"
+    },
+    {
       "id": 19361771,
       "title": "East of Eden with Philip Bunn & Matthew H. Young",
       "slug": "east-of-eden-with-philip-bunn-matthew-h-young",
@@ -85,18 +97,6 @@
       "embedUrl": "https://www.buzzsprout.com/2612793/19361771?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/east-of-eden-with-philip-bunn-matthew-h-young/"
-    },
-    {
-      "id": 19397594,
-      "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-      "slug": "till-we-have-faces-by-c-s-lewis-with-oliver-traldi",
-      "pubDate": "2026-06-25T06:00:00.000-04:00",
-      "episode": 21,
-      "season": 2,
-      "plays": 945,
-      "embedUrl": "https://www.buzzsprout.com/2612793/19397594?client_source=small_player&iframe=true",
-      "hasTranscript": true,
-      "transcriptUrl": "/transcript/christians-reading-classics/till-we-have-faces-by-c-s-lewis-with-oliver-traldi/"
     },
     {
       "id": 19278201,
