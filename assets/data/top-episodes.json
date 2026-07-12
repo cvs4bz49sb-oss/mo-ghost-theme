@@ -31,7 +31,7 @@
       "pubDate": "2026-06-17T06:00:00.000-04:00",
       "episode": 20,
       "season": 3,
-      "plays": 3393,
+      "plays": 3395,
       "embedUrl": "https://www.buzzsprout.com/2612792/19356094?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/magnifica-humanitas-with-brad-littlejohn/"
@@ -43,7 +43,7 @@
       "pubDate": "2026-06-10T06:00:00.000-04:00",
       "episode": 19,
       "season": 3,
-      "plays": 3372,
+      "plays": 3373,
       "embedUrl": "https://www.buzzsprout.com/2612792/19305161?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/online-and-outside-the-institutions/"
@@ -55,13 +55,25 @@
       "pubDate": "2026-06-24T06:00:00.000-04:00",
       "episode": 21,
       "season": 3,
-      "plays": 3231,
+      "plays": 3234,
       "embedUrl": "https://www.buzzsprout.com/2612792/19385140?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/mere-fidelity/how-theology-nerds-are-made/"
     }
   ],
   "christians-reading-classics": [
+    {
+      "id": 19397594,
+      "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
+      "slug": "till-we-have-faces-by-c-s-lewis-with-oliver-traldi",
+      "pubDate": "2026-06-25T06:00:00.000-04:00",
+      "episode": 21,
+      "season": 2,
+      "plays": 968,
+      "embedUrl": "https://www.buzzsprout.com/2612793/19397594?client_source=small_player&iframe=true",
+      "hasTranscript": true,
+      "transcriptUrl": "/transcript/christians-reading-classics/till-we-have-faces-by-c-s-lewis-with-oliver-traldi/"
+    },
     {
       "id": 19250148,
       "title": "Augustine's Confessions with Joey Sherrard",
@@ -75,25 +87,13 @@
       "transcriptUrl": "/transcript/christians-reading-classics/augustine-s-confessions-with-joey-sherrard/"
     },
     {
-      "id": 19397594,
-      "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-      "slug": "till-we-have-faces-by-c-s-lewis-with-oliver-traldi",
-      "pubDate": "2026-06-25T06:00:00.000-04:00",
-      "episode": 21,
-      "season": 2,
-      "plays": 960,
-      "embedUrl": "https://www.buzzsprout.com/2612793/19397594?client_source=small_player&iframe=true",
-      "hasTranscript": true,
-      "transcriptUrl": "/transcript/christians-reading-classics/till-we-have-faces-by-c-s-lewis-with-oliver-traldi/"
-    },
-    {
       "id": 19361771,
       "title": "East of Eden with Philip Bunn & Matthew H. Young",
       "slug": "east-of-eden-with-philip-bunn-matthew-h-young",
       "pubDate": "2026-06-18T07:00:00.000-04:00",
       "episode": 20,
       "season": 2,
-      "plays": 954,
+      "plays": 956,
       "embedUrl": "https://www.buzzsprout.com/2612793/19361771?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/east-of-eden-with-philip-bunn-matthew-h-young/"
@@ -105,7 +105,7 @@
       "pubDate": "2026-06-04T07:00:00.000-04:00",
       "episode": 18,
       "season": 2,
-      "plays": 842,
+      "plays": 843,
       "embedUrl": "https://www.buzzsprout.com/2612793/19278201?client_source=small_player&iframe=true",
       "hasTranscript": true,
       "transcriptUrl": "/transcript/christians-reading-classics/the-journals-of-lewis-and-clark-with-craig-fehrman/"
