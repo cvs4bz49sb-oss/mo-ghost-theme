@@ -8395,8 +8395,8 @@ html[data-theme="dark"] body.post-template .article-content blockquote {
   color: #d4c7b0;
 }
 html[data-theme="dark"] body.post-template .article-content hr {
-  background: rgba(233, 222, 200, 0.18);
-  border-color: rgba(233, 222, 200, 0.18);
+  background: transparent;
+  border-color: transparent;
 }
 html[data-theme="dark"] body.post-template .article-content code,
 html[data-theme="dark"] body.post-template .article-content pre {
