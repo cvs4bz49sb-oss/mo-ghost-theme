@@ -1,6 +1,6 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-07-15T09:31:43.808Z",
+    "updated": "2026-07-16T09:36:23.455Z",
     "episodes": [
       {
         "id": 19465890,
@@ -908,8 +908,27 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-07-15T09:31:47.913Z",
+    "updated": "2026-07-16T09:36:27.611Z",
     "episodes": [
+      {
+        "id": 19493398,
+        "title": "Replay: The Fractured Republic with Yuval Levin",
+        "slug": "replay-the-fractured-republic-with-yuval-levin",
+        "pubDate": "2026-07-15T06:00:00.000-04:00",
+        "episode": 24,
+        "season": 3,
+        "duration": 3322,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19493398-replay-the-fractured-republic-with-yuval-levin.mp3",
+        "description": "One of conservatism's brightest policy minds, Yuval Levin, joins us to talk about his book *The Fractured Republic.* — Mere Fidelity is a podcast from Mere Orthodoxy and is listener-supported. If you would like to support this work, become a Mere Orthodoxy Member today at http://mereorthodoxy.com/membership . Get 30% of the Baker Book of the Month, The Pursuit of Character: Recovering the Virtues ",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19493398?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/replay-the-fractured-republic-with-yuval-levin/",
+        "guests": [
+          "Yuval Levin"
+        ],
+        "topics": []
+      },
       {
         "id": 19458498,
         "title": "Divided We Stand: On Denominations",
