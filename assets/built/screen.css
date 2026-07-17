@@ -22261,6 +22261,9 @@ html[data-theme="dark"] .dlr-header-logo {
 }
 
 /* Podcast player */
+.dlr-podcast[hidden] {
+  display: none;
+}
 .dlr-podcast {
   display: flex;
   align-items: center;
