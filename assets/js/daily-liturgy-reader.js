@@ -290,6 +290,14 @@
     loadScripture(ntRef, "[data-dlr-nt-text]");
     loadScripture(psalmRef, "[data-dlr-psalm-text]");
 
+    var $closing = $("[data-dlr-closing]");
+    if ($closing) {
+      var dow = new Date(dateStr + "T12:00:00").getDay();
+      $closing.textContent = dow === 6
+        ? "We’ll see you again Monday for another Daily Liturgy."
+        : "We’ll see you again tomorrow for another Daily Liturgy.";
+    }
+
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
