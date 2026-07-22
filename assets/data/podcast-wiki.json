@@ -1,6 +1,6 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-07-21T10:05:12.387Z",
+    "updated": "2026-07-22T10:03:17.444Z",
     "episodes": [
       {
         "id": 19499940,
@@ -927,8 +927,25 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-07-21T10:05:16.897Z",
+    "updated": "2026-07-22T10:03:21.482Z",
     "episodes": [
+      {
+        "id": 19526394,
+        "title": "Measuring Wealth",
+        "slug": "measuring-wealth",
+        "pubDate": "2026-07-22T05:00:00.000-04:00",
+        "episode": 25,
+        "season": 3,
+        "duration": 3200,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19526394-measuring-wealth.mp3",
+        "description": "How can each subsequent generation both be making more money and be considerably less wealthy? The answer is obvious. The solution may not be.&nbsp;",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19526394?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/measuring-wealth/",
+        "guests": [],
+        "topics": []
+      },
       {
         "id": 19493398,
         "title": "Replay: The Fractured Republic with Yuval Levin",
