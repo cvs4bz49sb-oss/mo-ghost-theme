@@ -55,6 +55,7 @@
     html {
       scroll-behavior: smooth;
       scroll-padding-top: 5rem;
+      overflow-x: hidden;
     }
 
     body {
@@ -66,12 +67,14 @@
       transition: background-color 0.3s ease, color 0.3s ease;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
     }
 
     /* ===== Layout ===== */
     .page-wrapper {
       display: flex;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     /* ===== Header Bar ===== */
@@ -625,10 +628,13 @@
       .main-content {
         margin-left: 0;
         padding: 5.5rem 1.5rem 4rem 1.5rem;
+        max-width: 100%;
+        width: 100%;
       }
 
       .content-container {
         max-width: 100%;
+        width: 100%;
       }
 
       .hero {
