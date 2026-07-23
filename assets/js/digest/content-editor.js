@@ -6,6 +6,11 @@
     tmp.innerHTML = html;
     return (tmp.textContent || tmp.innerText || "").trim();
   }
+  function truncateText(text, max) {
+    if (!text || text.length <= max) return text || "";
+    const cut = text.lastIndexOf(" ", max);
+    return (cut > 0 ? text.slice(0, cut) : text.slice(0, max)) + "…";
+  }
   function findFirstImg(html) {
     if (!html) return null;
     const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
@@ -48,7 +53,7 @@
       return {
         title,
         link,
-        summary: summary.slice(0, 280),
+        summary: truncateText(summary, 280),
         image,
         byline,
         kicker
@@ -428,7 +433,7 @@
             kicker: p.primary_tag && p.primary_tag.name || existing[i] && existing[i].kicker || "Essay",
             title: p.title || "Untitled",
             byline: cleanByline(p.primary_author && p.primary_author.name) || existing[i] && existing[i].byline || "",
-            summary: (p.custom_excerpt || p.excerpt || "").slice(0, 280),
+            summary: truncateText(p.custom_excerpt || p.excerpt || "", 280),
             url: p.url || existing[i] && existing[i].url || "#"
           }));
           next.essays = fresh;
@@ -439,7 +444,7 @@
             label: existing[i] && existing[i].label || p.primary_tag && p.primary_tag.name || "Podcast",
             episode: existing[i] && existing[i].episode || "Episode",
             title: p.title || "Untitled",
-            summary: (p.custom_excerpt || p.excerpt || "").slice(0, 280),
+            summary: truncateText(p.custom_excerpt || p.excerpt || "", 280),
             cta: existing[i] && existing[i].cta || "Listen to the episode",
             url: p.url || existing[i] && existing[i].url || "#"
           }));
@@ -512,7 +517,7 @@
             label: r.row.label || r.show && r.show.title || slot.label || "Podcast",
             episode: episodeNum,
             title: ep.title || slot.title || "Untitled",
-            summary: (ep.description || "").slice(0, 280) || slot.summary || "",
+            summary: truncateText(stripHtml(ep.description || ""), 280) || slot.summary || "",
             cta: slot.cta || "Listen to the episode",
             url: ep.link || ep.audioUrl || slot.url || "#"
           });
