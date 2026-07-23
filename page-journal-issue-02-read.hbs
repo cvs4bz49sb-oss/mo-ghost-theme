@@ -595,6 +595,17 @@
 
     /* ===== Responsive ===== */
     @media (max-width: 960px) {
+      body {
+        overflow-wrap: break-word;
+        word-break: break-word;
+        -webkit-hyphens: auto;
+        hyphens: auto;
+      }
+
+      html {
+        scroll-padding-top: 4rem;
+      }
+
       .sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
@@ -616,38 +627,234 @@
         padding: 5.5rem 1.5rem 4rem 1.5rem;
       }
 
+      .content-container {
+        max-width: 100%;
+      }
+
+      .hero {
+        margin-bottom: 2.5rem;
+      }
+
       .hero-title {
         font-size: 2.4rem;
       }
 
+      .hero-subtitle {
+        font-size: 1.1rem;
+      }
+
       .section-title {
         font-size: 2rem;
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+      }
+
+      .section-heading {
+        margin-top: 2rem;
+      }
+
+      .subsection-heading {
+        margin-top: 1.75rem;
+      }
+
+      .section-label {
+        margin-top: 2rem;
+      }
+
+      blockquote {
+        padding-left: 1.25rem;
+        margin: 1.25rem 0;
+      }
+
+      .barna-list {
+        margin-left: 1rem;
+      }
+
+      .callout {
+        padding: 1.5rem 0;
+        margin: 1.5rem 0;
+      }
+
+      .contributors-section {
+        margin-top: 3rem;
       }
 
       .top-bar {
         padding: 1rem 1.5rem;
+      }
+
+      .share-popup,
+      .download-popup {
+        left: auto;
+        right: 0;
+        transform: none;
+      }
+
+      .sidebar-actions .share-popup,
+      .sidebar-actions .download-popup {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
       }
     }
 
     @media (max-width: 600px) {
       body {
         font-size: 17px;
+        line-height: 1.65;
+      }
+
+      html {
+        scroll-padding-top: 3.5rem;
+      }
+
+      .hero {
+        margin-bottom: 2rem;
+      }
+
+      .hero-eyebrow {
+        font-size: 0.75rem;
       }
 
       .hero-title {
         font-size: 2rem;
       }
 
+      .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .hero-date {
+        font-size: 0.85rem;
+      }
+
       .section-title {
         font-size: 1.7rem;
+        margin-top: 2.5rem;
+        padding-top: 1.25rem;
+        margin-bottom: 1rem;
       }
 
       .section-heading {
         font-size: 1.3rem;
+        margin-top: 1.75rem;
+      }
+
+      .subsection-heading {
+        font-size: 1.1rem;
+        margin-top: 1.5rem;
+      }
+
+      .section-label {
+        font-size: 0.85rem;
+        margin-top: 2rem;
+      }
+
+      .essay-heading {
+        font-size: 1.05rem;
+      }
+
+      .essay-author {
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+      }
+
+      blockquote {
+        padding-left: 1rem;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+      }
+
+      .barna-list {
+        margin-left: 0.75rem;
+      }
+
+      .barna-list li {
+        font-size: 0.9rem;
+      }
+
+      .callout {
+        font-size: 0.95rem;
+        padding: 1.25rem 0;
+        margin: 1.25rem 0;
       }
 
       .main-content {
         padding: 5rem 1.25rem 3rem 1.25rem;
+      }
+
+      .top-bar {
+        padding: 0.75rem 1rem;
+      }
+
+      .org-name {
+        font-size: 0.95rem;
+        letter-spacing: 0.1em;
+      }
+
+      .contributors-section {
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+      }
+
+      .contributor-name {
+        font-size: 1rem;
+      }
+
+      .contributor-bio {
+        font-size: 0.9rem;
+      }
+
+      .site-footer {
+        padding: 2rem 0 1.5rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 400px) {
+      body {
+        font-size: 16px;
+      }
+
+      .hero-title {
+        font-size: 1.7rem;
+      }
+
+      .hero-subtitle {
+        font-size: 0.95rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-top: 2rem;
+        padding-top: 1rem;
+      }
+
+      .section-heading {
+        font-size: 1.2rem;
+      }
+
+      .subsection-heading {
+        font-size: 1.05rem;
+      }
+
+      .main-content {
+        padding: 4.5rem 1rem 2.5rem 1rem;
+      }
+
+      blockquote {
+        padding-left: 0.75rem;
+      }
+
+      .callout {
+        font-size: 0.9rem;
+        padding: 1rem 0;
+        margin: 1rem 0;
+      }
+
+      p {
+        margin-bottom: 1rem;
       }
     }
 
