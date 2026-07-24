@@ -2956,19 +2956,20 @@ body {
   .post-gate-form { grid-template-columns: 1fr; }
 }
 
-html[data-theme="dark"] body.post-template .article-content .post-gate-card,
-html[data-theme="dark"] body.post-template .article-content .post-gate-card h3 {
-  color: var(--color-dark);
+html[data-theme="dark"] .article-content .post-gate-card,
+html[data-theme="dark"] .article-content .post-gate-card h3,
+html[data-theme="dark"] .article-content .post-gate-card h3 em {
+  color: #2d2927 !important;
 }
-html[data-theme="dark"] body.post-template .article-content .post-gate-card p,
-html[data-theme="dark"] body.post-template .article-content .post-gate-card .post-gate-signin,
-html[data-theme="dark"] body.post-template .article-content .post-gate-card .post-gate-field label {
-  color: var(--color-muted);
+html[data-theme="dark"] .article-content .post-gate-card p,
+html[data-theme="dark"] .article-content .post-gate-card .post-gate-signin,
+html[data-theme="dark"] .article-content .post-gate-card .post-gate-field label {
+  color: #6b6660 !important;
 }
-html[data-theme="dark"] body.post-template .article-content .post-gate-card .post-gate-field input {
-  background: var(--color-white);
-  color: var(--color-dark);
-  border-color: var(--color-card-border);
+html[data-theme="dark"] .article-content .post-gate-card .post-gate-field input {
+  background: #ffffff !important;
+  color: #2d2927 !important;
+  border-color: #d9c6a7 !important;
 }
 html[data-theme="dark"] .article-content .inline-signup-success h4,
 html[data-theme="dark"] .article-content .inline-signup-success strong {
