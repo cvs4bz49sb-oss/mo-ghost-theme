@@ -2788,9 +2788,9 @@ body {
   max-width: 100%;
   width: 100%;
 }
-/* aspect-ratio + height must be on the higher-specificity selector so
-   they win over Ghost's cards.min.css which loads after screen.min.css
-   via {{ghost_head}} and would otherwise override same-specificity rules. */
+.article-content iframe {
+  max-height: 50vh;
+}
 .article-content iframe[src*="youtube"],
 .article-content iframe[src*="youtu.be"],
 .article-content iframe[src*="vimeo"],
@@ -2799,6 +2799,7 @@ body {
 .article-content .kg-embed-card iframe[src*="vimeo"] {
   aspect-ratio: 16 / 9;
   height: auto;
+  max-height: none;
   display: block;
 }
 .article-content figcaption {
