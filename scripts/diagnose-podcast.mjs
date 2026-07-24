@@ -220,4 +220,4 @@ for (const { label, url } of audioChecks) {
   }
 }
 
-console.log("\n=== Done ===");
+console.log("\n=== Done ===\n");
