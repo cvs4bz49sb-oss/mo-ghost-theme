@@ -1,0 +1,21 @@
+name: Podcast Diagnose
+
+# One-shot diagnostic: checks Buzzsprout episode settings for episodes
+# reported as "BLOCKED BY PUBLISHER" in Overcast. Manual trigger only.
+# Safe to delete after diagnosis is complete.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run podcast diagnostics
+        env:
+          BUZZSPROUT_API_TOKEN: ${{ secrets.BUZZSPROUT_API_TOKEN }}
+        run: node scripts/diagnose-podcast.mjs
