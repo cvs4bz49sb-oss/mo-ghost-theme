@@ -53,8 +53,8 @@ try {
       console.log(`Worker returned Daily Liturgy episode: "${ep.title}"`);
       console.log(`  audioUrl: ${ep.audioUrl}`);
       console.log(`  embedUrl: ${ep.embedUrl}`);
-      // Extract podcast ID from embedUrl: https://www.buzzsprout.com/<ID>/<epId>?...
-      const m = (ep.embedUrl || "").match(/buzzsprout\.com\/(\d+)\//);
+      // Extract podcast ID from embedUrl or audioUrl
+      const m = (ep.embedUrl || ep.audioUrl || "").match(/buzzsprout\.com\/(\d+)\//);
       if (m) {
         dlpId = m[1];
         console.log(`  => Buzzsprout podcast ID: ${dlpId}`);
@@ -208,16 +208,78 @@ console.log("\n=== Step 6: Audio URL accessibility check ===\n");
 const audioChecks = [
   { label: "MF — Divided We Stand", url: "https://www.buzzsprout.com/2612792/episodes/19458498-divided-we-stand-on-denominations.mp3" },
 ];
+if (dlpId) {
+  audioChecks.push({
+    label: "DLP — latest episode",
+    url: `https://www.buzzsprout.com/${dlpId}/episodes/19470356-friday-july-24-2026.mp3`,
+  });
+}
+
+const UA_TESTS = [
+  { ua: "Node.js (default)", headers: {} },
+  { ua: "Overcast-style", headers: { "User-Agent": "Overcast/1.0 Podcast (https://overcast.fm/)" } },
+  { ua: "Browser-style", headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" } },
+];
+
 for (const { label, url } of audioChecks) {
+  console.log(`--- ${label} ---`);
+  console.log(`  URL: ${url}`);
+  for (const { ua, headers } of UA_TESTS) {
+    try {
+      const res = await fetch(url, { method: "HEAD", redirect: "follow", headers });
+      const ct = res.headers.get("content-type") || "?";
+      const cl = res.headers.get("content-length") || "?";
+      const server = res.headers.get("server") || "?";
+      const cfRay = res.headers.get("cf-ray") || "";
+      console.log(`  [${ua}] HTTP ${res.status} | type=${ct} | size=${cl} | server=${server}${cfRay ? ` | cf-ray=${cfRay}` : ""}`);
+      if (res.status === 403) {
+        console.log(`    *** BLOCKED ***`);
+      }
+    } catch (err) {
+      console.log(`  [${ua}] ERROR: ${err.message}`);
+    }
+  }
+  // Also try a GET with range header (how podcast apps actually download)
   try {
-    const res = await fetch(url, { method: "HEAD", redirect: "follow" });
-    console.log(`${label}: HTTP ${res.status} (${res.headers.get("content-type") || "?"})`);
-    if (res.status === 403) {
-      console.log(`  *** AUDIO BLOCKED — this would cause "BLOCKED BY PUBLISHER" in Overcast ***`);
+    const res = await fetch(url, {
+      method: "GET",
+      headers: { "User-Agent": "Overcast/1.0 Podcast", Range: "bytes=0-1023" },
+      redirect: "follow",
+    });
+    const ct = res.headers.get("content-type") || "?";
+    console.log(`  [GET+Range] HTTP ${res.status} | type=${ct}`);
+    if (res.status === 200 || res.status === 206) {
+      console.log(`    Audio download WORKS with GET+Range`);
+    } else if (res.status === 403) {
+      console.log(`    *** BLOCKED even with GET+Range — Buzzsprout WAF is blocking audio downloads ***`);
     }
   } catch (err) {
-    console.log(`${label}: ${err.message}`);
+    console.log(`  [GET+Range] ERROR: ${err.message}`);
   }
+  console.log("");
+}
+
+// Step 7: Check if Buzzsprout redirects audio to CDN
+console.log("=== Step 7: Audio redirect chain ===\n");
+try {
+  const res = await fetch(audioChecks[0].url, {
+    method: "GET",
+    redirect: "manual",
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
+  console.log(`Initial response: HTTP ${res.status}`);
+  console.log(`  Location: ${res.headers.get("location") || "none"}`);
+  console.log(`  Server: ${res.headers.get("server") || "?"}`);
+  console.log(`  Content-Type: ${res.headers.get("content-type") || "?"}`);
+  if (res.status === 301 || res.status === 302) {
+    const loc = res.headers.get("location");
+    if (loc) {
+      const res2 = await fetch(loc, { method: "HEAD", redirect: "manual" });
+      console.log(`  Redirect target: HTTP ${res2.status} | ${res2.headers.get("content-type") || "?"}`);
+    }
+  }
+} catch (err) {
+  console.log(`Redirect check failed: ${err.message}`);
 }
 
 console.log("\n=== Done ===\n");
