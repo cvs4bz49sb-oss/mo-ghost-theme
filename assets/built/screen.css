@@ -2788,8 +2788,12 @@ body {
   max-width: 100%;
   width: 100%;
 }
-.article-content iframe {
+.article-content .kg-embed-card {
   max-height: 50vh;
+  overflow: hidden;
+}
+.article-content iframe {
+  max-height: 50vh !important;
 }
 .article-content iframe[src*="youtube"],
 .article-content iframe[src*="youtu.be"],
@@ -2799,8 +2803,14 @@ body {
 .article-content .kg-embed-card iframe[src*="vimeo"] {
   aspect-ratio: 16 / 9;
   height: auto;
-  max-height: none;
+  max-height: none !important;
   display: block;
+}
+.article-content .kg-embed-card:has(iframe[src*="youtube"]),
+.article-content .kg-embed-card:has(iframe[src*="youtu.be"]),
+.article-content .kg-embed-card:has(iframe[src*="vimeo"]) {
+  max-height: none;
+  overflow: visible;
 }
 .article-content figcaption {
   font-size: 13px;
