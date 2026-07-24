@@ -6,6 +6,10 @@ name: Podcast Diagnose
 
 on:
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/diagnose-podcast.mjs'
 
 jobs:
   diagnose:
