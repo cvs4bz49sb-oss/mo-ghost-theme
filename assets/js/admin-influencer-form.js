@@ -71,7 +71,7 @@
   function setFeedback(msg, ok) {
     feedback.hidden = false;
     feedback.textContent = msg;
-    feedback.className = 'admin-influencer-feedback ' + (ok ? 'is-ok' : 'is-error');
+    feedback.className = `admin-influencer-feedback ${ok ? 'is-ok' : 'is-error'}`;
   }
   function clearFeedback() {
     feedback.hidden = true;

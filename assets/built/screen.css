@@ -22148,6 +22148,7 @@ html[data-theme="dark"] body:has(.dlr-page) .dlr-gate {
 
 /* Header */
 .dlr-header {
+  position: relative;
   text-align: center;
   padding-bottom: 32px;
   border-bottom: 1px solid var(--dlr-rule);
@@ -22363,6 +22364,11 @@ html[data-theme="dark"] .dlr-header-logo {
 .dlr-theme-toggle:hover {
   border-color: var(--dlr-accent);
   color: var(--dlr-accent);
+}
+.dlr-header-theme {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 /* Sections */
