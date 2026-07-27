@@ -22931,17 +22931,17 @@ html[data-theme="dark"] .dlr-header-logo {
    Daily Liturgy band — thin homepage section
    ------------------------------------------------------------
    Its own full-bleed dark strip between "This Week" (articles) and
-   "Listen" (podcasts), copper hairline top and bottom. Deliberately
+   "Listen" (podcasts), brand-orange rules top and bottom. Deliberately
    thin: cover, copy, latest-episode player, and CTA on one line.
 
-   Copper hairline and muted type on dark are rgba literals rather
-   than tokens, matching .btn-ghost-light. The accent bars and play
-   button use --color-primary so the band stays inside the palette.
+   Muted type on dark uses rgba literals, matching .btn-ghost-light.
+   The rules, accent bars, and play button all use --color-primary so
+   the band stays inside the closed palette.
    ============================================================= */
 .dlp-band {
   background: var(--color-dark);
-  border-top: 1px solid rgba(238, 125, 81, 0.45);
-  border-bottom: 1px solid rgba(238, 125, 81, 0.45);
+  border-top: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
 }
 .dlp-band-inner {
   display: flex;
