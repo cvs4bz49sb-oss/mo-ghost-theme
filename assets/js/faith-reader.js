@@ -846,6 +846,12 @@
     paragraphs.forEach((para) => {
       para = para.trim();
       if (!para) return;
+      // Bare hash runs with no heading text are an artifact of the
+      // source conversion — 80 of 100 sampled pages in the Latin
+      // corpus carry one, and they rendered as a literal "##" at the
+      // foot of the page.
+      para = para.replace(/(^|\n)#{1,6}[ \t]*(?=\n|$)/g, "$1").trim();
+      if (!para) return;
       // Headings.
       let hMatch;
       if ((hMatch = para.match(/^### (.+)$/))) {
