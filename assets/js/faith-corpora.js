@@ -22,7 +22,7 @@
  *   Patrologia Latina ...  8,967 works ·  2,025 authors · 41 loci
  *   PanGrammata .........  7,582 works ·  1,681 authors
  *   Patrologia Graeca ...  2,976 works ·    494 authors · 161 vols
- *   TFR Latin ...........  1,195 works ·    272 authors · 785,437 pp
+ *   The Latin Library ...  1,195 works ·    272 authors · 785,437 pp
  *   Patrologia Orientalis    400 works ·    121 authors
  *   TFR confessions .....    260 documents
  *   Aquinas + Augustine .    274 works ·      2 authors
@@ -45,8 +45,12 @@
   const CORPORA = [
     {
       id: "tfr",
-      label: "The Faith Received",
-      short: "Latin corpus",
+      // Named "The Faith Received" on the source site, but that is the
+      // name of this whole reading room — a collection inside it can't
+      // carry it too. Paired with Early English Books: each named by
+      // language and medium.
+      label: "The Latin Library",
+      short: "Latin divinity, 1100–1700",
       base: BLOB,
       catalogue: "/v1/works-index.json",
       pick: (d) => d.works || [],
