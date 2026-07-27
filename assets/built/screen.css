@@ -22935,10 +22935,11 @@ html[data-theme="dark"] .dlr-header-logo {
    Daily Liturgy band — thin homepage section
    ------------------------------------------------------------
    Its own full-bleed dark strip between "This Week" (articles) and
-   "Listen" (podcasts), brand-orange rules top and bottom plus
-   horizontal rules running in from the left and right edges at the
-   band's vertical centre, bookending the content. Deliberately thin:
-   cover, copy, latest-episode player, and CTA on one line.
+   "Listen" (podcasts). Its only rules are the two brand-orange
+   horizontals running in from the left and right edges at the band's
+   vertical centre, bookending the content. No top or bottom border:
+   the dark ground is its own edge. Deliberately thin: cover, copy,
+   latest-episode player, and CTA on one line.
 
    Muted type on dark uses rgba literals, matching .btn-ghost-light.
    The rules, accent bars, and play button all use --color-primary so
@@ -22946,8 +22947,6 @@ html[data-theme="dark"] .dlr-header-logo {
    ============================================================= */
 .dlp-band {
   background: var(--color-dark);
-  border-top: 2px solid var(--color-primary);
-  border-bottom: 2px solid var(--color-primary);
 }
 /* Horizontal bookends: rules at the band's vertical centre running in
    from each edge to where the 1180px content column starts. The calc
