@@ -56,9 +56,18 @@
   }
 
   // The registry says how this corpus stores its text. Absent (or an
-  // unknown ?c=), fall back to the TFR page-shard reader.
+  // unknown ?c=), fall back to the page-shard reader.
   const corpus = (window.MOCorpora && window.MOCorpora.get(corpusId)) || null;
   const readerKind = corpus ? corpus.reader : "shards";
+
+  // Collections whose text is not reachable yet must say so. Falling
+  // through to the shard reader made them fetch a work id against the
+  // Latin corpus's paths and fail with a bare "meta 404" — a 63,000-
+  // work trapdoor, since search still indexes them.
+  if (corpus && corpus.readable === false) {
+    showPending(corpus);
+    return;
+  }
 
   // ── State ─────────────────────────────────────────────────────
   let meta = null;
@@ -777,6 +786,29 @@
   }
 
   // ── UI helpers ────────────────────────────────────────────────
+
+  // A work we can name and place, but cannot yet open. Distinct from
+  // an error: nothing has gone wrong, the text simply isn't ported.
+  function showPending(c) {
+    if (loadingEl) loadingEl.hidden = true;
+    if (titleEl) titleEl.textContent = c.label;
+    if (dekEl) dekEl.textContent = c.short || "";
+    if (traditionEl) traditionEl.hidden = true;
+    if (langToggle) langToggle.hidden = true;
+    const controls = document.querySelector("[data-faith-controls]");
+    if (controls) controls.hidden = true;
+    const tocLoading = tocNav && tocNav.querySelector(".faith-toc-loading");
+    if (tocLoading) tocLoading.textContent = "Contents not yet available.";
+    if (!contentEl) return;
+    contentEl.innerHTML =
+      `<div class="faith-pending-panel">` +
+      `<p class="faith-pending-lede">This work is catalogued and indexed, but its text is still being ported into The Faith Received.</p>` +
+      `<p class="faith-pending-note">${escapeHtml(c.label)} &mdash; ${escapeHtml(c.short || "")}</p>` +
+      `<p class="faith-pending-actions">` +
+      `<a href="/the-faith-received/?collection=${encodeURIComponent(c.id)}">Browse ${escapeHtml(c.label)}</a>` +
+      `<a href="/the-faith-received/">The Faith Received</a>` +
+      `</p></div>`;
+  }
 
   function showError(msg) {
     if (loadingEl) loadingEl.hidden = true;

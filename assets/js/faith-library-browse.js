@@ -373,15 +373,27 @@
 
   function appendSearchEntries(works, meta) {
     if (!window.__tfrSearchAppend) return;
+    // Works whose text isn't ported stay searchable — finding out that
+    // Migne has a thing is worth something — but they must not link
+    // into the reader, which cannot open them. Point them at their
+    // collection instead, and say why in the snippet.
+    const pending = meta && meta.readable === false;
+    const collectionUrl = meta
+      ? `/the-faith-received/?collection=${encodeURIComponent(meta.id)}`
+      : "/the-faith-received/";
     window.__tfrSearchAppend(works.map((w) => ({
       type: w.corpus || "library",
       slug: w.id,
-      url: w.url,
+      url: pending ? collectionUrl : w.url,
       title: w.title,
       author: w.author || null,
       date: w.year ? String(w.year) : null,
-      snippet: [meta && meta.label, w.eyebrow, w.extent ? `${w.extent} pages` : ""]
-        .filter(Boolean).join(" · "),
+      snippet: [
+        meta && meta.label,
+        w.eyebrow,
+        w.extent ? `${w.extent} pages` : "",
+        pending ? "text in progress" : "",
+      ].filter(Boolean).join(" · "),
     })));
   }
 })();

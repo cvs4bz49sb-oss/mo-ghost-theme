@@ -13500,6 +13500,55 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-section-nav-brand .faith-beta { color: var(--color-primary); opacity: 1; }
 
+/* ── Reader: work catalogued but not yet ported ───────────────────
+   Not an error state — the work is real, its text just isn't here
+   yet. Reads as an editorial note rather than a failure. */
+.faith-pending-panel {
+  max-width: 620px;
+  margin: 40px auto 72px;
+  padding-top: 28px;
+  border-top: 1px solid var(--color-card-border);
+  position: relative;
+  text-align: center;
+}
+.faith-pending-panel::before {
+  content: "\2766";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--color-primary);
+  font-size: 15px;
+  line-height: 1;
+}
+.faith-pending-lede {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 21px;
+  line-height: 1.45;
+  color: var(--color-dark);
+  margin: 0 0 14px;
+}
+.faith-pending-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 26px;
+}
+.faith-pending-actions a {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  margin: 0 12px;
+}
+.faith-pending-actions a:hover { color: var(--color-dark); text-decoration: none; }
+
 /* ── Library browse chrome (Collection > Author > Works) ──────────
    Header above the grid at each level: back link, title, count, and
    at the author level a filter (EEBO alone has 14,032 authors). */
