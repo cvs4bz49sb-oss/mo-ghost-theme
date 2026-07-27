@@ -13477,6 +13477,59 @@ body.mo-search-open { overflow: hidden; }
   .faith-card--filler { display: none; }
 }
 
+/* ── Library author drill-down ────────────────────────────────────
+   Library collapses 1,195 works into 272 author cards; clicking one
+   swaps the grid for that author's works and inserts this header
+   above it. Hairlines and display italic, no card container. */
+.faith-author-head {
+  max-width: 1180px;
+  margin: 0 auto 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-author-back {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0 0 18px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.faith-author-back:hover { color: var(--color-dark); }
+.faith-author-name {
+  font-family: var(--font-display);
+  font-size: 42px;
+  line-height: 1.1;
+  margin: 0 0 6px;
+  color: var(--color-dark);
+}
+.faith-author-name em { font-style: italic; }
+.faith-author-dates {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--color-muted);
+  margin: 0 0 14px;
+}
+.faith-author-bio {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--color-dark);
+  margin: 0;
+  max-width: 680px;
+}
+@media (max-width: 600px) {
+  .faith-author-head { margin-bottom: 24px; padding: 0 20px 20px; }
+  .faith-author-name { font-size: 30px; }
+}
+
 /* ── Tools grid (Devotional / Today / Topics / Scripture) ─────── */
 .faith-tools-grid {
   list-style: none;
