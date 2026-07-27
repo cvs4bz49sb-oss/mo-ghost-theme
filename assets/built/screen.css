@@ -22597,6 +22597,10 @@ html[data-theme="dark"] .dlr-header-logo {
 .dlr-play-btn:hover {
   background: var(--dlr-accent-light);
 }
+/* The stylesheet sets svg { display: block } globally, which beats the
+   [hidden] attribute — both glyphs render at once without this. */
+.dlr-play-icon[hidden],
+.dlr-pause-icon[hidden] { display: none; }
 .dlr-player-info {
   flex: 1;
   min-width: 0;
@@ -22931,8 +22935,10 @@ html[data-theme="dark"] .dlr-header-logo {
    Daily Liturgy band — thin homepage section
    ------------------------------------------------------------
    Its own full-bleed dark strip between "This Week" (articles) and
-   "Listen" (podcasts), brand-orange rules top and bottom. Deliberately
-   thin: cover, copy, latest-episode player, and CTA on one line.
+   "Listen" (podcasts), brand-orange rules top and bottom plus
+   horizontal rules running in from the left and right edges at the
+   band's vertical centre, bookending the content. Deliberately thin:
+   cover, copy, latest-episode player, and CTA on one line.
 
    Muted type on dark uses rgba literals, matching .btn-ghost-light.
    The rules, accent bars, and play button all use --color-primary so
@@ -22943,6 +22949,23 @@ html[data-theme="dark"] .dlr-header-logo {
   border-top: 2px solid var(--color-primary);
   border-bottom: 2px solid var(--color-primary);
 }
+/* Horizontal bookends: rules at the band's vertical centre running in
+   from each edge to where the 1180px content column starts. The calc
+   resolves to 0 below 1180px, so they simply vanish once there is no
+   gutter left to fill. */
+.dlp-band { position: relative; }
+.dlp-band::before,
+.dlp-band::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+  width: calc((100% - 1180px) / 2);
+  background: var(--color-primary);
+}
+.dlp-band::before { left: 0; }
+.dlp-band::after { right: 0; }
 .dlp-band-inner {
   display: flex;
   align-items: center;

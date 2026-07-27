@@ -33,8 +33,23 @@
   $playBtn.addEventListener("click", () => {
     if ($audio.paused) { $audio.play(); } else { $audio.pause(); }
   });
-  $audio.addEventListener("play", () => { $playIcon.hidden = true; $pauseIcon.hidden = false; });
-  $audio.addEventListener("pause", () => { $playIcon.hidden = false; $pauseIcon.hidden = true; });
+  // `hidden` is an HTMLElement property, so `svg.hidden = true` only
+  // sets a JS expando and never reaches the attribute the CSS keys on.
+  // SVG icons have to be toggled through the attribute directly.
+  function show(node, visible) {
+    if (visible) { node.removeAttribute("hidden"); } else { node.setAttribute("hidden", ""); }
+  }
+
+  $audio.addEventListener("play", () => {
+    show($playIcon, false);
+    show($pauseIcon, true);
+    $playBtn.setAttribute("aria-label", "Pause episode");
+  });
+  $audio.addEventListener("pause", () => {
+    show($playIcon, true);
+    show($pauseIcon, false);
+    $playBtn.setAttribute("aria-label", "Play episode");
+  });
   $audio.addEventListener("timeupdate", () => {
     if (!$audio.duration) return;
     $bar.style.width = `${($audio.currentTime / $audio.duration) * 100}%`;
