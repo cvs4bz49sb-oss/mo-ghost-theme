@@ -135,7 +135,7 @@
         };
         populateHeader(meta);
         const nodes = data.toc || [];
-        buildToc(flattenToc(nodes));
+        buildTocLinks(nodes);
         renderTocTree(nodes);
         hideLoading();
         saveLastRead();
@@ -158,18 +158,36 @@
     return response.json();
   }
 
-  // The reader's TOC builder wants a flat [{title, page, depth}] list.
-  function flattenToc(nodes) {
-    const out = [];
+  // EEBO gets its own contents rail. buildToc() groups a flat outline
+  // into books and chapters and only links the chapters — right for
+  // the Latin corpus, wrong here, where roughly half of works are a
+  // flat list of sections and the other half nest two deep. Every node
+  // gets a link; depth is carried as indentation.
+  function buildTocLinks(nodes) {
+    if (!tocNav) return;
+    const loadNote = tocNav.querySelector(".faith-toc-loading");
+    if (loadNote) loadNote.remove();
+    if (!nodes.length) return;
+
+    const ol = document.createElement("ol");
+    ol.className = "faith-toc-list faith-toc-book-list";
     let counter = 0;
+
     (function walk(list, depth) {
       list.forEach((n) => {
         counter += 1;
-        out.push({ title: n.label || `Section ${counter}`, page: counter, depth });
+        const li = document.createElement("li");
+        li.className = "faith-toc-item";
+        if (depth) li.style.paddingLeft = `${depth * 14}px`;
+        li.innerHTML =
+          `<a href="#section-${counter}">` +
+          `<span class="faith-toc-label">${escapeHtml(n.label || `Section ${counter}`)}</span></a>`;
+        ol.appendChild(li);
         if (n.kids && n.kids.length) walk(n.kids, depth + 1);
       });
     })(nodes, 0);
-    return out;
+
+    tocNav.appendChild(ol);
   }
 
   // Render the contents tree directly. Text is already in hand, so
