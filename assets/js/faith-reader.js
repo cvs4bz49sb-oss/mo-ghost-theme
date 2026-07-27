@@ -80,14 +80,48 @@
   // one request instead of racing.
   const shardPromises = new Map();
 
-  // ── Boot ──────────────────────────────────────────────────────
-  // The Latin/English/Parallel switch only means something where a
-  // work actually has two lanes. EEBO is English throughout.
-  if (readerKind === "gz-toc" && langToggle) {
-    langToggle.hidden = true;
-    currentLang = "en";
+  // ── Language lanes ────────────────────────────────────────────
+  //
+  // The template ships a fixed English / Latin / Parallel switch. That
+  // is right for the Latin corpus and wrong nearly everywhere else:
+  // the confessions are en_only, so Latin and Parallel rendered empty
+  // columns; EEBO has no second lane at all; Patrologia Graeca has
+  // Greek beside Migne's Latin; Patrologia Orientalis has Syriac,
+  // Coptic, Armenian, Ge'ez or Arabic depending on the work. The
+  // switch is now built from the corpus's declared lanes, narrowed by
+  // what the work itself actually carries.
+
+  let lanes = (corpus && corpus.lanes) || [
+    { id: "en", label: "English" },
+    { id: "la", label: "Latin" },
+  ];
+
+  function buildLangToggle(secondLabel) {
+    if (!langToggle) return;
+    if (secondLabel && lanes.length > 1) {
+      lanes = lanes.map((l) => (l.id === "src" ? { id: "la", label: secondLabel } : l));
+    }
+    // One lane means nothing to switch between.
+    if (lanes.length < 2) {
+      langToggle.hidden = true;
+      currentLang = "en";
+      applyLang(currentLang);
+      return;
+    }
+    langToggle.hidden = false;
+    langToggle.innerHTML = `${lanes
+      .map((l) => `<button type="button" class="faith-lang-btn" data-lang="${escapeHtml(l.id)}">${escapeHtml(l.label)}</button>`)
+      .join("")}<button type="button" class="faith-lang-btn" data-lang="parallel">Parallel</button>`;
+    // A stored preference for a lane this work doesn't have would
+    // leave the reader on a blank column.
+    if (currentLang !== "parallel" && !lanes.some((l) => l.id === currentLang)) {
+      currentLang = lanes[0].id;
+    }
+    applyLang(currentLang);
   }
-  applyLang(currentLang);
+
+  // ── Boot ──────────────────────────────────────────────────────
+  buildLangToggle();
   fetchWork();
 
   // ── Fetch meta ────────────────────────────────────────────────
@@ -108,12 +142,19 @@
       })
       .then((m) => {
         meta = m;
+        // The work itself is the authority on its lanes. Confessions
+        // are en_only inside the same corpus as two-lane works, and
+        // they are linked without a ?c=, so the corpus default alone
+        // would give them a Latin button over an empty column.
+        if (m.en_only) lanes = [{ id: "en", label: "English" }];
+        buildLangToggle();
         populateHeader(m);
         buildToc(m.structure || []);
         renderContent(m);
         hideLoading();
         saveLastRead();
         openInitialSection();
+        initModernizer();
       })
       .catch((err) => {
         showError(`Could not load this work. (${err.message || err})`);
@@ -149,10 +190,96 @@
         hideLoading();
         saveLastRead();
         openInitialSection();
+        initModernizer();
       })
       .catch((err) => {
         showError(`Could not load this work. (${err.message || err})`);
       });
+  }
+
+  // ── Modernizer ────────────────────────────────────────────────
+  //
+  // faith-received.js runs its own initModernizer() on DOMContentLoaded,
+  // which is too early here: this reader renders after that, and the
+  // Latin corpus hydrates sections lazily as they open. So the reader
+  // owns its own toggle and re-applies on every newly rendered section.
+
+  let modernOn = false;
+
+  function initModernizer() {
+    const toggle = document.querySelector("[data-modernizer-toggle]");
+    if (!toggle || !window.FaithModernize) return;
+    if (!(corpus && corpus.modernize)) return;
+    if (!hasArchaic(contentEl)) return;
+
+    toggle.hidden = false;
+    if (!toggle.dataset.frBound) {
+      toggle.dataset.frBound = "1";
+      toggle.addEventListener("click", () => {
+        modernOn = toggle.getAttribute("aria-pressed") !== "true";
+        toggle.setAttribute("aria-pressed", String(modernOn));
+        const label = toggle.querySelector(".faith-toggle-label");
+        if (label) label.textContent = modernOn ? label.dataset.on : label.dataset.off;
+        document.body.classList.toggle("faith-modernized", modernOn);
+        if (modernOn) modernizeWithin(contentEl);
+        else restoreWithin(contentEl);
+      });
+    }
+  }
+
+  function hasArchaic(root) {
+    if (!root || !window.FaithModernize) return false;
+    const text = (root.textContent || "").slice(0, 60000);
+    return window.FaithModernize.hasArchaicLanguage(text) || EARLY_MODERN.test(text);
+  }
+
+  // Early modern orthography the grammar-focused engine doesn't cover:
+  // u/v and i/j were one letter each in 1473–1700 printing, and W was
+  // often set as VV. Long s is already normalized by EEBO-TCP.
+  const EARLY_MODERN =
+    /\b(vpon|vnto|vs|vse|vnder|haue|giue|loue|euery|neuer|ouer|euen|seruice|deuil|iudge|iust|maiestie|obiect|subiect|reioyce|adioyn)\b/i;
+
+  const ORTHOGRAPHY = [
+    [/\bvpon\b/gi, "upon"], [/\bvnto\b/gi, "unto"], [/\bvnder/gi, "under"],
+    [/\bvse\b/gi, "use"], [/\bvsed\b/gi, "used"], [/\bvs\b/g, "us"],
+    [/\bhaue\b/gi, "have"], [/\bgiue\b/gi, "give"], [/\bloue\b/gi, "love"],
+    [/\beuery\b/gi, "every"], [/\bneuer\b/gi, "never"], [/\bouer\b/gi, "over"],
+    [/\beuen\b/gi, "even"], [/\bseruice\b/gi, "service"], [/\bdeuil\b/gi, "devil"],
+    [/\bliue\b/gi, "live"], [/\bleaue\b/gi, "leave"], [/\bbeleeue\b/gi, "believe"],
+    [/\biudge/gi, "judge"], [/\biust/gi, "just"], [/\bmaiestie\b/gi, "majesty"],
+    [/\bobiect/gi, "object"], [/\bsubiect/gi, "subject"], [/\breioyc/gi, "rejoic"],
+    [/\badioyn/gi, "adjoin"], [/\bioy\b/gi, "joy"], [/\bkinges\b/gi, "kings"],
+    [/\bVV/g, "W"], [/\bvv/g, "w"],
+  ];
+
+  function modernizeOrthography(s) {
+    let out = s;
+    ORTHOGRAPHY.forEach(([re, to]) => { out = out.replace(re, to); });
+    return out;
+  }
+
+  function modernizeWithin(root) {
+    if (!root || !window.FaithModernize) return;
+    root.querySelectorAll(".faith-section-body").forEach((el) => {
+      if (el.dataset.frModern === "1") return;
+      if (el._frOriginal == null) el._frOriginal = el.innerHTML;
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+      let node;
+      while ((node = walker.nextNode())) {
+        const next = modernizeOrthography(window.FaithModernize.modernizeText(node.nodeValue));
+        if (next !== node.nodeValue) node.nodeValue = next;
+      }
+      el.dataset.frModern = "1";
+    });
+  }
+
+  function restoreWithin(root) {
+    if (!root) return;
+    root.querySelectorAll(".faith-section-body").forEach((el) => {
+      if (el.dataset.frModern !== "1") return;
+      if (el._frOriginal != null) el.innerHTML = el._frOriginal;
+      el.dataset.frModern = "0";
+    });
   }
 
   // DecompressionStream is the native path; fall back to letting the
@@ -611,6 +738,10 @@
           body.appendChild(buildPageBlock(p));
         });
         details.dataset.frState = "loaded";
+        // A section opened after the reader was switched to modern
+        // English has to catch up, or the work reads half-modernized.
+        if (modernOn) modernizeWithin(details);
+        else initModernizer();
       })
       .catch((err) => {
         details.dataset.frState = "";

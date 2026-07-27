@@ -51,11 +51,23 @@
             <span class="faith-toggle-label" data-off="Collapsed" data-on="Expanded">Collapsed</span>
           </button>
 
-          <div class="faith-lang-toggle" data-faith-lang-toggle>
+          {{!-- Buttons are rebuilt by faith-reader.js from the corpus's
+               declared lanes, narrowed by what the work actually
+               carries — an en_only confession gets no switch at all,
+               Patrologia Graeca gets Greek rather than Latin. These
+               are the Latin-corpus defaults, shown before the work's
+               meta arrives. --}}
+          <div class="faith-lang-toggle" data-faith-lang-toggle hidden>
             <button type="button" class="faith-lang-btn" data-lang="en" aria-pressed="true">English</button>
             <button type="button" class="faith-lang-btn" data-lang="la" aria-pressed="false">Latin</button>
             <button type="button" class="faith-lang-btn" data-lang="parallel" aria-pressed="false">Parallel</button>
           </div>
+
+          {{!-- Unhidden by the reader only where the corpus opts into
+               modernizing and the text actually reads archaically. --}}
+          <button type="button" class="faith-toggle-switch faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
+            <span class="faith-toggle-label faith-modernizer-label" data-off="Original" data-on="Modern English">Original</span>
+          </button>
         </div>
 
         {{!-- Loading state --}}

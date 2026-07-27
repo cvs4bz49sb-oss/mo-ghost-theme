@@ -58,6 +58,10 @@
       indexes: { scripture: "/v1/scripture.json", topics: "/v1/topics.json", graph: "/v1/graph/graph.json" },
       authors: "/v1/authors.json",
       blurbs: "/v1/blurbs.json",
+      // Language lanes the reader offers. A single lane means no
+      // toggle at all. `modernize` opts a corpus into the archaic-
+      // English engine.
+      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
       reader: "shards",
       readable: true,
       normalize: (w) => ({
@@ -77,6 +81,11 @@
       base: BLOB,
       catalogue: "/v1/confessions-index.json",
       pick: (d) => d.confessions || [],
+      // Born-digital English translations — en_only in their meta.
+      // No second lane, so no toggle. Many read archaically enough to
+      // be worth modernizing.
+      lanes: [{ id: "en", label: "English" }],
+      modernize: true,
       reader: "shards",
       readable: true,
       normalize: (c) => ({
@@ -102,6 +111,12 @@
       extras: { puritans: "/data/puritans.json", anglicans: "/data/anglicans.json" },
       // Per-work text is gzipped JSON on the shared Blob host,
       // {meta, toc} with nested html — not the TFR page-shard shape.
+      // Early modern English, one lane. No translation to toggle to,
+      // but the orthography and grammar are 1473–1700: "vpon", "the
+      // DVKE", "adioyned", "saith", "thou hast". Sampled 10 works —
+      // 9 carry -eth/-est verbs, 5 thou/thee, 5 i/j spellings.
+      lanes: [{ id: "en", label: "English" }],
+      modernize: true,
       reader: "gz-toc",
       readable: true,
       textBase: `${BLOB}/eebo/`,
@@ -126,6 +141,7 @@
       // nav.docs is an object keyed by doc id, not an array.
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({_id: k, ...d.docs[k]})),
       indexes: { topics: "/data/topics.json", refindex: "/data/refindex.json" },
+      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
       reader: "pld",
       readable: false,
       normalize: (w) => ({
@@ -152,6 +168,11 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({ _id: k, ...d.docs[k] })),
       indexes: { deepindex: "/data/deepindex.json", refindex: "/data/refindex.json" },
       extras: { voltoc: "/data/voltoc.json" },
+      // Migne prints the Greek beside his own Latin rendering. Two
+      // lanes until the text lands and we can see whether all three
+      // are actually carried per work — declaring a lane the renderer
+      // has no column for would half-work.
+      lanes: [{ id: "en", label: "English" }, { id: "src", label: "Greek" }],
       reader: "pg",
       readable: false,
       normalize: (w) => ({
@@ -178,6 +199,9 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({_id: k, ...d.docs[k]})),
       indexes: { topics: "/data/topics.json", refindex: "/data/refindex.json" },
       extras: { titles: "/data/titles_en.json", authreg: "/data/authreg.json" },
+      // Syriac, Coptic, Armenian, Ge'ez and Arabic originals. The
+      // lane is labelled by the work's own language at read time.
+      lanes: [{ id: "en", label: "English" }, { id: "src", label: "Original" }],
       reader: "po",
       readable: false,
       normalize: (w) => ({
@@ -206,6 +230,9 @@
         });
         return out;
       },
+      // 1,823 Greek authors to 234 Latin — the second lane depends on
+      // the work, so it is resolved from the author's L field.
+      lanes: [{ id: "en", label: "English" }, { id: "src", label: "Original" }],
       reader: "pangrammata",
       readable: false,
       normalize: (r) => ({
@@ -237,6 +264,7 @@
       },
       indexes: { refindex: "/data/refindex.json" },
       extras: { summa: "/data/summa.json" },
+      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
       reader: "aquinas",
       readable: false,
       // The site carries both authors, but no group name says so. The
