@@ -323,24 +323,32 @@
     const s = scriptureState;
 
     if (s.view === "books") {
+      // Two different numbers, and conflating them overstates the
+      // index: `works` is how many works cite the book at all, `cites`
+      // is how often they do it.
       const books = [...scripture.entries()]
         .map(([b, chs]) => {
-          let n = 0;
-          chs.forEach((l) => { n += l.length; });
-          return { book: b, chapters: chs.size, refs: n };
+          let works = 0;
+          let cites = 0;
+          chs.forEach((l) => {
+            works += l.length;
+            l.forEach((e) => { cites += e.times || 1; });
+          });
+          return { book: b, chapters: chs.size, refs: works, cites };
         })
         .filter((b) => b.refs)
-        .sort((a, b) => b.refs - a.refs);
+        .sort((a, b) => b.cites - a.cites);
       chrome(host, {
         title: "Scripture",
-        sub: `${books.length} books · ${books.reduce((a, b) => a + b.refs, 0).toLocaleString()} citations`,
+        sub: `${books.length} books · ${books.reduce((a, b) => a + b.cites, 0).toLocaleString()} citations ` +
+          `in ${books.reduce((a, b) => a + b.refs, 0).toLocaleString()} works`,
         note: coverageNote("scripture"),
       });
       grid(host).insertAdjacentHTML("beforeend", books.map((b) =>
         `<a class="faith-card" href="#" data-faith-book="${escapeHtml(b.book)}">` +
         `<p class="faith-card-date">${b.chapters} chapter${b.chapters === 1 ? "" : "s"}</p>` +
         `<h3 class="faith-card-title"><em>${escapeHtml(b.book)}</em></h3>` +
-        `<p class="faith-card-desc">${b.refs.toLocaleString()} citation${b.refs === 1 ? "" : "s"}</p>` +
+        `<p class="faith-card-desc">${b.cites.toLocaleString()} citation${b.cites === 1 ? "" : "s"}</p>` +
         `<span class="faith-card-link">Open <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`
       ).join(""));
       return;
@@ -491,7 +499,9 @@
           Object.keys(d).forEach((book) => {
             Object.keys(d[book]).forEach((ch) => {
               d[book][ch].forEach((row) => {
-                const [corpus, id] = row;
+                // [corpus, id, timesCited] — a work may cite the same
+                // chapter many times, so the third field is how often.
+                const [corpus, id, times] = row;
                 const w = (cats.get(corpus) || new Map()).get(String(id));
                 counts[corpus] = (counts[corpus] || 0) + 1;
                 addScripture(book, ch, {
@@ -499,6 +509,7 @@
                   id,
                   title: w ? w.title : String(id),
                   author: w ? w.author : "",
+                  times: times || 1,
                 });
               });
             });

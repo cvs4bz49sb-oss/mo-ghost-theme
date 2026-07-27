@@ -23071,14 +23071,26 @@ html[data-theme="dark"] .dlr-header-logo {
   .dlp-band-wave { display: none; }
 }
 
-/* Phone: cover + copy on one line, player and CTA beneath. */
+/* Phone: cover + copy on line one, player on line two, CTA full width. */
 @media (max-width: 640px) {
   .dlp-band-inner {
     flex-wrap: wrap;
-    gap: 16px;
-    padding: 20px 0;
+    gap: 14px 16px;
+    padding: 18px 0;
   }
-  .dlp-band-copy { flex-basis: auto; }
+  .dlp-band-art {
+    width: 56px;
+    height: 56px;
+  }
+  .dlp-band-copy {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .dlp-band-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+  .dlp-band-title { font-size: 20px; }
   .dlp-band-player {
     order: 3;
     flex: 1 1 auto;
@@ -23096,6 +23108,6 @@ html[data-theme="dark"] .dlr-header-logo {
   }
   .dlp-band-cta {
     order: 5;
-    flex: none;
+    flex: 1 0 100%;
   }
 }
