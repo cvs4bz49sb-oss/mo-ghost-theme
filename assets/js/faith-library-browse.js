@@ -206,7 +206,20 @@
     appendCards(grid, ordered, buildCollectionCard);
   }
 
-  function renderAuthors(collectionId, filterText) {
+  // Nothing renders a whole level at once. Opening Early English Books
+  // built 5.2 MB of HTML and ~98,000 nodes in a single synchronous
+  // insertAdjacentHTML for its 14,032 authors, which hung and then
+  // crashed the browser. content-visibility defers painting, not
+  // parsing, so it was no help at all. One author, "Anonymous", holds
+  // 9,122 works and would have done the same again a level down.
+  const PAGE_SIZE = 120;
+
+  function initial(name) {
+    const ch = (name || "").trim().charAt(0).toUpperCase();
+    return /[A-Z]/.test(ch) ? ch : "#";
+  }
+
+  function renderAuthors(collectionId, filterText, letter, page) {
     const c = collections.get(collectionId);
     const grid = libraryGrid();
     if (!c || !grid) return;
@@ -214,8 +227,19 @@
     grid.innerHTML = "";
 
     const q = (filterText || "").trim().toLowerCase();
-    let entries = [...c.authors.entries()];
-    if (q) entries = entries.filter(([name]) => name.toLowerCase().includes(q));
+    const all = [...c.authors.entries()];
+    let entries = q ? all.filter(([name]) => name.toLowerCase().includes(q)) : all;
+
+    // An A–Z rail is how you'd find a name on a real shelf, and it
+    // bounds what any one render has to build.
+    const letters = [...new Set(all.map(([n]) => initial(n)))].sort();
+    const useLetters = !q && all.length > PAGE_SIZE * 2 && letters.length > 1;
+    const active = useLetters ? (letter && letters.includes(letter) ? letter : letters[0]) : null;
+    if (active) entries = entries.filter(([n]) => initial(n) === active);
+
+    const pages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
+    const p = Math.min(Math.max(1, page || 1), pages);
+    const slice = entries.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE);
 
     insertChrome(grid, {
       back: { label: "All collections", to: "collections" },
@@ -224,22 +248,27 @@
       note: c.meta.readable === false
         ? "Catalogue and indexes are available. Full text is being ported."
         : "",
-      // A filter is the only workable entry point at EEBO's 14,032.
       filter: c.authors.size > 40 ? (filterText || "") : null,
       count: q ? `${entries.length.toLocaleString()} matching` : "",
+      letters: useLetters ? { list: letters, active } : null,
+      pager: pages > 1 ? { page: p, pages, total: entries.length, label: "authors" } : null,
     });
 
-    appendCards(grid, entries, ([name, works]) => buildAuthorCard(collectionId, name, works));
+    appendCards(grid, slice, ([name, works]) => buildAuthorCard(collectionId, name, works));
   }
 
-  function renderWorks(collectionId, author) {
+  function renderWorks(collectionId, author, page) {
     const c = collections.get(collectionId);
     const grid = libraryGrid();
     if (!c || !grid) return;
     const works = c.authors.get(author);
-    if (!works) return renderAuthors(collectionId, "");
+    if (!works) return renderAuthors(collectionId, "", null, 1);
     clearChrome();
     grid.innerHTML = "";
+
+    const pages = Math.max(1, Math.ceil(works.length / PAGE_SIZE));
+    const p = Math.min(Math.max(1, page || 1), pages);
+    const slice = works.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE);
 
     insertChrome(grid, {
       back: { label: c.meta.label, to: "authors", collection: collectionId },
@@ -248,9 +277,10 @@
       note: c.meta.readable === false
         ? "These works are catalogued and indexed. Full text is being ported."
         : "",
+      pager: pages > 1 ? { page: p, pages, total: works.length, label: "works" } : null,
     });
 
-    appendCards(grid, works, buildWorkCard);
+    appendCards(grid, slice, buildWorkCard);
   }
 
   // Header above the grid: back link, title, count, optional filter.
@@ -263,15 +293,39 @@
         `placeholder="Filter authors&hellip;" value="${escapeHtml(opts.filter)}" ` +
         `aria-label="Filter authors">`
       : "";
+    const lettersHtml = opts.letters
+      ? `<nav class="faith-az" aria-label="Jump to letter">${opts.letters.list
+          .map((l) => `<button type="button" class="faith-az-btn${l === opts.letters.active ? " is-active" : ""}" data-faith-letter="${escapeHtml(l)}">${escapeHtml(l)}</button>`)
+          .join("")}</nav>`
+      : "";
+    const pagerHtml = opts.pager
+      ? `<p class="faith-pager">` +
+        `<button type="button" class="faith-pager-btn" data-faith-page="${opts.pager.page - 1}"${opts.pager.page <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
+        `<span class="faith-pager-count">Page ${opts.pager.page} of ${opts.pager.pages} &middot; ` +
+        `${opts.pager.total.toLocaleString()} ${escapeHtml(opts.pager.label)}</span>` +
+        `<button type="button" class="faith-pager-btn" data-faith-page="${opts.pager.page + 1}"${opts.pager.page >= opts.pager.pages ? " disabled" : ""}>Next &rarr;</button>` +
+        `</p>`
+      : "";
     head.innerHTML =
       `<button type="button" class="faith-author-back" data-faith-back ` +
       `data-to="${opts.back.to}" data-collection="${escapeHtml(opts.back.collection || "")}">` +
       `<span aria-hidden="true">&larr;</span> ${escapeHtml(opts.back.label)}</button>` +
       `<h2 class="faith-author-name"><em>${escapeHtml(opts.title)}</em></h2>` +
-      `<p class="faith-author-dates">${opts.sub}${opts.count ? ` &middot; ${opts.count}` : ""}</p>${ 
-      opts.note ? `<p class="faith-browse-note">${escapeHtml(opts.note)}</p>` : "" 
-      }${filterHtml}`;
+      `<p class="faith-author-dates">${opts.sub}${opts.count ? ` &middot; ${opts.count}` : ""}</p>${
+      opts.note ? `<p class="faith-browse-note">${escapeHtml(opts.note)}</p>` : ""
+      }${filterHtml}${lettersHtml}${pagerHtml}`;
     grid.parentNode.insertBefore(head, grid);
+
+    // Repeat the pager under the grid — 120 cards is a long way to
+    // scroll back up to reach "Next".
+    if (opts.pager) {
+      const foot = document.createElement("div");
+      foot.className = "faith-browse-foot";
+      foot.setAttribute("data-faith-browse-chrome", "");
+      foot.innerHTML = pagerHtml;
+      if (grid.nextSibling) grid.parentNode.insertBefore(foot, grid.nextSibling);
+      else grid.parentNode.appendChild(foot);
+    }
   }
 
   // ── Routing ───────────────────────────────────────────────────
@@ -279,20 +333,36 @@
   function currentView() {
     let collection = "";
     let author = "";
+    let letter = "";
+    let page = 1;
     try {
       const q = new URLSearchParams(window.location.search);
       collection = q.get("collection") || "";
       author = q.get("author") || "";
+      letter = q.get("letter") || "";
+      page = parseInt(q.get("page"), 10) || 1;
     } catch (_) {}
-    if (collection && author) return { view: "works", collection, author };
-    if (collection) return { view: "authors", collection };
+    if (collection && author) return { view: "works", collection, author, page };
+    if (collection) return { view: "authors", collection, letter, page };
     return { view: "collections" };
+  }
+
+  // Letter and page live in the URL alongside collection and author,
+  // so a browse position survives reload and sharing.
+  function viewUrl(v) {
+    const q = new URLSearchParams();
+    if (v.collection) q.set("collection", v.collection);
+    if (v.author) q.set("author", v.author);
+    if (v.letter) q.set("letter", v.letter);
+    if (v.page && v.page > 1) q.set("page", String(v.page));
+    const s = q.toString();
+    return window.location.pathname + (s ? `?${s}` : "");
   }
 
   function restoreFromUrl() {
     const v = currentView();
-    if (v.view === "works") renderWorks(v.collection, v.author);
-    else if (v.view === "authors") renderAuthors(v.collection, "");
+    if (v.view === "works") renderWorks(v.collection, v.author, v.page);
+    else if (v.view === "authors") renderAuthors(v.collection, "", v.letter, v.page);
     else renderCollections();
   }
 
@@ -310,9 +380,31 @@
       const to = back.getAttribute("data-to");
       const col = back.getAttribute("data-collection");
       if (to === "authors" && col) {
-        go(`${window.location.pathname}?collection=${encodeURIComponent(col)}`, () => renderAuthors(col, ""));
+        go(viewUrl({ collection: col }), () => renderAuthors(col, "", null, 1));
       } else {
         go(window.location.pathname, renderCollections);
+      }
+      return;
+    }
+    const letter = e.target.closest("[data-faith-letter]");
+    if (letter) {
+      e.preventDefault();
+      const v = currentView();
+      const l = letter.getAttribute("data-faith-letter");
+      go(viewUrl({ collection: v.collection, letter: l }), () => renderAuthors(v.collection, "", l, 1));
+      return;
+    }
+    const pageBtn = e.target.closest("[data-faith-page]");
+    if (pageBtn && !pageBtn.disabled) {
+      e.preventDefault();
+      const v = currentView();
+      const n = parseInt(pageBtn.getAttribute("data-faith-page"), 10) || 1;
+      if (v.view === "works") {
+        go(viewUrl({ collection: v.collection, author: v.author, page: n }),
+          () => renderWorks(v.collection, v.author, n));
+      } else {
+        go(viewUrl({ collection: v.collection, letter: v.letter, page: n }),
+          () => renderAuthors(v.collection, "", v.letter, n));
       }
       return;
     }
@@ -320,7 +412,7 @@
     if (col) {
       e.preventDefault();
       const id = col.getAttribute("data-faith-collection");
-      go(`${window.location.pathname}?collection=${encodeURIComponent(id)}`, () => renderAuthors(id, ""));
+      go(viewUrl({ collection: id }), () => renderAuthors(id, "", null, 1));
       return;
     }
     const auth = e.target.closest("[data-faith-author]");
@@ -329,8 +421,8 @@
       const name = auth.getAttribute("data-faith-author");
       const v = currentView();
       if (!v.collection) return;
-      go(`${window.location.pathname}?collection=${encodeURIComponent(v.collection)}&author=${encodeURIComponent(name)}`,
-        () => renderWorks(v.collection, name));
+      go(viewUrl({ collection: v.collection, author: name }),
+        () => renderWorks(v.collection, name, 1));
     }
   });
 
@@ -342,7 +434,9 @@
     const v = currentView();
     if (v.view !== "authors") return;
     const caret = input.selectionStart;
-    renderAuthors(v.collection, input.value);
+    // Filtering searches the whole collection, so it drops the letter
+    // and returns to page one rather than filtering within a letter.
+    renderAuthors(v.collection, input.value, null, 1);
     const again = document.querySelector("[data-faith-filter]");
     if (again) {
       again.focus();
