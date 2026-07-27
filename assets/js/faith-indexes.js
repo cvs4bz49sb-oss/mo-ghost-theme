@@ -131,6 +131,35 @@
   const BLOB = "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com";
 
   // { genesis: { "1": [[slug, page, excerpt], …] } }
+  // The Latin Library's shipped scripture index mistakes a work's own
+  // chapter heading for a biblical chapter. "Romans 98" is not Romans
+  // 9:8 — its excerpt reads "CHAPTER XCVIII. — The Catholic doctrine
+  // concerning justification…", so the XCVIII is Bellarmine's chapter,
+  // matched against a nearby mention of Romans.
+  //
+  // 10,166 of its 12,659 entries (80.3%) open with "CHAPTER <roman>",
+  // and in every one of those the roman numeral equals the chapter it
+  // was filed under. Dropping impossible chapters only caught the
+  // 2,497 where the work ran past the book's length; the rest sit in
+  // range and read as real citations. Discard the whole signature
+  // until the generated index replaces this source outright.
+  const ROMAN = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
+  function romanValue(s) {
+    let total = 0;
+    const t = String(s).toLowerCase();
+    for (let i = 0; i < t.length; i += 1) {
+      const cur = ROMAN[t[i]];
+      const next = ROMAN[t[i + 1]];
+      if (!cur) return 0;
+      total += next && next > cur ? -cur : cur;
+    }
+    return total;
+  }
+  function isOwnChapterHeading(excerpt, chapter) {
+    const m = String(excerpt || "").trim().match(/^CHAPTER\s+([IVXLCDM]+)\b/i);
+    return !!m && romanValue(m[1]) === parseInt(chapter, 10);
+  }
+
   function loadLatinScripture(catalogue) {
     // The index stores slugs; titles and authors come from the
     // catalogue, or a card would read
@@ -141,6 +170,7 @@
       Object.keys(d).forEach((book) => {
         Object.keys(d[book]).forEach((ch) => {
           d[book][ch].forEach((e) => {
+            if (isOwnChapterHeading(e[2], ch)) { droppedRefs += 1; return; }
             const w = byId.get(String(e[0]));
             n += 1;
             addScripture(book, ch, {
