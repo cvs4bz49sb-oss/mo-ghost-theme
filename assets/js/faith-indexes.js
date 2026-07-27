@@ -1,0 +1,408 @@
+/*
+ * The Faith Received — Scripture and Topics indexes
+ *
+ * Every collection ships its own prebuilt index, in its own shape and
+ * its own vocabulary. This merges them into two browsable indexes
+ * spanning the whole reading room:
+ *
+ *   Scripture  ->  book  ->  chapter  ->  the works that cite it
+ *   Topics     ->  locus ->  the works that treat it
+ *
+ * Like the Library browse, nothing renders a whole level: Genesis 1
+ * alone is cited by hundreds of works, and Early English Books
+ * contributes 449,002 citations.
+ *
+ * Coverage is honest, not implied. Where a collection has no index we
+ * say so rather than letting its absence read as "nothing to find" —
+ * see COVERAGE below and the note rendered at the head of each index.
+ */
+
+(function () {
+  "use strict";
+
+  if (!window.MOCorpora) return;
+
+  const scriptureSection = document.querySelector('[data-faith-section="scripture"]');
+  const topicsSection = document.querySelector('[data-faith-section="topics"]');
+  if (!scriptureSection && !topicsSection) return;
+
+  const PAGE_SIZE = 120;
+
+  // Topic vocabularies differ collection to collection — only 13 of
+  // the Latin Library's 43 loci match Patrologia Latina's 41 by label.
+  // These pairs are the same doctrine under different names; anything
+  // not listed stays separate rather than being forced together.
+  const TOPIC_CROSSWALK = {
+    "sin & the fall": "sin",
+    "scripture & exegesis": "scripture",
+    "christ / incarnation": "christ / christology",
+    "christology & incarnation": "christ / christology",
+    "creation / hexaemeron": "creation",
+    "angels & demons": "angels",
+    "the eucharist": "the lord's supper",
+    "prayer & liturgy": "prayer",
+    "man / the soul": "man / anthropology",
+    "the church & its unity": "the church",
+  };
+
+  // Patrologia Orientalis indexes by genre (Lives of Saints, Letters,
+  // Homilies, Synaxaria), not by doctrine. Merging those into a list
+  // of theological loci would be a category error, so they are kept
+  // apart and labelled for what they are.
+  const GENRE_LABELS = new Set([
+    "martyrdom & acts", "lives of saints", "homilies & sermons",
+    "liturgy & hymnography", "synaxaria & calendars",
+    "church history & patriarchates", "letters",
+    "canons & church order", "councils & creeds",
+    "apologetic & polemic", "monasticism & asceticism",
+  ]);
+
+  const norm = (s) => String(s || "").toLowerCase().trim();
+  const canonical = (label) => TOPIC_CROSSWALK[norm(label)] || norm(label);
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  const titleCase = (s) => s.replace(/\b[a-z]/g, (m) => m.toUpperCase());
+
+  // ── Data ──────────────────────────────────────────────────────
+
+  // book -> chapter -> [{corpus, id, title, ref}]
+  const scripture = new Map();
+  // canonical topic -> { label, genre, entries: [{corpus, id, title, author}] }
+  const topics = new Map();
+
+  // Which collections actually contribute, so the pages can be honest
+  // about what a reader is and isn't searching.
+  const COVERAGE = { scripture: [], topics: [], missing: { scripture: [], topics: [] } };
+
+  function addScripture(book, chapter, entry) {
+    const b = titleCase(norm(book));
+    if (!scripture.has(b)) scripture.set(b, new Map());
+    const chs = scripture.get(b);
+    const key = String(chapter);
+    if (!chs.has(key)) chs.set(key, []);
+    chs.get(key).push(entry);
+  }
+
+  function addTopic(label, entry) {
+    const key = canonical(label);
+    if (!topics.has(key)) {
+      topics.set(key, { label: titleCase(key), genre: GENRE_LABELS.has(norm(label)), entries: [] });
+    }
+    topics.get(key).entries.push(entry);
+  }
+
+  // ── Loaders, one per source shape ─────────────────────────────
+
+  const BLOB = "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com";
+
+  // { genesis: { "1": [[slug, page, excerpt], …] } }
+  function loadLatinScripture() {
+    return fetch(`${BLOB}/v1/scripture.json`).then((r) => r.json()).then((d) => {
+      let n = 0;
+      Object.keys(d).forEach((book) => {
+        Object.keys(d[book]).forEach((ch) => {
+          d[book][ch].forEach((e) => {
+            n += 1;
+            addScripture(book, ch, {
+              corpus: "tfr", id: e[0], title: e[0], page: e[1], excerpt: e[2] || "",
+            });
+          });
+        });
+      });
+      COVERAGE.scripture.push({ id: "tfr", n });
+    });
+  }
+
+  // { byref: { "Genesis 1": ["6", "231", …] } } — ids into the EEBO
+  // catalogue, so titles are resolved from the loaded collection.
+  function loadEeboScripture(catalogue) {
+    return fetch("https://eebo-backup.vercel.app/data/scripture.json")
+      .then((r) => r.json())
+      .then((d) => {
+        const byId = new Map(catalogue.map((w) => [String(w.id), w]));
+        let n = 0;
+        Object.keys(d.byref || {}).forEach((ref) => {
+          const m = ref.match(/^(.*?)\s+(\d+)$/);
+          if (!m) return;
+          d.byref[ref].forEach((id) => {
+            const w = byId.get(String(id));
+            if (!w) return;
+            n += 1;
+            addScripture(m[1], m[2], { corpus: "eebo", id: w.id, title: w.title, author: w.author });
+          });
+        });
+        COVERAGE.scripture.push({ id: "eebo", n });
+      });
+  }
+
+  // { topics: [{ label, works: [{ slug|d, title|t|te, author|a }] }] }
+  function loadTopics(url, corpusId) {
+    return fetch(url).then((r) => r.json()).then((d) => {
+      const list = d.topics || d;
+      if (!Array.isArray(list)) return;
+      let n = 0;
+      list.forEach((t) => {
+        (t.works || []).forEach((w) => {
+          n += 1;
+          addTopic(t.label || t.id, {
+            corpus: corpusId,
+            id: String(w.slug || w.d || w.id || ""),
+            title: w.te || w.title || w.t || "",
+            author: w.ae || w.author || w.a || "",
+          });
+        });
+      });
+      COVERAGE.topics.push({ id: corpusId, n });
+    });
+  }
+
+  // ── Render helpers ────────────────────────────────────────────
+
+  function readerUrl(corpus, id) {
+    const c = window.MOCorpora.get(corpus);
+    if (!c) return "/the-faith-received/";
+    if (c.readable === false) return `/the-faith-received/?collection=${encodeURIComponent(corpus)}`;
+    const q = corpus === "tfr" || corpus === "confessions" ? "" : `c=${encodeURIComponent(corpus)}&`;
+    return `/the-faith-received/reader/?${q}w=${encodeURIComponent(id)}`;
+  }
+
+  function coverageNote(kind) {
+    const have = COVERAGE[kind].filter((c) => c.n).map((c) => {
+      const m = window.MOCorpora.get(c.id);
+      return m ? m.label : c.id;
+    });
+    const missing = COVERAGE.missing[kind].map((id) => {
+      const m = window.MOCorpora.get(id);
+      return m ? m.label : id;
+    });
+    if (!have.length) return "";
+    let s = `Indexed from ${have.join(", ")}.`;
+    if (missing.length) {
+      s += ` Not yet indexed: ${missing.join(", ")}.`;
+    }
+    return s;
+  }
+
+  function chrome(host, opts) {
+    host.querySelectorAll("[data-faith-index-chrome]").forEach((el) => el.remove());
+    const head = document.createElement("div");
+    head.className = "faith-browse-head";
+    head.setAttribute("data-faith-index-chrome", "");
+    const pager = opts.pager
+      ? `<p class="faith-pager">` +
+        `<button type="button" class="faith-pager-btn" data-faith-index-page="${opts.pager.page - 1}"${opts.pager.page <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
+        `<span class="faith-pager-count">Page ${opts.pager.page} of ${opts.pager.pages} &middot; ${opts.pager.total.toLocaleString()} ${escapeHtml(opts.pager.label)}</span>` +
+        `<button type="button" class="faith-pager-btn" data-faith-index-page="${opts.pager.page + 1}"${opts.pager.page >= opts.pager.pages ? " disabled" : ""}>Next &rarr;</button></p>`
+      : "";
+    head.innerHTML =
+      `${opts.back
+        ? `<button type="button" class="faith-author-back" data-faith-index-back="${escapeHtml(opts.back.to)}">` +
+          `<span aria-hidden="true">&larr;</span> ${escapeHtml(opts.back.label)}</button>`
+        : "" 
+      }<h2 class="faith-author-name"><em>${escapeHtml(opts.title)}</em></h2>${ 
+      opts.sub ? `<p class="faith-author-dates">${escapeHtml(opts.sub)}</p>` : "" 
+      }${opts.note ? `<p class="faith-browse-note">${escapeHtml(opts.note)}</p>` : "" 
+      }${pager}`;
+    host.insertBefore(head, host.firstChild);
+  }
+
+  function grid(host) {
+    let g = host.querySelector(".faith-card-grid[data-faith-index-grid]");
+    if (!g) {
+      g = document.createElement("div");
+      g.className = "faith-card-grid";
+      g.setAttribute("data-faith-index-grid", "");
+      host.appendChild(g);
+    }
+    g.innerHTML = "";
+    return g;
+  }
+
+  function workCard(e) {
+    const c = window.MOCorpora.get(e.corpus);
+    const pending = c && c.readable === false;
+    return `<a class="faith-card" href="${escapeHtml(readerUrl(e.corpus, e.id))}">` +
+      `<p class="faith-card-date">${escapeHtml(c ? c.label : e.corpus)}</p>` +
+      `<h3 class="faith-card-title"><em>${escapeHtml(e.title || e.id)}</em></h3>${ 
+      e.author ? `<p class="faith-card-author"><em>${escapeHtml(e.author)}</em></p>` : "" 
+      }${e.excerpt ? `<p class="faith-card-desc">${escapeHtml(e.excerpt.slice(0, 160))}</p>` : "" 
+      }<span class="faith-card-link">${pending ? "Browse" : "Read"} <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
+  }
+
+  function paged(list, page) {
+    const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+    const p = Math.min(Math.max(1, page || 1), pages);
+    return { slice: list.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE), page: p, pages };
+  }
+
+  // ── Scripture views ───────────────────────────────────────────
+
+  let scriptureState = { view: "books", book: null, chapter: null, page: 1 };
+
+  function renderScripture() {
+    const host = scriptureSection && scriptureSection.querySelector(".container");
+    if (!host) return;
+    const s = scriptureState;
+
+    if (s.view === "books") {
+      const books = [...scripture.entries()]
+        .map(([b, chs]) => {
+          let n = 0;
+          chs.forEach((l) => { n += l.length; });
+          return { book: b, chapters: chs.size, refs: n };
+        })
+        .filter((b) => b.refs)
+        .sort((a, b) => b.refs - a.refs);
+      chrome(host, {
+        title: "Scripture",
+        sub: `${books.length} books &middot; ${books.reduce((a, b) => a + b.refs, 0).toLocaleString()} citations`,
+        note: coverageNote("scripture"),
+      });
+      grid(host).insertAdjacentHTML("beforeend", books.map((b) =>
+        `<a class="faith-card" href="#" data-faith-book="${escapeHtml(b.book)}">` +
+        `<p class="faith-card-date">${b.chapters} chapter${b.chapters === 1 ? "" : "s"}</p>` +
+        `<h3 class="faith-card-title"><em>${escapeHtml(b.book)}</em></h3>` +
+        `<p class="faith-card-desc">${b.refs.toLocaleString()} citation${b.refs === 1 ? "" : "s"}</p>` +
+        `<span class="faith-card-link">Open <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`
+      ).join(""));
+      return;
+    }
+
+    const chs = scripture.get(s.book);
+    if (!chs) { scriptureState = { view: "books" }; return renderScripture(); }
+
+    if (s.view === "chapters") {
+      const list = [...chs.entries()]
+        .map(([ch, l]) => ({ ch, n: l.length }))
+        .sort((a, b) => (parseInt(a.ch, 10) || 0) - (parseInt(b.ch, 10) || 0));
+      chrome(host, {
+        back: { to: "books", label: "All books" },
+        title: s.book,
+        sub: `${list.length} chapters &middot; ${list.reduce((a, c) => a + c.n, 0).toLocaleString()} citations`,
+      });
+      grid(host).insertAdjacentHTML("beforeend", list.map((c) =>
+        `<a class="faith-card" href="#" data-faith-chapter="${escapeHtml(c.ch)}">` +
+        `<h3 class="faith-card-title"><em>${escapeHtml(s.book)} ${escapeHtml(c.ch)}</em></h3>` +
+        `<p class="faith-card-desc">${c.n.toLocaleString()} citation${c.n === 1 ? "" : "s"}</p>` +
+        `<span class="faith-card-link">Open <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`
+      ).join(""));
+      return;
+    }
+
+    const entries = chs.get(String(s.chapter)) || [];
+    const { slice, page, pages } = paged(entries, s.page);
+    chrome(host, {
+      back: { to: "chapters", label: s.book },
+      title: `${s.book} ${s.chapter}`,
+      sub: `${entries.length.toLocaleString()} work${entries.length === 1 ? "" : "s"} cite this chapter`,
+      pager: pages > 1 ? { page, pages, total: entries.length, label: "citations" } : null,
+    });
+    grid(host).insertAdjacentHTML("beforeend", slice.map(workCard).join(""));
+  }
+
+  // ── Topics views ──────────────────────────────────────────────
+
+  let topicState = { view: "topics", topic: null, page: 1 };
+
+  function renderTopics() {
+    const host = topicsSection && topicsSection.querySelector(".container");
+    if (!host) return;
+
+    if (topicState.view === "topics") {
+      const list = [...topics.entries()]
+        .map(([key, t]) => ({ key, ...t, n: t.entries.length }))
+        .filter((t) => t.n)
+        .sort((a, b) => (a.genre - b.genre) || b.n - a.n);
+      chrome(host, {
+        title: "Topics",
+        sub: `${list.length} headings &middot; ${list.reduce((a, t) => a + t.n, 0).toLocaleString()} entries`,
+        note: coverageNote("topics"),
+      });
+      grid(host).insertAdjacentHTML("beforeend", list.map((t) =>
+        `<a class="faith-card" href="#" data-faith-topic="${escapeHtml(t.key)}">` +
+        `<p class="faith-card-date">${t.genre ? "Genre" : "Doctrine"}</p>` +
+        `<h3 class="faith-card-title"><em>${escapeHtml(t.label)}</em></h3>` +
+        `<p class="faith-card-desc">${t.n.toLocaleString()} work${t.n === 1 ? "" : "s"}</p>` +
+        `<span class="faith-card-link">Open <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`
+      ).join(""));
+      return;
+    }
+
+    const t = topics.get(topicState.topic);
+    if (!t) { topicState = { view: "topics" }; return renderTopics(); }
+    const { slice, page, pages } = paged(t.entries, topicState.page);
+    chrome(host, {
+      back: { to: "topics", label: "All topics" },
+      title: t.label,
+      sub: `${t.entries.length.toLocaleString()} work${t.entries.length === 1 ? "" : "s"}`,
+      pager: pages > 1 ? { page, pages, total: t.entries.length, label: "works" } : null,
+    });
+    grid(host).insertAdjacentHTML("beforeend", slice.map(workCard).join(""));
+  }
+
+  // ── Events ────────────────────────────────────────────────────
+
+  document.addEventListener("click", (e) => {
+    const book = e.target.closest("[data-faith-book]");
+    if (book) {
+      e.preventDefault();
+      scriptureState = { view: "chapters", book: book.getAttribute("data-faith-book"), page: 1 };
+      return renderScripture();
+    }
+    const ch = e.target.closest("[data-faith-chapter]");
+    if (ch) {
+      e.preventDefault();
+      scriptureState.view = "verses";
+      scriptureState.chapter = ch.getAttribute("data-faith-chapter");
+      scriptureState.page = 1;
+      return renderScripture();
+    }
+    const topic = e.target.closest("[data-faith-topic]");
+    if (topic) {
+      e.preventDefault();
+      topicState = { view: "topic", topic: topic.getAttribute("data-faith-topic"), page: 1 };
+      return renderTopics();
+    }
+    const back = e.target.closest("[data-faith-index-back]");
+    if (back) {
+      e.preventDefault();
+      const to = back.getAttribute("data-faith-index-back");
+      if (to === "books") { scriptureState = { view: "books" }; return renderScripture(); }
+      if (to === "chapters") { scriptureState.view = "chapters"; return renderScripture(); }
+      if (to === "topics") { topicState = { view: "topics" }; return renderTopics(); }
+    }
+    const pg = e.target.closest("[data-faith-index-page]");
+    if (pg && !pg.disabled) {
+      e.preventDefault();
+      const n = parseInt(pg.getAttribute("data-faith-index-page"), 10) || 1;
+      if (pg.closest('[data-faith-section="scripture"]')) {
+        scriptureState.page = n; renderScripture();
+      } else {
+        topicState.page = n; renderTopics();
+      }
+    }
+  });
+
+  // ── Boot ──────────────────────────────────────────────────────
+
+  // Collections with no index of their own. Named on the page so their
+  // absence reads as "not yet indexed" rather than "nothing to find".
+  ["eebo", "aquinas", "augustine", "pangrammata", "pg"].forEach((id) => COVERAGE.missing.topics.push(id));
+  ["aquinas", "augustine", "pangrammata", "pg", "po", "pld"].forEach((id) => COVERAGE.missing.scripture.push(id));
+
+  Promise.all([
+    loadLatinScripture().catch(() => {}),
+    window.MOCorpora.load("eebo").then((cat) => loadEeboScripture(cat)).catch(() => {}),
+    loadTopics(`${BLOB}/v1/topics.json`, "tfr").catch(() => {}),
+    loadTopics("https://pld-patrologia-latina.vercel.app/data/topics.json", "pld").catch(() => {}),
+    loadTopics("https://patrologia-orientalis.vercel.app/data/topics.json", "po").catch(() => {}),
+  ]).then(() => {
+    renderScripture();
+    renderTopics();
+  });
+})();
