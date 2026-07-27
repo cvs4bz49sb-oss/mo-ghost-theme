@@ -203,7 +203,12 @@ function romanToInt(s) {
   return total;
 }
 
-export function extractRefs(text) {
+// Each hit records where it sits and the words around it, so the
+// index can preview a reference before the reader clicks and land them
+// on the right spot afterwards. Only the first hit per chapter keeps an
+// excerpt — a work citing Romans 9 eleven times needs one preview, not
+// eleven, and excerpts are what would make this file unservable.
+export function extractRefs(text, locate) {
   const found = new Map();
   if (!text) return found;
   let m;
@@ -225,7 +230,18 @@ export function extractRefs(text) {
     const max = MAX_CHAPTERS[canon];
     if (max && n > max) continue;
     const key = `${canon}|${n}`;
-    found.set(key, (found.get(key) || 0) + 1);
+    const prev = found.get(key);
+    if (prev) { prev.n += 1; continue; }
+    const at = m.index;
+    const excerpt = text
+      .slice(Math.max(0, at - 90), at + 130)
+      .replace(/\s+/g, " ")
+      .trim();
+    found.set(key, {
+      n: 1,
+      loc: locate ? locate(at) : null,
+      excerpt,
+    });
   }
   return found;
 }
@@ -244,19 +260,43 @@ async function eeboWorks(limit) {
   return (limit ? list.slice(0, limit) : list).map((w) => String(w.i));
 }
 
+// Every reader returns { text, locate } — locate(offset) turns a
+// character offset in that text into whatever the reader needs to
+// scroll to: a section index for EEBO and Aquinas, a page number for
+// the Latin Library.
+function locatorFor(marks) {
+  // marks: [{ at, loc }] in ascending order of `at`.
+  return (offset) => {
+    let lo = 0;
+    let hi = marks.length - 1;
+    let best = null;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (marks[mid].at <= offset) { best = marks[mid].loc; lo = mid + 1; } else hi = mid - 1;
+    }
+    return best;
+  };
+}
+
 async function eeboText(id) {
   const r = await fetch(`${BLOB}/eebo/${id}.json.gz`);
   if (!r.ok) throw new Error(`${r.status}`);
   const buf = Buffer.from(await r.arrayBuffer());
   const j = JSON.parse((await gunzip(buf)).toString("utf8"));
   let out = "";
+  const marks = [];
+  let section = 0;
+  // Depth-first pre-order, matching how the reader numbers sections,
+  // so a locator here lands on the same #section-N there.
   (function walk(nodes) {
     (nodes || []).forEach((n) => {
+      section += 1;
+      marks.push({ at: out.length, loc: section });
       if (n.html) out += ` ${n.html.replace(/<[^>]+>/g, " ")}`;
       walk(n.kids);
     });
   })(j.toc);
-  return out;
+  return { text: out, locate: locatorFor(marks) };
 }
 
 async function tfrWorks(limit) {
@@ -271,11 +311,17 @@ async function tfrText(slug) {
     ? meta.shards.map((s) => s.file)
     : [meta.single || "work.json"];
   let out = "";
+  const marks = [];
   for (const f of files) {
     const d = await getJSON(`${BLOB}/v1/works/${slug}/${f}`);
-    for (const p of d.pages || d) out += ` ${p.la || ""} ${p.en || ""}`;
+    for (const p of d.pages || d) {
+      // Page number, which the reader can resolve to the section whose
+      // range contains it.
+      marks.push({ at: out.length, loc: p.n });
+      out += ` ${p.la || ""} ${p.en || ""}`;
+    }
   }
-  return out;
+  return { text: out, locate: locatorFor(marks) };
 }
 
 // Aquinas and Augustine share one source catalogue, split at file id

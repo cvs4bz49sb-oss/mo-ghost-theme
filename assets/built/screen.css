@@ -22935,7 +22935,7 @@ html[data-theme="dark"] .dlr-header-logo {
    Daily Liturgy band — thin homepage section
    ------------------------------------------------------------
    Its own full-bleed dark strip between "This Week" (articles) and
-   "Listen" (podcasts). Its only rules are the two off-white
+   "Listen" (podcasts). Its only rules are the two brand-orange
    horizontals running in from the left and right edges at the band's
    vertical centre, bookending the content. No top or bottom border:
    the dark ground is its own edge. Deliberately thin: cover, copy,
@@ -22961,7 +22961,7 @@ html[data-theme="dark"] .dlr-header-logo {
   transform: translateY(-50%);
   height: 2px;
   width: calc((100% - 1180px) / 2);
-  background: var(--color-page);
+  background: var(--color-primary);
 }
 .dlp-band::before { left: 0; }
 .dlp-band::after { right: 0; }
