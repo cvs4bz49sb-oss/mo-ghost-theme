@@ -338,10 +338,17 @@
         })
         .filter((b) => b.refs)
         .sort((a, b) => b.cites - a.cites);
+      // Distinct works, not row count — a work citing forty chapters
+      // is one work, and summing rows claimed 2,057,263 of them when
+      // the corpus holds 29,015.
+      const distinct = new Set();
+      scripture.forEach((chs) => chs.forEach((l) => l.forEach((e) => {
+        distinct.add(`${e.corpus}:${e.id}`);
+      })));
       chrome(host, {
         title: "Scripture",
         sub: `${books.length} books · ${books.reduce((a, b) => a + b.cites, 0).toLocaleString()} citations ` +
-          `in ${books.reduce((a, b) => a + b.refs, 0).toLocaleString()} works`,
+          `across ${distinct.size.toLocaleString()} works`,
         note: coverageNote("scripture"),
       });
       grid(host).insertAdjacentHTML("beforeend", books.map((b) =>
