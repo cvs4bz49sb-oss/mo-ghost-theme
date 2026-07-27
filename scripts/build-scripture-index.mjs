@@ -61,13 +61,13 @@ const MAX_CHAPTERS = {
 // normalised separately so "1", "I", "first" and "1st" all work.
 const ALIASES = {
   genesis: ["gen", "genes", "gn"],
-  exodus: ["exod", "exo", "ex"],
+  exodus: ["exod", "exo"],  // "ex" removed: Latin preposition
   leviticus: ["lev", "levit", "lv"],
   numbers: ["num", "numb", "nu", "numeri"],
   deuteronomy: ["deut", "deu", "dt", "deuter"],
   joshua: ["josh", "jos", "iosue", "josue"],
   judges: ["judg", "jud", "jdg", "iudicum", "judicum"],
-  ruth: ["rut", "ru"],
+  ruth: ["rut"],  // "ru" removed: too short to be safe
   "1 samuel": ["1 sam", "1 sm", "1 kingdoms", "1 reg", "1 regum"],
   "2 samuel": ["2 sam", "2 sm", "2 kingdoms", "2 reg", "2 regum"],
   "1 kings": ["1 kin", "1 kgs", "3 reg", "3 regum", "3 kingdoms"],
@@ -76,31 +76,31 @@ const ALIASES = {
   "2 chronicles": ["2 chron", "2 chr", "2 paral", "2 paralipomenon"],
   ezra: ["esdr", "esdras", "ezr", "1 esdras"],
   nehemiah: ["neh", "nehem", "2 esdras"],
-  esther: ["esth", "est"],
+  esther: ["esth"],  // "est" removed: Latin for "is"
   job: ["iob"],
   psalms: ["psalm", "psal", "ps", "psa", "psalmus", "psalmos", "psalmis"],
   proverbs: ["prov", "pro", "prv", "proverb", "proverbiorum"],
   ecclesiastes: ["eccles", "eccl", "eccle", "ecclesiast"],
-  "song of solomon": ["cant", "canticles", "canticorum", "song", "sol", "songs"],
-  isaiah: ["isa", "esay", "esaias", "isai", "isaias", "es"],
+  "song of solomon": ["cant", "canticles", "canticorum", "cantic"],  // "song"/"songs"/"sol" removed: ordinary words
+  isaiah: ["isa", "esay", "esaias", "isai", "isaias"],  // "es" removed: Latin "you are"
   jeremiah: ["jer", "ier", "jerem", "ieremias", "jeremias"],
   lamentations: ["lam", "thren", "threni", "lament"],
   ezekiel: ["ezek", "eze", "ezech", "ezechiel"],
   daniel: ["dan", "dn"],
   hosea: ["hos", "osee", "ose"],
   joel: ["ioel", "joe"],
-  amos: ["am"],
+  amos: [],  // "am" removed: the English verb, 11,444 false hits in Amos 1 alone
   obadiah: ["obad", "abd", "abdias"],
   jonah: ["jon", "ion", "jonas", "ionas"],
   micah: ["mic", "mich", "michaeas"],
-  nahum: ["nah", "na"],
+  nahum: ["nah"],  // "na" removed: too short to be safe
   habakkuk: ["hab", "habac", "abac", "habacuc"],
   zephaniah: ["zeph", "soph", "sophonias"],
   haggai: ["hag", "agg", "aggaeus", "aggeus"],
   zechariah: ["zech", "zach", "zacharias"],
   malachi: ["mal", "malach", "malachias"],
   matthew: ["matt", "mat", "mt", "matth", "matthaeus", "matthaei"],
-  mark: ["mar", "mk", "marc", "marci", "marcus"],
+  mark: ["mk", "marc", "marci", "marcus"],  // "mar" removed: too ambiguous
   luke: ["luk", "lk", "luc", "lucae", "lucas"],
   john: ["joh", "jn", "ioan", "ioannis", "ioannem", "johan"],
   acts: ["act", "acta", "actorum", "actes"],
@@ -128,7 +128,7 @@ const ALIASES = {
   revelation: ["rev", "apoc", "apocalypse", "apocalypsis", "revel"],
   tobit: ["tob", "tobias", "tobiae"],
   judith: ["judith", "iudith", "jdt"],
-  wisdom: ["wisd", "sap", "sapientiae", "sapient", "wisdome"],
+  wisdom: ["wisd", "sapientiae", "sapient", "wisdome"],  // "sap" removed
   ecclesiasticus: ["ecclus", "eccli", "sirach", "sir", "ecclesiastici"],
   baruch: ["bar", "baruc"],
   "1 maccabees": ["1 macc", "1 mac", "1 machab"],
@@ -214,7 +214,15 @@ export function extractRefs(text, locate) {
   let m;
   REF_RE.lastIndex = 0;
   while ((m = REF_RE.exec(text))) {
-    const name = m[2].toLowerCase();
+    const raw = m[2];
+    // Citations capitalise the book: "Acts 2", never "he acts 2".
+    // Without this, ordinary words that happen to be book names or
+    // abbreviations flood the index — "Job", "Acts", "Mark", and worst
+    // of all the verb "am", which alone produced 11,444 phantom hits in
+    // Amos 1. Sentence-initial words still slip through; that is a far
+    // smaller error than the alternative.
+    if (raw[0] !== raw[0].toUpperCase() || raw[0] === raw[0].toLowerCase()) continue;
+    const name = raw.toLowerCase();
     const ord = m[1] ? ORDINALS[m[1].toLowerCase()] : null;
     // "1 Cor" is a whole alias; "I Corinthians" arrives split, so try
     // the rejoined form first and fall back to the bare name.

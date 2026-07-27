@@ -374,16 +374,16 @@
     const grid = host.querySelector(".faith-card-grid[data-faith-index-grid]");
     if (grid) grid.remove();
 
-    let cites = 0;
-    const distinct = new Set();
-    scripture.forEach((chs) => chs.forEach((l) => l.forEach((e) => {
-      cites += e.times || 1;
-      distinct.add(`${e.corpus}:${e.id}`);
-    })));
+    // With the split index the page holds counts, not works, until a
+    // chapter is opened — so report what is actually known here rather
+    // than a number that would be wrong.
+    let entries = 0;
+    let chapters = 0;
+    scripture.forEach((chs) => chs.forEach((l) => { entries += l.length; chapters += 1; }));
 
     chrome(host, {
       title: "Scripture",
-      sub: `${cites.toLocaleString()} citations across ${distinct.size.toLocaleString()} works`,
+      sub: `${entries.toLocaleString()} references across ${chapters.toLocaleString()} chapters`,
       note: coverageNote("scripture"),
     });
 
@@ -405,7 +405,7 @@
     bookList().forEach((book) => {
       const chs = scripture.get(book) || new Map();
       let total = 0;
-      chs.forEach((l) => l.forEach((e) => { total += e.times || 1; }));
+      chs.forEach((l) => { total += l.length; });
       list.appendChild(bookRow(book, chs, total));
     });
     wrap.appendChild(list);
@@ -419,7 +419,7 @@
     summary.className = "faith-scripture-book";
     summary.innerHTML =
       `<span class="faith-scripture-book-name">${escapeHtml(book)}</span>` +
-      `<span class="faith-scripture-book-count">${total ? `${total.toLocaleString()} citation${total === 1 ? "" : "s"}` : "none yet"}</span>` +
+      `<span class="faith-scripture-book-count">${total ? `${total.toLocaleString()} reference${total === 1 ? "" : "s"}` : "none yet"}</span>` +
       `<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>`;
     details.appendChild(summary);
     if (!total) return details;
@@ -438,14 +438,11 @@
     const details = document.createElement("details");
     details.className = "faith-scripture-chapter-details";
     details.id = `ref-${book.replace(/\s+/g, "-").toLowerCase()}-${ch}`;
-    let cites = 0;
-    entries.forEach((e) => { cites += e.times || 1; });
-
     const summary = document.createElement("summary");
     summary.className = "faith-scripture-chapter";
     summary.innerHTML =
       `<span class="faith-scripture-chapter-name">${escapeHtml(key)}</span>` +
-      `<span class="faith-scripture-chapter-count">${entries.length.toLocaleString()} work${entries.length === 1 ? "" : "s"} · ${cites.toLocaleString()} citation${cites === 1 ? "" : "s"}</span>` +
+      `<span class="faith-scripture-chapter-count">${entries.length.toLocaleString()} work${entries.length === 1 ? "" : "s"}</span>` +
       `<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>`;
     details.appendChild(summary);
 
@@ -457,6 +454,18 @@
     details.addEventListener("toggle", () => {
       if (!details.open || details.dataset.filled) return;
       details.dataset.filled = "1";
+      // Placeholders carry counts only; the works, their excerpts and
+      // their locations come from the per-chapter file.
+      if (entries.length && entries[0].pending) {
+        loadChapter(book, ch).then((rows) => {
+          if (!rows || !rows.length) {
+            body.innerHTML = `<p class="faith-section-loading">References unavailable.</p>`;
+            return;
+          }
+          fillChapter(body, book, ch, rows);
+        });
+        return;
+      }
       fillChapter(body, book, ch, entries);
     });
     return details;
@@ -594,42 +603,67 @@
   const genMeta = document.querySelector('meta[name="tfr-scripture-index"]');
   const GENERATED = genMeta && genMeta.getAttribute("content");
 
+  // The summary is { book: { chapter: worksCiting } } and is small.
+  // A chapter's works, their excerpts and their locations arrive from
+  // a per-chapter file only when that chapter is opened — the merged
+  // single file was 49.6 MB and every visitor paid for it before
+  // seeing a book list.
+  let generatedBase = null;
+
   function loadGenerated(url) {
     return fetch(url).then((r) => {
       if (!r.ok) throw new Error(String(r.status));
       return r.json();
-    }).then((d) => {
-      const cats = new Map();
-      return Promise.all(["tfr", "eebo", "aquinas", "augustine", "pangrammata"]
-        .map((id) => window.MOCorpora.load(id)
-          .then((list) => cats.set(id, new Map(list.map((w) => [String(w.id), w]))))
-          .catch(() => {})))
-        .then(() => {
-          const counts = {};
-          Object.keys(d).forEach((book) => {
-            Object.keys(d[book]).forEach((ch) => {
-              d[book][ch].forEach((row) => {
-                // [corpus, id, timesCited] — a work may cite the same
-                // chapter many times, so the third field is how often.
-                const [corpus, id, times] = row;
-                const w = (cats.get(corpus) || new Map()).get(String(id));
-                counts[corpus] = (counts[corpus] || 0) + 1;
-                addScripture(book, ch, {
-                  corpus,
-                  id,
-                  title: w ? w.title : String(id),
-                  author: w ? w.author : "",
-                  times: times || 1,
-                  loc: row[3] == null ? null : row[3],
-                  excerpt: row[4] || "",
-                });
-              });
-            });
-          });
-          Object.keys(counts).forEach((id) => COVERAGE.scripture.push({ id, n: counts[id] }));
-          COVERAGE.missing.scripture.length = 0;
+    }).then((summary) => {
+      generatedBase = url.replace(/scripture-books\.json$/, "scripture");
+      Object.keys(summary).forEach((book) => {
+        Object.keys(summary[book]).forEach((ch) => {
+          // Placeholder entries: enough to render counts and chapter
+          // rows. Replaced with the real works when opened.
+          const n = summary[book][ch];
+          for (let i = 0; i < n; i += 1) addScripture(book, ch, { pending: true, times: 1 });
         });
+      });
+      COVERAGE.scripture.push({ id: "generated", n: 1 });
+      COVERAGE.missing.scripture.length = 0;
     });
+  }
+
+  // Fetch one chapter's references and swap them in for the
+  // placeholders.
+  function loadChapter(book, ch) {
+    const key = `${book}/${ch}`;
+    if (chapterCache.has(key)) return chapterCache.get(key);
+    if (!generatedBase) return Promise.resolve(null);
+    const slug = book.toLowerCase();
+    const p = fetch(`${generatedBase}/${encodeURIComponent(slug)}/${encodeURIComponent(ch)}.json`)
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      })
+      .then((rows) => Promise.all(
+        ["tfr", "eebo", "aquinas", "augustine", "confessions"].map((id) =>
+          window.MOCorpora.load(id).then((list) => [id, new Map(list.map((w) => [String(w.id), w]))]).catch(() => [id, new Map()])
+        )
+      ).then((pairs) => {
+        const cats = new Map(pairs);
+        return rows.map((row) => {
+          const [corpus, id, times, loc, excerpt] = row;
+          const w = (cats.get(corpus) || new Map()).get(String(id));
+          return {
+            corpus,
+            id,
+            times: times || 1,
+            loc: loc == null ? null : loc,
+            excerpt: excerpt || "",
+            title: w ? w.title : String(id),
+            author: w ? w.author : "",
+          };
+        });
+      }))
+      .catch(() => null);
+    chapterCache.set(key, p);
+    return p;
   }
 
   function loadSourceScripture() {
