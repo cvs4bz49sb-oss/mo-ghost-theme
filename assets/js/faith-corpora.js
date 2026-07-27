@@ -394,15 +394,45 @@
           };
         };
 
+        // Aquinas nests question > article. Augustine adds an outer
+        // collapse-section — "Revisions II" and the like — which an
+        // earlier version dropped, flattening his works into a run of
+        // chapters with no book above them. Walk every collapse level
+        // in document order so numbering matches the scripture index's
+        // locator, which counts the same elements.
         const sections = [];
-        doc.querySelectorAll("details.collapse-question").forEach((q) => {
+        const seen = new Set();
+        const addQuestion = (q) => {
+          if (seen.has(q)) return null;
+          seen.add(q);
           const h = head(q);
           const children = [];
           q.querySelectorAll("details.collapse-article").forEach((a) => {
+            if (seen.has(a)) return;
+            seen.add(a);
             const ah = head(a);
             children.push({ title: ah.title, subtitle: ah.subtitle, rows: rowsIn(a) });
           });
-          sections.push({ title: h.title, subtitle: h.subtitle, rows: rowsIn(q), children });
+          return { title: h.title, subtitle: h.subtitle, rows: rowsIn(q), children };
+        };
+
+        doc.querySelectorAll("details.collapse-section, details.collapse-question").forEach((el) => {
+          if (seen.has(el)) return;
+          if (el.classList.contains("collapse-section")) {
+            seen.add(el);
+            const h = head(el);
+            const children = [];
+            el.querySelectorAll("details.collapse-question").forEach((q) => {
+              const built = addQuestion(q);
+              // A question's own articles become part of it; the
+              // section keeps the questions as its chapters.
+              if (built) children.push({ title: built.title, subtitle: built.subtitle, rows: built.rows.concat(built.children.flatMap((c) => c.rows)) });
+            });
+            sections.push({ title: h.title, subtitle: h.subtitle, rows: rowsIn(el), children });
+            return;
+          }
+          const built = addQuestion(el);
+          if (built) sections.push(built);
         });
 
         // Prologues and anything else outside a question still belong
@@ -422,7 +452,22 @@
             en: en ? en.innerHTML : "",
           });
         });
-        if (loose.length) sections.unshift({ title: "Prologue", subtitle: "", rows: loose, children: [] });
+        // Some works carry no collapsible structure at all — the
+        // Sermons and the Expositions of the Psalms are 245 and 735
+        // parallel rows with nothing wrapping them. Those rows are the
+        // whole work, so calling the section "Prologue" would be
+        // wrong; where it stands alone it takes the work's own title.
+        if (loose.length) {
+          const soleSection = sections.length === 0;
+          sections.unshift({
+            title: soleSection
+              ? (txt(doc.querySelector(".page-header h1")) || "Text")
+              : "Prologue",
+            subtitle: "",
+            rows: loose,
+            children: [],
+          });
+        }
 
         return {
           title: txt(doc.querySelector(".page-header h1")),

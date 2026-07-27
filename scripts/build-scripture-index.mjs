@@ -282,6 +282,12 @@ function locatorFor(marks) {
       const mid = (lo + hi) >> 1;
       if (marks[mid].at <= offset) { best = marks[mid].loc; lo = mid + 1; } else hi = mid - 1;
     }
+    // Text before the first marker — front matter, or a work whose
+    // body sits outside any collapsible container, which is half of
+    // Augustine. The opening section is a truer answer than none: it
+    // at least puts the reader in the work rather than dropping the
+    // link entirely.
+    if (best == null) return marks.length ? marks[0].loc : 1;
     return best;
   };
 }
@@ -359,7 +365,11 @@ async function aquinasStudiesText(id) {
   let out = "";
   const marks = [];
   let section = 0;
-  const re = /<details class="collapse-(question|article)"|<div class="col-(?:la|en)"[^>]*>([\s\S]*?)<\/div>/g;
+  // Every collapse level, in document order, matching how the reader
+  // numbers sections — Augustine adds collapse-section above the
+  // questions, and omitting it left 56.5% of his citations with no
+  // resolvable location.
+  const re = /<details class="collapse-(section|question|article)"|<div class="col-(?:la|en)"[^>]*>([\s\S]*?)<\/div>/g;
   let m;
   while ((m = re.exec(html))) {
     if (m[1]) { section += 1; marks.push({ at: out.length, loc: section }); continue; }
