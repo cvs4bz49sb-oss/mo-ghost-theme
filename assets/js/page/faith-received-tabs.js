@@ -34,7 +34,15 @@
   function fromHash() {
     const h = (window.location.hash || "").replace(/^#/, "");
     const valid = ["documents", "library", "traditions", "topics", "scripture", "today", "devotional"];
-    return valid.indexOf(h) >= 0 ? h : "documents";
+    if (valid.indexOf(h) >= 0) return h;
+    // A ?collection= or ?author= link points into the Library browse.
+    // Without this a shared browse position opens on Documents, with
+    // the thing it names rendered but hidden behind another tab.
+    try {
+      const q = new URLSearchParams(window.location.search);
+      if (q.get("collection") || q.get("author")) return "library";
+    } catch (_) {}
+    return "documents";
   }
 
   Array.prototype.forEach.call(navLinks, (a) => {
