@@ -13477,6 +13477,29 @@ body.mo-search-open { overflow: hidden; }
   .faith-card--filler { display: none; }
 }
 
+/* ── Beta tag ─────────────────────────────────────────────────────
+   Sits beside the project name in the hero kicker and the section nav
+   brand. Outlined rather than filled so it reads as an annotation on
+   the name, not a button. currentColor keeps it legible on both the
+   dark hero and the light nav rail. */
+.faith-beta {
+  display: inline-block;
+  vertical-align: 0.14em;
+  margin-left: 8px;
+  padding: 2px 7px 1px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 9px;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0.75;
+}
+.faith-section-nav-brand .faith-beta { color: var(--color-primary); opacity: 1; }
+
 /* ── Library author drill-down ────────────────────────────────────
    Library collapses 1,195 works into 272 author cards; clicking one
    swaps the grid for that author's works and inserts this header
