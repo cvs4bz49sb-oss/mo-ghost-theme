@@ -42,6 +42,27 @@
   // the author of these sites. Patrologia Latina's UI is passphrase-
   // gated; its data endpoints are not, and we use them by agreement,
   // not because they happen to answer.
+  // aquinas-studies.vercel.app publishes Aquinas and Augustine in one
+  // nav.json. No group name says which is which, but the file ids run
+  // a single counter across the whole catalogue and the split is exact
+  // and contiguous: 1–150 Aquinas, ending with the Opuscula sermons;
+  // 151–274 Augustine, starting with the Confessions. Verified that no
+  // group range straddles the boundary.
+  const AUGUSTINE_FROM = 151;
+
+  function pickAquinasStudies(d, wantAugustine) {
+    const out = [];
+    (Array.isArray(d) ? d : []).forEach((group) => {
+      (group.s || []).forEach((sec) => {
+        const n = parseInt((String(sec.f || "").match(/_(\d+)\.html$/) || [])[1], 10);
+        const isAugustine = n >= AUGUSTINE_FROM;
+        if (isAugustine !== !!wantAugustine) return;
+        out.push({ group: group.n || "", name: sec.n || "", file: sec.f || "", heads: sec.h || [] });
+      });
+    });
+    return out;
+  }
+
   const CORPORA = [
     {
       id: "tfr",
@@ -247,20 +268,16 @@
     },
     {
       id: "aquinas",
-      label: "Aquinas",
-      short: "Thomas Aquinas & Augustine of Hippo",
+      label: "Thomas Aquinas",
+      short: "The Summa, the commentaries, the opuscula",
       base: "https://aquinas-studies.vercel.app",
       catalogue: "/data/nav.json",
-      // Two levels: named groups, each holding readable sections that
-      // carry the source file. The section is the unit a reader opens.
+      // The source site is one catalogue carrying two authors, split
+      // exactly at file id 150 (see the note on the boundary below).
+      // They are separate collections here: Augustine is not a
+      // subdivision of Aquinas.
       pick(d) {
-        const out = [];
-        (Array.isArray(d) ? d : []).forEach((group) => {
-          (group.s || []).forEach((sec) => {
-            out.push({ group: group.n || "", name: sec.n || "", file: sec.f || "", heads: sec.h || [] });
-          });
-        });
-        return out;
+        return pickAquinasStudies(d, false);
       },
       indexes: { refindex: "/data/refindex.json" },
       extras: { summa: "/data/summa.json" },
@@ -346,24 +363,120 @@
           sections,
         };
       },
-      // The site carries both authors, but no group name says so. The
-      // file ids run a single counter across the whole catalogue and
-      // the split is exact and contiguous: 1–150 Aquinas (through the
-      // Opuscula), 151–274 Augustine (from the Confessions on). Group
-      // ranges never straddle the boundary.
-      normalize(s) {
-        const n = parseInt((s.file.match(/_(\d+)\.html$/) || [])[1], 10);
+      normalize: (s) => ({
+        corpus: "aquinas",
+        id: s.file.replace(/\.html$/, ""),
+        title: s.name,
+        author: "Thomas Aquinas",
+        eyebrow: s.group,
+        extent: s.heads.length,
+        url: `/the-faith-received/reader/?c=aquinas&w=${encodeURIComponent(s.file.replace(/\.html$/, ""))}`,
+      }),
+    },
+    {
+      id: "augustine",
+      label: "Augustine of Hippo",
+      short: "The Confessions, the City of God, the letters & sermons",
+      base: "https://aquinas-studies.vercel.app",
+      catalogue: "/data/nav.json",
+      // Same source catalogue as Thomas Aquinas, the other half.
+      pick(d) {
+        return pickAquinasStudies(d, true);
+      },
+      indexes: { refindex: "/data/refindex.json" },
+      extras: { summa: "/data/summa.json" },
+      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
+
+      // No per-work JSON is published, but the reader pages are clean:
+      // the source already nests <details class="collapse-question">
+      // and "collapse-article" with bilingual summaries, which is the
+      // same shape our reader renders. So we parse the page rather than
+      // wait on the author. One fetch per section (~3.4 MB for a
+      // quarter of the Summa) — the same the source site serves.
+      //
+      // nav.json's h[] anchors are NOT usable for this: they sit on
+      // empty <span class="q-anchor"> markers, and only 1 of 310
+      // lands on a content row. Walk the <details> tree instead.
+      reader: "html-extract",
+      readable: true,
+      textPath: (id) => `/read/${id}.html`,
+
+      // doc -> { title, sections: [{ title, subtitle, children:[…] }] }
+      // where the leaves carry parallel rows.
+      extract(doc) {
+        const txt = (el) => (el ? el.textContent.trim() : "");
+        const rowsIn = (root) => {
+          const out = [];
+          root.querySelectorAll(":scope > .parallel").forEach((r) => {
+            const la = r.querySelector(".col-la");
+            const en = r.querySelector(".col-en");
+            if (!la && !en) return;
+            out.push({
+              kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
+              cite: r.getAttribute("data-cite") || "",
+              la: la ? la.innerHTML : "",
+              en: en ? en.innerHTML : "",
+            });
+          });
+          return out;
+        };
+        const head = (d) => {
+          const s = d.querySelector(":scope > summary");
+          if (!s) return { title: "", subtitle: "" };
+          const num = txt(s.querySelector(".head-la"));
+          const en = txt(s.querySelector(".head-en"));
+          return {
+            title: [num, en].filter(Boolean).join(" — "),
+            subtitle: txt(s.querySelector(".head-la-title")),
+          };
+        };
+
+        const sections = [];
+        doc.querySelectorAll("details.collapse-question").forEach((q) => {
+          const h = head(q);
+          const children = [];
+          q.querySelectorAll("details.collapse-article").forEach((a) => {
+            const ah = head(a);
+            children.push({ title: ah.title, subtitle: ah.subtitle, rows: rowsIn(a) });
+          });
+          sections.push({ title: h.title, subtitle: h.subtitle, rows: rowsIn(q), children });
+        });
+
+        // Prologues and anything else outside a question still belong
+        // to the work — collect the rows no question claimed.
+        const claimed = new Set();
+        doc.querySelectorAll("details.collapse-question .parallel").forEach((r) => claimed.add(r));
+        const loose = [];
+        doc.querySelectorAll(".parallel").forEach((r) => {
+          if (claimed.has(r)) return;
+          const la = r.querySelector(".col-la");
+          const en = r.querySelector(".col-en");
+          if (!la && !en) return;
+          loose.push({
+            kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
+            cite: r.getAttribute("data-cite") || "",
+            la: la ? la.innerHTML : "",
+            en: en ? en.innerHTML : "",
+          });
+        });
+        if (loose.length) sections.unshift({ title: "Prologue", subtitle: "", rows: loose, children: [] });
+
         return {
-          corpus: "aquinas",
-          id: s.file.replace(/\.html$/, ""),
-          title: s.name,
-          author: n > 150 ? "Augustine of Hippo" : "Thomas Aquinas",
-          eyebrow: s.group,
-          extent: s.heads.length,
-          url: `/the-faith-received/reader/?c=aquinas&w=${encodeURIComponent(s.file.replace(/\.html$/, ""))}`,
+          title: txt(doc.querySelector(".page-header h1")),
+          work: txt(doc.querySelector(".page-header .work-name")),
+          sections,
         };
       },
-    },
+      normalize: (s) => ({
+        corpus: "augustine",
+        id: s.file.replace(/\.html$/, ""),
+        title: s.name,
+        author: "Augustine of Hippo",
+        eyebrow: s.group,
+        extent: s.heads.length,
+        url: `/the-faith-received/reader/?c=augustine&w=${encodeURIComponent(s.file.replace(/\.html$/, ""))}`,
+      }),
+    }
   ];
 
   // `readable: false` means the catalogue and indexes are reachable
