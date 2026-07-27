@@ -238,7 +238,11 @@
 
     // An A–Z rail is how you'd find a name on a real shelf, and it
     // bounds what any one render has to build.
-    const letters = [...new Set(all.map(([n]) => initial(n)))].sort();
+    // "#" collects names starting with a digit or punctuation. It
+    // sorts before "A" in ASCII, which would make it the default
+    // landing letter; put it at the end of the rail instead.
+    const letters = [...new Set(all.map(([n]) => initial(n)))]
+      .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
     const useLetters = !q && all.length > PAGE_SIZE * 2 && letters.length > 1;
     const active = useLetters ? (letter && letters.includes(letter) ? letter : letters[0]) : null;
     if (active) entries = entries.filter(([n]) => initial(n) === active);
