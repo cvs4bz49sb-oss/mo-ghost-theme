@@ -58,7 +58,13 @@
         if (!works.length) return;
         const c = window.MOCorpora.get(id);
         collections.set(id, { id, meta: c, works, authors: groupByAuthor(works) });
-        if (currentView().view === "collections") renderCollections();
+        // Catalogues land after the first paint, so whatever the URL
+        // is pointing at has to be re-rendered once its data arrives —
+        // otherwise a shared link straight into a collection shows an
+        // empty grid.
+        const v = currentView();
+        if (v.view === "collections") renderCollections();
+        else if (v.collection === id) restoreFromUrl();
         appendSearchEntries(works, c);
       });
     });
