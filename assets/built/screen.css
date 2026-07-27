@@ -22947,12 +22947,12 @@ html[data-theme="dark"] .dlr-header-logo {
   display: flex;
   align-items: center;
   gap: 28px;
-  padding: 16px 0;
+  padding: 18px 0;
 }
 .dlp-band-art {
   flex: none;
-  width: 68px;
-  height: 68px;
+  width: 96px;
+  height: 96px;
   object-fit: cover;
   display: block;
   border-radius: 6px;
@@ -23066,6 +23066,7 @@ html[data-theme="dark"] .dlr-header-logo {
 /* Tablet: drop the running time, keep the strip on one line. */
 @media (max-width: 1024px) {
   .dlp-band-inner { gap: 20px; }
+  .dlp-band-art { width: 88px; height: 88px; }
   .dlp-band-time { display: none; }
   .dlp-band-meta { width: 150px; }
   .dlp-band-wave { display: none; }
@@ -23079,11 +23080,12 @@ html[data-theme="dark"] .dlr-header-logo {
     padding: 18px 0;
   }
   .dlp-band-art {
-    width: 56px;
-    height: 56px;
+    width: 128px;
+    height: 128px;
+    flex: 0 0 auto;
   }
   .dlp-band-copy {
-    flex: 1 1 0;
+    flex: 1 0 100%;
     min-width: 0;
   }
   .dlp-band-eyebrow {
