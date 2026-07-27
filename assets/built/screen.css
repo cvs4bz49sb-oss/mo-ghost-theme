@@ -13537,6 +13537,25 @@ body.mo-search-open { overflow: hidden; }
   .faith-row--sed_contra { padding-left: 12px; }
 }
 
+/* The page a scripture reference points at. Marked rather than
+   highlighted — this is a scholarly text, not a search result. */
+.faith-page-target {
+  position: relative;
+  scroll-margin-top: 96px;
+}
+.faith-page-target::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--color-primary);
+}
+@media (max-width: 600px) {
+  .faith-page-target::before { left: -10px; }
+}
+
 /* ── Reader: work catalogued but not yet ported ───────────────────
    Not an error state — the work is real, its text just isn't here
    yet. Reads as an editorial note rather than a failure. */

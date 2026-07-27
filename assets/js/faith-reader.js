@@ -986,7 +986,20 @@
         const to = parseInt(d.getAttribute("data-to"), 10);
         return wanted >= from && wanted < to;
       });
-      if (target && revealSection(`#${target.id}`, true)) return;
+      if (target && revealSection(`#${target.id}`, true)) {
+        // The section may span hundreds of pages — works with no
+        // outline are chunked by shard, so "Pages 1–401" is one
+        // section. The page blocks carry data-page, so scroll to the
+        // page itself and mark it, rather than leaving the reader at
+        // the top of a 400-page run to hunt for the citation.
+        window.requestAnimationFrame(() => {
+          const block = target.querySelector(`[data-page="${wanted}"]`);
+          if (!block) return;
+          block.classList.add("faith-page-target");
+          block.scrollIntoView({ block: "center" });
+        });
+        return;
+      }
     }
     if (window.location.hash && revealSection(window.location.hash, true)) return;
     const first = contentEl.querySelector(".faith-section-details");
