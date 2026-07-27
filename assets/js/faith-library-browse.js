@@ -1,22 +1,26 @@
 /*
- * The Faith Received — Latin Library Integration
+ * The Faith Received — Library browse
  *
- * Surfaces the corpus catalogues on the landing page:
- *   1. The Library tab — 272 author cards; click one for their works
- *   2. The Documents tab — every one of the 260 confessions
- *   3. The matching Traditions tab grids
- *   4. The search index (if search is active)
+ * Three levels, all in place on the Library tab:
  *
- * Library is collapsed by author: Library -> Author -> Works. The
- * drill-down happens in place and pushes ?author=... so the browser
- * back button and shared links both work.
+ *   Collection  ->  Author  ->  Works
  *
- * Nothing is capped or sampled — every work is reachable, and every
- * work is in the search index. Where a grid does hold a lot of cards
- * (Documents holds 260, the tradition grids up to 443), each grid is
- * built as one string and inserted once, never a node at a time, and
- * .faith-card carries content-visibility:auto so the browser skips
- * layout and paint for anything off-screen.
+ * The reading room spans 72,670 works across eight collections and
+ * roughly 18,000 authors, so a flat shelf is not an option — EEBO
+ * alone has 14,032 authors. Collection first keeps the top level to
+ * nine cards; the author level is filterable; the work level is one
+ * author's shelf.
+ *
+ * State lives in the URL (?collection=, ?author=) so the back button
+ * works and any level is a shareable link.
+ *
+ * Documents is handled separately and holds the creeds, confessions
+ * and catechisms — 13 curated English documents plus the 260-strong
+ * confessions corpus.
+ *
+ * Where a collection's text is not reachable yet (see `readable` in
+ * faith-corpora.js) works are still listed, searchable and indexed;
+ * their cards say so instead of linking into a reader that would fail.
  */
 
 (function () {
@@ -24,31 +28,60 @@
 
   const baseMeta = document.querySelector('meta[name="tfr-library-base"]');
   const BASE = ((baseMeta && baseMeta.getAttribute("content")) || "").replace(/\/+$/, "");
-  if (!BASE) return;
+  if (!BASE || !window.MOCorpora) return;
 
-  // Corpus tradition → the landing page's tradition section key.
-  // Source values come from works-index.json: Reformed (389),
-  // Roman Catholic (437), Lutheran (162), Medieval (162),
-  // Humanism and Law (45).
-  const TRADITION_MAP = {
-    "Reformed": "reformed",
-    "Roman Catholic": "catholic",
-    "Catholic": "catholic",
-    "Lutheran": "lutheran",
-    "Medieval": "scholastic",
-    "Humanism and Law": "scholastic",
-    "Humanism": "scholastic",
-  };
+  const librarySection = document.querySelector('[data-faith-section="library"]');
+  const documentsSection = document.querySelector('[data-faith-section="documents"]');
 
-  // author display name → { works[], bio }
-  let authorIndex = new Map();
+  // Collections that make up the Library tab, in reading order.
+  // Confessions are excluded — they belong to Documents.
+  const LIBRARY_IDS = ["tfr", "eebo", "pld", "pangrammata", "po", "aquinas", "pg"];
 
-  // The Library grid ships with server-rendered cards for the curated
-  // English works — Augustine, à Kempis, Edwards, the church fathers.
-  // Harvest them BEFORE anything clears the grid, so they fold into
-  // the author shelf alongside the Latin corpus instead of being
-  // replaced by it.
+  // Curated English works ship server-rendered in the Library grid.
+  // Harvest them before anything clears it; they become their own
+  // collection rather than being replaced by the corpus.
   const nativeWorks = harvestNativeCards();
+
+  // collection id -> { meta, works[], authors: Map }
+  const collections = new Map();
+
+  bootstrap();
+
+  function bootstrap() {
+    registerNativeCollection();
+    // Render the shelf immediately from what we already have, then
+    // fill in each corpus as its catalogue lands. A slow source must
+    // never hold up the whole page.
+    renderCollections();
+    LIBRARY_IDS.forEach((id) => {
+      window.MOCorpora.load(id).then((works) => {
+        if (!works.length) return;
+        const c = window.MOCorpora.get(id);
+        collections.set(id, { id, meta: c, works, authors: groupByAuthor(works) });
+        if (currentView().view === "collections") renderCollections();
+        appendSearchEntries(works, c);
+      });
+    });
+    loadConfessions();
+    restoreFromUrl();
+  }
+
+  function registerNativeCollection() {
+    if (!nativeWorks.length) return;
+    collections.set("mo-english", {
+      id: "mo-english",
+      meta: {
+        id: "mo-english",
+        label: "English Editions",
+        short: "Curated English texts of the fathers and classics",
+        readable: true,
+      },
+      works: nativeWorks,
+      authors: groupByAuthor(nativeWorks),
+    });
+  }
+
+  // ── Harvest the server-rendered cards ─────────────────────────
 
   function harvestNativeCards() {
     const grid = libraryGrid();
@@ -62,265 +95,293 @@
         return el ? el.textContent.trim() : "";
       };
       out.push({
+        corpus: "mo-english",
         native: true,
-        href,
+        readable: true,
+        id: href,
+        url: href,
         title: pick(".faith-card-title"),
         author: pick(".faith-card-author"),
-        date: pick(".faith-card-date"),
+        eyebrow: pick(".faith-card-date"),
         description: pick(".faith-card-desc"),
+        extent: 0,
       });
     });
     return out;
   }
 
-  Promise.all([
-    fetch(`${BASE}/v1/works-index.json`).then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    }),
-    // Bios are a nicety — a failure here must not cost us the library.
-    fetch(`${BASE}/v1/authors.json`).then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
-  ])
-    .then(([data, bios]) => {
-      const works = data.works || [];
-      if (!works.length) return;
-      authorIndex = buildAuthorIndex(works, bios);
-      injectAuthorCards();
-      injectTraditionCards(works);
-      injectSearchEntries(works);
-      // Restore a drilled-in author if the URL names one.
-      const wanted = new URLSearchParams(window.location.search).get("author");
-      if (wanted && authorIndex.has(wanted)) showAuthor(wanted, false);
-    })
-    .catch(() => {});
+  // ── Grouping ──────────────────────────────────────────────────
 
-  function buildAuthorIndex(works, bios) {
+  function groupByAuthor(works) {
     const idx = new Map();
-    const add = (w) => {
+    works.forEach((w) => {
       const name = (w.author || "").trim() || "Unattributed";
-      if (!idx.has(name)) idx.set(name, { name, works: [], bio: bios[name] || null });
-      idx.get(name).works.push(w);
-    };
-    // Curated English works first, so an author who appears in both
-    // collections leads with the readable English edition.
-    nativeWorks.forEach(add);
-    works.forEach(add);
-    // Alphabetical by display name — how a reader scans a shelf.
+      if (!idx.has(name)) idx.set(name, []);
+      idx.get(name).push(w);
+    });
     return new Map([...idx.entries()].sort((a, b) => a[0].localeCompare(b[0])));
   }
 
-  fetch(`${BASE}/v1/confessions-index.json`)
-    .then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    })
-    .then((data) => {
-      const confessions = data.confessions || [];
-      if (!confessions.length) return;
-      injectConfessionCards(confessions);
-      injectConfessionSearchEntries(confessions);
-    })
-    .catch(() => {});
-
-  function readerUrl(slug) {
-    return `/the-faith-received/reader/?w=${encodeURIComponent(slug)}`;
-  }
-
-  function buildCard(w) {
-    // Curated English works keep their own route, dateline and
-    // description; corpus works link to the reader and show extent.
-    const href = w.native ? w.href : readerUrl(w.slug);
-    const eyebrow = escapeHtml(w.native ? (w.date || "") : (w.tradition || ""));
-    const title = escapeHtml(w.title || w.slug);
-    const author = escapeHtml(w.author || "");
-    const desc = w.native
-      ? escapeHtml(w.description || "")
-      : (w.n_pages ? `${w.n_pages.toLocaleString()} pp.` : "");
-    const cta = w.native ? "Read &amp; study" : "Read";
-    return `<a class="faith-card" href="${href}">${
-      eyebrow ? `<p class="faith-card-date">${eyebrow}</p>` : ""
-      }<h3 class="faith-card-title"><em>${title}</em></h3>${
-      author ? `<p class="faith-card-author"><em>${author}</em></p>` : ""
-      }${desc ? `<p class="faith-card-desc">${desc}</p>` : ""
-      }<span class="faith-card-link">${cta} <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span>` +
-      `</a>`;
-  }
-
-  // Confessions carry year/type/region rather than author/pages.
-  function buildConfessionCard(c) {
-    const meta = escapeHtml([c.tradition, c.type].filter(Boolean).join(" · "));
-    const title = escapeHtml(c.title || c.slug);
-    const region = escapeHtml(c.region || "");
-    const year = c.year ? escapeHtml(String(c.year)) : "";
-    return `<a class="faith-card" href="${readerUrl(c.slug)}">${
-      meta ? `<p class="faith-card-date">${meta}</p>` : ""
-      }<h3 class="faith-card-title"><em>${title}</em></h3>${
-      region ? `<p class="faith-card-author"><em>${region}</em></p>` : ""
-      }${year ? `<p class="faith-card-desc">${year}</p>` : ""
-      }<span class="faith-card-link">Read <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span>` +
-      `</a>`;
-  }
-
-  // One string build, one DOM insertion. Appending node-by-node across
-  // a thousand-odd cards forces a reflow per card.
-  function appendCards(grid, list, build) {
-    if (!grid || !list.length) return;
-    grid.insertAdjacentHTML("beforeend", list.map(build).join(""));
-  }
-
-  // ── Library: Author → Works ───────────────────────────────────
+  // ── DOM helpers ───────────────────────────────────────────────
 
   function libraryGrid() {
-    const section = document.querySelector('[data-faith-section="library"]');
-    return section ? section.querySelector(".faith-card-grid") : null;
+    return librarySection ? librarySection.querySelector(".faith-card-grid") : null;
   }
 
-  function buildAuthorCard(entry) {
-    const name = escapeHtml(entry.name);
-    const n = entry.works.length;
-    // Curated English works carry a dateline rather than a tradition,
-    // so fall back to whichever the author's shelf actually has.
-    const withTradition = entry.works.find((w) => w.tradition);
-    const withDate = entry.works.find((w) => w.date);
-    const dates = entry.bio && entry.bio.dates
-      ? escapeHtml(entry.bio.dates)
-      : (withDate ? escapeHtml(withDate.date) : "");
-    const tradition = escapeHtml(withTradition ? withTradition.tradition : "");
-    const pages = entry.works.reduce((a, w) => a + (w.n_pages || 0), 0);
-    return `<a class="faith-card" href="?author=${encodeURIComponent(entry.name)}" data-faith-author="${escapeHtml(entry.name)}">${
-      tradition ? `<p class="faith-card-date">${tradition}</p>` : ""
-      }<h3 class="faith-card-title"><em>${name}</em></h3>${
-      dates ? `<p class="faith-card-author"><em>${dates}</em></p>` : ""
-      }<p class="faith-card-desc">${n.toLocaleString()} work${n === 1 ? "" : "s"}` +
-      `${pages ? ` &middot; ${pages.toLocaleString()} pp.` : ""}</p>` +
-      `<span class="faith-card-link">Works <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span>` +
-      `</a>`;
-  }
-
-  function injectAuthorCards() {
-    const grid = libraryGrid();
-    if (!grid) return;
-    grid.innerHTML = "";
-    grid.classList.remove("faith-card-grid--works");
-    appendCards(grid, [...authorIndex.values()], buildAuthorCard);
-    const back = document.querySelector("[data-faith-author-back]");
-    if (back) back.remove();
-  }
-
-  // Swap the grid to one author's works, with a way back. Done in
-  // place rather than on a separate route so there is no new template
-  // to keep in sync and no full page load between shelf and author.
-  function showAuthor(name, push) {
-    const entry = authorIndex.get(name);
-    const grid = libraryGrid();
-    if (!entry || !grid) return;
-
-    grid.innerHTML = "";
-    grid.classList.add("faith-card-grid--works");
-    appendCards(grid, entry.works, buildCard);
-
-    const existing = document.querySelector("[data-faith-author-back]");
-    if (existing) existing.remove();
-
-    const bio = entry.bio && entry.bio.bio ? entry.bio.bio : "";
-    const dates = entry.bio && entry.bio.dates ? entry.bio.dates : "";
-    const header = document.createElement("div");
-    header.className = "faith-author-head";
-    header.setAttribute("data-faith-author-back", "");
-    const datesHtml = dates ? `<p class="faith-author-dates">${escapeHtml(dates)}</p>` : "";
-    const bioHtml = bio ? `<p class="faith-author-bio">${escapeHtml(bio)}</p>` : "";
-    header.innerHTML =
-      `<button type="button" class="faith-author-back" data-faith-back>` +
-      `<span aria-hidden="true">&larr;</span> All authors</button>` +
-      `<h2 class="faith-author-name"><em>${escapeHtml(entry.name)}</em></h2>` +
-      `${datesHtml}${bioHtml}`;
-    grid.parentNode.insertBefore(header, grid);
-
-    if (push) {
-      const url = `${window.location.pathname}?author=${encodeURIComponent(name)}${window.location.hash}`;
-      window.history.pushState({ author: name }, "", url);
-    }
-    header.scrollIntoView({ block: "start" });
-  }
-
-  document.addEventListener("click", (e) => {
-    const back = e.target.closest("[data-faith-back]");
-    if (back) {
-      e.preventDefault();
-      injectAuthorCards();
-      window.history.pushState({}, "", window.location.pathname + window.location.hash);
-      return;
-    }
-    const card = e.target.closest("[data-faith-author]");
-    if (!card) return;
-    e.preventDefault();
-    showAuthor(card.getAttribute("data-faith-author"), true);
-  });
-
-  window.addEventListener("popstate", () => {
-    const wanted = new URLSearchParams(window.location.search).get("author");
-    if (wanted && authorIndex.has(wanted)) showAuthor(wanted, false);
-    else if (authorIndex.size) injectAuthorCards();
-  });
-
-  function injectConfessionCards(confessions) {
-    const section = document.querySelector('[data-faith-section="documents"]');
-    if (!section) return;
-    appendCards(section.querySelector(".faith-card-grid"), confessions, buildConfessionCard);
-  }
-
-  function injectTraditionCards(works) {
-    // Bucket first, then render once per tradition — the old version
-    // did a DOM query per work.
-    const buckets = new Map();
-    works.forEach((w) => {
-      const key = TRADITION_MAP[w.tradition];
-      if (!key) return;
-      if (!buckets.has(key)) buckets.set(key, []);
-      buckets.get(key).push(w);
-    });
-
-    buckets.forEach((list, key) => {
-      const section = document.querySelector(`[data-faith-tradition="${key}"]`);
-      if (!section) return;
-      appendCards(section.querySelector(".faith-card-grid"), list, buildCard);
-    });
-  }
-
-  function injectSearchEntries(works) {
-    if (!window.__tfrSearchAppend) return;
-    const entries = works.map((w) => {
-      return {
-        type: "library",
-        slug: w.slug,
-        url: readerUrl(w.slug),
-        title: w.title || w.slug,
-        author: w.author || null,
-        date: null,
-        snippet: (w.tradition || "") + (w.n_pages ? ` — ${w.n_pages.toLocaleString()} pages` : ""),
-      };
-    });
-    window.__tfrSearchAppend(entries);
-  }
-
-  function injectConfessionSearchEntries(confessions) {
-    if (!window.__tfrSearchAppend) return;
-    window.__tfrSearchAppend(confessions.map((c) => {
-      return {
-        type: "confession",
-        slug: c.slug,
-        url: readerUrl(c.slug),
-        title: c.title || c.slug,
-        author: null,
-        date: c.year ? String(c.year) : null,
-        snippet: c.preview || [c.tradition, c.type, c.region].filter(Boolean).join(" · "),
-      };
-    }));
+  function clearChrome() {
+    document.querySelectorAll("[data-faith-browse-chrome]").forEach((el) => el.remove());
   }
 
   function escapeHtml(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
+  }
+
+  function appendCards(grid, list, build) {
+    if (!grid || !list.length) return;
+    grid.insertAdjacentHTML("beforeend", list.map(build).join(""));
+  }
+
+  // ── Cards ─────────────────────────────────────────────────────
+
+  function buildCollectionCard(c) {
+    const n = c.works.length;
+    const authors = c.authors.size;
+    const pending = c.meta.readable === false;
+    return `<a class="faith-card" href="?collection=${encodeURIComponent(c.id)}" data-faith-collection="${escapeHtml(c.id)}">` +
+      `<p class="faith-card-date">${escapeHtml(c.meta.short || "")}</p>` +
+      `<h3 class="faith-card-title"><em>${escapeHtml(c.meta.label)}</em></h3>` +
+      `<p class="faith-card-desc">${n.toLocaleString()} work${n === 1 ? "" : "s"} &middot; ` +
+      `${authors.toLocaleString()} author${authors === 1 ? "" : "s"}</p>${ 
+      pending ? `<p class="faith-pending">Catalogue and indexes only &mdash; full text in progress</p>` : "" 
+      }<span class="faith-card-link">${pending ? "Browse" : "Read"} ` +
+      `<span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
+  }
+
+  function buildAuthorCard(collectionId, name, works) {
+    const n = works.length;
+    const pages = works.reduce((a, w) => a + (w.extent || 0), 0);
+    const withEyebrow = works.find((w) => w.eyebrow);
+    return `<a class="faith-card" href="?collection=${encodeURIComponent(collectionId)}&author=${encodeURIComponent(name)}" data-faith-author="${escapeHtml(name)}">${ 
+      withEyebrow ? `<p class="faith-card-date">${escapeHtml(withEyebrow.eyebrow)}</p>` : "" 
+      }<h3 class="faith-card-title"><em>${escapeHtml(name)}</em></h3>` +
+      `<p class="faith-card-desc">${n.toLocaleString()} work${n === 1 ? "" : "s"}` +
+      `${pages ? ` &middot; ${pages.toLocaleString()} pp.` : ""}</p>` +
+      `<span class="faith-card-link">Works <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
+  }
+
+  function buildWorkCard(w) {
+    const readable = w.readable !== false;
+    const desc = w.native
+      ? escapeHtml(w.description || "")
+      : (w.extent ? `${w.extent.toLocaleString()} pp.` : "");
+    const inner =
+      `${w.eyebrow ? `<p class="faith-card-date">${escapeHtml(w.eyebrow)}</p>` : "" 
+      }<h3 class="faith-card-title"><em>${escapeHtml(w.title)}</em></h3>${ 
+      w.titleLatin && w.titleLatin !== w.title
+        ? `<p class="faith-card-author"><em>${escapeHtml(w.titleLatin)}</em></p>` : "" 
+      }${desc ? `<p class="faith-card-desc">${desc}</p>` : ""}`;
+    if (!readable) {
+      // No href — linking into a reader that cannot load the text
+      // would be a dead end dressed up as a link.
+      return `<div class="faith-card faith-card--pending">${inner}` +
+        `<span class="faith-card-link faith-card-link--muted">Text in progress</span></div>`;
+    }
+    return `<a class="faith-card" href="${escapeHtml(w.url)}">${inner}` +
+      `<span class="faith-card-link">${w.native ? "Read &amp; study" : "Read"} ` +
+      `<span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
+  }
+
+  // ── Views ─────────────────────────────────────────────────────
+
+  function renderCollections() {
+    const grid = libraryGrid();
+    if (!grid) return;
+    clearChrome();
+    grid.innerHTML = "";
+    const ordered = ["mo-english"].concat(LIBRARY_IDS)
+      .map((id) => collections.get(id))
+      .filter(Boolean);
+    appendCards(grid, ordered, buildCollectionCard);
+  }
+
+  function renderAuthors(collectionId, filterText) {
+    const c = collections.get(collectionId);
+    const grid = libraryGrid();
+    if (!c || !grid) return;
+    clearChrome();
+    grid.innerHTML = "";
+
+    const q = (filterText || "").trim().toLowerCase();
+    let entries = [...c.authors.entries()];
+    if (q) entries = entries.filter(([name]) => name.toLowerCase().includes(q));
+
+    insertChrome(grid, {
+      back: { label: "All collections", to: "collections" },
+      title: c.meta.label,
+      sub: `${c.works.length.toLocaleString()} works &middot; ${c.authors.size.toLocaleString()} authors`,
+      note: c.meta.readable === false
+        ? "Catalogue and indexes are available. Full text is being ported."
+        : "",
+      // A filter is the only workable entry point at EEBO's 14,032.
+      filter: c.authors.size > 40 ? (filterText || "") : null,
+      count: q ? `${entries.length.toLocaleString()} matching` : "",
+    });
+
+    appendCards(grid, entries, ([name, works]) => buildAuthorCard(collectionId, name, works));
+  }
+
+  function renderWorks(collectionId, author) {
+    const c = collections.get(collectionId);
+    const grid = libraryGrid();
+    if (!c || !grid) return;
+    const works = c.authors.get(author);
+    if (!works) return renderAuthors(collectionId, "");
+    clearChrome();
+    grid.innerHTML = "";
+
+    insertChrome(grid, {
+      back: { label: c.meta.label, to: "authors", collection: collectionId },
+      title: author,
+      sub: `${works.length.toLocaleString()} work${works.length === 1 ? "" : "s"} in ${escapeHtml(c.meta.label)}`,
+      note: c.meta.readable === false
+        ? "These works are catalogued and indexed. Full text is being ported."
+        : "",
+    });
+
+    appendCards(grid, works, buildWorkCard);
+  }
+
+  // Header above the grid: back link, title, count, optional filter.
+  function insertChrome(grid, opts) {
+    const head = document.createElement("div");
+    head.className = "faith-browse-head";
+    head.setAttribute("data-faith-browse-chrome", "");
+    const filterHtml = opts.filter != null
+      ? `<input type="search" class="faith-browse-filter" data-faith-filter ` +
+        `placeholder="Filter authors&hellip;" value="${escapeHtml(opts.filter)}" ` +
+        `aria-label="Filter authors">`
+      : "";
+    head.innerHTML =
+      `<button type="button" class="faith-author-back" data-faith-back ` +
+      `data-to="${opts.back.to}" data-collection="${escapeHtml(opts.back.collection || "")}">` +
+      `<span aria-hidden="true">&larr;</span> ${escapeHtml(opts.back.label)}</button>` +
+      `<h2 class="faith-author-name"><em>${escapeHtml(opts.title)}</em></h2>` +
+      `<p class="faith-author-dates">${opts.sub}${opts.count ? ` &middot; ${opts.count}` : ""}</p>${ 
+      opts.note ? `<p class="faith-browse-note">${escapeHtml(opts.note)}</p>` : "" 
+      }${filterHtml}`;
+    grid.parentNode.insertBefore(head, grid);
+  }
+
+  // ── Routing ───────────────────────────────────────────────────
+
+  function currentView() {
+    let collection = "";
+    let author = "";
+    try {
+      const q = new URLSearchParams(window.location.search);
+      collection = q.get("collection") || "";
+      author = q.get("author") || "";
+    } catch (_) {}
+    if (collection && author) return { view: "works", collection, author };
+    if (collection) return { view: "authors", collection };
+    return { view: "collections" };
+  }
+
+  function restoreFromUrl() {
+    const v = currentView();
+    if (v.view === "works") renderWorks(v.collection, v.author);
+    else if (v.view === "authors") renderAuthors(v.collection, "");
+    else renderCollections();
+  }
+
+  function go(url, render) {
+    window.history.pushState({}, "", url);
+    render();
+    const head = document.querySelector("[data-faith-browse-chrome]");
+    if (head) head.scrollIntoView({ block: "start" });
+  }
+
+  document.addEventListener("click", (e) => {
+    const back = e.target.closest("[data-faith-back]");
+    if (back) {
+      e.preventDefault();
+      const to = back.getAttribute("data-to");
+      const col = back.getAttribute("data-collection");
+      if (to === "authors" && col) {
+        go(`${window.location.pathname}?collection=${encodeURIComponent(col)}`, () => renderAuthors(col, ""));
+      } else {
+        go(window.location.pathname, renderCollections);
+      }
+      return;
+    }
+    const col = e.target.closest("[data-faith-collection]");
+    if (col) {
+      e.preventDefault();
+      const id = col.getAttribute("data-faith-collection");
+      go(`${window.location.pathname}?collection=${encodeURIComponent(id)}`, () => renderAuthors(id, ""));
+      return;
+    }
+    const auth = e.target.closest("[data-faith-author]");
+    if (auth) {
+      e.preventDefault();
+      const name = auth.getAttribute("data-faith-author");
+      const v = currentView();
+      if (!v.collection) return;
+      go(`${window.location.pathname}?collection=${encodeURIComponent(v.collection)}&author=${encodeURIComponent(name)}`,
+        () => renderWorks(v.collection, name));
+    }
+  });
+
+  // Filtering re-renders the author level without touching history —
+  // a keystroke should not be a back-button stop.
+  document.addEventListener("input", (e) => {
+    const input = e.target.closest("[data-faith-filter]");
+    if (!input) return;
+    const v = currentView();
+    if (v.view !== "authors") return;
+    const caret = input.selectionStart;
+    renderAuthors(v.collection, input.value);
+    const again = document.querySelector("[data-faith-filter]");
+    if (again) {
+      again.focus();
+      try { again.setSelectionRange(caret, caret); } catch (_) {}
+    }
+  });
+
+  window.addEventListener("popstate", restoreFromUrl);
+
+  // ── Documents: the confessions corpus ─────────────────────────
+
+  function loadConfessions() {
+    if (!documentsSection) return;
+    window.MOCorpora.load("confessions").then((list) => {
+      if (!list.length) return;
+      const grid = documentsSection.querySelector(".faith-card-grid");
+      appendCards(grid, list, (c) =>
+        `<a class="faith-card" href="${escapeHtml(c.url)}">${ 
+        c.eyebrow ? `<p class="faith-card-date">${escapeHtml(c.eyebrow)}</p>` : "" 
+        }<h3 class="faith-card-title"><em>${escapeHtml(c.title)}</em></h3>${ 
+        c.year ? `<p class="faith-card-desc">${escapeHtml(String(c.year))}</p>` : "" 
+        }<span class="faith-card-link">Read <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`);
+      appendSearchEntries(list, window.MOCorpora.get("confessions"));
+    });
+  }
+
+  // ── Search index ──────────────────────────────────────────────
+
+  function appendSearchEntries(works, meta) {
+    if (!window.__tfrSearchAppend) return;
+    window.__tfrSearchAppend(works.map((w) => ({
+      type: w.corpus || "library",
+      slug: w.id,
+      url: w.url,
+      title: w.title,
+      author: w.author || null,
+      date: w.year ? String(w.year) : null,
+      snippet: [meta && meta.label, w.eyebrow, w.extent ? `${w.extent} pages` : ""]
+        .filter(Boolean).join(" · "),
+    })));
   }
 })();

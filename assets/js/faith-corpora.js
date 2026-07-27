@@ -53,6 +53,7 @@
       authors: "/v1/authors.json",
       blurbs: "/v1/blurbs.json",
       reader: "shards",
+      readable: true,
       normalize: (w) => ({
         corpus: "tfr",
         id: w.slug,
@@ -71,6 +72,7 @@
       catalogue: "/v1/confessions-index.json",
       pick: (d) => d.confessions || [],
       reader: "shards",
+      readable: true,
       normalize: (c) => ({
         corpus: "confessions",
         id: c.slug,
@@ -95,6 +97,7 @@
       // Per-work text is gzipped JSON on the shared Blob host,
       // {meta, toc} with nested html — not the TFR page-shard shape.
       reader: "gz-toc",
+      readable: true,
       textBase: `${BLOB}/eebo/`,
       textSuffix: ".json.gz",
       normalize: (w) => ({
@@ -118,6 +121,7 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({_id: k, ...d.docs[k]})),
       indexes: { topics: "/data/topics.json", refindex: "/data/refindex.json" },
       reader: "pld",
+      readable: false,
       normalize: (w) => ({
         corpus: "pld",
         // te/ae are the English title and author; t/a the Latin.
@@ -140,6 +144,7 @@
       pick: (d) => Object.keys(d).map((vol) => ({ vol, entries: d[vol] })),
       indexes: { deepindex: "/data/deepindex.json", refindex: "/data/refindex.json" },
       reader: "pg",
+      readable: false,
       normalize: (v) => ({
         corpus: "pg",
         id: String(v.vol),
@@ -162,6 +167,7 @@
       indexes: { topics: "/data/topics.json", refindex: "/data/refindex.json" },
       extras: { titles: "/data/titles_en.json", authreg: "/data/authreg.json" },
       reader: "po",
+      readable: false,
       normalize: (w) => ({
         corpus: "po",
         id: String(w._id),
@@ -189,6 +195,7 @@
         return out;
       },
       reader: "pangrammata",
+      readable: false,
       normalize: (r) => ({
         corpus: "pangrammata",
         id: r.wid,
@@ -219,6 +226,7 @@
       indexes: { refindex: "/data/refindex.json" },
       extras: { summa: "/data/summa.json" },
       reader: "aquinas",
+      readable: false,
       normalize: (s) => ({
         corpus: "aquinas",
         id: s.file.replace(/\.html$/, ""),
@@ -230,6 +238,14 @@
       }),
     },
   ];
+
+  // `readable: false` means the catalogue and indexes are reachable
+  // but the text is not — either gated (Patrologia Latina returns 401
+  // on everything but /data/) or published only as multi-megabyte
+  // server-rendered reader pages rather than data (PG, PO,
+  // PanGrammata, Aquinas). Those works are still browsable, searchable
+  // and topic-indexed; they just cannot be opened yet. Flip the flag
+  // and add a reader branch once the author exposes per-work JSON.
 
   const byId = new Map(CORPORA.map((c) => [c.id, c]));
 

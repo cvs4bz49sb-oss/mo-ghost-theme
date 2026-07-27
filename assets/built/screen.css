@@ -13500,6 +13500,60 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-section-nav-brand .faith-beta { color: var(--color-primary); opacity: 1; }
 
+/* ── Library browse chrome (Collection > Author > Works) ──────────
+   Header above the grid at each level: back link, title, count, and
+   at the author level a filter (EEBO alone has 14,032 authors). */
+.faith-browse-head {
+  max-width: 1180px;
+  margin: 0 auto 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-browse-note {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 10px 0 0;
+}
+.faith-browse-filter {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  margin-top: 18px;
+  padding: 9px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  background: var(--color-page);
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+}
+.faith-browse-filter:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Works whose text is not yet reachable: listed and indexed, but not
+   a link. Rendered as a div, so it must not inherit the anchor hover. */
+.faith-card--pending { cursor: default; }
+.faith-card--pending:hover { background: transparent; }
+.faith-pending,
+.faith-card-link--muted {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.faith-card-link--muted { display: inline-block; margin: 0; }
+
+@media (max-width: 600px) {
+  .faith-browse-head { margin-bottom: 24px; padding: 0 20px 20px; }
+}
+
 /* ── Library author drill-down ────────────────────────────────────
    Library collapses 1,195 works into 272 author cards; clicking one
    swaps the grid for that author's works and inserts this header
