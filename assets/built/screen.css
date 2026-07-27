@@ -22926,3 +22926,176 @@ html[data-theme="dark"] .dlr-header-logo {
   .dlr-gate-ctas { flex-direction: column; align-items: center; gap: 10px; }
   .dlr-gate-ctas .btn { width: 100%; max-width: 260px; text-align: center; }
 }
+
+/* =============================================================
+   Daily Liturgy band — thin homepage section
+   ------------------------------------------------------------
+   Its own full-bleed dark strip between "This Week" (articles) and
+   "Listen" (podcasts), copper hairline top and bottom. Deliberately
+   thin: cover, copy, latest-episode player, and CTA on one line.
+
+   Copper hairline and muted type on dark are rgba literals rather
+   than tokens, matching .btn-ghost-light. The accent bars and play
+   button use --color-primary so the band stays inside the palette.
+   ============================================================= */
+.dlp-band {
+  background: var(--color-dark);
+  border-top: 1px solid rgba(238, 125, 81, 0.45);
+  border-bottom: 1px solid rgba(238, 125, 81, 0.45);
+}
+.dlp-band-inner {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 16px 0;
+}
+.dlp-band-art {
+  flex: none;
+  width: 68px;
+  height: 68px;
+  object-fit: cover;
+  display: block;
+  border-radius: 6px;
+}
+.dlp-band-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dlp-band-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.dlp-band-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(21px, 2vw, 27px);
+  line-height: 1.08;
+  color: var(--color-background);
+}
+.dlp-band-title em { font-style: italic; }
+
+/* Player — hidden until dlp-band.js resolves the latest episode. */
+.dlp-band-player[hidden] { display: none; }
+.dlp-band-player {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.dlp-band-play {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dlp-band-play:hover { background: var(--color-secondary); }
+/* The stylesheet sets svg { display: block } globally, which beats the
+   [hidden] attribute — both glyphs render at once without this. */
+.dlp-band-play-icon[hidden],
+.dlp-band-pause-icon[hidden] { display: none; }
+.dlp-band-meta {
+  flex: none;
+  width: 187px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.dlp-band-episode {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dlp-band-wave {
+  position: relative;
+  height: 18px;
+  cursor: pointer;
+}
+.dlp-band-wave-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 100%;
+}
+.dlp-band-wave-track span {
+  flex: none;
+  width: 3px;
+  background: rgba(255, 255, 255, 0.28);
+}
+.dlp-band-wave-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  overflow: hidden;
+  transition: width 0.1s linear;
+}
+.dlp-band-wave-fill .dlp-band-wave-track { width: 187px; }
+.dlp-band-wave-fill .dlp-band-wave-track span { background: var(--color-primary); }
+.dlp-band-time {
+  flex: none;
+  min-width: 76px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+}
+.dlp-band-cta {
+  flex: none;
+  min-height: 44px;
+}
+
+/* Tablet: drop the running time, keep the strip on one line. */
+@media (max-width: 1024px) {
+  .dlp-band-inner { gap: 20px; }
+  .dlp-band-time { display: none; }
+  .dlp-band-meta { width: 150px; }
+  .dlp-band-wave { display: none; }
+}
+
+/* Phone: cover + copy on one line, player and CTA beneath. */
+@media (max-width: 640px) {
+  .dlp-band-inner {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px 0;
+  }
+  .dlp-band-copy { flex-basis: auto; }
+  .dlp-band-player {
+    order: 3;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .dlp-band-meta {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+  .dlp-band-wave { display: none; }
+  .dlp-band-time {
+    display: block;
+    order: 4;
+  }
+  .dlp-band-cta {
+    order: 5;
+    flex: none;
+  }
+}

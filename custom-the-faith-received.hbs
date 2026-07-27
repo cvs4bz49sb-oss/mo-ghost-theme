@@ -83,6 +83,13 @@
 </main>
 
 <meta name="tfr-library-base" content="https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com" />
+{{!-- MO's own scripture index, built by
+     scripts/build-scripture-index.mjs from the corpus text and served
+     from MO's R2 bucket. 7.3M citations across 29,015 works — far too
+     large for the theme zip. Supersedes the partial indexes the source
+     sites ship; faith-indexes.js falls back to those if this is
+     unreachable. --}}
+<meta name="tfr-scripture-index" content="https://mo-tfr.mo-podcast-feed.workers.dev/v1/index/scripture.json" />
 <script src="{{asset "js/faith-modernize.js"}}"></script>
 <script src="{{asset "js/faith-corpora.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>

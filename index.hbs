@@ -221,6 +221,56 @@
     </div>
 </section>
 
+{{!-- DAILY LITURGY BAND: thin dark section for the Daily Liturgy
+     podcast + newsletter, sitting between "This Week" (articles) and
+     "Listen" (podcasts). Cover art is the Ghost-hosted podcast cover,
+     the same file /daily-liturgy/ uses, so the two stay in sync.
+
+     The player row ships hidden and is revealed by dlp-band.js once it
+     resolves the latest episode from the mo-podcast-feed worker, so the
+     band degrades cleanly to cover + copy + CTA when the feed is unset
+     or down. --}}
+<section class="dlp-band" aria-labelledby="dlp-band-heading">
+    <div class="container">
+        <div class="dlp-band-inner">
+            <img src="https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy-Podcast-Covers--2-.jpg" alt="The Daily Liturgy Podcast" class="dlp-band-art" width="68" height="68" loading="lazy" />
+
+            <div class="dlp-band-copy">
+                <p class="dlp-band-eyebrow">The Daily Liturgy Podcast &amp; Newsletter</p>
+                <h2 class="dlp-band-title" id="dlp-band-heading"><em>Read and pray. Every day.</em></h2>
+            </div>
+
+            <div class="dlp-band-player" data-dlp-band hidden>
+                <button type="button" class="dlp-band-play" data-dlp-play aria-label="Play the latest episode">
+                    <svg class="dlp-band-play-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <polygon points="6,3 20,12 6,21" fill="currentColor" />
+                    </svg>
+                    <svg class="dlp-band-pause-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" hidden>
+                        <rect x="5" y="3" width="4" height="18" fill="currentColor" />
+                        <rect x="15" y="3" width="4" height="18" fill="currentColor" />
+                    </svg>
+                </button>
+                <div class="dlp-band-meta">
+                    <span class="dlp-band-episode" data-dlp-title></span>
+                    {{!-- Waveform is decorative: click-to-seek is a mouse
+                         affordance, and the play button plus the live time
+                         readout carry the accessible controls. --}}
+                    <div class="dlp-band-wave" data-dlp-wave aria-hidden="true">
+                        <div class="dlp-band-wave-track" data-dlp-wave-track></div>
+                        <div class="dlp-band-wave-fill" data-dlp-wave-fill>
+                            <div class="dlp-band-wave-track" data-dlp-wave-track></div>
+                        </div>
+                    </div>
+                </div>
+                <span class="dlp-band-time" data-dlp-time role="status" aria-live="off"></span>
+                <audio data-dlp-audio preload="none"></audio>
+            </div>
+
+            <a href="/daily-liturgy/" class="btn btn-ghost-light dlp-band-cta">Start Now</a>
+        </div>
+    </div>
+</section>
+
 {{!-- PODCASTS: only rendered if a feed worker URL is configured --}}
 {{#if @custom.podcast_feed_url}}
 <section class="listen">
