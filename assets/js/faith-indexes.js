@@ -438,9 +438,56 @@
   ["eebo", "aquinas", "augustine", "pangrammata", "pg"].forEach((id) => COVERAGE.missing.topics.push(id));
   ["aquinas", "augustine", "pangrammata", "pg", "po", "pld"].forEach((id) => COVERAGE.missing.scripture.push(id));
 
+  // A generated index, built by scripts/build-scripture-index.mjs by
+  // walking the actual text, supersedes the partial indexes the source
+  // sites ship. It is far too large for the theme zip, so it lives on
+  // the CDN and this points at it once uploaded — set the meta tag and
+  // the sources below stop being used.
+  const genMeta = document.querySelector('meta[name="tfr-scripture-index"]');
+  const GENERATED = genMeta && genMeta.getAttribute("content");
+
+  function loadGenerated(url) {
+    return fetch(url).then((r) => {
+      if (!r.ok) throw new Error(String(r.status));
+      return r.json();
+    }).then((d) => {
+      const cats = new Map();
+      return Promise.all(["tfr", "eebo", "aquinas", "augustine", "pangrammata"]
+        .map((id) => window.MOCorpora.load(id)
+          .then((list) => cats.set(id, new Map(list.map((w) => [String(w.id), w]))))
+          .catch(() => {})))
+        .then(() => {
+          const counts = {};
+          Object.keys(d).forEach((book) => {
+            Object.keys(d[book]).forEach((ch) => {
+              d[book][ch].forEach((row) => {
+                const [corpus, id] = row;
+                const w = (cats.get(corpus) || new Map()).get(String(id));
+                counts[corpus] = (counts[corpus] || 0) + 1;
+                addScripture(book, ch, {
+                  corpus,
+                  id,
+                  title: w ? w.title : String(id),
+                  author: w ? w.author : "",
+                });
+              });
+            });
+          });
+          Object.keys(counts).forEach((id) => COVERAGE.scripture.push({ id, n: counts[id] }));
+          COVERAGE.missing.scripture.length = 0;
+        });
+    });
+  }
+
+  const scriptureSources = GENERATED
+    ? [loadGenerated(GENERATED).catch(() => {})]
+    : [
+      window.MOCorpora.load("tfr").then((cat) => loadLatinScripture(cat)).catch(() => {}),
+      window.MOCorpora.load("eebo").then((cat) => loadEeboScripture(cat)).catch(() => {}),
+    ];
+
   Promise.all([
-    window.MOCorpora.load("tfr").then((cat) => loadLatinScripture(cat)).catch(() => {}),
-    window.MOCorpora.load("eebo").then((cat) => loadEeboScripture(cat)).catch(() => {}),
+    ...scriptureSources,
     loadTopics(`${BLOB}/v1/topics.json`, "tfr").catch(() => {}),
     loadTopics("https://pld-patrologia-latina.vercel.app/data/topics.json", "pld").catch(() => {}),
     loadTopics("https://patrologia-orientalis.vercel.app/data/topics.json", "po").catch(() => {}),

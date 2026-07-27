@@ -27,3 +27,8 @@ scripts/polanus-source/
 posthog-setup-report.md
 
 assets/js/.wrangler/
+
+# Generated scripture index — built by scripts/build-scripture-index.mjs
+# from the corpus text. Tens of megabytes; belongs on the CDN, never
+# in the theme zip.
+data/scripture/
