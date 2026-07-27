@@ -23021,6 +23021,8 @@ html[data-theme="dark"] .dlr-header-logo {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--color-primary);
 }
 .dlp-band-title {
@@ -23117,8 +23119,10 @@ html[data-theme="dark"] .dlr-header-logo {
   padding: 14px 28px;
 }
 
-/* Tablet: drop the running time, keep the strip on one line. */
-@media (max-width: 1024px) {
+/* Below the 1180px container cap the row runs out of room, so drop the
+   waveform and running time and shrink the cover. Keyed to 1180, not
+   1024: at 1040 the nowrap eyebrow used to run under the play button. */
+@media (max-width: 1180px) {
   .dlp-band-inner { gap: 20px; }
   .dlp-band-art { width: 132px; height: 132px; }
   .dlp-band-time { display: none; }
@@ -23126,8 +23130,11 @@ html[data-theme="dark"] .dlr-header-logo {
   .dlp-band-wave { display: none; }
 }
 
-/* Phone: cover + copy on line one, player on line two, CTA full width. */
-@media (max-width: 640px) {
+/* Below 1025 the one-line row runs out of room for the headline, so
+   stack: cover, then copy, then player, then a full-width CTA. Keyed to
+   1024 rather than 640 because at 700 the headline was breaking to four
+   lines. */
+@media (max-width: 1024px) {
   .dlp-band-inner {
     flex-wrap: wrap;
     gap: 14px 16px;
