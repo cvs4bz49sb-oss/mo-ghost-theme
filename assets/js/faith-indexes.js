@@ -196,7 +196,7 @@
     const pager = opts.pager
       ? `<p class="faith-pager">` +
         `<button type="button" class="faith-pager-btn" data-faith-index-page="${opts.pager.page - 1}"${opts.pager.page <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
-        `<span class="faith-pager-count">Page ${opts.pager.page} of ${opts.pager.pages} &middot; ${opts.pager.total.toLocaleString()} ${escapeHtml(opts.pager.label)}</span>` +
+        `<span class="faith-pager-count">Page ${opts.pager.page} of ${opts.pager.pages} · ${opts.pager.total.toLocaleString()} ${escapeHtml(opts.pager.label)}</span>` +
         `<button type="button" class="faith-pager-btn" data-faith-index-page="${opts.pager.page + 1}"${opts.pager.page >= opts.pager.pages ? " disabled" : ""}>Next &rarr;</button></p>`
       : "";
     head.innerHTML =
@@ -260,7 +260,7 @@
         .sort((a, b) => b.refs - a.refs);
       chrome(host, {
         title: "Scripture",
-        sub: `${books.length} books &middot; ${books.reduce((a, b) => a + b.refs, 0).toLocaleString()} citations`,
+        sub: `${books.length} books · ${books.reduce((a, b) => a + b.refs, 0).toLocaleString()} citations`,
         note: coverageNote("scripture"),
       });
       grid(host).insertAdjacentHTML("beforeend", books.map((b) =>
@@ -283,7 +283,7 @@
       chrome(host, {
         back: { to: "books", label: "All books" },
         title: s.book,
-        sub: `${list.length} chapters &middot; ${list.reduce((a, c) => a + c.n, 0).toLocaleString()} citations`,
+        sub: `${list.length} chapters · ${list.reduce((a, c) => a + c.n, 0).toLocaleString()} citations`,
       });
       grid(host).insertAdjacentHTML("beforeend", list.map((c) =>
         `<a class="faith-card" href="#" data-faith-chapter="${escapeHtml(c.ch)}">` +
@@ -320,7 +320,7 @@
         .sort((a, b) => (a.genre - b.genre) || b.n - a.n);
       chrome(host, {
         title: "Topics",
-        sub: `${list.length} headings &middot; ${list.reduce((a, t) => a + t.n, 0).toLocaleString()} entries`,
+        sub: `${list.length} headings · ${list.reduce((a, t) => a + t.n, 0).toLocaleString()} entries`,
         note: coverageNote("topics"),
       });
       grid(host).insertAdjacentHTML("beforeend", list.map((t) =>
