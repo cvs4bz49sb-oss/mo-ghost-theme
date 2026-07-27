@@ -278,9 +278,45 @@ async function tfrText(slug) {
   return out;
 }
 
+// Aquinas and Augustine share one source catalogue, split at file id
+// 150 — the same boundary faith-corpora.js uses. Their text is only
+// published as rendered reader pages, so we strip tags and scan.
+async function aquinasStudiesWorks(limit, wantAugustine) {
+  const nav = await getJSON("https://aquinas-studies.vercel.app/data/nav.json");
+  const out = [];
+  (Array.isArray(nav) ? nav : []).forEach((g) => {
+    (g.s || []).forEach((s) => {
+      const n = parseInt((String(s.f || "").match(/_(\d+)\.html$/) || [])[1], 10);
+      if ((n >= 151) !== !!wantAugustine) return;
+      out.push(String(s.f || "").replace(/\.html$/, ""));
+    });
+  });
+  return limit ? out.slice(0, limit) : out;
+}
+
+async function aquinasStudiesText(id) {
+  const r = await fetch(`https://aquinas-studies.vercel.app/read/${id}.html`);
+  if (!r.ok) throw new Error(String(r.status));
+  const html = await r.text();
+  // Only the parallel columns carry the work; the rest of the page is
+  // reader chrome whose own numbering would pollute the index.
+  const cols = html.match(/<div class="col-(?:la|en)"[^>]*>[\s\S]*?<\/div>/g) || [];
+  return cols.join(" ").replace(/<[^>]+>/g, " ");
+}
+
 const CORPORA = {
   eebo: { works: eeboWorks, text: eeboText, concurrency: 12 },
   tfr: { works: tfrWorks, text: tfrText, concurrency: 4 },
+  aquinas: {
+    works: (l) => aquinasStudiesWorks(l, false),
+    text: aquinasStudiesText,
+    concurrency: 3,
+  },
+  augustine: {
+    works: (l) => aquinasStudiesWorks(l, true),
+    text: aquinasStudiesText,
+    concurrency: 3,
+  },
 };
 
 /* ── Runner ─────────────────────────────────────────────────────── */
