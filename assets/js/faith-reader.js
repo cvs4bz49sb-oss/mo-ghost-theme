@@ -40,10 +40,13 @@
   // Bail if we're not on the reader page.
   if (!contentEl) return;
 
-  // ── Read slug from query string ───────────────────────────────
+  // ── Read work + corpus from query string ──────────────────────
   let slug = "";
+  let corpusId = "tfr";
   try {
-    slug = new URLSearchParams(window.location.search).get("w") || "";
+    const q = new URLSearchParams(window.location.search);
+    slug = q.get("w") || "";
+    corpusId = (q.get("c") || "tfr").replace(/[^a-z0-9_-]/gi, "");
   } catch (_) {}
   slug = slug.replace(/[^a-z0-9_-]/gi, "");
 
@@ -51,6 +54,11 @@
     showError("No work specified. Add ?w=slug-name to the URL.");
     return;
   }
+
+  // The registry says how this corpus stores its text. Absent (or an
+  // unknown ?c=), fall back to the TFR page-shard reader.
+  const corpus = (window.MOCorpora && window.MOCorpora.get(corpusId)) || null;
+  const readerKind = corpus ? corpus.reader : "shards";
 
   // ── State ─────────────────────────────────────────────────────
   let meta = null;
@@ -64,6 +72,12 @@
   const shardPromises = new Map();
 
   // ── Boot ──────────────────────────────────────────────────────
+  // The Latin/English/Parallel switch only means something where a
+  // work actually has two lanes. EEBO is English throughout.
+  if (readerKind === "gz-toc" && langToggle) {
+    langToggle.hidden = true;
+    currentLang = "en";
+  }
   applyLang(currentLang);
   fetchWork();
 
@@ -76,6 +90,7 @@
   // is the single worst thing this reader could do.
 
   function fetchWork() {
+    if (readerKind === "gz-toc") return fetchGzToc();
     const metaUrl = `${BASE}/v1/works/${slug}/meta.json`;
     fetch(metaUrl)
       .then((r) => {
@@ -94,6 +109,112 @@
       .catch((err) => {
         showError(`Could not load this work. (${err.message || err})`);
       });
+  }
+
+  // ── EEBO: gzipped {meta, toc} ─────────────────────────────────
+  //
+  // Early English Books ships one gzipped JSON per work — a metadata
+  // block and a nested contents tree whose nodes carry their own HTML.
+  // Works are small (single-digit KB gzipped), so unlike the Latin
+  // corpus there is nothing to shard: one fetch is the whole book.
+
+  function fetchGzToc() {
+    const url = corpus.textBase + encodeURIComponent(slug) + (corpus.textSuffix || "");
+    fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error(`work ${r.status}`);
+        return gunzip(r);
+      })
+      .then((data) => {
+        const m = data.meta || {};
+        meta = {
+          title: m.title,
+          author: m.author,
+          date: m.year ? String(m.year) : "",
+          description: [m.place, m.publisher, m.extent].filter(Boolean).join(" · "),
+        };
+        populateHeader(meta);
+        const nodes = data.toc || [];
+        buildToc(flattenToc(nodes));
+        renderTocTree(nodes);
+        hideLoading();
+        saveLastRead();
+        openInitialSection();
+      })
+      .catch((err) => {
+        showError(`Could not load this work. (${err.message || err})`);
+      });
+  }
+
+  // DecompressionStream is the native path; fall back to letting the
+  // CDN's own content negotiation handle it where it isn't supported.
+  function gunzip(response) {
+    if (typeof window.DecompressionStream === "function") {
+      return response.blob().then((blob) => {
+        const stream = blob.stream().pipeThrough(new window.DecompressionStream("gzip"));
+        return new Response(stream).json();
+      });
+    }
+    return response.json();
+  }
+
+  // The reader's TOC builder wants a flat [{title, page, depth}] list.
+  function flattenToc(nodes) {
+    const out = [];
+    let counter = 0;
+    (function walk(list, depth) {
+      list.forEach((n) => {
+        counter += 1;
+        out.push({ title: n.label || `Section ${counter}`, page: counter, depth });
+        if (n.kids && n.kids.length) walk(n.kids, depth + 1);
+      });
+    })(nodes, 0);
+    return out;
+  }
+
+  // Render the contents tree directly. Text is already in hand, so
+  // sections are filled at build time rather than hydrated on open.
+  function renderTocTree(nodes) {
+    if (!contentEl) return;
+    contentEl.innerHTML = "";
+    let counter = 0;
+
+    function sectionFor(node, depth) {
+      counter += 1;
+      const details = document.createElement("details");
+      details.className = "faith-section-details faith-book-chapter";
+      details.id = `section-${counter}`;
+      details.dataset.frState = "loaded";
+
+      const summary = document.createElement("summary");
+      summary.className = "faith-section-summary";
+      summary.innerHTML =
+        `<div class="faith-section-summary-inner">` +
+        `<h2 class="faith-section-title"><em>${escapeHtml(node.label || "Untitled")}</em></h2>` +
+        `</div><span class="faith-chev" aria-hidden="true"></span>`;
+      details.appendChild(summary);
+
+      const body = document.createElement("div");
+      body.className = "faith-section-body article-content";
+      if (node.html) body.innerHTML = sanitize(node.html);
+      (node.kids || []).forEach((kid) => body.appendChild(sectionFor(kid, depth + 1)));
+      details.appendChild(body);
+      return details;
+    }
+
+    nodes.forEach((n) => contentEl.appendChild(sectionFor(n, 0)));
+  }
+
+  // EEBO-TCP markup is third-party HTML. DOMPurify ships in the boot
+  // bundle; if it somehow isn't there, fall back to text so a missing
+  // sanitizer can never become an injection.
+  function sanitize(html) {
+    if (window.DOMPurify && typeof window.DOMPurify.sanitize === "function") {
+      return window.DOMPurify.sanitize(html);
+    }
+    const d = document.createElement("div");
+    d.textContent = html;
+    return d.innerHTML;
   }
 
   // ── Shard loading ─────────────────────────────────────────────
@@ -628,6 +749,7 @@
     try {
       localStorage.setItem(LASTREAD_KEY, JSON.stringify({
         slug,
+        corpus: corpusId,
         title: meta.title || "",
         author: meta.author || "",
         page: 1,
