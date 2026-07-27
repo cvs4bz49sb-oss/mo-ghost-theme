@@ -19,13 +19,15 @@
  *
  * Scale, measured live 2026-07-27:
  *   EEBO ................ 53,831 works · 14,032 authors · 1455–1720
- *   Patrologia Latina ...  8,967 works · 41 topic loci
- *   PanGrammata .........  7,582 works ·  2,058 authors
- *   Patrologia Graeca ...    161 volumes · 21,127 TOC entries
+ *   Patrologia Latina ...  8,967 works ·  2,025 authors · 41 loci
+ *   PanGrammata .........  7,582 works ·  1,681 authors
+ *   Patrologia Graeca ...  2,976 works ·    494 authors · 161 vols
  *   TFR Latin ...........  1,195 works ·    272 authors · 785,437 pp
+ *   Patrologia Orientalis    400 works ·    121 authors
  *   TFR confessions .....    260 documents
- *   Patrologia Orientalis     58 volumes ·   121 authors
- *   Aquinas .............     27 nav entries
+ *   Aquinas + Augustine .    274 works ·      2 authors
+ *
+ * 75,485 works in all.
  *
  * Note both TFR and EEBO text already sit on the same Blob host, so
  * the CSP connect-src entry covers them both.
@@ -139,20 +141,26 @@
       label: "Patrologia Graeca",
       short: "Migne, the Greek Fathers",
       base: "https://patrologia-graeca.vercel.app",
-      catalogue: "/data/voltoc.json",
-      // voltoc is keyed by volume number, each holding TOC entries.
-      pick: (d) => Object.keys(d).map((vol) => ({ vol, entries: d[vol] })),
+      // nav.docs holds the 2,976 individual works and nav.authors the
+      // 494 authors. voltoc.json only describes the 161 physical
+      // volumes, which is shelving, not a catalogue.
+      catalogue: "/data/nav.json",
+      pick: (d) => Object.keys(d.docs || {}).map((k) => ({ _id: k, ...d.docs[k] })),
       indexes: { deepindex: "/data/deepindex.json", refindex: "/data/refindex.json" },
+      extras: { voltoc: "/data/voltoc.json" },
       reader: "pg",
       readable: false,
-      normalize: (v) => ({
+      normalize: (w) => ({
         corpus: "pg",
-        id: String(v.vol),
-        title: `Patrologia Graeca, volume ${v.vol}`,
-        author: "",
-        eyebrow: `PG ${v.vol}`,
-        extent: (v.entries || []).length,
-        url: `/the-faith-received/reader/?c=pg&w=${encodeURIComponent(v.vol)}`,
+        // `e` is the English title where one exists; `t` is the Greek
+        // or Latin form.
+        id: String(w._id),
+        title: w.e || w.t || "",
+        titleLatin: w.e && w.t !== w.e ? w.t : "",
+        author: (w.a || "").trim(),
+        eyebrow: w.v ? `PG ${w.v}` : "",
+        extent: (w.divs || []).length,
+        url: `/the-faith-received/reader/?c=pg&w=${encodeURIComponent(w._id)}`,
       }),
     },
     {
@@ -227,15 +235,23 @@
       extras: { summa: "/data/summa.json" },
       reader: "aquinas",
       readable: false,
-      normalize: (s) => ({
-        corpus: "aquinas",
-        id: s.file.replace(/\.html$/, ""),
-        title: s.name,
-        author: /augustine/i.test(s.group) ? "Augustine of Hippo" : "Thomas Aquinas",
-        eyebrow: s.group,
-        extent: s.heads.length,
-        url: `/the-faith-received/reader/?c=aquinas&w=${encodeURIComponent(s.file.replace(/\.html$/, ""))}`,
-      }),
+      // The site carries both authors, but no group name says so. The
+      // file ids run a single counter across the whole catalogue and
+      // the split is exact and contiguous: 1–150 Aquinas (through the
+      // Opuscula), 151–274 Augustine (from the Confessions on). Group
+      // ranges never straddle the boundary.
+      normalize(s) {
+        const n = parseInt((s.file.match(/_(\d+)\.html$/) || [])[1], 10);
+        return {
+          corpus: "aquinas",
+          id: s.file.replace(/\.html$/, ""),
+          title: s.name,
+          author: n > 150 ? "Augustine of Hippo" : "Thomas Aquinas",
+          eyebrow: s.group,
+          extent: s.heads.length,
+          url: `/the-faith-received/reader/?c=aquinas&w=${encodeURIComponent(s.file.replace(/\.html$/, ""))}`,
+        };
+      },
     },
   ];
 
