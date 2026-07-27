@@ -509,12 +509,23 @@
     });
   }
 
-  const scriptureSources = GENERATED
-    ? [loadGenerated(GENERATED).catch(() => {})]
-    : [
+  function loadSourceScripture() {
+    return Promise.all([
       window.MOCorpora.load("tfr").then((cat) => loadLatinScripture(cat)).catch(() => {}),
       window.MOCorpora.load("eebo").then((cat) => loadEeboScripture(cat)).catch(() => {}),
-    ];
+    ]);
+  }
+
+  // If the generated index is configured but unreachable — worker not
+  // deployed yet, bucket empty, a bad deploy — fall back to the source
+  // indexes rather than showing an empty Scripture tab.
+  const scriptureSources = GENERATED
+    ? [loadGenerated(GENERATED).catch(() => {
+      scripture.clear();
+      COVERAGE.scripture.length = 0;
+      return loadSourceScripture();
+    })]
+    : [loadSourceScripture()];
 
   Promise.all([
     ...scriptureSources,
