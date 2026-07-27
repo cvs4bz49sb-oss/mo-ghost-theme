@@ -32,9 +32,10 @@
   const FEED_URL = document.body.getAttribute("data-podcast-feed-url") || "";
   if (!FEED_URL) return;
 
+  // Peaks are tuned to the 24px .dlp-band-wave height.
   const BAR_HEIGHTS = [
-    7, 12, 18, 9, 14, 20, 11, 6, 15, 19, 8, 13,
-    17, 10, 16, 7, 12, 20, 9, 14, 6, 18, 11, 15,
+    8, 14, 22, 11, 17, 24, 13, 7, 18, 23, 10, 16,
+    20, 12, 19, 8, 14, 24, 11, 17, 7, 22, 13, 18,
   ];
 
   function fmt(s) {

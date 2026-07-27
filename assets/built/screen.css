@@ -15172,6 +15172,34 @@ body.mo-search-open { overflow: hidden; }
   color: var(--color-muted);
   display: block;
 }
+/* The words around the citation, so a reader can judge a reference
+   before opening a 900-page folio. Quoted rather than paraphrased. */
+.faith-scripture-ref-excerpt::before,
+.faith-scripture-ref-excerpt::after { content: "\201C"; }
+.faith-scripture-ref-excerpt::after { content: "\201D"; }
+.faith-scripture-ref-author {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--color-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+.faith-scripture-ref-times {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  display: block;
+  margin-top: 8px;
+}
+/* Books with nothing citing them stay listed — an index that hides its
+   empty shelves misrepresents its own coverage — but sit back. */
+.faith-scripture-book-details.is-empty > .faith-scripture-book { opacity: 0.42; cursor: default; }
+.faith-scripture-book-details.is-empty .faith-scripture-chev { display: none; }
+.faith-scripture-refs-body { padding: 4px 0 12px; }
+.faith-scripture-refs-body .faith-pager { justify-content: center; padding-top: 10px; }
 
 /* ── Today's reading page ─────────────────────────────────────── */
 .faith-today-body { padding: 72px 0 96px; }
@@ -22968,13 +22996,13 @@ html[data-theme="dark"] .dlr-header-logo {
 .dlp-band-inner {
   display: flex;
   align-items: center;
-  gap: 28px;
-  padding: 18px 0;
+  gap: 36px;
+  padding: 30px 0;
 }
 .dlp-band-art {
   flex: none;
-  width: 96px;
-  height: 96px;
+  width: 144px;
+  height: 144px;
   object-fit: cover;
   display: block;
   border-radius: 6px;
@@ -22984,21 +23012,22 @@ html[data-theme="dark"] .dlr-header-logo {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 .dlp-band-eyebrow {
   margin: 0;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: var(--color-primary);
 }
 .dlp-band-title {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(21px, 2vw, 27px);
+  font-size: clamp(23px, 2.1vw, 29px);
   line-height: 1.08;
   color: var(--color-background);
 }
@@ -23010,15 +23039,15 @@ html[data-theme="dark"] .dlr-header-logo {
   flex: none;
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 18px;
 }
 .dlp-band-play {
   flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -23032,15 +23061,16 @@ html[data-theme="dark"] .dlr-header-logo {
    [hidden] attribute — both glyphs render at once without this. */
 .dlp-band-play-icon[hidden],
 .dlp-band-pause-icon[hidden] { display: none; }
+.dlp-band-play svg { width: 21px; height: 21px; }
 .dlp-band-meta {
   flex: none;
-  width: 187px;
+  width: 188px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 9px;
 }
 .dlp-band-episode {
-  font-size: 12px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   overflow: hidden;
@@ -23048,18 +23078,18 @@ html[data-theme="dark"] .dlr-header-logo {
 }
 .dlp-band-wave {
   position: relative;
-  height: 18px;
+  height: 24px;
   cursor: pointer;
 }
 .dlp-band-wave-track {
   display: flex;
   align-items: flex-end;
-  gap: 5px;
+  gap: 4px;
   height: 100%;
 }
 .dlp-band-wave-track span {
   flex: none;
-  width: 3px;
+  width: 4px;
   background: rgba(255, 255, 255, 0.28);
 }
 .dlp-band-wave-fill {
@@ -23071,7 +23101,7 @@ html[data-theme="dark"] .dlr-header-logo {
   overflow: hidden;
   transition: width 0.1s linear;
 }
-.dlp-band-wave-fill .dlp-band-wave-track { width: 187px; }
+.dlp-band-wave-fill .dlp-band-wave-track { width: 188px; }
 .dlp-band-wave-fill .dlp-band-wave-track span { background: var(--color-primary); }
 .dlp-band-time {
   flex: none;
@@ -23082,15 +23112,17 @@ html[data-theme="dark"] .dlr-header-logo {
 }
 .dlp-band-cta {
   flex: none;
-  min-height: 44px;
+  min-height: 52px;
+  font-size: 15px;
+  padding: 14px 28px;
 }
 
 /* Tablet: drop the running time, keep the strip on one line. */
 @media (max-width: 1024px) {
   .dlp-band-inner { gap: 20px; }
-  .dlp-band-art { width: 88px; height: 88px; }
+  .dlp-band-art { width: 132px; height: 132px; }
   .dlp-band-time { display: none; }
-  .dlp-band-meta { width: 150px; }
+  .dlp-band-meta { width: 170px; }
   .dlp-band-wave { display: none; }
 }
 
@@ -23102,8 +23134,8 @@ html[data-theme="dark"] .dlr-header-logo {
     padding: 18px 0;
   }
   .dlp-band-art {
-    width: 128px;
-    height: 128px;
+    width: 176px;
+    height: 176px;
     flex: 0 0 auto;
   }
   .dlp-band-copy {
@@ -23113,8 +23145,9 @@ html[data-theme="dark"] .dlr-header-logo {
   .dlp-band-eyebrow {
     font-size: 10px;
     letter-spacing: 0.16em;
+    white-space: normal;
   }
-  .dlp-band-title { font-size: 20px; }
+  .dlp-band-title { font-size: 26px; }
   .dlp-band-player {
     order: 3;
     flex: 1 1 auto;

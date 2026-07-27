@@ -233,12 +233,23 @@
 
   // ── Render helpers ────────────────────────────────────────────
 
-  function readerUrl(corpus, id) {
+  // `loc` is where the citation sits: a section index for the
+  // collections whose readers count sections (EEBO, Aquinas,
+  // Augustine), a page number for the Latin Library, whose sections
+  // are page ranges. The reader resolves ?p= to the section holding
+  // that page, so both land on the passage rather than the front page.
+  function readerUrl(corpus, id, loc) {
     const c = window.MOCorpora.get(corpus);
     if (!c) return "/the-faith-received/";
     if (c.readable === false) return `/the-faith-received/?collection=${encodeURIComponent(corpus)}`;
     const q = corpus === "tfr" || corpus === "confessions" ? "" : `c=${encodeURIComponent(corpus)}&`;
-    return `/the-faith-received/reader/?${q}w=${encodeURIComponent(id)}`;
+    let url = `/the-faith-received/reader/?${q}w=${encodeURIComponent(id)}`;
+    if (loc != null) {
+      url += corpus === "tfr" || corpus === "confessions"
+        ? `&p=${encodeURIComponent(loc)}`
+        : `#section-${encodeURIComponent(loc)}`;
+    }
+    return url;
   }
 
   function coverageNote(kind) {
@@ -314,83 +325,187 @@
   }
 
   // ── Scripture views ───────────────────────────────────────────
+  //
+  // Canonical order, Old Testament and New held apart, every book
+  // listed whether or not anything cites it — an index that hides its
+  // empty shelves is lying about its coverage. A chapter's works and
+  // their previews load only when that chapter opens.
 
-  let scriptureState = { view: "books", book: null, chapter: null, page: 1 };
+  const OT = [
+    "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua",
+    "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
+    "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job",
+    "Psalms", "Proverbs", "Ecclesiastes", "Song Of Solomon", "Isaiah",
+    "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel",
+    "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk",
+    "Zephaniah", "Haggai", "Zechariah", "Malachi",
+  ];
+  // Kept with the Old Testament, which is where these writers found
+  // them — the Latin corpus cites Ecclesiasticus as freely as Proverbs.
+  const DEUTERO = [
+    "Tobit", "Judith", "Wisdom", "Ecclesiasticus", "Baruch",
+    "1 Maccabees", "2 Maccabees",
+  ];
+  const NT = [
+    "Matthew", "Mark", "Luke", "John", "Acts", "Romans",
+    "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians",
+    "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians",
+    "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James",
+    "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude",
+    "Revelation",
+  ];
+
+  let testament = "ot";
+  const openChapters = new Set();
+  const chapterCache = new Map();
+
+  function scriptureHost() {
+    return scriptureSection && scriptureSection.querySelector(".container");
+  }
+
+  function bookList() {
+    return testament === "ot" ? OT.concat(DEUTERO) : NT;
+  }
 
   function renderScripture() {
-    const host = scriptureSection && scriptureSection.querySelector(".container");
+    const host = scriptureHost();
     if (!host) return;
-    const s = scriptureState;
+    host.querySelectorAll("[data-faith-index-chrome], [data-faith-scripture-list], [data-faith-scripture-status]").forEach((n) => n.remove());
+    const grid = host.querySelector(".faith-card-grid[data-faith-index-grid]");
+    if (grid) grid.remove();
 
-    if (s.view === "books") {
-      // Two different numbers, and conflating them overstates the
-      // index: `works` is how many works cite the book at all, `cites`
-      // is how often they do it.
-      const books = [...scripture.entries()]
-        .map(([b, chs]) => {
-          let works = 0;
-          let cites = 0;
-          chs.forEach((l) => {
-            works += l.length;
-            l.forEach((e) => { cites += e.times || 1; });
-          });
-          return { book: b, chapters: chs.size, refs: works, cites };
-        })
-        .filter((b) => b.refs)
-        .sort((a, b) => b.cites - a.cites);
-      // Distinct works, not row count — a work citing forty chapters
-      // is one work, and summing rows claimed 2,057,263 of them when
-      // the corpus holds 29,015.
-      const distinct = new Set();
-      scripture.forEach((chs) => chs.forEach((l) => l.forEach((e) => {
-        distinct.add(`${e.corpus}:${e.id}`);
-      })));
-      chrome(host, {
-        title: "Scripture",
-        sub: `${books.length} books · ${books.reduce((a, b) => a + b.cites, 0).toLocaleString()} citations ` +
-          `across ${distinct.size.toLocaleString()} works`,
-        note: coverageNote("scripture"),
-      });
-      grid(host).insertAdjacentHTML("beforeend", books.map((b) =>
-        `<a class="faith-card" href="#" data-faith-book="${escapeHtml(b.book)}">` +
-        `<p class="faith-card-date">${b.chapters} chapter${b.chapters === 1 ? "" : "s"}</p>` +
-        `<h3 class="faith-card-title"><em>${escapeHtml(b.book)}</em></h3>` +
-        `<p class="faith-card-desc">${b.cites.toLocaleString()} citation${b.cites === 1 ? "" : "s"}</p>` +
-        `<span class="faith-card-link">Open <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`
-      ).join(""));
-      return;
-    }
+    let cites = 0;
+    const distinct = new Set();
+    scripture.forEach((chs) => chs.forEach((l) => l.forEach((e) => {
+      cites += e.times || 1;
+      distinct.add(`${e.corpus}:${e.id}`);
+    })));
 
-    const chs = scripture.get(s.book);
-    if (!chs) { scriptureState = { view: "books" }; return renderScripture(); }
-
-    if (s.view === "chapters") {
-      const list = [...chs.entries()]
-        .map(([ch, l]) => ({ ch, n: l.length }))
-        .sort((a, b) => (parseInt(a.ch, 10) || 0) - (parseInt(b.ch, 10) || 0));
-      chrome(host, {
-        back: { to: "books", label: "All books" },
-        title: s.book,
-        sub: `${list.length} chapters · ${list.reduce((a, c) => a + c.n, 0).toLocaleString()} citations`,
-      });
-      grid(host).insertAdjacentHTML("beforeend", list.map((c) =>
-        `<a class="faith-card" href="#" data-faith-chapter="${escapeHtml(c.ch)}">` +
-        `<h3 class="faith-card-title"><em>${escapeHtml(s.book)} ${escapeHtml(c.ch)}</em></h3>` +
-        `<p class="faith-card-desc">${c.n.toLocaleString()} citation${c.n === 1 ? "" : "s"}</p>` +
-        `<span class="faith-card-link">Open <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`
-      ).join(""));
-      return;
-    }
-
-    const entries = chs.get(String(s.chapter)) || [];
-    const { slice, page, pages } = paged(entries, s.page);
     chrome(host, {
-      back: { to: "chapters", label: s.book },
-      title: `${s.book} ${s.chapter}`,
-      sub: `${entries.length.toLocaleString()} work${entries.length === 1 ? "" : "s"} cite this chapter`,
-      pager: pages > 1 ? { page, pages, total: entries.length, label: "citations" } : null,
+      title: "Scripture",
+      sub: `${cites.toLocaleString()} citations across ${distinct.size.toLocaleString()} works`,
+      note: coverageNote("scripture"),
     });
-    grid(host).insertAdjacentHTML("beforeend", slice.map(workCard).join(""));
+
+    const wrap = document.createElement("div");
+    wrap.setAttribute("data-faith-scripture-list", "");
+
+    const toggle = document.createElement("div");
+    toggle.className = "faith-scripture-toggle";
+    toggle.setAttribute("role", "tablist");
+    toggle.innerHTML = ["ot", "nt"].map((t) =>
+      `<button type="button" class="faith-scripture-toggle-btn${t === testament ? " is-active" : ""}" ` +
+      `data-faith-testament="${t}" role="tab" aria-selected="${t === testament}">` +
+      `${t === "ot" ? "Old Testament" : "New Testament"}</button>`
+    ).join("");
+    wrap.appendChild(toggle);
+
+    const list = document.createElement("div");
+    list.className = "faith-scripture-grid";
+    bookList().forEach((book) => {
+      const chs = scripture.get(book) || new Map();
+      let total = 0;
+      chs.forEach((l) => l.forEach((e) => { total += e.times || 1; }));
+      list.appendChild(bookRow(book, chs, total));
+    });
+    wrap.appendChild(list);
+    host.appendChild(wrap);
+  }
+
+  function bookRow(book, chs, total) {
+    const details = document.createElement("details");
+    details.className = `faith-scripture-book-details${total ? "" : " is-empty"}`;
+    const summary = document.createElement("summary");
+    summary.className = "faith-scripture-book";
+    summary.innerHTML =
+      `<span class="faith-scripture-book-name">${escapeHtml(book)}</span>` +
+      `<span class="faith-scripture-book-count">${total ? `${total.toLocaleString()} citation${total === 1 ? "" : "s"}` : "none yet"}</span>` +
+      `<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>`;
+    details.appendChild(summary);
+    if (!total) return details;
+
+    const body = document.createElement("div");
+    body.className = "faith-scripture-book-body";
+    [...chs.keys()]
+      .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+      .forEach((ch) => body.appendChild(chapterRow(book, ch, chs.get(ch))));
+    details.appendChild(body);
+    return details;
+  }
+
+  function chapterRow(book, ch, entries) {
+    const key = `${book} ${ch}`;
+    const details = document.createElement("details");
+    details.className = "faith-scripture-chapter-details";
+    details.id = `ref-${book.replace(/\s+/g, "-").toLowerCase()}-${ch}`;
+    let cites = 0;
+    entries.forEach((e) => { cites += e.times || 1; });
+
+    const summary = document.createElement("summary");
+    summary.className = "faith-scripture-chapter";
+    summary.innerHTML =
+      `<span class="faith-scripture-chapter-name">${escapeHtml(key)}</span>` +
+      `<span class="faith-scripture-chapter-count">${entries.length.toLocaleString()} work${entries.length === 1 ? "" : "s"} · ${cites.toLocaleString()} citation${cites === 1 ? "" : "s"}</span>` +
+      `<span class="faith-chev faith-scripture-chev" aria-hidden="true"></span>`;
+    details.appendChild(summary);
+
+    const body = document.createElement("div");
+    body.className = "faith-scripture-refs-body";
+    body.innerHTML = `<p class="faith-section-loading">Loading references&hellip;</p>`;
+    details.appendChild(body);
+
+    details.addEventListener("toggle", () => {
+      if (!details.open || details.dataset.filled) return;
+      details.dataset.filled = "1";
+      fillChapter(body, book, ch, entries);
+    });
+    return details;
+  }
+
+  // 120 at a time: Romans 9 alone is cited by 4,509 works.
+  function fillChapter(body, book, ch, entries, page) {
+    const p = page || 1;
+    const pages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
+    const slice = entries.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE);
+    body.innerHTML = "";
+    const ol = document.createElement("ol");
+    ol.className = "faith-scripture-refs";
+    slice.forEach((e) => ol.appendChild(refItem(e)));
+    body.appendChild(ol);
+    if (pages > 1) {
+      const nav = document.createElement("p");
+      nav.className = "faith-pager";
+      nav.innerHTML =
+        `<button type="button" class="faith-pager-btn" data-ref-page="${p - 1}"${p <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
+        `<span class="faith-pager-count">Page ${p} of ${pages} · ${entries.length.toLocaleString()} works</span>` +
+        `<button type="button" class="faith-pager-btn" data-ref-page="${p + 1}"${p >= pages ? " disabled" : ""}>Next &rarr;</button>`;
+      nav.querySelectorAll("[data-ref-page]").forEach((b) => {
+        b.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          if (b.disabled) return;
+          fillChapter(body, book, ch, entries, parseInt(b.getAttribute("data-ref-page"), 10));
+        });
+      });
+      body.appendChild(nav);
+    }
+  }
+
+  // One reference: who cites it, and the words around the citation, so
+  // the reader can judge before opening a 900-page folio.
+  function refItem(e) {
+    const c = window.MOCorpora.get(e.corpus);
+    const li = document.createElement("li");
+    li.className = "faith-scripture-ref";
+    const href = readerUrl(e.corpus, e.id, e.loc);
+    li.innerHTML =
+      `<a class="faith-scripture-ref-link" href="${escapeHtml(href)}">` +
+      `<span class="faith-scripture-ref-source">${escapeHtml(c ? c.label : e.corpus)}</span>` +
+      `<span class="faith-scripture-ref-title">${escapeHtml(e.title || String(e.id))}</span>${ 
+      e.author ? `<span class="faith-scripture-ref-author">${escapeHtml(e.author)}</span>` : "" 
+      }${e.excerpt ? `<span class="faith-scripture-ref-excerpt">${escapeHtml(e.excerpt)}</span>` : "" 
+      }${e.times > 1 ? `<span class="faith-scripture-ref-times">cited ${e.times} times</span>` : "" 
+      }</a>`;
+    return li;
   }
 
   // ── Topics views ──────────────────────────────────────────────
@@ -436,18 +551,10 @@
   // ── Events ────────────────────────────────────────────────────
 
   document.addEventListener("click", (e) => {
-    const book = e.target.closest("[data-faith-book]");
-    if (book) {
+    const test = e.target.closest("[data-faith-testament]");
+    if (test) {
       e.preventDefault();
-      scriptureState = { view: "chapters", book: book.getAttribute("data-faith-book"), page: 1 };
-      return renderScripture();
-    }
-    const ch = e.target.closest("[data-faith-chapter]");
-    if (ch) {
-      e.preventDefault();
-      scriptureState.view = "verses";
-      scriptureState.chapter = ch.getAttribute("data-faith-chapter");
-      scriptureState.page = 1;
+      testament = test.getAttribute("data-faith-testament");
       return renderScripture();
     }
     const topic = e.target.closest("[data-faith-topic]");
@@ -459,20 +566,16 @@
     const back = e.target.closest("[data-faith-index-back]");
     if (back) {
       e.preventDefault();
-      const to = back.getAttribute("data-faith-index-back");
-      if (to === "books") { scriptureState = { view: "books" }; return renderScripture(); }
-      if (to === "chapters") { scriptureState.view = "chapters"; return renderScripture(); }
-      if (to === "topics") { topicState = { view: "topics" }; return renderTopics(); }
+      if (back.getAttribute("data-faith-index-back") === "topics") {
+        topicState = { view: "topics" };
+        return renderTopics();
+      }
     }
     const pg = e.target.closest("[data-faith-index-page]");
     if (pg && !pg.disabled) {
       e.preventDefault();
-      const n = parseInt(pg.getAttribute("data-faith-index-page"), 10) || 1;
-      if (pg.closest('[data-faith-section="scripture"]')) {
-        scriptureState.page = n; renderScripture();
-      } else {
-        topicState.page = n; renderTopics();
-      }
+      topicState.page = parseInt(pg.getAttribute("data-faith-index-page"), 10) || 1;
+      renderTopics();
     }
   });
 
@@ -517,6 +620,8 @@
                   title: w ? w.title : String(id),
                   author: w ? w.author : "",
                   times: times || 1,
+                  loc: row[3] == null ? null : row[3],
+                  excerpt: row[4] || "",
                 });
               });
             });

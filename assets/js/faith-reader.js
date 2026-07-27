@@ -970,9 +970,24 @@
     return true;
   }
 
-  // Open the section a deep link points at (#section-N), else the
-  // first one, so the reader never lands on a wall of closed rows.
+  // Open the section a deep link points at, else the first one, so the
+  // reader never lands on a wall of closed rows.
+  //
+  // ?p=N comes from the Scripture index for page-ranged collections:
+  // it names the page a citation sits on, and the section holding it
+  // is whichever range covers that page. Sending a reader to the top
+  // of a 900-page folio when we know the page would be a poor answer.
   function openInitialSection() {
+    let wanted = null;
+    try { wanted = parseInt(new URLSearchParams(window.location.search).get("p"), 10); } catch (_) {}
+    if (wanted) {
+      const target = [...contentEl.querySelectorAll("[data-from]")].find((d) => {
+        const from = parseInt(d.getAttribute("data-from"), 10);
+        const to = parseInt(d.getAttribute("data-to"), 10);
+        return wanted >= from && wanted < to;
+      });
+      if (target && revealSection(`#${target.id}`, true)) return;
+    }
     if (window.location.hash && revealSection(window.location.hash, true)) return;
     const first = contentEl.querySelector(".faith-section-details");
     if (first) revealSection(`#${first.id}`, false);

@@ -345,9 +345,19 @@ async function aquinasStudiesText(id) {
   if (!r.ok) throw new Error(String(r.status));
   const html = await r.text();
   // Only the parallel columns carry the work; the rest of the page is
-  // reader chrome whose own numbering would pollute the index.
-  const cols = html.match(/<div class="col-(?:la|en)"[^>]*>[\s\S]*?<\/div>/g) || [];
-  return cols.join(" ").replace(/<[^>]+>/g, " ");
+  // reader chrome whose own numbering would pollute the index. Count
+  // questions and articles as we pass them so an offset resolves to
+  // the same #section-N the reader builds.
+  let out = "";
+  const marks = [];
+  let section = 0;
+  const re = /<details class="collapse-(question|article)"|<div class="col-(?:la|en)"[^>]*>([\s\S]*?)<\/div>/g;
+  let m;
+  while ((m = re.exec(html))) {
+    if (m[1]) { section += 1; marks.push({ at: out.length, loc: section }); continue; }
+    out += ` ${m[2].replace(/<[^>]+>/g, " ")}`;
+  }
+  return { text: out, locate: locatorFor(marks) };
 }
 
 const CORPORA = {
@@ -367,36 +377,64 @@ const CORPORA = {
 
 /* ── Runner ─────────────────────────────────────────────────────── */
 
-// Combine the per-corpus files into the single object the Scripture
-// index page reads: { book: { chapter: [[corpus, id, count], …] } }.
+// Two outputs, not one.
+//
+// A single merged file reached 49.6 MB, which every visitor to the
+// Scripture tab had to download before seeing a book list. Now:
+//
+//   index/scripture-books.json         { book: { chapter: count } }
+//   index/scripture/<book>/<ch>.json   [[corpus, id, times, loc, excerpt]]
+//
+// The summary is small enough to load up front; a chapter's works and
+// their previews arrive only when that chapter is opened.
 async function merge() {
-  const files = (await readdir(OUT_DIR)).filter((f) => f.endsWith(".json") && !f.endsWith(".done.json"));
-  const out = {};
+  const files = (await readdir(OUT_DIR)).filter(
+    (f) => f.endsWith(".json") && !f.endsWith(".done.json") && f !== "books.json"
+  );
+  const detail = new Map(); // "book/ch" -> rows
+  const summary = {};
   let cites = 0;
   const works = new Set();
+
   for (const f of files) {
     const corpus = f.replace(/\.json$/, "");
-    if (corpus === "all") continue;
     const d = JSON.parse(await readFile(path.join(OUT_DIR, f), "utf8"));
     for (const [book, chs] of Object.entries(d)) {
-      out[book] = out[book] || {};
       for (const [ch, list] of Object.entries(chs)) {
-        out[book][ch] = out[book][ch] || [];
-        for (const [id, n] of list) {
-          out[book][ch].push([corpus, id, n]);
+        const key = `${book}/${ch}`;
+        if (!detail.has(key)) detail.set(key, []);
+        const rows = detail.get(key);
+        for (const [id, n, loc, excerpt] of list) {
+          rows.push([corpus, id, n, loc ?? null, excerpt || ""]);
           cites += n;
           works.add(`${corpus}:${id}`);
         }
       }
     }
   }
-  const dest = path.join(OUT_DIR, "all.json");
-  await writeFile(dest, JSON.stringify(out));
-  const bytes = (await readFile(dest)).length;
-  console.log(`merged ${files.length} corpora: ${Object.keys(out).length} books, ` +
-    `${cites.toLocaleString()} citations, ${works.size.toLocaleString()} works`);
-  console.log(`${path.relative(ROOT, dest)} — ${(bytes / 1024 / 1024).toFixed(1)} MB`);
-  console.log("Too large for the theme zip; upload to R2 and point the Scripture index at it.");
+
+  const detailDir = path.join(OUT_DIR, "out", "scripture");
+  await mkdir(detailDir, { recursive: true });
+  let bytes = 0;
+  for (const [key, rows] of detail) {
+    const [book, ch] = key.split("/");
+    summary[book] = summary[book] || {};
+    summary[book][ch] = rows.length;
+    const dir = path.join(detailDir, book);
+    await mkdir(dir, { recursive: true });
+    const body = JSON.stringify(rows);
+    bytes += body.length;
+    await writeFile(path.join(dir, `${ch}.json`), body);
+  }
+
+  const summaryPath = path.join(OUT_DIR, "out", "scripture-books.json");
+  await writeFile(summaryPath, JSON.stringify(summary));
+  const sBytes = (await readFile(summaryPath)).length;
+
+  console.log(`${Object.keys(summary).length} books, ${detail.size} chapters`);
+  console.log(`${cites.toLocaleString()} citations across ${works.size.toLocaleString()} works`);
+  console.log(`summary  ${(sBytes / 1024).toFixed(0)} KB  (loaded up front)`);
+  console.log(`detail   ${(bytes / 1024 / 1024).toFixed(1)} MB across ${detail.size} files (loaded per chapter)`);
 }
 
 async function run() {
@@ -431,13 +469,14 @@ async function run() {
     while (queue.length) {
       const id = queue.pop();
       try {
-        const found = extractRefs(await c.text(id));
-        found.forEach((count, key) => {
+        const { text, locate } = await c.text(id);
+        const found = extractRefs(text, locate);
+        found.forEach((hit, key) => {
           const [book, ch] = key.split("|");
           index[book] = index[book] || {};
           index[book][ch] = index[book][ch] || [];
-          index[book][ch].push([id, count]);
-          refs += count;
+          index[book][ch].push([id, hit.n, hit.loc, hit.excerpt]);
+          refs += hit.n;
         });
       } catch { failed += 1; }
       done.add(id);
