@@ -43,6 +43,36 @@
   // author display name → { works[], bio }
   let authorIndex = new Map();
 
+  // The Library grid ships with server-rendered cards for the curated
+  // English works — Augustine, à Kempis, Edwards, the church fathers.
+  // Harvest them BEFORE anything clears the grid, so they fold into
+  // the author shelf alongside the Latin corpus instead of being
+  // replaced by it.
+  const nativeWorks = harvestNativeCards();
+
+  function harvestNativeCards() {
+    const grid = libraryGrid();
+    if (!grid) return [];
+    const out = [];
+    grid.querySelectorAll("a.faith-card").forEach((a) => {
+      const href = a.getAttribute("href");
+      if (!href) return;
+      const pick = (sel) => {
+        const el = a.querySelector(sel);
+        return el ? el.textContent.trim() : "";
+      };
+      out.push({
+        native: true,
+        href,
+        title: pick(".faith-card-title"),
+        author: pick(".faith-card-author"),
+        date: pick(".faith-card-date"),
+        description: pick(".faith-card-desc"),
+      });
+    });
+    return out;
+  }
+
   Promise.all([
     fetch(`${BASE}/v1/works-index.json`).then((r) => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -66,11 +96,15 @@
 
   function buildAuthorIndex(works, bios) {
     const idx = new Map();
-    works.forEach((w) => {
+    const add = (w) => {
       const name = (w.author || "").trim() || "Unattributed";
       if (!idx.has(name)) idx.set(name, { name, works: [], bio: bios[name] || null });
       idx.get(name).works.push(w);
-    });
+    };
+    // Curated English works first, so an author who appears in both
+    // collections leads with the readable English edition.
+    nativeWorks.forEach(add);
+    works.forEach(add);
     // Alphabetical by display name — how a reader scans a shelf.
     return new Map([...idx.entries()].sort((a, b) => a[0].localeCompare(b[0])));
   }
@@ -93,16 +127,22 @@
   }
 
   function buildCard(w) {
-    const tradition = escapeHtml(w.tradition || "");
+    // Curated English works keep their own route, dateline and
+    // description; corpus works link to the reader and show extent.
+    const href = w.native ? w.href : readerUrl(w.slug);
+    const eyebrow = escapeHtml(w.native ? (w.date || "") : (w.tradition || ""));
     const title = escapeHtml(w.title || w.slug);
     const author = escapeHtml(w.author || "");
-    const pages = w.n_pages ? `${w.n_pages.toLocaleString()} pp.` : "";
-    return `<a class="faith-card" href="${readerUrl(w.slug)}">${
-      tradition ? `<p class="faith-card-date">${tradition}</p>` : ""
+    const desc = w.native
+      ? escapeHtml(w.description || "")
+      : (w.n_pages ? `${w.n_pages.toLocaleString()} pp.` : "");
+    const cta = w.native ? "Read &amp; study" : "Read";
+    return `<a class="faith-card" href="${href}">${
+      eyebrow ? `<p class="faith-card-date">${eyebrow}</p>` : ""
       }<h3 class="faith-card-title"><em>${title}</em></h3>${
       author ? `<p class="faith-card-author"><em>${author}</em></p>` : ""
-      }${pages ? `<p class="faith-card-desc">${pages}</p>` : ""
-      }<span class="faith-card-link">Read <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span>` +
+      }${desc ? `<p class="faith-card-desc">${desc}</p>` : ""
+      }<span class="faith-card-link">${cta} <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span>` +
       `</a>`;
   }
 
@@ -138,8 +178,14 @@
   function buildAuthorCard(entry) {
     const name = escapeHtml(entry.name);
     const n = entry.works.length;
-    const dates = entry.bio && entry.bio.dates ? escapeHtml(entry.bio.dates) : "";
-    const tradition = escapeHtml(entry.works[0].tradition || "");
+    // Curated English works carry a dateline rather than a tradition,
+    // so fall back to whichever the author's shelf actually has.
+    const withTradition = entry.works.find((w) => w.tradition);
+    const withDate = entry.works.find((w) => w.date);
+    const dates = entry.bio && entry.bio.dates
+      ? escapeHtml(entry.bio.dates)
+      : (withDate ? escapeHtml(withDate.date) : "");
+    const tradition = escapeHtml(withTradition ? withTradition.tradition : "");
     const pages = entry.works.reduce((a, w) => a + (w.n_pages || 0), 0);
     return `<a class="faith-card" href="?author=${encodeURIComponent(entry.name)}" data-faith-author="${escapeHtml(entry.name)}">${
       tradition ? `<p class="faith-card-date">${tradition}</p>` : ""
