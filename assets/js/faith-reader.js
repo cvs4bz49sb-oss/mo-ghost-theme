@@ -239,22 +239,46 @@
   const EARLY_MODERN =
     /\b(vpon|vnto|vs|vse|vnder|haue|giue|loue|euery|neuer|ouer|euen|seruice|deuil|iudge|iust|maiestie|obiect|subiect|reioyce|adioyn)\b/i;
 
+  // Curated rather than a blanket u<->v swap: the letters map both
+  // ways depending on position ("vpon" -> upon, but "haue" -> have),
+  // and a wrong modernization is worse than a missed one.
   const ORTHOGRAPHY = [
-    [/\bvpon\b/gi, "upon"], [/\bvnto\b/gi, "unto"], [/\bvnder/gi, "under"],
-    [/\bvse\b/gi, "use"], [/\bvsed\b/gi, "used"], [/\bvs\b/g, "us"],
-    [/\bhaue\b/gi, "have"], [/\bgiue\b/gi, "give"], [/\bloue\b/gi, "love"],
-    [/\beuery\b/gi, "every"], [/\bneuer\b/gi, "never"], [/\bouer\b/gi, "over"],
-    [/\beuen\b/gi, "even"], [/\bseruice\b/gi, "service"], [/\bdeuil\b/gi, "devil"],
-    [/\bliue\b/gi, "live"], [/\bleaue\b/gi, "leave"], [/\bbeleeue\b/gi, "believe"],
-    [/\biudge/gi, "judge"], [/\biust/gi, "just"], [/\bmaiestie\b/gi, "majesty"],
-    [/\bobiect/gi, "object"], [/\bsubiect/gi, "subject"], [/\breioyc/gi, "rejoic"],
-    [/\badioyn/gi, "adjoin"], [/\bioy\b/gi, "joy"], [/\bkinges\b/gi, "kings"],
-    [/\bVV/g, "W"], [/\bvv/g, "w"],
+    [/\bvpon\b/gi, "upon"], [/\bvnto\b/gi, "unto"], [/\bvntill?\b/gi, "until"],
+    [/\bvnder(\w*)/gi, "under$1"], [/\bvse(d|s|th)?\b/gi, "use$1"],
+    [/\bvs\b/gi, "us"], [/\bvp\b/gi, "up"], [/\bvpp?on\b/gi, "upon"],
+    [/\bvnity\b/gi, "unity"], [/\bvniuersal(\w*)/gi, "universal$1"],
+    [/\bd[vu]ke\b/gi, "duke"], [/\bsov?ldier(\w*)/gi, "soldier$1"],
+    [/\bhaue\b/gi, "have"], [/\bgiue(n|th)?\b/gi, "give$1"],
+    [/\bloue(d|th)?\b/gi, "love$1"], [/\beuery\b/gi, "every"],
+    [/\bneuer\b/gi, "never"], [/\bouer\b/gi, "over"], [/\beuen\b/gi, "even"],
+    [/\beuer\b/gi, "ever"], [/\bseruice\b/gi, "service"], [/\bseruant(s?)\b/gi, "servant$1"],
+    [/\bdeuil(s?)\b/gi, "devil$1"], [/\bliue(d|th)?\b/gi, "live$1"],
+    [/\bleaue\b/gi, "leave"], [/\bbeleeue(d|th)?\b/gi, "believe$1"],
+    [/\bheauen(\w*)/gi, "heaven$1"], [/\bsaluation\b/gi, "salvation"],
+    [/\biudge(d|s|th|ment)?\b/gi, "judge$1"], [/\biust(ice|ly|ified)?\b/gi, "just$1"],
+    [/\bmaiestie\b/gi, "majesty"], [/\bobiect(\w*)/gi, "object$1"],
+    [/\bsubiect(\w*)/gi, "subject$1"], [/\breioyc(\w*)/gi, "rejoic$1"],
+    [/\badioyn(\w*)/gi, "adjoin$1"], [/\bioy(full?|ful)?\b/gi, "joy$1"],
+    [/\bkinges\b/gi, "kings"], [/\bVV/g, "W"], [/\bvv/g, "w"],
   ];
+
+  // Early modern printing sets whole lines in capitals, so a lowercase
+  // replacement turns "THE FRENCH KINGES" into "THE FRENCH kings".
+  function matchCase(src, repl) {
+    if (src === src.toUpperCase() && src !== src.toLowerCase()) return repl.toUpperCase();
+    if (src[0] === src[0].toUpperCase()) return repl.charAt(0).toUpperCase() + repl.slice(1);
+    return repl;
+  }
 
   function modernizeOrthography(s) {
     let out = s;
-    ORTHOGRAPHY.forEach(([re, to]) => { out = out.replace(re, to); });
+    ORTHOGRAPHY.forEach(([re, to]) => {
+      out = out.replace(re, (match, ...groups) => {
+        // Resolve $1 against the captured group before matching case.
+        const filled = to.replace(/\$(\d)/g, (_, n) => groups[n - 1] || "");
+        return matchCase(match, filled);
+      });
+    });
     return out;
   }
 
