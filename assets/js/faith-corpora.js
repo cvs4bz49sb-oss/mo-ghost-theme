@@ -251,11 +251,78 @@
         });
         return out;
       },
-      // 1,823 Greek authors to 234 Latin — the second lane depends on
-      // the work, so it is resolved from the author's L field.
-      lanes: [{ id: "en", label: "English" }, { id: "src", label: "Original" }],
-      reader: "pangrammata",
-      readable: false,
+      // ONE lane. This corpus has no translations: every work ships
+      // empty <div class="blk-tr"> containers — scaffolding for a
+      // translation layer that does not exist yet. Checked four works
+      // spanning Plutarch, Athanasius, Chrysostom and Ephraem: 305
+      // parallel rows between them, zero with any translation text.
+      // 1,823 Greek authors to 234 Latin, so the text is Greek unless
+      // the markup says otherwise.
+      lanes: [{ id: "en", label: "Original" }],
+      reader: "html-extract",
+      readable: true,
+      // /w/<id>, no extension — read/<id>.html 404s and other paths
+      // 308-redirect.
+      textPath: (id) => `/w/${id}`,
+
+      extract(doc) {
+        const txt = (el) => (el ? el.textContent.trim() : "");
+        const rowsIn = (root) => {
+          const out = [];
+          root.querySelectorAll(".prow").forEach((p) => {
+            const src = p.querySelector(".tx");
+            const tr = p.querySelector(".blk-tr");
+            if (!src) return;
+            const original = src.innerHTML;
+            if (!original.trim()) return;
+            out.push({
+              kind: "body",
+              cite: src.getAttribute("data-cite") || "",
+              // Original goes in the primary column. With one lane
+              // declared the reader hides the second entirely; if
+              // translations ever land they drop straight into it.
+              en: original,
+              la: tr ? tr.innerHTML : "",
+            });
+          });
+          return out;
+        };
+
+        const sections = [];
+        doc.querySelectorAll("section.division").forEach((d) => {
+          sections.push({
+            title: txt(d.querySelector(".div-head")) || "Text",
+            subtitle: "",
+            rows: rowsIn(d),
+            children: [],
+          });
+        });
+
+        // Rows before the first division (title lines, incipits).
+        const claimed = new Set();
+        doc.querySelectorAll("section.division .prow").forEach((p) => claimed.add(p));
+        const loose = [];
+        doc.querySelectorAll(".prow").forEach((p) => {
+          if (claimed.has(p)) return;
+          const src = p.querySelector(".tx");
+          if (!src || !src.innerHTML.trim()) return;
+          loose.push({
+            kind: "body",
+            cite: src.getAttribute("data-cite") || "",
+            en: src.innerHTML,
+            la: "",
+          });
+        });
+        if (loose.length) {
+          sections.unshift({ title: "Incipit", subtitle: "", rows: loose, children: [] });
+        }
+
+        return {
+          title: txt(doc.querySelector("h1")) || txt(doc.querySelector(".wt")),
+          work: txt(doc.querySelector(".na")),
+          sections: sections.filter((s) => s.rows.length),
+        };
+      },
       normalize: (r) => ({
         corpus: "pangrammata",
         id: r.wid,
