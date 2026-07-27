@@ -134,6 +134,7 @@
 
   function fetchWork() {
     if (readerKind === "gz-toc") return fetchGzToc();
+    if (readerKind === "html-extract") return fetchHtmlExtract();
     const metaUrl = `${BASE}/v1/works/${slug}/meta.json`;
     fetch(metaUrl)
       .then((r) => {
@@ -195,6 +196,158 @@
       .catch((err) => {
         showError(`Could not load this work. (${err.message || err})`);
       });
+  }
+
+  // ── Sites that publish text only as rendered pages ────────────
+  //
+  // Aquinas (and, to follow, Patrologia Graeca / Orientalis and
+  // PanGrammata) ship no per-work JSON, but their reader pages are
+  // cleanly structured — the source already nests <details> per
+  // question and article with bilingual summaries. The corpus adapter
+  // turns a parsed document into sections; this renders them.
+
+  function fetchHtmlExtract() {
+    const url = corpus.base + corpus.textPath(slug);
+    fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error(`work ${r.status}`);
+        return r.text();
+      })
+      .then((html) => {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const data = corpus.extract(doc);
+        if (!data || !data.sections || !data.sections.length) {
+          throw new Error("no readable sections");
+        }
+        meta = {
+          title: data.title || slug,
+          author: data.work || corpus.label,
+          description: "",
+        };
+        populateHeader(meta);
+        buildExtractToc(data.sections);
+        renderExtractSections(data.sections);
+        hideLoading();
+        saveLastRead();
+        openInitialSection();
+        initModernizer();
+      })
+      .catch((err) => {
+        showError(`Could not load this work. (${err.message || err})`);
+      });
+  }
+
+  function buildExtractToc(sections) {
+    if (!tocNav) return;
+    const loadNote = tocNav.querySelector(".faith-toc-loading");
+    if (loadNote) loadNote.remove();
+    let n = 0;
+    sections.forEach((s) => {
+      n += 1;
+      const wrap = document.createElement("details");
+      wrap.className = "faith-toc-book-details";
+      wrap.open = true;
+      const sum = document.createElement("summary");
+      sum.className = "faith-toc-book-summary";
+      sum.innerHTML =
+        `<span class="faith-toc-book-label">${escapeHtml(s.title || `Section ${n}`)}</span>` +
+        `<span class="faith-toc-book-count">${s.children.length || s.rows.length}</span>`;
+      wrap.appendChild(sum);
+      if (s.children.length) {
+        const ol = document.createElement("ol");
+        ol.className = "faith-toc-list faith-toc-book-list";
+        s.children.forEach((ch) => {
+          n += 1;
+          const li = document.createElement("li");
+          li.className = "faith-toc-item";
+          li.innerHTML =
+            `<a href="#section-${n}"><span class="faith-toc-label">${escapeHtml(ch.title)}</span></a>`;
+          ol.appendChild(li);
+        });
+        wrap.appendChild(ol);
+      }
+      tocNav.appendChild(wrap);
+    });
+  }
+
+  function renderExtractSections(sections) {
+    if (!contentEl) return;
+    contentEl.innerHTML = "";
+    let n = 0;
+
+    sections.forEach((s) => {
+      n += 1;
+      // A question with articles is a book; without them, a section.
+      if (!s.children.length) {
+        contentEl.appendChild(extractSection(s, n));
+        return;
+      }
+      const book = document.createElement("details");
+      book.className = "faith-book faith-book-details faith-book-details--editorial";
+      book.id = `section-${n}`;
+      const sum = document.createElement("summary");
+      sum.className = "faith-book-summary";
+      sum.innerHTML =
+        `<div class="faith-book-summary-inner">` +
+        `<p class="eyebrow faith-part-eyebrow">${escapeHtml(s.title)}</p>${ 
+        s.subtitle ? `<p class="faith-book-subtitle">${escapeHtml(s.subtitle)}</p>` : "" 
+        }</div><span class="faith-chev" aria-hidden="true"></span>`;
+      book.appendChild(sum);
+
+      const body = document.createElement("div");
+      body.className = "faith-book-body";
+      if (s.rows.length) body.appendChild(rowsBlock(s.rows));
+      s.children.forEach((ch) => {
+        n += 1;
+        body.appendChild(extractSection(ch, n));
+      });
+      book.appendChild(body);
+      contentEl.appendChild(book);
+    });
+  }
+
+  function extractSection(s, n) {
+    const details = document.createElement("details");
+    details.className = "faith-section-details faith-book-chapter";
+    details.id = `section-${n}`;
+    details.dataset.frState = "loaded";
+    const sum = document.createElement("summary");
+    sum.className = "faith-section-summary";
+    sum.innerHTML =
+      `<div class="faith-section-summary-inner">` +
+      `<h2 class="faith-section-title"><em>${escapeHtml(s.title)}</em></h2>${ 
+      s.subtitle ? `<p class="faith-section-subtitle">${escapeHtml(s.subtitle)}</p>` : "" 
+      }</div><span class="faith-chev" aria-hidden="true"></span>`;
+    details.appendChild(sum);
+    const body = document.createElement("div");
+    body.className = "faith-section-body article-content";
+    if (s.rows.length) body.appendChild(rowsBlock(s.rows));
+    details.appendChild(body);
+    return details;
+  }
+
+  // Reuse the parallel-block markup the language toggle already
+  // styles, so English / Latin / Parallel works without special cases.
+  function rowsBlock(rows) {
+    const frag = document.createDocumentFragment();
+    rows.forEach((r) => {
+      const block = document.createElement("div");
+      block.className = `faith-parallel-block faith-row--${r.kind || "body"}`;
+      if (r.cite) block.setAttribute("data-cite", r.cite);
+
+      const en = document.createElement("div");
+      en.className = "faith-col-en";
+      en.innerHTML = sanitize(r.en);
+
+      const la = document.createElement("div");
+      la.className = "faith-col-la";
+      la.innerHTML = sanitize(r.la);
+
+      block.appendChild(en);
+      block.appendChild(la);
+      frag.appendChild(block);
+    });
+    return frag;
   }
 
   // ── Modernizer ────────────────────────────────────────────────

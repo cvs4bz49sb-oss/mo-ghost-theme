@@ -13500,6 +13500,43 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-section-nav-brand .faith-beta { color: var(--color-primary); opacity: 1; }
 
+/* ── Extracted works (Aquinas): Latin sub-headings and citations ──
+   The source carries a Latin title beside the English one on every
+   question and article, and a citation on every row (ST.I.Q1.A1.arg1).
+   Both are scholarly apparatus, so they sit quiet. */
+.faith-section-subtitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin: 4px 0 0;
+}
+.faith-parallel-block[data-cite] { position: relative; }
+.faith-parallel-block[data-cite]::before {
+  content: attr(data-cite);
+  position: absolute;
+  top: -2px;
+  right: 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--color-muted);
+  opacity: 0.55;
+  pointer-events: none;
+}
+/* Objections and replies are the argumentative frame of an article;
+   set them slightly back from the body so the shape is legible. */
+.faith-row--objection,
+.faith-row--reply { padding-left: 18px; border-left: 1px solid var(--color-card-border); }
+.faith-row--sed_contra { padding-left: 18px; border-left: 1px solid var(--color-primary); }
+@media (max-width: 600px) {
+  .faith-parallel-block[data-cite]::before { display: none; }
+  .faith-row--objection,
+  .faith-row--reply,
+  .faith-row--sed_contra { padding-left: 12px; }
+}
+
 /* ── Reader: work catalogued but not yet ported ───────────────────
    Not an error state — the work is real, its text just isn't here
    yet. Reads as an editorial note rather than a failure. */
