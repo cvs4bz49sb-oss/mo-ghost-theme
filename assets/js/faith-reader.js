@@ -2,9 +2,15 @@
  * The Faith Received — Dynamic Reader
  *
  * Powers the /the-faith-received/reader/?w=slug route. Fetches work
- * metadata and page content from an R2-backed CDN, populates the
- * header, builds the TOC, renders parallel Latin/English text with
- * language toggle, collapsible sections, and continue-reading state.
+ * metadata from the corpus CDN, populates the header, builds the TOC,
+ * renders parallel Latin/English text with language toggle,
+ * collapsible sections, and continue-reading state.
+ *
+ * Loading model: meta.json only, up front. Page text is fetched per
+ * 100-page shard when a section is first opened, and cached in
+ * pageStore so re-opening costs nothing. The corpus is 1,195 works /
+ * 785,437 pages / 5.6 GB — an earlier version Promise.all'd every
+ * shard before first paint, which meant 27 MB to open Duns Scotus.
  *
  * No dependencies beyond the DOM. Lightweight markdown rendering
  * for scholarly texts (paragraphs, headings, bold, italic).
@@ -48,18 +54,30 @@
 
   // ── State ─────────────────────────────────────────────────────
   let meta = null;
-  let pages = [];
   let currentLang = restoreLang();
+
+  // Page store, filled lazily. Keyed by page number so repeated shard
+  // loads are idempotent and sections can look up their own range.
+  const pageStore = new Map();
+  // shard file → Promise, so two sections needing the same shard share
+  // one request instead of racing.
+  const shardPromises = new Map();
 
   // ── Boot ──────────────────────────────────────────────────────
   applyLang(currentLang);
   fetchWork();
 
-  // ── Fetch meta + content ──────────────────────────────────────
+  // ── Fetch meta ────────────────────────────────────────────────
+  //
+  // Only meta.json is fetched up front. Page text is pulled per shard
+  // when a section is actually opened — the corpus runs to 5.6 GB and
+  // the largest works (Duns Scotus, Dionysius Cartusianus) are ~27 MB
+  // across ~50 shards. Loading a whole work to show its first chapter
+  // is the single worst thing this reader could do.
 
   function fetchWork() {
     const metaUrl = `${BASE}/v1/works/${slug}/meta.json`;
-    fetch(metaUrl, { credentials: "same-origin" })
+    fetch(metaUrl)
       .then((r) => {
         if (!r.ok) throw new Error(`meta ${r.status}`);
         return r.json();
@@ -68,56 +86,80 @@
         meta = m;
         populateHeader(m);
         buildToc(m.structure || []);
-        return fetchPages(m);
-      })
-      .then((p) => {
-        pages = p;
-        renderContent(meta, pages);
+        renderContent(m);
         hideLoading();
         saveLastRead();
+        openInitialSection();
       })
       .catch((err) => {
         showError(`Could not load this work. (${err.message || err})`);
       });
   }
 
-  function fetchPages(m) {
-    // If meta indicates sharding, fetch each shard; otherwise fetch
-    // a single work.json.
+  // ── Shard loading ─────────────────────────────────────────────
+
+  // Normalized shard list: [{ file, from, to }]. Single-file works are
+  // modelled as one shard spanning every page so the rest of the code
+  // has exactly one path to reason about.
+  function shardList(m) {
     if (m.shards && m.shards.length) {
-      const promises = m.shards.map((shard) => {
-        const file = typeof shard === "string" ? shard : shard.file;
-        return fetch(`${BASE}/v1/works/${slug}/${file}`, {
-          credentials: "same-origin",
-        }).then((r) => {
-          if (!r.ok) throw new Error(`shard ${file} ${r.status}`);
-          return r.json();
-        });
-      });
-      return Promise.all(promises).then((results) => {
-        // Each shard is an array of page objects; flatten.
-        let all = [];
-        results.forEach((arr) => {
-          if (Array.isArray(arr)) {
-            all = all.concat(arr);
-          } else if (arr && arr.pages) {
-            all = all.concat(arr.pages);
-          }
-        });
-        return all;
+      return m.shards.map((s, i) => {
+        if (typeof s === "string") {
+          // Legacy shape: no page range. Assume 100-page blocks.
+          return { file: s, from: i * 100 + 1, to: (i + 1) * 100 };
+        }
+        return { file: s.file, from: s.from, to: s.to };
       });
     }
-    // Single file.
-    return fetch(`${BASE}/v1/works/${slug}/work.json`, {
-      credentials: "same-origin",
-    })
+    return [{
+      file: m.single || "work.json",
+      from: 1,
+      to: m.n_pages || Infinity,
+    }];
+  }
+
+  // Which shards overlap the half-open page range [from, to)?
+  function shardsFor(m, from, to) {
+    return shardList(m).filter((s) => {
+      return s.from < to && s.to >= from;
+    });
+  }
+
+  function loadShard(shard) {
+    if (shardPromises.has(shard.file)) return shardPromises.get(shard.file);
+    const p = fetch(`${BASE}/v1/works/${slug}/${shard.file}`)
       .then((r) => {
-        if (!r.ok) throw new Error(`work ${r.status}`);
+        if (!r.ok) throw new Error(`shard ${shard.file} ${r.status}`);
         return r.json();
       })
       .then((data) => {
-        return Array.isArray(data) ? data : (data.pages || []);
+        const arr = Array.isArray(data) ? data : (data.pages || []);
+        arr.forEach((pg) => {
+          if (pg && pg.n != null && !pageStore.has(pg.n)) pageStore.set(pg.n, pg);
+        });
+        return arr;
+      })
+      .catch((err) => {
+        // Drop the cached rejection so a later open can retry.
+        shardPromises.delete(shard.file);
+        throw err;
       });
+    shardPromises.set(shard.file, p);
+    return p;
+  }
+
+  // Load every shard covering [from, to), then return the pages in
+  // that range, in order.
+  function pagesInRange(from, to) {
+    const needed = shardsFor(meta, from, to);
+    return Promise.all(needed.map(loadShard)).then(() => {
+      const out = [];
+      pageStore.forEach((pg, n) => {
+        if (n >= from && n < to) out.push(pg);
+      });
+      out.sort((a, b) => a.n - b.n);
+      return out;
+    });
   }
 
   // ── Populate header from meta ─────────────────────────────────
@@ -241,15 +283,20 @@
 
   // ── Render content ────────────────────────────────────────────
 
-  function renderContent(m, pages) {
+  function renderContent(m) {
     if (!contentEl) return;
     contentEl.innerHTML = "";
 
     const structure = m.structure || [];
     if (!structure.length) {
-      // No structure: render all pages as a single section.
-      const section = createSection("Content", 1, pages);
-      contentEl.appendChild(section);
+      // No outline. Don't render the whole work as one section — a
+      // 4,965-page work would pull every shard on first open. Chunk it
+      // into shard-sized spans so each opens independently.
+      shardList(m).forEach((s) => {
+        const to = s.to === Infinity ? (m.n_pages || 0) : s.to;
+        const section = createSection(`Pages ${s.from}–${to}`, s.from, s.from, to + 1);
+        contentEl.appendChild(section);
+      });
       return;
     }
 
@@ -274,13 +321,22 @@
 
     const allFlat = groups.every((g) => { return g.children.length === 0; });
 
+    // Outlines usually start a few pages in — the title page,
+    // dedication and preface sit before the first entry and would
+    // otherwise be unreachable. Give them their own opening section.
+    const firstPage = groups.length ? groups[0].entry.page : 1;
+    if (firstPage > 1) {
+      contentEl.appendChild(
+        createSection("Front matter", 1, 1, firstPage)
+      );
+    }
+
     if (allFlat) {
       // Flat: each structure entry is a section.
       groups.forEach((g, i) => {
         const startPage = g.entry.page;
-        const endPage = (i + 1 < groups.length) ? groups[i + 1].entry.page : Infinity;
-        const sectionPages = filterPages(pages, startPage, endPage);
-        const section = createSection(g.entry.title, startPage, sectionPages);
+        const endPage = (i + 1 < groups.length) ? groups[i + 1].entry.page : lastPage();
+        const section = createSection(g.entry.title, startPage, startPage, endPage);
         contentEl.appendChild(section);
       });
     } else {
@@ -304,25 +360,33 @@
         bookBody.className = "faith-book-body";
 
         if (g.children.length) {
+          // A book often carries text of its own before its first
+          // chapter starts — a preface, or an untitled opening run.
+          // Without this the span [book.page, firstChild.page) is
+          // rendered nowhere; on the Acts of Trent that silently
+          // dropped pages 773–878.
+          if (g.children[0].page > g.entry.page) {
+            bookBody.appendChild(
+              createSection(g.entry.title, g.entry.page, g.entry.page, g.children[0].page)
+            );
+          }
           g.children.forEach((ch, ci) => {
             const startPage = ch.page;
-            // End page: next child, or next book, or Infinity.
-            let endPage = Infinity;
+            // End page: next child, or next book, or end of work.
+            let endPage = lastPage();
             if (ci + 1 < g.children.length) {
               endPage = g.children[ci + 1].page;
             } else if (gi + 1 < groups.length) {
               endPage = groups[gi + 1].entry.page;
             }
-            const chPages = filterPages(pages, startPage, endPage);
-            const section = createSection(ch.title, ch.page, chPages);
+            const section = createSection(ch.title, ch.page, startPage, endPage);
             bookBody.appendChild(section);
           });
         } else {
           // Book with no children: render the book's own pages.
           const bookStart = g.entry.page;
-          const bookEnd = (gi + 1 < groups.length) ? groups[gi + 1].entry.page : Infinity;
-          const bPages = filterPages(pages, bookStart, bookEnd);
-          const section = createSection(g.entry.title, g.entry.page, bPages);
+          const bookEnd = (gi + 1 < groups.length) ? groups[gi + 1].entry.page : lastPage();
+          const section = createSection(g.entry.title, g.entry.page, bookStart, bookEnd);
           bookBody.appendChild(section);
         }
 
@@ -332,16 +396,28 @@
     }
   }
 
-  function filterPages(pages, startPage, endPage) {
-    return pages.filter((p) => {
-      return p.n >= startPage && p.n < endPage;
-    });
+  // Upper bound for the final section. Deliberately open-ended rather
+  // than meta.n_pages + 1: that field is occasionally short by a page
+  // or two (Magdeburg Centuriae 1b reports 343 and has text on 344),
+  // and a tight bound silently drops the tail. Costs nothing extra —
+  // shardsFor only returns shards at or after the section's start.
+  function lastPage() {
+    return Number.MAX_SAFE_INTEGER;
   }
 
-  function createSection(title, page, sectionPages) {
+  // Builds the collapsed shell only. The text arrives on first open,
+  // via hydrateSection.
+  function createSection(title, page, fromPage, toPage) {
     const details = document.createElement("details");
     details.className = "faith-section-details faith-book-chapter";
     details.id = `section-${page}`;
+    details.setAttribute("data-from", fromPage);
+    // Ranges are half-open. Consecutive outline entries frequently
+    // share a start page (two chapters opening on p. 8), which yields
+    // an empty [8,8) span — across the corpus that silently blanked
+    // ~22% of all sections, and over half of some works. Guarantee at
+    // least the section's own page; a shared page shows in both.
+    details.setAttribute("data-to", Math.max(toPage, fromPage + 1));
 
     const summary = document.createElement("summary");
     summary.className = "faith-section-summary";
@@ -354,32 +430,109 @@
 
     const body = document.createElement("div");
     body.className = "faith-section-body article-content";
+    details.appendChild(body);
 
-    sectionPages.forEach((p) => {
-      const block = document.createElement("div");
-      block.className = "faith-parallel-block";
-      block.setAttribute("data-page", p.n);
-
-      // English column.
-      const enCol = document.createElement("div");
-      enCol.className = "faith-col-en";
-      enCol.innerHTML =
-        `<span class="faith-page-marker">[p. ${p.n}]</span>${ 
-        renderMarkdown(p.en || "")}`;
-
-      // Latin column.
-      const laCol = document.createElement("div");
-      laCol.className = "faith-col-la";
-      laCol.innerHTML = renderMarkdown(p.la || "");
-
-      block.appendChild(enCol);
-      block.appendChild(laCol);
-      body.appendChild(block);
+    // `toggle` fires for user clicks and for programmatic .open = true,
+    // so expand-all hydrates through this same path.
+    details.addEventListener("toggle", () => {
+      if (details.open) hydrateSection(details);
     });
 
-    details.appendChild(body);
     return details;
   }
+
+  function hydrateSection(details) {
+    if (details.dataset.frState === "loaded" || details.dataset.frState === "loading") return;
+    const from = parseInt(details.getAttribute("data-from"), 10);
+    const to = parseInt(details.getAttribute("data-to"), 10);
+    const body = details.querySelector(".faith-section-body");
+    if (!body || isNaN(from) || isNaN(to)) return;
+
+    details.dataset.frState = "loading";
+    body.innerHTML = `<p class="faith-section-loading">Loading&hellip;</p>`;
+
+    pagesInRange(from, to)
+      .then((sectionPages) => {
+        body.innerHTML = "";
+        if (!sectionPages.length) {
+          body.innerHTML = `<p class="faith-section-loading">No text on these pages.</p>`;
+          details.dataset.frState = "loaded";
+          return;
+        }
+        sectionPages.forEach((p) => {
+          body.appendChild(buildPageBlock(p));
+        });
+        details.dataset.frState = "loaded";
+      })
+      .catch((err) => {
+        details.dataset.frState = "";
+        body.innerHTML =
+          `<p class="faith-section-error">Could not load these pages. ` +
+          `<button type="button" class="faith-retry" data-faith-retry>Retry</button></p>`;
+        const retry = body.querySelector("[data-faith-retry]");
+        if (retry) retry.addEventListener("click", () => hydrateSection(details));
+        if (window.console) window.console.warn("faith-reader:", err);
+      });
+  }
+
+  function buildPageBlock(p) {
+    const block = document.createElement("div");
+    block.className = "faith-parallel-block";
+    block.setAttribute("data-page", p.n);
+
+    // English column.
+    const enCol = document.createElement("div");
+    enCol.className = "faith-col-en";
+    enCol.innerHTML =
+      `<span class="faith-page-marker">[p. ${p.n}]</span>${
+      renderMarkdown(p.en || "")}`;
+
+    // Latin column.
+    const laCol = document.createElement("div");
+    laCol.className = "faith-col-la";
+    laCol.innerHTML = renderMarkdown(p.la || "");
+
+    block.appendChild(enCol);
+    block.appendChild(laCol);
+    return block;
+  }
+
+  // Open a section (and its ancestor book) and scroll to it. Clicking
+  // a TOC link only moves the viewport — a closed <details> stays
+  // closed and unhydrated — so the reader drives it explicitly.
+  function revealSection(hash, scroll) {
+    let target = null;
+    try { target = hash && contentEl.querySelector(hash); } catch (_) {}
+    if (!target) return false;
+    let parent = target.parentElement;
+    while (parent && parent !== contentEl) {
+      if (parent.tagName === "DETAILS") parent.open = true;
+      parent = parent.parentElement;
+    }
+    target.open = true;
+    if (scroll) target.scrollIntoView({ block: "start" });
+    return true;
+  }
+
+  // Open the section a deep link points at (#section-N), else the
+  // first one, so the reader never lands on a wall of closed rows.
+  function openInitialSection() {
+    if (window.location.hash && revealSection(window.location.hash, true)) return;
+    const first = contentEl.querySelector(".faith-section-details");
+    if (first) revealSection(`#${first.id}`, false);
+  }
+
+  if (tocNav) {
+    tocNav.addEventListener("click", (e) => {
+      const link = e.target.closest('a[href^="#section-"]');
+      if (!link) return;
+      revealSection(link.getAttribute("href"), true);
+    });
+  }
+
+  window.addEventListener("hashchange", () => {
+    revealSection(window.location.hash, true);
+  });
 
   // ── Lightweight markdown renderer ─────────────────────────────
 

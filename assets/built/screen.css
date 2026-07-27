@@ -13467,6 +13467,50 @@ body.mo-search-open { overflow: hidden; }
   .faith-card--filler { display: none; }
 }
 
+/* ── "Browse the whole library" row ───────────────────────────────
+   Closes a bounded preview grid. The landing page shows a dozen works
+   from a 1,195-work corpus; this row carries the count and hands off
+   to full browse. Same flourish-on-a-hairline idiom as .week-more. */
+.faith-library-more {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-card-border);
+  position: relative;
+  text-align: center;
+}
+.faith-library-more::before {
+  content: "\2766";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--color-primary);
+  font-size: 14px;
+  line-height: 1;
+}
+.faith-library-more a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-dark);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.faith-library-more a:hover { color: var(--color-primary); text-decoration: none; }
+.faith-library-more-count {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
 /* ── Tools grid (Devotional / Today / Topics / Scripture) ─────── */
 .faith-tools-grid {
   list-style: none;
