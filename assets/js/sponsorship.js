@@ -89,44 +89,57 @@
             if (crEl) { crEl.textContent = `${stats.clickRate}%`; hasAny = true; }
           }
 
-          // Mere Fidelity downloads — prefer rolling monthly, fall back to all-time total.
-          // downloadDaysTracked tells us how many real days the monthly figure covers:
-          //   >= 28 → full month, label "Monthly"
-          //   1–27  → partial window, label "Last N Days"
-          //   0 / missing → still building baseline, fall back to total
+          // Podcast downloads. Buzzsprout only reports lifetime plays, so the
+          // trailing figure is a delta the worker computes against a stored
+          // snapshot. downloadDaysTracked is the window that delta actually
+          // covers — 30 once the snapshot history is deep enough, fewer while
+          // it is still filling, 0 when there is no baseline yet and we have
+          // to fall back to the all-time total.
+          const windowDays = stats.windowDays || 30;
           const days = stats.downloadDaysTracked || 0;
-          const periodLabel = days >= 28 ? "Monthly" : days > 0 ? `Last ${days} Days` : null;
+          const shortWindow = days > 0 && days < windowDays - 2;
 
-          const mfValue = (days > 0 && stats.mfMonthlyDownloads != null)
-            ? stats.mfMonthlyDownloads
-            : stats.mfTotalDownloads;
-          const mfLabel = (days > 0 && stats.mfMonthlyDownloads != null)
-            ? `Mere Fidelity ${periodLabel}`
-            : "Mere Fidelity Downloads";
+          const mfRolling = days > 0 && stats.mfMonthlyDownloads != null;
+          const mfValue = mfRolling ? stats.mfMonthlyDownloads : stats.mfTotalDownloads;
           if (mfValue) {
             const mfEl = statsSection.querySelector('[data-stat="mfDownloads"] [data-stat-number]');
             const mfLabelEl = statsSection.querySelector('[data-stat="mfDownloads"] .stat-label');
             if (mfEl) { mfEl.textContent = formatNumber(mfValue); hasAny = true; }
-            if (mfLabelEl) { mfLabelEl.textContent = mfLabel; }
+            if (mfLabelEl && !mfRolling) { mfLabelEl.textContent = "Mere Fidelity Downloads (All Time)"; }
           }
 
-          const crcValue = (days > 0 && stats.crcMonthlyDownloads != null)
-            ? stats.crcMonthlyDownloads
-            : stats.crcTotalDownloads;
-          const crcLabel = (days > 0 && stats.crcMonthlyDownloads != null)
-            ? `CRC ${periodLabel}`
-            : "Christians Reading Classics Downloads";
+          const crcRolling = days > 0 && stats.crcMonthlyDownloads != null;
+          const crcValue = crcRolling ? stats.crcMonthlyDownloads : stats.crcTotalDownloads;
           if (crcValue) {
             const crcEl = statsSection.querySelector('[data-stat="crcDownloads"] [data-stat-number]');
             const crcLabelEl = statsSection.querySelector('[data-stat="crcDownloads"] .stat-label');
             if (crcEl) { crcEl.textContent = formatNumber(crcValue); hasAny = true; }
-            if (crcLabelEl) { crcLabelEl.textContent = crcLabel; }
+            if (crcLabelEl && !crcRolling) { crcLabelEl.textContent = "Christians Reading Classics Downloads (All Time)"; }
           }
 
           // Pageviews
           if (stats.monthlyPageviews) {
             const pvEl = statsSection.querySelector('[data-stat="pageviews"] [data-stat-number]');
             if (pvEl) { pvEl.textContent = formatNumber(stats.monthlyPageviews); hasAny = true; }
+          }
+
+          // Period note. The markup already claims a clean trailing 30 days;
+          // only rewrite it when something on the bar covers less than that,
+          // so the page never advertises a window it did not measure.
+          const noteEl = statsSection.querySelector("[data-stats-note]");
+          if (noteEl) {
+            const caveats = [];
+            if (shortWindow) {
+              caveats.push(`Podcast downloads cover the last ${days} days.`);
+            } else if (days === 0 && (mfValue || crcValue)) {
+              caveats.push("Podcast downloads are all-time totals.");
+            }
+            if (stats.emailWindowDays == null && stats.emailSampleSize) {
+              caveats.push(`Email rates average the ${stats.emailSampleSize} most recent sends.`);
+            }
+            if (caveats.length) {
+              noteEl.textContent = `Trailing ${windowDays} days. Free members is a current total. ${caveats.join(" ")}`;
+            }
           }
 
           // If no data at all, hide the section

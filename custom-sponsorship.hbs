@@ -36,7 +36,7 @@
           </div>
           <div class="stat-item" data-stat="pageviews">
             <span class="stat-number" data-stat-number>&mdash;</span>
-            <span class="stat-label">Website Page Views (Monthly)</span>
+            <span class="stat-label">Website Page Views</span>
           </div>
           <div class="stat-item" data-stat="mfDownloads">
             <span class="stat-number" data-stat-number>&mdash;</span>
@@ -47,6 +47,10 @@
             <span class="stat-label">Christians Reading&nbsp;Classics Downloads</span>
           </div>
         </div>
+        {{!-- One period note for the whole bar rather than "(Last 30 Days)"
+             repeated across six labels. sponsorship.js rewrites it if any
+             figure covers a shorter window than the trailing 30 days. --}}
+        <p class="stats-note" data-stats-note>Trailing 30 days. Free members is a current total.</p>
       </div>
 
       <div class="sponsorship-grid" data-sponsor-inventory data-admin-url="{{@custom.admin_worker_url}}">

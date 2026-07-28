@@ -9324,6 +9324,16 @@ label.site-form-field-check {
   color: var(--color-muted);
   white-space: nowrap;
 }
+.stats-note {
+  max-width: 600px;
+  margin: 22px auto 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
 @media (max-width: 640px) {
   .stats-bar {
     grid-template-columns: repeat(2, 1fr);
@@ -9336,6 +9346,11 @@ label.site-form-field-check {
     white-space: normal;
     text-align: center;
     line-height: 1.35;
+  }
+  .stats-note {
+    max-width: 340px;
+    margin-top: 20px;
+    font-size: 11px;
   }
 }
 
