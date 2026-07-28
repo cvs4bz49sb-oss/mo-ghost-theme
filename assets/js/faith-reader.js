@@ -927,7 +927,15 @@
     if (target.tagName === "DETAILS") target.open = true;
     else target.classList.add("faith-page-target");
     if (scroll) {
-      target.scrollIntoView({ block: target.tagName === "DETAILS" ? "start" : "center" });
+      const where = target.tagName === "DETAILS" ? "start" : "center";
+      // Opening the ancestor <details> reflows everything below it, and
+      // a cited paragraph can sit 130,000px down a single-section work.
+      // Scrolling in the same frame lands nowhere; wait for layout,
+      // then correct once more in case images or fonts shifted it.
+      window.requestAnimationFrame(() => {
+        target.scrollIntoView({ block: where });
+        window.setTimeout(() => target.scrollIntoView({ block: where }), 120);
+      });
     }
     return true;
   }
