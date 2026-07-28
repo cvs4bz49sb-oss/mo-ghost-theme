@@ -138,6 +138,147 @@
     return lines.join("\n");
   }
 
+  // ── Constellations ────────────────────────────────────────────
+  //
+  // A note on its own is a clipping. A note joined to another note by
+  // a claim — this supports that, this contests it — is an argument,
+  // and an argument is the thing a reader of these texts is actually
+  // building. So entries can be related, and a set of related entries
+  // travels in a URL.
+  //
+  // The wire format is not ours. The four sister corpora already share
+  // one, and honouring it means a constellation built on Patrologia
+  // Latina's own site opens here, and one built here opens there:
+  //
+  //   #c= urlsafe-base64 of
+  //   { v:3, n:<name>, i:[[site, work, page|null, label, note] …],
+  //                    e:[[aIndex, bIndex, relation] …] }
+  //
+  // v2 payloads (3-tuples, no edges) must keep working — they predate
+  // the relations and readers still hold links to them.
+  //
+  // `site` is their vocabulary: fr · pld · po · pg. `page` is each
+  // corpus's own native unit, which is the part that makes this
+  // portable rather than merely compatible — a block id for PL, a
+  // printed-page band for PO, a Migne column for PG.
+
+  const EDGES_KEY = "fr_notebook_edges";
+  const RELATIONS = ["supports", "contests", "cites", "expands", "parallels"];
+
+  // Our collection ids ↔ their site codes.
+  const SITE_OF = { tfr: "fr", pld: "pld", po: "po", pg: "pg" };
+  const CORPUS_OF = { fr: "tfr", pld: "pld", po: "po", pg: "pg" };
+
+  function loadEdges() {
+    try {
+      const raw = window.localStorage.getItem(EDGES_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function saveEdges(list) {
+    try {
+      window.localStorage.setItem(EDGES_KEY, JSON.stringify(list.slice(0, 2000)));
+    } catch (_) { /* quota — the notes matter more than the edges */ }
+  }
+
+  // An anchor carries the native unit inside it: b176886, dt-p42, r25.
+  const unitOf = (anchor) => {
+    const m = String(anchor || "").match(/(\d+)\s*$/);
+    return m ? parseInt(m[1], 10) : null;
+  };
+
+  function toTuple(e) {
+    const site = SITE_OF[e.corpus];
+    if (!site || !e.work) return null;
+    return [site, String(e.work), unitOf(e.anchor), String(e.cite || ""), String(e.note || "")];
+  }
+
+  // Their tuple → our reader. PG is the one that needs the resolver
+  // rather than a rewrite: they address it by volume and column
+  // ("vol133", 757) and we address it by document and block, but every
+  // block here carries its Migne citation, which is exactly that pair.
+  function fromTuple(t) {
+    const site = String(t[0] || "");
+    const corpus = CORPUS_OF[site];
+    if (!corpus) return null;
+    const work = String(t[1] || "");
+    const page = t[2] == null ? null : Number(t[2]);
+    const entry = {
+      corpus,
+      work,
+      cite: String(t[3] || ""),
+      note: String(t[4] || ""),
+      anchor: "",
+      pending: "",
+    };
+    if (site === "pld") entry.anchor = page == null ? "" : `b${page}`;
+    else if (site === "po") entry.anchor = page == null ? "" : `dt-p${page}`;
+    else if (site === "fr") entry.anchor = page == null ? "" : `section-${page}`;
+    else if (site === "pg") {
+      // vol133 + column 757 is "PG 133:757" — hand it to the resolver.
+      const vol = (work.match(/(\d+)/) || [])[1];
+      entry.pending = vol && page != null ? `PG ${vol}:${page}` : "";
+    }
+    return entry;
+  }
+
+  function readerUrl(e) {
+    if (!e.work) return "/the-faith-received/";
+    const q = e.corpus === "tfr"
+      ? `?w=${encodeURIComponent(e.work)}`
+      : `?c=${encodeURIComponent(e.corpus)}&w=${encodeURIComponent(e.work)}`;
+    return `/the-faith-received/reader/${q}${e.anchor ? `#${e.anchor}` : ""}`;
+  }
+
+  // base64url, and UTF-8 safe: these payloads carry Greek and Syriac.
+  function b64urlEncode(s) {
+    const bytes = new TextEncoder().encode(s);
+    let bin = "";
+    bytes.forEach((b) => { bin += String.fromCharCode(b); });
+    return window.btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function b64urlDecode(s) {
+    const pad = s.replace(/-/g, "+").replace(/_/g, "/");
+    const bin = window.atob(pad + "===".slice((pad.length + 3) % 4));
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+
+  function encodeShare(entries, edges, name) {
+    const kept = [];
+    const index = new Map();
+    entries.forEach((e) => {
+      const t = toTuple(e);
+      if (!t) return;
+      index.set(e.id, kept.length);
+      kept.push(t);
+    });
+    const e2 = edges
+      .map((x) => [index.get(x.a), index.get(x.b), x.rel])
+      .filter((x) => x[0] != null && x[1] != null);
+    return `#c=${b64urlEncode(JSON.stringify({ v: 3, n: name || "Notebook", i: kept, e: e2 }))}`;
+  }
+
+  function decodeShare(hash) {
+    const m = String(hash || "").match(/[#&]c=([A-Za-z0-9\-_]+)/);
+    if (!m) return null;
+    try {
+      const d = JSON.parse(b64urlDecode(m[1]));
+      if (!d || !Array.isArray(d.i)) return null;
+      // v2 had no edges. Accept it rather than reject a link someone
+      // is still holding.
+      return { name: d.n || "Shared notebook", items: d.i, edges: Array.isArray(d.e) ? d.e : [] };
+    } catch (_) {
+      return null;
+    }
+  }
+
   // ── Find in work ──────────────────────────────────────────────
   //
   // Walks text nodes and wraps hits in <mark>. Collapsed <details> are
@@ -323,6 +464,7 @@
       `<div class="faith-notebook-foot">` +
       `<button type="button" class="faith-notebook-act" data-nb-copy>Copy all</button>` +
       `<button type="button" class="faith-notebook-act" data-nb-download>Download</button>` +
+      `<button type="button" class="faith-notebook-act" data-nb-share>Share</button>` +
       `<p class="faith-notebook-note">Kept in this browser only.</p>` +
       `</div>`;
     document.body.appendChild(panel);
@@ -337,6 +479,8 @@
     const listEl = panel.querySelector("[data-nb-list]");
     const countEl = panel.querySelector("[data-nb-count]") || toggle.querySelector("[data-nb-count]");
     let scope = "work";
+    // The entry a relation is being drawn from, while it is being drawn.
+    let linkFrom = "";
 
     function entries() {
       const all = load();
@@ -355,14 +499,34 @@
           `<p class="faith-notebook-empty">Select any passage in the text to keep it here, with its citation and a link back to the exact place.</p>`;
         return;
       }
-      listEl.innerHTML = list.map((e) => `<article class="faith-notebook-item" data-nb-id="${esc(e.id)}">
+      const all = load();
+      const byId = new Map(all.map((e) => [e.id, e]));
+      const edges = loadEdges();
+      const relatedTo = (id) => edges
+        .filter((x) => x.a === id || x.b === id)
+        .map((x) => {
+          const other = byId.get(x.a === id ? x.b : x.a);
+          if (!other) return "";
+          const dir = x.a === id ? x.rel : `${x.rel} ←`;
+          return `<li class="faith-notebook-edge">${esc(dir)} <a href="${esc(other.url)}">${esc(other.cite || other.title || "a passage")}</a></li>`;
+        })
+        .filter(Boolean)
+        .join("");
+
+      listEl.innerHTML = list.map((e) => `<article class="faith-notebook-item${linkFrom === e.id ? " is-linking" : ""}" data-nb-id="${esc(e.id)}">
           <p class="faith-notebook-cite">${esc(e.cite || e.title || "Passage")}</p>
           ${scope === "all" && e.title ? `<p class="faith-notebook-work">${esc(e.title)}</p>` : ""}
           <blockquote class="faith-notebook-text">${esc(e.text)}</blockquote>
           <textarea class="faith-notebook-input" data-nb-note placeholder="Note">${esc(e.note || "")}</textarea>
+          ${relatedTo(e.id) ? `<ul class="faith-notebook-edges">${relatedTo(e.id)}</ul>` : ""}
+          ${linkFrom && linkFrom !== e.id ? `<div class="faith-notebook-relate">
+            <select class="faith-notebook-rel" data-nb-rel>${RELATIONS.map((r) => `<option value="${r}">${r}</option>`).join("")}</select>
+            <button type="button" class="faith-notebook-act" data-nb-rel-go>Relate to selected</button>
+          </div>` : ""}
           <div class="faith-notebook-row">
             <a class="faith-notebook-act" href="${esc(e.url)}">Go to</a>
             <button type="button" class="faith-notebook-act" data-nb-copy-one>Copy</button>
+            <button type="button" class="faith-notebook-act" data-nb-link>${linkFrom === e.id ? "Cancel" : "Relate"}</button>
             <button type="button" class="faith-notebook-act faith-notebook-act--quiet" data-nb-remove>Remove</button>
           </div>
         </article>`).join("");
@@ -395,6 +559,25 @@
       const entry = load().filter((x) => x.id === id)[0];
       if (e.target.closest("[data-nb-remove]")) {
         remove(id);
+        saveEdges(loadEdges().filter((x) => x.a !== id && x.b !== id));
+        render();
+        return;
+      }
+      if (e.target.closest("[data-nb-link]")) {
+        linkFrom = linkFrom === id ? "" : id;
+        render();
+        return;
+      }
+      if (e.target.closest("[data-nb-rel-go]")) {
+        const sel = item.querySelector("[data-nb-rel]");
+        const rel = sel ? sel.value : "parallels";
+        if (linkFrom && linkFrom !== id) {
+          const edges = loadEdges();
+          const dupe = edges.some((x) => x.a === linkFrom && x.b === id && x.rel === rel);
+          if (!dupe) edges.push({ a: linkFrom, b: id, rel });
+          saveEdges(edges);
+        }
+        linkFrom = "";
         render();
         return;
       }
@@ -441,7 +624,96 @@
       URL.revokeObjectURL(url);
     });
 
+    panel.querySelector("[data-nb-share]").addEventListener("click", (e) => {
+      const list = entries();
+      if (!list.length) return;
+      const hash = encodeShare(list, loadEdges(), titleOf() || "Notebook");
+      // Land the reader inside a work rather than on the tab strip:
+      // the notebook lives in the reader, and so does the import.
+      const first = list[0];
+      const url = window.location.origin +
+        (first && first.url ? first.url.split("#")[0].replace(window.location.origin, "") : "/the-faith-received/reader/") +
+        hash;
+      copyText(url).then((ok) => {
+        e.target.textContent = ok ? "Link copied" : "Copy failed";
+        window.setTimeout(() => { e.target.textContent = "Share"; }, 1600);
+      });
+    });
+
     return { render, open };
+  }
+
+  // ── Opening someone else's constellation ──────────────────────
+
+  function buildImport(notebook) {
+    const shared = decodeShare(window.location.hash);
+    if (!shared || !shared.items.length) return;
+
+    const parsed = shared.items.map(fromTuple).filter(Boolean);
+    if (!parsed.length) return;
+
+    const banner = document.createElement("div");
+    banner.className = "faith-shared";
+    banner.innerHTML =
+      `<p class="faith-shared-lead"><em>${esc(shared.name)}</em> &mdash; ` +
+      `${parsed.length} passage${parsed.length === 1 ? "" : "s"}` +
+      `${shared.edges.length ? `, ${shared.edges.length} relation${shared.edges.length === 1 ? "" : "s"}` : ""}, ` +
+      `shared with you.</p>` +
+      `<ul class="faith-shared-list">${parsed.map((p) => (
+        `<li><a href="${esc(p.pending ? "#" : readerUrl(p))}"${p.pending ? ` data-nb-resolve="${esc(p.pending)}"` : ""}>` +
+        `${esc(p.cite || p.pending || p.work)}</a>${p.note ? ` &mdash; ${esc(p.note)}` : ""}</li>`
+      )).join("")}</ul>` +
+      `<button type="button" class="faith-notebook-act" data-shared-add>Add to my notebook</button>`;
+    const host = document.querySelector("[data-faith-controls]");
+    if (host && host.parentNode) host.parentNode.insertBefore(banner, host);
+
+    // Patrologia Graeca arrives addressed by volume and column, which
+    // is not how we address it — but it is exactly what the citation
+    // resolver takes.
+    if (window.MOResolve) {
+      banner.querySelectorAll("[data-nb-resolve]").forEach((a) => {
+        const cite = a.getAttribute("data-nb-resolve");
+        const p = window.MOResolve.parse(cite);
+        if (!p) return;
+        window.MOResolve.resolve(p).then((hit) => {
+          if (hit && hit.url) a.setAttribute("href", hit.url);
+        });
+      });
+    }
+
+    banner.querySelector("[data-shared-add]").addEventListener("click", (e) => {
+      const base = load();
+      const ids = [];
+      parsed.forEach((p, i) => {
+        const id = `s${Date.now().toString(36)}${i}`;
+        ids.push(id);
+        base.unshift({
+          id,
+          corpus: p.corpus,
+          work: p.work,
+          title: shared.name,
+          author: "",
+          cite: p.cite,
+          anchor: p.anchor,
+          url: readerUrl(p),
+          text: p.note || p.cite || "",
+          note: p.note || "",
+          at: new Date().toISOString().slice(0, 10),
+        });
+      });
+      save(base);
+      const edges = loadEdges();
+      shared.edges.forEach((t) => {
+        const a = ids[t[0]];
+        const b = ids[t[1]];
+        if (a && b) edges.push({ a, b, rel: String(t[2] || "parallels").slice(0, 24) });
+      });
+      saveEdges(edges);
+      notebook.render();
+      notebook.open(true);
+      e.target.textContent = "Added";
+      e.target.disabled = true;
+    });
   }
 
   // ── Selection → save ──────────────────────────────────────────
@@ -523,6 +795,7 @@
     const notebook = buildNotebook();
     notebook.render();
     buildSelectionSave(notebook);
+    buildImport(notebook);
     return true;
   }
 

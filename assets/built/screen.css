@@ -13742,6 +13742,64 @@ body.mo-search-open { overflow: hidden; }
 /* A–Z rail. How you'd find a name on a real shelf, and it bounds what
    any single render has to build — Early English Books has 14,032
    authors and rendering them at once crashed the browser. */
+/* Relations between notebook entries, and someone else's
+   constellation arriving in a link. Both are apparatus: hairlines and
+   small caps, no panels. */
+.faith-notebook-item.is-linking {
+  border-left: 2px solid var(--color-primary);
+  padding-left: 12px;
+}
+.faith-notebook-edges {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0 0 0 12px;
+  border-left: 1px solid var(--color-card-border);
+}
+.faith-notebook-edge {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.faith-notebook-edge a { color: var(--color-primary); text-decoration: none; }
+.faith-notebook-edge a:hover { text-decoration: underline; }
+.faith-notebook-relate { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+.faith-notebook-rel {
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 4px 6px;
+  color: var(--color-dark);
+  background: var(--color-page);
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+}
+.faith-shared {
+  max-width: 720px;
+  margin: 0 0 28px;
+  padding: 0 0 20px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-shared-lead {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--color-dark);
+}
+.faith-shared-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0 0 0 14px;
+  border-left: 1px solid var(--color-card-border);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.faith-shared-list a { color: var(--color-primary); text-decoration: none; }
+.faith-shared-list a:hover { text-decoration: underline; }
+
 /* ── Reader tools: find, notebook ─────────────────────────────────
    Apparatus, not furniture. Both sit in the reading controls and stay
    out of the text until asked for. */
