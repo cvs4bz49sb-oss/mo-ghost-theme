@@ -200,6 +200,12 @@
 <script src="{{asset "js/faith-corpora.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
 <script src="{{asset "js/faith-reader.js"}}"></script>
+{{!-- The citation resolver exposes window.MOResolve here rather than
+     any UI: an arriving constellation addresses Patrologia Graeca by
+     volume and column, and the resolver is what turns that into the
+     work and anchor we hold. --}}
+<script src="{{asset "js/faith-resolve.js"}}"></script>
+
 {{!-- Find in work + notebook. Loaded after the reader so the tools
      mount over rendered content. --}}
 <script src="{{asset "js/faith-reader-tools.js"}}"></script>
