@@ -20,7 +20,7 @@
  * ids are corpus-local; the corpus is the filename.
  */
 
-import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, readdir, rename } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
@@ -529,9 +529,15 @@ async function run() {
     }
   }
 
+  // Write to a temp file and rename. A plain write leaves a truncated
+  // file if the process dies mid-flush, and a 360 MB index takes long
+  // enough to flush that this is not hypothetical — it cost a full
+  // 53,831-work re-run. rename() is atomic on the same filesystem.
   async function save() {
-    await writeFile(outPath, JSON.stringify(index));
-    await writeFile(donePath, JSON.stringify([...done]));
+    await writeFile(`${outPath}.tmp`, JSON.stringify(index));
+    await rename(`${outPath}.tmp`, outPath);
+    await writeFile(`${donePath}.tmp`, JSON.stringify([...done]));
+    await rename(`${donePath}.tmp`, donePath);
   }
 
   const queue = ids.slice();

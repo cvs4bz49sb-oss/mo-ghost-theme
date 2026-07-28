@@ -24,7 +24,8 @@
 
   const scriptureSection = document.querySelector('[data-faith-section="scripture"]');
   const topicsSection = document.querySelector('[data-faith-section="topics"]');
-  if (!scriptureSection && !topicsSection) return;
+  const traditionsSection = document.querySelector('[data-faith-section="traditions"]');
+  if (!scriptureSection && !topicsSection && !traditionsSection) return;
 
   const PAGE_SIZE = 120;
 
@@ -557,9 +558,105 @@
     grid(host).insertAdjacentHTML("beforeend", slice.map(workCard).join(""));
   }
 
+  // ── Traditions ────────────────────────────────────────────────
+  //
+  // Grouped, not flat: "Reformed" spans the Latin Library and the
+  // confessions, but "Greek Fathers" is what a whole collection is.
+  // Ordered roughly chronologically — the fathers, the schoolmen, the
+  // Reformation and its opponents — rather than by size, which would
+  // put Migne's volume count ahead of the Reformation.
+  const TRADITION_ORDER = [
+    "Classical", "Patristic", "Greek Fathers", "Latin Fathers",
+    "Eastern Fathers", "Medieval", "Medieval Scholastic",
+    "Humanism and Law", "Roman Catholic", "Lutheran", "Reformed",
+    "Anglican", "Puritan",
+  ];
+
+  const traditions = new Map();
+  let traditionState = { view: "list", tradition: null, page: 1 };
+
+  function addTradition(name, entry) {
+    if (!name) return;
+    if (!traditions.has(name)) traditions.set(name, []);
+    traditions.get(name).push(entry);
+  }
+
+  function traditionsHost() {
+    const sec = document.querySelector('[data-faith-section="traditions"]');
+    return sec ? (sec.querySelector(".container") || sec) : null;
+  }
+
+  function renderTraditions() {
+    const host = traditionsHost();
+    if (!host) return;
+    host.querySelectorAll("[data-faith-index-chrome], [data-faith-trad-grid]").forEach((n) => n.remove());
+    // The hard-coded tradition bands the theme shipped are replaced by
+    // this index, which covers every collection rather than the 69
+    // curated English works.
+    host.querySelectorAll("[data-faith-tradition]").forEach((n) => n.remove());
+
+    const grid = document.createElement("div");
+    grid.className = "faith-card-grid";
+    grid.setAttribute("data-faith-trad-grid", "");
+
+    if (traditionState.view === "list") {
+      const ordered = TRADITION_ORDER
+        .filter((t) => traditions.has(t))
+        .concat([...traditions.keys()].filter((t) => TRADITION_ORDER.indexOf(t) < 0).sort());
+      const total = ordered.reduce((a, t) => a + traditions.get(t).length, 0);
+      chrome(host, {
+        title: "Traditions",
+        sub: `${ordered.length} traditions · ${total.toLocaleString()} works`,
+        note: unassignedNote(),
+      });
+      grid.insertAdjacentHTML("beforeend", ordered.map((t) => {
+        const n = traditions.get(t).length;
+        const froms = [...new Set(traditions.get(t).map((w) => w.corpus))]
+          .map((id) => (window.MOCorpora.get(id) || {}).label)
+          .filter(Boolean);
+        return `<a class="faith-card" href="#" data-faith-trad="${escapeHtml(t)}">` +
+          `<p class="faith-card-date">${escapeHtml(froms.slice(0, 2).join(" · "))}${froms.length > 2 ? " · …" : ""}</p>` +
+          `<h3 class="faith-card-title"><em>${escapeHtml(t)}</em></h3>` +
+          `<p class="faith-card-desc">${n.toLocaleString()} work${n === 1 ? "" : "s"}</p>` +
+          `<span class="faith-card-link">Open <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
+      }).join(""));
+      host.appendChild(grid);
+      return;
+    }
+
+    const list = traditions.get(traditionState.tradition) || [];
+    const { slice, page, pages } = paged(list, traditionState.page);
+    chrome(host, {
+      back: { to: "traditions", label: "All traditions" },
+      title: traditionState.tradition,
+      sub: `${list.length.toLocaleString()} work${list.length === 1 ? "" : "s"}`,
+      pager: pages > 1 ? { page, pages, total: list.length, label: "works" } : null,
+    });
+    grid.insertAdjacentHTML("beforeend", slice.map(workCard).join(""));
+    host.appendChild(grid);
+  }
+
+  // Most of Early English Books has no confessional tradition — it is
+  // every book printed in English, proclamations and almanacs
+  // included. Say so rather than let the count read as a gap.
+  function unassignedNote() {
+    const c = window.MOCorpora.get("eebo");
+    return c
+      ? "Early English Books is catalogued by author rather than tradition; " +
+        "its Puritan and Anglican writers are indexed here, and the rest of " +
+        "that collection — largely non-theological — is left unassigned."
+      : "";
+  }
+
   // ── Events ────────────────────────────────────────────────────
 
   document.addEventListener("click", (e) => {
+    const trad = e.target.closest("[data-faith-trad]");
+    if (trad) {
+      e.preventDefault();
+      traditionState = { view: "tradition", tradition: trad.getAttribute("data-faith-trad"), page: 1 };
+      return renderTraditions();
+    }
     const test = e.target.closest("[data-faith-testament]");
     if (test) {
       e.preventDefault();
@@ -575,16 +672,21 @@
     const back = e.target.closest("[data-faith-index-back]");
     if (back) {
       e.preventDefault();
-      if (back.getAttribute("data-faith-index-back") === "topics") {
-        topicState = { view: "topics" };
-        return renderTopics();
-      }
+      const to = back.getAttribute("data-faith-index-back");
+      if (to === "topics") { topicState = { view: "topics" }; return renderTopics(); }
+      if (to === "traditions") { traditionState = { view: "list" }; return renderTraditions(); }
     }
     const pg = e.target.closest("[data-faith-index-page]");
     if (pg && !pg.disabled) {
       e.preventDefault();
-      topicState.page = parseInt(pg.getAttribute("data-faith-index-page"), 10) || 1;
-      renderTopics();
+      const n = parseInt(pg.getAttribute("data-faith-index-page"), 10) || 1;
+      if (pg.closest('[data-faith-section="traditions"]')) {
+        traditionState.page = n;
+        renderTraditions();
+      } else {
+        topicState.page = n;
+        renderTopics();
+      }
     }
   });
 
@@ -693,4 +795,13 @@
     renderScripture();
     renderTopics();
   });
+
+  // Traditions need no prebuilt index — every catalogue either carries
+  // the field or the collection is a tradition in itself. That is why
+  // this one covers all 75,485 works where scripture and topics do not.
+  Promise.all(window.MOCorpora.all.map((c) =>
+    window.MOCorpora.load(c.id)
+      .then((works) => works.forEach((w) => addTradition(w.tradition, w)))
+      .catch(() => {})
+  )).then(renderTraditions);
 })();

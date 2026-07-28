@@ -85,6 +85,7 @@
       lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
       reader: "shards",
       readable: true,
+      tradition: (w) => w.tradition || "",
       normalize: (w) => ({
         corpus: "tfr",
         id: w.slug,
@@ -109,6 +110,7 @@
       modernize: true,
       reader: "shards",
       readable: true,
+      tradition: (c) => c.tradition || "",
       normalize: (c) => ({
         corpus: "confessions",
         id: c.slug,
@@ -142,6 +144,18 @@
       readable: true,
       textBase: `${BLOB}/eebo/`,
       textSuffix: ".json.gz",
+      // EEBO ships curated author lists rather than a per-work field,
+      // so tradition is resolved by author at load time (see
+      // eeboTraditions below). 2,335 works are Puritan and 1,539
+      // Anglican; the remaining 92.8% genuinely have no confessional
+      // tradition — this is every book printed in English 1473–1700,
+      // proclamations and almanacs included — and are left unassigned
+      // rather than invented.
+      tradition: () => "",
+      traditionByAuthor: {
+        Puritan: "/data/puritans.json",
+        Anglican: "/data/anglicans.json",
+      },
       normalize: (w) => ({
         corpus: "eebo",
         id: String(w.i),
@@ -165,6 +179,7 @@
       lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
       reader: "pld",
       readable: false,
+      tradition: () => "Latin Fathers",
       normalize: (w) => ({
         corpus: "pld",
         // te/ae are the English title and author; t/a the Latin.
@@ -196,6 +211,7 @@
       lanes: [{ id: "en", label: "English" }, { id: "src", label: "Greek" }],
       reader: "pg",
       readable: false,
+      tradition: () => "Greek Fathers",
       normalize: (w) => ({
         corpus: "pg",
         // `e` is the English title where one exists; `t` is the Greek
@@ -225,6 +241,7 @@
       lanes: [{ id: "en", label: "English" }, { id: "src", label: "Original" }],
       reader: "po",
       readable: false,
+      tradition: () => "Eastern Fathers",
       normalize: (w) => ({
         corpus: "po",
         id: String(w._id),
@@ -323,6 +340,7 @@
           sections: sections.filter((s) => s.rows.length),
         };
       },
+      tradition: () => "Classical",
       normalize: (r) => ({
         corpus: "pangrammata",
         id: r.wid,
@@ -482,6 +500,7 @@
           sections,
         };
       },
+      tradition: () => "Medieval Scholastic",
       normalize: (s) => ({
         corpus: "aquinas",
         id: s.file.replace(/\.html$/, ""),
@@ -592,6 +611,7 @@
           sections,
         };
       },
+      tradition: () => "Patristic",
       normalize: (s) => ({
         corpus: "augustine",
         id: s.file.replace(/\.html$/, ""),
@@ -614,17 +634,55 @@
 
   const byId = new Map(CORPORA.map((c) => [c.id, c]));
 
+  // Author-keyed tradition lists, loaded once per corpus that has
+  // them. Cached because browse, search and the tradition index all
+  // ask for the same collection.
+  const authorTraditions = new Map();
+
+  function loadAuthorTraditions(c) {
+    if (!c.traditionByAuthor) return Promise.resolve(null);
+    if (authorTraditions.has(c.id)) return authorTraditions.get(c.id);
+    const entries = Object.entries(c.traditionByAuthor);
+    const p = Promise.all(entries.map(([label, path]) =>
+      fetch(c.base + path)
+        .then((r) => (r.ok ? r.json() : []))
+        .then((d) => {
+          const list = Array.isArray(d) ? d : Object.values(d).find(Array.isArray) || [];
+          // Entries are [authorName, workCount] or bare names.
+          return list.map((x) => [Array.isArray(x) ? x[0] : x, label]);
+        })
+        .catch(() => [])
+    )).then((sets) => new Map(sets.flat()));
+    authorTraditions.set(c.id, p);
+    return p;
+  }
+
   // Fetch and normalize one corpus. Resolves to [] rather than
   // rejecting: one unreachable source must never blank the shelf.
   function loadCorpus(id) {
     const c = byId.get(id);
     if (!c) return Promise.resolve([]);
-    return fetch(c.base + c.catalogue)
-      .then((r) => {
+    return Promise.all([
+      fetch(c.base + c.catalogue).then((r) => {
         if (!r.ok) throw new Error(`${id} catalogue ${r.status}`);
         return r.json();
-      })
-      .then((d) => c.pick(d).map(c.normalize).filter((w) => w.id && w.title))
+      }),
+      loadAuthorTraditions(c),
+    ])
+      .then(([d, byAuthor]) => c.pick(d)
+        .map((raw) => {
+          const w = c.normalize(raw);
+          // Tradition comes from the work where the catalogue carries
+          // one, and from the collection's own character where it does
+          // not — Migne's volumes are the Latin Fathers whether or not
+          // any field says so.
+          w.tradition = (c.tradition ? c.tradition(raw) : "") || "";
+          if (!w.tradition && byAuthor && w.author) {
+            w.tradition = byAuthor.get(w.author) || "";
+          }
+          return w;
+        })
+        .filter((w) => w.id && w.title))
       .catch((err) => {
         if (window.console) window.console.warn("faith-corpora:", err.message);
         return [];
