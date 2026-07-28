@@ -18,7 +18,7 @@
  * mean adding an entry here, not editing five files.
  *
  * Scale, measured live 2026-07-27:
- *   EEBO ................ 53,831 works · 14,032 authors · 1455–1720
+ *   EEBO ................ 15,569 works ·  5,725 authors · 1455–1710
  *   Patrologia Latina ...  8,967 works ·  2,025 authors · 41 loci
  *   PanGrammata .........  7,582 works ·  1,681 authors
  *   Patrologia Graeca ...  2,976 works ·    494 authors · 161 vols
@@ -27,7 +27,11 @@
  *   TFR confessions .....    260 documents
  *   Aquinas + Augustine .    274 works ·      2 authors
  *
- * 75,485 works in all.
+ * 37,223 works in all.
+ *
+ * EEBO's catalogue is 53,831; the other 38,262 are newsbooks,
+ * proclamations, ballads and almanacs, and are filtered out before
+ * the collection is ever shown. See filterIds below.
  *
  * Note both TFR and EEBO text already sit on the same Blob host, so
  * the CSP connect-src entry covers them both.
@@ -133,11 +137,11 @@
       short: "Theological and devotional printing, 1473–1700",
       base: "https://eebo-backup.vercel.app",
       catalogue: "/data/catalogue.json",
-      // 15,028 of 53,831, selected by scripts/build-eebo-theological.mjs
-      // on scripture density and title vocabulary. The id list ships
-      // with the theme (113 KB); if it fails to load the filter opens
-      // rather than closes, so a missing file shows too much instead
-      // of an empty shelf.
+      // 15,569 of 53,831, selected by scripts/build-eebo-theological.mjs
+      // on scripture density, title vocabulary, and whether the author
+      // is a divine. The id list ships with the theme (117 KB); if it
+      // fails to load the filter opens rather than closes, so a missing
+      // file shows too much instead of an empty shelf.
       filterIds: "/assets/data/faith-received/eebo-theological.json",
       pick: (d) => (Array.isArray(d) ? d : d.works || []),
       indexes: { scripture: "/data/scripture.json", facets: "/data/facets.json" },
@@ -157,11 +161,10 @@
       textSuffix: ".json.gz",
       // EEBO ships curated author lists rather than a per-work field,
       // so tradition is resolved by author at load time (see
-      // eeboTraditions below). 2,335 works are Puritan and 1,539
-      // Anglican; the remaining 92.8% genuinely have no confessional
-      // tradition — this is every book printed in English 1473–1700,
-      // proclamations and almanacs included — and are left unassigned
-      // rather than invented.
+      // eeboTraditions below). Of the 15,569 kept, 1,928 works are
+      // Puritan and 980 Anglican; the remaining 81.3% are anonymous,
+      // pre-Reformation, continental, or by authors nobody has placed.
+      // They are left unassigned rather than invented.
       tradition: () => "",
       traditionByAuthor: {
         Puritan: "/data/puritans.json",

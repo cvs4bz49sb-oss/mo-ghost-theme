@@ -140,6 +140,59 @@ for (const w of works) {
   (s || t ? keep : drop).push(w);
 }
 
+// ── Second pass: the author ───────────────────────────────────────
+//
+// Title vocabulary judges each work alone, and a divine does not put
+// divinity words on every title page. Perkins's "The whole duty of
+// man", Hieron's "Workes", Gillespie's "Reasons for which the service
+// booke, urged upon Scotland, ought to bee refused" and Jeremy Taylor
+// on the power of parents over their children were all being thrown
+// away — none carries two keywords, and Taylor's carries none.
+//
+// So identify the divines from the first pass and give them the
+// benefit of the doubt on the rest of their shelf. An author with at
+// least five works of which seven in ten are already theological is
+// not writing almanacs with the remainder. That is deliberately
+// self-bootstrapping: it needs no hand-kept list of names and it
+// widens as the vocabulary widens.
+//
+// The bar matters. At 60% it lets in 1,039 and starts admitting
+// pamphleteers who wrote about religion sometimes; at 80% it recovers
+// only 314 and still misses Taylor. Five and 70% recovers 541 and
+// catches 118 of the 287 authors on the source site's own curated
+// Puritan and Anglican lists.
+
+const AUTHOR_MIN_WORKS = 5;
+const AUTHOR_PASS_RATE = 0.7;
+
+const authorTotal = new Map();
+const authorPassed = new Map();
+const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
+for (const w of works) {
+  const a = (w.a || "").trim();
+  if (a) bump(authorTotal, a);
+}
+for (const w of keep) {
+  const a = (w.a || "").trim();
+  if (a) bump(authorPassed, a);
+}
+
+const divines = new Set();
+for (const [a, n] of authorTotal) {
+  if (n >= AUTHOR_MIN_WORKS && (authorPassed.get(a) || 0) / n >= AUTHOR_PASS_RATE) {
+    divines.add(a);
+  }
+}
+
+const recovered = [];
+const stillDropped = [];
+for (const w of drop) {
+  (divines.has((w.a || "").trim()) ? recovered : stillDropped).push(w);
+}
+keep.push(...recovered);
+drop.length = 0;
+drop.push(...stillDropped);
+
 await mkdir(OUT_DIR, { recursive: true });
 await writeFile(OUT, JSON.stringify({
   v: 1,
@@ -154,13 +207,19 @@ console.log(`EEBO: ${works.length.toLocaleString()} works`);
 console.log(`  scripture and title : ${byBoth.toLocaleString()}`);
 console.log(`  scripture only      : ${byScripture.toLocaleString()}`);
 console.log(`  title only          : ${byTitle.toLocaleString()}`);
+console.log(`  known divine        : ${recovered.length.toLocaleString()} (${divines.size.toLocaleString()} authors)`);
 console.log(`\nkept    ${keep.length.toLocaleString()} (${pct(keep.length)})`);
 console.log(`dropped ${drop.length.toLocaleString()} (${pct(drop.length)})`);
 
+const sample = (list, n = 8) => list
+  .filter((_, i) => i % Math.max(1, Math.floor(list.length / n)) === 0)
+  .slice(0, n)
+  .forEach((w) => console.log(`   ${(w.t || "").slice(0, 82)}`));
+
 console.log("\nRead these before believing the number.");
 console.log("\n— a sample of what is KEPT —");
-drop.length && keep.filter((_, i) => i % Math.floor(keep.length / 8) === 0).slice(0, 8)
-  .forEach((w) => console.log(`   ${(w.t || "").slice(0, 82)}`));
+sample(keep);
+console.log("\n— a sample recovered by the author pass —");
+sample(recovered);
 console.log("\n— a sample of what is DROPPED —");
-drop.filter((_, i) => i % Math.floor(drop.length / 8) === 0).slice(0, 8)
-  .forEach((w) => console.log(`   ${(w.t || "").slice(0, 82)}`));
+sample(drop);

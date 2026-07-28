@@ -634,15 +634,16 @@
     host.appendChild(grid);
   }
 
-  // Most of Early English Books has no confessional tradition — it is
-  // every book printed in English, proclamations and almanacs
-  // included. Say so rather than let the count read as a gap.
+  // Early English Books carries no per-work tradition field, only
+  // curated author lists, so most of it stays unassigned even after
+  // the theological filter. Say so rather than let the count read as
+  // a gap in the index.
   function unassignedNote() {
     const c = window.MOCorpora.get("eebo");
     return c
       ? "Early English Books is catalogued by author rather than tradition; " +
-        "its Puritan and Anglican writers are indexed here, and the rest of " +
-        "that collection — largely non-theological — is left unassigned."
+        "its Puritan and Anglican writers are indexed here, and the rest — " +
+        "anonymous, pre-Reformation, or unplaced — is left unassigned."
       : "";
   }
 
@@ -796,7 +797,7 @@
 
   // Traditions need no prebuilt index — every catalogue either carries
   // the field or the collection is a tradition in itself. That is why
-  // this one covers all 75,485 works where scripture and topics do not.
+  // this one covers all 37,223 works where scripture and topics do not.
   Promise.all(window.MOCorpora.all.map((c) =>
     window.MOCorpora.load(c.id)
       .then((works) => works.forEach((w) => addTradition(w.tradition, w)))
