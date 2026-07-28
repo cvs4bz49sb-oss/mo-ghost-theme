@@ -930,12 +930,26 @@
       const where = target.tagName === "DETAILS" ? "start" : "center";
       // Opening the ancestor <details> reflows everything below it, and
       // a cited paragraph can sit 130,000px down a single-section work.
-      // Scrolling in the same frame lands nowhere; wait for layout,
-      // then correct once more in case images or fonts shifted it.
-      window.requestAnimationFrame(() => {
-        target.scrollIntoView({ block: where });
-        window.setTimeout(() => target.scrollIntoView({ block: where }), 120);
-      });
+      // Scrolling in the same frame lands nowhere; wait for layout, then
+      // correct once more in case fonts or images shifted it.
+      const go = () => {
+        window.requestAnimationFrame(() => {
+          target.scrollIntoView({ block: where });
+          window.setTimeout(() => target.scrollIntoView({ block: where }), 120);
+        });
+      };
+      // A background tab neither fires requestAnimationFrame nor
+      // scrolls, so a link opened in one would land at the top and stay
+      // there. Wait until the tab is actually looked at.
+      if (document.hidden) {
+        document.addEventListener("visibilitychange", function once() {
+          if (document.hidden) return;
+          document.removeEventListener("visibilitychange", once);
+          go();
+        });
+      } else {
+        go();
+      }
     }
     return true;
   }
