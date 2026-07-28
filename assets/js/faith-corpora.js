@@ -218,13 +218,84 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({ _id: k, ...d.docs[k] })),
       indexes: { deepindex: "/data/deepindex.json", refindex: "/data/refindex.json" },
       extras: { voltoc: "/data/voltoc.json" },
-      // Migne prints the Greek beside his own Latin rendering. Two
-      // lanes until the text lands and we can see whether all three
-      // are actually carried per work — declaring a lane the renderer
-      // has no column for would half-work.
-      lanes: [{ id: "en", label: "English" }, { id: "src", label: "Greek" }],
-      reader: "pg",
-      readable: false,
+      // ONE lane. Migne prints Greek beside his own Latin, but the
+      // published text carries only one column per block — checked
+      // across a Latin index and a 3.9 MB Basil: 478 blocks, 400 with
+      // a `.tx` span, none with a translation sibling. The lane is
+      // labelled by the block's own `lang` at read time.
+      lanes: [{ id: "en", label: "Greek" }],
+      reader: "html-extract",
+      readable: true,
+      // /read/<id>.html, the same page the source site serves. No
+      // per-work JSON is published; the markup is clean enough to
+      // parse — `.division` per section, `.blk` per printed column,
+      // each carrying its Migne citation and its page scan.
+      textPath: (id) => `/read/${id}.html`,
+
+      extract(doc) {
+        const txt = (el) => (el ? el.textContent.trim() : "");
+
+        const rowsIn = (root) => {
+          const out = [];
+          root.querySelectorAll(".blk").forEach((b) => {
+            // Take the whole block rather than a named text span. The
+            // primary column is `.tx` in a Greek work, `.la-primary`
+            // in a Latin index, and a bare `<p class="la">` in a few —
+            // enumerating those classes misses the next one. What is
+            // constant is what has to come out: the source's own
+            // citation chip (we print the citation ourselves) and the
+            // raw OCR block (an alternate view, not the text).
+            const clone = b.cloneNode(true);
+            clone.querySelectorAll(".col-marker, .ocr-src").forEach((n) => n.remove());
+            const html = clone.innerHTML.trim();
+            if (!html) return;
+            const langed = b.querySelector("[lang]");
+            out.push({
+              kind: "body",
+              id: b.id || "",
+              cite: b.getAttribute("data-cite") || "",
+              // The Migne page this column was printed on. This is
+              // what the facsimile pane shows.
+              scan: b.getAttribute("data-scan") || "",
+              lang: langed ? langed.getAttribute("lang") || "" : "",
+              en: html,
+              la: "",
+            });
+          });
+          return out;
+        };
+
+        const sections = [];
+        doc.querySelectorAll(".division").forEach((d, i) => {
+          const head = d.querySelector(".div-head");
+          const en = txt(head && head.querySelector(".dh-en"));
+          const orig = txt(head && head.querySelector(".dh-orig"));
+          sections.push({
+            title: en || orig || `Section ${i + 1}`,
+            subtitle: en && orig && orig !== en ? orig : "",
+            rows: rowsIn(d),
+            children: [],
+          });
+        });
+
+        // A work with no divisions at all still has blocks — an index
+        // or a table of contents volume. Render them as one section
+        // rather than reporting the work unreadable.
+        if (!sections.length) {
+          const body = doc.querySelector("#editionBody") || doc.body;
+          const rows = rowsIn(body);
+          if (rows.length) sections.push({ title: "Text", subtitle: "", rows, children: [] });
+        }
+
+        // These pages carry no <h1>; the title lives in <title> as
+        // "Moralia — PG 31".
+        const head = (doc.title || "").split("—");
+        return {
+          title: (head[0] || "").trim(),
+          work: (head[1] || "").trim(),
+          sections: sections.filter((s) => s.rows.length),
+        };
+      },
       tradition: () => "Greek Fathers",
       normalize: (w) => ({
         corpus: "pg",
@@ -250,11 +321,80 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({_id: k, ...d.docs[k]})),
       indexes: { topics: "/data/topics.json", refindex: "/data/refindex.json" },
       extras: { titles: "/data/titles_en.json", authreg: "/data/authreg.json" },
-      // Syriac, Coptic, Armenian, Ge'ez and Arabic originals. The
-      // lane is labelled by the work's own language at read time.
-      lanes: [{ id: "en", label: "English" }, { id: "src", label: "Original" }],
-      reader: "po",
-      readable: false,
+      // Syriac, Coptic, Armenian, Ge'ez and Arabic originals. Every
+      // block carries three columns: the source, the printed facing
+      // translation (Latin or French, depending on the fascicle), and
+      // an English rendering. English leads; the original sits beside
+      // it. The printed translation is kept as a footer line on the
+      // block rather than a third column the reader has no room for.
+      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Original" }],
+      reader: "html-extract",
+      readable: true,
+      // /read/<id> — read/<id>.html 308-redirects to it.
+      textPath: (id) => `/read/${id}`,
+
+      extract(doc) {
+        const txt = (el) => (el ? el.textContent.trim() : "");
+        const inner = (el) => (el ? el.innerHTML.trim() : "");
+
+        const sections = [];
+        doc.querySelectorAll(".dt-pg").forEach((pg, i) => {
+          // The printed page number, which is also how this corpus is
+          // cited: "PO 2, 421" means tome 2, page 421.
+          const pn = txt(pg.querySelector(".dt-pn"));
+          const rows = [];
+          pg.querySelectorAll(".blk").forEach((b) => {
+            const src = b.querySelector(".dt-src");
+            const en = b.querySelector(".dt-tr.is-en");
+            const tr = b.querySelector(".dt-tr.is-tr");
+            const enHtml = inner(en);
+            const srcHtml = inner(src);
+            if (!enHtml && !srcHtml) return;
+            rows.push({
+              kind: "body",
+              cite: b.getAttribute("data-cite") || "",
+              lang: src ? src.getAttribute("lang") || "" : "",
+              // English leads. Where a fascicle has none, the printed
+              // facing translation stands in rather than an empty
+              // column beside a language almost nobody reads.
+              en: enHtml || inner(tr),
+              la: srcHtml,
+              // Fractional position of this block down the facsimile
+              // strip — see the facsimile pane in faith-reader.js.
+              fy: b.getAttribute("data-fy") || "",
+              fb: b.getAttribute("data-fb") || "",
+            });
+          });
+          if (!rows.length) return;
+          sections.push({
+            // The page id is what the reference index points at
+            // (PO2:421 -> 1.html#dt-p1), so carry it as the anchor.
+            id: pg.id || "",
+            title: pn ? `Page ${pn.replace(/^p\.\s*/i, "")}` : `Page ${i + 1}`,
+            subtitle: "",
+            rows,
+            children: [],
+          });
+        });
+
+        // The facsimile is one tall strip cut into segments, with each
+        // block positioned by fraction rather than by page image.
+        const strip = [];
+        doc.querySelectorAll("[data-strip]").forEach((img) => {
+          strip.push({
+            url: img.getAttribute("data-strip"),
+            w: parseInt(img.getAttribute("width"), 10) || 0,
+            h: parseInt(img.getAttribute("height"), 10) || 0,
+          });
+        });
+
+        return {
+          title: txt(doc.querySelector("h1")),
+          work: txt(doc.querySelector(".meta")),
+          strip,
+          sections,
+        };
+      },
       tradition: () => "Eastern Fathers",
       normalize: (w) => ({
         corpus: "po",
@@ -638,13 +778,13 @@
     }
   ];
 
-  // `readable: false` means the catalogue and indexes are reachable
-  // but the text is not — either gated (Patrologia Latina returns 401
-  // on everything but /data/) or published only as multi-megabyte
-  // server-rendered reader pages rather than data (PG, PO,
-  // PanGrammata, Aquinas). Those works are still browsable, searchable
-  // and topic-indexed; they just cannot be opened yet. Flip the flag
-  // and add a reader branch once the author exposes per-work JSON.
+  // `readable: false` now means one thing only: Patrologia Latina,
+  // which returns 401 on everything but /data/. Every other
+  // collection reads — the server-rendered pages turned out to be
+  // clean enough to parse (`html-extract`), which is why PG, PO,
+  // PanGrammata and Aquinas no longer wait on the author for per-work
+  // JSON. PLD's catalogue, topics and 236,351 reference keys are all
+  // reachable; only the text is gated.
 
   const byId = new Map(CORPORA.map((c) => [c.id, c]));
 

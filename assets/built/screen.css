@@ -13513,25 +13513,35 @@ body.mo-search-open { overflow: hidden; }
   margin: 4px 0 0;
 }
 .faith-parallel-block[data-cite] { position: relative; }
-.faith-parallel-block[data-cite]::before {
-  content: attr(data-cite);
+/* The citation is a control, not decoration: clicking it copies the
+   reference and a link to this exact block. It reads as a marginal
+   note until you reach for it. */
+.faith-cite {
   position: absolute;
   top: -2px;
   right: 0;
+  padding: 0;
   font-family: var(--font-body);
   font-size: 10px;
   letter-spacing: 0.1em;
   color: var(--color-muted);
+  background: none;
+  border: 0;
   opacity: 0.55;
-  pointer-events: none;
+  cursor: pointer;
+  transition: opacity 0.15s, color 0.15s;
 }
+.faith-cite:hover,
+.faith-cite:focus-visible { opacity: 1; color: var(--color-primary); }
+.faith-cite.is-copied { opacity: 1; color: var(--color-primary); }
+.faith-cite.is-failed { opacity: 1; color: var(--color-error, #b91c1c); }
 /* Objections and replies are the argumentative frame of an article;
    set them slightly back from the body so the shape is legible. */
 .faith-row--objection,
 .faith-row--reply { padding-left: 18px; border-left: 1px solid var(--color-card-border); }
 .faith-row--sed_contra { padding-left: 18px; border-left: 1px solid var(--color-primary); }
 @media (max-width: 600px) {
-  .faith-parallel-block[data-cite]::before { display: none; }
+  .faith-cite { position: static; display: block; margin-bottom: 4px; text-align: left; }
   .faith-row--objection,
   .faith-row--reply,
   .faith-row--sed_contra { padding-left: 12px; }
@@ -13717,6 +13727,76 @@ body.mo-search-open { overflow: hidden; }
 /* A–Z rail. How you'd find a name on a real shelf, and it bounds what
    any single render has to build — Early English Books has 14,032
    authors and rendering them at once crashed the browser. */
+/* ── Facsimile pane ───────────────────────────────────────────────
+   The printed page beside the transcription. These are OCR'd
+   nineteenth-century editions; a reader who doubts a word wants
+   Migne's own column, not an assurance. Opens on demand, follows the
+   text, and never takes the reading column below its measure. */
+.faith-facs {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: min(44vw, 560px);
+  height: 100vh;
+  background: var(--color-page);
+  border-left: 1px solid var(--color-card-border);
+  box-shadow: -1px 0 0 rgba(0, 0, 0, 0.03);
+}
+.faith-facs-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-facs-cite {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.faith-facs-close {
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--color-muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.faith-facs-close:hover { color: var(--color-dark); }
+.faith-facs-stage {
+  flex: 1 1 auto;
+  overflow: auto;
+  background: var(--color-alt-bg, #f6f4ef);
+}
+.faith-facs-img,
+.faith-facs-seg { display: block; width: 100%; height: auto; }
+.faith-facs-strip { display: block; }
+.faith-facs-foot {
+  margin: 0;
+  padding: 10px 20px 14px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-card-border);
+}
+/* The reading column gives way rather than sliding under the pane. */
+@media (min-width: 1100px) {
+  body.faith-facs-open .faith-doc-layout { margin-right: min(44vw, 560px); }
+}
+@media (max-width: 1099px) {
+  .faith-facs { width: 100vw; }
+}
+
 /* ── Citation resolver ────────────────────────────────────────────
    How anyone who reads these texts navigates: not by browsing a
    catalogue but by following a reference out of a footnote. */

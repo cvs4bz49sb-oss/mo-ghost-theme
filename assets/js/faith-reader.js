@@ -229,16 +229,43 @@
           description: "",
         };
         populateHeader(meta);
+        // The second lane is labelled by the language the work is
+        // actually in — "Syriac" or "Greek", not a generic "Original".
+        buildLangToggle(langLabelFrom(data.sections));
         buildExtractToc(data.sections);
         renderExtractSections(data.sections);
         hideLoading();
         saveLastRead();
+        initFacsimile(data.strip);
         openInitialSection();
         initModernizer();
       })
       .catch((err) => {
         showError(`Could not load this work. (${err.message || err})`);
       });
+  }
+
+  // BCP 47 subtags and the loose names these sites use, mapped to
+  // something a reader recognises on a button.
+  const LANG_NAMES = {
+    grc: "Greek", el: "Greek", greek: "Greek",
+    la: "Latin", lat: "Latin", latin: "Latin",
+    syr: "Syriac", syriac: "Syriac",
+    cop: "Coptic", coptic: "Coptic",
+    hy: "Armenian", arm: "Armenian", armenian: "Armenian",
+    gez: "Ge'ez", ar: "Arabic", arabic: "Arabic",
+    he: "Hebrew", hbo: "Hebrew", ka: "Georgian", sla: "Slavonic",
+  };
+
+  function langLabelFrom(sections) {
+    for (let i = 0; i < sections.length; i += 1) {
+      const rows = sections[i].rows || [];
+      for (let j = 0; j < rows.length; j += 1) {
+        const raw = (rows[j].lang || "").toLowerCase().split("-")[0];
+        if (raw && LANG_NAMES[raw]) return LANG_NAMES[raw];
+      }
+    }
+    return "";
   }
 
   function buildExtractToc(sections) {
@@ -289,6 +316,7 @@
       const book = document.createElement("details");
       book.className = "faith-book faith-book-details faith-book-details--editorial";
       book.id = `section-${n}`;
+      if (s.id && s.id !== book.id) book.setAttribute("data-src-id", s.id);
       const sum = document.createElement("summary");
       sum.className = "faith-book-summary";
       sum.innerHTML =
@@ -314,6 +342,10 @@
     const details = document.createElement("details");
     details.className = "faith-section-details faith-book-chapter";
     details.id = `section-${n}`;
+    // A source anchor (PO's printed-page ids, which the reference
+    // index points at) is carried as an alias rather than as the id,
+    // so #section-N links keep working too.
+    if (s.id && s.id !== details.id) details.setAttribute("data-src-id", s.id);
     details.dataset.frState = "loaded";
     const sum = document.createElement("summary");
     sum.className = "faith-section-summary";
@@ -341,6 +373,13 @@
       // Carry the source's row id through as the element id, so a
       // scripture link like #r42942 lands on this exact block.
       if (r.id) block.id = r.id;
+      // Facsimile: either a page image for this block (Migne prints
+      // one scan per column) or a fractional position down a single
+      // tall strip (Patrologia Orientalis).
+      if (r.scan) block.setAttribute("data-scan", r.scan);
+      if (r.fy) block.setAttribute("data-fy", r.fy);
+      if (r.fb) block.setAttribute("data-fb", r.fb);
+      if (r.lang) block.setAttribute("data-lang", r.lang);
 
       const en = document.createElement("div");
       en.className = "faith-col-en";
@@ -352,9 +391,218 @@
 
       block.appendChild(en);
       block.appendChild(la);
+
+      // The citation, printed where a marginal note would sit. An
+      // anchor that reads "PG 31:693" is worth something to a reader
+      // writing a footnote; "#b710576" is worth nothing. Clicking
+      // copies the citation and the link to this exact block.
+      if (r.cite) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "faith-cite";
+        chip.setAttribute("data-cite-copy", "");
+        chip.title = "Copy this citation and a link to it";
+        chip.textContent = r.cite;
+        block.insertBefore(chip, block.firstChild);
+      }
+
       frag.appendChild(block);
     });
     return frag;
+  }
+
+  // One delegated handler, not one per block: a Summa section runs to
+  // thousands of citations.
+  contentEl.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-cite-copy]");
+    if (!chip) return;
+    e.preventDefault();
+    const block = chip.closest(".faith-parallel-block");
+    const cite = chip.textContent.trim();
+    const anchor = block && block.id
+      ? block.id
+      : anchorOf(block);
+    const url = window.location.origin + window.location.pathname +
+      window.location.search + (anchor ? `#${anchor}` : "");
+    const payload = `${cite} — ${meta ? meta.title : ""}\n${url}`;
+    copyText(payload).then((ok) => {
+      chip.classList.add(ok ? "is-copied" : "is-failed");
+      const was = chip.textContent;
+      chip.textContent = ok ? "Copied" : "Copy failed";
+      window.setTimeout(() => {
+        chip.textContent = was;
+        chip.classList.remove("is-copied", "is-failed");
+      }, 1400);
+    });
+  });
+
+  // Nearest addressable ancestor, for corpora whose blocks are
+  // anchored by printed page rather than individually.
+  function anchorOf(el) {
+    let n = el;
+    while (n && n !== contentEl) {
+      const src = n.getAttribute && n.getAttribute("data-src-id");
+      if (src) return src;
+      if (n.id) return n.id;
+      n = n.parentNode;
+    }
+    return "";
+  }
+
+  function copyText(s) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(s).then(() => true).catch(() => false);
+    }
+    return Promise.resolve(false);
+  }
+
+  // ── Facsimile ─────────────────────────────────────────────────
+  //
+  // The printed page beside the transcription. This matters more here
+  // than it would for a modern text: these are OCR'd nineteenth-century
+  // editions, and a reader who doubts a word wants Migne's own column,
+  // not a promise that the transcription is faithful.
+  //
+  // Two shapes, because the sources digitized differently:
+  //
+  //   page   one image per printed column, named on the block
+  //          (data-scan). Patrologia Graeca.
+  //   strip  one tall image per work, cut into segments, with each
+  //          block carrying its fractional position down the whole
+  //          strip (data-fy). Patrologia Orientalis.
+  //
+  // Either way the pane follows the text: whichever block is nearest
+  // the top of the reading column is the page it shows.
+
+  let facs = null;
+
+  function initFacsimile(strip) {
+    const hasPage = !!contentEl.querySelector("[data-scan]");
+    const hasStrip = Array.isArray(strip) && strip.length &&
+      !!contentEl.querySelector("[data-fy]");
+    if (!hasPage && !hasStrip) return;
+
+    const controls = document.querySelector("[data-faith-controls]");
+    if (!controls) return;
+
+    const panel = document.createElement("aside");
+    panel.className = "faith-facs";
+    panel.setAttribute("aria-label", "Page scan");
+    panel.hidden = true;
+    panel.innerHTML =
+      `<div class="faith-facs-head">` +
+      `<p class="faith-facs-cite" data-facs-cite>&mdash;</p>` +
+      `<button type="button" class="faith-facs-close" data-facs-close aria-label="Close page scan">&times;</button>` +
+      `</div>` +
+      `<div class="faith-facs-stage" data-facs-stage></div>` +
+      `<p class="faith-facs-foot">The printed page. Scans courtesy of the digitizing edition.</p>`;
+    document.body.appendChild(panel);
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "faith-toggle-switch faith-facs-toggle";
+    toggle.setAttribute("aria-pressed", "false");
+    toggle.innerHTML = `<span class="faith-toggle-label">Page scan</span>`;
+    controls.appendChild(toggle);
+
+    const stage = panel.querySelector("[data-facs-stage]");
+    const citeEl = panel.querySelector("[data-facs-cite]");
+
+    facs = { panel, stage, citeEl, mode: hasPage ? "page" : "strip", strip, shown: "" };
+
+    if (facs.mode === "page") {
+      const img = document.createElement("img");
+      img.className = "faith-facs-img";
+      img.alt = "Page scan";
+      img.decoding = "async";
+      img.loading = "lazy";
+      stage.appendChild(img);
+      facs.img = img;
+    } else {
+      // The segments stack into one continuous column; the pane scrolls
+      // it rather than swapping images, which is what makes a citation
+      // land mid-page instead of at a page boundary.
+      const col = document.createElement("div");
+      col.className = "faith-facs-strip";
+      let ratio = 0;
+      strip.forEach((seg) => {
+        const im = document.createElement("img");
+        im.className = "faith-facs-seg";
+        im.src = seg.url;
+        im.alt = "";
+        im.decoding = "async";
+        im.loading = "lazy";
+        col.appendChild(im);
+        if (seg.w && seg.h) ratio += seg.h / seg.w;
+      });
+      stage.appendChild(col);
+      facs.col = col;
+      // Total strip height as a multiple of its rendered width, so a
+      // fractional position converts to pixels at any pane width.
+      facs.ratio = ratio;
+    }
+
+    function open(on) {
+      panel.hidden = !on;
+      toggle.setAttribute("aria-pressed", on ? "true" : "false");
+      document.body.classList.toggle("faith-facs-open", on);
+      if (on) sync(true);
+    }
+
+    toggle.addEventListener("click", () => open(panel.hidden));
+    panel.querySelector("[data-facs-close]").addEventListener("click", () => open(false));
+
+    let queued = false;
+    function onScroll() {
+      if (panel.hidden || queued) return;
+      queued = true;
+      window.requestAnimationFrame(() => { queued = false; sync(false); });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    contentEl.addEventListener("toggle", onScroll, true);
+
+    facs.sync = sync;
+
+    function sync(force) {
+      const sel = facs.mode === "page" ? "[data-scan]" : "[data-fy]";
+      const blocks = contentEl.querySelectorAll(sel);
+      if (!blocks.length) return;
+      // The block nearest the top of the viewport that is still on
+      // screen — the one the reader is actually looking at.
+      let best = null;
+      let bestTop = Infinity;
+      for (let i = 0; i < blocks.length; i += 1) {
+        const b = blocks[i];
+        if (!b.offsetParent) continue;
+        const { top } = b.getBoundingClientRect();
+        if (top > window.innerHeight) break;
+        const d = Math.abs(top - 120);
+        if (d < bestTop) { bestTop = d; best = b; }
+      }
+      if (!best) best = blocks[0];
+      showFor(best, force);
+    }
+
+    function showFor(block, force) {
+      const cite = block.getAttribute("data-cite") || "";
+      if (facs.mode === "page") {
+        const url = block.getAttribute("data-scan");
+        if (!url || (url === facs.shown && !force)) return;
+        facs.shown = url;
+        facs.img.src = url;
+      } else {
+        const fy = parseFloat(block.getAttribute("data-fy"));
+        if (isNaN(fy)) return;
+        const key = String(fy);
+        if (key === facs.shown && !force) return;
+        facs.shown = key;
+        const total = facs.col.clientWidth * facs.ratio;
+        // A little headroom, so the cited line is not flush against
+        // the top edge of the pane.
+        facs.stage.scrollTop = Math.max(0, fy * total - 40);
+      }
+      citeEl.textContent = cite || "Page scan";
+    }
   }
 
   // ── Modernizer ────────────────────────────────────────────────
