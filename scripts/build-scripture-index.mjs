@@ -23,12 +23,21 @@
 import { readFile, writeFile, mkdir, readdir, rename } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import zlib from "node:zlib";
 import { promisify } from "node:util";
 
 const gunzip = promisify(zlib.gunzip);
 const ROOT = path.join(import.meta.dirname, "..");
-const OUT_DIR = path.join(ROOT, "data", "scripture");
+// NOT inside the repo. This directory holds hundreds of megabytes and
+// the extractor rewrites its whole index every 250 works — doing that
+// inside a Dropbox-synced folder had the sync layer replace the file
+// mid-write, and a completed 372 MB EEBO index came back as a
+// truncated 132 MB with 25,510 of 53,831 works recorded as done. The
+// output is a build artifact bound for R2; it has no business in
+// Dropbox.
+const OUT_DIR = process.env.SCRIPTURE_OUT
+  || path.join(os.tmpdir(), "mo-scripture-index");
 const BLOB = "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com";
 
 /* ── Canon ──────────────────────────────────────────────────────── */

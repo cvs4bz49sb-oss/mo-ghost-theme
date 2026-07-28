@@ -589,11 +589,9 @@
   function renderTraditions() {
     const host = traditionsHost();
     if (!host) return;
-    host.querySelectorAll("[data-faith-index-chrome], [data-faith-trad-grid]").forEach((n) => n.remove());
-    // The hard-coded tradition bands the theme shipped are replaced by
-    // this index, which covers every collection rather than the 69
-    // curated English works.
-    host.querySelectorAll("[data-faith-tradition]").forEach((n) => n.remove());
+    host.querySelectorAll(
+      "[data-faith-index-chrome], [data-faith-trad-grid], [data-faith-traditions-status]"
+    ).forEach((n) => n.remove());
 
     const grid = document.createElement("div");
     grid.className = "faith-card-grid";
