@@ -207,8 +207,17 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({_id: k, ...d.docs[k]})),
       indexes: { topics: "/data/topics.json", refindex: "/data/refindex.json" },
       lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
-      reader: "pld",
-      readable: false,
+      // Baked into our own JSON and served from our R2, not fetched
+      // from the source. The source site is gated, and a browser can
+      // only get through that gate if we hand it the key — so we
+      // don't. scripts/build-pl-corpus.mjs crawls once server-side and
+      // writes the same section/row shape html-extract produces:
+      // 8,967 works, 1,064,832 rows, 92.3% of them carrying the
+      // English layer beside Migne's Latin.
+      reader: "json-sections",
+      readable: true,
+      textBase: "https://mo-tfr.mo-podcast-feed.workers.dev/v1/pl/",
+      textSuffix: ".json.gz",
       tradition: () => "Latin Fathers",
       normalize: (w) => ({
         corpus: "pld",

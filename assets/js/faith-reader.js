@@ -143,6 +143,7 @@
   function fetchWork() {
     if (readerKind === "gz-toc") return fetchGzToc();
     if (readerKind === "html-extract") return fetchHtmlExtract();
+    if (readerKind === "json-sections") return fetchJsonSections();
     const metaUrl = `${BASE}/v1/works/${slug}/meta.json`;
     fetch(metaUrl)
       .then((r) => {
@@ -213,6 +214,49 @@
   // cleanly structured — the source already nests <details> per
   // question and article with bilingual summaries. The corpus adapter
   // turns a parsed document into sections; this renders them.
+
+  // ── Corpora we baked ourselves ────────────────────────────────
+  //
+  // Patrologia Latina reaches the reader as our own JSON rather than
+  // as the source's pages, for a reason that is not performance: the
+  // source is gated, and the only way a browser could fetch it
+  // directly is if we shipped the key to the browser. So it is baked
+  // once server-side (scripts/build-pl-corpus.mjs) into exactly the
+  // section/row shape the html-extract path already produces, and
+  // served from our own origin. Same renderer, no parse step, no
+  // credential anywhere near a reader.
+
+  function fetchJsonSections() {
+    // textBase, not base: the catalogue and the reference indexes
+    // still come from the source site; only the text is ours.
+    const url = (corpus.textBase || corpus.base) + encodeURIComponent(slug) + (corpus.textSuffix || "");
+    fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error(`work ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (!data || !data.sections || !data.sections.length) {
+          throw new Error("no readable sections");
+        }
+        meta = {
+          title: data.title || slug,
+          author: data.author || data.work || corpus.label,
+          description: data.titleLatin && data.titleLatin !== data.title ? data.titleLatin : "",
+        };
+        populateHeader(meta);
+        buildLangToggle();
+        buildExtractToc(data.sections);
+        renderExtractSections(data.sections);
+        hideLoading();
+        saveLastRead();
+        openInitialSection();
+        initModernizer();
+      })
+      .catch((err) => {
+        showError(`Could not load this work. (${err.message || err})`);
+      });
+  }
 
   function fetchHtmlExtract() {
     const url = corpus.base + corpus.textPath(slug);
