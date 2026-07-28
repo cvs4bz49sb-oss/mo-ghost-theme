@@ -217,7 +217,7 @@
       reader: "json-sections",
       readable: true,
       textBase: "https://mo-tfr.mo-podcast-feed.workers.dev/v1/pl/",
-      textSuffix: ".json.gz",
+      textSuffix: ".json",
       tradition: () => "Latin Fathers",
       normalize: (w) => ({
         corpus: "pld",
