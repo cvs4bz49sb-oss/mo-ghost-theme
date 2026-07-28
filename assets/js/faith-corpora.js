@@ -125,9 +125,20 @@
     {
       id: "eebo",
       label: "Early English Books",
-      short: "Every book printed in English, 1473–1700",
+      // Not "every book printed in English" any more, and the label
+      // should not promise that. The full 53,831 includes newsbooks,
+      // proclamations, ballads, weaving manuals and murder pamphlets;
+      // a theological reading room has no use for them and carrying
+      // them makes the library harder to search.
+      short: "Theological and devotional printing, 1473–1700",
       base: "https://eebo-backup.vercel.app",
       catalogue: "/data/catalogue.json",
+      // 15,028 of 53,831, selected by scripts/build-eebo-theological.mjs
+      // on scripture density and title vocabulary. The id list ships
+      // with the theme (113 KB); if it fails to load the filter opens
+      // rather than closes, so a missing file shows too much instead
+      // of an empty shelf.
+      filterIds: "/assets/data/faith-received/eebo-theological.json",
       pick: (d) => (Array.isArray(d) ? d : d.works || []),
       indexes: { scripture: "/data/scripture.json", facets: "/data/facets.json" },
       // Curated facet lists the source site ships.
@@ -659,17 +670,31 @@
 
   // Fetch and normalize one corpus. Resolves to [] rather than
   // rejecting: one unreachable source must never blank the shelf.
+  const loaded = new Map();
+
   function loadCorpus(id) {
+    if (loaded.has(id)) return loaded.get(id);
     const c = byId.get(id);
     if (!c) return Promise.resolve([]);
-    return Promise.all([
+    // A corpus may declare a curated subset of itself. If that list
+    // fails to load the corpus stays whole rather than going empty —
+    // showing too much beats showing nothing.
+    const subset = c.filterIds
+      ? fetch(c.filterIds)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => (d && d.ids ? new Set(d.ids.map(String)) : null))
+        .catch(() => null)
+      : Promise.resolve(null);
+
+    const p = Promise.all([
       fetch(c.base + c.catalogue).then((r) => {
         if (!r.ok) throw new Error(`${id} catalogue ${r.status}`);
         return r.json();
       }),
       loadAuthorTraditions(c),
+      subset,
     ])
-      .then(([d, byAuthor]) => c.pick(d)
+      .then(([d, byAuthor, keep]) => c.pick(d)
         .map((raw) => {
           const w = c.normalize(raw);
           // Tradition comes from the work where the catalogue carries
@@ -682,11 +707,14 @@
           }
           return w;
         })
-        .filter((w) => w.id && w.title))
+        .filter((w) => w.id && w.title)
+        .filter((w) => !keep || keep.has(String(w.id))))
       .catch((err) => {
         if (window.console) window.console.warn("faith-corpora:", err.message);
         return [];
       });
+    loaded.set(id, p);
+    return p;
   }
 
   window.MOCorpora = {
