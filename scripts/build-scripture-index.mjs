@@ -208,50 +208,79 @@ function romanToInt(s) {
 // on the right spot afterwards. Only the first hit per chapter keeps an
 // excerpt — a work citing Romans 9 eleven times needs one preview, not
 // eleven, and excerpts are what would make this file unservable.
-export function extractRefs(text, locate) {
+// Segments are the smallest addressable unit of a work — one parallel
+// row, one page. Each carries the id or page the reader can scroll to,
+// the text to search (both languages, so a Latin-only citation is not
+// missed), and the English to quote from.
+//
+// Excerpting from English matters: these works are printed Latin
+// beside translation, and quoting whichever column the regex happened
+// to land in produced Latin previews. Excerpts are also snapped to
+// word boundaries — slicing at a fixed offset opened previews
+// mid-word, "equuntur" for "sequuntur".
+export function extractRefs(segments) {
   const found = new Map();
-  if (!text) return found;
-  let m;
-  REF_RE.lastIndex = 0;
-  while ((m = REF_RE.exec(text))) {
-    const raw = m[2];
-    // Citations capitalise the book: "Acts 2", never "he acts 2".
-    // Without this, ordinary words that happen to be book names or
-    // abbreviations flood the index — "Job", "Acts", "Mark", and worst
-    // of all the verb "am", which alone produced 11,444 phantom hits in
-    // Amos 1. Sentence-initial words still slip through; that is a far
-    // smaller error than the alternative.
-    if (raw[0] !== raw[0].toUpperCase() || raw[0] === raw[0].toLowerCase()) continue;
-    const name = raw.toLowerCase();
-    const ord = m[1] ? ORDINALS[m[1].toLowerCase()] : null;
-    // "1 Cor" is a whole alias; "I Corinthians" arrives split, so try
-    // the rejoined form first and fall back to the bare name.
-    const joined = ord ? `${ord} ${name}` : null;
-    const canon = (joined && (VULGATE_REGNUM[joined] || LOOKUP.get(joined)))
-      || VULGATE_REGNUM[name] || LOOKUP.get(name);
-    // A bare stem with no ordinal ("Corinthians 15") is unresolvable —
-    // there are two of them and guessing would be worse than skipping.
-    if (!canon) continue;
-    const ch = m[3];
-    const n = /^\d+$/.test(ch) ? parseInt(ch, 10) : romanToInt(ch);
-    if (!n) continue;
-    const max = MAX_CHAPTERS[canon];
-    if (max && n > max) continue;
-    const key = `${canon}|${n}`;
-    const prev = found.get(key);
-    if (prev) { prev.n += 1; continue; }
-    const at = m.index;
-    const excerpt = text
-      .slice(Math.max(0, at - 90), at + 130)
-      .replace(/\s+/g, " ")
-      .trim();
-    found.set(key, {
-      n: 1,
-      loc: locate ? locate(at) : null,
-      excerpt,
-    });
+  if (!segments || !segments.length) return found;
+
+  for (const seg of segments) {
+    const hay = seg.text || "";
+    if (!hay) continue;
+    let m;
+    REF_RE.lastIndex = 0;
+    while ((m = REF_RE.exec(hay))) {
+      const raw = m[2];
+      // Citations capitalise the book: "Acts 2", never "he acts 2".
+      // Without this, ordinary words that happen to be book names or
+      // abbreviations flood the index — "Job", "Acts", "Mark", and
+      // worst of all the verb "am", which alone produced 11,444
+      // phantom hits in Amos 1.
+      if (raw[0] !== raw[0].toUpperCase() || raw[0] === raw[0].toLowerCase()) continue;
+      const name = raw.toLowerCase();
+      const ord = m[1] ? ORDINALS[m[1].toLowerCase()] : null;
+      const joined = ord ? `${ord} ${name}` : null;
+      const canon = (joined && (VULGATE_REGNUM[joined] || LOOKUP.get(joined)))
+        || VULGATE_REGNUM[name] || LOOKUP.get(name);
+      if (!canon) continue;
+      const ch = m[3];
+      const n = /^\d+$/.test(ch) ? parseInt(ch, 10) : romanToInt(ch);
+      if (!n) continue;
+      const max = MAX_CHAPTERS[canon];
+      if (max && n > max) continue;
+
+      const key = `${canon}|${n}`;
+      const prev = found.get(key);
+      if (prev) { prev.n += 1; continue; }
+      found.set(key, { n: 1, loc: seg.loc == null ? null : seg.loc, excerpt: excerptFrom(seg, m.index) });
+    }
   }
   return found;
+}
+
+// Prefer the English of the same segment. Falls back to the searched
+// text only where a segment has no translation.
+function excerptFrom(seg, at) {
+  const src = (seg.en && seg.en.trim()) ? seg.en : seg.text;
+  if (!src) return "";
+  // If the hit was in the other lane, centre on the segment instead of
+  // an offset that means nothing in this string.
+  const centre = seg.en && seg.en.trim() && seg.text !== seg.en ? 0 : at;
+  return snap(src, centre);
+}
+
+function snap(src, at) {
+  let from = Math.max(0, at - 90);
+  let to = Math.min(src.length, at + 150);
+  // Grow outward to the nearest space so a preview never opens or
+  // closes mid-word.
+  if (from > 0) {
+    const sp = src.indexOf(" ", from);
+    if (sp > -1 && sp - from < 30) from = sp + 1;
+  }
+  if (to < src.length) {
+    const sp = src.lastIndexOf(" ", to);
+    if (sp > from) to = sp;
+  }
+  return src.slice(from, to).replace(/\s+/g, " ").trim();
 }
 
 /* ── Corpus readers ─────────────────────────────────────────────── */
@@ -268,55 +297,52 @@ async function eeboWorks(limit) {
   return (limit ? list.slice(0, limit) : list).map((w) => String(w.i));
 }
 
-// Every reader returns { text, locate } — locate(offset) turns a
-// character offset in that text into whatever the reader needs to
-// scroll to: a section index for EEBO and Aquinas, a page number for
-// the Latin Library.
-function locatorFor(marks) {
-  // marks: [{ at, loc }] in ascending order of `at`.
-  return (offset) => {
-    let lo = 0;
-    let hi = marks.length - 1;
-    let best = null;
-    while (lo <= hi) {
-      const mid = (lo + hi) >> 1;
-      if (marks[mid].at <= offset) { best = marks[mid].loc; lo = mid + 1; } else hi = mid - 1;
-    }
-    // Text before the first marker — front matter, or a work whose
-    // body sits outside any collapsible container, which is half of
-    // Augustine. The opening section is a truer answer than none: it
-    // at least puts the reader in the work rather than dropping the
-    // link entirely.
-    if (best == null) return marks.length ? marks[0].loc : 1;
-    return best;
-  };
+async function tfrWorks(limit) {
+  const idx = await getJSON(`${BLOB}/v1/works-index.json`);
+  const list = idx.works || [];
+  return (limit ? list.slice(0, limit) : list).map((w) => w.slug);
 }
+
+// Aquinas and Augustine share one source catalogue, split at file id
+// 150 — the same boundary faith-corpora.js uses.
+async function aquinasStudiesWorks(limit, wantAugustine) {
+  const nav = await getJSON("https://aquinas-studies.vercel.app/data/nav.json");
+  const out = [];
+  (Array.isArray(nav) ? nav : []).forEach((g) => {
+    (g.s || []).forEach((sec) => {
+      const n = parseInt((String(sec.f || "").match(/_(\d+)\.html$/) || [])[1], 10);
+      if ((n >= 151) !== !!wantAugustine) return;
+      out.push(String(sec.f || "").replace(/\.html$/, ""));
+    });
+  });
+  return limit ? out.slice(0, limit) : out;
+}
+
+// Every reader returns an array of segments: { loc, text, en }.
+//
+// `loc` is what the reader can scroll to and must come from the source
+// itself, never from a count. An earlier version numbered sections as
+// it walked and had the reader number them again independently — they
+// disagreed by one on every Aquinas work, because the reader prepends
+// a prologue section the extractor never saw, so every link landed a
+// section early. Source ids cannot drift.
 
 async function eeboText(id) {
   const r = await fetch(`${BLOB}/eebo/${id}.json.gz`);
   if (!r.ok) throw new Error(`${r.status}`);
   const buf = Buffer.from(await r.arrayBuffer());
   const j = JSON.parse((await gunzip(buf)).toString("utf8"));
-  let out = "";
-  const marks = [];
-  let section = 0;
-  // Depth-first pre-order, matching how the reader numbers sections,
-  // so a locator here lands on the same #section-N there.
+  const segs = [];
   (function walk(nodes) {
     (nodes || []).forEach((n) => {
-      section += 1;
-      marks.push({ at: out.length, loc: section });
-      if (n.html) out += ` ${n.html.replace(/<[^>]+>/g, " ")}`;
+      if (n.html) {
+        const t = n.html.replace(/<[^>]+>/g, " ");
+        segs.push({ loc: n.id || null, text: t, en: t });
+      }
       walk(n.kids);
     });
   })(j.toc);
-  return { text: out, locate: locatorFor(marks) };
-}
-
-async function tfrWorks(limit) {
-  const idx = await getJSON(`${BLOB}/v1/works-index.json`);
-  const list = idx.works || [];
-  return (limit ? list.slice(0, limit) : list).map((w) => w.slug);
+  return segs;
 }
 
 async function tfrText(slug) {
@@ -324,58 +350,39 @@ async function tfrText(slug) {
   const files = meta.shards && meta.shards.length
     ? meta.shards.map((s) => s.file)
     : [meta.single || "work.json"];
-  let out = "";
-  const marks = [];
+  const segs = [];
   for (const f of files) {
     const d = await getJSON(`${BLOB}/v1/works/${slug}/${f}`);
     for (const p of d.pages || d) {
-      // Page number, which the reader can resolve to the section whose
-      // range contains it.
-      marks.push({ at: out.length, loc: p.n });
-      out += ` ${p.la || ""} ${p.en || ""}`;
+      // Page number: the reader resolves it to the section covering
+      // that page, then scrolls to the page block itself.
+      segs.push({ loc: p.n, text: `${p.la || ""} ${p.en || ""}`, en: p.en || "" });
     }
   }
-  return { text: out, locate: locatorFor(marks) };
-}
-
-// Aquinas and Augustine share one source catalogue, split at file id
-// 150 — the same boundary faith-corpora.js uses. Their text is only
-// published as rendered reader pages, so we strip tags and scan.
-async function aquinasStudiesWorks(limit, wantAugustine) {
-  const nav = await getJSON("https://aquinas-studies.vercel.app/data/nav.json");
-  const out = [];
-  (Array.isArray(nav) ? nav : []).forEach((g) => {
-    (g.s || []).forEach((s) => {
-      const n = parseInt((String(s.f || "").match(/_(\d+)\.html$/) || [])[1], 10);
-      if ((n >= 151) !== !!wantAugustine) return;
-      out.push(String(s.f || "").replace(/\.html$/, ""));
-    });
-  });
-  return limit ? out.slice(0, limit) : out;
+  return segs;
 }
 
 async function aquinasStudiesText(id) {
   const r = await fetch(`https://aquinas-studies.vercel.app/read/${id}.html`);
   if (!r.ok) throw new Error(String(r.status));
   const html = await r.text();
-  // Only the parallel columns carry the work; the rest of the page is
-  // reader chrome whose own numbering would pollute the index. Count
-  // questions and articles as we pass them so an offset resolves to
-  // the same #section-N the reader builds.
-  let out = "";
-  const marks = [];
-  let section = 0;
-  // Every collapse level, in document order, matching how the reader
-  // numbers sections — Augustine adds collapse-section above the
-  // questions, and omitting it left 56.5% of his citations with no
-  // resolvable location.
-  const re = /<details class="collapse-(section|question|article)"|<div class="col-(?:la|en)"[^>]*>([\s\S]*?)<\/div>/g;
+  const segs = [];
+  // Each parallel row carries its own id in the source. That id is the
+  // anchor, and the reader stamps the same one onto the block it
+  // renders, so the two can never drift apart.
+  const rowRe = /<div class="parallel [^"]*"\s+id="([^"]+)"[^>]*>([\s\S]*?)(?=<div class="parallel |<\/details>)/g;
   let m;
-  while ((m = re.exec(html))) {
-    if (m[1]) { section += 1; marks.push({ at: out.length, loc: section }); continue; }
-    out += ` ${m[2].replace(/<[^>]+>/g, " ")}`;
+  while ((m = rowRe.exec(html))) {
+    const chunk = m[2];
+    const la = (chunk.match(/<div class="col-la"[^>]*>([\s\S]*?)<\/div>/) || [])[1] || "";
+    const en = (chunk.match(/<div class="col-en"[^>]*>([\s\S]*?)<\/div>/) || [])[1] || "";
+    const strip = (x) => x.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const laT = strip(la);
+    const enT = strip(en);
+    if (!laT && !enT) continue;
+    segs.push({ loc: m[1], text: `${laT} ${enT}`, en: enT });
   }
-  return { text: out, locate: locatorFor(marks) };
+  return segs;
 }
 
 const CORPORA = {
@@ -487,8 +494,7 @@ async function run() {
     while (queue.length) {
       const id = queue.pop();
       try {
-        const { text, locate } = await c.text(id);
-        const found = extractRefs(text, locate);
+        const found = extractRefs(await c.text(id));
         found.forEach((hit, key) => {
           const [book, ch] = key.split("|");
           index[book] = index[book] || {};

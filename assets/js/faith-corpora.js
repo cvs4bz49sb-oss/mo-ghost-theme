@@ -375,6 +375,12 @@
             const en = r.querySelector(".col-en");
             if (!la && !en) return;
             out.push({
+              // The source's own row id. The scripture index records
+              // this same id, so a citation's anchor and the block the
+              // reader renders can never drift apart — counting
+              // sections independently in two places put every Aquinas
+              // link one section early.
+              id: r.getAttribute("id") || "",
               kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
               cite: r.getAttribute("data-cite") || "",
               la: la ? la.innerHTML : "",
@@ -446,6 +452,7 @@
           const en = r.querySelector(".col-en");
           if (!la && !en) return;
           loose.push({
+            id: r.getAttribute("id") || "",
             kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
             cite: r.getAttribute("data-cite") || "",
             la: la ? la.innerHTML : "",
@@ -524,6 +531,12 @@
             const en = r.querySelector(".col-en");
             if (!la && !en) return;
             out.push({
+              // The source's own row id. The scripture index records
+              // this same id, so a citation's anchor and the block the
+              // reader renders can never drift apart — counting
+              // sections independently in two places put every Aquinas
+              // link one section early.
+              id: r.getAttribute("id") || "",
               kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
               cite: r.getAttribute("data-cite") || "",
               la: la ? la.innerHTML : "",

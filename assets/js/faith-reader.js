@@ -334,6 +334,9 @@
       const block = document.createElement("div");
       block.className = `faith-parallel-block faith-row--${r.kind || "body"}`;
       if (r.cite) block.setAttribute("data-cite", r.cite);
+      // Carry the source's row id through as the element id, so a
+      // scripture link like #r42942 lands on this exact block.
+      if (r.id) block.id = r.id;
 
       const en = document.createElement("div");
       en.className = "faith-col-en";
@@ -965,8 +968,13 @@
       if (parent.tagName === "DETAILS") parent.open = true;
       parent = parent.parentElement;
     }
-    target.open = true;
-    if (scroll) target.scrollIntoView({ block: "start" });
+    // A scripture link points at a row, not a section — open the
+    // section around it and mark the row itself.
+    if (target.tagName === "DETAILS") target.open = true;
+    else target.classList.add("faith-page-target");
+    if (scroll) {
+      target.scrollIntoView({ block: target.tagName === "DETAILS" ? "start" : "center" });
+    }
     return true;
   }
 
