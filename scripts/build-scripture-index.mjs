@@ -222,7 +222,8 @@ export function extractRefs(segments) {
   const found = new Map();
   if (!segments || !segments.length) return found;
 
-  for (const seg of segments) {
+  for (let si = 0; si < segments.length; si += 1) {
+    const seg = segments[si];
     const hay = seg.text || "";
     if (!hay) continue;
     let m;
@@ -250,21 +251,36 @@ export function extractRefs(segments) {
       const key = `${canon}|${n}`;
       const prev = found.get(key);
       if (prev) { prev.n += 1; continue; }
-      found.set(key, { n: 1, loc: seg.loc == null ? null : seg.loc, excerpt: excerptFrom(seg, m.index) });
+      found.set(key, {
+        n: 1,
+        loc: seg.loc == null ? null : seg.loc,
+        excerpt: excerptFrom(seg, m.index, segments, si),
+      });
     }
   }
   return found;
 }
 
-// Prefer the English of the same segment. Falls back to the searched
-// text only where a segment has no translation.
-function excerptFrom(seg, at) {
-  const src = (seg.en && seg.en.trim()) ? seg.en : seg.text;
-  if (!src) return "";
-  // If the hit was in the other lane, centre on the segment instead of
-  // an offset that means nothing in this string.
-  const centre = seg.en && seg.en.trim() && seg.text !== seg.en ? 0 : at;
-  return snap(src, centre);
+// Always English. Prefer this segment's translation; where a row is
+// Latin- or Greek-only — a heading, or a stretch the translator ran
+// together — borrow the nearest neighbouring row that has one.
+// Returning the Latin instead was the whole complaint.
+function excerptFrom(seg, at, segments, si) {
+  if (seg.en && seg.en.trim()) {
+    // The hit may have been in the other lane, where the offset means
+    // nothing in this string; centre on the segment instead.
+    const centre = seg.text === seg.en ? at : 0;
+    return snap(seg.en, centre);
+  }
+  for (let d = 1; d <= 3; d += 1) {
+    const before = segments[si - d];
+    const after = segments[si + d];
+    if (after && after.en && after.en.trim()) return snap(after.en, 0);
+    if (before && before.en && before.en.trim()) return snap(before.en, 0);
+  }
+  // No English anywhere nearby. Better a card with no preview than a
+  // card previewing a language the reader did not ask for.
+  return "";
 }
 
 function snap(src, at) {
