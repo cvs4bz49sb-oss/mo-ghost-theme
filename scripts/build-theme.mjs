@@ -41,6 +41,7 @@ const BUNDLES = [
       "assets/js/boot/title-fix.js",
       "assets/js/boot/liturgical-class.js",
       "assets/js/boot/mo-api-base.js",
+      "assets/js/boot/mo-asset-version.js",
       "assets/js/admin-auth.js",
       "assets/js/lib/safe-href.js",
       "assets/js/lib/safe-redirect.js",

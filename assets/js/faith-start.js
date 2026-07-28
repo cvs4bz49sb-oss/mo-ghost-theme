@@ -52,7 +52,7 @@
 
   if (dailyEl) {
     // Same path the rest of the Faith Received JS uses for theme data.
-    fetch("/assets/data/faith-received/catechism-daily.json", { credentials: "same-origin" })
+    fetch(window.moAssetUrl("/assets/data/faith-received/catechism-daily.json"), { credentials: "same-origin" })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((d) => {
         const qs = d.questions || [];

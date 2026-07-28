@@ -682,8 +682,12 @@
     // A corpus may declare a curated subset of itself. If that list
     // fails to load the corpus stays whole rather than going empty —
     // showing too much beats showing nothing.
+    //
+    // Through moAssetUrl: the list is a theme asset, and Ghost serves
+    // those with a one-year cache. Rebuilding the filter has to be
+    // visible on the next deploy, not the next calendar year.
     const subset = c.filterIds
-      ? fetch(c.filterIds)
+      ? fetch(window.moAssetUrl(c.filterIds))
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => (d && d.ids ? new Set(d.ids.map(String)) : null))
         .catch(() => null)

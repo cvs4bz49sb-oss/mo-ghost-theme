@@ -192,7 +192,7 @@
         renderPlaceholder("Loading…");
         try {
           // Static asset; Cloudflare/Ghost CDN caches it. ~25 KB.
-          const res = await fetch("/assets/data/collects.json");
+          const res = await fetch(window.moAssetUrl("/assets/data/collects.json"));
           if (!res.ok) throw new Error(`fetch ${res.status}`);
           collectsCache = await res.json();
         } catch (err) {

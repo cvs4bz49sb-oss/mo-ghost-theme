@@ -85,6 +85,14 @@
          the CSP. --}}
     <meta name="mo-api-base" content="{{@custom.membership_api_base}}" />
 
+    {{!-- Ghost's asset hash, for JS that fetches /assets/data/*.json
+         directly. Those URLs skip the {{asset}} helper but not Ghost's
+         one-year cache header, so a regenerated data file would stay
+         invisible until the header expired. mo-asset-version.js reads
+         the hash out of this and moAssetUrl() appends it. Any asset
+         works — they all carry the same theme-wide stamp. --}}
+    <meta name="mo-asset-version" content="{{asset "built/boot.min.js"}}" />
+
     {{#if @custom.content_api_key}}
     <meta name="ghost-content-api-key" content="{{@custom.content_api_key}}" />
     {{/if}}

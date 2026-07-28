@@ -39,7 +39,7 @@
     function ensureIndex() {
       if (fuse) return Promise.resolve(fuse);
       if (loading) return loading;
-      loading = fetch(`${DATA_BASE}/search-index.json`, { credentials: "same-origin" })
+      loading = fetch(window.moAssetUrl(`${DATA_BASE}/search-index.json`), { credentials: "same-origin" })
         .then((r) => {
           if (!r.ok) throw new Error("Search index failed to load.");
           return r.json();
@@ -231,7 +231,7 @@
       });
     }
 
-    fetch(`${DATA_BASE}/today.json`, { credentials: "same-origin" })
+    fetch(window.moAssetUrl(`${DATA_BASE}/today.json`), { credentials: "same-origin" })
       .then((r) => {
         if (!r.ok) throw new Error("Today's reading is unavailable.");
         return r.json();

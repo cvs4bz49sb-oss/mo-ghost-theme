@@ -13,7 +13,7 @@
 (function () {
   "use strict";
 
-  const DATA_URL = "/assets/data/faith-received/prayer.json";
+  const DATA_URL = window.moAssetUrl("/assets/data/faith-received/prayer.json");
 
   // ── Sections that start open by default ──────────────────────
   // These are the core Daily Office sections. Others collapse.

@@ -245,10 +245,17 @@
     if (c.readable === false) return `/the-faith-received/?collection=${encodeURIComponent(corpus)}`;
     const q = corpus === "tfr" || corpus === "confessions" ? "" : `c=${encodeURIComponent(corpus)}&`;
     let url = `/the-faith-received/reader/?${q}w=${encodeURIComponent(id)}`;
-    if (loc != null) {
+    if (loc != null && loc !== "") {
+      // The Latin Library and the confessions are paginated, so their
+      // locator is a page number the reader resolves to the section
+      // covering it. Everywhere else the locator IS the id of the
+      // paragraph in the source, and the reader stamps that same id
+      // onto the block it renders — so it is the anchor verbatim.
+      // Wrapping it as "#section-<loc>" pointed every link at an
+      // element that does not exist.
       url += corpus === "tfr" || corpus === "confessions"
         ? `&p=${encodeURIComponent(loc)}`
-        : `#section-${encodeURIComponent(loc)}`;
+        : `#${String(loc).trim().replace(/\s+/g, "-")}`;
     }
     return url;
   }

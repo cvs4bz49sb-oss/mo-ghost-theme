@@ -26,7 +26,7 @@
 
   const LS_TRANSLATION = "mo-bible:translation";
   const DEFAULT_HASH = "GEN.1";
-  const SCRIPTURE_INDEX_URL = "/assets/data/faith-received/scripture-index.json";
+  const SCRIPTURE_INDEX_URL = window.moAssetUrl("/assets/data/faith-received/scripture-index.json");
 
   // ── DOM ────────────────────────────────────────────────────────
   const $status = document.querySelector("[data-bible-status]");

@@ -9,9 +9,9 @@
 (function () {
   "use strict";
 
-  const CALENDAR_URL = "/assets/data/daily-liturgy/calendar.json";
-  const DEVOTIONALS_URL = "/assets/data/daily-liturgy/devotionals.json";
-  const BI2Y_URL = "/assets/data/daily-liturgy/bible-in-2-years.json";
+  const CALENDAR_URL = window.moAssetUrl("/assets/data/daily-liturgy/calendar.json");
+  const DEVOTIONALS_URL = window.moAssetUrl("/assets/data/daily-liturgy/devotionals.json");
+  const BI2Y_URL = window.moAssetUrl("/assets/data/daily-liturgy/bible-in-2-years.json");
   const BI2Y_START = "2026-01-01";
   const BI2Y_TOTAL_DAYS = 736;
   const PODCAST_FEED_URL = "https://mo-podcast-feed.mo-podcast-feed.workers.dev";
