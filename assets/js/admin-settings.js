@@ -82,6 +82,8 @@
     sponsor_web_cat_technology_until: form.querySelector('[name="sponsor_web_cat_technology_until"]'),
     sponsor_web_cat_bookreviews_status: form.querySelector('[name="sponsor_web_cat_bookreviews_status"]'),
     sponsor_web_cat_bookreviews_until: form.querySelector('[name="sponsor_web_cat_bookreviews_until"]'),
+    sponsor_mf_downloads_30d: form.querySelector('[name="sponsor_mf_downloads_30d"]'),
+    sponsor_crc_downloads_30d: form.querySelector('[name="sponsor_crc_downloads_30d"]'),
   };
 
   function showStatus(msg, isError) {

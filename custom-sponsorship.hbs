@@ -38,17 +38,18 @@
             <span class="stat-number" data-stat-number>&mdash;</span>
             <span class="stat-label">Website Page Views</span>
           </div>
-          {{!-- Downloads per episode, not a monthly aggregate: it is what a
-                pre-roll or mid-roll buy actually turns on, and Buzzsprout
-                gives it to us exactly (total_plays per episode) rather than
-                by differencing stored snapshots. --}}
+          {{!-- Downloads over the trailing window. The figure comes from
+                sponsor_mf_downloads_30d / sponsor_crc_downloads_30d in
+                Settings, entered by hand off Buzzsprout's Stats page —
+                Buzzsprout has no stats API and total_plays reads ~3x low.
+                Blank falls back to an estimate, labelled as one. --}}
           <div class="stat-item" data-stat="mfDownloads">
             <span class="stat-number" data-stat-number>&mdash;</span>
-            <span class="stat-label">Mere&nbsp;Fidelity Per&nbsp;Episode</span>
+            <span class="stat-label">Mere&nbsp;Fidelity Downloads</span>
           </div>
           <div class="stat-item" data-stat="crcDownloads">
             <span class="stat-number" data-stat-number>&mdash;</span>
-            <span class="stat-label">Christians Reading&nbsp;Classics Per&nbsp;Episode</span>
+            <span class="stat-label">Christians Reading&nbsp;Classics Downloads</span>
           </div>
         </div>
         {{!-- One period note for the whole bar rather than "(Last 30 Days)"

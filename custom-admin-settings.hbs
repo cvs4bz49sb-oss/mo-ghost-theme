@@ -58,6 +58,21 @@
             </div>
 
             <div class="settings-group">
+              <h3 class="settings-group-title">Podcast Reach</h3>
+              <p class="settings-group-desc">Downloads shown on the public /sponsorship/ page. Buzzsprout has no stats API, so these are entered by hand: open Buzzsprout &rarr; Stats &rarr; Podcast Overview, pick <strong>Last 30 Days</strong>, and copy the headline number for each show. Leave blank to fall back to an estimate, which runs low.</p>
+              <div class="settings-row">
+                <label class="settings-field settings-field--half">
+                  <span class="settings-field-label">Mere Fidelity &mdash; last 30 days</span>
+                  <input type="text" name="sponsor_mf_downloads_30d" class="settings-input" inputmode="numeric" placeholder="e.g. 16251" />
+                </label>
+                <label class="settings-field settings-field--half">
+                  <span class="settings-field-label">Christians Reading Classics &mdash; last 30 days</span>
+                  <input type="text" name="sponsor_crc_downloads_30d" class="settings-input" inputmode="numeric" placeholder="e.g. 4290" />
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-group">
               <h3 class="settings-group-title">Sponsorship Inventory</h3>
               <p class="settings-group-desc">Status of each ad spot shown on the public /sponsorship/ page. Set "Filled" and a date to show when a spot opens up.</p>
 
