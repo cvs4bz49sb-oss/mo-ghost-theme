@@ -146,8 +146,10 @@ function safeHref(url) {
 // worker URL fails loudly rather than leaking a bearer token.
 // ---------------------------------------------------------------------
 function workerUrl() {
-  const el = document.getElementById('root');
-  return ((el && el.dataset && el.dataset.emailWorkerUrl) || '').replace(/\/$/, '');
+  // Via the accessor, not an id literal — digest-bootstrap.js renames the
+  // mount point, so the id this file should look for is not the id the
+  // template emits.
+  return window.MODigestRoot ? window.MODigestRoot.url('emailWorkerUrl') : '';
 }
 
 async function api(path, init) {

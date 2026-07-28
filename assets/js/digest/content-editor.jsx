@@ -163,8 +163,10 @@ function ImageUrlField({ value, onChange }) {
   const [error, setError] = useState('');
   const inputRef = React.useRef(null);
 
-  const root = typeof document !== 'undefined' ? document.getElementById('mo-digest-root') : null;
-  const workerUrl = ((root && root.dataset && root.dataset.workerUrl) || '').replace(/\/$/, '');
+  // Never read the mount point by id here: digest-bootstrap.js renames
+  // #mo-digest-root to #root before this module runs. Go through the
+  // accessor it publishes.
+  const workerUrl = window.MODigestRoot ? window.MODigestRoot.url('workerUrl') : '';
   const canUpload = !!(workerUrl && window.MOAuth && typeof window.MOAuth.fetch === 'function');
 
   const handleFile = (file) => {

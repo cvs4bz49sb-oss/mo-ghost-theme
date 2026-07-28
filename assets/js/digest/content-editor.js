@@ -125,8 +125,7 @@
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
     const inputRef = React.useRef(null);
-    const root = typeof document !== "undefined" ? document.getElementById("mo-digest-root") : null;
-    const workerUrl = (root && root.dataset && root.dataset.workerUrl || "").replace(/\/$/, "");
+    const workerUrl = window.MODigestRoot ? window.MODigestRoot.url("workerUrl") : "";
     const canUpload = !!(workerUrl && window.MOAuth && typeof window.MOAuth.fetch === "function");
     const handleFile = (file) => {
       if (!file) return;

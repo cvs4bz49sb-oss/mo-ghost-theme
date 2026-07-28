@@ -116,8 +116,7 @@
     return "#";
   }
   function workerUrl() {
-    const el = document.getElementById("root");
-    return (el && el.dataset && el.dataset.emailWorkerUrl || "").replace(/\/$/, "");
+    return window.MODigestRoot ? window.MODigestRoot.url("emailWorkerUrl") : "";
   }
   async function api(path, init) {
     const base = workerUrl();
