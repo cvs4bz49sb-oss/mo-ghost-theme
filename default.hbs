@@ -147,15 +147,34 @@
 
     {{!-- Fallback social-share image. Only emitted when the current
          context has NO feature image of its own, so a page/post with a
-         feature image still unfurls with that image (Ghost's own
-         og:image from {{ghost_head}} wins). Routes with no image (home,
-         custom routes.yaml pages without a data-bound page) fall back to
-         the house share card instead of unfurling blank.
-         See SEO-AGENT S6.2 / S6.11. Share card is 1200x630. --}}
-    {{#unless feature_image}}
+         feature image unfurls with that image instead of the house card.
+         Routes with no image (home, custom routes.yaml pages without a
+         data-bound page) fall back to the house share card instead of
+         unfurling blank.
+         See SEO-AGENT S6.2 / S6.11. Share card is 1200x630.
+
+         SCOPE TRAP (fixed 2026-07-28): this used to read
+         `{{#unless feature_image}}`. In default.hbs the root context is
+         the route context, NOT the post object — post.hbs enters it with
+         `{{#post}}`, tag.hbs with `{{#tag}}`. So bare `feature_image` was
+         always undefined, the unless always passed, and every article
+         emitted the house card. Because this block sits ABOVE
+         {{ghost_head}} and scrapers take the FIRST og:image, the house
+         card beat Ghost's real feature-image tag on every single post.
+         Must be `post.feature_image` / `tag.feature_image`.
+
+         This block stays ABOVE {{ghost_head}} on purpose: on imageless
+         routes Ghost emits `twitter:card = summary` (small card), and
+         first-tag-wins is what keeps those unfurling as
+         summary_large_image. --}}
+    {{#unless post.feature_image}}
+    {{#unless tag.feature_image}}
+    {{#unless author.cover_image}}
     <meta property="og:image" content="{{asset "images/mo-share-card.jpg"}}" />
     <meta name="twitter:image" content="{{asset "images/mo-share-card.jpg"}}" />
     <meta name="twitter:card" content="summary_large_image" />
+    {{/unless}}
+    {{/unless}}
     {{/unless}}
 
     <script type="application/ld+json">
