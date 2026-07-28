@@ -32,7 +32,15 @@
       </header>
 
       <section class="admin-body admin-body--digest" style="padding:0;">
-        <div id="mo-digest-root" data-worker-url="{{@custom.admin_worker_url}}" style="background:#f1e0c9;min-height:calc(100vh - 280px);"></div>
+        {{!-- data-email-worker-url is hardcoded rather than a @custom slot:
+              the setting cap is hit, and the mo-email URL is fixed once
+              deployed. It must also appear in default.hbs's
+              mo-trusted-hosts meta and the CSP connect-src list, or
+              MOAuth refuses to attach the staff token. --}}
+        <div id="mo-digest-root"
+             data-worker-url="{{@custom.admin_worker_url}}"
+             data-email-worker-url="https://mo-email.mo-podcast-feed.workers.dev"
+             style="background:#f1e0c9;min-height:calc(100vh - 280px);"></div>
       </section>
 
     </div>
@@ -55,6 +63,7 @@
     <script src="{{asset "js/digest/email-template.js"}}"></script>
     <script src="{{asset "js/digest/content-editor.js"}}"></script>
     <script src="{{asset "js/digest/export-html.js"}}"></script>
+    <script src="{{asset "js/digest/kit-push.js"}}"></script>
     <script src="{{asset "js/admin-auth.js"}}"></script>
     <script src="{{asset "js/digest/app.js"}}"></script>
 

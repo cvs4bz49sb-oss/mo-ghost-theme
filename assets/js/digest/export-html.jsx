@@ -37,13 +37,18 @@ async function loadAssetAsDataUri(path) {
 }
 
 async function rewriteImages(rootEl, mode, baseUrl, overrides = {}) {
-  // window.MO_DIGEST_HOSTED_ASSETS is injected by the Ghost theme template
-  // and maps brand-asset filenames to their absolute live URLs on the site
-  // (e.g. https://mereorthodoxy.com/assets/built/images/mere-o-logo.png).
+  // MO_DIGEST_ASSETS is injected by the Ghost theme template (via the
+  // mo-digest-assets meta tag, read by page/digest-bootstrap.js) and maps
+  // brand-asset filenames to their absolute live URLs on the site
+  // (e.g. https://mereorthodoxy.com/assets/images/mere-o-logo.png).
   // Treated as a higher-priority fallback than data-URI embedding so the
   // exported email pulls the logo + podcast covers straight from Ghost's
   // own asset CDN — no upload step, no inflated file size.
-  const hosted = (typeof window !== 'undefined' && window.MO_DIGEST_HOSTED_ASSETS) || {};
+  //
+  // MO_DIGEST_HOSTED_ASSETS is the older global name. Nothing sets it any
+  // more, but it's checked first so a hand-set override still wins.
+  const hosted = (typeof window !== 'undefined'
+    && (window.MO_DIGEST_HOSTED_ASSETS || window.MO_DIGEST_ASSETS)) || {};
   const imgs = rootEl.querySelectorAll('img');
   for (const img of imgs) {
     const orig = img.getAttribute('src') || '';
@@ -101,89 +106,23 @@ function hardenForEmail(rootEl) {
   });
 }
 
-// Render an EmailTemplate to flat HTML and return the HTML string.
-async function exportEmailHtml({
-  isMember, accent, density, divider, content,
-  imageMode = 'auto', // 'auto' | 'placeholder' | 'datauri'
-  imageBaseUrl = 'https://mereorthodoxy.com/wp-content/uploads/digest',
-  imageOverrides = {}, // { 'mere-o-logo.png': 'https://...', ... }
-  subject = "The Weekly Digest — No. " + (content.issueNumber || ''),
-  preheader = '',
-  target = 'kit', // 'kit' | 'generic' — Kit needs {{ message_content }} + merge tags
-}) {
-  // 1) Render React tree into a hidden container.
-  const host = document.createElement('div');
-  host.style.cssText = 'position:fixed;left:-99999px;top:0;width:600px;';
-  document.body.appendChild(host);
-
-  const root = ReactDOM.createRoot(host);
-  root.render(
-    React.createElement(EmailTemplate, {
-      isMember, accent, density, divider,
-      tokens: MO_TOKENS,
-      content,
-    })
-  );
-  // Poll for the rendered child. React 18 createRoot commits async; one or
-  // two RAFs is usually enough but under load (or when called rapidly from a
-  // useEffect re-run) the host can still be empty after 2 frames. Wait up
-  // to ~500ms checking each frame.
-  await new Promise((resolve, reject) => {
-    let frames = 0;
-    const tick = () => {
-      if (host.firstElementChild) return resolve();
-      frames++;
-      if (frames > 30) return reject(new Error('Email did not render (timed out after 30 frames)'));
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  });
-
-  // 2) Grab the rendered subtree.
-  const rendered = host.firstElementChild;
-  if (!rendered) {
-    root.unmount();
-    host.remove();
-    throw new Error('Email did not render');
-  }
-
-  // 3) Rewrite images and harden for email clients.
-  await rewriteImages(rendered, imageMode, imageBaseUrl, imageOverrides);
-  hardenForEmail(rendered);
-
-  // 4) Serialize.
-  const innerHtml = rendered.outerHTML;
-
-  // 5) Tear down.
-  root.unmount();
-  host.remove();
-
-  // 6) Wrap in a real email document.
-  const doc = `<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="x-apple-disable-message-reformatting">
-  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
-  <meta name="color-scheme" content="light dark">
-  <meta name="supported-color-schemes" content="light dark">
-  <title>${escapeHtml(subject)}</title>
-  <!--[if mso]>
-  <xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml>
-  <![endif]-->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+DW+Pica:ital@0;1&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
+// Element-level resets. Safe in a full document we own. NOT safe inside
+// a Kit broadcast: `body {...!important}` and `a { color: inherit }` are
+// unscoped, so dropped into Kit's {{ message_content }} slot they would
+// restyle Kit's own header, footer, and unsubscribe link.
+const EMAIL_RESET_RULES = `
     /* Reset */
     :root { color-scheme: light dark; supported-color-schemes: light dark; }
     body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
     body { margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; }
-    a { color: inherit; }
+    a { color: inherit; }`;
+
+// Media queries can't be inlined onto elements, so these have to ride in
+// a <style> block wherever the email ends up. Every selector is .mo-*
+// scoped, which makes them safe to inject inside someone else's template.
+const EMAIL_RESPONSIVE_RULES = `
     /* Mobile — stack 2-col grids, bump body/heading type */
     @media screen and (max-width: 620px) {
       .mo-wrapper { width: 100% !important; max-width: 100% !important; }
@@ -209,7 +148,127 @@ async function exportEmailHtml({
       .mo-pad-32 { padding-left: 20px !important; padding-right: 20px !important; }
       .mo-pad-32-tight { padding-left: 20px !important; padding-right: 20px !important; }
       .mo-margin-32 { margin-left: 20px !important; margin-right: 20px !important; }
-    }
+    }`;
+
+// What the full-document exports put in <head>. Concatenation order keeps
+// the emitted <style> byte-identical to before the split.
+const EMAIL_STYLE_RULES = EMAIL_RESET_RULES + EMAIL_RESPONSIVE_RULES;
+
+// Render an EmailTemplate to flat HTML and return the HTML string.
+//
+// target:
+//   'kit'           — full document, uploaded to Kit as an Email Template.
+//                     Carries the {{ message_content }} tag Kit's validator
+//                     demands. This is the legacy paste-it-in-yourself path.
+//   'generic'       — full document for any other ESP.
+//   'kit-broadcast' — body-level fragment, sent by mo-email as a broadcast's
+//                     `content`. Kit drops it into the chosen template's
+//                     {{ message_content }} slot, so it must NOT carry its
+//                     own <html>/<head> or a second message_content tag.
+async function exportEmailHtml({
+  isMember, accent, density, divider, content,
+  imageMode = 'auto', // 'auto' | 'placeholder' | 'datauri'
+  imageBaseUrl = 'https://mereorthodoxy.com/wp-content/uploads/digest',
+  imageOverrides = {}, // { 'mere-o-logo.png': 'https://...', ... }
+  subject = "The Weekly Digest — No. " + (content.issueNumber || ''),
+  preheader = '',
+  target = 'kit', // 'kit' | 'generic' | 'kit-broadcast'
+}) {
+  // 1) Render React tree into a hidden container.
+  const host = document.createElement('div');
+  host.style.cssText = 'position:fixed;left:-99999px;top:0;width:600px;';
+  document.body.appendChild(host);
+
+  const root = ReactDOM.createRoot(host);
+  root.render(
+    React.createElement(EmailTemplate, {
+      isMember, accent, density, divider,
+      tokens: MO_TOKENS,
+      content,
+    })
+  );
+  // Poll for the rendered child. React 18 createRoot commits async; one or
+  // two RAFs is usually enough but under load (or when called rapidly from a
+  // useEffect re-run) the host can still be empty after 2 frames. Wait up
+  // to ~500ms checking each frame.
+  await new Promise((resolve, reject) => {
+    let frames = 0;
+    const tick = () => {
+      if (host.firstElementChild) return resolve();
+      frames++;
+      if (frames > 30) {
+        // Tear down before rejecting, or the detached root and its
+        // offscreen host leak. The Kit push panel rebuilds on open, on
+        // every content edit, and on every preheader keystroke, so a
+        // repeated failure here accumulates rather than costing one node.
+        root.unmount();
+        host.remove();
+        return reject(new Error('Email did not render (timed out after 30 frames)'));
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+
+  // 2) Grab the rendered subtree.
+  const rendered = host.firstElementChild;
+  if (!rendered) {
+    root.unmount();
+    host.remove();
+    throw new Error('Email did not render');
+  }
+
+  // 3) Rewrite images and harden for email clients.
+  await rewriteImages(rendered, imageMode, imageBaseUrl, imageOverrides);
+  hardenForEmail(rendered);
+
+  // 4) Serialize.
+  const innerHtml = rendered.outerHTML;
+
+  // 5) Tear down.
+  root.unmount();
+  host.remove();
+
+  // 6a) Broadcast fragment — no document wrapper. Kit supplies the
+  // <html>/<head>/<body> from the selected Email Template and injects this
+  // where its {{ message_content }} tag sits.
+  if (target === 'kit-broadcast') {
+    return `<style>${EMAIL_RESPONSIVE_RULES}
+  </style>
+${preheader ? `<div style="display:none;font-size:1px;color:#fbf7ee;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">${escapeHtml(preheader)}</div>\n` : ''}<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#fbf7ee" style="background:#fbf7ee;">
+  <tr>
+    <td align="center" style="padding:0;">
+      <!--[if mso]>
+      <table role="presentation" align="center" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr><td width="600" style="width:600px;">
+      <![endif]-->
+      ${innerHtml}
+      <!--[if mso]>
+      </td></tr></table>
+      <![endif]-->
+    </td>
+  </tr>
+</table>`;
+  }
+
+  // 6b) Wrap in a real email document.
+  const doc = `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>${escapeHtml(subject)}</title>
+  <!--[if mso]>
+  <xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml>
+  <![endif]-->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+DW+Pica:ital@0;1&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>${EMAIL_STYLE_RULES}
   </style>
 </head>
 <body style="margin:0;padding:0;background:#fbf7ee;font-family:Georgia,'Times New Roman',serif;">

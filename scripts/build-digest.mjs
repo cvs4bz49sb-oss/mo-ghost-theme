@@ -30,6 +30,7 @@ const SOURCES = [
   "email-template.jsx",
   "content-editor.jsx",
   "export-html.jsx",
+  "kit-push.jsx",
   "app.jsx",
 ];
 

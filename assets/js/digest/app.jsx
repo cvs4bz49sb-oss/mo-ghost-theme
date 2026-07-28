@@ -33,7 +33,11 @@ const MOBILE_TOOL_STYLES = `
     padding: 6px 10px !important;
     font-size: 10px !important;
     letter-spacing: 0.1em !important;
+    min-height: 40px !important;
   }
+  /* The button icons cost ~21px each. Dropping them on a phone buys back
+     a whole row of the bar and pays for the taller tap targets above. */
+  [data-mo-topbar] button svg { display: none !important; }
   [data-mo-topbar-group] {
     gap: 6px !important;
     flex-wrap: wrap !important;
@@ -63,6 +67,7 @@ const MOBILE_TOOL_STYLES = `
   [data-mo-modal-header] button {
     padding: 6px 10px !important;
     font-size: 10px !important;
+    min-height: 44px !important;
   }
   [data-mo-modal-body] {
     padding: 8px 14px 14px !important;
@@ -72,10 +77,60 @@ const MOBILE_TOOL_STYLES = `
     gap: 6px !important;
     padding: 10px 14px !important;
   }
+  /* The status/hint line is flex:1 and gets crushed into a four-line
+     column beside the buttons. Give it its own row. */
+  [data-mo-modal-footer] > *:first-child { flex: 1 1 100% !important; }
   [data-mo-modal-footer] button {
     padding: 8px 14px !important;
     font-size: 10px !important;
+    min-height: 40px !important;
   }
+
+  /* Text inputs and selects inside a panel: iOS Safari zooms the page
+     whenever a focused field is under 16px, and it never zooms back.
+     Readonly code output (the Export drawer's textarea) is left alone. */
+  [data-mo-modal-shell] input:not([type="checkbox"]):not([type="radio"]),
+  [data-mo-modal-shell] select {
+    font-size: 16px !important;
+  }
+
+  /* Pill rows (Any/All/Everyone, Save-as-draft/Schedule) — three across
+     at 375px leaves ~77px of text room per pill, which wraps mid-word.
+     Two up, third full width, all at a tappable height. */
+  [data-mo-pillrow] {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  [data-mo-pillrow] > button {
+    flex: 1 1 calc(50% - 3px) !important;
+    min-height: 44px !important;
+    padding: 10px 8px !important;
+    letter-spacing: 0.08em !important;
+  }
+
+  /* Date + time + timezone: three inputs side by side is ~90px each.
+     Native date/time pickers need more than that. Stack them. */
+  [data-mo-kit-whenrow] { flex-wrap: wrap !important; }
+  [data-mo-kit-whenrow] > input,
+  [data-mo-kit-whenrow] > select {
+    flex: 1 1 100% !important;
+    min-height: 44px !important;
+  }
+
+  /* Tag/segment picker — the panel body already scrolls; a 220px inner
+     scroller inside it traps the swipe. Let it run, and give the rows
+     a real touch target. */
+  [data-mo-kit-audiencelist] {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+  [data-mo-kit-audiencelist] label { padding: 12px 2px !important; }
+
+  /* Linked-broadcast row — text plus two buttons in one row crushes the
+     text to a ~120px column. */
+  [data-mo-kit-linkrow] { flex-wrap: wrap !important; }
+  [data-mo-kit-linkrow] > div { flex: 1 1 100% !important; }
+  [data-mo-kit-linkrow] button { min-height: 40px !important; }
 
   /* Gmail chrome — strip the chrome that distracts on mobile */
   [data-mo-gmail-sidebar] { display: none !important; }
@@ -101,6 +156,16 @@ const MOBILE_TOOL_STYLES = `
 
   /* Raw preview — tighter backdrop padding */
   [data-mo-raw-outer] { padding: 18px 8px 30px !important; }
+}
+
+/* Tablet portrait (iPad at 820px) keeps the desktop panel, but it is still
+   a touch device — the controls need a finger-sized target. */
+@media (max-width: 820px) {
+  [data-mo-pillrow] > button,
+  [data-mo-kit-whenrow] > input,
+  [data-mo-kit-whenrow] > select {
+    min-height: 44px !important;
+  }
 }
 `;
 
@@ -888,7 +953,7 @@ const EMAIL_TEMPLATES = {
 // =====================================================
 // Top bar — version + preview toggles (always visible above the preview)
 // =====================================================
-function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onTemplate, onSave, onRestore, onHistory, savedAt, justSaved }) {
+function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditContent, onExport, onPushKit, onTemplate, onSave, onRestore, onHistory, savedAt, justSaved }) {
   const Tab = ({ active, onClick, children }) => (
     <button onClick={onClick} style={{
       background: active ? '#2d2927' : 'transparent',
@@ -911,7 +976,12 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
       padding: '14px 24px',
       display: 'flex',
       alignItems: 'center',
+      // Thirteen controls need 1694px on one row. Without a wrap the bar
+      // blows past 100vw and the whole tool scrolls sideways — measured at
+      // 820px: documentElement.scrollWidth was 1694 with 29 boxes overhanging.
+      flexWrap: 'wrap',
       gap: 24,
+      rowGap: 10,
       flexShrink: 0,
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
     }}>
@@ -1038,6 +1108,10 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </div>
       ) : null}
 
+      {/* Separates the draft-management group (Save / Restore) from the
+          outbound group (History / Export / Push to Kit). */}
+      <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
+
       <button
         onClick={onHistory}
         title="Browse past saved versions and reuse one as a starting point."
@@ -1066,12 +1140,17 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         History
       </button>
 
+      {/* Export stays as the escape hatch — hand the HTML to another ESP,
+          or upload it to Kit as a layout template. Day-to-day the Push to
+          Kit button below is the one you want, so Export drops to the
+          tan outline the tool uses for tertiary actions (cf. Restore). */}
       <button
         onClick={onExport}
+        title="Download or copy the flat HTML. Use Push to Kit for a normal send."
         style={{
-          background: '#2d2927',
-          color: '#fbf7ee',
-          border: '1.5px solid #2d2927',
+          background: 'transparent',
+          color: '#2d2927',
+          border: '1.5px solid #d8c4a3',
           padding: '7px 18px',
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
           fontSize: 11,
@@ -1092,6 +1171,39 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </svg>
         Export HTML
       </button>
+
+      {/* "Push", not "Send": this opens a panel, it does not put an email
+          in anyone's inbox. The distinction matters at 20k subscribers.
+          Hidden entirely if kit-push.js failed to load, so the button is
+          never a no-op. */}
+      {!onPushKit ? null : (
+      <button
+        onClick={onPushKit}
+        title="Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now."
+        style={{
+          background: '#c1593c',
+          color: '#fff',
+          border: '1.5px solid #c1593c',
+          padding: '7px 18px',
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+          borderRadius: 10,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Push to Kit&hellip;
+      </button>
+      )}
     </div>
   );
 }
@@ -1325,12 +1437,21 @@ function App() {
   const handleTemplate = (key) => {
     const tmpl = EMAIL_TEMPLATES[key];
     if (!tmpl) return;
+    // Clicking the tab you're already on used to wipe the draft and, now
+    // that templates reset the Kit link, would orphan a scheduled
+    // broadcast as well. Nothing to do when the template hasn't changed.
+    if (key === templateKey) return;
     setTemplateKey(key);
     setContent(tmpl.apply());
+    // A different email template is a different email. Break the link to
+    // whatever broadcast the previous draft was pushed to, so the next
+    // push creates a new one instead of overwriting the last send.
+    if (typeof window.resetKitDraftId === 'function') window.resetKitDraftId();
   };
 
   const [editorOpen, setEditorOpen] = React.useState(false);
   const [exportOpen, setExportOpen] = React.useState(false);
+  const [kitPushOpen, setKitPushOpen] = React.useState(false);
 
   const isMember = tweaks.version === 'paid';
 
@@ -1360,6 +1481,7 @@ function App() {
         onPreview={(p) => setTweak('preview', p)}
         onEditContent={() => setEditorOpen(true)}
         onExport={() => setExportOpen(true)}
+        onPushKit={window.KitPushModal ? () => setKitPushOpen(true) : null}
         onTemplate={handleTemplate}
         onSave={handleSave}
         onRestore={handleRestore}
@@ -1485,6 +1607,22 @@ function App() {
         divider={tweaks.divider}
         content={content}
       />
+
+      {/* kit-push.js loads before app.js and registers the panel on window.
+          Guarded anyway so a missing script degrades to "no Send to Kit"
+          rather than a blank tool. */}
+      {window.KitPushModal ? (
+        <window.KitPushModal
+          open={kitPushOpen}
+          onClose={() => setKitPushOpen(false)}
+          isMember={isMember}
+          accent={tweaks.accent}
+          density={tweaks.density}
+          divider={tweaks.divider}
+          content={content}
+          templateKey={templateKey}
+        />
+      ) : null}
     </div>
   );
 }
