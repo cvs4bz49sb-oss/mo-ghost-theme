@@ -7,9 +7,10 @@
  * / scripture / reference indexes, all served with CORS *.
  *
  * They do NOT share field names. TFR works carry {slug,title,author,
- * tradition,n_pages}; EEBO carries {i,t,a,y,p}; PanGrammata carries
- * {id,n,L,g,ws}. Rather than teach every surface about every shape,
- * each corpus declares an adapter here that normalizes to one record:
+ * tradition,n_pages}; EEBO carries {i,t,a,y,p}; PLD and PO key their
+ * docs by id in an object rather than listing them. Rather than teach
+ * every surface about every shape, each corpus declares an adapter
+ * here that normalizes to one record:
  *
  *   { corpus, id, title, author, eyebrow, extent, url }
  *
@@ -20,14 +21,19 @@
  * Scale, measured live 2026-07-27:
  *   EEBO ................ 15,569 works ·  5,725 authors · 1455–1710
  *   Patrologia Latina ...  8,967 works ·  2,025 authors · 41 loci
- *   PanGrammata .........  7,582 works ·  1,681 authors
  *   Patrologia Graeca ...  2,976 works ·    494 authors · 161 vols
  *   The Latin Library ...  1,195 works ·    272 authors · 785,437 pp
  *   Patrologia Orientalis    400 works ·    121 authors
  *   TFR confessions .....    260 documents
  *   Aquinas + Augustine .    274 works ·      2 authors
  *
- * 37,223 works in all.
+ * 29,641 works in all.
+ *
+ * PanGrammata (7,582 works) was pulled 2026-07-28. It was a Greek and
+ * Latin CLASSICAL corpus — Plutarch, Galen, Cicero and Demosthenes
+ * alongside Chrysostom and Ephraem — and it carried no translations
+ * at all. It sat outside what The Faith Received is for. The adapter
+ * is in git history if it is ever wanted back.
  *
  * EEBO's catalogue is 53,831; the other 38,262 are newsbooks,
  * proclamations, ballads and almanacs, and are filtered out before
@@ -407,105 +413,6 @@
       }),
     },
     {
-      id: "pangrammata",
-      label: "PanGrammata",
-      short: "The Greek & Latin classical corpus",
-      base: "https://pangrammata.vercel.app",
-      catalogue: "/authors_index.json",
-      // Authors carry their works inline as ws:[[id,title,titleEn]].
-      pick(d) {
-        const out = [];
-        (Array.isArray(d) ? d : []).forEach((a) => {
-          (a.ws || []).forEach((w) => {
-            out.push({ author: a, wid: w[0], wtitle: w[1], wtitleEn: w[2] });
-          });
-        });
-        return out;
-      },
-      // ONE lane. This corpus has no translations: every work ships
-      // empty <div class="blk-tr"> containers — scaffolding for a
-      // translation layer that does not exist yet. Checked four works
-      // spanning Plutarch, Athanasius, Chrysostom and Ephraem: 305
-      // parallel rows between them, zero with any translation text.
-      // 1,823 Greek authors to 234 Latin, so the text is Greek unless
-      // the markup says otherwise.
-      lanes: [{ id: "en", label: "Original" }],
-      reader: "html-extract",
-      readable: true,
-      // /w/<id>, no extension — read/<id>.html 404s and other paths
-      // 308-redirect.
-      textPath: (id) => `/w/${id}`,
-
-      extract(doc) {
-        const txt = (el) => (el ? el.textContent.trim() : "");
-        const rowsIn = (root) => {
-          const out = [];
-          root.querySelectorAll(".prow").forEach((p) => {
-            const src = p.querySelector(".tx");
-            const tr = p.querySelector(".blk-tr");
-            if (!src) return;
-            const original = src.innerHTML;
-            if (!original.trim()) return;
-            out.push({
-              kind: "body",
-              cite: src.getAttribute("data-cite") || "",
-              // Original goes in the primary column. With one lane
-              // declared the reader hides the second entirely; if
-              // translations ever land they drop straight into it.
-              en: original,
-              la: tr ? tr.innerHTML : "",
-            });
-          });
-          return out;
-        };
-
-        const sections = [];
-        doc.querySelectorAll("section.division").forEach((d) => {
-          sections.push({
-            title: txt(d.querySelector(".div-head")) || "Text",
-            subtitle: "",
-            rows: rowsIn(d),
-            children: [],
-          });
-        });
-
-        // Rows before the first division (title lines, incipits).
-        const claimed = new Set();
-        doc.querySelectorAll("section.division .prow").forEach((p) => claimed.add(p));
-        const loose = [];
-        doc.querySelectorAll(".prow").forEach((p) => {
-          if (claimed.has(p)) return;
-          const src = p.querySelector(".tx");
-          if (!src || !src.innerHTML.trim()) return;
-          loose.push({
-            kind: "body",
-            cite: src.getAttribute("data-cite") || "",
-            en: src.innerHTML,
-            la: "",
-          });
-        });
-        if (loose.length) {
-          sections.unshift({ title: "Incipit", subtitle: "", rows: loose, children: [] });
-        }
-
-        return {
-          title: txt(doc.querySelector("h1")) || txt(doc.querySelector(".wt")),
-          work: txt(doc.querySelector(".na")),
-          sections: sections.filter((s) => s.rows.length),
-        };
-      },
-      tradition: () => "Classical",
-      normalize: (r) => ({
-        corpus: "pangrammata",
-        id: r.wid,
-        title: r.wtitleEn || r.wtitle || r.wid,
-        author: (r.author.en || r.author.n || "").trim(),
-        eyebrow: [r.author.L, r.author.e].filter(Boolean).join(" · "),
-        extent: 0,
-        url: `/the-faith-received/reader/?c=pangrammata&w=${encodeURIComponent(r.wid)}`,
-      }),
-    },
-    {
       id: "aquinas",
       label: "Thomas Aquinas",
       short: "The Summa, the commentaries, the opuscula",
@@ -781,8 +688,8 @@
   // `readable: false` now means one thing only: Patrologia Latina,
   // which returns 401 on everything but /data/. Every other
   // collection reads — the server-rendered pages turned out to be
-  // clean enough to parse (`html-extract`), which is why PG, PO,
-  // PanGrammata and Aquinas no longer wait on the author for per-work
+  // clean enough to parse (`html-extract`), which is why PG, PO and
+  // Aquinas no longer wait on the author for per-work
   // JSON. PLD's catalogue, topics and 236,351 reference keys are all
   // reachable; only the text is gated.
 

@@ -4,7 +4,7 @@
  *
  * The collections ship partial indexes at best: Early English Books
  * covers 31.4% of its own works, the Latin Library 28.9% of its own,
- * and Aquinas, Augustine, PanGrammata, Patrologia Graeca/Orientalis/
+ * and Aquinas, Augustine, Patrologia Graeca/Orientalis/
  * Latina have none at all. This walks the actual text and extracts
  * every citation it can recognise.
  *

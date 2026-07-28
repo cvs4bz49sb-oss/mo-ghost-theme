@@ -722,8 +722,8 @@
 
   // Collections with no index of their own. Named on the page so their
   // absence reads as "not yet indexed" rather than "nothing to find".
-  ["eebo", "aquinas", "augustine", "pangrammata", "pg"].forEach((id) => COVERAGE.missing.topics.push(id));
-  ["aquinas", "augustine", "pangrammata", "pg", "po", "pld"].forEach((id) => COVERAGE.missing.scripture.push(id));
+  ["eebo", "aquinas", "augustine", "pg"].forEach((id) => COVERAGE.missing.topics.push(id));
+  ["aquinas", "augustine", "pg", "po", "pld"].forEach((id) => COVERAGE.missing.scripture.push(id));
 
   // A generated index, built by scripts/build-scripture-index.mjs by
   // walking the actual text, supersedes the partial indexes the source

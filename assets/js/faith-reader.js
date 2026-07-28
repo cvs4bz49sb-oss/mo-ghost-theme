@@ -204,8 +204,8 @@
 
   // ── Sites that publish text only as rendered pages ────────────
   //
-  // Aquinas (and, to follow, Patrologia Graeca / Orientalis and
-  // PanGrammata) ship no per-work JSON, but their reader pages are
+  // Aquinas and Patrologia Graeca / Orientalis ship no per-work
+  // JSON, but their reader pages are
   // cleanly structured — the source already nests <details> per
   // question and article with bilingual summaries. The corpus adapter
   // turns a parsed document into sections; this renders them.
