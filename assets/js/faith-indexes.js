@@ -654,6 +654,28 @@
       : "";
   }
 
+  // The citation resolver hands us a parsed reference; open the book
+  // and chapter it names and scroll to it.
+  window.addEventListener("faith:goto-scripture", (e) => {
+    const d = e.detail || {};
+    if (!d.book) return;
+    testament = (scripture.has(d.book) && NT.indexOf(d.book) >= 0) ? "nt" : "ot";
+    renderScripture();
+    window.requestAnimationFrame(() => {
+      const host = scriptureHost();
+      if (!host) return;
+      const book = [...host.querySelectorAll(".faith-scripture-book-details")]
+        .find((b) => b.querySelector(".faith-scripture-book-name")?.textContent.trim() === d.book);
+      if (!book) return;
+      book.open = true;
+      const ch = [...book.querySelectorAll(".faith-scripture-chapter-details")]
+        .find((c) => c.querySelector(".faith-scripture-chapter-name")?.textContent.trim() === `${d.book} ${d.chapter}`);
+      if (!ch) { book.scrollIntoView({ block: "start" }); return; }
+      ch.open = true;
+      ch.scrollIntoView({ block: "start" });
+    });
+  });
+
   // ── Events ────────────────────────────────────────────────────
 
   document.addEventListener("click", (e) => {

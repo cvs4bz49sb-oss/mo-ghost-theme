@@ -37,7 +37,7 @@
 
   {{> "faith-received/_nav"}}
   <section class="faith-feature-body">
-    <div class="container container-narrow">
+    <div class="container container-narrow" data-faith-search-page>
       <p class="faith-search-status" data-faith-search-status role="status" aria-live="polite">Type a word or phrase to search the library.</p>
       <ol class="faith-search-results" data-faith-search-results></ol>
 
@@ -58,5 +58,10 @@
         integrity="sha384-PCSoOZTpbkikBEtd/+uV3WNdc676i9KUf01KOA8CnJotvlx8rRrETbDuwdjqTYvt"
         crossorigin="anonymous"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
+
+{{!-- Citation resolver — a reader arriving at search often already
+     holds a reference ("PL 176, 17c") rather than a phrase. --}}
+<script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/faith-resolve.js"}}"></script>
 
 <script src="{{asset "js/faith-gate.js"}}"></script>
