@@ -515,7 +515,8 @@
       img.className = "faith-facs-img";
       img.alt = "Page scan";
       img.decoding = "async";
-      img.loading = "lazy";
+      // Not lazy: this is the one image the pane exists to show, and
+      // it is only ever created once the reader has asked for it.
       stage.appendChild(img);
       facs.img = img;
     } else {
