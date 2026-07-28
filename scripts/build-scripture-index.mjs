@@ -4,13 +4,13 @@
  *
  * The collections ship partial indexes at best: Early English Books
  * covers 31.4% of its own works, the Latin Library 28.9% of its own,
- * and Aquinas, Augustine, Patrologia Graeca/Orientalis/
+ * and Augustine, Patrologia Graeca/Orientalis/
  * Latina have none at all. This walks the actual text and extracts
  * every citation it can recognise.
  *
  *   node scripts/build-scripture-index.mjs --corpus eebo [--limit N]
  *   node scripts/build-scripture-index.mjs --corpus tfr
- *   node scripts/build-scripture-index.mjs --corpus aquinas
+ *   node scripts/build-scripture-index.mjs --corpus augustine
  *
  * Output: data/scripture/<corpus>.json, gitignored — it is far too
  * large for the theme zip and belongs on the CDN. Merge and upload
@@ -413,11 +413,8 @@ async function aquinasStudiesText(id) {
 const CORPORA = {
   eebo: { works: eeboWorks, text: eeboText, concurrency: 12 },
   tfr: { works: tfrWorks, text: tfrText, concurrency: 4 },
-  aquinas: {
-    works: (l) => aquinasStudiesWorks(l, false),
-    text: aquinasStudiesText,
-    concurrency: 3,
-  },
+  // Aquinas was pulled from the library 2026-07-28; only the Augustine
+  // half of this catalogue is still indexed.
   augustine: {
     works: (l) => aquinasStudiesWorks(l, true),
     text: aquinasStudiesText,

@@ -46,7 +46,10 @@
   };
   const authorOf = () => {
     const a = document.querySelector("[data-fr-dek]");
-    return a ? a.textContent.trim() : "";
+    // The dek is a whole descriptive line — "Anonymous · Tome 2 ·
+    // Fasc. 4 · PO 009 · pp. 421–526 · Xe siècle". Only the first
+    // segment belongs in front of a title in a citation.
+    return a ? a.textContent.trim().split("·")[0].trim() : "";
   };
 
   // ── Storage ───────────────────────────────────────────────────

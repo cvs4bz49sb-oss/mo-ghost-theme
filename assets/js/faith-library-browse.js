@@ -35,7 +35,7 @@
 
   // Collections that make up the Library tab, in reading order.
   // Confessions are excluded — they belong to Documents.
-  const LIBRARY_IDS = ["tfr", "eebo", "pld", "po", "aquinas", "augustine", "pg"];
+  const LIBRARY_IDS = ["tfr", "eebo", "pld", "po", "augustine", "pg"];
 
   // Curated English works ship server-rendered in the Library grid.
   // Harvest them before anything clears it; they become their own

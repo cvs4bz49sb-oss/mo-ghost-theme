@@ -235,8 +235,8 @@
   // ── Render helpers ────────────────────────────────────────────
 
   // `loc` is where the citation sits: a section index for the
-  // collections whose readers count sections (EEBO, Aquinas,
-  // Augustine), a page number for the Latin Library, whose sections
+  // collections whose readers count sections (EEBO, Augustine),
+  // a page number for the Latin Library, whose sections
   // are page ranges. The reader resolves ?p= to the section holding
   // that page, so both land on the passage rather than the front page.
   function readerUrl(corpus, id, loc) {
@@ -722,8 +722,8 @@
 
   // Collections with no index of their own. Named on the page so their
   // absence reads as "not yet indexed" rather than "nothing to find".
-  ["eebo", "aquinas", "augustine", "pg"].forEach((id) => COVERAGE.missing.topics.push(id));
-  ["aquinas", "augustine", "pg", "po", "pld"].forEach((id) => COVERAGE.missing.scripture.push(id));
+  ["eebo", "augustine", "pg"].forEach((id) => COVERAGE.missing.topics.push(id));
+  ["augustine", "pg", "po", "pld"].forEach((id) => COVERAGE.missing.scripture.push(id));
 
   // A generated index, built by scripts/build-scripture-index.mjs by
   // walking the actual text, supersedes the partial indexes the source
@@ -772,7 +772,7 @@
         return r.json();
       })
       .then((rows) => Promise.all(
-        ["tfr", "eebo", "aquinas", "augustine", "confessions"].map((id) =>
+        ["tfr", "eebo", "augustine", "confessions"].map((id) =>
           window.MOCorpora.load(id).then((list) => [id, new Map(list.map((w) => [String(w.id), w]))]).catch(() => [id, new Map()])
         )
       ).then((pairs) => {

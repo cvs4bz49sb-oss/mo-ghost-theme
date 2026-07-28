@@ -208,7 +208,7 @@
 
   // ── Sites that publish text only as rendered pages ────────────
   //
-  // Aquinas and Patrologia Graeca / Orientalis ship no per-work
+  // Augustine and Patrologia Graeca / Orientalis ship no per-work
   // JSON, but their reader pages are
   // cleanly structured — the source already nests <details> per
   // question and article with bilingual summaries. The corpus adapter
@@ -778,7 +778,7 @@
       // records the node's own id from the source. Carry both: the
       // positional id for the rail, the source id as an alias so a
       // citation's anchor resolves. Counting in two places is what
-      // put every Aquinas link a section early.
+      // put every link a section early.
       details.id = `section-${counter}`;
       if (node.id) {
         const alias = String(node.id).trim().replace(/\s+/g, "-");

@@ -34,7 +34,6 @@
     pld: "https://pld-patrologia-latina.vercel.app/data/refindex.json",
     pg: "https://patrologia-graeca.vercel.app/data/refindex.json",
     po: "https://patrologia-orientalis.vercel.app/data/refindex.json",
-    aquinas: "https://aquinas-studies.vercel.app/data/refindex.json",
   };
   const loaded = new Map();
 
@@ -122,28 +121,6 @@
       };
     }
 
-    // Aquinas: "ST I q1 a1", "ST I-II q3 a2", "Sent I d1 q1 a1", "SCG 3".
-    m = q.match(/^(ST|SCG|Sent)\.?\s*([IVX]+(?:-[IVX]+)?)?\.?\s*(.*)$/i);
-    if (m && m[1]) {
-      const head = m[1].toUpperCase();
-      const part = (m[2] || "").toUpperCase();
-      const rest = m[3] || "";
-      const d = (rest.match(/\bd\.?\s*(\d+)/i) || [])[1];
-      const qn = (rest.match(/\bq\.?\s*(\d+)/i) || [])[1];
-      const a = (rest.match(/\ba\.?\s*(\d+)/i) || [])[1];
-      const parts = [head === "SENT" ? "Sent" : head];
-      if (part) parts.push(part);
-      if (d) parts.push(`D${d}`);
-      if (qn) parts.push(`Q${qn}`);
-      if (a) parts.push(`A${a}`);
-      return {
-        kind: "aquinas",
-        corpus: "aquinas",
-        key: parts.join("."),
-        label: q,
-      };
-    }
-
     // Scripture: "Rom 9:16", "Romans 9", "Rom. ix. 16", "1 Cor 3".
     m = q.match(/^(?:(1|2|3|i{1,3}|iv|first|second|third|fourth)\s+)?([a-z][a-z\s]{1,22}?)\.?\s*(\d{1,3}|[ivxlc]{1,7})(?:\s*[:.]\s*(\d{1,3}))?$/i);
     if (m) {
@@ -226,7 +203,7 @@
       `<label class="faith-resolve-label" for="faith-resolve-input">Go to a citation</label>` +
       `<div class="faith-resolve-row">` +
       `<input id="faith-resolve-input" class="faith-resolve-input" type="search" autocomplete="off" ` +
-      `placeholder="Rom 9:16 · PL 176, 17c · ST I q1 a1">` +
+      `placeholder="Rom 9:16 · PL 176, 17c · PG 78, 1709">` +
       `<button type="submit" class="faith-resolve-go">Go</button>` +
       `</div>` +
       `<p class="faith-resolve-status" data-faith-resolve-status></p>`;
@@ -239,7 +216,7 @@
       e.preventDefault();
       const parsed = parse(input.value);
       if (!parsed) {
-        status.textContent = "Not a citation I recognise. Try Rom 9:16, PL 176, 17c, or ST I q1 a1.";
+        status.textContent = "Not a citation I recognise. Try Rom 9:16, PL 176, 17c, or PG 78, 1709.";
         status.className = "faith-resolve-status is-error";
         return;
       }
