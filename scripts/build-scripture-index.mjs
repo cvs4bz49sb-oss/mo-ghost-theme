@@ -530,7 +530,12 @@ async function run() {
       } catch { failed += 1; }
       done.add(id);
       scanned += 1;
-      if (scanned % 250 === 0) {
+      // Checkpointing serialises the entire index. At EEBO scale that
+      // is a ~400 MB string built from a ~400 MB object, and doing it
+      // every 250 works killed the process outright partway through.
+      // Rarer checkpoints, and the resume file means a crash costs at
+      // most this many works.
+      if (scanned % 2500 === 0) {
         const rate = scanned / ((Date.now() - t0) / 1000);
         console.log(`  ${scanned}/${ids.length}  ${refs.toLocaleString()} refs  ${rate.toFixed(1)}/s  ${failed} failed`);
         await save();

@@ -73,6 +73,10 @@
   let meta = null;
   let currentLang = restoreLang();
 
+  // Sequential section ids, so anchors stay unique when two headings
+  // share a page.
+  let sectionSeq = 0;
+
   // Page store, filled lazily. Keyed by page number so repeated shard
   // loads are idempotent and sections can look up their own range.
   const pageStore = new Map();
@@ -650,90 +654,77 @@
 
   // ── Build TOC ─────────────────────────────────────────────────
 
-  function buildToc(structure) {
-    if (!tocNav || !structure.length) {
-      if (tocNav) {
-        const loadNote = tocNav.querySelector(".faith-toc-loading");
-        if (loadNote) loadNote.textContent = "No contents available.";
-      }
-      return;
-    }
+  // ── Outline ───────────────────────────────────────────────────
+  //
+  // Works nest arbitrarily deep. Walenburg's Controversies runs
+  // Treatise > Book > Chapter — three levels — and an earlier version
+  // grouped only two: everything below the top became a flat run of
+  // children, so one "book" claimed 473 chapters and the rest showed
+  // "0 chapters" with the hierarchy gone. 36 of a 60-work sample nest
+  // three deep or more, so this was most of the Latin corpus.
 
-    // Remove the loading note.
-    const loadNote = tocNav.querySelector(".faith-toc-loading");
-    if (loadNote) loadNote.remove();
-
-    // Group entries by top-level (depth 0/1) book-like items and
-    // nested chapter-like items (depth > first entry's depth).
-    const minDepth = structure[0].depth || 0;
-    const groups = [];
-    let currentGroup = null;
-
-    structure.forEach((entry) => {
-      const depth = entry.depth != null ? entry.depth : 0;
-      if (depth <= minDepth) {
-        // Top-level item: start a new group.
-        currentGroup = { entry, children: [] };
-        groups.push(currentGroup);
-      } else if (currentGroup) {
-        currentGroup.children.push(entry);
-      } else {
-        // No parent yet; treat as top-level.
-        currentGroup = { entry, children: [] };
-        groups.push(currentGroup);
-      }
+  function buildTree(structure, endPage) {
+    const root = { children: [] };
+    const stack = [{ node: root, depth: -Infinity }];
+    structure.forEach((e) => {
+      const depth = e.depth == null ? 0 : e.depth;
+      while (stack.length > 1 && stack[stack.length - 1].depth >= depth) stack.pop();
+      const node = { title: e.title || "Untitled", page: e.page, children: [] };
+      stack[stack.length - 1].node.children.push(node);
+      stack.push({ node, depth });
     });
 
-    // If everything is at the same depth, render a flat list.
-    const allSameDepth = groups.every((g) => { return g.children.length === 0; });
+    // A node runs from its own page to whatever starts next in reading
+    // order, wherever that sits in the tree.
+    const flat = [];
+    (function walk(n) {
+      (n.children || []).forEach((c) => { flat.push(c); walk(c); });
+    })(root);
+    flat.forEach((n, i) => {
+      n.from = n.page;
+      n.to = Math.max(i + 1 < flat.length ? flat[i + 1].page : endPage, n.page + 1);
+    });
+    return root.children;
+  }
 
-    if (allSameDepth) {
+  function countLeaves(node) {
+    if (!node.children.length) return 1;
+    return node.children.reduce((a, c) => a + countLeaves(c), 0);
+  }
+
+  function buildToc(structure) {
+    if (!tocNav) return;
+    const loadNote = tocNav.querySelector(".faith-toc-loading");
+    if (!structure.length) {
+      if (loadNote) loadNote.textContent = "No contents available.";
+      return;
+    }
+    if (loadNote) loadNote.remove();
+    const tree = buildTree(structure, lastPage());
+    let n = 0;
+
+    function renderBranch(nodes, into, depth) {
       const ol = document.createElement("ol");
       ol.className = "faith-toc-list faith-toc-book-list";
-      groups.forEach((g, i) => {
+      nodes.forEach((node) => {
+        n += 1;
         const li = document.createElement("li");
         li.className = "faith-toc-item";
+        if (depth) li.style.paddingLeft = `${Math.min(depth, 3) * 12}px`;
+        const leaves = countLeaves(node);
         li.innerHTML =
-          `<a href="#section-${g.entry.page}">` +
-          `<span class="faith-toc-num">${toRoman(i + 1)}</span>` +
-          `<span class="faith-toc-label">${escapeHtml(g.entry.title)}</span>` +
-          `</a>`;
+          `<a href="#section-${n}"><span class="faith-toc-label">${escapeHtml(node.title)}</span>${ 
+          node.children.length
+            ? `<span class="faith-toc-book-count">${leaves}</span>`
+            : "" 
+          }</a>`;
         ol.appendChild(li);
+        if (node.children.length) renderBranch(node.children, ol, depth + 1);
       });
-      tocNav.appendChild(ol);
-    } else {
-      // Grouped: details/summary for each book, ol for chapters.
-      groups.forEach((g) => {
-        const details = document.createElement("details");
-        details.className = "faith-toc-book-details";
-
-        const summary = document.createElement("summary");
-        summary.className = "faith-toc-book-summary";
-        summary.innerHTML =
-          `<span class="faith-toc-book-label">${escapeHtml(g.entry.title)}</span>` +
-          `<span class="faith-toc-book-count">${g.children.length} ch${g.children.length === 1 ? "" : "s"}</span>` +
-          `<span class="faith-chev" aria-hidden="true"></span>`;
-        details.appendChild(summary);
-
-        if (g.children.length) {
-          const ol = document.createElement("ol");
-          ol.className = "faith-toc-list faith-toc-book-list";
-          g.children.forEach((ch, ci) => {
-            const li = document.createElement("li");
-            li.className = "faith-toc-item";
-            li.innerHTML =
-              `<a href="#section-${ch.page}">` +
-              `<span class="faith-toc-num">${toRoman(ci + 1)}</span>` +
-              `<span class="faith-toc-label">${escapeHtml(ch.title)}</span>` +
-              `</a>`;
-            ol.appendChild(li);
-          });
-          details.appendChild(ol);
-        }
-
-        tocNav.appendChild(details);
-      });
+      into.appendChild(ol);
     }
+
+    renderBranch(tree, tocNav, 0);
   }
 
   // ── Render content ────────────────────────────────────────────
@@ -741,6 +732,7 @@
   function renderContent(m) {
     if (!contentEl) return;
     contentEl.innerHTML = "";
+    sectionSeq = 0;
 
     const structure = m.structure || [];
     if (!structure.length) {
@@ -749,123 +741,68 @@
       // into shard-sized spans so each opens independently.
       shardList(m).forEach((s) => {
         const to = s.to === Infinity ? (m.n_pages || 0) : s.to;
-        const section = createSection(`Pages ${s.from}–${to}`, s.from, s.from, to + 1);
-        contentEl.appendChild(section);
+        sectionSeq += 1;
+        contentEl.appendChild(createSection(`Pages ${s.from}–${to}`, sectionSeq, s.from, to + 1));
       });
       return;
     }
 
-    // Determine grouping. Top-level entries are "books"; children are
-    // "chapters". Same logic as TOC.
-    const minDepth = structure[0].depth || 0;
-    const groups = [];
-    let currentGroup = null;
-
-    structure.forEach((entry) => {
-      const depth = entry.depth != null ? entry.depth : 0;
-      if (depth <= minDepth) {
-        currentGroup = { entry, children: [] };
-        groups.push(currentGroup);
-      } else if (currentGroup) {
-        currentGroup.children.push(entry);
-      } else {
-        currentGroup = { entry, children: [] };
-        groups.push(currentGroup);
-      }
-    });
-
-    const allFlat = groups.every((g) => { return g.children.length === 0; });
-
-    // Outlines usually start a few pages in — the title page,
-    // dedication and preface sit before the first entry and would
-    // otherwise be unreachable. Give them their own opening section.
-    const firstPage = groups.length ? groups[0].entry.page : 1;
+    const tree = buildTree(structure, lastPage());
+    // Anything before the first heading — title page, dedication —
+    // belongs to the work and would otherwise be unreachable.
+    const firstPage = tree.length ? tree[0].page : 1;
     if (firstPage > 1) {
-      contentEl.appendChild(
-        createSection("Front matter", 1, 1, firstPage)
-      );
+      sectionSeq += 1;
+      contentEl.appendChild(createSection("Front matter", sectionSeq, 1, firstPage));
     }
-
-    if (allFlat) {
-      // Flat: each structure entry is a section.
-      groups.forEach((g, i) => {
-        const startPage = g.entry.page;
-        const endPage = (i + 1 < groups.length) ? groups[i + 1].entry.page : lastPage();
-        const section = createSection(g.entry.title, startPage, startPage, endPage);
-        contentEl.appendChild(section);
-      });
-    } else {
-      // Nested: books > chapters.
-      groups.forEach((g, gi) => {
-        const bookEl = document.createElement("details");
-        bookEl.className = "faith-book faith-book-details faith-book-details--editorial";
-        bookEl.id = `book-${gi + 1}`;
-
-        const bookSummary = document.createElement("summary");
-        bookSummary.className = "faith-book-summary";
-        bookSummary.innerHTML =
-          `<div class="faith-book-summary-inner">` +
-          `<p class="eyebrow faith-part-eyebrow">${escapeHtml(g.entry.title)}</p>` +
-          `<p class="faith-book-subtitle">${g.children.length} chapter${g.children.length === 1 ? "" : "s"}</p>` +
-          `</div>` +
-          `<span class="faith-chev" aria-hidden="true"></span>`;
-        bookEl.appendChild(bookSummary);
-
-        const bookBody = document.createElement("div");
-        bookBody.className = "faith-book-body";
-
-        if (g.children.length) {
-          // A book often carries text of its own before its first
-          // chapter starts — a preface, or an untitled opening run.
-          // Without this the span [book.page, firstChild.page) is
-          // rendered nowhere; on the Acts of Trent that silently
-          // dropped pages 773–878.
-          if (g.children[0].page > g.entry.page) {
-            bookBody.appendChild(
-              createSection(g.entry.title, g.entry.page, g.entry.page, g.children[0].page)
-            );
-          }
-          g.children.forEach((ch, ci) => {
-            const startPage = ch.page;
-            // End page: next child, or next book, or end of work.
-            let endPage = lastPage();
-            if (ci + 1 < g.children.length) {
-              endPage = g.children[ci + 1].page;
-            } else if (gi + 1 < groups.length) {
-              endPage = groups[gi + 1].entry.page;
-            }
-            const section = createSection(ch.title, ch.page, startPage, endPage);
-            bookBody.appendChild(section);
-          });
-        } else {
-          // Book with no children: render the book's own pages.
-          const bookStart = g.entry.page;
-          const bookEnd = (gi + 1 < groups.length) ? groups[gi + 1].entry.page : lastPage();
-          const section = createSection(g.entry.title, g.entry.page, bookStart, bookEnd);
-          bookBody.appendChild(section);
-        }
-
-        bookEl.appendChild(bookBody);
-        contentEl.appendChild(bookEl);
-      });
-    }
+    tree.forEach((node) => contentEl.appendChild(renderNode(node)));
   }
 
-  // Upper bound for the final section. Deliberately open-ended rather
-  // than meta.n_pages + 1: that field is occasionally short by a page
-  // or two (Magdeburg Centuriae 1b reports 343 and has text on 344),
-  // and a tight bound silently drops the tail. Costs nothing extra —
-  // shardsFor only returns shards at or after the section's start.
+  function renderNode(node) {
+    sectionSeq += 1;
+    const seq = sectionSeq;
+
+    if (!node.children.length) {
+      return createSection(node.title, seq, node.from, node.to);
+    }
+
+    const book = document.createElement("details");
+    book.className = "faith-book faith-book-details faith-book-details--editorial";
+    book.id = `section-${seq}`;
+    const leaves = countLeaves(node);
+    const summary = document.createElement("summary");
+    summary.className = "faith-book-summary";
+    summary.innerHTML =
+      `<div class="faith-book-summary-inner">` +
+      `<p class="eyebrow faith-part-eyebrow">${escapeHtml(node.title)}</p>` +
+      `<p class="faith-book-subtitle">${leaves} section${leaves === 1 ? "" : "s"}</p>` +
+      `</div><span class="faith-chev" aria-hidden="true"></span>`;
+    book.appendChild(summary);
+
+    const body = document.createElement("div");
+    body.className = "faith-book-body";
+    // A book often carries text of its own before its first child
+    // starts — a preface, or an untitled opening run.
+    if (node.children[0].page > node.from) {
+      sectionSeq += 1;
+      body.appendChild(createSection(node.title, sectionSeq, node.from, node.children[0].page));
+    }
+    node.children.forEach((c) => body.appendChild(renderNode(c)));
+    book.appendChild(body);
+    return book;
+  }
+
+
   function lastPage() {
     return Number.MAX_SAFE_INTEGER;
   }
 
   // Builds the collapsed shell only. The text arrives on first open,
   // via hydrateSection.
-  function createSection(title, page, fromPage, toPage) {
+  function createSection(title, seq, fromPage, toPage) {
     const details = document.createElement("details");
     details.className = "faith-section-details faith-book-chapter";
-    details.id = `section-${page}`;
+    details.id = `section-${seq}`;
     details.setAttribute("data-from", fromPage);
     // Ranges are half-open. Consecutive outline entries frequently
     // share a start page (two chapters opening on p. 8), which yields
