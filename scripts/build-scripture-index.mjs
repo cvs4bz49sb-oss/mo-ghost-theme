@@ -542,11 +542,19 @@ async function run() {
   // file if the process dies mid-flush, and a 360 MB index takes long
   // enough to flush that this is not hypothetical — it cost a full
   // 53,831-work re-run. rename() is atomic on the same filesystem.
-  async function save() {
-    await writeFile(`${outPath}.tmp`, JSON.stringify(index));
-    await rename(`${outPath}.tmp`, outPath);
-    await writeFile(`${donePath}.tmp`, JSON.stringify([...done]));
-    await rename(`${donePath}.tmp`, donePath);
+  //
+  // Serialized: twelve workers call this concurrently, and sharing one
+  // temp filename meant one worker renamed the file out from under
+  // another mid-write, throwing ENOENT and killing the run.
+  let saving = Promise.resolve();
+  function save() {
+    saving = saving.then(async () => {
+      await writeFile(`${outPath}.tmp`, JSON.stringify(index));
+      await rename(`${outPath}.tmp`, outPath);
+      await writeFile(`${donePath}.tmp`, JSON.stringify([...done]));
+      await rename(`${donePath}.tmp`, donePath);
+    }).catch(() => {});
+    return saving;
   }
 
   const queue = ids.slice();

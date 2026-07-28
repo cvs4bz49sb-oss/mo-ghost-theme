@@ -1,0 +1,48 @@
+{{!-- The Faith Received front door.
+
+     The reading room holds 75,485 works. Leading with that number is a
+     boast to a scholar and a locked door to everyone else, so this
+     section leads with something that asks nothing of the visitor at
+     all — a catechism question for the day — then a shelf of a dozen
+     works chosen by hand.
+
+     The scale lives further down and in the rail above. Nothing is
+     hidden; it is only ordered by how much the reader has to bring
+     with them. Populated by assets/js/faith-start.js. --}}
+
+<section class="faith-start-today" aria-labelledby="faith-today-heading">
+  <div class="container container-narrow">
+    <p class="eyebrow faith-start-eyebrow" id="faith-today-heading">Today</p>
+    <div class="faith-today-question" data-faith-daily>
+      <p class="faith-today-loading">Loading today&rsquo;s question&hellip;</p>
+    </div>
+  </div>
+</section>
+
+<section class="faith-start-shelf" aria-labelledby="faith-shelf-heading">
+  <div class="container">
+    <div class="faith-start-head">
+      <p class="eyebrow faith-start-eyebrow" id="faith-shelf-heading">Start here</p>
+      <p class="faith-start-lede">
+        Twelve works to begin with &mdash; the creeds the whole church
+        confesses, the catechisms that taught it, and a handful of
+        classics worth a lifetime.
+      </p>
+    </div>
+    <div class="faith-card-grid" data-faith-shelf></div>
+  </div>
+</section>
+
+<section class="faith-start-more">
+  <div class="container">
+    <p class="faith-start-more-lede">
+      Beyond these lies the whole reading room &mdash; the Latin
+      divinity of the schools and the Reformation, the Greek and
+      Eastern fathers, and every book printed in English before 1700.
+    </p>
+    <p class="faith-start-more-links">
+      <a href="/the-faith-received/#library">Browse the library</a>
+      <a href="/the-faith-received/search/">Search everything</a>
+    </p>
+  </div>
+</section>

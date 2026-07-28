@@ -13605,6 +13605,117 @@ body.mo-search-open { overflow: hidden; }
 }
 .faith-pending-actions a:hover { color: var(--color-dark); text-decoration: none; }
 
+/* ── The Faith Received front door ────────────────────────────────
+   Ordered by how much the reader has to bring: a catechism question
+   that asks nothing, then a shelf someone chose, then the scale. The
+   counts that used to open this page now live further down. */
+.faith-start-today {
+  padding: 64px 0 56px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.faith-start-eyebrow { margin: 0 0 18px; }
+.faith-today-source {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 14px;
+}
+.faith-today-q {
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 20px;
+  max-width: 26ch;
+}
+.faith-today-q em { font-style: italic; }
+.faith-today-a p {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0;
+}
+.faith-today-actions { margin: 26px 0 0; }
+.faith-today-actions a,
+.faith-start-more-links a {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.faith-today-actions a:hover,
+.faith-start-more-links a:hover { color: var(--color-dark); text-decoration: none; }
+.faith-today-loading {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.faith-start-shelf { padding: 56px 0 8px; }
+.faith-start-head {
+  max-width: 1180px;
+  margin: 0 auto 36px;
+}
+.faith-start-lede {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0;
+  max-width: 54ch;
+}
+
+/* The scale, deliberately last and quiet. */
+.faith-start-more {
+  padding: 48px 0 88px;
+  margin-top: 48px;
+  border-top: 1px solid var(--color-card-border);
+  position: relative;
+  text-align: center;
+}
+.faith-start-more::before {
+  content: "\2766";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--color-primary);
+  font-size: 15px;
+  line-height: 1;
+  background: var(--color-page);
+  padding: 0 12px;
+}
+.faith-start-more-lede {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0 auto 22px;
+  max-width: 52ch;
+}
+.faith-start-more-links a { margin: 0 14px; }
+
+@media (max-width: 600px) {
+  .faith-start-today { padding: 44px 0 40px; }
+  .faith-today-q { font-size: 26px; }
+  .faith-today-a p { font-size: 16px; }
+  .faith-start-head { padding: 0 20px; }
+  .faith-start-more { padding: 36px 20px 64px; }
+}
+
 /* ── Library browse chrome (Collection > Author > Works) ──────────
    Header above the grid at each level: back link, title, count, and
    at the author level a filter (EEBO alone has 14,032 authors). */

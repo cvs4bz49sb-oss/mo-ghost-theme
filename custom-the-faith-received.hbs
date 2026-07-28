@@ -24,7 +24,7 @@
           The Faith Received gathers the creeds, confessions, and classic works of the Christian tradition into a single reading room &mdash; designed to be publicly available, practically usable, and beautifully readable.
         </p>
         <div class="faith-coda-ctas">
-          <a href="#documents" class="btn btn-primary btn-lg">Begin reading</a>
+          <a href="#start" class="btn btn-primary btn-lg">Begin reading</a>
           <a href="/membership/" class="btn btn-ghost btn-lg">Support the work</a>
         </div>
       </div>
@@ -36,7 +36,11 @@
   {{!-- Body: just the cards grid for the active tab. Section labels
        come from the nav rail above; no per-section intro band. --}}
   <div class="faith-section-tabs" data-faith-section-tabs>
-    <section class="faith-section-band faith-band-documents" data-faith-section="documents">
+    <section class="faith-section-band faith-band-start" data-faith-section="start">
+      {{> "faith-received/_start-body"}}
+    </section>
+
+    <section class="faith-section-band faith-band-documents" data-faith-section="documents" hidden>
       <div class="container">
         {{> "faith-received/_cards-documents"}}
       </div>
@@ -94,6 +98,7 @@
 <script src="{{asset "js/faith-corpora.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
 <script src="{{asset "js/faith-devotional.js"}}"></script>
+<script src="{{asset "js/faith-start.js"}}"></script>
 <script src="{{asset "js/faith-library-browse.js"}}"></script>
 <script src="{{asset "js/faith-indexes.js"}}"></script>
 <script src="{{asset "js/page/faith-received-tabs.js"}}"></script>

@@ -33,7 +33,7 @@
 
   function fromHash() {
     const h = (window.location.hash || "").replace(/^#/, "");
-    const valid = ["documents", "library", "traditions", "topics", "scripture", "today", "devotional"];
+    const valid = ["start", "documents", "library", "traditions", "topics", "scripture", "today", "devotional"];
     if (valid.indexOf(h) >= 0) return h;
     // A ?collection= or ?author= link points into the Library browse.
     // Without this a shared browse position opens on Documents, with
@@ -42,7 +42,8 @@
       const q = new URLSearchParams(window.location.search);
       if (q.get("collection") || q.get("author")) return "library";
     } catch (_) {}
-    return "documents";
+    // The front door, not the filing cabinet.
+    return "start";
   }
 
   Array.prototype.forEach.call(navLinks, (a) => {
