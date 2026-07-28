@@ -239,6 +239,15 @@
         if (!data || !data.sections || !data.sections.length) {
           throw new Error("no readable sections");
         }
+        // The renderer is shared with html-extract, whose adapters
+        // always hand it a `children` array. A baked corpus has no
+        // nesting to express, so it omits the key — and the renderer
+        // reads .length off it before anything else. Normalize here
+        // rather than making every bake carry an empty array.
+        data.sections.forEach((s) => {
+          if (!Array.isArray(s.children)) s.children = [];
+          if (!Array.isArray(s.rows)) s.rows = [];
+        });
         meta = {
           title: data.title || slug,
           author: data.author || data.work || corpus.label,
