@@ -521,7 +521,16 @@
       counter += 1;
       const details = document.createElement("details");
       details.className = "faith-section-details faith-book-chapter";
+      // The contents rail links by position, but the scripture index
+      // records the node's own id from the source. Carry both: the
+      // positional id for the rail, the source id as an alias so a
+      // citation's anchor resolves. Counting in two places is what
+      // put every Aquinas link a section early.
       details.id = `section-${counter}`;
+      if (node.id) {
+        const alias = String(node.id).trim().replace(/\s+/g, "-");
+        if (alias && alias !== details.id) details.setAttribute("data-src-id", alias);
+      }
       details.dataset.frState = "loaded";
 
       const summary = document.createElement("summary");
@@ -899,6 +908,14 @@
   function revealSection(hash, scroll) {
     let target = null;
     try { target = hash && contentEl.querySelector(hash); } catch (_) {}
+    // Fall back to the source-id alias, which is how EEBO's sections
+    // are addressed by the scripture index.
+    if (!target && hash && hash.charAt(0) === "#") {
+      const raw = hash.slice(1);
+      try {
+        target = contentEl.querySelector(`[data-src-id="${CSS.escape(raw)}"]`);
+      } catch (_) {}
+    }
     if (!target) return false;
     let parent = target.parentElement;
     while (parent && parent !== contentEl) {
