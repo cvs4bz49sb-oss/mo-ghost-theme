@@ -286,11 +286,19 @@ ${preheader ? `<div style="display:none;font-size:1px;color:#fbf7ee;line-height:
       </td>
     </tr>
   </table>${target === 'kit' ? `
-  <!-- Kit requires {{ message_content }} in layout templates. We render it
-       as a zero-height hidden block since the full email content is already
-       baked into the layout above; this just satisfies the validator. If you
-       want broadcast-editor content to appear inside the email, move this
-       tag to wherever you'd like that content to render. -->
+  <!-- WARNING: a template built from this export SWALLOWS anything sent as a
+       broadcast's content. The finished email is baked into the layout above,
+       and Kit requires a {{ message_content }} tag in a layout template, so
+       it sits below in a zero-height div purely to satisfy the validator.
+       Anything Kit injects there renders invisibly.
+
+       This bit us on 2026-07-28: the account default template had been built
+       this way, so a broadcast pushed from the Email Builder rendered as the
+       template's own months-old content while the real 12 KB email sat hidden
+       in this div. It looked exactly like the wrong email had been sent.
+
+       If you are pushing from the Email Builder, do NOT use a template made
+       from this export. Use an empty one whose whole body is the tag. -->
   <div style="display:none;font-size:0;line-height:0;max-height:0;overflow:hidden;mso-hide:all;">{{ message_content }}</div>` : ''}
 </body>
 </html>`;

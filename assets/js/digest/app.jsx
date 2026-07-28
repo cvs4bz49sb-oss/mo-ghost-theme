@@ -1083,6 +1083,40 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         {justSaved ? 'Saved ✓' : 'Save'}
       </button>
 
+      {/* Sits next to Save because compose → save → push is the actual order
+          of work; History and Export are occasional. "Push", not "Send": it
+          opens a panel, it does not put an email in anyone's inbox, and that
+          distinction matters at 20k subscribers. Hidden entirely if
+          kit-push.js failed to load, so the button is never a no-op. */}
+      {!onPushKit ? null : (
+      <button
+        onClick={onPushKit}
+        title="Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now."
+        style={{
+          background: '#c1593c',
+          color: '#fff',
+          border: '1.5px solid #c1593c',
+          padding: '7px 18px',
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+          borderRadius: 10,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Push to Kit&hellip;
+      </button>
+      )}
+
       {savedAt ? (
         <div data-mo-topbar-saved style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9a8773', whiteSpace: 'nowrap' }}>
@@ -1108,8 +1142,8 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </div>
       ) : null}
 
-      {/* Separates the draft-management group (Save / Restore) from the
-          outbound group (History / Export / Push to Kit). */}
+      {/* Separates the everyday actions (Edit / Save / Push to Kit) from the
+          occasional ones (History / Export HTML). */}
       <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
 
       <button
@@ -1172,38 +1206,6 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         Export HTML
       </button>
 
-      {/* "Push", not "Send": this opens a panel, it does not put an email
-          in anyone's inbox. The distinction matters at 20k subscribers.
-          Hidden entirely if kit-push.js failed to load, so the button is
-          never a no-op. */}
-      {!onPushKit ? null : (
-      <button
-        onClick={onPushKit}
-        title="Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now."
-        style={{
-          background: '#c1593c',
-          color: '#fff',
-          border: '1.5px solid #c1593c',
-          padding: '7px 18px',
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          borderRadius: 10,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-        Push to Kit&hellip;
-      </button>
-      )}
     </div>
   );
 }

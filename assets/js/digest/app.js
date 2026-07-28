@@ -909,6 +909,30 @@
       },
       /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }), /* @__PURE__ */ React.createElement("polyline", { points: "17 21 17 13 7 13 7 21" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 3 7 8 15 8" })),
       justSaved ? "Saved \u2713" : "Save"
+    ), !onPushKit ? null : /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: onPushKit,
+        title: "Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now.",
+        style: {
+          background: "#c1593c",
+          color: "#fff",
+          border: "1.5px solid #c1593c",
+          padding: "7px 18px",
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          cursor: "pointer",
+          borderRadius: 10,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8
+        }
+      },
+      /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("line", { x1: "22", y1: "2", x2: "11", y2: "13" }), /* @__PURE__ */ React.createElement("polygon", { points: "22 2 15 22 11 13 2 9 22 2" })),
+      "Push to Kit\u2026"
     ), savedAt ? /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-saved": true, style: { display: "inline-flex", alignItems: "center", gap: 10 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9a8773", whiteSpace: "nowrap" } }, "Saved ", new Date(savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })), /* @__PURE__ */ React.createElement(
       "button",
       {
@@ -977,30 +1001,6 @@
       },
       /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 10 12 15 17 10" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "15", x2: "12", y2: "3" })),
       "Export HTML"
-    ), !onPushKit ? null : /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        onClick: onPushKit,
-        title: "Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now.",
-        style: {
-          background: "#c1593c",
-          color: "#fff",
-          border: "1.5px solid #c1593c",
-          padding: "7px 18px",
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          cursor: "pointer",
-          borderRadius: 10,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8
-        }
-      },
-      /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("line", { x1: "22", y1: "2", x2: "11", y2: "13" }), /* @__PURE__ */ React.createElement("polygon", { points: "22 2 15 22 11 13 2 9 22 2" })),
-      "Push to Kit\u2026"
     ));
   }
   function HistoryModal({ open, history, onClose, onRestore, onDelete }) {
