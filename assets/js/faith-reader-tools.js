@@ -465,11 +465,14 @@
     contentEl.addEventListener("mouseup", () => {
       window.setTimeout(() => {
         const sel = window.getSelection();
-        if (!sel || sel.isCollapsed) return hide();
-        const text = sel.toString().trim();
-        if (text.length < 4) return hide();
+        if (!sel || sel.isCollapsed || !sel.rangeCount) return hide();
         const range = sel.getRangeAt(0);
         if (!contentEl.contains(range.commonAncestorContainer)) return hide();
+        // The range, not the selection: Selection.toString() returns
+        // empty when the document does not have focus, which is every
+        // automated check of this feature and some real ones.
+        const text = range.toString().trim();
+        if (text.length < 4) return hide();
 
         const ctx = contextOf(range.startContainer);
         pending = {

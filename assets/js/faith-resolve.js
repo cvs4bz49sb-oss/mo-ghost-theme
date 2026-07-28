@@ -5,19 +5,24 @@
  * these texts actually navigates: not by browsing a catalogue but by
  * following a reference out of a footnote.
  *
- * Four schemes, because these corpora are cited four ways:
+ * Two schemes, because these corpora are cited two ways:
  *
  *   Rom 9:16 · Romans 9 · Rom. ix. 16   scripture
  *   PL 176, 17c · PL176:17              Migne, Latin — volume and column
  *   PG 78, 1709                         Migne, Greek
  *   PO 2, 421                           Patrologia Orientalis
- *   ST I q1 a1 · Sent I d1 q1 a1        Aquinas
  *
- * The Migne and Aquinas schemes resolve through the reference indexes
- * the source sites already publish — 379,301 citation keys mapping
- * straight to a work and an anchor. Those files are large (Patrologia
- * Latina's is 7.5 MB), so each is fetched only when someone actually
- * resolves a citation in that scheme, and cached thereafter.
+ * The Migne schemes resolve through the reference indexes the source
+ * sites already publish — citation keys mapping straight to a work and
+ * an anchor. Those files are large (Patrologia Latina's is 7.5 MB), so
+ * each is fetched only when someone actually resolves a citation in
+ * that scheme, and cached thereafter.
+ *
+ * There was a third scheme, `ST I q1 a1` / `SCG 3` / `Sent I d1 q1 a1`,
+ * resolving into the Aquinas corpus. It was removed 2026-07-28 with
+ * that collection: it would still have found a hit in the refindex and
+ * then sent the reader to ?c=aquinas, which no longer resolves and
+ * would fall through to the Latin corpus's shard paths.
  */
 
 (function () {

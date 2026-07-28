@@ -102,8 +102,12 @@
 
   function buildLangToggle(secondLabel) {
     if (!langToggle) return;
+    // The second lane is named by the language the work is actually
+    // in. Match on position, not on a lane id: Patrologia Orientalis
+    // declares its second lane as `la` because that is the column the
+    // renderer fills, but the text in it is Syriac or Greek.
     if (secondLabel && lanes.length > 1) {
-      lanes = lanes.map((l) => (l.id === "src" ? { id: "la", label: secondLabel } : l));
+      lanes = lanes.map((l, i) => (i === 1 ? { id: l.id === "src" ? "la" : l.id, label: secondLabel } : l));
     }
     // One lane means nothing to switch between.
     if (lanes.length < 2) {

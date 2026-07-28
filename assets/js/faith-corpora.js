@@ -25,15 +25,23 @@
  *   The Latin Library ...  1,195 works ·    272 authors · 785,437 pp
  *   Patrologia Orientalis    400 works ·    121 authors
  *   TFR confessions .....    260 documents
- *   Aquinas + Augustine .    274 works ·      2 authors
+ *   Augustine ...........    124 works ·      1 author
  *
- * 29,641 works in all.
+ * 29,491 works in all.
  *
- * PanGrammata (7,582 works) was pulled 2026-07-28. It was a Greek and
- * Latin CLASSICAL corpus — Plutarch, Galen, Cicero and Demosthenes
- * alongside Chrysostom and Ephraem — and it carried no translations
- * at all. It sat outside what The Faith Received is for. The adapter
- * is in git history if it is ever wanted back.
+ * Two collections were pulled, both 2026-07-28, both Ian's call:
+ *
+ *   PanGrammata (7,582 works) — a Greek and Latin CLASSICAL corpus,
+ *   Plutarch, Galen, Cicero and Demosthenes alongside Chrysostom and
+ *   Ephraem, carrying no translations at all. Outside what The Faith
+ *   Received is for.
+ *
+ *   Thomas Aquinas (150 works) — pulled from aquinas-studies, whose
+ *   other half is Augustine and stays. The host therefore remains in
+ *   connect-src. The `ST`/`SCG`/`Sent` citation scheme went with it:
+ *   see faith-resolve.js.
+ *
+ * Both adapters are in git history if they are ever wanted back.
  *
  * EEBO's catalogue is 53,831; the other 38,262 are newsbooks,
  * proclamations, ballads and almanacs, and are filtered out before
@@ -58,15 +66,17 @@
   // and contiguous: 1–150 Aquinas, ending with the Opuscula sermons;
   // 151–274 Augustine, starting with the Confessions. Verified that no
   // group range straddles the boundary.
+  //
+  // Aquinas was pulled 2026-07-28, so this now exists to discard the
+  // first half of a catalogue we still fetch for its second.
   const AUGUSTINE_FROM = 151;
 
-  function pickAquinasStudies(d, wantAugustine) {
+  function pickAugustine(d) {
     const out = [];
     (Array.isArray(d) ? d : []).forEach((group) => {
       (group.s || []).forEach((sec) => {
         const n = parseInt((String(sec.f || "").match(/_(\d+)\.html$/) || [])[1], 10);
-        const isAugustine = n >= AUGUSTINE_FROM;
-        if (isAugustine !== !!wantAugustine) return;
+        if (n < AUGUSTINE_FROM) return;
         out.push({ group: group.n || "", name: sec.n || "", file: sec.f || "", heads: sec.h || [] });
       });
     });
@@ -413,174 +423,15 @@
       }),
     },
     {
-      id: "aquinas",
-      label: "Thomas Aquinas",
-      short: "The Summa, the commentaries, the opuscula",
-      base: "https://aquinas-studies.vercel.app",
-      catalogue: "/data/nav.json",
-      // The source site is one catalogue carrying two authors, split
-      // exactly at file id 150 (see the note on the boundary below).
-      // They are separate collections here: Augustine is not a
-      // subdivision of Aquinas.
-      pick(d) {
-        return pickAquinasStudies(d, false);
-      },
-      indexes: { refindex: "/data/refindex.json" },
-      extras: { summa: "/data/summa.json" },
-      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
-
-      // No per-work JSON is published, but the reader pages are clean:
-      // the source already nests <details class="collapse-question">
-      // and "collapse-article" with bilingual summaries, which is the
-      // same shape our reader renders. So we parse the page rather than
-      // wait on the author. One fetch per section (~3.4 MB for a
-      // quarter of the Summa) — the same the source site serves.
-      //
-      // nav.json's h[] anchors are NOT usable for this: they sit on
-      // empty <span class="q-anchor"> markers, and only 1 of 310
-      // lands on a content row. Walk the <details> tree instead.
-      reader: "html-extract",
-      readable: true,
-      textPath: (id) => `/read/${id}.html`,
-
-      // doc -> { title, sections: [{ title, subtitle, children:[…] }] }
-      // where the leaves carry parallel rows.
-      extract(doc) {
-        const txt = (el) => (el ? el.textContent.trim() : "");
-        const rowsIn = (root) => {
-          const out = [];
-          root.querySelectorAll(":scope > .parallel").forEach((r) => {
-            const la = r.querySelector(".col-la");
-            const en = r.querySelector(".col-en");
-            if (!la && !en) return;
-            out.push({
-              // The source's own row id. The scripture index records
-              // this same id, so a citation's anchor and the block the
-              // reader renders can never drift apart — counting
-              // sections independently in two places put every Aquinas
-              // link one section early.
-              id: r.getAttribute("id") || "",
-              kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
-              cite: r.getAttribute("data-cite") || "",
-              la: la ? la.innerHTML : "",
-              en: en ? en.innerHTML : "",
-            });
-          });
-          return out;
-        };
-        const head = (d) => {
-          const s = d.querySelector(":scope > summary");
-          if (!s) return { title: "", subtitle: "" };
-          const num = txt(s.querySelector(".head-la"));
-          const en = txt(s.querySelector(".head-en"));
-          return {
-            title: [num, en].filter(Boolean).join(" — "),
-            subtitle: txt(s.querySelector(".head-la-title")),
-          };
-        };
-
-        // Aquinas nests question > article. Augustine adds an outer
-        // collapse-section — "Revisions II" and the like — which an
-        // earlier version dropped, flattening his works into a run of
-        // chapters with no book above them. Walk every collapse level
-        // in document order so numbering matches the scripture index's
-        // locator, which counts the same elements.
-        const sections = [];
-        const seen = new Set();
-        const addQuestion = (q) => {
-          if (seen.has(q)) return null;
-          seen.add(q);
-          const h = head(q);
-          const children = [];
-          q.querySelectorAll("details.collapse-article").forEach((a) => {
-            if (seen.has(a)) return;
-            seen.add(a);
-            const ah = head(a);
-            children.push({ title: ah.title, subtitle: ah.subtitle, rows: rowsIn(a) });
-          });
-          return { title: h.title, subtitle: h.subtitle, rows: rowsIn(q), children };
-        };
-
-        doc.querySelectorAll("details.collapse-section, details.collapse-question").forEach((el) => {
-          if (seen.has(el)) return;
-          if (el.classList.contains("collapse-section")) {
-            seen.add(el);
-            const h = head(el);
-            const children = [];
-            el.querySelectorAll("details.collapse-question").forEach((q) => {
-              const built = addQuestion(q);
-              // A question's own articles become part of it; the
-              // section keeps the questions as its chapters.
-              if (built) children.push({ title: built.title, subtitle: built.subtitle, rows: built.rows.concat(built.children.flatMap((c) => c.rows)) });
-            });
-            sections.push({ title: h.title, subtitle: h.subtitle, rows: rowsIn(el), children });
-            return;
-          }
-          const built = addQuestion(el);
-          if (built) sections.push(built);
-        });
-
-        // Prologues and anything else outside a question still belong
-        // to the work — collect the rows no question claimed.
-        const claimed = new Set();
-        doc.querySelectorAll("details.collapse-question .parallel").forEach((r) => claimed.add(r));
-        const loose = [];
-        doc.querySelectorAll(".parallel").forEach((r) => {
-          if (claimed.has(r)) return;
-          const la = r.querySelector(".col-la");
-          const en = r.querySelector(".col-en");
-          if (!la && !en) return;
-          loose.push({
-            id: r.getAttribute("id") || "",
-            kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
-            cite: r.getAttribute("data-cite") || "",
-            la: la ? la.innerHTML : "",
-            en: en ? en.innerHTML : "",
-          });
-        });
-        // Some works carry no collapsible structure at all — the
-        // Sermons and the Expositions of the Psalms are 245 and 735
-        // parallel rows with nothing wrapping them. Those rows are the
-        // whole work, so calling the section "Prologue" would be
-        // wrong; where it stands alone it takes the work's own title.
-        if (loose.length) {
-          const soleSection = sections.length === 0;
-          sections.unshift({
-            title: soleSection
-              ? (txt(doc.querySelector(".page-header h1")) || "Text")
-              : "Prologue",
-            subtitle: "",
-            rows: loose,
-            children: [],
-          });
-        }
-
-        return {
-          title: txt(doc.querySelector(".page-header h1")),
-          work: txt(doc.querySelector(".page-header .work-name")),
-          sections,
-        };
-      },
-      tradition: () => "Medieval Scholastic",
-      normalize: (s) => ({
-        corpus: "aquinas",
-        id: s.file.replace(/\.html$/, ""),
-        title: s.name,
-        author: "Thomas Aquinas",
-        eyebrow: s.group,
-        extent: s.heads.length,
-        url: `/the-faith-received/reader/?c=aquinas&w=${encodeURIComponent(s.file.replace(/\.html$/, ""))}`,
-      }),
-    },
-    {
       id: "augustine",
       label: "Augustine of Hippo",
       short: "The Confessions, the City of God, the letters & sermons",
       base: "https://aquinas-studies.vercel.app",
       catalogue: "/data/nav.json",
-      // Same source catalogue as Thomas Aquinas, the other half.
+      // The second half of the aquinas-studies catalogue; the first
+      // half was Thomas Aquinas, pulled 2026-07-28.
       pick(d) {
-        return pickAquinasStudies(d, true);
+        return pickAugustine(d);
       },
       indexes: { refindex: "/data/refindex.json" },
       extras: { summa: "/data/summa.json" },
@@ -614,8 +465,8 @@
               // The source's own row id. The scripture index records
               // this same id, so a citation's anchor and the block the
               // reader renders can never drift apart — counting
-              // sections independently in two places put every Aquinas
-              // link one section early.
+              // sections independently in two places put every link
+              // one section early.
               id: r.getAttribute("id") || "",
               kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
               cite: r.getAttribute("data-cite") || "",
@@ -689,7 +540,7 @@
   // which returns 401 on everything but /data/. Every other
   // collection reads — the server-rendered pages turned out to be
   // clean enough to parse (`html-extract`), which is why PG, PO and
-  // Aquinas no longer wait on the author for per-work
+  // Augustine no longer wait on the author for per-work
   // JSON. PLD's catalogue, topics and 236,351 reference keys are all
   // reachable; only the text is gated.
 
