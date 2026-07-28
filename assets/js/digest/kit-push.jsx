@@ -352,11 +352,18 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
     : buildError ? 'The email could not be built.'
       : !html ? 'No email content yet.'
         : !subject.trim() ? 'Add a subject line.'
-          : audienceMode === 'everyone' && !confirmEveryone ? 'Tick the box to confirm sending to everyone.'
-            : !audienceReady ? 'Pick at least one tag or segment.'
-              : scheduleMode === 'schedule' && !sendAtIso ? 'Pick a send date.'
-                : alreadySent ? 'This broadcast has already been sent. Use Start new.'
-                  : null;
+          // Deliberately required rather than defaulted. Leaving it unset
+          // makes Kit apply whatever the account default happens to be, and
+          // if that template has no {{ message_content }} slot — as a
+          // template built by uploading a finished email does not — Kit
+          // renders the template and silently drops the email we pushed.
+          // That happened on the first real push, so it is now a hard gate.
+          : !templateId ? 'Choose a Kit layout template.'
+            : audienceMode === 'everyone' && !confirmEveryone ? 'Tick the box to confirm sending to everyone.'
+              : !audienceReady ? 'Pick at least one tag or segment.'
+                : scheduleMode === 'schedule' && !sendAtIso ? 'Pick a send date.'
+                  : alreadySent ? 'This broadcast has already been sent. Use Start new.'
+                    : null;
   const canPush = !busy && !blockReason;
 
   const audienceSummary = audienceMode === 'everyone'
@@ -698,14 +705,17 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
                 style={inputStyle}
                 disabled={loadingMeta}
               >
-                <option value="">{loadingMeta ? 'Loading…' : 'Account default'}</option>
+                <option value="">{loadingMeta ? 'Loading…' : 'Choose a template…'}</option>
                 {((meta && meta.templates) || []).map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}{t.isDefault ? ' (default)' : ''}</option>
+                  <option key={t.id} value={t.id}>{t.name}{t.isDefault ? ' (account default)' : ''}</option>
                 ))}
               </select>
               <p style={{ ...noteStyle, margin: '6px 0 0' }}>
-                Use a bare template. The email&rsquo;s own design is in the content we push;
-                a template with its own header or footer will double up.
+                Must be an <strong>empty</strong> template, whose whole body is the
+                {' '}<code style={{ fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>{'{{ message_content }}'}</code>{' '}
+                tag. This email already carries its own header, footer, and unsubscribe
+                link. Pick a template built from a finished email and Kit renders that
+                template instead, dropping everything we push.
               </p>
             </div>
 

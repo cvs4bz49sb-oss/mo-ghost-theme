@@ -286,7 +286,7 @@
     const sendAtIso = scheduleMode === "schedule" && sendDate ? isoWithOffset(sendDate, sendTime, sendZone) : null;
     const audienceReady = audienceMode === "everyone" ? confirmEveryone : criteria.length > 0;
     const alreadySent = !!(link && link.sendAt && Date.parse(link.sendAt) <= Date.now());
-    const blockReason = building ? "Building the email\u2026" : buildError ? "The email could not be built." : !html ? "No email content yet." : !subject.trim() ? "Add a subject line." : audienceMode === "everyone" && !confirmEveryone ? "Tick the box to confirm sending to everyone." : !audienceReady ? "Pick at least one tag or segment." : scheduleMode === "schedule" && !sendAtIso ? "Pick a send date." : alreadySent ? "This broadcast has already been sent. Use Start new." : null;
+    const blockReason = building ? "Building the email\u2026" : buildError ? "The email could not be built." : !html ? "No email content yet." : !subject.trim() ? "Add a subject line." : !templateId ? "Choose a Kit layout template." : audienceMode === "everyone" && !confirmEveryone ? "Tick the box to confirm sending to everyone." : !audienceReady ? "Pick at least one tag or segment." : scheduleMode === "schedule" && !sendAtIso ? "Pick a send date." : alreadySent ? "This broadcast has already been sent. Use Start new." : null;
     const canPush = !busy && !blockReason;
     const audienceSummary = audienceMode === "everyone" ? "every subscriber in Kit" : criteria.length ? `anyone ${audienceMode === "any" ? "in" : "in every one of"} ${criteria.map((c) => c.name).join(audienceMode === "any" ? " or " : " and ")}` : "nobody yet";
     const toggleCriterion = (type, id, name) => {
@@ -596,9 +596,9 @@
             style: inputStyle,
             disabled: loadingMeta
           },
-          /* @__PURE__ */ React.createElement("option", { value: "" }, loadingMeta ? "Loading\u2026" : "Account default"),
-          (meta && meta.templates || []).map((t) => /* @__PURE__ */ React.createElement("option", { key: t.id, value: t.id }, t.name, t.isDefault ? " (default)" : ""))
-        ), /* @__PURE__ */ React.createElement("p", { style: { ...noteStyle, margin: "6px 0 0" } }, "Use a bare template. The email\u2019s own design is in the content we push; a template with its own header or footer will double up.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-subject", style: labelStyle }, "Subject line"), /* @__PURE__ */ React.createElement("input", { id: "kit-subject", type: "text", value: subject, onChange: (e) => setSubject(e.target.value), style: inputStyle })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-preheader", style: labelStyle }, "Preheader (preview text)"), /* @__PURE__ */ React.createElement(
+          /* @__PURE__ */ React.createElement("option", { value: "" }, loadingMeta ? "Loading\u2026" : "Choose a template\u2026"),
+          (meta && meta.templates || []).map((t) => /* @__PURE__ */ React.createElement("option", { key: t.id, value: t.id }, t.name, t.isDefault ? " (account default)" : ""))
+        ), /* @__PURE__ */ React.createElement("p", { style: { ...noteStyle, margin: "6px 0 0" } }, "Must be an ", /* @__PURE__ */ React.createElement("strong", null, "empty"), " template, whose whole body is the", " ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "{{ message_content }}"), " ", "tag. This email already carries its own header, footer, and unsubscribe link. Pick a template built from a finished email and Kit renders that template instead, dropping everything we push.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-subject", style: labelStyle }, "Subject line"), /* @__PURE__ */ React.createElement("input", { id: "kit-subject", type: "text", value: subject, onChange: (e) => setSubject(e.target.value), style: inputStyle })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-preheader", style: labelStyle }, "Preheader (preview text)"), /* @__PURE__ */ React.createElement(
           "input",
           {
             id: "kit-preheader",
