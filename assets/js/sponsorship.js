@@ -89,32 +89,57 @@
             if (crEl) { crEl.textContent = `${stats.clickRate}%`; hasAny = true; }
           }
 
-          // Podcast downloads. Buzzsprout only reports lifetime plays, so the
-          // trailing figure is a delta the worker computes against a stored
-          // snapshot. downloadDaysTracked is the window that delta actually
-          // covers — 30 once the snapshot history is deep enough, fewer while
-          // it is still filling, 0 when there is no baseline yet and we have
-          // to fall back to the all-time total.
+          // Podcast tiles lead with downloads per episode. Buzzsprout has no
+          // stats API, so a monthly aggregate can only be a delta against a
+          // stored lifetime total — but total_plays per episode is exact, and
+          // per-episode is the number a pre-roll or mid-roll buy turns on.
+          //
+          // The monthly aggregate is still computed and goes in the note
+          // below once the snapshot history is deep enough to mean 30 days.
+          // Older workers predate these fields; fall back to what they send.
           const windowDays = stats.windowDays || 30;
           const days = stats.downloadDaysTracked || 0;
-          const shortWindow = days > 0 && days < windowDays - 2;
+          const monthlyIsReal = days >= windowDays - 2;
 
-          const mfRolling = days > 0 && stats.mfMonthlyDownloads != null;
-          const mfValue = mfRolling ? stats.mfMonthlyDownloads : stats.mfTotalDownloads;
-          if (mfValue) {
-            const mfEl = statsSection.querySelector('[data-stat="mfDownloads"] [data-stat-number]');
-            const mfLabelEl = statsSection.querySelector('[data-stat="mfDownloads"] .stat-label');
-            if (mfEl) { mfEl.textContent = formatNumber(mfValue); hasAny = true; }
-            if (mfLabelEl && !mfRolling) { mfLabelEl.textContent = "Mere Fidelity Downloads (All Time)"; }
-          }
+          const shows = [
+            {
+              stat: "mfDownloads",
+              perEpisode: stats.mfDownloadsPerEpisode,
+              monthly: stats.mfMonthlyDownloads,
+              total: stats.mfTotalDownloads,
+              fallbackLabel: "Mere Fidelity Downloads"
+            },
+            {
+              stat: "crcDownloads",
+              perEpisode: stats.crcDownloadsPerEpisode,
+              monthly: stats.crcMonthlyDownloads,
+              total: stats.crcTotalDownloads,
+              fallbackLabel: "Christians Reading Classics Downloads"
+            }
+          ];
 
-          const crcRolling = days > 0 && stats.crcMonthlyDownloads != null;
-          const crcValue = crcRolling ? stats.crcMonthlyDownloads : stats.crcTotalDownloads;
-          if (crcValue) {
-            const crcEl = statsSection.querySelector('[data-stat="crcDownloads"] [data-stat-number]');
-            const crcLabelEl = statsSection.querySelector('[data-stat="crcDownloads"] .stat-label');
-            if (crcEl) { crcEl.textContent = formatNumber(crcValue); hasAny = true; }
-            if (crcLabelEl && !crcRolling) { crcLabelEl.textContent = "Christians Reading Classics Downloads (All Time)"; }
+          let perEpisodeShown = 0;
+          for (let i = 0; i < shows.length; i++) {
+            const show = shows[i];
+            const numEl = statsSection.querySelector(`[data-stat="${show.stat}"] [data-stat-number]`);
+            const labelEl = statsSection.querySelector(`[data-stat="${show.stat}"] .stat-label`);
+            let value = show.perEpisode;
+            if (value != null) {
+              perEpisodeShown++;
+            } else {
+              // Pre-per-episode worker: keep the old behaviour rather than
+              // blanking the tile, and relabel so the number is not read as
+              // a per-episode average.
+              value = (days > 0 && show.monthly != null) ? show.monthly : show.total;
+              if (labelEl && value) {
+                labelEl.textContent = (days > 0 && show.monthly != null)
+                  ? show.fallbackLabel
+                  : `${show.fallbackLabel} (All Time)`;
+              }
+            }
+            if (value) {
+              if (numEl) { numEl.textContent = formatNumber(value); hasAny = true; }
+            }
           }
 
           // Pageviews
@@ -123,23 +148,32 @@
             if (pvEl) { pvEl.textContent = formatNumber(stats.monthlyPageviews); hasAny = true; }
           }
 
-          // Period note. The markup already claims a clean trailing 30 days;
-          // only rewrite it when something on the bar covers less than that,
-          // so the page never advertises a window it did not measure.
+          // Period note. Everything the bar cannot say inside a label goes
+          // here, in one line, and nothing gets claimed that was not
+          // measured — no window is asserted until it is real.
           const noteEl = statsSection.querySelector("[data-stats-note]");
           if (noteEl) {
-            const caveats = [];
-            if (shortWindow) {
-              caveats.push(`Podcast downloads cover the last ${days} days.`);
-            } else if (days === 0 && (mfValue || crcValue)) {
-              caveats.push("Podcast downloads are all-time totals.");
+            const parts = [`Trailing ${windowDays} days. Free members is a current total.`];
+
+            if (perEpisodeShown) {
+              const maturity = stats.episodeMaturityDays || 30;
+              parts.push(`Podcast figures are average downloads per episode, across episodes published at least ${maturity} days ago.`);
+              // The monthly aggregate is a snapshot delta, so it only gets
+              // stated once the history actually spans the window.
+              if (monthlyIsReal && stats.mfMonthlyDownloads && stats.crcMonthlyDownloads) {
+                parts.push(`Across all episodes the shows drew ${formatNumber(stats.mfMonthlyDownloads)} and ${formatNumber(stats.crcMonthlyDownloads)} downloads over that period.`);
+              }
+            } else if (days > 0 && days < windowDays - 2) {
+              parts.push(`Podcast downloads cover the last ${days} days.`);
+            } else if (days === 0) {
+              parts.push("Podcast downloads are all-time totals.");
             }
+
             if (stats.emailWindowDays == null && stats.emailSampleSize) {
-              caveats.push(`Email rates average the ${stats.emailSampleSize} most recent sends.`);
+              parts.push(`Email rates average the ${stats.emailSampleSize} most recent sends.`);
             }
-            if (caveats.length) {
-              noteEl.textContent = `Trailing ${windowDays} days. Free members is a current total. ${caveats.join(" ")}`;
-            }
+
+            noteEl.textContent = parts.join(" ");
           }
 
           // If no data at all, hide the section
