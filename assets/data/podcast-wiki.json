@@ -1,7 +1,30 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-07-28T10:11:35.037Z",
+    "updated": "2026-07-29T10:13:33.321Z",
     "episodes": [
+      {
+        "id": 19563706,
+        "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
+        "slug": "augustine-enchiridion-and-morals-of-the-catholic-church-with-joseph-lanier-and-travis-montgomery",
+        "pubDate": "2026-07-29T05:00:00.000-04:00",
+        "episode": 26,
+        "season": 2,
+        "duration": 3465,
+        "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+        "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19563706-augustine-enchiridion-and-morals-of-the-catholic-church-with-joseph-lanier-and-travis-montgomery.mp3",
+        "description": "A pastor asks Augustine for a short summary of the Christian life, and Augustine delivers a compact handbook that is so honest it practically stops mid-sprint when it reaches love. That tension, between real-life limits and real spiritual depth, is where our conversation lives today. We are joined by Joseph Lanier and Travis Montgomery, co-authors of *Every Perfect Gift: Classical Virtues for Chri",
+        "embedUrl": "https://www.buzzsprout.com/2612793/19563706?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/christians-reading-classics/augustine-enchiridion-and-morals-of-the-catholic-church-with-joseph-lanier-and-travis-montgomery/",
+        "guests": [
+          "Joseph Lanier",
+          "Travis Montgomery"
+        ],
+        "topics": [
+          "Ancient & Patristic",
+          "Theology & Faith"
+        ]
+      },
       {
         "id": 19519735,
         "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
@@ -946,8 +969,27 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-07-28T10:11:39.065Z",
+    "updated": "2026-07-29T10:13:37.605Z",
     "episodes": [
+      {
+        "id": 19567716,
+        "title": "Replay: Conservatism, with Dr. Yoram Hazony",
+        "slug": "replay-conservatism-with-dr-yoram-hazony",
+        "pubDate": "2026-07-29T05:00:00.000-04:00",
+        "episode": 26,
+        "season": 3,
+        "duration": 3836,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19567716-replay-conservatism-with-dr-yoram-hazony.mp3",
+        "description": "What hath Enlightenment Liberalism wrought? According to Dr. Yoram Hazony, chairman of the Edmund Burke Foundation, it has led us to the place we are today where Neo-Marxism is ascendant and we cannot conceive a higher good than consent. What’s the alternative? National Conservatism. Listen to this lively conversation with Derek, Alastair, Matt, and Dr. Hazony.&nbsp;",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19567716?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/replay-conservatism-with-dr-yoram-hazony/",
+        "guests": [
+          "Dr. Yoram Hazony"
+        ],
+        "topics": []
+      },
       {
         "id": 19526394,
         "title": "Measuring Wealth",
