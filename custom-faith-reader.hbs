@@ -217,6 +217,24 @@
 a.faith-ref { color: var(--color-primary); text-decoration: none; }
 a.faith-ref:hover { text-decoration: underline; }
 
+/* Markup carried inside the translation itself. The quarter-column
+   letter is the finest address this corpus has, so it is set like the
+   citation chips: small, raised, out of the reading line. */
+.faith-col-q {
+  font-family: var(--font-body);
+  font-size: 0.62em;
+  font-weight: 600;
+  vertical-align: super;
+  color: var(--color-primary);
+  margin: 0 0.15em 0 0.05em;
+}
+.faith-en-head { font-family: var(--font-display); font-weight: 600; }
+.faith-ed-note {
+  font-size: 0.82em;
+  font-style: italic;
+  color: var(--color-muted);
+}
+
 /* ── Latin text styling ───────────────────────────────────────── */
 .faith-col-la {
   font-style: italic;

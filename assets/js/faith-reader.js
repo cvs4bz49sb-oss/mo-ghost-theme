@@ -322,6 +322,23 @@
   // them, which is ~170 KB rather than the 2.4 MB a whole volume
   // would cost. A bucket that fails to load leaves the Greek intact.
 
+  // The translation carries its own light markup in ⟦…⟧ sentinels.
+  // These are not noise and must not simply be stripped: ⟦A⟧ to ⟦D⟧
+  // are Migne's quarter-column markers, which are the letters in a
+  // citation like "PL 176, 17c" and the finest addressing this corpus
+  // has. ⟦h⟧ is a heading, ⟦i⟧ italics, and the longer ones are the
+  // translator's own notes about what the column contains.
+  function markUp(t) {
+    return t
+      .replace(/⟦h⟧([\s\S]*?)⟦\/h⟧/g, '<strong class="faith-en-head">$1</strong>')
+      .replace(/⟦i⟧([\s\S]*?)⟦\/i⟧/g, "<em>$1</em>")
+      .replace(/⟦([A-D])⟧/g, '<span class="faith-col-q">$1</span>')
+      .replace(/⟦(cont)⟧/gi, "")
+      .replace(/⟦([^⟧]{4,})⟧/g, '<span class="faith-ed-note">[$1]</span>')
+      // Any unpaired sentinel left over is scaffolding, not content.
+      .replace(/⟦[^⟧]*⟧/g, "");
+  }
+
   function joinEnglishLayer(data) {
     const layer = corpus && corpus.enLayer;
     if (!layer) return Promise.resolve(true);
@@ -360,7 +377,7 @@
           // the first, which is the order every other bilingual work
           // in the room already uses.
           r.la = r.en;
-          r.en = escapeHtml(text).replace(/\n+/g, "<br>");
+          r.en = markUp(escapeHtml(text)).replace(/\n+/g, "<br>");
           filled += 1;
         });
         // A handful of matches across a whole work is a mis-join, not
