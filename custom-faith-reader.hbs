@@ -149,13 +149,20 @@
    The work title is the one thing that should be large. Below it:
    the book is a quiet label, the chapter is a plain line, and the
    text is what the eye lands on. */
+/* screen.css sets `.faith-book .faith-book-chapter .faith-section-title`
+   at clamp(22px, 2.4vw, 28px) — three classes, which outranks a
+   attribute-plus-class selector. Match its weight so source order
+   decides, and this block is later in the document. */
+[data-fr-content] .faith-book-chapter .faith-section-title,
+[data-fr-content] .faith-section-summary-inner .faith-section-title,
 [data-fr-content] .faith-section-title {
   font-size: 17px;
   line-height: 1.35;
   font-style: normal;
   margin: 0 0 10px;
 }
-[data-fr-content] .faith-section-title em { font-style: normal; }
+[data-fr-content] .faith-section-title em,
+[data-fr-content] .faith-book-chapter .faith-section-title em { font-style: normal; }
 [data-fr-content] .faith-section-subtitle {
   font-family: var(--font-body);
   font-style: normal;
