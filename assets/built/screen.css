@@ -23723,3 +23723,179 @@ html[data-theme="dark"] .dlr-header-logo {
     flex: 1 0 100%;
   }
 }
+
+/* ─── Dashboard: "New on Mere Orthodoxy" rail ───────────────────────
+   Sits above the saved-content cards on /dashboard/. One horizontal
+   row of tiles: Daily Liturgy, the day's essay(s), Mere Fidelity,
+   Christians Reading Classics. Editorial rather than card — square
+   image plates at the 6px plate radius, a hairline under the section
+   heading, and nothing boxed around the text.
+
+   Desktop: tiles share the row (flex: 1 1 0) and only scroll on the
+   rare day with four essays. Phone (≤640px): a snap carousel where
+   the centred tile holds its colour and its neighbours desaturate;
+   dashboard-whats-new.js moves .is-active on scroll.
+
+   The section deliberately does NOT use .dashboard-module — that
+   class is force-collapsed at ≤900px by dashboard.js, and the
+   carousel is the point of the section on a phone. */
+/* At >960px the dashboard grid already declares minmax(0, 1fr) for
+   this column, but the stacked mobile rule is a bare 1fr — automatic
+   minimum size, which the rail's scrollable content blows straight
+   past (it stretched .dashboard-main to 1219px inside a 375px
+   viewport and clipped the cards below it). */
+.dashboard-grid > .dashboard-main { min-width: 0; }
+
+.dash-new {
+  margin: 0 0 44px;
+}
+.dash-new-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: 18px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.dash-new-summary::-webkit-details-marker { display: none; }
+.dash-new-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 400;
+  margin: 0;
+  color: var(--color-dark);
+}
+/* Same geometry as .dashboard-module-chev so the two read as one
+   system when both are on screen. */
+.dash-new-chev {
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(45deg) translateY(-3px);
+  transition: transform 0.15s ease;
+  align-self: center;
+}
+.dash-new[open] .dash-new-chev { transform: rotate(-135deg) translateY(-3px); }
+
+.dash-new-rail {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 24px 0 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.dash-new-item {
+  flex: 1 1 0;
+  min-width: 132px;
+}
+/* display on .dash-new-item would beat the [hidden] attribute, so the
+   essay tiles that aren't from today need this spelled out. */
+.dash-new-item[hidden] { display: none; }
+.dash-new-link {
+  display: block;
+  text-decoration: none;
+}
+.dash-new-plate {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  background-color: var(--color-background);
+  background-size: cover;
+  background-position: center;
+}
+.dash-new-plate--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dash-new-plate-mark {
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 1;
+  color: var(--color-primary);
+  opacity: 0.5;
+}
+/* Every kind label is two words, so it never needs more than two
+   lines even at the narrowest tile. The reserved two-line box keeps
+   the titles on one baseline across the row whether the label wraps
+   or not; the clamp is a guard in case a label ever grows. */
+.dash-new-kind {
+  display: -webkit-box;
+  margin: 12px 0 5px;
+  min-height: 28px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.dash-new-item-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: 400;
+  margin: 0;
+  color: var(--color-dark);
+  transition: color 0.15s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.dash-new-link:hover .dash-new-item-title { color: var(--color-secondary); }
+.dash-new-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+@media (max-width: 640px) {
+  .dash-new { margin-bottom: 36px; }
+  .dash-new-title { font-size: 24px; }
+  .dash-new-rail {
+    /* Tile width doubles as the centring gutter, so one tile sits in
+       the middle with its neighbours peeking in on either side. */
+    --dash-new-w: 56vw;
+    gap: 14px;
+    scroll-snap-type: x mandatory;
+    padding-left: calc(50% - (var(--dash-new-w) / 2));
+    padding-right: calc(50% - (var(--dash-new-w) / 2));
+  }
+  .dash-new-item {
+    flex: 0 0 var(--dash-new-w);
+    min-width: 0;
+    scroll-snap-align: center;
+    filter: grayscale(1);
+    opacity: 0.45;
+    transition: filter 0.15s ease, opacity 0.15s ease;
+  }
+  .dash-new-item.is-active {
+    filter: none;
+    opacity: 1;
+  }
+  .dash-new-item-title { font-size: 18px; }
+  /* Tiles are wide enough here that every label fits on one line. */
+  .dash-new-kind { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-new-chev,
+  .dash-new-item,
+  .dash-new-item-title { transition: none; }
+  .dash-new-rail { scroll-behavior: auto; }
+}

@@ -49,6 +49,10 @@
              Hidden if the member doesn't belong to an institution. --}}
         <div data-dashboard-institutions></div>
 
+        {{!-- What arrived today: Daily Liturgy, the day's essays, and the
+             two shows. Horizontal rail, collapsible, above the cards. --}}
+        {{> "dashboard-new"}}
+
         {{!-- Saved-content categories as click-through cards (was: <details>
              accordions with inline previews). Each links to its existing full
              page (/dashboard/bookmarks|commonplace|history/), which renders the

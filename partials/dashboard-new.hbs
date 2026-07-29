@@ -1,0 +1,79 @@
+{{!-- "New on Mere Orthodoxy" — the day's arrivals, as a single
+     horizontal rail above the saved-content cards on /dashboard/.
+
+     Fixed order: Daily Liturgy, today's essay(s), Mere Fidelity,
+     Christians Reading Classics.
+
+     Everything renders server-side with a working link and a local
+     thumbnail, so the rail is complete before any JS runs. Two things
+     are then upgraded by assets/js/dashboard-whats-new.js:
+       - the essay tiles are revealed only when their publish date
+         matches data-today (both dates are server-rendered in the
+         site timezone, so the comparison never drifts)
+       - the three podcast tiles get their latest episode title from
+         the mo-podcast-feed worker
+
+     Artwork is deliberately a fixed cover per show rather than the
+     per-episode artwork the worker returns: no remote URL is ever
+     written into the DOM, and the tiles stay square and on-brand.
+     The Daily Liturgy cover is the Ghost-hosted file custom-daily-
+     liturgy.hbs uses, not assets/images/daily-liturgy.jpg, which is
+     an older cover missing the Mere Orthodoxy lockup.
+
+     The Daily Liturgy tile links to the online reader, not the audio. --}}
+
+<details class="dash-new" data-dash-new open>
+  <summary class="dash-new-summary">
+    <h2 class="dash-new-title"><em>New on Mere&nbsp;Orthodoxy</em></h2>
+    <span class="dash-new-chev" aria-hidden="true"></span>
+  </summary>
+
+  <ul class="dash-new-rail" data-dash-new-rail data-today="{{date format="YYYY-MM-DD"}}">
+
+    {{!-- I. The Daily Liturgy — links to the reader --}}
+    <li class="dash-new-item" data-dash-new-slot="daily-liturgy">
+      <a class="dash-new-link" href="/daily-liturgy/read/">
+        <span class="dash-new-plate" style="background-image: url(https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy-Podcast-Covers--2-.jpg);" aria-hidden="true"></span>
+        <span class="dash-new-kind">Daily Liturgy</span>
+        <h3 class="dash-new-item-title"><em data-dash-new-title>Today&rsquo;s Devotional</em></h3>
+      </a>
+    </li>
+
+    {{!-- II. Today's essays. Rendered hidden; the script unhides the
+         ones whose date matches. Four covers any plausible day. --}}
+    {{#get "posts" filter="tag:-hash-event+tag:-hash-podcast-transcript" limit="4"}}
+      {{#foreach posts}}
+        <li class="dash-new-item" data-dash-new-post data-date="{{date format="YYYY-MM-DD"}}" hidden>
+          <a class="dash-new-link" href="{{url}}">
+            {{#if feature_image}}
+              <span class="dash-new-plate" style="background-image: url({{img_url feature_image size="m"}});" aria-hidden="true"></span>
+            {{else}}
+              <span class="dash-new-plate dash-new-plate--empty" aria-hidden="true"><span class="dash-new-plate-mark">&para;</span></span>
+            {{/if}}
+            <span class="dash-new-kind">New Essay</span>
+            <h3 class="dash-new-item-title"><em>{{title}}</em></h3>
+          </a>
+        </li>
+      {{/foreach}}
+    {{/get}}
+
+    {{!-- III. Mere Fidelity --}}
+    <li class="dash-new-item" data-dash-new-slot="mere-fidelity">
+      <a class="dash-new-link" href="/podcasts/mere-fidelity/" data-dash-new-link>
+        <span class="dash-new-plate" style="background-image: url({{asset "images/mere-fidelity.jpg"}});" aria-hidden="true"></span>
+        <span class="dash-new-kind">Mere&nbsp;Fidelity</span>
+        <h3 class="dash-new-item-title"><em data-dash-new-title>Latest Episode</em></h3>
+      </a>
+    </li>
+
+    {{!-- IV. Christians Reading Classics --}}
+    <li class="dash-new-item" data-dash-new-slot="christians-reading-classics">
+      <a class="dash-new-link" href="/podcasts/christians-reading-classics/" data-dash-new-link>
+        <span class="dash-new-plate" style="background-image: url({{asset "images/christians-reading-classics.jpg"}});" aria-hidden="true"></span>
+        <span class="dash-new-kind">Reading Classics</span>
+        <h3 class="dash-new-item-title"><em data-dash-new-title>Latest Episode</em></h3>
+      </a>
+    </li>
+
+  </ul>
+</details>
