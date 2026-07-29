@@ -20,7 +20,13 @@
      liturgy.hbs uses, not assets/images/daily-liturgy.jpg, which is
      an older cover missing the Mere Orthodoxy lockup.
 
-     The Daily Liturgy tile links to the online reader, not the audio. --}}
+     The Daily Liturgy tile links to the online reader, not the audio.
+
+     Only the essay tiles carry a bookmark button: mo-kit stores
+     bookmarks as Ghost post ids and drops anything it can't enrich
+     from the Content API, so a saved podcast episode or devotional
+     would vanish from /dashboard/bookmarks/ rather than fail loudly.
+     Extending that needs a worker change and a deploy. --}}
 
 <details class="dash-new" data-dash-new open>
   <summary class="dash-new-summary">
@@ -53,6 +59,23 @@
             <span class="dash-new-kind">Essay</span>
             <h3 class="dash-new-item-title"><em>{{title}}</em></h3>
           </a>
+          {{!-- Save-for-later, sibling of the link rather than inside it
+               (a button nested in an anchor is invalid and untappable).
+               Same worker endpoints as the article page's bookmark
+               button; dashboard-whats-new.js sets the initial state
+               from /bookmarks?ids_only=1. --}}
+          {{#if @custom.kit_worker_url}}
+            <button class="dash-new-bookmark" type="button"
+                    data-dash-new-bookmark
+                    data-post-id="{{id}}"
+                    aria-label="Bookmark {{title}}"
+                    aria-pressed="false">
+              <svg class="dash-new-bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="dash-new-bookmark-outline" d="M6 3h12v18l-6-4-6 4V3z" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path class="dash-new-bookmark-fill" d="M6 3h12v18l-6-4-6 4V3z" fill="currentColor"/>
+              </svg>
+            </button>
+          {{/if}}
         </li>
       {{/foreach}}
     {{/get}}

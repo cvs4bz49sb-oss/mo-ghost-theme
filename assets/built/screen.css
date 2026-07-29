@@ -23794,6 +23794,7 @@ html[data-theme="dark"] .dlr-header-logo {
   -webkit-overflow-scrolling: touch;
 }
 .dash-new-item {
+  position: relative;
   flex: 1 1 0;
   min-width: 132px;
 }
@@ -23842,6 +23843,8 @@ html[data-theme="dark"] .dlr-header-logo {
   color: var(--color-primary-text);
   white-space: nowrap;
 }
+/* Titles run to their full length — no clamp. Tiles are top-aligned,
+   so a long title just makes its own column taller. */
 .dash-new-item-title {
   font-family: var(--font-display);
   font-size: 17px;
@@ -23850,10 +23853,6 @@ html[data-theme="dark"] .dlr-header-logo {
   margin: 0;
   color: var(--color-dark);
   transition: color 0.15s ease;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 .dash-new-link:hover .dash-new-item-title { color: var(--color-secondary); }
 .dash-new-link:focus-visible {
@@ -23861,6 +23860,53 @@ html[data-theme="dark"] .dlr-header-logo {
   outline-offset: 4px;
   border-radius: 6px;
 }
+
+/* Save-for-later, sitting in the top-right of the cover plate. A round
+   control on top of an image, not a card: the disc is what makes the
+   glyph legible over both the pale Daily Liturgy cover and the dark
+   show art. Sibling of the tile link, never nested inside it. */
+.dash-new-bookmark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(45, 41, 39, 0.12);
+  color: var(--color-primary-text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.dash-new-bookmark:hover {
+  background: var(--color-white);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.dash-new-bookmark:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.dash-new-bookmark-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+/* svg { display: block } is set globally, so the inactive glyph needs
+   an explicit display:none rather than the [hidden] attribute. */
+.dash-new-bookmark .dash-new-bookmark-outline { display: block; }
+.dash-new-bookmark .dash-new-bookmark-fill { display: none; }
+.dash-new-bookmark.is-bookmarked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+.dash-new-bookmark.is-bookmarked .dash-new-bookmark-outline { display: none; }
+.dash-new-bookmark.is-bookmarked .dash-new-bookmark-fill { display: block; }
 
 @media (max-width: 640px) {
   .dash-new { margin-bottom: 36px; }
@@ -23887,11 +23933,20 @@ html[data-theme="dark"] .dlr-header-logo {
     opacity: 1;
   }
   .dash-new-item-title { font-size: 18px; }
+  /* 44px touch target on a phone. */
+  .dash-new-bookmark {
+    top: 10px;
+    right: 10px;
+    width: 44px;
+    height: 44px;
+  }
+  .dash-new-bookmark-icon { width: 17px; height: 17px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .dash-new-chev,
   .dash-new-item,
-  .dash-new-item-title { transition: none; }
+  .dash-new-item-title,
+  .dash-new-bookmark { transition: none; }
   .dash-new-rail { scroll-behavior: auto; }
 }

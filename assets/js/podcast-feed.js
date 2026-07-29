@@ -66,6 +66,16 @@
     ? document.querySelector(`[data-most-listened][data-show="${cssEscape(showFilter)}"]`)
     : null;
 
+  // A scheduled episode is one Buzzsprout has accepted but not yet
+  // released; the only thing distinguishing it from a released one is a
+  // future pubDate. mo-podcast-feed filters these out at the source, but
+  // the theme deploys on every push and the worker doesn't, so the guard
+  // lives on both sides. Fail open: an unparseable date is kept.
+  function isScheduled(pubDate) {
+    const t = Date.parse(pubDate || "");
+    return !Number.isNaN(t) && t > Date.now();
+  }
+
   const feedLimit = isShowPage ? Math.max(showLimit, 12) : 5;
   const qsParts = [`limit=${feedLimit}`];
   if (mostListenedRoot) qsParts.push("top=true");
@@ -82,6 +92,7 @@
         const showTitle = (payload.show && payload.show.title) || slug;
         payload.episodes.forEach((ep) => {
           if (!ep) return;
+          if (isScheduled(ep.pubDate)) return;
           const ts = ep.pubDate ? Date.parse(ep.pubDate) : NaN;
           all.push({
             // Show context.
@@ -356,10 +367,13 @@
       const payload = data[slug];
       if (!payload || payload.error || !Array.isArray(payload.episodes) || !payload.episodes.length) continue;
 
-      const eps = payload.episodes.slice().sort((a, b) => {
-        return (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0);
-      });
+      const eps = payload.episodes
+        .filter((e) => { return e && !isScheduled(e.pubDate); })
+        .sort((a, b) => {
+          return (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0);
+        });
       const ep = eps[0];
+      if (!ep) continue;
       const target = div.querySelector(".pod-show-latest");
       if (!target) continue;
 
