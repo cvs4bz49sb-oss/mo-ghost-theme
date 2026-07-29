@@ -331,6 +331,11 @@
   function markUp(t) {
     return t
       .replace(/⟦h⟧([\s\S]*?)⟦\/h⟧/g, '<strong class="faith-en-head">$1</strong>')
+      // The source opens ⟦h⟧ 4,230 times and closes it 1,705: an
+      // unclosed heading runs to the end of its line, and dropping it
+      // as unpaired scaffolding lost most of the headings in the
+      // translation.
+      .replace(/⟦h⟧([^\n]*)/g, '<strong class="faith-en-head">$1</strong>')
       .replace(/⟦i⟧([\s\S]*?)⟦\/i⟧/g, "<em>$1</em>")
       .replace(/⟦([A-D])⟧/g, '<span class="faith-col-q">$1</span>')
       .replace(/⟦(cont)⟧/gi, "")
