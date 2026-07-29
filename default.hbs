@@ -258,10 +258,18 @@
       {{#if @custom.error_worker_url}}data-error-worker-url="{{@custom.error_worker_url}}"{{/if}}
       {{#if @member}}data-member-email="{{@member.email}}" data-member-status="{{@member.status}}"{{/if}}>
 
-    {{!-- Boot bundle: title-fix, liturgical-class, mo-api-base,
+    {{!-- Boot bundle: liturgical-class, mo-api-base, mo-asset-version,
          admin-auth, safe-href, safe-redirect, DOMPurify. MUST load
          before {{{body}}} — page templates call window.MOAuth.fetch
-         and window.MOSafeHref synchronously on load. --}}
+         and window.MOSafeHref synchronously on load.
+
+         title-fix.js was dropped 2026-07-29. It patched document.title
+         and injected robots noindex from a path map, which never
+         reached a link-preview scraper — none of them run JS, which is
+         why every custom route still unfurled with the site title.
+         Both jobs are now server-rendered in each template's moHead
+         block, and the client-side map was actively overwriting the
+         better server titles. --}}
     <script src="{{asset "built/boot.min.js"}}"></script>
 
     <header class="site-header">

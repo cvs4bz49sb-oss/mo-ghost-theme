@@ -15,7 +15,7 @@
  *
  * Bundles:
  *   boot.min.js   — scripts that MUST run before {{{body}}} in
- *                   default.hbs (title-fix, liturgical, mo-api-base,
+ *                   default.hbs (liturgical, mo-api-base,
  *                   admin-auth, safe-href, safe-redirect, DOMPurify)
  *   site.min.js   — footer scripts loaded on every page
  *   post.min.js   — article-page scripts (toc, related, gate, etc.)
@@ -38,7 +38,6 @@ const BUNDLES = [
   {
     name: "boot.min.js",
     files: [
-      "assets/js/boot/title-fix.js",
       "assets/js/boot/liturgical-class.js",
       "assets/js/boot/mo-api-base.js",
       "assets/js/boot/mo-asset-version.js",
