@@ -247,12 +247,21 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({ _id: k, ...d.docs[k] })),
       indexes: { deepindex: "/data/deepindex.json", refindex: "/data/refindex.json" },
       extras: { voltoc: "/data/voltoc.json" },
-      // ONE lane. Migne prints Greek beside his own Latin, but the
-      // published text carries only one column per block — checked
-      // across a Latin index and a 3.9 MB Basil: 478 blocks, 400 with
-      // a `.tx` span, none with a translation sibling. The lane is
-      // labelled by the block's own `lang` at read time.
-      lanes: [{ id: "en", label: "Greek" }],
+      // Two lanes again. The published pages carry only one column per
+      // block, so for a while this was Greek alone — but the owner's
+      // port bundle includes the English layer as a SQLite of 111,416
+      // translated columns, and every block here already names the
+      // printed column it came from. So the English is not in the page
+      // and does not need to be: it is fetched alongside and joined on
+      // the column number. See enLayer.
+      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Greek" }],
+      // Column buckets of 100 on our R2 — a work spans one to three of
+      // them, so opening it costs ~170 KB rather than the 2.4 MB a
+      // whole volume would.
+      enLayer: {
+        base: "https://mo-tfr.mo-podcast-feed.workers.dev/v1/pg-en/",
+        bucket: 100,
+      },
       notesBase: "https://mo-tfr.mo-podcast-feed.workers.dev",
       authors: "/v1/notes/pg-authors.json",
       blurbs: "/v1/notes/pg-works.json",
@@ -290,6 +299,9 @@
               // The Migne page this column was printed on. This is
               // what the facsimile pane shows.
               scan: b.getAttribute("data-scan") || "",
+              // The printed column, which is how the English layer is
+              // keyed. See enLayer below.
+              col: b.getAttribute("data-col") || "",
               lang: langed ? langed.getAttribute("lang") || "" : "",
               en: html,
               la: "",

@@ -410,8 +410,50 @@ async function aquinasStudiesText(id) {
   return segs;
 }
 
+// ── Patrologia Latina ─────────────────────────────────────────────
+//
+// Read from the local bake rather than the network. PL is 8,967 works
+// and 1,064,832 rows, and we already hold every one of them as our own
+// JSON (scripts/build-pl-corpus.mjs) — crawling the source again to
+// index text we have on disk would be slower and would put nine
+// thousand requests on someone else's Vercel account for nothing.
+//
+// PL_OUT must point at that bake; there is no fallback, because
+// silently indexing nothing is worse than stopping.
+
+const PL_DIR = process.env.PL_OUT || path.join(os.homedir(), "mo-staging", "pl-corpus");
+
+async function pldWorks(limit) {
+  if (!existsSync(PL_DIR)) {
+    throw new Error(`PL bake not found at ${PL_DIR} — set PL_OUT`);
+  }
+  const ids = (await readdir(PL_DIR))
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => f.replace(/\.json$/, ""));
+  return limit ? ids.slice(0, limit) : ids;
+}
+
+async function pldText(id) {
+  const raw = await readFile(path.join(PL_DIR, `${id}.json`), "utf8");
+  const data = JSON.parse(raw);
+  const segs = [];
+  (data.sections || []).forEach((sec) => {
+    (sec.rows || []).forEach((r) => {
+      const la = (r.la || "").trim();
+      const en = (r.en || "").trim();
+      if (!la && !en) return;
+      // The row's own id is the anchor the reader renders, so a
+      // citation lands on the paragraph it was found in.
+      segs.push({ loc: r.id || sec.id || "", text: `${la} ${en}`.trim(), en });
+    });
+  });
+  return segs;
+}
+
 const CORPORA = {
   eebo: { works: eeboWorks, text: eeboText, concurrency: 12 },
+  // Local files: no network, so the only limit is how fast we parse.
+  pld: { works: pldWorks, text: pldText, concurrency: 8 },
   tfr: { works: tfrWorks, text: tfrText, concurrency: 4 },
   // Aquinas was pulled from the library 2026-07-28; only the Augustine
   // half of this catalogue is still indexed.

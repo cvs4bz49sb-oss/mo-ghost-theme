@@ -288,19 +288,84 @@
           description: "",
         };
         populateHeader(meta);
-        // The second lane is labelled by the language the work is
-        // actually in — "Syriac" or "Greek", not a generic "Original".
-        buildLangToggle(langLabelFrom(data.sections));
-        buildExtractToc(data.sections);
-        renderExtractSections(data.sections);
-        hideLoading();
-        saveLastRead();
-        initFacsimile(data.strip);
-        openInitialSection();
-        initModernizer();
+        return joinEnglishLayer(data).then((joined) => {
+          // The lanes are decided after the join, not before. A corpus
+          // that declares an English layer and then fails to fetch it
+          // would otherwise offer an "English" tab full of Greek.
+          if (corpus.enLayer && !joined) lanes = lanes.slice(1);
+          // The second lane is labelled by the language the work is
+          // actually in — "Syriac" or "Greek", not "Original".
+          buildLangToggle(langLabelFrom(data.sections));
+          buildExtractToc(data.sections);
+          renderExtractSections(data.sections);
+          hideLoading();
+          saveLastRead();
+          initFacsimile(data.strip);
+          openInitialSection();
+          initModernizer();
+        });
       })
       .catch((err) => {
         showError(`Could not load this work. (${err.message || err})`);
+      });
+  }
+
+  // ── A translation the page does not carry ─────────────────────
+  //
+  // Patrologia Graeca publishes Greek and no English. The English
+  // exists — 111,416 translated columns in the owner's port bundle —
+  // it simply is not in the page. Every block here names the printed
+  // Migne column it came from, and the translation is keyed on that
+  // same number, so the two are joined at read time.
+  //
+  // Fetched in hundred-column buckets: a work spans one to three of
+  // them, which is ~170 KB rather than the 2.4 MB a whole volume
+  // would cost. A bucket that fails to load leaves the Greek intact.
+
+  function joinEnglishLayer(data) {
+    const layer = corpus && corpus.enLayer;
+    if (!layer) return Promise.resolve(true);
+
+    const rows = [];
+    data.sections.forEach((s) => {
+      (s.rows || []).forEach((r) => rows.push(r));
+      (s.children || []).forEach((c) => (c.rows || []).forEach((r) => rows.push(r)));
+    });
+
+    // The volume is not in the work id; it is in the citation every
+    // block carries, "PG 31:693".
+    let vol = "";
+    const buckets = new Set();
+    rows.forEach((r) => {
+      if (!vol && r.cite) {
+        const m = String(r.cite).match(/(\d+)\s*[:,]/);
+        if (m) vol = m[1];
+      }
+      const col = parseInt(r.col, 10);
+      if (!isNaN(col)) buckets.add(Math.floor(col / layer.bucket));
+    });
+    if (!vol || !buckets.size) return Promise.resolve(false);
+
+    return Promise.all([...buckets].map((b) => fetch(`${layer.base}${vol}/${b}.json`)
+      .then((res) => (res.ok ? res.json() : null))
+      .catch(() => null)))
+      .then((parts) => {
+        const en = Object.assign({}, ...parts.filter(Boolean));
+        if (!Object.keys(en).length) return false;
+        let filled = 0;
+        rows.forEach((r) => {
+          const text = en[String(parseInt(r.col, 10))];
+          if (!text) return;
+          // The Greek moves to the second lane and the English takes
+          // the first, which is the order every other bilingual work
+          // in the room already uses.
+          r.la = r.en;
+          r.en = escapeHtml(text).replace(/\n+/g, "<br>");
+          filled += 1;
+        });
+        // A handful of matches across a whole work is a mis-join, not
+        // a translation. Better one honest lane than two dishonest.
+        return filled >= Math.max(3, rows.length * 0.2);
       });
   }
 
