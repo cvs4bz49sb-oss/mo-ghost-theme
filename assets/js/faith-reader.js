@@ -1042,6 +1042,30 @@
     });
   }
 
+  // ── Work introductions ────────────────────────────────────────
+  //
+  // The corpus publishes a blurb per work — a hundred words on what
+  // the thing is and why it matters. It has been on the CDN the whole
+  // time and no surface had ever fetched it. Loaded lazily, after the
+  // text, because it is orientation and not the reason anyone came.
+
+  let blurbPromise = null;
+
+  function loadBlurb() {
+    if (!corpus || !corpus.blurbs) return Promise.resolve("");
+    if (!blurbPromise) {
+      blurbPromise = fetch(corpus.base + corpus.blurbs)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+    }
+    return blurbPromise.then((all) => {
+      if (!all) return "";
+      const hit = all[slug];
+      if (!hit) return "";
+      return typeof hit === "string" ? hit : hit.blurb || "";
+    });
+  }
+
   function sanitize(html) {
     if (window.DOMPurify && typeof window.DOMPurify.sanitize === "function") {
       return window.DOMPurify.sanitize(html);
@@ -1141,6 +1165,14 @@
     if (descEl) {
       descEl.textContent = m.description || "";
       if (!m.description) descEl.hidden = true;
+      // A hundred words on what this thing is, before anyone has to
+      // decide whether to read it. The corpus ships these for 649 of
+      // its works and nothing had ever put them on the page.
+      loadBlurb().then((text) => {
+        if (!text) return;
+        descEl.textContent = text;
+        descEl.hidden = false;
+      });
     }
     // Update the page title.
     if (m.title) {

@@ -272,6 +272,21 @@
     appendCards(grid, slice, ([name, works]) => buildAuthorCard(collectionId, name, works));
   }
 
+  // Author notes, fetched once per collection and only when someone
+  // opens an author. The file is 204 records for the Latin corpus and
+  // will be far larger for the others; nothing needs it up front.
+  const authorNotes = new Map();
+
+  function loadAuthorNotes(c) {
+    if (!c.meta.authors) return Promise.resolve(null);
+    if (!authorNotes.has(c.meta.id)) {
+      authorNotes.set(c.meta.id, fetch(c.meta.base + c.meta.authors)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null));
+    }
+    return authorNotes.get(c.meta.id);
+  }
+
   function renderWorks(collectionId, author, page) {
     const c = collections.get(collectionId);
     const grid = libraryGrid();
@@ -293,6 +308,23 @@
         ? "These works are catalogued and indexed. Full text is being ported."
         : "",
       pager: pages > 1 ? { page: p, pages, total: works.length, label: "works" } : null,
+    });
+
+    // Who this person was, before the list of what they wrote. The
+    // corpus ships bios with dates, tradition and affiliation, and
+    // until now nothing on the site had ever asked for them.
+    loadAuthorNotes(c).then((notes) => {
+      const n = notes && notes[author];
+      if (!n) return;
+      const head = grid.parentNode.querySelector(".faith-browse-head");
+      if (!head || head.querySelector(".faith-author-bio")) return;
+      const meta = [n.dates, n.tradition, n.affiliation].filter(Boolean).join(" · ");
+      const wrap = document.createElement("div");
+      wrap.className = "faith-author-bio";
+      wrap.innerHTML =
+        (meta ? `<p class="faith-author-meta">${escapeHtml(meta)}</p>` : "") +
+        (n.bio ? `<p class="faith-author-bio-text">${escapeHtml(n.bio)}</p>` : "");
+      if (wrap.innerHTML) head.appendChild(wrap);
     });
 
     appendCards(grid, slice, buildWorkCard);
