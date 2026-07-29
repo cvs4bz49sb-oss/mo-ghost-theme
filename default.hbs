@@ -62,7 +62,33 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com https://js.stripe.com https://plausible.io https://mo-admin.mo-podcast-feed.workers.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.buzzsprout.com https://js.stripe.com https://challenges.cloudflare.com https://embed.spotify.com https://open.spotify.com https://mereorthodoxy.com https://mo-test.ghost.io; connect-src 'self' https://mo-test.ghost.io https://mo-admin.mo-podcast-feed.workers.dev https://mo-audio.mo-podcast-feed.workers.dev https://mo-bible.mo-podcast-feed.workers.dev https://mo-ebook-access.mo-podcast-feed.workers.dev https://mo-email.mo-podcast-feed.workers.dev https://mo-errors.mo-podcast-feed.workers.dev https://mo-forms.mo-podcast-feed.workers.dev https://mo-gift.mo-podcast-feed.workers.dev https://mo-kit.mo-podcast-feed.workers.dev https://mo-kit-bridge.mo-podcast-feed.workers.dev https://mo-membership.mo-podcast-feed.workers.dev https://mo-pdf.mo-podcast-feed.workers.dev https://mo-podcast-feed.mo-podcast-feed.workers.dev https://mo-search.mo-podcast-feed.workers.dev https://mo-tfr-library.mo-podcast-feed.workers.dev https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com https://mo-tfr.mo-podcast-feed.workers.dev https://eebo-backup.vercel.app https://pld-patrologia-latina.vercel.app https://patrologia-graeca.vercel.app https://patrologia-orientalis.vercel.app https://aquinas-studies.vercel.app https://mereorthodoxy.com https://www.mereorthodoxy.com https://api.stripe.com https://plausible.io https://challenges.cloudflare.com; form-action 'self' https://challenges.cloudflare.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-    <title>{{meta_title}}</title>
+    {{!-- Per-template document title + social meta.
+
+         This used to be a flat `<title>{{meta_title}}</title>`, which
+         is correct for posts, pages, tags and authors — Ghost resolves
+         meta from the record behind the route. It is wrong for the
+         ~150 routes.yaml routes bound straight to a template with no
+         Ghost Page record: {{meta_title}} falls all the way back to
+         the site title, and {{ghost_head}} emits that same site title
+         as og:title / twitter:title. Every one of them unfurled as
+         "Mere Orthodoxy | Faith, Formation, Church, and Culture" —
+         reported 2026-07-29 for /daily-liturgy/read/.
+
+         So the title belongs to the template, not the layout. Each
+         one fills {{#contentFor "moHead"}} with its own <title> plus
+         og:/twitter: overrides; index/post/page/tag/author/error fill
+         it with {{meta_title}}, exactly what was here before.
+
+         The og:/twitter: overrides work because this block sits above
+         {{ghost_head}} and every scraper takes the FIRST tag it sees.
+         Same first-tag-wins trick as the og:image fallback below.
+         Ghost still emits its site-level pair further down; harmless,
+         and there is no way to suppress it from a theme.
+
+         TRAP: an empty block emits no <title> at all. `npm run
+         check:meta` fails the build if any template using this layout
+         is missing its moHead block — do not delete that check. --}}
+    {{{block "moHead"}}}
     <meta name="theme-color" content="#1d1b18">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
