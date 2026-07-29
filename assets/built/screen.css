@@ -14165,6 +14165,18 @@ mark.faith-find-hit.is-current {
   gap: 2px;
   margin-top: 18px;
 }
+/* "All" is a word sitting in a rail of single letters, and it is the
+   default state — give it room and a hairline so it reads as the way
+   back rather than another initial. */
+.faith-az-all {
+  min-width: auto;
+  padding-right: 10px;
+  margin-right: 4px;
+  border-right: 1px solid var(--color-card-border) !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .faith-az-btn {
   font-family: var(--font-body);
   font-size: 12px;

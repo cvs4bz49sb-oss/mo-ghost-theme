@@ -244,7 +244,12 @@
     const letters = [...new Set(all.map(([n]) => initial(n)))]
       .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
     const useLetters = !q && all.length > PAGE_SIZE * 2 && letters.length > 1;
-    const active = useLetters ? (letter && letters.includes(letter) ? letter : letters[0]) : null;
+    // Default to the whole collection, not to the first letter. Landing
+    // on "A" showed 228 of Patrologia Latina's 2,025 authors under a
+    // count that read like a total, and the shelf appeared to end at
+    // Aymard of Cluny. The rail is a way to jump, not a filter you have
+    // to notice you are inside of; paging is what bounds the render.
+    const active = useLetters && letter && letters.includes(letter) ? letter : "";
     if (active) entries = entries.filter(([n]) => initial(n) === active);
 
     const pages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
@@ -304,9 +309,13 @@
         `aria-label="Filter authors">`
       : "";
     const lettersHtml = opts.letters
-      ? `<nav class="faith-az" aria-label="Jump to letter">${opts.letters.list
-          .map((l) => `<button type="button" class="faith-az-btn${l === opts.letters.active ? " is-active" : ""}" data-faith-letter="${escapeHtml(l)}">${escapeHtml(l)}</button>`)
-          .join("")}</nav>`
+      ? `<nav class="faith-az" aria-label="Jump to letter">` +
+        // "All" is the default and has to be reachable again once a
+        // letter has been picked, or the rail is a one-way door.
+        `<button type="button" class="faith-az-btn faith-az-all${opts.letters.active ? "" : " is-active"}" data-faith-letter="">All</button>${
+          opts.letters.list
+            .map((l) => `<button type="button" class="faith-az-btn${l === opts.letters.active ? " is-active" : ""}" data-faith-letter="${escapeHtml(l)}">${escapeHtml(l)}</button>`)
+            .join("")}</nav>`
       : "";
     const pagerHtml = opts.pager
       ? `<p class="faith-pager">` +
