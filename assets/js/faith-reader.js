@@ -420,11 +420,53 @@
   // English, fall back to the original, and keep it to a line — some
   // of these headings run to the whole argument of the psalm.
   function headingText(r) {
-    const raw = String(r.en || r.la || "").replace(/<[^>]*>/g, "").trim();
+    const raw = calmCaps(String(r.en || r.la || "").replace(/<[^>]*>/g, "").trim());
     if (raw.length <= 90) return raw;
     const cut = raw.slice(0, 90);
     const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(" "));
     return `${cut.slice(0, stop > 40 ? stop : 90).trim()}…`;
+  }
+
+  // These sources set every heading in full capitals. That is a
+  // typesetting convention of the printed edition, not something the
+  // author wrote, and two hundred of them down a page is a wall of
+  // shouting. Recase — but only when the line really is all capitals,
+  // and never at the cost of a roman numeral, which is the one thing
+  // in a chapter heading that has to stay uppercase to stay readable.
+  const MINOR = new Set([
+    // English
+    "a", "an", "and", "as", "at", "but", "by", "for", "from",
+    "in", "nor", "of", "on", "or", "the", "to", "unto", "upon", "with",
+    // Latin, because half these headings are
+    "ac", "ad", "contra", "cum", "de", "et", "ex", "per", "post", "pro",
+    "seu", "sive", "sub", "super", "vel",
+  ]);
+  const ROMAN = /^[IVXLCDM]+$/;
+
+  // Sentence by sentence, not whole-string: these headings often open
+  // with a shouted title and continue in ordinary case — "ENARRATION ON
+  // PSALM III. A psalm of David, when he fled…". Judging the whole line
+  // leaves the shouting in place because the sentence after it drags
+  // the ratio down.
+  function calmCaps(s) {
+    return s.split(/(\s*[.!?·]\s+)/).map(calmClause).join("");
+  }
+
+  function calmClause(s) {
+    const letters = s.replace(/[^A-Za-z]/g, "");
+    if (letters.length < 4) return s;
+    const upper = s.replace(/[^A-Z]/g, "").length;
+    // Mixed case is already how the author meant it.
+    if (upper / letters.length < 0.8) return s;
+
+    let first = true;
+    return s.replace(/[A-Za-z][A-Za-z'’-]*/g, (word) => {
+      if (ROMAN.test(word) && word.length > 1) { first = false; return word; }
+      const low = word.toLowerCase();
+      if (!first && MINOR.has(low)) return low;
+      first = false;
+      return low.charAt(0).toUpperCase() + low.slice(1);
+    });
   }
 
   function buildExtractToc(sections) {

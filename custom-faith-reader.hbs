@@ -140,6 +140,38 @@
   grid-template-columns: 1fr;
 }
 
+/* ── Quieter hierarchy in the reader ──────────────────────────────
+   A work with 211 chapters cannot set every chapter title at display
+   size in italic — the page reads as an argument between headings
+   rather than a text with an outline. Scoped to [data-fr-content] so
+   the tabs on /the-faith-received/ keep their own scale.
+
+   The work title is the one thing that should be large. Below it:
+   the book is a quiet label, the chapter is a plain line, and the
+   text is what the eye lands on. */
+[data-fr-content] .faith-section-title {
+  font-size: 17px;
+  line-height: 1.35;
+  font-style: normal;
+  margin: 0 0 10px;
+}
+[data-fr-content] .faith-section-title em { font-style: normal; }
+[data-fr-content] .faith-section-subtitle {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+/* The book label: a running head, not a headline. */
+[data-fr-content] .faith-part-eyebrow {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--color-muted);
+  margin: 0 0 6px;
+}
+[data-fr-content] .faith-book-subtitle { font-size: 12px; }
+
 /* ── Latin text styling ───────────────────────────────────────── */
 .faith-col-la {
   font-style: italic;
