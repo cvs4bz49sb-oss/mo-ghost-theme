@@ -23825,14 +23825,14 @@ html[data-theme="dark"] .dlr-header-logo {
   color: var(--color-primary);
   opacity: 0.5;
 }
-/* Every kind label is two words, so it never needs more than two
-   lines even at the narrowest tile. The reserved two-line box keeps
-   the titles on one baseline across the row whether the label wraps
-   or not; the clamp is a guard in case a label ever grows. */
+/* The kind is the content type, one word each (Devotional, Essay,
+   Podcast), so it always fits on one line at any tile width and every
+   title sits on the same baseline across the row. If a longer label is
+   ever added, restore a two-line reserve here rather than letting it
+   wrap — a three-line label knocks that tile's title out of line. */
 .dash-new-kind {
-  display: -webkit-box;
+  display: block;
   margin: 12px 0 5px;
-  min-height: 28px;
   font-family: var(--font-body);
   font-size: 11px;
   line-height: 1.25;
@@ -23840,9 +23840,7 @@ html[data-theme="dark"] .dlr-header-logo {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-primary-text);
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  white-space: nowrap;
 }
 .dash-new-item-title {
   font-family: var(--font-display);
@@ -23889,8 +23887,6 @@ html[data-theme="dark"] .dlr-header-logo {
     opacity: 1;
   }
   .dash-new-item-title { font-size: 18px; }
-  /* Tiles are wide enough here that every label fits on one line. */
-  .dash-new-kind { min-height: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
