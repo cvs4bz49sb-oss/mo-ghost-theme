@@ -318,7 +318,7 @@
       .then((data) => {
         const list = (data && data.bookmarks) || [];
         renderList(mount, list, "bookmarks", {
-          emptyMsg: "No bookmarks yet. Tap the bookmark icon on any essay to save it here.",
+          emptyMsg: "No bookmarks yet. Tap the bookmark icon on any essay, episode, or devotional to save it here.",
         });
       })
       .catch(() => {
@@ -723,7 +723,10 @@
       e.preventDefault();
       e.stopPropagation();
       btn.disabled = true;
-      moKitPost(endpoint, { postId: entry.postId })
+      // Bookmarks hold Ghost posts (postId) and typed items — podcast
+      // episodes, the daily devotional (itemId). Reading history is
+      // posts only, so it always has a postId.
+      moKitPost(endpoint, entry.itemId ? { itemId: entry.itemId } : { postId: entry.postId })
         .then(() => { removeNode.remove(); })
         .catch(() => { btn.disabled = false; });
     });

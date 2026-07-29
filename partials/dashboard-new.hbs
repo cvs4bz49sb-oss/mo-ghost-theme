@@ -22,11 +22,12 @@
 
      The Daily Liturgy tile links to the online reader, not the audio.
 
-     Only the essay tiles carry a bookmark button: mo-kit stores
-     bookmarks as Ghost post ids and drops anything it can't enrich
-     from the Content API, so a saved podcast episode or devotional
-     would vanish from /dashboard/bookmarks/ rather than fail loudly.
-     Extending that needs a worker change and a deploy. --}}
+     Every tile is saveable. Essays save as a Ghost post id; the
+     devotional and the two episodes save as typed items (itemId +
+     type + title + same-site url + cover), which mo-kit stores with
+     their display data since nothing upstream can resolve them later.
+     The two episode buttons ship hidden and are revealed by the
+     script once the feed says which episode the tile is showing. --}}
 
 <details class="dash-new" data-dash-new open>
   <summary class="dash-new-summary">
@@ -43,6 +44,21 @@
         <span class="dash-new-kind">Devotional</span>
         <h3 class="dash-new-item-title"><em data-dash-new-title>Today&rsquo;s Devotional</em></h3>
       </a>
+      {{#if @custom.kit_worker_url}}
+        <button class="dash-new-bookmark" type="button"
+                data-dash-new-bookmark
+                data-item-type="devotional"
+                data-item-label="The Daily Liturgy"
+                data-item-url="/daily-liturgy/read/"
+                data-item-image="https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy-Podcast-Covers--2-.jpg"
+                aria-label="Save for later"
+                aria-pressed="false" hidden>
+          <svg class="dash-new-bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="dash-new-bookmark-outline" d="M6 3h12v18l-6-4-6 4V3z" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path class="dash-new-bookmark-fill" d="M6 3h12v18l-6-4-6 4V3z" fill="currentColor"/>
+          </svg>
+        </button>
+      {{/if}}
     </li>
 
     {{!-- II. Today's essays. Rendered hidden; the script unhides the
@@ -61,14 +77,13 @@
           </a>
           {{!-- Save-for-later, sibling of the link rather than inside it
                (a button nested in an anchor is invalid and untappable).
-               Same worker endpoints as the article page's bookmark
-               button; dashboard-whats-new.js sets the initial state
-               from /bookmarks?ids_only=1. --}}
+               Essays already have their identifier server-side, so this
+               one is visible from the start. --}}
           {{#if @custom.kit_worker_url}}
             <button class="dash-new-bookmark" type="button"
                     data-dash-new-bookmark
                     data-post-id="{{id}}"
-                    aria-label="Bookmark {{title}}"
+                    aria-label="Save for later"
                     aria-pressed="false">
               <svg class="dash-new-bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path class="dash-new-bookmark-outline" d="M6 3h12v18l-6-4-6 4V3z" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -87,6 +102,20 @@
         <span class="dash-new-kind">Podcast</span>
         <h3 class="dash-new-item-title"><em data-dash-new-title>Latest Episode</em></h3>
       </a>
+      {{#if @custom.kit_worker_url}}
+        <button class="dash-new-bookmark" type="button"
+                data-dash-new-bookmark
+                data-item-type="podcast"
+                data-item-label="Mere Fidelity"
+                data-item-image="{{asset "images/mere-fidelity.jpg"}}"
+                aria-label="Save for later"
+                aria-pressed="false" hidden>
+          <svg class="dash-new-bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="dash-new-bookmark-outline" d="M6 3h12v18l-6-4-6 4V3z" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path class="dash-new-bookmark-fill" d="M6 3h12v18l-6-4-6 4V3z" fill="currentColor"/>
+          </svg>
+        </button>
+      {{/if}}
     </li>
 
     {{!-- IV. Christians Reading Classics --}}
@@ -96,6 +125,20 @@
         <span class="dash-new-kind">Podcast</span>
         <h3 class="dash-new-item-title"><em data-dash-new-title>Latest Episode</em></h3>
       </a>
+      {{#if @custom.kit_worker_url}}
+        <button class="dash-new-bookmark" type="button"
+                data-dash-new-bookmark
+                data-item-type="podcast"
+                data-item-label="Christians Reading Classics"
+                data-item-image="{{asset "images/christians-reading-classics.jpg"}}"
+                aria-label="Save for later"
+                aria-pressed="false" hidden>
+          <svg class="dash-new-bookmark-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="dash-new-bookmark-outline" d="M6 3h12v18l-6-4-6 4V3z" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path class="dash-new-bookmark-fill" d="M6 3h12v18l-6-4-6 4V3z" fill="currentColor"/>
+          </svg>
+        </button>
+      {{/if}}
     </li>
 
   </ul>

@@ -15,9 +15,10 @@
  *      title from the mo-podcast-feed worker. The tiles already carry
  *      artwork, a fallback title, and a working link, so a worker
  *      outage costs nothing but the episode name.
- *   3. Wire the save-for-later buttons on the essay tiles — same
- *      mo-kit endpoints as the article page's bookmark button, one
- *      shared ids_only lookup for the initial state.
+ *   3. Wire the save-for-later buttons. Essays save as a Ghost post
+ *      id; the devotional and the two episodes save as typed items,
+ *      since mo-kit has no way to resolve them later. One shared
+ *      ids_only lookup covers both for the initial state.
  *   4. Remember whether the section is collapsed.
  *   5. On phones the rail is a snap carousel: the tile nearest the
  *      centre keeps its colour, the rest desaturate. Desktop is a
@@ -107,20 +108,89 @@
           // The Daily Liturgy tile keeps its reader link.
           const link = li.querySelector("[data-dash-new-link]");
           const id = ep.id == null ? "" : String(ep.id);
-          if (link && /^[\w-]+$/.test(id)) link.hash = `ep-${id}`;
+          const identified = link && /^[\w-]+$/.test(id);
+          if (identified) link.hash = `ep-${id}`;
+
+          // The episode is only saveable once we know which episode it
+          // is, so its button ships hidden and is revealed here. A show
+          // whose feed didn't resolve keeps a tile with no save control
+          // rather than one that saves the wrong thing.
+          const btn = li.querySelector("[data-dash-new-bookmark]");
+          if (btn && identified && /^[a-z0-9-]+$/.test(slug)) {
+            btn.setAttribute("data-item-id", `podcast:${slug}:${id}`);
+            btn.setAttribute("data-item-url", `/podcasts/${slug}/#ep-${id}`);
+            btn.removeAttribute("hidden");
+          }
         });
+        paintBookmarks();
         setActiveTile();
       })
       .catch(() => { /* fallback titles stay */ });
   }
 
   /* ── 3. Save for later ───────────────────────────────────────── */
+  //
+  // Two shapes go to the same endpoints. An essay tile carries
+  // data-post-id and saves as a Ghost post. The devotional and the two
+  // episodes have no post id, so they save as typed items —
+  // itemId + type + title + same-site url + cover — which mo-kit stores
+  // with their display data and hands back to /dashboard/bookmarks/
+  // in the same shape as an enriched post.
+
+  const saved = Object.create(null);
+  const busy = Object.create(null);
+  let bookmarkButtons = [];
+
+  function bookmarkKey(btn) {
+    return btn.getAttribute("data-post-id") || btn.getAttribute("data-item-id") || "";
+  }
+
+  // Read the title off the tile rather than a data attribute: the
+  // podcast titles are replaced when the feed lands, and the label
+  // should follow.
+  function tileTitle(btn) {
+    const li = btn.closest(".dash-new-item");
+    const el = li && li.querySelector(".dash-new-item-title");
+    return el ? (el.textContent || "").trim() : "";
+  }
+
+  function paintBookmark(btn) {
+    const on = !!saved[bookmarkKey(btn)];
+    const title = tileTitle(btn);
+    btn.classList.toggle("is-bookmarked", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    btn.setAttribute(
+      "aria-label",
+      on
+        ? `Remove bookmark${title ? ` from ${title}` : ""}`
+        : `Save${title ? ` ${title}` : ""} for later`,
+    );
+  }
+
+  function paintBookmarks() {
+    bookmarkButtons.forEach(paintBookmark);
+  }
+
+  function bookmarkBody(btn) {
+    const postId = btn.getAttribute("data-post-id");
+    if (postId) return { postId };
+    const itemId = btn.getAttribute("data-item-id");
+    if (!itemId) return null;
+    return {
+      itemId,
+      type: btn.getAttribute("data-item-type") || "",
+      title: tileTitle(btn),
+      url: btn.getAttribute("data-item-url") || "",
+      image: btn.getAttribute("data-item-image") || "",
+      label: btn.getAttribute("data-item-label") || "",
+    };
+  }
 
   function wireBookmarks() {
-    const buttons = Array.prototype.slice.call(
+    bookmarkButtons = Array.prototype.slice.call(
       rail.querySelectorAll("[data-dash-new-bookmark]"),
     );
-    if (!buttons.length) return;
+    if (!bookmarkButtons.length) return;
 
     const worker = (document.body.getAttribute("data-kit-worker-url") || "").replace(/\/$/, "");
     const email = document.body.getAttribute("data-member-email") || "";
@@ -128,59 +198,63 @@
     // The rail only renders inside the paid/comped dashboard body, but
     // don't assume it: an unsaveable button is worse than no button.
     if (!worker || !email || (status !== "paid" && status !== "comped")) {
-      buttons.forEach((b) => b.remove());
+      bookmarkButtons.forEach((b) => b.remove());
+      bookmarkButtons = [];
       return;
     }
 
-    const saved = Object.create(null);
-    const busy = Object.create(null);
-
-    function paint(btn, on) {
-      const title = btn.getAttribute("data-title") || "";
-      btn.classList.toggle("is-bookmarked", !!on);
-      btn.setAttribute("aria-pressed", on ? "true" : "false");
-      btn.setAttribute("aria-label", on ? `Remove bookmark${title ? ` from ${title}` : ""}` : `Bookmark${title ? ` ${title}` : ""}`);
+    // The devotional is identified by the day it belongs to, so it can be
+    // saved before (or without) the podcast feed resolving. Same date the
+    // essay tiles are filtered against, so it stays in the site's timezone.
+    const devotional = rail.querySelector('[data-item-type="devotional"]');
+    if (devotional) {
+      devotional.setAttribute("data-item-id", `devotional:${resolveToday()}`);
+      devotional.removeAttribute("hidden");
     }
 
-    // The aria-label ships as "Bookmark <title>"; keep the title so the
-    // label can be rebuilt when the state flips.
-    buttons.forEach((btn) => {
-      const label = btn.getAttribute("aria-label") || "";
-      btn.setAttribute("data-title", label.replace(/^Bookmark\s*/, ""));
-    });
+    paintBookmarks();
 
     window.MOAuth.fetch(`${worker}/bookmarks?ids_only=1`, {
       method: "GET", mode: "cors", credentials: "omit",
     })
       .then((r) => { return r.ok ? r.json() : null; })
       .then((data) => {
-        const ids = (data && data.postIds) || [];
-        ids.forEach((id) => { saved[id] = true; });
-        buttons.forEach((btn) => {
-          paint(btn, saved[btn.getAttribute("data-post-id")]);
-        });
+        if (!data) return;
+        (data.postIds || []).forEach((id) => { saved[id] = true; });
+        (data.itemIds || []).forEach((id) => { saved[id] = true; });
+        paintBookmarks();
       })
       .catch(() => { /* buttons start unsaved */ });
 
-    buttons.forEach((btn) => {
+    bookmarkButtons.forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
-        const id = btn.getAttribute("data-post-id");
-        if (!id || busy[id]) return;
-        busy[id] = true;
-        const next = !saved[id];
-        saved[id] = next;
-        paint(btn, next);
+        const key = bookmarkKey(btn);
+        const body = bookmarkBody(btn);
+        if (!key || !body || busy[key]) return;
+        busy[key] = true;
+        const next = !saved[key];
+        saved[key] = next;
+        paintBookmark(btn);
         window.MOAuth.fetch(worker + (next ? "/bookmarks/add" : "/bookmarks/remove"), {
           method: "POST",
           mode: "cors",
           credentials: "omit",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ postId: id }),
+          // Removal only needs the identifier; sending the whole item
+          // would let a stale tile overwrite nothing, but it is noise.
+          body: JSON.stringify(next ? body : (body.postId ? { postId: body.postId } : { itemId: body.itemId })),
         })
-          .then((r) => { if (!r.ok) throw new Error(`worker ${r.status}`); })
-          .catch(() => { saved[id] = !next; paint(btn, !next); })
-          .then(() => { busy[id] = false; });
+          .then((r) => {
+            if (r.ok) return;
+            // A 400 on a typed item means this mo-kit doesn't understand
+            // them yet (the theme deploys on push; the worker doesn't).
+            // Drop the control rather than leave one that can't save.
+            if (r.status === 400 && !body.postId) btn.remove();
+            throw new Error(`worker ${r.status}`);
+          })
+          .catch(() => { saved[key] = !next; paintBookmark(btn); })
+          .then(() => { busy[key] = false; });
       });
     });
   }

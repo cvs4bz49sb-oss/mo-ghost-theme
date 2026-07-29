@@ -23882,6 +23882,9 @@ html[data-theme="dark"] .dlr-header-logo {
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
+/* display on the class outranks the [hidden] attribute, and the two
+   episode buttons ship hidden until the feed identifies the episode. */
+.dash-new-bookmark[hidden] { display: none; }
 .dash-new-bookmark:hover {
   background: var(--color-white);
   border-color: var(--color-primary);
