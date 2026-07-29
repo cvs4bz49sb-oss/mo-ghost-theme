@@ -13803,6 +13803,15 @@ body.mo-search-open { overflow: hidden; }
 /* ── Reader tools: find, notebook ─────────────────────────────────
    Apparatus, not furniture. Both sit in the reading controls and stay
    out of the text until asked for. */
+/* These three panels are toggled with the `hidden` attribute, and each
+   of them sets `display` — which beats the UA stylesheet's
+   `[hidden] { display: none }` and left the Notebook and the find bar
+   permanently on screen with a close button that did nothing. Any
+   component here that sets display must also say what hidden means. */
+.faith-find[hidden],
+.faith-notebook[hidden],
+.faith-facs[hidden] { display: none; }
+
 .faith-find {
   display: flex;
   align-items: center;
