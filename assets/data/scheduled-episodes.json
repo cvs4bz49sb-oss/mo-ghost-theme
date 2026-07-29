@@ -1,32 +1,18 @@
 {
   "mere-fidelity": {
-    "id": 19567716,
-    "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-    "slug": "replay-conservatism-with-dr-yoram-hazony",
-    "pubDate": "2026-07-29T05:00:00.000-04:00",
+    "id": 19565507,
+    "title": "Replay: The Struggle of Prayer",
+    "slug": "replay-the-struggle-of-prayer",
+    "pubDate": "2026-08-05T05:00:00.000-04:00",
     "episode": 26,
     "season": 3,
-    "description": "What hath Enlightenment Liberalism wrought? According to Dr. Yoram Hazony, chairman of the Edmund Burke Foundation, it has led us to the place we are today where Neo-Marxism is ascendant and we cannot conceive a higher good than consent. What’s the alternative? National Conservatism. Listen to this lively conversation with Derek, Alastair, Matt, and Dr. Hazony.&nbsp;",
+    "description": "Matt, Derek, and Alastair discuss the struggles and misconceptions surrounding prayer: how prayer becomes burdensome, prayer has experiencing God in a veiled way, and what petitions in prayer should we not ask for?",
     "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
-    "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19567716-replay-conservatism-with-dr-yoram-hazony.mp3",
+    "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19565507-replay-the-struggle-of-prayer.mp3",
     "link": "https://mereorthodoxy.com/podcasts/mere-fidelity/",
-    "embedUrl": "https://www.buzzsprout.com/2612792/19567716?client_source=small_player&iframe=true",
+    "embedUrl": "https://www.buzzsprout.com/2612792/19565507?client_source=small_player&iframe=true",
     "hasTranscript": true,
-    "transcriptUrl": "/transcript/mere-fidelity/replay-conservatism-with-dr-yoram-hazony/"
+    "transcriptUrl": "/transcript/mere-fidelity/replay-the-struggle-of-prayer/"
   },
-  "christians-reading-classics": {
-    "id": 19563706,
-    "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-    "slug": "augustine-enchiridion-and-morals-of-the-catholic-church-with-joseph-lanier-and-travis-montgomery",
-    "pubDate": "2026-07-29T05:00:00.000-04:00",
-    "episode": 26,
-    "season": 2,
-    "description": "A pastor asks Augustine for a short summary of the Christian life, and Augustine delivers a compact handbook that is so honest it practically stops mid-sprint when it reaches love. That tension, between real-life limits and real spiritual depth, is where our conversation lives today. We are joined by Joseph Lanier and Travis Montgomery, co-authors of *Every Perfect Gift: Classical Virtues for Christian Formation*, to explore why Augustine still trains our instincts for discipleship, moral theology, and spiritual formation.",
-    "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
-    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19563706-augustine-enchiridion-and-morals-of-the-catholic-church-with-joseph-lanier-and-travis-montgomery.mp3",
-    "link": "https://mereorthodoxy.com/podcasts/christians-reading-classics/",
-    "embedUrl": "https://www.buzzsprout.com/2612793/19563706?client_source=small_player&iframe=true",
-    "hasTranscript": true,
-    "transcriptUrl": "/transcript/christians-reading-classics/augustine-enchiridion-and-morals-of-the-catholic-church-with-joseph-lanier-and-travis-montgomery/"
-  }
+  "christians-reading-classics": null
 }
