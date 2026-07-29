@@ -317,13 +317,13 @@
       const n = notes && notes[author];
       if (!n) return;
       const head = grid.parentNode.querySelector(".faith-browse-head");
-      if (!head || head.querySelector(".faith-author-bio")) return;
+      if (!head || head.querySelector(".faith-browse-bio")) return;
       const meta = [n.dates, n.tradition, n.affiliation].filter(Boolean).join(" · ");
       const wrap = document.createElement("div");
-      wrap.className = "faith-author-bio";
+      wrap.className = "faith-browse-bio";
       wrap.innerHTML =
-        (meta ? `<p class="faith-author-meta">${escapeHtml(meta)}</p>` : "") +
-        (n.bio ? `<p class="faith-author-bio-text">${escapeHtml(n.bio)}</p>` : "");
+        (meta ? `<p class="faith-browse-bio-meta">${escapeHtml(meta)}</p>` : "") +
+        (n.bio ? `<p class="faith-browse-bio-text">${escapeHtml(n.bio)}</p>` : "");
       if (wrap.innerHTML) head.appendChild(wrap);
     });
 

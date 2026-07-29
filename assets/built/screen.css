@@ -14168,6 +14168,31 @@ mark.faith-find-hit.is-current {
 /* "All" is a word sitting in a rail of single letters, and it is the
    default state — give it room and a hairline so it reads as the way
    back rather than another initial. */
+/* Who the author was, above the list of what they wrote. A note, not
+   a card: hairline, indented, quiet. Named faith-browse-* because
+   .faith-author-bio already belongs to the standalone author page. */
+.faith-browse-bio {
+  max-width: 56ch;
+  margin: 14px 0 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--color-card-border);
+}
+.faith-browse-bio-meta {
+  margin: 0 0 6px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.faith-browse-bio-text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
 .faith-az-all {
   min-width: auto;
   padding-right: 10px;
