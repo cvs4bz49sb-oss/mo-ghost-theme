@@ -197,6 +197,18 @@
 [data-fr-content] .faith-col-en p:last-child,
 [data-fr-content] .faith-col-la p:last-child { margin-bottom: 0; }
 
+/* Editors' scripture citations. Apparatus, not prose and not links:
+   they sit in the line at a smaller size, with room in front of them,
+   and take the accent only when they actually resolve somewhere. */
+.faith-ref {
+  font-size: 0.82em;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.faith-ref::before { content: " "; }
+a.faith-ref { color: var(--color-primary); text-decoration: none; }
+a.faith-ref:hover { text-decoration: underline; }
+
 /* ── Latin text styling ───────────────────────────────────────── */
 .faith-col-la {
   font-style: italic;

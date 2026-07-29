@@ -207,6 +207,7 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({_id: k, ...d.docs[k]})),
       indexes: { topics: "/data/topics.json", refindex: "/data/refindex.json" },
       lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
+      modernize: true,
       // Baked into our own JSON and served from our R2, not fetched
       // from the source. The source site is gated, and a browser can
       // only get through that gate if we hand it the key — so we
@@ -249,6 +250,7 @@
       // a `.tx` span, none with a translation sibling. The lane is
       // labelled by the block's own `lang` at read time.
       lanes: [{ id: "en", label: "Greek" }],
+      modernize: true,
       reader: "html-extract",
       readable: true,
       // /read/<id>.html, the same page the source site serves. No
@@ -364,6 +366,7 @@
       // it. The printed translation is kept as a footer line on the
       // block rather than a third column the reader has no room for.
       lanes: [{ id: "en", label: "English" }, { id: "la", label: "Original" }],
+      modernize: true,
       reader: "html-extract",
       readable: true,
       // /read/<id> — read/<id>.html 308-redirects to it.
@@ -456,6 +459,7 @@
       indexes: { refindex: "/data/refindex.json" },
       extras: { summa: "/data/summa.json" },
       lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
+      modernize: true,
 
       // No per-work JSON is published, but the reader pages are clean:
       // the source already nests <details class="collapse-question">

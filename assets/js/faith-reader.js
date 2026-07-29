@@ -585,10 +585,12 @@
       const en = document.createElement("div");
       en.className = "faith-col-en";
       en.innerHTML = sanitize(r.en);
+      dressRefs(en);
 
       const la = document.createElement("div");
       la.className = "faith-col-la";
       la.innerHTML = sanitize(r.la);
+      dressRefs(la);
 
       block.appendChild(en);
       block.appendChild(la);
@@ -1005,6 +1007,41 @@
   // EEBO-TCP markup is third-party HTML. DOMPurify ships in the boot
   // bundle; if it somehow isn't there, fall back to text so a missing
   // sanitizer can never become an injection.
+  // The editors' scripture citations arrive as <a> tags with no href —
+  // 3,235 of them in the Confessions alone. They are footnotes, not
+  // links, and the theme was styling them as links and setting them
+  // flush against the word before: "…for the sons of AdamSee Gen 3:16;
+  // Sir 40:1.." So: give them room, mark them as apparatus, and where
+  // the citation resolves, make the link real.
+  function dressRefs(root) {
+    root.querySelectorAll("a:not([href])").forEach((a) => {
+      const raw = a.textContent.trim();
+      if (!raw) { a.remove(); return; }
+      const span = document.createElement("span");
+      span.className = "faith-ref";
+      span.textContent = raw;
+
+      // A citation the resolver understands becomes a real link into
+      // the reading room. "See Gen 3:16; Sir 40:1." carries two, and
+      // the first is the one worth landing on.
+      const first = raw.replace(/^\s*(see|cf\.?|compare)\s+/i, "").split(";")[0]
+        .replace(/[.,]\s*$/, "").trim();
+      if (window.MOResolve && first) {
+        const parsed = window.MOResolve.parse(first);
+        if (parsed && parsed.kind === "scripture") {
+          const link = document.createElement("a");
+          link.className = "faith-ref";
+          link.href = `/the-faith-received/#scripture`;
+          link.title = `${parsed.label} in the scripture index`;
+          link.textContent = raw;
+          a.replaceWith(link);
+          return;
+        }
+      }
+      a.replaceWith(span);
+    });
+  }
+
   function sanitize(html) {
     if (window.DOMPurify && typeof window.DOMPurify.sanitize === "function") {
       return window.DOMPurify.sanitize(html);
