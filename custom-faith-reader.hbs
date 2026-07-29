@@ -179,6 +179,24 @@
 }
 [data-fr-content] .faith-book-subtitle { font-size: 12px; }
 
+/* Headings inside the text itself. The source conversions emit h1/h2
+   liberally, and the article styles size those for a magazine feature,
+   not for a scholastic question every third paragraph. Body text is
+   17px; these sit just above it and no higher. */
+[data-fr-content] .faith-col-en h1,
+[data-fr-content] .faith-col-la h1 { font-size: 20px; line-height: 1.3; margin: 1.6rem 0 0.5rem; }
+[data-fr-content] .faith-col-en h2,
+[data-fr-content] .faith-col-la h2 { font-size: 18px; line-height: 1.3; margin: 1.4rem 0 0.5rem; }
+[data-fr-content] .faith-col-en h3,
+[data-fr-content] .faith-col-la h3 { font-size: 16px; line-height: 1.35; margin: 1.2rem 0 0.4rem; }
+[data-fr-content] .faith-col-en h1:first-child,
+[data-fr-content] .faith-col-en h2:first-child,
+[data-fr-content] .faith-col-en h3:first-child { margin-top: 0; }
+[data-fr-content] .faith-col-en p,
+[data-fr-content] .faith-col-la p { margin: 0 0 0.9rem; }
+[data-fr-content] .faith-col-en p:last-child,
+[data-fr-content] .faith-col-la p:last-child { margin-bottom: 0; }
+
 /* ── Latin text styling ───────────────────────────────────────── */
 .faith-col-la {
   font-style: italic;

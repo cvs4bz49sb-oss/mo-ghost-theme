@@ -1454,6 +1454,9 @@
 
   // ── Lightweight markdown renderer ─────────────────────────────
 
+  // Longer than this and a "heading" is a paragraph wearing a hash.
+  const HEADING_MAX = 110;
+
   function renderMarkdown(text) {
     if (!text) return "";
     const paragraphs = text.split(/\n\n+/);
@@ -1467,14 +1470,29 @@
       // foot of the page.
       para = para.replace(/(^|\n)#{1,6}[ \t]*(?=\n|$)/g, "$1").trim();
       if (!para) return;
-      // Headings.
+      // Headings — but only where the line behaves like one. This
+      // conversion marks whole paragraphs with a hash: "# I. A question
+      // arises here: since Solomon wrote three books, why is it that he
+      // prefixes a title to the book of Proverbs…" was rendering as an
+      // <h1>, three lines of headline where a paragraph belonged. A
+      // heading is short and is one sentence; anything else is prose
+      // the converter mislabelled.
       let hMatch;
-      if ((hMatch = para.match(/^### (.+)$/))) {
+      const asHeading = (m) => {
+        const t = m.trim();
+        if (t.length > HEADING_MAX) return false;
+        // Two or more sentences is a paragraph, whatever it is marked.
+        return (t.match(/[.!?](\s|$)/g) || []).length < 2;
+      };
+      if ((hMatch = para.match(/^### (.+)$/)) && asHeading(hMatch[1])) {
         html += `<h3>${inlineFormat(hMatch[1])}</h3>`;
-      } else if ((hMatch = para.match(/^## (.+)$/))) {
+      } else if ((hMatch = para.match(/^## (.+)$/)) && asHeading(hMatch[1])) {
         html += `<h2>${inlineFormat(hMatch[1])}</h2>`;
-      } else if ((hMatch = para.match(/^# (.+)$/))) {
+      } else if ((hMatch = para.match(/^# (.+)$/)) && asHeading(hMatch[1])) {
         html += `<h1>${inlineFormat(hMatch[1])}</h1>`;
+      } else if ((hMatch = para.match(/^#{1,6} ([\s\S]+)$/))) {
+        // Marked as a heading, reads as prose. Set it as prose.
+        html += `<p>${inlineFormat(hMatch[1].replace(/\n/g, " "))}</p>`;
       } else {
         // Regular paragraph. Handle line breaks within a paragraph.
         html += `<p>${inlineFormat(para.replace(/\n/g, " "))}</p>`;
