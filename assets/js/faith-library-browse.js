@@ -280,7 +280,7 @@
   function loadAuthorNotes(c) {
     if (!c.meta.authors) return Promise.resolve(null);
     if (!authorNotes.has(c.meta.id)) {
-      authorNotes.set(c.meta.id, fetch(c.meta.base + c.meta.authors)
+      authorNotes.set(c.meta.id, fetch((c.meta.notesBase || c.meta.base) + c.meta.authors)
         .then((r) => (r.ok ? r.json() : null))
         .catch(() => null));
     }

@@ -1054,7 +1054,7 @@
   function loadBlurb() {
     if (!corpus || !corpus.blurbs) return Promise.resolve("");
     if (!blurbPromise) {
-      blurbPromise = fetch(corpus.base + corpus.blurbs)
+      blurbPromise = fetch((corpus.notesBase || corpus.base) + corpus.blurbs)
         .then((r) => (r.ok ? r.json() : null))
         .catch(() => null);
     }

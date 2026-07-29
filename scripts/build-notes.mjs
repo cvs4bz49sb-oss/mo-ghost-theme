@@ -64,6 +64,10 @@ const NOT_A_PERSON = [
   /^unknown/i, /^anonym/i, /^various/i, /^editors?$/i, /^multiple/i,
   /^incertus/i, /^pseudo\b/i, /^\s*$/, /\?/,
   /^council/i, /^synod/i, /^concilium/i, /^acta\b/i, /^canons?$/i,
+  // "Abbo of Fleury; Hugh Francorum; Robert Francorum" is three men in
+  // one field. Asked for a biography, the model writes one about the
+  // first and quietly absorbs the others into his life.
+  /;/, /\band others\b/i, /\bet al\.?/i,
 ];
 
 // ── Gate 2: Migne's editors, not his authors ──────────────────────
@@ -179,7 +183,21 @@ const HEDGES = [
   "little is known", "may have been", "possibly", "presumably",
   "it is unclear", "appears to have", "is thought to", "likely a",
   "no further information", "not much is known", "obscure figure",
+  "confusion", "not to be confused", "sometimes identified",
+  "sometimes confused", "uncertain whether", "may refer to",
 ];
+
+// Mere Orthodoxy does not use em dashes. The prompt says so and the
+// model reaches for one anyway, so the rule is enforced here rather
+// than requested there.
+function houseStyle(s) {
+  return String(s || "")
+    .replace(/\s*[—–]\s*/g, ", ")
+    .replace(/\s+,/g, ",")
+    .replace(/,\s*,/g, ",")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
 
 function keep(out, kind) {
   if (!out || out.confident !== true) return false;
@@ -293,8 +311,14 @@ async function main() {
         const out = await ask(KIND === "authors" ? AUTHOR_PROMPT(item) : WORK_PROMPT(item));
         if (keep(out, KIND)) {
           existing[key] = KIND === "authors"
-            ? { dates: out.dates || "", tradition: out.tradition || "", affiliation: out.affiliation || "", bio: out.bio }
-            : { blurb: out.blurb };
+            ? {
+              // Dates keep their range dash; prose does not.
+              dates: String(out.dates || "").trim(),
+              tradition: houseStyle(out.tradition),
+              affiliation: houseStyle(out.affiliation),
+              bio: houseStyle(out.bio),
+            }
+            : { blurb: houseStyle(out.blurb) };
           kept += 1;
         } else {
           declined += 1;
