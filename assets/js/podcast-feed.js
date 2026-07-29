@@ -203,7 +203,7 @@
     const durationSecs = parseInt(ep.duration, 10) || 0;
     const durationDisplay = durationSecs ? formatDuration(durationSecs) : "";
     const player = audioSrc
-      ? `<div class="pod-player" data-audio-src="${escapeAttr(audioSrc)}">` +
+      ? `<div class="pod-player" data-audio-src="${escapeAttr(audioSrc)}" data-pod-title="${escapeAttr(ep.title)}" data-pod-show="${escapeAttr(ep.showTitle || "Mere Orthodoxy")}" data-pod-artwork="${escapeAttr(ep.artwork || "")}">` +
           `<button class="pod-player-play" aria-label="Play ${escapeAttr(ep.title)}">` +
             `<svg class="pod-player-icon pod-player-icon--play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6,3 20,12 6,21"/></svg>` +
             `<svg class="pod-player-icon pod-player-icon--pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>` +
@@ -573,12 +573,14 @@
           audio.preload = "metadata";
           audio.addEventListener("loadedmetadata", () => {
             durationEl.textContent = formatDuration(Math.floor(audio.duration));
+            updatePositionState(audio);
           });
           audio.addEventListener("timeupdate", () => {
             if (!audio.duration) return;
             const pct = (audio.currentTime / audio.duration) * 100;
             fill.style.width = `${pct}%`;
             currentEl.textContent = formatDuration(Math.floor(audio.currentTime));
+            updatePositionState(audio);
           });
           audio.addEventListener("ended", () => {
             showPlayIcon(true);
@@ -608,6 +610,7 @@
               }
             }
             audio._playerEl = el;
+            wireMediaSession(audio, el);
             audio.play();
             activeAudio = audio;
             showPlayIcon(false);
@@ -632,6 +635,7 @@
           speedIdx = (speedIdx + 1) % speeds.length;
           audio.playbackRate = speeds[speedIdx];
           speedBtn.textContent = `${speeds[speedIdx]}×`;
+          updatePositionState(audio);
         });
       })(players[i]);
     }
@@ -644,6 +648,63 @@
           grid._wikiShowCatList("guests", a.getAttribute("data-guest"));
         }));
     }
+  }
+
+  // ─── Media Session (lock screen / Bluetooth controls) ──────────
+  //
+  // Wires navigator.mediaSession so the currently-playing episode shows
+  // lock-screen art/title and responds to hardware play/pause. AirPods'
+  // automatic ear-detection pause/resume rides on these same handlers —
+  // there's nothing separate to wire for that. Re-registered on every
+  // play() so the handlers always target whichever pod-player is
+  // actually playing, even after switching between episodes.
+  function wireMediaSession(audio, el) {
+    if (!("mediaSession" in navigator)) return;
+
+    const title = el.getAttribute("data-pod-title") || "";
+    const show = el.getAttribute("data-pod-show") || "Mere Orthodoxy";
+    const artworkUrl = el.getAttribute("data-pod-artwork") || "";
+    const artwork = [];
+    if (artworkUrl) artwork.push({ src: artworkUrl, sizes: "512x512", type: "image/jpeg" });
+
+    try {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title,
+        artist: show,
+        album: "Mere Orthodoxy",
+        artwork,
+      });
+    } catch (_) { /* older browsers */ }
+
+    safeSessionHandler("play", () => { audio.play(); });
+    safeSessionHandler("pause", () => { audio.pause(); });
+    safeSessionHandler("seekbackward", (e) => {
+      audio.currentTime = Math.max(0, audio.currentTime - (e.seekOffset || 15));
+    });
+    safeSessionHandler("seekforward", (e) => {
+      audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (e.seekOffset || 15));
+    });
+    safeSessionHandler("seekto", (e) => {
+      if (e.fastSeek && "fastSeek" in audio) audio.fastSeek(e.seekTime);
+      else audio.currentTime = e.seekTime;
+    });
+  }
+
+  function safeSessionHandler(action, fn) {
+    try { navigator.mediaSession.setActionHandler(action, fn); }
+    catch (_) { /* unsupported action on this platform */ }
+  }
+
+  function updatePositionState(audio) {
+    if (!("mediaSession" in navigator) || !navigator.mediaSession.setPositionState) return;
+    if (!audio.duration || !isFinite(audio.duration)) return;
+    try {
+      navigator.mediaSession.setPositionState({
+        duration: audio.duration,
+        playbackRate: audio.playbackRate,
+        position: audio.currentTime,
+      });
+    } catch (_) { /* ignore */ }
   }
 
   function formatDuration(totalSeconds) {
