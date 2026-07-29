@@ -118,7 +118,21 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
+  /* Every block here is a paragraph, and until this rule existed they
+     were set flush against one another — a thousand paragraphs of
+     Augustine arriving as one wall. `gap` only separates the two
+     language columns; nothing separated a paragraph from the next. */
+  margin-bottom: 1.15rem;
 }
+.faith-parallel-block:last-child { margin-bottom: 0; }
+/* A run-in heading that stayed in the body — a chapter opening the
+   nester did not promote — should still read as a heading. */
+.faith-row--heading {
+  margin-top: 2rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.faith-row--heading:first-child { margin-top: 0; }
 .faith-lang-en .faith-col-la,
 .faith-lang-la .faith-col-en { display: none; }
 .faith-lang-en .faith-parallel-block,

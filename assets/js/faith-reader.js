@@ -248,6 +248,7 @@
           if (!Array.isArray(s.children)) s.children = [];
           if (!Array.isArray(s.rows)) s.rows = [];
         });
+        data.sections = nestByHeadings(data.sections);
         meta = {
           title: data.title || slug,
           author: data.author || data.work || corpus.label,
@@ -280,6 +281,7 @@
         if (!data || !data.sections || !data.sections.length) {
           throw new Error("no readable sections");
         }
+        data.sections = nestByHeadings(data.sections);
         meta = {
           title: data.title || slug,
           author: data.work || corpus.label,
@@ -323,6 +325,106 @@
       }
     }
     return "";
+  }
+
+  // ── Chapters ──────────────────────────────────────────────────
+  //
+  // The ported corpora arrive as a handful of very long sections.
+  // Augustine's Expositions of the Psalms is three sections holding
+  // 3,566 paragraphs — and 285 rows inside them marked `heading`,
+  // every one of which is a chapter opening ("ENARRATION ON PSALM
+  // III"). The divisions the source ships are volumes, not chapters;
+  // the chapters are in the rows and were being drawn as body text.
+  //
+  // So a long flat section is split at its own headings into nested
+  // children, which the renderer and the contents rail already know
+  // how to draw collapsed. Nothing is invented: a section with no
+  // headings is left exactly as it came, because guessing where a
+  // chapter begins is an editorial act and this is not the place for
+  // it.
+
+  const NEST_MIN_HEADINGS = 2;
+  const NEST_MIN_ROWS = 12;
+
+  function nestByHeadings(sections) {
+    const out = [];
+    sections.forEach((s) => {
+      const rows = s.rows || [];
+      const children = s.children || [];
+      if (children.length || rows.length < NEST_MIN_ROWS) {
+        out.push(s);
+        return;
+      }
+      const heads = rows.filter((r) => r.kind === "heading");
+      if (heads.length < NEST_MIN_HEADINGS) {
+        out.push(s);
+        return;
+      }
+
+      // Rows before the first heading are the section's own preamble
+      // — an incipit, a dedication — and stay on the parent.
+      const preamble = [];
+      const kids = [];
+      let current = null;
+      rows.forEach((r) => {
+        if (r.kind === "heading") {
+          current = {
+            id: r.id || "",
+            title: headingText(r),
+            subtitle: "",
+            rows: [],
+            children: [],
+          };
+          kids.push(current);
+          return;
+        }
+        if (current) current.rows.push(r);
+        else preamble.push(r);
+      });
+
+      // A heading with nothing under it is a super-heading standing
+      // over the next one — "ENARRATION ON PSALM LXXX." immediately
+      // followed by "SERMON 1591". Dropping it would silently lose the
+      // psalm number, so it is carried onto the chapter it introduces
+      // rather than left as an empty drawer.
+      const kept = [];
+      let carried = "";
+      kids.forEach((k) => {
+        if (!k.rows.length) {
+          carried = carried ? `${carried} · ${k.title}` : k.title;
+          return;
+        }
+        if (carried) {
+          k.title = `${carried} · ${k.title}`;
+          carried = "";
+        }
+        kept.push(k);
+      });
+      if (kept.length < NEST_MIN_HEADINGS) {
+        out.push(s);
+        return;
+      }
+
+      out.push({
+        id: s.id || "",
+        title: s.title,
+        subtitle: s.subtitle || "",
+        rows: preamble,
+        children: kept,
+      });
+    });
+    return out;
+  }
+
+  // Chapter titles come off the row, which carries both lanes. Prefer
+  // English, fall back to the original, and keep it to a line — some
+  // of these headings run to the whole argument of the psalm.
+  function headingText(r) {
+    const raw = String(r.en || r.la || "").replace(/<[^>]*>/g, "").trim();
+    if (raw.length <= 90) return raw;
+    const cut = raw.slice(0, 90);
+    const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(" "));
+    return `${cut.slice(0, stop > 40 ? stop : 90).trim()}…`;
   }
 
   function buildExtractToc(sections) {
