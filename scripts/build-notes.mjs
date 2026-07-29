@@ -185,6 +185,13 @@ const HEDGES = [
   "no further information", "not much is known", "obscure figure",
   "confusion", "not to be confused", "sometimes identified",
   "sometimes confused", "uncertain whether", "may refer to",
+  // The model sometimes answers the question honestly and is kept
+  // anyway: a bio that says its subject is an editor rather than an
+  // author has failed gate 2 late, and the list of names could never
+  // have caught every nineteenth-century contributor by hand.
+  "not a patristic author", "not an author", "rather than primary",
+  "editorial scholarship", "editor of the printed", "as an editor",
+  "nineteenth-century editor", "modern editor", "modern scholar",
 ];
 
 // Mere Orthodoxy does not use em dashes. The prompt says so and the
@@ -192,6 +199,9 @@ const HEDGES = [
 // than requested there.
 function houseStyle(s) {
   return String(s || "")
+    // These render as textContent, so markdown emphasis arrives as
+    // literal asterisks around a title.
+    .replace(/\*\*?([^*]+)\*\*?/g, "$1")
     .replace(/\s*[—–]\s*/g, ", ")
     .replace(/\s+,/g, ",")
     .replace(/,\s*,/g, ",")
