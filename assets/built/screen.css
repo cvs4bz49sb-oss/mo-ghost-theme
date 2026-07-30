@@ -509,53 +509,22 @@ img { max-width: 100%; height: auto; }
   margin: 0 0 28px;
 }
 .hero-headline em { font-style: italic; }
-/* Highlight sweep runs on transform (compositor thread) rather than
-   background-size (paint), so it stays smooth even when the rest of
-   the page is busy with style/layout work on the main thread. Each
-   word gets its own relatively-positioned box with an isolated
-   stacking context and a ::before behind the text — this reproduces
-   the old box-decoration-break: clone behavior of one highlight bar
-   per line when "Christian Renewal" wraps at narrow widths. A real
-   (breaking) space between the two spans keeps the wrap point valid.
-   The outer edges (left of "Christian", right of "Renewal") get the
-   original 0.14em bleed for the highlighter's overshoot past the
-   letters; the inner/touching edges get 0.2em, measured against the
-   actual rendered word-space (~0.24em at this font/size) so the two
-   ::before boxes just close that gap without stacking their alpha
-   into a visible seam. If the display font is swapped for its
-   fallback before load, this could drift slightly — check visually
-   after any font-stack change to this headline. */
-.hero-headline .highlight-word {
-  position: relative;
-  display: inline-block;
-  isolation: isolate;
+.hero-headline .highlight {
+  background-image: linear-gradient(90deg, rgba(193, 89, 60, 0.78) 0%, rgba(193, 89, 60, 0.78) 100%);
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  background-position: 0 0;
   padding: 0 0.14em;
-  margin: 0 -0.14em;
-}
-.hero-headline .highlight-word:first-child {
-  padding-right: 0.2em;
-  margin-right: -0.2em;
-}
-.hero-headline .highlight-word:last-child {
-  padding-left: 0.2em;
-  margin-left: -0.2em;
-}
-.hero-headline .highlight-word::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-color: rgba(193, 89, 60, 0.78);
-  transform: scaleX(0);
-  transform-origin: left center;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
   animation: hero-highlight-sweep 0.9s 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
 }
 @keyframes hero-highlight-sweep {
-  to { transform: scaleX(1); }
+  to { background-size: 100% 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-headline .highlight-word::before {
-    transform: scaleX(1);
+  .hero-headline .highlight {
+    background-size: 100% 100%;
     animation: none;
   }
 }
@@ -663,11 +632,6 @@ img { max-width: 100%; height: auto; }
   stroke-dasharray: 820;
   stroke-dashoffset: 820;
   animation: eyebrow-circle-draw 1.4s ease-out 0.35s forwards;
-  /* stroke-dashoffset has no transform/opacity equivalent that
-     preserves the hand-drawn look, so this stays a paint-thread
-     animation; will-change just lets the browser pre-allocate a
-     layer for it instead of discovering the need mid-frame. */
-  will-change: stroke-dashoffset;
 }
 @keyframes eyebrow-circle-draw {
   to { stroke-dashoffset: 0; }
