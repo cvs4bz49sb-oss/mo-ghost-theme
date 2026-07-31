@@ -465,4 +465,86 @@
     d.textContent = String(s == null ? "" : s);
     return d.innerHTML;
   }
+
+  // --- Power users --------------------------------------------------------
+  //
+  // GET /liturgy/power-users derives everything from the KV day sets at
+  // request time, so this is the accurate view — the Kit tags are for
+  // segmenting and sending, and can be up to a day stale between cron
+  // runs.
+  const usageRoot = document.querySelector("[data-lit-usage]");
+  const usageBody = usageRoot && usageRoot.querySelector("[data-lit-usage-body]");
+  const usageBands = usageRoot && usageRoot.querySelector("[data-lit-usage-bands]");
+  const usageSub = usageRoot && usageRoot.querySelector("[data-lit-usage-sub]");
+  const usageRefresh = usageRoot && usageRoot.querySelector("[data-lit-usage-refresh]");
+
+  const BAND_LABELS = [
+    ["dl-streak:30+", "Streak 30+"],
+    ["dl-streak:7-29", "Streak 7–29"],
+    ["dl-streak:1-6", "Streak 1–6"],
+    ["none", "Lapsed"],
+  ];
+
+  async function loadPowerUsers() {
+    if (!usageBody) return;
+    usageBody.innerHTML = '<p class="lit-empty">Loading…</p>';
+    let data;
+    try {
+      data = await api("/liturgy/power-users?limit=50");
+    } catch (err) {
+      usageBody.innerHTML = `<p class="lit-empty">Could not load usage: ${escapeText(err.message)}</p>`;
+      return;
+    }
+
+    const users = data.users || [];
+    const bands = data.bands || {};
+    if (usageBands) {
+      usageBands.hidden = false;
+      usageBands.innerHTML = BAND_LABELS.map(([key, label]) => (
+        `<span class="lit-usage-band"><b>${escapeText(bands[key] || 0)}</b>${escapeText(label)}</span>`
+      )).join("");
+    }
+
+    if (!users.length) {
+      usageBody.innerHTML = '<p class="lit-empty">No reader usage recorded yet. The reader starts logging on its next visit.</p>';
+      return;
+    }
+
+    const rows = users.map((u) => `<tr>
+      <td class="lit-usage-email">${escapeText(u.email)}</td>
+      <td>${escapeText(u.streak)}</td>
+      <td>${escapeText(u.longest)}</td>
+      <td>${escapeText(u.days7)}</td>
+      <td>${escapeText(u.days30)}</td>
+      <td>${escapeText(u.total)}</td>
+      <td>${u.audio ? "yes" : "—"}</td>
+      <td>${escapeText(u.last || "")}</td>
+    </tr>`).join("");
+
+    usageBody.innerHTML = `<div class="lit-usage-wrap"><table class="lit-usage-table">
+      <thead><tr>
+        <th>Member</th><th>Streak</th><th>Longest</th><th>7d</th><th>30d</th>
+        <th>Lifetime</th><th>Audio</th><th>Last used</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+
+    if (usageSub) {
+      // Say plainly when the scan hit its ceiling — a silent top-N reads
+      // as "this is everyone" when it is not.
+      const scanned = data.scanned || 0;
+      usageSub.textContent = data.truncated
+        ? `Ranked by current streak, then days used in the last 30. Showing ${users.length} of ${scanned}+ scanned — the scan hit its ceiling, so this is not the full list.`
+        : `Ranked by current streak, then days used in the last 30. ${scanned} member${scanned === 1 ? "" : "s"} have used the reader.`;
+    }
+  }
+
+  if (usageRefresh) {
+    usageRefresh.addEventListener("click", () => { loadPowerUsers(); });
+  }
+  if (usageRoot) {
+    whenAuthReady().then(loadPowerUsers).catch(() => {
+      usageBody.innerHTML = '<p class="lit-empty">Sign in as staff to see usage.</p>';
+    });
+  }
 })();

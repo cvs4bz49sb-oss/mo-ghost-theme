@@ -502,6 +502,62 @@
       });
   }
 
+  // ── Engagement ping ───────────────────────────────────────────
+  //
+  // One `devotional_engaged` event per page session, sent to mo-kit,
+  // which records the day and derives streaks. Not fired on page load:
+  // opening the tab is not using the thing. It takes reaching the
+  // Benediction, a minute and a half on the page, or pressing play.
+  //
+  // No date is sent. The worker stamps the day the member turned up in
+  // the liturgy's own timezone — see the DAILY LITURGY USAGE block in
+  // kit.js for why that beats the date of whichever devotional is open.
+  // Audio gets its own ping rather than sharing the read guard: someone
+  // who reads for two minutes and *then* presses play would otherwise
+  // never be counted as a listener. Two events per session at the very
+  // most, and the worker only writes to Kit on the first audio play the
+  // member has ever made.
+  const DWELL_MS = 90000;
+  let engagementSent = false;
+  let audioSent = false;
+
+  function markEngaged(via) {
+    // kit-events.js ships in site.min.js and no-ops for signed-out
+    // visitors, but this file is loaded standalone at the end of the
+    // template, so the helper may not exist yet on a slow connection.
+    if (!window.__kitEmit) return;
+    if (via === "audio") {
+      if (audioSent) return;
+      audioSent = true;
+      engagementSent = true;
+      window.__kitEmit("devotional_engaged", { via: "audio" });
+      return;
+    }
+    if (engagementSent) return;
+    engagementSent = true;
+    window.__kitEmit("devotional_engaged", { via: "read" });
+  }
+
+  (function () {
+    setTimeout(() => { markEngaged("read"); }, DWELL_MS);
+
+    // Reaching the Benediction is the strongest read signal the page
+    // has — it is the last thing in the liturgy.
+    const $benediction = page.querySelector(".dlr-section--benediction");
+    if ($benediction && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            markEngaged("read");
+            io.disconnect();
+            return;
+          }
+        }
+      }, { threshold: 0.4 });
+      io.observe($benediction);
+    }
+  })();
+
   // ── Podcast player (date-aware) ────────────────────────────────
   let updatePodcastForDate = null;
 
@@ -607,6 +663,7 @@
     // ─── Transport ────────────────────────────────────────────────
     function play() {
       wireMediaSession();
+      markEngaged("audio");
       const p = $audio.play();
       if (p && p.catch) p.catch(() => {});
     }
