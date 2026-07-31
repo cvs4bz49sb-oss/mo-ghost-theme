@@ -39,6 +39,10 @@
                                 <span class="eyebrow-text">Latest</span>
                                 <span class="eyebrow-circle" aria-hidden="true">
                                     <svg viewBox="0 0 240 80" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                        {{!-- This path is 518.5 units long, and the draw-in animation in
+                                             screen.css hardcodes that (stroke-dasharray/-dashoffset: 519).
+                                             If you edit 'd', re-measure with getTotalLength() and update
+                                             .eyebrow-circle path to match — see the note there. --}}
                                         <path d="M 22 50 C 16 22 78 12 122 14 C 178 16 226 28 222 46 C 218 66 154 76 106 72 C 54 68 14 60 26 42 C 34 28 64 24 92 24" />
                                     </svg>
                                 </span>

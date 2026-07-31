@@ -517,7 +517,14 @@ img { max-width: 100%; height: auto; }
   padding: 0 0.14em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  animation: hero-highlight-sweep 0.9s 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+  /* Was 0.9s after a 0.4s delay. The sweep is the last thing on the
+     hero to settle, so those two numbers set how long the page feels
+     "still loading" — and they are the single biggest term in that,
+     larger than the render-blocking CSS and JS combined. Measured
+     2026-07-30: the hero could not start animating until 0.4-0.7s
+     (render-blocking payload), then waited out the delay, then ran.
+     Trimmed so the whole hero settles by ~0.85s instead of ~1.3s. */
+  animation: hero-highlight-sweep 0.55s 0.25s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
 }
 @keyframes hero-highlight-sweep {
   to { background-size: 100% 100%; }
@@ -628,10 +635,30 @@ img { max-width: 100%; height: auto; }
   height: 100%;
   overflow: visible;
 }
+/* 519 is the MEASURED length of the path in index.hbs (518.5, rounded
+   up), not a guess. It must be >= the real length: the animation runs
+   the offset from full length down to 0, and the stroke is only fully
+   drawn once the offset reaches (dasharray - pathLength).
+
+   It used to be 820/820 against that same 518.5-unit path, so the
+   circle was fully drawn once the offset hit 301.5 — i.e. at 45% of
+   its declared 1.4s — and then sat for ~0.77s with the animation
+   still running and nothing changing on screen. That wrong number
+   shipped in the original commit (2026-05-05) and was never a
+   regression, just never checked. Measured and fixed 2026-07-30.
+
+   IF YOU EDIT THE PATH 'd': re-measure and update this number, with
+   document.querySelector('.eyebrow-circle path').getTotalLength().
+   Too small and the circle never finishes drawing; far too large and
+   it finishes early then idles, which is exactly the old bug.
+   (pathLength="100" on the <path> would make this self-correcting,
+   but if a browser ignored it the circle would render as a dashed
+   loop rather than a solid one — a worse failure than a stale
+   number, so the literal stays.) */
 .eyebrow-circle path {
-  stroke-dasharray: 820;
-  stroke-dashoffset: 820;
-  animation: eyebrow-circle-draw 1.4s ease-out 0.35s forwards;
+  stroke-dasharray: 519;
+  stroke-dashoffset: 519;
+  animation: eyebrow-circle-draw 0.65s ease-out 0.2s forwards;
 }
 @keyframes eyebrow-circle-draw {
   to { stroke-dashoffset: 0; }
@@ -9272,7 +9299,9 @@ label.site-form-field-check {
   padding: 0 0.14em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  animation: hero-highlight-sweep 0.9s 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+  /* Independent copy of the hero sweep — keep this timing in step with
+     .hero-headline .highlight or the same motif runs at two speeds. */
+  animation: hero-highlight-sweep 0.55s 0.25s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
 }
 @media (prefers-reduced-motion: reduce) {
   .sponsorship-headline .highlight {
