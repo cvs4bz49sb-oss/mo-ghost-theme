@@ -236,6 +236,7 @@
   $("[data-lit-close]").addEventListener("click", closeEditor);
   $("[data-lit-schedule-month]").addEventListener("click", scheduleMonth);
   $("[data-lit-generate]").addEventListener("click", generateWeek);
+  $("[data-lit-populate]").addEventListener("click", populateRange);
 
   function closeEditor() { editor.hidden = true; if (hint) hint.hidden = false; selected = null; renderList(); }
 
@@ -378,8 +379,65 @@
       setSync(`Generate failed: ${err.message}`, "is-error");
     } finally {
       btn.disabled = false;
-      btn.textContent = "Schedule";
+      btn.textContent = "Populate & schedule";
     }
+  }
+
+  // Writes generated content into the day store and stops there. No Kit
+  // call happens: /liturgy/generate only creates broadcasts when the body
+  // carries schedule:true, so days land in "ready", not "draft".
+  // Chunked a week at a time — a day costs three scripture fetches, and a
+  // month in one request runs long enough to risk the worker's limits.
+  async function populateRange() {
+    const sel = $("[data-lit-range]");
+    const range = sel ? sel.value : "this-week";
+    const { from, to, label } = rangeToFromTo(range);
+    const chunks = chunkDates(from, to, 7);
+    if (!confirm(`Populate ${label} (${from} to ${to})?\n\nContent is written to this panel only — nothing is created in Kit. Days that already have content are left alone.`)) return;
+    const btn = $("[data-lit-populate]");
+    btn.disabled = true;
+    btn.textContent = "Populating…";
+    let filled = 0, skipped = 0, failed = 0;
+    try {
+      for (let i = 0; i < chunks.length; i++) {
+        setSync(`Populating ${chunks.length > 1 ? `batch ${i + 1} of ${chunks.length}` : label}…`, "is-saving");
+        const data = await api("/liturgy/generate", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ from: chunks[i].from, to: chunks[i].to, overwrite: false }),
+        });
+        filled += data.imported || 0;
+        skipped += data.skipped || 0;
+        failed += data.failed || 0;
+      }
+      const parts = [`Populated ${filled}`];
+      if (skipped) parts.push(`${skipped} already had content`);
+      if (failed) parts.push(`${failed} failed`);
+      setSync(`${parts.join(" · ")} — nothing sent to Kit`, failed ? "is-error" : "");
+      await loadMonth();
+    } catch (err) {
+      setSync(`Populate failed after ${filled} day${filled === 1 ? "" : "s"}: ${err.message}`, "is-error");
+      await loadMonth();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Populate";
+    }
+  }
+
+  // Splits an inclusive YYYY-MM-DD range into consecutive spans of at most
+  // `size` days.
+  function chunkDates(from, to, size) {
+    const out = [];
+    const end = new Date(`${to}T12:00:00Z`);
+    let cur = new Date(`${from}T12:00:00Z`);
+    while (cur <= end) {
+      const last = new Date(cur);
+      last.setUTCDate(last.getUTCDate() + size - 1);
+      out.push({ from: cur.toISOString().slice(0, 10), to: (last > end ? end : last).toISOString().slice(0, 10) });
+      cur = new Date(last);
+      cur.setUTCDate(cur.getUTCDate() + 1);
+    }
+    return out;
   }
 
   function flushSave() {

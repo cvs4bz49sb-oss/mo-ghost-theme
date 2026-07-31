@@ -7,6 +7,7 @@
 <meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
 <meta name="twitter:title" content="Daily Liturgy | MO Admin" />
 <meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+<link rel="stylesheet" href="{{asset "built/admin.min.css"}}" />
 {{/contentFor}}
 {{!-- /admin/liturgy/ — Daily Liturgy manager. Calendar of days backed by the
      mo-kit content store (proxied through mo-admin). Edit a day's content,
@@ -46,7 +47,8 @@
               <option value="this-month">This Month</option>
               <option value="next-month">Next Month</option>
             </select>
-            <button type="button" class="btn btn-primary btn-sm" data-lit-generate>Schedule</button>
+            <button type="button" class="btn btn-primary btn-sm" data-lit-populate>Populate</button>
+            <button type="button" class="btn btn-outline btn-sm" data-lit-generate>Populate &amp; schedule</button>
             <button type="button" class="btn btn-outline btn-sm" data-lit-schedule-month>Schedule all drafts</button>
           </div>
         </div>
