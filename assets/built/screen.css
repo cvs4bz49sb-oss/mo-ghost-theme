@@ -23230,10 +23230,66 @@ html[data-theme="dark"] .dlr-header-logo {
   display: none;
 }
 .dlr-podcast {
-  margin: 0 0 30px;
-  padding: 18px 0 20px;
-  border-top: 1px solid var(--dlr-rule);
-  border-bottom: 1px solid var(--dlr-rule);
+  position: relative;
+  margin: 0 -20px 30px;
+  /* Clipped to the pane, or the gradient's falloff shows up outside the
+     glass as a rectangular smudge on the page ground. */
+  border-radius: 14px;
+  overflow: hidden;
+}
+/* Something for the pane to refract. A blur over a flat ground is just
+   the flat ground, so the glass reads as nothing without this. */
+.dlr-podcast::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 78% at 18% 0%, rgba(150, 105, 76, 0.16), transparent 68%),
+    radial-gradient(52% 72% at 90% 100%, rgba(217, 198, 167, 0.3), transparent 70%);
+}
+.dlr-podcast-glass {
+  position: relative;
+  padding: 18px 20px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(150, 105, 76, 0.14);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.16) 100%
+  );
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  /* Top highlight is what sells the edge; the outer shadow stays a
+     whisper so this reads as a pane on the page, not a floating card. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 1px 2px rgba(45, 41, 39, 0.03);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .dlr-podcast-glass {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(255, 255, 255, 0.6) 100%
+    );
+  }
+}
+html[data-theme="dark"] .dlr-podcast::before {
+  background:
+    radial-gradient(58% 78% at 20% 4%, rgba(184, 134, 106, 0.16), transparent 68%),
+    radial-gradient(52% 72% at 88% 100%, rgba(184, 134, 106, 0.09), transparent 70%);
+}
+html[data-theme="dark"] .dlr-podcast-glass {
+  border-color: rgba(232, 221, 208, 0.1);
+  background: linear-gradient(
+    180deg,
+    rgba(232, 221, 208, 0.07) 0%,
+    rgba(232, 221, 208, 0.03) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(232, 221, 208, 0.11),
+    0 1px 2px rgba(0, 0, 0, 0.16);
 }
 .dlr-podcast-head {
   display: flex;
@@ -23694,7 +23750,9 @@ html[data-theme="dark"] .dlr-play-btn {
   .dlr-setting-select { font-size: 13px; height: 32px; padding: 0 28px 0 12px; }
   .dlr-theme-toggle { width: 32px; height: 32px; }
   .dlr-footer { margin-top: 24px; padding-top: 22px; }
-  .dlr-podcast { margin-bottom: 24px; padding: 16px 0 18px; }
+  /* Less bleed at 375px — the page gutter is only 16px. */
+  .dlr-podcast { margin: 0 -8px 24px; }
+  .dlr-podcast-glass { padding: 16px 16px 18px; border-radius: 12px; }
   .dlr-player-title { font-size: 17px; margin: 5px 0 14px; }
   /* The note wraps under the label rather than squeezing it at 375px. */
   .dlr-podcast-head { flex-direction: column; align-items: flex-start; gap: 4px; }
