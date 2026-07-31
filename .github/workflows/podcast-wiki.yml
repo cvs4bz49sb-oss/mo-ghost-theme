@@ -45,8 +45,23 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           if git diff --quiet -- assets/data/podcast-wiki.json; then
             echo "No change to podcast wiki."
-          else
-            git add assets/data/podcast-wiki.json
-            git commit -m "Update podcast wiki index"
-            git push
+            exit 0
           fi
+          git add assets/data/podcast-wiki.json
+          git commit -m "Update podcast wiki index"
+          # Same push race as podcast-top-episodes.yml — see the comment
+          # there for why there is no merge strategy option.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected — rebasing onto origin/main (attempt $attempt)."
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "Rebase failed; leaving main alone." >&2
+              exit 1
+            fi
+          done
+          echo "Could not push after 3 attempts." >&2
+          exit 1

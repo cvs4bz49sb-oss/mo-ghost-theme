@@ -44,8 +44,31 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           if git diff --quiet -- assets/data/top-episodes.json assets/data/scheduled-episodes.json; then
             echo "No change to podcast data."
-          else
-            git add assets/data/top-episodes.json assets/data/scheduled-episodes.json
-            git commit -m "Update podcast data (Most Listened + scheduled) [skip ci]"
-            git push
+            exit 0
           fi
+          git add assets/data/top-episodes.json assets/data/scheduled-episodes.json
+          git commit -m "Update podcast data (Most Listened + scheduled) [skip ci]"
+          # The Buzzsprout fetch takes a minute or two, so main can move
+          # underneath the run. A bare push then fails non-fast-forward and
+          # the whole fetch is thrown away — which is what happened on
+          # 2026-07-31 when a theme push landed mid-run. Rebase and retry.
+          #
+          # No merge strategy option here on purpose: the concurrency group
+          # keeps this workflow from racing itself, so nothing else writes
+          # these files, and a genuine conflict should fail loudly rather
+          # than be resolved by a flag whose ours/theirs meaning inverts
+          # under rebase. The next scheduled run regenerates either way.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected — rebasing onto origin/main (attempt $attempt)."
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "Rebase failed; leaving main alone." >&2
+              exit 1
+            fi
+          done
+          echo "Could not push after 3 attempts." >&2
+          exit 1
