@@ -509,13 +509,21 @@
     const $podcast = $("[data-dlr-podcast]");
     const $audio = $("[data-dlr-audio]");
     const $playBtn = $("[data-dlr-play]");
+    const $backBtn = $("[data-dlr-back]");
+    const $fwdBtn = $("[data-dlr-forward]");
     const $playIcon = $podcast && $podcast.querySelector(".dlr-play-icon");
     const $pauseIcon = $podcast && $podcast.querySelector(".dlr-pause-icon");
     const $ptitle = $("[data-dlr-player-title]");
+    const $note = $("[data-dlr-player-note]");
     const $progress = $("[data-dlr-progress]");
     const $bar = $("[data-dlr-bar]");
+    const $elapsed = $("[data-dlr-elapsed]");
     const $time = $("[data-dlr-time]");
     if (!$podcast || !$audio) return;
+
+    const ARTWORK_URL = "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy-Podcast-Covers--2-.jpg";
+    const SKIP_SECONDS = 15;
+    const DEFAULT_NOTE = "Follows the Devotional Plan";
 
     const MONTH_MAP = {
       january: "01", february: "02", march: "03", april: "04",
@@ -525,6 +533,9 @@
 
     const episodesByDate = {};
     let pendingDate = null;
+    let loadedEpisode = null; // whose audioUrl is in the <audio>
+    let viewEpisode = null; // episode for the day on screen
+    let scrubbing = false;
 
     function parseEpisodeDate(title) {
       const m = (title || "").match(/^(?:\w+),\s+(\w+)\s+(\d+),\s+(\d{4})/);
@@ -540,23 +551,132 @@
       return `${m}:${sec < 10 ? "0" : ""}${sec}`;
     }
 
+    // `hidden` is an HTMLElement property, so `svg.hidden = true` only
+    // sets a JS expando and never reaches the attribute the CSS keys
+    // on. SVG icons have to be toggled through the attribute directly.
+    function show(node, visible) {
+      if (!node) return;
+      if (visible) { node.removeAttribute("hidden"); }
+      else { node.setAttribute("hidden", ""); }
+    }
+
+    // ─── Media Session (lock screen / Bluetooth controls) ──────────
+    //
+    // Without this the audio still plays with the screen locked, but
+    // iOS shows a generic "web page" tile with no title, artwork or
+    // scrubber. AirPods ear-detection rides on the play/pause handlers.
+    function safeSessionHandler(action, fn) {
+      try { navigator.mediaSession.setActionHandler(action, fn); }
+      catch (_) { /* unsupported action on this platform */ }
+    }
+
+    function wireMediaSession() {
+      if (!("mediaSession" in navigator)) return;
+      try {
+        navigator.mediaSession.metadata = new window.MediaMetadata({
+          title: (loadedEpisode && loadedEpisode.title) || "The Daily Liturgy",
+          artist: "The Daily Liturgy Podcast",
+          album: "Mere Orthodoxy",
+          artwork: [{ src: ARTWORK_URL, sizes: "512x512", type: "image/jpeg" }],
+        });
+      } catch (_) { /* older browsers */ }
+      safeSessionHandler("play", () => { play(); });
+      safeSessionHandler("pause", () => { $audio.pause(); });
+      safeSessionHandler("seekbackward", (e) => { nudge(-((e && e.seekOffset) || SKIP_SECONDS)); });
+      safeSessionHandler("seekforward", (e) => { nudge((e && e.seekOffset) || SKIP_SECONDS); });
+      safeSessionHandler("seekto", (e) => {
+        if (!e) return;
+        if (e.fastSeek && "fastSeek" in $audio) $audio.fastSeek(e.seekTime);
+        else $audio.currentTime = e.seekTime;
+        paint();
+      });
+    }
+
+    function updatePositionState() {
+      if (!("mediaSession" in navigator) || !navigator.mediaSession.setPositionState) return;
+      if (!$audio.duration || !isFinite($audio.duration)) return;
+      try {
+        navigator.mediaSession.setPositionState({
+          duration: $audio.duration,
+          playbackRate: $audio.playbackRate,
+          position: Math.min($audio.currentTime, $audio.duration),
+        });
+      } catch (_) { /* ignore */ }
+    }
+
+    // ─── Transport ────────────────────────────────────────────────
+    function play() {
+      wireMediaSession();
+      const p = $audio.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+
+    function nudge(delta) {
+      const dur = $audio.duration;
+      if (!dur || !isFinite(dur)) return;
+      $audio.currentTime = Math.min(dur, Math.max(0, $audio.currentTime + delta));
+      paint();
+    }
+
+    function paint() {
+      const dur = $audio.duration;
+      const known = dur && isFinite(dur);
+      const pct = known ? ($audio.currentTime / dur) * 100 : 0;
+      $bar.style.width = `${pct}%`;
+      $elapsed.textContent = fmt($audio.currentTime || 0);
+      if (known) $time.textContent = fmt(dur);
+      $progress.setAttribute("aria-valuenow", String(Math.round(pct)));
+      $progress.setAttribute(
+        "aria-valuetext",
+        `${fmt($audio.currentTime || 0)}${known ? ` of ${fmt(dur)}` : ""}`
+      );
+    }
+
+    // ─── Episode loading ──────────────────────────────────────────
+    function load(ep) {
+      loadedEpisode = ep;
+      $audio.pause();
+      $audio.src = ep.audioUrl;
+      $audio.currentTime = 0;
+      $bar.style.width = "0%";
+      $elapsed.textContent = "0:00";
+      $time.textContent = ep.duration ? fmt(ep.duration) : "";
+      $ptitle.textContent = ep.title || "Today's episode";
+      $note.textContent = DEFAULT_NOTE;
+      show($playIcon, true);
+      show($pauseIcon, false);
+      $podcast.classList.remove("is-playing");
+      $podcast.hidden = false;
+    }
+
+    // Navigating to another day while something is playing does not cut
+    // the audio off — the swap is deferred until playback stops, the
+    // way a podcast app keeps playing while you browse the library.
+    function applyDeferred() {
+      if (!viewEpisode) {
+        if (loadedEpisode) $podcast.hidden = true;
+        return;
+      }
+      if (!loadedEpisode || viewEpisode.audioUrl !== loadedEpisode.audioUrl) load(viewEpisode);
+      else $note.textContent = DEFAULT_NOTE;
+    }
+
     function showEpisode(dateStr) {
-      const ep = episodesByDate[dateStr];
-      if (!ep) {
+      viewEpisode = episodesByDate[dateStr] || null;
+      const busy = !$audio.paused && loadedEpisode;
+      if (busy) {
+        const sameEp = viewEpisode && viewEpisode.audioUrl === loadedEpisode.audioUrl;
+        $note.textContent = sameEp
+          ? DEFAULT_NOTE
+          : `Still playing ${loadedEpisode.title || "the previous episode"}`;
+        $podcast.hidden = false;
+        return;
+      }
+      if (!viewEpisode) {
         $podcast.hidden = true;
         return;
       }
-      const wasSameSrc = $audio.src && $audio.src === ep.audioUrl;
-      if (!wasSameSrc) {
-        $audio.pause();
-        $audio.src = ep.audioUrl;
-        $audio.currentTime = 0;
-        $bar.style.width = "0%";
-        $playIcon.hidden = false;
-        $pauseIcon.hidden = true;
-      }
-      $ptitle.textContent = `Listen: ${ep.title || "Episode"}`;
-      if (!wasSameSrc && ep.duration) $time.textContent = fmt(ep.duration);
+      applyDeferred();
       $podcast.hidden = false;
     }
 
@@ -571,9 +691,9 @@
     fetch(`${PODCAST_FEED_URL}?show=daily-liturgy&limit=30`, { credentials: "omit" })
       .then((r) => { return r.json(); })
       .then((data) => {
-        const show = data["daily-liturgy"];
-        if (!show || !show.episodes || !show.episodes.length) return;
-        show.episodes.forEach((ep) => {
+        const show_ = data["daily-liturgy"];
+        if (!show_ || !show_.episodes || !show_.episodes.length) return;
+        show_.episodes.forEach((ep) => {
           const d = parseEpisodeDate(ep.title);
           if (d) episodesByDate[d] = ep;
         });
@@ -583,33 +703,83 @@
       .catch(() => {});
 
     $playBtn.addEventListener("click", () => {
-      if ($audio.paused) {
-        $audio.play();
-      } else {
-        $audio.pause();
-      }
+      if ($audio.paused) play();
+      else $audio.pause();
     });
+    $backBtn.addEventListener("click", () => { nudge(-SKIP_SECONDS); });
+    $fwdBtn.addEventListener("click", () => { nudge(SKIP_SECONDS); });
+
+    // playbackState is what the lock screen reads to decide whether it
+    // shows a play or a pause control; it does not track the element.
+    function setPlaybackState(state) {
+      if (!("mediaSession" in navigator)) return;
+      try { navigator.mediaSession.playbackState = state; } catch (_) { /* ignore */ }
+    }
 
     $audio.addEventListener("play", () => {
-      $playIcon.hidden = true;
-      $pauseIcon.hidden = false;
+      show($playIcon, false);
+      show($pauseIcon, true);
+      $playBtn.setAttribute("aria-label", "Pause episode");
+      $podcast.classList.add("is-playing");
+      setPlaybackState("playing");
     });
     $audio.addEventListener("pause", () => {
-      $playIcon.hidden = false;
-      $pauseIcon.hidden = true;
+      show($playIcon, true);
+      show($pauseIcon, false);
+      $playBtn.setAttribute("aria-label", "Play episode");
+      $podcast.classList.remove("is-playing");
+      setPlaybackState("paused");
+      applyDeferred();
     });
+    $audio.addEventListener("ended", () => { applyDeferred(); });
+    $audio.addEventListener("loadedmetadata", () => { paint(); updatePositionState(); });
     $audio.addEventListener("timeupdate", () => {
-      if (!$audio.duration) return;
-      const pct = ($audio.currentTime / $audio.duration) * 100;
-      $bar.style.width = `${pct}%`;
-      $time.textContent = `${fmt($audio.currentTime)} / ${fmt($audio.duration)}`;
+      if (scrubbing) return;
+      paint();
+      updatePositionState();
     });
 
-    $progress.addEventListener("click", (e) => {
-      if (!$audio.duration) return;
+    // ─── Scrubbing ────────────────────────────────────────────────
+    function seekToEvent(clientX) {
+      const dur = $audio.duration;
+      if (!dur || !isFinite(dur)) return;
       const rect = $progress.getBoundingClientRect();
-      const pct = (e.clientX - rect.left) / rect.width;
-      $audio.currentTime = pct * $audio.duration;
+      const pct = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+      $audio.currentTime = pct * dur;
+      paint();
+    }
+
+    $progress.addEventListener("pointerdown", (e) => {
+      if (!$audio.duration || !isFinite($audio.duration)) return;
+      scrubbing = true;
+      $progress.classList.add("is-scrubbing");
+      $progress.setPointerCapture(e.pointerId);
+      seekToEvent(e.clientX);
+    });
+    $progress.addEventListener("pointermove", (e) => {
+      if (scrubbing) seekToEvent(e.clientX);
+    });
+    ["pointerup", "pointercancel"].forEach((evt) => {
+      $progress.addEventListener(evt, () => {
+        if (!scrubbing) return;
+        scrubbing = false;
+        $progress.classList.remove("is-scrubbing");
+        updatePositionState();
+      });
+    });
+    $progress.addEventListener("keydown", (e) => {
+      const dur = $audio.duration;
+      if (!dur || !isFinite(dur)) return;
+      const keys = {
+        ArrowLeft: -5, ArrowRight: 5,
+        ArrowDown: -5, ArrowUp: 5,
+        PageDown: -30, PageUp: 30,
+      };
+      if (e.key in keys) { nudge(keys[e.key]); }
+      else if (e.key === "Home") { $audio.currentTime = 0; paint(); }
+      else if (e.key === "End") { $audio.currentTime = dur; paint(); }
+      else return;
+      e.preventDefault();
     });
   })();
 

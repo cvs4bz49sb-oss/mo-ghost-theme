@@ -38,26 +38,53 @@
   {{!-- Catch-up notice --}}
   <p class="dlr-catchup" data-dlr-catchup hidden>You're viewing a past devotional.</p>
 
-  {{!-- Latest podcast episode --}}
+  {{!-- Podcast episode for the day being read --}}
   <div class="dlr-podcast" data-dlr-podcast hidden>
-    <button class="dlr-play-btn" data-dlr-play aria-label="Play episode">
-      <svg class="dlr-play-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-        <polygon points="6,3 20,12 6,21" fill="currentColor"/>
-      </svg>
-      <svg class="dlr-pause-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden>
-        <rect x="5" y="3" width="4" height="18" fill="currentColor"/>
-        <rect x="15" y="3" width="4" height="18" fill="currentColor"/>
-      </svg>
-    </button>
-    <div class="dlr-player-info">
-      <span class="dlr-player-title" data-dlr-player-title></span>
-      <div class="dlr-player-progress" data-dlr-progress>
-        <div class="dlr-player-bar" data-dlr-bar></div>
-      </div>
-      <span class="dlr-player-subtitle">Follows Devotional Plan</span>
+    <div class="dlr-podcast-head">
+      <p class="dlr-label">Listen</p>
+      <p class="dlr-player-note" data-dlr-player-note>Follows the Devotional Plan</p>
     </div>
-    <span class="dlr-player-time" data-dlr-time></span>
-    <audio data-dlr-audio preload="none"></audio>
+    <p class="dlr-player-title" data-dlr-player-title></p>
+
+    <div class="dlr-player-progress" data-dlr-progress role="slider" tabindex="0"
+         aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+         aria-valuetext="0 seconds">
+      <div class="dlr-player-bar" data-dlr-bar>
+        <span class="dlr-player-thumb" aria-hidden="true"></span>
+      </div>
+    </div>
+    <div class="dlr-player-times">
+      <span data-dlr-elapsed>0:00</span>
+      <span data-dlr-time></span>
+    </div>
+
+    <div class="dlr-player-transport">
+      <button class="dlr-skip-btn" type="button" data-dlr-back aria-label="Back 15 seconds">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none"
+             stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5V2L7 6l5 4V7a7 7 0 1 1-7 7"/>
+        </svg>
+        <span class="dlr-skip-num">15</span>
+      </button>
+      <button class="dlr-play-btn" type="button" data-dlr-play aria-label="Play episode">
+        <svg class="dlr-play-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <polygon points="7,4 20,12 7,20" fill="currentColor"/>
+        </svg>
+        <svg class="dlr-pause-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" hidden>
+          <rect x="6" y="4" width="4" height="16" fill="currentColor"/>
+          <rect x="14" y="4" width="4" height="16" fill="currentColor"/>
+        </svg>
+      </button>
+      <button class="dlr-skip-btn" type="button" data-dlr-forward aria-label="Forward 15 seconds">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none"
+             stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5V2l5 4-5 4V7a7 7 0 1 0 7 7"/>
+        </svg>
+        <span class="dlr-skip-num">15</span>
+      </button>
+    </div>
+
+    <audio data-dlr-audio preload="metadata"></audio>
   </div>
 
   {{!-- Collapsible options --}}
