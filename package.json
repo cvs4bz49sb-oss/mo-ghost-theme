@@ -75,7 +75,7 @@
       },
       "plausible_domain": {
         "type": "text",
-        "description": "Plausible site ID (usually the domain — e.g. mereorthodoxy.com). When set, the Plausible tracking script loads site-wide and /admin/traffic/ can query stats. Empty disables both. Use the production domain even on staging so stats accumulate in the right account."
+        "description": "Plausible site ID (usually the domain — e.g. mereorthodoxy.com). When set, the Plausible tracking script loads site-wide and the KPI dashboard can query stats. Empty disables both. Use the production domain even on staging so stats accumulate in the right account."
       },
       "error_worker_url": {
         "type": "text",
