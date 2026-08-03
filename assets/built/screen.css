@@ -24329,3 +24329,104 @@ html[data-theme="dark"] .dlr-play-btn {
   .dash-new-bookmark { transition: none; }
   .dash-new-rail { scroll-behavior: auto; }
 }
+
+/* ---------------------------------------------------------------------------
+   /admin/kpi/ — nightly KPI dashboard.
+
+   Reads the snapshot mo-admin's cron wrote; nothing here computes. Kept
+   to the admin workspace idiom: hairlines rather than boxed cards, one
+   accent (the action item) so the eye lands on the thing to do first.
+--------------------------------------------------------------------------- */
+.kpi-stamp { color: var(--color-muted); font-size: 13px; margin-left: 6px; }
+
+.kpi-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; flex-wrap: wrap; margin: 0 0 20px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--color-rule);
+}
+.kpi-history { display: flex; align-items: center; gap: 8px; }
+.kpi-history-label { font-size: 13px; color: var(--color-muted); }
+.kpi-date {
+  font-family: var(--font-body); font-size: 14px; color: var(--color-dark);
+  background: var(--color-white); border: 1px solid var(--color-rule);
+  border-radius: var(--radius); padding: 5px 9px;
+}
+.kpi-btn {
+  font-family: var(--font-body); font-size: 13px; color: var(--color-dark);
+  background: var(--color-white); border: 1px solid var(--color-rule);
+  border-radius: var(--radius); padding: 5px 12px; cursor: pointer;
+}
+.kpi-btn:hover { background: var(--color-page); }
+.kpi-btn[disabled] { opacity: 0.5; cursor: default; }
+.kpi-toolbar-right { display: flex; align-items: center; gap: 12px; }
+.kpi-sources { font-size: 12.5px; color: var(--color-muted); }
+.kpi-sources.is-warn { color: var(--color-primary-text); }
+
+/* The daily action item — the one thing to do, directly under the KPIs. */
+.kpi-action {
+  display: flex; gap: 18px; align-items: flex-start;
+  background: var(--color-card-featured-bg);
+  border-radius: var(--radius-lg); padding: 20px 22px; margin: 0 0 22px;
+}
+.kpi-action-mark {
+  font-family: var(--font-display); font-style: italic; font-size: 14px;
+  color: var(--color-primary-text); white-space: nowrap; padding-top: 2px;
+}
+.kpi-action-title {
+  font-family: var(--font-display); font-size: 19px; font-weight: 600;
+  color: var(--color-dark); margin: 0 0 6px;
+}
+.kpi-action-text { font-size: 15px; line-height: 1.55; color: var(--color-dark); margin: 0 0 8px; }
+.kpi-action-meta { display: flex; gap: 14px; flex-wrap: wrap; margin: 0; font-size: 12.5px; }
+.kpi-action-metric { font-weight: 600; color: var(--color-primary-text); }
+.kpi-action-alt { color: var(--color-muted); }
+
+.kpi-tiles {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  border-top: 1px solid var(--color-rule); border-left: 1px solid var(--color-rule);
+  border-radius: var(--radius); overflow: hidden; margin-bottom: 26px;
+}
+.kpi-tile {
+  padding: 16px 18px; background: var(--color-page);
+  border-right: 1px solid var(--color-rule); border-bottom: 1px solid var(--color-rule);
+  display: flex; flex-direction: column;
+}
+.kpi-tile-label { font-size: 12.5px; color: var(--color-muted); margin: 0; }
+.kpi-tile-value {
+  font-family: var(--font-display); font-size: 27px; line-height: 1.1;
+  color: var(--color-dark); margin: 4px 0 0;
+}
+.kpi-tile-cap { font-size: 12.5px; color: var(--color-muted); margin: 4px 0 0; }
+.kpi-delta { font-weight: 600; }
+.kpi-delta.is-up { color: #2f7d32; }
+.kpi-delta.is-down { color: var(--color-secondary); }
+.kpi-delta.is-flat { color: var(--color-muted); }
+.kpi-tile-bullets {
+  list-style: none; margin: 10px 0 0; padding: 10px 0 0 13px;
+  border-top: 1px solid var(--color-rule);
+}
+.kpi-tile-bullets li { font-size: 12px; color: var(--color-muted); margin: 0 0 3px; position: relative; }
+.kpi-tile-bullets li::before {
+  content: "·"; position: absolute; left: -10px; color: var(--color-card-border); font-weight: 700;
+}
+.kpi-tile-bullets li b { color: var(--color-dark); font-weight: 600; }
+.kpi-spark { display: block; margin-top: auto; padding-top: 10px; color: var(--color-card-border); }
+
+.kpi-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.kpi-chart { background: var(--color-page); border-radius: var(--radius); padding: 16px 18px; }
+.kpi-chart-title { font-size: 13.5px; font-weight: 600; color: var(--color-dark); margin: 0 0 10px; }
+.kpi-chart svg { display: block; width: 100%; height: auto; color: var(--color-secondary); overflow: visible; }
+.kpi-gl { stroke: var(--color-rule); stroke-width: 1; }
+.kpi-tick { font-size: 10px; fill: var(--color-muted); }
+.kpi-dlabel { font-size: 11px; fill: var(--color-dark); font-weight: 600; }
+.kpi-empty { font-size: 13.5px; color: var(--color-muted); margin: 0; padding: 18px 0; }
+.kpi-foot { font-size: 12.5px; color: var(--color-muted); margin: 24px 0 0; }
+
+@media (max-width: 1000px) {
+  .kpi-tiles { grid-template-columns: repeat(2, 1fr); }
+  .kpi-charts { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .kpi-tiles { grid-template-columns: 1fr; }
+  .kpi-action { flex-direction: column; gap: 8px; }
+}

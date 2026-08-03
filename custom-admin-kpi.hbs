@@ -1,0 +1,80 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>KPI Dashboard | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="KPI Dashboard | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="KPI Dashboard | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/kpi/ — nightly KPI snapshot across Ghost, Stripe, HubSpot,
+     Kit, Plausible and Buzzsprout. The snapshot is written by the
+     04:59 UTC cron on mo-admin; this page only reads it, so it loads
+     fast and shows the same numbers to everyone. Page skeleton renders
+     for any signed-in member; the worker gates the data by Ghost staff
+     membership and admin-kpi.js surfaces that as a denied state. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+    {{> "admin-sidebar" active="kpi"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>KPI Dashboard</em></h1>
+        <p class="admin-topbar-sub">
+          Every headline number, pulled nightly and kept forever.
+          <span class="kpi-stamp" data-kpi-stamp></span>
+        </p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container" data-kpi-root data-worker-url="{{@custom.admin_worker_url}}">
+
+          <div class="kpi-toolbar">
+            <div class="kpi-history">
+              <label class="kpi-history-label" for="kpi-date">Showing</label>
+              <input type="date" id="kpi-date" class="kpi-date" data-kpi-date />
+              <button type="button" class="kpi-btn" data-kpi-today>Latest</button>
+            </div>
+            <div class="kpi-toolbar-right">
+              <span class="kpi-sources" data-kpi-sources></span>
+              <button type="button" class="kpi-btn" data-kpi-refresh>Refresh now</button>
+            </div>
+          </div>
+
+          <div class="kpi-action" data-kpi-action hidden>
+            <div class="kpi-action-mark">Today's action</div>
+            <div class="kpi-action-body">
+              <h2 class="kpi-action-title" data-kpi-action-title></h2>
+              <p class="kpi-action-text" data-kpi-action-text></p>
+              <p class="kpi-action-meta">
+                <span class="kpi-action-metric" data-kpi-action-metric></span>
+                <span class="kpi-action-alt" data-kpi-action-alt></span>
+              </p>
+            </div>
+          </div>
+
+          <div class="kpi-tiles" data-kpi-tiles>
+            <p class="kpi-empty">Loading the latest snapshot…</p>
+          </div>
+
+          <div class="kpi-charts" data-kpi-charts></div>
+
+          <p class="kpi-foot">
+            Snapshots are taken at 11:59pm Central and never overwritten. Pick any past date above to see
+            that evening's numbers and the action item that was shown with them.
+          </p>
+
+        </div>
+      </section>
+    </div>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-kpi.js"}}"></script>
