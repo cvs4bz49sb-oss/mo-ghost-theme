@@ -257,7 +257,7 @@
       ],
       bullets: (s) => [
         s.stripe ? `<b>${fmt(s.stripe.paying)}</b> paying Stripe — verified` : "",
-        s.hubspot ? `<b>${fmt(s.hubspot.checkout_last_12m)}–${fmt(s.hubspot.still_flagged_paid)}</b> HubSpot deals — unverified, see the members chart` : "",
+        s.hubspot ? `<b>${fmt(s.hubspot.membership_members_12m != null ? s.hubspot.membership_members_12m : s.hubspot.checkout_last_12m)}</b> legacy members paid within 12 months` : "",
         s.ghost ? `<b>${fmt(s.ghost.comped)}</b> comped · <b>${fmt(s.ghost.paid)}</b> paid in Ghost` : ""
       ]
     },
@@ -467,8 +467,8 @@
   const CHARTS = [
     {
       id: "members", type: "line", agg: "last", title: "Paying members",
-      sub: "Stripe is verified. The HubSpot line counts contacts with a closed-won deal in the last twelve months — HubSpot calls those lists \u201cEveryone Who Pays\u201d, but reading what the deals actually are needs the crm.objects.deals.read scope, so treat it as unverified.",
-      keys: ["pays", "hsp"], names: ["Stripe (verified)", "HubSpot deals (unverified)"], f: fmt
+      sub: "Stripe, plus legacy members whose membership was paid for within the last twelve months. The legacy line counts distinct people in HubSpot's Membership pipeline only — donations and journal orders sit in their own pipelines and are not memberships.",
+      keys: ["pays", "hsp"], names: ["Stripe", "Legacy (HubSpot membership)"], f: fmt
     },
     {
       id: "mrr", type: "line", agg: "last", title: "Recurring revenue, monthly",
@@ -727,6 +727,13 @@
     const mx = Math.max(...pairs.map((p) => p[1]), 1);
     const ticks = niceTicks(mx, 4), top = ticks[ticks.length - 1];
     const band = pw / n, bw = Math.min(30, band * 0.6);
+    // Rule 5: a number over every bar is only readable while the bars are
+    // few. Past that the labels collide and the chart reads as noise, so
+    // they come off and the hover tooltip carries the values instead.
+    // opts.hoverOnly forces it either way.
+    const showValues = o.hoverOnly === true ? false
+      : o.hoverOnly === false ? true
+        : n <= 8;
     // Rule 2: keep the value label clear of the plot ceiling.
     const Y = (v) => T + MARK_PAD + (ph - MARK_PAD) - (v / (top || 1)) * (ph - MARK_PAD);
     const showTicks = o.rotate ? null : tickIndexes(pairs.map((pr) => pr[0]), pw, (i) => L + band * i + band / 2);
@@ -742,7 +749,9 @@
       const h = Math.max(1, T + ph - y), r = Math.min(3, h, bw / 2);
       svg += `<path d="M${x},${y + r} a${r},${r} 0 0 1 ${r},${-r} h${bw - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - r} h${-bw} Z" fill="${o.color || C1}"/>`;
       svg += `<rect class="kpi-hz" data-i="${i}" x="${(L + band * i).toFixed(1)}" y="${T}" width="${band.toFixed(1)}" height="${ph}" fill="transparent"/>`;
-      svg += `<text class="kpi-dlabel" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${o.money ? usd(pr[1]) : fmt(pr[1])}</text>`;
+      if (showValues) {
+        svg += `<text class="kpi-dlabel" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${o.money ? usd(pr[1]) : fmt(pr[1])}</text>`;
+      }
       if (o.rotate) {
         svg += `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start"><title>${pr[0]}</title>${clip(pr[0], 18)}</text>`;
       } else if (showTicks.has(i)) {
@@ -781,6 +790,8 @@
   // Quarter and you get that quarter's gifts, not the newest 25 overall.
 
   let ledger = null;
+  let donSort = { key: "date", dir: "desc" };
+  let donExpanded = false;
 
   // The date span the active period covers, taken from the series rows the
   // tiles are built from so the panel can never disagree with them.
@@ -818,7 +829,25 @@
     const big = rows.slice().sort((a, b) => b.amount - a.amount)[0];
 
     const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
-    const recent = rows.slice().sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)).slice(0, 30);
+
+    // Newest first by default; the header cells re-sort in place. Amount
+    // sorts high-to-low first because "who gave the most" is the question
+    // anyone actually asks of a donation list.
+    const sorted = rows.slice().sort((a, b) => {
+      const dir = donSort.dir === "asc" ? 1 : -1;
+      if (donSort.key === "amount") return (a.amount - b.amount) * dir;
+      if (donSort.key === "type") {
+        const t = (r) => (r.recurring ? "Recurring" : "One-time");
+        return t(a).localeCompare(t(b)) * dir || (a.date < b.date ? 1 : -1);
+      }
+      if (donSort.key === "name") return String(a.name || "").localeCompare(String(b.name || "")) * dir;
+      return (a.date < b.date ? -1 : a.date > b.date ? 1 : 0) * dir;
+    });
+    const shown = donExpanded ? sorted : sorted.slice(0, 5);
+    const arrow = (k) => (donSort.key === k ? (donSort.dir === "asc" ? " ↑" : " ↓") : "");
+    const th = (k, label, num) =>
+      `<th${num ? ' class="is-num"' : ""}><button type="button" class="kpi-sortbtn" data-don-sort="${k}"
+        aria-pressed="${donSort.key === k}">${label}${arrow(k)}</button></th>`;
 
     host.innerHTML = `
       <div class="kpi-stats">
@@ -829,16 +858,140 @@
         ${stat(big ? usd(big.amount) : "—", "largest gift")}
         ${stat(rows.length ? `${Math.round((recurring / rows.length) * 100)}%` : "—", "recurring")}
       </div>
-      <p class="kpi-note">Recent donations${rows.length > 30 ? ` — newest 30 of ${fmt(rows.length)}` : ""}</p>
-      ${recent.length ? `<div class="kpi-tablewrap"><table class="kpi-table">
-        <thead><tr><th>Date</th><th>Donor</th><th class="is-num">Amount</th><th>Type</th></tr></thead>
-        <tbody>${recent.map((r) => `<tr>
+      ${sorted.length ? `<div class="kpi-tablewrap"><table class="kpi-table">
+        <thead><tr>${th("date", "Date")}${th("name", "Donor")}${th("amount", "Amount", true)}${th("type", "Type")}</tr></thead>
+        <tbody>${shown.map((r) => `<tr>
           <td>${mdy(r.date)}</td>
           <td>${esc(r.name || "—")}</td>
           <td class="is-num">${usd(r.amount)}</td>
           <td>${r.recurring ? "Recurring" : "One-time"}${r.fund ? ` · ${esc(r.fund)}` : ""}</td>
         </tr>`).join("")}</tbody>
-      </table></div>` : '<p class="kpi-empty">No gifts in this period.</p>'}`;
+      </table></div>
+      ${sorted.length > 5 ? `<button type="button" class="kpi-morebtn" data-don-more>
+        ${donExpanded ? "Show less" : `Show all ${fmt(sorted.length)}`}</button>` : ""}`
+      : '<p class="kpi-empty">No gifts in this period.</p>'}`;
+
+    host.querySelectorAll("[data-don-sort]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const k = b.getAttribute("data-don-sort");
+        // Same column toggles direction; a new column starts on the
+        // direction that answers the obvious question first.
+        if (donSort.key === k) donSort.dir = donSort.dir === "asc" ? "desc" : "asc";
+        else { donSort.key = k; donSort.dir = k === "name" ? "asc" : "desc"; }
+        renderDonations();
+      });
+    });
+    const more = host.querySelector("[data-don-more]");
+    if (more) more.addEventListener("click", () => { donExpanded = !donExpanded; renderDonations(); });
+  }
+
+  // ---- section navigation ------------------------------------------------
+  //
+  // Nine sections deep, the page is long enough that scrolling to Podcasts
+  // is a chore. Expand/Collapse act on every <details>; the jump menu is
+  // built from whatever sections are actually in the template, so adding a
+  // section to the .hbs needs no change here.
+
+  function wireSectionNav() {
+    const secs = [...document.querySelectorAll(".kpi-sec")];
+    if (!secs.length) return;
+    const nameOf = (d) => {
+      const sum = d.querySelector(":scope > summary");
+      return sum ? sum.textContent.trim() : "";
+    };
+    secs.forEach((d, i) => { if (!d.id) d.id = `kpi-sec-${i}`; });
+
+    const jump = document.querySelector("[data-kpi-jump]");
+    if (jump) {
+      jump.innerHTML = '<option value="">Jump to section…</option>'
+        + secs.map((d) => `<option value="${d.id}">${esc(nameOf(d))}</option>`).join("");
+      jump.addEventListener("change", () => {
+        const d = document.getElementById(jump.value);
+        if (!d) return;
+        // Jumping to a collapsed section and landing on nothing is a dead
+        // end, so open it on the way.
+        d.open = true;
+        d.scrollIntoView({ behavior: "smooth", block: "start" });
+        jump.value = "";
+      });
+    }
+    const setAll = (open) => {
+      document.querySelectorAll(".kpi-sec").forEach((d) => { d.open = open; });
+    };
+    const ex = document.querySelector("[data-kpi-expand]");
+    const co = document.querySelector("[data-kpi-collapse]");
+    if (ex) ex.addEventListener("click", () => setAll(true));
+    if (co) co.addEventListener("click", () => setAll(false));
+  }
+
+  // ---- audience ----------------------------------------------------------
+  //
+  // The "About You" answers from Manage Membership. Not period-filtered:
+  // these are standing facts about who the audience is, and D1 keeps only
+  // the current answer per member, so there is no history to slice.
+
+  function renderAudience(s) {
+    const host = document.querySelector("[data-kpi-audience]");
+    if (!host) return;
+    const a = s.audience;
+    if (!a) {
+      host.innerHTML = '<p class="kpi-empty">No "About You" answers in this snapshot. '
+        + 'They are collected in Manage Membership and land in the membership database.</p>';
+      return;
+    }
+    // Top three, in order, with the share of people who answered that
+    // question — which is the denominator that matters, not total members.
+    const top3 = (list, n) => (list || []).slice(0, 3).map((r, i) => `
+      <li><span class="kpi-rank">${i + 1}</span>
+        <span class="kpi-rank-label">${esc(r.label)}</span>
+        <span class="kpi-rank-bar"><i style="width:${Math.max(2, r.pct)}%"></i></span>
+        <b>${r.pct}%</b>
+        <span class="kpi-rank-n">${fmt(r.n)}</span></li>`).join("")
+      || '<li class="kpi-empty">No answers yet.</li>';
+
+    const card = (title, sub, list, n) => `
+      <div class="kpi-chart">
+        <p class="kpi-chart-title">${title}</p>
+        <p class="kpi-chart-sub">${sub} <b>${fmt(n)}</b> answered.</p>
+        <ol class="kpi-ranks">${top3(list)}</ol>
+      </div>`;
+
+    host.innerHTML = `
+      <div class="kpi-charts">
+        ${card("Church tradition", "Free text, grouped into traditions.", a.traditions, a.traditions_n)}
+        ${card("Relationship to the church", "Multi-select, so shares can exceed 100%.", a.roles, a.roles_n)}
+        ${card("Age range", "Single choice.", a.age, a.age_n)}
+        ${card("Gender", "Single choice.", a.gender, a.gender_n)}
+      </div>`;
+
+    const full = document.querySelector("[data-kpi-audience-full]");
+    if (!full) return;
+    const table = (title, list, n) => `
+      <p class="kpi-note" style="margin-top:14px"><b>${title}</b> — ${fmt(n)} answered</p>
+      <div class="kpi-tablewrap"><table class="kpi-table">
+        <thead><tr><th>Answer</th><th class="is-num">People</th><th class="is-num">Share</th></tr></thead>
+        <tbody>${(list || []).map((r) => `<tr><td>${esc(r.label)}</td>
+          <td class="is-num">${fmt(r.n)}</td><td class="is-num">${r.pct}%</td></tr>`).join("")}</tbody>
+      </table></div>`;
+    full.innerHTML = `
+      <p class="kpi-note" style="margin:0">
+        Church tradition is a free-text box: <b>${fmt(a.distinct_raw)}</b> distinct strings were typed for
+        <b>${fmt(a.traditions_n)}</b> answers, so they are grouped by rule before counting — "PCA",
+        "Presbyterian (PCA)" and "Presbyterian Church in America" are one tradition typed three ways.
+        Two calls worth knowing: Reformed Baptists are counted as Baptist, and bare "Evangelical" or
+        "Protestant" is its own bucket rather than being folded into a denomination.
+      </p>
+      ${table("Church tradition", a.traditions, a.traditions_n)}
+      ${table("Relationship to the church", a.roles, a.roles_n)}
+      ${table("Age range", a.age_ordered && a.age_ordered.length ? a.age_ordered : a.age, a.age_n)}
+      ${table("Gender", a.gender, a.gender_n)}
+      ${a.traditions_raw && a.traditions_raw.length ? `
+        <p class="kpi-note" style="margin-top:16px"><b>Exactly what was typed</b> — every answer and where it was filed</p>
+        <div class="kpi-tablewrap"><table class="kpi-table">
+          <thead><tr><th>Typed</th><th class="is-num">People</th><th>Filed under</th></tr></thead>
+          <tbody>${a.traditions_raw.map((r) => `<tr><td>${esc(r.label)}</td>
+            <td class="is-num">${fmt(r.n)}</td><td>${esc(r.tradition)}</td></tr>`).join("")}</tbody>
+        </table></div>` : ""}`;
   }
 
   async function loadLedger() {
@@ -1241,6 +1394,7 @@
     safe("narrative", () => renderNarrative(showing));
     safe("substack", () => renderSubstack());
     safe("donations", () => renderDonations());
+    safe("audience", () => renderAudience(showing));
   }
 
   // ---- verification table, flags and analysis ----------------------------
@@ -1499,6 +1653,7 @@
   }
 
   wireSubstack();
+  wireSectionNav();
   load();
   loadLedger();
 })();

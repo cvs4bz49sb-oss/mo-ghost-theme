@@ -38,6 +38,9 @@
               <button type="button" class="kpi-btn" data-kpi-today>Latest</button>
             </div>
             <div class="kpi-toolbar-right">
+              <button type="button" class="kpi-btn" data-kpi-expand>Expand all</button>
+              <button type="button" class="kpi-btn" data-kpi-collapse>Collapse all</button>
+              <select class="kpi-jump" data-kpi-jump aria-label="Jump to section"></select>
               <span class="kpi-sources" data-kpi-sources></span>
               <button type="button" class="kpi-btn" data-kpi-refresh>Refresh now</button>
             </div>
@@ -102,6 +105,15 @@
             <summary><span class="kpi-chev"></span>Donations</summary>
             <div class="kpi-panel" data-kpi-donations-panel></div>
             <div class="kpi-charts" data-kpi-donations></div>
+          </details>
+
+          <details class="kpi-sec" open>
+            <summary><span class="kpi-chev"></span>Audience</summary>
+            <div data-kpi-audience></div>
+            <details class="kpi-sub">
+              <summary><span class="kpi-chev"></span>Every answer, and how the free text was grouped</summary>
+              <div class="kpi-panel" data-kpi-audience-full></div>
+            </details>
           </details>
 
           <details class="kpi-sec" open>

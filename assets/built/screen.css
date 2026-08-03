@@ -24504,6 +24504,37 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-table th:last-child, .kpi-table td:last-child { width: 100%; }
 .kpi-table tbody tr:last-child th, .kpi-table tbody tr:last-child td { border-bottom: none; }
 
+/* Sortable table headers and the show-all toggle. */
+.kpi-sortbtn { background: none; border: 0; padding: 0; font: inherit; color: inherit;
+  cursor: pointer; letter-spacing: inherit; }
+.kpi-sortbtn:hover { color: var(--k-text); }
+.kpi-sortbtn[aria-pressed="true"] { color: var(--k-text); font-weight: 640; }
+.kpi-morebtn { margin-top: 10px; background: none; border: 1px solid var(--k-line);
+  border-radius: 7px; padding: 5px 11px; font-size: 12px; color: var(--k-secondary);
+  cursor: pointer; font-family: inherit; }
+.kpi-morebtn:hover { color: var(--k-text); border-color: var(--k-muted); }
+
+.kpi-jump { font: inherit; font-size: 12px; color: var(--k-secondary); background: var(--k-surface);
+  border: 1px solid var(--k-line); border-radius: 7px; padding: 5px 8px; max-width: 190px; cursor: pointer; }
+
+/* Ranked answers: number, label, proportional rule, share, count. The rule
+   is a bar chart flattened into a list row — no card, per house style. */
+.kpi-ranks { list-style: none; margin: 12px 0 0; padding: 0; counter-reset: none; }
+.kpi-ranks li { display: grid; grid-template-columns: 18px minmax(0, 1fr) 72px 46px 44px;
+  align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--k-line);
+  font-size: 13px; color: var(--k-secondary); }
+.kpi-ranks li:last-child { border-bottom: none; }
+.kpi-rank { color: var(--k-muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.kpi-rank-label { color: var(--k-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kpi-rank-bar { background: var(--k-line); border-radius: 3px; height: 6px; overflow: hidden; }
+.kpi-rank-bar i { display: block; height: 100%; background: var(--k-accent); border-radius: 3px; }
+.kpi-ranks b { color: var(--k-text); font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
+.kpi-rank-n { color: var(--k-muted); font-size: 11.5px; font-variant-numeric: tabular-nums; text-align: right; }
+@media (max-width: 560px) {
+  .kpi-ranks li { grid-template-columns: 16px minmax(0, 1fr) 44px 40px; }
+  .kpi-rank-bar { display: none; }
+}
+
 .kpi-statlist { list-style: none; margin: 0; padding: 0; }
 .kpi-statlist li { display: flex; justify-content: space-between; align-items: baseline;
   padding: 9px 0; border-bottom: 1px solid var(--k-line); font-size: 13.5px; color: var(--k-secondary); }
@@ -24563,6 +24594,10 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-tbl tr.is-total td { border-top: 1px solid var(--k-line); color: var(--k-text); }
 
 .kpi-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* A section with both a panel and a chart grid (Donations, Substack) must
+   separate them by the same 12px the grid itself uses, or the two cards
+   sit flush and read as one broken block. */
+.kpi-panel + .kpi-charts, .kpi-charts + .kpi-panel { margin-top: 12px; }
 .kpi-charts > * { min-width: 0; }
 .kpi-chart {
   background: var(--k-surface); border: 1px solid var(--k-line);
