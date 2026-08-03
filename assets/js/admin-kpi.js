@@ -41,6 +41,8 @@
 
   let series = [];
   let showing = null;
+  let historyRow = null;
+  let historyPrev = null;
   let gran = "total";
 
   const fmt = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US") : "—");
@@ -328,8 +330,12 @@
           }
         }
       }
-      const bullets = (periodRows && t.periodBullets
-        ? t.periodBullets(periodRows, prevRows)
+      // On a reconstructed day the per-source blocks do not exist, so the
+      // bullets are computed from that day's history row instead.
+      const rowsForBullets = periodRows || (snap.reconstructed && historyRow ? [historyRow] : null);
+      const prevForBullets = prevRows || (snap.reconstructed && historyPrev ? [historyPrev] : null);
+      const bullets = (rowsForBullets && t.periodBullets
+        ? t.periodBullets(rowsForBullets, prevForBullets)
         : t.bullets(snap) || []).filter(Boolean);
       return `<div class="kpi-tile">
         <p class="kpi-tile-label">${t.label}</p>
@@ -632,8 +638,10 @@
         "Most of the base came in on a launch discount, so these re-bill higher.",
         Object.entries(s.stripe.renewals).sort().slice(0, 14).map(([m, v]) => [m.slice(2), v]), { color: C2 }));
     }
-    document.querySelector("[data-kpi-breakdowns]").innerHTML =
-      out.filter(Boolean).join("") || '<p class="kpi-empty">No breakdowns in this snapshot.</p>';
+    document.querySelector("[data-kpi-breakdowns]").innerHTML = out.filter(Boolean).join("")
+      || `<p class="kpi-empty">Breakdowns are only stored from the day a snapshot was taken. The headline
+         numbers above are reconstructed from platform history and are accurate; the per-source cuts are not
+         available for that date.</p>`;
   }
 
   // Everything the standalone Traffic board carried, in the new format.
@@ -641,7 +649,12 @@
     const t = s.traffic;
     const el = document.querySelector("[data-kpi-traffic]");
     if (!el) return;
-    if (!t) { el.innerHTML = '<p class="kpi-empty">No traffic in this snapshot.</p>'; return; }
+    if (!t) {
+      el.innerHTML = `<p class="kpi-empty">Traffic detail is only stored from the day a snapshot was taken.
+        The pageview totals above are reconstructed and accurate — Plausible after the 26 May launch,
+        HubSpot's counter before it.</p>`;
+      return;
+    }
     const out = [];
     const dur = t.visit_duration_seconds;
     out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Last 30 days</p>
@@ -749,8 +762,9 @@
         });
       }
     }
-    document.querySelector("[data-kpi-channels]").innerHTML =
-      out.filter(Boolean).join("") || '<p class="kpi-empty">No channel data in this snapshot.</p>';
+    document.querySelector("[data-kpi-channels]").innerHTML = out.filter(Boolean).join("")
+      || `<p class="kpi-empty">Channel detail is only stored from the day a snapshot was taken. The headline
+         numbers above are reconstructed from platform history and are accurate; the per-source cuts are not.</p>`;
   }
 
   // ---- action item, stamp, render ----------------------------------------
@@ -904,6 +918,7 @@
   }
 
   function show(snap) {
+    if (!snap.reconstructed) { historyRow = null; historyPrev = null; }
     showing = snap;
     if (els.date) els.date.value = snap.date;
     stamp(snap);
@@ -996,6 +1011,9 @@
         // anything earlier, fall back to the reconstructed history row.
         const row = series.find((r) => r.d === d);
         if (!row) { fail(`No history for ${mdy(d, true)}.`); return; }
+        const i = series.indexOf(row);
+        historyRow = row;
+        historyPrev = i > 0 ? series[i - 1] : null;
         show({
           date: d,
           captured_at: null,
@@ -1003,12 +1021,14 @@
           action: null,
           kpi: {
             membership_revenue: row.rev, total_members: row.mem, total_subscribers: row.sub,
-            new_members_24h: row.nmem, new_subscribers_24h: row.nsub, web_traffic_30d: row.pv,
+            new_members_24h: (row.nmem || 0) + (row.hsn || 0), new_subscribers_24h: row.nsub,
+            web_traffic_30d: row.pv || row.totpv,
             podcast_lifetime: row.pod, digest_open: row.op, digest_click: row.cl,
             migration_done: row.mig, migration_total: row.migt,
             days_to_sunset: Math.round((Date.parse("2027-04-01") - Date.parse(d)) / 86400000)
           },
-          ghost: null, stripe: null, hubspot: null, kit: null, traffic: null, podcasts: null
+          ghost: null, stripe: null, hubspot: null, kit: null, traffic: null, podcasts: null,
+          reconstructed: true
         });
       }
     });
