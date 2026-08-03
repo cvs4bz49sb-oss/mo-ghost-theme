@@ -53,6 +53,8 @@
   const pctChange = (a, b) => (a ? (b / a - 1) * 100 : 0);
   const C1 = "#2a78d6";
   const C2 = "#eb6834";
+  const C3 = "#1baf7a";
+  const SERIES_COLORS = [C1, C2, C3];
 
   function api(path, init) {
     const url = worker + path;
@@ -221,12 +223,12 @@
       // In Total the useful figure is the trailing 30 days. For a period it has
       // to be the pageviews IN that period — carrying the 30-day value through
       // made a year read lower than a quarter.
-      periodKey: "pvd", periodAgg: "sum", periodCap: "in period",
+      periodKey: "totpv", periodAgg: "sum", periodCap: "site + Substack, in period",
       f: fmt, goodUp: true,
       periodBullets: (rows) => [
-        `<b>${fmt(sumOf(rows, "vis"))}</b> visitors in the period`,
-        `<b>${perDay(rows, "pvd")}</b> pageviews a day`,
-        `<b>${fmt(lastOf(rows, "pv"))}</b> trailing 30 days at period end`
+        `<b>${fmt(sumOf(rows, "pvd") + sumOf(rows, "oldpv"))}</b> on the site${sumOf(rows, "oldpv") ? " (part HubSpot-era)" : ""}`,
+        `<b>${fmt(sumOf(rows, "subpv"))}</b> on Substack`,
+        `<b>${fmt(sumOf(rows, "vis"))}</b> site visitors (Plausible only)`
       ],
       bullets: (s) => [
         s.traffic ? `<b>${fmt(s.traffic.visitors_30d)}</b> visitors in 30 days` : "",
@@ -362,9 +364,15 @@
       keys: ["nsub", "unsub"], names: ["Subscribed", "Unsubscribed"], f: fmt
     },
     {
-      id: "traffic", type: "line", agg: "sum", title: "Website traffic",
-      sub: "Plausible. Nothing before 21 Apr 2026 — the site launched 26 May.",
-      keys: ["pvd", "vis"], names: ["Pageviews", "Visitors"], f: fmt
+      id: "traffic", type: "line", agg: "sum", title: "Traffic, all channels",
+      sub: "Pageviews. The site counter changes at the 26 May launch — HubSpot before, Plausible after — so the two never overlap.",
+      keys: ["pvd", "oldpv", "subpv"],
+      names: ["Site (Plausible)", "Site (HubSpot, old)", "Substack"], f: fmt
+    },
+    {
+      id: "visitors", type: "line", agg: "sum", title: "Site pageviews and visitors",
+      sub: "Plausible only, so this starts 21 Apr 2026. Different units, so no total.",
+      keys: ["pvd", "vis"], names: ["Pageviews", "Visitors"], f: fmt, noTotal: true
     }
   ];
 
@@ -387,7 +395,7 @@
     const ticks = niceTicks(Math.max(...buckets.flat().map((b) => b.v), 1), 4);
     const mx = ticks[ticks.length - 1];
     const every = Math.ceil(n / 8);
-    const colors = [C1, C2];
+    const colors = SERIES_COLORS;
     const money = cfg.f === usd;
     let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${cfg.title}">`;
     ticks.forEach((t) => {
@@ -464,7 +472,8 @@
       const capped = buckets[0].length > 24;
       const table = `<div class="kpi-tbl" id="tbl-${cfg.id}"><table>
         <thead><tr><th>Series</th>${tb[0].map((b) => `<th>${b.label}</th>`).join("")}</tr></thead>
-        <tbody>${tb.map((sr, j) => `<tr><td><span class="kpi-swatch" style="background:${[C1, C2][j]}"></span>${cfg.names[j]}</td>${sr.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}</tbody>
+        <tbody>${tb.map((sr, j) => `<tr><td><span class="kpi-swatch" style="background:${SERIES_COLORS[j]}"></span>${cfg.names[j]}</td>${sr.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}${
+          cfg.noTotal ? "" : `<tr class="is-total"><td><b>Total</b></td>${tb[0].map((_, i) => `<td><b>${cfg.f(tb.reduce((t, sr) => t + sr[i].v, 0))}</b></td>`).join("")}</tr>`}</tbody>
       </table>${capped ? `<p class="kpi-note">Most recent 24 of ${buckets[0].length} periods.</p>` : ""}</div>`;
       return `<div class="kpi-chart" data-chart="${cfg.id}">
         <div class="kpi-chart-head">
@@ -472,7 +481,7 @@
           <button type="button" class="kpi-btn kpi-tbtn" data-tbl="tbl-${cfg.id}">Table</button>
         </div>
         <p class="kpi-chart-sub">${cfg.sub}</p>
-        <ul class="kpi-legend">${cfg.names.map((nm, j) => `<li><span class="kpi-key" style="background:${[C1, C2][j]}"></span>${nm}</li>`).join("")}</ul>
+        <ul class="kpi-legend">${cfg.names.map((nm, j) => `<li><span class="kpi-key" style="background:${SERIES_COLORS[j]}"></span>${nm}</li>`).join("")}</ul>
         ${chartSvg(cfg, buckets)}${table}
       </div>`;
     }).join("");
@@ -487,9 +496,12 @@
         const i = Number(z.getAttribute("data-i"));
         z.addEventListener("mouseenter", (ev) => {
           const rows = st.buckets.map((s, j) =>
-            `<div class="r"><span class="kpi-key" style="background:${[C1, C2][j]}"></span>${st.cfg.names[j]}<span class="v">${st.cfg.f(s[i].v)}</span></div>`
+            `<div class="r"><span class="kpi-key" style="background:${SERIES_COLORS[j]}"></span>${st.cfg.names[j]}<span class="v">${st.cfg.f(s[i].v)}</span></div>`
           ).join("");
-          els.tip.innerHTML = `<div class="m">${st.buckets[0][i].label}</div>${rows}`;
+          // A total only means something when the series share a unit.
+          const total = st.cfg.noTotal ? "" :
+            `<div class="r is-total"><b>Total</b><span class="v"><b>${st.cfg.f(st.buckets.reduce((t, s) => t + s[i].v, 0))}</b></span></div>`;
+          els.tip.innerHTML = `<div class="m">${st.buckets[0][i].label}</div>${rows}${total}`;
           els.tip.style.opacity = 1;
           const r = ev.target.getBoundingClientRect();
           els.tip.style.left = `${Math.min(window.innerWidth - 230, r.left + r.width / 2 + 10)}px`;

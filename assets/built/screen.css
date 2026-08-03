@@ -24493,6 +24493,8 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-tip .m { font-weight: 620; margin-bottom: 4px; color: var(--k-text); }
 .kpi-tip .r { display: flex; align-items: center; gap: 6px; color: var(--k-secondary); }
 .kpi-tip .r .v { margin-left: auto; color: var(--k-text); font-weight: 600; }
+.kpi-tip .r.is-total { border-top: 1px solid var(--k-line); margin-top: 5px; padding-top: 5px; color: var(--k-text); }
+.kpi-tbl tr.is-total td { border-top: 1px solid var(--k-line); color: var(--k-text); }
 
 .kpi-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .kpi-charts > * { min-width: 0; }
