@@ -23,6 +23,35 @@
  */
 (function () {
   const MAGIC_URL = "/members/api/send-magic-link/";
+
+  // Mirrors what Portal records: where the visitor is, where they came
+  // from, and any campaign tagging on the URL. Ghost reads UTM parameters
+  // off the path, so the query string is kept intact.
+  function signupHistory() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ref = document.referrer || "";
+      let refHost = "";
+      try { refHost = ref ? new URL(ref).hostname.replace(/^www\./, "") : ""; } catch (_) { refHost = ""; }
+      const sameSite = refHost && refHost === window.location.hostname.replace(/^www\./, "");
+      const entry = {
+        path: window.location.pathname + window.location.search,
+        time: Date.now()
+      };
+      // utm_source wins over the referring host: a campaign says what it is,
+      // a referrer only says where the click happened to come from.
+      const source = params.get("utm_source") || params.get("ref") || params.get("source")
+        || (sameSite ? "" : refHost);
+      if (source) entry.referrerSource = source;
+      const medium = params.get("utm_medium");
+      if (medium) entry.referrerMedium = medium;
+      if (ref && !sameSite) entry.referrerUrl = ref;
+      return [entry];
+    } catch (_) {
+      // Attribution is a nice-to-have; never let it stop a signup.
+      return [];
+    }
+  }
   const INTEGRITY_URL = "/members/api/integrity-token/";
 
   document.addEventListener("click", (e) => {
@@ -90,6 +119,13 @@
             labels,
             requestSrc: "portal",
             redirect: window.location.href,
+            // Ghost derives member attribution from urlHistory — it is how
+            // Portal populates referrer_source and the utm_* columns. We were
+            // not sending it, so 456 of the last 600 signups recorded their
+            // source as "Integration: Workers" and every subscription event
+            // came through with no attribution at all. Without this there is
+            // no way to tell which email or page brought someone in.
+            urlHistory: signupHistory(),
             integrityToken,
           }),
           credentials: "same-origin",
