@@ -217,7 +217,12 @@
       ]
     },
     {
-      label: "Web traffic", key: "pv", sumKey: "pvd", agg: "last", f: fmt, goodUp: true, cap: "pageviews, 30 days",
+      label: "Web traffic", key: "pv", agg: "last", cap: "pageviews, 30 days",
+      // In Total the useful figure is the trailing 30 days. For a period it has
+      // to be the pageviews IN that period — carrying the 30-day value through
+      // made a year read lower than a quarter.
+      periodKey: "pvd", periodAgg: "sum", periodCap: "in period",
+      f: fmt, goodUp: true,
       periodBullets: (rows) => [
         `<b>${fmt(sumOf(rows, "vis"))}</b> visitors in the period`,
         `<b>${perDay(rows, "pvd")}</b> pageviews a day`,
@@ -253,6 +258,7 @@
         `<b>${fmt(s.kit.digest.recipients)}</b> recipients on the latest · ${s.kit.digest.span}`,
         `<b>${fmt(s.kit.digest.unsubscribes)}</b> unsubscribes per digest on average`
       ] : ["No weekly digest found in the recent sends"]),
+      periodValue(rows) { return `${pctv(avgOf(rows, "op"))} · ${pctv(avgOf(rows, "cl"))}`; },
       periodBullets(rows) {
         const sends = rows.filter((r) => typeof r.op === "number");
         return [
@@ -288,8 +294,8 @@
       if (gran === "total") {
         value = t.value ? t.value(snap) : t.f(snap.kpi[TOTAL_FIELD[t.key]]);
       } else {
-        const key = t.agg === "sum" && t.sumKey ? t.sumKey : t.key;
-        const b = bucketize(key, t.agg, gran);
+        const key = t.periodKey || t.key;
+        const b = bucketize(key, t.periodAgg || t.agg, gran);
         if (!b.length) {
           value = "—";
         } else {
@@ -301,8 +307,9 @@
           const prev = last > 0 ? b[last - 1].v : null;
           periodRows = b[last].rows;
           prevRows = last > 0 ? b[last - 1].rows : null;
-          value = t.f(cur);
-          cap = b[last].label + (partial && gran === "year" ? " to date" : "");
+          value = t.periodValue ? t.periodValue(b[last].rows) : t.f(cur);
+          cap = b[last].label + (partial && gran === "year" ? " to date" : "")
+            + (t.periodCap ? ` · ${t.periodCap}` : "");
           if (prev != null && prev >= 10) {
             const d = pctChange(prev, cur);
             if (Math.abs(d) < 1000) {
@@ -321,7 +328,7 @@
         <p class="kpi-tile-value">${value}</p>
         <p class="kpi-tile-cap">${delta}${cap}</p>
         ${bullets.length ? `<ul class="kpi-tile-bullets">${bullets.map((b) => `<li>${b}</li>`).join("")}</ul>` : ""}
-        ${sparkFor(t.agg === "sum" && t.sumKey ? t.sumKey : t.key, t.agg)}
+        ${sparkFor(gran === "total" ? t.key : (t.periodKey || t.key), gran === "total" ? t.agg : (t.periodAgg || t.agg))}
       </div>`;
     }).join("");
   }
@@ -594,6 +601,11 @@
       out.push(barBlock("Unsubscribes per send",
         "Promotional sends cost more list than the weekly digest does.",
         sends.map((x) => [x.date.slice(5), x.unsubscribes]), { rotate: true, color: C2 }));
+    }
+    if (s.traffic && s.traffic.hubspot_monthly && s.traffic.hubspot_monthly.length) {
+      out.push(barBlock("Old-site traffic (HubSpot)",
+        "Monthly pageviews on the pre-launch HubSpot site. A different counter from Plausible — do not compare across 26 May.",
+        s.traffic.hubspot_monthly.slice(-14).map((m) => [m.month.slice(2), m.pageviews]), { rotate: true, color: C2 }));
     }
     if (s.traffic && s.traffic.channels && s.traffic.channels.length) {
       out.push(barBlock("Where the traffic comes from",
