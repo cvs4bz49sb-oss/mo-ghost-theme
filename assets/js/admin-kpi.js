@@ -2096,31 +2096,42 @@
 
   $("[data-kpi-refresh]").addEventListener("click", async (e) => {
     const btn = e.currentTarget;
-    const before = showing && showing.captured_at;
+    // The label lives in two spans so the mobile rules can pick the short
+    // one — replacing textContent would destroy them, so swap a data flag
+    // and let CSS show the progress text instead.
+    const setLabel = (text) => {
+      if (text == null) { btn.removeAttribute("data-busy"); return; }
+      btn.setAttribute("data-busy", text);
+    };
     btn.disabled = true;
-    btn.textContent = "Collecting…";
+    setLabel("Starting\u2026");
+    // Each source is its own request, so nothing has to survive longer than
+    // a few seconds. The old single call fired a two-minute job into the
+    // background where it was silently dropped.
+    const NICE = {
+      ghost: "Ghost", stripe: "Stripe", hubspot: "HubSpot", kit: "Kit",
+      traffic: "Plausible", podcasts: "Buzzsprout", extras: "Substack, donations, audience",
+      finish: "Assembling"
+    };
     try {
-      await api("/kpi/refresh", { method: "POST" });
-      // The worker collects across six APIs in the background — roughly two
-      // minutes — and answers 202 immediately. Poll until the timestamp moves.
-      for (let i = 0; i < 40; i++) {
-        await new Promise((r) => { setTimeout(r, 5000); });
-        btn.textContent = `Collecting… ${(i + 1) * 5}s`;
-        try {
-          const snap = await api("/kpi/latest");
-          if (snap && snap.captured_at !== before) {
-            series = ((await api("/kpi/series").catch(() => ({ series: [] }))).series) || [];
-            show(snap);
-            return;
-          }
-        } catch (_) { /* not written yet — keep waiting */ }
+      let out = await api("/kpi/refresh?step=start", { method: "POST" });
+      let guard = 0;
+      while (!out.done && guard++ < 20) {
+        if (out.error) throw new Error(out.error);
+        const step = out.next;
+        setLabel(`${NICE[step] || step}\u2026 ${out.progress}/${out.total}`);
+        out = await api(`/kpi/refresh?step=${encodeURIComponent(step)}`, { method: "POST" });
       }
-      fail("Still collecting — reload in a minute.");
+      if (out.error) throw new Error(out.error);
+      setLabel("Loading\u2026");
+      const snap = await api("/kpi/latest");
+      series = ((await api("/kpi/series").catch(() => ({ series: [] }))).series) || [];
+      show(snap);
     } catch (err) {
       fail(`Refresh failed: ${err.message}`);
     } finally {
       btn.disabled = false;
-      btn.textContent = "Refresh now";
+      setLabel(null);
     }
   });
 

@@ -24367,6 +24367,11 @@ html[data-theme="dark"] .dlr-play-btn {
   border: 1px solid var(--k-line); border-radius: 8px; padding: 5px 11px;
 }
 .kpi-btn { cursor: pointer; }
+/* While a button is working it reports which source it is on. Swapping
+   textContent would delete the full/short label spans inside it, so the
+   progress text is an attribute and CSS hides the real label. */
+.kpi-btn[data-busy] > span { display: none; }
+.kpi-btn[data-busy]::after { content: attr(data-busy); }
 .kpi-btn:hover { border-color: #cfcbc5; }
 .kpi-btn[disabled] { opacity: 0.5; cursor: default; }
 .kpi-toolbar-right { display: flex; align-items: center; gap: 12px; }
