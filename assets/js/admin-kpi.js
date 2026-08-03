@@ -91,9 +91,15 @@
       w.setUTCDate(w.getUTCDate() - ((w.getUTCDay() + 6) % 7));
       return { k: `w${w.toISOString().slice(0, 10)}`, label: mdy(w.toISOString().slice(0, 10)) };
     }
-    if (g === "month") return { k: `${y}-${m}`, label: `${MON[m]} ${String(y).slice(2)}` };
-    if (g === "quarter") return { k: `${y}q${Math.floor(m / 3)}`, label: `Q${Math.floor(m / 3) + 1} ${String(y).slice(2)}` };
-    return { k: String(y), label: String(y) };
+    // Label every bucket by the day it starts, so "7/1/26" cannot be misread
+    // the way "Jul 26" could.
+    const yy = String(y).slice(2);
+    if (g === "month") return { k: `${y}-${m}`, label: `${m + 1}/1/${yy}` };
+    if (g === "quarter") {
+      const q = Math.floor(m / 3);
+      return { k: `${y}q${q}`, label: `${q * 3 + 1}/1/${yy}` };
+    }
+    return { k: String(y), label: `1/1/${yy}` };
   }
 
   // agg "last" for stocks (members, MRR, list size), "sum" for flows.
@@ -389,6 +395,7 @@
   ];
 
   const chartState = {};
+  let chartBuckets = { revenue: [], acquisition: [], traffic: [], email: [] };
 
   // ---- chart rules -------------------------------------------------------
   //
@@ -505,38 +512,51 @@
     return `${svg}</svg>`;
   }
 
+  // Which section each time chart belongs to.
+  const CHART_SECTION = {
+    members: "acquisition", mrr: "revenue", new: "acquisition", cash: "revenue",
+    subs: "email", traffic: "traffic", visitors: "traffic"
+  };
+
   function renderCharts() {
     const g = gran === "total" ? "month" : gran;
-    els.charts.innerHTML = CHARTS.map((cfg) => {
-      const raw = cfg.keys.map((k) => bucketize(k, cfg.agg, g));
-      if (raw[0].length < 2) {
-        return `<div class="kpi-chart"><p class="kpi-chart-title">${cfg.title}</p>
-          <p class="kpi-empty">Not enough history at this grain yet.</p></div>`;
-      }
-      const n = Math.min(...raw.map((b) => b.length));
-      const buckets = raw.map((b) => b.slice(b.length - n));
-      chartState[cfg.id] = { cfg, buckets };
-      // Cap the table at the most recent 24 buckets. At Day grain the full
-      // series is over a thousand columns, which is unreadable and drags the
-      // card open however wide the scroll container is.
-      const tb = buckets.map((sr) => sr.slice(-24));
-      const capped = buckets[0].length > 24;
-      const table = `<div class="kpi-tbl" id="tbl-${cfg.id}"><table>
-        <thead><tr><th>Series</th>${tb[0].map((b) => `<th>${b.label}</th>`).join("")}</tr></thead>
-        <tbody>${tb.map((sr, j) => `<tr><td><span class="kpi-swatch" style="background:${SERIES_COLORS[j]}"></span>${cfg.names[j]}</td>${sr.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}${
-          cfg.noTotal ? "" : `<tr class="is-total"><td><b>Total</b></td>${tb[0].map((_, i) => `<td><b>${cfg.f(tb.reduce((t, sr) => t + sr[i].v, 0))}</b></td>`).join("")}</tr>`}</tbody>
-      </table>${capped ? `<p class="kpi-note">Most recent 24 of ${buckets[0].length} periods.</p>` : ""}</div>`;
-      return `<div class="kpi-chart" data-chart="${cfg.id}">
-        <div class="kpi-chart-head">
-          <p class="kpi-chart-title">${cfg.title}</p>
-          <button type="button" class="kpi-btn kpi-tbtn" data-tbl="tbl-${cfg.id}">Table</button>
-        </div>
-        <p class="kpi-chart-sub">${cfg.sub}</p>
-        <ul class="kpi-legend">${cfg.names.map((nm, j) => `<li><span class="kpi-key" style="background:${SERIES_COLORS[j]}"></span>${nm}</li>`).join("")}</ul>
-        ${chartSvg(cfg, buckets)}${table}
-      </div>`;
-    }).join("");
-    wireCharts();
+    const buckets = { revenue: [], acquisition: [], traffic: [], email: [] };
+    CHARTS.forEach((cfg) => {
+      const html = chartHtml(cfg, g);
+      const key = CHART_SECTION[cfg.id] || "acquisition";
+      if (html) buckets[key].push(html);
+    });
+    chartBuckets = buckets;
+  }
+
+  function chartHtml(cfg, g) {
+    const raw = cfg.keys.map((k) => bucketize(k, cfg.agg, g));
+    if (raw[0].length < 2) {
+      return `<div class="kpi-chart"><p class="kpi-chart-title">${cfg.title}</p>
+        <p class="kpi-empty">Not enough history at this grain yet.</p></div>`;
+    }
+    const n = Math.min(...raw.map((b) => b.length));
+    const buckets = raw.map((b) => b.slice(b.length - n));
+    chartState[cfg.id] = { cfg, buckets };
+    // Cap the table at the most recent 24 buckets. At Day grain the full
+    // series is over a thousand columns, which is unreadable and drags the
+    // card open however wide the scroll container is.
+    const tb = buckets.map((sr) => sr.slice(-24));
+    const capped = buckets[0].length > 24;
+    const table = `<div class="kpi-tbl" id="tbl-${cfg.id}"><table>
+      <thead><tr><th>Series</th>${tb[0].map((b) => `<th>${b.label}</th>`).join("")}</tr></thead>
+      <tbody>${tb.map((sr, j) => `<tr><td><span class="kpi-swatch" style="background:${SERIES_COLORS[j]}"></span>${cfg.names[j]}</td>${sr.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}${
+        cfg.noTotal ? "" : `<tr class="is-total"><td><b>Total</b></td>${tb[0].map((_, i) => `<td><b>${cfg.f(tb.reduce((t, sr) => t + sr[i].v, 0))}</b></td>`).join("")}</tr>`}</tbody>
+    </table>${capped ? `<p class="kpi-note">Most recent 24 of ${buckets[0].length} periods.</p>` : ""}</div>`;
+    return `<div class="kpi-chart" data-chart="${cfg.id}">
+      <div class="kpi-chart-head">
+        <p class="kpi-chart-title">${cfg.title}</p>
+        <button type="button" class="kpi-btn kpi-tbtn" data-tbl="tbl-${cfg.id}">Table</button>
+      </div>
+      <p class="kpi-chart-sub">${cfg.sub}</p>
+      <ul class="kpi-legend">${cfg.names.map((nm, j) => `<li><span class="kpi-key" style="background:${SERIES_COLORS[j]}"></span>${nm}</li>`).join("")}</ul>
+      ${chartSvg(cfg, buckets)}${table}
+    </div>`;
   }
 
   function wireCharts() {
@@ -606,6 +626,19 @@
 
   const entries = (obj, n) => Object.entries(obj || {}).sort((a, b) => b[1] - a[1]).slice(0, n || 12);
 
+  function paintSections() {
+    const put = (sel, html, empty) => {
+      const el = document.querySelector(sel);
+      if (el) el.innerHTML = html.filter(Boolean).join("") || `<p class="kpi-empty">${empty}</p>`;
+    };
+    put("[data-kpi-revenue]", chartBuckets.revenue, "No revenue history at this grain yet.");
+    put("[data-kpi-acquisition]", chartBuckets.acquisition, "No acquisition data in this snapshot.");
+    put("[data-kpi-traffic]", chartBuckets.traffic, "No traffic in this snapshot.");
+    put("[data-kpi-email]", chartBuckets.email, "No email data in this snapshot.");
+    put("[data-kpi-podcasts]", chartBuckets.podcasts || [], "No podcast data in this snapshot.");
+    wireCharts();
+  }
+
   function renderBreakdowns(s) {
     const out = [];
     if (s.kit && s.kit.sources) {
@@ -638,27 +671,28 @@
         "Most of the base came in on a launch discount, so these re-bill higher.",
         Object.entries(s.stripe.renewals).sort().slice(0, 14).map(([m, v]) => [m.slice(2), v]), { color: C2 }));
     }
-    document.querySelector("[data-kpi-breakdowns]").innerHTML = out.filter(Boolean).join("")
-      || `<p class="kpi-empty">Breakdowns are only stored from the day a snapshot was taken. The headline
-         numbers above are reconstructed from platform history and are accurate; the per-source cuts are not
-         available for that date.</p>`;
+    chartBuckets.acquisition = chartBuckets.acquisition.concat(out.filter(Boolean));
   }
 
   // Everything the standalone Traffic board carried, in the new format.
+  // The nightly job stores traffic breakdowns for 7d / 30d / 12mo, so the
+  // period selector switches between real windows instead of always showing
+  // the last 30 days.
+  const TRAFFIC_WINDOW = { day: "7d", week: "7d", month: "30d", quarter: "12mo", year: "12mo", total: "30d" };
+  const WINDOW_LABEL = { "7d": "last 7 days", "30d": "last 30 days", "12mo": "last 12 months" };
+
   function renderTraffic(s) {
-    const t = s.traffic;
-    const el = document.querySelector("[data-kpi-traffic]");
-    if (!el) return;
-    if (!t) {
-      el.innerHTML = `<p class="kpi-empty">Traffic detail is only stored from the day a snapshot was taken.
-        The pageview totals above are reconstructed and accurate — Plausible after the 26 May launch,
-        HubSpot's counter before it.</p>`;
-      return;
-    }
+    const base = s.traffic;
+    const win = TRAFFIC_WINDOW[gran] || "30d";
+    const t = base && base.windows && base.windows[win]
+      ? ({ ...base, ...base.windows[win]})
+      : base;
+    const since = WINDOW_LABEL[win] || "last 30 days";
+    if (!t) return;
     const out = [];
     const dur = t.visit_duration_seconds;
-    out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Last 30 days</p>
-      <p class="kpi-chart-sub">Plausible, whole site.</p>
+    out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Site quality</p>
+      <p class="kpi-chart-sub">Plausible, whole site, last 30 days. The breakdowns below follow the period selector.</p>
       <ul class="kpi-statlist">
         <li><span>Visitors</span><b>${fmt(t.visitors_30d)}</b></li>
         <li><span>Pageviews</span><b>${fmt(t.pageviews_30d)}</b></li>
@@ -669,45 +703,46 @@
       </ul></div>`);
     const named = (rows, n) => (rows || []).slice(0, n || 8).map((r) => [String(r.title || r.name || "").slice(0, 26), r.visitors]);
     if (t.articles && t.articles.length) {
-      out.push(barBlock("Most-read articles", "Visitors, last 30 days, from the Article Read event.", named(t.articles), { rotate: true }));
+      out.push(barBlock("Most-read articles", `Visitors, ${since}, from the Article Read event.`, named(t.articles), { rotate: true }));
     }
     if (t.top_pages && t.top_pages.length) {
-      out.push(barBlock("Most-visited pages", "Visitors, last 30 days.", named(t.top_pages), { rotate: true }));
+      out.push(barBlock("Most-visited pages", `Visitors, ${since}.`, named(t.top_pages), { rotate: true }));
     }
     if (t.channels && t.channels.length) {
-      out.push(barBlock("Channels", "Visitors, last 30 days. A high Direct share is a tagging artefact — digest links carry no UTMs.", named(t.channels), { rotate: true }));
+      out.push(barBlock("Channels", `Visitors, ${since}. A high Direct share is a tagging artefact — digest links carry no UTMs.`, named(t.channels), { rotate: true }));
     }
     if (t.top_sources && t.top_sources.length) {
-      out.push(barBlock("Referrers", "Visitors, last 30 days.", named(t.top_sources), { rotate: true, color: C2 }));
+      out.push(barBlock("Referrers", `Visitors, ${since}.`, named(t.top_sources), { rotate: true, color: C2 }));
     }
     if (t.topics && t.topics.length) {
-      out.push(barBlock("Topics read", "Visitors, last 30 days.", named(t.topics), { rotate: true, color: C3 }));
+      out.push(barBlock("Topics read", `Visitors, ${since}.`, named(t.topics), { rotate: true, color: C3 }));
     }
     if (t.authors && t.authors.length) {
-      out.push(barBlock("Contributors read", "Visitors, last 30 days.", named(t.authors), { rotate: true, color: C3 }));
+      out.push(barBlock("Contributors read", `Visitors, ${since}.`, named(t.authors), { rotate: true, color: C3 }));
     }
     if (t.countries && t.countries.length) {
-      out.push(barBlock("Countries", "Visitors, last 30 days.", named(t.countries), { rotate: true, color: C2 }));
+      out.push(barBlock("Countries", `Visitors, ${since}.`, named(t.countries), { rotate: true, color: C2 }));
     }
     if (t.regions && t.regions.length) {
-      out.push(barBlock("States and regions", "Visitors, last 30 days.", named(t.regions), { rotate: true, color: C2 }));
+      out.push(barBlock("States and regions", `Visitors, ${since}.`, named(t.regions), { rotate: true, color: C2 }));
     }
     if (t.cities && t.cities.length) {
-      out.push(barBlock("Cities", "Visitors, last 30 days.", named(t.cities), { rotate: true, color: C2 }));
+      out.push(barBlock("Cities", `Visitors, ${since}.`, named(t.cities), { rotate: true, color: C2 }));
     }
-    el.innerHTML = out.filter(Boolean).join("");
+    chartBuckets.traffic = chartBuckets.traffic.concat(out.filter(Boolean));
   }
 
   function renderChannels(s) {
-    const out = [];
+    const email = [];
+    const pods = [];
     if (s.kit && s.kit.recent_sends && s.kit.recent_sends.length > 1) {
       const sends = s.kit.recent_sends;
       const lines = [
         { name: "Open rate", vals: sends.map((x) => x.open_rate), color: C1 },
         { name: "Click rate", vals: sends.map((x) => x.click_rate), color: C2 }
       ];
-      const W = 560, H = 240, L = 46, R = 54, T = 14, B = 46, pw = W - L - R, ph = H - T - B;
-      const mx = Math.max(...lines.flatMap((l) => l.vals), 10);
+      const W = 560, H = 250, L = 46, R = 54, T = 20, B = 52, pw = W - L - R, ph = H - T - B;
+      const mx = Math.max(...lines.flatMap((l) => l.vals), 10) * 1.1;
       const X = (i) => L + i * pw / Math.max(sends.length - 1, 1);
       const Y = (v) => T + ph - (v / mx) * ph;
       let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Digest performance">`;
@@ -720,22 +755,18 @@
         l.vals.forEach((v, i) => { svg += `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3.5" fill="${l.color}" stroke="#fff" stroke-width="1.5"/>`; });
         svg += `<text class="kpi-dlabel" x="${L + pw + 7}" y="${(Y(l.vals[l.vals.length - 1]) + 4).toFixed(1)}">${l.vals[l.vals.length - 1]}%</text>`;
       });
+      const step = Math.ceil(sends.length / 6);
       sends.forEach((x, i) => {
-        if (i % Math.ceil(sends.length / 6) !== 0 && i !== sends.length - 1) return;
+        if (i % step !== 0 && i !== sends.length - 1) return;
         svg += `<text class="kpi-tick" transform="translate(${(X(i) - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${mdy(x.date)}</text>`;
       });
-      out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Digest open and click rate</p>
+      email.push(`<div class="kpi-chart"><p class="kpi-chart-title">Digest open and click rate</p>
         <p class="kpi-chart-sub">Every Kit send over 500 recipients in the last few weeks.</p>
         <ul class="kpi-legend"><li><span class="kpi-key" style="background:${C1}"></span>Open rate</li><li><span class="kpi-key" style="background:${C2}"></span>Click rate</li></ul>
         ${svg}</svg></div>`);
-      out.push(barBlock("Unsubscribes per send",
+      email.push(barBlock("Unsubscribes per send",
         "Promotional sends cost more list than the weekly digest does.",
         sends.map((x) => [mdy(x.date), x.unsubscribes]), { rotate: true, color: C2 }));
-    }
-    if (s.traffic && s.traffic.hubspot_monthly && s.traffic.hubspot_monthly.length) {
-      out.push(barBlock("Old-site traffic (HubSpot)",
-        "Monthly pageviews on the pre-launch HubSpot site. A different counter from Plausible — do not compare across 26 May.",
-        s.traffic.hubspot_monthly.slice(-14).map((m) => [m.month.slice(2), m.pageviews]), { rotate: true, color: C2 }));
     }
     if (s.podcasts) {
       const shows = [
@@ -747,24 +778,21 @@
         .filter(([key]) => typeof s.podcasts[key] === "number")
         .map(([key, name]) => [name, s.podcasts[key]]);
       if (totals.length) {
-        out.push(barBlock("Podcast plays by show",
-          "Lifetime plays on Buzzsprout, all published episodes.",
-          totals, { rotate: true }));
+        pods.push(barBlock("Podcast plays by show", "Lifetime plays on Buzzsprout, all published episodes.", totals, { rotate: true }));
       }
       if (s.podcasts.per_episode) {
         shows.forEach(([key, name, color]) => {
           const rows = s.podcasts.per_episode[key] || [];
           if (rows.length > 1) {
-            out.push(barBlock(`${name} — reach per episode`,
+            pods.push(barBlock(`${name} — reach per episode`,
               "Average plays for episodes published each month. A different unit from dashboard downloads.",
               rows.map((r) => [`${Number(r.month.slice(5))}/${r.month.slice(2, 4)}`, r.avg]), { color }));
           }
         });
       }
     }
-    document.querySelector("[data-kpi-channels]").innerHTML = out.filter(Boolean).join("")
-      || `<p class="kpi-empty">Channel detail is only stored from the day a snapshot was taken. The headline
-         numbers above are reconstructed from platform history and are accurate; the per-source cuts are not.</p>`;
+    chartBuckets.email = chartBuckets.email.concat(email);
+    chartBuckets.podcasts = pods;
   }
 
   // ---- action item, stamp, render ----------------------------------------
@@ -807,7 +835,9 @@
     safe("breakdowns", () => renderBreakdowns(showing));
     safe("channels", () => renderChannels(showing));
     safe("traffic", () => renderTraffic(showing));
+    safe("paint", () => paintSections());
     safe("narrative", () => renderNarrative(showing));
+    safe("substack", () => renderSubstack());
   }
 
   // ---- verification table, flags and analysis ----------------------------
@@ -817,34 +847,7 @@
   // labelled as such; the flags read their numbers off the live snapshot so
   // they age with the data rather than going stale silently.
 
-  const VERIFY = [
-    ["Website subscribers", "19,431", "19,435", "Ghost — free members", "ok", "Accurate"],
-    ["Website members", "1,783", "1,784", "Ghost — 559 paid + 1,225 comped", "ok", "Accurate"],
-    ["&nbsp;&nbsp;↳ paying into Stripe", "—", "619", "Stripe — active subscriptions", "warn", "Not broken out"],
-    ["&nbsp;&nbsp;↳ legacy checkout in 12 months", "—", "370", "HubSpot deals closed in 12 months", "warn", "Not broken out"],
-    ["&nbsp;&nbsp;↳ no checkout in 12 months", "—", "628", "Lapsed or silently renewing — unknowable", "bad", "Not tracked"],
-    ["Membership revenue", "not tracked", "$52,648–$93,615", "Stripe verified; HubSpot half is checkouts only", "warn", "Missing from sheet"],
-    ["Donors", "336", "336", "HubSpot list 6624 — Mere O · All Donors", "ok", "Accurate"],
-    ["Website traffic — June", "109,341", "109,341", "Plausible — pageviews", "ok", "Exact match"],
-    ["Website traffic — July", "100,192", "98,233", "Plausible — calendar month", "ok", "Within 2%"],
-    ["Website traffic — Mar / Apr / May", "93,933 · 47,144 · 84,050", "0 · 485 · 28,115", "Plausible had no data yet", "bad", "Different system"],
-    ["Mere Fidelity (30-day downloads)", "15,763", "15,769", "Buzzsprout dashboard", "ok", "Accurate"],
-    ["Christians Reading Classics (30-day)", "4,751", "4,760", "Buzzsprout dashboard", "ok", "Accurate"],
-    ["Daily Liturgy Podcast (30-day)", "20,820", "20,896", "Buzzsprout dashboard", "ok", "Accurate"],
-    ["Substack traffic / subs / members", "82,626 · 5,834 · 74", "—", "Substack has no API", "na", "Accepted"]
-  ];
-
   function renderNarrative(s) {
-    const v = document.querySelector("[data-kpi-verify]");
-    if (v) {
-      v.innerHTML = `<div style="overflow-x:auto"><table class="kpi-vtab">
-        <thead><tr><th>Sheet figure (July)</th><th class="num">Sheet</th><th class="num">Platform</th><th>Source of truth</th><th>Verdict</th></tr></thead>
-        <tbody>${VERIFY.map((r) => `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td>${r[3]}</td><td><span class="kpi-verdict ${r[4]}">${r[5]}</span></td></tr>`).join("")}</tbody>
-      </table></div>
-      <p class="kpi-note">Every row checked against the platform on 8/3/2026. The sheet was accurate everywhere it could be
-      checked; what it was missing was revenue and the split between paying and comped members.</p>`;
-    }
-
     const g = s.ghost, st = s.stripe, hs = s.hubspot, {kit} = s;
     const flags = [];
     if (hs && g) {
@@ -930,16 +933,19 @@
 
   async function load() {
     try {
-      const [latest, hist] = await Promise.all([
+      const [latest, hist, ss] = await Promise.all([
         api("/kpi/latest"),
-        api("/kpi/series").catch(() => ({ series: [] }))
+        api("/kpi/series").catch(() => ({ series: [] })),
+        api("/kpi/substack").catch(() => ({ entries: [] }))
       ]);
+      substack = (ss && ss.entries) || [];
       series = (hist && hist.series) || [];
       if (els.date && series.length) {
         els.date.min = series[0].d;
         els.date.max = series[series.length - 1].d;
       }
-      show(latest);
+      show(withSubstack(latest));
+      renderSubstack();
     } catch (err) {
       fail(err.message === "denied"
         ? "You need a Ghost staff seat to see this."
@@ -1034,5 +1040,6 @@
     });
   }
 
+  wireSubstack();
   load();
 })();

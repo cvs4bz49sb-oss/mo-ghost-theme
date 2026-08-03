@@ -24489,6 +24489,26 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-statlist li:last-child { border-bottom: none; }
 .kpi-statlist li b { color: var(--k-text); font-size: 15px; font-variant-numeric: tabular-nums; }
 
+/* Substack entry */
+.kpi-ssform { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.kpi-ssform label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--k-muted); }
+.kpi-ssform input {
+  font: inherit; font-size: 14px; color: var(--k-text); background: var(--k-surface);
+  border: 1px solid var(--k-line); border-radius: 8px; padding: 6px 9px; min-width: 150px;
+}
+.kpi-ssbtns { display: flex; gap: 7px; }
+.kpi-btn.is-primary { background: var(--k-accent); border-color: var(--k-accent); color: #fff; }
+.kpi-btn.is-primary:hover { filter: brightness(1.06); }
+.kpi-ssmsg { font-size: 12.5px; color: var(--k-muted); margin: 10px 0 0; min-height: 1em; }
+.kpi-ssmsg.is-ok { color: #17692b; }
+.kpi-ssmsg.is-bad { color: #c0392b; }
+.kpi-sstable { margin-top: 12px; overflow-x: auto; }
+.kpi-sstable table { border-collapse: collapse; font-size: 12.5px; width: 100%; }
+.kpi-sstable th, .kpi-sstable td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--k-line); white-space: nowrap; }
+.kpi-sstable th:first-child, .kpi-sstable td:first-child { text-align: left; }
+.kpi-sstable th { color: var(--k-muted); font-weight: 560; }
+.kpi-sstable tr.is-sel td { background: #eef4fc; }
+
 /* hover tooltip */
 .kpi-tip {
   position: fixed; pointer-events: none; opacity: 0; transition: opacity .1s;
