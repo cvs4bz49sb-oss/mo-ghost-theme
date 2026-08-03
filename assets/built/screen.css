@@ -24504,6 +24504,10 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-table th:last-child, .kpi-table td:last-child { width: 100%; }
 .kpi-table tbody tr:last-child th, .kpi-table tbody tr:last-child td { border-bottom: none; }
 
+/* Inline marker for a recurring gift's cadence. */
+.kpi-pill { display: inline-block; font-size: 11px; line-height: 1.5; padding: 1px 7px;
+  border: 1px solid var(--k-line); border-radius: 999px; color: var(--k-text); }
+
 /* Sortable table headers and the show-all toggle. */
 .kpi-sortbtn { background: none; border: 0; padding: 0; font: inherit; color: inherit;
   cursor: pointer; letter-spacing: inherit; }

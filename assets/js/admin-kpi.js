@@ -197,10 +197,29 @@
     rev: "membership_revenue", mem: "total_members", sub: "total_subscribers",
     nmem: "new_members_24h", nsub: "new_subscribers_24h", pv: "web_traffic_30d",
     pod: "podcast_lifetime", op: "digest_open", mig: "migration_done",
+    trev: "total_revenue", cxl: "cancels_30d",
     don: "donations_total"
   };
 
   const KPIS = [
+    {
+      // Membership run-rate plus donations actually banked this calendar
+      // year. Deliberately not one clean number in the bullets: an
+      // annualised run-rate and money already received are different in
+      // kind, and collapsing them silently would overstate the year.
+      label: "Total revenue", key: "trev", agg: "last", f: usd, goodUp: true, cap: "membership run-rate + donations YTD",
+      value: (s) => usd(s.kpi.total_revenue != null ? s.kpi.total_revenue : lastOf(series, "trev")),
+      periodBullets: (rows) => [
+        `<b>${usd(lastOf(rows, "rev"))}</b> membership, annualised at period end`,
+        `<b>${usd(sumOf(rows, "don"))}</b> donations received in the period`,
+        `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc") + sumOf(rows, "don"))}</b> cash actually collected in the period`
+      ],
+      bullets: (s) => [
+        s.kpi.membership_revenue != null ? `<b>${usd(s.kpi.membership_revenue)}</b> membership, annualised` : "",
+        s.kpi.donations_ytd != null ? `<b>${usd(s.kpi.donations_ytd)}</b> donations received so far in ${String(s.date).slice(0, 4)}` : "",
+        s.donations ? `<b>${usd(s.donations.last_12m)}</b> donations over a trailing twelve months` : ""
+      ]
+    },
     {
       label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised",
       periodBullets: (rows, prev) => [
@@ -232,6 +251,10 @@
       // Donations are their own ledger, not a HubSpot pipeline — the numbers
       // here survive the HubSpot sunset untouched.
       label: "Donations", key: "don", agg: "sum", f: usd, goodUp: true, cap: "all gifts on record",
+      // The running total lives on the series as well as the snapshot, so a
+      // snapshot taken before donations existed still shows a real number
+      // instead of a dash.
+      value: (s) => usd(s.kpi.donations_total != null ? s.kpi.donations_total : lastOf(series, "dontot")),
       periodBullets: (rows) => {
         const gifts = sumOf(rows, "dong");
         const amt = sumOf(rows, "don");
@@ -242,11 +265,37 @@
           `<b>${fmt(days)}</b> ${days === 1 ? "day" : "days"} with a gift · <b>${usd(lastOf(rows, "don12"))}</b> trailing twelve months`
         ];
       },
-      bullets: (s) => (s.donations ? [
-        `<b>${fmt(s.donations.gifts)}</b> gifts from <b>${fmt(s.donations.donors)}</b> donors`,
-        `<b>${usd(s.donations.avg)}</b> average · <b>${usd(s.donations.median)}</b> median · <b>${usd(s.donations.largest)}</b> largest`,
-        `<b>${usd(s.donations.last_12m)}</b> in the last twelve months · <b>${usd(s.donations.last_30d)}</b> in 30 days`
-      ] : ["No donations recorded yet"])
+      bullets(s) {
+        if (s.donations) {
+          return [
+            `<b>${fmt(s.donations.gifts)}</b> gifts from <b>${fmt(s.donations.donors)}</b> donors`,
+            `<b>${usd(s.donations.avg)}</b> average · <b>${usd(s.donations.median)}</b> median · <b>${usd(s.donations.largest)}</b> largest`,
+            `<b>${usd(s.donations.last_12m)}</b> in the last twelve months · <b>${usd(s.donations.last_30d)}</b> in 30 days`
+          ];
+        }
+        // Snapshot predates the donation ledger — fall back to the series,
+        // which carries the same totals per day.
+        const tot = lastOf(series, "dontot"), t12 = lastOf(series, "don12");
+        if (tot == null) return ["No donations recorded yet"];
+        return [
+          `<b>${usd(t12)}</b> in the last twelve months`,
+          `<b>${fmt(sumOf(series, "dong"))}</b> gifts on record`,
+          "per-donor detail appears after tonight's snapshot"
+        ];
+      }
+    },
+    {
+      label: "Cancellations", key: "cxl", agg: "sum", f: fmt, goodUp: false, cap: "Stripe, last 24 hours",
+      periodBullets: (rows) => [
+        `<b>${fmt(sumOf(rows, "cxl"))}</b> cancelled in the period`,
+        `<b>${fmt(sumOf(rows, "nmem"))}</b> started — net <b>${signed(sumOf(rows, "nmem") - sumOf(rows, "cxl"))}</b>`,
+        `<b>${perDay(rows, "cxl")}</b> a day across ${rows.length} days`
+      ],
+      bullets: (s) => (s.stripe ? [
+        `<b>${fmt(s.stripe.cancels_30d)}</b> in 30 days · <b>${fmt(s.stripe.cancels_12m)}</b> in twelve months`,
+        s.stripe.churn_30d != null ? `<b>${s.stripe.churn_30d}%</b> monthly churn against ${fmt(s.stripe.paying)} paying` : "",
+        `<b>${usd(s.stripe.cancels_mrr_30d)}</b> of MRR lost in 30 days`
+      ] : [])
     },
     {
       label: "Total members", key: "mem", agg: "last", f: fmt, goodUp: true, cap: "entitled records",
@@ -340,16 +389,17 @@
       ]
     },
     {
-      label: "Podcast plays", key: "pod", agg: "last", f: fmt, goodUp: true, cap: "lifetime, all shows",
+      label: "Podcast plays", key: "pod", agg: "last", f: fmt, goodUp: true, cap: "all shows, since Apr 2026",
       periodBullets: (rows, prev) => [
         `<b>${signed(changeOf(rows, prev, "pod"))}</b> plays added in the period`,
-        `<b>${fmt(lastOf(rows, "pod"))}</b> lifetime at period end`,
+        `<b>${fmt(lastOf(rows, "pod"))}</b> total at period end, counted since Apr 2026`,
         "per-show splits are only kept for the current snapshot"
       ],
       bullets: (s) => (s.podcasts ? [
         `<b>${fmt(s.podcasts.daily_liturgy)}</b> Daily Liturgy`,
         `<b>${fmt(s.podcasts.mere_fidelity)}</b> Mere Fidelity`,
-        `<b>${fmt(s.podcasts.reading_classics)}</b> Christians Reading Classics`
+        `<b>${fmt(s.podcasts.reading_classics)}</b> Christians Reading Classics`,
+        "counted since the shows moved to Buzzsprout in Apr 2026, not since each show began"
       ] : [])
     },
     {
@@ -634,6 +684,12 @@
   }
 
   // Which section each time chart belongs to.
+  // Buzzsprout only started counting when the shows moved there in April
+  // 2026. Mere Fidelity has published since 2017, so "lifetime" here is
+  // emphatically not "since the show began" — plays on the old host did
+  // not come across and are unrecoverable.
+  const PLAYS_SINCE = "Buzzsprout has only counted plays since the shows moved there in April 2026, so \u201clifetime\u201d means since then \u2014 not since the show began. Mere Fidelity dates to 2017 and those earlier plays did not come across.";
+
   const CHART_SECTION = {
     members: "acquisition", mrr: "revenue", new: "acquisition", cash: "revenue",
     subs: "email", traffic: "traffic", visitors: "traffic",
@@ -825,7 +881,9 @@
       : "all time";
     const total = rows.reduce((t, r) => t + r.amount, 0);
     const donors = new Set(rows.map((r) => r.email || r.id)).size;
-    const recurring = rows.filter((r) => r.recurring).length;
+    const recurringRows = rows.filter((r) => r.recurring);
+    const recurring = recurringRows.length;
+    const recurringValue = recurringRows.reduce((t, r) => t + r.amount, 0);
     const big = rows.slice().sort((a, b) => b.amount - a.amount)[0];
 
     const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
@@ -837,7 +895,7 @@
       const dir = donSort.dir === "asc" ? 1 : -1;
       if (donSort.key === "amount") return (a.amount - b.amount) * dir;
       if (donSort.key === "type") {
-        const t = (r) => (r.recurring ? "Recurring" : "One-time");
+        const t = (r) => (r.recurring ? `Recurring · ${r.cadence || "Monthly"}` : "One-time");
         return t(a).localeCompare(t(b)) * dir || (a.date < b.date ? 1 : -1);
       }
       if (donSort.key === "name") return String(a.name || "").localeCompare(String(b.name || "")) * dir;
@@ -856,7 +914,7 @@
         ${stat(fmt(donors), donors === 1 ? "donor" : "distinct donors")}
         ${stat(usd(rows.length ? total / rows.length : 0), "average gift")}
         ${stat(big ? usd(big.amount) : "—", "largest gift")}
-        ${stat(rows.length ? `${Math.round((recurring / rows.length) * 100)}%` : "—", "recurring")}
+        ${stat(fmt(recurring), `recurring gifts · ${usd(recurringValue)}`)}
       </div>
       ${sorted.length ? `<div class="kpi-tablewrap"><table class="kpi-table">
         <thead><tr>${th("date", "Date")}${th("name", "Donor")}${th("amount", "Amount", true)}${th("type", "Type")}</tr></thead>
@@ -864,9 +922,12 @@
           <td>${mdy(r.date)}</td>
           <td>${esc(r.name || "—")}</td>
           <td class="is-num">${usd(r.amount)}</td>
-          <td>${r.recurring ? "Recurring" : "One-time"}${r.fund ? ` · ${esc(r.fund)}` : ""}</td>
+          <td>${r.recurring ? `<span class="kpi-pill">${esc(r.cadence || "Monthly")}</span>` : "One-time"}${r.fund ? ` · ${esc(r.fund)}` : ""}</td>
         </tr>`).join("")}</tbody>
       </table></div>
+      ${recurring ? `<p class="kpi-note">Cadence is inferred for gifts migrated from HubSpot, which recorded none:
+        three or more gifts of the same amount from the same donor about a month apart is a monthly plan.
+        Gifts arriving on the Anedot webhook carry their real cadence instead.</p>` : ""}
       ${sorted.length > 5 ? `<button type="button" class="kpi-morebtn" data-don-more>
         ${donExpanded ? "Show less" : `Show all ${fmt(sorted.length)}`}</button>` : ""}`
       : '<p class="kpi-empty">No gifts in this period.</p>'}`;
@@ -924,6 +985,44 @@
     if (co) co.addEventListener("click", () => setAll(false));
   }
 
+  // ---- revenue summary ---------------------------------------------------
+  //
+  // The box at the head of the Revenue section: what the year actually
+  // brings in, and what it is made of. Membership is annualised run-rate,
+  // donations are cash already received this calendar year — two different
+  // kinds of number, so both the total and its parts are shown rather than
+  // one figure that quietly mixes them.
+
+  function renderRevenueSummary(s) {
+    const host = document.querySelector("[data-kpi-revenue-summary]");
+    if (!host) return;
+    const k = s.kpi || {};
+    const total = k.total_revenue != null ? k.total_revenue : lastOf(series, "trev");
+    if (total == null) { host.innerHTML = '<p class="kpi-empty">No revenue in this snapshot.</p>'; return; }
+    const year = String(s.date || "").slice(0, 4);
+    const membership = k.membership_revenue || 0;
+    const donations = k.donations_ytd || 0;
+    const stripeArr = s.stripe ? Math.round(s.stripe.arr) : null;
+    const legacy = s.hubspot && s.hubspot.membership_deals ? s.hubspot.membership_deals.last_12m : null;
+    const substack = s.substack ? s.substack.revenue : null;
+    const pct = (n) => (total ? Math.round((n / total) * 100) : 0);
+    const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
+    host.innerHTML = `
+      <div class="kpi-stats">
+        ${stat(usd(total), `total revenue · membership run-rate + ${year} donations`)}
+        ${stat(usd(membership), `membership, annualised · ${pct(membership)}%`)}
+        ${stat(usd(donations), `donations received in ${year} · ${pct(donations)}%`)}
+        ${stripeArr != null ? stat(usd(stripeArr), "of which Stripe, verified") : ""}
+        ${legacy != null ? stat(usd(legacy), "of which legacy HubSpot, 12mo") : ""}
+        ${substack != null ? stat(usd(substack), "of which Substack") : ""}
+      </div>
+      <p class="kpi-note">
+        Membership is an annualised run-rate — what the current book bills over twelve months. Donations are
+        cash actually received since 1 January. They are different kinds of number and the total is their sum,
+        so read it as "what this year looks like", not as audited revenue.
+      </p>`;
+  }
+
   // ---- audience ----------------------------------------------------------
   //
   // The "About You" answers from Manage Membership. Not period-filtered:
@@ -939,9 +1038,9 @@
         + 'They are collected in Manage Membership and land in the membership database.</p>';
       return;
     }
-    // Top three, in order, with the share of people who answered that
+    // Top five, in order, with the share of people who answered that
     // question — which is the denominator that matters, not total members.
-    const top3 = (list, n) => (list || []).slice(0, 3).map((r, i) => `
+    const top3 = (list, n) => (list || []).slice(0, 5).map((r, i) => `
       <li><span class="kpi-rank">${i + 1}</span>
         <span class="kpi-rank-label">${esc(r.label)}</span>
         <span class="kpi-rank-bar"><i style="width:${Math.max(2, r.pct)}%"></i></span>
@@ -1006,10 +1105,55 @@
 
   function renderBreakdowns(s) {
     const out = [];
+    // Money-shaped blocks belong under Revenue; headcount under Acquisition.
+    const rev = [];
     if (s.kit && s.kit.sources) {
       const src = entries(s.kit.sources).filter((p) => !p[0].startsWith("HubSpot import"));
       out.push(barBlock("Where subscribers signed up",
         "Kit source tags, excluding the two HubSpot import buckets.", src, { rotate: true }));
+    }
+    // Membership term across both platforms. Stripe knows its intervals for
+    // certain; HubSpot has no term property at all, so it is read off the
+    // deal name, and the 381 deals whose name states no term are shown as
+    // Unstated rather than being folded into either side.
+    if ((s.stripe && s.stripe.by_term) || (s.hubspot && s.hubspot.membership_deals && s.hubspot.membership_deals.by_term)) {
+      const pairs = [];
+      const st = s.stripe && s.stripe.by_term;
+      if (st) {
+        pairs.push(["Stripe annual", st.Annual ? st.Annual.count : 0]);
+        pairs.push(["Stripe monthly", st.Monthly ? st.Monthly.count : 0]);
+      }
+      const ht = s.hubspot && s.hubspot.membership_deals && s.hubspot.membership_deals.by_term;
+      if (ht) {
+        ["Annual", "Monthly", "Lifetime", "Unstated"].forEach((k) => {
+          if (ht[k]) pairs.push([`Legacy ${k.toLowerCase()}`, ht[k].count]);
+        });
+      }
+      out.push(barBlock("Membership term — monthly vs annual",
+        "Stripe subscriptions by billing interval, and legacy HubSpot checkouts by the term named on the deal. "
+        + "HubSpot stores no term field, so deals whose name never said one are counted as unstated rather than guessed at.",
+        pairs, { rotate: true }));
+
+      if (st && (st.Annual || st.Monthly)) {
+        const a = st.Annual || { count: 0, mrr: 0 }, m = st.Monthly || { count: 0, mrr: 0 };
+        rev.push(barBlock("Monthly revenue by term, Stripe",
+          "What each term contributes per month. An annual member counts as one twelfth of their charge, "
+          + "so this compares like with like.",
+          [["Annual", Math.round(a.mrr)], ["Monthly", Math.round(m.mrr)]], { money: true }));
+      }
+    }
+    if (s.stripe && s.stripe.cancels_by_month && s.stripe.cancels_by_month.length) {
+      const rows = s.stripe.cancels_by_month.slice(-18);
+      out.push(barBlock("Membership cancellations",
+        "Paid subscriptions only. The May and June 2026 spikes were the migration cancelling zero-priced and "
+        + "comped subscriptions as members moved onto new ones — those are excluded here, which is why the "
+        + "bars are far shorter than the raw cancellation count.",
+        rows.map((r) => [`${MON[Number(r.month.slice(5)) - 1]} ${r.month.slice(2, 4)}`, r.paid || 0]),
+        { rotate: true, color: C2 }));
+      rev.push(barBlock("Monthly revenue lost to cancellations",
+        "MRR leaving with each month's cancellations.",
+        rows.map((r) => [`${MON[Number(r.month.slice(5)) - 1]} ${r.month.slice(2, 4)}`, r.mrr || 0]),
+        { rotate: true, money: true, color: C2 }));
     }
     if (s.stripe && s.stripe.price_mix) {
       out.push(barBlock("How memberships were bought",
@@ -1037,6 +1181,7 @@
         Object.entries(s.stripe.renewals).sort().slice(0, 14).map(([m, v]) => [m.slice(2), v]), { color: C2 }));
     }
     chartBuckets.acquisition = chartBuckets.acquisition.concat(out.filter(Boolean));
+    chartBuckets.revenue = chartBuckets.revenue.concat(rev.filter(Boolean));
   }
 
   // Everything the standalone Traffic board carried, in the new format.
@@ -1160,7 +1305,7 @@
           });
         } else {
           pods.push(`<div class="kpi-chart"><p class="kpi-chart-title">Plays added per period</p>
-            <p class="kpi-empty">Buzzsprout reports lifetime totals only, so period figures are the difference
+            <p class="kpi-empty">Buzzsprout reports cumulative totals only, so period figures are the difference
             between two snapshots — there needs to be more than one. This fills in from tonight.</p></div>`);
         }
       }
@@ -1169,7 +1314,7 @@
         .filter(([key]) => typeof s.podcasts[key] === "number")
         .map(([key, name]) => [name, s.podcasts[key]]);
       if (totals.length) {
-        pods.push(barBlock("Podcast plays by show", "Lifetime plays on Buzzsprout, all published episodes.", totals, { rotate: true }));
+        pods.push(barBlock("Podcast plays by show", `Plays on Buzzsprout across all published episodes. ${PLAYS_SINCE}`, totals, { rotate: true }));
       }
 
       // Per episode, not per month: Daily Liturgy publishes every day, so a
@@ -1181,7 +1326,7 @@
         if (eps.length > 1) {
           const rows = eps.slice(-keepEp);
           pods.push(barBlock(`${name} — plays per episode`,
-            `The last ${rows.length} episodes, newest on the right. Lifetime plays each, so recent ones are still climbing.`,
+            `The last ${rows.length} episodes, newest on the right. Total plays each, so recent ones are still climbing. ${PLAYS_SINCE}`,
             rows.map((r) => [mdy(r.date), r.plays]), { rotate: true, color, labels: rows.map((r) => `${mdy(r.date, true)} · ${r.title}`) }));
         } else {
           const months = (s.podcasts.per_episode[key] || []).slice(-8);
@@ -1395,6 +1540,7 @@
     safe("substack", () => renderSubstack());
     safe("donations", () => renderDonations());
     safe("audience", () => renderAudience(showing));
+    safe("revsummary", () => renderRevenueSummary(showing));
   }
 
   // ---- verification table, flags and analysis ----------------------------
