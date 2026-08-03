@@ -24424,6 +24424,10 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-tick { font-size: 10px; fill: var(--color-muted); }
 .kpi-dlabel { font-size: 11px; fill: var(--color-dark); font-weight: 600; }
 .kpi-empty { font-size: 13.5px; color: var(--color-muted); margin: 0; padding: 18px 0; }
+/* The tiles grid draws its own hairlines, which look like a stray empty
+   box when the only child is a status message. */
+.kpi-tiles:has(.kpi-empty) { border: 0; border-radius: 0; }
+.kpi-tiles .kpi-empty { grid-column: 1 / -1; padding: 8px 0 22px; }
 .kpi-foot { font-size: 12.5px; color: var(--color-muted); margin: 24px 0 0; }
 
 @media (max-width: 1000px) {
