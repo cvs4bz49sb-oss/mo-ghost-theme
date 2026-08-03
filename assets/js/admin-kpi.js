@@ -71,17 +71,23 @@
   // ---- bucketing ---------------------------------------------------------
 
   const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  // Every actual date on this page renders M/D/YY. Month, quarter and year
+  // buckets keep their own names — they are periods, not dates.
+  function mdy(iso, longYear) {
+    if (!iso) return "";
+    const [y, m, d] = String(iso).slice(0, 10).split("-").map(Number);
+    if (!y || !m || !d) return String(iso);
+    return `${m}/${d}/${longYear ? y : String(y).slice(2)}`;
+  }
   function bucketOf(iso, g) {
     const d = new Date(`${iso}T00:00:00Z`);
     const y = d.getUTCFullYear(), m = d.getUTCMonth(), day = d.getUTCDate();
-    if (g === "day") return { k: iso, label: `${day} ${MON[m]} ${String(y).slice(2)}` };
+    if (g === "day") return { k: iso, label: mdy(iso) };
     if (g === "week") {
       const w = new Date(d);
       w.setUTCDate(w.getUTCDate() - ((w.getUTCDay() + 6) % 7));
-      return {
-        k: `w${w.toISOString().slice(0, 10)}`,
-        label: `${w.getUTCDate()} ${MON[w.getUTCMonth()]} ${String(w.getUTCFullYear()).slice(2)}`
-      };
+      return { k: `w${w.toISOString().slice(0, 10)}`, label: mdy(w.toISOString().slice(0, 10)) };
     }
     if (g === "month") return { k: `${y}-${m}`, label: `${MON[m]} ${String(y).slice(2)}` };
     if (g === "quarter") return { k: `${y}q${Math.floor(m / 3)}`, label: `Q${Math.floor(m / 3) + 1} ${String(y).slice(2)}` };
@@ -257,7 +263,7 @@
       cap: (s) => (s.kit && s.kit.digest ? `avg of ${s.kit.digest.count} digests` : "no digests found"),
       bullets: (s) => (s.kit && s.kit.digest ? [
         `<b>${pctv(s.kit.digest.open_paid)} · ${pctv(s.kit.digest.click_paid)}</b> on the paid list`,
-        `<b>${fmt(s.kit.digest.recipients)}</b> recipients on the latest · ${s.kit.digest.span}`,
+        `<b>${fmt(s.kit.digest.recipients)}</b> recipients on the latest · ${(s.kit.digest.span || "").split(" – ").map((d) => mdy(d)).join(" – ")}`,
         `<b>${fmt(s.kit.digest.unsubscribes)}</b> unsubscribes per digest on average`
       ] : ["No weekly digest found in the recent sends"]),
       periodValue(rows) { return `${pctv(avgOf(rows, "op"))} · ${pctv(avgOf(rows, "cl"))}`; },
@@ -378,6 +384,26 @@
 
   const chartState = {};
 
+  // ---- chart rules -------------------------------------------------------
+  //
+  // Four rules, applied by every chart on the page rather than patched per
+  // chart, because every layout bug here has been one of these four:
+  //
+  //   1. HEADROOM. The axis always tops out ABOVE the largest value, so a
+  //      full-height bar or peak never touches the plot ceiling and its
+  //      label never lands on the card title.
+  //   2. NOTHING PAINTS OUTSIDE THE PLOT. Marks have radius and stroke, so
+  //      the ceiling is set below T by MARK_PAD. SVG overflow stays visible
+  //      only for the right-hand gutter, which is reserved space.
+  //   3. LABELS ARE THINNED BY WIDTH, NOT COUNT. A tick is drawn only if it
+  //      clears the previous one by its own estimated width. The final tick
+  //      is dropped rather than allowed to collide.
+  //   4. END LABELS STACK, NEVER OVERLAP. Series labels in the gutter are
+  //      pushed apart to a minimum line height.
+  const MARK_PAD = 6; // px of clearance above the tallest mark
+  const CHAR_PX = 5.6; // approximate width of a tick character at 10px
+  const LABEL_GAP = 10; // minimum px between two x-axis labels
+
   function niceTicks(mx, count) {
     const raw = (mx || 1) / count;
     const mag = 10**Math.floor(Math.log10(raw));
@@ -385,7 +411,26 @@
     const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
     const out = [];
     for (let v = 0; v <= mx + step * 1e-9; v += step) out.push(Number(v.toFixed(10)));
+    // Rule 1: if the data reaches the top tick exactly, add another step so
+    // there is always air above the tallest mark.
+    if (out.length && Math.abs(out[out.length - 1] - mx) < step * 1e-6) {
+      out.push(Number((out[out.length - 1] + step).toFixed(10)));
+    }
     return out;
+  }
+
+  // Rule 3: decide which x labels to draw from how wide they actually are.
+  function tickIndexes(labels, plotWidth, xOf) {
+    const keep = [];
+    let lastRight = -Infinity;
+    labels.forEach((lab, i) => {
+      const halfW = (String(lab).length * CHAR_PX) / 2;
+      const x = xOf(i);
+      if (x - halfW < lastRight + LABEL_GAP) return;
+      keep.push(i);
+      lastRight = x + halfW;
+    });
+    return new Set(keep);
   }
 
   function chartSvg(cfg, buckets) {
@@ -394,7 +439,6 @@
     const n = buckets[0].length;
     const ticks = niceTicks(Math.max(...buckets.flat().map((b) => b.v), 1), 4);
     const mx = ticks[ticks.length - 1];
-    const every = Math.ceil(n / 8);
     const colors = SERIES_COLORS;
     const money = cfg.f === usd;
     let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${cfg.title}">`;
@@ -407,7 +451,7 @@
 
     if (cfg.type === "line") {
       const X = (i) => (n === 1 ? L + pw / 2 : L + i * pw / (n - 1));
-      const Y = (v) => T + ph - (v / (mx || 1)) * ph;
+      const Y = (v) => T + MARK_PAD + (ph - MARK_PAD) - (v / (mx || 1)) * (ph - MARK_PAD);
       const ends = [];
       buckets.forEach((s, j) => {
         svg += `<polyline points="${s.map((b, i) => `${X(i).toFixed(1)},${Y(b.v).toFixed(1)}`).join(" ")}" fill="none" stroke="${colors[j]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
@@ -444,12 +488,13 @@
       });
     }
 
+    const xOf = (i) => (cfg.type === "line"
+      ? (n === 1 ? L + pw / 2 : L + i * pw / (n - 1))
+      : L + (pw / n) * i + (pw / n) / 2);
+    const show = tickIndexes(buckets[0].map((b) => b.label), pw, xOf);
     buckets[0].forEach((b, i) => {
-      if (i % every !== 0 && i !== n - 1) return;
-      const x = cfg.type === "line"
-        ? (n === 1 ? L + pw / 2 : L + i * pw / (n - 1))
-        : L + (pw / n) * i + (pw / n) / 2;
-      svg += `<text class="kpi-tick" x="${x.toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${b.label}</text>`;
+      if (!show.has(i)) return;
+      svg += `<text class="kpi-tick" x="${xOf(i).toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${b.label}</text>`;
     });
     return `${svg}</svg>`;
   }
@@ -528,7 +573,9 @@
     const mx = Math.max(...pairs.map((p) => p[1]), 1);
     const ticks = niceTicks(mx, 4), top = ticks[ticks.length - 1];
     const band = pw / n, bw = Math.min(30, band * 0.6);
-    const Y = (v) => T + ph - (v / (top || 1)) * ph;
+    // Rule 2: keep the value label clear of the plot ceiling.
+    const Y = (v) => T + MARK_PAD + (ph - MARK_PAD) - (v / (top || 1)) * (ph - MARK_PAD);
+    const showTicks = o.rotate ? null : tickIndexes(pairs.map((pr) => pr[0]), pw, (i) => L + band * i + band / 2);
     let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">`;
     ticks.forEach((t) => {
       const y = Y(t);
@@ -541,9 +588,11 @@
       const h = Math.max(1, T + ph - y), r = Math.min(3, h, bw / 2);
       svg += `<path d="M${x},${y + r} a${r},${r} 0 0 1 ${r},${-r} h${bw - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - r} h${-bw} Z" fill="${o.color || C1}"/>`;
       svg += `<text class="kpi-dlabel" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${o.money ? usd(pr[1]) : fmt(pr[1])}</text>`;
-      svg += o.rotate
-        ? `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${pr[0]}</text>`
-        : `<text class="kpi-tick" x="${(x + bw / 2).toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${pr[0]}</text>`;
+      if (o.rotate) {
+        svg += `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${pr[0]}</text>`;
+      } else if (showTicks.has(i)) {
+        svg += `<text class="kpi-tick" x="${(x + bw / 2).toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${pr[0]}</text>`;
+      }
     });
     return `<div class="kpi-chart"><p class="kpi-chart-title">${title}</p>
       <p class="kpi-chart-sub">${sub}</p>${svg}</svg></div>`;
@@ -606,7 +655,7 @@
       });
       sends.forEach((x, i) => {
         if (i % Math.ceil(sends.length / 6) !== 0 && i !== sends.length - 1) return;
-        svg += `<text class="kpi-tick" transform="translate(${(X(i) - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${x.date.slice(5)}</text>`;
+        svg += `<text class="kpi-tick" transform="translate(${(X(i) - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${mdy(x.date)}</text>`;
       });
       out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Digest open and click rate</p>
         <p class="kpi-chart-sub">Every Kit send over 500 recipients in the last few weeks.</p>
@@ -614,7 +663,7 @@
         ${svg}</svg></div>`);
       out.push(barBlock("Unsubscribes per send",
         "Promotional sends cost more list than the weekly digest does.",
-        sends.map((x) => [x.date.slice(5), x.unsubscribes]), { rotate: true, color: C2 }));
+        sends.map((x) => [mdy(x.date), x.unsubscribes]), { rotate: true, color: C2 }));
     }
     if (s.traffic && s.traffic.hubspot_monthly && s.traffic.hubspot_monthly.length) {
       out.push(barBlock("Old-site traffic (HubSpot)",
@@ -664,8 +713,8 @@
     if (els.stamp) {
       const when = snap.captured_at ? new Date(snap.captured_at) : null;
       els.stamp.textContent = when
-        ? `Snapshot for ${snap.date}, taken ${when.toLocaleString("en-US", { timeZone: "America/Chicago", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} CT`
-        : `${snap.date} — reconstructed from history`;
+        ? `Snapshot for ${mdy(snap.date, true)}, taken ${when.toLocaleString("en-US", { timeZone: "America/Chicago", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })} CT`
+        : `${mdy(snap.date, true)} — reconstructed from history`;
     }
     if (els.sources) {
       if (!snap.sources_ok) { els.sources.textContent = ""; return; }
@@ -720,7 +769,7 @@
         <thead><tr><th>Sheet figure (July)</th><th class="num">Sheet</th><th class="num">Platform</th><th>Source of truth</th><th>Verdict</th></tr></thead>
         <tbody>${VERIFY.map((r) => `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td>${r[3]}</td><td><span class="kpi-verdict ${r[4]}">${r[5]}</span></td></tr>`).join("")}</tbody>
       </table></div>
-      <p class="kpi-note">Every row checked against the platform on 3 Aug 2026. The sheet was accurate everywhere it could be
+      <p class="kpi-note">Every row checked against the platform on 8/3/2026. The sheet was accurate everywhere it could be
       checked; what it was missing was revenue and the split between paying and comped members.</p>`;
     }
 
@@ -791,7 +840,7 @@
           <li><b>Tag the digest links with UTMs</b> so the biggest owned channel stops reading as Direct.</li>
           <li><b>Fix acquisition, not retention.</b> Get more of the list in front of the membership page.</li>
         </ol>
-        <p class="kpi-note">Written 3 Aug 2026 from the full platform audit. The numbers in the flags above update nightly; this
+        <p class="kpi-note">Written 8/3/2026 from the full platform audit. The numbers in the flags above update nightly; this
         commentary does not.</p>`;
     }
   }
@@ -888,7 +937,7 @@
         // Full snapshots only exist from the day the dashboard went live. For
         // anything earlier, fall back to the reconstructed history row.
         const row = series.find((r) => r.d === d);
-        if (!row) { fail(`No history for ${d}.`); return; }
+        if (!row) { fail(`No history for ${mdy(d, true)}.`); return; }
         show({
           date: d,
           captured_at: null,
