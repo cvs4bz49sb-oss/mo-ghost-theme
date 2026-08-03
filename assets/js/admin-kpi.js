@@ -82,24 +82,32 @@
     if (!y || !m || !d) return String(iso);
     return `${m}/${d}/${longYear ? y : String(y).slice(2)}`;
   }
+  // A bucket is labelled by the period it covers, not by a single date:
+  // "7/1/26" alone could be a day or a month, and "Jul 26" read as a day.
+  // The axis gets the short form and the tooltip and table get the range.
   function bucketOf(iso, g) {
     const d = new Date(`${iso}T00:00:00Z`);
-    const y = d.getUTCFullYear(), m = d.getUTCMonth(), day = d.getUTCDate();
-    if (g === "day") return { k: iso, label: mdy(iso) };
+    const y = d.getUTCFullYear(), m = d.getUTCMonth();
+    const yy = String(y).slice(2);
+    const lastDay = (yr, mon) => new Date(Date.UTC(yr, mon + 1, 0)).getUTCDate();
+    if (g === "day") return { k: iso, label: mdy(iso), range: mdy(iso, true) };
     if (g === "week") {
       const w = new Date(d);
       w.setUTCDate(w.getUTCDate() - ((w.getUTCDay() + 6) % 7));
-      return { k: `w${w.toISOString().slice(0, 10)}`, label: mdy(w.toISOString().slice(0, 10)) };
+      const a = w.toISOString().slice(0, 10);
+      const e = new Date(w); e.setUTCDate(e.getUTCDate() + 6);
+      return { k: `w${a}`, label: mdy(a), range: `${mdy(a)} – ${mdy(e.toISOString().slice(0, 10))}` };
     }
-    // Label every bucket by the day it starts, so "7/1/26" cannot be misread
-    // the way "Jul 26" could.
-    const yy = String(y).slice(2);
-    if (g === "month") return { k: `${y}-${m}`, label: `${m + 1}/1/${yy}` };
+    if (g === "month") {
+      return { k: `${y}-${m}`, label: `${m + 1}/${yy}`,
+        range: `${m + 1}/1/${yy} – ${m + 1}/${lastDay(y, m)}/${yy}` };
+    }
     if (g === "quarter") {
-      const q = Math.floor(m / 3);
-      return { k: `${y}q${q}`, label: `${q * 3 + 1}/1/${yy}` };
+      const q = Math.floor(m / 3), s0 = q * 3, e0 = s0 + 2;
+      return { k: `${y}q${q}`, label: `Q${q + 1} ${yy}`,
+        range: `${s0 + 1}/1/${yy} – ${e0 + 1}/${lastDay(y, e0)}/${yy}` };
     }
-    return { k: String(y), label: `1/1/${yy}` };
+    return { k: String(y), label: String(y), range: `1/1/${yy} – 12/31/${yy}` };
   }
 
   // agg "last" for stocks (members, MRR, list size), "sum" for flows.
@@ -108,9 +116,9 @@
     series.forEach((r) => {
       const v = r[key];
       if (typeof v !== "number") return;
-      const { k, label } = bucketOf(r.d, g);
+      const { k, label, range } = bucketOf(r.d, g);
       let b = seen.get(k);
-      if (!b) { b = { label, v: 0, n: 0, rows: [] }; seen.set(k, b); out.push(b); }
+      if (!b) { b = { label, range, v: 0, n: 0, rows: [] }; seen.set(k, b); out.push(b); }
       b.v = agg === "last" ? v : b.v + v;
       b.n += 1;
       b.rows.push(r);
@@ -324,7 +332,7 @@
           periodRows = b[last].rows;
           prevRows = last > 0 ? b[last - 1].rows : null;
           value = t.periodValue ? t.periodValue(b[last].rows) : t.f(cur);
-          cap = b[last].label + (partial && gran === "year" ? " to date" : "")
+          cap = (b[last].range || b[last].label) + (partial && gran === "year" ? " to date" : "")
             + (t.periodCap ? ` · ${t.periodCap}` : "");
           if (prev != null && prev >= 10) {
             const d = pctChange(prev, cur);
@@ -422,13 +430,15 @@
     const mag = 10**Math.floor(Math.log10(raw));
     const norm = raw / mag;
     const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
+    // The old loop stopped at the last tick <= max, which could leave the
+    // axis topping out BELOW the data — that is what made bars shoot past
+    // the plot and land on the card title. Always climb past the max, then
+    // add one more step so Rule 1 (headroom) actually holds.
     const out = [];
-    for (let v = 0; v <= mx + step * 1e-9; v += step) out.push(Number(v.toFixed(10)));
-    // Rule 1: if the data reaches the top tick exactly, add another step so
-    // there is always air above the tallest mark.
-    if (out.length && Math.abs(out[out.length - 1] - mx) < step * 1e-6) {
-      out.push(Number((out[out.length - 1] + step).toFixed(10)));
-    }
+    let v = 0;
+    while (v < mx - step * 1e-9) { out.push(Number(v.toFixed(10))); v += step; }
+    out.push(Number(v.toFixed(10)));
+    if (Math.abs(v - mx) < step * 1e-6) out.push(Number((v + step).toFixed(10)));
     return out;
   }
 
@@ -572,7 +582,7 @@
           // A total only means something when the series share a unit.
           const total = st.cfg.noTotal ? "" :
             `<div class="r is-total"><b>Total</b><span class="v"><b>${st.cfg.f(st.buckets.reduce((t, s) => t + s[i].v, 0))}</b></span></div>`;
-          els.tip.innerHTML = `<div class="m">${st.buckets[0][i].label}</div>${rows}${total}`;
+          els.tip.innerHTML = `<div class="m">${st.buckets[0][i].range || st.buckets[0][i].label}</div>${rows}${total}`;
           els.tip.style.opacity = 1;
           const r = ev.target.getBoundingClientRect();
           els.tip.style.left = `${Math.min(window.innerWidth - 230, r.left + r.width / 2 + 10)}px`;
@@ -793,6 +803,159 @@
     }
     chartBuckets.email = chartBuckets.email.concat(email);
     chartBuckets.podcasts = pods;
+  }
+
+  // ---- Substack ----------------------------------------------------------
+  //
+  // Substack publishes no API, so these readings are typed in. Add and Remove
+  // work on the local list and re-render immediately, so the headline totals
+  // move as you type; Save persists to the worker, which is what the nightly
+  // job reads when it rolls Substack into the totals.
+
+  let substack = [];
+  let substackSel = null;
+  let substackDirty = false;
+
+  const ssNum = (v) => {
+    const n = Number(String(v == null ? "" : v).replace(/[$,\s]/g, ""));
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  };
+  const ssLatest = () => (substack.length ? substack[substack.length - 1] : null);
+
+  function ssMsg(text, kind) {
+    const el = $("[data-ss-msg]");
+    if (!el) return;
+    el.textContent = text || "";
+    el.className = `kpi-ssmsg${kind ? ` is-${kind}` : ""}`;
+  }
+
+  function withSubstack(snap) {
+    const row = ssLatest();
+    if (!snap || !snap.kpi) return snap;
+    const base = snap.baseKpi || { ...snap.kpi };
+    const merged = { ...base };
+    if (row) {
+      const ghostMembers = snap.ghost ? snap.ghost.paid + snap.ghost.comped : null;
+      const ghostFree = snap.ghost ? snap.ghost.free : null;
+      if (ghostMembers != null) merged.total_members = ghostMembers + row.paid;
+      if (ghostFree != null) merged.total_subscribers = ghostFree + row.total;
+      if (snap.stripe) {
+        merged.membership_revenue = Math.round(
+          snap.stripe.arr + (snap.hubspot ? snap.hubspot.checkout_value_12m : 0) + row.revenue
+        );
+      }
+    }
+    return { ...snap, baseKpi: base, kpi: merged, substack: row };
+  }
+
+  function renderSubstack() {
+    const count = $("[data-kpi-ss-count]");
+    if (count) {
+      count.textContent = substack.length
+        ? `${substack.length} reading${substack.length === 1 ? "" : "s"}${substackDirty ? " · unsaved" : ""}`
+        : "no readings yet";
+    }
+    const tbl = $("[data-ss-table]");
+    if (tbl) {
+      tbl.innerHTML = substack.length ? `<table>
+        <thead><tr><th>Date</th><th>Gross annualised</th><th>Paid</th><th>Total subscribers</th></tr></thead>
+        <tbody>${substack.map((r, i) => `<tr class="${i === substackSel ? "is-sel" : ""}" data-ss-row="${i}">
+          <td>${mdy(r.date, true)}</td><td>${usd(r.revenue)}</td><td>${fmt(r.paid)}</td><td>${fmt(r.total)}</td>
+        </tr>`).join("")}</tbody></table>`
+        : '<p class="kpi-empty">Nothing entered yet. Read the three numbers off Substack\u2019s Overview page and add them.</p>';
+    }
+    const el = $("[data-kpi-substack]");
+    if (!el) return;
+    if (substack.length < 2) {
+      el.innerHTML = substack.length
+        ? '<p class="kpi-empty">One reading so far — a second one gives it a line to draw.</p>' : "";
+      return;
+    }
+    const pairs = (key) => substack.map((r) => [mdy(r.date), r[key]]);
+    el.innerHTML = [
+      barBlock("Substack gross annualised revenue", "As read off the Substack Overview page.",
+        pairs("revenue"), { rotate: true, money: true }),
+      barBlock("Substack paid subscribers", "Paid subscriptions on Substack.",
+        pairs("paid"), { rotate: true, color: C2 }),
+      barBlock("Substack total subscribers", "Free and paid together.",
+        pairs("total"), { rotate: true, color: C3 })
+    ].join("");
+  }
+
+  function wireSubstack() {
+    const dateEl = $("[data-ss-date]");
+    if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0, 10);
+    const add = $("[data-ss-add]");
+    if (!add) return;
+
+    add.addEventListener("click", () => {
+      const date = ($("[data-ss-date]").value || "").slice(0, 10);
+      const revenue = ssNum($("[data-ss-revenue]").value);
+      const paid = ssNum($("[data-ss-paid]").value);
+      const total = ssNum($("[data-ss-total]").value);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { ssMsg("Pick a date first.", "bad"); return; }
+      if (revenue == null && paid == null && total == null) { ssMsg("Enter at least one number.", "bad"); return; }
+      const row = { date, revenue: revenue || 0, paid: paid || 0, total: total || 0 };
+      const at = substack.findIndex((r) => r.date === date);
+      if (at >= 0) substack[at] = row; else substack.push(row);
+      substack.sort((a, b) => (a.date < b.date ? -1 : 1));
+      substackSel = substack.findIndex((r) => r.date === date);
+      substackDirty = true;
+      ssMsg(`Added ${mdy(date, true)}. Totals updated — Save to keep it.`, "ok");
+      showing = withSubstack(showing);
+      render();
+    });
+
+    $("[data-ss-remove]").addEventListener("click", () => {
+      if (!substack.length) { ssMsg("Nothing to remove.", "bad"); return; }
+      const i = substackSel == null ? substack.length - 1 : substackSel;
+      const [gone] = substack.splice(i, 1);
+      substackSel = null;
+      substackDirty = true;
+      ssMsg(`Removed ${mdy(gone.date, true)}. Save to make it stick.`, "ok");
+      showing = withSubstack(showing);
+      render();
+    });
+
+    $("[data-ss-save]").addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      const was = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+      try {
+        const res = await api("/kpi/substack", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ entries: substack })
+        });
+        substack = (res && res.entries) || substack;
+        substackDirty = false;
+        ssMsg(`Saved ${substack.length} reading${substack.length === 1 ? "" : "s"}. Tonight's snapshot will use the latest.`, "ok");
+        renderSubstack();
+      } catch (err) {
+        ssMsg(`Could not save: ${err.message}`, "bad");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = was;
+      }
+    });
+
+    const tbl = $("[data-ss-table]");
+    if (tbl) {
+      tbl.addEventListener("click", (ev) => {
+        const tr = ev.target.closest("[data-ss-row]");
+        if (!tr) return;
+        substackSel = Number(tr.getAttribute("data-ss-row"));
+        const row = substack[substackSel];
+        if (row) {
+          $("[data-ss-date]").value = row.date;
+          $("[data-ss-revenue]").value = row.revenue;
+          $("[data-ss-paid]").value = row.paid;
+          $("[data-ss-total]").value = row.total;
+        }
+        renderSubstack();
+      });
+    }
   }
 
   // ---- action item, stamp, render ----------------------------------------

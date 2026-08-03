@@ -62,6 +62,30 @@
             <div class="kpi-tiles" data-kpi-tiles>
               <p class="kpi-empty">Loading the latest snapshot…</p>
             </div>
+            <details class="kpi-sub">
+              <summary><span class="kpi-chev"></span>Substack — enter the numbers<span class="kpi-scount" data-kpi-ss-count></span></summary>
+              <div class="kpi-panel">
+                <p class="kpi-note" style="margin:0 0 12px">
+                  Substack publishes no API, so these are read off the Substack Overview page and entered by hand.
+                  Add updates the totals above immediately; Save writes them to the snapshot so every future
+                  reading keeps its history.
+                </p>
+                <div class="kpi-ssform">
+                  <label>Date<input type="date" data-ss-date /></label>
+                  <label>Gross annualised revenue<input type="text" inputmode="decimal" placeholder="$6,494" data-ss-revenue /></label>
+                  <label>Paid subscribers<input type="text" inputmode="numeric" placeholder="74" data-ss-paid /></label>
+                  <label>Total subscribers<input type="text" inputmode="numeric" placeholder="5,838" data-ss-total /></label>
+                  <div class="kpi-ssbtns">
+                    <button type="button" class="kpi-btn is-primary" data-ss-add>Add</button>
+                    <button type="button" class="kpi-btn" data-ss-remove>Remove</button>
+                    <button type="button" class="kpi-btn" data-ss-save>Save</button>
+                  </div>
+                </div>
+                <p class="kpi-ssmsg" data-ss-msg></p>
+                <div class="kpi-sstable" data-ss-table></div>
+              </div>
+              <div class="kpi-charts" data-kpi-substack></div>
+            </details>
           </details>
 
           <details class="kpi-sec" open>
@@ -87,31 +111,6 @@
           <details class="kpi-sec" open>
             <summary><span class="kpi-chev"></span>Podcasts</summary>
             <div class="kpi-charts" data-kpi-podcasts></div>
-          </details>
-
-          <details class="kpi-sec" open>
-            <summary><span class="kpi-chev"></span>Substack<span class="kpi-scount" data-kpi-ss-count></span></summary>
-            <div class="kpi-panel">
-              <p class="kpi-note" style="margin:0 0 12px">
-                Substack publishes no API, so these are read off the Substack Overview page and entered by hand.
-                Add updates the totals above immediately; Save writes them to the snapshot so every future
-                reading keeps its history.
-              </p>
-              <div class="kpi-ssform">
-                <label>Date<input type="date" data-ss-date /></label>
-                <label>Gross annualised revenue<input type="text" inputmode="decimal" placeholder="$6,494" data-ss-revenue /></label>
-                <label>Paid subscribers<input type="text" inputmode="numeric" placeholder="74" data-ss-paid /></label>
-                <label>Total subscribers<input type="text" inputmode="numeric" placeholder="5,838" data-ss-total /></label>
-                <div class="kpi-ssbtns">
-                  <button type="button" class="kpi-btn is-primary" data-ss-add>Add</button>
-                  <button type="button" class="kpi-btn" data-ss-remove>Remove</button>
-                  <button type="button" class="kpi-btn" data-ss-save>Save</button>
-                </div>
-              </div>
-              <p class="kpi-ssmsg" data-ss-msg></p>
-              <div class="kpi-sstable" data-ss-table></div>
-            </div>
-            <div class="kpi-charts" data-kpi-substack></div>
           </details>
 
           <details class="kpi-sec" open>

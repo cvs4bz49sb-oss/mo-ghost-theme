@@ -24489,6 +24489,16 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-statlist li:last-child { border-bottom: none; }
 .kpi-statlist li b { color: var(--k-text); font-size: 15px; font-variant-numeric: tabular-nums; }
 
+.kpi-sub { margin: 16px 0 0; }
+.kpi-sub > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--k-muted); padding: 8px 0 0; border-top: 1px solid var(--k-line);
+}
+.kpi-sub > summary::-webkit-details-marker { display: none; }
+.kpi-sub > summary:hover { color: var(--k-text); }
+.kpi-sub[open] > summary .kpi-chev { transform: rotate(45deg); margin-bottom: 0; }
+.kpi-sub > .kpi-panel { margin-top: 12px; }
+
 /* Substack entry */
 .kpi-ssform { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
 .kpi-ssform label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--k-muted); }
