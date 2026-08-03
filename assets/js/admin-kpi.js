@@ -780,19 +780,48 @@
     }
     if (s.podcasts) {
       const shows = [
-        ["mere_fidelity", "Mere Fidelity", C1],
-        ["reading_classics", "Christians Reading Classics", C2],
-        ["daily_liturgy", "Daily Liturgy", C3]
+        ["mere_fidelity", "Mere Fidelity", C1, "podmf"],
+        ["reading_classics", "Christians Reading Classics", C2, "podcrc"],
+        ["daily_liturgy", "Daily Liturgy", C3, "poddlp"]
       ];
+
+      // Buzzsprout only ever reports cumulative lifetime plays, so "plays in
+      // this period" has to come from the difference between the snapshot at
+      // each end of it. That fills in as nightly snapshots accumulate.
+      if (gran !== "total") {
+        const g = gran;
+        const perShow = shows.map(([, name, color, key]) => {
+          const b = bucketize(key, "last", g);
+          const deltas = b.slice(1).map((cur, i) => [cur.range || cur.label, Math.max(0, cur.v - b[i].v)]);
+          return { name, color, deltas };
+        }).filter((x) => x.deltas.length);
+        if (perShow.length && perShow[0].deltas.length) {
+          perShow.forEach((x) => {
+            pods.push(barBlock(`${x.name} — plays added`,
+              "Difference between snapshots at each end of the period. Fills in as nightly snapshots accumulate.",
+              x.deltas.slice(-12), { rotate: true, color: x.color }));
+          });
+        } else {
+          pods.push(`<div class="kpi-chart"><p class="kpi-chart-title">Plays added per period</p>
+            <p class="kpi-empty">Buzzsprout reports lifetime totals only, so period figures are the difference
+            between two snapshots — there needs to be more than one. This fills in from tonight.</p></div>`);
+        }
+      }
+
       const totals = shows
         .filter(([key]) => typeof s.podcasts[key] === "number")
         .map(([key, name]) => [name, s.podcasts[key]]);
       if (totals.length) {
         pods.push(barBlock("Podcast plays by show", "Lifetime plays on Buzzsprout, all published episodes.", totals, { rotate: true }));
       }
+
       if (s.podcasts.per_episode) {
+        // Show the months that fall inside the selected period rather than
+        // always the last eight.
+        const MONTHS_FOR = { day: 2, week: 2, month: 3, quarter: 6, year: 12, total: 8 };
+        const keep = MONTHS_FOR[gran] || 8;
         shows.forEach(([key, name, color]) => {
-          const rows = s.podcasts.per_episode[key] || [];
+          const rows = (s.podcasts.per_episode[key] || []).slice(-keep);
           if (rows.length > 1) {
             pods.push(barBlock(`${name} — reach per episode`,
               "Average plays for episodes published each month. A different unit from dashboard downloads.",
