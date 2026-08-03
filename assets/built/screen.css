@@ -10162,17 +10162,94 @@ label.site-form-field-check {
   margin: 14px 0 0;
 }
 /* Latest episode player (landing page) */
-.dl-latest-episode {
+/* Latest-episode player on /daily-liturgy/.
+   ------------------------------------------------------------
+   Self-contained on purpose. This used to carry .dlr-podcast and
+   lean on the reader's player styles; the reader's podcast
+   component was later redesigned into a glass card and
+   .dlr-player-info / -subtitle / -time were deleted, which left
+   this markup completely unstyled (block-stacked, play button
+   spilling out of a 14px-radius box). Nothing here may depend on
+   a .dlr-* rule. */
+.dl-ep {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   margin-bottom: 24px;
+  padding: 8px 18px 8px 8px;
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  background: var(--color-background);
 }
-.dl-latest-episode.dlr-podcast {
-  --dlr-accent: #96694C;
-  --dlr-accent-light: #b8866a;
-  --dlr-rule: #d9c6a7;
-  --dlr-text-secondary: #4a4540;
-  --dlr-scripture-bg: #f1e0c9;
-  border-color: var(--dlr-rule);
-  background: var(--dlr-scripture-bg);
+.dl-ep[hidden] { display: none; }
+.dl-ep-play {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--dl-copper);
+  color: var(--color-white);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dl-ep-play:hover { background: var(--dl-copper-light); }
+/* svg { display: block } is set globally and beats the [hidden]
+   attribute, so both glyphs render at once without this. */
+.dl-ep-play-icon[hidden],
+.dl-ep-pause-icon[hidden] { display: none; }
+.dl-ep-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dl-ep-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dl-ep-progress {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-rule);
+  cursor: pointer;
+}
+.dl-ep-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: var(--dl-copper);
+  transition: width 0.1s linear;
+}
+.dl-ep-sub {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
+}
+.dl-ep-time {
+  flex: none;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+/* Phone: the pill has no room for a fixed-width time column, so drop
+   it — the duration is already in the episode title line. */
+@media (max-width: 520px) {
+  .dl-ep {
+    gap: 12px;
+    padding: 8px 14px 8px 8px;
+  }
+  .dl-ep-time { display: none; }
 }
 
 .dl-listen-ctas {

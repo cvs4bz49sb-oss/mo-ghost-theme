@@ -2,8 +2,8 @@
   const $el = document.querySelector("[data-dl-latest]");
   const $audio = $el && $el.querySelector("[data-dl-audio]");
   const $playBtn = $el && $el.querySelector("[data-dl-play]");
-  const $playIcon = $el && $el.querySelector(".dlr-play-icon");
-  const $pauseIcon = $el && $el.querySelector(".dlr-pause-icon");
+  const $playIcon = $el && $el.querySelector(".dl-ep-play-icon");
+  const $pauseIcon = $el && $el.querySelector(".dl-ep-pause-icon");
   const $title = $el && $el.querySelector("[data-dl-player-title]");
   const $progress = $el && $el.querySelector("[data-dl-progress]");
   const $bar = $el && $el.querySelector("[data-dl-bar]");
@@ -30,7 +30,7 @@
       episodeTitle = ep.title || "Latest Episode";
       $title.textContent = `Listen: ${episodeTitle}`;
       if (ep.duration) $time.textContent = fmt(ep.duration);
-      $el.hidden = false;
+      $el.removeAttribute("hidden");
     })
     .catch(() => {});
 

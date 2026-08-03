@@ -77,24 +77,32 @@
           <h2 class="dl-path-title">The podcast.</h2>
           <img src="https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy-Podcast-Covers--2-.jpg" alt="The Daily Liturgy Podcast" class="dl-podcast-cover" width="280" height="280" loading="lazy" />
           <p class="dl-path-desc">The same devotional, read aloud. A new episode every morning, wherever you keep your habit of prayer.</p>
-          <div class="dl-latest-episode dlr-podcast" data-dl-latest hidden>
-            <button class="dlr-play-btn" data-dl-play aria-label="Play episode">
-              <svg class="dlr-play-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          {{!-- This page owns its player styles (.dl-ep-*) rather than
+               borrowing the reader's .dlr-podcast classes. The reader's
+               podcast component was redesigned into a glass card and
+               .dlr-player-info / -subtitle / -time were deleted outright,
+               which left this markup unstyled and stacked. Keep these
+               classes page-local so a future reader redesign can't reach
+               in here again. The data-dl-* hooks are what
+               daily-liturgy-player.js binds to; don't rename those. --}}
+          <div class="dl-ep" data-dl-latest hidden>
+            <button class="dl-ep-play" data-dl-play aria-label="Play episode">
+              <svg class="dl-ep-play-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                 <polygon points="6,3 20,12 6,21" fill="currentColor"/>
               </svg>
-              <svg class="dlr-pause-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden>
+              <svg class="dl-ep-pause-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" hidden>
                 <rect x="5" y="3" width="4" height="18" fill="currentColor"/>
                 <rect x="15" y="3" width="4" height="18" fill="currentColor"/>
               </svg>
             </button>
-            <div class="dlr-player-info">
-              <span class="dlr-player-title" data-dl-player-title></span>
-              <div class="dlr-player-progress" data-dl-progress>
-                <div class="dlr-player-bar" data-dl-bar></div>
+            <div class="dl-ep-info">
+              <span class="dl-ep-title" data-dl-player-title></span>
+              <div class="dl-ep-progress" data-dl-progress>
+                <div class="dl-ep-bar" data-dl-bar></div>
               </div>
-              <span class="dlr-player-subtitle">Follows Devotional Plan</span>
+              <span class="dl-ep-sub">Follows Devotional Plan</span>
             </div>
-            <span class="dlr-player-time" data-dl-time></span>
+            <span class="dl-ep-time" data-dl-time></span>
             <audio data-dl-audio preload="none"></audio>
           </div>
           <div class="dl-listen-ctas">
