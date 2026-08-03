@@ -98,6 +98,38 @@
     return a >= 1000 ? `${(n / 1000).toFixed(a >= 10000 ? 0 : 1).replace(/\.0$/, "")}K` : String(Math.round(n));
   };
   const pctChange = (a, b) => (a ? (b / a - 1) * 100 : 0);
+  // Charts draw into a fixed viewBox that scales to fit its card, so on a
+  // phone a 560-unit surface shrinks to ~0.52 and 10px axis text lands at
+  // 5px. Narrowing the surface on small screens keeps the scale near 1;
+  // the existing label-thinning works off plot width, so fewer labels are
+  // chosen automatically rather than colliding.
+  const narrow = () => window.matchMedia("(max-width: 640px)").matches;
+
+  // Draw at the size the card will actually be. A fixed 560-unit surface in
+  // a 293px phone card scales to 0.52, which rendered 10px axis text at 5px;
+  // guessing a narrower surface from a breakpoint only moved the error
+  // around. Measuring the real grid track keeps the scale at ~1 everywhere,
+  // so SVG text lands at the size the stylesheet actually says.
+  let cachedW = 0;
+  let lastRenderW = 0;
+  // Cleared once per render pass, so every chart in a pass draws to the same
+  // surface no matter how long the pass takes.
+  const invalidateChartW = () => { cachedW = 0; };
+  function chartW() {
+    if (cachedW) return cachedW;
+    let w = 0;
+    const grid = document.querySelector(".kpi-charts");
+    if (grid) {
+      const track = getComputedStyle(grid).gridTemplateColumns.split(" ")[0];
+      w = parseFloat(track) || 0;
+      // Padding inside the card, both sides.
+      if (w) w -= narrow() ? 30 : 34;
+    }
+    if (!w || !isFinite(w)) w = narrow() ? 340 : 526;
+    cachedW = Math.max(300, Math.min(620, Math.round(w)));
+    return cachedW;
+  }
+
   const C1 = "#2a78d6";
   const C2 = "#eb6834";
   const C3 = "#1baf7a";
@@ -675,7 +707,8 @@
   }
 
   function chartSvg(cfg, buckets) {
-    const W = 560, H = 250, L = 52, R = cfg.type === "line" ? 62 : 18, T = 14, B = 28;
+    const W = chartW(), H = narrow() ? 268 : 250, L = narrow() ? 42 : 52,
+      R = cfg.type === "line" ? (narrow() ? 50 : 62) : 18, T = 14, B = narrow() ? 32 : 28;
     const pw = W - L - R, ph = H - T - B;
     const n = buckets[0].length;
     const ticks = niceTicks(Math.max(...buckets.flat().map((b) => b.v), 1), 4);
@@ -833,7 +866,8 @@
     // label on a full-height bar painted over the card title.
     // Rotated labels run down and to the right, so they need both a taller
     // bottom margin and a right margin — without it they escaped the card.
-    const W = 560, H = o.rotate ? 312 : 254, L = 52, R = o.rotate ? 74 : 18, T = 28,
+    const W = chartW(), H = o.rotate ? (narrow() ? 300 : 312) : (narrow() ? 244 : 254),
+      L = narrow() ? 44 : 52, R = o.rotate ? (narrow() ? 66 : 80) : 18, T = 28,
       B = o.rotate ? 96 : 28;
     const clip = (txt, n) => (String(txt).length > n ? `${String(txt).slice(0, n - 1)}…` : String(txt));
     const pw = W - L - R, ph = H - T - B, n = pairs.length;
@@ -866,7 +900,7 @@
         svg += `<text class="kpi-dlabel" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${o.money ? usd(pr[1]) : fmt(pr[1])}</text>`;
       }
       if (o.rotate) {
-        svg += `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start"><title>${pr[0]}</title>${clip(pr[0], 18)}</text>`;
+        svg += `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start"><title>${pr[0]}</title>${clip(pr[0], narrow() ? 13 : 17)}</text>`;
       } else if (showTicks.has(i)) {
         svg += `<text class="kpi-tick" x="${(x + bw / 2).toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${pr[0]}</text>`;
       }
@@ -1564,7 +1598,8 @@
         { name: "Open rate", vals: points.map((x) => x.open), color: C1 },
         { name: "Click rate", vals: points.map((x) => x.click), color: C2 }
       ];
-      const W = 560, H = 250, L = 46, R = 54, T = 20, B = 52, pw = W - L - R, ph = H - T - B;
+      const W = chartW(), H = narrow() ? 262 : 250, L = narrow() ? 40 : 46,
+        R = narrow() ? 44 : 54, T = 20, B = 52, pw = W - L - R, ph = H - T - B;
       const mx = Math.max(...lines.flatMap((l) => l.vals), 10) * 1.1;
       const X = (i) => L + i * pw / Math.max(points.length - 1, 1);
       const Y = (v) => T + ph - (v / mx) * ph;
@@ -1869,6 +1904,7 @@
 
   function render() {
     if (!showing) return;
+    invalidateChartW();
     els.gran.querySelectorAll(".kpi-gbtn").forEach((b) =>
       b.setAttribute("aria-pressed", String(b.getAttribute("data-g") === period)));
     // Each block is independent: one failing must not take the rest of the
@@ -1886,6 +1922,7 @@
     safe("audience", () => renderAudience(showing));
     safe("revsummary", () => renderRevenueSummary(showing));
     safe("layout", () => wireLayout());
+    lastRenderW = cachedW || chartW();
   }
 
   // ---- verification table, flags and analysis ----------------------------
@@ -2144,6 +2181,38 @@
   }
 
   wireSubstack();
+  let wasNarrow = narrow();
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      // Geometry is baked at render time, so a card that has changed width
+      // needs redrawing — keying this on the breakpoint alone left charts
+      // drawn for a phone stretched across a desktop card at 1.76x, with
+      // 20px axis text. Redraw when the surface actually moved.
+      invalidateChartW();
+      const w = chartW();
+      const moved = !lastRenderW || Math.abs(w - lastRenderW) > lastRenderW * 0.08;
+      if (narrow() === wasNarrow && !moved) return;
+      wasNarrow = narrow();
+      render();
+    }, 200);
+  });
+
+  // The action card runs to ~300px of an 812px phone screen. Clamp the body
+  // on mobile and let a tap open it: the headline and the metric are what
+  // you read at a glance, the reasoning is what you read when you act on it.
+  (function wireActionExpand() {
+    const card = document.querySelector("[data-kpi-action]");
+    if (!card) return;
+    card.addEventListener("click", (e) => {
+      if (!narrow()) return;
+      // Don't swallow a tap meant for a link or control inside the card.
+      if (e.target.closest("a, button, input, select")) return;
+      card.classList.toggle("is-open");
+    });
+  }());
+
   wireSectionNav();
   load();
   loadLedger();

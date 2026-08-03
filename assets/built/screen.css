@@ -24560,6 +24560,115 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-chart.is-dropafter::after, .kpi-tile.is-dropafter::after { right: -8px; }
 .kpi-layoutmsg { font-size: 11.5px; color: var(--k-muted); }
 
+/* ---------------------------------------------------------------------------
+   /admin/kpi/ on a phone.
+
+   Three things were wrong at 375px: the chrome ate 631px of an 812px screen
+   before a single number appeared, every control was a ~27px tap target, and
+   the chart axis text rendered at 5px because a 560-unit viewBox scales to
+   about half in a 293px card. The chart geometry is fixed in JS (see
+   chartW()); this handles the rest.
+   --------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  [data-kpi-root] { --k-tap: 44px; }
+
+  /* Controls become one scrolling strip each instead of wrapping into
+     three stacked rows. Familiar on a phone, and it gives back ~120px. */
+  [data-kpi-root] .kpi-toolbar {
+    flex-direction: column; align-items: stretch; gap: 10px;
+    margin-bottom: 14px; padding-bottom: 12px;
+  }
+  [data-kpi-root] .kpi-history { gap: 8px; }
+  [data-kpi-root] .kpi-history .kpi-date { flex: 1 1 auto; min-width: 0; }
+  [data-kpi-root] .kpi-toolbar-right {
+    gap: 8px; overflow-x: auto; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch; padding-bottom: 2px;
+  }
+  [data-kpi-root] .kpi-toolbar-right::-webkit-scrollbar { display: none; }
+  [data-kpi-root] .kpi-toolbar-right > * { flex: 0 0 auto; }
+  [data-kpi-root] .kpi-jump { max-width: none; min-width: 168px; }
+  /* Source list and layout messages are status text, not controls — they
+     go last so the buttons are reachable without scrolling the strip. */
+  [data-kpi-root] .kpi-sources, [data-kpi-root] .kpi-layoutmsg { order: 9; }
+
+  [data-kpi-root] .kpi-granrow {
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
+    margin-bottom: 14px; padding-bottom: 2px;
+  }
+  [data-kpi-root] .kpi-granrow::-webkit-scrollbar { display: none; }
+  /* Fade the trailing edge so it reads as "there is more", rather than as
+     a button that happens to be clipped. */
+  [data-kpi-root] .kpi-granrow,
+  [data-kpi-root] .kpi-toolbar-right {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+  }
+  [data-kpi-root] .kpi-granrow > * { flex: 0 0 auto; scroll-snap-align: start; }
+  [data-kpi-root] .kpi-glabel { display: none; }
+
+  /* Every control clears the 44px tap minimum. */
+  [data-kpi-root] .kpi-btn,
+  [data-kpi-root] .kpi-gbtn,
+  [data-kpi-root] .kpi-date,
+  [data-kpi-root] .kpi-jump,
+  [data-kpi-root] .kpi-morebtn,
+  [data-kpi-root] .kpi-ssform input {
+    min-height: var(--k-tap); padding-top: 0; padding-bottom: 0;
+    font-size: 14px; line-height: 1.2;
+  }
+  [data-kpi-root] .kpi-btn, [data-kpi-root] .kpi-gbtn { padding-inline: 14px; }
+  [data-kpi-root] .kpi-sec > summary { min-height: var(--k-tap); align-items: center; }
+  [data-kpi-root] .kpi-sortbtn { min-height: var(--k-tap); }
+
+  /* The action card is ~300px of an 812px screen. Clamp the reasoning and
+     let a tap open it — the headline and the metric are the glanceable
+     part, the rest is read only when acting on it. */
+  [data-kpi-root] .kpi-action { cursor: pointer; }
+  [data-kpi-root] .kpi-action .kpi-action-text {
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+  [data-kpi-root] .kpi-action.is-open .kpi-action-text {
+    -webkit-line-clamp: unset; display: block;
+  }
+  [data-kpi-root] .kpi-action:not(.is-open) .kpi-action-body::after {
+    content: "Tap to read the rest"; display: block;
+    font-size: 12px; color: var(--k-accent); margin-top: 6px;
+  }
+
+  /* Body text to 14px. Captions and axis ticks stay smaller — they are
+     labels on a figure, not prose. */
+  [data-kpi-root] .kpi-tile-bullets li,
+  [data-kpi-root] .kpi-chart-sub,
+  [data-kpi-root] .kpi-note,
+  [data-kpi-root] .kpi-table,
+  [data-kpi-root] .kpi-table-cmp { font-size: 14px; }
+  [data-kpi-root] .kpi-tile-label,
+  [data-kpi-root] .kpi-tile-cap { font-size: 13px; }
+  [data-kpi-root] .kpi-action-text { font-size: 15px; }
+
+  [data-kpi-root] .kpi-legend { font-size: 13px; }
+
+  /* Tighter chrome: the numbers are what the screen is for. */
+  [data-kpi-root] .kpi-tile { padding: 14px 15px; }
+  [data-kpi-root] .kpi-chart { padding: 14px 14px; }
+  [data-kpi-root] .kpi-panel { padding: 15px 15px; }
+  [data-kpi-root] .kpi-action { padding: 15px 16px; gap: 10px; }
+  [data-kpi-root] .kpi-sec { margin-top: 20px; }
+  [data-kpi-root] .kpi-tile-value { font-size: 27px; }
+  [data-kpi-root] .kpi-rev-total { font-size: 30px; }
+
+  /* Wide tables scroll inside their own box; make that discoverable. */
+  [data-kpi-root] .kpi-tablewrap { -webkit-overflow-scrolling: touch; }
+  [data-kpi-root] .kpi-stats { grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); }
+
+  /* Drag-to-rearrange is a pointer interaction; HTML5 drag events never
+     fire from touch, so do not imply it is available here. */
+  [data-kpi-sortable="on"] > .kpi-chart,
+  [data-kpi-sortable="on"] > .kpi-tile { cursor: default; }
+}
+
 /* Inline marker for a recurring gift's cadence. */
 .kpi-pill { display: inline-block; font-size: 11px; line-height: 1.5; padding: 1px 7px;
   border: 1px solid var(--k-line); border-radius: 999px; color: var(--k-text); }
@@ -24671,8 +24780,8 @@ html[data-theme="dark"] .dlr-play-btn {
    to run over the card edge and into the next column. */
 .kpi-chart svg { display: block; width: 100%; height: auto; color: var(--k-accent); overflow: hidden; }
 .kpi-gl { stroke: var(--k-line); stroke-width: 1; }
-.kpi-tick { font-size: 10px; fill: var(--k-muted); }
-.kpi-dlabel { font-size: 11px; fill: var(--k-text); font-weight: 600; }
+.kpi-tick { font-size: 11.5px; fill: var(--k-muted); }
+.kpi-dlabel { font-size: 12px; fill: var(--k-text); font-weight: 600; }
 .kpi-empty { font-size: 13.5px; color: var(--k-muted); margin: 0; padding: 8px 0 22px; grid-column: 1 / -1; }
 .kpi-foot { font-size: 12.5px; color: var(--k-muted); margin: 22px 0 0; }
 
