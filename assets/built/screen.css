@@ -24432,13 +24432,56 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-key { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
 .kpi-ax { stroke: #d8d4ce; stroke-width: 1; }
 .kpi-hz { cursor: crosshair; }
-.kpi-tbl { display: none; margin-top: 10px; overflow-x: auto; }
+.kpi-tbl { display: none; margin-top: 10px; overflow-x: auto; max-width: 100%; }
+.kpi-tbl table { min-width: max-content; }
 .kpi-tbl.on { display: block; }
 .kpi-tbl table { border-collapse: collapse; font-size: 12px; width: 100%; }
 .kpi-tbl th, .kpi-tbl td { text-align: right; padding: 4px 7px; border-bottom: 1px solid var(--k-line); white-space: nowrap; }
 .kpi-tbl th:first-child, .kpi-tbl td:first-child { text-align: left; }
 .kpi-tbl th { color: var(--k-muted); font-weight: 560; }
 .kpi-swatch { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 6px; }
+
+/* collapsible sections */
+.kpi-sec { margin: 26px 0 0; }
+.kpi-sec > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 640; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--k-muted); padding: 6px 0; border-bottom: 1px solid var(--k-line); margin-bottom: 14px;
+}
+.kpi-sec > summary::-webkit-details-marker { display: none; }
+.kpi-sec > summary:hover { color: var(--k-text); }
+.kpi-chev {
+  width: 8px; height: 8px; border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor;
+  transform: rotate(-45deg); transition: transform .15s; margin-bottom: 2px; flex: none;
+}
+.kpi-sec[open] > summary .kpi-chev { transform: rotate(45deg); margin-bottom: 0; }
+.kpi-scount { margin-left: auto; font-weight: 500; letter-spacing: 0; text-transform: none; font-size: 11.5px; }
+
+/* prose panels */
+.kpi-panel { background: var(--k-surface); border: 1px solid var(--k-line); border-radius: 12px; padding: 18px 20px; }
+.kpi-panel p { font-size: 14px; line-height: 1.55; color: var(--k-secondary); margin: 0 0 13px; }
+.kpi-panel p:last-child { margin-bottom: 0; }
+.kpi-panel b { color: var(--k-text); }
+.kpi-panel h4 { font-size: 14.5px; font-weight: 640; color: var(--k-text); margin: 0 0 5px; }
+.kpi-flag { padding: 14px 0; border-bottom: 1px solid var(--k-line); }
+.kpi-flag:last-child { border-bottom: none; }
+.kpi-flag:first-child { padding-top: 0; }
+.kpi-sev { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 5px; }
+.kpi-sev.critical { color: #c0392b; }
+.kpi-sev.serious { color: #c96a2b; }
+.kpi-sev.warning { color: #9a7b1f; }
+.kpi-vtab { width: 100%; border-collapse: collapse; font-size: 13px; }
+.kpi-vtab th, .kpi-vtab td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--k-line); }
+.kpi-vtab th { color: var(--k-muted); font-weight: 560; font-size: 12px; }
+.kpi-vtab td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.kpi-verdict { font-size: 11px; font-weight: 600; border-radius: 5px; padding: 2px 7px; white-space: nowrap; display: inline-block; border: 1px solid currentColor; }
+.kpi-verdict.ok { color: #17692b; } .kpi-verdict.bad { color: #c0392b; }
+.kpi-verdict.warn { color: #9a7b1f; } .kpi-verdict.na { color: var(--k-muted); }
+.kpi-note { font-size: 12px; color: var(--k-muted); margin: 12px 0 0; }
+.kpi-actions { margin: 0; padding-left: 18px; }
+.kpi-actions li { font-size: 14px; color: var(--k-secondary); margin-bottom: 11px; line-height: 1.5; }
+.kpi-actions li:last-child { margin-bottom: 0; }
+.kpi-actions b { color: var(--k-text); }
 
 /* hover tooltip */
 .kpi-tip {
@@ -24452,9 +24495,13 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-tip .r .v { margin-left: auto; color: var(--k-text); font-weight: 600; }
 
 .kpi-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.kpi-charts > * { min-width: 0; }
 .kpi-chart {
   background: var(--k-surface); border: 1px solid var(--k-line);
   border-radius: 12px; padding: 15px 16px;
+  /* Grid items default to min-width:auto, so a wide table inside would
+     stretch the whole column instead of scrolling. */
+  min-width: 0;
 }
 .kpi-chart-title { font-size: 13px; font-weight: 620; color: var(--k-text); margin: 0 0 10px; }
 .kpi-chart svg { display: block; width: 100%; height: auto; color: var(--k-accent); overflow: visible; }

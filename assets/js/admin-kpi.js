@@ -94,14 +94,40 @@
       if (typeof v !== "number") return;
       const { k, label } = bucketOf(r.d, g);
       let b = seen.get(k);
-      if (!b) { b = { label, v: 0, n: 0 }; seen.set(k, b); out.push(b); }
+      if (!b) { b = { label, v: 0, n: 0, rows: [] }; seen.set(k, b); out.push(b); }
       b.v = agg === "last" ? v : b.v + v;
       b.n += 1;
+      b.rows.push(r);
     });
     return out;
   }
 
   // ---- KPI tiles ---------------------------------------------------------
+  //
+  // Every tile carries two sets of bullets: what the breakdown is right now
+  // (Total), and what it was over the selected period. A tile that shows a
+  // week's number next to today's composition would be lying by juxtaposition.
+
+  const sumOf = (rows, k) => rows.reduce((t, r) => t + (typeof r[k] === "number" ? r[k] : 0), 0);
+  const lastOf = (rows, k) => {
+    for (let i = rows.length - 1; i >= 0; i--) if (typeof rows[i][k] === "number") return rows[i][k];
+    return null;
+  };
+  const firstOf = (rows, k) => {
+    for (let i = 0; i < rows.length; i++) if (typeof rows[i][k] === "number") return rows[i][k];
+    return null;
+  };
+  const changeOf = (rows, prev, k) => {
+    const end = lastOf(rows, k);
+    const start = (prev && lastOf(prev, k)) != null ? lastOf(prev, k) : firstOf(rows, k);
+    return end == null || start == null ? null : end - start;
+  };
+  const signed = (n) => (typeof n === "number" ? `${n >= 0 ? "+" : "−"}${fmt(Math.abs(n))}` : "—");
+  const perDay = (rows, k) => (rows.length ? (sumOf(rows, k) / rows.length).toFixed(1) : "—");
+  const avgOf = (rows, k) => {
+    const v = rows.map((r) => r[k]).filter((x) => typeof x === "number");
+    return v.length ? Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 10) / 10 : null;
+  };
 
   const TOTAL_FIELD = {
     rev: "membership_revenue", mem: "total_members", sub: "total_subscribers",
@@ -112,6 +138,11 @@
   const KPIS = [
     {
       label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised",
+      periodBullets: (rows, prev) => [
+        `<b>${usd((lastOf(rows, "mrr") || 0) * 12)}</b> Stripe run-rate at period end`,
+        `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> HubSpot, trailing twelve months`,
+        `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc"))}</b> actually collected in the period`
+      ],
       bullets: (s) => [
         s.stripe ? `<b>${usd(s.stripe.arr)}</b> Stripe run-rate — verified` : "",
         s.hubspot ? `<b>${usd(s.hubspot.checkout_value_12m)}</b> HubSpot checkouts, 12 months — a floor` : "",
@@ -120,6 +151,11 @@
     },
     {
       label: "Migration", key: "mig", agg: "last", f: fmt, goodUp: true, cap: "moved to Stripe",
+      periodBullets: (rows, prev) => [
+        `<b>${signed(changeOf(rows, prev, "mig"))}</b> migrated during the period`,
+        `<b>${fmt((lastOf(rows, "migt") || 0) - (lastOf(rows, "mig") || 0))}</b> still to convert`,
+        `<b>${fmt(Math.round((Date.parse("2027-04-01") - Date.parse(rows[rows.length - 1].d)) / 86400000))}</b> days left at period end`
+      ],
       value: (s) => `${fmt(s.kpi.migration_done)} / ${fmt(s.kpi.migration_total)}`,
       bullets: (s) => [
         s.ghost ? `<b>${fmt(s.ghost.comped)}</b> still to convert` : "",
@@ -130,6 +166,11 @@
     },
     {
       label: "Total members", key: "mem", agg: "last", f: fmt, goodUp: true, cap: "entitled records",
+      periodBullets: (rows, prev) => [
+        `<b>${fmt(lastOf(rows, "pays"))}</b> paying Stripe at period end`,
+        `<b>${fmt(lastOf(rows, "hsp"))}</b> legacy with a HubSpot checkout in 12 months`,
+        `<b>${signed(changeOf(rows, prev, "mem"))}</b> change over the period`
+      ],
       bullets: (s) => [
         s.stripe ? `<b>${fmt(s.stripe.paying)}</b> paying Stripe — verified` : "",
         s.hubspot ? `<b>${fmt(s.hubspot.checkout_last_12m)}–${fmt(s.hubspot.still_flagged_paid)}</b> legacy, depending on the test` : "",
@@ -138,6 +179,11 @@
     },
     {
       label: "Total subscribers", key: "sub", agg: "last", f: fmt, goodUp: true, cap: "free list",
+      periodBullets: (rows, prev) => [
+        `<b>${signed(changeOf(rows, prev, "sub"))}</b> net change over the period`,
+        `<b>${fmt(sumOf(rows, "nsub"))}</b> signed up`,
+        `<b>${fmt(sumOf(rows, "unsub"))}</b> unsubscribed on sends`
+      ],
       bullets: (s) => [
         s.ghost ? `<b>${fmt(s.ghost.free)}</b> Ghost free members` : "",
         s.kit ? `<b>${fmt(s.kit.active)}</b> active in Kit` : "",
@@ -146,6 +192,11 @@
     },
     {
       label: "New members", key: "nmem", agg: "sum", f: fmt, goodUp: true, cap: "last 24 hours",
+      periodBullets: (rows) => [
+        `<b>${fmt(sumOf(rows, "nmem"))}</b> Stripe subscriptions started`,
+        `<b>${fmt(sumOf(rows, "hsn"))}</b> HubSpot checkouts closed`,
+        `<b>${perDay(rows, "nmem")}</b> a day across ${rows.length} days`
+      ],
       bullets: (s) => [
         s.stripe ? `<b>${fmt(s.stripe.started_24h)}</b> Stripe subscriptions started` : "",
         s.stripe ? `<b>${fmt(s.stripe.canceled_24h)}</b> cancelled in the same window` : "",
@@ -154,6 +205,11 @@
     },
     {
       label: "New subscribers", key: "nsub", agg: "sum", f: fmt, goodUp: true, cap: "last 24 hours",
+      periodBullets: (rows) => [
+        `<b>${fmt(sumOf(rows, "nsub"))}</b> signed up in the period`,
+        `<b>${perDay(rows, "nsub")}</b> a day across ${rows.length} days`,
+        `<b>${fmt(sumOf(rows, "unsub"))}</b> unsubscribed in the same window`
+      ],
       bullets: (s) => [
         s.ghost ? `<b>${fmt(s.ghost.signups_24h)}</b> Ghost signups` : "",
         s.kit && s.kit.last_send ? `<b>${fmt(s.kit.last_send.unsubscribes)}</b> unsubscribed on the last send` : "",
@@ -162,6 +218,11 @@
     },
     {
       label: "Web traffic", key: "pv", sumKey: "pvd", agg: "last", f: fmt, goodUp: true, cap: "pageviews, 30 days",
+      periodBullets: (rows) => [
+        `<b>${fmt(sumOf(rows, "vis"))}</b> visitors in the period`,
+        `<b>${perDay(rows, "pvd")}</b> pageviews a day`,
+        `<b>${fmt(lastOf(rows, "pv"))}</b> trailing 30 days at period end`
+      ],
       bullets: (s) => [
         s.traffic ? `<b>${fmt(s.traffic.visitors_30d)}</b> visitors in 30 days` : "",
         s.traffic ? `<b>${fmt(s.traffic.pageviews_7d)}</b> pageviews in 7 days` : "",
@@ -170,6 +231,11 @@
     },
     {
       label: "Podcast plays", key: "pod", agg: "last", f: fmt, goodUp: true, cap: "lifetime, all shows",
+      periodBullets: (rows, prev) => [
+        `<b>${signed(changeOf(rows, prev, "pod"))}</b> plays added in the period`,
+        `<b>${fmt(lastOf(rows, "pod"))}</b> lifetime at period end`,
+        "per-show splits are only kept for the current snapshot"
+      ],
       bullets: (s) => (s.podcasts ? [
         `<b>${fmt(s.podcasts.daily_liturgy)}</b> Daily Liturgy`,
         `<b>${fmt(s.podcasts.mere_fidelity)}</b> Mere Fidelity`,
@@ -178,13 +244,23 @@
     },
     {
       label: "Digest open / click", key: "op", agg: "last", f: pctv, goodUp: true,
-      value: (s) => (s.kit && s.kit.last_send ? `${pctv(s.kpi.digest_open)} · ${pctv(s.kpi.digest_click)}` : "—"),
-      cap: (s) => (s.kit && s.kit.last_send ? s.kit.last_send.sent_at.slice(0, 10) : "latest send"),
-      bullets: (s) => (s.kit && s.kit.last_send ? [
-        `<b>${fmt(s.kit.last_send.recipients)}</b> recipients`,
-        s.kit.last_send.subject,
-        `<b>${fmt(s.kit.last_send.unsubscribes)}</b> unsubscribes`
-      ] : [])
+      value: (s) => (s.kit && s.kit.digest
+        ? `${pctv(s.kit.digest.open_free)} · ${pctv(s.kit.digest.click_free)}`
+        : "—"),
+      cap: (s) => (s.kit && s.kit.digest ? `avg of ${s.kit.digest.count} digests` : "no digests found"),
+      bullets: (s) => (s.kit && s.kit.digest ? [
+        `<b>${pctv(s.kit.digest.open_paid)} · ${pctv(s.kit.digest.click_paid)}</b> on the paid list`,
+        `<b>${fmt(s.kit.digest.recipients)}</b> recipients on the latest · ${s.kit.digest.span}`,
+        `<b>${fmt(s.kit.digest.unsubscribes)}</b> unsubscribes per digest on average`
+      ] : ["No weekly digest found in the recent sends"]),
+      periodBullets(rows) {
+        const sends = rows.filter((r) => typeof r.op === "number");
+        return [
+          `<b>${sends.length}</b> ${sends.length === 1 ? "send" : "sends"} in the period`,
+          `<b>${pctv(avgOf(rows, "op"))}</b> average open`,
+          `<b>${pctv(avgOf(rows, "cl"))}</b> average click`
+        ];
+      }
     }
   ];
 
@@ -207,6 +283,8 @@
       let value;
       let cap = typeof t.cap === "function" ? t.cap(snap) : t.cap;
       let delta = "";
+      let periodRows = null;
+      let prevRows = null;
       if (gran === "total") {
         value = t.value ? t.value(snap) : t.f(snap.kpi[TOTAL_FIELD[t.key]]);
       } else {
@@ -221,6 +299,8 @@
           if (partial && gran !== "year") last -= 1;
           const cur = b[last].v;
           const prev = last > 0 ? b[last - 1].v : null;
+          periodRows = b[last].rows;
+          prevRows = last > 0 ? b[last - 1].rows : null;
           value = t.f(cur);
           cap = b[last].label + (partial && gran === "year" ? " to date" : "");
           if (prev != null && prev >= 10) {
@@ -233,7 +313,9 @@
           }
         }
       }
-      const bullets = (t.bullets(snap) || []).filter(Boolean);
+      const bullets = (periodRows && t.periodBullets
+        ? t.periodBullets(periodRows, prevRows)
+        : t.bullets(snap) || []).filter(Boolean);
       return `<div class="kpi-tile">
         <p class="kpi-tile-label">${t.label}</p>
         <p class="kpi-tile-value">${value}</p>
@@ -368,10 +450,15 @@
       const n = Math.min(...raw.map((b) => b.length));
       const buckets = raw.map((b) => b.slice(b.length - n));
       chartState[cfg.id] = { cfg, buckets };
+      // Cap the table at the most recent 24 buckets. At Day grain the full
+      // series is over a thousand columns, which is unreadable and drags the
+      // card open however wide the scroll container is.
+      const tb = buckets.map((sr) => sr.slice(-24));
+      const capped = buckets[0].length > 24;
       const table = `<div class="kpi-tbl" id="tbl-${cfg.id}"><table>
-        <thead><tr><th>Series</th>${buckets[0].map((b) => `<th>${b.label}</th>`).join("")}</tr></thead>
-        <tbody>${buckets.map((s, j) => `<tr><td><span class="kpi-swatch" style="background:${[C1, C2][j]}"></span>${cfg.names[j]}</td>${s.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}</tbody>
-      </table></div>`;
+        <thead><tr><th>Series</th>${tb[0].map((b) => `<th>${b.label}</th>`).join("")}</tr></thead>
+        <tbody>${tb.map((sr, j) => `<tr><td><span class="kpi-swatch" style="background:${[C1, C2][j]}"></span>${cfg.names[j]}</td>${sr.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table>${capped ? `<p class="kpi-note">Most recent 24 of ${buckets[0].length} periods.</p>` : ""}</div>`;
       return `<div class="kpi-chart" data-chart="${cfg.id}">
         <div class="kpi-chart-head">
           <p class="kpi-chart-title">${cfg.title}</p>
@@ -406,6 +493,134 @@
     });
   }
 
+  // ---- breakdowns --------------------------------------------------------
+  //
+  // These come off the snapshot rather than the daily series: they are
+  // point-in-time cuts (where people signed up, what they paid, when the
+  // renewals land) that only make sense as "right now".
+
+  function barBlock(title, sub, pairs, opts) {
+    const o = opts || {};
+    if (!pairs.length) return "";
+    const W = 560, H = o.rotate ? 290 : 240, L = 52, R = 18, T = 14, B = o.rotate ? 92 : 28;
+    const pw = W - L - R, ph = H - T - B, n = pairs.length;
+    const mx = Math.max(...pairs.map((p) => p[1]), 1);
+    const ticks = niceTicks(mx, 4), top = ticks[ticks.length - 1];
+    const band = pw / n, bw = Math.min(30, band * 0.6);
+    const Y = (v) => T + ph - (v / (top || 1)) * ph;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">`;
+    ticks.forEach((t) => {
+      const y = Y(t);
+      svg += `<line class="kpi-gl" x1="${L}" y1="${y.toFixed(1)}" x2="${L + pw}" y2="${y.toFixed(1)}"/>`
+        + `<text class="kpi-tick" x="${L - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end">${o.money ? `$${compact(t)}` : compact(t)}</text>`;
+    });
+    svg += `<line class="kpi-ax" x1="${L}" y1="${T + ph}" x2="${L + pw}" y2="${T + ph}"/>`;
+    pairs.forEach((pr, i) => {
+      const x = L + band * i + band / 2 - bw / 2, y = Y(pr[1]);
+      const h = Math.max(1, T + ph - y), r = Math.min(3, h, bw / 2);
+      svg += `<path d="M${x},${y + r} a${r},${r} 0 0 1 ${r},${-r} h${bw - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - r} h${-bw} Z" fill="${o.color || C1}"/>`;
+      svg += `<text class="kpi-dlabel" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${o.money ? usd(pr[1]) : fmt(pr[1])}</text>`;
+      svg += o.rotate
+        ? `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${pr[0]}</text>`
+        : `<text class="kpi-tick" x="${(x + bw / 2).toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${pr[0]}</text>`;
+    });
+    return `<div class="kpi-chart"><p class="kpi-chart-title">${title}</p>
+      <p class="kpi-chart-sub">${sub}</p>${svg}</svg></div>`;
+  }
+
+  const entries = (obj, n) => Object.entries(obj || {}).sort((a, b) => b[1] - a[1]).slice(0, n || 12);
+
+  function renderBreakdowns(s) {
+    const out = [];
+    if (s.kit && s.kit.sources) {
+      const src = entries(s.kit.sources).filter((p) => !p[0].startsWith("HubSpot import"));
+      out.push(barBlock("Where subscribers signed up",
+        "Kit source tags, excluding the two HubSpot import buckets.", src, { rotate: true }));
+    }
+    if (s.stripe && s.stripe.price_mix) {
+      out.push(barBlock("How memberships were bought",
+        "Every paying subscription, keyed off the amount on its latest invoice.",
+        entries(s.stripe.price_mix), { rotate: true }));
+    }
+    if (s.stripe && s.stripe.attribution) {
+      out.push(barBlock("Where the membership conversion happened",
+        "Ghost attribution passed into Stripe at checkout. Migration checkouts record nothing.",
+        entries(s.stripe.attribution), { rotate: true }));
+    }
+    if (s.hubspot && s.hubspot.by_last_checkout_year) {
+      out.push(barBlock("Legacy members, by their last recorded checkout",
+        "HubSpot deal rollups. HubSpot records the sale, not the billing, so a stale year is not proof of a lapse.",
+        Object.entries(s.hubspot.by_last_checkout_year).sort(), { color: C2 }));
+    }
+    if (s.stripe && s.stripe.renewals) {
+      out.push(barBlock("Annual renewals falling due",
+        "Most of the base came in on a launch discount, so these re-bill higher.",
+        Object.entries(s.stripe.renewals).sort().slice(0, 14).map(([m, v]) => [m.slice(2), v]), { color: C2 }));
+    }
+    document.querySelector("[data-kpi-breakdowns]").innerHTML =
+      out.filter(Boolean).join("") || '<p class="kpi-empty">No breakdowns in this snapshot.</p>';
+  }
+
+  function renderChannels(s) {
+    const out = [];
+    if (s.kit && s.kit.recent_sends && s.kit.recent_sends.length > 1) {
+      const sends = s.kit.recent_sends;
+      const lines = [
+        { name: "Open rate", vals: sends.map((x) => x.open_rate), color: C1 },
+        { name: "Click rate", vals: sends.map((x) => x.click_rate), color: C2 }
+      ];
+      const W = 560, H = 240, L = 46, R = 54, T = 14, B = 46, pw = W - L - R, ph = H - T - B;
+      const mx = Math.max(...lines.flatMap((l) => l.vals), 10);
+      const X = (i) => L + i * pw / Math.max(sends.length - 1, 1);
+      const Y = (v) => T + ph - (v / mx) * ph;
+      let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Digest performance">`;
+      [0, mx / 2, mx].forEach((t) => {
+        svg += `<line class="kpi-gl" x1="${L}" y1="${Y(t).toFixed(1)}" x2="${L + pw}" y2="${Y(t).toFixed(1)}"/>`
+          + `<text class="kpi-tick" x="${L - 8}" y="${(Y(t) + 4).toFixed(1)}" text-anchor="end">${t.toFixed(0)}%</text>`;
+      });
+      lines.forEach((l) => {
+        svg += `<polyline points="${l.vals.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ")}" fill="none" stroke="${l.color}" stroke-width="2"/>`;
+        l.vals.forEach((v, i) => { svg += `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3.5" fill="${l.color}" stroke="#fff" stroke-width="1.5"/>`; });
+        svg += `<text class="kpi-dlabel" x="${L + pw + 7}" y="${(Y(l.vals[l.vals.length - 1]) + 4).toFixed(1)}">${l.vals[l.vals.length - 1]}%</text>`;
+      });
+      sends.forEach((x, i) => {
+        if (i % Math.ceil(sends.length / 6) !== 0 && i !== sends.length - 1) return;
+        svg += `<text class="kpi-tick" transform="translate(${(X(i) - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${x.date.slice(5)}</text>`;
+      });
+      out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Digest open and click rate</p>
+        <p class="kpi-chart-sub">Every Kit send over 500 recipients in the last few weeks.</p>
+        <ul class="kpi-legend"><li><span class="kpi-key" style="background:${C1}"></span>Open rate</li><li><span class="kpi-key" style="background:${C2}"></span>Click rate</li></ul>
+        ${svg}</svg></div>`);
+      out.push(barBlock("Unsubscribes per send",
+        "Promotional sends cost more list than the weekly digest does.",
+        sends.map((x) => [x.date.slice(5), x.unsubscribes]), { rotate: true, color: C2 }));
+    }
+    if (s.traffic && s.traffic.channels && s.traffic.channels.length) {
+      out.push(barBlock("Where the traffic comes from",
+        "Visitors, last 30 days. A high Direct share is a tagging artefact — digest links carry no UTMs.",
+        s.traffic.channels.map((c) => [c.name, c.visitors]), { rotate: true }));
+    }
+    if (s.traffic && s.traffic.top_pages && s.traffic.top_pages.length) {
+      out.push(barBlock("Most-read pages",
+        "Visitors, last 30 days.",
+        s.traffic.top_pages.slice(0, 8).map((c) => [c.name.replace(/^\//, "").slice(0, 18) || "home", c.visitors]),
+        { rotate: true }));
+    }
+    if (s.podcasts && s.podcasts.per_episode) {
+      const shows = [["mere_fidelity", "Mere Fidelity", C1], ["daily_liturgy", "Daily Liturgy", C2]];
+      shows.forEach(([key, name, color]) => {
+        const rows = s.podcasts.per_episode[key] || [];
+        if (rows.length > 1) {
+          out.push(barBlock(`${name} — reach per episode`,
+            "Average API plays for episodes published each month. A different unit from dashboard downloads.",
+            rows.map((r) => [r.month.slice(2), r.avg]), { color }));
+        }
+      });
+    }
+    document.querySelector("[data-kpi-channels]").innerHTML =
+      out.filter(Boolean).join("") || '<p class="kpi-empty">No channel data in this snapshot.</p>';
+  }
+
   // ---- action item, stamp, render ----------------------------------------
 
   function renderAction(snap) {
@@ -438,8 +653,121 @@
     if (!showing) return;
     els.gran.querySelectorAll(".kpi-gbtn").forEach((b) =>
       b.setAttribute("aria-pressed", String(b.getAttribute("data-g") === gran)));
-    renderTiles(showing);
-    renderCharts();
+    // Each block is independent: one failing must not take the rest of the
+    // page down with it.
+    const safe = (name, fn) => { try { fn(); } catch (err) { console.error(`kpi ${name}`, err); } };
+    safe("tiles", () => renderTiles(showing));
+    safe("charts", () => renderCharts());
+    safe("breakdowns", () => renderBreakdowns(showing));
+    safe("channels", () => renderChannels(showing));
+    safe("narrative", () => renderNarrative(showing));
+  }
+
+  // ---- verification table, flags and analysis ----------------------------
+  //
+  // The audit that produced this dashboard, kept where the numbers are. The
+  // sheet comparison is a point-in-time finding from 3 Aug 2026 and is
+  // labelled as such; the flags read their numbers off the live snapshot so
+  // they age with the data rather than going stale silently.
+
+  const VERIFY = [
+    ["Website subscribers", "19,431", "19,435", "Ghost — free members", "ok", "Accurate"],
+    ["Website members", "1,783", "1,784", "Ghost — 559 paid + 1,225 comped", "ok", "Accurate"],
+    ["&nbsp;&nbsp;↳ paying into Stripe", "—", "619", "Stripe — active subscriptions", "warn", "Not broken out"],
+    ["&nbsp;&nbsp;↳ legacy checkout in 12 months", "—", "370", "HubSpot deals closed in 12 months", "warn", "Not broken out"],
+    ["&nbsp;&nbsp;↳ no checkout in 12 months", "—", "628", "Lapsed or silently renewing — unknowable", "bad", "Not tracked"],
+    ["Membership revenue", "not tracked", "$52,648–$93,615", "Stripe verified; HubSpot half is checkouts only", "warn", "Missing from sheet"],
+    ["Donors", "336", "336", "HubSpot list 6624 — Mere O · All Donors", "ok", "Accurate"],
+    ["Website traffic — June", "109,341", "109,341", "Plausible — pageviews", "ok", "Exact match"],
+    ["Website traffic — July", "100,192", "98,233", "Plausible — calendar month", "ok", "Within 2%"],
+    ["Website traffic — Mar / Apr / May", "93,933 · 47,144 · 84,050", "0 · 485 · 28,115", "Plausible had no data yet", "bad", "Different system"],
+    ["Mere Fidelity (30-day downloads)", "15,763", "15,769", "Buzzsprout dashboard", "ok", "Accurate"],
+    ["Christians Reading Classics (30-day)", "4,751", "4,760", "Buzzsprout dashboard", "ok", "Accurate"],
+    ["Daily Liturgy Podcast (30-day)", "20,820", "20,896", "Buzzsprout dashboard", "ok", "Accurate"],
+    ["Substack traffic / subs / members", "82,626 · 5,834 · 74", "—", "Substack has no API", "na", "Accepted"]
+  ];
+
+  function renderNarrative(s) {
+    const v = document.querySelector("[data-kpi-verify]");
+    if (v) {
+      v.innerHTML = `<div style="overflow-x:auto"><table class="kpi-vtab">
+        <thead><tr><th>Sheet figure (July)</th><th class="num">Sheet</th><th class="num">Platform</th><th>Source of truth</th><th>Verdict</th></tr></thead>
+        <tbody>${VERIFY.map((r) => `<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td>${r[3]}</td><td><span class="kpi-verdict ${r[4]}">${r[5]}</span></td></tr>`).join("")}</tbody>
+      </table></div>
+      <p class="kpi-note">Every row checked against the platform on 3 Aug 2026. The sheet was accurate everywhere it could be
+      checked; what it was missing was revenue and the split between paying and comped members.</p>`;
+    }
+
+    const g = s.ghost, st = s.stripe, hs = s.hubspot, {kit} = s;
+    const flags = [];
+    if (hs && g) {
+      flags.push(["critical", "There is no ledger for legacy membership revenue",
+        `HubSpot records the sale, not the billing — renewals were never written back as deals. So of the legacy base,
+         <b>${fmt(hs.checkout_last_12m)}</b> have a checkout on record in the last twelve months and <b>${fmt(hs.still_flagged_paid)}</b>
+         are still flagged Paid Subscriber, and nobody can say which of the rest are actually being charged. The recurring money
+         runs through the old Stripe/Fulco arrangement, which no key here reaches.`]);
+      flags.push(["critical", "The comps do not expire, and April 2027 is the wall",
+        `<b>${fmt(g.comped)}</b> members hold comps and the migration plan's 31 March 2027 expiry was never set on most of them.
+         <b>${fmt(s.kpi.migration_done)}</b> of <b>${fmt(s.kpi.migration_total)}</b> have moved to Stripe with
+         <b>${fmt(s.kpi.days_to_sunset)}</b> days to go — see the Migration tile.`]);
+    }
+    if (st && st.renewals) {
+      const soon = Object.entries(st.renewals).sort().slice(0, 12).reduce((t, [, n]) => t + n, 0);
+      if (soon > 25) {
+        flags.push(["serious", "A renewal wave is coming",
+          `<b>${fmt(soon)}</b> annual subscriptions renew over the next year, and most of the base came in on a launch or
+           migration discount — those re-bill at full price. Decide whether to hold them with a renewal coupon or signal the
+           step-up, and write the email either way.`]);
+      }
+    }
+    if (kit && kit.digest) {
+      flags.push(["warning", "Promotional sends cost more list than the digest does",
+        `The weekly digest averages <b>${pctv(kit.digest.open_free)}</b> open on the free list and
+         <b>${pctv(kit.digest.open_paid)}</b> on the paid list, with about <b>${fmt(kit.digest.unsubscribes)}</b> unsubscribes a send.
+         One-off promos run below that on opens and above it on unsubscribes — space them out and segment them.`]);
+    }
+    if (s.traffic && s.traffic.channels) {
+      const direct = (s.traffic.channels.find((c) => /direct/i.test(c.name)) || {}).visitors || 0;
+      const total = s.traffic.channels.reduce((t, c) => t + c.visitors, 0) || 1;
+      if (direct / total > 0.5) {
+        flags.push(["warning", "Most traffic is landing in Direct because the links carry no UTMs",
+          `<b>${Math.round((direct / total) * 100)}%</b> of visitors are attributed to Direct while Kit mails roughly
+           <b>${fmt(kit && kit.digest ? kit.digest.recipients : 0)}</b> people a week. Those clicks are real and currently invisible.
+           One UTM convention in the Email Builder makes the best owned channel measurable.`]);
+      }
+    }
+    const f = document.querySelector("[data-kpi-flags]");
+    if (f) {
+      f.innerHTML = flags.length
+        ? flags.map(([sev, title, body]) => `<div class="kpi-flag"><p class="kpi-sev ${sev}">${sev}</p><h4>${title}</h4><p>${body}</p></div>`).join("")
+        : '<p class="kpi-empty">Nothing flagged in this snapshot.</p>';
+    }
+
+    const a = document.querySelector("[data-kpi-analysis]");
+    if (a) {
+      a.innerHTML = `
+        <p><b>The sheet is accurate; the member row is doing three jobs at once.</b> "Members" fuses people paying Stripe today,
+        legacy members who paid HubSpot within the year, and members carried on comps with no payment on record. Those three move
+        for different reasons and need different responses, which is why the tiles split them.</p>
+        <p><b>Churn is not the problem — acquisition is.</b> Cohorts have held above 99% since the launch and the membership page
+        converts about 44% of the people who click upgrade. The constraint is how few reach it.</p>
+        <p><b>Dated offers are the one repeatable lever.</b> The Summer Journal deadline produced the second-biggest week of the
+        year and its "last call" send produced the best non-launch day. Months without a dated offer revert to roughly two paid
+        signups a day.</p>
+        <p><b>The launch is over; plan against the new baseline.</b> 0.84 paid signups a day before 26 May, 14 a day during the
+        launch window, about 2 a day since. Two a day is roughly 750 members and $64,000 a year — that is the number to budget
+        against until something changes it.</p>
+        <ol class="kpi-actions">
+          <li><b>Set the comp expiry the migration plan already specified</b>, well ahead of the date, paired with the migration sequence.</li>
+          <li><b>Split the legacy base in two.</b> Members with a recent checkout are a renewal ask; the rest are a win-back. Treating them as one list overstates the target.</li>
+          <li><b>Decide the 2027 renewal price before the renewals arrive</b> — hold them with a coupon or signal the step-up, but decide.</li>
+          <li><b>Put a dated offer in the calendar every six weeks.</b></li>
+          <li><b>Tag the digest links with UTMs</b> so the biggest owned channel stops reading as Direct.</li>
+          <li><b>Fix acquisition, not retention.</b> Get more of the list in front of the membership page.</li>
+        </ol>
+        <p class="kpi-note">Written 3 Aug 2026 from the full platform audit. The numbers in the flags above update nightly; this
+        commentary does not.</p>`;
+    }
   }
 
   function show(snap) {
