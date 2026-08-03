@@ -24363,6 +24363,10 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-sources.is-warn { color: var(--color-primary-text); }
 
 /* The daily action item — the one thing to do, directly under the KPIs. */
+/* [hidden] is display:none at UA-stylesheet strength, so any display
+   rule here beats it. Say it explicitly or the empty action band shows
+   before the first snapshot exists. */
+.kpi-action[hidden] { display: none; }
 .kpi-action {
   display: flex; gap: 18px; align-items: flex-start;
   background: var(--color-card-featured-bg);

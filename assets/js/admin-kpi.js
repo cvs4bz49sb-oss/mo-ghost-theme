@@ -295,9 +295,25 @@
     const btn = e.currentTarget;
     btn.disabled = true;
     btn.textContent = "Refreshing…";
+    const before = showing && showing.captured_at;
     try {
       await api("/kpi/refresh", { method: "POST" });
-      await load();
+      // The worker collects across six APIs in the background — roughly
+      // two minutes — and answers 202 straight away. Poll until the
+      // snapshot's timestamp changes rather than leaving the button stuck.
+      for (let i = 0; i < 40; i++) {
+        await new Promise((r) => setTimeout(r, 5000));
+        btn.textContent = `Collecting… ${(i + 1) * 5}s`;
+        try {
+          const snap = await api("/kpi/latest");
+          if (snap && snap.captured_at !== before) {
+            series = (await api("/kpi/series").catch(() => ({ series: [] }))).series || [];
+            show(snap);
+            return;
+          }
+        } catch (_) { /* no snapshot yet — keep waiting */ }
+      }
+      fail("Still collecting. Reload in a minute — the snapshot finishes in the background.");
     } catch (err) {
       fail(`Refresh failed: ${err.message}`);
     } finally {
