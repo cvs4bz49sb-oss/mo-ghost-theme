@@ -24504,6 +24504,41 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-table th:last-child, .kpi-table td:last-child { width: 100%; }
 .kpi-table tbody tr:last-child th, .kpi-table tbody tr:last-child td { border-bottom: none; }
 
+/* Revenue summary: the total is not the same kind of thing as its parts,
+   so it leads at a larger size with the components ranged beside it rather
+   than sitting in an undifferentiated row of six equal cells. */
+.kpi-rev { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 28px 44px; }
+.kpi-rev-lead { display: flex; flex-direction: column; gap: 3px; min-width: 210px; }
+.kpi-rev-total { font-size: 34px; line-height: 1.05; letter-spacing: -0.02em;
+  color: var(--k-text); font-variant-numeric: tabular-nums; }
+.kpi-rev-label { font-size: 13px; color: var(--k-text); font-weight: 600; }
+.kpi-rev-cap { font-size: 11.5px; color: var(--k-muted); max-width: 24ch; line-height: 1.45; }
+.kpi-rev-parts { display: flex; flex-wrap: wrap; gap: 28px 40px; padding-top: 3px; }
+.kpi-rev-part { display: flex; flex-direction: column; gap: 3px; min-width: 150px; }
+.kpi-rev-pv { font-size: 21px; line-height: 1.15; color: var(--k-text);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.kpi-rev-pl { font-size: 12.5px; color: var(--k-secondary); }
+.kpi-rev-pl b { color: var(--k-text); }
+.kpi-rev-pn { font-size: 11.5px; color: var(--k-muted); }
+.kpi-rev-bar { display: block; height: 4px; border-radius: 2px; background: var(--k-line);
+  overflow: hidden; margin-top: 4px; }
+.kpi-rev-bar i { display: block; height: 100%; background: var(--k-accent); border-radius: 2px; }
+.kpi-rev-inside { font-size: 12.5px; color: var(--k-secondary); margin: 20px 0 0;
+  padding-top: 14px; border-top: 1px solid var(--k-line); }
+.kpi-rev-inside b { color: var(--k-text); font-variant-numeric: tabular-nums; }
+.kpi-rev-inside + .kpi-note { margin-top: 8px; }
+@media (max-width: 620px) {
+  .kpi-rev { gap: 22px; }
+  .kpi-rev-total { font-size: 28px; }
+}
+
+/* Comparison table living inside a chart card. */
+.kpi-table-cmp { margin-top: 12px; font-size: 13px; }
+.kpi-table-cmp th, .kpi-table-cmp td { padding: 7px 14px 7px 0; }
+.kpi-table-cmp tr.is-total td { border-top: 1px solid var(--k-line); border-bottom: none;
+  color: var(--k-text); font-weight: 600; padding-top: 9px; }
+.kpi-table-cmp tbody tr:last-child td { border-bottom: none; }
+
 /* Inline marker for a recurring gift's cadence. */
 .kpi-pill { display: inline-block; font-size: 11px; line-height: 1.5; padding: 1px 7px;
   border: 1px solid var(--k-line); border-radius: 999px; color: var(--k-text); }

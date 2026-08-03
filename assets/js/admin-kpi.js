@@ -70,6 +70,29 @@
   const esc = (s) => String(s == null ? "" : s)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   const pctv = (n) => (typeof n === "number" ? `${n.toFixed(1)}%` : "—");
+  // A conversion rate is only meaningful with a denominator; without one
+  // say so rather than printing a flattering 0%.
+  const rate = (n, d) => (d ? `${(Math.round((n / d) * 1000) / 10).toFixed(1)}%` : "—");
+
+  // Reader-to-subscriber has to be computed over the days that actually
+  // have traffic data. Plausible only starts in Apr 2026 while signups run
+  // back to 2023, so summing both over "Total" divides three years of
+  // signups by four months of visitors and reports ~20% instead of ~4%.
+  function convo(rows) {
+    const withVis = rows.filter((r) => typeof r.vis === "number" && r.vis > 0);
+    const vis = withVis.reduce((t, r) => t + r.vis, 0);
+    const nsub = withVis.reduce((t, r) => t + (r.nsub || 0), 0);
+    const nsubAll = sumOf(rows, "nsub");
+    const nmem = sumOf(rows, "nmem");
+    return {
+      vis, nsub, nsubAll, nmem,
+      r2s: rate(nsub, vis),
+      s2m: rate(nmem, nsubAll),
+      clipped: withVis.length > 0 && withVis.length < rows.length,
+      from: withVis.length ? withVis[0].d : null,
+      label: `${rate(nsub, vis)} \u00b7 ${rate(nmem, nsubAll)}`
+    };
+  }
   const compact = (n) => {
     const a = Math.abs(n);
     return a >= 1000 ? `${(n / 1000).toFixed(a >= 10000 ? 0 : 1).replace(/\.0$/, "")}K` : String(Math.round(n));
@@ -292,10 +315,41 @@
         `<b>${perDay(rows, "cxl")}</b> a day across ${rows.length} days`
       ],
       bullets: (s) => (s.stripe ? [
-        `<b>${fmt(s.stripe.cancels_30d)}</b> in 30 days · <b>${fmt(s.stripe.cancels_12m)}</b> in twelve months`,
-        s.stripe.churn_30d != null ? `<b>${s.stripe.churn_30d}%</b> monthly churn against ${fmt(s.stripe.paying)} paying` : "",
-        `<b>${usd(s.stripe.cancels_mrr_30d)}</b> of MRR lost in 30 days`
+        `<b>${fmt(s.stripe.cancels_paid_30d)}</b> paying in 30 days · <b>${fmt(s.stripe.cancels_paid_12m)}</b> in twelve months`,
+        s.stripe.churn_paid_30d != null
+          ? `<b>${s.stripe.churn_paid_30d}%</b> monthly churn against ${fmt(s.stripe.paying)} paying`
+          : "",
+        `<b>${usd(s.stripe.cancels_mrr_30d)}</b> of MRR lost · <b>${fmt(s.stripe.cancels_30d)}</b> total including comped`
       ] : [])
+    },
+    {
+      // Two funnel steps in one tile. Reader-to-subscriber is signups over
+      // unique visitors; subscriber-to-member is memberships started over
+      // signups in the same window. Both are flows within the period, not
+      // stocks, so a window with no traffic data reads as an em dash rather
+      // than a flattering number built on a stale denominator.
+      label: "Conversion", key: "nsub", agg: "sum", f: fmt, goodUp: true,
+      cap: "reader \u2192 subscriber \u00b7 subscriber \u2192 member",
+      value: () => convo(series).label,
+      bullets(s) {
+        const c = convo(series);
+        return [
+          `<b>${c.r2s}</b> of ${fmt(c.vis)} visitors subscribed${c.clipped ? ` (from ${mdy(c.from)}, when traffic data starts)` : ""}`,
+          `<b>${c.s2m}</b> of ${fmt(c.nsubAll)} subscribers became members`,
+          s.ghost && s.stripe
+            ? `<b>${rate(s.stripe.paying + s.ghost.comped, s.ghost.total)}</b> of the whole list holds a membership today`
+            : ""
+        ];
+      },
+      periodValue: (rows) => convo(rows).label,
+      periodBullets(rows) {
+        const c = convo(rows);
+        return [
+          `<b>${c.r2s}</b> reader to subscriber \u2014 ${fmt(c.nsub)} of ${fmt(c.vis)} visitors`,
+          `<b>${c.s2m}</b> subscriber to member \u2014 ${fmt(c.nmem)} of ${fmt(c.nsubAll)} signups`,
+          c.vis ? "" : "no visitor data in this period, so the first rate cannot be computed"
+        ];
+      }
     },
     {
       label: "Total members", key: "mem", agg: "last", f: fmt, goodUp: true, cap: "entitled records",
@@ -407,7 +461,7 @@
       value: (s) => (s.kit && s.kit.digest
         ? `${pctv(s.kit.digest.open_free)} · ${pctv(s.kit.digest.click_free)}`
         : "—"),
-      cap: (s) => (s.kit && s.kit.digest ? `avg of ${s.kit.digest.count} digests` : "no digests found"),
+      cap: (s) => (s.kit && s.kit.digest ? `weekly digest only, avg of ${s.kit.digest.count}` : "no digests found"),
       bullets: (s) => (s.kit && s.kit.digest ? [
         `<b>${pctv(s.kit.digest.open_paid)} · ${pctv(s.kit.digest.click_paid)}</b> on the paid list`,
         `<b>${fmt(s.kit.digest.recipients)}</b> recipients on the latest · ${(s.kit.digest.span || "").split(" – ").map((d) => mdy(d)).join(" – ")}`,
@@ -415,11 +469,14 @@
       ] : ["No weekly digest found in the recent sends"]),
       periodValue(rows) { return `${pctv(avgOf(rows, "op"))} · ${pctv(avgOf(rows, "cl"))}`; },
       periodBullets(rows) {
-        const sends = rows.filter((r) => typeof r.op === "number");
+        // `op`/`cl` are the rolling average of the last six digests as it
+        // stood on each night, not one row per send. Calling these "sends"
+        // was wrong — 19 of them meant 19 snapshots, not 19 digests.
+        const days = rows.filter((r) => typeof r.op === "number").length;
         return [
-          `<b>${sends.length}</b> ${sends.length === 1 ? "send" : "sends"} in the period`,
-          `<b>${pctv(avgOf(rows, "op"))}</b> average open`,
-          `<b>${pctv(avgOf(rows, "cl"))}</b> average click`
+          `<b>${pctv(avgOf(rows, "op"))}</b> average open, digest only`,
+          `<b>${pctv(avgOf(rows, "cl"))}</b> average click, digest only`,
+          `rolling six-digest average, sampled on <b>${fmt(days)}</b> ${days === 1 ? "day" : "days"} in the period`
         ];
       }
     }
@@ -823,6 +880,26 @@
       <p class="kpi-chart-sub">${sub}</p>${svg}</svg></div>`;
   }
 
+  // A comparison of two or three categories is a table, not a chart. Bars
+  // need a range to be worth drawing; "annual vs monthly" is two numbers
+  // and a lot of empty card. Same card chrome, so the grid stays uniform.
+  function tableBlock(title, sub, headers, rows, opts) {
+    if (!rows.length) return "";
+    const o = opts || {};
+    const num = headers.map((h) => (typeof h === "object" ? !!h.num : false));
+    const label = (h) => (typeof h === "object" ? h.label : h);
+    return `<div class="kpi-chart">
+      <p class="kpi-chart-title">${title}</p>
+      <p class="kpi-chart-sub">${sub}</p>
+      <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
+        <thead><tr>${headers.map((h, i) => `<th${num[i] ? ' class="is-num"' : ""}>${label(h)}</th>`).join("")}</tr></thead>
+        <tbody>${rows.map((r) => `<tr${r.total ? ' class="is-total"' : ""}>${r.cells.map((c, i) =>
+    `<td${num[i] ? ' class="is-num"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table></div>
+      ${o.foot ? `<p class="kpi-note">${o.foot}</p>` : ""}
+    </div>`;
+  }
+
   const entries = (obj, n) => Object.entries(obj || {}).sort((a, b) => b[1] - a[1]).slice(0, n || 12);
 
   function paintSections() {
@@ -997,29 +1074,52 @@
     const host = document.querySelector("[data-kpi-revenue-summary]");
     if (!host) return;
     const k = s.kpi || {};
-    const total = k.total_revenue != null ? k.total_revenue : lastOf(series, "trev");
-    if (total == null) { host.innerHTML = '<p class="kpi-empty">No revenue in this snapshot.</p>'; return; }
     const year = String(s.date || "").slice(0, 4);
-    const membership = k.membership_revenue || 0;
-    const donations = k.donations_ytd || 0;
-    const stripeArr = s.stripe ? Math.round(s.stripe.arr) : null;
-    const legacy = s.hubspot && s.hubspot.membership_deals ? s.hubspot.membership_deals.last_12m : null;
-    const substack = s.substack ? s.substack.revenue : null;
+    const membership = k.membership_revenue != null ? k.membership_revenue : lastOf(series, "rev");
+    const donations = k.donations_ytd != null ? k.donations_ytd : null;
+    // Derived from the parts on screen rather than read off the snapshot,
+    // so the total can never disagree with its own breakdown. A snapshot
+    // assembled from two different runs once showed shares summing to 106%.
+    const total = (membership != null || donations != null)
+      ? (membership || 0) + (donations || 0)
+      : k.total_revenue;
+    if (total == null) { host.innerHTML = '<p class="kpi-empty">No revenue in this snapshot.</p>'; return; }
     const pct = (n) => (total ? Math.round((n / total) * 100) : 0);
-    const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
+
+    const parts = [
+      membership != null ? { label: "Membership", note: "annualised run-rate", v: membership } : null,
+      donations != null ? { label: "Donations", note: `received in ${year}`, v: donations } : null
+    ].filter(Boolean);
+
+    const inside = [
+      s.stripe ? ["Stripe", Math.round(s.stripe.arr)] : null,
+      s.hubspot && s.hubspot.membership_deals ? ["Legacy HubSpot", s.hubspot.membership_deals.last_12m] : null,
+      s.substack ? ["Substack", s.substack.revenue] : null
+    ].filter(Boolean);
+
     host.innerHTML = `
-      <div class="kpi-stats">
-        ${stat(usd(total), `total revenue · membership run-rate + ${year} donations`)}
-        ${stat(usd(membership), `membership, annualised · ${pct(membership)}%`)}
-        ${stat(usd(donations), `donations received in ${year} · ${pct(donations)}%`)}
-        ${stripeArr != null ? stat(usd(stripeArr), "of which Stripe, verified") : ""}
-        ${legacy != null ? stat(usd(legacy), "of which legacy HubSpot, 12mo") : ""}
-        ${substack != null ? stat(usd(substack), "of which Substack") : ""}
+      <div class="kpi-rev">
+        <div class="kpi-rev-lead">
+          <span class="kpi-rev-total">${usd(total)}</span>
+          <span class="kpi-rev-label">Total revenue</span>
+          <span class="kpi-rev-cap">Membership run-rate plus donations received in ${year}</span>
+        </div>
+        <div class="kpi-rev-parts">
+          ${parts.map((p) => `
+            <div class="kpi-rev-part">
+              <span class="kpi-rev-pv">${usd(p.v)}</span>
+              <span class="kpi-rev-pl">${p.label} <b>${pct(p.v)}%</b></span>
+              <span class="kpi-rev-pn">${p.note}</span>
+              <span class="kpi-rev-bar"><i style="width:${Math.max(2, pct(p.v))}%"></i></span>
+            </div>`).join("")}
+        </div>
       </div>
+      ${inside.length ? `<p class="kpi-rev-inside">Membership breaks down as
+        ${inside.map(([l, v]) => `<b>${usd(v)}</b> ${l}`).join(" · ")}.</p>` : ""}
       <p class="kpi-note">
-        Membership is an annualised run-rate — what the current book bills over twelve months. Donations are
-        cash actually received since 1 January. They are different kinds of number and the total is their sum,
-        so read it as "what this year looks like", not as audited revenue.
+        Membership is an annualised run-rate, what the current book bills over twelve months.
+        Donations are cash actually received since 1 January. Two different kinds of number, summed
+        here to answer "what does this year look like" — not audited revenue.
       </p>`;
   }
 
@@ -1112,48 +1212,80 @@
       out.push(barBlock("Where subscribers signed up",
         "Kit source tags, excluding the two HubSpot import buckets.", src, { rotate: true }));
     }
-    // Membership term across both platforms. Stripe knows its intervals for
-    // certain; HubSpot has no term property at all, so it is read off the
-    // deal name, and the 381 deals whose name states no term are shown as
-    // Unstated rather than being folded into either side.
-    if ((s.stripe && s.stripe.by_term) || (s.hubspot && s.hubspot.membership_deals && s.hubspot.membership_deals.by_term)) {
-      const pairs = [];
+    // Membership term. Two tables rather than one, because Stripe reports a
+    // live run-rate and HubSpot reports historic checkouts — putting both
+    // under a column headed "annualised" would give one column two meanings.
+    {
       const st = s.stripe && s.stripe.by_term;
-      if (st) {
-        pairs.push(["Stripe annual", st.Annual ? st.Annual.count : 0]);
-        pairs.push(["Stripe monthly", st.Monthly ? st.Monthly.count : 0]);
-      }
       const ht = s.hubspot && s.hubspot.membership_deals && s.hubspot.membership_deals.by_term;
-      if (ht) {
-        ["Annual", "Monthly", "Lifetime", "Unstated"].forEach((k) => {
-          if (ht[k]) pairs.push([`Legacy ${k.toLowerCase()}`, ht[k].count]);
-        });
-      }
-      out.push(barBlock("Membership term — monthly vs annual",
-        "Stripe subscriptions by billing interval, and legacy HubSpot checkouts by the term named on the deal. "
-        + "HubSpot stores no term field, so deals whose name never said one are counted as unstated rather than guessed at.",
-        pairs, { rotate: true }));
-
       if (st && (st.Annual || st.Monthly)) {
-        const a = st.Annual || { count: 0, mrr: 0 }, m = st.Monthly || { count: 0, mrr: 0 };
-        rev.push(barBlock("Monthly revenue by term, Stripe",
-          "What each term contributes per month. An annual member counts as one twelfth of their charge, "
-          + "so this compares like with like.",
-          [["Annual", Math.round(a.mrr)], ["Monthly", Math.round(m.mrr)]], { money: true }));
+        const rows = [];
+        ["Annual", "Monthly"].forEach((k) => {
+          const t = st[k];
+          if (!t || !t.count) return;
+          rows.push({ cells: [k, fmt(t.count), usd(t.mrr), usd(t.mrr * 12), usd(t.count ? t.mrr / t.count : 0)] });
+        });
+        const n = (st.Annual ? st.Annual.count : 0) + (st.Monthly ? st.Monthly.count : 0);
+        const m = (st.Annual ? st.Annual.mrr : 0) + (st.Monthly ? st.Monthly.mrr : 0);
+        rows.push({ total: true, cells: ["All paying", fmt(n), usd(m), usd(m * 12), usd(n ? m / n : 0)] });
+        rev.push(tableBlock("Membership by term — Stripe",
+          "Live subscriptions by billing interval, billed at the amounts actually charged.",
+          ["Term", { label: "Members", num: true }, { label: "Per month", num: true },
+            { label: "Annualised", num: true }, { label: "Per member / mo", num: true }],
+          rows,
+          { foot: "An annual member counts as one twelfth of their charge per month, so the two terms compare "
+            + "like with like. Most of the base came in on a launch or migration coupon, which is why the "
+            + "per-member figures sit below list price." }));
+      }
+      if (ht) {
+        const rows = [];
+        ["Annual", "Monthly", "Lifetime", "Unstated"].forEach((k) => {
+          const t = ht[k];
+          if (!t) return;
+          const people = t.contacts != null ? t.contacts : null;
+          rows.push({ cells: [
+            k,
+            people != null ? fmt(people) : "—",
+            fmt(t.count),
+            usd(t.value),
+            people ? usd(t.value / people) : "—"
+          ] });
+        });
+        if (rows.length) {
+          rev.push(tableBlock("Legacy membership by term — HubSpot",
+            "Historic checkouts, not a run-rate. HubSpot never wrote renewals back, so these are what was "
+            + "bought rather than what is currently billing.",
+            ["Term", { label: "People", num: true }, { label: "Checkouts", num: true },
+              { label: "Value, all time", num: true }, { label: "Per person", num: true }],
+            rows,
+            { foot: "People are distinct contacts; checkouts are transactions, and the gap between the columns "
+              + "is renewals, each written as its own deal. HubSpot stores no term field, so the term is read "
+              + "off the deal name \u2014 \u201cunstated\u201d means the name never said one, and the amount "
+              + "cannot stand in for it because $60 appears as both monthly and annual." }));
+        }
       }
     }
     if (s.stripe && s.stripe.cancels_by_month && s.stripe.cancels_by_month.length) {
-      const rows = s.stripe.cancels_by_month.slice(-18);
-      out.push(barBlock("Membership cancellations",
-        "Paid subscriptions only. The May and June 2026 spikes were the migration cancelling zero-priced and "
-        + "comped subscriptions as members moved onto new ones — those are excluded here, which is why the "
-        + "bars are far shorter than the raw cancellation count.",
-        rows.map((r) => [`${MON[Number(r.month.slice(5)) - 1]} ${r.month.slice(2, 4)}`, r.paid || 0]),
-        { rotate: true, color: C2 }));
-      rev.push(barBlock("Monthly revenue lost to cancellations",
-        "MRR leaving with each month's cancellations.",
-        rows.map((r) => [`${MON[Number(r.month.slice(5)) - 1]} ${r.month.slice(2, 4)}`, r.mrr || 0]),
-        { rotate: true, money: true, color: C2 }));
+      const st = s.stripe;
+      const rows = st.cancels_by_month.slice(-12).reverse().map((r) => ({
+        cells: [
+          `${MON[Number(r.month.slice(5)) - 1]} ${r.month.slice(0, 4)}`,
+          fmt(r.paid || 0),
+          fmt(r.count),
+          usd(r.mrr || 0)
+        ]
+      }));
+      rows.push({ total: true, cells: ["All time", fmt(st.cancels_paid_total), fmt(st.cancels_total), usd(st.cancels_mrr_12m)] });
+      out.push(tableBlock("Membership cancellations",
+        `<b>${fmt(st.cancels_paid_30d)}</b> paying members cancelled in the last 30 days — `
+        + `<b>${st.churn_paid_30d}%</b> monthly churn against ${fmt(st.paying)} paying, `
+        + `costing <b>${usd(st.cancels_mrr_30d)}</b> of monthly revenue.`,
+        ["Month", { label: "Paying", num: true }, { label: "All", num: true }, { label: "MRR lost", num: true }],
+        rows,
+        { foot: "\u201cPaying\u201d counts only subscriptions that were ever charged; \u201call\u201d includes comped and "
+          + "zero-priced ones. The May and June 2026 gap between the two columns is the migration cancelling old "
+          + "subscriptions as members moved onto new ones — reading the \u201call\u201d column as churn would put it "
+          + "above 5% when the real rate is under 1%." }));
     }
     if (s.stripe && s.stripe.price_mix) {
       out.push(barBlock("How memberships were bought",
@@ -1247,17 +1379,19 @@
   function renderChannels(s) {
     const email = [];
     const pods = [];
-    if (s.kit && s.kit.recent_sends && s.kit.recent_sends.length > 1) {
-      const sends = s.kit.recent_sends;
+    // One builder, used for both the all-sends line and the digest-only
+    // line. They were the same chart with the wrong title before: it was
+    // labelled "Digest" while plotting every Kit send over 500 recipients.
+    const rateChart = (title, sub, points) => {
       const lines = [
-        { name: "Open rate", vals: sends.map((x) => x.open_rate), color: C1 },
-        { name: "Click rate", vals: sends.map((x) => x.click_rate), color: C2 }
+        { name: "Open rate", vals: points.map((x) => x.open), color: C1 },
+        { name: "Click rate", vals: points.map((x) => x.click), color: C2 }
       ];
       const W = 560, H = 250, L = 46, R = 54, T = 20, B = 52, pw = W - L - R, ph = H - T - B;
       const mx = Math.max(...lines.flatMap((l) => l.vals), 10) * 1.1;
-      const X = (i) => L + i * pw / Math.max(sends.length - 1, 1);
+      const X = (i) => L + i * pw / Math.max(points.length - 1, 1);
       const Y = (v) => T + ph - (v / mx) * ph;
-      let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Digest performance">`;
+      let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">`;
       [0, mx / 2, mx].forEach((t) => {
         svg += `<line class="kpi-gl" x1="${L}" y1="${Y(t).toFixed(1)}" x2="${L + pw}" y2="${Y(t).toFixed(1)}"/>`
           + `<text class="kpi-tick" x="${L - 8}" y="${(Y(t) + 4).toFixed(1)}" text-anchor="end">${t.toFixed(0)}%</text>`;
@@ -1267,15 +1401,35 @@
         l.vals.forEach((v, i) => { svg += `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="3.5" fill="${l.color}" stroke="#fff" stroke-width="1.5"/>`; });
         svg += `<text class="kpi-dlabel" x="${L + pw + 7}" y="${(Y(l.vals[l.vals.length - 1]) + 4).toFixed(1)}">${l.vals[l.vals.length - 1]}%</text>`;
       });
-      const step = Math.ceil(sends.length / 6);
-      sends.forEach((x, i) => {
-        if (i % step !== 0 && i !== sends.length - 1) return;
+      const step = Math.ceil(points.length / 6);
+      points.forEach((x, i) => {
+        if (i % step !== 0 && i !== points.length - 1) return;
         svg += `<text class="kpi-tick" transform="translate(${(X(i) - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${mdy(x.date)}</text>`;
       });
-      email.push(`<div class="kpi-chart"><p class="kpi-chart-title">Digest open and click rate</p>
-        <p class="kpi-chart-sub">Every Kit send over 500 recipients in the last few weeks.</p>
+      return `<div class="kpi-chart"><p class="kpi-chart-title">${title}</p>
+        <p class="kpi-chart-sub">${sub}</p>
         <ul class="kpi-legend"><li><span class="kpi-key" style="background:${C1}"></span>Open rate</li><li><span class="kpi-key" style="background:${C2}"></span>Click rate</li></ul>
-        ${svg}</svg></div>`);
+        ${svg}</svg></div>`;
+    };
+
+    // Digest only. A digest is identified by shape, not subject line: the
+    // same subject goes to the free and paid lists on the same day, and
+    // promotional blasts go to a single segment. Rates here are the free
+    // list, which is what the KPI tile reports.
+    if (s.kit && s.kit.digest && s.kit.digest.sends && s.kit.digest.sends.length > 1) {
+      email.push(rateChart("Digest open and click rate",
+        `The weekly digest only, last ${s.kit.digest.sends.length} editions, free list. `
+        + "Identified by the free/paid pair going out on the same day under the same subject, "
+        + "so one-off promotional sends are excluded.",
+        s.kit.digest.sends.map((x) => ({ date: x.date, open: x.free.open_rate, click: x.free.click_rate }))));
+    }
+
+    if (s.kit && s.kit.recent_sends && s.kit.recent_sends.length > 1) {
+      const sends = s.kit.recent_sends;
+      email.push(rateChart("Open and click rate — all sends",
+        "Every Kit send over 500 recipients, digest and promotional alike. "
+        + "The dips are usually promotional blasts, which open lower than the digest.",
+        sends.map((x) => ({ date: x.date, open: x.open_rate, click: x.click_rate }))));
       email.push(barBlock("Unsubscribes per send",
         "Promotional sends cost more list than the weekly digest does.",
         sends.map((x) => [mdy(x.date), x.unsubscribes]), { rotate: true, color: C2 }));
@@ -1377,9 +1531,18 @@
       if (ghostMembers != null) merged.total_members = ghostMembers + row.paid;
       if (ghostFree != null) merged.total_subscribers = ghostFree + row.total;
       if (snap.stripe) {
-        merged.membership_revenue = Math.round(
-          snap.stripe.arr + (snap.hubspot ? snap.hubspot.checkout_value_12m : 0) + row.revenue
-        );
+        // Membership pipeline only. checkout_value_12m predates the pipeline
+        // split and folds donations and journal orders back into membership
+        // revenue — recomputing from it here silently undid that fix.
+        const legacy = snap.hubspot
+          ? (snap.hubspot.membership_deals ? snap.hubspot.membership_deals.last_12m : snap.hubspot.checkout_value_12m)
+          : 0;
+        merged.membership_revenue = Math.round(snap.stripe.arr + legacy + row.revenue);
+        // Keep the total in step, or the Revenue box and its parts drift
+        // apart the moment a Substack reading is entered.
+        if (base.donations_ytd != null) {
+          merged.total_revenue = merged.membership_revenue + base.donations_ytd;
+        }
       }
     }
     return { ...snap, baseKpi: base, kpi: merged, substack: row };
@@ -1395,11 +1558,11 @@
     const tbl = $("[data-ss-table]");
     if (tbl) {
       tbl.innerHTML = substack.length ? `<table>
-        <thead><tr><th>Date</th><th>Gross annualised</th><th>Paid</th><th>Total subscribers</th></tr></thead>
+        <thead><tr><th>Date</th><th>Gross annualised</th><th>Paid</th><th>Total subscribers</th><th>Views (30d)</th></tr></thead>
         <tbody>${substack.map((r, i) => `<tr class="${i === substackSel ? "is-sel" : ""}" data-ss-row="${i}">
-          <td>${mdy(r.date, true)}</td><td>${usd(r.revenue)}</td><td>${fmt(r.paid)}</td><td>${fmt(r.total)}</td>
+          <td>${mdy(r.date, true)}</td><td>${usd(r.revenue)}</td><td>${fmt(r.paid)}</td><td>${fmt(r.total)}</td><td>${r.views ? fmt(r.views) : "—"}</td>
         </tr>`).join("")}</tbody></table>`
-        : '<p class="kpi-empty">Nothing entered yet. Read the three numbers off Substack\u2019s Overview page and add them.</p>';
+        : '<p class="kpi-empty">Nothing entered yet. Read the numbers off Substack\u2019s Overview page and add them.</p>';
     }
     const el = $("[data-kpi-substack]");
     if (!el) return;
@@ -1430,9 +1593,12 @@
       const revenue = ssNum($("[data-ss-revenue]").value);
       const paid = ssNum($("[data-ss-paid]").value);
       const total = ssNum($("[data-ss-total]").value);
+      const views = ssNum($("[data-ss-views]").value);
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { ssMsg("Pick a date first.", "bad"); return; }
-      if (revenue == null && paid == null && total == null) { ssMsg("Enter at least one number.", "bad"); return; }
-      const row = { date, revenue: revenue || 0, paid: paid || 0, total: total || 0 };
+      if (revenue == null && paid == null && total == null && views == null) {
+        ssMsg("Enter at least one number.", "bad"); return;
+      }
+      const row = { date, revenue: revenue || 0, paid: paid || 0, total: total || 0, views: views || 0 };
       const at = substack.findIndex((r) => r.date === date);
       if (at >= 0) substack[at] = row; else substack.push(row);
       substack.sort((a, b) => (a.date < b.date ? -1 : 1));
@@ -1489,6 +1655,7 @@
           $("[data-ss-revenue]").value = row.revenue;
           $("[data-ss-paid]").value = row.paid;
           $("[data-ss-total]").value = row.total;
+          $("[data-ss-views]").value = row.views || "";
         }
         renderSubstack();
       });
