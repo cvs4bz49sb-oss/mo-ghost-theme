@@ -24483,6 +24483,12 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-actions li:last-child { margin-bottom: 0; }
 .kpi-actions b { color: var(--k-text); }
 
+.kpi-statlist { list-style: none; margin: 0; padding: 0; }
+.kpi-statlist li { display: flex; justify-content: space-between; align-items: baseline;
+  padding: 9px 0; border-bottom: 1px solid var(--k-line); font-size: 13.5px; color: var(--k-secondary); }
+.kpi-statlist li:last-child { border-bottom: none; }
+.kpi-statlist li b { color: var(--k-text); font-size: 15px; font-variant-numeric: tabular-nums; }
+
 /* hover tooltip */
 .kpi-tip {
   position: fixed; pointer-events: none; opacity: 0; transition: opacity .1s;

@@ -636,6 +636,55 @@
       out.filter(Boolean).join("") || '<p class="kpi-empty">No breakdowns in this snapshot.</p>';
   }
 
+  // Everything the standalone Traffic board carried, in the new format.
+  function renderTraffic(s) {
+    const t = s.traffic;
+    const el = document.querySelector("[data-kpi-traffic]");
+    if (!el) return;
+    if (!t) { el.innerHTML = '<p class="kpi-empty">No traffic in this snapshot.</p>'; return; }
+    const out = [];
+    const dur = t.visit_duration_seconds;
+    out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Last 30 days</p>
+      <p class="kpi-chart-sub">Plausible, whole site.</p>
+      <ul class="kpi-statlist">
+        <li><span>Visitors</span><b>${fmt(t.visitors_30d)}</b></li>
+        <li><span>Pageviews</span><b>${fmt(t.pageviews_30d)}</b></li>
+        <li><span>Pages per visit</span><b>${t.visitors_30d ? (t.pageviews_30d / t.visitors_30d).toFixed(2) : "—"}</b></li>
+        <li><span>Avg. visit</span><b>${typeof dur === "number" ? `${Math.floor(dur / 60)}m ${Math.round(dur % 60)}s` : "—"}</b></li>
+        <li><span>Bounce rate</span><b>${typeof t.bounce_rate === "number" ? `${t.bounce_rate}%` : "—"}</b></li>
+        <li><span>Last 7 days</span><b>${fmt(t.pageviews_7d)} views</b></li>
+      </ul></div>`);
+    const named = (rows, n) => (rows || []).slice(0, n || 8).map((r) => [String(r.title || r.name || "").slice(0, 26), r.visitors]);
+    if (t.articles && t.articles.length) {
+      out.push(barBlock("Most-read articles", "Visitors, last 30 days, from the Article Read event.", named(t.articles), { rotate: true }));
+    }
+    if (t.top_pages && t.top_pages.length) {
+      out.push(barBlock("Most-visited pages", "Visitors, last 30 days.", named(t.top_pages), { rotate: true }));
+    }
+    if (t.channels && t.channels.length) {
+      out.push(barBlock("Channels", "Visitors, last 30 days. A high Direct share is a tagging artefact — digest links carry no UTMs.", named(t.channels), { rotate: true }));
+    }
+    if (t.top_sources && t.top_sources.length) {
+      out.push(barBlock("Referrers", "Visitors, last 30 days.", named(t.top_sources), { rotate: true, color: C2 }));
+    }
+    if (t.topics && t.topics.length) {
+      out.push(barBlock("Topics read", "Visitors, last 30 days.", named(t.topics), { rotate: true, color: C3 }));
+    }
+    if (t.authors && t.authors.length) {
+      out.push(barBlock("Contributors read", "Visitors, last 30 days.", named(t.authors), { rotate: true, color: C3 }));
+    }
+    if (t.countries && t.countries.length) {
+      out.push(barBlock("Countries", "Visitors, last 30 days.", named(t.countries), { rotate: true, color: C2 }));
+    }
+    if (t.regions && t.regions.length) {
+      out.push(barBlock("States and regions", "Visitors, last 30 days.", named(t.regions), { rotate: true, color: C2 }));
+    }
+    if (t.cities && t.cities.length) {
+      out.push(barBlock("Cities", "Visitors, last 30 days.", named(t.cities), { rotate: true, color: C2 }));
+    }
+    el.innerHTML = out.filter(Boolean).join("");
+  }
+
   function renderChannels(s) {
     const out = [];
     if (s.kit && s.kit.recent_sends && s.kit.recent_sends.length > 1) {
@@ -674,19 +723,6 @@
       out.push(barBlock("Old-site traffic (HubSpot)",
         "Monthly pageviews on the pre-launch HubSpot site. A different counter from Plausible — do not compare across 26 May.",
         s.traffic.hubspot_monthly.slice(-14).map((m) => [m.month.slice(2), m.pageviews]), { rotate: true, color: C2 }));
-    }
-    if (s.traffic && s.traffic.channels && s.traffic.channels.length) {
-      out.push(barBlock("Where the traffic comes from",
-        "Visitors, last 30 days. A high Direct share is a tagging artefact — digest links carry no UTMs.",
-        s.traffic.channels.map((c) => [c.name, c.visitors]), { rotate: true }));
-    }
-    if (s.traffic && s.traffic.top_pages && s.traffic.top_pages.length) {
-      out.push(barBlock("Most-read pages",
-        "Visitors, last 30 days.",
-        s.traffic.top_pages.slice(0, 8).map((c) => [
-          (c.title || c.name || "").replace(/^\//, "").slice(0, 26) || "Homepage", c.visitors
-        ]),
-        { rotate: true }));
     }
     if (s.podcasts) {
       const shows = [
@@ -756,6 +792,7 @@
     safe("charts", () => renderCharts());
     safe("breakdowns", () => renderBreakdowns(showing));
     safe("channels", () => renderChannels(showing));
+    safe("traffic", () => renderTraffic(showing));
     safe("narrative", () => renderNarrative(showing));
   }
 
