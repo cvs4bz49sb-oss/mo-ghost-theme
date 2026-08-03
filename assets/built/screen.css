@@ -24333,102 +24333,136 @@ html[data-theme="dark"] .dlr-play-btn {
 /* ---------------------------------------------------------------------------
    /admin/kpi/ — nightly KPI dashboard.
 
-   Reads the snapshot mo-admin's cron wrote; nothing here computes. Kept
-   to the admin workspace idiom: hairlines rather than boxed cards, one
-   accent (the action item) so the eye lands on the thing to do first.
+   Deliberately unbranded. This is an internal tool read every morning, so
+   it uses the system UI font, white surfaces and hairlines rather than the
+   editorial display face and cream palette the public site wears. Every
+   token below is scoped to [data-kpi-root] so nothing else in the admin
+   workspace changes.
 --------------------------------------------------------------------------- */
-.kpi-stamp { color: var(--color-muted); font-size: 13px; margin-left: 6px; }
+[data-kpi-root] {
+  --k-surface: #ffffff;
+  --k-text: #1a1a19;
+  --k-secondary: #52514e;
+  --k-muted: #8a8884;
+  --k-line: #e6e3df;
+  --k-accent: #2a78d6;
+  --k-up: #17692b;
+  --k-down: #c0392b;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--k-text);
+}
+[data-kpi-root] * { font-family: inherit; }
+
+.kpi-stamp { color: var(--k-muted); font-size: 13px; margin-left: 6px; }
 
 .kpi-toolbar {
   display: flex; justify-content: space-between; align-items: center;
-  gap: 16px; flex-wrap: wrap; margin: 0 0 20px;
-  padding-bottom: 14px; border-bottom: 1px solid var(--color-rule);
+  gap: 16px; flex-wrap: wrap; margin: 0 0 18px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--k-line);
 }
 .kpi-history { display: flex; align-items: center; gap: 8px; }
-.kpi-history-label { font-size: 13px; color: var(--color-muted); }
-.kpi-date {
-  font-family: var(--font-body); font-size: 14px; color: var(--color-dark);
-  background: var(--color-white); border: 1px solid var(--color-rule);
-  border-radius: var(--radius); padding: 5px 9px;
+.kpi-history-label { font-size: 13px; color: var(--k-muted); }
+.kpi-date, .kpi-btn {
+  font-size: 13px; color: var(--k-text); background: var(--k-surface);
+  border: 1px solid var(--k-line); border-radius: 8px; padding: 5px 11px;
 }
-.kpi-btn {
-  font-family: var(--font-body); font-size: 13px; color: var(--color-dark);
-  background: var(--color-white); border: 1px solid var(--color-rule);
-  border-radius: var(--radius); padding: 5px 12px; cursor: pointer;
-}
-.kpi-btn:hover { background: var(--color-page); }
+.kpi-btn { cursor: pointer; }
+.kpi-btn:hover { border-color: #cfcbc5; }
 .kpi-btn[disabled] { opacity: 0.5; cursor: default; }
 .kpi-toolbar-right { display: flex; align-items: center; gap: 12px; }
-.kpi-sources { font-size: 12.5px; color: var(--color-muted); }
-.kpi-sources.is-warn { color: var(--color-primary-text); }
+.kpi-sources { font-size: 12.5px; color: var(--k-muted); }
+.kpi-sources.is-warn { color: var(--k-down); }
 
-/* The daily action item — the one thing to do, directly under the KPIs. */
-/* [hidden] is display:none at UA-stylesheet strength, so any display
-   rule here beats it. Say it explicitly or the empty action band shows
-   before the first snapshot exists. */
+/* Today's action — a plain card, not a coloured banner. The only accent is
+   the label and the metric. */
 .kpi-action[hidden] { display: none; }
 .kpi-action {
-  display: flex; gap: 18px; align-items: flex-start;
-  background: var(--color-card-featured-bg);
-  border-radius: var(--radius-lg); padding: 20px 22px; margin: 0 0 22px;
+  display: block; background: var(--k-surface); border: 1px solid var(--k-line);
+  border-radius: 12px; padding: 18px 20px; margin: 0 0 18px;
 }
 .kpi-action-mark {
-  font-family: var(--font-display); font-style: italic; font-size: 14px;
-  color: var(--color-primary-text); white-space: nowrap; padding-top: 2px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--k-accent); margin-bottom: 7px;
 }
-.kpi-action-title {
-  font-family: var(--font-display); font-size: 19px; font-weight: 600;
-  color: var(--color-dark); margin: 0 0 6px;
-}
-.kpi-action-text { font-size: 15px; line-height: 1.55; color: var(--color-dark); margin: 0 0 8px; }
+.kpi-action-title { font-size: 17px; font-weight: 640; color: var(--k-text); margin: 0 0 6px; }
+.kpi-action-text { font-size: 14.5px; line-height: 1.55; color: var(--k-secondary); margin: 0 0 8px; }
 .kpi-action-meta { display: flex; gap: 14px; flex-wrap: wrap; margin: 0; font-size: 12.5px; }
-.kpi-action-metric { font-weight: 600; color: var(--color-primary-text); }
-.kpi-action-alt { color: var(--color-muted); }
+.kpi-action-metric { font-weight: 600; color: var(--k-text); }
+.kpi-action-alt { color: var(--k-muted); }
 
 .kpi-tiles {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
-  border-top: 1px solid var(--color-rule); border-left: 1px solid var(--color-rule);
-  border-radius: var(--radius); overflow: hidden; margin-bottom: 26px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin-bottom: 22px;
 }
 .kpi-tile {
-  padding: 16px 18px; background: var(--color-page);
-  border-right: 1px solid var(--color-rule); border-bottom: 1px solid var(--color-rule);
+  padding: 15px 16px; background: var(--k-surface);
+  border: 1px solid var(--k-line); border-radius: 12px;
   display: flex; flex-direction: column;
 }
-.kpi-tile-label { font-size: 12.5px; color: var(--color-muted); margin: 0; }
+.kpi-tile-label { font-size: 12.5px; color: var(--k-muted); margin: 0; }
 .kpi-tile-value {
-  font-family: var(--font-display); font-size: 27px; line-height: 1.1;
-  color: var(--color-dark); margin: 4px 0 0;
+  font-size: 26px; font-weight: 640; letter-spacing: -0.015em; line-height: 1.15;
+  color: var(--k-text); margin: 3px 0 0; font-variant-numeric: tabular-nums;
 }
-.kpi-tile-cap { font-size: 12.5px; color: var(--color-muted); margin: 4px 0 0; }
+.kpi-tile-cap { font-size: 12.5px; color: var(--k-muted); margin: 4px 0 0; }
 .kpi-delta { font-weight: 600; }
-.kpi-delta.is-up { color: #2f7d32; }
-.kpi-delta.is-down { color: var(--color-secondary); }
-.kpi-delta.is-flat { color: var(--color-muted); }
+.kpi-delta.is-up { color: var(--k-up); }
+.kpi-delta.is-down { color: var(--k-down); }
+.kpi-delta.is-flat { color: var(--k-muted); }
 .kpi-tile-bullets {
-  list-style: none; margin: 10px 0 0; padding: 10px 0 0 13px;
-  border-top: 1px solid var(--color-rule);
+  list-style: none; margin: 11px 0 0; padding: 10px 0 0 13px;
+  border-top: 1px solid var(--k-line);
 }
-.kpi-tile-bullets li { font-size: 12px; color: var(--color-muted); margin: 0 0 3px; position: relative; }
-.kpi-tile-bullets li::before {
-  content: "·"; position: absolute; left: -10px; color: var(--color-card-border); font-weight: 700;
-}
-.kpi-tile-bullets li b { color: var(--color-dark); font-weight: 600; }
-.kpi-spark { display: block; margin-top: auto; padding-top: 10px; color: var(--color-card-border); }
+.kpi-tile-bullets li { font-size: 12px; color: var(--k-muted); margin: 0 0 3px; position: relative; line-height: 1.45; }
+.kpi-tile-bullets li::before { content: "·"; position: absolute; left: -10px; color: #c9c5bf; font-weight: 700; }
+.kpi-tile-bullets li b { color: var(--k-secondary); font-weight: 600; }
+.kpi-spark { display: block; margin-top: auto; padding-top: 10px; color: #d5d1cb; }
 
-.kpi-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.kpi-chart { background: var(--color-page); border-radius: var(--radius); padding: 16px 18px; }
-.kpi-chart-title { font-size: 13.5px; font-weight: 600; color: var(--color-dark); margin: 0 0 10px; }
-.kpi-chart svg { display: block; width: 100%; height: auto; color: var(--color-secondary); overflow: visible; }
-.kpi-gl { stroke: var(--color-rule); stroke-width: 1; }
-.kpi-tick { font-size: 10px; fill: var(--color-muted); }
-.kpi-dlabel { font-size: 11px; fill: var(--color-dark); font-weight: 600; }
-.kpi-empty { font-size: 13.5px; color: var(--color-muted); margin: 0; padding: 18px 0; }
-/* The tiles grid draws its own hairlines, which look like a stray empty
-   box when the only child is a status message. */
-.kpi-tiles:has(.kpi-empty) { border: 0; border-radius: 0; }
-.kpi-tiles .kpi-empty { grid-column: 1 / -1; padding: 8px 0 22px; }
-.kpi-foot { font-size: 12.5px; color: var(--color-muted); margin: 24px 0 0; }
+/* period control */
+.kpi-granrow { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin: 0 0 16px; }
+.kpi-glabel { font-size: 12px; color: var(--k-muted); margin-right: 3px; }
+.kpi-gbtn[aria-pressed="true"] { background: var(--k-text); color: #fff; border-color: var(--k-text); }
+
+/* chart chrome */
+.kpi-chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.kpi-chart-sub { font-size: 12px; color: var(--k-muted); margin: 4px 0 10px; }
+.kpi-tbtn { font-size: 11.5px; padding: 3px 9px; color: var(--k-muted); }
+.kpi-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 13px; padding: 0; margin: 0 0 8px; }
+.kpi-legend li { font-size: 12px; color: var(--k-secondary); display: flex; align-items: center; gap: 6px; }
+.kpi-key { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+.kpi-ax { stroke: #d8d4ce; stroke-width: 1; }
+.kpi-hz { cursor: crosshair; }
+.kpi-tbl { display: none; margin-top: 10px; overflow-x: auto; }
+.kpi-tbl.on { display: block; }
+.kpi-tbl table { border-collapse: collapse; font-size: 12px; width: 100%; }
+.kpi-tbl th, .kpi-tbl td { text-align: right; padding: 4px 7px; border-bottom: 1px solid var(--k-line); white-space: nowrap; }
+.kpi-tbl th:first-child, .kpi-tbl td:first-child { text-align: left; }
+.kpi-tbl th { color: var(--k-muted); font-weight: 560; }
+.kpi-swatch { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 6px; }
+
+/* hover tooltip */
+.kpi-tip {
+  position: fixed; pointer-events: none; opacity: 0; transition: opacity .1s;
+  background: #fff; border: 1px solid var(--k-line); border-radius: 9px;
+  padding: 8px 10px; font-size: 12px; z-index: 30; min-width: 150px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.10);
+}
+.kpi-tip .m { font-weight: 620; margin-bottom: 4px; color: var(--k-text); }
+.kpi-tip .r { display: flex; align-items: center; gap: 6px; color: var(--k-secondary); }
+.kpi-tip .r .v { margin-left: auto; color: var(--k-text); font-weight: 600; }
+
+.kpi-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.kpi-chart {
+  background: var(--k-surface); border: 1px solid var(--k-line);
+  border-radius: 12px; padding: 15px 16px;
+}
+.kpi-chart-title { font-size: 13px; font-weight: 620; color: var(--k-text); margin: 0 0 10px; }
+.kpi-chart svg { display: block; width: 100%; height: auto; color: var(--k-accent); overflow: visible; }
+.kpi-gl { stroke: var(--k-line); stroke-width: 1; }
+.kpi-tick { font-size: 10px; fill: var(--k-muted); }
+.kpi-dlabel { font-size: 11px; fill: var(--k-text); font-weight: 600; }
+.kpi-empty { font-size: 13.5px; color: var(--k-muted); margin: 0; padding: 8px 0 22px; grid-column: 1 / -1; }
+.kpi-foot { font-size: 12.5px; color: var(--k-muted); margin: 22px 0 0; }
 
 @media (max-width: 1000px) {
   .kpi-tiles { grid-template-columns: repeat(2, 1fr); }
@@ -24436,5 +24470,4 @@ html[data-theme="dark"] .dlr-play-btn {
 }
 @media (max-width: 560px) {
   .kpi-tiles { grid-template-columns: 1fr; }
-  .kpi-action { flex-direction: column; gap: 8px; }
 }
