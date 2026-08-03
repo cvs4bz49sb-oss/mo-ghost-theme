@@ -24422,6 +24422,8 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-granrow { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin: 0 0 16px; }
 .kpi-glabel { font-size: 12px; color: var(--k-muted); margin-right: 3px; }
 .kpi-gbtn[aria-pressed="true"] { background: var(--k-text); color: #fff; border-color: var(--k-text); }
+.kpi-labbr { display: none; }
+.kpi-lfull { display: inline; }
 
 /* chart chrome */
 .kpi-chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
@@ -24572,40 +24574,41 @@ html[data-theme="dark"] .dlr-play-btn {
 @media (max-width: 640px) {
   [data-kpi-root] { --k-tap: 44px; }
 
-  /* Controls become one scrolling strip each instead of wrapping into
-     three stacked rows. Familiar on a phone, and it gives back ~120px. */
+  /* Everything fits on the screen. An earlier pass made these strips scroll
+     horizontally, which meant the date, the jump menu and four of the nine
+     periods were simply off the edge — a control you cannot see is a
+     control you do not have. Nothing here scrolls sideways now. */
   [data-kpi-root] .kpi-toolbar {
-    flex-direction: column; align-items: stretch; gap: 10px;
+    flex-direction: column; align-items: stretch; gap: 9px;
     margin-bottom: 14px; padding-bottom: 12px;
   }
-  [data-kpi-root] .kpi-history { gap: 8px; }
-  [data-kpi-root] .kpi-history .kpi-date { flex: 1 1 auto; min-width: 0; }
-  [data-kpi-root] .kpi-toolbar-right {
-    gap: 8px; overflow-x: auto; scrollbar-width: none;
-    -webkit-overflow-scrolling: touch; padding-bottom: 2px;
+  /* Showing | date (takes the slack) | Latest */
+  [data-kpi-root] .kpi-history {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center;
   }
-  [data-kpi-root] .kpi-toolbar-right::-webkit-scrollbar { display: none; }
-  [data-kpi-root] .kpi-toolbar-right > * { flex: 0 0 auto; }
-  [data-kpi-root] .kpi-jump { max-width: none; min-width: 168px; }
-  /* Source list and layout messages are status text, not controls — they
-     go last so the buttons are reachable without scrolling the strip. */
-  [data-kpi-root] .kpi-sources, [data-kpi-root] .kpi-layoutmsg { order: 9; }
+  [data-kpi-root] .kpi-history .kpi-date { width: 100%; min-width: 0; }
+  [data-kpi-root] .kpi-toolbar-right {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px;
+  }
+  /* The jump menu earns a full row: its options are long. */
+  [data-kpi-root] .kpi-jump { grid-column: 1 / -1; max-width: none; width: 100%; }
+  [data-kpi-root] .kpi-sources, [data-kpi-root] .kpi-layoutmsg {
+    grid-column: 1 / -1; order: 9; text-align: left;
+  }
+  [data-kpi-root] .kpi-toolbar-right .kpi-btn { padding-inline: 4px; }
 
+  /* Nine periods, three to a row, none clipped. */
   [data-kpi-root] .kpi-granrow {
-    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
-    -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
-    margin-bottom: 14px; padding-bottom: 2px;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px;
+    margin-bottom: 14px;
   }
-  [data-kpi-root] .kpi-granrow::-webkit-scrollbar { display: none; }
-  /* Fade the trailing edge so it reads as "there is more", rather than as
-     a button that happens to be clipped. */
-  [data-kpi-root] .kpi-granrow,
-  [data-kpi-root] .kpi-toolbar-right {
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
-    mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
-  }
-  [data-kpi-root] .kpi-granrow > * { flex: 0 0 auto; scroll-snap-align: start; }
   [data-kpi-root] .kpi-glabel { display: none; }
+  [data-kpi-root] .kpi-gbtn { padding-inline: 4px; }
+
+  /* Short labels on a phone, full ones everywhere else. Both ship in the
+     markup so crossing the breakpoint needs no re-render. */
+  [data-kpi-root] .kpi-lfull { display: none; }
+  [data-kpi-root] .kpi-labbr { display: inline; }
 
   /* Every control clears the 44px tap minimum. */
   [data-kpi-root] .kpi-btn,

@@ -46,16 +46,18 @@
   // Named periods rather than raw grains: "This Month" and "Last Month" are
   // the same bucketing with a different offset from the end of the series,
   // which is how anyone actually reads a dashboard.
+  // `short` is what a phone shows: nine buttons have to fit a 375px screen
+  // three to a row without any of them being cut off or scrolled to.
   const PERIODS = [
-    { id: "total", label: "Total" },
-    { id: "today", label: "Today", grain: "day", back: 0 },
-    { id: "month", label: "This Month", grain: "month", back: 0 },
-    { id: "lastmonth", label: "Last Month", grain: "month", back: 1 },
-    { id: "quarter", label: "This Quarter", grain: "quarter", back: 0 },
-    { id: "lastquarter", label: "Last Quarter", grain: "quarter", back: 1 },
-    { id: "year", label: "This Year", grain: "year", back: 0 },
-    { id: "lastyear", label: "Last Year", grain: "year", back: 1 },
-    { id: "custom", label: "Custom Range", grain: "auto", back: 0 }
+    { id: "total", label: "Total", short: "Total" },
+    { id: "today", label: "Today", short: "Today", grain: "day", back: 0 },
+    { id: "month", label: "This Month", short: "This mo", grain: "month", back: 0 },
+    { id: "lastmonth", label: "Last Month", short: "Last mo", grain: "month", back: 1 },
+    { id: "quarter", label: "This Quarter", short: "This qtr", grain: "quarter", back: 0 },
+    { id: "lastquarter", label: "Last Quarter", short: "Last qtr", grain: "quarter", back: 1 },
+    { id: "year", label: "This Year", short: "This yr", grain: "year", back: 0 },
+    { id: "lastyear", label: "Last Year", short: "Last yr", grain: "year", back: 1 },
+    { id: "custom", label: "Custom Range", short: "Custom", grain: "auto", back: 0 }
   ];
   let customFrom = null;
   let customTo = null;
@@ -2057,7 +2059,7 @@
   // ---- controls ----------------------------------------------------------
 
   els.gran.innerHTML = `<span class="kpi-glabel">Period</span>${
-    PERIODS.map((x) => `<button type="button" class="kpi-btn kpi-gbtn" data-g="${x.id}" aria-pressed="${x.id === period}">${x.label}</button>`).join("")}`;
+    PERIODS.map((x) => `<button type="button" class="kpi-btn kpi-gbtn" data-g="${x.id}" aria-pressed="${x.id === period}"><span class="kpi-lfull">${x.label}</span><span class="kpi-labbr">${x.short}</span></button>`).join("")}`;
 
   els.gran.addEventListener("click", (e) => {
     const b = e.target.closest(".kpi-gbtn");
