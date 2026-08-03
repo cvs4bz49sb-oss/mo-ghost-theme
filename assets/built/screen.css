@@ -24542,7 +24542,9 @@ html[data-theme="dark"] .dlr-play-btn {
   min-width: 0;
 }
 .kpi-chart-title { font-size: 13px; font-weight: 620; color: var(--k-text); margin: 0 0 10px; }
-.kpi-chart svg { display: block; width: 100%; height: auto; color: var(--k-accent); overflow: visible; }
+/* Nothing may paint outside its own chart box — rotated axis labels used
+   to run over the card edge and into the next column. */
+.kpi-chart svg { display: block; width: 100%; height: auto; color: var(--k-accent); overflow: hidden; }
 .kpi-gl { stroke: var(--k-line); stroke-width: 1; }
 .kpi-tick { font-size: 10px; fill: var(--k-muted); }
 .kpi-dlabel { font-size: 11px; fill: var(--k-text); font-weight: 600; }

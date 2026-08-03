@@ -115,12 +115,12 @@
       return { k: `w${a}`, label: mdy(a), range: `${mdy(a)} – ${mdy(e.toISOString().slice(0, 10))}` };
     }
     if (g === "month") {
-      return { k: `${y}-${m}`, label: `${m + 1}/${yy}`,
+      return { k: `${y}-${m}`, label: `${MON[m]} ${y}`,
         range: `${m + 1}/1/${yy} – ${m + 1}/${lastDay(y, m)}/${yy}` };
     }
     if (g === "quarter") {
       const q = Math.floor(m / 3), s0 = q * 3, e0 = s0 + 2;
-      return { k: `${y}q${q}`, label: `Q${q + 1} ${yy}`,
+      return { k: `${y}q${q}`, label: `Q${q + 1} ${y}`,
         range: `${s0 + 1}/1/${yy} – ${e0 + 1}/${lastDay(y, e0)}/${yy}` };
     }
     return { k: String(y), label: String(y), range: `1/1/${yy} – 12/31/${yy}` };
@@ -194,14 +194,13 @@
       periodBullets: (rows, prev) => [
         `<b>${signed(changeOf(rows, prev, "mig"))}</b> migrated during the period`,
         `<b>${fmt((lastOf(rows, "migt") || 0) - (lastOf(rows, "mig") || 0))}</b> still to convert`,
-        `<b>${fmt(Math.round((Date.parse("2027-04-01") - Date.parse(rows[rows.length - 1].d)) / 86400000))}</b> days left at period end`
+        `<b>${fmt(lastOf(rows, "hsp"))}</b> legacy members with a recent checkout`
       ],
       value: (s) => `${fmt(s.kpi.migration_done)} / ${fmt(s.kpi.migration_total)}`,
       bullets: (s) => [
         s.ghost ? `<b>${fmt(s.ghost.comped)}</b> still to convert` : "",
-        typeof s.kpi.days_to_sunset === "number" ? `<b>${fmt(s.kpi.days_to_sunset)}</b> days until HubSpot goes away` : "",
-        s.ghost && s.kpi.days_to_sunset > 0
-          ? `<b>${(s.ghost.comped / s.kpi.days_to_sunset).toFixed(1)}</b> a day needed to finish in time` : ""
+        s.hubspot ? `<b>${fmt(s.hubspot.checkout_last_12m)}</b> legacy members paid in the last 12 months` : "",
+        s.hubspot ? `<b>${fmt(s.hubspot.payers)}</b> in HubSpot's paying list` : ""
       ]
     },
     {
@@ -587,7 +586,7 @@
   }
 
   function wireCharts() {
-    els.charts.querySelectorAll("[data-chart]").forEach((host) => {
+    document.querySelectorAll("[data-chart]").forEach((host) => {
       const st = chartState[host.getAttribute("data-chart")];
       if (!st) return;
       host.querySelectorAll(".kpi-hz").forEach((z) => {
@@ -616,12 +615,18 @@
   // point-in-time cuts (where people signed up, what they paid, when the
   // renewals land) that only make sense as "right now".
 
+  let blockId = 0;
+
   function barBlock(title, sub, pairs, opts) {
     const o = opts || {};
     if (!pairs.length) return "";
     // T leaves headroom for the value label above the tallest bar. At 14 the
     // label on a full-height bar painted over the card title.
-    const W = 560, H = o.rotate ? 304 : 254, L = 52, R = 18, T = 28, B = o.rotate ? 92 : 28;
+    // Rotated labels run down and to the right, so they need both a taller
+    // bottom margin and a right margin — without it they escaped the card.
+    const W = 560, H = o.rotate ? 312 : 254, L = 52, R = o.rotate ? 74 : 18, T = 28,
+      B = o.rotate ? 96 : 28;
+    const clip = (txt, n) => (String(txt).length > n ? `${String(txt).slice(0, n - 1)}…` : String(txt));
     const pw = W - L - R, ph = H - T - B, n = pairs.length;
     const mx = Math.max(...pairs.map((p) => p[1]), 1);
     const ticks = niceTicks(mx, 4), top = ticks[ticks.length - 1];
@@ -640,14 +645,20 @@
       const x = L + band * i + band / 2 - bw / 2, y = Y(pr[1]);
       const h = Math.max(1, T + ph - y), r = Math.min(3, h, bw / 2);
       svg += `<path d="M${x},${y + r} a${r},${r} 0 0 1 ${r},${-r} h${bw - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - r} h${-bw} Z" fill="${o.color || C1}"/>`;
+      svg += `<rect class="kpi-hz" data-i="${i}" x="${(L + band * i).toFixed(1)}" y="${T}" width="${band.toFixed(1)}" height="${ph}" fill="transparent"/>`;
       svg += `<text class="kpi-dlabel" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${o.money ? usd(pr[1]) : fmt(pr[1])}</text>`;
       if (o.rotate) {
-        svg += `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${pr[0]}</text>`;
+        svg += `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start"><title>${pr[0]}</title>${clip(pr[0], 18)}</text>`;
       } else if (showTicks.has(i)) {
         svg += `<text class="kpi-tick" x="${(x + bw / 2).toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${pr[0]}</text>`;
       }
     });
-    return `<div class="kpi-chart"><p class="kpi-chart-title">${title}</p>
+    const id = `b${++blockId}`;
+    chartState[id] = {
+      cfg: { names: [o.seriesName || "Value"], f: o.money ? usd : fmt, noTotal: true },
+      buckets: [pairs.map((pr, i) => ({ label: pr[0], range: (o.labels && o.labels[i]) || pr[0], v: pr[1] }))]
+    };
+    return `<div class="kpi-chart" data-chart="${id}"><p class="kpi-chart-title">${title}</p>
       <p class="kpi-chart-sub">${sub}</p>${svg}</svg></div>`;
   }
 
@@ -832,20 +843,26 @@
         pods.push(barBlock("Podcast plays by show", "Lifetime plays on Buzzsprout, all published episodes.", totals, { rotate: true }));
       }
 
-      if (s.podcasts.per_episode) {
-        // Show the months that fall inside the selected period rather than
-        // always the last eight.
-        const MONTHS_FOR = { today: 2, month: 3, lastmonth: 3, quarter: 6, lastquarter: 6, year: 12, lastyear: 12, total: 8 };
-        const keep = MONTHS_FOR[period] || 8;
-        shows.forEach(([key, name, color]) => {
-          const rows = (s.podcasts.per_episode[key] || []).slice(-keep);
-          if (rows.length > 1) {
+      // Per episode, not per month: Daily Liturgy publishes every day, so a
+      // monthly average hides the only thing worth looking at.
+      const EPISODES_FOR = { today: 14, month: 31, lastmonth: 31, quarter: 45, lastquarter: 45, year: 60, lastyear: 60, total: 30 };
+      const keepEp = EPISODES_FOR[period] || 30;
+      shows.forEach(([key, name, color]) => {
+        const eps = (s.podcasts.recent_episodes && s.podcasts.recent_episodes[key]) || [];
+        if (eps.length > 1) {
+          const rows = eps.slice(-keepEp);
+          pods.push(barBlock(`${name} — plays per episode`,
+            `The last ${rows.length} episodes, newest on the right. Lifetime plays each, so recent ones are still climbing.`,
+            rows.map((r) => [mdy(r.date), r.plays]), { rotate: true, color, labels: rows.map((r) => `${mdy(r.date, true)} · ${r.title}`) }));
+        } else {
+          const months = (s.podcasts.per_episode[key] || []).slice(-8);
+          if (months.length > 1) {
             pods.push(barBlock(`${name} — reach per episode`,
-              "Average plays for episodes published each month. A different unit from dashboard downloads.",
-              rows.map((r) => [`${Number(r.month.slice(5))}/${r.month.slice(2, 4)}`, r.avg]), { color }));
+              "Average plays for episodes published each month.",
+              months.map((r) => [`${MON[Number(r.month.slice(5)) - 1]} ${r.month.slice(0, 4)}`, r.avg]), { rotate: true, color }));
           }
-        });
-      }
+        }
+      });
     }
     chartBuckets.email = chartBuckets.email.concat(email);
     chartBuckets.podcasts = pods;
