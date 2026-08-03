@@ -218,11 +218,21 @@
     },
     {
       label: "Total subscribers", key: "sub", agg: "last", f: fmt, goodUp: true, cap: "free list",
-      periodBullets: (rows, prev) => [
-        `<b>${signed(changeOf(rows, prev, "sub"))}</b> net change over the period`,
-        `<b>${fmt(sumOf(rows, "nsub"))}</b> signed up`,
-        `<b>${fmt(sumOf(rows, "unsub"))}</b> unsubscribed on sends`
-      ],
+      periodBullets(rows, prev) {
+        const end = rows[rows.length - 1].d;
+        const out = [
+          `<b>${signed(changeOf(rows, prev, "sub"))}</b> net change over the period`,
+          `<b>${fmt(sumOf(rows, "nsub"))}</b> signed up`,
+          `<b>${fmt(sumOf(rows, "unsub"))}</b> unsubscribed on sends`
+        ];
+        // Before the Ghost launch there was no subscriber count recorded
+        // anywhere; this is reconstructed from HubSpot contact creation
+        // dates, which runs a few percent high because someone created in
+        // 2024 who only subscribed later is counted from 2024.
+        if (end < "2025-11-01") out.push("estimated from HubSpot creation dates — runs slightly high");
+        else if (end < "2026-05-26") out.push("HubSpot-era figure, checked against the KPI sheet to within 3%");
+        return out;
+      },
       bullets: (s) => [
         s.ghost ? `<b>${fmt(s.ghost.free)}</b> Ghost free members` : "",
         s.kit ? `<b>${fmt(s.kit.active)}</b> active in Kit` : "",
@@ -262,11 +272,22 @@
       // made a year read lower than a quarter.
       periodKey: "totpv", periodAgg: "sum", periodCap: "site + Substack, in period",
       f: fmt, goodUp: true,
-      periodBullets: (rows) => [
-        `<b>${fmt(sumOf(rows, "pvd") + sumOf(rows, "oldpv"))}</b> on the site${sumOf(rows, "oldpv") ? " (part HubSpot-era)" : ""}`,
-        `<b>${fmt(sumOf(rows, "subpv"))}</b> on Substack`,
-        `<b>${fmt(sumOf(rows, "vis"))}</b> site visitors (Plausible only)`
-      ],
+      periodBullets(rows) {
+        const site = sumOf(rows, "pvd") + sumOf(rows, "oldpv");
+        const sub = sumOf(rows, "subpv");
+        if (!site && !sub) {
+          return [
+            "no traffic source covers this period",
+            "Plausible starts 21 Apr 2026, when the Ghost site went up",
+            "HubSpot's own analytics are behind a scope this token does not have"
+          ];
+        }
+        return [
+          `<b>${fmt(site)}</b> on the site${sumOf(rows, "oldpv") ? " (part HubSpot-era)" : ""}`,
+          `<b>${fmt(sub)}</b> on Substack`,
+          `<b>${fmt(sumOf(rows, "vis"))}</b> site visitors (Plausible only)`
+        ];
+      },
       bullets: (s) => [
         s.traffic ? `<b>${fmt(s.traffic.visitors_30d)}</b> visitors in 30 days` : "",
         s.traffic ? `<b>${fmt(s.traffic.pageviews_7d)}</b> pageviews in 7 days` : "",
