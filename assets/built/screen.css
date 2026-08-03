@@ -23939,34 +23939,40 @@ html[data-theme="dark"] .dlr-play-btn {
   .dlp-band-wave { display: none; }
 }
 
-/* Below 1025 the one-line row runs out of room for the headline, so
-   stack: cover, then copy, then player, then a full-width CTA. Keyed to
-   1024 rather than 640 because at 700 the headline was breaking to four
-   lines. */
+/* Below 1025 the full one-line row runs out of room for the headline,
+   so it breaks into three rows: cover with the eyebrow and headline
+   beside it, then the player, then a full-width CTA. Keyed to 1024
+   rather than 640 because at 700 the headline broke to four lines.
+
+   The copy stays alongside the cover rather than dropping under it —
+   flex: 1 1 0 with min-width: 0, so it takes the remaining width and
+   wraps internally instead of forcing its own row. The player and CTA
+   get flex-basis: 100% to claim rows of their own. */
 @media (max-width: 1024px) {
   .dlp-band-inner {
     flex-wrap: wrap;
-    gap: 14px 16px;
-    padding: 18px 0;
+    gap: 16px;
+    padding: 20px 0;
   }
   .dlp-band-art {
-    width: 176px;
-    height: 176px;
+    width: 160px;
+    height: 160px;
     flex: 0 0 auto;
   }
   .dlp-band-copy {
-    flex: 1 0 100%;
+    flex: 1 1 0;
     min-width: 0;
+    gap: 5px;
   }
   .dlp-band-eyebrow {
     font-size: 10px;
     letter-spacing: 0.16em;
     white-space: normal;
   }
-  .dlp-band-title { font-size: 26px; }
+  .dlp-band-title { font-size: clamp(20px, 3.4vw, 28px); }
   .dlp-band-player {
     order: 3;
-    flex: 1 1 auto;
+    flex: 1 1 100%;
     min-width: 0;
   }
   .dlp-band-meta {
@@ -23983,6 +23989,16 @@ html[data-theme="dark"] .dlr-play-btn {
     order: 5;
     flex: 1 0 100%;
   }
+}
+
+/* Phone: the cover has to give the copy enough width that the headline
+   lands on two lines rather than four. */
+@media (max-width: 520px) {
+  .dlp-band-art {
+    width: 124px;
+    height: 124px;
+  }
+  .dlp-band-inner { gap: 14px; }
 }
 
 /* ─── Dashboard: "New on Mere Orthodoxy" rail ───────────────────────
