@@ -24539,6 +24539,27 @@ html[data-theme="dark"] .dlr-play-btn {
   color: var(--k-text); font-weight: 600; padding-top: 9px; }
 .kpi-table-cmp tbody tr:last-child td { border-bottom: none; }
 
+/* Drag to rearrange. The affordance stays quiet until the pointer is over
+   a card — a dashboard covered in grab handles reads as a construction
+   site. The drop marker is a rule on the edge the card will land against. */
+[data-kpi-sortable="on"] > .kpi-chart,
+[data-kpi-sortable="on"] > .kpi-tile { cursor: grab; position: relative; }
+[data-kpi-sortable="on"] > .kpi-chart:active,
+[data-kpi-sortable="on"] > .kpi-tile:active { cursor: grabbing; }
+[data-kpi-sortable="on"] > .kpi-chart:focus-visible,
+[data-kpi-sortable="on"] > .kpi-tile:focus-visible {
+  outline: 2px solid var(--k-accent); outline-offset: 2px;
+}
+.kpi-chart.is-dragging, .kpi-tile.is-dragging { opacity: 0.4; }
+.kpi-chart.is-dropbefore::before, .kpi-tile.is-dropbefore::before,
+.kpi-chart.is-dropafter::after, .kpi-tile.is-dropafter::after {
+  content: ""; position: absolute; top: -2px; bottom: -2px; width: 3px;
+  background: var(--k-accent); border-radius: 2px;
+}
+.kpi-chart.is-dropbefore::before, .kpi-tile.is-dropbefore::before { left: -8px; }
+.kpi-chart.is-dropafter::after, .kpi-tile.is-dropafter::after { right: -8px; }
+.kpi-layoutmsg { font-size: 11.5px; color: var(--k-muted); }
+
 /* Inline marker for a recurring gift's cadence. */
 .kpi-pill { display: inline-block; font-size: 11px; line-height: 1.5; padding: 1px 7px;
   border: 1px solid var(--k-line); border-radius: 999px; color: var(--k-text); }

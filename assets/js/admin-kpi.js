@@ -1023,6 +1023,181 @@
     if (more) more.addEventListener("click", () => { donExpanded = !donExpanded; renderDonations(); });
   }
 
+  // ---- layout: drag to rearrange -----------------------------------------
+  //
+  // Every tile and every card can be dragged into whatever order suits.
+  // Order is keyed on the card's own title rather than its DOM position,
+  // because the whole board re-renders on every period change — position
+  // would be meaningless a moment later. Cards whose title is not in the
+  // saved list fall to the end, so a chart added later just appears rather
+  // than breaking the arrangement.
+
+  let layout = {};
+  let layoutTimer = null;
+  let layoutMsgTimer = null;
+
+  function layoutMsg(text) {
+    const el = document.querySelector("[data-kpi-layoutmsg]");
+    if (!el) return;
+    el.textContent = text;
+    clearTimeout(layoutMsgTimer);
+    layoutMsgTimer = setTimeout(() => { el.textContent = ""; }, 2600);
+  }
+
+  const slug = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 100);
+
+  // Containers are identified by their data attribute where they have one,
+  // and otherwise by the section they sit in, so the key survives renames
+  // of neighbouring sections.
+  function containerKey(el) {
+    for (const a of el.attributes) {
+      if (a.name.startsWith("data-kpi-") && a.name !== "data-kpi-sortable") return a.name;
+    }
+    const sec = el.closest(".kpi-sec");
+    const sum = sec && sec.querySelector(":scope > summary");
+    return `sec-${slug(sum ? sum.textContent : "unknown")}`;
+  }
+
+  function cardId(el) {
+    const t = el.querySelector(".kpi-chart-title, .kpi-tile-label");
+    return t ? slug(t.textContent) : "";
+  }
+
+  function saveLayout() {
+    clearTimeout(layoutTimer);
+    // Dragging fires a lot; one write after things settle is plenty.
+    layoutTimer = setTimeout(() => {
+      MOAuth.fetch(`${worker}/kpi/layout`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ layout })
+      }).catch(() => { /* the local arrangement still holds for this session */ });
+    }, 700);
+  }
+
+  function applyOrder(el) {
+    const key = containerKey(el);
+    const order = layout[key];
+    if (!order || !order.length) return;
+    const kids = [...el.children].filter((c) => cardId(c));
+    if (kids.length < 2) return;
+    const rank = new Map(order.map((id, i) => [id, i]));
+    kids
+      .map((c, i) => ({ c, i, r: rank.has(cardId(c)) ? rank.get(cardId(c)) : Infinity }))
+      // Ties and unknown cards keep their natural order.
+      .sort((a, b) => a.r - b.r || a.i - b.i)
+      .forEach(({ c }) => el.appendChild(c));
+  }
+
+  function recordOrder(el) {
+    layout[containerKey(el)] = [...el.children].map(cardId).filter(Boolean);
+    saveLayout();
+  }
+
+  let dragged = null;
+
+  function wireSortable(el) {
+    if (!el || el.dataset.kpiSortable === "on") { if (el) applyOrder(el); return; }
+    el.dataset.kpiSortable = "on";
+    applyOrder(el);
+
+    el.addEventListener("dragstart", (e) => {
+      const card = e.target.closest(".kpi-chart, .kpi-tile");
+      if (!card || card.parentElement !== el) return;
+      dragged = card;
+      card.classList.add("is-dragging");
+      e.dataTransfer.effectAllowed = "move";
+      // Firefox refuses to start a drag without payload.
+      e.dataTransfer.setData("text/plain", cardId(card));
+    });
+
+    el.addEventListener("dragend", () => {
+      if (dragged) dragged.classList.remove("is-dragging");
+      el.querySelectorAll(".is-dropbefore, .is-dropafter")
+        .forEach((c) => c.classList.remove("is-dropbefore", "is-dropafter"));
+      dragged = null;
+    });
+
+    el.addEventListener("dragover", (e) => {
+      if (!dragged || dragged.parentElement !== el) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const over = e.target.closest(".kpi-chart, .kpi-tile");
+      el.querySelectorAll(".is-dropbefore, .is-dropafter")
+        .forEach((c) => c.classList.remove("is-dropbefore", "is-dropafter"));
+      if (!over || over === dragged || over.parentElement !== el) return;
+      // Which half of the target the cursor is in decides which side of it
+      // the card lands on. The grid wraps, so compare on both axes.
+      const r = over.getBoundingClientRect();
+      const after = (e.clientY - r.top) / r.height > 0.5 || (e.clientX - r.left) / r.width > 0.5;
+      over.classList.add(after ? "is-dropafter" : "is-dropbefore");
+    });
+
+    el.addEventListener("drop", (e) => {
+      if (!dragged || dragged.parentElement !== el) return;
+      e.preventDefault();
+      const over = e.target.closest(".kpi-chart, .kpi-tile");
+      if (over && over !== dragged && over.parentElement === el) {
+        const r = over.getBoundingClientRect();
+        const after = (e.clientY - r.top) / r.height > 0.5 || (e.clientX - r.left) / r.width > 0.5;
+        el.insertBefore(dragged, after ? over.nextSibling : over);
+      }
+      el.querySelectorAll(".is-dropbefore, .is-dropafter")
+        .forEach((c) => c.classList.remove("is-dropbefore", "is-dropafter"));
+      recordOrder(el);
+      layoutMsg(`Moved ${dragged.querySelector(".kpi-chart-title, .kpi-tile-label").textContent.trim()} — saved.`);
+    });
+  }
+
+  // Run after every render: mark the cards draggable, apply the saved
+  // order, and wire the container once.
+  function wireLayout() {
+    const containers = [
+      document.querySelector("[data-kpi-tiles]"),
+      ...document.querySelectorAll(".kpi-charts")
+    ].filter(Boolean);
+    containers.forEach((el) => {
+      [...el.children].forEach((c) => {
+        if (!c.classList.contains("kpi-chart") && !c.classList.contains("kpi-tile")) return;
+        c.draggable = true;
+        c.tabIndex = 0;
+        if (!c.dataset.kpiKeys) {
+          c.dataset.kpiKeys = "on";
+          // Keyboard equivalent, so rearranging does not require a mouse.
+          c.addEventListener("keydown", (e) => {
+            if (!e.altKey || !["ArrowLeft", "ArrowRight"].includes(e.key)) return;
+            e.preventDefault();
+            const parent = c.parentElement;
+            if (e.key === "ArrowLeft" && c.previousElementSibling) {
+              parent.insertBefore(c, c.previousElementSibling);
+            } else if (e.key === "ArrowRight" && c.nextElementSibling) {
+              parent.insertBefore(c.nextElementSibling, c);
+            } else return;
+            c.focus();
+            recordOrder(parent);
+          });
+        }
+      });
+      wireSortable(el);
+    });
+  }
+
+  async function loadLayout() {
+    try {
+      const r = await MOAuth.fetch(`${worker}/kpi/layout`);
+      const d = await r.json();
+      layout = d && d.layout && typeof d.layout === "object" ? d.layout : {};
+    } catch (_) { layout = {}; }
+    wireLayout();
+  }
+
+  function resetLayout() {
+    layout = {};
+    saveLayout();
+    layoutMsg("Layout reset. Reloading\u2026");
+    setTimeout(() => window.location.reload(), 600);
+  }
+
   // ---- section navigation ------------------------------------------------
   //
   // Nine sections deep, the page is long enough that scrolling to Podcasts
@@ -1057,6 +1232,8 @@
       document.querySelectorAll(".kpi-sec").forEach((d) => { d.open = open; });
     };
     const ex = document.querySelector("[data-kpi-expand]");
+    const rl = document.querySelector("[data-kpi-resetlayout]");
+    if (rl) rl.addEventListener("click", resetLayout);
     const co = document.querySelector("[data-kpi-collapse]");
     if (ex) ex.addEventListener("click", () => setAll(true));
     if (co) co.addEventListener("click", () => setAll(false));
@@ -1708,6 +1885,7 @@
     safe("donations", () => renderDonations());
     safe("audience", () => renderAudience(showing));
     safe("revsummary", () => renderRevenueSummary(showing));
+    safe("layout", () => wireLayout());
   }
 
   // ---- verification table, flags and analysis ----------------------------
@@ -1969,4 +2147,5 @@
   wireSectionNav();
   load();
   loadLedger();
+  loadLayout();
 })();
