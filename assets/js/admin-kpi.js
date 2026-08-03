@@ -54,8 +54,11 @@
     { id: "quarter", label: "This Quarter", grain: "quarter", back: 0 },
     { id: "lastquarter", label: "Last Quarter", grain: "quarter", back: 1 },
     { id: "year", label: "This Year", grain: "year", back: 0 },
-    { id: "lastyear", label: "Last Year", grain: "year", back: 1 }
+    { id: "lastyear", label: "Last Year", grain: "year", back: 1 },
+    { id: "custom", label: "Custom Range", grain: "auto", back: 0 }
   ];
+  let customFrom = null;
+  let customTo = null;
   let period = "total";
   const P = () => PERIODS.find((x) => x.id === period) || PERIODS[0];
   // Kept as `gran` because the chart code reads it throughout.
@@ -127,11 +130,29 @@
   }
 
   // agg "last" for stocks (members, MRR, list size), "sum" for flows.
+  // With a custom range the grain is chosen from the span, so a fortnight
+  // reads daily and three years reads quarterly without the user picking.
+  function autoGrain(from, to) {
+    const days = Math.max(1, Math.round((Date.parse(to) - Date.parse(from)) / 86400000) + 1);
+    if (days <= 31) return "day";
+    if (days <= 120) return "week";
+    if (days <= 800) return "month";
+    return "quarter";
+  }
+
+  function inWindow(d) {
+    if (period !== "custom") return true;
+    if (customFrom && d < customFrom) return false;
+    if (customTo && d > customTo) return false;
+    return true;
+  }
+
   function bucketize(key, agg, g) {
     const out = [], seen = new Map();
     series.forEach((r) => {
       const v = r[key];
       if (typeof v !== "number") return;
+      if (!inWindow(r.d)) return;
       const { k, label, range } = bucketOf(r.d, g);
       let b = seen.get(k);
       if (!b) { b = { label, range, v: 0, n: 0, rows: [] }; seen.set(k, b); out.push(b); }
@@ -212,7 +233,7 @@
       ],
       bullets: (s) => [
         s.stripe ? `<b>${fmt(s.stripe.paying)}</b> paying Stripe — verified` : "",
-        s.hubspot ? `<b>${fmt(s.hubspot.checkout_last_12m)}–${fmt(s.hubspot.still_flagged_paid)}</b> legacy, depending on the test` : "",
+        s.hubspot ? `<b>${fmt(s.hubspot.checkout_last_12m)}–${fmt(s.hubspot.still_flagged_paid)}</b> HubSpot deals — unverified, see the members chart` : "",
         s.ghost ? `<b>${fmt(s.ghost.comped)}</b> comped · <b>${fmt(s.ghost.paid)}</b> paid in Ghost` : ""
       ]
     },
@@ -359,6 +380,25 @@
         if (!b.length) {
           value = "—";
         } else {
+          // A custom range is one window: sum flows across it, take the last
+          // value for stocks, and compare against nothing.
+          if (period === "custom") {
+            const all = b.flatMap((x) => x.rows);
+            const isSum = (t.periodAgg || t.agg) === "sum";
+            const cur = isSum ? sumOf(all, key) : (lastOf(all, key) || 0);
+            value = t.periodValue ? t.periodValue(all) : t.f(cur);
+            cap = `${mdy(customFrom)} – ${mdy(customTo)}${t.periodCap ? ` · ${t.periodCap}` : ""}`;
+            periodRows = all;
+            prevRows = null;
+            const bullets0 = (t.periodBullets ? t.periodBullets(all, null) : t.bullets(snap) || []).filter(Boolean);
+            return `<div class="kpi-tile">
+              <p class="kpi-tile-label">${t.label}</p>
+              <p class="kpi-tile-value">${value}</p>
+              <p class="kpi-tile-cap">${cap}</p>
+              ${bullets0.length ? `<ul class="kpi-tile-bullets">${bullets0.map((x) => `<li>${x}</li>`).join("")}</ul>` : ""}
+              ${sparkFor(key, t.periodAgg || t.agg)}
+            </div>`;
+          }
           // "This X" is the newest bucket; "Last X" the one before it.
           const back = P().back || 0;
           let last = b.length - 1 - back;
@@ -403,23 +443,23 @@
   const CHARTS = [
     {
       id: "members", type: "line", agg: "last", title: "Paying members",
-      sub: "Live Stripe subscriptions plus legacy members with a HubSpot checkout in the last twelve months.",
-      keys: ["pays", "hsp"], names: ["Stripe", "HubSpot (legacy)"], f: fmt
+      sub: "Stripe is verified. The HubSpot line counts contacts with a closed-won deal in the last twelve months — HubSpot calls those lists \u201cEveryone Who Pays\u201d, but reading what the deals actually are needs the crm.objects.deals.read scope, so treat it as unverified.",
+      keys: ["pays", "hsp"], names: ["Stripe (verified)", "HubSpot deals (unverified)"], f: fmt
     },
     {
       id: "mrr", type: "line", agg: "last", title: "Recurring revenue, monthly",
       sub: "Stripe at the amounts actually billed; HubSpot deals amortised over their twelve-month term.",
-      keys: ["mrr", "hsm"], names: ["Stripe", "HubSpot (legacy)"], f: usd
+      keys: ["mrr", "hsm"], names: ["Stripe", "HubSpot deals"], f: usd
     },
     {
       id: "new", type: "bar", agg: "sum", title: "New and renewed memberships",
       sub: "Stripe subscriptions started, and HubSpot deals closed, in each period.",
-      keys: ["nmem", "hsn"], names: ["Stripe", "HubSpot (legacy)"], f: fmt
+      keys: ["nmem", "hsn"], names: ["Stripe", "HubSpot deals"], f: fmt
     },
     {
       id: "cash", type: "bar", agg: "sum", title: "Cash collected",
       sub: "Stripe charges less refunds, and HubSpot deal value on the day it closed.",
-      keys: ["cash", "hsc"], names: ["Stripe", "HubSpot (legacy)"], f: usd
+      keys: ["cash", "hsc"], names: ["Stripe", "HubSpot deals"], f: usd
     },
     {
       id: "subs", type: "bar", agg: "sum", title: "Subscribes and unsubscribes",
@@ -742,7 +782,9 @@
 
   function renderTraffic(s) {
     const base = s.traffic;
-    const win = TRAFFIC_WINDOW[period] || "30d";
+    const win = period === "custom"
+      ? (gran === "day" ? "7d" : gran === "week" ? "30d" : "12mo")
+      : (TRAFFIC_WINDOW[period] || "30d");
     const t = base && base.windows && base.windows[win]
       ? ({ ...base, ...base.windows[win]})
       : base;
@@ -867,7 +909,7 @@
       // Per episode, not per month: Daily Liturgy publishes every day, so a
       // monthly average hides the only thing worth looking at.
       const EPISODES_FOR = { today: 14, month: 31, lastmonth: 31, quarter: 45, lastquarter: 45, year: 60, lastyear: 60, total: 30 };
-      const keepEp = EPISODES_FOR[period] || 30;
+      const keepEp = period === "custom" ? 60 : (EPISODES_FOR[period] || 30);
       shows.forEach(([key, name, color]) => {
         const eps = (s.podcasts.recent_episodes && s.podcasts.recent_episodes[key]) || [];
         if (eps.length > 1) {
@@ -1209,7 +1251,24 @@
     const b = e.target.closest(".kpi-gbtn");
     if (!b) return;
     period = b.getAttribute("data-g");
-    gran = P().grain || "total";
+    const cfg = P();
+    const row = $("[data-kpi-custom]");
+    if (period === "custom") {
+      if (row) row.hidden = false;
+      const from = $("[data-kpi-from]"), to = $("[data-kpi-to]");
+      if (series.length) {
+        if (!from.value) from.value = series[Math.max(0, series.length - 90)].d;
+        if (!to.value) to.value = series[series.length - 1].d;
+        from.min = series[0].d; from.max = series[series.length - 1].d;
+        to.min = series[0].d; to.max = series[series.length - 1].d;
+      }
+      customFrom = from.value;
+      customTo = to.value;
+      gran = autoGrain(customFrom, customTo);
+    } else {
+      if (row) row.hidden = true;
+      gran = cfg.grain || "total";
+    }
     render();
   });
 
@@ -1249,6 +1308,27 @@
       btn.disabled = false;
       btn.textContent = "Refresh now";
     }
+  });
+
+  ["[data-kpi-from]", "[data-kpi-to]"].forEach((sel) => {
+    const el = $(sel);
+    if (!el) return;
+    el.addEventListener("change", () => {
+      customFrom = $("[data-kpi-from]").value;
+      customTo = $("[data-kpi-to]").value;
+      if (customFrom && customTo && customFrom > customTo) {
+        const t = customFrom; customFrom = customTo; customTo = t;
+        $("[data-kpi-from]").value = customFrom;
+        $("[data-kpi-to]").value = customTo;
+      }
+      gran = autoGrain(customFrom, customTo);
+      const note = $("[data-kpi-customnote]");
+      if (note) {
+        const days = Math.round((Date.parse(customTo) - Date.parse(customFrom)) / 86400000) + 1;
+        note.textContent = `${days} day${days === 1 ? "" : "s"}, charted by ${gran}`;
+      }
+      render();
+    });
   });
 
   $("[data-kpi-today]").addEventListener("click", load);
