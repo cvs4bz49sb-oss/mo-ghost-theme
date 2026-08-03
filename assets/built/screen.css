@@ -10252,6 +10252,28 @@ label.site-form-field-check {
   .dl-ep-time { display: none; }
 }
 
+/* Reader endorsement closing the two-path band. A hairline and the
+   image, no box — the screenshot already carries its own white card,
+   so wrapping it in another one would read as a card-in-a-card. */
+.dl-endorsement {
+  max-width: 720px;
+  margin: 56px auto 0;
+  padding-top: 40px;
+  border-top: 1px solid var(--color-rule);
+}
+.dl-endorsement img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+@media (max-width: 640px) {
+  .dl-endorsement {
+    margin-top: 40px;
+    padding-top: 28px;
+  }
+}
+
 .dl-listen-ctas {
   display: flex;
   flex-wrap: wrap;
