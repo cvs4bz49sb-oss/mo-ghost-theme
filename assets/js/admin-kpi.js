@@ -612,6 +612,11 @@
         "Every paying subscription, keyed off the amount on its latest invoice.",
         entries(s.stripe.price_mix), { rotate: true }));
     }
+    if (s.ghost && s.ghost.special_tiers && Object.keys(s.ghost.special_tiers).length) {
+      out.push(barBlock("Comped tiers",
+        "Student, institutional and gift members are comped in Ghost, so they never appear as Stripe subscriptions.",
+        entries(s.ghost.special_tiers), { rotate: true, color: C3 }));
+    }
     if (s.stripe && s.stripe.attribution) {
       out.push(barBlock("Where the membership conversion happened",
         "Ghost attribution passed into Stripe at checkout. Migration checkouts record nothing.",
@@ -678,19 +683,35 @@
     if (s.traffic && s.traffic.top_pages && s.traffic.top_pages.length) {
       out.push(barBlock("Most-read pages",
         "Visitors, last 30 days.",
-        s.traffic.top_pages.slice(0, 8).map((c) => [c.name.replace(/^\//, "").slice(0, 18) || "home", c.visitors]),
+        s.traffic.top_pages.slice(0, 8).map((c) => [
+          (c.title || c.name || "").replace(/^\//, "").slice(0, 26) || "Homepage", c.visitors
+        ]),
         { rotate: true }));
     }
-    if (s.podcasts && s.podcasts.per_episode) {
-      const shows = [["mere_fidelity", "Mere Fidelity", C1], ["daily_liturgy", "Daily Liturgy", C2]];
-      shows.forEach(([key, name, color]) => {
-        const rows = s.podcasts.per_episode[key] || [];
-        if (rows.length > 1) {
-          out.push(barBlock(`${name} — reach per episode`,
-            "Average API plays for episodes published each month. A different unit from dashboard downloads.",
-            rows.map((r) => [r.month.slice(2), r.avg]), { color }));
-        }
-      });
+    if (s.podcasts) {
+      const shows = [
+        ["mere_fidelity", "Mere Fidelity", C1],
+        ["reading_classics", "Christians Reading Classics", C2],
+        ["daily_liturgy", "Daily Liturgy", C3]
+      ];
+      const totals = shows
+        .filter(([key]) => typeof s.podcasts[key] === "number")
+        .map(([key, name]) => [name, s.podcasts[key]]);
+      if (totals.length) {
+        out.push(barBlock("Podcast plays by show",
+          "Lifetime plays on Buzzsprout, all published episodes.",
+          totals, { rotate: true }));
+      }
+      if (s.podcasts.per_episode) {
+        shows.forEach(([key, name, color]) => {
+          const rows = s.podcasts.per_episode[key] || [];
+          if (rows.length > 1) {
+            out.push(barBlock(`${name} — reach per episode`,
+              "Average plays for episodes published each month. A different unit from dashboard downloads.",
+              rows.map((r) => [`${Number(r.month.slice(5))}/${r.month.slice(2, 4)}`, r.avg]), { color }));
+          }
+        });
+      }
     }
     document.querySelector("[data-kpi-channels]").innerHTML =
       out.filter(Boolean).join("") || '<p class="kpi-empty">No channel data in this snapshot.</p>';
