@@ -521,7 +521,9 @@
   function barBlock(title, sub, pairs, opts) {
     const o = opts || {};
     if (!pairs.length) return "";
-    const W = 560, H = o.rotate ? 290 : 240, L = 52, R = 18, T = 14, B = o.rotate ? 92 : 28;
+    // T leaves headroom for the value label above the tallest bar. At 14 the
+    // label on a full-height bar painted over the card title.
+    const W = 560, H = o.rotate ? 304 : 254, L = 52, R = 18, T = 28, B = o.rotate ? 92 : 28;
     const pw = W - L - R, ph = H - T - B, n = pairs.length;
     const mx = Math.max(...pairs.map((p) => p[1]), 1);
     const ticks = niceTicks(mx, 4), top = ticks[ticks.length - 1];
