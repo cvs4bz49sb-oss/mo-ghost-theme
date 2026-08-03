@@ -43,6 +43,22 @@
   let showing = null;
   let historyRow = null;
   let historyPrev = null;
+  // Named periods rather than raw grains: "This Month" and "Last Month" are
+  // the same bucketing with a different offset from the end of the series,
+  // which is how anyone actually reads a dashboard.
+  const PERIODS = [
+    { id: "total", label: "Total" },
+    { id: "today", label: "Today", grain: "day", back: 0 },
+    { id: "month", label: "This Month", grain: "month", back: 0 },
+    { id: "lastmonth", label: "Last Month", grain: "month", back: 1 },
+    { id: "quarter", label: "This Quarter", grain: "quarter", back: 0 },
+    { id: "lastquarter", label: "Last Quarter", grain: "quarter", back: 1 },
+    { id: "year", label: "This Year", grain: "year", back: 0 },
+    { id: "lastyear", label: "Last Year", grain: "year", back: 1 }
+  ];
+  let period = "total";
+  const P = () => PERIODS.find((x) => x.id === period) || PERIODS[0];
+  // Kept as `gran` because the chart code reads it throughout.
   let gran = "total";
 
   const fmt = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US") : "—");
@@ -323,16 +339,17 @@
         if (!b.length) {
           value = "—";
         } else {
-          // last COMPLETE period, except Year where "to date" reads better
-          let last = b.length - 1;
-          const partial = last > 0 && b[last].n < b[last - 1].n;
-          if (partial && gran !== "year") last -= 1;
+          // "This X" is the newest bucket; "Last X" the one before it.
+          const back = P().back || 0;
+          let last = b.length - 1 - back;
+          if (last < 0) last = 0;
+          const partial = last === b.length - 1 && b.length > 1 && b[last].n < b[last - 1].n;
           const cur = b[last].v;
           const prev = last > 0 ? b[last - 1].v : null;
           periodRows = b[last].rows;
           prevRows = last > 0 ? b[last - 1].rows : null;
           value = t.periodValue ? t.periodValue(b[last].rows) : t.f(cur);
-          cap = (b[last].range || b[last].label) + (partial && gran === "year" ? " to date" : "")
+          cap = (b[last].range || b[last].label) + (partial ? " so far" : "")
             + (t.periodCap ? ` · ${t.periodCap}` : "");
           if (prev != null && prev >= 10) {
             const d = pctChange(prev, cur);
@@ -688,12 +705,12 @@
   // The nightly job stores traffic breakdowns for 7d / 30d / 12mo, so the
   // period selector switches between real windows instead of always showing
   // the last 30 days.
-  const TRAFFIC_WINDOW = { day: "7d", week: "7d", month: "30d", quarter: "12mo", year: "12mo", total: "30d" };
+  const TRAFFIC_WINDOW = { today: "7d", month: "30d", lastmonth: "30d", quarter: "12mo", lastquarter: "12mo", year: "12mo", lastyear: "12mo", total: "30d" };
   const WINDOW_LABEL = { "7d": "last 7 days", "30d": "last 30 days", "12mo": "last 12 months" };
 
   function renderTraffic(s) {
     const base = s.traffic;
-    const win = TRAFFIC_WINDOW[gran] || "30d";
+    const win = TRAFFIC_WINDOW[period] || "30d";
     const t = base && base.windows && base.windows[win]
       ? ({ ...base, ...base.windows[win]})
       : base;
@@ -818,8 +835,8 @@
       if (s.podcasts.per_episode) {
         // Show the months that fall inside the selected period rather than
         // always the last eight.
-        const MONTHS_FOR = { day: 2, week: 2, month: 3, quarter: 6, year: 12, total: 8 };
-        const keep = MONTHS_FOR[gran] || 8;
+        const MONTHS_FOR = { today: 2, month: 3, lastmonth: 3, quarter: 6, lastquarter: 6, year: 12, lastyear: 12, total: 8 };
+        const keep = MONTHS_FOR[period] || 8;
         shows.forEach(([key, name, color]) => {
           const rows = (s.podcasts.per_episode[key] || []).slice(-keep);
           if (rows.length > 1) {
@@ -1018,7 +1035,7 @@
   function render() {
     if (!showing) return;
     els.gran.querySelectorAll(".kpi-gbtn").forEach((b) =>
-      b.setAttribute("aria-pressed", String(b.getAttribute("data-g") === gran)));
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-g") === period)));
     // Each block is independent: one failing must not take the rest of the
     // page down with it.
     const safe = (name, fn) => { try { fn(); } catch (err) { console.error(`kpi ${name}`, err); } };
@@ -1148,13 +1165,13 @@
   // ---- controls ----------------------------------------------------------
 
   els.gran.innerHTML = `<span class="kpi-glabel">Period</span>${
-     [["total", "Total"], ["day", "Day"], ["week", "Week"], ["month", "Month"], ["quarter", "Quarter"], ["year", "Year"]]
-      .map(([g, l]) => `<button type="button" class="kpi-btn kpi-gbtn" data-g="${g}" aria-pressed="${g === gran}">${l}</button>`).join("")}`;
+    PERIODS.map((x) => `<button type="button" class="kpi-btn kpi-gbtn" data-g="${x.id}" aria-pressed="${x.id === period}">${x.label}</button>`).join("")}`;
 
   els.gran.addEventListener("click", (e) => {
     const b = e.target.closest(".kpi-gbtn");
     if (!b) return;
-    gran = b.getAttribute("data-g");
+    period = b.getAttribute("data-g");
+    gran = P().grain || "total";
     render();
   });
 
