@@ -2185,6 +2185,138 @@
     </div>`;
   }
 
+  // ---- traffic quality --------------------------------------------------
+  //
+  // Plausible measures unique visitors as well as pageviews, which makes
+  // depth and repeat-reading visible in a way a pageview count never is.
+  //
+  // The two scores are stated formulas, not black boxes, and both show the
+  // raw numbers they came from — a score nobody can check is a score nobody
+  // should act on.
+
+  const LOYALTY_FLOOR = 1;   // one page and gone
+  const LOYALTY_CEIL = 3;    // three pages a visitor is a genuinely engaged read
+
+  function metricCard(title, sub, value, cap, bullets, foot) {
+    return `<div class="kpi-chart">
+      <p class="kpi-chart-title">${title}</p>
+      <p class="kpi-chart-sub">${sub}</p>
+      <p class="kpi-metric-value">${value}</p>
+      <p class="kpi-metric-cap">${cap}</p>
+      <ul class="kpi-tile-bullets">${bullets.filter(Boolean).map((b) => `<li>${b}</li>`).join("")}</ul>
+      ${foot ? `<p class="kpi-note">${foot}</p>` : ""}
+    </div>`;
+  }
+
+  // The rows the active period covers, plus the equivalent prior period, so
+  // these cards move with the picker like everything else.
+  function periodRowsAndPrev() {
+    const all = series.filter((r) => inWindow(r.d));
+    if (gran === "total" || period === "custom") return { rows: all, prev: null };
+    const b = bucketize("vis", "sum", gran);
+    if (!b.length) return { rows: [], prev: null };
+    const back = P().back || 0;
+    let i = b.length - 1 - back;
+    if (i < 0) i = 0;
+    return { rows: b[i].rows, prev: i > 0 ? b[i - 1].rows : null };
+  }
+
+  function renderTrafficQuality() {
+    const { rows, prev } = periodRowsAndPrev();
+    const has = rows.filter((r) => typeof r.vis === "number" && r.vis > 0);
+    if (!has.length) {
+      chartBuckets.traffic = chartBuckets.traffic.concat([
+        `<div class="kpi-chart"><p class="kpi-chart-title">Visitor quality</p>
+         <p class="kpi-empty">No Plausible visitor data in this period. Measurement starts 21 Apr 2026.</p></div>`
+      ]);
+      return;
+    }
+    const visitors = sumOf(has, "vis");
+    const views = sumOf(has, "pvd");
+    const perVisitor = visitors ? views / visitors : 0;
+    // A period still running has fewer days than the one before it, so
+    // comparing the whole of each would report a collapse every Monday.
+    // Match the prior period to the same number of days from its start.
+    const prevAll = prev ? prev.filter((r) => typeof r.vis === "number" && r.vis > 0) : null;
+    const prevMatched = prevAll && prevAll.length > has.length ? prevAll.slice(0, has.length) : prevAll;
+    const partial = !!(prevAll && prevMatched && prevMatched.length < prevAll.length);
+    const prevVis = prevMatched ? sumOf(prevMatched, "vis") : null;
+    const prevViews = prevMatched ? sumOf(prevMatched, "pvd") : null;
+    const prevPer = prevVis ? prevViews / prevVis : null;
+
+    const loyalty = Math.max(0, Math.min(100,
+      Math.round(((perVisitor - LOYALTY_FLOOR) / (LOYALTY_CEIL - LOYALTY_FLOOR)) * 100)));
+    const prevLoyalty = prevPer == null ? null : Math.max(0, Math.min(100,
+      Math.round(((prevPer - LOYALTY_FLOOR) / (LOYALTY_CEIL - LOYALTY_FLOOR)) * 100)));
+
+    const growth = prevVis ? ((visitors - prevVis) / prevVis) * 100 : null;
+    const newScore = growth == null ? null : Math.max(0, Math.min(100, Math.round(50 + growth)));
+    const days = has.length;
+
+    const out = [];
+    out.push(metricCard("Unique visitors",
+      "Distinct people, not pageviews. Plausible counts a person once per day however many pages they read.",
+      fmt(visitors), `over ${fmt(days)} ${days === 1 ? "day" : "days"} with data`,
+      [
+        `<b>${fmt(views)}</b> pageviews from them`,
+        `<b>${fmt(Math.round(visitors / days))}</b> a day on average`,
+        prevVis ? `<b>${signed(visitors - prevVis)}</b> against the previous period (${fmt(prevVis)})` : ""
+      ],
+      "Summed from daily figures, which overstates Plausible's own de-duplicated count for the same span by "
+      + "about 2% \u2014 someone reading on two days counts twice. Plausible identifies visitors with a "
+      + "daily-rotating hash rather than a cookie, so it cannot recognise them across days either."));
+
+    out.push(metricCard("Pageviews per visitor",
+      "How much of the site a reader takes in before leaving.",
+      perVisitor.toFixed(2), "pages per unique visitor",
+      [
+        `<b>${fmt(views)}</b> pageviews \u00f7 <b>${fmt(visitors)}</b> visitors`,
+        prevPer != null ? `<b>${prevPer.toFixed(2)}</b> in the previous period` : "",
+        perVisitor < 1.5 ? "most visitors read one page and leave" : "visitors are reading more than one piece"
+      ]));
+
+    out.push(metricCard("Reader loyalty",
+      "Depth of reading, scored. Built from pageviews per visitor, which is the only repeat-reading signal Plausible exposes.",
+      `${loyalty}`, "out of 100",
+      [
+        `<b>${perVisitor.toFixed(2)}</b> pages per visitor`,
+        prevLoyalty != null ? `<b>${signed(loyalty - prevLoyalty)}</b> against the previous period (${prevLoyalty})` : "",
+        `scored ${LOYALTY_FLOOR}.0 pages = 0, ${LOYALTY_CEIL}.0 = 100`
+      ],
+      "One page per visitor means everyone arrives, reads the piece they came for and leaves; three means they are exploring. "
+      + "The scale is a stated choice, not a measurement, so read the pages-per-visitor figure as the real number."));
+
+    out.push(metricCard("New readers",
+      "Growth in the number of distinct people reaching the site.",
+      newScore == null ? "\u2014" : `${newScore}`,
+      newScore == null ? "needs a previous period to compare" : "out of 100",
+      [
+        `<b>${fmt(visitors)}</b> unique visitors this period`,
+        prevVis ? `<b>${fmt(prevVis)}</b> in the previous period` : "",
+        growth == null ? "" : `<b>${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%</b> change \u00b7 scored 50 = flat`,
+        partial ? `compared against the first ${fmt(has.length)} ${has.length === 1 ? "day" : "days"} of the previous period, since this one is still running` : ""
+      ],
+      "Plausible cannot tell a first-time reader from a returning one \u2014 it has no new-versus-returning dimension \u2014 "
+      + "so this measures reach growth, not literal first-timers. Making it literal needs a flag set on the reader's own "
+      + "device on first visit, which the site could send as a Plausible event."));
+
+    out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Methodology</p>
+      <p class="kpi-chart-sub">Where these four numbers come from, and what they cannot say.</p>
+      <ul class="kpi-tile-bullets">
+        <li>Visitor measurement starts <b>21 Apr 2026</b>, when Plausible went on the site. The new site
+            launched <b>26 May 2026</b>, so the five weeks before that cover a quieter pre-launch site and
+            will drag any average that spans them.</li>
+        <li>Nothing before 21 Apr has visitor data at all. HubSpot ran the old site and its analytics sit
+            behind a scope this token does not have, so earlier periods show pageviews without visitors.</li>
+        <li>Pageviews here are the site only. Substack views are counted in the Web traffic KPI but not in
+            these ratios, because Substack reports no visitor figure to divide by.</li>
+        <li>Both scores are stated formulas rather than measurements. The raw inputs are on each card;
+            trust those first.</li>
+      </ul></div>`);
+
+    chartBuckets.traffic = chartBuckets.traffic.concat(out);
+  }
+
   function renderBreakdowns(s) {
     const out = [];
     // Money-shaped blocks belong under Revenue; headcount under Acquisition.
@@ -2688,6 +2820,7 @@
     safe("breakdowns", () => renderBreakdowns(showing));
     safe("channels", () => renderChannels(showing));
     safe("traffic", () => renderTraffic(showing));
+    safe("trafficquality", () => renderTrafficQuality());
     safe("paint", () => paintSections());
     safe("narrative", () => renderNarrative(showing));
     safe("substack", () => renderSubstack());

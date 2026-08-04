@@ -24766,6 +24766,11 @@ html[data-theme="dark"] .dlr-play-btn {
   [data-kpi-sortable="on"] > .kpi-tile { cursor: default; }
 }
 
+/* Big-number metric card, same chrome as a chart card. */
+.kpi-metric-value { font-size: 34px; line-height: 1.05; letter-spacing: -0.02em; color: var(--k-text);
+  font-variant-numeric: tabular-nums; margin: 14px 0 2px; }
+.kpi-metric-cap { font-size: 12px; color: var(--k-muted); margin: 0 0 4px; }
+
 /* Inline marker for a recurring gift's cadence. */
 .kpi-pill { display: inline-block; font-size: 11px; line-height: 1.5; padding: 1px 7px;
   border: 1px solid var(--k-line); border-radius: 999px; color: var(--k-text); }
