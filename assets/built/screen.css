@@ -24539,6 +24539,40 @@ html[data-theme="dark"] .dlr-play-btn {
   .kpi-rev-total { font-size: 28px; }
 }
 
+/* Email attribution — one row per send, opening onto the members it won.
+   Hairline rows rather than nested cards: the roster is already a table,
+   and a card inside a card inside a card reads as packaging. A send that
+   won nobody stays in the list, greyed and not openable, because "this
+   one did nothing" is half the finding. */
+.kpi-attr { margin-top: 12px; }
+.kpi-attr-row { border-bottom: 1px solid var(--k-line); }
+.kpi-attr-row:last-child { border-bottom: none; }
+.kpi-attr-row > summary { list-style: none; cursor: pointer; display: grid;
+  grid-template-columns: 5.6rem 1fr 3.2rem 5rem; gap: 10px; align-items: baseline;
+  padding: 9px 0; font-size: 13px; }
+.kpi-attr-row > summary::-webkit-details-marker { display: none; }
+.kpi-attr-row > summary:hover { background: var(--k-hover, rgba(0, 0, 0, 0.02)); }
+.kpi-attr-row[data-empty] > summary { cursor: default; }
+.kpi-attr-row[data-empty] > summary:hover { background: none; }
+.kpi-attr-d { font-size: 11.5px; color: var(--k-muted); white-space: nowrap; }
+.kpi-attr-s { color: var(--k-text); }
+.kpi-attr-row[data-empty] .kpi-attr-s { color: var(--k-muted); }
+.kpi-attr-k { font-size: 10.5px; color: var(--k-muted); border: 1px solid var(--k-line);
+  border-radius: 3px; padding: 1px 5px; margin-left: 7px; white-space: nowrap; }
+.kpi-attr-n { text-align: right; font-variant-numeric: tabular-nums; color: var(--k-text); }
+.kpi-attr-row[data-empty] .kpi-attr-n { color: var(--k-muted); }
+.kpi-attr-c { text-align: right; font-variant-numeric: tabular-nums;
+  color: var(--k-muted); font-size: 11.5px; white-space: nowrap; }
+.kpi-attr-body { padding: 2px 0 12px; }
+@media (max-width: 620px) {
+  .kpi-attr-row > summary { grid-template-columns: 1fr 3rem 4.6rem;
+    grid-template-areas: "s s s" "d n c"; row-gap: 4px; }
+  .kpi-attr-s { grid-area: s; }
+  .kpi-attr-d { grid-area: d; }
+  .kpi-attr-n { grid-area: n; }
+  .kpi-attr-c { grid-area: c; }
+}
+
 /* Comparison table living inside a chart card. */
 .kpi-table-cmp { margin-top: 12px; font-size: 13px; }
 .kpi-table-cmp th, .kpi-table-cmp td { padding: 7px 14px 7px 0; }

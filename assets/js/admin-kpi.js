@@ -833,6 +833,11 @@
     document.querySelectorAll("[data-chart]").forEach((host) => {
       const st = chartState[host.getAttribute("data-chart")];
       if (!st) return;
+      // Attribution paints on its own clock, so wireCharts runs more than
+      // once per render now. Every repaint builds fresh nodes, so this
+      // only ever skips a host that already carries its listeners.
+      if (host.dataset.wired) return;
+      host.dataset.wired = "1";
       host.querySelectorAll(".kpi-hz").forEach((z) => {
         const i = Number(z.getAttribute("data-i"));
         z.addEventListener("mouseenter", (ev) => {
@@ -1414,6 +1419,96 @@
       ledger.sort((a, b) => (a.date < b.date ? -1 : 1));
     } catch (_) { ledger = []; }
     renderDonations();
+  }
+
+  // ---- email → membership attribution ------------------------------------
+  //
+  // Which send won which member. Kit click identities matched against
+  // Stripe subscriptions: a conversion is credited to the most recent
+  // membership or offer link the person clicked before they paid.
+  //
+  // The roster is the point of the block, so a send is a summary row and
+  // the names sit behind it rather than in a second card. It loads on its
+  // own clock — attribution is per-send, not per-day, so it is not on the
+  // nightly snapshot the rest of the board is built from.
+
+  let attribution = null;
+
+  async function loadAttributionData() {
+    try {
+      const r = await MOAuth.fetch(`${worker}/kpi/attribution`);
+      attribution = r.ok ? await r.json() : null;
+    } catch (_) { attribution = null; }
+    renderAttribution();
+  }
+
+  function attrRow(s) {
+    const lag = (h) => (h < 48 ? `${h}h` : `${Math.round(h / 24)}d`);
+    const head = `<summary>
+      <span class="kpi-attr-d">${mdy(s.date)}</span>
+      <span class="kpi-attr-s">${esc(s.subject)}<span class="kpi-attr-k">${esc((s.kinds || []).join(" · "))}</span></span>
+      <span class="kpi-attr-n">${fmt(s.conversions)}</span>
+      <span class="kpi-attr-c">${fmt(s.clicks)} clicks</span>
+    </summary>`;
+    if (!s.conversions) return `<details class="kpi-attr-row" data-empty>${head}</details>`;
+    const people = (s.people || []).map((p) => `<tr>
+      <td>${esc(p.name) || "—"}</td>
+      <td>${esc(p.email)}</td>
+      <td class="is-num">${usd(p.value)}</td>
+      <td class="is-num">${lag(p.hours)}</td>
+      <td>${mdy(String(p.at).slice(0, 10))}</td>
+    </tr>`).join("");
+    return `<details class="kpi-attr-row">${head}
+      <div class="kpi-attr-body"><div class="kpi-tablewrap"><table class="kpi-table">
+        <thead><tr><th>Name</th><th>Email</th><th class="is-num">Value/yr</th>
+          <th class="is-num">Lag</th><th>Paid</th></tr></thead>
+        <tbody>${people}</tbody>
+      </table></div></div></details>`;
+  }
+
+  function renderAttribution() {
+    const host = document.querySelector("[data-kpi-attribution]");
+    if (!host) return;
+    if (!attribution || !attribution.sends || !attribution.sends.length) {
+      host.innerHTML = "";
+      return;
+    }
+    const t = attribution.totals || {};
+    const cta = attribution.sends.filter((s) => s.group !== "migrate");
+    const out = [];
+
+    if (cta.length > 1) {
+      out.push(barBlock("Paying members won per send",
+        `${fmt(t.cta_clicks || 0)} clicks on a membership or offer link across ${cta.length} sends `
+        + `produced ${fmt(t.cta_conversions || 0)} paying members, worth ${usd(t.cta_value || 0)} a year. `
+        + "Each member is credited to the most recent such click before they paid.",
+        cta.map((s) => [mdy(s.date), s.conversions]),
+        {
+          rotate: true,
+          color: C1,
+          seriesName: "Members won",
+          labels: cta.map((s) => `${mdy(s.date, true)} · ${s.subject}`)
+        }));
+    }
+
+    // Newest first here, the opposite of the chart: the chart is a trend
+    // and reads left to right, this is a list and the recent send is the
+    // one being looked up.
+    const rows = attribution.sends.slice().reverse();
+    out.push(`<div class="kpi-chart">
+      <p class="kpi-chart-title">Who converted, by send</p>
+      <p class="kpi-chart-sub">Open a send to see the members it won. Migration links are the legacy
+        HubSpot base moving onto Ghost billing rather than new revenue, so they are labelled and left
+        out of the chart. Lag is measured from the send: Kit gives the broadcast a click belongs to
+        but never the click's own timestamp.</p>
+      <div class="kpi-attr">${rows.map(attrRow).join("")}</div>
+      ${attribution.pending
+    ? `<p class="kpi-note">${fmt(attribution.pending)} send(s) not walked yet — the nightly job works through the backlog a few at a time.</p>`
+    : ""}
+    </div>`);
+
+    host.innerHTML = out.filter(Boolean).join("");
+    wireCharts();
   }
 
   function renderBreakdowns(s) {
@@ -2229,5 +2324,6 @@
   wireSectionNav();
   load();
   loadLedger();
+  loadAttributionData();
   loadLayout();
 })();

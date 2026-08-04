@@ -138,6 +138,10 @@
           <details class="kpi-sec" open>
             <summary><span class="kpi-chev"></span>Email</summary>
             <div class="kpi-charts" data-kpi-email></div>
+            {{!-- Attribution arrives from /kpi/attribution, not the nightly
+                  snapshot, so it paints into its own container when that
+                  fetch lands rather than waiting on a re-render. --}}
+            <div class="kpi-charts" data-kpi-attribution></div>
           </details>
 
           <details class="kpi-sec" open>
