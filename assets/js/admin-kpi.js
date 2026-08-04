@@ -338,7 +338,7 @@
       // snapshot taken before donations existed still shows a real number
       // instead of a dash.
       value: (s) => usd(s.kpi.donations_total != null ? s.kpi.donations_total : lastOf(series, "dontot")),
-      periodBullets: (rows) => {
+      periodBullets(rows) {
         const gifts = sumOf(rows, "dong");
         const amt = sumOf(rows, "don");
         const days = rows.filter((r) => r.don > 0).length;
@@ -935,10 +935,10 @@
       const never = (e.segments.find((x) => x.name === "No activity recorded") || {}).n || 0;
       return `<b>${fmt(tracked)}</b> of <b>${fmt(e.subscribers)}</b> subscribers have been seen reading, and `
         + `<b>${fmt(hab)}</b> of those are habitual. The <b>${fmt(never)}</b> with no recorded activity are `
-        + `mostly people who predate the new site, not people who left. `
-        + (dormant === 0
+        + `mostly people who predate the new site, not people who left. ${
+         dormant === 0
           ? "Dormant sits at zero because reading has only been tracked since 26 May 2026 — nobody has had time to go three months without reading, and that band starts filling from late August."
-          : `<b>${fmt(dormant)}</b> have now gone three months without reading.`);
+          : `<b>${fmt(dormant)}</b> have now gone three months without reading.`}`;
     },
     "site-features"() {
       const e = showing && showing.engagement;
@@ -1313,7 +1313,7 @@
   // Quarter and you get that quarter's gifts, not the newest 25 overall.
 
   let ledger = null;
-  let donSort = { key: "date", dir: "desc" };
+  const donSort = { key: "date", dir: "desc" };
   let donExpanded = false;
 
   // The date span the active period covers, taken from the series rows the
@@ -1746,9 +1746,9 @@
           + `the boxes are directly comparable. ${who}`
       }
     );
-    return card("members", M, "Member is anyone whose Ghost tier is not free, so comped, student and institutional count.")
+    return `${card("members", M, "Member is anyone whose Ghost tier is not free, so comped, student and institutional count.")
       + card("free subscribers", S, "Free subscribers only \u2014 anyone who has not taken a membership.")
-      + `<div class="kpi-chart"><p class="kpi-chart-title">Members against subscribers</p>
+       }<div class="kpi-chart"><p class="kpi-chart-title">Members against subscribers</p>
         <p class="kpi-chart-sub">The same two populations side by side.</p>
         <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
           <thead><tr><th>Group</th><th class="is-num">Readers</th><th class="is-num">Essays read</th>
@@ -1840,8 +1840,8 @@
 
     const jump = document.querySelector("[data-kpi-jump]");
     if (jump) {
-      jump.innerHTML = '<option value="">Jump to section…</option>'
-        + secs.map((d) => `<option value="${d.id}">${esc(nameOf(d))}</option>`).join("");
+      jump.innerHTML = `<option value="">Jump to section…</option>${
+         secs.map((d) => `<option value="${d.id}">${esc(nameOf(d))}</option>`).join("")}`;
       jump.addEventListener("change", () => {
         const d = document.getElementById(jump.value);
         if (!d) return;
