@@ -263,7 +263,7 @@
     rev: "membership_revenue", mem: "total_members", sub: "total_subscribers",
     nmem: "new_members_24h", nsub: "new_subscribers_24h", pv: "web_traffic_30d",
     pod: "podcast_lifetime", op: "digest_open", mig: "migration_done",
-    trev: "total_revenue", cxl: "cancels_30d",
+    trev: "total_revenue", cxl: "cancels_total",
     don: "donations_total"
   };
 
@@ -287,7 +287,7 @@
       ]
     },
     {
-      label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised",
+      label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised, incl. Journal",
       periodBullets: (rows, prev) => [
         `<b>${usd((lastOf(rows, "mrr") || 0) * 12)}</b> Stripe run-rate at period end`,
         `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> HubSpot, trailing twelve months`,
@@ -351,7 +351,13 @@
       }
     },
     {
-      label: "Cancellations", key: "cxl", agg: "sum", f: fmt, goodUp: false, cap: "Stripe, last 24 hours",
+      // Total shows every paying cancellation on record, which is what the
+      // cancellations table says on its All time row. It used to show the
+      // 30-day figure under a caption reading "last 24 hours", so the tile
+      // and the table disagreed by design.
+      label: "Cancellations", key: "cxl", agg: "sum", f: fmt, goodUp: false,
+      cap: "paying members, all time",
+      value: (s) => fmt(s.kpi.cancels_total != null ? s.kpi.cancels_total : sumOf(series, "cxl")),
       periodBullets: (rows) => [
         `<b>${fmt(sumOf(rows, "cxl"))}</b> cancelled in the period`,
         `<b>${fmt(sumOf(rows, "nmem"))}</b> started — net <b>${signed(sumOf(rows, "nmem") - sumOf(rows, "cxl"))}</b>`,
@@ -630,7 +636,7 @@
   const CHARTS = [
     {
       id: "members", type: "line", agg: "last", title: "Paying members",
-      sub: "Stripe, plus legacy members whose membership was paid for within the last twelve months. The legacy line counts distinct people in HubSpot's Membership pipeline only — donations and journal orders sit in their own pipelines and are not memberships.",
+      sub: "Stripe, plus legacy members who paid within the last twelve months. The legacy line counts distinct people across HubSpot's Membership and Journal pipelines — the Journal is a membership product, so its buyers are members. Donations are a separate pipeline and are not counted here.",
       keys: ["pays", "hsp"], names: ["Stripe", "Legacy (HubSpot membership)"], f: fmt
     },
     {
@@ -2763,7 +2769,12 @@
         const legacy = snap.hubspot
           ? (snap.hubspot.membership_deals ? snap.hubspot.membership_deals.last_12m : snap.hubspot.checkout_value_12m)
           : 0;
-        merged.membership_revenue = Math.round(snap.stripe.arr + legacy + row.revenue);
+        // The Journal is a membership product, so its takings belong here
+        // too. Leaving it out made this recomputation quietly undo the
+        // collector's figure the moment a Substack reading existed.
+        const journal = snap.hubspot && snap.hubspot.journal_deals
+          ? snap.hubspot.journal_deals.last_12m : 0;
+        merged.membership_revenue = Math.round(snap.stripe.arr + legacy + journal + row.revenue);
         // Keep the total in step, or the Revenue box and its parts drift
         // apart the moment a Substack reading is entered.
         if (base.donations_ytd != null) {
