@@ -14,7 +14,13 @@
   const BI2Y_URL = window.moAssetUrl("/assets/data/daily-liturgy/bible-in-2-years.json");
   const BI2Y_START = "2026-01-01";
   const BI2Y_TOTAL_DAYS = 736;
-  const PODCAST_FEED_URL = "https://mo-podcast-feed.mo-podcast-feed.workers.dev";
+  // Every other feed consumer (podcast-feed.js, dlp-band.js) reads the
+  // worker URL off body[data-podcast-feed-url], which Ghost fills from
+  // @custom.podcast_feed_url. This page had it hardcoded, so repointing
+  // the setting would leave the reader talking to the old worker.
+  const PODCAST_FEED_DEFAULT = "https://mo-podcast-feed.mo-podcast-feed.workers.dev";
+  const PODCAST_FEED_URL =
+    (document.body.getAttribute("data-podcast-feed-url") || "").trim() || PODCAST_FEED_DEFAULT;
   const LS_TRANSLATION = "mo-liturgy-translation";
   const LS_MODE = "mo-liturgy-mode";
   const LS_SCRIPTURE = "mo-liturgy-scripture";
@@ -580,25 +586,69 @@
     const ARTWORK_URL = "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy-Podcast-Covers--2-.jpg";
     const SKIP_SECONDS = 15;
     const DEFAULT_NOTE = "Follows the Devotional Plan";
+    const LATEST_NOTE = "Latest episode";
 
     const MONTH_MAP = {
-      january: "01", february: "02", march: "03", april: "04",
-      may: "05", june: "06", july: "07", august: "08",
-      september: "09", october: "10", november: "11", december: "12"
+      jan: "01", feb: "02", mar: "03", apr: "04",
+      may: "05", jun: "06", jul: "07", aug: "08",
+      sep: "09", oct: "10", nov: "11", dec: "12"
     };
 
     const episodesByDate = {};
+    let feedLoaded = false;
+    let latestEpisode = null; // newest released episode, whatever day it is
+    let latestRank = -Infinity;
     let pendingDate = null;
     let loadedEpisode = null; // whose audioUrl is in the <audio>
     let viewEpisode = null; // episode for the day on screen
+    let viewIsFallback = false; // showing the latest episode, not the day's
     let scrubbing = false;
 
-    function parseEpisodeDate(title) {
-      const m = (title || "").match(/^(?:\w+),\s+(\w+)\s+(\d+),\s+(\d{4})/);
+    // Episode titles carry the day the episode is for — the show writes
+    // them "Tuesday, August 4, 2026". A title is hand-typed metadata
+    // though, so match the date wherever it sits in the string and
+    // accept abbreviated months; pubDate stands in when the title
+    // carries no readable date at all. Anchoring on the old exact
+    // "Weekday, Month D, YYYY" prefix meant one retitled episode
+    // dropped the day out of the map and hid the player outright.
+    function dateFromText(text) {
+      const s = String(text || "");
+      const iso = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+      const m = s.match(/([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/);
       if (!m) return null;
-      const mon = MONTH_MAP[m[1].toLowerCase()];
+      const mon = MONTH_MAP[m[1].slice(0, 3).toLowerCase()];
       if (!mon) return null;
       return `${m[3]}-${mon}-${String(parseInt(m[2], 10)).padStart(2, "0")}`;
+    }
+
+    // pubDate is an ISO stamp with the publisher's offset, so its date
+    // part is the day the episode was released in the show's own zone —
+    // don't hand it to Date, which would shift it into the reader's.
+    function episodeDate(ep) {
+      if (!ep) return null;
+      return dateFromText(ep.title) || dateFromText(ep.pubDate);
+    }
+
+    // Buzzsprout keeps accepted-but-unreleased episodes in the feed with
+    // a future pubDate. The worker filters them, but the theme can't
+    // assume that: an unreleased episode must never become the fallback.
+    // Fail open — an unparseable date counts as released.
+    function isScheduled(ep) {
+      const t = Date.parse((ep && ep.pubDate) || "");
+      return !Number.isNaN(t) && t > Date.now();
+    }
+
+    // The worker answers `?show=daily-liturgy` with a slug-keyed object.
+    // Accept a bare list or a bare `{episodes}` too, so a worker-side
+    // shape change degrades to "player still works" instead of "player
+    // vanishes". Never fall back to another show's key.
+    function pickEpisodes(data) {
+      if (!data) return [];
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data.episodes)) return data.episodes;
+      const show = data["daily-liturgy"];
+      return show && Array.isArray(show.episodes) ? show.episodes : [];
     }
 
     function fmt(s) {
@@ -690,6 +740,10 @@
     }
 
     // ─── Episode loading ──────────────────────────────────────────
+    function noteText() {
+      return viewIsFallback ? LATEST_NOTE : DEFAULT_NOTE;
+    }
+
     function load(ep) {
       loadedEpisode = ep;
       $audio.pause();
@@ -699,7 +753,7 @@
       $elapsed.textContent = "0:00";
       $time.textContent = ep.duration ? fmt(ep.duration) : "";
       $ptitle.textContent = ep.title || "Today's episode";
-      $note.textContent = DEFAULT_NOTE;
+      $note.textContent = noteText();
       show($playIcon, true);
       show($pauseIcon, false);
       $podcast.classList.remove("is-playing");
@@ -715,16 +769,32 @@
         return;
       }
       if (!loadedEpisode || viewEpisode.audioUrl !== loadedEpisode.audioUrl) load(viewEpisode);
-      else $note.textContent = DEFAULT_NOTE;
+      else $note.textContent = noteText();
+    }
+
+    // The day's episode drops in the morning. Before it lands — or when
+    // a title we can't read keeps it out of the map — the newest
+    // released episode is still the right thing to offer, labelled so
+    // nobody takes it for today's. Hiding the whole player was the
+    // worst of the options: no audio, and nothing to tell you why.
+    function resolveEpisode(dateStr) {
+      const exact = episodesByDate[dateStr];
+      if (exact) return { ep: exact, fallback: false };
+      if (!latestEpisode) return { ep: null, fallback: false };
+      const dated = Object.keys(episodesByDate).length > 0;
+      if (dateStr >= todayStr() || !dated) return { ep: latestEpisode, fallback: true };
+      return { ep: null, fallback: false };
     }
 
     function showEpisode(dateStr) {
-      viewEpisode = episodesByDate[dateStr] || null;
+      const resolved = resolveEpisode(dateStr);
+      viewEpisode = resolved.ep;
+      viewIsFallback = resolved.fallback;
       const busy = !$audio.paused && loadedEpisode;
       if (busy) {
         const sameEp = viewEpisode && viewEpisode.audioUrl === loadedEpisode.audioUrl;
         $note.textContent = sameEp
-          ? DEFAULT_NOTE
+          ? noteText()
           : `Still playing ${loadedEpisode.title || "the previous episode"}`;
         $podcast.hidden = false;
         return;
@@ -737,27 +807,47 @@
       $podcast.hidden = false;
     }
 
+    // Gate on "the feed answered", not on "some episode had a readable
+    // date" — the old size check left the player waiting forever on a
+    // feed whose titles it couldn't parse.
     updatePodcastForDate = function (dateStr) {
-      if (!Object.keys(episodesByDate).length) {
+      if (!feedLoaded) {
         pendingDate = dateStr;
         return;
       }
       showEpisode(dateStr);
     };
 
-    fetch(`${PODCAST_FEED_URL}?show=daily-liturgy&limit=30`, { credentials: "omit" })
-      .then((r) => { return r.json(); })
-      .then((data) => {
-        const show_ = data["daily-liturgy"];
-        if (!show_ || !show_.episodes || !show_.episodes.length) return;
-        show_.episodes.forEach((ep) => {
-          const d = parseEpisodeDate(ep.title);
-          if (d) episodesByDate[d] = ep;
-        });
-        if (pendingDate) showEpisode(pendingDate);
-        else if (currentDate) showEpisode(currentDate);
+    function ingest(data) {
+      pickEpisodes(data).forEach((ep) => {
+        if (!ep || !ep.audioUrl) return;
+        const d = episodeDate(ep);
+        if (d && !episodesByDate[d]) episodesByDate[d] = ep;
+        if (isScheduled(ep)) return;
+        const ts = Date.parse(ep.pubDate || "");
+        const rank = Number.isNaN(ts) ? -Infinity : ts;
+        if (!latestEpisode || rank > latestRank) {
+          latestEpisode = ep;
+          latestRank = rank;
+        }
+      });
+      feedLoaded = true;
+      const dateStr = pendingDate || currentDate;
+      if (dateStr) showEpisode(dateStr);
+    }
+
+    const feedSep = PODCAST_FEED_URL.indexOf("?") > -1 ? "&" : "?";
+    fetch(`${PODCAST_FEED_URL}${feedSep}show=daily-liturgy&limit=30`, { credentials: "omit" })
+      .then((r) => {
+        if (!r.ok) throw new Error(`podcast feed HTTP ${r.status}`);
+        return r.json();
       })
-      .catch(() => {});
+      .then(ingest)
+      .catch((err) => {
+        // A bare catch here is why a missing player looks identical to a
+        // day with no episode. Leave a breadcrumb in the console.
+        if (window.console) window.console.warn("Daily Liturgy podcast feed unavailable:", err);
+      });
 
     $playBtn.addEventListener("click", () => {
       if ($audio.paused) play();
