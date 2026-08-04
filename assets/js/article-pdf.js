@@ -61,6 +61,19 @@
           } catch (_) { return null; }
         })(data.url);
         if (!safeUrl) throw new Error("sign returned unsafe or off-host url");
+        // Record the download the same way audio and gifting do, so PDFs
+        // appear alongside the other features rather than being the one
+        // people use invisibly. Fired after signing succeeds, so a failed
+        // request is not counted as a download.
+        if (window.__kitEmit) {
+          try {
+            window.__kitEmit("pdf_downloaded", {
+              postId,
+              postTags: (document.body.getAttribute("data-post-tags") || "")
+                .split(",").map((t) => t.trim()).filter(Boolean)
+            });
+          } catch (_) { /* never let counting break the download */ }
+        }
         // Navigate directly via window.location.href rather than
         // programmatic link.click(). Programmatic clicks from async
         // promise chains can lose "transient user activation" in

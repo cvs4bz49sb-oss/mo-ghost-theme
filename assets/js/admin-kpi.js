@@ -873,10 +873,60 @@
     "how-long-before-a-subscriber-pays": "Subscribe date is the earliest record of the person — Kit's created_at, or HubSpot's createdate where that is older, because Kit's created_at for an imported contact is the day of the import. Conversion date is the earliest of their first paid Stripe subscription and their HubSpot deal close date, so someone who bought before Stripe existed still counts, and a migrated member counts from when they first paid rather than when billing moved. HubSpot close dates are only trusted where the contact has a single deal; with several, the exposed date is the latest purchase and would read as a renewal.",
     "subscribe-to-paid-end-to-end": "The same population as the card above. Quartiles and median are computed over every measurable member on each nightly run, so the shape moves as people convert.",
     "how-long-they-took": "The same population again, bucketed by elapsed days between subscribing and first paying.",
+    "reader-loyalty": "One nightly sweep of every Kit subscriber, reading the per-person counters mo-kit writes as people use the site: essays read, Daily Liturgy days and streak, audio plays, bookmarks, commonplace entries, and days since last read. The score is recency at half the weight, then reading volume on a log scale, Daily Liturgy habit, and how many topics someone reads across — averaged over people with recorded reading activity, not the whole list. Segments are recency-first. Anonymous visitors are excluded on purpose: Plausible forgets people daily by design, so pageviews per visitor cannot separate a first-time reader from a ten-year one, and it held between 1.68 and 1.83 for eleven straight weeks whatever was published.",
+    "site-features": "Uses is the sum of each feature's per-person counter across every subscriber; people is the count carrying the feature's used: tag, read from the tag itself. Member rate is those same people filtered to a Ghost tier that is not free — the tag's subscriber list carries each person's fields, so no extra lookup is needed. \u201cJoined here\u201d is a different population: people whose source: tag says they came onto the list through that feature, which is what a feature recruits rather than what it retains. Ebook PDFs count a download per title claimed, so two ebooks is two downloads and one person. The article gate has no usage tag at all — it is a door rather than a feature — so it reports only what came through it.",
+    "essays-read-members-against-subscribers": "Per-person lifetime essay counts from the same sweep, banded, and split on the Ghost tier mo-kit stores against each subscriber. Anyone whose tier is not free counts as a member, so comped, student and institutional memberships are included. Bars are each group's own percentage rather than raw counts, because members are a fifth the size of the free list and raw bars would say nothing. Only people who have read at least one essay appear.",
     sequences: "Kit's sequence subscriber lists, which carry an added_at per person, matched against the same conversion ledger. Entry-based by necessity: Kit publishes no click or open data per sequence email — the sequences and sequence_emails filter scopes behave exactly like a nonsense scope, a sequence-email id passed as a broadcast matches nothing, and /stats and /clicks both 404. So a sequence cannot be credited the way a broadcast can."
   };
 
   const CARD_INSIGHT = {
+    "reader-loyalty"() {
+      const e = showing && showing.engagement;
+      if (!e) return "";
+      const tracked = e.segments.filter((x) => x.name !== "No activity recorded").reduce((a, b) => a + b.n, 0);
+      const hab = (e.segments.find((x) => x.name === "Habitual") || {}).n || 0;
+      const dormant = (e.segments.find((x) => x.name === "Dormant") || {}).n || 0;
+      const never = (e.segments.find((x) => x.name === "No activity recorded") || {}).n || 0;
+      return `<b>${fmt(tracked)}</b> of <b>${fmt(e.subscribers)}</b> subscribers have been seen reading, and `
+        + `<b>${fmt(hab)}</b> of those are habitual. The <b>${fmt(never)}</b> with no recorded activity are `
+        + `mostly people who predate the new site, not people who left. `
+        + (dormant === 0
+          ? "Dormant sits at zero because reading has only been tracked since 26 May 2026 — nobody has had time to go three months without reading, and that band starts filling from late August."
+          : `<b>${fmt(dormant)}</b> have now gone three months without reading.`);
+    },
+    "site-features"() {
+      const e = showing && showing.engagement;
+      if (!e || !e.features || !e.features.length) return "";
+      const counted = e.features.filter((f) => f.uses != null && f.users);
+      if (!counted.length) return "";
+      const deepest = counted.slice().sort((a, b) => (b.per_user || 0) - (a.per_user || 0))[0];
+      const recruiter = e.features.slice().sort((a, b) => (b.joined || 0) - (a.joined || 0))[0];
+      // Member-only features convert at 100% by construction, so they are
+      // excluded before naming the one that actually earns memberships.
+      const open = e.features.filter((f) => f.member_rate != null && f.member_rate < 100 && f.users >= 20);
+      const best = open.slice().sort((a, b) => b.member_rate - a.member_rate)[0];
+      const worst = open.slice().sort((a, b) => a.member_rate - b.member_rate)[0];
+      let out = `<b>${esc(deepest.label)}</b> is used hardest at <b>${deepest.per_user}</b> per person`
+        + `, and <b>${esc(recruiter.label)}</b> recruits the most, bringing <b>${fmt(recruiter.joined)}</b> onto the list. `;
+      if (best && worst && best !== worst) {
+        out += `Of the features open to everyone, <b>${esc(best.label)}</b> converts best at <b>${best.member_rate}%</b> `
+          + `against <b>${esc(worst.label)}</b> at <b>${worst.member_rate}%</b> — worth knowing which door is `
+          + `bringing in people who go on to pay, and which is bringing in people who do not.`;
+      }
+      return out;
+    },
+    "essays-read-members-against-subscribers"() {
+      const r = showing && showing.engagement && showing.engagement.reads;
+      if (!r || !r.members.readers || !r.subscribers.readers) return "";
+      const oneOff = (r.subscribers.bands.find((b) => b.label === "1") || {}).pct || 0;
+      const memOne = (r.members.bands.find((b) => b.label === "1") || {}).pct || 0;
+      const deep = r.members.bands.filter((b) => ["10-19", "20-49", "50+"].includes(b.label))
+        .reduce((a, b) => a + b.pct, 0);
+      return `Members read a median of <b>${r.members.median}</b> essays against <b>${r.subscribers.median}</b> `
+        + `for free subscribers, and <b>${deep.toFixed(0)}%</b> of members are ten essays deep or more. `
+        + `<b>${oneOff.toFixed(0)}%</b> of free subscribers have read exactly one, against ${memOne.toFixed(0)}% of members — `
+        + `the gap between one essay and two is where a reader becomes an audience.`;
+    },
     "paying-members-won-per-send"() {
       const a = attribution;
       if (!a) return "";
@@ -1590,6 +1640,8 @@
     const tracked = e.segments.filter((x) => x.name !== "No activity recorded").reduce((a, b) => a + b.n, 0);
     const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
     host.innerHTML = `
+      <div class="kpi-chart">
+      <p class="kpi-chart-title">Reader loyalty</p>
       <div class="kpi-stats">
         ${stat(e.score == null ? "—" : `${e.score}`, "loyalty score, out of 100")}
         ${stat(fmt(tracked), "readers we can see")}
@@ -1613,7 +1665,65 @@
         from late August. Anonymous visitors are deliberately excluded — Plausible forgets people daily by
         design, so pageviews per visitor held between 1.68 and 1.83 for eleven straight weeks no matter
         what was published, which is a number that cannot inform anything.
-      </p>`;
+      </p></div>`;
+    foldMethodology(host);
+  }
+
+  // How many essays people read, banded, members against free subscribers.
+  // Two bars per band rather than two charts, because the whole point is the
+  // comparison: free readers pile up at one essay, members spread out.
+  function readsBlock(reads) {
+    if (!reads || (!reads.members.readers && !reads.subscribers.readers)) return "";
+    const M = reads.members, S = reads.subscribers;
+    const bands = (M.bands.length ? M.bands : S.bands).map((b) => b.label);
+    const pctOf = (r, label) => {
+      const b = r.bands.find((x) => x.label === label);
+      return b ? b.pct : 0;
+    };
+    const W = chartW(), H = 250, L = 40, R = 14, T = 26, B = 46;
+    const pw = W - L - R, ph = H - T - B;
+    const mx = Math.max(...bands.flatMap((b) => [pctOf(M, b), pctOf(S, b)]), 10);
+    const ticks = niceTicks(mx, 4), top = ticks[ticks.length - 1];
+    const band = pw / bands.length, bw = Math.min(22, band * 0.32);
+    const Y = (v) => T + MARK_PAD + (ph - MARK_PAD) - (v / (top || 1)) * (ph - MARK_PAD);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Essays read by cohort">`;
+    ticks.forEach((t) => {
+      const y = Y(t);
+      svg += `<line class="kpi-gl" x1="${L}" y1="${y.toFixed(1)}" x2="${L + pw}" y2="${y.toFixed(1)}"/>`
+        + `<text class="kpi-tick" x="${L - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end">${t}%</text>`;
+    });
+    svg += `<line class="kpi-ax" x1="${L}" y1="${T + ph}" x2="${L + pw}" y2="${T + ph}"/>`;
+    bands.forEach((b, i) => {
+      const mid = L + band * i + band / 2;
+      [[pctOf(M, b), C1, -1], [pctOf(S, b), C2, 1]].forEach(([v, colour, side]) => {
+        // A 2px gap between the pair keeps them readable as two bars.
+        const x = mid + (side < 0 ? -bw - 1 : 1);
+        const y = Y(v), h = Math.max(1, T + ph - y), r = Math.min(3, h, bw / 2);
+        svg += `<path d="M${x},${y + r} a${r},${r} 0 0 1 ${r},${-r} h${bw - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - r} h${-bw} Z" fill="${colour}"/>`;
+      });
+      svg += `<text class="kpi-tick" x="${mid.toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${b}</text>`;
+    });
+    const row = (name, r) => `<tr><td>${name}</td><td class="is-num">${fmt(r.readers)}</td>
+      <td class="is-num">${fmt(r.reads)}</td><td class="is-num">${r.median}</td>
+      <td class="is-num">${r.mean}</td><td class="is-num">${fmt(r.max)}</td></tr>`;
+    return `<div class="kpi-chart" style="margin-top:16px">
+      <p class="kpi-chart-title">Essays read, members against subscribers</p>
+      <p class="kpi-chart-sub">Share of each group reading that many essays. Bars are percentages of their own
+        group, so the two are comparable despite members being far fewer.</p>
+      <ul class="kpi-legend">
+        <li><span class="kpi-key" style="background:${C1}"></span>Members</li>
+        <li><span class="kpi-key" style="background:${C2}"></span>Subscribers</li>
+      </ul>
+      ${svg}</svg>
+      <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
+        <thead><tr><th>Group</th><th class="is-num">Readers</th><th class="is-num">Essays read</th>
+          <th class="is-num">Median</th><th class="is-num">Mean</th><th class="is-num">Most by one person</th></tr></thead>
+        <tbody>${row("Members", M)}${row("Subscribers", S)}</tbody>
+      </table></div>
+      <p class="kpi-note">Counts only people who have read at least one essay since tracking began on
+        26 May 2026. "Member" is anyone whose Ghost tier is not free, so comped, student and institutional
+        memberships are included.</p>
+    </div>`;
   }
 
   function renderFeatures(s) {
@@ -1629,21 +1739,26 @@
     const totalUses = e.features.reduce((t, f) => t + (f.uses || 0), 0);
     const anyUser = Math.max(...e.features.map((f) => f.users || 0));
     host.innerHTML = `
+      <div class="kpi-chart">
+      <p class="kpi-chart-title">Site features</p>
       <div class="kpi-stats">
         ${stat(fmt(totalUses), "recorded uses across all features")}
         ${stat(fmt(anyUser), "people using the most-used feature")}
+        ${stat(fmt(e.features.reduce((t, f) => t + (f.joined || 0), 0)), "subscribers won by a feature")}
         ${stat(top ? esc(top.label) : "—", "most used")}
-        ${stat(fmt(e.features.filter((f) => f.users > 0).length), "features with any use")}
       </div>
       <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
-        <thead><tr><th>Feature</th><th class="is-num">Total uses</th><th class="is-num">People</th>
-          <th class="is-num">Per person</th><th>Counted as</th></tr></thead>
+        <thead><tr><th>Feature</th><th class="is-num">Uses</th><th class="is-num">People</th>
+          <th class="is-num">Per person</th><th class="is-num">Members</th>
+          <th class="is-num">Member rate</th><th class="is-num">Joined here</th></tr></thead>
         <tbody>${e.features.map((f) => `<tr>
           <td>${esc(f.label)}</td>
           <td class="is-num">${f.uses == null ? "—" : fmt(f.uses)}</td>
           <td class="is-num">${fmt(f.users)}</td>
           <td class="is-num">${f.per_user == null ? "—" : f.per_user}</td>
-          <td>${esc(f.unit)}</td>
+          <td class="is-num">${f.members == null ? "—" : fmt(f.members)}</td>
+          <td class="is-num">${f.member_rate == null ? "—" : `${f.member_rate}%`}</td>
+          <td class="is-num">${f.joined ? fmt(f.joined) : "—"}</td>
         </tr>`).join("")}</tbody>
       </table></div>
       ${e.topics && e.topics.length ? `
@@ -1656,10 +1771,14 @@
           <td class="is-num">${t.readers ? (t.reads / t.readers).toFixed(1) : "—"}</td>
         </tr>`).join("")}</tbody>
       </table></div>` : ""}
+      ${readsBlock(e.reads)}
       <p class="kpi-note">
-        A dash under total uses means the feature is recorded as a yes or no per person rather than counted,
-        so we know who used it but not how often. Counts are lifetime, since mo-kit began recording them,
-        and only cover signed-in readers it can attach to an email address.
+        Uses is a dash where a feature is flagged per person rather than counted, or where its counter was
+        only just added and has not been written yet. Member rate is the share of people who used the
+        feature and hold a membership now — for member-only features that is 100% by construction and says
+        nothing. "Joined here" counts people whose subscription to the list came through that feature,
+        which is the number that shows what a feature recruits. Counts are lifetime since mo-kit began
+        recording them, and cover only signed-in readers it can attach to an email address.
       </p>`;
   }
 
