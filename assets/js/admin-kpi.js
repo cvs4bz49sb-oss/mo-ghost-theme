@@ -1091,8 +1091,12 @@
   // and otherwise by the section they sit in, so the key survives renames
   // of neighbouring sections.
   function containerKey(el) {
+    // data-kpi-dropgroup is shared by every container in a group, so it
+    // would hand two columns the same key and let them overwrite each
+    // other's saved order. Same reason data-kpi-sortable is skipped.
+    const SHARED = ["data-kpi-sortable", "data-kpi-dropgroup"];
     for (const a of el.attributes) {
-      if (a.name.startsWith("data-kpi-") && a.name !== "data-kpi-sortable") return a.name;
+      if (a.name.startsWith("data-kpi-") && !SHARED.includes(a.name)) return a.name;
     }
     const sec = el.closest(".kpi-sec");
     const sum = sec && sec.querySelector(":scope > summary");
@@ -1128,6 +1132,51 @@
       // Ties and unknown cards keep their natural order.
       .sort((a, b) => a.r - b.r || a.i - b.i)
       .forEach(({ c }) => el.appendChild(c));
+  }
+
+  /*
+   * Containers tagged with the same data-kpi-dropgroup exchange cards.
+   * Everything else stays put: a revenue chart has no business landing in
+   * the podcast section, so the default remains "reorder within".
+   */
+  const dropGroup = (el) => (el && el.getAttribute ? el.getAttribute("data-kpi-dropgroup") : null);
+
+  function canAccept(el, card) {
+    if (!card) return false;
+    if (card.parentElement === el) return true;
+    const g = dropGroup(el);
+    return !!g && g === dropGroup(card.parentElement);
+  }
+
+  /*
+   * A card dragged to the other column has to still be there after a
+   * reload. applyOrder only sorts within one container, so before it runs
+   * each card is returned to whichever container's saved order claims it.
+   * Without this a cross-column move would survive until the next render
+   * and then silently snap back.
+   */
+  function applyGroupPlacement() {
+    const groups = new Map();
+    document.querySelectorAll("[data-kpi-dropgroup]").forEach((el) => {
+      const g = dropGroup(el);
+      if (!groups.has(g)) groups.set(g, []);
+      groups.get(g).push(el);
+    });
+    groups.forEach((els) => {
+      if (els.length < 2) return;
+      const want = new Map();
+      els.forEach((el) => {
+        (layout[containerKey(el)] || []).forEach((id) => want.set(id, el));
+      });
+      if (!want.size) return;
+      els.forEach((el) => {
+        [...el.children].forEach((c) => {
+          const id = cardId(c);
+          const target = id && want.get(id);
+          if (target && target !== el) target.appendChild(c);
+        });
+      });
+    });
   }
 
   function recordOrder(el) {
@@ -1166,6 +1215,8 @@
       if (!card || card.parentElement !== el) return;
       dragged = card;
       card.classList.add("is-dragging");
+      // Lets an emptied column hold open a drop target for the duration.
+      document.body.classList.add("kpi-dragging");
       e.dataTransfer.effectAllowed = "move";
       // Firefox refuses to start a drag without payload.
       e.dataTransfer.setData("text/plain", cardId(card));
@@ -1173,32 +1224,41 @@
 
     el.addEventListener("dragend", () => {
       if (dragged) dragged.classList.remove("is-dragging");
-      el.querySelectorAll(".is-dropbefore, .is-dropafter")
+      document.body.classList.remove("kpi-dragging");
+      // Cleared document-wide: with cross-column drops the marker may be
+      // sitting in a container this handler does not own.
+      document.querySelectorAll(".is-dropbefore, .is-dropafter")
         .forEach((c) => c.classList.remove("is-dropbefore", "is-dropafter"));
       dragged = null;
     });
 
     el.addEventListener("dragover", (e) => {
-      if (!dragged || dragged.parentElement !== el) return;
+      if (!canAccept(el, dragged)) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";
       const over = e.target.closest(".kpi-chart, .kpi-tile");
-      el.querySelectorAll(".is-dropbefore, .is-dropafter")
+      document.querySelectorAll(".is-dropbefore, .is-dropafter")
         .forEach((c) => c.classList.remove("is-dropbefore", "is-dropafter"));
       if (!over || over === dragged || over.parentElement !== el) return;
       over.classList.add(dropsAfter(el, over, e) ? "is-dropafter" : "is-dropbefore");
     });
 
     el.addEventListener("drop", (e) => {
-      if (!dragged || dragged.parentElement !== el) return;
+      if (!canAccept(el, dragged)) return;
       e.preventDefault();
+      const from = dragged.parentElement;
       const over = e.target.closest(".kpi-chart, .kpi-tile");
       if (over && over !== dragged && over.parentElement === el) {
         el.insertBefore(dragged, dropsAfter(el, over, e) ? over.nextSibling : over);
+      } else if (from !== el) {
+        // Dropped on the column but not on a card — below the last one, or
+        // into an empty column. Append rather than dropping the move.
+        el.appendChild(dragged);
       }
-      el.querySelectorAll(".is-dropbefore, .is-dropafter")
+      document.querySelectorAll(".is-dropbefore, .is-dropafter")
         .forEach((c) => c.classList.remove("is-dropbefore", "is-dropafter"));
       recordOrder(el);
+      if (from && from !== el) recordOrder(from);
       layoutMsg(`Moved ${dragged.querySelector(".kpi-chart-title, .kpi-tile-label").textContent.trim()} — saved.`);
     });
   }
@@ -1213,6 +1273,7 @@
       // grid, but their cards are ordinary cards and reorder the same way.
       ...document.querySelectorAll(".kpi-attr-col")
     ].filter(Boolean);
+    applyGroupPlacement();
     containers.forEach((el) => {
       [...el.children].forEach((c) => {
         if (!c.classList.contains("kpi-chart") && !c.classList.contains("kpi-tile")) return;
@@ -1769,12 +1830,14 @@
       const d = (x) => (x < 1 ? `${Math.round(x * 24)}h` : `${Math.round(x)} day${Math.round(x) === 1 ? "" : "s"}`);
       out.push(`<div class="kpi-chart">
         <p class="kpi-chart-title">How long before a subscriber pays</p>
-        <p class="kpi-chart-sub">Time from first subscribing to starting a paid membership, across
-          <b>${fmt(lag.n)} of ${fmt(lag.payers)}</b> paying members.
-          ${fmt(lag.dated_from_hubspot)} are dated from their HubSpot record rather than Kit's, because Kit's
-          created_at for anyone imported is the day of the import.
-          ${fmt(lag.migration_excluded)} legacy members are excluded — they were already paying MO through HubSpot,
-          so their Stripe subscription is a change of billing, not a subscriber deciding to pay.
+        <p class="kpi-chart-sub">Time from first subscribing to first paying, across <b>${fmt(lag.n)}</b> members —
+          everyone we can date, not just the ${fmt(lag.stripe_payers)} on Stripe today.
+          ${fmt(lag.conversion_from_hubspot)} converted before Stripe existed and are dated from their HubSpot
+          purchase; ${fmt(lag.signup_from_hubspot)} have their subscribe date from HubSpot too, since Kit's
+          created_at for an imported contact is the day of the import. Where someone appears in both, the earlier
+          date wins, so a migrated member counts from when they first paid rather than when their billing moved.
+          ${fmt(lag.ambiguous_multi_deal)} are set aside for having several purchases, where HubSpot only exposes
+          the most recent; ${fmt(lag.undated_members)} members carry no purchase date anywhere; and
           ${fmt(lag.paid_first)} went straight to checkout with no prior subscriber record.</p>
         <div class="kpi-stats" style="border-bottom:none;padding-bottom:0">
           <div class="kpi-stat"><span class="kpi-stat-v">${d(lag.median_days)}</span><span class="kpi-stat-l">Median</span></div>
@@ -1805,8 +1868,8 @@
     // data attributes because containerKey identifies a container by its
     // first data-kpi-* attribute, and two columns in one section would
     // otherwise share a key and overwrite each other's saved order.
-    host.innerHTML = `<div class="kpi-attr-col kpi-charts-sortable" data-kpi-attr-left>${out.filter(Boolean).join("")}</div>`
-      + `<div class="kpi-attr-col kpi-charts-sortable" data-kpi-attr-right>${right.filter(Boolean).join("")}</div>`;
+    host.innerHTML = `<div class="kpi-attr-col" data-kpi-attr-left data-kpi-dropgroup="attribution">${out.filter(Boolean).join("")}</div>`
+      + `<div class="kpi-attr-col" data-kpi-attr-right data-kpi-dropgroup="attribution">${right.filter(Boolean).join("")}</div>`;
     wireCharts();
     wireRange(host);
 
