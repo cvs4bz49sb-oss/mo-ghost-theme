@@ -437,10 +437,10 @@
       ]
     },
     {
-      label: "New members", key: "nmem", agg: "sum", f: fmt, goodUp: true, cap: "last 24 hours",
+      label: "New members", key: "nmem", agg: "sum", f: fmt, goodUp: true, cap: "last 24 hours, migrations excluded",
       periodBullets: (rows) => [
-        `<b>${fmt(sumOf(rows, "nmem"))}</b> Stripe subscriptions started`,
-        `<b>${fmt(sumOf(rows, "hsn"))}</b> HubSpot checkouts closed`,
+        `<b>${fmt(sumOf(rows, "nmem"))}</b> Stripe subscriptions started by new members`,
+        `<b>${fmt(sumOf(rows, "nmig"))}</b> more were legacy members migrating, counted on the Migration tile`,
         `<b>${perDay(rows, "nmem")}</b> a day across ${rows.length} days`
       ],
       bullets: (s) => [
@@ -2457,40 +2457,45 @@
       }
       if (ht) {
         const rows = [];
+        // rollupDeals names the whole-pipeline figure `total` and the
+        // per-term one `value`; the Journal row is a whole pipeline.
+        const add = (label, t, people) => rows.push({ cells: [
+          label,
+          people != null ? fmt(people) : "—",
+          fmt(t.count),
+          usd(t.value != null ? t.value : t.total),
+          usd(t.value_12m != null ? t.value_12m : (t.last_12m || 0))
+        ] });
         ["Annual", "Monthly", "Lifetime", "Unstated"].forEach((k) => {
-          const t = ht[k];
-          if (!t) return;
-          const people = t.contacts != null ? t.contacts : null;
-          rows.push({ cells: [
-            k,
-            people != null ? fmt(people) : "—",
-            fmt(t.count),
-            usd(t.value),
-            people ? usd(t.value / people) : "—"
-          ] });
+          if (ht[k]) add(k, ht[k], ht[k].contacts != null ? ht[k].contacts : null);
         });
+        // The Journal has its own pipeline but its buyers are members, so it
+        // belongs here — and without it the twelve-month column cannot be
+        // reconciled against the recurring-revenue line.
+        if (s.hubspot.journal_deals) add("Journal", s.hubspot.journal_deals, null);
         if (rows.length) {
           const distinct = s.hubspot.membership_members_total;
-          const summed = rows.reduce((t, r) => t + (parseInt(String(r.cells[1]).replace(/[^0-9]/g, ""), 10) || 0), 0);
-          if (distinct && summed > distinct) {
-            // Someone who moved from monthly to annual is one person in two
-            // rows. The column is right; its sum is not a total.
-            rows.push({ total: true, cells: [
-              "Distinct people", fmt(distinct), "—", "—", "—"
-            ] });
-          }
+          const sum = (i) => rows.reduce((t, r) =>
+            t + (parseInt(String(r.cells[i]).replace(/[^0-9]/g, ""), 10) || 0), 0);
+          const twelve = sum(4);
+          rows.push({ total: true, cells: [
+            "Total", distinct ? fmt(distinct) : "—", fmt(sum(2)), usd(sum(3)), usd(twelve)
+          ] });
           rev.push(tableBlock("Legacy membership by term — HubSpot",
             "Historic checkouts, not a run-rate. HubSpot never wrote renewals back, so these are what was "
             + "bought rather than what is currently billing.",
             ["Term", { label: "People", num: true }, { label: "Checkouts", num: true },
-              { label: "Value, all time", num: true }, { label: "Per person", num: true }],
+              { label: "Value, all time", num: true }, { label: "Value, last 12mo", num: true }],
             rows,
-            { foot: "People are distinct contacts within each term, so the column does not add up to a total: "
-              + "31 people hold more than one term, having moved between monthly and annual, and appear in both "
-              + "rows. The distinct figure is on the last line. Checkouts are transactions, and the gap between "
-              + "those columns is renewals, each written as its own deal. HubSpot stores no term field, so the term is read "
-              + "off the deal name \u2014 \u201cunstated\u201d means the name never said one, and the amount "
-              + "cannot stand in for it because $60 appears as both monthly and annual." }));
+            { foot: `The two value columns cover different periods, which is why one dwarfs the other: all-time `
+              + `reaches back to June 2023, while the last-twelve-months column is what the recurring-revenue `
+              + `chart is built from \u2014 <b>${usd(twelve)}</b> over twelve months is <b>${usd(Math.round(twelve / 12))}</b> `
+              + `a month, which is the HubSpot line on that chart. People are distinct contacts within each term, `
+              + `so that column does not add up either: someone who moved between monthly and annual appears in `
+              + `both rows, and the Total line is the deduplicated count. Checkouts are transactions, and the gap `
+              + `between those columns is renewals, each written as its own deal. HubSpot stores no term field, so `
+              + `the term is read off the deal name \u2014 \u201cunstated\u201d means the name never said one, and `
+              + `the amount cannot stand in for it because $60 appears as both monthly and annual.` }));
         }
       }
     }
