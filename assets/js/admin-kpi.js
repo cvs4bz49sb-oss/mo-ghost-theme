@@ -854,19 +854,217 @@
    * Idempotent, because several render paths call this and cards are
    * rebuilt at different times.
    */
+  /*
+   * Methodology says where the numbers came from. Insight says what they
+   * mean. They were the same paragraph and should not be: "Stripe at the
+   * amounts actually billed" and "June carried the year" answer different
+   * questions, and only one of them needs re-reading every morning.
+   *
+   * Keyed by the card's slugged title. A card with no entry falls back to
+   * whatever prose it already carried for methodology, and to a figure
+   * read off its own series for insight — so every card gets both without
+   * needing every card hand-written.
+   */
+  const CARD_METHOD = {
+    "paying-members-won-per-send": "Kit's POST /v4/subscribers/filter, with a clicks filter scoped to one broadcast and one URL at a time — the pair ANDs, so each list is exactly the people who clicked that link in that email, and it reconciles to the unique_clicks the broadcast reports. Those addresses are matched, lowercased, against Stripe subscriptions with a non-zero price, dropping never-completed checkouts and keeping each person's first paid subscription. A member counts for a send only if they paid after it went out and within 45 days of it, credited to the most recent qualifying click.",
+    "who-converted-by-send": "Same source as the chart. Sends are grouped per broadcast rather than per link, and clickers are deduplicated across a send's links, so an email carrying both a membership and an offer link is one row. Migration links are held separately. Value is annualised: monthly plans counted at twelve months.",
+    "email-revenue-by-month": "Every member email is credited with, bucketed by the month their first payment landed — not the month the email was sent, which is why this will not line up row-for-row with the list of sends. Amounts are annualised plan value from Stripe, not invoices, so it is run-rate added rather than cash banked.",
+    "sponsorship-clicks": "Unique clicks per sponsor link, summed across every send held in the click cache. Sponsors are a configured list stored in KV, matched as a substring of the URL. Nothing here is inferred from the domain: only Samford tags its links, the Beeson bit.ly link does not, and treating any external domain as a sponsor would sweep in the whole Mailbag.",
+    "how-long-before-a-subscriber-pays": "Subscribe date is the earliest record of the person — Kit's created_at, or HubSpot's createdate where that is older, because Kit's created_at for an imported contact is the day of the import. Conversion date is the earliest of their first paid Stripe subscription and their HubSpot deal close date, so someone who bought before Stripe existed still counts, and a migrated member counts from when they first paid rather than when billing moved. HubSpot close dates are only trusted where the contact has a single deal; with several, the exposed date is the latest purchase and would read as a renewal.",
+    "subscribe-to-paid-end-to-end": "The same population as the card above. Quartiles and median are computed over every measurable member on each nightly run, so the shape moves as people convert.",
+    "how-long-they-took": "The same population again, bucketed by elapsed days between subscribing and first paying.",
+    sequences: "Kit's sequence subscriber lists, which carry an added_at per person, matched against the same conversion ledger. Entry-based by necessity: Kit publishes no click or open data per sequence email — the sequences and sequence_emails filter scopes behave exactly like a nonsense scope, a sequence-email id passed as a broadcast matches nothing, and /stats and /clicks both 404. So a sequence cannot be credited the way a broadcast can."
+  };
+
+  const CARD_INSIGHT = {
+    "paying-members-won-per-send"() {
+      const a = attribution;
+      if (!a) return "";
+      const cta = a.sends.filter((s) => s.group !== "migrate");
+      const dead = cta.filter((s) => s.clicks >= 200 && !s.conversions);
+      const best = cta.slice().sort((x, y) => y.conversions - x.conversions)[0];
+      if (!best) return "";
+      const tail = dead.length
+        ? ` Against that, ${fmt(dead.length)} sends drew more than 200 clicks on a membership link and converted nobody — an evergreen "become a member" link in a digest is not the same instrument as a deadline.`
+        : "";
+      return `The dated offers do the work. <b>${esc(best.subject)}</b> won ${fmt(best.conversions)} on its own.${tail}`;
+    },
+    "email-revenue-by-month"() {
+      const r = (attribution && attribution.revenue_by_month) || [];
+      if (r.length < 2) return "";
+      const top = r.slice().sort((x, y) => y.cta_value - x.cta_value)[0];
+      const last = r[r.length - 1];
+      return `New money is concentrated in <b>${monthLabel(top.month)}</b> (${usd(top.cta_value)}), against ${usd(last.cta_value)} in ${monthLabel(last.month)}. `
+        + "The migrated bar is the legacy base changing billing, so it inflates the total without adding revenue — watch the new-membership bar for growth.";
+    },
+    "sponsorship-clicks"() {
+      const s = ((attribution && attribution.sponsors) || []).filter((x) => x.clicks > 0);
+      if (!s.length) return "";
+      const one = s[0];
+      const perSend = one.sends.length ? Math.round(one.clicks / one.sends.length) : 0;
+      return `<b>${esc(one.label)}</b> leads on ${fmt(one.clicks)} clicks, about ${fmt(perSend)} per send it appeared in. `
+        + "Useful as a renewal argument, and as a sense of what a placement is worth against the article links in the same email.";
+    },
+    "how-long-before-a-subscriber-pays"() {
+      const l = attribution && attribution.lag;
+      if (!l || !l.n) return "";
+      return `Half of members took longer than <b>${Math.round(l.median_days)} days</b> to pay, and a quarter took more than ${Math.round(l.p75_days)}. `
+        + `That is the argument for the free list as an asset rather than a cost: it is a holding pattern people convert out of slowly. `
+        + `${fmt(l.paid_first)} skipped it entirely and went straight to checkout.`;
+    },
+    "how-long-they-took"() {
+      const l = attribution && attribution.lag;
+      if (!l || !l.buckets) return "";
+      const b = new Map(l.buckets);
+      const sameDay = b.get("Same day") || 0;
+      const overYear = (b.get("1–2 years") || 0) + (b.get("Over 2 years") || 0);
+      return `Two different audiences in one chart. <b>${fmt(sameDay)}</b> paid the day they arrived — they came to buy. `
+        + `<b>${fmt(overYear)}</b> took more than a year, which is the long-tail reader finally converting. `
+        + "An average across both describes nobody.";
+    },
+    sequences() {
+      const s = (attribution && attribution.sequences) || [];
+      const top = s.slice().sort((x, y) => y.conversions - x.conversions)[0];
+      if (!top || !top.subscribers) return "";
+      const rate = ((top.conversions / top.subscribers) * 100).toFixed(1);
+      return `<b>${esc(top.name)}</b> is the only sequence with conversions behind it: ${fmt(top.conversions)} of ${fmt(top.subscribers)} who entered (${rate}%). `
+        + "Entering is not converting, so read it as a ceiling on the sequence's contribution, not a measurement of it.";
+    },
+    "who-converted-by-send"() {
+      const a = attribution;
+      if (!a || !a.sends.length) return "";
+      const withAny = a.sends.filter((x) => x.conversions).length;
+      return `${fmt(withAny)} of ${fmt(a.sends.length)} sends put at least one member on the board. `
+        + "Open the ones that did and the names repeat across sends — the same readers clicking a membership link more than once before paying, which is why a send is credited only for the last click before the payment.";
+    },
+    "subscribe-to-paid-end-to-end"() {
+      const l = attribution && attribution.lag;
+      if (!l || !l.n) return "";
+      return `The box is wide on purpose: the middle half alone spans ${spanLabel(l.p25_days)} to ${spanLabel(l.p75_days)}. `
+        + "There is no typical member to design a campaign around, so a single nurture window will always be wrong for most of them.";
+    },
+    "digest-open-and-click-rate"() {
+      const k = showing && showing.kit && showing.kit.digest;
+      if (!k || !k.sends || k.sends.length < 2) return "";
+      const f = k.sends[0].free, l = k.sends[k.sends.length - 1].free;
+      const move = (a, b) => (b > a ? `up from ${a}%` : (b < a ? `down from ${a}%` : "flat"));
+      return `Opens ${l.open_rate}% (${move(f.open_rate, l.open_rate)}), clicks ${l.click_rate}% (${move(f.click_rate, l.click_rate)}) across the last ${fmt(k.sends.length)} editions. `
+        + "Clicks matter more than opens here — Apple's privacy relay inflates opens, and it is the click that precedes a membership.";
+    },
+    "open-and-click-rate-all-sends"() {
+      const r = showing && showing.kit && showing.kit.recent_sends;
+      if (!r || r.length < 3) return "";
+      const worst = r.slice().sort((a, b) => a.open_rate - b.open_rate)[0];
+      return `The dips are promotional sends: the weakest here is <b>${esc(worst.subject || "a one-off send")}</b> at ${worst.open_rate}%. `
+        + "They open lower than the digest and cost more list, so they earn their place by conversions rather than by engagement.";
+    }
+  };
+
+  // Read off the card's own series when nothing is hand-written: latest
+  // value, the move since the previous point, and where the peak sits.
+  function genericInsight(card) {
+    const st = chartState[card.getAttribute("data-chart")];
+    if (!st || !st.buckets || !st.buckets.length) return "";
+    const f = st.cfg.f || fmt;
+    return st.buckets.map((bucket, j) => {
+      const v = bucket.map((x) => x.v);
+      const lab = bucket.map((x) => x.label || x.range);
+      if (v.length < 2) return "";
+      const last = v[v.length - 1], prev = v[v.length - 2];
+      const peak = v.indexOf(Math.max(...v));
+      const bits = [`latest ${lab[v.length - 1]} <b>${f(last)}</b>`];
+      if (prev) {
+        const d = ((last - prev) / Math.abs(prev)) * 100;
+        if (Math.abs(d) >= 1) bits.push(`${d >= 0 ? "up" : "down"} ${Math.abs(d).toFixed(0)}% on ${lab[v.length - 2]}`);
+        else bits.push(`flat on ${lab[v.length - 2]}`);
+      }
+      if (v.length > 2 && peak !== v.length - 1) bits.push(`peak ${f(v[peak])} in ${lab[peak]}`);
+      return `<b>${st.cfg.names[j] || "Series"}</b> — ${bits.join(", ")}.`;
+    }).filter(Boolean).join(" ");
+  }
+
+  // Cards that are a table rather than a plot still have a shape worth
+  // stating: which row leads, and by how much.
+  function tableInsight(card) {
+    // Ranked lists (the audience breakdowns) carry their own share and
+    // count, so read those directly rather than re-deriving them.
+    const ranks = [...card.querySelectorAll("ol.kpi-ranks > li")];
+    if (ranks.length >= 2) {
+      const read = (li) => ({
+        label: (li.querySelector(".kpi-rank-label") || {}).textContent || "",
+        pct: (li.querySelector("b") || {}).textContent || "",
+        n: Number(((li.querySelector(".kpi-rank-n") || {}).textContent || "").replace(/[^0-9]/g, ""))
+      });
+      const top = read(ranks[0]);
+      const second = ranks[1] ? read(ranks[1]) : null;
+      if (!top.label) return "";
+      const gap = second && second.n ? ` — ${(top.n / second.n).toFixed(1)}× the next, ${esc(second.label.trim())}` : "";
+      return `<b>${esc(top.label.trim())}</b> is the largest group at ${esc(top.pct)}${gap}. `
+        + `${fmt(ranks.length)} groups answered.`;
+    }
+    const trs = [...card.querySelectorAll("table tbody tr")].filter((r) => !r.classList.contains("is-total"));
+    const rows = trs.map((tr) => {
+      const cells = [...tr.children];
+      const label = cells.length ? cells[0].textContent.trim() : "";
+      for (let i = 1; i < cells.length; i++) {
+        const raw = cells[i].textContent.replace(/[^0-9.-]/g, "");
+        const n = Number(raw);
+        if (raw !== "" && Number.isFinite(n)) return { label, n };
+      }
+      return null;
+    }).filter((r) => r && r.label);
+    if (rows.length < 2) return "";
+    const top = rows.slice().sort((a2, b2) => b2.n - a2.n)[0];
+    if (!top || !(top.n > 0)) return "";
+    // A share only means something when the column is a count of things.
+    const counts = rows.every((r) => Number.isInteger(r.n) && r.n >= 0);
+    const total = rows.reduce((a2, b2) => a2 + b2.n, 0);
+    const share = counts && total ? `, ${((top.n / total) * 100).toFixed(0)}% of ${fmt(total)}` : "";
+    return `<b>${esc(top.label)}</b> leads at ${fmt(top.n)}${share}, across ${fmt(rows.length)} rows.`;
+  }
+
+  function foldSection(card, cls, label, html) {
+    if (!html) return;
+    const box = document.createElement("details");
+    box.className = `kpi-method ${cls}`;
+    const tag = document.createElement("summary");
+    tag.textContent = label;
+    box.appendChild(tag);
+    if (typeof html === "string") {
+      const p = document.createElement("p");
+      p.className = "kpi-chart-sub";
+      p.innerHTML = html;
+      box.appendChild(p);
+    } else {
+      html.forEach((n) => box.appendChild(n));
+    }
+    card.appendChild(box);
+  }
+
   function foldMethodology(root) {
     (root || document).querySelectorAll(".kpi-chart").forEach((card) => {
       // .kpi-note is the same kind of prose as .kpi-chart-sub, just set
-      // below the figure, so both go in rather than folding half of it.
+      // below the figure, so both move rather than folding half of it.
       const prose = [...card.querySelectorAll(":scope > .kpi-chart-sub, :scope > .kpi-note")];
-      if (!prose.length) return;
-      const box = document.createElement("details");
-      box.className = "kpi-method";
-      const tag = document.createElement("summary");
-      tag.textContent = "Methodology";
-      box.appendChild(tag);
-      prose.forEach((p) => box.appendChild(p));
-      card.appendChild(box);
+      if (!prose.length && !card.hasAttribute("data-chart")) return;
+      if (card.querySelector(":scope > .kpi-method")) return;
+      const id = cardId(card);
+
+      // A written method replaces the card's own prose; otherwise that
+      // prose is the best description of the source we have.
+      const written = CARD_METHOD[id];
+      if (written) {
+        prose.forEach((p) => p.remove());
+        foldSection(card, "is-method", "Methodology", written);
+      } else {
+        foldSection(card, "is-method", "Methodology", prose.length ? prose : null);
+      }
+
+      const fn = CARD_INSIGHT[id];
+      let insight = "";
+      try { insight = fn ? fn() : ""; } catch (_) { insight = ""; }
+      if (!insight) insight = genericInsight(card) || tableInsight(card);
+      foldSection(card, "is-insight", "Insights", insight);
     });
   }
 
@@ -933,6 +1131,7 @@
     // Rule 2: keep the value label clear of the plot ceiling.
     const Y = (v) => T + MARK_PAD + (ph - MARK_PAD) - (v / (top || 1)) * (ph - MARK_PAD);
     const showTicks = o.rotate ? null : tickIndexes(pairs.map((pr) => pr[0]), pw, (i) => L + band * i + band / 2);
+    const rotateStep = o.rotate ? Math.max(1, Math.ceil(13 / band)) : 1;
     let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">`;
     ticks.forEach((t) => {
       const y = Y(t);
@@ -949,7 +1148,12 @@
         svg += `<text class="kpi-dlabel" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle">${o.money ? usd(pr[1]) : fmt(pr[1])}</text>`;
       }
       if (o.rotate) {
-        svg += `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start"><title>${pr[0]}</title>${clip(pr[0], narrow() ? 13 : 17)}</text>`;
+        // Rotated labels were drawn for every bar regardless of room. Past
+        // about twenty sends on a narrow card they overlap into a smear, so
+        // drop every other one (or every third) once the bands get tight.
+        if (i % rotateStep === 0) {
+          svg += `<text class="kpi-tick" transform="translate(${(x + bw / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start"><title>${pr[0]}</title>${clip(pr[0], narrow() ? 13 : 17)}</text>`;
+        }
       } else if (showTicks.has(i)) {
         svg += `<text class="kpi-tick" x="${(x + bw / 2).toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${pr[0]}</text>`;
       }
@@ -1661,7 +1865,10 @@
     const band = pw / n;
     const bw = Math.min(26, (band * 0.62) / series.length);
     const Y = (v) => T + MARK_PAD + (ph - MARK_PAD) - (v / (top || 1)) * (ph - MARK_PAD);
-    const showValues = n <= 6;
+    // No per-bar figures: two bars per category put two labels within a few
+    // pixels of each other, and the breakdown table below the chart already
+    // carries the exact numbers. Hover covers the rest.
+    const showValues = false;
     let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">`;
     ticks.forEach((t) => {
       const y = Y(t);

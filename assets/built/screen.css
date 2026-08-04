@@ -24607,7 +24607,12 @@ html[data-theme="dark"] .dlr-play-btn {
 /* Methodology — the card's explanatory paragraph, moved to the foot and
    folded away. Quiet by default: it should read as a footnote you can
    open, not as a control competing with the numbers above it. */
+/* Two links on one line at the foot of the card. Only the first draws
+   the rule, so the pair reads as one footer rather than two stacked
+   bands. */
 .kpi-method { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--k-line); }
+.kpi-method + .kpi-method { margin-top: 0; padding-top: 0; border-top: none; }
+.kpi-chart:has(> .kpi-method.is-insight) > .kpi-method.is-method { padding-bottom: 6px; }
 .kpi-method > summary { list-style: none; cursor: pointer; font-size: 11.5px;
   color: var(--k-muted); display: inline-flex; align-items: center; gap: 5px; }
 .kpi-method > summary::-webkit-details-marker { display: none; }
