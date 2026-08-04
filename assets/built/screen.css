@@ -24549,8 +24549,19 @@ html[data-theme="dark"] .dlr-play-btn {
    tall card sets the row height and every later card lands underneath
    it, leaving the left column empty from the chart down. So the short
    cards stack on the left and the long list gets the right to itself. */
-[data-kpi-attribution] { align-items: start; }
+[data-kpi-attribution] { display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  align-items: start; margin-top: 12px; }
 .kpi-attr-col { display: grid; gap: 12px; align-content: start; min-width: 0; }
+/* Cards in a column drag with the shared rules; only the drop marker
+   differs. Cards stack here, so the target edge is horizontal — a bar
+   down the side would point across the gap between columns. */
+.kpi-attr-col > .kpi-chart.is-dropbefore::before,
+.kpi-attr-col > .kpi-chart.is-dropafter::after {
+  left: -2px; right: -2px; width: auto; height: 3px; top: auto; bottom: auto;
+}
+.kpi-attr-col > .kpi-chart.is-dropbefore::before { top: -8px; }
+.kpi-attr-col > .kpi-chart.is-dropafter::after { bottom: -8px; }
+@media (max-width: 620px) { [data-kpi-attribution] { grid-template-columns: 1fr; } }
 .kpi-attr { margin-top: 12px; }
 .kpi-attr-row { border-bottom: 1px solid var(--k-line); }
 .kpi-attr-row:last-child { border-bottom: none; }

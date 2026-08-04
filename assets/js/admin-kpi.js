@@ -1137,6 +1137,25 @@
 
   let dragged = null;
 
+  /*
+   * Which side of the target the card lands on.
+   *
+   * In a wrapping grid the cursor's X decides it. In a stacking column —
+   * the attribution columns, and any .kpi-charts grid at narrow widths —
+   * X is meaningless, and testing it made almost every drop land "after"
+   * because the cursor is usually past the card's horizontal midpoint.
+   * So work out how the container is actually laid out and ask the right
+   * question.
+   */
+  function dropsAfter(el, over, e) {
+    const kids = [...el.children].filter((c) => c.classList.contains("kpi-chart") || c.classList.contains("kpi-tile"));
+    const stacked = kids.length < 2
+      || Math.abs(kids[0].getBoundingClientRect().top - kids[1].getBoundingClientRect().top) > 4;
+    const r = over.getBoundingClientRect();
+    const downward = (e.clientY - r.top) / r.height > 0.5;
+    return stacked ? downward : (downward || (e.clientX - r.left) / r.width > 0.5);
+  }
+
   function wireSortable(el) {
     if (!el || el.dataset.kpiSortable === "on") { if (el) applyOrder(el); return; }
     el.dataset.kpiSortable = "on";
@@ -1167,11 +1186,7 @@
       el.querySelectorAll(".is-dropbefore, .is-dropafter")
         .forEach((c) => c.classList.remove("is-dropbefore", "is-dropafter"));
       if (!over || over === dragged || over.parentElement !== el) return;
-      // Which half of the target the cursor is in decides which side of it
-      // the card lands on. The grid wraps, so compare on both axes.
-      const r = over.getBoundingClientRect();
-      const after = (e.clientY - r.top) / r.height > 0.5 || (e.clientX - r.left) / r.width > 0.5;
-      over.classList.add(after ? "is-dropafter" : "is-dropbefore");
+      over.classList.add(dropsAfter(el, over, e) ? "is-dropafter" : "is-dropbefore");
     });
 
     el.addEventListener("drop", (e) => {
@@ -1179,9 +1194,7 @@
       e.preventDefault();
       const over = e.target.closest(".kpi-chart, .kpi-tile");
       if (over && over !== dragged && over.parentElement === el) {
-        const r = over.getBoundingClientRect();
-        const after = (e.clientY - r.top) / r.height > 0.5 || (e.clientX - r.left) / r.width > 0.5;
-        el.insertBefore(dragged, after ? over.nextSibling : over);
+        el.insertBefore(dragged, dropsAfter(el, over, e) ? over.nextSibling : over);
       }
       el.querySelectorAll(".is-dropbefore, .is-dropafter")
         .forEach((c) => c.classList.remove("is-dropbefore", "is-dropafter"));
@@ -1195,7 +1208,10 @@
   function wireLayout() {
     const containers = [
       document.querySelector("[data-kpi-tiles]"),
-      ...document.querySelectorAll(".kpi-charts")
+      ...document.querySelectorAll(".kpi-charts"),
+      // The attribution columns stack rather than flowing in the shared
+      // grid, but their cards are ordinary cards and reorder the same way.
+      ...document.querySelectorAll(".kpi-attr-col")
     ].filter(Boolean);
     containers.forEach((el) => {
       [...el.children].forEach((c) => {
@@ -1481,15 +1497,46 @@
     svg += `<text class="kpi-dlabel" x="${xm.toFixed(1)}" y="${boxY - 12}" text-anchor="${mAnchor}">median ${spanLabel(stats.median)}</text>`;
     // middle-half caption below the box
     svg += `<text class="kpi-tick" x="${((xq1 + xq3) / 2).toFixed(1)}" y="${boxY + boxH + 18}" text-anchor="middle">middle half</text>`;
-    // endpoints, on their own baseline below the box caption
+    // endpoints, on their own baseline below the box caption. Times only —
+    // the figures are what the reader is after, and the hover carries the
+    // rest rather than crowding the plot with names.
     const eY = boxY + boxH + 40;
-    svg += `<text class="kpi-tick" x="${L}" y="${eY}" text-anchor="start">fastest · ${esc(o.minLabel || spanLabel(stats.min))}</text>`;
-    svg += `<text class="kpi-tick" x="${stack ? L : W - R}" y="${stack ? eY + 16 : eY}" text-anchor="${stack ? "start" : "end"}">slowest · ${esc(o.maxLabel || spanLabel(stats.max))}</text>`;
-    return `<div class="kpi-chart"><p class="kpi-chart-title">${title}</p>
+    svg += `<text class="kpi-tick" x="${L}" y="${eY}" text-anchor="start">fastest · ${spanLabel(stats.min)}</text>`;
+    svg += `<text class="kpi-tick" x="${stack ? L : W - R}" y="${stack ? eY + 16 : eY}" text-anchor="${stack ? "start" : "end"}">slowest · ${spanLabel(stats.max)}</text>`;
+    // Hover zones over each marker, widest last so the median wins where
+    // two markers sit close together on a narrow card.
+    const zones = [
+      { x: x0, k: "Fastest", v: stats.min },
+      { x: xq1, k: "25th percentile", v: stats.p25 },
+      { x: xq3, k: "75th percentile", v: stats.p75 },
+      { x: x1, k: "Slowest", v: stats.max },
+      { x: xm, k: "Median", v: stats.median }
+    ];
+    zones.forEach((z) => {
+      svg += `<rect class="kpi-hz kpi-rz" x="${(z.x - 15).toFixed(1)}" y="${boxY - 12}" width="30" height="${boxH + 24}"
+        fill="transparent" data-k="${esc(z.k)}" data-v="${esc(spanLabel(z.v))}" data-d="${Math.round(z.v)}"/>`;
+    });
+    return `<div class="kpi-chart" data-range><p class="kpi-chart-title">${title}</p>
       <p class="kpi-chart-sub">${sub}</p>${svg}</svg>
       <p class="kpi-note">Whisker runs fastest to slowest; the box is the middle half of members
-        (${spanLabel(stats.p25)} to ${spanLabel(stats.p75)}); the line is the median. It re-shapes as more
-        subscribers convert.</p></div>`;
+        (${spanLabel(stats.p25)} to ${spanLabel(stats.p75)}); the line is the median. Hover any marker for the
+        exact figure. It re-shapes as more subscribers convert.</p></div>`;
+  }
+
+  // The range chart is not a bucketed series, so it wires its own hover
+  // rather than going through wireCharts.
+  function wireRange(host) {
+    host.querySelectorAll("[data-range] .kpi-rz").forEach((z) => {
+      z.addEventListener("mouseenter", (ev) => {
+        els.tip.innerHTML = `<div class="m">${z.getAttribute("data-k")}</div>`
+          + `<div class="r">${z.getAttribute("data-v")}<span class="v">${fmt(Number(z.getAttribute("data-d")))} days</span></div>`;
+        els.tip.style.opacity = 1;
+        const r = ev.target.getBoundingClientRect();
+        els.tip.style.left = `${Math.min(window.innerWidth - 230, r.left + r.width / 2 + 10)}px`;
+        els.tip.style.top = `${Math.max(10, r.top + 16)}px`;
+      });
+      z.addEventListener("mouseleave", () => { els.tip.style.opacity = 0; });
+    });
   }
 
   /*
@@ -1638,8 +1685,8 @@
         but never the click's own timestamp.</p>
       <div class="kpi-attr" data-window="month">${rows.map((s) => attrRow(s, age(s))).join("")}</div>
       ${nQuarter + nOlder
-    ? `<p class="kpi-more"><button type="button" class="kpi-btn" data-attr-more>View the full quarter
-        <span class="kpi-more-n">${fmt(nQuarter)} more</span></button></p>`
+    ? `<p class="kpi-more"><button type="button" class="kpi-btn" data-attr-more>Expand
+        <span class="kpi-more-n">${fmt(nQuarter + nOlder)} more</span></button></p>`
     : ""}
       ${attribution.pending
     ? `<p class="kpi-note">${fmt(attribution.pending)} send(s) not walked yet — the nightly job works through the backlog a few at a time.</p>`
@@ -1739,11 +1786,7 @@
 
       out.push(rangeBlock("Subscribe to paid, end to end",
         `Every one of the ${fmt(lag.n)} measurable members placed between the fastest and the slowest.`,
-        { min: 0, max: lag.longest.days, p25: lag.p25_days, p75: lag.p75_days, median: lag.median_days },
-        {
-          minLabel: `${spanLabel(lag.shortest.days)} (${lag.shortest.name || lag.shortest.email})`,
-          maxLabel: `${spanLabel(lag.longest.days)} (${lag.longest.name || lag.longest.email})`
-        }));
+        { min: lag.shortest.days, max: lag.longest.days, p25: lag.p25_days, p75: lag.p75_days, median: lag.median_days }));
 
       // The extremes invite "drop the outlier". The shape answers it:
       // the long tail is the biggest group, not a stray.
@@ -1757,28 +1800,32 @@
     }
 
     right.push(sequencesCard());
-    host.innerHTML = `<div class="kpi-attr-col">${out.filter(Boolean).join("")}</div>`
-      + `<div class="kpi-attr-col">${right.filter(Boolean).join("")}</div>`;
+    // Each column is its own sortable container, so the cards can be
+    // rearranged like every other card on the board. They need distinct
+    // data attributes because containerKey identifies a container by its
+    // first data-kpi-* attribute, and two columns in one section would
+    // otherwise share a key and overwrite each other's saved order.
+    host.innerHTML = `<div class="kpi-attr-col kpi-charts-sortable" data-kpi-attr-left>${out.filter(Boolean).join("")}</div>`
+      + `<div class="kpi-attr-col kpi-charts-sortable" data-kpi-attr-right>${right.filter(Boolean).join("")}</div>`;
     wireCharts();
+    wireRange(host);
 
-    // Month → quarter → everything. The third step only appears when
-    // there is something older than a quarter, so the control never
-    // promises rows that do not exist, and nothing is silently cut off.
+    // Collapsed to the last month, expanding to everything and back.
     const more = host.querySelector("[data-attr-more]");
     if (more) {
       const list = host.querySelector(".kpi-attr[data-window]");
+      const n = nQuarter + nOlder;
       more.addEventListener("click", () => {
-        const now = list.getAttribute("data-window");
-        if (now === "month") {
-          list.setAttribute("data-window", "quarter");
-          if (nOlder) more.innerHTML = `View everything <span class="kpi-more-n">${fmt(nOlder)} older</span>`;
-          else more.remove();
-        } else {
-          list.setAttribute("data-window", "all");
-          more.remove();
-        }
+        const open = list.getAttribute("data-window") === "all";
+        list.setAttribute("data-window", open ? "month" : "all");
+        more.innerHTML = open
+          ? `Expand <span class="kpi-more-n">${fmt(n)} more</span>`
+          : "Collapse";
       });
     }
+    // Painted outside the main render pass, so the layout wiring has to
+    // be re-run or these cards never become draggable.
+    wireLayout();
   }
 
   // ---- sequences ---------------------------------------------------------
