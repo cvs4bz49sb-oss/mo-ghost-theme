@@ -63,10 +63,14 @@
   ];
   let customFrom = null;
   let customTo = null;
-  let period = "total";
+  // The board opens on the current month: a week is one or two days of
+  // data on a Monday, and the month keeps enough in it to be worth reading
+  // while still answering "how are we doing right now". Current is one tap
+  // away for the standing position.
+  let period = "month";
   const P = () => PERIODS.find((x) => x.id === period) || PERIODS[0];
   // Kept as `gran` because the chart code reads it throughout.
-  let gran = "total";
+  let gran = "month";
 
   const fmt = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("en-US") : "—");
   const usd = (n) => (typeof n === "number" ? `$${Math.round(n).toLocaleString("en-US")}` : "—");
@@ -617,11 +621,21 @@
           if (last < 0) last = 0;
           const partial = last === b.length - 1 && b.length > 1 && b[last].n < b[last - 1].n;
           const cur = b[last].v;
-          const prev = last > 0 ? b[last - 1].v : null;
           periodRows = b[last].rows;
           prevRows = last > 0 ? b[last - 1].rows : null;
+          // A period still running has fewer days than the one before it, so
+          // comparing the whole of each reported a collapse every time a
+          // month turned over: four days of August against all of July read
+          // as down 87%. Match the prior period to the same elapsed days.
+          const aggKind = t.periodAgg || t.agg;
+          let prev = null;
+          if (prevRows) {
+            const cmp = partial ? prevRows.slice(0, b[last].n) : prevRows;
+            prev = aggKind === "last" ? lastOf(cmp, key) : sumOf(cmp, key);
+            if (partial) prevRows = cmp;
+          }
           value = t.periodValue ? t.periodValue(b[last].rows) : t.f(cur);
-          cap = (b[last].range || b[last].label) + (partial ? " so far" : "")
+          cap = (b[last].range || b[last].label) + (partial ? ` so far, ${b[last].n} ${b[last].n === 1 ? "day" : "days"} in` : "")
             + (t.periodCap ? ` · ${t.periodCap}` : "");
           if (prev != null && prev >= 10) {
             const d = pctChange(prev, cur);
