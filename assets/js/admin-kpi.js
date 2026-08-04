@@ -450,7 +450,16 @@
       ]
     },
     {
-      label: "Web traffic", key: "pv", agg: "last", cap: "pageviews, 30 days",
+      label: "Web traffic", key: "pv", agg: "last", cap: "pageviews, 30 days \u00b7 site + Substack",
+      // Substack is a real distribution channel, so the headline counts it.
+      // Kept out of the stored web_traffic_30d, which is the Plausible
+      // measurement and should stay named for what it measures.
+      value(s) {
+        const site = s.kpi.web_traffic_30d;
+        const sub = s.substack && s.substack.views ? s.substack.views : 0;
+        if (site == null && !sub) return "\u2014";
+        return fmt((site || 0) + sub);
+      },
       // In Total the useful figure is the trailing 30 days. For a period it has
       // to be the pageviews IN that period — carrying the 30-day value through
       // made a year read lower than a quarter.
@@ -472,11 +481,15 @@
           `<b>${fmt(sumOf(rows, "vis"))}</b> site visitors (Plausible only)`
         ];
       },
-      bullets: (s) => [
-        s.traffic ? `<b>${fmt(s.traffic.visitors_30d)}</b> visitors in 30 days` : "",
-        s.traffic ? `<b>${fmt(s.traffic.pageviews_7d)}</b> pageviews in 7 days` : "",
-        s.traffic ? `<b>${fmt(s.traffic.pageviews_1d)}</b> yesterday` : ""
-      ]
+      bullets(s) {
+        const site = s.kpi.web_traffic_30d;
+        const sub = s.substack && s.substack.views ? s.substack.views : 0;
+        return [
+          site != null ? `<b>${fmt(site)}</b> on the site \u00b7 <b>${fmt(sub)}</b> on Substack` : "",
+          s.traffic ? `<b>${fmt(s.traffic.visitors_30d)}</b> site visitors in 30 days` : "",
+          s.traffic ? `<b>${fmt(s.traffic.pageviews_7d)}</b> site pageviews in 7 days \u00b7 <b>${fmt(s.traffic.pageviews_1d)}</b> yesterday` : ""
+        ];
+      }
     },
     {
       label: "Podcast plays", key: "pod", agg: "last", f: fmt, goodUp: true, cap: "all shows, since Apr 2026",
