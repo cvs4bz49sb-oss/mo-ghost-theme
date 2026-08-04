@@ -906,7 +906,14 @@
       const open = e.features.filter((f) => f.member_rate != null && f.member_rate < 100 && f.users >= 20);
       const best = open.slice().sort((a, b) => b.member_rate - a.member_rate)[0];
       const worst = open.slice().sort((a, b) => a.member_rate - b.member_rate)[0];
-      let out = `<b>${esc(deepest.label)}</b> is used hardest at <b>${deepest.per_user}</b> per person`
+      const gift = e.features.find((f) => f.key === "gift");
+      let out = "";
+      if (gift && gift.users && gift.joined != null) {
+        out += `<b>${fmt(gift.users)}</b> people have sent a gift link and <b>${fmt(gift.joined)}</b> `
+          + `${gift.joined === 1 ? "person has" : "people have"} joined the list from one. Those are different `
+          + `populations, and the gap is the whole point of the feature: the sending works, the landing does not. `;
+      }
+      out += `<b>${esc(deepest.label)}</b> is used hardest at <b>${deepest.per_user}</b> per person`
         + `, and <b>${esc(recruiter.label)}</b> recruits the most, bringing <b>${fmt(recruiter.joined)}</b> onto the list. `;
       if (best && worst && best !== worst) {
         out += `Of the features open to everyone, <b>${esc(best.label)}</b> converts best at <b>${best.member_rate}%</b> `
@@ -1763,7 +1770,8 @@
         only just added and has not been written yet. Member rate is the share of people who used the
         feature and hold a membership now — for member-only features that is 100% by construction and says
         nothing. "Joined here" counts people whose subscription to the list came through that feature,
-        which is the number that shows what a feature recruits. Counts are lifetime since mo-kit began
+        which is a different population from the one that used it — for gift links, "people" is who sent one
+        and "joined here" is who subscribed after being sent one. Counts are lifetime since mo-kit began
         recording them, and cover only signed-in readers it can attach to an email address.
       </p>`;
   }
