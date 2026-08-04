@@ -611,20 +611,31 @@
     // carries no readable date at all. Anchoring on the old exact
     // "Weekday, Month D, YYYY" prefix meant one retitled episode
     // dropped the day out of the map and hid the player outright.
+    function ymd(year, monthName, day) {
+      const mon = MONTH_MAP[monthName.slice(0, 3).toLowerCase()];
+      if (!mon) return null;
+      return `${year}-${mon}-${String(parseInt(day, 10)).padStart(2, "0")}`;
+    }
+
     function dateFromText(text) {
       const s = String(text || "");
       const iso = s.match(/(\d{4})-(\d{2})-(\d{2})/);
       if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
-      const m = s.match(/([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/);
-      if (!m) return null;
-      const mon = MONTH_MAP[m[1].slice(0, 3).toLowerCase()];
-      if (!mon) return null;
-      return `${m[3]}-${mon}-${String(parseInt(m[2], 10)).padStart(2, "0")}`;
+      // "August 4, 2026" — how the show writes its titles.
+      const named = s.match(/([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/);
+      if (named) return ymd(named[3], named[1], named[2]);
+      // "Tue, 04 Aug 2026 05:00:00 -0400" — RFC 822, which is what the
+      // worker hands back for pubDate when it passes the RSS value
+      // through untouched. Day before month, so it needs its own pass.
+      const rfc = s.match(/(\d{1,2})\s+([A-Za-z]{3,9})\.?,?\s+(\d{4})/);
+      if (rfc) return ymd(rfc[3], rfc[2], rfc[1]);
+      return null;
     }
 
-    // pubDate is an ISO stamp with the publisher's offset, so its date
-    // part is the day the episode was released in the show's own zone —
-    // don't hand it to Date, which would shift it into the reader's.
+    // Read pubDate as text, not through Date: both the ISO form (with the
+    // publisher's offset) and the RFC 822 form carry the day the episode
+    // was released in the show's own zone, and parsing shifts it into the
+    // reader's — which lands on the wrong day for anyone west of Coram Deo.
     function episodeDate(ep) {
       if (!ep) return null;
       return dateFromText(ep.title) || dateFromText(ep.pubDate);
