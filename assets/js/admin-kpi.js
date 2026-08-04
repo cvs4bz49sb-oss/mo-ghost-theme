@@ -1458,11 +1458,19 @@
       <td class="is-num">${lag(p.hours)}</td>
       <td>${mdy(String(p.at).slice(0, 10))}</td>
     </tr>`).join("");
+    // Annualised, matching the column above it: monthly plans counted at
+    // twelve months. It is the run-rate this send won, not cash already
+    // collected, so it is labelled per year rather than as a total.
+    const total = (s.people || []).reduce((a, p) => a + (p.value || 0), 0);
     return `<details class="kpi-attr-row">${head}
       <div class="kpi-attr-body"><div class="kpi-tablewrap"><table class="kpi-table">
         <thead><tr><th>Name</th><th>Email</th><th class="is-num">Value/yr</th>
           <th class="is-num">Lag</th><th>Paid</th></tr></thead>
         <tbody>${people}</tbody>
+        <tfoot><tr>
+          <td>${fmt(s.conversions)} member${s.conversions === 1 ? "" : "s"}</td>
+          <td></td><td class="is-num">${usd(total)}/yr</td><td></td><td></td>
+        </tr></tfoot>
       </table></div></div></details>`;
   }
 

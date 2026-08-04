@@ -24544,6 +24544,10 @@ html[data-theme="dark"] .dlr-play-btn {
    and a card inside a card inside a card reads as packaging. A send that
    won nobody stays in the list, greyed and not openable, because "this
    one did nothing" is half the finding. */
+/* The roster runs to twenty-odd rows and the chart beside it is a fixed
+   height, so a stretched grid row left the chart card as a short chart
+   sitting on a tall column of nothing. Size both to their content. */
+[data-kpi-attribution] { align-items: start; }
 .kpi-attr { margin-top: 12px; }
 .kpi-attr-row { border-bottom: 1px solid var(--k-line); }
 .kpi-attr-row:last-child { border-bottom: none; }
@@ -24564,6 +24568,9 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-attr-c { text-align: right; font-variant-numeric: tabular-nums;
   color: var(--k-muted); font-size: 11.5px; white-space: nowrap; }
 .kpi-attr-body { padding: 2px 0 12px; }
+.kpi-attr-body tbody tr:last-child td { border-bottom: 1px solid var(--k-line); }
+.kpi-attr-body tfoot td { border-bottom: none; border-top: none; color: var(--k-text);
+  font-weight: 600; padding-top: 8px; }
 @media (max-width: 620px) {
   .kpi-attr-row > summary { grid-template-columns: 1fr 3rem 4.6rem;
     grid-template-areas: "s s s" "d n c"; row-gap: 4px; }
@@ -24809,6 +24816,10 @@ html[data-theme="dark"] .dlr-play-btn {
    separate them by the same 12px the grid itself uses, or the two cards
    sit flush and read as one broken block. */
 .kpi-panel + .kpi-charts, .kpi-charts + .kpi-panel { margin-top: 12px; }
+/* Two chart grids in a row (Email carries one from the snapshot and one
+   from attribution) butted together with no gap, so the seam between
+   them read tighter than the gap between cards inside either. */
+.kpi-charts + .kpi-charts { margin-top: 12px; }
 .kpi-charts > * { min-width: 0; }
 .kpi-chart {
   background: var(--k-surface); border: 1px solid var(--k-line);
