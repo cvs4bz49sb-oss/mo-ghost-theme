@@ -1434,6 +1434,9 @@
 
   let attribution = null;
 
+  // "2026-06" → "Jun 26", matching the axis labels the podcast charts use.
+  const monthLabel = (m) => `${MON[Number(String(m).slice(5, 7)) - 1]} ${String(m).slice(2, 4)}`;
+
   async function loadAttributionData() {
     try {
       const r = await MOAuth.fetch(`${worker}/kpi/attribution`);
@@ -1515,7 +1518,126 @@
     : ""}
     </div>`);
 
+    // ---- Email revenue by month
+    const rev = attribution.revenue_by_month || [];
+    if (rev.length) {
+      out.push(barBlock("Email revenue by month",
+        "Annualised value of the memberships email won, on the month each member started paying. "
+        + "Run-rate added, not cash banked in that month — a $10/mo member counts as $120 the month they join. "
+        + "Migration links are excluded; they are legacy members changing billing, not new money.",
+        rev.map((m) => [monthLabel(m.month), m.cta_value]),
+        { rotate: true, color: C1, money: true, seriesName: "Won that month" }));
+    }
+
+    // ---- Sponsorship clicks
+    const sp = (attribution.sponsors || []).filter((s) => s.clicks > 0);
+    if (sp.length) {
+      const total = sp.reduce((a, b) => a + b.clicks, 0);
+      out.push(`<div class="kpi-chart">
+        <p class="kpi-chart-title">Sponsorship clicks</p>
+        <p class="kpi-chart-sub">Running total across every send, ${fmt(total)} clicks in all. Sponsors are a
+          configured list rather than anything inferred — the Mailbag links out to dozens of external sites
+          that are not sponsorships, so guessing from the domain would be wrong.</p>
+        <div class="kpi-attr">${sp.map((s, i) => `
+          <details class="kpi-attr-row">
+            <summary>
+              <span class="kpi-attr-d">${fmt(s.sends.length)} send${s.sends.length === 1 ? "" : "s"}</span>
+              <span class="kpi-attr-s">${esc(s.label)}</span>
+              <span class="kpi-attr-n">${fmt(s.clicks)}</span>
+              <span class="kpi-attr-c">clicks</span>
+            </summary>
+            <div class="kpi-attr-body"><div class="kpi-tablewrap"><table class="kpi-table">
+              <thead><tr><th>Send</th><th class="is-num">Clicks</th><th>Date</th></tr></thead>
+              <tbody>${s.sends.map((x) => `<tr><td>${esc(x.subject)}</td>
+                <td class="is-num">${fmt(x.clicks)}</td><td>${mdy(x.date)}</td></tr>`).join("")}</tbody>
+              <tfoot><tr><td>Total</td><td class="is-num">${fmt(s.clicks)}</td><td></td></tr></tfoot>
+            </table></div></div>
+          </details>`).join("")}</div>
+      </div>`);
+    }
+
+    // ---- Subscribe → member lag
+    const { lag } = attribution;
+    if (lag && lag.n) {
+      const d = (x) => (x < 1 ? `${Math.round(x * 24)}h` : `${Math.round(x)} day${Math.round(x) === 1 ? "" : "s"}`);
+      out.push(`<div class="kpi-chart">
+        <p class="kpi-chart-title">How long before a subscriber pays</p>
+        <p class="kpi-chart-sub">Time from subscribing to starting a paid membership. Only
+          <b>${fmt(lag.n)} of ${fmt(lag.payers)}</b> paying members can be measured this way, so read the median as
+          indicative, not settled. ${fmt(lag.paid_first)} went straight to checkout without subscribing first, and
+          ${fmt(lag.imported_excluded)} were bulk-imported from HubSpot, whose subscribe date is the day of the
+          import rather than the day they joined. That most members never passed through the free list at all is
+          arguably the more useful number here.</p>
+        <div class="kpi-stats" style="border-bottom:none;padding-bottom:0">
+          <div class="kpi-stat"><span class="kpi-stat-v">${d(lag.median_days)}</span><span class="kpi-stat-l">Median</span></div>
+          <div class="kpi-stat"><span class="kpi-stat-v">${d(lag.shortest.days)}</span><span class="kpi-stat-l">Shortest</span></div>
+          <div class="kpi-stat"><span class="kpi-stat-v">${d(lag.longest.days)}</span><span class="kpi-stat-l">Longest</span></div>
+          <div class="kpi-stat"><span class="kpi-stat-v">${fmt(lag.same_day)}</span><span class="kpi-stat-l">Paid same day</span></div>
+        </div>
+        <div class="kpi-tablewrap" style="margin-top:14px"><table class="kpi-table">
+          <thead><tr><th></th><th>Who</th><th>Subscribed</th><th>Paid</th><th class="is-num">Took</th></tr></thead>
+          <tbody>
+            <tr><td>Fastest</td><td>${esc(lag.shortest.name) || esc(lag.shortest.email)}</td>
+              <td>${mdy(lag.shortest.subscribed_at.slice(0, 10))}</td><td>${mdy(lag.shortest.paid_at.slice(0, 10))}</td>
+              <td class="is-num">${d(lag.shortest.days)}</td></tr>
+            <tr><td>Slowest</td><td>${esc(lag.longest.name) || esc(lag.longest.email)}</td>
+              <td>${mdy(lag.longest.subscribed_at.slice(0, 10))}</td><td>${mdy(lag.longest.paid_at.slice(0, 10))}</td>
+              <td class="is-num">${d(lag.longest.days)}</td></tr>
+          </tbody>
+        </table></div>
+        <p class="kpi-note">Middle half of members paid between ${d(lag.p25_days)} and ${d(lag.p75_days)} after subscribing.</p>
+      </div>`);
+    }
+
     host.innerHTML = out.filter(Boolean).join("");
+    wireCharts();
+    renderSequences();
+  }
+
+  // ---- sequences ---------------------------------------------------------
+  //
+  // Measured on ENTRY, not on clicks. Kit exposes no per-sequence-email
+  // click or stat data — `sequences` and `sequence_emails` scopes on the
+  // clicks filter behave exactly like a nonsense scope, and a sequence
+  // email id passed as a broadcast matches nothing. So this answers "how
+  // many people who entered this sequence went on to pay", which is a
+  // softer claim than the per-send numbers, and the copy says so.
+
+  function renderSequences() {
+    const host = document.querySelector("[data-kpi-sequences]");
+    if (!host) return;
+    const seqs = (attribution && attribution.sequences) || [];
+    if (!seqs.length) { host.innerHTML = ""; return; }
+    const lagFmt = (h) => (h < 48 ? `${h}h` : `${Math.round(h / 24)}d`);
+    const rows = seqs.map((s) => {
+      const rate = s.subscribers ? ((s.conversions / s.subscribers) * 100).toFixed(1) : "0.0";
+      const head = `<summary>
+        <span class="kpi-attr-d">${fmt(s.emails.length)} email${s.emails.length === 1 ? "" : "s"}</span>
+        <span class="kpi-attr-s">${esc(s.name)}<span class="kpi-attr-k">${fmt(s.subscribers)} entered · ${rate}%</span></span>
+        <span class="kpi-attr-n">${fmt(s.conversions)}</span>
+        <span class="kpi-attr-c">${usd(s.value)}/yr</span>
+      </summary>`;
+      if (!s.conversions) return `<details class="kpi-attr-row" data-empty>${head}</details>`;
+      return `<details class="kpi-attr-row">${head}
+        <div class="kpi-attr-body"><div class="kpi-tablewrap"><table class="kpi-table">
+          <thead><tr><th>Name</th><th>Email</th><th class="is-num">Value/yr</th>
+            <th class="is-num">After entry</th><th>Paid</th></tr></thead>
+          <tbody>${s.people.map((p) => `<tr><td>${esc(p.name) || "—"}</td><td>${esc(p.email)}</td>
+            <td class="is-num">${usd(p.value)}</td><td class="is-num">${lagFmt(p.hours)}</td>
+            <td>${mdy(String(p.at).slice(0, 10))}</td></tr>`).join("")}</tbody>
+          <tfoot><tr><td>${fmt(s.conversions)} member${s.conversions === 1 ? "" : "s"}</td><td></td>
+            <td class="is-num">${usd(s.value)}/yr</td><td></td><td></td></tr></tfoot>
+        </table></div></div></details>`;
+    }).join("");
+    host.innerHTML = `<div class="kpi-chart">
+      <p class="kpi-chart-title">Sequences</p>
+      <p class="kpi-chart-sub">Members won after entering each sequence. This is entry-based, not click-based:
+        Kit publishes no click or open data per sequence email, so a sequence cannot be credited the way a
+        broadcast can. Read it as "of the people who entered, this many went on to pay" — the sequence is
+        not necessarily what persuaded them. A sequence people enter <i>after</i> paying, like the member
+        welcome, reads zero by construction rather than by failure.</p>
+      <div class="kpi-attr">${rows}</div>
+    </div>`;
     wireCharts();
   }
 
