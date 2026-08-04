@@ -843,14 +843,16 @@
    */
   function foldMethodology(root) {
     (root || document).querySelectorAll(".kpi-chart").forEach((card) => {
-      const sub = card.querySelector(":scope > .kpi-chart-sub");
-      if (!sub) return;
+      // .kpi-note is the same kind of prose as .kpi-chart-sub, just set
+      // below the figure, so both go in rather than folding half of it.
+      const prose = [...card.querySelectorAll(":scope > .kpi-chart-sub, :scope > .kpi-note")];
+      if (!prose.length) return;
       const box = document.createElement("details");
       box.className = "kpi-method";
       const tag = document.createElement("summary");
       tag.textContent = "Methodology";
       box.appendChild(tag);
-      box.appendChild(sub);
+      prose.forEach((p) => box.appendChild(p));
       card.appendChild(box);
     });
   }

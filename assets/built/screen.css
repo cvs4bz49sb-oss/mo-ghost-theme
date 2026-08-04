@@ -24619,8 +24619,9 @@ html[data-theme="dark"] .dlr-play-btn {
    Chrome now hides details content through ::details-content, which did
    not take effect on these script-built elements — the paragraph stayed
    visible with the card shut. This does not depend on the engine. */
-.kpi-method > .kpi-chart-sub { display: none; }
-.kpi-method[open] > .kpi-chart-sub { display: block; margin: 8px 0 0; }
+.kpi-method > .kpi-chart-sub, .kpi-method > .kpi-note { display: none; }
+.kpi-method[open] > .kpi-chart-sub,
+.kpi-method[open] > .kpi-note { display: block; margin: 8px 0 0; }
 
 /* Comparison table living inside a chart card. */
 .kpi-table-cmp { margin-top: 12px; font-size: 13px; }
