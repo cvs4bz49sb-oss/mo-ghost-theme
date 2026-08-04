@@ -78,6 +78,13 @@
   // say so rather than printing a flattering 0%.
   const rate = (n, d) => (d ? `${(Math.round((n / d) * 1000) / 10).toFixed(1)}%` : "—");
 
+  // Legacy members, deduplicated to people and restricted to the membership
+  // pipeline. hubspot.checkout_last_12m is HubSpot's "Everyone Who Pays"
+  // list, which counts donors and journal buyers as members too.
+  const legacyMembers12m = (hs) => (hs
+    ? (hs.membership_members_12m != null ? hs.membership_members_12m : hs.checkout_last_12m)
+    : null);
+
   // Reader-to-subscriber has to be computed over the days that actually
   // have traffic data. Plausible only starts in Apr 2026 while signups run
   // back to 2023, so summing both over "Total" divides three years of
@@ -302,7 +309,7 @@
       value: (s) => `${fmt(s.kpi.migration_done)} / ${fmt(s.kpi.migration_total)}`,
       bullets: (s) => [
         s.ghost ? `<b>${fmt(s.ghost.comped)}</b> still to convert` : "",
-        s.hubspot ? `<b>${fmt(s.hubspot.checkout_last_12m)}</b> legacy members paid in the last 12 months` : "",
+        s.hubspot ? `<b>${fmt(legacyMembers12m(s.hubspot))}</b> legacy members paid in the last 12 months` : "",
         s.hubspot ? `<b>${fmt(s.hubspot.payers)}</b> in HubSpot's paying list` : ""
       ]
     },
@@ -396,7 +403,7 @@
       ],
       bullets: (s) => [
         s.stripe ? `<b>${fmt(s.stripe.paying)}</b> paying Stripe — verified` : "",
-        s.hubspot ? `<b>${fmt(s.hubspot.membership_members_12m != null ? s.hubspot.membership_members_12m : s.hubspot.checkout_last_12m)}</b> legacy members paid within 12 months` : "",
+        s.hubspot ? `<b>${fmt(legacyMembers12m(s.hubspot))}</b> legacy members paid within 12 months` : "",
         s.ghost ? `<b>${fmt(s.ghost.comped)}</b> comped · <b>${fmt(s.ghost.paid)}</b> paid in Ghost` : ""
       ]
     },
@@ -2457,14 +2464,25 @@
           ] });
         });
         if (rows.length) {
+          const distinct = s.hubspot.membership_members_total;
+          const summed = rows.reduce((t, r) => t + (parseInt(String(r.cells[1]).replace(/[^0-9]/g, ""), 10) || 0), 0);
+          if (distinct && summed > distinct) {
+            // Someone who moved from monthly to annual is one person in two
+            // rows. The column is right; its sum is not a total.
+            rows.push({ total: true, cells: [
+              "Distinct people", fmt(distinct), "—", "—", "—"
+            ] });
+          }
           rev.push(tableBlock("Legacy membership by term — HubSpot",
             "Historic checkouts, not a run-rate. HubSpot never wrote renewals back, so these are what was "
             + "bought rather than what is currently billing.",
             ["Term", { label: "People", num: true }, { label: "Checkouts", num: true },
               { label: "Value, all time", num: true }, { label: "Per person", num: true }],
             rows,
-            { foot: "People are distinct contacts; checkouts are transactions, and the gap between the columns "
-              + "is renewals, each written as its own deal. HubSpot stores no term field, so the term is read "
+            { foot: "People are distinct contacts within each term, so the column does not add up to a total: "
+              + "31 people hold more than one term, having moved between monthly and annual, and appear in both "
+              + "rows. The distinct figure is on the last line. Checkouts are transactions, and the gap between "
+              + "those columns is renewals, each written as its own deal. HubSpot stores no term field, so the term is read "
               + "off the deal name \u2014 \u201cunstated\u201d means the name never said one, and the amount "
               + "cannot stand in for it because $60 appears as both monthly and annual." }));
         }
