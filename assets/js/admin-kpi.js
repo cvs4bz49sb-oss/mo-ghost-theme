@@ -1437,6 +1437,113 @@
   // "2026-06" → "Jun 26", matching the axis labels the podcast charts use.
   const monthLabel = (m) => `${MON[Number(String(m).slice(5, 7)) - 1]} ${String(m).slice(2, 4)}`;
 
+  // Days → something readable at any scale, from "same day" to "4.1 yrs".
+  function spanLabel(d) {
+    if (d < 1) return "same day";
+    if (d < 45) return `${Math.round(d)} days`;
+    if (d < 365) return `${Math.round(d / 30.4)} months`;
+    return `${(d / 365).toFixed(1)} yrs`;
+  }
+
+  /*
+   * A box plot, because the extremes and the typical case are different
+   * questions. The whisker spans fastest to slowest, the box is the
+   * middle half, and the line is the median. Everything is computed from
+   * the live numbers, so it re-shapes on its own as more people convert.
+   */
+  function rangeBlock(title, sub, stats, opts) {
+    const o = opts || {};
+    // The two endpoint captions carry names and are long. Side by side
+    // they collide on a narrow card, so there they stack instead.
+    const stack = narrow();
+    const W = chartW(), H = stack ? 196 : 168, L = 14, R = 14, T = 46;
+    const pw = W - L - R;
+    const max = Math.max(stats.max, 1);
+    const X = (v) => L + (Math.max(0, Math.min(v, max)) / max) * pw;
+    const mid = T + 20;
+    const boxH = 30, boxY = mid - boxH / 2;
+    const x0 = X(stats.min), x1 = X(stats.max), xq1 = X(stats.p25), xq3 = X(stats.p75), xm = X(stats.median);
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">`;
+    // whisker + caps
+    svg += `<line class="kpi-ax" x1="${x0.toFixed(1)}" y1="${mid}" x2="${x1.toFixed(1)}" y2="${mid}"/>`;
+    [x0, x1].forEach((x) => {
+      svg += `<line class="kpi-ax" x1="${x.toFixed(1)}" y1="${mid - 11}" x2="${x.toFixed(1)}" y2="${mid + 11}"/>`;
+    });
+    // middle half
+    svg += `<rect x="${xq1.toFixed(1)}" y="${boxY}" width="${Math.max(2, xq3 - xq1).toFixed(1)}" height="${boxH}"
+      rx="3" fill="${C1}" fill-opacity="0.16" stroke="${C1}" stroke-width="1"/>`;
+    // median
+    svg += `<line x1="${xm.toFixed(1)}" y1="${boxY - 5}" x2="${xm.toFixed(1)}" y2="${boxY + boxH + 5}"
+      stroke="${C1}" stroke-width="2.5"/>`;
+    // median label above, kept inside the plot at either edge
+    const mAnchor = xm < 60 ? "start" : (xm > W - 60 ? "end" : "middle");
+    svg += `<text class="kpi-dlabel" x="${xm.toFixed(1)}" y="${boxY - 12}" text-anchor="${mAnchor}">median ${spanLabel(stats.median)}</text>`;
+    // middle-half caption below the box
+    svg += `<text class="kpi-tick" x="${((xq1 + xq3) / 2).toFixed(1)}" y="${boxY + boxH + 18}" text-anchor="middle">middle half</text>`;
+    // endpoints, on their own baseline below the box caption
+    const eY = boxY + boxH + 40;
+    svg += `<text class="kpi-tick" x="${L}" y="${eY}" text-anchor="start">fastest · ${esc(o.minLabel || spanLabel(stats.min))}</text>`;
+    svg += `<text class="kpi-tick" x="${stack ? L : W - R}" y="${stack ? eY + 16 : eY}" text-anchor="${stack ? "start" : "end"}">slowest · ${esc(o.maxLabel || spanLabel(stats.max))}</text>`;
+    return `<div class="kpi-chart"><p class="kpi-chart-title">${title}</p>
+      <p class="kpi-chart-sub">${sub}</p>${svg}</svg>
+      <p class="kpi-note">Whisker runs fastest to slowest; the box is the middle half of members
+        (${spanLabel(stats.p25)} to ${spanLabel(stats.p75)}); the line is the median. It re-shapes as more
+        subscribers convert.</p></div>`;
+  }
+
+  /*
+   * Two bars per category. barBlock draws one series and the timeseries
+   * engine works off date buckets, so neither fits "new against migrated,
+   * month by month". Same four chart rules as everything else: headroom
+   * above the tallest bar, nothing painted outside the plot, labels
+   * thinned by width, and a hover zone per category rather than per bar.
+   */
+  function groupedBarBlock(title, sub, labels, series, opts) {
+    const o = opts || {};
+    if (!labels.length) return "";
+    const W = chartW(), H = narrow() ? 300 : 312, L = narrow() ? 44 : 52,
+      R = narrow() ? 66 : 80, T = 28, B = 96;
+    const pw = W - L - R, ph = H - T - B, n = labels.length;
+    const mx = Math.max(...series.flatMap((s) => s.vals), 1);
+    const ticks = niceTicks(mx, 4), top = ticks[ticks.length - 1];
+    const band = pw / n;
+    const bw = Math.min(26, (band * 0.62) / series.length);
+    const Y = (v) => T + MARK_PAD + (ph - MARK_PAD) - (v / (top || 1)) * (ph - MARK_PAD);
+    const showValues = n <= 6;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${title}">`;
+    ticks.forEach((t) => {
+      const y = Y(t);
+      svg += `<line class="kpi-gl" x1="${L}" y1="${y.toFixed(1)}" x2="${L + pw}" y2="${y.toFixed(1)}"/>`
+        + `<text class="kpi-tick" x="${L - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end">${o.money ? `$${compact(t)}` : compact(t)}</text>`;
+    });
+    svg += `<line class="kpi-ax" x1="${L}" y1="${T + ph}" x2="${L + pw}" y2="${T + ph}"/>`;
+    labels.forEach((lab, i) => {
+      const groupW = bw * series.length + 2 * (series.length - 1);
+      const x0 = L + band * i + band / 2 - groupW / 2;
+      series.forEach((s, j) => {
+        const v = s.vals[i] || 0;
+        const x = x0 + j * (bw + 2), y = Y(v);
+        const h = Math.max(1, T + ph - y), r = Math.min(3, h, bw / 2);
+        svg += `<path d="M${x},${y + r} a${r},${r} 0 0 1 ${r},${-r} h${bw - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - r} h${-bw} Z" fill="${s.color}"/>`;
+        if (showValues && v > 0) {
+          svg += `<text class="kpi-dlabel" x="${(x + bw / 2).toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="middle" style="font-size:9px">${o.money ? usd(v) : fmt(v)}</text>`;
+        }
+      });
+      svg += `<rect class="kpi-hz" data-i="${i}" x="${(L + band * i).toFixed(1)}" y="${T}" width="${band.toFixed(1)}" height="${ph}" fill="transparent"/>`;
+      svg += `<text class="kpi-tick" transform="translate(${(L + band * i + band / 2 - 3).toFixed(1)},${T + ph + 9}) rotate(32)" text-anchor="start">${lab}</text>`;
+    });
+    const id = `b${++blockId}`;
+    chartState[id] = {
+      cfg: { names: series.map((s) => s.name), f: o.money ? usd : fmt },
+      buckets: series.map((s) => labels.map((lab, i) => ({ label: lab, range: lab, v: s.vals[i] || 0 })))
+    };
+    const legend = `<ul class="kpi-legend">${series.map((s) =>
+      `<li><span class="kpi-key" style="background:${s.color}"></span>${s.name}</li>`).join("")}</ul>`;
+    return `<div class="kpi-chart" data-chart="${id}"><p class="kpi-chart-title">${title}</p>
+      <p class="kpi-chart-sub">${sub}</p>${legend}${svg}</svg></div>`;
+  }
+
   async function loadAttributionData() {
     try {
       const r = await MOAuth.fetch(`${worker}/kpi/attribution`);
@@ -1445,15 +1552,16 @@
     renderAttribution();
   }
 
-  function attrRow(s) {
+  function attrRow(s, ageBand) {
     const lag = (h) => (h < 48 ? `${h}h` : `${Math.round(h / 24)}d`);
+    const band = ageBand ? ` data-age="${ageBand}"` : "";
     const head = `<summary>
       <span class="kpi-attr-d">${mdy(s.date)}</span>
       <span class="kpi-attr-s">${esc(s.subject)}<span class="kpi-attr-k">${esc((s.kinds || []).join(" · "))}</span></span>
       <span class="kpi-attr-n">${fmt(s.conversions)}</span>
       <span class="kpi-attr-c">${fmt(s.clicks)} clicks</span>
     </summary>`;
-    if (!s.conversions) return `<details class="kpi-attr-row" data-empty>${head}</details>`;
+    if (!s.conversions) return `<details class="kpi-attr-row"${band} data-empty>${head}</details>`;
     const people = (s.people || []).map((p) => `<tr>
       <td>${esc(p.name) || "—"}</td>
       <td>${esc(p.email)}</td>
@@ -1465,7 +1573,7 @@
     // twelve months. It is the run-rate this send won, not cash already
     // collected, so it is labelled per year rather than as a total.
     const total = (s.people || []).reduce((a, p) => a + (p.value || 0), 0);
-    return `<details class="kpi-attr-row">${head}
+    return `<details class="kpi-attr-row"${band}>${head}
       <div class="kpi-attr-body"><div class="kpi-tablewrap"><table class="kpi-table">
         <thead><tr><th>Name</th><th>Email</th><th class="is-num">Value/yr</th>
           <th class="is-num">Lag</th><th>Paid</th></tr></thead>
@@ -1486,7 +1594,13 @@
     }
     const t = attribution.totals || {};
     const cta = attribution.sends.filter((s) => s.group !== "migrate");
+    // Two explicit columns rather than one flowing grid. The roster runs
+    // to twenty-odd sends and everything else is a few hundred pixels, so
+    // in a flat grid the tall card sets the row height and every later
+    // card lands below it — leaving the left column empty from the chart
+    // down. Left stacks the short cards; right carries the long list.
     const out = [];
+    const right = [];
 
     if (cta.length > 1) {
       out.push(barBlock("Paying members won per send",
@@ -1505,28 +1619,74 @@
     // Newest first here, the opposite of the chart: the chart is a trend
     // and reads left to right, this is a list and the recent send is the
     // one being looked up.
+    // Windowed: a month by default, opening to the quarter and then to
+    // everything. Measured back from the most recent send rather than
+    // from today, so the list does not empty itself during a quiet spell.
     const rows = attribution.sends.slice().reverse();
-    out.push(`<div class="kpi-chart">
+    const newest = rows.length ? new Date(rows[0].date).getTime() : Date.now();
+    const age = (s) => {
+      const d = (newest - new Date(s.date).getTime()) / 86400000;
+      return d <= 31 ? "month" : (d <= 92 ? "quarter" : "older");
+    };
+    const nQuarter = rows.filter((s) => age(s) === "quarter").length;
+    const nOlder = rows.filter((s) => age(s) === "older").length;
+    right.push(`<div class="kpi-chart">
       <p class="kpi-chart-title">Who converted, by send</p>
       <p class="kpi-chart-sub">Open a send to see the members it won. Migration links are the legacy
         HubSpot base moving onto Ghost billing rather than new revenue, so they are labelled and left
         out of the chart. Lag is measured from the send: Kit gives the broadcast a click belongs to
         but never the click's own timestamp.</p>
-      <div class="kpi-attr">${rows.map(attrRow).join("")}</div>
+      <div class="kpi-attr" data-window="month">${rows.map((s) => attrRow(s, age(s))).join("")}</div>
+      ${nQuarter + nOlder
+    ? `<p class="kpi-more"><button type="button" class="kpi-btn" data-attr-more>View the full quarter
+        <span class="kpi-more-n">${fmt(nQuarter)} more</span></button></p>`
+    : ""}
       ${attribution.pending
     ? `<p class="kpi-note">${fmt(attribution.pending)} send(s) not walked yet — the nightly job works through the backlog a few at a time.</p>`
     : ""}
     </div>`);
 
     // ---- Email revenue by month
+    //
+    // The bar is the TOTAL, deliberately. An earlier version plotted new
+    // memberships only while the list above it showed new and migrated
+    // together, so May read $420 here against $12,040 there and looked
+    // like an error. The split is in the table rather than hidden.
+    //
+    // Note the two blocks are also grouped on different axes and always
+    // will be: the list is by send date, this is by the date the money
+    // started. A June send paid in July belongs to July here.
     const rev = attribution.revenue_by_month || [];
     if (rev.length) {
-      out.push(barBlock("Email revenue by month",
-        "Annualised value of the memberships email won, on the month each member started paying. "
-        + "Run-rate added, not cash banked in that month — a $10/mo member counts as $120 the month they join. "
-        + "Migration links are excluded; they are legacy members changing billing, not new money.",
-        rev.map((m) => [monthLabel(m.month), m.cta_value]),
-        { rotate: true, color: C1, money: true, seriesName: "Won that month" }));
+      const table = `<div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
+        <thead><tr><th>Month</th><th class="is-num">New</th><th class="is-num">New /yr</th>
+          <th class="is-num">Migrated</th><th class="is-num">Migrated /yr</th><th class="is-num">Total /yr</th></tr></thead>
+        <tbody>${rev.map((m) => `<tr>
+          <td>${monthLabel(m.month)}</td>
+          <td class="is-num">${fmt(m.cta_conversions)}</td><td class="is-num">${usd(m.cta_value)}</td>
+          <td class="is-num">${fmt(m.migrate_conversions)}</td><td class="is-num">${usd(m.migrate_value)}</td>
+          <td class="is-num">${usd(m.cta_value + m.migrate_value)}</td></tr>`).join("")}
+          <tr class="is-total"><td>Total</td>
+            <td class="is-num">${fmt(rev.reduce((a, m) => a + m.cta_conversions, 0))}</td>
+            <td class="is-num">${usd(rev.reduce((a, m) => a + m.cta_value, 0))}</td>
+            <td class="is-num">${fmt(rev.reduce((a, m) => a + m.migrate_conversions, 0))}</td>
+            <td class="is-num">${usd(rev.reduce((a, m) => a + m.migrate_value, 0))}</td>
+            <td class="is-num">${usd(rev.reduce((a, m) => a + m.cta_value + m.migrate_value, 0))}</td></tr>
+        </tbody></table></div>`;
+      const card = groupedBarBlock("Email revenue by month",
+        "Annualised value of every membership email is credited with, on the month that member started paying — "
+        + "so a send in June that was paid in July counts in July, which is why this will not line up row-for-row "
+        + "with the list of sends. Run-rate added, not cash banked: a $10/mo member counts as $120 the month they "
+        + "join. Only the new memberships are new money; migrated legacy members were already paying MO.",
+        rev.map((m) => monthLabel(m.month)),
+        [
+          { name: "New memberships", color: C1, vals: rev.map((m) => m.cta_value) },
+          { name: "Migrated legacy", color: C2, vals: rev.map((m) => m.migrate_value) }
+        ],
+        { money: true });
+      // barBlock hands back a finished card; the breakdown belongs inside
+      // it rather than in a card of its own.
+      out.push(card.replace(/<\/div>\s*$/, `${table}</div>`));
     }
 
     // ---- Sponsorship clicks
@@ -1562,36 +1722,63 @@
       const d = (x) => (x < 1 ? `${Math.round(x * 24)}h` : `${Math.round(x)} day${Math.round(x) === 1 ? "" : "s"}`);
       out.push(`<div class="kpi-chart">
         <p class="kpi-chart-title">How long before a subscriber pays</p>
-        <p class="kpi-chart-sub">Time from subscribing to starting a paid membership. Only
-          <b>${fmt(lag.n)} of ${fmt(lag.payers)}</b> paying members can be measured this way, so read the median as
-          indicative, not settled. ${fmt(lag.paid_first)} went straight to checkout without subscribing first, and
-          ${fmt(lag.imported_excluded)} were bulk-imported from HubSpot, whose subscribe date is the day of the
-          import rather than the day they joined. That most members never passed through the free list at all is
-          arguably the more useful number here.</p>
+        <p class="kpi-chart-sub">Time from first subscribing to starting a paid membership, across
+          <b>${fmt(lag.n)} of ${fmt(lag.payers)}</b> paying members.
+          ${fmt(lag.dated_from_hubspot)} are dated from their HubSpot record rather than Kit's, because Kit's
+          created_at for anyone imported is the day of the import.
+          ${fmt(lag.migration_excluded)} legacy members are excluded — they were already paying MO through HubSpot,
+          so their Stripe subscription is a change of billing, not a subscriber deciding to pay.
+          ${fmt(lag.paid_first)} went straight to checkout with no prior subscriber record.</p>
         <div class="kpi-stats" style="border-bottom:none;padding-bottom:0">
           <div class="kpi-stat"><span class="kpi-stat-v">${d(lag.median_days)}</span><span class="kpi-stat-l">Median</span></div>
           <div class="kpi-stat"><span class="kpi-stat-v">${d(lag.shortest.days)}</span><span class="kpi-stat-l">Shortest</span></div>
           <div class="kpi-stat"><span class="kpi-stat-v">${d(lag.longest.days)}</span><span class="kpi-stat-l">Longest</span></div>
           <div class="kpi-stat"><span class="kpi-stat-v">${fmt(lag.same_day)}</span><span class="kpi-stat-l">Paid same day</span></div>
         </div>
-        <div class="kpi-tablewrap" style="margin-top:14px"><table class="kpi-table">
-          <thead><tr><th></th><th>Who</th><th>Subscribed</th><th>Paid</th><th class="is-num">Took</th></tr></thead>
-          <tbody>
-            <tr><td>Fastest</td><td>${esc(lag.shortest.name) || esc(lag.shortest.email)}</td>
-              <td>${mdy(lag.shortest.subscribed_at.slice(0, 10))}</td><td>${mdy(lag.shortest.paid_at.slice(0, 10))}</td>
-              <td class="is-num">${d(lag.shortest.days)}</td></tr>
-            <tr><td>Slowest</td><td>${esc(lag.longest.name) || esc(lag.longest.email)}</td>
-              <td>${mdy(lag.longest.subscribed_at.slice(0, 10))}</td><td>${mdy(lag.longest.paid_at.slice(0, 10))}</td>
-              <td class="is-num">${d(lag.longest.days)}</td></tr>
-          </tbody>
-        </table></div>
-        <p class="kpi-note">Middle half of members paid between ${d(lag.p25_days)} and ${d(lag.p75_days)} after subscribing.</p>
       </div>`);
+
+      out.push(rangeBlock("Subscribe to paid, end to end",
+        `Every one of the ${fmt(lag.n)} measurable members placed between the fastest and the slowest.`,
+        { min: 0, max: lag.longest.days, p25: lag.p25_days, p75: lag.p75_days, median: lag.median_days },
+        {
+          minLabel: `${spanLabel(lag.shortest.days)} (${lag.shortest.name || lag.shortest.email})`,
+          maxLabel: `${spanLabel(lag.longest.days)} (${lag.longest.name || lag.longest.email})`
+        }));
+
+      // The extremes invite "drop the outlier". The shape answers it:
+      // the long tail is the biggest group, not a stray.
+      const buckets = lag.buckets || [];
+      if (buckets.length) {
+        out.push(barBlock("How long they took",
+          `Members grouped by how long they waited. The tail is the story — ${fmt(buckets.slice(-2).reduce((a, b) => a + b[1], 0))} `
+          + `of ${fmt(lag.n)} took more than a year, so the slowest are a cohort rather than outliers to trim.`,
+          buckets.map((b) => [b[0], b[1]]), { rotate: true, color: C1, seriesName: "Members" }));
+      }
     }
 
-    host.innerHTML = out.filter(Boolean).join("");
+    right.push(sequencesCard());
+    host.innerHTML = `<div class="kpi-attr-col">${out.filter(Boolean).join("")}</div>`
+      + `<div class="kpi-attr-col">${right.filter(Boolean).join("")}</div>`;
     wireCharts();
-    renderSequences();
+
+    // Month → quarter → everything. The third step only appears when
+    // there is something older than a quarter, so the control never
+    // promises rows that do not exist, and nothing is silently cut off.
+    const more = host.querySelector("[data-attr-more]");
+    if (more) {
+      const list = host.querySelector(".kpi-attr[data-window]");
+      more.addEventListener("click", () => {
+        const now = list.getAttribute("data-window");
+        if (now === "month") {
+          list.setAttribute("data-window", "quarter");
+          if (nOlder) more.innerHTML = `View everything <span class="kpi-more-n">${fmt(nOlder)} older</span>`;
+          else more.remove();
+        } else {
+          list.setAttribute("data-window", "all");
+          more.remove();
+        }
+      });
+    }
   }
 
   // ---- sequences ---------------------------------------------------------
@@ -1603,11 +1790,9 @@
   // many people who entered this sequence went on to pay", which is a
   // softer claim than the per-send numbers, and the copy says so.
 
-  function renderSequences() {
-    const host = document.querySelector("[data-kpi-sequences]");
-    if (!host) return;
+  function sequencesCard() {
     const seqs = (attribution && attribution.sequences) || [];
-    if (!seqs.length) { host.innerHTML = ""; return; }
+    if (!seqs.length) return "";
     const lagFmt = (h) => (h < 48 ? `${h}h` : `${Math.round(h / 24)}d`);
     const rows = seqs.map((s) => {
       const rate = s.subscribers ? ((s.conversions / s.subscribers) * 100).toFixed(1) : "0.0";
@@ -1629,7 +1814,7 @@
             <td class="is-num">${usd(s.value)}/yr</td><td></td><td></td></tr></tfoot>
         </table></div></div></details>`;
     }).join("");
-    host.innerHTML = `<div class="kpi-chart">
+    return `<div class="kpi-chart">
       <p class="kpi-chart-title">Sequences</p>
       <p class="kpi-chart-sub">Members won after entering each sequence. This is entry-based, not click-based:
         Kit publishes no click or open data per sequence email, so a sequence cannot be credited the way a
@@ -1638,7 +1823,6 @@
         welcome, reads zero by construction rather than by failure.</p>
       <div class="kpi-attr">${rows}</div>
     </div>`;
-    wireCharts();
   }
 
   function renderBreakdowns(s) {

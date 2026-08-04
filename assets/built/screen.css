@@ -24544,10 +24544,13 @@ html[data-theme="dark"] .dlr-play-btn {
    and a card inside a card inside a card reads as packaging. A send that
    won nobody stays in the list, greyed and not openable, because "this
    one did nothing" is half the finding. */
-/* The roster runs to twenty-odd rows and the chart beside it is a fixed
-   height, so a stretched grid row left the chart card as a short chart
-   sitting on a tall column of nothing. Size both to their content. */
+/* Two real columns, not a flowing grid. The roster is twenty-odd sends
+   tall and everything else is a few hundred pixels; in a flat grid the
+   tall card sets the row height and every later card lands underneath
+   it, leaving the left column empty from the chart down. So the short
+   cards stack on the left and the long list gets the right to itself. */
 [data-kpi-attribution] { align-items: start; }
+.kpi-attr-col { display: grid; gap: 12px; align-content: start; min-width: 0; }
 .kpi-attr { margin-top: 12px; }
 .kpi-attr-row { border-bottom: 1px solid var(--k-line); }
 .kpi-attr-row:last-child { border-bottom: none; }
@@ -24567,6 +24570,16 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-attr-row[data-empty] .kpi-attr-n { color: var(--k-muted); }
 .kpi-attr-c { text-align: right; font-variant-numeric: tabular-nums;
   color: var(--k-muted); font-size: 11.5px; white-space: nowrap; }
+/* The roster opens on the last month; the control widens it. Hiding by
+   attribute rather than re-rendering keeps any row the reader already
+   opened open when the window changes. */
+.kpi-attr[data-window="month"] .kpi-attr-row[data-age="quarter"],
+.kpi-attr[data-window="month"] .kpi-attr-row[data-age="older"],
+.kpi-attr[data-window="quarter"] .kpi-attr-row[data-age="older"] { display: none; }
+.kpi-more { margin: 12px 0 0; }
+.kpi-more .kpi-btn { width: 100%; justify-content: center; }
+.kpi-more-n { color: var(--k-muted); margin-left: 6px; }
+
 .kpi-attr-body { padding: 2px 0 12px; }
 .kpi-attr-body tbody tr:last-child td { border-bottom: 1px solid var(--k-line); }
 .kpi-attr-body tfoot td { border-bottom: none; border-top: none; color: var(--k-text);
