@@ -51,6 +51,8 @@
   const PERIODS = [
     { id: "total", label: "Total", short: "Total" },
     { id: "today", label: "Today", short: "Today", grain: "day", back: 0 },
+    { id: "week", label: "This Week", short: "This wk", grain: "week", back: 0 },
+    { id: "lastweek", label: "Last Week", short: "Last wk", grain: "week", back: 1 },
     { id: "month", label: "This Month", short: "This mo", grain: "month", back: 0 },
     { id: "lastmonth", label: "Last Month", short: "Last mo", grain: "month", back: 1 },
     { id: "quarter", label: "This Quarter", short: "This qtr", grain: "quarter", back: 0 },
@@ -829,7 +831,32 @@
     </div>`;
   }
 
+  /*
+   * The explanatory paragraph under every card title is worth having and
+   * worth getting out of the way — six of them stacked reads like a wall
+   * of footnotes before you reach a single number. Rather than rewrite
+   * every call site, the paragraph is relocated after render: moved to
+   * the foot of its card and folded behind a quiet "Methodology" link.
+   *
+   * Idempotent, because several render paths call this and cards are
+   * rebuilt at different times.
+   */
+  function foldMethodology(root) {
+    (root || document).querySelectorAll(".kpi-chart").forEach((card) => {
+      const sub = card.querySelector(":scope > .kpi-chart-sub");
+      if (!sub) return;
+      const box = document.createElement("details");
+      box.className = "kpi-method";
+      const tag = document.createElement("summary");
+      tag.textContent = "Methodology";
+      box.appendChild(tag);
+      box.appendChild(sub);
+      card.appendChild(box);
+    });
+  }
+
   function wireCharts() {
+    foldMethodology();
     document.querySelectorAll("[data-chart]").forEach((host) => {
       const st = chartState[host.getAttribute("data-chart")];
       if (!st) return;
@@ -1273,6 +1300,7 @@
       // grid, but their cards are ordinary cards and reorder the same way.
       ...document.querySelectorAll(".kpi-attr-col")
     ].filter(Boolean);
+    foldMethodology();
     applyGroupPlacement();
     containers.forEach((el) => {
       [...el.children].forEach((c) => {
@@ -2052,7 +2080,7 @@
   // The nightly job stores traffic breakdowns for 7d / 30d / 12mo, so the
   // period selector switches between real windows instead of always showing
   // the last 30 days.
-  const TRAFFIC_WINDOW = { today: "7d", month: "30d", lastmonth: "30d", quarter: "12mo", lastquarter: "12mo", year: "12mo", lastyear: "12mo", total: "30d" };
+  const TRAFFIC_WINDOW = { today: "7d", week: "7d", lastweek: "7d", month: "30d", lastmonth: "30d", quarter: "12mo", lastquarter: "12mo", year: "12mo", lastyear: "12mo", total: "30d" };
   const WINDOW_LABEL = { "7d": "last 7 days", "30d": "last 30 days", "12mo": "last 12 months" };
 
   function renderTraffic(s) {
@@ -2206,7 +2234,9 @@
 
       // Per episode, not per month: Daily Liturgy publishes every day, so a
       // monthly average hides the only thing worth looking at.
-      const EPISODES_FOR = { today: 14, month: 31, lastmonth: 31, quarter: 45, lastquarter: 45, year: 60, lastyear: 60, total: 30 };
+      // The Daily Liturgy publishes every day, so a week is ~7 episodes; a
+      // few more gives the week something to sit against.
+      const EPISODES_FOR = { today: 14, week: 12, lastweek: 12, month: 31, lastmonth: 31, quarter: 45, lastquarter: 45, year: 60, lastyear: 60, total: 30 };
       const keepEp = period === "custom" ? 60 : (EPISODES_FOR[period] || 30);
       shows.forEach(([key, name, color]) => {
         const eps = (s.podcasts.recent_episodes && s.podcasts.recent_episodes[key]) || [];

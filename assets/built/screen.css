@@ -24604,6 +24604,24 @@ html[data-theme="dark"] .dlr-play-btn {
   .kpi-attr-c { grid-area: c; }
 }
 
+/* Methodology — the card's explanatory paragraph, moved to the foot and
+   folded away. Quiet by default: it should read as a footnote you can
+   open, not as a control competing with the numbers above it. */
+.kpi-method { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--k-line); }
+.kpi-method > summary { list-style: none; cursor: pointer; font-size: 11.5px;
+  color: var(--k-muted); display: inline-flex; align-items: center; gap: 5px; }
+.kpi-method > summary::-webkit-details-marker { display: none; }
+.kpi-method > summary::after { content: "›"; display: inline-block; transition: transform 0.15s; }
+.kpi-method[open] > summary::after { transform: rotate(90deg); }
+.kpi-method > summary:hover { color: var(--k-text); }
+.kpi-method > summary:focus-visible { outline: 2px solid var(--k-accent); outline-offset: 2px; border-radius: 2px; }
+/* Hidden explicitly rather than leaning on the browser's own collapsing.
+   Chrome now hides details content through ::details-content, which did
+   not take effect on these script-built elements — the paragraph stayed
+   visible with the card shut. This does not depend on the engine. */
+.kpi-method > .kpi-chart-sub { display: none; }
+.kpi-method[open] > .kpi-chart-sub { display: block; margin: 8px 0 0; }
+
 /* Comparison table living inside a chart card. */
 .kpi-table-cmp { margin-top: 12px; font-size: 13px; }
 .kpi-table-cmp th, .kpi-table-cmp td { padding: 7px 14px 7px 0; }
