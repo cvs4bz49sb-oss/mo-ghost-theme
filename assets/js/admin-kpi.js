@@ -49,7 +49,7 @@
   // `short` is what a phone shows: nine buttons have to fit a 375px screen
   // three to a row without any of them being cut off or scrolled to.
   const PERIODS = [
-    { id: "total", label: "Total", short: "Total" },
+    { id: "total", label: "Current", short: "Current" },
     { id: "today", label: "Today", short: "Today", grain: "day", back: 0 },
     { id: "week", label: "This Week", short: "This wk", grain: "week", back: 0 },
     { id: "lastweek", label: "Last Week", short: "Last wk", grain: "week", back: 1 },
@@ -77,6 +77,19 @@
   // A conversion rate is only meaningful with a denominator; without one
   // say so rather than printing a flattering 0%.
   const rate = (n, d) => (d ? `${(Math.round((n / d) * 1000) / 10).toFixed(1)}%` : "—");
+
+  // The last thirty days of the series. "Current" means the situation as it
+  // stands, which for a stock is its value and for a flow is a recent
+  // window — and the window has to be the same one everywhere or two
+  // neighbouring tiles end up reading different periods.
+  const RECENT_DAYS = 30;
+  function recentRows() {
+    if (!series.length) return [];
+    const end = series[series.length - 1].d;
+    const from = new Date(Date.parse(end) - (RECENT_DAYS - 1) * 86400000).toISOString().slice(0, 10);
+    return series.filter((r) => r.d >= from && r.d <= end);
+  }
+  const recentSum = (k) => sumOf(recentRows(), k);
 
   // Legacy members, deduplicated to people and restricted to the membership
   // pipeline. hubspot.checkout_last_12m is HubSpot's "Everyone Who Pays"
@@ -356,8 +369,8 @@
       // 30-day figure under a caption reading "last 24 hours", so the tile
       // and the table disagreed by design.
       label: "Cancellations", key: "cxl", agg: "sum", f: fmt, goodUp: false,
-      cap: "paying members, all time",
-      value: (s) => fmt(s.kpi.cancels_total != null ? s.kpi.cancels_total : sumOf(series, "cxl")),
+      cap: "paying members, last 30 days",
+      value: () => fmt(recentSum("cxl")),
       periodBullets: (rows) => [
         `<b>${fmt(sumOf(rows, "cxl"))}</b> cancelled in the period`,
         `<b>${fmt(sumOf(rows, "nmem"))}</b> started — net <b>${signed(sumOf(rows, "nmem") - sumOf(rows, "cxl"))}</b>`,
@@ -368,7 +381,7 @@
         s.stripe.churn_paid_30d != null
           ? `<b>${s.stripe.churn_paid_30d}%</b> monthly churn against ${fmt(s.stripe.paying)} paying`
           : "",
-        `<b>${usd(s.stripe.cancels_mrr_30d)}</b> of MRR lost · <b>${fmt(s.stripe.cancels_30d)}</b> total including comped`
+        `<b>${usd(s.stripe.cancels_mrr_30d)}</b> of MRR lost · <b>${fmt(s.stripe.cancels_30d)}</b> including comped, migrations excluded`
       ] : [])
     },
     {
@@ -437,29 +450,35 @@
       ]
     },
     {
-      label: "New members", key: "nmem", agg: "sum", f: fmt, goodUp: true, cap: "last 24 hours, migrations excluded",
+      // Total means all time on every other tile, so a flow shows its
+      // running total here rather than the last 24 hours — two neighbouring
+      // tiles reading different windows is unreadable.
+      label: "New members", key: "nmem", agg: "sum", f: fmt, goodUp: true,
+      cap: "last 30 days, migrations excluded",
+      value: () => fmt(recentSum("nmem")),
       periodBullets: (rows) => [
         `<b>${fmt(sumOf(rows, "nmem"))}</b> Stripe subscriptions started by new members`,
         `<b>${fmt(sumOf(rows, "nmig"))}</b> more were legacy members migrating, counted on the Migration tile`,
         `<b>${perDay(rows, "nmem")}</b> a day across ${rows.length} days`
       ],
       bullets: (s) => [
-        s.stripe ? `<b>${fmt(s.stripe.started_24h)}</b> Stripe subscriptions started` : "",
-        s.stripe ? `<b>${fmt(s.stripe.canceled_24h)}</b> cancelled in the same window` : "",
+        `<b>${fmt(sumOf(series, "nmig"))}</b> more were legacy members migrating, counted on the Migration tile`,
+        s.stripe ? `<b>${fmt(s.stripe.started_24h)}</b> started in the last 24 hours` : "",
         s.stripe ? `<b>${fmt(s.stripe.renewals_next_90d)}</b> renewals due in 90 days` : ""
       ]
     },
     {
-      label: "New subscribers", key: "nsub", agg: "sum", f: fmt, goodUp: true, cap: "last 24 hours",
+      label: "New subscribers", key: "nsub", agg: "sum", f: fmt, goodUp: true, cap: "last 30 days",
+      value: () => fmt(recentSum("nsub")),
       periodBullets: (rows) => [
         `<b>${fmt(sumOf(rows, "nsub"))}</b> signed up in the period`,
         `<b>${perDay(rows, "nsub")}</b> a day across ${rows.length} days`,
         `<b>${fmt(sumOf(rows, "unsub"))}</b> unsubscribed in the same window`
       ],
       bullets: (s) => [
-        s.ghost ? `<b>${fmt(s.ghost.signups_24h)}</b> Ghost signups` : "",
-        s.kit && s.kit.last_send ? `<b>${fmt(s.kit.last_send.unsubscribes)}</b> unsubscribed on the last send` : "",
-        "net of bounces and cancellations"
+        s.ghost ? `<b>${fmt(s.ghost.signups_24h)}</b> signed up in the last 24 hours` : "",
+        `<b>${fmt(sumOf(series, "unsub"))}</b> unsubscribed on sends over the same history`,
+        "counted from Ghost signups, before bounces and cancellations"
       ]
     },
     {
@@ -2512,8 +2531,7 @@
       rows.push({ total: true, cells: ["All time", fmt(st.cancels_paid_total), fmt(st.cancels_total), usd(st.cancels_mrr_12m)] });
       out.push(tableBlock("Membership cancellations",
         `<b>${fmt(st.cancels_paid_30d)}</b> paying members cancelled in the last 30 days — `
-        + `<b>${st.churn_paid_30d}%</b> monthly churn against ${fmt(st.paying)} paying, `
-        + `costing <b>${usd(st.cancels_mrr_30d)}</b> of monthly revenue.`,
+        + `<b>${st.churn_paid_30d}%</b> monthly churn against ${fmt(st.paying)} paying. Migrations are not counted here.`,
         ["Month", { label: "Paying", num: true }, { label: "All", num: true }, { label: "MRR lost", num: true }],
         rows,
         { foot: "\u201cPaying\u201d counts only subscriptions that were ever charged; \u201call\u201d includes comped and "
