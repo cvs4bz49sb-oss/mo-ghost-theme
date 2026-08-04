@@ -280,29 +280,10 @@
     rev: "membership_revenue", mem: "total_members", sub: "total_subscribers",
     nmem: "new_members_24h", nsub: "new_subscribers_24h", pv: "web_traffic_30d",
     pod: "podcast_lifetime", op: "digest_open", mig: "migration_done",
-    trev: "total_revenue", cxl: "cancels_total",
-    don: "donations_total"
+    cxl: "cancels_total",
   };
 
   const KPIS = [
-    {
-      // Membership run-rate plus donations actually banked this calendar
-      // year. Deliberately not one clean number in the bullets: an
-      // annualised run-rate and money already received are different in
-      // kind, and collapsing them silently would overstate the year.
-      label: "Total revenue", key: "trev", agg: "last", f: usd, goodUp: true, cap: "membership run-rate + donations YTD",
-      value: (s) => usd(s.kpi.total_revenue != null ? s.kpi.total_revenue : lastOf(series, "trev")),
-      periodBullets: (rows) => [
-        `<b>${usd(lastOf(rows, "rev"))}</b> membership, annualised at period end`,
-        `<b>${usd(sumOf(rows, "don"))}</b> donations received in the period`,
-        `<b>${usd(sumOf(rows, "cash") + sumOf(rows, "hsc") + sumOf(rows, "don"))}</b> cash actually collected in the period`
-      ],
-      bullets: (s) => [
-        s.kpi.membership_revenue != null ? `<b>${usd(s.kpi.membership_revenue)}</b> membership, annualised` : "",
-        s.kpi.donations_ytd != null ? `<b>${usd(s.kpi.donations_ytd)}</b> donations received so far in ${String(s.date).slice(0, 4)}` : "",
-        s.donations ? `<b>${usd(s.donations.last_12m)}</b> donations over a trailing twelve months` : ""
-      ]
-    },
     {
       label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised",
       periodBullets: (rows, prev) => [
@@ -329,43 +310,6 @@
         s.hubspot ? `<b>${fmt(legacyMembers12m(s.hubspot))}</b> legacy members paid in the last 12 months` : "",
         s.hubspot ? `<b>${fmt(s.hubspot.payers)}</b> in HubSpot's paying list` : ""
       ]
-    },
-    {
-      // Donations are their own ledger, not a HubSpot pipeline — the numbers
-      // here survive the HubSpot sunset untouched.
-      label: "Donations", key: "don", agg: "sum", f: usd, goodUp: true, cap: "all gifts on record",
-      // The running total lives on the series as well as the snapshot, so a
-      // snapshot taken before donations existed still shows a real number
-      // instead of a dash.
-      value: (s) => usd(s.kpi.donations_total != null ? s.kpi.donations_total : lastOf(series, "dontot")),
-      periodBullets(rows) {
-        const gifts = sumOf(rows, "dong");
-        const amt = sumOf(rows, "don");
-        const days = rows.filter((r) => r.don > 0).length;
-        return [
-          `<b>${fmt(gifts)}</b> ${gifts === 1 ? "gift" : "gifts"} in the period`,
-          `<b>${usd(gifts ? amt / gifts : 0)}</b> average gift`,
-          `<b>${fmt(days)}</b> ${days === 1 ? "day" : "days"} with a gift · <b>${usd(lastOf(rows, "don12"))}</b> trailing twelve months`
-        ];
-      },
-      bullets(s) {
-        if (s.donations) {
-          return [
-            `<b>${fmt(s.donations.gifts)}</b> gifts from <b>${fmt(s.donations.donors)}</b> donors`,
-            `<b>${usd(s.donations.avg)}</b> average · <b>${usd(s.donations.median)}</b> median · <b>${usd(s.donations.largest)}</b> largest`,
-            `<b>${usd(s.donations.last_12m)}</b> in the last twelve months · <b>${usd(s.donations.last_30d)}</b> in 30 days`
-          ];
-        }
-        // Snapshot predates the donation ledger — fall back to the series,
-        // which carries the same totals per day.
-        const tot = lastOf(series, "dontot"), t12 = lastOf(series, "don12");
-        if (tot == null) return ["No donations recorded yet"];
-        return [
-          `<b>${usd(t12)}</b> in the last twelve months`,
-          `<b>${fmt(sumOf(series, "dong"))}</b> gifts on record`,
-          "per-donor detail appears after tonight's snapshot"
-        ];
-      }
     },
     {
       // Total shows every paying cancellation on record, which is what the
@@ -688,16 +632,6 @@
       keys: ["cash", "hsc"], names: ["Stripe", "HubSpot deals"], f: usd
     },
     {
-      id: "donations", type: "bar", agg: "sum", title: "Donations received",
-      sub: "Every gift on the date it arrived. Migrated out of HubSpot's Donor pipeline in Aug 2026; live gifts arrive on the Anedot webhook.",
-      keys: ["don"], names: ["Donations"], f: usd
-    },
-    {
-      id: "gifts", type: "bar", agg: "sum", title: "Number of gifts",
-      sub: "Gift count rather than dollars, so one large gift does not hide a quiet month.",
-      keys: ["dong"], names: ["Gifts"], f: fmt
-    },
-    {
       id: "subs", type: "bar", agg: "sum", title: "Subscribes and unsubscribes",
       sub: "Ghost signups against unsubscribes recorded on Kit sends.",
       keys: ["nsub", "unsub"], names: ["Subscribed", "Unsubscribed"], f: fmt
@@ -845,13 +779,12 @@
 
   const CHART_SECTION = {
     members: "acquisition", mrr: "revenue", new: "acquisition", cash: "revenue",
-    subs: "email", traffic: "traffic", visitors: "traffic",
-    donations: "donations", gifts: "donations"
+    subs: "email", traffic: "traffic", visitors: "traffic"
   };
 
   function renderCharts() {
     const g = gran === "total" ? "month" : gran;
-    const buckets = { revenue: [], acquisition: [], traffic: [], email: [], donations: [] };
+    const buckets = { revenue: [], acquisition: [], traffic: [], email: [] };
     CHARTS.forEach((cfg) => {
       const html = chartHtml(cfg, g);
       const key = CHART_SECTION[cfg.id] || "acquisition";
@@ -1302,116 +1235,11 @@
     put("[data-kpi-traffic]", chartBuckets.traffic, "No traffic in this snapshot.");
     put("[data-kpi-email]", chartBuckets.email, "No email data in this snapshot.");
     put("[data-kpi-podcasts]", chartBuckets.podcasts || [], "No podcast data in this snapshot.");
-    put("[data-kpi-donations]", chartBuckets.donations || [], "No donations in this period.");
     wireCharts();
   }
 
-  // ---- donations ---------------------------------------------------------
-  //
-  // The ledger is fetched once and filtered client-side, so "Recent
-  // donations" answers the period picker like everything else: pick Last
-  // Quarter and you get that quarter's gifts, not the newest 25 overall.
 
-  let ledger = null;
-  const donSort = { key: "date", dir: "desc" };
-  let donExpanded = false;
 
-  // The date span the active period covers, taken from the series rows the
-  // tiles are built from so the panel can never disagree with them.
-  function activeWindow() {
-    const b = bucketize("don", "sum", gran === "total" ? "month" : gran);
-    if (!b.length) return null;
-    let rows;
-    if (gran === "total" || period === "custom") rows = b.flatMap((x) => x.rows);
-    else {
-      const back = P().back || 0;
-      let last = b.length - 1 - back;
-      if (last < 0) last = 0;
-      rows = b[last].rows;
-    }
-    if (!rows.length) return null;
-    return { from: rows[0].d, to: rows[rows.length - 1].d };
-  }
-
-  function renderDonations() {
-    const host = document.querySelector("[data-kpi-donations-panel]");
-    if (!host) return;
-    if (!ledger) { host.innerHTML = '<p class="kpi-empty">Loading the donation ledger…</p>'; return; }
-    if (!ledger.length) {
-      host.innerHTML = '<p class="kpi-empty">No gifts on record yet. Anedot posts each one here as it arrives.</p>';
-      return;
-    }
-    const win = activeWindow();
-    const rows = win ? ledger.filter((r) => r.date >= win.from && r.date <= win.to) : ledger;
-    const label = win
-      ? (gran === "total" ? "all time" : `${mdy(win.from)} – ${mdy(win.to)}`)
-      : "all time";
-    const total = rows.reduce((t, r) => t + r.amount, 0);
-    const donors = new Set(rows.map((r) => r.email || r.id)).size;
-    const recurringRows = rows.filter((r) => r.recurring);
-    const recurring = recurringRows.length;
-    const recurringValue = recurringRows.reduce((t, r) => t + r.amount, 0);
-    const big = rows.slice().sort((a, b) => b.amount - a.amount)[0];
-
-    const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
-
-    // Newest first by default; the header cells re-sort in place. Amount
-    // sorts high-to-low first because "who gave the most" is the question
-    // anyone actually asks of a donation list.
-    const sorted = rows.slice().sort((a, b) => {
-      const dir = donSort.dir === "asc" ? 1 : -1;
-      if (donSort.key === "amount") return (a.amount - b.amount) * dir;
-      if (donSort.key === "type") {
-        const t = (r) => (r.recurring ? `Recurring · ${r.cadence || "Monthly"}` : "One-time");
-        return t(a).localeCompare(t(b)) * dir || (a.date < b.date ? 1 : -1);
-      }
-      if (donSort.key === "name") return String(a.name || "").localeCompare(String(b.name || "")) * dir;
-      return (a.date < b.date ? -1 : a.date > b.date ? 1 : 0) * dir;
-    });
-    const shown = donExpanded ? sorted : sorted.slice(0, 5);
-    const arrow = (k) => (donSort.key === k ? (donSort.dir === "asc" ? " ↑" : " ↓") : "");
-    const th = (k, label, num) =>
-      `<th${num ? ' class="is-num"' : ""}><button type="button" class="kpi-sortbtn" data-don-sort="${k}"
-        aria-pressed="${donSort.key === k}">${label}${arrow(k)}</button></th>`;
-
-    host.innerHTML = `
-      <div class="kpi-stats">
-        ${stat(usd(total), `total donated · ${label}`)}
-        ${stat(fmt(rows.length), rows.length === 1 ? "gift" : "gifts")}
-        ${stat(fmt(donors), donors === 1 ? "donor" : "distinct donors")}
-        ${stat(usd(rows.length ? total / rows.length : 0), "average gift")}
-        ${stat(big ? usd(big.amount) : "—", "largest gift")}
-        ${stat(fmt(recurring), `recurring gifts · ${usd(recurringValue)}`)}
-      </div>
-      ${sorted.length ? `<div class="kpi-tablewrap"><table class="kpi-table">
-        <thead><tr>${th("date", "Date")}${th("name", "Donor")}${th("amount", "Amount", true)}${th("type", "Type")}</tr></thead>
-        <tbody>${shown.map((r) => `<tr>
-          <td>${mdy(r.date)}</td>
-          <td>${esc(r.name || "—")}</td>
-          <td class="is-num">${usd(r.amount)}</td>
-          <td>${r.recurring ? `<span class="kpi-pill">${esc(r.cadence || "Monthly")}</span>` : "One-time"}${r.fund ? ` · ${esc(r.fund)}` : ""}</td>
-        </tr>`).join("")}</tbody>
-      </table></div>
-      ${recurring ? `<p class="kpi-note">Cadence is inferred for gifts migrated from HubSpot, which recorded none:
-        three or more gifts of the same amount from the same donor about a month apart is a monthly plan.
-        Gifts arriving on the Anedot webhook carry their real cadence instead.</p>` : ""}
-      ${sorted.length > 5 ? `<button type="button" class="kpi-morebtn" data-don-more>
-        ${donExpanded ? "Show less" : `Show all ${fmt(sorted.length)}`}</button>` : ""}`
-      : '<p class="kpi-empty">No gifts in this period.</p>'}`;
-
-    host.querySelectorAll("[data-don-sort]").forEach((b) => {
-      b.addEventListener("click", () => {
-        const k = b.getAttribute("data-don-sort");
-        // Same column toggles direction; a new column starts on the
-        // direction that answers the obvious question first.
-        if (donSort.key === k) donSort.dir = donSort.dir === "asc" ? "desc" : "asc";
-        else { donSort.key = k; donSort.dir = k === "name" ? "asc" : "desc"; }
-        renderDonations();
-      });
-    });
-    const more = host.querySelector("[data-don-more]");
-    if (more) more.addEventListener("click", () => { donExpanded = !donExpanded; renderDonations(); });
-  }
 
   // ---- layout: drag to rearrange -----------------------------------------
   //
@@ -1746,9 +1574,10 @@
           + `the boxes are directly comparable. ${who}`
       }
     );
-    return `${card("members", M, "Member is anyone whose Ghost tier is not free, so comped, student and institutional count.")
+    return `<div class="kpi-charts" style="margin-top:16px">`
+      + card("members", M, "Member is anyone whose Ghost tier is not free, so comped, student and institutional count.")
       + card("free subscribers", S, "Free subscribers only \u2014 anyone who has not taken a membership.")
-       }<div class="kpi-chart"><p class="kpi-chart-title">Members against subscribers</p>
+      + `</div><div class="kpi-chart" style="margin-top:12px"><p class="kpi-chart-title">Members against subscribers</p>
         <p class="kpi-chart-sub">The same two populations side by side.</p>
         <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
           <thead><tr><th>Group</th><th class="is-num">Readers</th><th class="is-num">Essays read</th>
@@ -1871,58 +1700,6 @@
   // kinds of number, so both the total and its parts are shown rather than
   // one figure that quietly mixes them.
 
-  function renderRevenueSummary(s) {
-    const host = document.querySelector("[data-kpi-revenue-summary]");
-    if (!host) return;
-    const k = s.kpi || {};
-    const year = String(s.date || "").slice(0, 4);
-    const membership = k.membership_revenue != null ? k.membership_revenue : lastOf(series, "rev");
-    const donations = k.donations_ytd != null ? k.donations_ytd : null;
-    // Derived from the parts on screen rather than read off the snapshot,
-    // so the total can never disagree with its own breakdown. A snapshot
-    // assembled from two different runs once showed shares summing to 106%.
-    const total = (membership != null || donations != null)
-      ? (membership || 0) + (donations || 0)
-      : k.total_revenue;
-    if (total == null) { host.innerHTML = '<p class="kpi-empty">No revenue in this snapshot.</p>'; return; }
-    const pct = (n) => (total ? Math.round((n / total) * 100) : 0);
-
-    const parts = [
-      membership != null ? { label: "Membership", note: "annualised run-rate", v: membership } : null,
-      donations != null ? { label: "Donations", note: `received in ${year}`, v: donations } : null
-    ].filter(Boolean);
-
-    const inside = [
-      s.stripe ? ["Stripe", Math.round(s.stripe.arr)] : null,
-      s.hubspot && s.hubspot.membership_deals ? ["Legacy HubSpot", s.hubspot.membership_deals.last_12m] : null,
-      s.substack ? ["Substack", s.substack.revenue] : null
-    ].filter(Boolean);
-
-    host.innerHTML = `
-      <div class="kpi-rev">
-        <div class="kpi-rev-lead">
-          <span class="kpi-rev-total">${usd(total)}</span>
-          <span class="kpi-rev-label">Total revenue</span>
-          <span class="kpi-rev-cap">Membership run-rate plus donations received in ${year}</span>
-        </div>
-        <div class="kpi-rev-parts">
-          ${parts.map((p) => `
-            <div class="kpi-rev-part">
-              <span class="kpi-rev-pv">${usd(p.v)}</span>
-              <span class="kpi-rev-pl">${p.label} <b>${pct(p.v)}%</b></span>
-              <span class="kpi-rev-pn">${p.note}</span>
-              <span class="kpi-rev-bar"><i style="width:${Math.max(2, pct(p.v))}%"></i></span>
-            </div>`).join("")}
-        </div>
-      </div>
-      ${inside.length ? `<p class="kpi-rev-inside">Membership breaks down as
-        ${inside.map(([l, v]) => `<b>${usd(v)}</b> ${l}`).join(" · ")}.</p>` : ""}
-      <p class="kpi-note">
-        Membership is an annualised run-rate, what the current book bills over twelve months.
-        Donations are cash actually received since 1 January. Two different kinds of number, summed
-        here to answer "what does this year look like" — not audited revenue.
-      </p>`;
-  }
 
   // ---- audience ----------------------------------------------------------
   //
@@ -1994,15 +1771,6 @@
         </table></div>` : ""}`;
   }
 
-  async function loadLedger() {
-    try {
-      const r = await MOAuth.fetch(`${worker}/kpi/donations`);
-      const d = await r.json();
-      ledger = Array.isArray(d) ? d : (d.donations || []);
-      ledger.sort((a, b) => (a.date < b.date ? -1 : 1));
-    } catch (_) { ledger = []; }
-    renderDonations();
-  }
 
   // ---- email → membership attribution ------------------------------------
   //
@@ -2812,11 +2580,6 @@
         const journal = snap.hubspot && snap.hubspot.journal_deals
           ? snap.hubspot.journal_deals.last_12m : 0;
         merged.membership_revenue = Math.round(snap.stripe.arr + legacy + journal + row.revenue);
-        // Keep the total in step, or the Revenue box and its parts drift
-        // apart the moment a Substack reading is entered.
-        if (base.donations_ytd != null) {
-          merged.total_revenue = merged.membership_revenue + base.donations_ytd;
-        }
       }
     }
     return { ...snap, baseKpi: base, kpi: merged, substack: row };
@@ -2982,11 +2745,9 @@
     safe("paint", () => paintSections());
     safe("narrative", () => renderNarrative(showing));
     safe("substack", () => renderSubstack());
-    safe("donations", () => renderDonations());
     safe("audience", () => renderAudience(showing));
     safe("loyalty", () => renderLoyalty(showing));
     safe("features", () => renderFeatures(showing));
-    safe("revsummary", () => renderRevenueSummary(showing));
     safe("layout", () => wireLayout());
     lastRenderW = cachedW || chartW();
   }
@@ -3001,22 +2762,6 @@
   function renderNarrative(s) {
     const g = s.ghost, st = s.stripe, hs = s.hubspot, {kit} = s;
     const flags = [];
-    // Donations are read from our own ledger now. While HubSpot is still
-    // alive, compare the two: drift means the Anedot webhook is not firing
-    // (or is firing somewhere else), and it has to be caught before the
-    // sunset rather than after it.
-    if (s.donations && hs && hs.donor_deals) {
-      const ours = s.donations.total;
-      const theirs = hs.donor_deals.total;
-      const gap = theirs - ours;
-      if (Math.abs(gap) > Math.max(250, theirs * 0.02)) {
-        flags.push(["serious", "The donation ledger has drifted from HubSpot",
-          `Our ledger holds <b>${usd(ours)}</b> across <b>${fmt(s.donations.gifts)}</b> gifts; HubSpot's Donor pipeline holds
-           <b>${usd(theirs)}</b> — a gap of <b>${usd(Math.abs(gap))}</b>. History was migrated out of HubSpot in August 2026 and
-           every gift since should arrive on the Anedot webhook, so a gap this size means the webhook is not posting here.
-           Worth fixing now: after April 2027 there is no HubSpot to reconcile against.`]);
-      }
-    }
     if (hs && g) {
       flags.push(["critical", "There is no ledger for legacy membership revenue",
         `HubSpot records the sale, not the billing — renewals were never written back as deals. So of the legacy base,
@@ -3188,7 +2933,7 @@
     // background where it was silently dropped.
     const NICE = {
       ghost: "Ghost", stripe: "Stripe", hubspot: "HubSpot", kit: "Kit",
-      traffic: "Plausible", podcasts: "Buzzsprout", extras: "Substack, donations, audience",
+      traffic: "Plausible", podcasts: "Buzzsprout", extras: "Substack and audience",
       finish: "Assembling"
     };
     try {
@@ -3306,7 +3051,6 @@
 
   wireSectionNav();
   load();
-  loadLedger();
   loadAttributionData();
   loadLayout();
 })();
