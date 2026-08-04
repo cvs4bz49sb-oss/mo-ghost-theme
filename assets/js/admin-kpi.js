@@ -287,7 +287,7 @@
       ]
     },
     {
-      label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised, incl. Journal",
+      label: "Membership revenue", key: "rev", agg: "last", f: usd, goodUp: true, cap: "annualised",
       periodBullets: (rows, prev) => [
         `<b>${usd((lastOf(rows, "mrr") || 0) * 12)}</b> Stripe run-rate at period end`,
         `<b>${usd((lastOf(rows, "rev") || 0) - (lastOf(rows, "mrr") || 0) * 12)}</b> HubSpot, trailing twelve months`,
@@ -636,7 +636,7 @@
   const CHARTS = [
     {
       id: "members", type: "line", agg: "last", title: "Paying members",
-      sub: "Stripe, plus legacy members who paid within the last twelve months. The legacy line counts distinct people across HubSpot's Membership and Journal pipelines — the Journal is a membership product, so its buyers are members. Donations are a separate pipeline and are not counted here.",
+      sub: "Stripe, plus legacy members who paid within the last twelve months. The legacy line counts distinct people across the Membership and Journal pipelines. Donations are separate and not counted here.",
       keys: ["pays", "hsp"], names: ["Stripe", "Legacy (HubSpot membership)"], f: fmt
     },
     {
