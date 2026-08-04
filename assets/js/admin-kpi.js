@@ -1563,6 +1563,106 @@
     setTimeout(() => window.location.reload(), 600);
   }
 
+  // ---- loyalty and features ----------------------------------------------
+  //
+  // Both read the engagement block, which mo-kit has been quietly writing
+  // into Kit custom fields all along: one row per person recording essays
+  // read, audio played, bookmarks saved, commonplace entries and Daily
+  // Liturgy days. Measured on people we can identify by email, not on
+  // anonymous traffic — see the note the section carries.
+
+  const SEG_NOTE = {
+    Habitual: "read in the last week, and either keeping a Daily Liturgy habit or twenty essays deep",
+    Regular: "read within the last month",
+    Lapsing: "last read between one and three months ago",
+    Dormant: "has read before, but not in three months",
+    "No activity recorded": "on the list but never seen reading — mostly subscribers who predate the new site"
+  };
+
+  function renderLoyalty(s) {
+    const host = document.querySelector("[data-kpi-loyalty]");
+    if (!host) return;
+    const e = s.engagement;
+    if (!e) {
+      host.innerHTML = '<p class="kpi-empty">No engagement data in this snapshot.</p>';
+      return;
+    }
+    const tracked = e.segments.filter((x) => x.name !== "No activity recorded").reduce((a, b) => a + b.n, 0);
+    const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
+    host.innerHTML = `
+      <div class="kpi-stats">
+        ${stat(e.score == null ? "—" : `${e.score}`, "loyalty score, out of 100")}
+        ${stat(fmt(tracked), "readers we can see")}
+        ${stat(fmt(e.engaged), "have read at least one essay")}
+        ${stat(fmt(e.subscribers), "on the list altogether")}
+      </div>
+      <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
+        <thead><tr><th>Segment</th><th class="is-num">People</th><th class="is-num">Of tracked</th><th>What it means</th></tr></thead>
+        <tbody>${e.segments.map((x) => `<tr${x.name === "No activity recorded" ? "" : ""}>
+          <td>${esc(x.name)}</td>
+          <td class="is-num">${fmt(x.n)}</td>
+          <td class="is-num">${x.name === "No activity recorded" ? "—" : `${tracked ? (x.n / tracked * 100).toFixed(1) : 0}%`}</td>
+          <td>${SEG_NOTE[x.name] || ""}</td>
+        </tr>`).join("")}</tbody>
+      </table></div>
+      <p class="kpi-note">
+        The score is recency at half the weight, then reading volume, Daily Liturgy habit and range of
+        topics — averaged over the <b>${fmt(e.scored)}</b> people with recorded reading activity, not the
+        whole list. Dormant sits at zero because reading has only been tracked since the site launched on
+        26 May 2026: nobody has had time to go three months without reading yet, and that band will fill
+        from late August. Anonymous visitors are deliberately excluded — Plausible forgets people daily by
+        design, so pageviews per visitor held between 1.68 and 1.83 for eleven straight weeks no matter
+        what was published, which is a number that cannot inform anything.
+      </p>`;
+  }
+
+  function renderFeatures(s) {
+    const host = document.querySelector("[data-kpi-features]");
+    if (!host) return;
+    const e = s.engagement;
+    if (!e || !e.features) {
+      host.innerHTML = '<p class="kpi-empty">No feature usage in this snapshot.</p>';
+      return;
+    }
+    const top = e.features.filter((f) => f.uses != null || f.users)[0];
+    const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
+    const totalUses = e.features.reduce((t, f) => t + (f.uses || 0), 0);
+    const anyUser = Math.max(...e.features.map((f) => f.users || 0));
+    host.innerHTML = `
+      <div class="kpi-stats">
+        ${stat(fmt(totalUses), "recorded uses across all features")}
+        ${stat(fmt(anyUser), "people using the most-used feature")}
+        ${stat(top ? esc(top.label) : "—", "most used")}
+        ${stat(fmt(e.features.filter((f) => f.users > 0).length), "features with any use")}
+      </div>
+      <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
+        <thead><tr><th>Feature</th><th class="is-num">Total uses</th><th class="is-num">People</th>
+          <th class="is-num">Per person</th><th>Counted as</th></tr></thead>
+        <tbody>${e.features.map((f) => `<tr>
+          <td>${esc(f.label)}</td>
+          <td class="is-num">${f.uses == null ? "—" : fmt(f.uses)}</td>
+          <td class="is-num">${fmt(f.users)}</td>
+          <td class="is-num">${f.per_user == null ? "—" : f.per_user}</td>
+          <td>${esc(f.unit)}</td>
+        </tr>`).join("")}</tbody>
+      </table></div>
+      ${e.topics && e.topics.length ? `
+      <p class="kpi-note" style="margin-top:16px"><b>What gets read</b></p>
+      <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
+        <thead><tr><th>Topic</th><th class="is-num">Essays read</th><th class="is-num">Readers</th><th class="is-num">Per reader</th></tr></thead>
+        <tbody>${e.topics.map((t) => `<tr>
+          <td>${esc(t.name)}</td><td class="is-num">${fmt(t.reads)}</td>
+          <td class="is-num">${fmt(t.readers)}</td>
+          <td class="is-num">${t.readers ? (t.reads / t.readers).toFixed(1) : "—"}</td>
+        </tr>`).join("")}</tbody>
+      </table></div>` : ""}
+      <p class="kpi-note">
+        A dash under total uses means the feature is recorded as a yes or no per person rather than counted,
+        so we know who used it but not how often. Counts are lifetime, since mo-kit began recording them,
+        and only cover signed-in readers it can attach to an email address.
+      </p>`;
+  }
+
   // ---- section navigation ------------------------------------------------
   //
   // Nine sections deep, the page is long enough that scrolling to Podcasts
@@ -2185,138 +2285,6 @@
     </div>`;
   }
 
-  // ---- traffic quality --------------------------------------------------
-  //
-  // Plausible measures unique visitors as well as pageviews, which makes
-  // depth and repeat-reading visible in a way a pageview count never is.
-  //
-  // The two scores are stated formulas, not black boxes, and both show the
-  // raw numbers they came from — a score nobody can check is a score nobody
-  // should act on.
-
-  const LOYALTY_FLOOR = 1;   // one page and gone
-  const LOYALTY_CEIL = 3;    // three pages a visitor is a genuinely engaged read
-
-  function metricCard(title, sub, value, cap, bullets, foot) {
-    return `<div class="kpi-chart">
-      <p class="kpi-chart-title">${title}</p>
-      <p class="kpi-chart-sub">${sub}</p>
-      <p class="kpi-metric-value">${value}</p>
-      <p class="kpi-metric-cap">${cap}</p>
-      <ul class="kpi-tile-bullets">${bullets.filter(Boolean).map((b) => `<li>${b}</li>`).join("")}</ul>
-      ${foot ? `<p class="kpi-note">${foot}</p>` : ""}
-    </div>`;
-  }
-
-  // The rows the active period covers, plus the equivalent prior period, so
-  // these cards move with the picker like everything else.
-  function periodRowsAndPrev() {
-    const all = series.filter((r) => inWindow(r.d));
-    if (gran === "total" || period === "custom") return { rows: all, prev: null };
-    const b = bucketize("vis", "sum", gran);
-    if (!b.length) return { rows: [], prev: null };
-    const back = P().back || 0;
-    let i = b.length - 1 - back;
-    if (i < 0) i = 0;
-    return { rows: b[i].rows, prev: i > 0 ? b[i - 1].rows : null };
-  }
-
-  function renderTrafficQuality() {
-    const { rows, prev } = periodRowsAndPrev();
-    const has = rows.filter((r) => typeof r.vis === "number" && r.vis > 0);
-    if (!has.length) {
-      chartBuckets.traffic = chartBuckets.traffic.concat([
-        `<div class="kpi-chart"><p class="kpi-chart-title">Visitor quality</p>
-         <p class="kpi-empty">No Plausible visitor data in this period. Measurement starts 21 Apr 2026.</p></div>`
-      ]);
-      return;
-    }
-    const visitors = sumOf(has, "vis");
-    const views = sumOf(has, "pvd");
-    const perVisitor = visitors ? views / visitors : 0;
-    // A period still running has fewer days than the one before it, so
-    // comparing the whole of each would report a collapse every Monday.
-    // Match the prior period to the same number of days from its start.
-    const prevAll = prev ? prev.filter((r) => typeof r.vis === "number" && r.vis > 0) : null;
-    const prevMatched = prevAll && prevAll.length > has.length ? prevAll.slice(0, has.length) : prevAll;
-    const partial = !!(prevAll && prevMatched && prevMatched.length < prevAll.length);
-    const prevVis = prevMatched ? sumOf(prevMatched, "vis") : null;
-    const prevViews = prevMatched ? sumOf(prevMatched, "pvd") : null;
-    const prevPer = prevVis ? prevViews / prevVis : null;
-
-    const loyalty = Math.max(0, Math.min(100,
-      Math.round(((perVisitor - LOYALTY_FLOOR) / (LOYALTY_CEIL - LOYALTY_FLOOR)) * 100)));
-    const prevLoyalty = prevPer == null ? null : Math.max(0, Math.min(100,
-      Math.round(((prevPer - LOYALTY_FLOOR) / (LOYALTY_CEIL - LOYALTY_FLOOR)) * 100)));
-
-    const growth = prevVis ? ((visitors - prevVis) / prevVis) * 100 : null;
-    const newScore = growth == null ? null : Math.max(0, Math.min(100, Math.round(50 + growth)));
-    const days = has.length;
-
-    const out = [];
-    out.push(metricCard("Unique visitors",
-      "Distinct people, not pageviews. Plausible counts a person once per day however many pages they read.",
-      fmt(visitors), `over ${fmt(days)} ${days === 1 ? "day" : "days"} with data`,
-      [
-        `<b>${fmt(views)}</b> pageviews from them`,
-        `<b>${fmt(Math.round(visitors / days))}</b> a day on average`,
-        prevVis ? `<b>${signed(visitors - prevVis)}</b> against the previous period (${fmt(prevVis)})` : ""
-      ],
-      "Summed from daily figures, which overstates Plausible's own de-duplicated count for the same span by "
-      + "about 2% \u2014 someone reading on two days counts twice. Plausible identifies visitors with a "
-      + "daily-rotating hash rather than a cookie, so it cannot recognise them across days either."));
-
-    out.push(metricCard("Pageviews per visitor",
-      "How much of the site a reader takes in before leaving.",
-      perVisitor.toFixed(2), "pages per unique visitor",
-      [
-        `<b>${fmt(views)}</b> pageviews \u00f7 <b>${fmt(visitors)}</b> visitors`,
-        prevPer != null ? `<b>${prevPer.toFixed(2)}</b> in the previous period` : "",
-        perVisitor < 1.5 ? "most visitors read one page and leave" : "visitors are reading more than one piece"
-      ]));
-
-    out.push(metricCard("Reader loyalty",
-      "Depth of reading, scored. Built from pageviews per visitor, which is the only repeat-reading signal Plausible exposes.",
-      `${loyalty}`, "out of 100",
-      [
-        `<b>${perVisitor.toFixed(2)}</b> pages per visitor`,
-        prevLoyalty != null ? `<b>${signed(loyalty - prevLoyalty)}</b> against the previous period (${prevLoyalty})` : "",
-        `scored ${LOYALTY_FLOOR}.0 pages = 0, ${LOYALTY_CEIL}.0 = 100`
-      ],
-      "One page per visitor means everyone arrives, reads the piece they came for and leaves; three means they are exploring. "
-      + "The scale is a stated choice, not a measurement, so read the pages-per-visitor figure as the real number."));
-
-    out.push(metricCard("New readers",
-      "Growth in the number of distinct people reaching the site.",
-      newScore == null ? "\u2014" : `${newScore}`,
-      newScore == null ? "needs a previous period to compare" : "out of 100",
-      [
-        `<b>${fmt(visitors)}</b> unique visitors this period`,
-        prevVis ? `<b>${fmt(prevVis)}</b> in the previous period` : "",
-        growth == null ? "" : `<b>${growth >= 0 ? "+" : ""}${growth.toFixed(1)}%</b> change \u00b7 scored 50 = flat`,
-        partial ? `compared against the first ${fmt(has.length)} ${has.length === 1 ? "day" : "days"} of the previous period, since this one is still running` : ""
-      ],
-      "Plausible cannot tell a first-time reader from a returning one \u2014 it has no new-versus-returning dimension \u2014 "
-      + "so this measures reach growth, not literal first-timers. Making it literal needs a flag set on the reader's own "
-      + "device on first visit, which the site could send as a Plausible event."));
-
-    out.push(`<div class="kpi-chart"><p class="kpi-chart-title">Methodology</p>
-      <p class="kpi-chart-sub">Where these four numbers come from, and what they cannot say.</p>
-      <ul class="kpi-tile-bullets">
-        <li>Visitor measurement starts <b>21 Apr 2026</b>, when Plausible went on the site. The new site
-            launched <b>26 May 2026</b>, so the five weeks before that cover a quieter pre-launch site and
-            will drag any average that spans them.</li>
-        <li>Nothing before 21 Apr has visitor data at all. HubSpot ran the old site and its analytics sit
-            behind a scope this token does not have, so earlier periods show pageviews without visitors.</li>
-        <li>Pageviews here are the site only. Substack views are counted in the Web traffic KPI but not in
-            these ratios, because Substack reports no visitor figure to divide by.</li>
-        <li>Both scores are stated formulas rather than measurements. The raw inputs are on each card;
-            trust those first.</li>
-      </ul></div>`);
-
-    chartBuckets.traffic = chartBuckets.traffic.concat(out);
-  }
-
   function renderBreakdowns(s) {
     const out = [];
     // Money-shaped blocks belong under Revenue; headcount under Acquisition.
@@ -2820,12 +2788,13 @@
     safe("breakdowns", () => renderBreakdowns(showing));
     safe("channels", () => renderChannels(showing));
     safe("traffic", () => renderTraffic(showing));
-    safe("trafficquality", () => renderTrafficQuality());
     safe("paint", () => paintSections());
     safe("narrative", () => renderNarrative(showing));
     safe("substack", () => renderSubstack());
     safe("donations", () => renderDonations());
     safe("audience", () => renderAudience(showing));
+    safe("loyalty", () => renderLoyalty(showing));
+    safe("features", () => renderFeatures(showing));
     safe("revsummary", () => renderRevenueSummary(showing));
     safe("layout", () => wireLayout());
     lastRenderW = cachedW || chartW();

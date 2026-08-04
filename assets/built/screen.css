@@ -24869,6 +24869,7 @@ html[data-theme="dark"] .dlr-play-btn {
    separate them by the same 12px the grid itself uses, or the two cards
    sit flush and read as one broken block. */
 .kpi-panel + .kpi-charts, .kpi-charts + .kpi-panel { margin-top: 12px; }
+[data-kpi-loyalty] + [data-kpi-audience] { display: block; margin-top: 12px; }
 /* Two chart grids in a row (Email carries one from the snapshot and one
    from attribution) butted together with no gap, so the seam between
    them read tighter than the gap between cards inside either. */
