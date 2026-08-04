@@ -819,7 +819,17 @@
     };
 
     function ingest(data) {
-      pickEpisodes(data).forEach((ep) => {
+      const episodes = pickEpisodes(data);
+      // "The worker doesn't serve this show" and "no episode today" look
+      // identical on the page. Name the difference in the console: the
+      // keys the feed did return say which one you're looking at.
+      if (!episodes.length && window.console) {
+        const keys = data && typeof data === "object" && !Array.isArray(data)
+          ? Object.keys(data).join(", ") || "(none)"
+          : String(data);
+        window.console.warn(`Daily Liturgy podcast feed returned no episodes for show=daily-liturgy. Feed keys: ${keys}`);
+      }
+      episodes.forEach((ep) => {
         if (!ep || !ep.audioUrl) return;
         const d = episodeDate(ep);
         if (d && !episodesByDate[d]) episodesByDate[d] = ep;
