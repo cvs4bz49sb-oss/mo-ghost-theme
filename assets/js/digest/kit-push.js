@@ -333,7 +333,9 @@
           broadcastId: data.broadcastId,
           editUrl: data.editUrl,
           state: data.state,
-          sendAt: data.sendAt
+          sendAt: data.sendAt,
+          campaign: data.campaign,
+          trackedLinks: data.trackedLinks
         });
       } catch (err) {
         setError(err.message);
@@ -588,7 +590,7 @@
           borderTop: "1px solid #e6d8be",
           borderBottom: "1px solid #e6d8be",
           marginBottom: 20
-        } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 220, ...noteStyle } }, "Linked to Kit broadcast ", /* @__PURE__ */ React.createElement("strong", null, "#", link.broadcastId), alreadySent ? /* @__PURE__ */ React.createElement(React.Fragment, null, " \xB7 already sent ", fmtWhen(link.sendAt)) : link.sendAt ? /* @__PURE__ */ React.createElement(React.Fragment, null, " \xB7 scheduled ", fmtWhen(link.sendAt)) : /* @__PURE__ */ React.createElement(React.Fragment, null, " \xB7 draft"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("a", { href: safeHref(link.editUrl), target: "_blank", rel: "noopener noreferrer", style: { color: "#c1593c" } }, "Open in Kit")), link.sendAt && !alreadySent ? /* @__PURE__ */ React.createElement("button", { onClick: doUnschedule, disabled: busy, style: smallBtn }, pending === "unschedule" ? "Working\u2026" : "Unschedule") : null, /* @__PURE__ */ React.createElement("button", { onClick: doStartNew, disabled: busy, style: smallBtn }, "Start new")) : null, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gap: 16, marginBottom: 22 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-template", style: labelStyle }, "Kit layout template"), /* @__PURE__ */ React.createElement(
+        } }, /* @__PURE__ */ React.createElement("div", { style: { flex: 1, minWidth: 220, ...noteStyle } }, "Linked to Kit broadcast ", /* @__PURE__ */ React.createElement("strong", null, "#", link.broadcastId), alreadySent ? /* @__PURE__ */ React.createElement(React.Fragment, null, " \xB7 already sent ", fmtWhen(link.sendAt)) : link.sendAt ? /* @__PURE__ */ React.createElement(React.Fragment, null, " \xB7 scheduled ", fmtWhen(link.sendAt)) : /* @__PURE__ */ React.createElement(React.Fragment, null, " \xB7 draft"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("a", { href: safeHref(link.editUrl), target: "_blank", rel: "noopener noreferrer", style: { color: "#c1593c" } }, "Open in Kit"), link.campaign ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("br", null), "Tracked as ", /* @__PURE__ */ React.createElement("code", { style: { fontSize: 11 } }, link.campaign), typeof link.trackedLinks === "number" ? /* @__PURE__ */ React.createElement(React.Fragment, null, " \xB7 ", link.trackedLinks, " ", link.trackedLinks === 1 ? "link" : "links", " tagged") : null) : null), link.sendAt && !alreadySent ? /* @__PURE__ */ React.createElement("button", { onClick: doUnschedule, disabled: busy, style: smallBtn }, pending === "unschedule" ? "Working\u2026" : "Unschedule") : null, /* @__PURE__ */ React.createElement("button", { onClick: doStartNew, disabled: busy, style: smallBtn }, "Start new")) : null, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gap: 16, marginBottom: 22 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-template", style: labelStyle }, "Kit layout template"), /* @__PURE__ */ React.createElement(
           "select",
           {
             id: "kit-template",

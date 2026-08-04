@@ -427,6 +427,8 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
         editUrl: data.editUrl,
         state: data.state,
         sendAt: data.sendAt,
+        campaign: data.campaign,
+        trackedLinks: data.trackedLinks,
       });
     } catch (err) {
       setError(err.message);
@@ -683,6 +685,18 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
                 <a href={safeHref(link.editUrl)} target="_blank" rel="noopener noreferrer" style={{ color: '#c1593c' }}>
                   Open in Kit
                 </a>
+                {link.campaign ? (
+                  <>
+                    <br />
+                    {/* Links to mereorthodoxy.com are stamped on push, so a
+                        conversion can be traced back to this send without
+                        anyone having to build tracking URLs by hand. */}
+                    Tracked as <code style={{ fontSize: 11 }}>{link.campaign}</code>
+                    {typeof link.trackedLinks === 'number'
+                      ? <> &middot; {link.trackedLinks} {link.trackedLinks === 1 ? 'link' : 'links'} tagged</>
+                      : null}
+                  </>
+                ) : null}
               </div>
               {link.sendAt && !alreadySent ? (
                 <button onClick={doUnschedule} disabled={busy} style={smallBtn}>
