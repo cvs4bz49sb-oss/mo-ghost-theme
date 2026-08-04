@@ -1669,61 +1669,47 @@
     foldMethodology(host);
   }
 
-  // How many essays people read, banded, members against free subscribers.
-  // Two bars per band rather than two charts, because the whole point is the
-  // comparison: free readers pile up at one essay, members spread out.
+  // Essays read, as a range rather than a histogram: the middle half and the
+  // extremes are the interesting part, and it is the same box plot used for
+  // subscribe-to-paid so the two read the same way. Both cohorts share an
+  // axis, or each would rescale to its own tail and the comparison would be
+  // a lie told with two different rulers.
   function readsBlock(reads) {
     if (!reads || (!reads.members.readers && !reads.subscribers.readers)) return "";
     const M = reads.members, S = reads.subscribers;
-    const bands = (M.bands.length ? M.bands : S.bands).map((b) => b.label);
-    const pctOf = (r, label) => {
-      const b = r.bands.find((x) => x.label === label);
-      return b ? b.pct : 0;
-    };
-    const W = chartW(), H = 250, L = 40, R = 14, T = 26, B = 46;
-    const pw = W - L - R, ph = H - T - B;
-    const mx = Math.max(...bands.flatMap((b) => [pctOf(M, b), pctOf(S, b)]), 10);
-    const ticks = niceTicks(mx, 4), top = ticks[ticks.length - 1];
-    const band = pw / bands.length, bw = Math.min(22, band * 0.32);
-    const Y = (v) => T + MARK_PAD + (ph - MARK_PAD) - (v / (top || 1)) * (ph - MARK_PAD);
-    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Essays read by cohort">`;
-    ticks.forEach((t) => {
-      const y = Y(t);
-      svg += `<line class="kpi-gl" x1="${L}" y1="${y.toFixed(1)}" x2="${L + pw}" y2="${y.toFixed(1)}"/>`
-        + `<text class="kpi-tick" x="${L - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end">${t}%</text>`;
-    });
-    svg += `<line class="kpi-ax" x1="${L}" y1="${T + ph}" x2="${L + pw}" y2="${T + ph}"/>`;
-    bands.forEach((b, i) => {
-      const mid = L + band * i + band / 2;
-      [[pctOf(M, b), C1, -1], [pctOf(S, b), C2, 1]].forEach(([v, colour, side]) => {
-        // A 2px gap between the pair keeps them readable as two bars.
-        const x = mid + (side < 0 ? -bw - 1 : 1);
-        const y = Y(v), h = Math.max(1, T + ph - y), r = Math.min(3, h, bw / 2);
-        svg += `<path d="M${x},${y + r} a${r},${r} 0 0 1 ${r},${-r} h${bw - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - r} h${-bw} Z" fill="${colour}"/>`;
-      });
-      svg += `<text class="kpi-tick" x="${mid.toFixed(1)}" y="${T + ph + 18}" text-anchor="middle">${b}</text>`;
-    });
-    const row = (name, r) => `<tr><td>${name}</td><td class="is-num">${fmt(r.readers)}</td>
-      <td class="is-num">${fmt(r.reads)}</td><td class="is-num">${r.median}</td>
-      <td class="is-num">${r.mean}</td><td class="is-num">${fmt(r.max)}</td></tr>`;
-    return `<div class="kpi-chart" style="margin-top:16px">
-      <p class="kpi-chart-title">Essays read, members against subscribers</p>
-      <p class="kpi-chart-sub">Share of each group reading that many essays. Bars are percentages of their own
-        group, so the two are comparable despite members being far fewer.</p>
-      <ul class="kpi-legend">
-        <li><span class="kpi-key" style="background:${C1}"></span>Members</li>
-        <li><span class="kpi-key" style="background:${C2}"></span>Subscribers</li>
-      </ul>
-      ${svg}</svg>
-      <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
-        <thead><tr><th>Group</th><th class="is-num">Readers</th><th class="is-num">Essays read</th>
-          <th class="is-num">Median</th><th class="is-num">Mean</th><th class="is-num">Most by one person</th></tr></thead>
-        <tbody>${row("Members", M)}${row("Subscribers", S)}</tbody>
-      </table></div>
-      <p class="kpi-note">Counts only people who have read at least one essay since tracking began on
-        26 May 2026. "Member" is anyone whose Ghost tier is not free, so comped, student and institutional
-        memberships are included.</p>
-    </div>`;
+    const scaleMax = Math.max(M.max || 0, S.max || 0, 1);
+    const essays = (n) => `${Math.round(n)} ${Math.round(n) === 1 ? "essay" : "essays"}`;
+    const card = (label, r, who) => rangeBlock(
+      `Essays read \u2014 ${label}`,
+      `${fmt(r.readers)} people who have read at least one, from their lifetime count.`,
+      { min: r.min, p25: r.p25, median: r.median, p75: r.p75, max: r.max },
+      {
+        fmt: essays,
+        scaleMax,
+        lowLabel: "lightest",
+        highLabel: "heaviest",
+        note: `Whisker runs from the lightest reader to the heaviest; the box is the middle half `
+          + `(${essays(r.p25)} to ${essays(r.p75)}); the line is the median. Both cards share one scale, so `
+          + `the boxes are directly comparable. ${who}`
+      }
+    );
+    return card("members", M, "Member is anyone whose Ghost tier is not free, so comped, student and institutional count.")
+      + card("free subscribers", S, "Free subscribers only \u2014 anyone who has not taken a membership.")
+      + `<div class="kpi-chart"><p class="kpi-chart-title">Members against subscribers</p>
+        <p class="kpi-chart-sub">The same two populations side by side.</p>
+        <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
+          <thead><tr><th>Group</th><th class="is-num">Readers</th><th class="is-num">Essays read</th>
+            <th class="is-num">Lightest</th><th class="is-num">Middle half</th>
+            <th class="is-num">Median</th><th class="is-num">Heaviest</th></tr></thead>
+          <tbody>
+            ${[["Members", M], ["Free subscribers", S]].map(([n, r]) => `<tr>
+              <td>${n}</td><td class="is-num">${fmt(r.readers)}</td><td class="is-num">${fmt(r.reads)}</td>
+              <td class="is-num">${fmt(r.min)}</td><td class="is-num">${fmt(r.p25)}\u2013${fmt(r.p75)}</td>
+              <td class="is-num">${fmt(r.median)}</td><td class="is-num">${fmt(r.max)}</td></tr>`).join("")}
+          </tbody>
+        </table></div>
+        <p class="kpi-note">Counts only people who have read at least one essay since tracking began on
+          26 May 2026.</p></div>`;
   }
 
   function renderFeatures(s) {
@@ -1981,12 +1967,14 @@
   const monthLabel = (m) => `${MON[Number(String(m).slice(5, 7)) - 1]} ${String(m).slice(2, 4)}`;
 
   // Days → something readable at any scale, from "same day" to "4.1 yrs".
-  function spanLabel(d) {
+  function spanLabelDays(d) {
     if (d < 1) return "same day";
     if (d < 45) return `${Math.round(d)} days`;
     if (d < 365) return `${Math.round(d / 30.4)} months`;
     return `${(d / 365).toFixed(1)} yrs`;
   }
+
+  const spanLabel = (d) => spanLabelDays(d);
 
   /*
    * A box plot, because the extremes and the typical case are different
@@ -1996,12 +1984,16 @@
    */
   function rangeBlock(title, sub, stats, opts) {
     const o = opts || {};
+    // Elapsed time is the usual subject, but the same shape answers "how
+    // many" just as well. A shared scaleMax lets two of these be compared
+    // against each other instead of each rescaling to its own longest tail.
+    const spanLabel = o.fmt || spanLabelDays;
     // The two endpoint captions carry names and are long. Side by side
     // they collide on a narrow card, so there they stack instead.
     const stack = narrow();
     const W = chartW(), H = stack ? 196 : 168, L = 14, R = 14, T = 46;
     const pw = W - L - R;
-    const max = Math.max(stats.max, 1);
+    const max = Math.max(o.scaleMax || stats.max, 1);
     const X = (v) => L + (Math.max(0, Math.min(v, max)) / max) * pw;
     const mid = T + 20;
     const boxH = 30, boxY = mid - boxH / 2;
@@ -2028,15 +2020,19 @@
     // the figures are what the reader is after, and the hover carries the
     // rest rather than crowding the plot with names.
     const eY = boxY + boxH + 40;
-    svg += `<text class="kpi-tick" x="${L}" y="${eY}" text-anchor="start">fastest · ${spanLabel(stats.min)}</text>`;
-    svg += `<text class="kpi-tick" x="${stack ? L : W - R}" y="${stack ? eY + 16 : eY}" text-anchor="${stack ? "start" : "end"}">slowest · ${spanLabel(stats.max)}</text>`;
+    // "fastest/slowest" only makes sense for elapsed time; a count needs its
+    // own words or the chart reads as nonsense.
+    const lowWord = o.lowLabel || "fastest";
+    const highWord = o.highLabel || "slowest";
+    svg += `<text class="kpi-tick" x="${L}" y="${eY}" text-anchor="start">${lowWord} · ${spanLabel(stats.min)}</text>`;
+    svg += `<text class="kpi-tick" x="${stack ? L : W - R}" y="${stack ? eY + 16 : eY}" text-anchor="${stack ? "start" : "end"}">${highWord} · ${spanLabel(stats.max)}</text>`;
     // Hover zones over each marker, widest last so the median wins where
     // two markers sit close together on a narrow card.
     const zones = [
-      { x: x0, k: "Fastest", v: stats.min },
+      { x: x0, k: o.lowLabel ? o.lowLabel[0].toUpperCase() + o.lowLabel.slice(1) : "Fastest", v: stats.min },
       { x: xq1, k: "25th percentile", v: stats.p25 },
       { x: xq3, k: "75th percentile", v: stats.p75 },
-      { x: x1, k: "Slowest", v: stats.max },
+      { x: x1, k: o.highLabel ? o.highLabel[0].toUpperCase() + o.highLabel.slice(1) : "Slowest", v: stats.max },
       { x: xm, k: "Median", v: stats.median }
     ];
     zones.forEach((z) => {
@@ -2045,9 +2041,9 @@
     });
     return `<div class="kpi-chart" data-range><p class="kpi-chart-title">${title}</p>
       <p class="kpi-chart-sub">${sub}</p>${svg}</svg>
-      <p class="kpi-note">Whisker runs fastest to slowest; the box is the middle half of members
+      <p class="kpi-note">${o.note || `Whisker runs fastest to slowest; the box is the middle half of members
         (${spanLabel(stats.p25)} to ${spanLabel(stats.p75)}); the line is the median. Hover any marker for the
-        exact figure. It re-shapes as more subscribers convert.</p></div>`;
+        exact figure. It re-shapes as more subscribers convert.`}</p></div>`;
   }
 
   // The range chart is not a bucketed series, so it wires its own hover
