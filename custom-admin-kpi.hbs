@@ -37,6 +37,11 @@
               <input type="date" id="kpi-date" class="kpi-date" data-kpi-date />
               <button type="button" class="kpi-btn" data-kpi-today>Latest</button>
             </div>
+            {{!-- On a phone these collapse behind one Options disclosure;
+                  on desktop the details is display:contents and the row
+                  looks exactly as it always has. --}}
+            <details class="kpi-more">
+              <summary class="kpi-more-tag">Options</summary>
             <div class="kpi-toolbar-right">
               <span class="kpi-layoutmsg" data-kpi-layoutmsg role="status" aria-live="polite"></span>
               <select class="kpi-jump" data-kpi-jump aria-label="Jump to section"></select>
@@ -51,8 +56,16 @@
                 <span class="kpi-lfull">Refresh now</span><span class="kpi-labbr">Refresh</span></button>
               <span class="kpi-sources" data-kpi-sources></span>
             </div>
+            </details>
           </div>
 
+          {{!-- Eleven periods is four rows of buttons on a phone, which was
+                more chrome than data. The select carries the same options in
+                one row; the buttons stay for desktop. --}}
+          <label class="kpi-granselect-wrap">
+            <span class="kpi-granselect-label">Period</span>
+            <select class="kpi-granselect" data-kpi-granselect aria-label="Period"></select>
+          </label>
           <div class="kpi-granrow" data-kpi-gran></div>
           <div class="kpi-customrow" data-kpi-custom hidden>
             <label>From<input type="date" data-kpi-from /></label>

@@ -24365,7 +24365,12 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-date, .kpi-btn {
   font-size: 13px; color: var(--k-text); background: var(--k-surface);
   border: 1px solid var(--k-line); border-radius: 8px; padding: 5px 11px;
+  /* Form controls are content-box by default, so a width of 100% renders
+     wider than its track by the padding and border — which is how the date
+     field came to sit 16px underneath the Latest button. */
+  box-sizing: border-box;
 }
+.kpi-jump, .kpi-granselect, .kpi-ssform input, .kpi-customrow input { box-sizing: border-box; }
 .kpi-btn { cursor: pointer; }
 /* While a button is working it reports which source it is on. Swapping
    textContent would delete the full/short label spans inside it, so the
@@ -24429,6 +24434,12 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-gbtn[aria-pressed="true"] { background: var(--k-text); color: #fff; border-color: var(--k-text); }
 .kpi-labbr { display: none; }
 .kpi-lfull { display: inline; }
+/* The mobile-only period select and the Options disclosure. On desktop the
+   details is display:contents, so its children lay out in the toolbar
+   exactly as they did before it existed. */
+.kpi-granselect-wrap { display: none; }
+.kpi-more { display: contents; }
+.kpi-more > .kpi-more-tag { display: none; }
 
 /* chart chrome */
 .kpi-chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
@@ -24668,41 +24679,50 @@ html[data-theme="dark"] .dlr-play-btn {
 @media (max-width: 640px) {
   [data-kpi-root] { --k-tap: 44px; }
 
-  /* Everything fits on the screen. An earlier pass made these strips scroll
-     horizontally, which meant the date, the jump menu and four of the nine
-     periods were simply off the edge — a control you cannot see is a
-     control you do not have. Nothing here scrolls sideways now. */
+  /* Chrome earns its space or hides. An earlier pass made every control
+     visible at once — a date field, a jump menu, four buttons and eleven
+     period chips — which came to roughly 900px of controls before a single
+     number. On a phone the period is the control that gets used; the rest
+     goes behind one disclosure. */
   [data-kpi-root] .kpi-toolbar {
-    flex-direction: column; align-items: stretch; gap: 9px;
-    margin-bottom: 14px; padding-bottom: 12px;
+    flex-direction: column; align-items: stretch; gap: 8px;
+    margin-bottom: 12px; padding-bottom: 10px;
   }
-  /* Showing | date (takes the slack) | Latest */
   [data-kpi-root] .kpi-history {
     display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center;
   }
   [data-kpi-root] .kpi-history .kpi-date { width: 100%; min-width: 0; }
-  [data-kpi-root] .kpi-toolbar-right {
-    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px;
+
+  /* Eleven buttons become one select. */
+  [data-kpi-root] .kpi-granrow { display: none; }
+  [data-kpi-root] .kpi-granselect-wrap {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px;
+    align-items: center; margin: 0 0 12px;
   }
-  /* The jump menu earns a full row: its options are long. */
+  [data-kpi-root] .kpi-granselect-label { font-size: 13px; color: var(--k-muted); }
+  [data-kpi-root] .kpi-granselect {
+    width: 100%; font: inherit; font-size: 15px; color: var(--k-text);
+    background: var(--k-surface); border: 1px solid var(--k-line); border-radius: 8px;
+    padding: 0 10px; min-height: var(--k-tap);
+  }
+
+  /* Everything else folds away. */
+  [data-kpi-root] .kpi-more { display: block; }
+  [data-kpi-root] .kpi-more > .kpi-more-tag {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    list-style: none; font-size: 13px; color: var(--k-muted); min-height: var(--k-tap);
+  }
+  [data-kpi-root] .kpi-more > .kpi-more-tag::-webkit-details-marker { display: none; }
+  [data-kpi-root] .kpi-more > .kpi-more-tag::after { content: "\203a"; transition: transform 0.15s; }
+  [data-kpi-root] .kpi-more[open] > .kpi-more-tag::after { transform: rotate(90deg); }
+  [data-kpi-root] .kpi-more > .kpi-more-tag:hover { color: var(--k-text); }
+  [data-kpi-root] .kpi-toolbar-right {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 8px;
+  }
   [data-kpi-root] .kpi-jump { grid-column: 1 / -1; max-width: none; width: 100%; }
   [data-kpi-root] .kpi-sources, [data-kpi-root] .kpi-layoutmsg {
     grid-column: 1 / -1; order: 9; text-align: left;
   }
-  [data-kpi-root] .kpi-toolbar-right .kpi-btn { padding-inline: 4px; }
-
-  /* Nine periods, three to a row, none clipped. */
-  [data-kpi-root] .kpi-granrow {
-    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px;
-    margin-bottom: 14px;
-  }
-  [data-kpi-root] .kpi-glabel { display: none; }
-  [data-kpi-root] .kpi-gbtn { padding-inline: 4px; }
-
-  /* Short labels on a phone, full ones everywhere else. Both ship in the
-     markup so crossing the breakpoint needs no re-render. */
-  [data-kpi-root] .kpi-lfull { display: none; }
-  [data-kpi-root] .kpi-labbr { display: inline; }
 
   /* Every control clears the 44px tap minimum. */
   [data-kpi-root] .kpi-btn,

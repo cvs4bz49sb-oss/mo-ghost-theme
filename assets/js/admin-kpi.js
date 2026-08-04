@@ -2903,6 +2903,8 @@
     invalidateChartW();
     els.gran.querySelectorAll(".kpi-gbtn").forEach((b) =>
       b.setAttribute("aria-pressed", String(b.getAttribute("data-g") === period)));
+    const gsel = $("[data-kpi-granselect]");
+    if (gsel && gsel.value !== period) gsel.value = period;
     // Each block is independent: one failing must not take the rest of the
     // page down with it.
     const safe = (name, fn) => { try { fn(); } catch (err) { console.error(`kpi ${name}`, err); } };
@@ -3056,11 +3058,18 @@
 
   els.gran.innerHTML = `<span class="kpi-glabel">Period</span>${
     PERIODS.map((x) => `<button type="button" class="kpi-btn kpi-gbtn" data-g="${x.id}" aria-pressed="${x.id === period}"><span class="kpi-lfull">${x.label}</span><span class="kpi-labbr">${x.short}</span></button>`).join("")}`;
+    // The mobile select mirrors the same list rather than owning its own, so
+    // the two controls can never disagree about what is selected.
+    const sel = $("[data-kpi-granselect]");
+    if (sel) {
+      sel.innerHTML = PERIODS.map((x) => `<option value="${x.id}">${x.label}</option>`).join("");
+      sel.value = period;
+    }
 
-  els.gran.addEventListener("click", (e) => {
-    const b = e.target.closest(".kpi-gbtn");
-    if (!b) return;
-    period = b.getAttribute("data-g");
+  // One handler for both controls: the buttons on desktop and the select on
+  // a phone. Duplicating this logic is how the two would drift apart.
+  function choosePeriod(next) {
+    period = next;
     const cfg = P();
     const row = $("[data-kpi-custom]");
     if (period === "custom") {
@@ -3080,7 +3089,14 @@
       gran = cfg.grain || "total";
     }
     render();
+  }
+
+  els.gran.addEventListener("click", (e) => {
+    const b = e.target.closest(".kpi-gbtn");
+    if (b) choosePeriod(b.getAttribute("data-g"));
   });
+  const granSelect = $("[data-kpi-granselect]");
+  if (granSelect) granSelect.addEventListener("change", () => choosePeriod(granSelect.value));
 
   document.addEventListener("click", (e) => {
     const b = e.target.closest(".kpi-tbtn");
