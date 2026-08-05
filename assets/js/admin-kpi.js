@@ -2222,6 +2222,89 @@
     </div>`;
   }
 
+  // The membership funnel end to end. Visitors and signups come from the
+  // series, the two middle stages from the tags mo-kit writes as people move
+  // through the site, and the last from Stripe. Every stage is counted over
+  // the selected period, so this answers the picker like everything else.
+  //
+  // Drop-off is shown against the previous stage rather than the top,
+  // because "we lose 99% between visitor and member" is true of every
+  // publication and tells you nothing about where to work.
+  function renderFunnel(s) {
+    const e = s.engagement;
+    const win = funnelWindow();
+    if (!win) return "";
+    const inWin = (daily) => Object.entries(daily || {})
+      .filter(([d]) => d >= win.from && d <= win.to)
+      .reduce((t, [, n]) => t + n, 0);
+    const stageOf = (key) => (e && e.funnel ? e.funnel.find((f) => f.key === key) : null);
+    const viewed = stageOf("viewed"), upgrade = stageOf("upgrade");
+    const stages = [
+      { label: "Visitors", n: sumOf(win.rows.filter((r) => r.vis), "vis"), note: "unique visitors to the site" },
+      { label: "Subscribed", n: sumOf(win.rows, "nsub"), note: "joined the email list" },
+      viewed ? { label: "Viewed membership", n: inWin(viewed.daily), note: "reached the membership page" } : null,
+      upgrade ? { label: "Clicked upgrade", n: inWin(upgrade.daily), note: "started checkout" } : null,
+      { label: "Became a member", n: sumOf(win.rows, "nmem"), note: "paid, migrations excluded" }
+    ].filter(Boolean);
+    if (!stages.length || !stages[0].n) return "";
+
+    const top = stages[0].n || 1;
+    const W = chartW(), rowH = 46, H = stages.length * rowH + 18, L = 4, R = 4;
+    const pw = W - L - R;
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Membership funnel">`;
+    stages.forEach((st, i) => {
+      const y = i * rowH + 6;
+      // Width on a log-ish scale would flatter the bottom; linear against the
+      // top stage tells the truth, which is that the last stages are tiny.
+      const w = Math.max(2, (st.n / top) * pw);
+      svg += `<rect x="${L}" y="${y}" width="${w.toFixed(1)}" height="26" rx="4" fill="${C1}" fill-opacity="${1 - i * 0.14}"/>`;
+      svg += `<text class="kpi-dlabel" x="${L + 8}" y="${y + 17}" fill="#fff">${fmt(st.n)}</text>`;
+      svg += `<text class="kpi-tick" x="${L + w + 10}" y="${y + 17}">${esc(st.label)}</text>`;
+      if (i > 0) {
+        const prev = stages[i - 1].n;
+        const pct = prev ? (st.n / prev) * 100 : 0;
+        svg += `<text class="kpi-tick" x="${W - R}" y="${y + 17}" text-anchor="end">${pct.toFixed(1)}% of previous</text>`;
+      }
+    });
+    const rowsHtml = stages.map((st, i) => {
+      const prev = i > 0 ? stages[i - 1].n : null;
+      const drop = prev ? prev - st.n : null;
+      return `<tr><td>${esc(st.label)}</td><td class="is-num">${fmt(st.n)}</td>
+        <td class="is-num">${prev ? `${((st.n / prev) * 100).toFixed(1)}%` : "—"}</td>
+        <td class="is-num">${drop != null ? fmt(drop) : "—"}</td>
+        <td>${esc(st.note)}</td></tr>`;
+    }).join("");
+    return `<div class="kpi-chart"><p class="kpi-chart-title">Membership funnel</p>
+      <p class="kpi-chart-sub">Every stage counted over ${mdy(win.from)} – ${mdy(win.to)}. Percentages are of the
+        stage above, not of visitors, because the drop that matters is the one between two adjacent steps.</p>
+      ${svg}</svg>
+      <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
+        <thead><tr><th>Stage</th><th class="is-num">People</th><th class="is-num">Of previous</th>
+          <th class="is-num">Lost</th><th>What it means</th></tr></thead>
+        <tbody>${rowsHtml}</tbody></table></div>
+      <p class="kpi-note">Visitors and signups are counted per day and summed; the two middle stages are the
+        tags mo-kit writes when someone reaches the membership page and when they click through to checkout,
+        each carrying its own timestamp. Those two only exist from 26 May 2026, so a period before that shows
+        the ends of the funnel and not its middle. A visitor is not necessarily a distinct person across days.</p>
+    </div>`;
+  }
+
+  // The rows and date span the active period covers.
+  function funnelWindow() {
+    const all = series.filter((r) => inWindow(r.d));
+    if (!all.length) return null;
+    if (gran === "total" || period === "custom") {
+      return { rows: all, from: all[0].d, to: all[all.length - 1].d };
+    }
+    const b = bucketize("nsub", "sum", gran);
+    if (!b.length) return null;
+    const back = P().back || 0;
+    let i = b.length - 1 - back;
+    if (i < 0) i = 0;
+    const rows = b[i].rows;
+    return { rows, from: rows[0].d, to: rows[rows.length - 1].d };
+  }
+
   function renderBreakdowns(s) {
     const out = [];
     // Money-shaped blocks belong under Revenue; headcount under Acquisition.
@@ -2346,7 +2429,8 @@
         "Most of the base came in on a launch discount, so these re-bill higher.",
         Object.entries(s.stripe.renewals).sort().slice(0, 14).map(([m, v]) => [m.slice(2), v]), { color: C2 }));
     }
-    chartBuckets.acquisition = chartBuckets.acquisition.concat(out.filter(Boolean));
+    const funnelCard = renderFunnel(s);
+    chartBuckets.acquisition = (funnelCard ? [funnelCard] : []).concat(chartBuckets.acquisition, out.filter(Boolean));
     chartBuckets.revenue = chartBuckets.revenue.concat(rev.filter(Boolean));
   }
 
