@@ -624,7 +624,11 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
       rows.map(async (row) => {
         try {
           const slug = row.slug.trim();
-          const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true`);
+          // cb busts both the worker's internal Cache API entry and the
+          // edge-cached public response (10 min TTL). This is a manual
+          // once-a-week click, so a cached answer buys nothing and can hand
+          // back a body from before an episode was scheduled.
+          const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true&cb=${Date.now()}`);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json().catch(() => ({}));
           const showData = data && data[slug];
@@ -740,8 +744,20 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
     setAutoNote(null);
     setAutoLoading(true);
     try {
-      const posts = await ghostPosts(AUTO_WINDOW);
-      if (!posts.length) throw new Error('Ghost returned no posts. Check the filter or API key.');
+      // The essay half is allowed to fail on its own. It used to throw
+      // straight out of the function, which skipped the podcasts entirely —
+      // the opposite of what the comment below promised, and indistinguishable
+      // to the user from "the button does nothing".
+      let posts = [];
+      let essayError = null;
+      try {
+        posts = await ghostPosts(AUTO_WINDOW);
+        if (!posts.length) throw new Error('Ghost returned no posts. Check the filter or API key.');
+      } catch (err) {
+        essayError = /failed to fetch|networkerror/i.test(err.message)
+          ? `Essays failed: network error reaching Ghost. Check the site URL. (${err.message})`
+          : `Essays failed: ${err.message}`;
+      }
 
       const seen = new Set();
       const addUrls = (list) => (list || []).forEach((e) => {
@@ -765,7 +781,9 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
       const next = JSON.parse(JSON.stringify(content));
       const notes = [];
 
-      if (!inWindow.length) {
+      if (essayError) {
+        notes.push(essayError);
+      } else if (!inWindow.length) {
         notes.push(`No essays published in the last ${AUTO_DAYS} days — left the essay list untouched.`);
       } else if (!fresh.length) {
         notes.push(`All ${inWindow.length} essays from the last ${AUTO_DAYS} days have already run — left the essay list untouched.`);
