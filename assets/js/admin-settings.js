@@ -20,6 +20,7 @@
     { id: "content", label: "Content Calendar", group: "Executive" },
     { id: "agenda", label: "Meeting Agenda", group: "Executive" },
     { id: "settings", label: "Settings", group: "Executive" },
+    { id: "kpi", label: "KPI Dashboard", group: "Executive" },
     { id: "coverage", label: "Coverage Scan", group: "Editorial" },
     { id: "editorial", label: "Editorial", group: "Editorial" },
     { id: "digest", label: "Email Builder", group: "Marketing" },

@@ -83,6 +83,7 @@
     content: "content",
     agenda: "agenda",
     settings: "settings",
+    kpi: "kpi",
     coverage: "coverage",
     editorial: "editorial",
     contact: "contact",
