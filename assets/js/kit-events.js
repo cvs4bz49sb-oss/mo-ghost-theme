@@ -40,24 +40,55 @@
   // No additional warm-up needed here.
 
   // ---- visited_membership ------------------------------------------------
+  // "Saw the offer", not "visited a URL". partials/membership-body.hbs is
+  // shared by /membership/, the homepage (#join), every post footer and
+  // /about/, so path-matching alone missed where the offer is actually
+  // read: 154 of 238 attributed conversions happen on / and only 8 on
+  // /membership/. Standalone pages still fire on load; everywhere else
+  // fires when the pricing block is genuinely scrolled into view.
   const membershipPaths = ["/membership", "/groups", "/institutions", "/gift"];
   const path = window.location.pathname.replace(/\/+$/, "");
+  let sawOffer = false;
+  const emitSaw = (via) => {
+    if (sawOffer) return;
+    sawOffer = true;
+    window.__kitEmit("visited_membership", { path, via });
+  };
   for (let i = 0; i < membershipPaths.length; i++) {
     if (path === membershipPaths[i] || path.indexOf(`${membershipPaths[i]}/`) === 0) {
-      window.__kitEmit("visited_membership", { path });
+      emitSaw("page");
       break;
     }
   }
+  const offerBlock = document.querySelector(".pricing");
+  if (!sawOffer && offerBlock && window.IntersectionObserver) {
+    const io = new IntersectionObserver((entries) => {
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          emitSaw("inline");
+          io.disconnect();
+          return;
+        }
+      }
+    }, { threshold: 0.25 });
+    io.observe(offerBlock);
+  }
 
   // ---- clicked_upgrade ---------------------------------------------------
-  // Any outbound link to Stripe payment links, /membership, or
-  // join.mereorthodoxy.com counts. We don't intercept navigation —
-  // just fire the ping and let the browser go.
+  // Opening checkout, however it opens. The buy buttons in
+  // partials/membership-pricing.hbs are <a href="#/portal/signup"
+  // data-portal="signup">, which matched none of the old patterns — so
+  // every Portal checkout open went unrecorded and this stage only ever
+  // counted people clicking a link *to* the membership page. We don't
+  // intercept navigation — just fire the ping and let the browser go.
   document.addEventListener("click", (e) => {
     const a = e.target && e.target.closest && e.target.closest("a[href]");
     if (!a) return;
     const href = a.getAttribute("href") || "";
-    if (!/stripe\.com|join\.mereorthodoxy\.com|^\/membership\/?/.test(href)) return;
+    const portal = a.getAttribute("data-portal") || "";
+    const isCheckout = /^#?\/portal\/(signup|offers)/.test(href)
+      || portal === "signup" || portal.indexOf("offers") === 0;
+    if (!isCheckout && !/stripe\.com|join\.mereorthodoxy\.com|^\/membership\/?/.test(href)) return;
     window.__kitEmit("clicked_upgrade", { href });
   });
 

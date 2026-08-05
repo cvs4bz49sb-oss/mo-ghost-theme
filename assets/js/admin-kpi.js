@@ -855,6 +855,7 @@
     "reader-loyalty": "One nightly sweep of every Kit subscriber, reading the per-person counters mo-kit writes as people use the site: essays read, Daily Liturgy days and streak, audio plays, bookmarks, commonplace entries, and days since last read. The score is recency at half the weight, then reading volume on a log scale, Daily Liturgy habit, and how many topics someone reads across — averaged over people with recorded reading activity, not the whole list. Segments are recency-first. Anonymous visitors are excluded on purpose: Plausible forgets people daily by design, so pageviews per visitor cannot separate a first-time reader from a ten-year one, and it held between 1.68 and 1.83 for eleven straight weeks whatever was published.",
     "site-features": "Uses is the sum of each feature's per-person counter across every subscriber; people is the count carrying the feature's used: tag, read from the tag itself. Member rate is those same people filtered to a Ghost tier that is not free — the tag's subscriber list carries each person's fields, so no extra lookup is needed. \u201cJoined here\u201d is a different population: people whose source: tag says they came onto the list through that feature, which is what a feature recruits rather than what it retains. Ebook PDFs count a download per title claimed, so two ebooks is two downloads and one person. The article gate has no usage tag at all — it is a door rather than a feature — so it reports only what came through it.",
     "essays-read-members-against-subscribers": "Per-person lifetime essay counts from the same sweep, banded, and split on the Ghost tier mo-kit stores against each subscriber. Anyone whose tier is not free counts as a member, so comped, student and institutional memberships are included. Bars are each group's own percentage rather than raw counts, because members are a fifth the size of the free list and raw bars would say nothing. Only people who have read at least one essay appear.",
+    "where-checkout-was-opened": "Ghost Portal writes attribution_url into the Stripe subscription's metadata at checkout, and it records the page the browser was on when Portal opened — not a referrer and not the page that did the persuading. Because partials/membership-body.hbs is shared by /membership/, the homepage (#join), every post footer and /about/, and because the buy button is an in-place #/portal/signup rather than a link away, almost everyone checks out without ever leaving the page they were reading. That is why the homepage dominates and /membership/ reads single digits: the standalone page is a duplicate of a block most people meet somewhere else. Migrations are excluded on the mo_migrated_at marker rather than the old $75/$7.50 coupon heuristic, which was wrong in both directions. Subscriptions Portal never saw are shown as Not recorded rather than assigned to a guessed bucket.",
     sequences: "Kit's sequence subscriber lists, which carry an added_at per person, matched against the same conversion ledger. Entry-based by necessity: Kit publishes no click or open data per sequence email — the sequences and sequence_emails filter scopes behave exactly like a nonsense scope, a sequence-email id passed as a broadcast matches nothing, and /stats and /clicks both 404. So a sequence cannot be credited the way a broadcast can."
   };
 
@@ -2242,8 +2243,8 @@
     const stages = [
       { label: "Visitors", n: sumOf(win.rows.filter((r) => r.vis), "vis"), note: "unique visitors to the site" },
       { label: "Subscribed", n: sumOf(win.rows, "nsub"), note: "joined the email list" },
-      viewed ? { label: "Viewed membership", n: inWin(viewed.daily), note: "reached the membership page" } : null,
-      upgrade ? { label: "Clicked upgrade", n: inWin(upgrade.daily), note: "started checkout" } : null,
+      viewed ? { label: "Saw the offer", n: inWin(viewed.daily), note: "reached the pricing block, wherever it sits" } : null,
+      upgrade ? { label: "Opened checkout", n: inWin(upgrade.daily), note: "clicked a buy button" } : null,
       { label: "Became a member", n: sumOf(win.rows, "nmem"), note: "paid, migrations excluded" }
     ].filter(Boolean);
     if (!stages.length || !stages[0].n) return "";
@@ -2283,9 +2284,15 @@
           <th class="is-num">Lost</th><th>What it means</th></tr></thead>
         <tbody>${rowsHtml}</tbody></table></div>
       <p class="kpi-note">Visitors and signups are counted per day and summed; the two middle stages are the
-        tags mo-kit writes when someone reaches the membership page and when they click through to checkout,
-        each carrying its own timestamp. Those two only exist from 26 May 2026, so a period before that shows
-        the ends of the funnel and not its middle. A visitor is not necessarily a distinct person across days.</p>
+        tags mo-kit writes when someone is shown the pricing block and when they click a buy button, each
+        carrying its own timestamp. Those two only exist from 26 May 2026, so a period before that shows the
+        ends of the funnel and not its middle. Both were undercounted until 5 Aug 2026: the offer tag fired
+        only on the four standalone membership URLs, missing the same block on the homepage and under every
+        essay, and the checkout tag matched no pattern the buy buttons actually use, so it counted clicks
+        toward the membership page rather than checkout opens. Figures before that date are floors, and the
+        step between them will move once a period sits entirely after it. Both stages also require a signed-in
+        reader, since mo-kit needs an email to tag anyone. A visitor is not necessarily a distinct person
+        across days.</p>
     </div>`;
   }
 
@@ -2415,8 +2422,9 @@
         entries(s.ghost.special_tiers), { rotate: true, color: C3 }));
     }
     if (s.stripe && s.stripe.attribution) {
-      out.push(barBlock("Where the membership conversion happened",
-        "Ghost attribution passed into Stripe at checkout. Migration checkouts record nothing.",
+      const mig = s.stripe.attribution_migrated;
+      out.push(barBlock("Where checkout was opened",
+        `The page the reader was on when Portal opened, migrations excluded${mig ? ` (${fmt(mig)} of them)` : ""}. Not the page that persuaded them.`,
         entries(s.stripe.attribution), { rotate: true }));
     }
     if (s.hubspot && s.hubspot.by_last_checkout_year) {
