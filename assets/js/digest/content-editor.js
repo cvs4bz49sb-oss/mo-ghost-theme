@@ -577,6 +577,8 @@
     };
     const normUrl = (u) => String(u || "").replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/[?#].*$/, "").replace(/\/+$/, "").toLowerCase();
     const AUTO_WINDOW = 100;
+    const AUTO_DAYS = 7;
+    const linkOf = (e) => e && (e.url || e.href) || "";
     const pullNewSinceLastDigest = async () => {
       setAutoNote(null);
       setAutoLoading(true);
@@ -585,7 +587,8 @@
         if (!posts.length) throw new Error("Ghost returned no posts. Check the filter or API key.");
         const seen = /* @__PURE__ */ new Set();
         const addUrls = (list) => (list || []).forEach((e) => {
-          if (e && e.url) seen.add(normUrl(e.url));
+          const u = linkOf(e);
+          if (u) seen.add(normUrl(u));
         });
         addUrls(content.essays);
         try {
@@ -593,35 +596,32 @@
           if (Array.isArray(hist) && hist[0] && hist[0].content) addUrls(hist[0].content.essays);
         } catch (_) {
         }
-        let cutoff = null;
-        for (const p of posts) {
-          if (p.published_at && seen.has(normUrl(p.url)) && (!cutoff || p.published_at > cutoff)) cutoff = p.published_at;
-        }
+        const since = Date.now() - AUTO_DAYS * 24 * 60 * 60 * 1e3;
+        const inWindow = posts.filter((p) => {
+          const t = Date.parse(p.published_at || "");
+          return Number.isFinite(t) && t >= since;
+        });
+        const fresh = inWindow.filter((p) => !seen.has(normUrl(p.url)));
+        const repeats = inWindow.length - fresh.length;
         const next = JSON.parse(JSON.stringify(content));
         const notes = [];
-        let essayResult;
-        if (!cutoff) {
-          essayResult = posts.slice(0, essayCount).map((p) => shapeEssay(p, null));
-          next.essays = essayResult;
-          notes.push(`Could not tell which essays ran last time, so pulled the latest ${essayResult.length} instead.`);
+        if (!inWindow.length) {
+          notes.push(`No essays published in the last ${AUTO_DAYS} days \u2014 left the essay list untouched.`);
+        } else if (!fresh.length) {
+          notes.push(`All ${inWindow.length} essays from the last ${AUTO_DAYS} days have already run \u2014 left the essay list untouched.`);
         } else {
-          const fresh = posts.filter((p) => !seen.has(normUrl(p.url)) && (p.published_at || "") > cutoff);
-          if (!fresh.length) {
-            notes.push("No essays published since the last digest \u2014 left the essay list untouched.");
-          } else {
-            essayResult = fresh.map((p) => shapeEssay(p, null));
-            next.essays = essayResult;
-            const since = new Date(cutoff).toLocaleDateString([], { month: "short", day: "numeric" });
-            notes.push(`Pulled ${fresh.length} new essay${fresh.length === 1 ? "" : "s"} published since ${since}.`);
-            if (fresh.length > 15) notes.push("That is a lot for one issue \u2014 worth trimming by hand.");
-          }
+          next.essays = fresh.map((p) => shapeEssay(p, null));
+          notes.push(`Pulled ${fresh.length} essay${fresh.length === 1 ? "" : "s"} published in the last ${AUTO_DAYS} days.`);
+          if (repeats) notes.push(`Skipped ${repeats} that already ran.`);
+          if (fresh.length > 15) notes.push("That is a lot for one issue \u2014 worth trimming by hand.");
         }
         if (!podcastWorkerUrl.trim() || !podcastFeeds.filter((f) => f.slug && f.slug.trim()).length) {
           notes.push("Skipped podcasts \u2014 set the Worker URL and at least one show slug under Pull Podcasts.");
         } else {
           try {
-            const { fresh, errors, total } = await collectPodcastSlots(next.podcasts || []);
-            next.podcasts = fresh;
+            const pod = await collectPodcastSlots(next.podcasts || []);
+            const { errors, total } = pod;
+            next.podcasts = pod.fresh;
             const ok = total - errors.length;
             notes.push(`Pulled ${ok}/${total} podcast show${total === 1 ? "" : "s"}.`);
             if (errors.length) notes.push("Podcast errors: " + errors.join(" \xB7 "));
@@ -631,7 +631,7 @@
         }
         onChange(next);
         const bad = notes.some((n) => /failed|errors:/i.test(n));
-        const soft = notes.some((n) => /^(no essays|could not|skipped|that is a lot)/i.test(n));
+        const soft = notes.some((n) => /^(no essays|all \d+ essays|skipped|that is a lot)/i.test(n));
         setAutoNote({ kind: bad ? "err" : soft ? "warn" : "ok", text: notes.join(" ") });
       } catch (err) {
         setAutoNote({

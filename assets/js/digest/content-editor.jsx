@@ -718,16 +718,24 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
     .replace(/\/+$/, '')
     .toLowerCase();
 
-  // One click: pull the podcasts and work out for itself which essays are
-  // new. "New" means published after the newest essay that went out in the
-  // last digest. content.essays stores a URL but no date, so the cutoff is
-  // resolved by matching those URLs against a window of recent Ghost posts.
+  // One click: pull the podcasts and every essay published in the last week.
   //
-  // Already-featured means the essays sitting in the builder right now PLUS
-  // the newest entry in History, so it behaves whether or not the last issue
-  // was saved. History is read straight off localStorage, the same channel
-  // app.jsx writes it on.
+  // "This week" is a plain 7-day window ending now. The digest goes out
+  // weekly, so anything published since the previous Thursday belongs to
+  // this issue. This replaced a cleverer rule that tried to date the last
+  // issue by matching its essay URLs against recent posts, and that rule
+  // failed in practice: an essay slot stores its link under EITHER `url` or
+  // `href` (the card reads `essay.url || essay.href`, the sample content
+  // uses href, the Ghost pull writes url), so nothing matched, no cutoff was
+  // found, and the fallback pulled the latest N — last week's essays
+  // included. A date window has no such failure mode.
+  //
+  // Anything already featured is still excluded, reading BOTH link keys, so
+  // a repeat cannot slip through even if it falls inside the window.
   const AUTO_WINDOW = 100;
+  const AUTO_DAYS = 7;
+  const linkOf = (e) => (e && (e.url || e.href)) || '';
+
   const pullNewSinceLastDigest = async () => {
     setAutoNote(null);
     setAutoLoading(true);
@@ -736,42 +744,38 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
       if (!posts.length) throw new Error('Ghost returned no posts. Check the filter or API key.');
 
       const seen = new Set();
-      const addUrls = (list) => (list || []).forEach((e) => { if (e && e.url) seen.add(normUrl(e.url)); });
+      const addUrls = (list) => (list || []).forEach((e) => {
+        const u = linkOf(e);
+        if (u) seen.add(normUrl(u));
+      });
       addUrls(content.essays);
       try {
         const hist = JSON.parse(localStorage.getItem('mo:content:history') || '[]');
         if (Array.isArray(hist) && hist[0] && hist[0].content) addUrls(hist[0].content.essays);
       } catch (_) { /* history is a convenience here, not a requirement */ }
 
-      let cutoff = null;
-      for (const p of posts) {
-        if (p.published_at && seen.has(normUrl(p.url)) && (!cutoff || p.published_at > cutoff)) cutoff = p.published_at;
-      }
+      const since = Date.now() - AUTO_DAYS * 24 * 60 * 60 * 1000;
+      const inWindow = posts.filter((p) => {
+        const t = Date.parse(p.published_at || '');
+        return Number.isFinite(t) && t >= since;
+      });
+      const fresh = inWindow.filter((p) => !seen.has(normUrl(p.url)));
+      const repeats = inWindow.length - fresh.length;
 
       const next = JSON.parse(JSON.stringify(content));
       const notes = [];
-      let essayResult;
 
-      if (!cutoff) {
-        // Nothing from the last digest is inside the window — a first run, a
-        // Reset, or a very long gap. Fall back to the plain latest-N pull and
-        // say so, rather than silently treating all 100 posts as new.
-        // No slot passed: these are freshly detected articles, so inheriting
-        // last week's image or kicker would put the wrong picture on them.
-        essayResult = posts.slice(0, essayCount).map((p) => shapeEssay(p, null));
-        next.essays = essayResult;
-        notes.push(`Could not tell which essays ran last time, so pulled the latest ${essayResult.length} instead.`);
+      if (!inWindow.length) {
+        notes.push(`No essays published in the last ${AUTO_DAYS} days — left the essay list untouched.`);
+      } else if (!fresh.length) {
+        notes.push(`All ${inWindow.length} essays from the last ${AUTO_DAYS} days have already run — left the essay list untouched.`);
       } else {
-        const fresh = posts.filter((p) => !seen.has(normUrl(p.url)) && (p.published_at || '') > cutoff);
-        if (!fresh.length) {
-          notes.push('No essays published since the last digest — left the essay list untouched.');
-        } else {
-          essayResult = fresh.map((p) => shapeEssay(p, null));
-          next.essays = essayResult;
-          const since = new Date(cutoff).toLocaleDateString([], { month: 'short', day: 'numeric' });
-          notes.push(`Pulled ${fresh.length} new essay${fresh.length === 1 ? '' : 's'} published since ${since}.`);
-          if (fresh.length > 15) notes.push('That is a lot for one issue — worth trimming by hand.');
-        }
+        // No slot passed: these are freshly published articles, so inheriting
+        // last week's image or kicker would put the wrong picture on them.
+        next.essays = fresh.map((p) => shapeEssay(p, null));
+        notes.push(`Pulled ${fresh.length} essay${fresh.length === 1 ? '' : 's'} published in the last ${AUTO_DAYS} days.`);
+        if (repeats) notes.push(`Skipped ${repeats} that already ran.`);
+        if (fresh.length > 15) notes.push('That is a lot for one issue — worth trimming by hand.');
       }
 
       // Podcasts run regardless: even a week with no new essays still has an
@@ -781,8 +785,11 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
         notes.push('Skipped podcasts — set the Worker URL and at least one show slug under Pull Podcasts.');
       } else {
         try {
-          const { fresh, errors, total } = await collectPodcastSlots(next.podcasts || []);
-          next.podcasts = fresh;
+          // Named apart from the essay `fresh` above so the shadowing is
+          // not a trap for the next person editing this.
+          const pod = await collectPodcastSlots(next.podcasts || []);
+          const { errors, total } = pod;
+          next.podcasts = pod.fresh;
           const ok = total - errors.length;
           notes.push(`Pulled ${ok}/${total} podcast show${total === 1 ? '' : 's'}.`);
           if (errors.length) notes.push('Podcast errors: ' + errors.join(' · '));
@@ -793,7 +800,9 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
 
       onChange(next);
       const bad = notes.some((n) => /failed|errors:/i.test(n));
-      const soft = notes.some((n) => /^(no essays|could not|skipped|that is a lot)/i.test(n));
+      // "All N already ran" leaves the list untouched, so it must not read as
+      // a clean green success — nothing changed.
+      const soft = notes.some((n) => /^(no essays|all \d+ essays|skipped|that is a lot)/i.test(n));
       setAutoNote({ kind: bad ? 'err' : soft ? 'warn' : 'ok', text: notes.join(' ') });
     } catch (err) {
       setAutoNote({
