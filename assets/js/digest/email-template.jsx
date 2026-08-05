@@ -177,6 +177,7 @@ const DEFAULT_SECTION_ORDER = [
   'sponsorTop',
   'essays',
   'podcasts',
+  'dailyLiturgy',
   'sponsorBottom',
   'signature',
 ];
@@ -345,6 +346,15 @@ const DEFAULT_CONTENT = {
     body: 'Your members-only essay this week, The Liturgy of the Inbox by Brad East, is now live in the archive.',
     cta: 'Read the Member Essay →',
     href: '#member',
+  },
+  dailyLiturgy: {
+    // Standard copy, matching /daily-liturgy/ and the homepage band so the
+    // email, the landing page and the site strip all say the same thing.
+    logo: 'https://mereorthodoxy.com/assets/images/daily-liturgy-logo.png',
+    headline: 'Read and pray. Every day.',
+    body: 'Daily Scripture meditations that help you grow in your love for God and your understanding of His Word.',
+    cta: 'Start Now',
+    href: 'https://mereorthodoxy.com/daily-liturgy/',
   },
   sponsorTop: {
     label: 'Ministry Partner',
@@ -1000,6 +1010,82 @@ function PodcastsGrid({ tokens, accent, podcasts, heading }) {
   );
 }
 
+// A standing promo for The Daily Liturgy, sitting under the podcasts. Static
+// by design: nothing is pulled for it, so it needs no API key and no worker.
+// Everything is editable in Edit Content, and the whole block can be hidden
+// from the Sections list on a week when it is not wanted.
+//
+// Carries The Daily Liturgy's own brand rather than the digest's: a dark
+// panel with the copper wordmark, matching the .dlp-band strip on the
+// homepage and the .dl-hero on /daily-liturgy/, which are both dark. The
+// headline and tagline are the site's standard copy, taken from those two
+// surfaces so the email says what the landing page says.
+//
+// The logo is referenced by absolute URL because an email client cannot
+// resolve a theme-relative path. Ghost serves /assets/** with a one-year
+// cache, which is exactly right for a wordmark that does not change.
+function DailyLiturgyBlock({ tokens, content }) {
+  const c = content || {};
+  const logo = c.logo || 'https://mereorthodoxy.com/assets/images/daily-liturgy-logo.png';
+  return (
+    <div style={{ padding: '4px 32px 0' }} className="mo-pad-32">
+      <div style={{
+        padding: '28px 28px 26px',
+        background: tokens.bodyText,
+        textAlign: 'center',
+        borderRadius: 5,
+      }} className="mo-pad-32-tight">
+        {logo ? (
+          <img
+            src={logo}
+            alt="The Daily Liturgy"
+            width="200"
+            height="61"
+            style={{ width: 200, height: 61, display: 'inline-block', border: 0, margin: '0 0 14px' }}
+          />
+        ) : null}
+        <div
+          style={{
+            fontFamily: '"IM Fell English", Georgia, serif',
+            fontSize: 20,
+            fontStyle: 'italic',
+            lineHeight: 1.3,
+            color: '#fbf7ee',
+            margin: '0 0 10px',
+          }}
+          dangerouslySetInnerHTML={{ __html: markdownInline(c.headline || '', tokens) }}
+        />
+        <p
+          style={{
+            fontFamily: 'Georgia, serif',
+            fontSize: 13.5,
+            lineHeight: 1.55,
+            color: '#cdbfa9',
+            margin: '0 auto 16px',
+            maxWidth: 420,
+          }}
+          dangerouslySetInnerHTML={{ __html: markdownInline(c.body || '', tokens) }}
+        />
+        <a href={c.href || 'https://mereorthodoxy.com/daily-liturgy/'} style={{
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: '0.16em',
+          textTransform: 'uppercase',
+          color: '#fbf7ee',
+          textDecoration: 'none',
+          border: '1.5px solid rgba(251, 247, 238, 0.45)',
+          borderRadius: 3,
+          padding: '10px 22px',
+          display: 'inline-block',
+        }}>
+          {c.cta || 'Start Now'}
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function MemberThanks({ tokens, content }) {
   return (
     <div style={{ padding: '0 32px' }} className="mo-pad-32">
@@ -1171,6 +1257,8 @@ function EmailTemplate({ isMember = false, accent = 'moderate', density = 'norma
         return <EssaysGrid tokens={tokens} accent={accent} density={density} essays={content.essays} heading={content.essaysHeading} />;
       case 'podcasts':
         return <PodcastsGrid tokens={tokens} accent={accent} podcasts={content.podcasts} heading={content.podcastsHeading} />;
+      case 'dailyLiturgy':
+        return <DailyLiturgyBlock tokens={tokens} content={content.dailyLiturgy} />;
       case 'sponsorBottom':
         if (!showAds) return null;
         return (

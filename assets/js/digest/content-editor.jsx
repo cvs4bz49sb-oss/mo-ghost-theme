@@ -470,6 +470,10 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   const [podcastCount, setPodcastCount] = useState(2);
   const [showRssPanel, setShowRssPanel] = useState(false);
   const [showPodcastPanel, setShowPodcastPanel] = useState(false);
+  // The one-click pull reports inline under the header rather than in a
+  // panel, since it has no settings of its own to show.
+  const [autoLoading, setAutoLoading] = useState(false);
+  const [autoNote, setAutoNote] = useState(null); // { kind: 'ok' | 'warn' | 'err', text }
   // Cloudflare Worker URL — points at the existing mo-podcast-feed worker
   // that speaks Buzzsprout API for both shows. The worker holds the
   // BUZZSPROUT_API_TOKEN as an env secret, so the browser doesn't see it.
@@ -512,46 +516,63 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   if (!open) return null;
 
   // Fetch posts from Ghost Content API. Returns parsed-feed-style items.
+  // One Ghost Content API call, shared by every essay pull. Returns the raw
+  // posts so each caller decides how many to keep and how to filter them.
+  const ghostPosts = async (limit) => {
+    if (!ghostKey.trim()) throw new Error('Content API key required.');
+    const base = ghostUrl.replace(/\/+$/, '');
+    const params = new URLSearchParams({
+      key: ghostKey.trim(),
+      limit: String(limit),
+      include: 'tags,authors',
+      fields: 'id,title,slug,excerpt,custom_excerpt,feature_image,published_at,url,primary_author,primary_tag',
+      order: 'published_at desc',
+    });
+    if (ghostFilter.trim()) params.set('filter', ghostFilter.trim());
+    const res = await fetch(`${base}/ghost/api/content/posts/?${params.toString()}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status} - ${body.slice(0, 160) || res.statusText}`);
+    }
+    const data = await res.json();
+    return data.posts || [];
+  };
+
+  // A Ghost post as an essay slot. `slot` is whatever sat in that position
+  // before, used only to fill cosmetic gaps the post itself does not answer.
+  //
+  // The byline deliberately does NOT fall back to the slot. It used to, and
+  // that put a real person's name on somebody else's essay: a post authored
+  // by the "Mere Orthodoxy" house account is blanked by PUB_AUTHOR_RX, the
+  // blank then fell through to whatever byline occupied that position in
+  // last week's issue, and the digest went out crediting the wrong writer.
+  // An empty byline is the correct answer when there is no named author.
+  const PUB_AUTHOR_RX = /^(mere\s*orthodoxy|admin|editor|administrator)$/i;
+  const shapeEssay = (p, slot) => {
+    const author = ((p.primary_author && p.primary_author.name) || '').trim();
+    return {
+      img: p.feature_image || (slot && slot.img) || 'assets/feature-hero.jpg',
+      kicker: (p.primary_tag && p.primary_tag.name) || (slot && slot.kicker) || 'Essay',
+      title: p.title || 'Untitled',
+      byline: author && !PUB_AUTHOR_RX.test(author) ? author : '',
+      summary: (p.custom_excerpt || p.excerpt || '').slice(0, 280),
+      url: p.url || (slot && slot.url) || '#',
+    };
+  };
+
   const fetchFromGhost = async (target /* 'essays' | 'podcasts' */, count) => {
     setGhostError(null);
     setGhostMessage(null);
     setGhostLoading(true);
     try {
-      if (!ghostKey.trim()) throw new Error('Content API key required.');
-      const base = ghostUrl.replace(/\/+$/, '');
-      const params = new URLSearchParams({
-        key: ghostKey.trim(),
-        limit: String(count),
-        include: 'tags,authors',
-        fields: 'id,title,slug,excerpt,custom_excerpt,feature_image,published_at,url,primary_author,primary_tag',
-        order: 'published_at desc',
-      });      if (ghostFilter.trim()) params.set('filter', ghostFilter.trim());
-      const url = `${base}/ghost/api/content/posts/?${params.toString()}`;
-      const res = await fetch(url);
-      if (!res.ok) {
-        const body = await res.text().catch(() => '');
-        throw new Error(`HTTP ${res.status} — ${body.slice(0, 160) || res.statusText}`);
-      }
-      const data = await res.json();
-      const posts = data.posts || [];
+      const posts = await ghostPosts(count);
       if (!posts.length) throw new Error('No posts returned. Check your filter or API key.');
-
-      const PUB_AUTHOR_RX = /^(mere\s*orthodoxy|admin|editor|administrator)$/i;
-      const cleanByline = (b) => (b && PUB_AUTHOR_RX.test(b.trim())) ? '' : (b || '');
 
       const next = JSON.parse(JSON.stringify(content));
       if (target === 'essays') {
         const existing = next.essays || [];
-        const fresh = posts.slice(0, count).map((p, i) => ({
-          img: p.feature_image || (existing[i] && existing[i].img) || 'assets/feature-hero.jpg',
-          kicker: (p.primary_tag && p.primary_tag.name) || (existing[i] && existing[i].kicker) || 'Essay',
-          title: p.title || 'Untitled',
-          byline: cleanByline((p.primary_author && p.primary_author.name)) || (existing[i] && existing[i].byline) || '',
-          summary: (p.custom_excerpt || p.excerpt || '').slice(0, 280),
-          url: p.url || (existing[i] && existing[i].url) || '#',
-        }));
         // Trim list to exact count requested (don't pad with stale items)
-        next.essays = fresh;
+        next.essays = posts.slice(0, count).map((p, i) => shapeEssay(p, existing[i]));
       } else {
         const existing = next.podcasts || [];
         const fresh = posts.slice(0, count).map((p, i) => ({
@@ -586,6 +607,74 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   // than the most recently published one.
   //
   // Worker response shape: { "<slug>": { show: {title, slug, source}, episodes: [...], nextScheduled?: {title, description, link, artwork, episode, audioUrl, ...} } }
+  // Fetch the latest (or next-scheduled) episode for each configured show
+  // and shape it into a podcast slot. Pure on purpose: it returns the rows
+  // and any per-show errors, writes no state and never calls onChange, so
+  // both the Pull Podcasts button and the combined pull can share it. The
+  // caller owns validation, loading state, and merging into content.
+  const collectPodcastSlots = async (existing) => {
+    const rows = podcastFeeds.filter(f => f.slug && f.slug.trim());
+    const workerBase = podcastWorkerUrl.trim().replace(/\/+$/, '');
+
+    // One GET per show — mo-podcast-feed accepts ?show=<slug>&limit=N
+    // and returns { <slug>: { show, episodes } }. Could fetch all in
+    // a single call (omitting ?show), but per-row keeps error reporting
+    // clean.
+    const results = await Promise.all(
+      rows.map(async (row) => {
+        try {
+          const slug = row.slug.trim();
+          const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json().catch(() => ({}));
+          const showData = data && data[slug];
+          if (!showData) throw new Error(`Worker returned no data for slug "${slug}".`);
+          if (showData.error) throw new Error(showData.error);
+          const episodes = showData.episodes || [];
+          // Prefer the upcoming scheduled episode (the one going out the
+          // next day) over the most recently published one. The worker
+          // returns it as nextScheduled when ?scheduled=true is passed;
+          // fall back to episodes[0] when there's nothing scheduled.
+          const ep = showData.nextScheduled || episodes[0];
+          if (!ep) throw new Error('No episodes returned for this show.');
+          return { row, show: showData.show, episode: ep };
+        } catch (err) {
+          return { row, error: err.message };
+        }
+      })
+    );
+
+    const fresh = [];
+    const errors = [];
+
+    results.forEach((r, i) => {
+      const slot = existing[i] || {};
+      if (r.error) {
+        errors.push(`${r.row.label || r.row.slug || 'Show ' + (i + 1)}: ${r.error}`);
+        fresh.push(slot);
+        return;
+      }
+      const ep = r.episode;
+      let episodeNum = slot.episode || 'Episode';
+      if (ep.episode) {
+        episodeNum = `Episode ${ep.episode}`;
+      } else {
+        const m = ep.title && ep.title.match(/(?:episode|ep\.?|#)\s*(\d+)/i);
+        if (m) episodeNum = `Episode ${m[1]}`;
+      }
+      fresh.push({
+        img: ep.artwork || slot.img || 'assets/mere-fidelity.jpg',
+        label: r.row.label || (r.show && r.show.title) || slot.label || 'Podcast',
+        episode: episodeNum,
+        title: ep.title || slot.title || 'Untitled',
+        summary: (ep.description || '').slice(0, 280) || slot.summary || '',
+        cta: slot.cta || 'Listen to the episode',
+        url: ep.link || ep.audioUrl || slot.url || '#',
+      });
+    });
+    return { fresh, errors, total: results.length };
+  };
+
   const fetchPodcastFeeds = async () => {
     setPodcastError(null);
     setPodcastMessage(null);
@@ -593,80 +682,20 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
       setPodcastError('Worker URL is required. Paste your mo-podcast-feed worker URL above (e.g. https://mo-podcast-feed.<your-subdomain>.workers.dev/).');
       return;
     }
-    const rows = podcastFeeds.filter(f => f.slug && f.slug.trim());
-    if (!rows.length) {
+    if (!podcastFeeds.filter(f => f.slug && f.slug.trim()).length) {
       setPodcastError('Add at least one show slug above (e.g. mere-fidelity).');
       return;
     }
 
     setPodcastLoading(true);
     try {
-      const workerBase = podcastWorkerUrl.trim().replace(/\/+$/, '');
-
-      // One GET per show — mo-podcast-feed accepts ?show=<slug>&limit=N
-      // and returns { <slug>: { show, episodes } }. Could fetch all in
-      // a single call (omitting ?show), but per-row keeps error reporting
-      // clean.
-      const results = await Promise.all(
-        rows.map(async (row) => {
-          try {
-            const slug = row.slug.trim();
-            const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json().catch(() => ({}));
-            const showData = data && data[slug];
-            if (!showData) throw new Error(`Worker returned no data for slug "${slug}".`);
-            if (showData.error) throw new Error(showData.error);
-            const episodes = showData.episodes || [];
-            // Prefer the upcoming scheduled episode (the one going out the
-            // next day) over the most recently published one. The worker
-            // returns it as nextScheduled when ?scheduled=true is passed;
-            // fall back to episodes[0] when there's nothing scheduled.
-            const ep = showData.nextScheduled || episodes[0];
-            if (!ep) throw new Error('No episodes returned for this show.');
-            return { row, show: showData.show, episode: ep };
-          } catch (err) {
-            return { row, error: err.message };
-          }
-        })
-      );
-
-      // Map each result into a slot in content.podcasts.
       const next = JSON.parse(JSON.stringify(content));
-      const existing = next.podcasts || [];
-      const fresh = [];
-      const errors = [];
-
-      results.forEach((r, i) => {
-        const slot = existing[i] || {};
-        if (r.error) {
-          errors.push(`${r.row.label || r.row.slug || 'Show ' + (i + 1)}: ${r.error}`);
-          fresh.push(slot);
-          return;
-        }
-        const ep = r.episode;
-        let episodeNum = slot.episode || 'Episode';
-        if (ep.episode) {
-          episodeNum = `Episode ${ep.episode}`;
-        } else {
-          const m = ep.title && ep.title.match(/(?:episode|ep\.?|#)\s*(\d+)/i);
-          if (m) episodeNum = `Episode ${m[1]}`;
-        }
-        fresh.push({
-          img: ep.artwork || slot.img || 'assets/mere-fidelity.jpg',
-          label: r.row.label || (r.show && r.show.title) || slot.label || 'Podcast',
-          episode: episodeNum,
-          title: ep.title || slot.title || 'Untitled',
-          summary: (ep.description || '').slice(0, 280) || slot.summary || '',
-          cta: slot.cta || 'Listen to the episode',
-          url: ep.link || ep.audioUrl || slot.url || '#',
-        });
-      });
+      const { fresh, errors, total } = await collectPodcastSlots(next.podcasts || []);
       next.podcasts = fresh;
       onChange(next);
 
-      const ok = results.length - errors.length;
-      let msg = `Pulled ${ok}/${results.length} show${results.length === 1 ? '' : 's'}.`;
+      const ok = total - errors.length;
+      let msg = `Pulled ${ok}/${total} show${total === 1 ? '' : 's'}.`;
       if (errors.length) msg += ' Errors: ' + errors.join(' · ');
       if (errors.length && !ok) setPodcastError(msg);
       else setPodcastMessage(msg);
@@ -676,6 +705,105 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
         : err.message);
     } finally {
       setPodcastLoading(false);
+    }
+  };
+
+  // Compare URLs across http/https, www, trailing slashes and tracking
+  // query strings, because an essay's url in a saved digest will not always
+  // be byte-identical to what the Content API returns today.
+  const normUrl = (u) => String(u || '')
+    .replace(/^https?:\/\//, '')
+    .replace(/^www\./, '')
+    .replace(/[?#].*$/, '')
+    .replace(/\/+$/, '')
+    .toLowerCase();
+
+  // One click: pull the podcasts and work out for itself which essays are
+  // new. "New" means published after the newest essay that went out in the
+  // last digest. content.essays stores a URL but no date, so the cutoff is
+  // resolved by matching those URLs against a window of recent Ghost posts.
+  //
+  // Already-featured means the essays sitting in the builder right now PLUS
+  // the newest entry in History, so it behaves whether or not the last issue
+  // was saved. History is read straight off localStorage, the same channel
+  // app.jsx writes it on.
+  const AUTO_WINDOW = 100;
+  const pullNewSinceLastDigest = async () => {
+    setAutoNote(null);
+    setAutoLoading(true);
+    try {
+      const posts = await ghostPosts(AUTO_WINDOW);
+      if (!posts.length) throw new Error('Ghost returned no posts. Check the filter or API key.');
+
+      const seen = new Set();
+      const addUrls = (list) => (list || []).forEach((e) => { if (e && e.url) seen.add(normUrl(e.url)); });
+      addUrls(content.essays);
+      try {
+        const hist = JSON.parse(localStorage.getItem('mo:content:history') || '[]');
+        if (Array.isArray(hist) && hist[0] && hist[0].content) addUrls(hist[0].content.essays);
+      } catch (_) { /* history is a convenience here, not a requirement */ }
+
+      let cutoff = null;
+      for (const p of posts) {
+        if (p.published_at && seen.has(normUrl(p.url)) && (!cutoff || p.published_at > cutoff)) cutoff = p.published_at;
+      }
+
+      const next = JSON.parse(JSON.stringify(content));
+      const notes = [];
+      let essayResult;
+
+      if (!cutoff) {
+        // Nothing from the last digest is inside the window — a first run, a
+        // Reset, or a very long gap. Fall back to the plain latest-N pull and
+        // say so, rather than silently treating all 100 posts as new.
+        // No slot passed: these are freshly detected articles, so inheriting
+        // last week's image or kicker would put the wrong picture on them.
+        essayResult = posts.slice(0, essayCount).map((p) => shapeEssay(p, null));
+        next.essays = essayResult;
+        notes.push(`Could not tell which essays ran last time, so pulled the latest ${essayResult.length} instead.`);
+      } else {
+        const fresh = posts.filter((p) => !seen.has(normUrl(p.url)) && (p.published_at || '') > cutoff);
+        if (!fresh.length) {
+          notes.push('No essays published since the last digest — left the essay list untouched.');
+        } else {
+          essayResult = fresh.map((p) => shapeEssay(p, null));
+          next.essays = essayResult;
+          const since = new Date(cutoff).toLocaleDateString([], { month: 'short', day: 'numeric' });
+          notes.push(`Pulled ${fresh.length} new essay${fresh.length === 1 ? '' : 's'} published since ${since}.`);
+          if (fresh.length > 15) notes.push('That is a lot for one issue — worth trimming by hand.');
+        }
+      }
+
+      // Podcasts run regardless: even a week with no new essays still has an
+      // episode. A missing worker URL is a warning, not a failure, so the
+      // essay half of the pull still lands.
+      if (!podcastWorkerUrl.trim() || !podcastFeeds.filter((f) => f.slug && f.slug.trim()).length) {
+        notes.push('Skipped podcasts — set the Worker URL and at least one show slug under Pull Podcasts.');
+      } else {
+        try {
+          const { fresh, errors, total } = await collectPodcastSlots(next.podcasts || []);
+          next.podcasts = fresh;
+          const ok = total - errors.length;
+          notes.push(`Pulled ${ok}/${total} podcast show${total === 1 ? '' : 's'}.`);
+          if (errors.length) notes.push('Podcast errors: ' + errors.join(' · '));
+        } catch (err) {
+          notes.push(`Podcasts failed: ${err.message}`);
+        }
+      }
+
+      onChange(next);
+      const bad = notes.some((n) => /failed|errors:/i.test(n));
+      const soft = notes.some((n) => /^(no essays|could not|skipped|that is a lot)/i.test(n));
+      setAutoNote({ kind: bad ? 'err' : soft ? 'warn' : 'ok', text: notes.join(' ') });
+    } catch (err) {
+      setAutoNote({
+        kind: 'err',
+        text: /failed to fetch|networkerror/i.test(err.message)
+          ? `Network error reaching Ghost. Check the site URL. (${err.message})`
+          : err.message,
+      });
+    } finally {
+      setAutoLoading(false);
     }
   };
 
@@ -1114,9 +1242,41 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
           <button onClick={() => { setShowPodcastPanel(!showPodcastPanel); if (!showPodcastPanel) setShowRssPanel(false); }} style={btnStyle(showPodcastPanel ? 'primary' : 'secondary')}>
             {showPodcastPanel ? 'Hide Podcast Pull' : 'Pull Podcasts'}
           </button>
+          <button
+            onClick={pullNewSinceLastDigest}
+            disabled={autoLoading}
+            title="Pull the podcasts and every essay published since the last digest, in one go. Uses the Ghost key from Pull Essays and the Worker URL from Pull Podcasts."
+            style={{ ...btnStyle('primary'), opacity: autoLoading ? 0.6 : 1, cursor: autoLoading ? 'wait' : 'pointer' }}
+          >
+            {autoLoading ? 'Pulling…' : 'Pull What’s New'}
+          </button>
           <button onClick={() => onChange(DEFAULT_CONTENT)} style={btnStyle('danger')}>Reset</button>
           <button onClick={onClose} style={{ ...btnStyle('secondary'), border: 'none', fontSize: 18, padding: '4px 10px' }}>×</button>
         </div>
+
+        {/* Result of the one-click pull. Lives here rather than in a panel
+            because the button has no settings of its own. */}
+        {autoNote && (
+          <div style={{
+            padding: '10px 24px',
+            borderBottom: '1px solid #e8d9bd',
+            fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+            fontSize: 12.5,
+            lineHeight: 1.5,
+            background: autoNote.kind === 'err' ? '#fbeceb' : autoNote.kind === 'warn' ? '#fdf6e6' : '#eef6ee',
+            color: autoNote.kind === 'err' ? '#7a2e28' : autoNote.kind === 'warn' ? '#6b5320' : '#2f5133',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+          }}>
+            <span style={{ flex: 1 }}>{autoNote.text}</span>
+            <button
+              onClick={() => setAutoNote(null)}
+              title="Dismiss"
+              style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: 15, lineHeight: 1, padding: 0 }}
+            >×</button>
+          </div>
+        )}
 
         {/* Ghost Content API panel */}
         {showRssPanel && (
@@ -1410,6 +1570,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 sponsorTop: 'Top sponsor block',
                 essays: 'Essays grid',
                 podcasts: 'Podcasts grid',
+                dailyLiturgy: 'The Daily Liturgy block',
                 sponsorBottom: 'Bottom sponsor block',
                 signature: 'Signature',
               };
@@ -1831,6 +1992,20 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
               <Field label="CTA text" value={content.membership?.cta} onChange={(v) => updateField('membership.cta', v)} />
               <Field label="Link" value={content.membership?.href} onChange={(v) => updateField('membership.href', v)} />
+            </div>
+          </Group>
+
+          <Group title="The Daily Liturgy">
+            <p style={{ margin: '0 0 10px', fontSize: 12, color: '#9a8773', lineHeight: 1.5 }}>
+              A standing promo under the podcasts. Nothing is pulled for it, so it needs no API key.
+              Hide it for a week from the Sections list above rather than deleting the text.
+            </p>
+            <Field label="Logo URL" value={content.dailyLiturgy?.logo} onChange={(v) => updateField('dailyLiturgy.logo', v)} />
+            <Field label="Headline" value={content.dailyLiturgy?.headline} onChange={(v) => updateField('dailyLiturgy.headline', v)} />
+            <Field label="Body" value={content.dailyLiturgy?.body} multiline rows={2} onChange={(v) => updateField('dailyLiturgy.body', v)} />
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+              <Field label="CTA text" value={content.dailyLiturgy?.cta} onChange={(v) => updateField('dailyLiturgy.cta', v)} />
+              <Field label="Link" value={content.dailyLiturgy?.href} onChange={(v) => updateField('dailyLiturgy.href', v)} />
             </div>
           </Group>
 

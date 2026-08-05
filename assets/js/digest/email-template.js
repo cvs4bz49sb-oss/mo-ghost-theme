@@ -151,6 +151,7 @@
     "sponsorTop",
     "essays",
     "podcasts",
+    "dailyLiturgy",
     "sponsorBottom",
     "signature"
   ];
@@ -270,6 +271,15 @@
       body: "Your members-only essay this week, The Liturgy of the Inbox by Brad East, is now live in the archive.",
       cta: "Read the Member Essay \u2192",
       href: "#member"
+    },
+    dailyLiturgy: {
+      // Standard copy, matching /daily-liturgy/ and the homepage band so the
+      // email, the landing page and the site strip all say the same thing.
+      logo: "https://mereorthodoxy.com/assets/images/daily-liturgy-logo.png",
+      headline: "Read and pray. Every day.",
+      body: "Daily Scripture meditations that help you grow in your love for God and your understanding of His Word.",
+      cta: "Start Now",
+      href: "https://mereorthodoxy.com/daily-liturgy/"
     },
     sponsorTop: {
       label: "Ministry Partner",
@@ -707,6 +717,63 @@
   function PodcastsGrid({ tokens, accent, podcasts, heading }) {
     return /* @__PURE__ */ React.createElement("div", { style: { padding: "28px 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement(SectionLabel, { tokens, accent }, heading || "This Week's Podcasts"), /* @__PURE__ */ React.createElement("table", { width: "100%", cellPadding: "0", cellSpacing: "0", border: "0", role: "presentation", className: "mo-stack" }, /* @__PURE__ */ React.createElement("tbody", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%" }, className: "mo-stack-cell" }, podcasts[0] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[0], accent })), /* @__PURE__ */ React.createElement("td", { style: { width: "6%" }, className: "mo-stack-gap" }), /* @__PURE__ */ React.createElement("td", { style: { verticalAlign: "top", width: "47%" }, className: "mo-stack-cell" }, podcasts[1] && /* @__PURE__ */ React.createElement(PodcastCard, { tokens, pod: podcasts[1], accent }))))));
   }
+  function DailyLiturgyBlock({ tokens, content }) {
+    const c = content || {};
+    const logo = c.logo || "https://mereorthodoxy.com/assets/images/daily-liturgy-logo.png";
+    return /* @__PURE__ */ React.createElement("div", { style: { padding: "4px 32px 0" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("div", { style: {
+      padding: "28px 28px 26px",
+      background: tokens.bodyText,
+      textAlign: "center",
+      borderRadius: 5
+    }, className: "mo-pad-32-tight" }, logo ? /* @__PURE__ */ React.createElement(
+      "img",
+      {
+        src: logo,
+        alt: "The Daily Liturgy",
+        width: "200",
+        height: "61",
+        style: { width: 200, height: 61, display: "inline-block", border: 0, margin: "0 0 14px" }
+      }
+    ) : null, /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        style: {
+          fontFamily: '"IM Fell English", Georgia, serif',
+          fontSize: 20,
+          fontStyle: "italic",
+          lineHeight: 1.3,
+          color: "#fbf7ee",
+          margin: "0 0 10px"
+        },
+        dangerouslySetInnerHTML: { __html: markdownInline(c.headline || "", tokens) }
+      }
+    ), /* @__PURE__ */ React.createElement(
+      "p",
+      {
+        style: {
+          fontFamily: "Georgia, serif",
+          fontSize: 13.5,
+          lineHeight: 1.55,
+          color: "#cdbfa9",
+          margin: "0 auto 16px",
+          maxWidth: 420
+        },
+        dangerouslySetInnerHTML: { __html: markdownInline(c.body || "", tokens) }
+      }
+    ), /* @__PURE__ */ React.createElement("a", { href: c.href || "https://mereorthodoxy.com/daily-liturgy/", style: {
+      fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: "#fbf7ee",
+      textDecoration: "none",
+      border: "1.5px solid rgba(251, 247, 238, 0.45)",
+      borderRadius: 3,
+      padding: "10px 22px",
+      display: "inline-block"
+    } }, c.cta || "Start Now")));
+  }
   function MemberThanks({ tokens, content }) {
     return /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("div", { style: {
       padding: "24px 28px",
@@ -822,6 +889,8 @@
           return /* @__PURE__ */ React.createElement(EssaysGrid, { tokens, accent, density, essays: content.essays, heading: content.essaysHeading });
         case "podcasts":
           return /* @__PURE__ */ React.createElement(PodcastsGrid, { tokens, accent, podcasts: content.podcasts, heading: content.podcastsHeading });
+        case "dailyLiturgy":
+          return /* @__PURE__ */ React.createElement(DailyLiturgyBlock, { tokens, content: content.dailyLiturgy });
         case "sponsorBottom":
           if (!showAds) return null;
           return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(SponsorBlock, { tokens, content: content.sponsorBottom }), /* @__PURE__ */ React.createElement(Spacer, { h: 20 }));

@@ -393,6 +393,8 @@
     const [podcastCount, setPodcastCount] = useState(2);
     const [showRssPanel, setShowRssPanel] = useState(false);
     const [showPodcastPanel, setShowPodcastPanel] = useState(false);
+    const [autoLoading, setAutoLoading] = useState(false);
+    const [autoNote, setAutoNote] = useState(null);
     const [podcastWorkerUrl, setPodcastWorkerUrl] = useState(() => localStorage.getItem("mo_podcast_worker") || localStorage.getItem("mo_captivate_worker") || "");
     const [podcastFeeds, setPodcastFeeds] = useState(() => {
       try {
@@ -430,44 +432,48 @@
       localStorage.setItem("mo_podcast_shows", JSON.stringify(podcastFeeds));
     }, [podcastFeeds]);
     if (!open) return null;
+    const ghostPosts = async (limit) => {
+      if (!ghostKey.trim()) throw new Error("Content API key required.");
+      const base = ghostUrl.replace(/\/+$/, "");
+      const params = new URLSearchParams({
+        key: ghostKey.trim(),
+        limit: String(limit),
+        include: "tags,authors",
+        fields: "id,title,slug,excerpt,custom_excerpt,feature_image,published_at,url,primary_author,primary_tag",
+        order: "published_at desc"
+      });
+      if (ghostFilter.trim()) params.set("filter", ghostFilter.trim());
+      const res = await fetch(`${base}/ghost/api/content/posts/?${params.toString()}`);
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status} - ${body.slice(0, 160) || res.statusText}`);
+      }
+      const data = await res.json();
+      return data.posts || [];
+    };
+    const PUB_AUTHOR_RX = /^(mere\s*orthodoxy|admin|editor|administrator)$/i;
+    const shapeEssay = (p, slot) => {
+      const author = (p.primary_author && p.primary_author.name || "").trim();
+      return {
+        img: p.feature_image || slot && slot.img || "assets/feature-hero.jpg",
+        kicker: p.primary_tag && p.primary_tag.name || slot && slot.kicker || "Essay",
+        title: p.title || "Untitled",
+        byline: author && !PUB_AUTHOR_RX.test(author) ? author : "",
+        summary: (p.custom_excerpt || p.excerpt || "").slice(0, 280),
+        url: p.url || slot && slot.url || "#"
+      };
+    };
     const fetchFromGhost = async (target, count) => {
       setGhostError(null);
       setGhostMessage(null);
       setGhostLoading(true);
       try {
-        if (!ghostKey.trim()) throw new Error("Content API key required.");
-        const base = ghostUrl.replace(/\/+$/, "");
-        const params = new URLSearchParams({
-          key: ghostKey.trim(),
-          limit: String(count),
-          include: "tags,authors",
-          fields: "id,title,slug,excerpt,custom_excerpt,feature_image,published_at,url,primary_author,primary_tag",
-          order: "published_at desc"
-        });
-        if (ghostFilter.trim()) params.set("filter", ghostFilter.trim());
-        const url = `${base}/ghost/api/content/posts/?${params.toString()}`;
-        const res = await fetch(url);
-        if (!res.ok) {
-          const body = await res.text().catch(() => "");
-          throw new Error(`HTTP ${res.status}\xA0\u2014\xA0${body.slice(0, 160) || res.statusText}`);
-        }
-        const data = await res.json();
-        const posts = data.posts || [];
+        const posts = await ghostPosts(count);
         if (!posts.length) throw new Error("No posts returned. Check your filter or API key.");
-        const PUB_AUTHOR_RX = /^(mere\s*orthodoxy|admin|editor|administrator)$/i;
-        const cleanByline = (b) => b && PUB_AUTHOR_RX.test(b.trim()) ? "" : b || "";
         const next = JSON.parse(JSON.stringify(content));
         if (target === "essays") {
           const existing = next.essays || [];
-          const fresh = posts.slice(0, count).map((p, i) => ({
-            img: p.feature_image || existing[i] && existing[i].img || "assets/feature-hero.jpg",
-            kicker: p.primary_tag && p.primary_tag.name || existing[i] && existing[i].kicker || "Essay",
-            title: p.title || "Untitled",
-            byline: cleanByline(p.primary_author && p.primary_author.name) || existing[i] && existing[i].byline || "",
-            summary: (p.custom_excerpt || p.excerpt || "").slice(0, 280),
-            url: p.url || existing[i] && existing[i].url || "#"
-          }));
-          next.essays = fresh;
+          next.essays = posts.slice(0, count).map((p, i) => shapeEssay(p, existing[i]));
         } else {
           const existing = next.podcasts || [];
           const fresh = posts.slice(0, count).map((p, i) => ({
@@ -490,6 +496,57 @@
         setGhostLoading(false);
       }
     };
+    const collectPodcastSlots = async (existing) => {
+      const rows = podcastFeeds.filter((f) => f.slug && f.slug.trim());
+      const workerBase = podcastWorkerUrl.trim().replace(/\/+$/, "");
+      const results = await Promise.all(
+        rows.map(async (row) => {
+          try {
+            const slug = row.slug.trim();
+            const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json().catch(() => ({}));
+            const showData = data && data[slug];
+            if (!showData) throw new Error(`Worker returned no data for slug "${slug}".`);
+            if (showData.error) throw new Error(showData.error);
+            const episodes = showData.episodes || [];
+            const ep = showData.nextScheduled || episodes[0];
+            if (!ep) throw new Error("No episodes returned for this show.");
+            return { row, show: showData.show, episode: ep };
+          } catch (err) {
+            return { row, error: err.message };
+          }
+        })
+      );
+      const fresh = [];
+      const errors = [];
+      results.forEach((r, i) => {
+        const slot = existing[i] || {};
+        if (r.error) {
+          errors.push(`${r.row.label || r.row.slug || "Show " + (i + 1)}: ${r.error}`);
+          fresh.push(slot);
+          return;
+        }
+        const ep = r.episode;
+        let episodeNum = slot.episode || "Episode";
+        if (ep.episode) {
+          episodeNum = `Episode ${ep.episode}`;
+        } else {
+          const m = ep.title && ep.title.match(/(?:episode|ep\.?|#)\s*(\d+)/i);
+          if (m) episodeNum = `Episode ${m[1]}`;
+        }
+        fresh.push({
+          img: ep.artwork || slot.img || "assets/mere-fidelity.jpg",
+          label: r.row.label || r.show && r.show.title || slot.label || "Podcast",
+          episode: episodeNum,
+          title: ep.title || slot.title || "Untitled",
+          summary: (ep.description || "").slice(0, 280) || slot.summary || "",
+          cta: slot.cta || "Listen to the episode",
+          url: ep.link || ep.audioUrl || slot.url || "#"
+        });
+      });
+      return { fresh, errors, total: results.length };
+    };
     const fetchPodcastFeeds = async () => {
       setPodcastError(null);
       setPodcastMessage(null);
@@ -497,66 +554,18 @@
         setPodcastError("Worker URL is required. Paste your mo-podcast-feed worker URL above (e.g. https://mo-podcast-feed.<your-subdomain>.workers.dev/).");
         return;
       }
-      const rows = podcastFeeds.filter((f) => f.slug && f.slug.trim());
-      if (!rows.length) {
+      if (!podcastFeeds.filter((f) => f.slug && f.slug.trim()).length) {
         setPodcastError("Add at least one show slug above (e.g. mere-fidelity).");
         return;
       }
       setPodcastLoading(true);
       try {
-        const workerBase = podcastWorkerUrl.trim().replace(/\/+$/, "");
-        const results = await Promise.all(
-          rows.map(async (row) => {
-            try {
-              const slug = row.slug.trim();
-              const res = await fetch(`${workerBase}/?show=${encodeURIComponent(slug)}&limit=1&scheduled=true`);
-              if (!res.ok) throw new Error(`HTTP ${res.status}`);
-              const data = await res.json().catch(() => ({}));
-              const showData = data && data[slug];
-              if (!showData) throw new Error(`Worker returned no data for slug "${slug}".`);
-              if (showData.error) throw new Error(showData.error);
-              const episodes = showData.episodes || [];
-              const ep = showData.nextScheduled || episodes[0];
-              if (!ep) throw new Error("No episodes returned for this show.");
-              return { row, show: showData.show, episode: ep };
-            } catch (err) {
-              return { row, error: err.message };
-            }
-          })
-        );
         const next = JSON.parse(JSON.stringify(content));
-        const existing = next.podcasts || [];
-        const fresh = [];
-        const errors = [];
-        results.forEach((r, i) => {
-          const slot = existing[i] || {};
-          if (r.error) {
-            errors.push(`${r.row.label || r.row.slug || "Show " + (i + 1)}: ${r.error}`);
-            fresh.push(slot);
-            return;
-          }
-          const ep = r.episode;
-          let episodeNum = slot.episode || "Episode";
-          if (ep.episode) {
-            episodeNum = `Episode ${ep.episode}`;
-          } else {
-            const m = ep.title && ep.title.match(/(?:episode|ep\.?|#)\s*(\d+)/i);
-            if (m) episodeNum = `Episode ${m[1]}`;
-          }
-          fresh.push({
-            img: ep.artwork || slot.img || "assets/mere-fidelity.jpg",
-            label: r.row.label || r.show && r.show.title || slot.label || "Podcast",
-            episode: episodeNum,
-            title: ep.title || slot.title || "Untitled",
-            summary: (ep.description || "").slice(0, 280) || slot.summary || "",
-            cta: slot.cta || "Listen to the episode",
-            url: ep.link || ep.audioUrl || slot.url || "#"
-          });
-        });
+        const { fresh, errors, total } = await collectPodcastSlots(next.podcasts || []);
         next.podcasts = fresh;
         onChange(next);
-        const ok = results.length - errors.length;
-        let msg = `Pulled ${ok}/${results.length} show${results.length === 1 ? "" : "s"}.`;
+        const ok = total - errors.length;
+        let msg = `Pulled ${ok}/${total} show${total === 1 ? "" : "s"}.`;
         if (errors.length) msg += " Errors: " + errors.join(" \xB7 ");
         if (errors.length && !ok) setPodcastError(msg);
         else setPodcastMessage(msg);
@@ -564,6 +573,73 @@
         setPodcastError(/failed to fetch|networkerror/i.test(err.message) ? `Network error reaching the Worker. Check the Worker URL is correct and deployed. (${err.message})` : err.message);
       } finally {
         setPodcastLoading(false);
+      }
+    };
+    const normUrl = (u) => String(u || "").replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/[?#].*$/, "").replace(/\/+$/, "").toLowerCase();
+    const AUTO_WINDOW = 100;
+    const pullNewSinceLastDigest = async () => {
+      setAutoNote(null);
+      setAutoLoading(true);
+      try {
+        const posts = await ghostPosts(AUTO_WINDOW);
+        if (!posts.length) throw new Error("Ghost returned no posts. Check the filter or API key.");
+        const seen = /* @__PURE__ */ new Set();
+        const addUrls = (list) => (list || []).forEach((e) => {
+          if (e && e.url) seen.add(normUrl(e.url));
+        });
+        addUrls(content.essays);
+        try {
+          const hist = JSON.parse(localStorage.getItem("mo:content:history") || "[]");
+          if (Array.isArray(hist) && hist[0] && hist[0].content) addUrls(hist[0].content.essays);
+        } catch (_) {
+        }
+        let cutoff = null;
+        for (const p of posts) {
+          if (p.published_at && seen.has(normUrl(p.url)) && (!cutoff || p.published_at > cutoff)) cutoff = p.published_at;
+        }
+        const next = JSON.parse(JSON.stringify(content));
+        const notes = [];
+        let essayResult;
+        if (!cutoff) {
+          essayResult = posts.slice(0, essayCount).map((p) => shapeEssay(p, null));
+          next.essays = essayResult;
+          notes.push(`Could not tell which essays ran last time, so pulled the latest ${essayResult.length} instead.`);
+        } else {
+          const fresh = posts.filter((p) => !seen.has(normUrl(p.url)) && (p.published_at || "") > cutoff);
+          if (!fresh.length) {
+            notes.push("No essays published since the last digest \u2014 left the essay list untouched.");
+          } else {
+            essayResult = fresh.map((p) => shapeEssay(p, null));
+            next.essays = essayResult;
+            const since = new Date(cutoff).toLocaleDateString([], { month: "short", day: "numeric" });
+            notes.push(`Pulled ${fresh.length} new essay${fresh.length === 1 ? "" : "s"} published since ${since}.`);
+            if (fresh.length > 15) notes.push("That is a lot for one issue \u2014 worth trimming by hand.");
+          }
+        }
+        if (!podcastWorkerUrl.trim() || !podcastFeeds.filter((f) => f.slug && f.slug.trim()).length) {
+          notes.push("Skipped podcasts \u2014 set the Worker URL and at least one show slug under Pull Podcasts.");
+        } else {
+          try {
+            const { fresh, errors, total } = await collectPodcastSlots(next.podcasts || []);
+            next.podcasts = fresh;
+            const ok = total - errors.length;
+            notes.push(`Pulled ${ok}/${total} podcast show${total === 1 ? "" : "s"}.`);
+            if (errors.length) notes.push("Podcast errors: " + errors.join(" \xB7 "));
+          } catch (err) {
+            notes.push(`Podcasts failed: ${err.message}`);
+          }
+        }
+        onChange(next);
+        const bad = notes.some((n) => /failed|errors:/i.test(n));
+        const soft = notes.some((n) => /^(no essays|could not|skipped|that is a lot)/i.test(n));
+        setAutoNote({ kind: bad ? "err" : soft ? "warn" : "ok", text: notes.join(" ") });
+      } catch (err) {
+        setAutoNote({
+          kind: "err",
+          text: /failed to fetch|networkerror/i.test(err.message) ? `Network error reaching Ghost. Check the site URL. (${err.message})` : err.message
+        });
+      } finally {
+        setAutoLoading(false);
       }
     };
     const updatePodcastFeed = (i, patch) => {
@@ -917,7 +993,36 @@
         }, style: btnStyle(showRssPanel ? "primary" : "secondary") }, showRssPanel ? "Hide Essays Pull" : "Pull Essays"), /* @__PURE__ */ React.createElement("button", { onClick: () => {
           setShowPodcastPanel(!showPodcastPanel);
           if (!showPodcastPanel) setShowRssPanel(false);
-        }, style: btnStyle(showPodcastPanel ? "primary" : "secondary") }, showPodcastPanel ? "Hide Podcast Pull" : "Pull Podcasts"), /* @__PURE__ */ React.createElement("button", { onClick: () => onChange(DEFAULT_CONTENT), style: btnStyle("danger") }, "Reset"), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: { ...btnStyle("secondary"), border: "none", fontSize: 18, padding: "4px 10px" } }, "\xD7")),
+        }, style: btnStyle(showPodcastPanel ? "primary" : "secondary") }, showPodcastPanel ? "Hide Podcast Pull" : "Pull Podcasts"), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: pullNewSinceLastDigest,
+            disabled: autoLoading,
+            title: "Pull the podcasts and every essay published since the last digest, in one go. Uses the Ghost key from Pull Essays and the Worker URL from Pull Podcasts.",
+            style: { ...btnStyle("primary"), opacity: autoLoading ? 0.6 : 1, cursor: autoLoading ? "wait" : "pointer" }
+          },
+          autoLoading ? "Pulling\u2026" : "Pull What\u2019s New"
+        ), /* @__PURE__ */ React.createElement("button", { onClick: () => onChange(DEFAULT_CONTENT), style: btnStyle("danger") }, "Reset"), /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: { ...btnStyle("secondary"), border: "none", fontSize: 18, padding: "4px 10px" } }, "\xD7")),
+        autoNote && /* @__PURE__ */ React.createElement("div", { style: {
+          padding: "10px 24px",
+          borderBottom: "1px solid #e8d9bd",
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 12.5,
+          lineHeight: 1.5,
+          background: autoNote.kind === "err" ? "#fbeceb" : autoNote.kind === "warn" ? "#fdf6e6" : "#eef6ee",
+          color: autoNote.kind === "err" ? "#7a2e28" : autoNote.kind === "warn" ? "#6b5320" : "#2f5133",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 10
+        } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1 } }, autoNote.text), /* @__PURE__ */ React.createElement(
+          "button",
+          {
+            onClick: () => setAutoNote(null),
+            title: "Dismiss",
+            style: { background: "transparent", border: "none", color: "inherit", cursor: "pointer", fontSize: 15, lineHeight: 1, padding: 0 }
+          },
+          "\xD7"
+        )),
         showRssPanel && /* @__PURE__ */ React.createElement("div", { style: {
           padding: "16px 24px",
           background: "#f6f3f2",
@@ -1131,6 +1236,7 @@
             sponsorTop: "Top sponsor block",
             essays: "Essays grid",
             podcasts: "Podcasts grid",
+            dailyLiturgy: "The Daily Liturgy block",
             sponsorBottom: "Bottom sponsor block",
             signature: "Signature"
           };
@@ -1518,7 +1624,7 @@
             style: btnStyle("secondary")
           },
           "+ Add Image"
-        )), renderBlockLibraryTools()), /* @__PURE__ */ React.createElement(Group, { title: "Membership CTA (free version)" }, renderCtaTools("membership"), /* @__PURE__ */ React.createElement(Field, { label: "Headline (use \\\\n for line break)", value: content.membership?.headline, multiline: true, rows: 2, onChange: (v) => updateField("membership.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.membership?.body, multiline: true, rows: 3, onChange: (v) => updateField("membership.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.membership?.cta, onChange: (v) => updateField("membership.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.membership?.href, onChange: (v) => updateField("membership.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "Member thanks (paid version)" }, renderCtaTools("memberThanks"), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.memberThanks?.headline, onChange: (v) => updateField("memberThanks.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.memberThanks?.body, multiline: true, rows: 2, onChange: (v) => updateField("memberThanks.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.memberThanks?.cta, onChange: (v) => updateField("memberThanks.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.memberThanks?.href, onChange: (v) => updateField("memberThanks.href", v) }))), ["sponsorTop", "sponsorBottom"].map((key) => /* @__PURE__ */ React.createElement(Group, { key, title: key === "sponsorTop" ? "Sponsor \u2014 top slot" : "Sponsor \u2014 bottom slot" }, renderSponsorTools(key), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Section label", value: content[key]?.label, onChange: (v) => updateField(`${key}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Sponsor name", value: content[key]?.name, onChange: (v) => updateField(`${key}.name`, v) })), /* @__PURE__ */ React.createElement(ImageUrlField, { value: content[key]?.image, onChange: (v) => updateField(`${key}.image`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content[key]?.headline, onChange: (v) => updateField(`${key}.headline`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content[key]?.body, multiline: true, rows: 3, onChange: (v) => updateField(`${key}.body`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content[key]?.cta, onChange: (v) => updateField(`${key}.cta`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content[key]?.href, onChange: (v) => updateField(`${key}.href`, v) })))), /* @__PURE__ */ React.createElement(Group, { title: `Essays (${content.essays?.length || 0})` }, /* @__PURE__ */ React.createElement(Field, { label: "Section heading", value: content.essaysHeading, placeholder: "This Week's Essays", onChange: (v) => updateField("essaysHeading", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement(
+        )), renderBlockLibraryTools()), /* @__PURE__ */ React.createElement(Group, { title: "Membership CTA (free version)" }, renderCtaTools("membership"), /* @__PURE__ */ React.createElement(Field, { label: "Headline (use \\\\n for line break)", value: content.membership?.headline, multiline: true, rows: 2, onChange: (v) => updateField("membership.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.membership?.body, multiline: true, rows: 3, onChange: (v) => updateField("membership.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.membership?.cta, onChange: (v) => updateField("membership.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.membership?.href, onChange: (v) => updateField("membership.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "The Daily Liturgy" }, /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 10px", fontSize: 12, color: "#9a8773", lineHeight: 1.5 } }, "A standing promo under the podcasts. Nothing is pulled for it, so it needs no API key. Hide it for a week from the Sections list above rather than deleting the text."), /* @__PURE__ */ React.createElement(Field, { label: "Logo URL", value: content.dailyLiturgy?.logo, onChange: (v) => updateField("dailyLiturgy.logo", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.dailyLiturgy?.headline, onChange: (v) => updateField("dailyLiturgy.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.dailyLiturgy?.body, multiline: true, rows: 2, onChange: (v) => updateField("dailyLiturgy.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.dailyLiturgy?.cta, onChange: (v) => updateField("dailyLiturgy.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.dailyLiturgy?.href, onChange: (v) => updateField("dailyLiturgy.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "Member thanks (paid version)" }, renderCtaTools("memberThanks"), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.memberThanks?.headline, onChange: (v) => updateField("memberThanks.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.memberThanks?.body, multiline: true, rows: 2, onChange: (v) => updateField("memberThanks.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.memberThanks?.cta, onChange: (v) => updateField("memberThanks.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.memberThanks?.href, onChange: (v) => updateField("memberThanks.href", v) }))), ["sponsorTop", "sponsorBottom"].map((key) => /* @__PURE__ */ React.createElement(Group, { key, title: key === "sponsorTop" ? "Sponsor \u2014 top slot" : "Sponsor \u2014 bottom slot" }, renderSponsorTools(key), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Section label", value: content[key]?.label, onChange: (v) => updateField(`${key}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Sponsor name", value: content[key]?.name, onChange: (v) => updateField(`${key}.name`, v) })), /* @__PURE__ */ React.createElement(ImageUrlField, { value: content[key]?.image, onChange: (v) => updateField(`${key}.image`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content[key]?.headline, onChange: (v) => updateField(`${key}.headline`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content[key]?.body, multiline: true, rows: 3, onChange: (v) => updateField(`${key}.body`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content[key]?.cta, onChange: (v) => updateField(`${key}.cta`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content[key]?.href, onChange: (v) => updateField(`${key}.href`, v) })))), /* @__PURE__ */ React.createElement(Group, { title: `Essays (${content.essays?.length || 0})` }, /* @__PURE__ */ React.createElement(Field, { label: "Section heading", value: content.essaysHeading, placeholder: "This Week's Essays", onChange: (v) => updateField("essaysHeading", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => {

@@ -1087,11 +1087,23 @@
         }
       }
       if (Array.isArray(saved.sectionOrder) && Array.isArray(DEFAULT_SECTION_ORDER)) {
-        const missing = DEFAULT_SECTION_ORDER.filter((k) => !saved.sectionOrder.includes(k));
+        DEFAULT_SECTION_ORDER.forEach((key) => {
+          if (saved.sectionOrder.includes(key)) return;
+          const di = DEFAULT_SECTION_ORDER.indexOf(key);
+          let anchor = -1;
+          for (let i = di - 1; i >= 0; i -= 1) {
+            const at = saved.sectionOrder.indexOf(DEFAULT_SECTION_ORDER[i]);
+            if (at !== -1) {
+              anchor = at;
+              break;
+            }
+          }
+          saved.sectionOrder.splice(anchor + 1, 0, key);
+        });
         const blockIds = (saved.customBlocks || []).map((b) => b && b.id).filter(Boolean);
         const missingBlocks = blockIds.filter((id) => !saved.sectionOrder.includes(id));
-        if (missing.length || missingBlocks.length) {
-          saved.sectionOrder = [...saved.sectionOrder, ...missing, ...missingBlocks];
+        if (missingBlocks.length) {
+          saved.sectionOrder = [...saved.sectionOrder, ...missingBlocks];
         }
       }
       return { ...DEFAULT_CONTENT, ...saved };

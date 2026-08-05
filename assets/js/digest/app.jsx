@@ -1326,16 +1326,31 @@ function loadSavedContent() {
       }
     }
     // Heal the section order:
-    //  (a) Append any DEFAULT_SECTION_ORDER key missing from the saved
-    //      order so newly-introduced fixed sections show up.
+    //  (a) Splice in any DEFAULT_SECTION_ORDER key missing from the saved
+    //      order so newly-introduced fixed sections show up, AT THE POSITION
+    //      the default order gives them. This used to append them, which put
+    //      a brand-new section below the signature — never where it belongs,
+    //      and invisible-in-practice because nobody scrolls the order list
+    //      looking for it. Anchor on the nearest earlier default key the
+    //      saved order already has, so a user's own reordering is respected.
     //  (b) Append any custom-block id not yet in the order so blocks
-    //      added in a stale tab don't vanish.
+    //      added in a stale tab don't vanish. Those have no natural home,
+    //      so the end is the honest place for them.
     if (Array.isArray(saved.sectionOrder) && Array.isArray(DEFAULT_SECTION_ORDER)) {
-      const missing = DEFAULT_SECTION_ORDER.filter((k) => !saved.sectionOrder.includes(k));
+      DEFAULT_SECTION_ORDER.forEach((key) => {
+        if (saved.sectionOrder.includes(key)) return;
+        const di = DEFAULT_SECTION_ORDER.indexOf(key);
+        let anchor = -1;
+        for (let i = di - 1; i >= 0; i -= 1) {
+          const at = saved.sectionOrder.indexOf(DEFAULT_SECTION_ORDER[i]);
+          if (at !== -1) { anchor = at; break; }
+        }
+        saved.sectionOrder.splice(anchor + 1, 0, key);
+      });
       const blockIds = (saved.customBlocks || []).map((b) => b && b.id).filter(Boolean);
       const missingBlocks = blockIds.filter((id) => !saved.sectionOrder.includes(id));
-      if (missing.length || missingBlocks.length) {
-        saved.sectionOrder = [...saved.sectionOrder, ...missing, ...missingBlocks];
+      if (missingBlocks.length) {
+        saved.sectionOrder = [...saved.sectionOrder, ...missingBlocks];
       }
     }
     // Shallow-merge with defaults so newly-added top-level keys (e.g. a
