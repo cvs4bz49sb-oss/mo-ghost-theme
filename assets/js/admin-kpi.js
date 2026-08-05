@@ -280,7 +280,7 @@
     rev: "membership_revenue", mem: "total_members", sub: "total_subscribers",
     nmem: "new_members_24h", nsub: "new_subscribers_24h", pv: "web_traffic_30d",
     pod: "podcast_lifetime", op: "digest_open", mig: "migration_done",
-    cxl: "cancels_total",
+    cxl: "cancels_total", dl: "dl_subscribers",
   };
 
   const KPIS = [
@@ -396,6 +396,37 @@
         s.kit ? `<b>${fmt(s.kit.active)}</b> active in Kit` : "",
         s.kit ? `<b>${fmt(s.kit.cancelled)}</b> cancelled · <b>${fmt(s.kit.bounced)}</b> bounced` : ""
       ]
+    },
+    {
+      // The Daily Liturgy is a separate list with its own signup, so it is
+      // not folded into Total subscribers. "New" is the net change between
+      // nightly snapshots, NOT a count of signup events: Kit exposes no
+      // usable per-person TDL signup date (tag timestamps are bulk-applied,
+      // 512 on one day; subscriber created_at is the original join date for
+      // the third who were already on the digest). So this is net of any
+      // unsubscribes in the period, and the history starts 5 Aug 2026 rather
+      // than being backfilled from a timestamp that would invent a
+      // 512-signup day. See workers/admin/lib/liturgy.js.
+      label: "Daily Liturgy", key: "dl", agg: "last", f: fmt, goodUp: true, cap: "TDL list",
+      periodBullets(rows, prev) {
+        const end = rows.length ? rows[rows.length - 1] : {};
+        const out = [`<b>${signed(changeOf(rows, prev, "dl"))}</b> net new over the period`];
+        if (typeof end.dlo === "number") out.push(`<b>${fmt(end.dlo)}</b> take only the Daily Liturgy`);
+        if (typeof end.dlb === "number") out.push(`<b>${fmt(end.dlb)}</b> also take a weekly digest`);
+        if (!rows.some((r) => typeof r.dl === "number" && r.d < "2026-08-06")) {
+          out.push("net change, not signup events — history starts 5 Aug 2026");
+        }
+        return out;
+      },
+      bullets(s) {
+        const k = s.kpi || {};
+        const pct = k.dl_subscribers ? Math.round((k.dl_only / k.dl_subscribers) * 100) : null;
+        return [
+          typeof k.dl_only === "number" ? `<b>${fmt(k.dl_only)}</b> take only the Daily Liturgy${pct == null ? "" : ` — ${pct}% of the list`}` : "",
+          typeof k.dl_both === "number" ? `<b>${fmt(k.dl_both)}</b> also take a weekly digest` : "",
+          s.liturgy && typeof s.liturgy.via_form === "number" ? `<b>${fmt(s.liturgy.via_form)}</b> arrived through the Daily Liturgy signup itself` : ""
+        ];
+      }
     },
     {
       // Total means all time on every other tile, so a flow shows its
