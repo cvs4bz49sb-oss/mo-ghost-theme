@@ -1,6 +1,6 @@
 {
   "christians-reading-classics": {
-    "updated": "2026-08-04T10:14:02.841Z",
+    "updated": "2026-08-05T10:12:28.187Z",
     "episodes": [
       {
         "id": 19563706,
@@ -969,8 +969,25 @@
     ]
   },
   "mere-fidelity": {
-    "updated": "2026-08-04T10:14:07.447Z",
+    "updated": "2026-08-05T10:12:32.332Z",
     "episodes": [
+      {
+        "id": 19565507,
+        "title": "Replay: The Struggle of Prayer",
+        "slug": "replay-the-struggle-of-prayer",
+        "pubDate": "2026-08-05T05:00:00.000-04:00",
+        "episode": 26,
+        "season": 3,
+        "duration": 2669,
+        "artwork": "https://storage.buzzsprout.com/4ly6jt1fyrif6y41iv5bfnxxymda",
+        "audioUrl": "https://www.buzzsprout.com/2612792/episodes/19565507-replay-the-struggle-of-prayer.mp3",
+        "description": "Matt, Derek, and Alastair discuss the struggles and misconceptions surrounding prayer: how prayer becomes burdensome, prayer has experiencing God in a veiled way, and what petitions in prayer should we not ask for?",
+        "embedUrl": "https://www.buzzsprout.com/2612792/19565507?client_source=small_player&iframe=true",
+        "hasTranscript": true,
+        "transcriptUrl": "/transcript/mere-fidelity/replay-the-struggle-of-prayer/",
+        "guests": [],
+        "topics": []
+      },
       {
         "id": 19567716,
         "title": "Replay: Conservatism, with Dr. Yoram Hazony",
