@@ -1575,10 +1575,11 @@
           + `the boxes are directly comparable. ${who}`
       }
     );
-    return `<div class="kpi-charts" style="margin-top:16px">`
-      + card("members", M, "Member is anyone whose Ghost tier is not free, so comped, student and institutional count.")
-      + card("free subscribers", S, "Free subscribers only \u2014 anyone who has not taken a membership.")
-      + `</div><div class="kpi-chart" style="margin-top:12px"><p class="kpi-chart-title">Members against subscribers</p>
+    return `<div class="kpi-charts" style="margin-top:16px">${
+      card("members", M, "Member is anyone whose Ghost tier is not free, so comped, student and institutional count.")
+    }${
+      card("free subscribers", S, "Free subscribers only \u2014 anyone who has not taken a membership.")
+    }</div><div class="kpi-chart" style="margin-top:12px"><p class="kpi-chart-title">Members against subscribers</p>
         <p class="kpi-chart-sub">The same two populations side by side.</p>
         <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
           <thead><tr><th>Group</th><th class="is-num">Readers</th><th class="is-num">Essays read</th>
@@ -2308,7 +2309,7 @@
     const back = P().back || 0;
     let i = b.length - 1 - back;
     if (i < 0) i = 0;
-    const rows = b[i].rows;
+    const { rows } = b[i];
     return { rows, from: rows[0].d, to: rows[rows.length - 1].d };
   }
 
