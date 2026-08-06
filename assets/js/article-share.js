@@ -54,7 +54,7 @@
       copy.addEventListener('click', (e) => {
         e.preventDefault();
         if (!navigator.clipboard) return;
-        navigator.clipboard.writeText(text).then(() => {
+        navigator.clipboard.writeText(url).then(() => {
           const original = copy.getAttribute('aria-label') || '';
           copy.setAttribute('aria-label', 'Copied');
           copy.classList.add('share-btn--copied');
