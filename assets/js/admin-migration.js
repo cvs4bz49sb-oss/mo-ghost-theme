@@ -36,7 +36,10 @@
   const esc = (s) => String(s == null ? "" : s)
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-  const usd = (n) => (typeof n === "number" ? `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}` : "—");
+  // Cents always, never $909.5 — this page is a refund worksheet and a
+  // dropped trailing zero reads as a different number.
+  const usd = (n) => (typeof n === "number"
+    ? `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—");
   const fmt = (n) => (typeof n === "number" ? n.toLocaleString("en-US") : "0");
   const mdy = (iso) => (iso ? new Date(String(iso).length <= 10 ? `${iso}T12:00:00Z` : iso)
     .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "—");
@@ -65,7 +68,11 @@
       + cell(t.eligible, "Ready to cancel")
       + cell(t.at_risk_people, "Do not cancel")
       + cell(usd(t.at_risk), "Still billing, per year")
-      + cell(usd(t.owed), `Owed back, ${fmt(t.owed_people)} people`);
+      // Scoped label deliberately: this counts only the unprocessed
+      // segment, and the ledger below reports a much larger figure over
+      // everyone who migrated. Two unqualified "owed back" numbers on one
+      // page read as a contradiction rather than two populations.
+      + cell(usd(t.owed), `Owed back in this queue, ${fmt(t.owed_people)} people`);
   }
 
   function rowHtml(r) {
@@ -318,7 +325,7 @@
 
   function ledgerHtml() {
     if (!ledger) return "";
-    if (ledger.error) return `<div class="kpi-chart"><p class="kpi-empty">${esc(ledger.error)}</p></div>`;
+    if (ledger.error) return `<p class="kpi-empty">${esc(ledger.error)}</p>`;
     const c = ledger.counts;
     const out = [];
 
@@ -342,30 +349,33 @@
     const post = ledger.rows.filter((r) => r.post_owed > 0)
       .sort((a, b) => b.post_owed - a.post_owed);
     if (post.length) {
-      out.push(`<div class="kpi-chart">
-        <p class="kpi-chart-title">Charged after they migrated</p>
-        <p class="kpi-chart-sub">${fmt(c.post_people)} people, ${fmt(c.post_charges)} charges,
-          <b>${usd(c.post_total)}</b>. These are the auto-cancel failure, not policy — the ladder does not
-          apply and they are refunded in full. They will keep recurring every billing cycle until the legacy
-          subscription is actually cancelled.</p>
-        <div class="mig-group">${post.map((r) => person(r, usd(r.post_owed),
+      out.push(`<section class="mig-group is-risk">
+        <div class="mig-group-head">
+          <h2 class="mig-group-title">Charged after they migrated<span class="mig-group-n">${fmt(c.post_people)}</span></h2>
+          <p class="mig-group-note">${fmt(c.post_charges)} charges, <b>${usd(c.post_total)}</b>. These are the
+            auto-cancel failure, not policy — the ladder does not apply and they are refunded in full. They keep
+            recurring every billing cycle until the legacy subscription is actually cancelled.</p>
+        </div>
+        ${post.map((r) => person(r, usd(r.post_owed),
     `<div class="mig-c"><span class="mig-label">Charges since migrating</span>
        <span class="mig-main">${fmt(r.post_charges.length)}</span>
        <span class="mig-sub">${r.post_charges.map((p) => `${usd(p.paid)} ${mdy(p.at)}`).join(" · ")}</span></div>
      <div class="mig-c"><span class="mig-label">Latest</span>
-       <span class="mig-main">${mdy(r.post_charges[r.post_charges.length - 1].at)}</span></div>`)).join("")}</div>
-      </div>`);
+       <span class="mig-main">${mdy(r.post_charges[r.post_charges.length - 1].at)}</span></div>`)).join("")}
+      </section>`);
     }
 
     // 2. Promised in writing but never stamped — no query keyed on
     //    mo_migrated_at can see these people at all.
     if ((ledger.promised || []).length) {
-      out.push(`<div class="kpi-chart">
-        <p class="kpi-chart-title">Promised a refund, but invisible to the queue</p>
-        <p class="kpi-chart-sub">mo_migrated_at is only written by the migration webhook, so anyone handled
-          another way never gets the stamp. These ${fmt(ledger.promised.length)} were promised a refund in
-          writing and appear in no query scoped to that property — including the queue above.</p>
-        <div class="mig-group">${ledger.promised.map((p) => `<div class="mig-row is-risk">
+      out.push(`<section class="mig-group is-risk">
+        <div class="mig-group-head">
+          <h2 class="mig-group-title">Promised a refund, but invisible to the queue<span class="mig-group-n">${fmt(ledger.promised.length)}</span></h2>
+          <p class="mig-group-note">mo_migrated_at is only written by the migration webhook, so anyone handled
+            another way never gets the stamp. These were promised a refund in writing and appear in no query
+            scoped to that property — including the queue above.</p>
+        </div>
+        ${ledger.promised.map((p) => `<div class="mig-row is-risk">
           <div class="mig-c mig-c--who">
             <span class="mig-name">${esc(p.email)}</span>
             <span class="mig-sub">no mo_migrated_at stamp</span>
@@ -380,8 +390,8 @@
           <div class="mig-c mig-c--actions">
             <a class="kpi-btn${p.outstanding > 0 ? " kpi-btn--primary" : " kpi-btn--quiet"}" href="${esc(p.payments_url)}" target="_blank" rel="noopener">Payments ↗</a>
           </div>
-        </div>`).join("")}</div>
-      </div>`);
+        </div>`).join("")}
+      </section>`);
     }
 
     // 3. The ladder itself. 76 rows is too many to sit open, so it leads
@@ -395,26 +405,28 @@
         ? `<tr><td>${b}</td><td class="is-num">${fmt(g.length)}</td><td class="is-num">${usd(g.reduce((s, r) => s + r.ladder_owed, 0))}</td></tr>`
         : "";
     }).join("");
-    out.push(`<div class="kpi-chart">
-      <p class="kpi-chart-title">Owed under the ladder</p>
-      <p class="kpi-chart-sub">${fmt(c.owed)} people, <b>${usd(c.owed_total)}</b>, across everyone who
-        migrated — not just the queue above. Already netted against anything refunded, capped at what HubSpot
-        will still allow, and excluding ${fmt(c.outside_12_months)} past twelve months,
-        ${fmt(c.already_covered)} already covered and ${fmt(c.no_legacy_payment)} with no legacy charge.</p>
+    out.push(`<section class="mig-group">
+      <div class="mig-group-head">
+        <h2 class="mig-group-title">Owed under the ladder<span class="mig-group-n">${fmt(c.owed)}</span></h2>
+        <p class="mig-group-note"><b>${usd(c.owed_total)}</b> across everyone who migrated — not just the queue
+          above. Already netted against anything refunded, capped at what HubSpot will still allow, and
+          excluding ${fmt(c.outside_12_months)} past twelve months, ${fmt(c.already_covered)} already covered
+          and ${fmt(c.no_legacy_payment)} with no legacy charge.</p>
+      </div>
       <div class="kpi-tablewrap"><table class="kpi-table kpi-table-cmp">
         <thead><tr><th>Band</th><th class="is-num">People</th><th class="is-num">Owed</th></tr></thead>
         <tbody>${summary}<tr class="is-total"><td>Total</td><td class="is-num">${fmt(c.owed)}</td>
           <td class="is-num">${usd(c.owed_total)}</td></tr></tbody>
       </table></div>
       <p class="kpi-more"><button type="button" class="kpi-btn" data-mig-ladder-toggle>Show all ${fmt(owed.length)}</button></p>
-      <div class="mig-group" data-mig-ladder hidden>${owed.map((r) => person(r, usd(r.ladder_owed),
+      <div data-mig-ladder hidden>${owed.map((r) => person(r, usd(r.ladder_owed),
     `<div class="mig-c"><span class="mig-label">Last legacy payment</span>
        <span class="mig-main">${usd(r.paid)}</span>
        <span class="mig-sub">${mdy(r.legacy_payment.at)} · ${r.days_since_payment} days</span></div>
      <div class="mig-c"><span class="mig-label">Band</span>
        <span class="mig-main">${esc(r.band)}</span>
        <span class="mig-sub">${Math.round(r.pct * 100)}% of ${usd(r.paid)}${r.already_refunded > 0 ? ` less ${usd(r.already_refunded)} refunded` : ""}${r.refund_blocked ? " · HubSpot will not refund this" : ""}${r.outlier ? " · large charge, review" : ""}</span></div>`)).join("")}</div>
-    </div>`);
+    </section>`);
 
     return out.join("");
   }
