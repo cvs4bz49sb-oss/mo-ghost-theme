@@ -1,0 +1,116 @@
+name: TFR Path Guard
+
+# Fails any pull request that changes a file outside The Faith Received.
+#
+# WHY: outside contributors work on TFR only. They have no write access to
+# this repo (they work from a fork), so they cannot push or deploy — but a
+# PR could still carry an unrelated edit that a reviewer misses. This check
+# makes the boundary mechanical instead of relying on diff-reading.
+#
+# The list below is an ALLOWLIST. Anything not matched fails, which is
+# deliberate: it means `.github/**` is blocked too, so a PR cannot weaken
+# this guard in the same change that violates it.
+#
+# Runs on `pull_request` (never `pull_request_target`) so fork PRs execute
+# with a read-only token and no access to repository secrets. Do not change
+# that trigger.
+#
+# To let a contributor touch a new path, add it here in a separate PR that
+# you author. Requests to widen the list should never ride along with the
+# work they unblock.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    name: Changed files are TFR-only
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify every changed path is inside The Faith Received
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          # Patterns are anchored extended regular expressions, one per line.
+          ALLOW='^custom-faith-[^/]+\.hbs$
+          ^custom-the-faith-received\.hbs$
+          ^partials/faith-received/.+$
+          ^assets/js/faith-[^/]+\.js$
+          ^assets/js/page/faith-received-tabs\.js$
+          ^assets/data/faith-received/.+$
+          ^assets/css/faith-received\.css$
+          ^assets/built/faith-received\.min\.css$
+          ^scripts/faith-received-introductions\.json$
+          ^scripts/(apply-llm-topics|assign-anf-topics|assign-topics)\.mjs$
+          ^scripts/(build-catechism-daily|build-eebo-theological|build-faith-received)\.mjs$
+          ^scripts/(build-pl-corpus|build-scripture-index|eval-topics-llm)\.mjs$
+          ^scripts/(import-anf|import-bcp|import-faith-received)\.mjs$
+          ^scripts/(import-polanus-syntagma|modernize-text|repair-anf-titles)\.mjs$
+          ^docs/faith-received/.+$'
+
+          # Three-dot: only what this PR added on top of the merge base, so a
+          # stale branch is not blamed for main's commits.
+          CHANGED="$(git diff --name-only "$BASE_SHA...$HEAD_SHA")"
+
+          if [ -z "$CHANGED" ]; then
+            echo "No file changes detected. Nothing to check."
+            exit 0
+          fi
+
+          echo "Changed files in this PR:"
+          echo "$CHANGED" | sed 's/^/  /'
+          echo
+
+          VIOLATIONS=""
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            ok=0
+            while IFS= read -r pattern; do
+              pattern="$(echo "$pattern" | sed 's/^[[:space:]]*//')"
+              [ -z "$pattern" ] && continue
+              if echo "$file" | grep -Eq "$pattern"; then
+                ok=1
+                break
+              fi
+            done <<< "$ALLOW"
+            [ "$ok" -eq 0 ] && VIOLATIONS="${VIOLATIONS}${file}"$'\n'
+          done <<< "$CHANGED"
+
+          if [ -n "$VIOLATIONS" ]; then
+            echo "::error::This PR changes files outside The Faith Received."
+            echo
+            echo "Blocked paths:"
+            echo "$VIOLATIONS" | sed '/^$/d; s/^/  ✗ /'
+            echo
+            echo "TFR contributions may only touch:"
+            echo "  custom-faith-*.hbs, custom-the-faith-received.hbs"
+            echo "  partials/faith-received/**"
+            echo "  assets/js/faith-*.js, assets/js/page/faith-received-tabs.js"
+            echo "  assets/data/faith-received/**"
+            echo "  assets/css/faith-received.css (+ its built .min.css)"
+            echo "  the TFR build/import scripts in scripts/"
+            echo
+            echo "Shared files are intentionally excluded and must be changed"
+            echo "by a maintainer in a separate PR:"
+            echo "  routes.yaml          — new TFR pages need a route entry"
+            echo "  default.hbs          — new fetch origins need a CSP host"
+            echo "  assets/built/screen.css / screen.min.css"
+            echo "  .github/**           — including this guard"
+            echo
+            echo "If you need one of these changed, describe it in the PR body."
+            exit 1
+          fi
+
+          echo "✓ All changed paths are inside The Faith Received."

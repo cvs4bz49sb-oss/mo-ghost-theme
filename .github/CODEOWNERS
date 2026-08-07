@@ -1,0 +1,24 @@
+# Code owners for the Mere Orthodoxy Ghost theme.
+#
+# Every pull request auto-requests review from the owner. Outside
+# contributors (The Faith Received) work from forks and have no write
+# access, so this file is about making sure the right person is asked —
+# the hard boundary is enforced by .github/workflows/tfr-path-guard.yml
+# and by branch protection on main.
+#
+# Last match wins in CODEOWNERS, so order matters: broad rule first,
+# narrower rules after.
+
+# Everything, by default.
+*                                   @cvs4bz49sb-oss
+
+# ── Shared files that TFR work must never carry ──────────────────────
+# Listed explicitly so a review request is unambiguous when one of these
+# does change. The path guard already blocks them on contributor PRs.
+/routes.yaml                        @cvs4bz49sb-oss
+/default.hbs                        @cvs4bz49sb-oss
+/assets/built/screen.css            @cvs4bz49sb-oss
+/assets/built/screen.min.css        @cvs4bz49sb-oss
+/.github/                           @cvs4bz49sb-oss
+/package.json                       @cvs4bz49sb-oss
+/scripts/build-theme.mjs            @cvs4bz49sb-oss
