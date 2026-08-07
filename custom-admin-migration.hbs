@@ -42,6 +42,7 @@
               <button type="button" class="kpi-btn" data-mig-done-all disabled>
                 Mark all done
               </button>
+              <button type="button" class="kpi-btn" data-mig-rebuild>Rebuild ledger</button>
             </div>
           </div>
 
@@ -50,6 +51,11 @@
           <div data-mig-list>
             <p class="kpi-empty">Loading the queue…</p>
           </div>
+
+          {{!-- The money owed across everyone who migrated, not just the
+                unprocessed segment. Same computation as
+                business/refund-ledger.py. --}}
+          <div data-mig-ledger></div>
 
           <p class="kpi-note" data-mig-footnote hidden>
             Cancelling stops the old HubSpot subscription billing again. It does not refund anything —
