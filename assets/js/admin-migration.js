@@ -344,6 +344,45 @@
       </div>
     </div>`;
 
+    // 0. Still billing. The cause, not the symptom: refunding a wrong
+    //    charge does not stop the next one, and on 2026-08-07 all five
+    //    people below were refunded within the hour while every one of
+    //    them kept an active subscription with a next payment date.
+    const billing = ledger.billing || [];
+    if (billing.length) {
+      out.push(`<section class="mig-group is-risk">
+        <div class="mig-group-head">
+          <h2 class="mig-group-title">Still billing on HubSpot<span class="mig-group-n">${fmt(c.still_billing)}</span></h2>
+          <p class="mig-group-note"><b>${usd(c.still_billing_annualised)}</b> a year still being charged on the
+            old system to people who have already moved. Refunding a charge does not stop the next one — these
+            recur until the subscription itself is cancelled, and the section above only empties when the
+            charges are refunded, not when the cause is fixed.${c.still_billing_unsafe
+    ? ` <b>${fmt(c.still_billing_unsafe)} of them are not paid members in Ghost</b>, so cancelling could cut off
+            their only membership — do those from the queue at the top, which re-checks Ghost server-side and
+            refuses.` : ""}${c.still_billing_unchecked
+    ? ` Ghost could not be checked for ${fmt(c.still_billing_unchecked)} of them, so treat those as unverified
+            rather than safe.` : ""}</p>
+        </div>
+        ${billing.map((r) => `<div class="mig-row is-${r.safe_to_cancel ? "ready" : "risk"}">
+          <div class="mig-c mig-c--who">
+            <span class="mig-name">${esc(r.name || r.email)}</span>
+            <span class="mig-sub">${esc(r.email)}</span>
+            <span class="mig-sub">Migrated ${mdy(r.migrated_at)} · Ghost: ${esc(r.ghost_status || "unchecked")}</span>
+          </div>
+          <div class="mig-c"><span class="mig-label">Next charge</span>
+            <span class="mig-main">${r.next_charge ? mdy(r.next_charge) : "—"}</span>
+            <span class="mig-sub">${esc(r.active_subs[0].name || "legacy subscription")}</span></div>
+          <div class="mig-c"><span class="mig-label">Amount</span>
+            <span class="mig-main">${usd(r.active_subs[0].amount)}</span></div>
+          <div class="mig-c mig-c--owed"><span class="mig-label">${r.safe_to_cancel ? "Safe to cancel" : "Do not cancel"}</span>
+            <span class="mig-sub">${r.cancel_warning ? esc(r.cancel_warning) : "Paid in Ghost, so the legacy sub is redundant."}</span></div>
+          <div class="mig-c mig-c--actions">
+            <a class="kpi-btn kpi-btn--quiet" href="${esc(r.active_subs[0].url)}" target="_blank" rel="noopener">Subscription ↗</a>
+          </div>
+        </div>`).join("")}
+      </section>`);
+    }
+
     // 1. Charged after migrating — errors, not policy. Full refund, and
     //    they recur every month until the subscription is cancelled.
     const post = ledger.rows.filter((r) => r.post_owed > 0)

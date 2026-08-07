@@ -1193,6 +1193,15 @@
 
   function loadShard(shard) {
     if (shardPromises.has(shard.file)) return shardPromises.get(shard.file);
+    // Reading depth. Shard count is the only proxy for whether a work was
+    // read or merely opened, and it cannot be observed from outside the
+    // reader. faith-events.js debounces and sends one row on page hide;
+    // the guard keeps this a no-op when telemetry is absent.
+    try {
+      if (window.MOTFREvents) window.MOTFREvents.depth(shardPromises.size + 1);
+    } catch (_) {
+      /* telemetry must never break reading */
+    }
     const p = fetch(`${BASE}/v1/works/${slug}/${shard.file}`)
       .then((r) => {
         if (!r.ok) throw new Error(`shard ${shard.file} ${r.status}`);

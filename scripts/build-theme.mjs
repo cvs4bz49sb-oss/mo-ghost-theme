@@ -52,6 +52,11 @@ const BUNDLES = [
     files: [
       "assets/js/error-beacon.js",
       "assets/js/jsonld-fix.js",
+      // TFR engagement telemetry. In the site bundle rather than added to
+      // ~100 custom-faith-*.hbs templates, which would guarantee a missed
+      // one. It returns immediately unless <meta name="tfr-events-url"> is
+      // present, so the cost on non-TFR pages is a null check.
+      "assets/js/faith-events.js",
       "assets/js/boot/breadcrumb-schema.js",
       "assets/js/site-settings.js",
       // nav-dropdowns.js is loaded standalone in default.hbs right

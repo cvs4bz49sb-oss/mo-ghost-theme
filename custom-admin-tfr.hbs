@@ -1,0 +1,106 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Faith Received Engagement | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Faith Received Engagement | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Faith Received Engagement | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/tfr/ — reading and search engagement for The Faith Received.
+
+     Reads GET /stats on mo-tfr-events, which is Ghost-staff gated. The
+     page skeleton renders for any signed-in member; nothing is disclosed
+     until the fetch succeeds, same pattern as the rest of /admin/.
+
+     Search queries are aggregate-only and are not attributable to a
+     reader: the queries table has no member column, identity is not
+     written on search events at all, and /stats suppresses anything
+     seen fewer than three times. See workers/tfr-events/schema.sql.
+
+     Window is capped at 90 days server-side; longer needs a rollup
+     table, not a bigger scan. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="tfr"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Faith Received</em> Engagement</h1>
+        <p class="admin-topbar-sub">What is being read, how deeply, which features get used, and what readers searched for and did not find.</p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container">
+          <div class="admin-tfr"
+               data-admin-tfr
+               data-worker-url="https://mo-tfr-events.mo-podcast-feed.workers.dev">
+
+            <div class="admin-tfr-controls">
+              <label class="dashboard-form-field">
+                <span class="dashboard-form-label">Window</span>
+                <select data-tfr-range>
+                  <option value="7">Last 7 days</option>
+                  <option value="30" selected>Last 30 days</option>
+                  <option value="90">Last 90 days</option>
+                </select>
+              </label>
+              <p class="admin-tfr-status" data-tfr-status role="status" aria-live="polite">Loading…</p>
+            </div>
+
+            {{!-- Totals --}}
+            <div class="admin-tfr-totals" data-tfr-totals hidden></div>
+
+            {{!-- Zero-result searches lead. This is the one panel that
+                  generates work: it is a standing list of what the library
+                  is missing, written by the readers. --}}
+            <section class="admin-tfr-section">
+              <h2 class="admin-tfr-section-title"><em>Searched for, not found</em></h2>
+              <p class="admin-tfr-section-note">Queries that returned nothing. The strongest acquisition signal available. No other measure can show what is absent.</p>
+              <div data-tfr-zero></div>
+            </section>
+
+            <section class="admin-tfr-section">
+              <h2 class="admin-tfr-section-title"><em>Most read</em></h2>
+              <p class="admin-tfr-section-note">Opens per work, with the number of distinct signed-in members. Anonymous readers are counted in opens but cannot be counted as members.</p>
+              <div data-tfr-works></div>
+            </section>
+
+            <section class="admin-tfr-section">
+              <h2 class="admin-tfr-section-title"><em>Reading depth</em></h2>
+              <p class="admin-tfr-section-note">Page-shards loaded per session. The difference between opening a work and reading it.</p>
+              <div data-tfr-depth></div>
+            </section>
+
+            <section class="admin-tfr-section">
+              <h2 class="admin-tfr-section-title"><em>By collection</em></h2>
+              <div data-tfr-corpora></div>
+            </section>
+
+            <section class="admin-tfr-section">
+              <h2 class="admin-tfr-section-title"><em>Features</em></h2>
+              <div data-tfr-features></div>
+            </section>
+
+            <section class="admin-tfr-section">
+              <h2 class="admin-tfr-section-title"><em>All searches</em></h2>
+              <p class="admin-tfr-section-note">Aggregate only, and shown at three or more occurrences. Queries are stored in a table with no member column, and identity is not recorded on search events.</p>
+              <div data-tfr-queries></div>
+            </section>
+
+          </div>
+        </div>
+      </section>
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-tfr.js"}}"></script>

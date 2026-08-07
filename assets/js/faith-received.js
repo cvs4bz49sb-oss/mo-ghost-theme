@@ -90,6 +90,22 @@
     }
 
     function renderResults(hits, query) {
+      // Telemetry fires here, after a real render, rather than on a timer.
+      // The search index is ~1.6 MB and must load and build before the first
+      // query resolves, so any fixed delay reports a cold search as
+      // zero-result — which would file successful searches into the
+      // "searched for, not found" list the dashboard leads with. This also
+      // catches the live-as-you-type path and ?q= deep links, neither of
+      // which submits the form.
+      try {
+        document.dispatchEvent(
+          new CustomEvent("mo:faith-search", {
+            detail: { query, count: hits.length, capped: hits.length >= 50 },
+          })
+        );
+      } catch (_) {
+        /* telemetry must never break search */
+      }
       results.innerHTML = "";
       if (!hits.length) {
         if (empty) empty.hidden = false;

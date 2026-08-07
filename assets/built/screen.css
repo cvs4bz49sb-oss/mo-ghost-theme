@@ -21029,3 +21029,116 @@ html[data-theme="dark"] .dlr-play-btn {
    retired, so it should not hold a permanent slot beside the KPIs. */
 .ws-sidebar-migration-link { margin-top: 14px; padding-top: 12px;
   border-top: 1px solid var(--k-line, rgba(0, 0, 0, 0.08)); }
+
+/* =============================================================
+   /admin/tfr/ — Faith Received engagement
+   -------------------------------------------------------------
+   Bar rows rather than a table: the numbers are counts whose
+   relative size is the point, and a table would imply a precision
+   the data does not have. Hairlines and rows, no card containers.
+   ============================================================= */
+.admin-tfr-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.admin-tfr-status {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--color-muted, #6b6b6b);
+}
+
+.admin-tfr-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.admin-tfr-total { display: flex; flex-direction: column; gap: 2px; }
+.admin-tfr-total-value {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 30px;
+  line-height: 1.1;
+  color: var(--color-dark);
+}
+.admin-tfr-total-label {
+  font-size: 13px;
+  font-variant: small-caps;
+  letter-spacing: 0.02em;
+  color: var(--color-muted, #6b6b6b);
+}
+
+.admin-tfr-section { padding: 26px 0; border-bottom: 1px solid var(--color-rule); }
+.admin-tfr-section:last-child { border-bottom: 0; }
+.admin-tfr-section-title {
+  font-family: var(--font-display);
+  font-size: 21px;
+  margin: 0 0 4px;
+  color: var(--color-dark);
+}
+.admin-tfr-section-note {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 62ch;
+  color: var(--color-muted, #6b6b6b);
+}
+.admin-tfr-empty {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--color-muted, #6b6b6b);
+}
+
+.admin-tfr-bars { list-style: none; margin: 0; padding: 0; }
+.admin-tfr-bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(80px, 220px) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.admin-tfr-bar-row:last-child { border-bottom: 0; }
+.admin-tfr-bar-label {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-dark);
+}
+.admin-tfr-bar {
+  position: relative;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.admin-tfr-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--color-primary);
+}
+.admin-tfr-bar-value {
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--color-muted, #6b6b6b);
+}
+
+@media (max-width: 640px) {
+  .admin-tfr-totals { gap: 24px; }
+  .admin-tfr-total-value { font-size: 25px; }
+  /* The bar itself is the first thing worth dropping on a phone: the
+     label and the number carry the information, the bar only ranks. */
+  .admin-tfr-bar-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .admin-tfr-bar-value, .admin-tfr-total-label { font-size: 14px; }
+  .admin-tfr-bar { display: none; }
+  .admin-tfr-bar-label { white-space: normal; }
+}
