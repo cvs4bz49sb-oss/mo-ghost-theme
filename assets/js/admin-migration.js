@@ -96,7 +96,11 @@
     // One primary per row, and which one depends on what is actually left
     // to do: cancel it, or just file it.
     const actions = [];
-    if (r.eligible) {
+    if (r.cancelled_now) {
+      // Only reachable after the worker re-read the subscription and saw it
+      // was no longer active. Never set from the request succeeding.
+      actions.push('<button type="button" class="kpi-btn kpi-btn--done" disabled>✓ Cancelled</button>');
+    } else if (r.eligible) {
       actions.push('<button type="button" class="kpi-btn kpi-btn--primary" data-mig-do="cancel">Cancel</button>');
     } else if (r.kind === "risk") {
       actions.push('<button type="button" class="kpi-btn" data-mig-do="cancel" disabled>Cancel</button>');
@@ -194,7 +198,20 @@
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ contact_id: contactId })
     });
-    if (!quiet) say(`Cancelled — now refund ${usd(out.payment && out.payment.amount)} for ${out.email}.`, "ok");
+    if (!out.verified) {
+      throw new Error(`HubSpot still reports this subscription as "${out.status}" — not marking it cancelled.`);
+    }
+    const row = queue.rows.find((x) => String(x.contact_id) === String(contactId));
+    if (row) {
+      row.cancelled_now = true;
+      row.eligible = false;
+      if (row.subscription) row.subscription.status = out.status;
+      queue.totals.eligible = queue.rows.filter((x) => x.eligible).length;
+    }
+    if (!quiet) {
+      const owed = out.refund && out.refund.amount > 0 ? ` Now refund ${usd(out.refund.amount)}.` : "";
+      say(`Cancelled ${out.email}.${owed}`, "ok");
+    }
     return out;
   }
 
@@ -209,6 +226,10 @@
     try {
       if (what === "cancel") {
         await cancelOne(id);
+        // Deliberately not reloading: a reload re-sorts the cancelled row
+        // into "Just needs filing" and the confirmation vanishes the instant
+        // it appears, before the refund has been issued.
+        render();
       } else {
         await api("/migration/processed", {
           method: "POST",
@@ -216,8 +237,8 @@
           body: JSON.stringify({ contact_id: id })
         });
         say("Marked done — they drop out of the segment.", "ok");
+        await load();
       }
-      await load();
     } catch (err) {
       say(err.message, "error");
       btn.disabled = false;
@@ -250,14 +271,17 @@
         await cancelOne(r.contact_id, true);
         done += 1;
         say(`Cancelled ${done} of ${ready.length}…`);
+        render();
       } catch (err) {
         failed.push(`${r.email}: ${err.message}`);
       }
     }
-    await load();
+    render();
+    const owed = queue.rows.filter((x) => x.cancelled_now)
+      .reduce((sum, x) => sum + ((x.refund && x.refund.amount) || 0), 0);
     say(failed.length
-      ? `Cancelled ${done}. ${failed.length} failed — ${failed[0]}`
-      : `Cancelled ${done}. Now work down the refund links.`, failed.length ? "error" : "ok");
+      ? `Cancelled ${done} of ${ready.length}. ${failed.length} failed — ${failed[0]}`
+      : `Cancelled ${done}. ${usd(owed)} now to refund.`, failed.length ? "error" : "ok");
   });
 
   load();

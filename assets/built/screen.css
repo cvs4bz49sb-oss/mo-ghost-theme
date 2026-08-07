@@ -20966,6 +20966,10 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-btn--primary { background: var(--k-accent); border-color: var(--k-accent); color: #fff; }
 .kpi-btn--primary:hover { filter: brightness(1.07); }
 .kpi-btn--quiet { color: var(--k-muted); }
+/* Confirmed, not optimistic: this only renders after the worker re-read
+   the subscription and saw it was no longer active. */
+.kpi-btn--done { background: var(--k-up); border-color: var(--k-up); color: #fff; }
+.kpi-btn--done[disabled] { opacity: 1; }
 .kpi-btn[disabled] { opacity: 0.45; cursor: default; }
 
 .mig-group { margin: 0 0 28px; }
