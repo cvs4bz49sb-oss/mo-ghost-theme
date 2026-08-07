@@ -432,3 +432,5 @@ collections:
 taxonomies:
   tag: /tag/{slug}/
   author: /author/{slug}/
+
+# GUARD SMOKE TEST — deliberate violation. Expect CI to reject this PR.
