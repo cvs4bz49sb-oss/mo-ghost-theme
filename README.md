@@ -147,3 +147,10 @@ Use the official `TryGhost/action-deploy-theme` GitHub Action so you can git-pus
 4. Commit, push to `main`, and watch the Action run. Ghost activates the uploaded theme automatically.
 
 Once the action is working, the deploy flow is: edit a `.hbs` or CSS file, commit, push. That's the whole loop.
+
+## Outside contributions (The Faith Received)
+
+TFR work arrives via pull request from a fork. `.github/workflows/tfr-path-guard.yml`
+fails any PR touching a path outside the TFR allowlist, including `.github/**`.
+Shared files (`routes.yaml`, `default.hbs`, `assets/built/screen.css`) are
+maintainer-only. See `website/handoffs/TFR-CONTRIBUTOR-SETUP.md` in MOCA.
