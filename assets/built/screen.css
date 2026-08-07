@@ -24979,3 +24979,14 @@ html[data-theme="dark"] .dlr-play-btn {
   .mig-row { grid-template-columns: 1fr; }
   .mig-c--actions .kpi-btn { flex: 1 1 auto; text-align: center; }
 }
+
+/* Status line under the toolbar. say() sets these classes, so without
+   them a failure reported in the same grey as a success. */
+.kpi-layoutmsg.is-error { color: var(--k-down); }
+.kpi-layoutmsg.is-ok { color: var(--k-up); }
+
+/* Migration sits on its own at the foot of the nav rather than in a
+   section: it is a queue that gets worked down to nothing and then
+   retired, so it should not hold a permanent slot beside the KPIs. */
+.ws-sidebar-migration-link { margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid var(--k-line, rgba(0, 0, 0, 0.08)); }
