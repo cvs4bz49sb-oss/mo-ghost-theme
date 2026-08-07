@@ -20628,8 +20628,15 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-attr[data-window="month"] .kpi-attr-row[data-age="quarter"],
 .kpi-attr[data-window="month"] .kpi-attr-row[data-age="older"],
 .kpi-attr[data-window="quarter"] .kpi-attr-row[data-age="older"] { display: none; }
-.kpi-more { margin: 12px 0 0; }
-.kpi-more .kpi-btn { width: 100%; justify-content: center; }
+/* Scoped to the <p> wrapper on purpose. `.kpi-more` is two different
+   things: this full-width "expand" control under a card, and the
+   <details class="kpi-more"> that collapses the toolbar on a phone. The
+   unscoped selector matched both, so width:100% inside the desktop
+   toolbar squeezed Refresh, Expand, Collapse and Reset down to 24px
+   apiece — present in the DOM, laid out, and effectively invisible.
+   Do not drop the `p`. */
+p.kpi-more { margin: 12px 0 0; }
+p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 .kpi-more-n { color: var(--k-muted); margin-left: 6px; }
 
 .kpi-attr-body { padding: 2px 0 12px; }

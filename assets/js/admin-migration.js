@@ -329,7 +329,23 @@
     const c = ledger.counts;
     const out = [];
 
-    const person = (r, right, sub) => `<div class="mig-row is-${esc(r.kind || "ready")}">
+    // Ledger "done" is its own state, not mo_migration_processed — every
+    // person in the still-billing list already carries that flag, and
+    // writing it again is what hid them. Marked rows collapse behind a
+    // per-section toggle rather than vanishing, and the server drops the
+    // mark if the row's situation changes, so a fresh charge brings it
+    // straight back.
+    const doneBtn = (r, section) => (r.handled
+      ? `<button type="button" class="kpi-btn kpi-btn--quiet" data-led-undo="${esc(section)}" data-led-email="${esc(r.email)}">Undo</button>`
+      : `<button type="button" class="kpi-btn kpi-btn--quiet" data-led-done="${esc(section)}" data-led-email="${esc(r.email)}">Done</button>`);
+
+    const split = (list) => [list.filter((r) => !r.handled), list.filter((r) => r.handled)];
+    const doneBlock = (rows, render, id) => (rows.length
+      ? `<p class="kpi-more"><button type="button" class="kpi-btn" data-led-toggle="${id}">Show ${fmt(rows.length)} marked done</button></p>
+         <div data-led-donelist="${id}" hidden>${rows.map(render).join("")}</div>`
+      : "");
+
+    const person = (r, right, sub, section) => `<div class="mig-row is-${esc(r.handled ? "clear" : r.kind || "ready")}">
       <div class="mig-c mig-c--who">
         <span class="mig-name">${esc(r.name || r.email)}</span>
         <span class="mig-sub">${esc(r.email)}</span>
@@ -339,8 +355,9 @@
       <div class="mig-c mig-c--owed"><span class="mig-label">Owed</span>
         <span class="mig-main mig-owed">${right}</span></div>
       <div class="mig-c mig-c--actions">
-        <a class="kpi-btn kpi-btn--primary" href="${esc(r.payments_url)}" target="_blank" rel="noopener">Refund ↗</a>
+        <a class="kpi-btn${r.handled ? " kpi-btn--quiet" : " kpi-btn--primary"}" href="${esc(r.payments_url)}" target="_blank" rel="noopener">Refund ↗</a>
         ${r.hubspot_contact_url ? `<a class="kpi-btn kpi-btn--quiet" href="${esc(r.hubspot_contact_url)}" target="_blank" rel="noopener">Contact ↗</a>` : ""}
+        ${doneBtn(r, section)}
       </div>
     </div>`;
 
@@ -349,6 +366,24 @@
     //    people below were refunded within the hour while every one of
     //    them kept an active subscription with a next payment date.
     const billing = ledger.billing || [];
+    const billingRow = (r) => `<div class="mig-row is-${r.handled ? "clear" : r.safe_to_cancel ? "ready" : "risk"}">
+          <div class="mig-c mig-c--who">
+            <span class="mig-name">${esc(r.name || r.email)}</span>
+            <span class="mig-sub">${esc(r.email)}</span>
+            <span class="mig-sub">Migrated ${mdy(r.migrated_at)} · Ghost: ${esc(r.ghost_status || "unchecked")}</span>
+          </div>
+          <div class="mig-c"><span class="mig-label">Next charge</span>
+            <span class="mig-main">${r.next_charge ? mdy(r.next_charge) : "—"}</span>
+            <span class="mig-sub">${esc(r.active_subs[0].name || "legacy subscription")}</span></div>
+          <div class="mig-c"><span class="mig-label">Amount</span>
+            <span class="mig-main">${usd(r.active_subs[0].amount)}</span></div>
+          <div class="mig-c mig-c--owed"><span class="mig-label">${r.safe_to_cancel ? "Safe to cancel" : "Do not cancel"}</span>
+            <span class="mig-sub">${r.cancel_warning ? esc(r.cancel_warning) : "Paid in Ghost, so the legacy sub is redundant."}</span></div>
+          <div class="mig-c mig-c--actions">
+            <a class="kpi-btn kpi-btn--quiet" href="${esc(r.active_subs[0].url)}" target="_blank" rel="noopener">Subscription ↗</a>
+            ${doneBtn(r, "billing")}
+          </div>
+        </div>`;
     if (billing.length) {
       out.push(`<section class="mig-group is-risk">
         <div class="mig-group-head">
@@ -365,23 +400,8 @@
     ? ` Ghost could not be checked for ${fmt(c.still_billing_unchecked)} of them, so treat those as unverified
             rather than safe.` : ""}</p>
         </div>
-        ${billing.map((r) => `<div class="mig-row is-${r.safe_to_cancel ? "ready" : "risk"}">
-          <div class="mig-c mig-c--who">
-            <span class="mig-name">${esc(r.name || r.email)}</span>
-            <span class="mig-sub">${esc(r.email)}</span>
-            <span class="mig-sub">Migrated ${mdy(r.migrated_at)} · Ghost: ${esc(r.ghost_status || "unchecked")}</span>
-          </div>
-          <div class="mig-c"><span class="mig-label">Next charge</span>
-            <span class="mig-main">${r.next_charge ? mdy(r.next_charge) : "—"}</span>
-            <span class="mig-sub">${esc(r.active_subs[0].name || "legacy subscription")}</span></div>
-          <div class="mig-c"><span class="mig-label">Amount</span>
-            <span class="mig-main">${usd(r.active_subs[0].amount)}</span></div>
-          <div class="mig-c mig-c--owed"><span class="mig-label">${r.safe_to_cancel ? "Safe to cancel" : "Do not cancel"}</span>
-            <span class="mig-sub">${r.cancel_warning ? esc(r.cancel_warning) : "Paid in Ghost, so the legacy sub is redundant."}</span></div>
-          <div class="mig-c mig-c--actions">
-            <a class="kpi-btn kpi-btn--quiet" href="${esc(r.active_subs[0].url)}" target="_blank" rel="noopener">Subscription ↗</a>
-          </div>
-        </div>`).join("")}
+        ${((rows) => rows.map(billingRow).join(""))(split(billing)[0])}
+        ${doneBlock(split(billing)[1], billingRow, "billing")}
       </section>`);
     }
 
@@ -389,6 +409,12 @@
     //    they recur every month until the subscription is cancelled.
     const post = ledger.rows.filter((r) => r.post_owed > 0)
       .sort((a, b) => b.post_owed - a.post_owed);
+    const postRow = (r) => person(r, usd(r.post_owed),
+    `<div class="mig-c"><span class="mig-label">Charges since migrating</span>
+       <span class="mig-main">${fmt(r.post_charges.length)}</span>
+       <span class="mig-sub">${r.post_charges.map((p) => `${usd(p.paid)} ${mdy(p.at)}`).join(" · ")}</span></div>
+     <div class="mig-c"><span class="mig-label">Latest</span>
+       <span class="mig-main">${mdy(r.post_charges[r.post_charges.length - 1].at)}</span></div>`, "post");
     if (post.length) {
       out.push(`<section class="mig-group is-risk">
         <div class="mig-group-head">
@@ -397,26 +423,14 @@
             auto-cancel failure, not policy — the ladder does not apply and they are refunded in full. They keep
             recurring every billing cycle until the legacy subscription is actually cancelled.</p>
         </div>
-        ${post.map((r) => person(r, usd(r.post_owed),
-    `<div class="mig-c"><span class="mig-label">Charges since migrating</span>
-       <span class="mig-main">${fmt(r.post_charges.length)}</span>
-       <span class="mig-sub">${r.post_charges.map((p) => `${usd(p.paid)} ${mdy(p.at)}`).join(" · ")}</span></div>
-     <div class="mig-c"><span class="mig-label">Latest</span>
-       <span class="mig-main">${mdy(r.post_charges[r.post_charges.length - 1].at)}</span></div>`)).join("")}
+        ${((f) => split(post)[0].map(f).join(""))(postRow)}
+        ${doneBlock(split(post)[1], postRow, "post")}
       </section>`);
     }
 
     // 2. Promised in writing but never stamped — no query keyed on
     //    mo_migrated_at can see these people at all.
-    if ((ledger.promised || []).length) {
-      out.push(`<section class="mig-group is-risk">
-        <div class="mig-group-head">
-          <h2 class="mig-group-title">Promised a refund, but invisible to the queue<span class="mig-group-n">${fmt(ledger.promised.length)}</span></h2>
-          <p class="mig-group-note">mo_migrated_at is only written by the migration webhook, so anyone handled
-            another way never gets the stamp. These were promised a refund in writing and appear in no query
-            scoped to that property — including the queue above.</p>
-        </div>
-        ${ledger.promised.map((p) => `<div class="mig-row is-risk">
+    const promisedRow = (p) => `<div class="mig-row is-${p.handled ? "clear" : "risk"}">
           <div class="mig-c mig-c--who">
             <span class="mig-name">${esc(p.email)}</span>
             <span class="mig-sub">no mo_migrated_at stamp</span>
@@ -429,9 +443,20 @@
           <div class="mig-c mig-c--owed"><span class="mig-label">Outstanding</span>
             <span class="mig-main mig-owed">${usd(p.outstanding)}</span></div>
           <div class="mig-c mig-c--actions">
-            <a class="kpi-btn${p.outstanding > 0 ? " kpi-btn--primary" : " kpi-btn--quiet"}" href="${esc(p.payments_url)}" target="_blank" rel="noopener">Payments ↗</a>
+            <a class="kpi-btn${p.outstanding > 0 && !p.handled ? " kpi-btn--primary" : " kpi-btn--quiet"}" href="${esc(p.payments_url)}" target="_blank" rel="noopener">Payments ↗</a>
+            ${doneBtn(p, "promised")}
           </div>
-        </div>`).join("")}
+        </div>`;
+    if ((ledger.promised || []).length) {
+      out.push(`<section class="mig-group is-risk">
+        <div class="mig-group-head">
+          <h2 class="mig-group-title">Promised a refund, but invisible to the queue<span class="mig-group-n">${fmt(ledger.promised.length)}</span></h2>
+          <p class="mig-group-note">mo_migrated_at is only written by the migration webhook, so anyone handled
+            another way never gets the stamp. These were promised a refund in writing and appear in no query
+            scoped to that property — including the queue above.</p>
+        </div>
+        ${((f) => split(ledger.promised)[0].map(f).join(""))(promisedRow)}
+        ${doneBlock(split(ledger.promised)[1], promisedRow, "promised")}
       </section>`);
     }
 
@@ -439,6 +464,13 @@
     //    with the band summary and opens on demand.
     const owed = ledger.rows.filter((r) => r.category === "owed")
       .sort((a, b) => b.ladder_owed - a.ladder_owed);
+    const owedRow = (r) => person(r, usd(r.ladder_owed),
+    `<div class="mig-c"><span class="mig-label">Last legacy payment</span>
+       <span class="mig-main">${usd(r.paid)}</span>
+       <span class="mig-sub">${mdy(r.legacy_payment.at)} · ${r.days_since_payment} days</span></div>
+     <div class="mig-c"><span class="mig-label">Band</span>
+       <span class="mig-main">${esc(r.band)}</span>
+       <span class="mig-sub">${Math.round(r.pct * 100)}% of ${usd(r.paid)}${r.already_refunded > 0 ? ` less ${usd(r.already_refunded)} refunded` : ""}${r.refund_blocked ? " · HubSpot will not refund this" : ""}${r.outlier ? " · large charge, review" : ""}</span></div>`, "owed");
     const bands = ["0–3 mo", "3–6 mo", "6–9 mo", "9–12 mo"];
     const summary = bands.map((b) => {
       const g = owed.filter((r) => r.band === b);
@@ -460,13 +492,8 @@
           <td class="is-num">${usd(c.owed_total)}</td></tr></tbody>
       </table></div>
       <p class="kpi-more"><button type="button" class="kpi-btn" data-mig-ladder-toggle>Show all ${fmt(owed.length)}</button></p>
-      <div data-mig-ladder hidden>${owed.map((r) => person(r, usd(r.ladder_owed),
-    `<div class="mig-c"><span class="mig-label">Last legacy payment</span>
-       <span class="mig-main">${usd(r.paid)}</span>
-       <span class="mig-sub">${mdy(r.legacy_payment.at)} · ${r.days_since_payment} days</span></div>
-     <div class="mig-c"><span class="mig-label">Band</span>
-       <span class="mig-main">${esc(r.band)}</span>
-       <span class="mig-sub">${Math.round(r.pct * 100)}% of ${usd(r.paid)}${r.already_refunded > 0 ? ` less ${usd(r.already_refunded)} refunded` : ""}${r.refund_blocked ? " · HubSpot will not refund this" : ""}${r.outlier ? " · large charge, review" : ""}</span></div>`)).join("")}</div>
+      <div data-mig-ladder hidden>${split(owed)[0].map(owedRow).join("")}
+        ${doneBlock(split(owed)[1], owedRow, "owed")}</div>
     </section>`);
 
     return out.join("");
@@ -475,15 +502,66 @@
   function renderLedger() {
     if (!els.ledger) return;
     els.ledger.innerHTML = ledgerHtml();
-    const t = els.ledger.querySelector("[data-mig-ladder-toggle]");
-    if (t) {
-      t.addEventListener("click", () => {
+
+    bindLedgerClicks();
+  }
+
+  // Attached once, not per render. renderLedger() runs on every Done and
+  // every Undo, and re-binding there stacked a new listener each time —
+  // two handlers meant a toggle opened and immediately closed again.
+  let ledgerBound = false;
+  function bindLedgerClicks() {
+    if (ledgerBound || !els.ledger) return;
+    ledgerBound = true;
+    els.ledger.addEventListener("click", async (e) => {
+      const ladder = e.target.closest("[data-mig-ladder-toggle]");
+      if (ladder) {
         const list = els.ledger.querySelector("[data-mig-ladder]");
         const open = !list.hasAttribute("hidden");
         if (open) list.setAttribute("hidden", ""); else list.removeAttribute("hidden");
-        t.textContent = open ? `Show all ${fmt(list.children.length)}` : "Hide";
-      });
-    }
+        ladder.textContent = open ? `Show all ${fmt(list.querySelectorAll(".mig-row").length)}` : "Hide";
+        return;
+      }
+      const toggle = e.target.closest("[data-led-toggle]");
+      if (toggle) {
+        const list = els.ledger.querySelector(`[data-led-donelist="${toggle.dataset.ledToggle}"]`);
+        if (!list) return;
+        const open = !list.hasAttribute("hidden");
+        if (open) list.setAttribute("hidden", ""); else list.removeAttribute("hidden");
+        toggle.textContent = open
+          ? `Show ${fmt(list.children.length)} marked done`
+          : "Hide the ones marked done";
+        return;
+      }
+      const btn = e.target.closest("[data-led-done], [data-led-undo]");
+      if (!btn) return;
+      const undo = btn.hasAttribute("data-led-undo");
+      const section = undo ? btn.dataset.ledUndo : btn.dataset.ledDone;
+      const email = btn.dataset.ledEmail;
+      btn.disabled = true;
+      try {
+        await api("/migration/ledger/handled", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, section, undo })
+        });
+        // Update in place rather than refetching 335 rows. rows/billing/
+        // promised are separate arrays once the payload has been through
+        // JSON, not shared references — patching only `rows` left the
+        // still-billing section showing a row it had already marked.
+        const at = undo ? null : new Date().toISOString();
+        const same = (r) => String(r.email).toLowerCase() === String(email).toLowerCase();
+        for (const list of [ledger.rows, ledger.billing, ledger.promised]) {
+          if (!Array.isArray(list)) continue;
+          for (const r of list.filter(same)) { r.handled = !undo; r.handled_at = at; }
+        }
+        renderLedger();
+        say(undo ? `${email} is back on the list.` : `${email} marked done.`, "ok");
+      } catch (err) {
+        btn.disabled = false;
+        say(err.message, "error");
+      }
+    });
   }
 
   async function loadLedgerData() {
