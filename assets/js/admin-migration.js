@@ -69,50 +69,67 @@
     const pay = r.payment;
     const who = esc(r.name || r.email || `Contact ${r.contact_id}`);
     const BADGE = {
-      ready: '<span class="mig-badge is-ready">Ready</span>',
-      clear: '<span class="mig-badge is-clear">Nothing to cancel</span>',
+      ready: "", // the group heading already says it; a badge on every row is noise
+      clear: "",
       risk: '<span class="mig-badge is-risk">Do not cancel</span>'
     };
-    const badge = BADGE[r.kind] || BADGE.risk;
 
-    const nextDue = sub && sub.next_payment_due ? ` · next ${mdy(sub.next_payment_due)}` : "";
-    const nextAmt = sub && sub.next_payment_amount != null ? ` for ${usd(sub.next_payment_amount)}` : "";
-    const subLine = sub
-      ? `${esc(sub.name || "Subscription")} · ${esc(sub.status)}${nextDue}${nextAmt}`
-      : "No HubSpot subscription found";
+    const nextDue = sub && sub.next_payment_due ? `next ${mdy(sub.next_payment_due)}` : "";
+    const nextAmt = sub && sub.next_payment_amount != null ? usd(sub.next_payment_amount) : "";
+    const subMain = sub ? esc(sub.name || "Subscription") : "—";
+    const subSub = sub
+      ? [esc(sub.status), [nextDue, nextAmt].filter(Boolean).join(" · ")].filter(Boolean).join(" · ")
+      : "no legacy subscription";
 
-    const payLine = pay
-      ? `${usd(pay.amount)} on ${mdy(pay.at)}${pay.status ? ` · ${esc(pay.status)}` : ""}`
-      : "No payment records found";
+    const payMain = pay ? usd(pay.amount) : "—";
+    const paySub = pay ? `${mdy(pay.at)}${pay.status ? ` · ${esc(pay.status)}` : ""}` : "no payments on file";
+
+    // One primary per row, and which one depends on what is actually left
+    // to do: cancel it, or just file it.
+    const actions = [];
+    if (r.eligible) {
+      actions.push('<button type="button" class="kpi-btn kpi-btn--primary" data-mig-do="cancel">Cancel</button>');
+    } else if (r.kind === "risk") {
+      actions.push('<button type="button" class="kpi-btn" data-mig-do="cancel" disabled>Cancel</button>');
+    }
+    if (pay) {
+      actions.push(`<a class="kpi-btn${r.kind === "clear" ? " kpi-btn--quiet" : ""}" href="${esc(pay.url)}" target="_blank" rel="noopener">Refund ↗</a>`);
+    }
+    actions.push(`<a class="kpi-btn kpi-btn--quiet" href="${esc(r.hubspot_contact_url)}" target="_blank" rel="noopener">HubSpot ↗</a>`);
+    actions.push(`<button type="button" class="kpi-btn${r.kind === "clear" ? " kpi-btn--primary" : " kpi-btn--quiet"}" data-mig-do="processed">Done</button>`);
 
     return `<div class="mig-row is-${esc(r.kind || "risk")}" data-mig-contact="${esc(r.contact_id)}">
-      <div class="mig-head">
-        <div class="mig-who">
-          <b>${who}</b>${badge}
-          <span class="mig-email">${esc(r.email)}</span>
-        </div>
-        <div class="mig-when">Migrated ${mdy(r.migrated_at)} · Ghost: <b>${esc(r.ghost_status || "?")}</b></div>
+      <div class="mig-c mig-c--who">
+        <span class="mig-name">${who}${BADGE[r.kind] || ""}</span>
+        <span class="mig-sub">${esc(r.email)}</span>
+        <span class="mig-sub">Migrated ${mdy(r.migrated_at)} · Ghost ${esc(r.ghost_status || "?")}</span>
       </div>
-
-      <div class="mig-facts">
-        <div><span class="mig-label">Old subscription</span>${subLine}</div>
-        <div><span class="mig-label">Latest payment</span>${payLine}</div>
+      <div class="mig-c">
+        <span class="mig-label">Old subscription</span>
+        <span class="mig-main">${subMain}</span>
+        <span class="mig-sub">${subSub}</span>
       </div>
-
-      ${r.eligible ? "" : `<p class="mig-why is-${esc(r.kind)}">${esc(r.blocked_reason)}</p>`}
-
-      <div class="mig-actions">
-        <button type="button" class="kpi-btn" data-mig-do="cancel" ${r.eligible ? "" : "disabled"}>
-          Cancel old subscription
-        </button>
-        ${pay
-    ? `<a class="kpi-btn" href="${esc(pay.url)}" target="_blank" rel="noopener">Refund ${usd(pay.amount)} ↗</a>`
-    : ""}
-        <a class="kpi-btn kpi-btn--quiet" href="${esc(r.hubspot_contact_url)}" target="_blank" rel="noopener">Contact ↗</a>
-        <button type="button" class="kpi-btn kpi-btn--quiet" data-mig-do="processed">Mark done</button>
+      <div class="mig-c">
+        <span class="mig-label">Latest payment</span>
+        <span class="mig-main">${payMain}</span>
+        <span class="mig-sub">${paySub}</span>
       </div>
+      <div class="mig-c mig-c--actions">${actions.join("")}</div>
+      ${r.kind === "risk" ? `<p class="mig-why is-risk">${esc(r.blocked_reason)}</p>` : ""}
     </div>`;
   }
+
+  // Grouped by what you would do next, in the order you would do it.
+  // A flat list sorted by eligibility looked the same at a glance whether
+  // a row was safe or dangerous.
+  const GROUPS = [
+    { kind: "ready", title: "Ready to cancel",
+      note: "Paid in Ghost with an active legacy subscription. Cancel, then refund the last payment." },
+    { kind: "clear", title: "Just needs filing",
+      note: "Nothing left to cancel. Marking done clears them from the queue and the HubSpot segment." },
+    { kind: "risk", title: "Do not cancel",
+      note: "These would lose the only membership they are paying for. Sort out the Ghost side first." }
+  ];
 
   function render() {
     if (!queue) return;
@@ -128,9 +145,21 @@
       ? `Cancel all ${queue.totals.eligible} eligible`
       : "Nothing eligible";
 
-    els.list.innerHTML = queue.rows.length
-      ? queue.rows.map(rowHtml).join("")
-      : '<p class="kpi-empty">Queue is empty — nobody is waiting on a cancellation.</p>';
+    if (!queue.rows.length) {
+      els.list.innerHTML = '<p class="kpi-empty">Queue is empty — nobody is waiting on a cancellation.</p>';
+      return;
+    }
+    els.list.innerHTML = GROUPS.map((g) => {
+      const rows = queue.rows.filter((r) => (r.kind || "risk") === g.kind);
+      if (!rows.length) return "";
+      return `<section class="mig-group is-${g.kind}">
+        <div class="mig-group-head">
+          <h2 class="mig-group-title">${g.title}<span class="mig-group-n">${rows.length}</span></h2>
+          <p class="mig-group-note">${g.note}</p>
+        </div>
+        ${rows.map(rowHtml).join("")}
+      </section>`;
+    }).join("");
   }
 
   async function load() {

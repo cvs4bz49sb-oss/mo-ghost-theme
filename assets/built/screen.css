@@ -24923,48 +24923,59 @@ html[data-theme="dark"] .dlr-play-btn {
 /* ---------------------------------------------------------------------------
    /admin/migration/ — the double-billing queue.
 
-   Rows, not cards: this is a worklist that gets shorter, and each row is a
-   person you act on and then never see again. Blocked rows stay visible and
-   greyed rather than being filtered out — a name missing from a list looks
-   identical to a name that was never on it, and one of these people would
-   lose the only membership they pay for.
+   Grouped by what you would do next, in the order you would do it. A flat
+   list sorted by eligibility looked identical at a glance whether a row was
+   safe to cancel or would cut somebody off, and every row carried the same
+   four equal-weight buttons.
+
+   One grid template across every row so the columns line up down the page:
+   the eye scans a single column instead of re-reading each block.
 --------------------------------------------------------------------------- */
-[data-mig-root] .kpi-stats { margin-bottom: 18px; }
-.mig-row { border-bottom: 1px solid var(--k-line); padding: 16px 0; }
+[data-mig-root] .kpi-stats { margin-bottom: 22px; }
+
+.kpi-btn--primary { background: var(--k-accent); border-color: var(--k-accent); color: #fff; }
+.kpi-btn--primary:hover { filter: brightness(1.07); }
+.kpi-btn--quiet { color: var(--k-muted); }
+.kpi-btn[disabled] { opacity: 0.45; cursor: default; }
+
+.mig-group { margin: 0 0 28px; }
+.mig-group-head { padding-bottom: 8px; border-bottom: 1px solid var(--k-line); }
+.mig-group-title { margin: 0; font-size: 12.5px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--k-text); display: flex; align-items: center; gap: 8px; }
+.mig-group-n { letter-spacing: 0; font-size: 11.5px; color: var(--k-muted);
+  border: 1px solid var(--k-line); border-radius: 10px; padding: 0 7px; }
+.mig-group.is-risk .mig-group-title { color: #c0392b; }
+.mig-group.is-risk .mig-group-n { border-color: currentColor; }
+.mig-group-note { margin: 5px 0 0; font-size: 12px; color: var(--k-muted); max-width: 78ch; }
+
+.mig-row { display: grid; gap: 6px 22px; align-items: start;
+  grid-template-columns: minmax(190px, 1.3fr) minmax(170px, 1.4fr) minmax(120px, 0.9fr) auto;
+  padding: 13px 0; border-bottom: 1px solid var(--k-line); }
 .mig-row:last-child { border-bottom: none; }
-.mig-row.is-clear { opacity: 0.66; }
-.mig-row.is-risk { border-left: 3px solid #9a7b1f; padding-left: 12px; }
-.mig-head { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline;
-  justify-content: space-between; }
-.mig-who { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; font-size: 15px; }
-.mig-who b { color: var(--k-text); }
-.mig-email { color: var(--k-muted); font-size: 12.5px; }
-.mig-when { color: var(--k-muted); font-size: 12px; }
-.mig-when b { color: var(--k-secondary); }
+.mig-row.is-clear { opacity: 0.74; }
+.mig-row.is-risk { border-left: 3px solid #c0392b; padding-left: 12px; }
+
+.mig-c { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.mig-c--actions { flex-direction: row; flex-wrap: wrap; gap: 6px;
+  align-items: center; justify-content: flex-end; }
+.mig-c--actions .kpi-btn { text-decoration: none; white-space: nowrap; }
+.mig-name { font-size: 14px; font-weight: 600; color: var(--k-text);
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.mig-label { font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--k-muted); }
+.mig-main { font-size: 13.5px; color: var(--k-text); }
+.mig-sub { font-size: 12px; color: var(--k-muted); overflow-wrap: anywhere; }
 .mig-badge { font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
-  border-radius: 3px; padding: 1px 6px; border: 1px solid currentColor; }
-.mig-badge.is-ready { color: #17692b; }
-.mig-badge.is-clear { color: var(--k-muted); }
+  border-radius: 3px; padding: 1px 6px; border: 1px solid currentColor; font-weight: 500; }
 .mig-badge.is-risk { color: #c0392b; }
-.mig-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 4px 24px; margin-top: 8px; font-size: 13px; color: var(--k-secondary); }
-.mig-label { display: block; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--k-muted); }
-.mig-why { margin: 8px 0 0; font-size: 12.5px; max-width: 68ch; }
+.mig-why { grid-column: 1 / -1; margin: 3px 0 0; font-size: 12.5px; max-width: 80ch; }
 .mig-why.is-clear { color: var(--k-muted); }
 .mig-why.is-risk { color: #c0392b; }
-.mig-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.mig-actions .kpi-btn { text-decoration: none; }
-.kpi-btn--quiet { color: var(--k-muted); }
-.kpi-layoutmsg.is-error { color: var(--k-down); }
-.kpi-layoutmsg.is-ok { color: var(--k-up); }
-@media (max-width: 620px) {
-  .mig-head { flex-direction: column; }
-  .mig-actions .kpi-btn { flex: 1 1 auto; text-align: center; }
-}
 
-/* Migration sits on its own at the foot of the nav rather than in a
-   section: it is a queue that gets worked down to nothing and then
-   retired, so it should not hold a permanent slot beside the KPIs. */
-.ws-sidebar-migration-link { margin-top: 14px; padding-top: 12px;
-  border-top: 1px solid var(--k-line, rgba(0, 0, 0, 0.08)); }
+@media (max-width: 1000px) {
+  .mig-row { grid-template-columns: 1fr 1fr; }
+  .mig-c--actions { grid-column: 1 / -1; justify-content: flex-start; margin-top: 4px; }
+}
+@media (max-width: 620px) {
+  .mig-row { grid-template-columns: 1fr; }
+  .mig-c--actions .kpi-btn { flex: 1 1 auto; text-align: center; }
+}
