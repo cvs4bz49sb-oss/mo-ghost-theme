@@ -24339,7 +24339,11 @@ html[data-theme="dark"] .dlr-play-btn {
    token below is scoped to [data-kpi-root] so nothing else in the admin
    workspace changes.
 --------------------------------------------------------------------------- */
-[data-kpi-root] {
+/* The migration board shares this token set. It is scoped to the root
+   containers by name, so a new admin page that forgets to add itself here
+   renders with every var() undefined — no borders, no colours — which is
+   exactly what happened to [data-mig-root]. */
+[data-kpi-root], [data-mig-root] {
   --k-surface: #ffffff;
   --k-text: #1a1a19;
   --k-secondary: #52514e;
@@ -24351,7 +24355,7 @@ html[data-theme="dark"] .dlr-play-btn {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--k-text);
 }
-[data-kpi-root] * { font-family: inherit; }
+[data-kpi-root] *, [data-mig-root] * { font-family: inherit; }
 
 .kpi-stamp { color: var(--k-muted); font-size: 13px; margin-left: 6px; }
 
@@ -24677,7 +24681,7 @@ html[data-theme="dark"] .dlr-play-btn {
    chartW()); this handles the rest.
    --------------------------------------------------------------------------- */
 @media (max-width: 640px) {
-  [data-kpi-root] { --k-tap: 44px; }
+  [data-kpi-root], [data-mig-root] { --k-tap: 44px; }
 
   /* Chrome earns its space or hides. An earlier pass made every control
      visible at once — a date field, a jump menu, four buttons and eleven
