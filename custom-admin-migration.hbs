@@ -1,0 +1,67 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Membership Migration | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Membership Migration | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Membership Migration | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/migration/ — the backlog of people who moved to Ghost while
+     their old HubSpot subscription kept billing them. Reads the same
+     segment Ian works from in HubSpot (ILS list 7361), cancels the legacy
+     subscription, and links straight to the payment to refund.
+
+     The page skeleton renders for any signed-in member; the worker gates
+     the data to Ghost staff and admin-migration.js surfaces the denial. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+    {{> "admin-sidebar" active="migration"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Membership Migration</em></h1>
+        <p class="admin-topbar-sub">
+          People who migrated to the new site and are still being billed on the old one.
+          <span class="kpi-stamp" data-mig-stamp></span>
+        </p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container" data-mig-root data-worker-url="{{@custom.admin_worker_url}}">
+
+          <div class="kpi-toolbar">
+            <div class="kpi-toolbar-right">
+              <span class="kpi-layoutmsg" data-mig-msg role="status" aria-live="polite"></span>
+              <button type="button" class="kpi-btn" data-mig-refresh>Refresh</button>
+              <button type="button" class="kpi-btn kpi-btn--primary" data-mig-cancel-all disabled>
+                Cancel all eligible
+              </button>
+            </div>
+          </div>
+
+          <div class="kpi-stats" data-mig-stats></div>
+
+          <div data-mig-list>
+            <p class="kpi-empty">Loading the queue…</p>
+          </div>
+
+          <p class="kpi-note" data-mig-footnote hidden>
+            Cancelling stops the old HubSpot subscription billing again. It does not refund anything —
+            HubSpot has no refund API, so the refund link opens the payment record and you issue it there.
+            Marking a person done sets <code>mo_migration_processed</code>, which is what removes them from
+            this queue and from the HubSpot segment.
+          </p>
+
+        </div>
+      </section>
+    </div>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-migration.js"}}"></script>

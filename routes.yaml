@@ -119,6 +119,8 @@ routes:
     template: custom-admin-engagement
   /admin/kpi/:
     template: custom-admin-kpi
+  /admin/migration/:
+    template: custom-admin-migration
   /admin/editorial/:
     template: custom-admin-editorial
   /admin/inbox/:
