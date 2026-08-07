@@ -121,10 +121,25 @@
             <h2 class="ws-landing-card-title">Podcasts</h2>
             <p class="ws-landing-card-desc">Downloads, top episodes, and listener geography.</p>
           </a>
+        </div>
+      </div>
+
+      {{!-- Projects, not departments. Faith Received is a build in progress
+            and Migration is a queue that gets worked down and retired, so
+            both sit below the department sections rather than inside one.
+            Mirrors where they sit in the sidebar. --}}
+      <div class="ws-landing-section">
+        <p class="ws-landing-section-title">Projects</p>
+        <div class="ws-landing-grid">
           <a href="/admin/tfr/" class="ws-landing-card">
             <svg class="ws-landing-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             <h2 class="ws-landing-card-title">Faith Received</h2>
             <p class="ws-landing-card-desc">What is being read, how deeply, and what readers searched for and did not find.</p>
+          </a>
+          <a href="/admin/migration/" class="ws-landing-card">
+            <svg class="ws-landing-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+            <h2 class="ws-landing-card-title">Migration</h2>
+            <p class="ws-landing-card-desc">The HubSpot double-billing queue, worked down to nothing.</p>
           </a>
         </div>
       </div>
