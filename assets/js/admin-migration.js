@@ -26,6 +26,7 @@
     msg: root.querySelector("[data-mig-msg]"),
     refresh: root.querySelector("[data-mig-refresh]"),
     cancelAll: root.querySelector("[data-mig-cancel-all]"),
+    doneAll: root.querySelector("[data-mig-done-all]"),
     foot: root.querySelector("[data-mig-footnote]"),
     stamp: document.querySelector("[data-mig-stamp]")
   };
@@ -90,7 +91,9 @@
     const ref = r.refund;
     const refMain = ref ? usd(ref.amount) : "—";
     const refSub = ref
-      ? `${esc(ref.band)} · ${Math.round(ref.pct * 100)}% of ${usd(ref.of)}`
+      ? (ref.blocked
+        ? `HubSpot will not refund this — ${esc(String(ref.blocked).replace(/_/g, " "))}`
+        : `${esc(ref.band)} · ${Math.round(ref.pct * 100)}% of ${usd(ref.of)}`)
       : "nothing to refund";
 
     // One primary per row, and which one depends on what is actually left
@@ -131,7 +134,7 @@
       <div class="mig-c mig-c--owed">
         <span class="mig-label">Refund owed</span>
         <span class="mig-main mig-owed">${refMain}</span>
-        <span class="mig-sub">${refSub}</span>
+        <span class="mig-sub${ref && ref.blocked ? " is-blocked-refund" : ""}">${refSub}</span>
       </div>
       <div class="mig-c mig-c--actions">${actions.join("")}</div>
       ${r.kind === "risk" ? `<p class="mig-why is-risk">${esc(r.blocked_reason)}</p>` : ""}
@@ -164,6 +167,10 @@
       ? `Cancel all ${queue.totals.eligible} eligible`
       : "Nothing eligible";
 
+    const filed = filedByBulk().length;
+    els.doneAll.disabled = !filed;
+    els.doneAll.textContent = filed ? `Mark ${filed} done` : "Nothing to file";
+
     if (!queue.rows.length) {
       els.list.innerHTML = '<p class="kpi-empty">Queue is empty — nobody is waiting on a cancellation.</p>';
       return;
@@ -180,6 +187,19 @@
       </section>`;
     }).join("");
   }
+
+  /*
+   * What "mark all done" covers: the rows with nothing left to do — no
+   * legacy subscription, so nothing to cancel and nothing to refund.
+   *
+   * Not the cancelled-this-session rows, even though they look finished.
+   * Filing one removes it from the queue, and HubSpot has no way to tell
+   * us whether the refund was actually issued — so a bulk sweep could
+   * quietly bury someone who is still owed money. Those get filed one at
+   * a time, after the refund. And never the do-not-cancel rows: those are
+   * unresolved by definition.
+   */
+  const filedByBulk = () => (queue ? queue.rows.filter((r) => r.kind === "clear") : []);
 
   async function load() {
     try {
@@ -243,6 +263,47 @@
       say(err.message, "error");
       btn.disabled = false;
     }
+  });
+
+  els.doneAll.addEventListener("click", async () => {
+    const rows = filedByBulk();
+    if (!rows.length) return;
+    const pending = queue.rows.filter((r) => r.kind === "ready" && !r.cancelled_now).length;
+    const risky = queue.rows.filter((r) => r.kind === "risk").length;
+    const held = [
+      pending ? `${pending} still to cancel` : "",
+      risky ? `${risky} flagged do-not-cancel` : "",
+      queue.rows.filter((r) => r.cancelled_now).length
+        ? `${queue.rows.filter((r) => r.cancelled_now).length} cancelled but not yet refunded`
+        : ""
+    ].filter(Boolean);
+    const tail = held.length ? `Left alone: ${held.join(", ")}.` : "Nothing else is left in the queue.";
+    const ok = window.confirm(
+      `Mark ${rows.length} ${rows.length === 1 ? "person" : "people"} done?\n\n`
+      + `These have no legacy subscription — nothing to cancel, nothing to refund. `
+      + `It clears them from this queue and from the HubSpot segment.\n\n${tail}`
+    );
+    if (!ok) return;
+    els.doneAll.disabled = true;
+    let done = 0;
+    const failed = [];
+    for (const r of rows) {
+      try {
+        await api("/migration/processed", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ contact_id: r.contact_id })
+        });
+        done += 1;
+        say(`Filed ${done} of ${rows.length}…`);
+      } catch (err) {
+        failed.push(`${r.email}: ${err.message}`);
+      }
+    }
+    await load();
+    say(failed.length
+      ? `Filed ${done} of ${rows.length}. ${failed.length} failed — ${failed[0]}`
+      : `Filed ${done}. They are out of the queue.`, failed.length ? "error" : "ok");
   });
 
   els.refresh.addEventListener("click", async () => {
