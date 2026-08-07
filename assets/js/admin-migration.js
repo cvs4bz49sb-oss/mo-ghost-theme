@@ -357,9 +357,11 @@
             old system to people who have already moved. Refunding a charge does not stop the next one — these
             recur until the subscription itself is cancelled, and the section above only empties when the
             charges are refunded, not when the cause is fixed.${c.still_billing_unsafe
-    ? ` <b>${fmt(c.still_billing_unsafe)} of them are not paid members in Ghost</b>, so cancelling could cut off
-            their only membership — do those from the queue at the top, which re-checks Ghost server-side and
-            refuses.` : ""}${c.still_billing_unchecked
+    ? ` <b>${c.still_billing_unsafe === 1 ? "One of them is not a paid member"
+      : `${fmt(c.still_billing_unsafe)} of them are not paid members`} in Ghost</b>, so cancelling could cut off
+            ${c.still_billing_unsafe === 1 ? "their" : "someone's"} only membership — do
+            ${c.still_billing_unsafe === 1 ? "that one" : "those"} from the queue at the top, which re-checks
+            Ghost server-side and refuses.` : ""}${c.still_billing_unchecked
     ? ` Ghost could not be checked for ${fmt(c.still_billing_unchecked)} of them, so treat those as unverified
             rather than safe.` : ""}</p>
         </div>
