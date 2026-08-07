@@ -11,9 +11,17 @@
    default.hbs, preserving the cascade position these rules had when
    they lived at screen.css lines 13281-17192 and 18073-18149.
 
-   Nothing outside The Faith Received overrode these selectors, which is
-   what made the extraction safe: no rule after line 17192 referenced
-   .faith or .tfr.
+   What made the extraction safe: of the 862 selectors moved, all but
+   two groups are `.faith-*` / `.tfr-*`, and nothing later in screen.css
+   overrode those. The exceptions are the site-wide `@media print` block
+   below (it hides .site-header / .site-footer / nav and restyles body /
+   a / .flourish for every page, not just TFR) and `.visually-hidden`,
+   which has been moved back to screen.css. Grepping for "faith" alone
+   does NOT prove a block like this is safe to move — check for unscoped
+   selectors too.
+
+   Because that print block is global, this file cannot be made to load
+   only on TFR pages until those rules are lifted back into screen.css.
 
    Edit this file, then run `npm run build` and commit both this and
    assets/built/faith-received.min.css.
@@ -28,15 +36,10 @@
    so the project reads as part of the Mere Orthodoxy journal.
    ============================================================= */
 
-.visually-hidden {
-  position: absolute !important;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden;
-  clip: rect(0,0,0,0);
-  white-space: nowrap;
-  border: 0;
-}
+/* `.visually-hidden` used to open this section. It moved back to
+   screen.css on 2026-08-07: it is a site-wide a11y utility, and two of
+   its three consumers (custom-admin-institution.hbs,
+   custom-institution-manage.hbs) are not TFR pages. */
 
 /* ── Page-level container ─────────────────────────────────────── */
 .faith-received {

@@ -28,3 +28,11 @@ jobs:
         run: npm run lint
       - name: Verify digest JSX outputs are up to date
         run: npm run build:digest:check
+      - name: Verify built CSS/JS are up to date
+        # Ghost serves the .min files, so a stale one silently ships the
+        # wrong styles (2026-07-15 incident). This was documented as a CI
+        # check for a year but never actually wired up. It matters more
+        # now: assets/css/faith-received.css is editable by outside TFR
+        # contributors, and a PR that edits the source without running
+        # `npm run build` would otherwise merge green and deploy stale.
+        run: npm run build:check

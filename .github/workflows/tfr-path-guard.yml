@@ -32,7 +32,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        # Pinned by commit SHA, not tag — moving tags are a supply-chain
+        # risk (Codex audit 2026-05-11), and this workflow IS the control.
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
           fetch-depth: 0
 
@@ -72,6 +74,50 @@ jobs:
           echo "Changed files in this PR:"
           echo "$CHANGED" | sed 's/^/  /'
           echo
+
+          # ── Deny list, evaluated BEFORE the allowlist ──────────────────
+          # These match the allowlist patterns but must never be
+          # contributor-editable:
+          #   faith-gate.js    — the access gate itself
+          #   faith-corpora.js — carries each corpus's `readable` flag, and
+          #                      Patrologia Orientalis is contractually
+          #                      required to stay gated. Handing this file
+          #                      to a contributor would make the guard
+          #                      undermine the very control it exists for.
+          DENY='^assets/js/faith-gate\.js$
+          ^assets/js/faith-corpora\.js$'
+
+          # ── Entry-type check ──────────────────────────────────────────
+          # The allowlist tests the PATH, not what the entry actually is. A
+          # symlink or submodule at an allowed path would pass, and
+          # build-theme.mjs follows symlinks on read and write.
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            mode="$(git ls-tree "$HEAD_SHA" -- "$file" | awk '{print $1}')"
+            case "$mode" in
+              120000)
+                echo "::error::$file is a symlink, not a regular file."
+                exit 1 ;;
+              160000)
+                echo "::error::$file is a submodule, not a regular file."
+                exit 1 ;;
+            esac
+            case "$(basename "$file")" in
+              .gitattributes|.gitmodules)
+                echo "::error::$file is never legitimate TFR work."
+                exit 1 ;;
+            esac
+            while IFS= read -r d; do
+              d="$(echo "$d" | sed 's/^[[:space:]]*//')"
+              [ -z "$d" ] && continue
+              if echo "$file" | grep -Eq "$d"; then
+                echo "::error::$file is explicitly protected and cannot be"
+                echo "changed by a contributor PR — it is part of the access"
+                echo "gate or the corpus licensing controls. Ask a maintainer."
+                exit 1
+              fi
+            done <<< "$DENY"
+          done <<< "$CHANGED"
 
           VIOLATIONS=""
           while IFS= read -r file; do

@@ -98,10 +98,14 @@
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+Great+Primer:ital@0;1&family=Source+Serif+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="{{asset "built/screen.min.css"}}" />
-    <!-- The Faith Received, split out of screen.css so contributors can own
-         it without write access to the shared stylesheet. Loaded AFTER
-         screen.min.css so its rules keep the cascade position they had
-         before the split. -->
+    {{!-- The Faith Received, split out of screen.css so contributors can
+         own it without write access to the shared stylesheet. Loaded
+         AFTER screen.min.css so its rules keep the cascade position they
+         had before the split.
+
+         Loaded on every page, not only TFR pages: the file still carries
+         a site-wide @media print block. Do not make this conditional
+         until those rules are back in screen.css. --}}
     <link rel="stylesheet" type="text/css" href="{{asset "built/faith-received.min.css"}}" />
 
     {{!-- No-JS fallback: screen.css hides "Parent > Child" nav items

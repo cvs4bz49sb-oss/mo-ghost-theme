@@ -103,6 +103,22 @@ img { max-width: 100%; height: auto; }
   margin: 0 auto 48px;
 }
 
+/* Screen-reader-only text. Site-wide a11y utility — used by
+   custom-faith-search.hbs, custom-admin-institution.hbs and
+   custom-institution-manage.hbs. It lived inside the Faith Received
+   block until 2026-08-07; it belongs here, in the shared sheet, because
+   two of its three consumers have nothing to do with TFR and it must not
+   be deletable by a TFR-only contributor. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* -------- Header -------- */
 
 .site-header {
