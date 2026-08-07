@@ -34,6 +34,7 @@
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   const usd = (n) => (typeof n === "number" ? `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}` : "—");
+  const fmt = (n) => (typeof n === "number" ? n.toLocaleString("en-US") : "0");
   const mdy = (iso) => (iso ? new Date(String(iso).length <= 10 ? `${iso}T12:00:00Z` : iso)
     .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }) : "—");
 
@@ -59,9 +60,9 @@
     const cell = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
     return cell(t.queue, "In the queue")
       + cell(t.eligible, "Ready to cancel")
-      + cell(t.clear, "Just needs filing")
       + cell(t.at_risk_people, "Do not cancel")
-      + cell(usd(t.at_risk), "Still billing, per year");
+      + cell(usd(t.at_risk), "Still billing, per year")
+      + cell(usd(t.owed), `Owed back, ${fmt(t.owed_people)} people`);
   }
 
   function rowHtml(r) {
@@ -84,6 +85,14 @@
     const payMain = pay ? usd(pay.amount) : "—";
     const paySub = pay ? `${mdy(pay.at)}${pay.status ? ` · ${esc(pay.status)}` : ""}` : "no payments on file";
 
+    // The number Ian actually acts on, with the band that produced it so
+    // it can be checked at a glance rather than taken on trust.
+    const ref = r.refund;
+    const refMain = ref ? usd(ref.amount) : "—";
+    const refSub = ref
+      ? `${esc(ref.band)} · ${Math.round(ref.pct * 100)}% of ${usd(ref.of)}`
+      : "nothing to refund";
+
     // One primary per row, and which one depends on what is actually left
     // to do: cancel it, or just file it.
     const actions = [];
@@ -93,7 +102,8 @@
       actions.push('<button type="button" class="kpi-btn" data-mig-do="cancel" disabled>Cancel</button>');
     }
     if (pay) {
-      actions.push(`<a class="kpi-btn${r.kind === "clear" ? " kpi-btn--quiet" : ""}" href="${esc(pay.url)}" target="_blank" rel="noopener">Refund ↗</a>`);
+      const owed = ref && ref.amount > 0 ? ` ${usd(ref.amount)}` : "";
+      actions.push(`<a class="kpi-btn${r.kind === "clear" ? " kpi-btn--quiet" : ""}" href="${esc(pay.url)}" target="_blank" rel="noopener">Refund${owed} ↗</a>`);
     }
     actions.push(`<a class="kpi-btn kpi-btn--quiet" href="${esc(r.hubspot_contact_url)}" target="_blank" rel="noopener">HubSpot ↗</a>`);
     actions.push(`<button type="button" class="kpi-btn${r.kind === "clear" ? " kpi-btn--primary" : " kpi-btn--quiet"}" data-mig-do="processed">Done</button>`);
@@ -113,6 +123,11 @@
         <span class="mig-label">Latest payment</span>
         <span class="mig-main">${payMain}</span>
         <span class="mig-sub">${paySub}</span>
+      </div>
+      <div class="mig-c mig-c--owed">
+        <span class="mig-label">Refund owed</span>
+        <span class="mig-main mig-owed">${refMain}</span>
+        <span class="mig-sub">${refSub}</span>
       </div>
       <div class="mig-c mig-c--actions">${actions.join("")}</div>
       ${r.kind === "risk" ? `<p class="mig-why is-risk">${esc(r.blocked_reason)}</p>` : ""}

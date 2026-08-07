@@ -113,8 +113,8 @@ async function buildJSBundle(bundle) {
   return result.code;
 }
 
-async function buildCSS() {
-  const src = await readFile("assets/built/screen.css");
+async function buildCSS(srcPath) {
+  const src = await readFile(srcPath);
   const result = await transform(src, {
     loader: "css",
     minify: true,
@@ -156,22 +156,34 @@ for (const bundle of BUNDLES) {
 }
 
 // CSS
-{
-  const outPath = path.join(BUILT, "screen.min.css");
-  const compiled = await buildCSS();
+//
+// screen.css is the site-wide stylesheet. faith-received.css was split out
+// of it so that The Faith Received is a self-contained file an outside
+// contributor can own without write access to the shared stylesheet — see
+// .github/workflows/tfr-path-guard.yml. Order matters at load time, not
+// here: default.hbs links faith-received.min.css AFTER screen.min.css so
+// the TFR rules keep the cascade position they had before the split.
+const STYLESHEETS = [
+  { src: "assets/built/screen.css", out: "screen.min.css" },
+  { src: "assets/css/faith-received.css", out: "faith-received.min.css" },
+];
+
+for (const sheet of STYLESHEETS) {
+  const outPath = path.join(BUILT, sheet.out);
+  const compiled = await buildCSS(sheet.src);
 
   if (checkMode) {
     const existing = await readIfExists(outPath);
     if (existing !== compiled) {
-      console.error("STALE: screen.min.css — run `npm run build` and commit.");
+      console.error(`STALE: ${sheet.out} — run \`npm run build\` and commit.`);
       stale = true;
     } else {
-      console.log("  OK: screen.min.css");
+      console.log(`  OK: ${sheet.out}`);
     }
   } else {
     await fs.writeFile(outPath, compiled);
     const kb = (Buffer.byteLength(compiled) / 1024).toFixed(1);
-    console.log(`  ✓ screen.min.css (${kb} KB)`);
+    console.log(`  ✓ ${sheet.out} (${kb} KB)`);
   }
 }
 
