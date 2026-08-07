@@ -1,0 +1,23 @@
+{{!-- Complimentary-access surface for /membership/.
+
+     Comped members used to fall into partials/membership-already
+     alongside paid members and were told "You're already a member"
+     with no way to start paying. That is wrong for this cohort: a
+     comped member has full access but no subscription, and 1,206 of
+     them (legacy HubSpot migrants, Patreon imports, Substack imports,
+     Donors) are people who in many cases *want* to pay us.
+
+     So: name the complimentary access plainly, then show the same
+     pricing cards everyone else sees. No new CSS — .pricing,
+     .container and .already-member already exist, and the cards come
+     from the shared membership-pricing partial. --}}
+<section class="pricing pricing-comped-note">
+  <div class="container">
+    <p class="already-member">
+      Your access to Mere&nbsp;Orthodoxy is currently complimentary — you're reading everything, and nothing is being charged.
+      If you'd like to support the work, you can become a paying member below.
+    </p>
+  </div>
+</section>
+
+{{> "membership-pricing"}}

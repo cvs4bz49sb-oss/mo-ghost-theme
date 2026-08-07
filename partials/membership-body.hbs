@@ -26,10 +26,13 @@
         {{/match}}{{/match}}
       </div>
     </div>
-    {{!-- Annual/Monthly toggle: pricing-only, so hidden for
-         paid/comped members who see the gift CTA above and the
-         "already a member" block below instead. --}}
-    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+    {{!-- Annual/Monthly toggle: pricing-only, so hidden for paid
+         members who see the gift CTA above and the "already a member"
+         block below instead. Comped members DO see the toggle — they
+         now get the pricing cards (partials/membership-comped), because
+         complimentary access is not a subscription and they had no way
+         to start paying. --}}
+    {{#match @member.status "paid"}}{{else}}
       <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
         <div class="toggle">
           <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
@@ -39,16 +42,17 @@
           <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
         </div>
       </div>
-    {{/match}}{{/match}}
+    {{/match}}
   </section>
 
-  {{!-- Pricing vs "already a member" is gated by paid/comped status.
-       Free Subscribers AND anonymous visitors both see the pricing
-       cards. --}}
+  {{!-- Three surfaces, gated by status:
+         paid   → "already a member" (nothing to sell them)
+         comped → complimentary-access note + the pricing cards
+         else   → the pricing cards (free Subscribers AND anonymous) --}}
   {{#match @member.status "paid"}}
     {{> "membership-already"}}
   {{else}}{{#match @member.status "comped"}}
-    {{> "membership-already"}}
+    {{> "membership-comped"}}
   {{else}}
     {{> "membership-pricing"}}
   {{/match}}{{/match}}
@@ -121,14 +125,14 @@
         <h3 class="capstone-title"><em>And the work itself.</em></h3>
         <p class="capstone-body">Your membership funds the next writer commissioned, the next journal published, and the next essay and episode we can bring to readers and listeners like you.</p>
       </div>
-      {{!-- Hide the CTA for paid/comped only; free Subscribers AND
-           anonymous visitors both see it. --}}
+      {{!-- Hide the CTA for paid only. Free Subscribers, anonymous
+           visitors AND comped members all see it — comped members have
+           complimentary access, not a subscription, so "Become a
+           Member" is still a real action for them. --}}
       {{#match @member.status "paid"}}{{else}}
-      {{#match @member.status "comped"}}{{else}}
       <div class="included-cta">
         <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
       </div>
-      {{/match}}
       {{/match}}
     </div>
   </section>

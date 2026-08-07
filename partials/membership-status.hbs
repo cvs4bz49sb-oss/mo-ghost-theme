@@ -1,0 +1,50 @@
+{{!-- Shared "what am I actually paying for" block.
+
+     Until now neither /dashboard/ nor /manage/ ever told a member which
+     plan they were on or when it renews. /dashboard/ said "Paid Member";
+     /manage/ said "Manage Your Membership" over a Portal button. A member
+     who could not remember whether he had already moved his membership
+     across had no way to check, so he bought a second one. Five members
+     are currently carrying two live subscriptions.
+
+     This renders one line per LIVE subscription. Two lines means two
+     memberships, which is the whole point — a duplicate becomes visible
+     instead of invisible. The "if you see two of these" guidance lives in
+     the caller's own fine print, not here: with no live subscriptions this
+     partial must render nothing at all, and a standalone advisory would
+     leave a stray sentence hanging under an empty block.
+
+     Canceled rows are skipped deliberately: every HubSpot migrant keeps a
+     canceled $0 "Complimentary" row forever, and rendering it would read
+     as "your membership was cancelled." That skip is also why we cannot
+     use {{@index}} to detect the second line — @index counts the canceled
+     rows too, so on a migrant it would flag the FIRST real membership as
+     the duplicate. Hence the static closing line rather than a count.
+
+     Both class names are deliberate. `.membership-support .fine-print`
+     (specificity 0,2,0) wins on /manage/; `.dashboard-rail-meta` is
+     unscoped and styles the same element inside the dashboard rail. One
+     partial, two pages, no new CSS, no rebuild. --}}
+
+{{#if @member.subscriptions}}
+  <div class="membership-status">
+    {{#foreach @member.subscriptions}}
+      {{#match status "canceled"}}{{else}}
+        <p class="dashboard-rail-meta fine-print" style="margin:0 0 6px">
+          {{!-- plan.nickname, not price.nickname. The Ghost Admin API calls
+               this object `price`; the theme context calls the same thing
+               `plan` ("Monthly" / "Yearly"). Getting that wrong renders an
+               empty string, which is why the fallback is not decorative. --}}
+          {{#if plan.nickname}}{{plan.nickname}}{{else}}Membership{{/if}} membership,
+          {{#if cancel_at_period_end}}
+            ending {{date current_period_end format="D MMMM YYYY"}}.
+          {{else}}
+            renewing {{date current_period_end format="D MMMM YYYY"}}.
+          {{/if}}
+          {{#match status "past_due"}}Your last payment did not go through.{{/match}}
+          {{#match status "trialing"}}Currently in a trial period.{{/match}}
+        </p>
+      {{/match}}
+    {{/foreach}}
+  </div>
+{{/if}}

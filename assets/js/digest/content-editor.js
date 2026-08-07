@@ -263,7 +263,10 @@
       headline: "Start Your M.Div With A Scholarship",
       body: "Start your M.Div this Fall at Beeson Divinity School.",
       cta: "Start Your Application \u2192",
-      href: ""
+      href: "https://www.samford.edu/beeson-divinity/ad/conviction-and-charity/?utm_source=Mere+Orthodoxy&utm_medium=newsletter&utm_campaign=Recruitment+2026-27"
+      // image not set \u2014 Neal's 1920x1080 jpg is a Gmail attachment;
+      // upload it via the builder's own image-upload button when
+      // building the next digest that uses this slot.
     }
   ];
   const SPONSOR_LIB_KEY = "mo:sponsorLibrary";

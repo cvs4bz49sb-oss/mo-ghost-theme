@@ -227,6 +227,10 @@
         <div class="dashboard-rail-item">
           <p class="eyebrow">Your Membership</p>
           <p class="dashboard-rail-tier"><em>{{#match @member.status "paid"}}Paid Member{{/match}}{{#match @member.status "comped"}}Complimentary{{/match}}{{#match @member.status "free"}}Free Subscriber{{/match}}</em></p>
+          {{!-- Which plan, and when it renews. Without this the rail said
+               "Paid Member" and nothing else, which is not enough for a
+               member to tell whether he had already migrated. --}}
+          {{> "membership-status"}}
           <p class="dashboard-rail-meta">Change your membership type and update your shipping address for the print Journal.</p>
           <a href="/manage/" class="dashboard-rail-link">Manage Membership &rarr;</a>
         </div>

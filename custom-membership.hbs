@@ -5,4 +5,81 @@
 
 <main class="membership">
   {{> "membership-body"}}
+
+  {{!-- Membership FAQ. Lives HERE and not in partials/membership-body.hbs
+       on purpose: that partial is also pulled into index.hbs, post.hbs and
+       custom-about.hbs as a CTA block, and an accordion has no business at
+       the foot of every article. Reuses the global .migrate-faq accordion
+       (screen.css ~12556), same as /student/.
+
+       Added 2026-07-30 after two UK readers asked the same question via the
+       contact form inside half an hour (Tim Davis, Mark Payne): the page
+       promised the journal "mailed to your door" and never said where it
+       mails to.
+
+       NOTE FOR IAN — confirm before deploy: the shipping answer below states
+       that we mail the journal worldwide at no extra charge. That matches
+       what the site already does (the /complete-membership/ address form and
+       the gift form both accept every country, and the print-fulfilment
+       export at /admin/members/addresses/ has no country filter), but it is
+       a pricing commitment, so it is your call, not mine. If we are in fact
+       US/Canada only, swap the first answer for the alternate copy kept in
+       website/sessions/2026-07-30-contact-form-triage.md. --}}
+  <section class="migrate-faq" aria-label="Membership questions">
+    <div class="container container-narrow">
+      <details class="migrate-faq-item">
+        <summary class="migrate-faq-summary">
+          <h2 class="migrate-faq-title"><em>Do you mail the print journal outside the United States?</em></h2>
+          <span class="migrate-faq-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="migrate-faq-body">
+          <p>Yes. The quarterly print journal goes anywhere we can post it, including the United Kingdom, Ireland, Canada, Australia, and the rest of the world. Membership is $100 a year wherever you live, with no separate postage charge.</p>
+          <p>International copies travel by international post, so allow an extra two to three weeks after an issue ships. Everything digital reaches you the same day it reaches everyone else.</p>
+        </div>
+      </details>
+
+      <details class="migrate-faq-item">
+        <summary class="migrate-faq-summary">
+          <h2 class="migrate-faq-title"><em>Where do I give you my mailing address?</em></h2>
+          <span class="migrate-faq-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="migrate-faq-body">
+          <p>Right after you join. Checkout asks for your email and payment, then we take you to a short address form. You can pick any country there.</p>
+          <p>If you skip it, or if you move, you can add or change your address any time from your <a href="/dashboard/">Member Dashboard</a>. We pull addresses fresh before every print run, so an address added before an issue goes to press will catch that issue.</p>
+        </div>
+      </details>
+
+      <details class="migrate-faq-item">
+        <summary class="migrate-faq-summary">
+          <h2 class="migrate-faq-title"><em>What if I only want the digital membership?</em></h2>
+          <span class="migrate-faq-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="migrate-faq-body">
+          <p>Leave the address form blank. Nothing will be mailed to you, and everything else about your membership works exactly the same: the full archive, audio versions, the digital edition of every journal issue, the members' forum, and the ebook library.</p>
+          <p>Students can also join at a reduced rate, digital or print, on the <a href="/student/">student membership</a> page.</p>
+        </div>
+      </details>
+
+      <details class="migrate-faq-item">
+        <summary class="migrate-faq-summary">
+          <h2 class="migrate-faq-title"><em>Is this the same thing as supporting you on Patreon?</em></h2>
+          <span class="migrate-faq-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="migrate-faq-body">
+          <p>No. They are two separate accounts. Membership here is what carries the print journal, the full archive, audio, the members' forum, and the ebook library. A Patreon pledge supports the work but does not unlock any of that, and paying in both places means paying twice.</p>
+          <p>If you are supporting us on Patreon and would rather be a member here, write to <a href="mailto:press@mereorthodoxy.com">press@mereorthodoxy.com</a> and we will sort it out with you.</p>
+        </div>
+      </details>
+
+      <details class="migrate-faq-item">
+        <summary class="migrate-faq-summary">
+          <h2 class="migrate-faq-title"><em>What happens to the journal if I cancel?</em></h2>
+          <span class="migrate-faq-chev" aria-hidden="true"></span>
+        </summary>
+        <div class="migrate-faq-body">
+          <p>Cancelling stops the next renewal. It does not cut off the membership you have already paid for, so you keep full access, and you keep receiving the journal, until the end of the period you paid for. An issue that lands after you cancel is one you already paid for.</p>
+        </div>
+      </details>
+    </div>
+  </section>
 </main>

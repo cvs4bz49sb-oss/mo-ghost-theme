@@ -104,8 +104,68 @@
     </div>
   </section>
 
-  <section class="migrate-cta">
-    <div class="container">
+  {{!-- Already-migrated guard.
+
+       This page had no member awareness at all: two hardcoded Stripe
+       Payment Links, reachable by anyone, including someone who had
+       already migrated months earlier. A member who could not remember
+       whether he had already moved across clicked through a second time
+       and is now paying $100/yr and $10/mo at once. Five members are
+       currently carrying two live subscriptions; three of those second
+       subscriptions were bought on a single day.
+
+       Two layers, because neither alone is sufficient:
+
+       1. Server-side on @member.status "paid" — catches the common case
+          and needs no JavaScript.
+       2. Client-side on the subscription statuses below — catches the
+          migrant whose brand-new Stripe sub is still "trialing" while
+          their legacy comp is still running, which Ghost reports as
+          "comped", not "paid". mo-kit's /migration-status handler
+          carries a long comment about exactly this trap.
+
+       A member with no live subscription still sees the CTAs, so the
+       people this page exists for are unaffected. --}}
+  {{#match @member.status "paid"}}
+    <section class="migrate-cta">
+      <div class="container">
+        <div class="migrate-warning-inner">
+          <p class="eyebrow">You have already migrated</p>
+          <p class="migrate-warning-text">
+            You are a paying member on the new site. There is nothing left for you to do here, and
+            buying again would charge you a second time.
+          </p>
+        </div>
+        <div class="migrate-cta-options">
+          <div class="migrate-cta-option">
+            <a href="/manage/" class="btn btn-primary btn-lg">Manage Your Membership</a>
+            <p class="btn-tagline">See your plan and renewal date</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  {{else}}
+  <section class="migrate-cta"
+           data-migrate-cta
+           data-member-subs="{{#foreach @member.subscriptions}}{{status}} {{/foreach}}">
+    {{!-- Shown by migrate-guard.js in place of the CTAs when the signed-in
+         member already holds a live subscription. --}}
+    <div class="container" data-migrate-done hidden>
+      <div class="migrate-warning-inner">
+        <p class="eyebrow">You have already migrated</p>
+        <p class="migrate-warning-text">
+          Your membership on the new site is already active. Buying again would charge you a second time.
+        </p>
+      </div>
+      <div class="migrate-cta-options">
+        <div class="migrate-cta-option">
+          <a href="/manage/" class="btn btn-primary btn-lg">Manage Your Membership</a>
+          <p class="btn-tagline">See your plan and renewal date</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" data-migrate-offer>
       <p class="migrate-cta-text">
         Sign up here. Use the same email you used before so we can match your records, cancel, and refund your old Membership for you.
       </p>
@@ -127,5 +187,8 @@
       </div>
     </div>
   </section>
+  {{/match}}
+
+  <script src="{{asset "js/page/migrate-guard.js"}}"></script>
 
 </main>
