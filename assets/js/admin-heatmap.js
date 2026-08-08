@@ -22,6 +22,23 @@
  * future frame-ancestors header blocks that, everything except the
  * canvas still works and a banner explains what is missing.
  *
+ * Why the frame is fetched signed out
+ * ===================================
+ * Staff are signed in, so a plain frame of "/" renders the member
+ * homepage: "Your Dashboard" where a visitor sees the subscribe CTA,
+ * the account button where a visitor sees Sign in. Nearly every
+ * recorded click comes from a signed-out visitor, so drawing those
+ * clicks on the member layout puts blobs against the wrong buttons and
+ * hides the very CTAs the tool exists to measure. The HTML is
+ * therefore fetched with credentials omitted, which is what the server
+ * sends a stranger, and written into the frame.
+ *
+ * The write goes into a frame already navigated to /?mo-hm-preview=1,
+ * so the document keeps that URL. That matters: heatmap-collect.js
+ * reads window.location.search to decide to stand down, so srcdoc or a
+ * blob URL would quietly turn staff review back into a recording
+ * session against the data being displayed.
+ *
  * Data: mo-admin worker, GET /heatmap/summary and GET /heatmap/points,
  * both JWT+staff. See WORKER-PATCH-heatmap.md.
  */
@@ -109,6 +126,8 @@
     maxN: 0,
     frameReady: false,
     frameBlocked: false,
+    frameHtml: null,
+    frameAnon: false,
     loading: false,
   };
 
@@ -483,6 +502,13 @@
   }
 
   // ── Frame ─────────────────────────────────────────────────────────
+  const FRAME_SIGNED_IN_NOTE =
+    "Couldn't load a signed-out copy of the homepage, so the frame below " +
+    "is your own signed-in view. Section positions may differ from what " +
+    "most visitors see.";
+
+  let frameObserver = null;
+
   function frameDoc() {
     try {
       const doc = el.frame.contentDocument;
@@ -498,10 +524,33 @@
     const width = REF_WIDTH[currentDevice()] || REF_WIDTH.desktop;
     state.frameReady = false;
     state.frameBlocked = false;
+    state.frameHtml = null;
+    state.frameAnon = false;
     el.scaler.style.width = `${width}px`;
     el.frame.style.width = `${width}px`;
     el.frame.style.height = "800px";
-    el.frame.setAttribute("src", `/?mo-hm-preview=1&w=${width}`);
+
+    const url = `/?mo-hm-preview=1&w=${width}`;
+
+    // Fetch first, navigate second. The load handler has to know
+    // whether an anonymous copy arrived before it decides to inject,
+    // and resolving the fetch up front removes that race.
+    fetchSignedOut(url).then((html) => {
+      state.frameHtml = html;
+      state.frameAnon = Boolean(html);
+      el.frame.setAttribute("src", url);
+    });
+  }
+
+  // credentials:"omit" is the whole trick: same origin, no member
+  // cookie, so Ghost renders the page it serves a stranger. Failure is
+  // not fatal; the frame falls back to the signed-in render and
+  // settleFrame() says so rather than quietly showing the wrong page.
+  function fetchSignedOut(url) {
+    if (typeof fetch !== "function") return Promise.resolve(null);
+    return fetch(url, { credentials: "omit", cache: "no-store" })
+      .then((res) => (res.ok ? res.text() : null))
+      .catch(() => null);
   }
 
   // The homepage finishes composing itself after load: the podcast
@@ -522,7 +571,7 @@
       return;
     }
 
-    showNote("");
+    showNote(state.frameAnon ? "" : FRAME_SIGNED_IN_NOTE);
     applyFrameStyles(doc);
 
     const measure = () => {
@@ -542,9 +591,14 @@
     setTimeout(measure, 600);
     setTimeout(measure, 1800);
 
+    // settleFrame can run twice for a single load, because
+    // document.write may or may not re-fire the frame's load event
+    // depending on the browser. Replace the observer instead of
+    // stacking a new one on every pass.
     if (typeof ResizeObserver === "function") {
-      const ro = new ResizeObserver(() => { measure(); });
-      ro.observe(doc.body);
+      if (frameObserver) frameObserver.disconnect();
+      frameObserver = new ResizeObserver(() => { measure(); });
+      frameObserver.observe(doc.body);
     }
   }
 
@@ -833,7 +887,30 @@
 
   // ── Wiring ────────────────────────────────────────────────────────
   if (el.frame) {
-    el.frame.addEventListener("load", () => { settleFrame(); });
+    el.frame.addEventListener("load", () => {
+      // First load after a successful fetch: swap in the anonymous
+      // HTML. Writing into the already-navigated document keeps its
+      // /?mo-hm-preview=1 URL, so the collector still sees the param
+      // and stands down.
+      if (state.frameHtml) {
+        const html = state.frameHtml;
+        state.frameHtml = null;
+        const doc = frameDoc();
+        if (doc) {
+          try {
+            doc.open();
+            doc.write(html);
+            doc.close();
+          } catch (_) {
+            state.frameAnon = false;
+          }
+          setTimeout(settleFrame, 0);
+          return;
+        }
+        state.frameAnon = false;
+      }
+      settleFrame();
+    });
     loadFrame();
   }
 
