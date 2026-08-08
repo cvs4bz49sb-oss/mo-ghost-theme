@@ -19675,6 +19675,14 @@ html[data-theme="dark"] .dlr-play-btn {
 .dlr-scripture.is-collapsed .dlr-scripture-ref {
   margin-bottom: 0;
 }
+/* Marks a skipped stretch of text between two spans of one reading —
+   "Romans 16:17-20, 25-27" renders as two blocks with this between. */
+.dlr-scripture-gap {
+  margin: 12px 0;
+  text-align: center;
+  letter-spacing: 0.35em;
+  color: var(--dlr-text-secondary);
+}
 .dlr-scripture .verse-num,
 .dlr-scripture sup {
   font-size: 11px;
