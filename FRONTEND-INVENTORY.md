@@ -23,7 +23,7 @@ Companion reference for FRONTEND-AGENT.md. This is the complete inventory of eve
 | Membership/Commerce | 12 | membership, dashboard (+6 sub-pages), manage, complete-membership, gift, groups, institutions, group-manage, institution-manage, migrate, success, donate |
 | Editorial Pages | 8 | about, archive, contact, submissions, contributors, events, forum, ebooks (+3 landing) |
 | Podcasts | 2 | mere-fidelity, christians-reading-classics |
-| Admin | 12 | admin overview, members (+addresses/gifts/groups/institutions/drift), traffic, editorial, settings, slide-ins, institution detail, digest-gen |
+| Admin | 13 | admin overview, members (+addresses/gifts/groups/institutions/drift), traffic, editorial, settings, slide-ins, institution detail, digest-gen, heatmap |
 | Faith Received | 41 | hub, 22 documents, 13 topics, topics index, scripture, today, devotional, search, 3 memorize |
 | Readers | 12 | 9 journal issues, 3 ebook readers |
 
@@ -87,9 +87,13 @@ site-settings.js, nav-dropdowns.js, admin-auth.js,
 lib/safe-href.js, lib/safe-redirect.js, inline-signup.js,
 kit-events.js, dark-mode.js, feature-gate.js, search.js,
 boot/header-behaviors.js, commonplace.js, liturgical-calendar.js,
-slide-in.js, topic-filter.js, podcast-feed.js, title-cleanup.js,
-boot/viewport-fix.js
+slide-in.js, heatmap-collect.js, topic-filter.js, podcast-feed.js,
+title-cleanup.js, boot/viewport-fix.js
 ```
+
+`heatmap-collect.js` is in the site bundle but returns on its first
+lines for any path other than `/` — it is the homepage click-heatmap
+collector feeding `/admin/heatmap/`.
 
 ### Per-template additional scripts:
 | Template | Additional Scripts |
@@ -149,8 +153,9 @@ boot/viewport-fix.js
 - `data-search-worker-url="{{@custom.search_worker_url}}"`
 - `data-admin-worker-url="{{@custom.admin_worker_url}}"`
 - `data-error-worker-url="{{@custom.error_worker_url}}"`
+- `data-heatmap-sample="{{@custom.heatmap_sample}}"` (if set)
 
-### @custom settings used (12 total, in package.json):
+### @custom settings used (13 counted here, in package.json):
 | Setting | Used by | Purpose |
 |---------|---------|---------|
 | podcast_feed_url | default.hbs body, podcast-feed.js | Podcast worker URL |
@@ -165,6 +170,7 @@ boot/viewport-fix.js
 | search_worker_url | default.hbs body | mo-search worker |
 | plausible_domain | post.hbs | Plausible analytics |
 | error_worker_url | default.hbs body | mo-errors worker |
+| heatmap_sample | default.hbs body, heatmap-collect.js | Homepage heatmap sampling rate (0 = off) |
 
 ---
 

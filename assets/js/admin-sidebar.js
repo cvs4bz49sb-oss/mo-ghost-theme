@@ -25,6 +25,7 @@
       "/admin/copy": "copy", "/admin/extract": "extract",
       "/admin/slide-ins": "slide-ins",
       "/admin/engagement": "engagement",
+      "/admin/heatmap": "heatmap",
       "/admin/podcasts": "podcasts",
     };
     const page = map[path];
@@ -96,6 +97,7 @@
     extract: "extract",
     "slide-ins": "slide-ins",
     engagement: "engagement",
+    heatmap: "heatmap",
     podcasts: "podcasts",
     referrals: "members",
   };

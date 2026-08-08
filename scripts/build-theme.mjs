@@ -72,6 +72,10 @@ const BUNDLES = [
       "assets/js/commonplace.js",
       "assets/js/liturgical-calendar.js",
       "assets/js/slide-in.js",
+      // Homepage click-heatmap collector. In the site bundle because
+      // the homepage has no template-local script block, and because
+      // the file returns on its first line for any path but "/".
+      "assets/js/heatmap-collect.js",
       "assets/js/topic-filter.js",
       "assets/js/podcast-feed.js",
       "assets/js/dlp-band.js",

@@ -20,9 +20,9 @@
         <p class="eyebrow eyebrow-light">Membership</p>
         <h2 class="section-heading section-heading-light"><em>Support the work.</em></h2>
         {{#match @member.status "paid"}}
-          <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
+          <a href="/give/" class="btn btn-primary mb-hero-gift-cta" data-hm-goal="gift">Gift A Membership</a>
         {{else}}{{#match @member.status "comped"}}
-          <a href="/give/" class="btn btn-primary mb-hero-gift-cta">Gift A Membership</a>
+          <a href="/give/" class="btn btn-primary mb-hero-gift-cta" data-hm-goal="gift">Gift A Membership</a>
         {{/match}}{{/match}}
       </div>
     </div>
@@ -126,7 +126,7 @@
       {{#match @member.status "paid"}}{{else}}
       {{#match @member.status "comped"}}{{else}}
       <div class="included-cta">
-        <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup">Become a Member</a>
+        <a href="#/portal/signup" class="btn btn-dark btn-inline" data-portal="signup" data-hm-goal="member-cta">Become a Member</a>
       </div>
       {{/match}}
       {{/match}}

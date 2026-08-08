@@ -21149,3 +21149,354 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   .admin-tfr-bar { display: none; }
   .admin-tfr-bar-label { white-space: normal; }
 }
+
+
+/* =============================================================
+   Homepage Heatmap — /admin/heatmap/
+   ============================================================= */
+
+/* Preview mode: the class heatmap-collect.js stamps on <html> inside
+   the admin's frame. The admin injects an equivalent stylesheet into
+   the frame document once it can reach it, but these rules land with
+   the page's own CSS, so the frame never flashes a sticky header or a
+   slide-in before the injection happens. */
+.hm-preview .site-header { position: static !important; }
+.hm-preview body { padding-top: 0 !important; }
+.hm-preview .slide-in,
+.hm-preview [data-slide-in] { display: none !important; }
+
+.hm { padding-bottom: 48px; }
+
+/* ── Controls ────────────────────────────────────────────────── */
+.hm-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  background: var(--color-white);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius);
+}
+.hm-control {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.hm-control-label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.hm-control select {
+  padding: 7px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  color: inherit;
+  background: var(--color-white);
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+}
+.hm-control--range input { width: 130px; }
+.hm-control--check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 7px;
+}
+.hm-control--check .hm-control-label { text-transform: none; letter-spacing: 0; font-size: 13px; }
+.hm-controls .btn { margin-left: auto; }
+
+.hm-status,
+.hm-note {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.hm-status.is-error,
+.hm-note {
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: rgba(238, 125, 81, 0.1);
+  border: 1px solid rgba(238, 125, 81, 0.35);
+  color: var(--color-primary-text);
+}
+
+/* ── Stat tiles ──────────────────────────────────────────────── */
+.hm-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.hm-tile {
+  padding: 14px 16px;
+  background: var(--color-white);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius);
+}
+.hm-tile-value {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: 600;
+}
+.hm-tile-label {
+  margin: 6px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.hm-tile-sub {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+.hm-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.hm-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.hm-panel {
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  background: var(--color-white);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius);
+}
+.hm-side-col .hm-panel { margin-bottom: 0; }
+.hm-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.hm-panel-title {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.hm-panel-head .hm-panel-title { margin-bottom: 0; }
+.hm-panel-sub {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* ── Legend ──────────────────────────────────────────────────── */
+.hm-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.hm-legend-ramp {
+  width: 120px;
+  height: 9px;
+  border-radius: 5px;
+  background: linear-gradient(90deg,
+    rgba(0,0,255,0.25) 0%,
+    #0000ff 22%,
+    #00e1ff 42%,
+    #00e63c 60%,
+    #ffe600 78%,
+    #ff0000 100%);
+}
+.hm-legend-max { font-variant-numeric: tabular-nums; }
+
+/* ── The map ─────────────────────────────────────────────────── */
+.hm-stage {
+  position: relative;
+  overflow: auto;
+  max-height: 78vh;
+  background: var(--color-page);
+  border: 1px solid var(--color-rule);
+  border-radius: 8px;
+}
+.hm-scaler {
+  position: relative;
+  transform-origin: top left;
+}
+.hm-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  /* The frame is a measurement surface, not a browsing surface. Clicks
+     inside it would navigate away from the tool and, worse, read as
+     real homepage interactions to anyone watching the tab. */
+  pointer-events: none;
+}
+.hm-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 18, 16, 0.55);
+  pointer-events: none;
+}
+.hm-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.hm-caption {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+/* ── Tables ──────────────────────────────────────────────────── */
+.hm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.hm-table th {
+  padding: 0 8px 8px 0;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  border-bottom: 1px solid var(--color-rule);
+}
+.hm-table td {
+  padding: 9px 8px 9px 0;
+  border-bottom: 1px solid rgba(217, 198, 167, 0.5);
+  vertical-align: top;
+}
+.hm-table tr:last-child td { border-bottom: 0; }
+.hm-cell-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hm-table th:not(:first-child) { text-align: right; }
+.hm-table--wide th:nth-child(2),
+.hm-table--wide th:nth-child(3),
+.hm-table--wide td:nth-child(2),
+.hm-table--wide td:nth-child(3) { text-align: left; }
+.hm-empty-cell {
+  padding: 16px 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.hm-el-label { display: block; }
+.hm-el-sel {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--color-muted);
+  word-break: break-all;
+}
+
+/* ── Section funnel ──────────────────────────────────────────── */
+.hm-funnel-row { margin-bottom: 14px; }
+.hm-funnel-row:last-child { margin-bottom: 0; }
+.hm-funnel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+.hm-funnel-name { font-weight: 600; }
+.hm-funnel-value {
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hm-funnel-bar,
+.hm-scroll-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(45, 41, 39, 0.08);
+  overflow: hidden;
+}
+.hm-funnel-fill,
+.hm-scroll-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--color-primary);
+}
+.hm-funnel-meta {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.hm-funnel-meta.is-drop { color: var(--color-primary-text); }
+
+/* ── Scroll depth ────────────────────────────────────────────── */
+.hm-scroll-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 46px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.hm-scroll-row:last-child { margin-bottom: 0; }
+.hm-scroll-value { text-align: right; }
+
+/* ── Friction lists ──────────────────────────────────────────── */
+.hm-list-heading {
+  margin: 14px 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.hm-friction > .hm-list-heading:first-child { margin-top: 0; }
+.hm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+}
+.hm-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(217, 198, 167, 0.5);
+}
+.hm-list li:last-child { border-bottom: 0; }
+.hm-list-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hm-list-value {
+  color: var(--color-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1100px) {
+  .hm-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .hm-controls { gap: 12px; }
+  .hm-controls .btn { margin-left: 0; }
+  .hm-control--range input { width: 100px; }
+  .hm-stage { max-height: 60vh; }
+}

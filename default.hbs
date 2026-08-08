@@ -272,6 +272,7 @@
       {{#if @custom.search_worker_url}}data-search-worker-url="{{@custom.search_worker_url}}"{{/if}}
       {{#if @custom.admin_worker_url}}data-admin-worker-url="{{@custom.admin_worker_url}}"{{/if}}
       {{#if @custom.error_worker_url}}data-error-worker-url="{{@custom.error_worker_url}}"{{/if}}
+      {{#if @custom.heatmap_sample}}data-heatmap-sample="{{@custom.heatmap_sample}}"{{/if}}
       {{#if @member}}data-member-email="{{@member.email}}" data-member-status="{{@member.status}}"{{/if}}>
 
     {{!-- Boot bundle: liturgical-class, mo-api-base, mo-asset-version,
@@ -288,7 +289,7 @@
          better server titles. --}}
     <script src="{{asset "built/boot.min.js"}}"></script>
 
-    <header class="site-header">
+    <header class="site-header" data-hm-section="header">
         <div class="container header-inner">
             <a href="{{@site.url}}" class="brand" aria-label="Mere Orthodoxy home">
                 <img src="{{asset "images/mere-o-logo.png"}}" alt="Mere Orthodoxy" class="brand-logo" width="164" height="72" />
@@ -379,7 +380,7 @@
 
     {{{body}}}
 
-    <footer class="site-footer">
+    <footer class="site-footer" data-hm-section="footer">
         <div class="container site-footer-grid">
 
             <div class="site-footer-col site-footer-brand">
@@ -457,8 +458,8 @@
     {{!-- Site bundle: error-beacon, jsonld-fix, breadcrumb-schema,
          site-settings, nav-dropdowns, inline-signup, kit-events,
          dark-mode, feature-gate, search, header-behaviors, commonplace,
-         liturgical-calendar, slide-in, topic-filter, podcast-feed,
-         title-cleanup, viewport-fix. --}}
+         liturgical-calendar, slide-in, heatmap-collect, topic-filter,
+         podcast-feed, title-cleanup, viewport-fix. --}}
     <script src="{{asset "built/site.min.js"}}"></script>
     {{ghost_foot}}
 </body>

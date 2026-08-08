@@ -108,6 +108,44 @@ If you are migrating from HubSpot (or another CMS), use one of these paths:
 
 Both paths preserve authors, tags, feature images, and published dates if you pass them in. The full migration is out of scope for this README.
 
+## Homepage click heatmap (/admin/heatmap/)
+
+Marketing → **Homepage Heatmap** in the admin sidebar. It frames the live
+homepage and paints aggregated clicks over it, plus the numbers a picture
+can't carry on its own: conversions per tagged CTA, a section-by-section
+fall-off funnel, scroll depth, and the clicks that went nowhere.
+
+Two halves have to be in place:
+
+1. **Theme (shipped).** `assets/js/heatmap-collect.js` rides in
+   `site.min.js` and only runs on `/`. Homepage sections carry
+   `data-hm-section` and calls to action carry `data-hm-goal`; clicks are
+   stored relative to those section boxes, so the overlay stays accurate
+   when the homepage layout changes.
+2. **Worker (apply once).** The three `/heatmap/*` endpoints on mo-admin.
+   See `WORKER-PATCH-heatmap.md` for the schema, handlers, retention cron,
+   and the framing headers to verify. Until it is deployed the admin page
+   loads and says so.
+
+Sampling and the off switch live in **Settings → Design → Customize →
+Homepage heatmap sampling** (100 / 50 / 25 / 10 / 0). Do Not Track and
+Global Privacy Control are honored regardless of that setting, no cookie
+is set, no personal data is recorded, and rows are dropped after 120
+days. The collection is disclosed on `/privacy/`.
+
+Adding a new tracked section or CTA is markup only:
+
+```hbs
+<section class="whatever" data-hm-section="whatever">
+  <a href="#join" class="btn" data-hm-goal="member-cta">Become a Member</a>
+</section>
+```
+
+Give the new section a label in `SECTION_LABEL` (and a position in
+`SECTION_ORDER`) inside `assets/js/admin-heatmap.js` so the funnel reads
+top-to-bottom; a new goal gets a row in `GOAL_LABEL`. Both fall back to
+the raw key if you forget.
+
 ## Deploying theme updates
 
 Use the official `TryGhost/action-deploy-theme` GitHub Action so you can git-push theme changes instead of re-zipping and re-uploading each time.

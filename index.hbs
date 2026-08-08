@@ -2,7 +2,7 @@
 {{#contentFor "moHead"}}<title>{{meta_title}}</title>{{/contentFor}}
 
 {{!-- HERO: most recent post as the featured card --}}
-<section class="hero">
+<section class="hero" data-hm-section="hero">
     <div class="container">
         <div class="hero-grid">
             <div class="hero-content">
@@ -14,16 +14,16 @@
                 <p class="hero-sub">Long-form essays, patient podcasts, and a quarterly print journal on theology, culture, and spiritual formation.</p>
                 <div class="hero-ctas">
                     {{#match @member.status "paid"}}
-                        <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
+                        <a href="/dashboard/" class="btn btn-primary btn-lg" data-hm-goal="dashboard">Your Dashboard</a>
                     {{else}}{{#match @member.status "comped"}}
-                        <a href="/dashboard/" class="btn btn-primary btn-lg">Your Dashboard</a>
+                        <a href="/dashboard/" class="btn btn-primary btn-lg" data-hm-goal="dashboard">Your Dashboard</a>
                     {{else}}{{#if @member}}
                         {{!-- Free Subscriber: already on the list, so a single upgrade button. --}}
-                        <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
+                        <a href="#join" class="btn btn-primary btn-lg" data-hm-goal="member-cta">Become a Member</a>
                     {{else}}
                         {{!-- Anonymous visitor — primary CTA is now Membership. --}}
-                        <a href="#join" class="btn btn-primary btn-lg">Become a Member</a>
-                        <a href="#digest" class="btn btn-ghost btn-lg">Never Miss An Essay</a>
+                        <a href="#join" class="btn btn-primary btn-lg" data-hm-goal="member-cta">Become a Member</a>
+                        <a href="#digest" class="btn btn-ghost btn-lg" data-hm-goal="digest-cta">Never Miss An Essay</a>
                     {{/if}}{{/match}}{{/match}}
                 </div>
             </div>
@@ -66,7 +66,7 @@
 {{> "topic-rail"}}
 
 {{!-- TODAY: feature + most-read sidebar --}}
-<section class="today">
+<section class="today" data-hm-section="today">
     <div class="container">
         <div class="today-default">
             <div class="today-grid">
@@ -168,14 +168,14 @@
     {{!-- Free Subscriber upgrade pitch — styled inline in the
          same light container the digest CTA uses, so this block
          sits in rhythm with the rest of the homepage. --}}
-    <section class="digest-section home-upgrade-section" id="digest" aria-label="Become a Member">
+    <section class="digest-section home-upgrade-section" id="digest" aria-label="Become a Member" data-hm-section="digest">
         <div class="container">
             <div class="digest-cta home-upgrade-cta">
                 <div class="digest-copy">
                     <p class="eyebrow">For Subscribers</p>
                     <h3>Want More Mere Orthodoxy?</h3>
                     <p>You're on our free list. Members get everything below — plus our full print journal mailed to your door, four times a year.</p>
-                    <a href="#join" class="btn btn-primary btn-lg home-upgrade-btn">Become a Member</a>
+                    <a href="#join" class="btn btn-primary btn-lg home-upgrade-btn" data-hm-goal="member-cta">Become a Member</a>
                 </div>
                 <div class="home-upgrade-body">
                     <ul class="home-upgrade-list">
@@ -203,7 +203,7 @@
 {{/match}}
 
 {{!-- THIS WEEK: posts 3-8 --}}
-<section class="this-week">
+<section class="this-week" data-hm-section="this-week">
     <div class="container">
         <div class="section-intro">
             <p class="eyebrow">This Week</p>
@@ -221,7 +221,7 @@
         </div>
 
         <div class="week-more">
-            <a href="/archive/" class="week-more-link">Read more essays <span aria-hidden="true">&rarr;</span></a>
+            <a href="/archive/" class="week-more-link" data-hm-goal="archive">Read more essays <span aria-hidden="true">&rarr;</span></a>
         </div>
     </div>
 </section>
@@ -235,7 +235,7 @@
      resolves the latest episode from the mo-podcast-feed worker, so the
      band degrades cleanly to cover + copy + CTA when the feed is unset
      or down. --}}
-<section class="dlp-band" aria-labelledby="dlp-band-heading">
+<section class="dlp-band" aria-labelledby="dlp-band-heading" data-hm-section="dlp-band">
     <div class="container">
         <div class="dlp-band-inner">
             <img src="https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/07/Mere-Orthodoxy-Podcast-Covers--2-.jpg" alt="The Daily Liturgy Podcast" class="dlp-band-art" width="144" height="144" loading="lazy" />
@@ -278,7 +278,7 @@
 
 {{!-- PODCASTS: only rendered if a feed worker URL is configured --}}
 {{#if @custom.podcast_feed_url}}
-<section class="listen">
+<section class="listen" data-hm-section="listen">
     <div class="container">
         <div class="section-intro">
             <p class="eyebrow">Listen</p>
@@ -293,12 +293,12 @@
              data-crc-spotify="https://open.spotify.com/show/3h8zciESjSYUajDB9XJ9ni">
             <div class="pod-show" data-show="mere-fidelity">
                 <img src="{{asset 'images/mere-fidelity.jpg'}}" alt="Mere Fidelity" class="pod-show-cover" width="400" height="400" loading="lazy">
-                <p class="pod-show-name"><a href="/podcasts/mere-fidelity/">Mere Fidelity</a></p>
+                <p class="pod-show-name"><a data-hm-goal="podcast" href="/podcasts/mere-fidelity/">Mere Fidelity</a></p>
                 <div class="pod-show-latest"></div>
             </div>
             <div class="pod-show" data-show="christians-reading-classics">
                 <img src="{{asset 'images/christians-reading-classics.jpg'}}" alt="Christians Reading Classics" class="pod-show-cover" width="400" height="400" loading="lazy">
-                <p class="pod-show-name"><a href="/podcasts/christians-reading-classics/">Christians Reading Classics</a></p>
+                <p class="pod-show-name"><a data-hm-goal="podcast" href="/podcasts/christians-reading-classics/">Christians Reading Classics</a></p>
                 <div class="pod-show-latest"></div>
             </div>
         </div>
@@ -307,7 +307,7 @@
 {{/if}}
 
 {{!-- JOURNAL BAND --}}
-<section class="journal-band" id="journal">
+<section class="journal-band" id="journal" data-hm-section="journal">
     <div class="container">
         <div class="journal-grid">
             <div class="journal-art" aria-hidden="true">
@@ -368,14 +368,14 @@
                 </ol>
                 <div class="journal-ctas">
                     {{#match @member.status "paid"}}
-                        <a href="/give/" class="btn btn-primary btn-lg">Gift The Journal</a>
+                        <a href="/give/" class="btn btn-primary btn-lg" data-hm-goal="gift">Gift The Journal</a>
                     {{else}}{{#match @member.status "comped"}}
-                        <a href="/give/" class="btn btn-primary btn-lg">Gift The Journal</a>
+                        <a href="/give/" class="btn btn-primary btn-lg" data-hm-goal="gift">Gift The Journal</a>
                     {{else}}{{#if @member}}
-                        <a href="#join" class="btn btn-primary btn-lg">Get The Journal</a>
+                        <a href="#join" class="btn btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
                     {{else}}
                         {{!-- Anonymous — primary CTA is the membership signup. --}}
-                        <a href="#join" class="btn btn-primary btn-lg">Get The Journal</a>
+                        <a href="#join" class="btn btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
                     {{/if}}{{/match}}{{/match}}
                 </div>
             </div>
@@ -388,7 +388,7 @@
     these could be pulled from posts tagged `#testimonial` (internal tag) via
     a {{#get "posts" filter="tag:hash-testimonial"}} call and rendered here.
 --}}
-<section class="readers">
+<section class="readers" data-hm-section="readers">
     <div class="container">
         <div class="section-intro">
             <p class="eyebrow">Readers</p>
@@ -417,7 +417,7 @@
      shares partials/membership-body.hbs with /membership/. Wrapped in
      a div instead of <main> so it doesn't conflict with any main
      element used elsewhere on the page. --}}
-<div class="membership homepage-membership" id="join">
+<div class="membership homepage-membership" id="join" data-hm-section="join">
   {{> "membership-body"}}
 </div>
 

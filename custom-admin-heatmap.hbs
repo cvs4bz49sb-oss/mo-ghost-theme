@@ -1,0 +1,197 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Homepage Heatmap | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Homepage Heatmap | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Homepage Heatmap | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/heatmap/ — click heatmap for the homepage. Frames the live
+     homepage and paints aggregated clicks over it, with the conversion
+     and fall-off breakdowns the picture can't show on its own.
+
+     Data comes from the mo-admin worker (GET /heatmap/summary,
+     GET /heatmap/points — both JWT+staff). Collection happens in
+     assets/js/heatmap-collect.js, which ships in site.min.js and only
+     runs on "/". --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="heatmap"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Homepage Heatmap</em></h1>
+        <p class="admin-topbar-sub">Where visitors click on the homepage, where they convert, and where they drop off.</p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container">
+          <div class="hm" data-admin-heatmap data-worker-url="{{@custom.admin_worker_url}}">
+
+            {{!-- Controls --}}
+            <div class="hm-controls">
+              <label class="hm-control">
+                <span class="hm-control-label">Range</span>
+                <select data-hm-days>
+                  <option value="7">Last 7 days</option>
+                  <option value="30" selected>Last 30 days</option>
+                  <option value="90">Last 90 days</option>
+                </select>
+              </label>
+
+              <label class="hm-control">
+                <span class="hm-control-label">Device</span>
+                <select data-hm-device>
+                  <option value="desktop" selected>Desktop</option>
+                  <option value="tablet">Tablet</option>
+                  <option value="mobile">Mobile</option>
+                </select>
+              </label>
+
+              <label class="hm-control">
+                <span class="hm-control-label">View</span>
+                <select data-hm-mode>
+                  <option value="heat" selected>Heat</option>
+                  <option value="dots">Click counts</option>
+                  <option value="dead">Dead clicks</option>
+                  <option value="rage">Rage clicks</option>
+                </select>
+              </label>
+
+              <label class="hm-control hm-control--range">
+                <span class="hm-control-label">Intensity</span>
+                <input type="range" min="0.3" max="2.5" step="0.1" value="1" data-hm-intensity />
+              </label>
+
+              <label class="hm-control hm-control--range">
+                <span class="hm-control-label">Spread</span>
+                <input type="range" min="14" max="70" step="2" value="34" data-hm-radius />
+              </label>
+
+              <label class="hm-control hm-control--check">
+                <input type="checkbox" data-hm-scrim checked />
+                <span class="hm-control-label">Dim page</span>
+              </label>
+
+              <button type="button" class="btn btn-sm" data-hm-refresh>Refresh</button>
+            </div>
+
+            <p class="hm-status" data-hm-status hidden></p>
+            <p class="hm-note" data-hm-note hidden></p>
+
+            {{!-- Stat tiles --}}
+            <div class="hm-tiles" data-hm-tiles></div>
+
+            <div class="hm-layout">
+
+              {{!-- The map --}}
+              <div class="hm-map-col">
+                <div class="hm-panel">
+                  <div class="hm-panel-head">
+                    <h2 class="hm-panel-title"><em>Click map</em></h2>
+                    <div class="hm-legend" aria-hidden="true">
+                      <span class="hm-legend-label">Fewer</span>
+                      <span class="hm-legend-ramp"></span>
+                      <span class="hm-legend-label">More</span>
+                      <span class="hm-legend-max">max <span data-hm-legend-max>—</span></span>
+                    </div>
+                  </div>
+
+                  <div class="hm-stage" data-hm-stage>
+                    <div class="hm-scaler" data-hm-scaler>
+                      {{!-- The live homepage. ?mo-hm-preview=1 tells
+                           heatmap-collect.js to stand down inside the
+                           frame so staff review doesn't write clicks
+                           into the data it is displaying. --}}
+                      <iframe
+                        class="hm-frame"
+                        data-hm-frame
+                        title="Homepage preview"
+                        loading="lazy"
+                        referrerpolicy="same-origin"
+                        scrolling="no"
+                        tabindex="-1"></iframe>
+                      <div class="hm-scrim" data-hm-scrim-layer></div>
+                      <canvas class="hm-canvas" data-hm-canvas aria-hidden="true"></canvas>
+                    </div>
+                  </div>
+
+                  <p class="hm-caption">Clicks are anchored to page sections, so the overlay stays accurate as the homepage changes. Rendered at a fixed width per device and scaled to fit.</p>
+                </div>
+              </div>
+
+              {{!-- Conversion + fall-off --}}
+              <div class="hm-side-col">
+
+                <div class="hm-panel">
+                  <h2 class="hm-panel-title"><em>Conversions</em></h2>
+                  <p class="hm-panel-sub">Clicks on tagged calls to action.</p>
+                  <table class="hm-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Goal</th>
+                        <th scope="col">Clicks</th>
+                        <th scope="col">Sessions</th>
+                        <th scope="col">Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody data-hm-goals></tbody>
+                  </table>
+                </div>
+
+                <div class="hm-panel">
+                  <h2 class="hm-panel-title"><em>Fall-off by section</em></h2>
+                  <p class="hm-panel-sub">How far down the page visitors get, and what share of the people who saw each section clicked in it.</p>
+                  <div class="hm-funnel" data-hm-funnel></div>
+                </div>
+
+                <div class="hm-panel">
+                  <h2 class="hm-panel-title"><em>Scroll depth</em></h2>
+                  <p class="hm-panel-sub">Share of sessions reaching each depth.</p>
+                  <div class="hm-scroll" data-hm-scroll></div>
+                </div>
+
+                <div class="hm-panel">
+                  <h2 class="hm-panel-title"><em>Friction</em></h2>
+                  <p class="hm-panel-sub">Clicks that did nothing, and clicks repeated in frustration.</p>
+                  <div class="hm-friction" data-hm-dead></div>
+                </div>
+
+              </div>
+            </div>
+
+            {{!-- Element leaderboard --}}
+            <div class="hm-panel">
+              <h2 class="hm-panel-title"><em>Most-clicked elements</em></h2>
+              <table class="hm-table hm-table--wide">
+                <thead>
+                  <tr>
+                    <th scope="col">Element</th>
+                    <th scope="col">Section</th>
+                    <th scope="col">Goal</th>
+                    <th scope="col">Clicks</th>
+                  </tr>
+                </thead>
+                <tbody data-hm-elements></tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-heatmap.js"}}"></script>

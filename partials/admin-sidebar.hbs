@@ -1,7 +1,7 @@
 {{!-- Workspace sidebar navigation for /admin/* pages.
      Pass `active` with the page id: overview, members, traffic,
      settings, coverage, editorial, digest, social, assets,
-     copy, slide-ins, engagement. JS highlights the current page
+     copy, slide-ins, engagement, heatmap. JS highlights the current page
      as a fallback if the active param isn't set. --}}
 
 <aside class="ws-sidebar" data-ws-sidebar>
@@ -102,6 +102,9 @@
         <li><a href="/admin/slide-ins/" class="ws-sidebar-link{{#match active "slide-ins"}} is-active{{/match}}" data-ws-page="slide-ins">
           <svg class="ws-sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
           Slide-ins</a></li>
+        <li><a href="/admin/heatmap/" class="ws-sidebar-link{{#match active "heatmap"}} is-active{{/match}}" data-ws-page="heatmap">
+          <svg class="ws-sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="9" cy="10" r="3"></circle><circle cx="16" cy="16" r="2"></circle></svg>
+          Homepage Heatmap</a></li>
         <li><a href="/admin/engagement/" class="ws-sidebar-link{{#match active "engagement"}} is-active{{/match}}" data-ws-page="engagement">
           <svg class="ws-sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
           Engagement</a></li>

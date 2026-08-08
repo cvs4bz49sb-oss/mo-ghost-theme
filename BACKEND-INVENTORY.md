@@ -10,7 +10,7 @@ Companion reference for BACKEND-AGENT.md. This is the complete inventory of ever
 
 | # | Worker | Purpose | Routes | Auth Model |
 |---|--------|---------|--------|------------|
-| 1 | mo-admin | Site settings, slide-ins, member stats, traffic analytics, editorial board | 22 | Mixed (public + JWT+staff) |
+| 1 | mo-admin | Site settings, slide-ins, member stats, traffic analytics, editorial board, homepage heatmap | 22 (+3 pending) | Mixed (public + JWT+staff) |
 | 2 | mo-audio | TTS article narration via OpenAI | 2 | Public+rate-limit / Ghost HMAC |
 | 3 | mo-digest | Claude-powered weekly digest generator | 2 | Bearer token |
 | 4 | mo-ebook-access | Ebook landing page signup + label attribution | 1 | Origin+rate-limit |
@@ -32,7 +32,7 @@ Companion reference for BACKEND-AGENT.md. This is the complete inventory of ever
 
 ## 2. Complete Route Table
 
-### mo-admin (22 routes)
+### mo-admin (22 routes, +3 pending for the homepage heatmap)
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
 | GET | /settings | Public | Read site settings |
@@ -57,6 +57,9 @@ Companion reference for BACKEND-AGENT.md. This is the complete inventory of ever
 | GET | /traffic/top-articles | JWT+staff | Top articles |
 | GET | /traffic/top-topics | JWT+staff | Top topics |
 | GET | /traffic/top-authors | JWT+staff | Top authors |
+| POST | /heatmap/collect | Origin+rate-limit | Homepage click/scroll beacon (pending — see WORKER-PATCH-heatmap.md) |
+| GET | /heatmap/summary | JWT+staff | Homepage heatmap totals, goals, section funnel, scroll depth (pending) |
+| GET | /heatmap/points | JWT+staff | Aggregated homepage click grid (pending) |
 
 ### mo-audio (3 routes)
 | Method | Path | Auth | Purpose |
@@ -203,7 +206,9 @@ Adds security headers to all proxied responses: CSP frame-ancestors, X-Frame-Opt
 ### D1 Database
 | Name | ID | Tables | Used by |
 |------|----|---------|---------| 
-| mo-membership | 9aa2b78e-b690-4bb2-a5f0-0412c76e522f | member_addresses, submissions, theme_errors | mo-membership, mo-forms, mo-errors |
+| mo-membership | 9aa2b78e-b690-4bb2-a5f0-0412c76e522f | member_addresses, submissions, theme_errors, heatmap_sessions*, heatmap_section_views*, heatmap_points*, heatmap_goal_sessions* | mo-membership, mo-forms, mo-errors, mo-admin* |
+
+\* Pending the homepage-heatmap patch — see `WORKER-PATCH-heatmap.md`.
 
 ### R2 Buckets
 | Bucket | Used by | Key pattern |

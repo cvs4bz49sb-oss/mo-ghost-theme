@@ -117,6 +117,8 @@ routes:
     template: custom-admin-slide-ins
   /admin/engagement/:
     template: custom-admin-engagement
+  /admin/heatmap/:
+    template: custom-admin-heatmap
   /admin/kpi/:
     template: custom-admin-kpi
   /admin/tfr/:
