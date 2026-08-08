@@ -36,3 +36,9 @@ jobs:
         # contributors, and a PR that edits the source without running
         # `npm run build` would otherwise merge green and deploy stale.
         run: npm run build:check
+      - name: Verify Daily Liturgy Scripture references parse
+        # A hand-entered reading the parser can't read renders as
+        # "Could not parse reference" on /daily-liturgy/read/ and
+        # "Could not resolve" in the emailed liturgy, one day at a time,
+        # with nothing to notice until a subscriber writes in.
+        run: npm run check:refs

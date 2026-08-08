@@ -22,7 +22,8 @@
     "build:check": "node scripts/build-theme.mjs --check",
     "build:digest": "node scripts/build-digest.mjs",
     "build:digest:check": "node scripts/build-digest.mjs --check",
-    "check:meta": "node scripts/check-meta.mjs"
+    "check:meta": "node scripts/check-meta.mjs",
+    "check:refs": "node scripts/check-scripture-refs.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.24.0",
