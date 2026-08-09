@@ -282,6 +282,12 @@
 
     const spans = [];
     let chapter = null;
+    // True while a chapter has been named without any verse ("Psalm 133"),
+    // so a bare number after it is another chapter rather than a verse:
+    // "Psalm 133 and 134" is two psalms, not verse 134 of Psalm 133. Once a
+    // colon names a verse, bare numbers that follow are verses in that
+    // chapter — "Romans 16:17-20, 25-27".
+    let chapterOnly = false;
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
@@ -300,36 +306,44 @@
         } else {
           spans.push({ book, chapter: from, vStart: vFrom, vEnd: LAST_VERSE });
           for (let c = from + 1; c < to; c++) {
+            if (spans.length > MAX_SPANS) return null;
             spans.push({ book, chapter: c, vStart: null, vEnd: null });
           }
           spans.push({ book, chapter: to, vStart: 1, vEnd: vTo });
         }
         chapter = to;
+        chapterOnly = false;
       } else if ((m = part.match(/^(\d+):(\d+)-(\d+)$/))) {
         chapter = parseInt(m[1], 10);
+        chapterOnly = false;
         spans.push({ book, chapter, vStart: parseInt(m[2], 10), vEnd: parseInt(m[3], 10) });
       } else if ((m = part.match(/^(\d+):(\d+)$/))) {
         chapter = parseInt(m[1], 10);
+        chapterOnly = false;
         const verse = parseInt(m[2], 10);
         spans.push({ book, chapter, vStart: verse, vEnd: verse });
       } else if ((m = part.match(/^(\d+)-(\d+)$/))) {
         const from = parseInt(m[1], 10);
         const to = parseInt(m[2], 10);
-        if (chapter === null) {
-          // No chapter named yet, so these are chapters: "Jonah 3-4".
+        if (chapter === null || chapterOnly) {
+          // No verse named yet, so these are chapters: "Jonah 3-4".
           if (to < from) return null;
           for (let c = from; c <= to; c++) {
+            if (spans.length > MAX_SPANS) return null;
             spans.push({ book, chapter: c, vStart: null, vEnd: null });
           }
           chapter = to;
+          chapterOnly = true;
         } else {
           // A later span carries verses only: "Romans 16:17-20, 25-27".
           spans.push({ book, chapter, vStart: from, vEnd: to });
         }
       } else if ((m = part.match(/^(\d+)$/))) {
         const num = parseInt(m[1], 10);
-        if (chapter === null) {
+        if (chapter === null || chapterOnly) {
+          // "Psalm 133 and 134" — a second whole chapter, not a verse.
           chapter = num;
+          chapterOnly = true;
           spans.push({ book, chapter, vStart: null, vEnd: null });
         } else {
           spans.push({ book, chapter, vStart: num, vEnd: num });
@@ -347,7 +361,13 @@
   // True when `b` picks up exactly where `a` left off, so the two can be
   // run together without an elision mark between them.
   function spansAdjoin(a, b) {
-    if (b.chapter === a.chapter + 1) return b.vStart === null || b.vStart === 1;
+    if (b.chapter === a.chapter + 1) {
+      // Into the next chapter, continuous only if `a` ran to the end of its
+      // own. "Hebrews 11:29-12:2" does; "Genesis 2:15-17 & 3:1-7" skips
+      // 2:18-25 and has to say so.
+      const ranToChapterEnd = a.vEnd === null || a.vEnd === LAST_VERSE;
+      return ranToChapterEnd && (b.vStart === null || b.vStart === 1);
+    }
     if (b.chapter !== a.chapter) return false;
     return a.vEnd !== null && b.vStart === a.vEnd + 1;
   }
