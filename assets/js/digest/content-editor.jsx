@@ -300,20 +300,21 @@ const BUILTIN_SPONSORS = [
   {
     // House promo, not a paid slot. Runs in a sponsor slot because that
     // block already renders label + headline + body + CTA button.
-    // DO NOT SEND until /writers-meetings/ is routed AND a test
-    // registration has actually reached Nadya — a promo pointing at a
-    // page whose form drops submissions is worse than no promo. `href` is
-    // intentionally empty so the block cannot go out with a dead link;
-    // set it to https://mereorthodoxy.com/writers-meetings/#register
-    // (absolute — root-relative breaks in email; the #register anchor
-    // lands the reader on the form rather than the top of the page).
+    // The link is live as of 2026-08-10 (absolute because root-relative
+    // breaks in email; the #register anchor lands the reader on the form
+    // rather than the top of the page).
+    // BEFORE SENDING: submit one real registration and confirm it lands.
+    // RSVPs currently go to submissions@ via the fallback, NOT to Nadya,
+    // and the Google Sheet copy is off — both are one wrangler.toml edit
+    // plus a redeploy away. Sending this to the whole list while RSVPs
+    // pile up in the wrong inbox is the failure mode to avoid.
     id: 'builtin-writers-meetings-2026',
     name: 'Mere Orthodoxy',
     label: 'From The Editors',
     headline: 'New Writers Meetings',
     body: 'Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, and for those who have been meaning to. Part introduction, part training, each one built around a single essay we read beforehand. September 8, October 6, and November 3, at 11:00am CT.',
     cta: 'See The Dates →',
-    href: '', // set to /writers-meetings/ once the page is live
+    href: 'https://mereorthodoxy.com/writers-meetings/#register',
   },
   {
     id: 'builtin-beeson-preaching-2026',

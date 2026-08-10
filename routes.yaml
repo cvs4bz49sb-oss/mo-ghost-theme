@@ -78,22 +78,18 @@ routes:
   /submissions/:
     template: custom-submissions
   # New Writers Meetings — three Zoom conversations, Sep/Oct/Nov 2026.
-  # COMMENTED OUT DELIBERATELY. The page and its registration form are
-  # built, but the form posts to the mo-forms worker's /writers-meetings
-  # endpoint, which needs config before it will do anything:
-  #   wrangler secret put WRITERS_MEETINGS_TO             (Nadya's address)
-  #   wrangler secret put WRITERS_MEETINGS_GFORM_URL      (the Google Form
-  #     .../formResponse endpoint — optional; without it the email still
-  #     sends and only the spreadsheet copy is skipped)
-  #   wrangler secret put WRITERS_MEETINGS_GFORM_ENTRIES  (JSON map of
-  #     field name -> entry id, e.g. {"name":"entry.1","email":"entry.2"})
-  # Deploy the worker, submit one test registration, confirm Nadya got the
-  # email and the row landed in the sheet, THEN uncomment these two lines
-  # and re-upload this file. A reachable page whose form silently drops
-  # registrations is worse than no page. The digest promo's href is gated
-  # on the same event.
-  # /writers-meetings/:
-  #   template: custom-writers-meetings
+  # LIVE as of 2026-08-10. The mo-forms worker is deployed and its
+  # /writers-meetings endpoint answers, so the form works. Two config
+  # items are still open in website/workers/forms/wrangler.toml (they are
+  # non-secret [vars] there, not `wrangler secret put` — a deploy
+  # overwrites dashboard vars with the toml block):
+  #   WRITERS_MEETINGS_TO   still empty, so RSVPs fall back to
+  #     SUBMISSIONS_TO (submissions@). Set it to Nadya's address and
+  #     redeploy the worker.
+  #   WRITERS_MEETINGS_GFORM_URL / _ENTRIES  still empty, so the
+  #     spreadsheet copy is skipped and only the email sends.
+  /writers-meetings/:
+    template: custom-writers-meetings
   /podcasts/mere-fidelity/:
     template: custom-mere-fidelity
   /podcasts/christians-reading-classics/:
@@ -213,6 +209,8 @@ routes:
     template: page-journal-issue-08-read
   /journal-archive/issue-09/:
     template: page-journal-issue-09-read
+  /journal-archive/issue-10/:
+    template: page-journal-issue-10-read
   # Blueprint for Renewal — HIDDEN as of 2026-04-25. Editorial work
   # in progress. Re-enable by uncommenting these two routes (and
   # restoring the catalog tile in custom-ebooks.hbs and the dashboard
