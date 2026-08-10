@@ -825,11 +825,24 @@
   }
 
   function chartHtml(cfg, g) {
-    const raw = cfg.keys.map((k) => bucketize(k, cfg.agg, g));
-    if (raw[0].length < 2) {
+    const rawAll = cfg.keys.map((k) => bucketize(k, cfg.agg, g));
+    // A series with no data must not erase the ones that have it. Taking
+    // Math.min across all series makes n = 0 as soon as ONE key is empty,
+    // which truncates every series to [] — and chartSvg then reads
+    // s[s.length - 1].v on an empty array, throws, and aborts renderCharts
+    // before chartBuckets is assigned. The visible effect is every section
+    // on the page reading "No … in this snapshot", not just this chart.
+    // Several keys are legitimately absent for long stretches: hsm/hsn only
+    // exist in the HubSpot era, oldpv never (no analytics on the old site),
+    // subpv only on days a Substack reading was entered by hand.
+    const keep = rawAll.map((_, i) => i).filter((i) => rawAll[i].length >= 2);
+    if (!keep.length) {
       return `<div class="kpi-chart"><p class="kpi-chart-title">${cfg.title}</p>
         <p class="kpi-empty">Not enough history at this grain yet.</p></div>`;
     }
+    const raw = keep.map((i) => rawAll[i]);
+    const names = keep.map((i) => cfg.names[i]);
+    const dropped = cfg.keys.length - keep.length;
     const n = Math.min(...raw.map((b) => b.length));
     const buckets = raw.map((b) => b.slice(b.length - n));
     chartState[cfg.id] = { cfg, buckets };
@@ -840,7 +853,7 @@
     const capped = buckets[0].length > 24;
     const table = `<div class="kpi-tbl" id="tbl-${cfg.id}"><table>
       <thead><tr><th>Series</th>${tb[0].map((b) => `<th>${b.label}</th>`).join("")}</tr></thead>
-      <tbody>${tb.map((sr, j) => `<tr><td><span class="kpi-swatch" style="background:${SERIES_COLORS[j]}"></span>${cfg.names[j]}</td>${sr.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}${
+      <tbody>${tb.map((sr, j) => `<tr><td><span class="kpi-swatch" style="background:${SERIES_COLORS[j]}"></span>${names[j]}</td>${sr.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}${
         cfg.noTotal ? "" : `<tr class="is-total"><td><b>Total</b></td>${tb[0].map((_, i) => `<td><b>${cfg.f(tb.reduce((t, sr) => t + sr[i].v, 0))}</b></td>`).join("")}</tr>`}</tbody>
     </table>${capped ? `<p class="kpi-note">Most recent 24 of ${buckets[0].length} periods.</p>` : ""}</div>`;
     return `<div class="kpi-chart" data-chart="${cfg.id}">
@@ -849,7 +862,8 @@
         <button type="button" class="kpi-btn kpi-tbtn" data-tbl="tbl-${cfg.id}">Table</button>
       </div>
       <p class="kpi-chart-sub">${cfg.sub}</p>
-      <ul class="kpi-legend">${cfg.names.map((nm, j) => `<li><span class="kpi-key" style="background:${SERIES_COLORS[j]}"></span>${nm}</li>`).join("")}</ul>
+      <ul class="kpi-legend">${names.map((nm, j) => `<li><span class="kpi-key" style="background:${SERIES_COLORS[j]}"></span>${nm}</li>`).join("")}${
+        dropped ? `<li class="kpi-legend-note">${dropped} series with no data in this window</li>` : ""}</ul>
       ${chartSvg(cfg, buckets)}${table}
     </div>`;
   }
