@@ -27,6 +27,11 @@ const SHOWS = {
 const TOP_N = 5;
 const TOP_OUT = fileURLToPath(new URL("../assets/data/top-episodes.json", import.meta.url));
 const SCHED_OUT = fileURLToPath(new URL("../assets/data/scheduled-episodes.json", import.meta.url));
+// Lifetime play totals per show, for the KPI dashboard. Same reason as the
+// other two files: mo-admin is a Cloudflare Worker, and Buzzsprout's WAF
+// blocks Workers' egress but not GitHub's, so the numbers have to be
+// prebuilt here and read from GitHub raw.
+const TOTALS_OUT = fileURLToPath(new URL("../assets/data/podcast-totals.json", import.meta.url));
 
 const token = process.env.BUZZSPROUT_API_TOKEN;
 if (!token) {
@@ -130,20 +135,32 @@ async function fetchShow(slug, podcastId) {
       };
     });
 
-  return { top, scheduled: nextScheduled(list, now, slug, podcastId) };
+  // Every released episode, not just the top N: the KPI tile reports
+  // lifetime plays across the whole catalogue.
+  const all = (Array.isArray(list) ? list : []).filter((ep) => isReleasable(ep, now));
+  const totals = {
+    episodes: all.length,
+    plays: all.reduce((t, ep) => t + (ep.total_plays || 0), 0),
+    earliest: all.map((ep) => ep.published_at || "").filter(Boolean).sort()[0] || null,
+  };
+  return { top, scheduled: nextScheduled(list, now, slug, podcastId), totals };
 }
 
 const topOut = {};
 const schedOut = {};
+const totalsOut = { generated_at: new Date().toISOString(), shows: {} };
 for (const [slug, podcastId] of Object.entries(SHOWS)) {
-  const { top, scheduled } = await fetchShow(slug, podcastId);
+  const { top, scheduled, totals } = await fetchShow(slug, podcastId);
   topOut[slug] = top;
   schedOut[slug] = scheduled;
+  totalsOut.shows[slug] = totals;
   console.log(`${slug}: ${top.length} top episodes; scheduled: ${scheduled ? scheduled.title : "none"}`);
 }
 
 await mkdir(dirname(TOP_OUT), { recursive: true });
 await writeFile(TOP_OUT, JSON.stringify(topOut, null, 2) + "\n");
 await writeFile(SCHED_OUT, JSON.stringify(schedOut, null, 2) + "\n");
+await writeFile(TOTALS_OUT, JSON.stringify(totalsOut, null, 2) + "\n");
 console.log(`Wrote ${TOP_OUT}`);
 console.log(`Wrote ${SCHED_OUT}`);
+console.log(`Wrote ${TOTALS_OUT}`);
