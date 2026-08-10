@@ -36,11 +36,20 @@
               <label class="kpi-history-label" for="kpi-date">Showing</label>
               <input type="date" id="kpi-date" class="kpi-date" data-kpi-date />
               <button type="button" class="kpi-btn" data-kpi-today>Latest</button>
+              {{!-- Refresh lives in the always-visible row, not behind the
+                    Options disclosure. It is the one control the page cannot
+                    function without: with no snapshot stored, /kpi/latest
+                    404s and the whole board renders as "No snapshot yet",
+                    so a hidden Refresh leaves no way out of the empty state. --}}
+              <button type="button" class="kpi-btn is-primary" data-kpi-refresh>
+                <span class="kpi-lfull">Refresh now</span><span class="kpi-labbr">Refresh</span></button>
             </div>
-            {{!-- On a phone these collapse behind one Options disclosure;
-                  on desktop the details is display:contents and the row
-                  looks exactly as it always has. --}}
-            <details class="kpi-more">
+            {{!-- On a phone these collapse behind one Options disclosure.
+                  `open` is required: on desktop the summary is display:none
+                  and the details is display:contents, but a CLOSED details
+                  still hides its content, so without this the whole
+                  right-hand toolbar is unreachable on desktop. --}}
+            <details class="kpi-more" open>
               <summary class="kpi-more-tag">Options</summary>
             <div class="kpi-toolbar-right">
               <span class="kpi-layoutmsg" data-kpi-layoutmsg role="status" aria-live="polite"></span>
@@ -52,8 +61,6 @@
               <button type="button" class="kpi-btn" data-kpi-resetlayout
                 title="Put every tile and chart back in its original order">
                 <span class="kpi-lfull">Reset layout</span><span class="kpi-labbr">Reset</span></button>
-              <button type="button" class="kpi-btn" data-kpi-refresh>
-                <span class="kpi-lfull">Refresh now</span><span class="kpi-labbr">Refresh</span></button>
               <span class="kpi-sources" data-kpi-sources></span>
             </div>
             </details>
