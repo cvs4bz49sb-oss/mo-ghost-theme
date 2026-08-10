@@ -1760,15 +1760,107 @@
   //      tag on any of them.
   let themesLive = null;
 
+
+  // The date span the period selector is currently showing, derived the same
+  // way the tiles derive theirs: bucket the series by grain and take the
+  // selected bucket. Deriving it independently would let the theme panel and
+  // the tiles disagree about what "This Month" means.
+  // Returns null for Current/Total, which means "no filter".
+  function periodWindow() {
+    if (gran === "total") return null;
+    if (period === "custom") {
+      return customFrom && customTo ? { from: customFrom, to: customTo } : null;
+    }
+    if (!series.length) return null;
+    const seen = new Map();
+    series.forEach((r) => {
+      const { k } = bucketOf(r.d, gran);
+      if (!seen.has(k)) seen.set(k, { from: r.d, to: r.d });
+      else seen.get(k).to = r.d;
+    });
+    const keys = [...seen.keys()];
+    const back = P().back || 0;
+    const k = keys[keys.length - 1 - back];
+    return k ? { ...seen.get(k) } : null;
+  }
+
+  // Recompute the theme report over a window from the per-post index. Same
+  // definitions as the server: sole = the only primary theme on a post,
+  // shares are of posts in the window, and pairs are unordered.
+  function themesForWindow(t, win) {
+    const rows = (t.index || []).filter((p) => !win || (p.d >= win.from && p.d <= win.to));
+    const byName = new Map((t.rail || []).map((r) => [r.slug, r.name]));
+    const posts = rows.length;
+    const primary = {}, sole = {}, pairs = {}, secondary = {};
+    const hist = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
+    const untagged = [], secondaryOnly = [];
+    for (const r of rows) {
+      const mine = r.t || [], extra = r.x || [];
+      hist[mine.length + extra.length] = (hist[mine.length + extra.length] || 0) + 1;
+      mine.forEach((sl) => { primary[sl] = (primary[sl] || 0) + 1; });
+      if (mine.length === 1) sole[mine[0]] = (sole[mine[0]] || 0) + 1;
+      for (let i = 0; i < mine.length; i++) {
+        for (let j = i + 1; j < mine.length; j++) {
+          const k = [mine[i], mine[j]].sort().join("|");
+          pairs[k] = (pairs[k] || 0) + 1;
+        }
+      }
+      extra.forEach((nm) => { secondary[nm] = (secondary[nm] || 0) + 1; });
+      if (!mine.length && !extra.length) untagged.push(r);
+      else if (!mine.length) secondaryOnly.push(r);
+    }
+    const days = win
+      ? Math.max(1, Math.round((Date.parse(win.to) - Date.parse(win.from)) / 86400000) + 1)
+      : Math.max(1, Math.round((Date.now() - Date.parse(t.window_start)) / 86400000) + 1);
+    const covered = posts - untagged.length - secondaryOnly.length;
+    return {
+      posts,
+      covered,
+      covered_share: posts ? Math.round((covered / posts) * 100) : 0,
+      tags_to_full_coverage: untagged.length + secondaryOnly.length,
+      cadence_per_week: Math.round((posts / days) * 7 * 10) / 10,
+      rail: (t.rail || []).map((r) => ({
+        slug: r.slug, name: r.name,
+        posts: primary[r.slug] || 0,
+        sole: sole[r.slug] || 0,
+        share: posts ? Math.round(((primary[r.slug] || 0) / posts) * 100) : 0,
+      })).sort((a, b) => b.posts - a.posts),
+      overlaps: Object.entries(pairs).map(([k, v]) => {
+        const [a, b] = k.split("|");
+        return { a: byName.get(a) || a, b: byName.get(b) || b, posts: v };
+      }).sort((x, y) => y.posts - x.posts),
+      secondary: Object.entries(secondary)
+        .map(([name, n]) => ({ name, posts: n })).sort((a, b) => b.posts - a.posts),
+      untagged: untagged.map((r) => ({ date: r.d, title: r.ti, authors: r.au })),
+      secondary_only: secondaryOnly.map((r) => ({ date: r.d, title: r.ti, authors: r.au, tags: r.x })),
+      tag_count_histogram: hist,
+      window: win,
+    };
+  }
+
   function renderThemes(s) {
     const host = $("[data-kpi-themes]");
     if (!host) return;
-    const t = (s && s.themes) || themesLive;
-    if (!t || !t.rail) {
+    const base = (s && s.themes) || themesLive;
+    if (!base || !base.rail) {
       host.innerHTML = '<p class="kpi-empty">No theme data in this snapshot.</p>';
       return;
     }
+    // Recompute for the selected period when the per-post index is present.
+    // Snapshots written before the index was added fall back to the stored
+    // since-launch totals, which is why the caption always says its span.
+    const win = base.index ? periodWindow() : null;
+    const t = base.index ? { ...base, ...themesForWindow(base, win) } : base;
+    const span = win
+      ? `${mdy(win.from)} – ${mdy(win.to)}`
+      : `since ${mdy(base.window_start)}`;
     const out = [];
+    if (base.index && !t.posts) {
+      host.innerHTML = `<p class="kpi-empty">No articles published ${span}.</p>`;
+      const g0 = $("[data-kpi-themes-gaps]");
+      if (g0) g0.innerHTML = "";
+      return;
+    }
 
     // Same markup as renderLoyalty's stat row — kpi-stats/kpi-stat-v/-l are
     // the styled classes; inventing new ones renders unstyled.
@@ -1777,7 +1869,7 @@
       <p class="kpi-chart-title">Content theme balance</p>
       <p class="kpi-chart-sub">Every article published since the new site went live, counted by theme.</p>
       <div class="kpi-stats">
-        ${stat(fmt(t.posts), `articles since ${mdy(t.window_start)}`)}
+        ${stat(fmt(t.posts), `articles ${span}`)}
         ${stat(t.cadence_per_week, "a week")}
         ${stat(fmt(t.covered), `under a homepage theme (${t.covered_share}%)`)}
         ${stat(fmt(t.tags_to_full_coverage), "tags needed to reach 100%")}
