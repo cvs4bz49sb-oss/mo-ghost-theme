@@ -144,6 +144,21 @@
             <div class="kpi-panel" data-kpi-features></div>
           </details>
 
+          {{!-- Content Theme Balance. A daily rebuild of the editorial report
+                in editorial/content-theme-balance-2026-08-10.md: how the
+                publication's output is distributed across the seven homepage
+                pills, which pieces never surface under any of them, and where
+                themes overlap. Data comes from the nightly snapshot's `themes`
+                block, or live from /kpi/themes when the snapshot predates it. --}}
+          <details class="kpi-sec" open>
+            <summary><span class="kpi-chev"></span>Content Themes</summary>
+            <div class="kpi-panel" data-kpi-themes></div>
+            <details class="kpi-sub">
+              <summary><span class="kpi-chev"></span>Articles that never surface under a pill</summary>
+              <div class="kpi-panel" data-kpi-themes-gaps></div>
+            </details>
+          </details>
+
           <details class="kpi-sec" open>
             <summary><span class="kpi-chev"></span>Acquisition</summary>
             <div class="kpi-charts" data-kpi-acquisition></div>

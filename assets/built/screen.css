@@ -20497,6 +20497,9 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-tbtn { font-size: 11.5px; padding: 3px 9px; color: var(--k-muted); }
 .kpi-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 13px; padding: 0; margin: 0 0 8px; }
 .kpi-legend li { font-size: 12px; color: var(--k-secondary); display: flex; align-items: center; gap: 6px; }
+/* Shown when a chart had a series with no data in the window and drew
+   the rest rather than blanking. Muted: it is a caveat, not a series. */
+.kpi-legend li.kpi-legend-note { color: var(--k-muted); font-style: italic; }
 .kpi-key { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
 .kpi-ax { stroke: #d8d4ce; stroke-width: 1; }
 .kpi-hz { cursor: crosshair; }

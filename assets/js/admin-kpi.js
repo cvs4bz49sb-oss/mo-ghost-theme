@@ -1698,6 +1698,108 @@
       </p>`;
   }
 
+
+  // ---- content theme balance ---------------------------------------------
+  //
+  // A daily rebuild of the editorial Content Theme Balance report. Two things
+  // this must not do, both of which would make it lie:
+  //   1. Draw a pie. Posts carry more than one tag, so the theme counts sum
+  //      past the post total; slices of a pie would imply they partition it.
+  //   2. Treat "carries the tag" as "is about it". The sole-theme count is
+  //      the honest signal — Family has four posts and was never the only
+  //      tag on any of them.
+  let themesLive = null;
+
+  function renderThemes(s) {
+    const host = $("[data-kpi-themes]");
+    if (!host) return;
+    const t = (s && s.themes) || themesLive;
+    if (!t || !t.rail) {
+      host.innerHTML = '<p class="kpi-empty">No theme data in this snapshot.</p>';
+      return;
+    }
+    const out = [];
+
+    // Same markup as renderLoyalty's stat row — kpi-stats/kpi-stat-v/-l are
+    // the styled classes; inventing new ones renders unstyled.
+    const stat = (v, l) => `<div class="kpi-stat"><span class="kpi-stat-v">${v}</span><span class="kpi-stat-l">${l}</span></div>`;
+    out.push(`<div class="kpi-chart">
+      <p class="kpi-chart-title">Content theme balance</p>
+      <p class="kpi-chart-sub">Every article published since the new site went live, counted by theme.</p>
+      <div class="kpi-stats">
+        ${stat(fmt(t.posts), `articles since ${mdy(t.window_start)}`)}
+        ${stat(t.cadence_per_week, "a week")}
+        ${stat(fmt(t.covered), `under a homepage theme (${t.covered_share}%)`)}
+        ${stat(fmt(t.tags_to_full_coverage), "tags needed to reach 100%")}
+      </div>
+      ${t.complete === false
+        ? `<p class="kpi-note">Ghost reports ${fmt(t.posts_expected)} posts but only ${fmt(t.posts)} were read, so these counts are understated.</p>`
+        : ""}
+    </div>`);
+
+    out.push(barBlock("The seven homepage themes",
+      "Articles carrying each tag. Posts carry more than one, so these sum past " + fmt(t.posts) + " — this is a count per theme, not slices of a pie.",
+      t.rail.map((r) => [r.name, r.posts]), { hoverOnly: false }));
+
+    out.push(tableBlock("Carried vs. sole theme",
+      "The right-hand column is the sharper number: how often a theme is the only one on a piece.",
+      ["Theme", { label: "Articles", num: true }, { label: "Share", num: true }, { label: "Sole theme", num: true }],
+      t.rail.map((r) => ({ cells: [r.name, fmt(r.posts), r.share + "%", fmt(r.sole)] })),
+      { foot: "Share is of all " + fmt(t.posts) + " articles, not of a pie." }));
+
+    if (t.by_month && t.by_month.length) {
+      const slugs = t.rail.map((r) => r.slug);
+      out.push(tableBlock("Month by month", "Partial months at each end of the window.",
+        ["Theme"].concat(t.by_month.map((m) => ({ label: bucketOf(m.month + "-01", "month").label, num: true }))),
+        [{ total: true, cells: ["All articles"].concat(t.by_month.map((m) => fmt(m.total))) }].concat(
+          slugs.map((slug, i) => ({
+            cells: [t.rail[i].name].concat(t.by_month.map((m) => fmt(m[slug] || 0))),
+          }))),
+        {}));
+    }
+
+    if (t.overlaps && t.overlaps.length) {
+      out.push(barBlock("Where themes overlap", "Articles carrying both tags.",
+        t.overlaps.slice(0, 8).map((o) => [o.a + " + " + o.b, o.posts]), { rotate: true }));
+    }
+
+    if (t.secondary && t.secondary.length) {
+      out.push(tableBlock("Secondary tags",
+        "Everything outside the seven pills. Several are series containers rather than subjects.",
+        ["Tag", { label: "Articles", num: true }],
+        t.secondary.map((x) => ({ cells: [x.name, fmt(x.posts)] })), {}));
+    }
+
+    const hist = t.tag_count_histogram || {};
+    out.push(`<p class="kpi-note">Tagging: ${fmt(hist[0] || 0)} articles carry no topic tag, `
+      + `${fmt(hist[1] || 0)} carry one, ${fmt(hist[2] || 0)} two, ${fmt(hist[3] || 0)} three, `
+      + `${fmt(hist[4] || 0)} four. Themes read from the live homepage rail`
+      + (t.rail_source === "fallback" ? " could not be read, so a stored list was used." : ".") + `</p>`);
+
+    host.innerHTML = out.filter(Boolean).join("");
+
+    const gaps = $("[data-kpi-themes-gaps]");
+    if (gaps) {
+      const rows = []
+        .concat((t.untagged || []).map((a) => ({ cells: [mdy(a.date), a.title, (a.authors || []).join(", "), "no topic tag"] })))
+        .concat((t.secondary_only || []).map((a) => ({ cells: [mdy(a.date), a.title, (a.authors || []).join(", "), (a.tags || []).join(", ")] })));
+      gaps.innerHTML = rows.length
+        ? tableBlock("Never surfaces under a homepage pill",
+          fmt(rows.length) + " of " + fmt(t.posts) + " articles. Tagging any of these to one of the seven puts it back on the rail.",
+          ["Date", "Title", "Author", "Tags it does carry"], rows, {})
+        : '<p class="kpi-empty">Every article carries at least one homepage theme.</p>';
+    }
+  }
+
+  // The themes block only exists on snapshots taken after this report was
+  // added, so older days fall back to computing it live.
+  async function loadThemes() {
+    try {
+      themesLive = await api("/kpi/themes");
+      if (!showing || !showing.themes) renderThemes(showing);
+    } catch (_) { /* the panel shows its own empty state */ }
+  }
+
   // ---- section navigation ------------------------------------------------
   //
   // Nine sections deep, the page is long enough that scrolling to Podcasts
@@ -2886,6 +2988,7 @@
     safe("audience", () => renderAudience(showing));
     safe("loyalty", () => renderLoyalty(showing));
     safe("features", () => renderFeatures(showing));
+    safe("themes", () => renderThemes(showing));
     safe("layout", () => wireLayout());
     lastRenderW = cachedW || chartW();
   }
@@ -3189,6 +3292,7 @@
 
   wireSectionNav();
   load();
+  loadThemes();
   loadAttributionData();
   loadLayout();
 })();
