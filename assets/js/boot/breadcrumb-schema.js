@@ -11,6 +11,7 @@
     "/archive/": [{ name: "Archive" }],
     "/contributors/": [{ name: "Contributors" }],
     "/submissions/": [{ name: "Write for Us" }],
+    "/writers-meetings/": [{ name: "Write for Us", url: "/submissions/" }, { name: "New Writers Meetings" }],
     "/contact/": [{ name: "Contact" }],
     "/events/": [{ name: "Events" }],
     "/ebooks/": [{ name: "Ebooks" }],

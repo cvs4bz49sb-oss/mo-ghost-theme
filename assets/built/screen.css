@@ -10,6 +10,7 @@
   --color-page: #f6f3f2;
   --color-dark: #2d2927;
   --color-white: #ffffff;
+  --color-cream: #f5efe1;
   --color-card-border: #d9c6a7;
   --color-card-featured-bg: #f1e0c9;
   --color-muted: #6b6660;
@@ -6783,7 +6784,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 
 .dashboard-body {
-  background: var(--color-cream, #f5efe1);
+  /* #f1e8d5 matches .about-body, not the cooler --color-cream used by
+     the dashboard/events family. This page reuses .about-prose and
+     .about-lede wholesale, and the --color-card-border hairlines were
+     tuned against the tan. */
+  background-color: #f1e8d5;
   padding: 72px 0 96px;
 }
 .dashboard-grid {
@@ -9026,7 +9031,12 @@ html[data-theme="dark"] .feature-gate-modal-body {
 }
 
 /* Submissions guidelines — Roman numeral list like .about-vision-grid
-   but stacked single-column for prose-length lines. */
+   but stacked single-column for prose-length lines.
+   TWO CONSUMERS: custom-submissions.hbs (the guidelines) and
+   custom-writers-meetings.hbs (the three meeting dates, which also adds
+   a mobile override). The names are page-semantic but the pattern is not;
+   if a third consumer appears, extract this to .numeral-list and repoint
+   both templates. Changing these rules changes both pages. */
 .submissions-guidelines {
   list-style: none;
   padding: 0;
@@ -9592,12 +9602,14 @@ label.site-form-field-check {
 }
 
 /* Checkbox grid for interest selection */
-.sponsor-interests {
+.sponsor-interests,
+.writers-meetings-checks {
   border: none;
   padding: 0;
   margin: 0;
 }
-.sponsor-interests legend {
+.sponsor-interests legend,
+.writers-meetings-checks legend {
   font-family: var(--font-body);
   font-size: 10px;
   font-weight: 600;
@@ -21507,4 +21519,159 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   .hm-controls .btn { margin-left: 0; }
   .hm-control--range input { width: 100px; }
   .hm-stage { max-height: 60vh; }
+}
+
+/* ── New Writers Meetings (/writers-meetings/) ─────────────────────────
+   Editorial page for the fall Zoom program. Layout borrows from
+   custom-about.hbs (.hero + .about-prose + .flourish + .section-intro)
+   and reuses the .submissions-guidelines Roman numeral list for the
+   three dates, so little is needed here beyond the page frame, the
+   at-a-glance facts list, and the registration panel.
+
+   NOTE: this page does NOT sit inside .about-body, so it does not inherit
+   .about-body's overrides of .section-intro and .flourish. Both are
+   re-stated below deliberately. Do not delete them as duplicates. */
+.writers-meetings-hero {
+  /* Padding only. The base .hero layers a gradient over mo-header-bg.jpg;
+     re-declaring `background` here would flatten it and make this the one
+     hero on the site without the texture. */
+  padding: 96px 0 72px;
+}
+.writers-meetings-hero .hero-sub { max-width: 640px; margin-top: 18px; }
+.writers-meetings-body {
+  /* #f1e8d5 matches .about-body, not the cooler --color-cream used by the
+     dashboard/events family. This page reuses .about-prose and .about-lede
+     wholesale, and the --color-card-border hairlines were tuned against
+     the tan. */
+  background-color: #f1e8d5;
+  padding: 72px 0 96px;
+}
+/* Base .section-intro is centred on a 720px measure; the prose here is
+   left-aligned on 640px, so centred headings over left copy read as a
+   mistake. Mirrors .about-body .section-intro. */
+.writers-meetings .section-intro {
+  max-width: 640px;
+  margin: 44px auto 20px;
+  text-align: left;
+}
+/* Base .flourish is `margin: 0 auto 48px` on a 280px max-width block.
+   A `margin: 48px 0` shorthand would zero the horizontal auto and shove
+   the ornament flush left. Keep `auto`. */
+.writers-meetings .flourish { margin: 48px auto; }
+
+/* At-a-glance facts. A description list rather than a table: it is five
+   label/value pairs, not tabular data. */
+.writers-meetings-facts {
+  max-width: 640px;
+  margin: 32px auto 0;
+  padding: 24px 0 0;
+  border-top: 1px solid var(--color-card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.writers-meetings-fact {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: 16px;
+  align-items: baseline;
+}
+.writers-meetings-fact dt {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--color-muted);
+}
+.writers-meetings-fact dd {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-dark);
+}
+
+/* Dates list. Short lines rather than prose, so it sits on the same
+   640px measure as .about-prose instead of the full narrow container. */
+.writers-meetings-dates {
+  max-width: 640px;
+  margin: 0 auto;
+  gap: 28px;
+}
+/* Keep the time range from breaking mid-range ("11:00am CT /" ⏎
+   "12:00pm ET") when the line wraps on a phone. */
+.writers-meetings-dates time { white-space: nowrap; }
+.submissions-guideline p.writers-meetings-reading {
+  /* (0,2,1) so it beats `.submissions-guideline p { margin: 0 }` without
+     an !important. */
+  margin-top: 6px;
+  font-style: italic;
+}
+/* The line is italic, so the essay title inside it must NOT be, or the
+   emphasis disappears. */
+.writers-meetings-reading em { font-style: normal; }
+.writers-meetings-reading a,
+.writers-meetings-footnote a {
+  color: var(--color-secondary);
+  border-bottom: 1px solid rgba(193, 89, 60, 0.35);
+  transition: border-color 0.15s;
+}
+.writers-meetings-reading a:hover,
+.writers-meetings-footnote a:hover { border-color: var(--color-secondary); }
+
+/* Registration panel. */
+.writers-meetings-form-panel {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.writers-meetings-form-intro {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0 0 24px;
+}
+/* .writers-meetings-checks shares .sponsor-interests' rules above.
+   The shared .site-form-field-check is ~21px tall (18px box, 13px label,
+   no min-height), well under the 44px touch minimum, and these three
+   boxes are this page's primary input. gap:0 is deliberate — with a 44px
+   min-height the whole label row is the target, so rows tile at exactly
+   44px pitch with no dead band between them. The same defect affects
+   /sponsorship/ and /submissions/; fixing it globally at .site-form-field-check
+   is a separate change. */
+.writers-meetings-checks { gap: 0; }
+.writers-meetings-checks .site-form-field-check {
+  min-height: 44px;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 15px;
+}
+.writers-meetings-checks .site-form-field-check input { margin-top: 0; }
+
+/* The closing pitch link is a real invitation, not fine print, so it
+   keeps body size rather than the muted 15px footnote treatment. */
+.writers-meetings-footnote {
+  max-width: 640px;
+  margin: 48px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-card-border);
+}
+
+@media (max-width: 640px) {
+  .writers-meetings-hero { padding: 48px 0 48px; }
+  .writers-meetings-body { padding: 48px 0 64px; }
+  .writers-meetings .flourish { margin: 36px auto; }
+  .writers-meetings-facts { gap: 16px; }
+  /* Stack the label above the value: a 128px label column leaves too
+     little for the value at 375px. */
+  .writers-meetings-fact { grid-template-columns: 1fr; gap: 4px; }
+  .writers-meetings-dates { gap: 24px; }
+  /* .submissions-guideline is a 48px + 1fr grid; on a phone the numeral
+     column eats too much of the line, so tighten it. */
+  .writers-meetings-dates .submissions-guideline { grid-template-columns: 32px 1fr; gap: 12px; }
+  .writers-meetings-dates .submissions-guideline-numeral { font-size: 28px; }
+  /* .about-prose bumps to 17px at this breakpoint; the meeting times are
+     the point of the page and should not be its smallest text. */
+  .writers-meetings-dates .submissions-guideline p { font-size: 16px; }
 }

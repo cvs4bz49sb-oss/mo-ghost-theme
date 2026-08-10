@@ -181,6 +181,33 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       };
+    } else if (kind === "writers-meetings") {
+      // New Writers Meetings RSVP → mo-forms /writers-meetings. Emails
+      // Nadya and copies the row into a Google Form's linked sheet.
+      // `meetings` is a checkbox group of date keys; the worker filters
+      // to its own known set, so an unexpected value is dropped there
+      // rather than trusted here.
+      url = `${worker}/writers-meetings`;
+      const meetings = Array.from(form.querySelectorAll('[name="meetings"]:checked'))
+        .map((cb) => cb.value);
+      if (!meetings.length) {
+        setStatus(status, "Please choose at least one meeting.", true);
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+      const body = {
+        firstName: val("[name=firstName]"),
+        lastName: val("[name=lastName]"),
+        email: val("[name=email]"),
+        meetings,
+        note: val("[name=note]"),
+        turnstile_token: turnstileToken,
+      };
+      init = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      };
     } else {
       url = `${worker}/submissions`;
       const fd = new FormData(form);
@@ -234,12 +261,15 @@
     const titles = {
       contact: "Thanks — message sent.",
       sponsorship: "Thanks — inquiry received.",
+      "writers-meetings": "You're on the list.",
     };
     const bodies = {
       contact: "We'll be in touch soon.",
       sponsorship: "We'll follow up with rates and availability shortly.",
+      "writers-meetings": "We'll send the Zoom link and the essay before the first meeting you picked.",
     };
-    let eyebrow = "Sent";
+    const eyebrows = { "writers-meetings": "Registered" };
+    let eyebrow = eyebrows[kind] || "Sent";
     let title = titles[kind] || "Thanks — submission received.";
     let body = bodies[kind] || "We'll read your essay and be in touch within two weeks.";
     if (kind === "newsletter") {

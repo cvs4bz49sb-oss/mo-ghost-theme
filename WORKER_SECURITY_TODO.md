@@ -74,6 +74,8 @@ This is the canonical list of every theme→worker route, the auth model the the
 | mo-admin | `/admin/*` | GET/POST | JWT (admin) | Verify JWT + staff check | **SHIPPED** (verified 2026-05-11) |
 | mo-forms | `/contact` | POST | None | Origin allowlist + per-IP RL 5/15min | **SHIPPED** (verified 2026-05-11); Turnstile still pending (H7 Option B) |
 | mo-forms | `/submissions` | POST (multipart) | None | Origin allowlist + per-IP RL 3/hr + MIME validation | **SHIPPED** (verified 2026-05-11); Turnstile still pending (H7 Option B) |
+| mo-forms | `/sponsorship` | POST | None | Origin allowlist + per-IP RL 3/15min + Turnstile | **SHIPPED** |
+| mo-forms | `/writers-meetings` | POST | None | Origin allowlist + per-IP RL 5/15min + Turnstile | **SHIPPED** |
 | Ghost Members API | `/members/api/session/` | GET | session cookie | (Ghost-managed) | OK |
 | Ghost Members API | `/members/api/integrity-token/` | GET | session cookie | (Ghost-managed) | OK |
 | Ghost Members API | `/members/api/send-magic-link/` | POST | integrity token | (Ghost-managed) | OK |
