@@ -1,11 +1,11 @@
 {{!< default}}
 {{#contentFor "moHead"}}
 <title>New Writers Meetings | Mere Orthodoxy</title>
-<meta name="description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been meaning to. Part introduction, part training, built around a single essay." />
+<meta name="description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been wanting to. Part introduction, part training, built around a single essay." />
 <meta property="og:title" content="New Writers Meetings" />
-<meta property="og:description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been meaning to. Part introduction, part training, built around a single essay." />
+<meta property="og:description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been wanting to. Part introduction, part training, built around a single essay." />
 <meta name="twitter:title" content="New Writers Meetings" />
-<meta name="twitter:description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been meaning to. Part introduction, part training, built around a single essay." />
+<meta name="twitter:description" content="Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, or who have been wanting to. Part introduction, part training, built around a single essay." />
 {{/contentFor}}
 {{!-- /writers-meetings/ — routed via routes.yaml. Public, not member-gated.
      Editorial layout matching custom-about.hbs: dark hero, dropcap lede,
@@ -19,11 +19,13 @@
      II and III as they are chosen.
 
      Registration posts to the mo-forms worker (/writers-meetings), which
-     emails Nadya and copies the row into a Google Form's linked sheet.
-     BEFORE THIS PAGE GOES LIVE the worker needs WRITERS_MEETINGS_TO set
-     (and, for the sheet leg, WRITERS_MEETINGS_GFORM_URL +
-     WRITERS_MEETINGS_GFORM_ENTRIES). Until those are set the routes.yaml
-     entry stays commented out and the digest promo's href stays empty. --}}
+     emails the address in WRITERS_MEETINGS_TO and copies the row into a
+     Google Form's linked sheet. LIVE since 2026-08-10. Two config items
+     are still open in workers/forms/wrangler.toml: WRITERS_MEETINGS_TO is
+     empty (so RSVPs fall back to submissions@, not Nadya), and the Google
+     Form's "Meeting Attending" question is single-select, which rejects
+     the repeated entry params we post for a multi-meeting RSVP. It needs
+     to be a Checkboxes question. The email leg works either way. --}}
 
 <main class="writers-meetings">
 
@@ -31,7 +33,7 @@
     <div class="container">
       <p class="hero-kicker"><span class="dot"></span> New Writers Meetings</p>
       <h1 class="hero-headline">An invitation to <span class="highlight"><em>write with us</em></span>.</h1>
-      <p class="hero-sub">Three conversations this fall for writers who have pitched <em>Mere&nbsp;Orthodoxy</em>, and for those who have been meaning to.</p>
+      <p class="hero-sub">Three conversations this fall for writers who have pitched <em>Mere&nbsp;Orthodoxy</em>, and for those who have been wanting to.</p>
     </div>
   </section>
 
@@ -40,7 +42,7 @@
 
       <div class="about-prose">
         <p class="about-lede">Most of what we publish arrives from writers we have never met. An essay comes in, an editor reads it, a note goes back, and somewhere in that exchange a working relationship begins without anyone having said hello. That is a strange way to do the work, and this fall we would like to try something else.</p>
-        <p>Beginning in September we are hosting three one-hour conversations over Zoom. Each is part introduction and part training: time to meet the editors and one another, and time to talk carefully about how an essay actually holds together. This is an experiment. We are starting with three meetings and will see what they become.</p>
+        <p>Beginning in September we are hosting three one-hour conversations over Zoom. Each is part introduction and part training: time to meet the editors and one another, and time to talk carefully about how an essay actually holds together. We are starting with three meetings and will see what they become.</p>
       </div>
 
       {{!-- At-a-glance. Nothing above the fold otherwise tells a reader
@@ -70,7 +72,7 @@
         <h2 class="section-heading"><em>An open invitation.</em></h2>
       </div>
       <div class="about-prose">
-        <p>You do not need to have written for us, and you do not need to be a member. If you have pitched an essay, whether or not we ran it, this is for you. If you have been meaning to pitch and have not yet worked up the nerve, this is also for you. There is no application and no roster of prior contributors to belong to. Come to all three meetings or come to one.</p>
+        <p>You do not need to have written for us, and you do not need to be a member. If you have pitched an essay, whether or not we ran it, this is for you. If you have been meaning to pitch and have not yet done so, this is also for you. There is no application and no roster of prior contributors to belong to. Come to all three meetings or come to one.</p>
       </div>
 
       <div class="section-intro">

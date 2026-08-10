@@ -312,7 +312,7 @@ const BUILTIN_SPONSORS = [
     name: 'Mere Orthodoxy',
     label: 'From The Editors',
     headline: 'New Writers Meetings',
-    body: 'Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, and for those who have been meaning to. Part introduction, part training, each one built around a single essay we read beforehand. September 8, October 6, and November 3, at 11:00am CT.',
+    body: 'Three one-hour conversations this fall for writers who have pitched Mere Orthodoxy, and for those who have been wanting to. Part introduction, part training, each one built around a single essay we read beforehand. September 8, October 6, and November 3, at 11:00am CT.',
     cta: 'See The Dates →',
     href: 'https://mereorthodoxy.com/writers-meetings/#register',
   },
