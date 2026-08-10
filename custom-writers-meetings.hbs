@@ -22,10 +22,10 @@
      emails the address in WRITERS_MEETINGS_TO and copies the row into a
      Google Form's linked sheet. LIVE since 2026-08-10. Two config items
      are still open in workers/forms/wrangler.toml: WRITERS_MEETINGS_TO is
-     empty (so RSVPs fall back to submissions@, not Nadya), and the Google
-     Form's "Meeting Attending" question is single-select, which rejects
-     the repeated entry params we post for a multi-meeting RSVP. It needs
-     to be a Checkboxes question. The email leg works either way. --}}
+     empty (so RSVPs fall back to submissions@, not Nadya), and the form
+     has no "note" question, so a registrant's note reaches the email but
+     not the sheet. Registration is ONE meeting per submission, matching
+     the Google Form's single-select question. --}}
 
 <main class="writers-meetings">
 
@@ -127,7 +127,7 @@
         <h2 class="section-heading"><em>Come and sit in.</em></h2>
       </div>
       <div class="writers-meetings-form-panel">
-        <p class="writers-meetings-form-intro">Tell us who you are and which of the three you plan to join. We will send the Zoom link and the reading beforehand. There is no cost, and you are welcome at one meeting or all three.</p>
+        <p class="writers-meetings-form-intro">Tell us who you are and which meeting you plan to join. We will send the Zoom link and the reading beforehand. There is no cost. If you hope to come to more than one, say so in the note and we will add you.</p>
         <form class="site-form" data-site-form="writers-meetings" data-worker-url="{{@custom.forms_worker_url}}" novalidate>
           <div class="site-form-row">
             <div class="site-form-field">
@@ -144,18 +144,22 @@
             <input id="wm-email" name="email" type="email" autocomplete="email" required />
           </div>
 
+          {{!-- Radios, not checkboxes: the Google Form's matching question
+                is single-select, so one meeting per registration. Someone
+                who wants more than one says so in the note below, which
+                reaches the email. --}}
           <fieldset class="site-form-field writers-meetings-checks">
-            <legend>Which meetings will you join?</legend>
+            <legend>Which meeting will you join?</legend>
             <label class="site-form-field-check">
-              <input type="checkbox" name="meetings" value="2026-09-08" />
+              <input type="radio" name="meetings" value="2026-09-08" required />
               <span>Tuesday, September 8</span>
             </label>
             <label class="site-form-field-check">
-              <input type="checkbox" name="meetings" value="2026-10-06" />
+              <input type="radio" name="meetings" value="2026-10-06" required />
               <span>Tuesday, October 6</span>
             </label>
             <label class="site-form-field-check">
-              <input type="checkbox" name="meetings" value="2026-11-03" />
+              <input type="radio" name="meetings" value="2026-11-03" required />
               <span>Tuesday, November 3</span>
             </label>
           </fieldset>

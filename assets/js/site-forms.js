@@ -184,14 +184,16 @@
     } else if (kind === "writers-meetings") {
       // New Writers Meetings RSVP → mo-forms /writers-meetings. Emails
       // Nadya and copies the row into a Google Form's linked sheet.
-      // `meetings` is a checkbox group of date keys; the worker filters
-      // to its own known set, so an unexpected value is dropped there
-      // rather than trusted here.
+      // `meetings` is a RADIO group of date keys (one meeting per
+      // registration, matching the single-select question on the Google
+      // Form). Still sent as an array so the worker contract is unchanged;
+      // the worker filters to its own known set and takes the first, so an
+      // unexpected value is dropped there rather than trusted here.
       url = `${worker}/writers-meetings`;
       const meetings = Array.from(form.querySelectorAll('[name="meetings"]:checked'))
         .map((cb) => cb.value);
       if (!meetings.length) {
-        setStatus(status, "Please choose at least one meeting.", true);
+        setStatus(status, "Please choose a meeting.", true);
         if (submitBtn) submitBtn.disabled = false;
         return;
       }
