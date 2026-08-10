@@ -1252,6 +1252,56 @@
   // A comparison of two or three categories is a table, not a chart. Bars
   // need a range to be worth drawing; "annual vs monthly" is two numbers
   // and a lot of empty card. Same card chrome, so the grid stays uniform.
+
+  // Horizontal bars, for charts whose LABELS ARE THE DATA.
+  //
+  // barBlock() puts categories on the x-axis, which forces rotated labels on
+  // a phone and then either truncates them ("Book Reviews…" three times over,
+  // indistinguishable) or thins them out entirely (seven bars, four labels).
+  // Either way the reader cannot tell which bar is which, which is fatal when
+  // the category name IS the finding.
+  //
+  // Laid out horizontally the label gets a full line, wraps instead of
+  // truncating, and stacks above the bar on a narrow screen. Plain elements
+  // rather than SVG so text reflows with the viewport instead of being baked
+  // at render width.
+  //
+  // pairs: [label, value] or [label, value, subValue] — the sub bar overlays
+  // the main one, as in the printed report where the accent bar shows how
+  // often a theme is the ONLY one on a piece.
+  function hBarBlock(title, sub, pairs, opts) {
+    const o = opts || {};
+    if (!pairs || !pairs.length) return "";
+    const mx = Math.max(...pairs.map((p) => p[1]), 1);
+    const f = o.f || fmt;
+    const rows = pairs.map((p) => {
+      const [label, v, sv] = p;
+      const pct = Math.max(v > 0 ? 1.5 : 0, (v / mx) * 100);
+      const spct = typeof sv === "number" ? Math.max(sv > 0 ? 1.5 : 0, (sv / mx) * 100) : null;
+      const share = o.shareOf ? ` <span class="kpi-hbar-p">${Math.round((v / o.shareOf) * 100)}%</span>` : "";
+      const title2 = typeof sv === "number" ? ` title="${esc(label)}: ${f(v)}, sole theme on ${f(sv)}"` : "";
+      return `<li${title2}>
+        <span class="kpi-hbar-l">${esc(label)}</span>
+        <span class="kpi-hbar-t">
+          <span class="kpi-hbar-f" style="width:${pct.toFixed(1)}%"></span>
+          ${spct == null ? "" : `<span class="kpi-hbar-f is-sole" style="width:${spct.toFixed(1)}%"></span>`}
+        </span>
+        <span class="kpi-hbar-v">${f(v)}${share}</span>
+      </li>`;
+    }).join("");
+    const legend = o.legend
+      ? `<ul class="kpi-legend"><li><span class="kpi-key" style="background:${C1}"></span>${esc(o.legend[0])}</li>`
+        + `<li><span class="kpi-key" style="background:${C2}"></span>${esc(o.legend[1])}</li></ul>`
+      : "";
+    return `<div class="kpi-chart">
+      <p class="kpi-chart-title">${title}</p>
+      ${sub ? `<p class="kpi-chart-sub">${sub}</p>` : ""}
+      ${legend}
+      <ul class="kpi-hbars">${rows}</ul>
+      ${o.foot ? `<p class="kpi-note">${o.foot}</p>` : ""}
+    </div>`;
+  }
+
   function tableBlock(title, sub, headers, rows, opts) {
     if (!rows.length) return "";
     const o = opts || {};
@@ -1737,9 +1787,10 @@
         : ""}
     </div>`);
 
-    out.push(barBlock("The seven homepage themes",
+    out.push(hBarBlock("The seven homepage themes",
       "Articles carrying each tag. Posts carry more than one, so these sum past " + fmt(t.posts) + " — this is a count per theme, not slices of a pie.",
-      t.rail.map((r) => [r.name, r.posts]), { hoverOnly: false }));
+      t.rail.map((r) => [r.name, r.posts, r.sole]),
+      { shareOf: t.posts, legend: ["Articles carrying the tag", "Articles where it is the only theme"] }));
 
     out.push(tableBlock("Carried vs. sole theme",
       "The right-hand column is the sharper number: how often a theme is the only one on a piece.",
@@ -1759,8 +1810,8 @@
     }
 
     if (t.overlaps && t.overlaps.length) {
-      out.push(barBlock("Where themes overlap", "Articles carrying both tags.",
-        t.overlaps.slice(0, 8).map((o) => [o.a + " + " + o.b, o.posts]), { rotate: true }));
+      out.push(hBarBlock("Where themes overlap", "Articles carrying both tags.",
+        t.overlaps.slice(0, 10).map((o) => [o.a + " + " + o.b, o.posts]), {}));
     }
 
     if (t.secondary && t.secondary.length) {

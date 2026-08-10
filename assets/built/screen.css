@@ -20500,6 +20500,68 @@ html[data-theme="dark"] .dlr-play-btn {
 /* Shown when a chart had a series with no data in the window and drew
    the rest rather than blanking. Muted: it is a caveat, not a series. */
 .kpi-legend li.kpi-legend-note { color: var(--k-muted); font-style: italic; }
+
+/* Horizontal bars, used where the category NAME is the finding — theme
+   balance, theme overlaps. Vertical bars force rotated x-labels, which on a
+   phone truncate to "Book Reviews…" on three different bars, or get thinned
+   until four of seven have no label at all. Here the label owns a line and
+   wraps; nothing is ever clipped. */
+/* The LIST owns the grid, not each row: with a grid per <li> the label
+   column sizes to that row's own text, so every bar starts at a different x
+   and their lengths stop being comparable — which is the entire job of a bar
+   chart. display:contents lifts each row's cells into the shared tracks. */
+.kpi-hbars {
+  list-style: none; margin: 10px 0 0; padding: 0;
+  display: grid;
+  grid-template-columns: minmax(96px, max-content) 1fr auto;
+  align-items: center;
+  gap: 9px 12px;
+}
+.kpi-hbars li { display: contents; }
+
+.kpi-hbar-l { line-height: 1.25; overflow-wrap: anywhere; max-width: 260px; }
+.kpi-hbar-t {
+  position: relative;
+  height: 14px;
+  background: var(--k-line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+/* Both fills start at the left edge and overlay, so the accent reads as a
+   portion OF the total rather than a separate quantity beside it. */
+.kpi-hbar-f { position: absolute; left: 0; top: 0; height: 100%; background: #2a78d6; border-radius: 3px; }
+.kpi-hbar-f.is-sole { background: #eb6834; }
+.kpi-hbar-v {
+  font-variant-numeric: tabular-nums;
+  color: var(--k-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.kpi-hbar-p { color: var(--k-muted); font-weight: 400; margin-left: 6px; }
+
+@media (max-width: 640px) {
+  /* Back to a row-per-entry grid on a phone: the shared three-column layout
+     has no room, and each entry needs label+value stacked over its own bar.
+     The list stops being a grid here, so its row gap no longer separates
+     entries — without an explicit margin each label sits as close to the
+     PREVIOUS bar as to its own, and the pairing becomes ambiguous. */
+  .kpi-hbars { display: block; }
+  .kpi-hbars li { display: grid; align-items: baseline; margin: 0 0 15px; }
+  .kpi-hbars li:last-child { margin-bottom: 0; }
+  /* Label and value share the first row, the bar spans beneath. Keeps long
+     pair names like "Book Reviews + Technology" fully readable at 375px.
+     Named areas rather than auto-flow: the track spans both columns, so in
+     source order it pushes the value onto a third row and each entry eats
+     three lines instead of two. */
+  .kpi-hbars li {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "label value" "track track";
+    gap: 3px 10px;
+  }
+  .kpi-hbar-l { grid-area: label; font-size: 13.5px; color: var(--k-text); }
+  .kpi-hbar-v { grid-area: value; }
+  .kpi-hbars li .kpi-hbar-t { grid-area: track; height: 12px; }
+}
 .kpi-key { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
 .kpi-ax { stroke: #d8d4ce; stroke-width: 1; }
 .kpi-hz { cursor: crosshair; }
