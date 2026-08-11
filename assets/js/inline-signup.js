@@ -479,11 +479,19 @@
       callback(token) { tokenByRoot.set(root, token); },
       "error-callback"() { tokenByRoot.delete(root); },
       "expired-callback"() { tokenByRoot.delete(root); },
-      // Invisible unless Cloudflare actually wants a challenge. Most
-      // visitors pass passively and never see a widget, which keeps a
-      // vendor card out of an editorial page and avoids shoving the
-      // Register button down the screen mid-interaction.
-      appearance: "interaction-only",
+      // Default appearance, deliberately, even though a visible widget
+      // is the uglier answer on an editorial page.
+      // `appearance: "interaction-only"` would hide it from the
+      // visitors who pass passively, and Cloudflare's docs say "most
+      // visitors will never see the widget" without stating outright
+      // that a token is still issued when nobody interacts. Turnstile
+      // refuses to complete in an automated browser by design, so that
+      // could not be verified here, and being wrong would block every
+      // registration with "the bot check hasn't finished" rather than
+      // failing visibly. The other four forms on this worker have run
+      // the default config in production for months.
+      // Worth revisiting once someone can confirm interaction-only in
+      // a normal browser.
       theme: "light",
     });
     widgetByRoot.set(root, id);

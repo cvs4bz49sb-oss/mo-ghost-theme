@@ -3010,12 +3010,14 @@ body {
 
 /* /forum/ registration extras. Both span the full three-column digest
    grid; dropped into a column they would sit under one field and read
-   as belonging to it. The Turnstile slot stays hidden until events.js
-   finds a webinar on the event post; the widget renders
-   interaction-only, so for most visitors it stays empty. */
+   as belonging to it. The Turnstile slot is revealed as soon as the
+   widget is rendered, and min-height reserves the 300x65 iframe so an
+   async widget arriving after first paint doesn't shove the Register
+   button down the page while someone is reaching for it. */
 .events-register-turnstile {
   grid-column: 1 / -1;
   margin: 12px 0 4px;
+  min-height: 65px;
 }
 .events-register-turnstile[hidden] { display: none; }
 .digest-form .digest-fallback {
