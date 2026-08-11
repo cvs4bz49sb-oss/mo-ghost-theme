@@ -75,11 +75,12 @@
              swapped in by events.js only when there's a webinar. --}}
         <p class="events-register-sub" data-events-register-sub>Enter your name and email and we'll send you the details for this forum. If you're not already subscribed, we'll also email you a link to confirm your free subscription to Mere Orthodoxy.</p>
 
-        {{!-- data-zoom-endpoint points at mo-forms; events.js adds
-             data-zoom-webinar off the event post and only then does
-             this become a real Zoom registration. See the header
+        {{!-- data-register-endpoint points at mo-forms, which records
+             every registration in D1. events.js adds data-zoom-webinar
+             off the event post when it finds a Zoom link, and only then
+             does the same call also book a webinar seat. See the header
              comments in assets/js/events.js and inline-signup.js. --}}
-        <div class="digest-form events-register-form" data-inline-signup data-source="forum-page" data-event-name-from="[data-events-title]" data-zoom-endpoint="{{@custom.forms_worker_url}}" data-replace-on-success=".events-register">
+        <div class="digest-form events-register-form" data-inline-signup data-source="forum-page" data-event-name-from="[data-events-title]" data-register-endpoint="{{@custom.forms_worker_url}}" data-replace-on-success=".events-register">
           <div class="digest-field">
             <label for="event-first">First Name</label>
             <input id="event-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />

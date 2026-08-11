@@ -138,34 +138,32 @@
     });
     body.hidden = false;
 
-    // Hand this event's Zoom webinar to the registration form. The form
-    // is inert about Zoom until these attributes appear, which is what
-    // keeps an event with no webinar (or a post where Ian hasn't pasted
-    // the link yet) from promising a seat it can't book.
+    // The form posts every registration to mo-forms regardless, so the
+    // person is recorded whether or not this event has a webinar yet.
+    // What follows only adds the Zoom half.
     const regForm = document.querySelector("[data-inline-signup][data-event-name-from]");
+    if (regForm) {
+      regForm.setAttribute("data-event-slug", e.slug);
+      // The bot check gates the registration endpoint, so it is needed
+      // on every event, not just the ones with a webinar. Rendered
+      // interaction-only, so most visitors never see anything.
+      if (window.MOInlineSignup && window.MOInlineSignup.ensureTurnstile) {
+        window.MOInlineSignup.ensureTurnstile(regForm);
+      }
+    }
     if (regForm && e.zoom) {
       regForm.setAttribute("data-zoom-webinar", e.zoom.id);
       regForm.setAttribute("data-zoom-url", e.zoom.url);
       stripZoomLinks(prose);
-      // The form's standing copy can't promise a Zoom seat, because
-      // an event post without a link degrades to a plain subscribe.
-      // Say the stronger thing only once we know it's true.
-      // Keep the subscription sentence. It is the only statement made
-      // before anyone submits about what else signing up does, and
-      // dropping it in the mode where the signup actually happens
-      // would mean the disclosure only ever appears on the path that
-      // doesn't need it.
+      // Careful about what this promises. A link on the post means the
+      // page CAN book a seat; whether the worker actually does depends
+      // on credentials it has no way to check from here. So the
+      // sentence commits to the outcome the reader cares about, which
+      // is true in every case, rather than to the mechanism. The
+      // subscription clause stays either way: it is the only statement
+      // made before anyone submits about what else signing up does.
       const sub = document.querySelector("[data-events-register-sub]");
-      if (sub) sub.textContent = "Enter your name and email. We'll book your seat on the Zoom call and send you the join link. If you're not already subscribed, we'll also email you a link to confirm your free subscription to Mere Orthodoxy.";
-      // Bot check, rendered only now: the Zoom endpoint is the only
-      // thing on this page that needs it, and a widget on a form that
-      // doesn't post to it would be friction for nothing. This runs
-      // before site.min.js has defined MOInlineSignup, so the bundle
-      // also sweeps for marked forms once it loads; both are
-      // idempotent and either can win.
-      if (window.MOInlineSignup && window.MOInlineSignup.ensureTurnstile) {
-        window.MOInlineSignup.ensureTurnstile(regForm);
-      }
+      if (sub) sub.textContent = "Enter your name and email. We'll register you and send the Zoom join link before the forum starts. If you're not already subscribed, we'll also email you a link to confirm your free subscription to Mere Orthodoxy.";
     }
   }
 

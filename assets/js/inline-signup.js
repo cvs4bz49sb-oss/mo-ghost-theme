@@ -21,24 +21,28 @@
  * Event delegation so dynamically-injected forms (e.g. the post gate
  * card) work without init.
  *
- * ZOOM MODE (/forum/)
+ * REGISTRATION MODE (/forum/)
  * A form that also carries
  *
- *   data-zoom-webinar="WN_…"   the webinar, set by events.js off the post
- *   data-zoom-endpoint="…"     the mo-forms worker base URL
- *   data-zoom-url="…"          the public Zoom registration page
- *   <div data-turnstile-wrap>  slot for the bot check
+ *   data-register-endpoint="…"  the mo-forms worker base URL
+ *   <div data-turnstile-wrap>   slot for the bot check
+ *   data-zoom-webinar="WN_…"    OPTIONAL, set by events.js off the post
+ *   data-zoom-url="…"           OPTIONAL, the public Zoom registration page
  *
- * registers the person for that Zoom webinar first, then does the same
- * Ghost subscribe as every other form. Order matters: the button says
- * Register, so the seat is what must succeed, and a Ghost failure after
- * Zoom said yes is logged rather than shown. If the Zoom call fails the
- * form surfaces the error and a link to Zoom's own registration page,
- * so a worker outage never leaves someone with no way to sign up.
+ * posts the person to mo-forms /forum-register before doing the same
+ * Ghost subscribe as every other form. That call always records them in
+ * D1; if the event post carries a Zoom link it also books the webinar
+ * seat and comes back with a join link.
+ *
+ * Order matters: the button says Register, so being recorded is what
+ * must succeed, and a Ghost failure afterwards is logged rather than
+ * shown. If the registration call fails the form surfaces the error,
+ * plus a link to Zoom's own page when there is one, so an outage never
+ * leaves someone with no way to sign up.
  */
 (function () {
   const MAGIC_URL = "/members/api/send-magic-link/";
-  const ZOOM_PATH = "/zoom-register";
+  const REGISTER_PATH = "/forum-register";
 
   // Mirrors what Portal records: where the visitor is, where they came
   // from, and any campaign tagging on the URL. Ghost reads UTM parameters
@@ -104,30 +108,31 @@
     const first = getValue(root, "[data-signup-first]");
     const last = getValue(root, "[data-signup-last]");
     const name = [first, last].filter(Boolean).join(" ");
-    const webinar = (root.getAttribute("data-zoom-webinar") || "").trim();
+    const endpoint = (root.getAttribute("data-register-endpoint") || "").trim();
 
-    // Zoom requires both halves of the name. Ghost is happy without
-    // them, which is why this check is scoped to zoom mode.
-    if (webinar && (!first || !last)) {
+    // Registration needs both halves of the name (Zoom requires them,
+    // and a list of first names is no use to anyone). Plain subscribe
+    // forms are happy without, which is why this is scoped.
+    if (endpoint && (!first || !last)) {
       setStatus(root, "Enter your first and last name.", true);
       return;
     }
 
     const originalText = submit.textContent;
     submit.disabled = true;
-    submit.textContent = webinar ? "Registering\u2026" : "Subscribing\u2026";
+    submit.textContent = endpoint ? "Registering\u2026" : "Subscribing\u2026";
     setStatus(root, "");
 
-    if (!webinar) {
+    if (!endpoint) {
       ghostSignup(root, email, name)
         .then(() => { renderSuccess(root, email); })
         .catch((err) => { restore(root, submit, originalText, err); });
       return;
     }
 
-    registerZoom(root, webinar, { first, last, email })
-      .then((joinUrl) => {
-        const success = renderZoomSuccess(root, email, joinUrl);
+    registerForum(root, endpoint, { first, last, email })
+      .then((result) => {
+        const success = renderRegisteredSuccess(root, email, result);
         // Two emails land within seconds of each other, so the second
         // one gets explained rather than looking like spam. It is
         // announced only once Ghost has actually accepted, because
@@ -136,12 +141,12 @@
         ghostSignup(root, email, name)
           .then(() => { addSubscribeNote(success); })
           .catch((err) => {
-            console.warn("inline-signup: Ghost subscribe failed after Zoom registration", err && err.message);
+            console.warn("inline-signup: Ghost subscribe failed after registration", err && err.message);
           });
       })
       .catch((err) => {
         restore(root, submit, originalText, err);
-        showZoomFallback(root);
+        showRecovery(root);
       });
   }
 
@@ -205,37 +210,45 @@
   }
 
   // -------------------------------------------------------------------
-  // Zoom webinar registration (see the header comment)
+  // Forum registration (see the header comment)
   // -------------------------------------------------------------------
 
-  function registerZoom(root, webinar, person) {
-    const base = (root.getAttribute("data-zoom-endpoint") || "").trim().replace(/\/$/, "");
-    if (!base) {
-      return Promise.reject(new Error("Registration isn't set up yet. Register on Zoom directly."));
-    }
+  function registerForum(root, endpoint, person) {
+    const base = endpoint.replace(/\/$/, "");
+    // Optional: absent until Ian pastes the Zoom link on the event
+    // post. Without it the worker records the person and nothing else,
+    // which is a complete registration as far as they are concerned.
+    const webinar = (root.getAttribute("data-zoom-webinar") || "").trim();
     return awaitTurnstile(root).then((token) => {
       if (TURNSTILE_KEY && !token) {
         // Two messages, and the distinction matters. If the script
         // never loaded (extension, corporate proxy) there is no widget
         // on the page, so telling someone to complete one reads as
-        // nonsense and leaves them stuck; send them to Zoom instead.
+        // nonsense and leaves them stuck.
         // Otherwise the check is rendered but hasn't produced a token
         // after the wait above. That is either a passive check still
         // running or a visible challenge nobody has touched, and since
         // the widget is interaction-only there is no reliable way to
         // tell those apart from here. The wording covers both without
         // claiming there is something on screen to click.
+        // Both branches leave a recovery link behind them (showRecovery
+        // runs on every rejection), so the copy points at it rather
+        // than naming a destination that may not apply.
         throw new Error(root.hasAttribute("data-turnstile-failed")
-          ? "The bot check didn't load. Register on Zoom directly."
+          ? "The bot check didn't load. Use the link below and we'll get you registered."
           : "The bot check hasn't finished. Wait a moment, then register again.");
       }
-      return fetch(base + ZOOM_PATH, {
+      return fetch(base + REGISTER_PATH, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           firstName: person.first,
           lastName: person.last,
           email: person.email,
+          // Which forum they signed up for. Recorded alongside them so
+          // a list pulled months later still says what it was for.
+          eventTitle: textOf("[data-events-title]"),
+          eventSlug: root.getAttribute("data-event-slug") || "",
           webinar,
           turnstile_token: token,
         }),
@@ -243,11 +256,16 @@
     }).then((res) => {
       return res.json().catch(() => null).then((data) => {
         if (!res.ok || !data || data.ok !== true) {
-          throw new Error((data && data.error) || "We couldn't book your seat. Try again in a minute, or register on Zoom directly.");
+          throw new Error((data && data.error) || "We couldn't save your registration. Try again in a minute, or use the link below.");
         }
-        return safeZoomUrl(data.joinUrl);
+        return { zoom: data.zoom === true, joinUrl: safeZoomUrl(data.joinUrl) };
       });
     });
+  }
+
+  function textOf(selector) {
+    const el = document.querySelector(selector);
+    return el ? (el.textContent || "").trim() : "";
   }
 
   /**
@@ -287,7 +305,9 @@
   // renderer that also embeds a URL from an external service, and a
   // string-built version of it will fail every future audit's
   // innerHTML grep on principle.
-  function renderZoomSuccess(root, email, joinUrl) {
+  function renderRegisteredSuccess(root, email, result) {
+    const joinUrl = result && result.joinUrl;
+    const viaZoom = !!(result && result.zoom);
     const success = document.createElement("div");
     success.className = "inline-signup-success";
     success.setAttribute("role", "status");
@@ -303,17 +323,31 @@
     const heading = document.createElement("h2");
     heading.className = "inline-signup-success-title";
     const em = document.createElement("em");
-    em.textContent = "Your seat is saved.";
+    // "Your seat is saved" is only true when something is actually
+    // holding one. In the record-only state there is a row in our
+    // table and a promise to keep, so the heading makes a promise
+    // instead of reporting a reservation that doesn't exist.
+    em.textContent = viaZoom ? "Your seat is saved." : "We'll see you there.";
     heading.appendChild(em);
 
+    // Three states, and the copy has to be true in each. Zoom holding
+    // a seat and having emailed the link is the finished version; Zoom
+    // holding a seat with no link back is the manual-approval case; and
+    // with Zoom not yet connected, all we can honestly say is that we
+    // have them and the link is coming.
     const line = document.createElement("p");
-    line.appendChild(document.createTextNode("Zoom sent your join link to "));
+    line.appendChild(document.createTextNode(viaZoom
+      ? "Zoom sent your join link to "
+      : "The Zoom link goes to "));
     const strong = document.createElement("strong");
     strong.textContent = email;
     line.appendChild(strong);
-    line.appendChild(document.createTextNode(joinUrl
-      ? ": keep that email, it's how you get in on the day."
-      : ": watch for it, that link is how you get in on the day."));
+    line.appendChild(document.createTextNode(
+      viaZoom
+        ? (joinUrl
+          ? ": keep that email; it's how you get in on the day."
+          : ": watch for it; that link is how you get in on the day.")
+        : " before the forum starts. Watch for it; that link is how you get in on the day."));
 
     success.appendChild(eyebrow);
     success.appendChild(heading);
@@ -374,19 +408,28 @@
     try { success.focus(); } catch (_) { /* pre-focus() browsers */ }
   }
 
-  // Last resort when our own registration path fails: Zoom's public
-  // registration page for the same webinar, straight off the event post.
-  function showZoomFallback(root) {
-    const url = safeZoomUrl(root.getAttribute("data-zoom-url"));
-    if (!url || root.querySelector("[data-zoom-fallback]")) return;
+  // Whatever our own registration path failed at, the visitor gets a
+  // way through. Zoom's own registration page when the event has one,
+  // and /contact/ when it doesn't, which is every event before the Zoom
+  // link goes on the post. Never nothing: a failed form with no
+  // alternative and nobody to ask is how a registration is lost for
+  // good.
+  function showRecovery(root) {
+    if (root.querySelector("[data-zoom-fallback]")) return;
+    const zoomUrl = safeZoomUrl(root.getAttribute("data-zoom-url"));
     const p = document.createElement("p");
     p.className = "digest-fallback";
     p.setAttribute("data-zoom-fallback", "");
     const a = document.createElement("a");
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.textContent = "Register on Zoom instead";
-    window.MOSafeHref.set(a, url, "#");
+    if (zoomUrl) {
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = "Register on Zoom instead";
+      window.MOSafeHref.set(a, zoomUrl, "#");
+    } else {
+      a.textContent = "Email us and we'll add you";
+      a.href = "/contact/";
+    }
     p.appendChild(a);
     const status = root.querySelector("[data-signup-status]");
     if (status) status.insertAdjacentElement("afterend", p);
@@ -467,8 +510,15 @@
   // wrap.dataset.turnstileRendered, so whichever runs second is a
   // no-op. The arrow wrapper matters: passing ensureTurnstile straight
   // to forEach would feed it the index as `attempt`.
-  document.querySelectorAll("[data-inline-signup][data-zoom-webinar]")
-    .forEach((el) => ensureTurnstile(el));
+  //
+  // Keyed off the endpoint, not the webinar: the bot check gates every
+  // registration now, including the record-only ones taken before Zoom
+  // is connected.
+  // offsetParent skips a form inside a section events.js left hidden
+  // (the no-upcoming-events state). Turnstile does not render happily
+  // into display:none, and an unreachable form has nothing to protect.
+  document.querySelectorAll("[data-inline-signup][data-register-endpoint]")
+    .forEach((el) => { if (el.offsetParent) ensureTurnstile(el); });
 
   function renderSuccess(root, email) {
     const success = document.createElement("div");
