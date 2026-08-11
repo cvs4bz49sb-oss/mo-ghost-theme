@@ -20,10 +20,48 @@
  * Alan Noble". Ghost 5 no longer allows future published_at on a
  * published post, which is why we lean on the excerpt + the replay-
  * embed signal instead of dates.
+ *
+ * ZOOM REGISTRATION
+ * The event post carries its own Zoom registration link, the same way
+ * it carries its own replay embed. Paste the link Zoom gives you
+ * anywhere in the post body:
+ *
+ *   https://zoom.us/webinar/register/WN_hEhGz14wR4egRWwD4qyEAA
+ *
+ * either as a visible link or inside an HTML card as
+ * <!-- zoom: https://zoom.us/webinar/register/WN_… -->. Both work the
+ * same way; a visible one is removed from the rendered prose anyway
+ * (see stripZoomLinks) so the page keeps a single call to action.
+ *
+ * This script pulls the code out and hands it to the registration
+ * form, which posts it to mo-forms /zoom-register (see
+ * inline-signup.js). No link in the post means the form behaves as it
+ * always did: a Ghost subscribe with an `event:` label, and nobody
+ * lands in Zoom.
  */
 (function () {
   const source = document.querySelector("[data-events-source]");
   if (!source) return;
+
+  // Registration link on the post, matched against the raw post HTML
+  // so an HTML-comment marker works as well as a rendered <a href>:
+  //
+  //   .../webinar/register/WN_xxxx        (the code Zoom puts in the URL)
+  //   .../webinar/register/1234/WN_xxxx   (some Zoom subdomains add a
+  //                                        numeric segment first)
+  //
+  // Only the WN_ form is accepted. A bare numeric webinar id would give
+  // the worker nothing to build a fallback link from, and the worker
+  // rejects it anyway: the WN_ code is already the public credential
+  // for registering, a numeric id is not. The code is case-sensitive;
+  // nothing here lowercases it. This lives above the item map because
+  // that map calls findZoom.
+  const ZOOM_URL_RE = /https?:\/\/(?:[a-z0-9-]+\.)?zoom\.us\/(?:[a-z]+\/)*webinar\/register\/(?:\d+\/)?(WN_[A-Za-z0-9_-]+)/i;
+
+  function findZoom(html) {
+    const match = ZOOM_URL_RE.exec(html);
+    return match ? { id: match[1], url: match[0] } : null;
+  }
 
   const items = Array.prototype.slice.call(source.querySelectorAll(".events-item"))
     .map((el) => {
@@ -37,6 +75,7 @@
         ts: Date.parse(el.getAttribute("data-published-at")) || 0,
         contentHtml,
         hasReplay: /<iframe[^>]+(youtube\.com|youtu\.be|vimeo\.com)/i.test(contentHtml),
+        zoom: findZoom(contentHtml),
       };
     });
 
@@ -98,6 +137,57 @@
       ADD_ATTR: ["allowfullscreen", "frameborder", "allow"],
     });
     body.hidden = false;
+
+    // Hand this event's Zoom webinar to the registration form. The form
+    // is inert about Zoom until these attributes appear, which is what
+    // keeps an event with no webinar (or a post where Ian hasn't pasted
+    // the link yet) from promising a seat it can't book.
+    const regForm = document.querySelector("[data-inline-signup][data-event-name-from]");
+    if (regForm && e.zoom) {
+      regForm.setAttribute("data-zoom-webinar", e.zoom.id);
+      regForm.setAttribute("data-zoom-url", e.zoom.url);
+      stripZoomLinks(prose);
+      // The form's standing copy can't promise a Zoom seat, because
+      // an event post without a link degrades to a plain subscribe.
+      // Say the stronger thing only once we know it's true.
+      // Keep the subscription sentence. It is the only statement made
+      // before anyone submits about what else signing up does, and
+      // dropping it in the mode where the signup actually happens
+      // would mean the disclosure only ever appears on the path that
+      // doesn't need it.
+      const sub = document.querySelector("[data-events-register-sub]");
+      if (sub) sub.textContent = "Enter your name and email. We'll book your seat on the Zoom call and send you the join link. If you're not already subscribed, we'll also email you a link to confirm your free subscription to Mere Orthodoxy.";
+      // Bot check, rendered only now: the Zoom endpoint is the only
+      // thing on this page that needs it, and a widget on a form that
+      // doesn't post to it would be friction for nothing. This runs
+      // before site.min.js has defined MOInlineSignup, so the bundle
+      // also sweeps for marked forms once it loads; both are
+      // idempotent and either can win.
+      if (window.MOInlineSignup && window.MOInlineSignup.ensureTurnstile) {
+        window.MOInlineSignup.ensureTurnstile(regForm);
+      }
+    }
+  }
+
+  // One call to action per page. A visible Zoom link in the post body
+  // sits above the form and takes registrations straight to Zoom, which
+  // works but leaves no Ghost subscribe and no `event:` label, so the
+  // registration is invisible to everything downstream. The link is
+  // kept as the form's fallback either way.
+  function stripZoomLinks(prose) {
+    const links = prose.querySelectorAll('a[href*="zoom.us"]');
+    for (let i = 0; i < links.length; i++) {
+      const a = links[i];
+      if (!ZOOM_URL_RE.test(a.getAttribute("href") || "")) continue;
+      // A URL pasted on its own line becomes a Ghost bookmark card, a
+      // <figure>, not a <p>. Matching only paragraphs would leave the
+      // styled card in place holding its own text with the link torn
+      // out of it. Drop whichever block the link wholly occupies, and
+      // otherwise just unwrap the anchor so the sentence survives.
+      const block = a.closest("figure, .kg-card, p");
+      if (block && block.textContent.trim() === a.textContent.trim()) block.remove();
+      else a.replaceWith(document.createTextNode(a.textContent));
+    }
   }
 
   // ---- /events/ library view --------------------------------------------

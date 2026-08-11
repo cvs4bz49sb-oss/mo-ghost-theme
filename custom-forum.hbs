@@ -70,9 +70,16 @@
       <div class="events-register">
         <p class="eyebrow">Register</p>
         <h2 class="events-register-title"><em>Save your seat.</em></h2>
-        <p class="events-register-sub">Enter your name and email. We'll send you the details and save your spot. If you're not already subscribed to Mere Orthodoxy, you'll be added to our free list automatically.</p>
+        {{!-- Neutral by default: an event post with no Zoom link
+             degrades to a plain subscribe, so the Zoom promise is
+             swapped in by events.js only when there's a webinar. --}}
+        <p class="events-register-sub" data-events-register-sub>Enter your name and email and we'll send you the details for this forum. If you're not already subscribed, we'll also email you a link to confirm your free subscription to Mere Orthodoxy.</p>
 
-        <div class="digest-form events-register-form" data-inline-signup data-source="forum-page" data-event-name-from="[data-events-title]">
+        {{!-- data-zoom-endpoint points at mo-forms; events.js adds
+             data-zoom-webinar off the event post and only then does
+             this become a real Zoom registration. See the header
+             comments in assets/js/events.js and inline-signup.js. --}}
+        <div class="digest-form events-register-form" data-inline-signup data-source="forum-page" data-event-name-from="[data-events-title]" data-zoom-endpoint="{{@custom.forms_worker_url}}" data-replace-on-success=".events-register">
           <div class="digest-field">
             <label for="event-first">First Name</label>
             <input id="event-first" type="text" autocomplete="given-name" placeholder="First" data-signup-first required />
@@ -85,9 +92,13 @@
             <label for="event-email">Email</label>
             <input id="event-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
           </div>
+          <div class="events-register-turnstile" data-turnstile-wrap hidden></div>
           <button type="button" class="digest-submit" data-signup-submit>Register</button>
-          <p class="digest-fineprint">Free signup. Unsubscribe anytime.</p>
-          <p class="digest-status" data-signup-status></p>
+          {{!-- role/aria-live so the error messages this fills in are
+               announced. Without them a screen-reader user gets the
+               button flicking to "Registering…" and back, and no
+               statement of what went wrong. --}}
+          <p class="digest-status" data-signup-status role="status" aria-live="polite"></p>
         </div>
       </div>
     </div>

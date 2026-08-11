@@ -2992,6 +2992,82 @@ body {
   font-weight: 600;
   color: var(--color-dark);
 }
+/* Zoom join link on the /forum/ success state. */
+.inline-signup-join { margin-top: 16px; }
+/* The confirmation heading carries the section on its own once the
+   whole .events-register block is replaced, so it is an h2 here rather
+   than the h4 the post-gate card uses, and it holds that block's size
+   instead of shrinking to the smaller success-card scale. */
+.inline-signup-success-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(26px, 3vw, 32px);
+  margin: 0 0 10px;
+  color: var(--color-dark);
+}
+.inline-signup-note { margin-top: 12px; }
+
+/* /forum/ registration extras. Both span the full three-column digest
+   grid; dropped into a column they would sit under one field and read
+   as belonging to it. The Turnstile slot stays hidden until events.js
+   finds a webinar on the event post; the widget renders
+   interaction-only, so for most visitors it stays empty. */
+.events-register-turnstile {
+  grid-column: 1 / -1;
+  margin: 12px 0 4px;
+}
+.events-register-turnstile[hidden] { display: none; }
+.digest-form .digest-fallback {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+/* This is the recovery path after a failed registration, so it gets a
+   real tap target and a red dark enough to clear AA on cream
+   (--color-secondary is 3.85:1 there). */
+.digest-form .digest-fallback a {
+  display: inline-block;
+  padding: 12px 0;
+  color: #9c4126;
+  text-decoration: underline;
+}
+
+/* /forum/ exists to take registrations, so its submit is a real button
+   rather than the 11px small-caps text link the homepage digest strip
+   uses. That treatment reads as a caption next to the filled pill in
+   the success state, sits at a 37px tap target, and puts orange on
+   cream at 3.85:1. Scoped to this form so the digest strip is
+   untouched. */
+.events-register-form .digest-submit {
+  justify-self: start;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 13px 28px;
+  border-radius: 999px;
+  background: var(--color-dark);
+  color: var(--color-white);
+  /* Matches .btn-sm rather than inventing a third dark-pill scale. */
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  transition: background 0.15s, opacity 0.15s;
+}
+.events-register-form .digest-submit:hover {
+  background: #1a1816;
+  color: var(--color-white);
+}
+.events-register-form .digest-submit[disabled] {
+  /* Not 0.55: "Registering…" is a label people actually read while
+     they wait for it. */
+  opacity: 0.7;
+  cursor: default;
+}
+/* Every error this form raises renders here, and --color-secondary is
+   3.85:1 on cream. Same value and scope as the fallback link below it,
+   so the explanation is at least as legible as the recovery. */
+.events-register-form .digest-status.is-error { color: #9c4126; }
+.events-register-form .digest-submit[disabled]:hover { background: var(--color-dark); }
+.events-register-form .digest-submit[disabled]:hover::after { transform: none; }
 
 @media (max-width: 640px) {
   .post-gate-card { margin: 32px 0 0; padding: 32px 20px; }
