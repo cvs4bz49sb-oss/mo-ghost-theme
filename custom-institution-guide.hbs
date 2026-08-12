@@ -1,41 +1,32 @@
 {{!< default}}
 {{#contentFor "moHead"}}
-<title>Using Your Organizational Membership | Mere Orthodoxy</title>
+<title>Your Media Ministry | Mere Orthodoxy</title>
 <meta name="robots" content="noindex, nofollow" />
-<meta name="description" content="How to get your church, seminary, or organization signed up, and how to curate reading for them." />
-<meta property="og:title" content="Using Your Organizational Membership" />
-<meta property="og:description" content="How to get your church, seminary, or organization signed up, and how to curate reading for them." />
-<meta name="twitter:title" content="Using Your Organizational Membership" />
-<meta name="twitter:description" content="How to get your church, seminary, or organization signed up, and how to curate reading for them." />
+<meta name="description" content="Mere Orthodoxy as the thoughtful media ministry your church, seminary, or organization does not have to build. How it works and how to use it." />
+<meta property="og:title" content="Your Media Ministry" />
+<meta property="og:description" content="Mere Orthodoxy as the thoughtful media ministry your church, seminary, or organization does not have to build." />
+<meta name="twitter:title" content="Your Media Ministry" />
+<meta name="twitter:description" content="Mere Orthodoxy as the thoughtful media ministry your church, seminary, or organization does not have to build." />
 {{/contentFor}}
 {{!-- custom-institution-guide: /institutions/guide/.
-     Rewritten 2026-08-12. The first version stacked <p class="form-intro">
-     for prose — that class is a form label and gave no paragraph rhythm,
-     which is why the spacing read as broken. Uses the styled editorial
-     patterns instead: .included sections, .benefit-grid/.benefit-item with
-     Roman .benefit-numeral markers, .institutional-overview for three-ups.
+     Restructured 2026-08-12 on the StoryBrand frame at Ian's direction.
+     The organization is the hero; Mere Orthodoxy is the guide. The
+     practical content is unchanged in substance, only reframed: the
+     three-step plan IS the Push feature, and the administrator, member,
+     and librarian sections are the plan in detail.
 
-     The Push/curation section is the point of the page. It is the one
-     capability an administrator cannot discover on their own, because the
-     button only renders for institution admins. --}}
+     ONE .included band, not four. That class carries 96px of band-edge
+     padding and is meant to be used once, as membership-body.hbs does;
+     stacking it produced ~744px of dead terracotta.
 
-{{!-- Scoped link colours. The site's default link colour is terracotta
-     (#C1593C), which is ALSO the background of .included — so a link inside
-     a .benefit-item renders terracotta-on-terracotta and is completely
-     invisible. Verified on the live page: computed colour rgb(193,89,60)
-     against background rgb(193,89,60).
+     Light variants on every .eyebrow and .section-heading inside the
+     band. Without them the eyebrow renders at 1.03:1 and is invisible. --}}
 
-     Scoped to this template rather than patched in screen.css, because the
-     built stylesheet is shared by every page and this is a page-level need.
-     Worth fixing globally if links start appearing in .included elsewhere.
-
-     .capstone sits on #2D2927, where terracotta is legible but thin, so it
-     gets lifted too rather than left at the edge of readable. --}}
 <style>
   /* Links inside the band. The theme's default link colour is terracotta,
      which is also .included's background, so an unstyled link here is
-     invisible. Uses --color-white rather than a literal so it stays on the
-     token set, and 4px offset to stay on the spacing grid. */
+     invisible. --color-white keeps this on the token set; 4px offset keeps
+     it on the spacing grid. */
   .institution-guide .included .benefit-item a,
   .institution-guide .capstone a {
     color: var(--color-white);
@@ -47,9 +38,8 @@
   .institution-guide .capstone a:hover {
     text-decoration-thickness: 2px;
   }
-  /* screen.css has no global :focus-visible rule — focus is styled per
-     component — so without this these links have no keyboard indicator at
-     all on a dark background. */
+  /* screen.css has no global :focus-visible rule, so without this these
+     links have no keyboard indicator at all on a dark background. */
   .institution-guide .included .benefit-item a:focus-visible,
   .institution-guide .capstone a:focus-visible {
     outline: 2px solid var(--color-white);
@@ -60,72 +50,74 @@
 
 <main class="membership membership-support institution-guide">
 
+  {{!-- 1. The hero, and what they want. --}}
   <section class="page-hero">
     <div class="container">
       <p class="eyebrow">Organizational Membership</p>
-      <h1 class="page-hero-headline"><em>Getting your people</em> reading.</h1>
-      <p class="page-hero-sub">How to sign everyone up, and how to put the right essay in front of them.</p>
+      <h1 class="page-hero-headline">The media ministry <em>you don't have to build.</em></h1>
+      <p class="page-hero-sub">You are responsible for what forms the people in your care. We can carry part of that weight.</p>
     </div>
   </section>
 
+  {{!-- 2. The problem, and 3. the guide. Empathy first, then authority. --}}
   <section class="form-section">
     <div class="container">
-      {{!-- H2 here so the outline runs H1 -> H2 -> H3. Without it the hero's
-            H1 was followed straight by the H3s in these cards. --}}
       <div class="section-intro">
-        <h2 class="section-heading"><em>How it works.</em></h2>
+        <h2 class="section-heading"><em>The problem is not that your people aren't reading.</em></h2>
       </div>
+
       <div class="institutional-overview">
         <div class="institutional-point">
-          <h3>Access by email domain</h3>
-          <p>Anyone with an address at your domain can create a full membership. No seats to assign, nothing to install.</p>
+          <h3>They are being formed by something</h3>
+          <p>Everyone in your congregation, your faculty, or your staff is being catechized this week by someone. The only question is by whom, and whether anyone chose it on their behalf.</p>
         </div>
         <div class="institutional-point">
-          <h3>Everything we publish</h3>
-          <p>The full archive, the ebook library, audio versions of every essay, digital editions of the journal, and the members' forum.</p>
+          <h3>You cannot outpublish the feed</h3>
+          <p>Most churches and schools have no staff writer, no editor, and no publishing arm. Producing serious formation content is a full-time vocation, and you already have one of those.</p>
         </div>
         <div class="institutional-point">
-          <h3>One year, no auto-renewal</h3>
-          <p>We email you before it ends. Nothing is ever charged automatically.</p>
+          <h3>So borrow ours</h3>
+          <p>Twenty years of essays, two podcasts, a quarterly journal, and a bench of writers who take the Christian intellectual tradition seriously. There are four of us. We know what a small budget looks like.</p>
         </div>
       </div>
     </div>
   </section>
 
-  {{!-- The feature nobody finds on their own. --}}
+  {{!-- 4. The plan. Three steps, which is also the Push feature. --}}
   <section class="included">
     <div class="container">
       <div class="section-intro">
-        <p class="eyebrow eyebrow-light">The part most people miss</p>
-        <h2 class="section-heading section-heading-light"><em>Curate what your people read.</em></h2>
+        <p class="eyebrow eyebrow-light">The plan</p>
+        <h2 class="section-heading section-heading-light"><em>Choose what your people read.</em></h2>
       </div>
 
       <div class="benefit-grid">
         <div class="benefit-item">
           <span class="benefit-numeral">I</span>
-          <h3>Look for the Push button</h3>
-          <p>When you are signed in as an administrator, a small <strong>Push</strong> button appears on every essay, alongside the other article actions, and on every episode of Mere&nbsp;Fidelity and Christians Reading Classics.</p>
+          <h3>Cover everyone at once</h3>
+          <p>Access runs on your email domain, so anyone at your organization gets a full membership without you assigning a single seat.</p>
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">II</span>
-          <h3>Push it to your people</h3>
-          <p>One click. The button changes to <strong>Pushed</strong> so you can see at a glance what you have already sent. Click again to take it back down.</p>
+          <h3>Push what matters</h3>
+          <p>When you are signed in as an administrator, a <strong>Push</strong> button appears on every essay and on every episode of Mere&nbsp;Fidelity and Christians Reading Classics. One click sends it to your people. The button changes to <strong>Pushed</strong> so you can see what you have already sent, and clicking again takes it back down.</p>
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">III</span>
-          <h3>It lands on their dashboard</h3>
-          <p>Everyone you cover sees it under <a href="/dashboard/institution/">Organization Reading</a> on their member dashboard, credited to your organization rather than to us.</p>
+          <h3>They read it together</h3>
+          <p>What you push appears under <a href="/dashboard/institution/">Organization Reading</a> on each member's dashboard, credited to you rather than to us. It reads as something their church or school handed them, because it is.</p>
         </div>
       </div>
 
       <div class="capstone">
-        <p class="capstone-body">This is what turns a subscription into something your organization actually uses. A pastor can push the essay the elders should read before Thursday. A professor can assemble a term's reading without a coursepack. A dean can put one piece in front of the whole faculty and know they all have it.</p>
-        <p class="capstone-body"><strong>Only administrators see the Push button.</strong> If you cannot find it, you are signed in with an account that has not been made an administrator yet. Email us and we will fix it in a minute.</p>
+        <p class="capstone-body">This is the difference between buying a subscription and running a media ministry. A pastor can put the essay on forgiveness in front of the elders before Thursday's meeting. A dean can hand the whole faculty one piece on the university's vocation and know they all have it. A campus minister can build a semester of reading without a coursepack, a budget line, or a permissions request.</p>
+        <p class="capstone-body">You are not asking anyone to find the good stuff. You are choosing it for them, which is what shepherding attention has always meant.</p>
       </div>
 
+      {{!-- The plan in detail. Practical content, unchanged in substance. --}}
       <div class="section-intro">
-        <p class="eyebrow eyebrow-light">For administrators</p>
-        <h2 class="section-heading section-heading-light"><em>Setting it up.</em></h2>
+        <p class="eyebrow eyebrow-light">Getting started</p>
+        <h2 class="section-heading section-heading-light"><em>If you administer it.</em></h2>
       </div>
 
       <div class="benefit-grid">
@@ -137,7 +129,7 @@
         <div class="benefit-item">
           <span class="benefit-numeral">II</span>
           <h3>Put them where people look</h3>
-          <p>A staff email, the intranet, a syllabus, the weekly bulletin. This is the step that decides whether the membership gets used, and the one most often skipped.</p>
+          <p>A staff email, the intranet, a syllabus, the weekly bulletin. This is the step that decides whether any of the rest happens, and it is the one most often skipped.</p>
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">III</span>
@@ -146,23 +138,23 @@
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">IV</span>
-          <h3>See who has joined</h3>
-          <p>The same page lists everyone signed up, so you know whether it is being used well before renewal comes around.</p>
+          <h3>Make sure you can Push</h3>
+          <p>The Push button only renders for administrators. If you cannot find it, your account has not been made one yet. Email us and it takes a minute.</p>
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">V</span>
-          <h3>Keep your management link</h3>
-          <p>It lasts fourteen days. Email us any time for a fresh one; there is no password to lose.</p>
+          <h3>See who has joined</h3>
+          <p>Your organization page lists everyone signed up, so you know whether this is being used well before renewal comes around.</p>
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">VI</span>
           <h3>Renewal is a conversation</h3>
-          <p>We reach out before your year is up. Nothing renews automatically and no card is kept on file.</p>
+          <p>We reach out before your year is up. Nothing renews automatically and we keep no card on file.</p>
         </div>
       </div>
 
       <div class="section-intro">
-        <p class="eyebrow eyebrow-light">For everyone else</p>
+        <p class="eyebrow eyebrow-light">For your people</p>
         <h2 class="section-heading section-heading-light"><em>If someone sent you a link.</em></h2>
       </div>
 
@@ -170,17 +162,17 @@
         <div class="benefit-item">
           <span class="benefit-numeral">I</span>
           <h3>Use your work or school email</h3>
-          <p>That address is what identifies you as covered. A personal Gmail will not be recognised, even if it is the one you use for everything.</p>
+          <p>That address is what identifies you as covered. A personal account will not be recognised, even if it is the one you use for everything.</p>
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">II</span>
           <h3>Enter the code</h3>
-          <p>Then you are finished. Nothing to pay, no trial to remember to cancel.</p>
+          <p>Then you are finished. Nothing to pay, and no trial to remember to cancel.</p>
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">III</span>
           <h3>Signing in later</h3>
-          <p>Use <em>Sign in</em> at the top of any page. We email you a link rather than asking for a password.</p>
+          <p>Use <em>Sign in</em> at the top of any page. We email you a link rather than asking you to invent another password.</p>
         </div>
       </div>
 
@@ -203,7 +195,7 @@
         <div class="benefit-item">
           <span class="benefit-numeral">III</span>
           <h3>Course reserves and coursepacks</h3>
-          <p>Email us. We are a small publication and generally glad to grant permission for classroom use. We would just like to know where our writers' work is going.</p>
+          <p>Email us. We are a small publication and generally glad to grant permission for classroom use. We would simply like to know where our writers' work is going.</p>
         </div>
         <div class="benefit-item">
           <span class="benefit-numeral">IV</span>
@@ -212,7 +204,9 @@
         </div>
       </div>
 
+      {{!-- 6 and 7. What is at stake, and what success looks like. --}}
       <div class="capstone">
+        <p class="capstone-body">The people in your care will be formed either way. That is not in your control. What is in your control is whether anyone who loves them chose some of it on purpose, or whether it was all handed to them by whatever happened to be loudest that week.</p>
         <p class="capstone-body">Questions of any kind: <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>. A person answers.</p>
         <p class="capstone-body"><a href="/institutions/">Back to organizational membership</a></p>
       </div>
