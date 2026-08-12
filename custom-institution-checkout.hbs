@@ -1,0 +1,125 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Institutional Membership | Mere Orthodoxy</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Purchase an annual institutional membership to Mere Orthodoxy. Domain-based access for your whole community." />
+<meta property="og:title" content="Institutional Membership" />
+<meta property="og:description" content="Purchase an annual institutional membership to Mere Orthodoxy. Domain-based access for your whole community." />
+<meta name="twitter:title" content="Institutional Membership" />
+<meta name="twitter:description" content="Purchase an annual institutional membership to Mere Orthodoxy. Domain-based access for your whole community." />
+{{/contentFor}}
+{{!-- custom-institution-checkout: self-serve institutional purchase.
+     Mirrors custom-groups.hbs (form -> worker -> Stripe Checkout). The
+     inquiry form at /institutions/ stays for schools that need a quote
+     or pay by purchase order; this is the path for the ones who already
+     know they want it. --}}
+
+<main class="membership membership-support">
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Seminaries &amp; Institutions</p>
+      <h1 class="page-hero-headline"><em>Institutional membership</em> for your whole community.</h1>
+      <p class="page-hero-sub">One annual membership. Everyone at your institution gets access with their own email address.</p>
+    </div>
+  </section>
+
+  <section class="form-section">
+    <div class="container">
+
+      <div class="pricing-table">
+        <div class="pricing-tier">
+          <p class="pricing-tier-label">Annual institutional membership</p>
+          <p class="pricing-tier-price"><span class="price-amount">$2,500</span><span class="price-interval">/yr</span></p>
+          <p class="pricing-tier-detail">Covers your whole institution, whatever the headcount.</p>
+        </div>
+      </div>
+
+      <div class="institutional-overview">
+        <div class="institutional-point">
+          <h3>Domain access</h3>
+          <p>Anyone with an email at your institution's domain gets a member account. No seat assignment, no proxy or IP configuration.</p>
+        </div>
+        <div class="institutional-point">
+          <h3>The full archive</h3>
+          <p>Every essay, the ebook library, audio essays, and the members' forum, for everyone you cover.</p>
+        </div>
+        <div class="institutional-point">
+          <h3>Annual term</h3>
+          <p>Your membership runs one year from purchase. We will reach out before it ends.</p>
+        </div>
+      </div>
+
+      <form id="institution-checkout-form" class="stacked-form" novalidate>
+        <p class="form-intro">Payment runs on Stripe. You will receive your join link and access code by email as soon as it clears.</p>
+
+        <fieldset class="form-group">
+          <legend class="form-legend">Institution</legend>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Institution name</span>
+              <input type="text" name="org_name" autocomplete="organization" required />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Type</span>
+              <select name="org_type" required>
+                <option value="">Select one</option>
+                <option value="seminary">Seminary</option>
+                <option value="college">Christian college or university</option>
+                <option value="denomination">Denomination</option>
+                <option value="research_center">Research center or institute</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+          </div>
+          <label class="form-field">
+            <span class="form-label">Email domains</span>
+            <input type="text" name="email_domain" placeholder="phc.edu" required />
+            <span class="form-hint">The domain your people use for email. Separate several with commas. Anyone with an address at these domains can join.</span>
+          </label>
+          <label class="form-field">
+            <span class="form-label">Approximate headcount</span>
+            <input type="number" name="headcount" min="1" step="1" required />
+            <span class="form-hint">For our records. It does not change the price.</span>
+          </label>
+        </fieldset>
+
+        <fieldset class="form-group">
+          <legend class="form-legend">You</legend>
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-label">Your name</span>
+              <input type="text" name="contact_name" autocomplete="name" required />
+            </label>
+            <label class="form-field">
+              <span class="form-label">Your email</span>
+              <input type="email" name="contact_email" autocomplete="email" required />
+            </label>
+          </div>
+          <label class="form-field">
+            <span class="form-label">Your role</span>
+            <input type="text" name="contact_role" placeholder="Librarian, dean, academic affairs, etc." required />
+          </label>
+          <label class="form-field">
+            <span class="form-label">Notes <span class="form-hint">(optional)</span></span>
+            <textarea name="notes" rows="3" placeholder="Anything we should know."></textarea>
+          </label>
+        </fieldset>
+
+        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="institution-checkout-submit">
+          <span class="btn-label">Continue to payment</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+        <p class="btn-tagline">$2,500 for one year. This is a single charge, not a recurring subscription.</p>
+        <p class="btn-error" id="institution-checkout-error" role="alert"></p>
+
+        <p class="form-intro">
+          Need a quote, a purchase order, or an invoice instead?
+          <a href="/institutions/">Send us an inquiry</a> and a real person will get back to you.
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <script src="{{asset "js/institution-checkout.js"}}"></script>
+</main>

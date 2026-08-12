@@ -33,6 +33,8 @@ routes:
     template: custom-group-manage
   /institutions/:
     template: custom-institutions
+  /institutions/checkout/:
+    template: custom-institution-checkout
   /institution-manage/:
     template: custom-institution-manage
   /join/:
