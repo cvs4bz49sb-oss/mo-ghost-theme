@@ -57,10 +57,26 @@
   var pending = {};
   var timers = {};
 
+  /*
+   * window.MODigestRoot is the accessor object published by
+   * digest-bootstrap.js, NOT a DOM element — it exposes .url(name). Reading
+   * it as an element throws, and because that throw happened synchronously
+   * inside ready() it prevented React from mounting at all. Falls back to the
+   * element only if the accessor is absent.
+   */
   function workerBase() {
-    var el = window.MODigestRoot || document.getElementById("mo-digest-root");
-    var url = (el && el.getAttribute("data-worker-url")) || "";
-    return url.replace(/\/+$/, "");
+    try {
+      if (window.MODigestRoot && typeof window.MODigestRoot.url === "function") {
+        return (window.MODigestRoot.url("workerUrl") || "").replace(/\/+$/, "");
+      }
+      var el = document.getElementById("mo-digest-root") || document.getElementById("root");
+      if (el && typeof el.getAttribute === "function") {
+        return (el.getAttribute("data-worker-url") || "").replace(/\/+$/, "");
+      }
+    } catch (e) {
+      console.warn("[digest-store] could not resolve worker URL", e);
+    }
+    return "";
   }
 
   /*
@@ -249,14 +265,29 @@
      * because a broken network should degrade the builder, not blank the page.
      */
     ready: function () {
-      var SEEDED = "mo:digest:seeded";
-      var first = !nativeGetItem.call(localStorage, SEEDED);
-      var chain = first
-        ? seedFromLocal().then(function () { nativeSetItem.call(localStorage, SEEDED, "1"); })
-        : Promise.resolve();
-      return chain
-        .then(hydrate)
-        .catch(function (e) { console.warn("[digest-store] hydrate failed, using local cache", e); return { ok: false }; });
+      // Everything here is wrapped so that NOTHING — including a synchronous
+      // throw — can stop the caller from mounting. An earlier version threw
+      // synchronously out of seedFromLocal(), which meant app.jsx's
+      // .then(mount, mount) never attached and the builder rendered nothing
+      // at all. A storage problem must degrade the builder, never blank it.
+      try {
+        var SEEDED = "mo:digest:seeded";
+        var first = !nativeGetItem.call(localStorage, SEEDED);
+        var chain = first
+          ? Promise.resolve()
+              .then(seedFromLocal)
+              .then(function () { nativeSetItem.call(localStorage, SEEDED, "1"); })
+          : Promise.resolve();
+        return chain
+          .then(hydrate)
+          .catch(function (e) {
+            console.warn("[digest-store] sync failed, using local cache", e);
+            return { ok: false };
+          });
+      } catch (e) {
+        console.warn("[digest-store] sync threw, using local cache", e);
+        return Promise.resolve({ ok: false });
+      }
     }
   };
 })();

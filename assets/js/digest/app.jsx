@@ -1652,11 +1652,25 @@ function App() {
 // mount against the local cache, because a broken connection should degrade
 // the builder rather than show nothing.
 (function mountDigest() {
-  const mount = () => ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  if (window.MODigestStore && window.MODigestStore.ready) {
-    window.MODigestStore.ready().then(mount, mount);
-  } else {
-    console.warn('[digest] MODigestStore missing; mounting local-only');
+  let mounted = false;
+  const mount = () => {
+    if (mounted) return;
+    mounted = true;
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  };
+  // Belt and braces. ready() is written not to throw, but a synchronous throw
+  // here previously meant .then never attached and the page stayed blank, so
+  // the try/catch and the timeout both exist to guarantee a mount.
+  try {
+    if (window.MODigestStore && window.MODigestStore.ready) {
+      setTimeout(mount, 8000); // hard ceiling if the store never settles
+      window.MODigestStore.ready().then(mount, mount);
+    } else {
+      console.warn('[digest] MODigestStore missing; mounting local-only');
+      mount();
+    }
+  } catch (e) {
+    console.warn('[digest] store sync threw; mounting local-only', e);
     mount();
   }
 })();

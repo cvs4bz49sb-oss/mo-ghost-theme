@@ -1361,11 +1361,22 @@
     ) : null);
   }
   (function mountDigest() {
-    const mount = () => ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
-    if (window.MODigestStore && window.MODigestStore.ready) {
-      window.MODigestStore.ready().then(mount, mount);
-    } else {
-      console.warn("[digest] MODigestStore missing; mounting local-only");
+    let mounted = false;
+    const mount = () => {
+      if (mounted) return;
+      mounted = true;
+      ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
+    };
+    try {
+      if (window.MODigestStore && window.MODigestStore.ready) {
+        setTimeout(mount, 8e3);
+        window.MODigestStore.ready().then(mount, mount);
+      } else {
+        console.warn("[digest] MODigestStore missing; mounting local-only");
+        mount();
+      }
+    } catch (e) {
+      console.warn("[digest] store sync threw; mounting local-only", e);
       mount();
     }
   })();
