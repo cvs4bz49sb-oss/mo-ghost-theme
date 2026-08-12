@@ -19,7 +19,37 @@
      capability an administrator cannot discover on their own, because the
      button only renders for institution admins. --}}
 
-<main class="membership membership-support">
+{{!-- Scoped link colours. The site's default link colour is terracotta
+     (#C1593C), which is ALSO the background of .included — so a link inside
+     a .benefit-item renders terracotta-on-terracotta and is completely
+     invisible. Verified on the live page: computed colour rgb(193,89,60)
+     against background rgb(193,89,60).
+
+     Scoped to this template rather than patched in screen.css, because the
+     built stylesheet is shared by every page and this is a page-level need.
+     Worth fixing globally if links start appearing in .included elsewhere.
+
+     .capstone sits on #2D2927, where terracotta is legible but thin, so it
+     gets lifted too rather than left at the edge of readable. --}}
+<style>
+  .institution-guide .included .benefit-item a {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .institution-guide .included .benefit-item a:hover,
+  .institution-guide .included .benefit-item a:focus-visible {
+    text-decoration-thickness: 2px;
+  }
+  .institution-guide .capstone a {
+    color: #F0A88C;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
+
+<main class="membership membership-support institution-guide">
 
   <section class="page-hero">
     <div class="container">
