@@ -469,18 +469,23 @@
       const hit = tags.find((t) => t && AUTHOR_TAG_RX.test(t.slug || ""));
       return hit ? (hit.name || "").trim() : "";
     };
-    const topicTagName = (p) => {
-      const tags = p && p.tags || [];
-      const hit = tags.find((t) => t && !AUTHOR_TAG_RX.test(t.slug || "") && !/^hash-/i.test(t.slug || ""));
-      return hit ? (hit.name || "").trim() : "";
-    };
     const shapeEssay = (p, slot) => {
       const tagged = authorTagName(p);
       const ghostAuthor = (p.primary_author && p.primary_author.name || "").trim();
       const author = tagged || (ghostAuthor && !PUB_AUTHOR_RX.test(ghostAuthor) ? ghostAuthor : "");
       return {
         img: p.feature_image || slot && slot.img || "assets/feature-hero.jpg",
-        kicker: topicTagName(p) || p.primary_tag && p.primary_tag.name || slot && slot.kicker || "Essay",
+        // KICKER IS THE AUTHOR. email-template.jsx renders {essay.kicker} in the
+        // terracotta line above each title ("Featured · {kicker}" on the hero)
+        // and does not render `byline` in essay cards at all. Its placeholder
+        // data says the same thing: kicker: 'Brian Pell', kicker: 'Phil Cotnoir'.
+        // Setting kicker to a topic removes the author's name from the email.
+        //
+        // No fallback to slot.kicker: an empty author must stay empty rather
+        // than inherit whatever name occupied that position, which is how the
+        // template's built-in placeholder names ended up credited on real
+        // essays on 2026-08-12.
+        kicker: author,
         title: p.title || "Untitled",
         byline: author,
         summary: (p.custom_excerpt || p.excerpt || "").slice(0, 280),
