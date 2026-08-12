@@ -463,13 +463,26 @@
       return data.posts || [];
     };
     const PUB_AUTHOR_RX = /^(mere\s*orthodoxy|admin|editor|administrator)$/i;
+    const AUTHOR_TAG_RX = /^author-/i;
+    const authorTagName = (p) => {
+      const tags = p && p.tags || [];
+      const hit = tags.find((t) => t && AUTHOR_TAG_RX.test(t.slug || ""));
+      return hit ? (hit.name || "").trim() : "";
+    };
+    const topicTagName = (p) => {
+      const tags = p && p.tags || [];
+      const hit = tags.find((t) => t && !AUTHOR_TAG_RX.test(t.slug || "") && !/^hash-/i.test(t.slug || ""));
+      return hit ? (hit.name || "").trim() : "";
+    };
     const shapeEssay = (p, slot) => {
-      const author = (p.primary_author && p.primary_author.name || "").trim();
+      const tagged = authorTagName(p);
+      const ghostAuthor = (p.primary_author && p.primary_author.name || "").trim();
+      const author = tagged || (ghostAuthor && !PUB_AUTHOR_RX.test(ghostAuthor) ? ghostAuthor : "");
       return {
         img: p.feature_image || slot && slot.img || "assets/feature-hero.jpg",
-        kicker: p.primary_tag && p.primary_tag.name || slot && slot.kicker || "Essay",
+        kicker: topicTagName(p) || p.primary_tag && p.primary_tag.name || slot && slot.kicker || "Essay",
         title: p.title || "Untitled",
-        byline: author && !PUB_AUTHOR_RX.test(author) ? author : "",
+        byline: author,
         summary: (p.custom_excerpt || p.excerpt || "").slice(0, 280),
         url: p.url || slot && slot.url || "#"
       };

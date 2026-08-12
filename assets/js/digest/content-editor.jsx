@@ -585,13 +585,42 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   // last week's issue, and the digest went out crediting the wrong writer.
   // An empty byline is the correct answer when there is no named author.
   const PUB_AUTHOR_RX = /^(mere\s*orthodoxy|admin|editor|administrator)$/i;
+
+  // Contributors are modelled as TAGS with an "author-" slug prefix, not as
+  // Ghost users. Every post's primary_author is the "Mere Orthodoxy" house
+  // account, so reading the byline from primary_author yields a name that
+  // PUB_AUTHOR_RX correctly blanks, and the digest then shows no author.
+  //
+  // primary_tag is not a substitute: it is simply the first tag, which is the
+  // author on some posts ("Christopher Jones") and a topic on others, where
+  // "Saying 'Here I Am' in the Digital Age" is tagged Technology, Formation,
+  // Hayden Nesbit in that order. Selecting on the slug prefix is the only
+  // reliable rule.
+  const AUTHOR_TAG_RX = /^author-/i;
+  const authorTagName = (p) => {
+    const tags = (p && p.tags) || [];
+    const hit = tags.find((t) => t && AUTHOR_TAG_RX.test(t.slug || ''));
+    return hit ? (hit.name || '').trim() : '';
+  };
+  // The kicker is the first tag that is NOT the author and not a Ghost
+  // internal tag, so a post whose author tag sorts first still gets a topic.
+  const topicTagName = (p) => {
+    const tags = (p && p.tags) || [];
+    const hit = tags.find((t) => t && !AUTHOR_TAG_RX.test(t.slug || '') && !/^hash-/i.test(t.slug || ''));
+    return hit ? (hit.name || '').trim() : '';
+  };
+
   const shapeEssay = (p, slot) => {
-    const author = ((p.primary_author && p.primary_author.name) || '').trim();
+    // Author tag first; primary_author only as a fallback for the rare post
+    // written under a real Ghost user account rather than a contributor tag.
+    const tagged = authorTagName(p);
+    const ghostAuthor = ((p.primary_author && p.primary_author.name) || '').trim();
+    const author = tagged || (ghostAuthor && !PUB_AUTHOR_RX.test(ghostAuthor) ? ghostAuthor : '');
     return {
       img: p.feature_image || (slot && slot.img) || 'assets/feature-hero.jpg',
-      kicker: (p.primary_tag && p.primary_tag.name) || (slot && slot.kicker) || 'Essay',
+      kicker: topicTagName(p) || (p.primary_tag && p.primary_tag.name) || (slot && slot.kicker) || 'Essay',
       title: p.title || 'Untitled',
-      byline: author && !PUB_AUTHOR_RX.test(author) ? author : '',
+      byline: author,
       summary: (p.custom_excerpt || p.excerpt || '').slice(0, 280),
       url: p.url || (slot && slot.url) || '#',
     };
