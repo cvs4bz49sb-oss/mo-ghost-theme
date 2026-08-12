@@ -1,117 +1,20 @@
 {{!< default}}
 {{#contentFor "moHead"}}
-<title>Institutional Access | Mere Orthodoxy</title>
+<title>Organizational Membership | Mere Orthodoxy</title>
 <meta name="robots" content="noindex, nofollow" />
-<meta name="description" content="Mere Orthodoxy for seminaries, Christian colleges, denominations, and research centers. Domain-based access on an annual contract." />
-<meta property="og:title" content="Institutional Access" />
-<meta property="og:description" content="Mere Orthodoxy for seminaries, Christian colleges, denominations, and research centers. Domain-based access on an annual contract." />
-<meta name="twitter:title" content="Institutional Access" />
-<meta name="twitter:description" content="Mere Orthodoxy for seminaries, Christian colleges, denominations, and research centers. Domain-based access on an annual contract." />
+<meta name="description" content="One annual membership for your whole church, seminary, college, or organization. Domain-based access, unlimited seats." />
+<meta property="og:title" content="Organizational Membership" />
+<meta property="og:description" content="One annual membership for your whole church, seminary, college, or organization. Domain-based access, unlimited seats." />
+<meta name="twitter:title" content="Organizational Membership" />
+<meta name="twitter:description" content="One annual membership for your whole church, seminary, college, or organization. Domain-based access, unlimited seats." />
 {{/contentFor}}
-{{!-- custom-institutions: Mere Orthodoxy institutional inquiry --}}
+{{!-- custom-institutions: the /organizations/ purchase page.
+     Replaced the inquiry form on 2026-08-12 — buyers can now pay
+     directly rather than waiting on a sales conversation.
+     custom-institution-checkout.hbs renders the same body so the
+     older /institutions/checkout/ route keeps working. Body lives in
+     partials/organization-purchase.hbs so the two cannot drift. --}}
 
 <main class="membership membership-support">
-
-  <section class="page-hero">
-    <div class="container">
-      <p class="eyebrow">Seminaries &amp; Institutions</p>
-      <h1 class="page-hero-headline"><em>Bring Mere&nbsp;Orthodoxy</em> to your whole community.</h1>
-      <p class="page-hero-sub">Seminaries, Christian colleges, denominations, and research centers. Domain-based access. Annual contract. Paid by invoice or card.</p>
-    </div>
-  </section>
-
-  <section class="form-section">
-    <div class="container">
-      <div class="institutional-overview">
-        <div class="institutional-point">
-          <h3>Domain access</h3>
-          <p>Anyone with an email at your institution's domain gets a member account. No seat assignment required.</p>
-        </div>
-        <div class="institutional-point">
-          <h3>Invoiced, not checkout</h3>
-          <p>We agree on terms and send an invoice. Pricing scales with headcount and partnership depth.</p>
-        </div>
-        <div class="institutional-point">
-          <h3>Annual renewal</h3>
-          <p>Contracts run one year. Renewal is a conversation, not an automatic charge.</p>
-        </div>
-      </div>
-
-      <div class="pricing-table">
-        <div class="pricing-tier">
-          <p class="pricing-tier-label">Annual institutional membership</p>
-          <p class="pricing-tier-price"><span class="price-amount">$2,500</span><span class="price-interval">/yr</span></p>
-          <p class="pricing-tier-detail">Covers your whole institution, whatever the headcount.</p>
-          <a class="btn btn-pill btn-primary" href="/institutions/checkout/">Purchase now</a>
-        </div>
-      </div>
-
-      <form id="institutional-form" class="stacked-form" novalidate>
-        <p class="form-intro">Or, if you need a quote, a purchase order, or an invoice, tell us about your institution and a team member will reach out within two business days.</p>
-
-        <fieldset class="form-group">
-          <legend class="form-legend">Institution</legend>
-          <div class="form-row">
-            <label class="form-field">
-              <span class="form-label">Institution name</span>
-              <input type="text" name="org_name" required />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Primary email domain</span>
-              <input type="text" name="email_domain" placeholder="e.g. rts.edu" required />
-            </label>
-          </div>
-          <div class="form-row">
-            <label class="form-field">
-              <span class="form-label">Approximate headcount</span>
-              <input type="number" name="headcount" min="1" step="1" required />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Type</span>
-              <select name="org_type" required>
-                <option value="">Select one</option>
-                <option value="seminary">Seminary</option>
-                <option value="college">Christian college or university</option>
-                <option value="denomination">Denomination</option>
-                <option value="research_center">Research center or institute</option>
-                <option value="other">Other</option>
-              </select>
-            </label>
-          </div>
-        </fieldset>
-
-        <fieldset class="form-group">
-          <legend class="form-legend">You</legend>
-          <div class="form-row">
-            <label class="form-field">
-              <span class="form-label">Your name</span>
-              <input type="text" name="contact_name" autocomplete="name" required />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Your email</span>
-              <input type="email" name="contact_email" autocomplete="email" required />
-            </label>
-          </div>
-          <label class="form-field">
-            <span class="form-label">Your role</span>
-            <input type="text" name="contact_role" placeholder="Librarian, dean, academic affairs, etc." required />
-          </label>
-          <label class="form-field">
-            <span class="form-label">Notes <span class="form-hint">(optional)</span></span>
-            <textarea name="notes" rows="4" placeholder="Anything we should know about your context, timeline, or goals."></textarea>
-          </label>
-        </fieldset>
-
-        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="institutional-submit">
-          <span class="btn-label">Send inquiry</span>
-          <span class="btn-spinner" aria-hidden="true"></span>
-        </button>
-        <p class="btn-tagline">No payment at this step. A real person will be in touch.</p>
-        <p class="btn-error" id="institutional-error" role="alert"></p>
-        <p class="form-success" id="institutional-success" hidden>Thanks. We received your inquiry and will reply within two business days.</p>
-      </form>
-    </div>
-  </section>
-
-  <script src="{{asset "js/institutions.js"}}"></script>
+  {{> "organization-purchase"}}
 </main>

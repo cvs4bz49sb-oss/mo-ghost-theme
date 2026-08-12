@@ -17,7 +17,7 @@
   {{!-- Loading state --}}
   <section class="page-hero" data-join-loading>
     <div class="container">
-      <p class="eyebrow">Institutional Access</p>
+      <p class="eyebrow">Organizational Access</p>
       <h1 class="page-hero-headline"><em>Loading...</em></h1>
     </div>
   </section>
@@ -25,9 +25,9 @@
   {{!-- Error state (institution not found, expired, etc.) --}}
   <section class="page-hero" data-join-error hidden>
     <div class="container">
-      <p class="eyebrow">Institutional Access</p>
+      <p class="eyebrow">Organizational Access</p>
       <h1 class="page-hero-headline"><em>Not available</em></h1>
-      <p class="page-hero-sub" data-join-error-msg>This institution link is not valid or has expired.</p>
+      <p class="page-hero-sub" data-join-error-msg>This organization link is not valid or has expired.</p>
     </div>
   </section>
 
@@ -35,7 +35,7 @@
   <div data-join-content hidden>
     <section class="page-hero">
       <div class="container">
-        <p class="eyebrow">Institutional Access</p>
+        <p class="eyebrow">Organizational Access</p>
         <h1 class="page-hero-headline"><em data-join-name></em></h1>
         <p class="page-hero-sub" data-join-description></p>
       </div>
@@ -48,7 +48,7 @@
         </div>
 
         <form class="stacked-form" data-join-form novalidate>
-          <p class="form-intro">Enter your details and the access code provided by your institution.</p>
+          <p class="form-intro">Enter your details and the access code provided by your organization.</p>
 
           <fieldset class="form-group">
             <legend class="form-legend">Your information</legend>
@@ -73,7 +73,7 @@
             <label class="form-field">
               <span class="form-label">Code</span>
               <input type="text" name="code" autocomplete="off" placeholder="e.g. ABCD1234" style="font-family:monospace;font-size:1.1em;letter-spacing:2px;text-transform:uppercase;" required />
-              <span class="form-hint">Provided by your institution's administrator.</span>
+              <span class="form-hint">Provided by your organization's administrator.</span>
             </label>
           </fieldset>
 

@@ -6,12 +6,19 @@
   const errorEl = document.getElementById('group-error');
   if (!form || !seatsInput || !totalEl) return;
 
-  const perSeat = (seats) => (seats >= 20 ? 70 : 80);
+  // Flat $80/seat. Groups cap at 10 seats — anyone covering more than that
+  // belongs on the $2,500 flat organizational membership, which is cheaper
+  // from roughly 31 seats and simpler to administer above 10. The old 20+
+  // seat discount tier is gone with the cap.
+  const perSeat = () => 80;
+  const MIN_SEATS = 5;
+  const MAX_SEATS = 10;
+  const clampSeats = (n) => Math.min(MAX_SEATS, Math.max(MIN_SEATS, parseInt(n, 10) || 0));
   const format = (amount) => `$${amount.toLocaleString('en-US')}`;
 
   const recalc = () => {
-    const seats = Math.max(5, parseInt(seatsInput.value, 10) || 0);
-    totalEl.textContent = format(seats * perSeat(seats));
+    const seats = clampSeats(seatsInput.value);
+    totalEl.textContent = format(seats * perSeat());
   };
 
   seatsInput.addEventListener('input', recalc);
@@ -27,7 +34,7 @@
     }
 
     const data = Object.fromEntries(new FormData(form).entries());
-    data.seats = Math.max(5, parseInt(data.seats, 10) || 0);
+    data.seats = clampSeats(data.seats);
 
     submit.classList.add('is-loading');
     submit.disabled = true;
