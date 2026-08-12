@@ -32,20 +32,29 @@
      .capstone sits on #2D2927, where terracotta is legible but thin, so it
      gets lifted too rather than left at the edge of readable. --}}
 <style>
-  .institution-guide .included .benefit-item a {
-    color: #fff;
+  /* Links inside the band. The theme's default link colour is terracotta,
+     which is also .included's background, so an unstyled link here is
+     invisible. Uses --color-white rather than a literal so it stays on the
+     token set, and 4px offset to stay on the spacing grid. */
+  .institution-guide .included .benefit-item a,
+  .institution-guide .capstone a {
+    color: var(--color-white);
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 4px;
     text-decoration-thickness: 1px;
   }
   .institution-guide .included .benefit-item a:hover,
-  .institution-guide .included .benefit-item a:focus-visible {
+  .institution-guide .capstone a:hover {
     text-decoration-thickness: 2px;
   }
-  .institution-guide .capstone a {
-    color: #F0A88C;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+  /* screen.css has no global :focus-visible rule — focus is styled per
+     component — so without this these links have no keyboard indicator at
+     all on a dark background. */
+  .institution-guide .included .benefit-item a:focus-visible,
+  .institution-guide .capstone a:focus-visible {
+    outline: 2px solid var(--color-white);
+    outline-offset: 4px;
+    text-decoration-thickness: 2px;
   }
 </style>
 
@@ -61,6 +70,11 @@
 
   <section class="form-section">
     <div class="container">
+      {{!-- H2 here so the outline runs H1 -> H2 -> H3. Without it the hero's
+            H1 was followed straight by the H3s in these cards. --}}
+      <div class="section-intro">
+        <h2 class="section-heading"><em>How it works.</em></h2>
+      </div>
       <div class="institutional-overview">
         <div class="institutional-point">
           <h3>Access by email domain</h3>
@@ -82,8 +96,8 @@
   <section class="included">
     <div class="container">
       <div class="section-intro">
-        <p class="eyebrow">The part most people miss</p>
-        <h2 class="section-heading"><em>Curate what your people read.</em></h2>
+        <p class="eyebrow eyebrow-light">The part most people miss</p>
+        <h2 class="section-heading section-heading-light"><em>Curate what your people read.</em></h2>
       </div>
 
       <div class="benefit-grid">
@@ -105,17 +119,13 @@
       </div>
 
       <div class="capstone">
-        <p>This is what turns a subscription into something your organization actually uses. A pastor can push the essay the elders should read before Thursday. A professor can assemble a term's reading without a coursepack. A dean can put one piece in front of the whole faculty and know they all have it.</p>
-        <p><strong>Only administrators see the Push button.</strong> If you cannot find it, you are signed in with an account that has not been made an administrator yet. Email us and we will fix it in a minute.</p>
+        <p class="capstone-body">This is what turns a subscription into something your organization actually uses. A pastor can push the essay the elders should read before Thursday. A professor can assemble a term's reading without a coursepack. A dean can put one piece in front of the whole faculty and know they all have it.</p>
+        <p class="capstone-body"><strong>Only administrators see the Push button.</strong> If you cannot find it, you are signed in with an account that has not been made an administrator yet. Email us and we will fix it in a minute.</p>
       </div>
-    </div>
-  </section>
 
-  <section class="included">
-    <div class="container">
       <div class="section-intro">
-        <p class="eyebrow">For administrators</p>
-        <h2 class="section-heading"><em>Setting it up.</em></h2>
+        <p class="eyebrow eyebrow-light">For administrators</p>
+        <h2 class="section-heading section-heading-light"><em>Setting it up.</em></h2>
       </div>
 
       <div class="benefit-grid">
@@ -150,14 +160,10 @@
           <p>We reach out before your year is up. Nothing renews automatically and no card is kept on file.</p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <section class="included">
-    <div class="container">
       <div class="section-intro">
-        <p class="eyebrow">For everyone else</p>
-        <h2 class="section-heading"><em>If someone sent you a link.</em></h2>
+        <p class="eyebrow eyebrow-light">For everyone else</p>
+        <h2 class="section-heading section-heading-light"><em>If someone sent you a link.</em></h2>
       </div>
 
       <div class="benefit-grid">
@@ -177,14 +183,10 @@
           <p>Use <em>Sign in</em> at the top of any page. We email you a link rather than asking for a password.</p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <section class="included">
-    <div class="container">
       <div class="section-intro">
-        <p class="eyebrow">For librarians</p>
-        <h2 class="section-heading"><em>No proxy, no IP ranges.</em></h2>
+        <p class="eyebrow eyebrow-light">For librarians</p>
+        <h2 class="section-heading section-heading-light"><em>No proxy, no IP ranges.</em></h2>
       </div>
 
       <div class="benefit-grid">
@@ -211,8 +213,8 @@
       </div>
 
       <div class="capstone">
-        <p>Questions of any kind: <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>. A person answers.</p>
-        <p><a href="/institutions/">Back to organizational membership</a></p>
+        <p class="capstone-body">Questions of any kind: <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>. A person answers.</p>
+        <p class="capstone-body"><a href="/institutions/">Back to organizational membership</a></p>
       </div>
     </div>
   </section>
