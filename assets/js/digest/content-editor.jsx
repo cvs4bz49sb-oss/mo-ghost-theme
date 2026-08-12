@@ -528,7 +528,13 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
 
   // Persist API creds + show mappings locally so user doesn't re-enter every visit.
   useEffect(() => { localStorage.setItem('mo_ghost_url', ghostUrl); }, [ghostUrl]);
-  useEffect(() => { localStorage.setItem('mo_ghost_key', ghostKey); }, [ghostKey]);
+  // Deliberately NOT persisted. The Content API key used to live in
+  // localStorage; it was overwritten with "" on 2026-08-12 and broke the
+  // essay pull, and a credential should never have been in the browser. Post
+  // fetching now goes through mo-admin's /digest/ghost-posts, which signs the
+  // request with a Worker secret. This state is vestigial and the field below
+  // is disabled; both stay only so an existing saved value isn't silently
+  // resurrected by a stale cache.
   useEffect(() => { localStorage.setItem('mo_podcast_worker', podcastWorkerUrl); }, [podcastWorkerUrl]);
   useEffect(() => { localStorage.setItem('mo_podcast_shows', JSON.stringify(podcastFeeds)); }, [podcastFeeds]);
 
@@ -537,18 +543,30 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
   // Fetch posts from Ghost Content API. Returns parsed-feed-style items.
   // One Ghost Content API call, shared by every essay pull. Returns the raw
   // posts so each caller decides how many to keep and how to filter them.
+  // Essay pull, proxied through mo-admin.
+  //
+  // This used to fetch Ghost directly from the browser using a Content API
+  // key kept in localStorage. That key was overwritten with an empty string
+  // on 2026-08-12 and the pull broke with "Content API key required." Storing
+  // a credential in the browser was the wrong idea regardless, so the worker
+  // now holds it: /digest/ghost-posts signs an Admin API request with the
+  // GHOST_ADMIN_API_KEY secret mo-admin already carries. No key is entered
+  // here, and none can be lost from here.
+  //
+  // The worker pins status:published, so drafts cannot reach the digest even
+  // though the Admin API would otherwise return them.
   const ghostPosts = async (limit) => {
-    if (!ghostKey.trim()) throw new Error('Content API key required.');
-    const base = ghostUrl.replace(/\/+$/, '');
-    const params = new URLSearchParams({
-      key: ghostKey.trim(),
-      limit: String(limit),
-      include: 'tags,authors',
-      fields: 'id,title,slug,excerpt,custom_excerpt,feature_image,published_at,url,primary_author,primary_tag',
-      order: 'published_at desc',
-    });
+    // Canonical accessor. digest-bootstrap.js renames the mount element's id
+    // to "root", so a getElementById literal returns null by render time —
+    // the trap already documented in that file.
+    const adminUrl = (window.MODigestRoot ? window.MODigestRoot.url('workerUrl') : '').replace(/\/+$/, '');
+    if (!adminUrl) throw new Error('Admin worker URL is not configured on this page.');
+    if (!window.MOAuth || !window.MOAuth.fetch) throw new Error('Not signed in as staff.');
+
+    const params = new URLSearchParams({ limit: String(limit) });
     if (ghostFilter.trim()) params.set('filter', ghostFilter.trim());
-    const res = await fetch(`${base}/ghost/api/content/posts/?${params.toString()}`);
+
+    const res = await window.MOAuth.fetch(`${adminUrl}/digest/ghost-posts?${params.toString()}`);
     if (!res.ok) {
       const body = await res.text().catch(() => '');
       throw new Error(`HTTP ${res.status} - ${body.slice(0, 160) || res.statusText}`);
@@ -1353,13 +1371,15 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                 />
               </div>
               <div>
-                <label style={fieldStyles.label}>Content API Key</label>
+                <label style={fieldStyles.label}>Content API Key <span style={{ fontWeight: 400, opacity: 0.7 }}>(no longer needed)</span></label>
                 <input
                   type="text"
-                  value={ghostKey}
-                  onChange={(e) => setGhostKey(e.target.value)}
-                  placeholder="22fe1aa0…"
-                  style={{ ...fieldStyles.input, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12 }}
+                  value=""
+                  readOnly
+                  disabled
+                  placeholder="Handled by the server"
+                  title="Posts are fetched through mo-admin, which holds the credential. Nothing to enter here."
+                  style={{ ...fieldStyles.input, fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12, opacity: 0.55, cursor: 'not-allowed' }}
                 />
               </div>
             </div>
@@ -1385,7 +1405,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                   onChange={(e) => setEssayCount(Math.max(1, Math.min(50, parseInt(e.target.value, 10) || 1)))}
                   style={{ ...fieldStyles.input, width: 56, textAlign: 'center', padding: '8px 6px' }}
                 />
-                <button onClick={() => fetchFromGhost('essays', essayCount)} style={btnStyle('primary')} disabled={!ghostKey.trim() || ghostLoading}>
+                <button onClick={() => fetchFromGhost('essays', essayCount)} style={btnStyle('primary')} disabled={ghostLoading}>
                   {ghostLoading ? 'Loading…' : `Pull → Essays`}
                 </button>
               </div>

@@ -442,9 +442,6 @@
       localStorage.setItem("mo_ghost_url", ghostUrl);
     }, [ghostUrl]);
     useEffect(() => {
-      localStorage.setItem("mo_ghost_key", ghostKey);
-    }, [ghostKey]);
-    useEffect(() => {
       localStorage.setItem("mo_podcast_worker", podcastWorkerUrl);
     }, [podcastWorkerUrl]);
     useEffect(() => {
@@ -452,17 +449,12 @@
     }, [podcastFeeds]);
     if (!open) return null;
     const ghostPosts = async (limit) => {
-      if (!ghostKey.trim()) throw new Error("Content API key required.");
-      const base = ghostUrl.replace(/\/+$/, "");
-      const params = new URLSearchParams({
-        key: ghostKey.trim(),
-        limit: String(limit),
-        include: "tags,authors",
-        fields: "id,title,slug,excerpt,custom_excerpt,feature_image,published_at,url,primary_author,primary_tag",
-        order: "published_at desc"
-      });
+      const adminUrl = (window.MODigestRoot ? window.MODigestRoot.url("workerUrl") : "").replace(/\/+$/, "");
+      if (!adminUrl) throw new Error("Admin worker URL is not configured on this page.");
+      if (!window.MOAuth || !window.MOAuth.fetch) throw new Error("Not signed in as staff.");
+      const params = new URLSearchParams({ limit: String(limit) });
       if (ghostFilter.trim()) params.set("filter", ghostFilter.trim());
-      const res = await fetch(`${base}/ghost/api/content/posts/?${params.toString()}`);
+      const res = await window.MOAuth.fetch(`${adminUrl}/digest/ghost-posts?${params.toString()}`);
       if (!res.ok) {
         const body = await res.text().catch(() => "");
         throw new Error(`HTTP ${res.status} - ${body.slice(0, 160) || res.statusText}`);
@@ -1069,14 +1061,16 @@
             placeholder: "https://yoursite.ghost.io",
             style: { ...fieldStyles.input, fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12 }
           }
-        )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, "Content API Key"), /* @__PURE__ */ React.createElement(
+        )), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, "Content API Key ", /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 400, opacity: 0.7 } }, "(no longer needed)")), /* @__PURE__ */ React.createElement(
           "input",
           {
             type: "text",
-            value: ghostKey,
-            onChange: (e) => setGhostKey(e.target.value),
-            placeholder: "22fe1aa0\u2026",
-            style: { ...fieldStyles.input, fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12 }
+            value: "",
+            readOnly: true,
+            disabled: true,
+            placeholder: "Handled by the server",
+            title: "Posts are fetched through mo-admin, which holds the credential. Nothing to enter here.",
+            style: { ...fieldStyles.input, fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12, opacity: 0.55, cursor: "not-allowed" }
           }
         ))), /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 10 } }, /* @__PURE__ */ React.createElement("label", { style: fieldStyles.label }, "Filter (optional)"), /* @__PURE__ */ React.createElement(
           "input",
@@ -1097,7 +1091,7 @@
             onChange: (e) => setEssayCount(Math.max(1, Math.min(50, parseInt(e.target.value, 10) || 1))),
             style: { ...fieldStyles.input, width: 56, textAlign: "center", padding: "8px 6px" }
           }
-        ), /* @__PURE__ */ React.createElement("button", { onClick: () => fetchFromGhost("essays", essayCount), style: btnStyle("primary"), disabled: !ghostKey.trim() || ghostLoading }, ghostLoading ? "Loading\u2026" : `Pull \u2192 Essays`)), ghostMessage && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#188038" } }, "\u2713 ", ghostMessage), ghostError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#a43a27", maxWidth: "100%", wordBreak: "break-word" } }, "\u26A0 ", ghostError)), /* @__PURE__ */ React.createElement("details", { style: { marginTop: 14 } }, /* @__PURE__ */ React.createElement("summary", { style: {
+        ), /* @__PURE__ */ React.createElement("button", { onClick: () => fetchFromGhost("essays", essayCount), style: btnStyle("primary"), disabled: ghostLoading }, ghostLoading ? "Loading\u2026" : `Pull \u2192 Essays`)), ghostMessage && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#188038" } }, "\u2713 ", ghostMessage), ghostError && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#a43a27", maxWidth: "100%", wordBreak: "break-word" } }, "\u26A0 ", ghostError)), /* @__PURE__ */ React.createElement("details", { style: { marginTop: 14 } }, /* @__PURE__ */ React.createElement("summary", { style: {
           cursor: "pointer",
           fontFamily: '"Source Sans 3", sans-serif',
           fontSize: 11,
