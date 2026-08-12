@@ -1360,5 +1360,13 @@
       }
     ) : null);
   }
-  ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
+  (function mountDigest() {
+    const mount = () => ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
+    if (window.MODigestStore && window.MODigestStore.ready) {
+      window.MODigestStore.ready().then(mount, mount);
+    } else {
+      console.warn("[digest] MODigestStore missing; mounting local-only");
+      mount();
+    }
+  })();
 })();

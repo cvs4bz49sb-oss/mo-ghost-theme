@@ -1644,4 +1644,19 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+// Mount only after the durable store has synced with Cloudflare. Everything
+// below this point reads localStorage synchronously, so hydration has to land
+// before the first render or the editor initialises from an empty cache — the
+// exact condition that blanked the saved settings on 2026-08-12.
+// MODigestStore.ready() never rejects; on a network failure it resolves and we
+// mount against the local cache, because a broken connection should degrade
+// the builder rather than show nothing.
+(function mountDigest() {
+  const mount = () => ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  if (window.MODigestStore && window.MODigestStore.ready) {
+    window.MODigestStore.ready().then(mount, mount);
+  } else {
+    console.warn('[digest] MODigestStore missing; mounting local-only');
+    mount();
+  }
+})();

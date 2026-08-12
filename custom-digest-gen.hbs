@@ -74,6 +74,11 @@
     <script src="{{asset "js/digest/export-html.js"}}"></script>
     <script src="{{asset "js/digest/kit-push.js"}}"></script>
     <script src="{{asset "js/admin-auth.js"}}"></script>
+    {{!-- store-sync must sit between admin-auth.js and app.js: it needs
+          window.MOAuth.fetch to exist, and app.js waits on
+          window.MODigestStore.ready() before mounting. Builder state lives
+          in D1 via mo-admin; localStorage is only a cache. --}}
+    <script src="{{asset "js/digest/store-sync.js"}}"></script>
     <script src="{{asset "js/digest/app.js"}}"></script>
 
   {{else}}
