@@ -38,35 +38,73 @@ jobs:
         env:
           BUZZSPROUT_API_TOKEN: ${{ secrets.BUZZSPROUT_API_TOKEN }}
         run: node scripts/build-top-episodes.mjs
-      - name: Commit if changed
+      # Publishes to the `podcast-data` branch, NOT main.
+      #
+      # main is covered by the "main — TFR contributor gate" ruleset, which
+      # requires a pull request and status checks and whose only bypass actor
+      # is the admin repository role. GITHUB_TOKEN is not an admin, so every
+      # run from 2026-07-31 onward died on "push declined due to repository
+      # rule violations" and scheduled-episodes.json sat at all-nulls for two
+      # weeks. Giving the Actions bot a bypass would have handed every
+      # workflow write access to main, which is the opposite of what that
+      # ruleset is for. The ruleset targets ~DEFAULT_BRANCH only, so a
+      # dedicated data branch needs no exemption at all.
+      #
+      # mo-podcast-feed reads both files from raw.githubusercontent.com on
+      # this branch. If you point it somewhere else, change it there too.
+      - name: Publish podcast data to the data branch
+        env:
+          DATA_BRANCH: podcast-data
         run: |
+          set -euo pipefail
           git config user.name "mo-bot"
           git config user.email "bot@users.noreply.github.com"
+
           if git diff --quiet -- assets/data/top-episodes.json assets/data/scheduled-episodes.json; then
             echo "No change to podcast data."
             exit 0
           fi
+
+          # Carry the freshly built files across the branch switch. Checking
+          # out with them in the working tree risks a conflict once the data
+          # branch has diverged from main.
+          tmp="$(mktemp -d)"
+          cp assets/data/top-episodes.json assets/data/scheduled-episodes.json "$tmp/"
+
+          # Discard everything else the build touched. The previous version
+          # skipped this and its retry path died on "cannot pull with rebase:
+          # You have unstaged changes" — a second bug hiding behind the first.
+          git checkout -- . || true
+
+          git fetch origin "$DATA_BRANCH" --depth=1 || true
+          if git rev-parse --verify "origin/$DATA_BRANCH" >/dev/null 2>&1; then
+            git checkout -B "$DATA_BRANCH" "origin/$DATA_BRANCH"
+          else
+            git checkout -B "$DATA_BRANCH"
+          fi
+
+          cp "$tmp/top-episodes.json" "$tmp/scheduled-episodes.json" assets/data/
+
+          if git diff --quiet -- assets/data/top-episodes.json assets/data/scheduled-episodes.json; then
+            echo "Data branch already current."
+            exit 0
+          fi
+
           git add assets/data/top-episodes.json assets/data/scheduled-episodes.json
           git commit -m "Update podcast data (Most Listened + scheduled) [skip ci]"
-          # The Buzzsprout fetch takes a minute or two, so main can move
-          # underneath the run. A bare push then fails non-fast-forward and
-          # the whole fetch is thrown away — which is what happened on
-          # 2026-07-31 when a theme push landed mid-run. Rebase and retry.
-          #
-          # No merge strategy option here on purpose: the concurrency group
-          # keeps this workflow from racing itself, so nothing else writes
-          # these files, and a genuine conflict should fail loudly rather
-          # than be resolved by a flag whose ours/theirs meaning inverts
-          # under rebase. The next scheduled run regenerates either way.
+
+          # Nothing else writes this branch and the concurrency group keeps
+          # this workflow from racing itself, so a rejected push means the
+          # branch moved for a reason worth failing loudly over.
           for attempt in 1 2 3; do
-            if git push; then
+            if git push origin "$DATA_BRANCH"; then
               echo "Pushed on attempt $attempt."
               exit 0
             fi
-            echo "Push rejected — rebasing onto origin/main (attempt $attempt)."
-            if ! git pull --rebase origin main; then
+            echo "Push rejected — rebasing onto origin/$DATA_BRANCH (attempt $attempt)."
+            if ! git pull --rebase --autostash origin "$DATA_BRANCH"; then
               git rebase --abort || true
-              echo "Rebase failed; leaving main alone." >&2
+              echo "Rebase failed; leaving $DATA_BRANCH alone." >&2
               exit 1
             fi
           done
