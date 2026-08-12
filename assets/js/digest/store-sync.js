@@ -245,7 +245,15 @@
         }).catch(function () { return null; }));
       });
     }
-    return Promise.all(jobs);
+    // Resolves to whether every write actually landed. The caller must not
+    // mark this browser "seeded" on a failed run: doing so is what let a
+    // 405 on every write pass silently and leave the server empty while the
+    // flag said the migration was done.
+    return Promise.all(jobs).then(function (results) {
+      var ok = results.every(function (r) { return r && r.ok; });
+      if (!ok) console.warn("[digest-store] seed incomplete; will retry next load");
+      return { ok: ok };
+    });
   }
 
   window.MODigestStore = {
@@ -276,7 +284,12 @@
         var chain = first
           ? Promise.resolve()
               .then(seedFromLocal)
-              .then(function () { nativeSetItem.call(localStorage, SEEDED, "1"); })
+              .then(function (r) {
+                // Only mark this browser migrated if the writes actually
+                // landed, so a failed run retries on the next load instead of
+                // leaving the server empty and the flag claiming success.
+                if (r && r.ok) nativeSetItem.call(localStorage, SEEDED, "1");
+              })
           : Promise.resolve();
         return chain
           .then(hydrate)
