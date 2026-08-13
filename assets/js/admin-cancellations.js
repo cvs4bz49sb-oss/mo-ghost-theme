@@ -18,6 +18,9 @@
   if (!root) return;
 
   const WORKER = (root.getAttribute("data-worker-url") || "").replace(/\/+$/, "");
+  // Recovery lives on the membership worker (it owns Stripe and Resend),
+  // not on mo-admin which only reads the churn tables.
+  const MEMBERSHIP = (root.getAttribute("data-membership-url") || "").replace(/\/+$/, "");
   const statusEl = root.querySelector("[data-cx-status]");
   const panelsEl = root.querySelector("[data-cx-panels]");
   const tableSection = root.querySelector("[data-cx-table-section]");
@@ -221,15 +224,77 @@
       tr.appendChild(el("td", null, money(m.annualized_value)));
 
       const act = document.createElement("td");
+      act.className = "admin-table-actions";
       const btn = el("button", "btn btn-ghost btn-sm", "Story");
       btn.type = "button";
       btn.addEventListener("click", () => openDrawer(m));
       act.appendChild(btn);
+      // Only involuntary churn gets the restart offer. Someone who chose
+      // to leave should not be mailed a "come back" link by a mis-click.
+      if (m.involuntary && MEMBERSHIP) act.appendChild(recoveryButton(m));
       tr.appendChild(act);
       tbody.appendChild(tr);
     });
     if (countEl) countEl.textContent = `${list.length} cancellation${list.length === 1 ? "" : "s"}`;
     if (tableSection) tableSection.hidden = false;
+  }
+
+  /*
+   * "Email restart link" for a member whose card failed.
+   *
+   * Their subscription is CANCELLED, not past due, so there is nothing
+   * for an update-your-card link to attach to. The worker builds a fresh
+   * Checkout session pinned to the price they were already paying and
+   * mails that instead.
+   *
+   * Two clicks, because this sends real mail to a real person: the first
+   * arms and names what will happen, the second sends. It disarms itself
+   * after six seconds so a stray click cannot linger and fire later.
+   */
+  function recoveryButton(m) {
+    const b = el("button", "btn btn-ghost btn-sm", "Email restart link");
+    b.type = "button";
+    b.addEventListener("click", () => {
+      if (b.dataset.armed !== "1") {
+        b.dataset.armed = "1";
+        b.textContent = `Send to ${m.email}?`;
+        b.classList.add("is-armed");
+        setTimeout(() => {
+          if (b.dataset.armed === "1") {
+            b.dataset.armed = "";
+            b.textContent = "Email restart link";
+            b.classList.remove("is-armed");
+          }
+        }, 6000);
+        return;
+      }
+      b.dataset.armed = "";
+      b.classList.remove("is-armed");
+      b.disabled = true;
+      b.textContent = "Sending…";
+      window.MOAuth.fetch(`${MEMBERSHIP}/api/admin/payment-recovery`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: m.email }),
+      }).then(async (r) => {
+        const out = await r.json().catch(() => ({}));
+        if (!r.ok || out.ok === false) {
+          b.disabled = false;
+          b.textContent = "Email restart link";
+          setStatus(out.error ? `Could not send: ${out.error}` : `Could not send (${r.status}).`);
+          console.error("payment-recovery failed", r.status, out);
+          return;
+        }
+        b.textContent = "Sent";
+        b.classList.add("is-done");
+      }).catch((err) => {
+        console.error(err);
+        b.disabled = false;
+        b.textContent = "Email restart link";
+        setStatus("Network error while sending.");
+      });
+    });
+    return b;
   }
 
   // ── drawer ────────────────────────────────────────────────────────

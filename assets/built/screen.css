@@ -22289,3 +22289,7 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 .admin-table-danger { color: #c0392b; }
 .admin-table-danger:hover { color: #a13226; }
 .admin-edit-field--wide { grid-column: 1 / -1; }
+
+/* Armed state for two-step destructive/outbound buttons. */
+.btn.is-armed { color: var(--color-secondary); font-weight: 600; }
+.btn.is-done { color: #2f7d55; }
