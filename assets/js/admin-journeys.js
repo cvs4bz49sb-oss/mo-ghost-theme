@@ -352,29 +352,35 @@
     const preClicks = pre.filter((e) => e.type === "hubspot_email_click").length;
     const sentences = [];
 
-    // 1. Where they came from.
+    // 1. Where they came from. Two different stories: someone who
+    // subscribed free and later paid, versus someone who arrived and
+    // paid in one session and was never on the list at all. Saying
+    // "signed up free" about the second kind contradicts the rest of
+    // the paragraph, which is what the old opener did.
     const firstUrl = row.legacy_first_url || row.signup_attribution_url;
     const page = firstUrl ? prettyPath(firstUrl) : null;
-    if (row.first_seen_system === "hubspot" && row.first_seen_at) {
+    const arrivedFrom = row.signup_referrer_source && row.signup_referrer_source !== "Direct"
+      && !/^Integration/i.test(row.signup_referrer_source)
+      ? ` from ${row.signup_referrer_source}` : "";
+
+    if (row.direct_to_paid) {
+      sentences.push(`Arrived in ${monthYear(conv)}${arrivedFrom}${page ? ` on ${page}` : ""} and paid in the same session, never having been a free subscriber.`);
+    } else if (row.first_seen_system === "hubspot" && row.first_seen_at) {
       sentences.push(`Found Mere Orthodoxy in ${monthYear(row.first_seen_at)}${page ? `, landing on ${page}` : ""}, and subscribed free.`);
-    } else if (row.signup_at) {
-      const ref = row.signup_referrer_source && row.signup_referrer_source !== "Direct"
-        ? ` after arriving from ${row.signup_referrer_source}` : "";
-      sentences.push(`Signed up free in ${monthYear(row.signup_at)}${ref}${page ? ` on ${page}` : ""}.`);
+    } else if (row.free_subscribed_at) {
+      sentences.push(`Subscribed free in ${monthYear(row.free_subscribed_at)}${arrivedFrom}${page ? ` on ${page}` : ""}.`);
     }
 
-    // 2. What they did in between.
-    const spanMonths = monthsBetween(row.free_subscribed_at || row.first_seen_at, conv);
-    const bits = [];
-    if (preOpens) bits.push(`opened ${preOpens} email${preOpens === 1 ? "" : "s"}`);
-    if (preClicks) bits.push(`clicked ${preClicks}`);
-    if (preReads) bits.push(`read ${preReads} essay${preReads === 1 ? "" : "s"}`);
-    if (bits.length && spanMonths >= 1) {
-      sentences.push(`Over the ${spanMonths} month${spanMonths === 1 ? "" : "s"} before paying, ${joinList(bits)}.`);
-    } else if (bits.length) {
-      sentences.push(`Before paying, ${joinList(bits)}.`);
-    } else if (row.direct_to_paid) {
-      sentences.push("Was never a free subscriber: the account was created as part of paying.");
+    // 2. What they did while they were on the free list. Skipped
+    // entirely for a direct payer: there is no "in between" to describe.
+    if (!row.direct_to_paid) {
+      const bits = [];
+      if (preOpens) bits.push(`opened ${preOpens} email${preOpens === 1 ? "" : "s"}`);
+      if (preClicks) bits.push(`clicked ${preClicks}`);
+      if (preReads) bits.push(`read ${preReads} essay${preReads === 1 ? "" : "s"}`);
+      // The duration belongs to sentence 3. Repeating it here in months
+      // against years there just reads as two different numbers.
+      if (bits.length) sentences.push(`While on the free list, ${joinList(bits)}.`);
     }
 
     // 3. What closed it. Narrative rule: never "an article" when we
@@ -384,9 +390,11 @@
     const held = row.direct_to_paid
       ? ""
       : (row.days_free_before_paid >= 365
-        ? `, after ${(row.days_free_before_paid / 365).toFixed(1)} years on the free list`
-        : (row.days_free_before_paid ? `, after ${row.days_free_before_paid} days on the free list` : ""));
-    let close = `Converted on ${where}${held} and ${plan}`;
+        ? ` after ${(row.days_free_before_paid / 365).toFixed(1)} years on the free list`
+        : (row.days_free_before_paid ? ` after ${row.days_free_before_paid} days on the free list` : ""));
+    let close = row.direct_to_paid && held === ""
+      ? `Bought from ${where === "the homepage" ? "the homepage join block" : where} and ${plan}`
+      : `Converted on ${where}${held}, and ${plan}`;
     if (row.abandoned_checkouts) {
       close += `, after abandoning ${row.abandoned_checkouts === 1 ? "a checkout" : `${row.abandoned_checkouts} checkouts`}${row.abandoned_pages ? ` on ${row.abandoned_pages}` : ""}`;
     }
