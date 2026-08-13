@@ -5906,12 +5906,12 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .admin-table-count {
   font-family: var(--font-body);
-  font-size: 12px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--color-dark);
-  font-weight: 600;
-  margin: 0;
+  font-size: 12.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-muted);
+  font-weight: 400;
+  margin: 10px 0 0;
 }
 .admin-table-status {
   font-family: var(--font-body);
@@ -5962,12 +5962,12 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .admin-table thead th {
   text-align: left;
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--color-muted);
-  font-weight: 600;
-  padding: 14px 12px;
+  font-weight: 500;
+  padding: 12px 12px;
   border-bottom: 1px solid var(--color-card-border);
   white-space: nowrap;
 }
@@ -8993,34 +8993,30 @@ html[data-theme="dark"] .feature-gate-modal-body {
   .gift-toast-action { padding: 7px 12px; font-size: 10px; letter-spacing: 0.16em; }
 }
 
-/* Top-of-article banner for ?gift=<token> visitors. Reuses the
-   homepage Digest CTA via the .digest-cta class. Inside the narrower
-   article column the 4-across form squeezes the inputs, so on
-   .gift-banner the submit drops to its own row and the three fields
-   share the full width equally. */
-.gift-banner { margin: 0 0 36px; }
-/* Copy aligned to top of form; tighter bottom padding so the bottom
-   hairline sits close to the Subscribe link instead of floating. */
-.gift-banner.digest-cta {
-  align-items: start;
-  padding-bottom: 0;
-}
-/* Three rows: First+Last, Email full width, Subscribe link. */
-.gift-banner .digest-form {
-  grid-template-columns: 1fr 1fr;
-}
-.gift-banner .digest-form .digest-field:nth-child(3) {
-  grid-column: 1 / -1;
-}
-.gift-banner .digest-submit {
-  grid-column: 1 / -1;
-  justify-self: start;
-  margin-top: 10px;
-  padding-bottom: 16px;
+/* Top-of-article banner for a gift-link visitor.
+
+   It renders the real .post-gate-card (see renderGiftBanner in
+   post-gate.js), so the tan panel, border, radius, type scale, field
+   styling and dark-mode overrides all come from that component. The
+   only difference is position: the gate card follows truncated
+   content, this one leads the article. So the margins flip. The
+   horizontal bleed is inherited deliberately, so both cards break out
+   of the text column by the same amount.                            */
+.gift-banner.post-gate-card {
+  margin-top: 0;
+  margin-bottom: 36px;
 }
 @media (max-width: 720px) {
-  .gift-banner .digest-form { grid-template-columns: 1fr; }
+  .gift-banner.post-gate-card { margin-bottom: 28px; }
 }
+/* The gate card ends with an "Already a subscriber? Sign in" row, so
+   the space the status message reserves is never seen as empty. The
+   gift banner ends at the button, which left ~105px of bare tan under
+   it. Collapse the reserved margins so the bottom padding matches the
+   top; .post-gate-status keeps its min-height so a validation message
+   still has somewhere to land without shifting the layout.          */
+.gift-banner .post-gate-form { margin-bottom: 0; }
+.gift-banner .post-gate-status { margin-bottom: 0; }
 
 /* --- /contact/ and /submissions/ pages ---------------------------
    Centered hero, then a 2-col body: editorial prose left, form
@@ -11035,20 +11031,28 @@ label.site-form-field-check {
 }
 .admin-members-subnav-link {
   display: block;
-  padding: 10px 12px;
+  padding: 7px 12px;
   font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--color-dark);
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  color: var(--color-muted);
   text-decoration: none;
   border-left: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  border-radius: 0 3px 3px 0;
+  transition: color 0.12s, background-color 0.12s, border-color 0.12s;
 }
-.admin-members-subnav-link:hover { color: var(--color-primary); }
+.admin-members-subnav-link:hover {
+  color: var(--color-dark);
+  background: rgba(0, 0, 0, 0.03);
+}
+/* One accent, on one item. The brand shows up here and in the page
+   title, not on all eleven nav entries at once. */
 .admin-members-subnav-link.is-active {
-  color: var(--color-primary);
+  color: var(--color-dark);
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.04);
   border-left-color: var(--color-primary);
 }
 .admin-members-main { min-width: 0; }
@@ -11072,13 +11076,17 @@ label.site-form-field-check {
     flex-wrap: nowrap;
   }
   .admin-members-subnav-link {
-    padding: 12px 0;
+    padding: 10px 2px;
     border-left: none;
+    border-radius: 0;
+    background: none;
     border-bottom: 2px solid transparent;
     white-space: nowrap;
     flex-shrink: 0;
   }
+  .admin-members-subnav-link:hover { background: none; }
   .admin-members-subnav-link.is-active {
+    background: none;
     border-bottom-color: var(--color-primary);
   }
 }
@@ -11164,12 +11172,12 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 .admin-stats {
   list-style: none;
   padding: 0;
-  margin: 0 0 32px;
+  margin: 0 0 28px;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 @media (max-width: 880px) {
   .admin-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -11182,7 +11190,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
 }
 .admin-stat:first-child { border-left: 0; }
 @media (max-width: 880px) {
@@ -11196,16 +11204,16 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 }
 .admin-stat-label {
   font-family: var(--font-body);
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--color-dark);
-  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-muted);
+  font-weight: 400;
 }
 .admin-stat-value {
   font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 28px;
+  font-weight: 600;
+  font-size: 26px;
   line-height: 1;
   color: var(--color-dark);
   font-variant-numeric: tabular-nums;
@@ -11213,7 +11221,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 @media (max-width: 520px) {
   .admin-stat { padding: 14px 12px; }
   .admin-stat-value { font-size: 24px; }
-  .admin-stat-label { font-size: 9px; letter-spacing: 0.18em; }
+  .admin-stat-label { font-size: 11px; }
 }
 
 /* Chart + recent signups — 2-col split, chart left, list right. */
@@ -11399,10 +11407,10 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   border: 0;
   padding: 12px 18px;
   font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--color-muted);
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -11415,8 +11423,8 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   color: var(--color-dark);
 }
 .admin-period-option.is-active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+  color: var(--color-dark);
+  border-bottom-color: var(--color-dark);
 }
 
 /* --- Ranked lists (top pages, top sources, top countries) --------------- */
@@ -11472,7 +11480,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-dark);
   z-index: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -21831,11 +21839,11 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 .jr-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  margin: 32px 0;
+  gap: 40px;
+  margin: 8px 0 40px;
 }
 .jr-panel { min-width: 0; }
-.jr-section { margin-top: 40px; }
+.jr-section { margin-top: 44px; }
 
 /* Admin scale, not editorial. UX-AGENT 6.9: admin pages do not get the
    charm treatment. The first cut of this page used .section-intro +
@@ -21843,7 +21851,7 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
    marketing type in a two-column data panel, and it dwarfed the data it
    was labelling. 17px matches .hm-panel-title on the heatmap page. */
 .jr-panel-title {
-  margin: 0 0 4px;
+  margin: 0 0 5px;
   font-family: var(--font-body);
   font-size: 17px;
   font-weight: 600;
@@ -22020,28 +22028,39 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
    six-column strip ragged with it. */
 .jr-caveats {
   list-style: none;
-  margin: -18px 0 28px;
+  margin: -12px 0 24px;
   padding: 0;
   display: grid;
-  gap: 6px;
-  max-width: 82ch;
+  gap: 4px;
+  max-width: 80ch;
 }
 .jr-caveats li {
-  padding-left: 14px;
-  border-left: 2px solid var(--color-card-border);
-  font-size: 13px;
+  position: relative;
+  padding-left: 16px;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: var(--color-muted);
+}
+.jr-caveats li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 8px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--color-card-border);
 }
 
 /* Says what the acquisitions-only filter removed, so the headline count
    is explainable rather than mysteriously smaller than Ghost's. */
 .jr-excluded {
-  margin: 0 0 18px;
+  margin: 0 0 24px;
   padding: 10px 14px;
-  border-left: 2px solid var(--color-card-border);
-  font-size: 13px;
+  background: rgba(0, 0, 0, 0.025);
+  border-radius: 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: var(--color-muted);
-  max-width: 78ch;
+  max-width: 80ch;
 }
 
 /* Sortable table headers. Kept as <th> with role/tabindex rather than a
