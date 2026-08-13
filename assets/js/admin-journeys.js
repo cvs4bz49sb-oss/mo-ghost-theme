@@ -93,12 +93,16 @@
     return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
   }
 
+  // Time to convert is the free-subscriber period, not signup-to-payment.
+  // Someone who checked out through Portal never had a free period at
+  // all, and reporting that as "0 min" made the Stripe form's duration
+  // look like a lightning-fast decision.
   function fmtDuration(row) {
-    if (row.minutes_to_convert !== null && row.minutes_to_convert !== undefined && row.minutes_to_convert < 1440) {
-      return `${row.minutes_to_convert} min`;
-    }
-    if (row.days_since_first_seen !== null && row.days_since_first_seen !== undefined) {
-      return `${row.days_since_first_seen} d`;
+    if (row.direct_to_paid) return "straight to paid";
+    if (row.days_free_before_paid !== null && row.days_free_before_paid !== undefined) {
+      const d = row.days_free_before_paid;
+      if (d >= 365) return `${(d / 365).toFixed(1)} yr free`;
+      return `${d} d free`;
     }
     return "—";
   }
@@ -132,7 +136,9 @@
     };
     const n = t.members || 0;
     set("members", n);
-    set("same_day", n ? `${t.same_day || 0} of ${n}` : "—");
+    set("straight_to_paid", n ? `${t.straight_to_paid || 0} of ${n}` : "—");
+    set("avg_days_free", t.avg_days_free === null || t.avg_days_free === undefined
+      ? "—" : `${Math.round(t.avg_days_free)} d`);
     set("opened_before", n ? `${t.opened_before || 0} of ${n}` : "—");
     set("abandoned", t.abandoned || 0);
     set("silent", t.silent || 0);
@@ -358,7 +364,7 @@
     }
 
     // 2. What they did in between.
-    const spanMonths = monthsBetween(row.first_seen_at, conv);
+    const spanMonths = monthsBetween(row.free_subscribed_at || row.first_seen_at, conv);
     const bits = [];
     if (preOpens) bits.push(`opened ${preOpens} email${preOpens === 1 ? "" : "s"}`);
     if (preClicks) bits.push(`clicked ${preClicks}`);
@@ -367,15 +373,20 @@
       sentences.push(`Over the ${spanMonths} month${spanMonths === 1 ? "" : "s"} before paying, ${joinList(bits)}.`);
     } else if (bits.length) {
       sentences.push(`Before paying, ${joinList(bits)}.`);
-    } else if (row.minutes_to_convert !== null && row.minutes_to_convert !== undefined && row.minutes_to_convert < 1440) {
-      sentences.push(`Nothing was recorded in between: the account and the payment were ${row.minutes_to_convert} minutes apart.`);
+    } else if (row.direct_to_paid) {
+      sentences.push("Was never a free subscriber: the account was created as part of paying.");
     }
 
     // 3. What closed it. Narrative rule: never "an article" when we
     // know which article. Name the page every time.
     const where = namedSurface(row);
     const plan = row.is_comped ? "was comped" : `took the ${String(row.plan || "paid").toLowerCase()} plan`;
-    let close = `Converted on ${where} and ${plan}`;
+    const held = row.direct_to_paid
+      ? ""
+      : (row.days_free_before_paid >= 365
+        ? `, after ${(row.days_free_before_paid / 365).toFixed(1)} years on the free list`
+        : (row.days_free_before_paid ? `, after ${row.days_free_before_paid} days on the free list` : ""));
+    let close = `Converted on ${where}${held} and ${plan}`;
     if (row.abandoned_checkouts) {
       close += `, after abandoning ${row.abandoned_checkouts === 1 ? "a checkout" : `${row.abandoned_checkouts} checkouts`}${row.abandoned_pages ? ` on ${row.abandoned_pages}` : ""}`;
     }
