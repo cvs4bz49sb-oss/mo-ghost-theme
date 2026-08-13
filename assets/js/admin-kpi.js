@@ -82,6 +82,21 @@
   // say so rather than printing a flattering 0%.
   const rate = (n, d) => (d ? `${(Math.round((n / d) * 1000) / 10).toFixed(1)}%` : "—");
 
+  // One phrasing for "off the list", used by every list tile so they cannot
+  // drift apart. Only names the reasons that actually have a count — a list
+  // with no complaints should not display "0 complaints" as if it were a
+  // finding, and a null means the walk was truncated, not that it is zero.
+  function offList(cancelled, bounced, complained) {
+    const parts = [];
+    if (typeof cancelled === "number" && cancelled) parts.push(`<b>${fmt(cancelled)}</b> unsubscribed`);
+    if (typeof bounced === "number" && bounced) parts.push(`<b>${fmt(bounced)}</b> bounced`);
+    if (typeof complained === "number" && complained) parts.push(`<b>${fmt(complained)}</b> marked spam`);
+    if (!parts.length) return "";
+    const total = [cancelled, bounced, complained]
+      .filter((n) => typeof n === "number").reduce((t, n) => t + n, 0);
+    return `${parts.join(" · ")} — <b>${fmt(total)}</b> off the list`;
+  }
+
   // The last thirty days of the series. "Current" means the situation as it
   // stands, which for a stock is its value and for a flow is a recent
   // window — and the window has to be the same one everywhere or two
@@ -394,7 +409,7 @@
       bullets: (s) => [
         s.ghost ? `<b>${fmt(s.ghost.free)}</b> Ghost free members` : "",
         s.kit ? `<b>${fmt(s.kit.active)}</b> active in Kit` : "",
-        s.kit ? `<b>${fmt(s.kit.cancelled)}</b> cancelled · <b>${fmt(s.kit.bounced)}</b> bounced` : ""
+        s.kit ? offList(s.kit.cancelled, s.kit.bounced, s.kit.complained) : ""
       ]
     },
     {
@@ -428,13 +443,16 @@
         const k = s.kpi || {};
         const pct = k.dl_subscribers ? Math.round((k.dl_only / k.dl_subscribers) * 100) : null;
         return [
-          // Ghost's label count includes cancelled and bounced subscribers,
-          // so it reads higher than the deliverable list. Show both rather
-          // than appear to contradict the number Ghost puts on screen.
+          // Ghost's label count includes people who can no longer receive the
+          // email, so it reads higher than the deliverable list. Show the
+          // label total and break the gap out by reason: unsubscribes point
+          // at the cadence, bounces at address quality, complaints at
+          // deliverability for everyone else on the list.
           typeof k.dl_labelled === "number" && typeof k.dl_subscribers === "number"
             && k.dl_labelled !== k.dl_subscribers
-            ? `<b>${fmt(k.dl_labelled)}</b> carry the label in Ghost · <b>${fmt(k.dl_labelled - k.dl_subscribers)}</b> cancelled or bounced`
+            ? `<b>${fmt(k.dl_labelled)}</b> carry the label in Ghost, <b>${fmt(k.dl_labelled - k.dl_subscribers)}</b> can no longer receive it`
             : "",
+          offList(k.dl_cancelled, k.dl_bounced, k.dl_complained),
           typeof k.dl_only === "number" ? `<b>${fmt(k.dl_only)}</b> take only the Daily Liturgy${pct == null ? "" : ` — ${pct}% of the list`}` : "",
           typeof k.dl_both === "number" ? `<b>${fmt(k.dl_both)}</b> also take a weekly digest` : "",
           s.liturgy && typeof s.liturgy.via_form === "number" ? `<b>${fmt(s.liturgy.via_form)}</b> arrived through the Daily Liturgy signup itself` : ""
