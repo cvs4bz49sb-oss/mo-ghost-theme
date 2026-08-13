@@ -22282,3 +22282,10 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 @media (max-width: 560px) {
   .admin-edit-grid { grid-template-columns: 1fr; }
 }
+
+/* Row actions on editable admin tables. Buttons never touch (UX 6.2). */
+.admin-table-actions { white-space: nowrap; }
+.admin-table-actions .btn + .btn { margin-left: 8px; }
+.admin-table-danger { color: #c0392b; }
+.admin-table-danger:hover { color: #a13226; }
+.admin-edit-field--wide { grid-column: 1 / -1; }

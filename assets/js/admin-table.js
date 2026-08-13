@@ -107,6 +107,20 @@
     if (toolbar) toolbar.insertBefore(wrap, toolbar.firstChild);
   }
 
+  if (editEndpoint) {
+    const toolbar = host.querySelector('.admin-table-toolbar');
+    if (toolbar) {
+      const add = document.createElement('button');
+      add.type = 'button';
+      add.className = 'btn btn-primary btn-sm';
+      add.textContent = 'Add address';
+      // A blank row: the editor treats a row with no key as a create,
+      // which POSTs instead of PUTs.
+      add.addEventListener('click', () => openEditor({}, true));
+      toolbar.appendChild(add);
+    }
+  }
+
   (async () => {
     try {
       const res = await window.MOAuth.fetch(apiBase + endpoint, { credentials: 'omit' });
@@ -231,15 +245,62 @@
       });
       if (editEndpoint) {
         const td = document.createElement('td');
+        td.className = 'admin-table-actions';
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'btn btn-ghost btn-sm';
         b.textContent = 'Edit';
         b.addEventListener('click', () => openEditor(row));
         td.appendChild(b);
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'btn btn-ghost btn-sm admin-table-danger';
+        del.textContent = 'Delete';
+        del.addEventListener('click', () => confirmDelete(row, del));
+        td.appendChild(del);
         tr.appendChild(td);
       }
       tbody.appendChild(tr);
+    });
+  }
+
+  /*
+   * Delete, confirmed on the button rather than in a window.confirm.
+   * First click arms it, second click within 4 seconds does it, and it
+   * disarms itself if you walk away. No modal for a one-row action.
+   */
+  function confirmDelete(row, btn) {
+    if (btn.dataset.armed !== '1') {
+      btn.dataset.armed = '1';
+      const prev = btn.textContent;
+      btn.textContent = 'Delete — sure?';
+      setTimeout(() => {
+        if (btn.dataset.armed === '1') { btn.dataset.armed = ''; btn.textContent = prev; }
+      }, 4000);
+      return;
+    }
+    btn.dataset.armed = '';
+    btn.disabled = true;
+    btn.textContent = 'Deleting…';
+    window.MOAuth.fetch(apiBase + editEndpoint, {
+      method: 'DELETE',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({[editKey]: row[editKey]}),
+    }).then(async (r) => {
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setStatus(out.error ? `Delete failed: ${out.error}` : `Delete failed (${r.status}).`);
+        btn.disabled = false;
+        btn.textContent = 'Delete';
+        return;
+      }
+      allRows = allRows.filter((x) => x[editKey] !== row[editKey]);
+      paint();
+    }).catch((err) => {
+      console.error(err);
+      setStatus('Network error while deleting.');
+      btn.disabled = false;
+      btn.textContent = 'Delete';
     });
   }
 
@@ -247,7 +308,7 @@
   //
   // Built with createElement throughout: every value here is member-
   // entered text coming back from the worker.
-  function openEditor(row) {
+  function openEditor(row, isNew) {
     const existing = document.querySelector('[data-admin-edit]');
     if (existing) existing.remove();
 
@@ -265,10 +326,10 @@
     head.className = 'admin-edit-head';
     const h = document.createElement('h2');
     h.className = 'admin-edit-title';
-    h.textContent = 'Edit address';
+    h.textContent = isNew ? 'Add address' : 'Edit address';
     const who = document.createElement('p');
     who.className = 'admin-edit-sub';
-    who.textContent = String(row[editKey] || '');
+    who.textContent = isNew ? 'Enter the member\u2019s email, then their address.' : String(row[editKey] || '');
     head.appendChild(h);
     head.appendChild(who);
     form.appendChild(head);
@@ -276,6 +337,24 @@
     const grid = document.createElement('div');
     grid.className = 'admin-edit-grid';
     const inputs = {};
+
+    // Creating needs the identifying field; editing must never let it be
+    // changed, or the save would silently write to a different member.
+    let keyInput = null;
+    if (isNew) {
+      const wrap = document.createElement('label');
+      wrap.className = 'admin-edit-field admin-edit-field--wide';
+      const lab = document.createElement('span');
+      lab.className = 'admin-edit-label';
+      lab.textContent = 'Member email (must already exist in Ghost)';
+      keyInput = document.createElement('input');
+      keyInput.type = 'email';
+      keyInput.required = true;
+      setTimeout(() => keyInput.focus(), 0);
+      wrap.appendChild(lab);
+      wrap.appendChild(keyInput);
+      grid.appendChild(wrap);
+    }
     (editFields.length ? editFields : columns).forEach((col, i) => {
       const wrap = document.createElement('label');
       wrap.className = 'admin-edit-field';
@@ -287,7 +366,7 @@
       inp.type = 'text';
       inp.value = row[col] === null || row[col] === undefined ? '' : String(row[col]);
       inp.name = col;
-      if (i === 0) setTimeout(() => inp.focus(), 0);
+      if (i === 0 && !isNew) setTimeout(() => inp.focus(), 0);
       inputs[col] = inp;
       wrap.appendChild(lab);
       wrap.appendChild(inp);
@@ -318,21 +397,31 @@
       ev.preventDefault();
       save.disabled = true;
       msg.textContent = 'Saving…';
-      const payload = {[editKey]: row[editKey]};
+      const keyValue = isNew ? (keyInput.value || '').trim().toLowerCase() : row[editKey];
+      if (isNew && !keyValue) { msg.textContent = 'A member email is required.'; save.disabled = false; return; }
+      const payload = {[editKey]: keyValue};
       Object.keys(inputs).forEach((k) => { payload[k] = inputs[k].value.trim(); });
       try {
         const r = await window.MOAuth.fetch(apiBase + editEndpoint, {
-          method: 'PUT',
+          method: isNew ? 'POST' : 'PUT',
           headers: {'content-type': 'application/json'},
           body: JSON.stringify(payload),
         });
         const out = await r.json().catch(() => ({}));
-        if (!r.ok) { msg.textContent = out.error || `Save failed (${r.status}).`; save.disabled = false; return; }
+        if (!r.ok) {
+          // Show the worker's own message. A bare status code sends
+          // whoever hits this straight to devtools for no reason.
+          msg.textContent = out.error ? `${out.error} (${r.status})` : `Save failed (${r.status}).`;
+          console.error('admin-table save failed', r.status, out);
+          save.disabled = false;
+          return;
+        }
         // Update the row in place so the table reflects the edit without
         // a full refetch losing the current sort and search.
         const updated = out.address || payload;
-        const i = allRows.findIndex((x) => x[editKey] === row[editKey]);
+        const i = allRows.findIndex((x) => x[editKey] === keyValue);
         if (i >= 0) allRows[i] = {...allRows[i], ...updated};
+        else allRows.unshift(updated);
         back.remove();
         paint();
       } catch (err) {

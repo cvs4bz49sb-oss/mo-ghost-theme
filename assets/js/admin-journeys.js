@@ -587,7 +587,7 @@
     const t = e.type;
 
     if (t === "read_completed") {
-      return { ...base, label: "Read", detail: d.title || d.postId, url: d.url, link: !!d.url,
+      return { ...base, label: "Read", detail: d.title || "(article no longer available)", url: d.url, link: !!d.url,
         suffix: d.visibility && d.visibility !== "public" ? `(${d.visibility})` : "" };
     }
     if (t === "clicked_upgrade") {

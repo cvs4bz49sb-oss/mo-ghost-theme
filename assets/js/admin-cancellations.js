@@ -345,7 +345,9 @@
     let d = {};
     try { d = e.detail ? JSON.parse(e.detail) : {}; } catch (_) { d = {}; }
     const t = e.type;
-    if (t === "read_completed") return { label: "Read", detail: d.title || d.postId || "" };
+    // A post id is not a fact anyone can use. If the title could not be
+    // resolved, say so rather than printing the hex.
+    if (t === "read_completed") return { label: "Read", detail: d.title || "(article no longer available)" };
     if (t === "login") return { label: "Signed in", detail: "" };
     if (t === "signup") return { label: "Signed up", detail: d.url || "" };
     if (t === "payment") return { label: "Paid", detail: d.amount ? money(d.amount) : "" };
