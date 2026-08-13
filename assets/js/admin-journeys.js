@@ -371,8 +371,9 @@
       sentences.push(`Nothing was recorded in between: the account and the payment were ${row.minutes_to_convert} minutes apart.`);
     }
 
-    // 3. What closed it.
-    const where = surfaceName(row.conversion_surface, row.conversion_page);
+    // 3. What closed it. Narrative rule: never "an article" when we
+    // know which article. Name the page every time.
+    const where = namedSurface(row);
     const plan = row.is_comped ? "was comped" : `took the ${String(row.plan || "paid").toLowerCase()} plan`;
     let close = `Converted on ${where} and ${plan}`;
     if (row.abandoned_checkouts) {
@@ -441,7 +442,7 @@
     if (row.legacy_first_url) fact("First page ever", row.legacy_first_url);
     fact("Signed up", `${fmtDateTime(row.signup_at)} · referrer ${row.signup_referrer_source || "unknown"}`);
     fact("Converted", `${fmtDateTime(row.converted_at)} · ${row.is_comped ? "comped" : (row.plan || "—")}`);
-    fact("Converted on", `${row.conversion_surface || "unrecorded"}${row.conversion_page ? ` (${row.conversion_page})` : ""}`);
+    fact("Converted on", `${namedSurface(row)}${row.conversion_page ? ` (${row.conversion_page})` : ""}`);
     if (row.abandoned_checkouts) fact("Abandoned", `${row.abandoned_checkouts} on ${row.abandoned_pages || "unknown"}`);
     // The number Ian actually wants: engagement BEFORE they paid.
     // Kit has no date-bounded figure, so say which basis this rests on
@@ -475,7 +476,7 @@
       return;
     }
 
-    const shown = events.map(describe).filter(Boolean);
+    const shown = collapseRepeats(events.map(describe).filter(Boolean));
     const behaviour = shown.filter((x) => !x.system);
     const showAll = drawer.hasAttribute("data-jr-show-all");
     const visible = showAll ? shown : behaviour;
@@ -518,6 +519,35 @@
       });
       drawerBody.appendChild(toggle);
     }
+  }
+
+  /*
+   * Fold a run of identical adjacent events into one row.
+   *
+   * HubSpot logs an open every time the tracking pixel loads, so a
+   * single reading of one digest can appear four times in four minutes,
+   * and a member who keeps an email around reopens it for weeks. Left
+   * raw, one member contributed 344 near-identical rows and the actual
+   * story drowned. Only ADJACENT events with the same key merge, so
+   * anything that happened in between still breaks the run.
+   */
+  function collapseRepeats(items) {
+    const out = [];
+    for (const item of items) {
+      const prev = out[out.length - 1];
+      if (item.collapseKey && prev && prev.collapseKey === item.collapseKey) {
+        prev.repeats = (prev.repeats || 1) + 1;
+        prev.lastTs = item.ts;
+        continue;
+      }
+      out.push({ ...item });
+    }
+    return out.map((x) => {
+      if (!x.repeats) return x;
+      const span = x.lastTs && x.lastTs.slice(0, 10) !== x.ts.slice(0, 10)
+        ? ` through ${fmtDateTime(x.lastTs).replace(/,[^,]*$/, "")}` : "";
+      return { ...x, detail: `${x.detail}${x.detail ? " · " : ""}${x.repeats} times${span}` };
+    });
   }
 
   /*
@@ -567,8 +597,16 @@
     // Dated HubSpot-era engagement. Labelled "last" because HubSpot only
     // exposes the most recent one without the marketing.email.read scope.
     if (t === "hubspot_email_open") {
-      return { ...base, label: "Last email open (HubSpot)",
-        detail: d.total ? `${d.total} opens in the HubSpot era` : "" };
+      // d.total only exists on the fallback row we emit when the events
+      // API is unavailable, and that one genuinely IS the most recent.
+      // Every other open is one of many, so calling it "last" was wrong
+      // on all 344 of them.
+      if (d.total) {
+        return { ...base, label: "Most recent email open (HubSpot)",
+          detail: `${d.total} opens in the HubSpot era` };
+      }
+      return { ...base, label: "Opened an email", detail: d.email || "",
+        collapseKey: `open:${d.email || ""}` };
     }
     if (t === "hubspot_email_click") {
       return { ...base, label: "Clicked an email (HubSpot)",
@@ -626,6 +664,32 @@
     if (/stripe\.com/.test(href)) return "a Stripe checkout link";
     if (/^\/membership\/?$/.test(href)) return "Become a Member";
     return href;
+  }
+
+  /*
+   * The conversion surface, named.
+   *
+   * "Converted on an article" is useless: the whole point is WHICH
+   * article did the work. conversion_page_title carries the resolved
+   * post title, and the raw path is the fallback so the sentence still
+   * points somewhere specific when a title cannot be resolved.
+   */
+  function namedSurface(row) {
+    const title = row.conversion_page_title;
+    const path = row.conversion_page;
+    switch (row.conversion_surface) {
+      case "home": return "the homepage";
+      case "membership": return "the membership page";
+      case "about": return "the about page";
+      case "groups": return "the groups page";
+      case "institutions": return "the institutions page";
+      case "gift": return "the gift page";
+      case "article":
+        return title ? `the article "${title}"` : `an article at ${path || "an unknown path"}`;
+      default:
+        if (title && title !== "the homepage") return `"${title}"`;
+        return path || "an unrecorded page";
+    }
   }
 
   function surfaceName(surface, path) {
