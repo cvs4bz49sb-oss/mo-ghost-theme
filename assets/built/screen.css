@@ -21837,6 +21837,25 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 .jr-panel { min-width: 0; }
 .jr-section { margin-top: 40px; }
 
+/* Admin scale, not editorial. UX-AGENT 6.9: admin pages do not get the
+   charm treatment. The first cut of this page used .section-intro +
+   .section-heading, which is clamp(30px, 3.8vw, 48px) display italic —
+   marketing type in a two-column data panel, and it dwarfed the data it
+   was labelling. 17px matches .hm-panel-title on the heatmap page. */
+.jr-panel-title {
+  margin: 0 0 4px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+.jr-panel-sub {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--color-muted);
+  max-width: 62ch;
+}
+
 .jr-name {
   display: block;
   font-family: var(--font-body);
