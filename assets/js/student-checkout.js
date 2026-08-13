@@ -34,8 +34,25 @@
     country: form.querySelector('[data-student-addr-country]'),
   };
 
-  // Mirror of the server's EDU_EMAIL_RE in workers/membership/lib/student.js.
+  // Mirror of the server's EDU_EMAIL_RE + CA_UNIVERSITY_DOMAINS in
+  // workers/membership/lib/student.js — keep both in sync.
   const EDU_EMAIL_RE = /^[^\s@]+@[^\s@]+\.(edu|ac\.[a-z]{2,3}|edu\.[a-z]{2,3})$/i;
+  const CA_UNIVERSITY_DOMAINS = [
+    'uwo.ca', 'utoronto.ca', 'ubc.ca', 'mcgill.ca', 'ualberta.ca', 'uwaterloo.ca',
+    'yorku.ca', 'queensu.ca', 'dal.ca', 'sfu.ca', 'uottawa.ca', 'mcmaster.ca',
+    'ucalgary.ca', 'uvic.ca', 'umanitoba.ca', 'usask.ca', 'concordia.ca',
+    'carleton.ca', 'torontomu.ca', 'brocku.ca', 'uoguelph.ca', 'wlu.ca',
+    'trentu.ca', 'lakeheadu.ca', 'unb.ca', 'mun.ca', 'uregina.ca',
+    'athabascau.ca', 'acadiau.ca', 'stfx.ca', 'uwindsor.ca', 'laurentian.ca',
+    'nipissingu.ca',
+  ];
+  const isEduEmail = (email) => {
+    if (EDU_EMAIL_RE.test(email)) return true;
+    const at = email.lastIndexOf('@');
+    if (at === -1) return false;
+    const domain = email.slice(at + 1).toLowerCase();
+    return CA_UNIVERSITY_DOMAINS.some((d) => domain === d || domain.endsWith('.' + d));
+  };
   const isPrint = () => {
     const c = form.querySelector('input[name="student-variant"]:checked');
     return !!c && c.value === 'print';
@@ -97,7 +114,7 @@
       };
     }
 
-    if (!EDU_EMAIL_RE.test(email)) {
+    if (!isEduEmail(email)) {
       fail('Enter your school email (e.g. .edu, .ac.uk, .edu.au).');
       return;
     }
