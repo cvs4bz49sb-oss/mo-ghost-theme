@@ -18,6 +18,19 @@
  *   data-link-template      (Optional) URL template; {field} gets
  *                           replaced with row[field]. Used with
  *                           data-link-column to drill into a detail page.
+ *   data-search             (Optional) "1" to show a filter box. Matches
+ *                           across every rendered column plus email.
+ *   data-edit-endpoint      (Optional) Worker path taking a PUT of the
+ *                           edited row. Presence of this attribute is
+ *                           what turns editing on.
+ *   data-edit-fields        (Optional) Comma-separated editable field
+ *                           names. Anything outside this list is shown
+ *                           read-only in the form.
+ *   data-edit-key           (Optional) Identifying field sent with every
+ *                           edit, default "email".
+ *
+ * Sorting is always on: click any header. It sorts the rows already
+ * fetched, so it is instant and needs no worker support.
  */
 (() => {
   const host = document.querySelector('[data-admin-table]');
@@ -30,6 +43,15 @@
   const labels = (host.dataset.columnLabels || '').split(',').map((s) => s.trim()).filter(Boolean);
   const linkColumn = host.dataset.linkColumn || '';
   const linkTemplate = host.dataset.linkTemplate || '';
+  const searchOn = host.dataset.search === '1';
+  const editEndpoint = host.dataset.editEndpoint || '';
+  const editFields = (host.dataset.editFields || '').split(',').map((s2) => s2.trim()).filter(Boolean);
+  const editKey = host.dataset.editKey || 'email';
+
+  let allRows = [];
+  let sortKey = '';
+  let sortDir = 'asc';
+  let query = '';
 
   const statusEl = host.querySelector('[data-status]');
   const countEl = host.querySelector('[data-count-label]');
@@ -43,12 +65,47 @@
     return;
   }
 
-  // Render headers up front.
-  labels.forEach((label) => {
+  // Render headers up front. Every one sorts.
+  labels.forEach((label, i) => {
     const th = document.createElement('th');
     th.textContent = label;
+    const key = columns[i];
+    if (key) {
+      th.dataset.sortKey = key;
+      th.tabIndex = 0;
+      const go = () => {
+        if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        else { sortKey = key; sortDir = 'asc'; }
+        paint();
+      };
+      th.addEventListener('click', go);
+      th.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+      });
+    }
     theadRow.appendChild(th);
   });
+  if (editEndpoint) {
+    const th = document.createElement('th');
+    th.innerHTML = '<span class="visually-hidden">Actions</span>';
+    theadRow.appendChild(th);
+  }
+
+  // Filter box, injected next to the row count so the markup contract
+  // stays a single host element.
+  let searchInput = null;
+  if (searchOn) {
+    const wrap = document.createElement('div');
+    wrap.className = 'admin-table-search';
+    searchInput = document.createElement('input');
+    searchInput.type = 'search';
+    searchInput.placeholder = 'Search…';
+    searchInput.setAttribute('aria-label', 'Search rows');
+    searchInput.addEventListener('input', () => { query = searchInput.value.trim().toLowerCase(); paint(); });
+    wrap.appendChild(searchInput);
+    const toolbar = host.querySelector('.admin-table-toolbar');
+    if (toolbar) toolbar.insertBefore(wrap, toolbar.firstChild);
+  }
 
   (async () => {
     try {
@@ -57,7 +114,8 @@
       if (res.status === 403) { setStatus('Forbidden — your email is not in the admin list.'); return; }
       if (!res.ok) { setStatus(`Could not load data. (${res.status})`); return; }
       const body = await res.json();
-      render(body[collection] || [], body.count);
+      allRows = body[collection] || [];
+      render(allRows, body.count);
     } catch (err) {
       console.error('admin-table fetch failed', err);
       setStatus('Network error loading data.');
@@ -98,16 +156,59 @@
     }, { once: false });
 
     tableEl.hidden = false;
+    paint();
+  }
+
+  // Filter, then sort, then draw. Both operate on the rows already
+  // fetched, so neither needs the worker.
+  function visibleRows() {
+    let out = allRows;
+    if (query) {
+      out = out.filter((row) => columns.concat([editKey]).some((c) => {
+        const v = row[c];
+        return v !== null && v !== undefined && String(v).toLowerCase().includes(query);
+      }));
+    }
+    if (sortKey) {
+      const dir = sortDir === 'asc' ? 1 : -1;
+      out = out.slice().sort((a, b) => {
+        const x = a[sortKey]; const y = b[sortKey];
+        const xe = x === null || x === undefined || x === '';
+        const ye = y === null || y === undefined || y === '';
+        // Blanks sink in both directions: an empty cell is missing data,
+        // not the smallest value.
+        if (xe && ye) return 0;
+        if (xe) return 1;
+        if (ye) return -1;
+        return String(x).localeCompare(String(y), undefined, {numeric: true, sensitivity: 'base'}) * dir;
+      });
+    }
+    return out;
+  }
+
+  function paint() {
+    theadRow.querySelectorAll('[data-sort-key]').forEach((th) => {
+      const on = th.dataset.sortKey === sortKey;
+      th.classList.toggle('is-sorted', on);
+      th.classList.toggle('is-desc', on && sortDir === 'desc');
+      th.setAttribute('aria-sort', on ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none');
+    });
+
+    const rows = visibleRows();
+    countEl.textContent = `${rows.length} row${rows.length === 1 ? '' : 's'}${query ? ` matching “${query}”` : ''}`;
+    tbody.textContent = '';
+
     if (!rows.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = columns.length;
+      td.colSpan = columns.length + (editEndpoint ? 1 : 0);
       td.className = 'admin-table-empty';
-      td.textContent = 'No rows yet.';
+      td.textContent = query ? 'Nothing matches that search.' : 'No rows yet.';
       tr.appendChild(td);
       tbody.appendChild(tr);
       return;
     }
+
     rows.forEach((row) => {
       const tr = document.createElement('tr');
       columns.forEach((col) => {
@@ -128,7 +229,124 @@
         }
         tr.appendChild(td);
       });
+      if (editEndpoint) {
+        const td = document.createElement('td');
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'btn btn-ghost btn-sm';
+        b.textContent = 'Edit';
+        b.addEventListener('click', () => openEditor(row));
+        td.appendChild(b);
+        tr.appendChild(td);
+      }
       tbody.appendChild(tr);
     });
+  }
+
+  // ---- Editing -----------------------------------------------------
+  //
+  // Built with createElement throughout: every value here is member-
+  // entered text coming back from the worker.
+  function openEditor(row) {
+    const existing = document.querySelector('[data-admin-edit]');
+    if (existing) existing.remove();
+
+    const back = document.createElement('div');
+    back.className = 'admin-edit-backdrop';
+    back.setAttribute('data-admin-edit', '');
+
+    const form = document.createElement('form');
+    form.className = 'admin-edit-panel';
+    form.setAttribute('role', 'dialog');
+    form.setAttribute('aria-modal', 'true');
+    form.setAttribute('aria-label', 'Edit row');
+
+    const head = document.createElement('div');
+    head.className = 'admin-edit-head';
+    const h = document.createElement('h2');
+    h.className = 'admin-edit-title';
+    h.textContent = 'Edit address';
+    const who = document.createElement('p');
+    who.className = 'admin-edit-sub';
+    who.textContent = String(row[editKey] || '');
+    head.appendChild(h);
+    head.appendChild(who);
+    form.appendChild(head);
+
+    const grid = document.createElement('div');
+    grid.className = 'admin-edit-grid';
+    const inputs = {};
+    (editFields.length ? editFields : columns).forEach((col, i) => {
+      const wrap = document.createElement('label');
+      wrap.className = 'admin-edit-field';
+      const lab = document.createElement('span');
+      lab.className = 'admin-edit-label';
+      const idx = columns.indexOf(col);
+      lab.textContent = idx >= 0 && labels[idx] ? labels[idx] : col;
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.value = row[col] === null || row[col] === undefined ? '' : String(row[col]);
+      inp.name = col;
+      if (i === 0) setTimeout(() => inp.focus(), 0);
+      inputs[col] = inp;
+      wrap.appendChild(lab);
+      wrap.appendChild(inp);
+      grid.appendChild(wrap);
+    });
+    form.appendChild(grid);
+
+    const msg = document.createElement('p');
+    msg.className = 'admin-edit-msg';
+    form.appendChild(msg);
+
+    const actions = document.createElement('div');
+    actions.className = 'admin-edit-actions';
+    const save = document.createElement('button');
+    save.type = 'submit';
+    save.className = 'btn btn-primary btn-sm';
+    save.textContent = 'Save changes';
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'btn btn-ghost btn-sm';
+    cancel.textContent = 'Cancel';
+    cancel.addEventListener('click', () => back.remove());
+    actions.appendChild(save);
+    actions.appendChild(cancel);
+    form.appendChild(actions);
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      save.disabled = true;
+      msg.textContent = 'Saving…';
+      const payload = {[editKey]: row[editKey]};
+      Object.keys(inputs).forEach((k) => { payload[k] = inputs[k].value.trim(); });
+      try {
+        const r = await window.MOAuth.fetch(apiBase + editEndpoint, {
+          method: 'PUT',
+          headers: {'content-type': 'application/json'},
+          body: JSON.stringify(payload),
+        });
+        const out = await r.json().catch(() => ({}));
+        if (!r.ok) { msg.textContent = out.error || `Save failed (${r.status}).`; save.disabled = false; return; }
+        // Update the row in place so the table reflects the edit without
+        // a full refetch losing the current sort and search.
+        const updated = out.address || payload;
+        const i = allRows.findIndex((x) => x[editKey] === row[editKey]);
+        if (i >= 0) allRows[i] = {...allRows[i], ...updated};
+        back.remove();
+        paint();
+      } catch (err) {
+        console.error(err);
+        msg.textContent = 'Network error while saving.';
+        save.disabled = false;
+      }
+    });
+
+    back.addEventListener('click', (e) => { if (e.target === back) back.remove(); });
+    document.addEventListener('keydown', function esc(e) {
+      if (e.key === 'Escape') { back.remove(); document.removeEventListener('keydown', esc); }
+    });
+    back.appendChild(form);
+    document.body.appendChild(back);
   }
 })();

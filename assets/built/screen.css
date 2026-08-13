@@ -5968,7 +5968,7 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   color: var(--color-muted);
   font-weight: 500;
   padding: 12px 12px;
-  border-bottom: 1px solid var(--color-card-border);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   white-space: nowrap;
 }
 .admin-table tbody td {
@@ -9006,7 +9006,10 @@ html[data-theme="dark"] .feature-gate-modal-body {
   margin-top: 0;
   margin-bottom: 36px;
 }
-@media (max-width: 720px) {
+/* 640px, matching .post-gate-card's own breakpoint. These two used to
+   straddle 720 vs 640, which left a band where the banner took mobile
+   margins against desktop padding.                                   */
+@media (max-width: 640px) {
   .gift-banner.post-gate-card { margin-bottom: 28px; }
 }
 /* The gate card ends with an "Already a subscriber? Sign in" row, so
@@ -9017,6 +9020,36 @@ html[data-theme="dark"] .feature-gate-modal-body {
    still has somewhere to land without shifting the layout.          */
 .gift-banner .post-gate-form { margin-bottom: 0; }
 .gift-banner .post-gate-status { margin-bottom: 0; }
+/* What is left below the button is grid gap (12) + the status element's
+   reserved min-height (18) + padding, none of which a margin can reach.
+   Take it out of the padding so the card reads balanced: 18+12+18 = 48
+   matches the desktop padding-top, 2+12+18 = 32 matches the mobile one. */
+.gift-banner.post-gate-card { padding-bottom: 18px; }
+@media (max-width: 640px) {
+  .gift-banner.post-gate-card { padding-bottom: 2px; }
+}
+
+/* .post-gate-card bleeds -40px into the page gutter. Between 641 and
+   743 the article column is viewport-wide (max-width 720, 28px
+   padding), so the bleed puts the card at viewport+24 and pushes 12px
+   of horizontal scroll onto the page. Below 641 the card's own mobile
+   rule already zeroes the margin; above 743 the 720px cap leaves room.
+   Retire the bleed across the whole band instead. Applies to both
+   cards, so the mid-article gate card stops overflowing too.        */
+@media (max-width: 744px) {
+  .post-gate-card { margin-left: 0; margin-right: 0; }
+}
+
+/* .article-content p (0,1,1) outspecifies .eyebrow (0,1,0), so the
+   eyebrow inside these cards was rendering at body size, 16px in the
+   muted body colour, instead of the 12px brand eyebrow. Pre-existing
+   on the gate card; it only became conspicuous when the gift banner
+   put an eyebrow above the first line of a gifted essay.            */
+.post-gate-card .eyebrow { font-size: 12px; }
+
+/* 41.5px computed, under the 44px touch minimum. Precedent for the
+   fix is .events-register-form .digest-submit in this file.         */
+.post-gate-submit { min-height: 44px; }
 
 /* --- /contact/ and /submissions/ pages ---------------------------
    Centered hero, then a 2-col body: editorial prose left, form
@@ -21911,7 +21944,7 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   display: inline-block;
   margin: 4px 6px 0 0;
   padding: 2px 7px;
-  border: 1px solid var(--color-card-border);
+  border: 1px solid rgba(0, 0, 0, 0.14);
   border-radius: 999px;
   font-size: 11px;
   letter-spacing: 0.04em;
@@ -21939,8 +21972,8 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   width: min(560px, 100%);
   display: flex;
   flex-direction: column;
-  background: var(--color-background);
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.16);
+  background: var(--color-white);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.14);
 }
 .jr-drawer-head {
   display: flex;
@@ -21948,7 +21981,7 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   justify-content: space-between;
   gap: 16px;
   padding: 22px 24px 16px;
-  border-bottom: 1px solid var(--color-card-border);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 .jr-drawer-title {
   margin: 0;
@@ -22070,7 +22103,7 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   left: 0; top: 8px;
   width: 5px; height: 5px;
   border-radius: 50%;
-  background: var(--color-card-border);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 /* Says what the acquisitions-only filter removed, so the headline count
@@ -22120,7 +22153,7 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 .jr-narrative {
   margin: 0 0 24px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--color-card-border);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   font-size: 15px;
   line-height: 1.55;
   color: var(--color-dark);
@@ -22149,3 +22182,103 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 /* A member who went quiet for a month before cancelling is the clearest
    inferred "why" we have. Mark it so it reads at a glance. */
 .cx-dark { color: var(--color-secondary); }
+
+/* --- Admin table: search + inline edit ---------------------------------- */
+.admin-table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.admin-table-search { flex: 1 1 240px; max-width: 320px; }
+.admin-table-search input {
+  width: 100%;
+  padding: 7px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 4px;
+}
+.admin-table-search input:focus {
+  outline: none;
+  border-color: rgba(0, 0, 0, 0.34);
+}
+
+/* Sortable headers on the shared admin table. Same affordance as the
+   journeys/cancellations tables so the whole board behaves alike. */
+.admin-table thead th[data-sort-key] { cursor: pointer; user-select: none; }
+.admin-table thead th[data-sort-key]:hover { color: var(--color-dark); }
+.admin-table thead th[data-sort-key]::after {
+  content: "";
+  display: inline-block;
+  margin-left: 6px;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 4px solid currentColor;
+  opacity: 0;
+}
+.admin-table thead th[data-sort-key]:hover::after { opacity: 0.35; }
+.admin-table thead th[data-sort-key].is-sorted::after { opacity: 0.9; }
+.admin-table thead th[data-sort-key].is-sorted.is-desc::after {
+  border-bottom: 0;
+  border-top: 4px solid currentColor;
+}
+
+.admin-edit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  background: rgba(0, 0, 0, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.admin-edit-panel {
+  width: min(620px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--color-white);
+  border-radius: 6px;
+  padding: 24px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+}
+.admin-edit-head { margin-bottom: 18px; }
+.admin-edit-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+.admin-edit-sub {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+  word-break: break-all;
+}
+.admin-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+.admin-edit-field { display: flex; flex-direction: column; gap: 4px; }
+.admin-edit-label { font-size: 12px; color: var(--color-muted); }
+.admin-edit-field input {
+  padding: 7px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 4px;
+}
+.admin-edit-field input:focus { outline: none; border-color: rgba(0, 0, 0, 0.34); }
+.admin-edit-msg { margin: 14px 0 0; font-size: 13px; color: var(--color-secondary); min-height: 18px; }
+.admin-edit-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+@media (max-width: 560px) {
+  .admin-edit-grid { grid-template-columns: 1fr; }
+}
