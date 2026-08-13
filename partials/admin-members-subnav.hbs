@@ -1,20 +1,26 @@
 {{!-- Sidebar nav for the /admin/members/* section.
-     Used by admin-members, admin-addresses, admin-gifts, admin-groups,
-     admin-institutions, admin-drift, and admin-referrals templates.
-     Pass `active` with one of: analytics, journeys, cancellations, addresses, gifts,
-     groups, institutions, students, drift, referrals.
+     Used by admin-members, admin-journeys, admin-cancellations,
+     admin-addresses, admin-gifts, admin-groups, admin-institutions,
+     admin-students, admin-drift, admin-referrals and admin-influencers.
+     Pass `active` with one of: analytics, journeys, cancellations,
+     addresses, institutions, groups, gifts, students, referrals,
+     influencers, drift.
+
+     Order is deliberate: the whole-audience views first (analytics, then
+     the journey in and the journey out), then the per-member operational
+     lists, then the cohort tools, with the sync check last.
 
      Collapses to a horizontal-scroll chip strip at <=760px via
      .admin-members-sidebar / .admin-members-subnav-list media rules. --}}
 <nav class="admin-members-subnav" aria-label="Member admin sections">
   <ul class="admin-members-subnav-list">
     <li><a href="/admin/members/" class="admin-members-subnav-link{{#if (match active "analytics")}} is-active{{/if}}">Analytics</a></li>
-    <li><a href="/admin/members/cancellations/" class="admin-members-subnav-link{{#if (match active "cancellations")}} is-active{{/if}}">Cancellations</a></li>
     <li><a href="/admin/members/journeys/" class="admin-members-subnav-link{{#if (match active "journeys")}} is-active{{/if}}">Journeys</a></li>
+    <li><a href="/admin/members/cancellations/" class="admin-members-subnav-link{{#if (match active "cancellations")}} is-active{{/if}}">Cancellations</a></li>
     <li><a href="/admin/members/addresses/" class="admin-members-subnav-link{{#if (match active "addresses")}} is-active{{/if}}">Addresses</a></li>
-    <li><a href="/admin/members/gifts/" class="admin-members-subnav-link{{#if (match active "gifts")}} is-active{{/if}}">Gifts</a></li>
-    <li><a href="/admin/members/groups/" class="admin-members-subnav-link{{#if (match active "groups")}} is-active{{/if}}">Groups</a></li>
     <li><a href="/admin/members/institutions/" class="admin-members-subnav-link{{#if (match active "institutions")}} is-active{{/if}}">Institutions</a></li>
+    <li><a href="/admin/members/groups/" class="admin-members-subnav-link{{#if (match active "groups")}} is-active{{/if}}">Groups</a></li>
+    <li><a href="/admin/members/gifts/" class="admin-members-subnav-link{{#if (match active "gifts")}} is-active{{/if}}">Gifts</a></li>
     <li><a href="/admin/members/students/" class="admin-members-subnav-link{{#if (match active "students")}} is-active{{/if}}">Students</a></li>
     <li><a href="/admin/members/referrals/" class="admin-members-subnav-link{{#if (match active "referrals")}} is-active{{/if}}">Referrals</a></li>
     <li><a href="/admin/members/influencers/" class="admin-members-subnav-link{{#if (match active "influencers")}} is-active{{/if}}">Influencers</a></li>
