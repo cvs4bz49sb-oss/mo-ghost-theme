@@ -134,7 +134,27 @@
     renderRanked(root.querySelector("[data-jr-surfaces]"), data.by_surface || [], "surface");
     renderRanked(root.querySelector("[data-jr-firstseen]"), data.by_first_seen || [], "system");
     if (panelsEl) panelsEl.hidden = false;
+
+    // Say what was filtered out. Without this the headline number just
+    // looks smaller than Ghost's and nobody can tell why.
+    const excludedEl = root.querySelector("[data-jr-excluded]");
+    if (excludedEl) {
+      const rows = data.excluded || [];
+      if (!rows.length) {
+        excludedEl.hidden = true;
+      } else {
+        const parts = rows.map((r) => `${r.n} ${EXCLUDED_LABEL[r.type] || r.type}`);
+        excludedEl.textContent = `Excluded from this view: ${parts.join(", ")}. These are existing paid relationships moving into Ghost, not new members.`;
+        excludedEl.hidden = false;
+      }
+    }
   }
+
+  const EXCLUDED_LABEL = {
+    migration: "HubSpot billing migrations",
+    substack: "Substack subscribers comped on Ghost",
+    lifetime: "lifetime members",
+  };
 
   // ── member table ──────────────────────────────────────────────────
 
@@ -248,40 +268,137 @@
       return;
     }
 
+    const shown = events.map(describe).filter(Boolean);
+    const behaviour = shown.filter((x) => !x.system);
+    const showAll = drawer.hasAttribute("data-jr-show-all");
+    const visible = showAll ? shown : behaviour;
+
     let currentPhase = null;
     const list = el("ol", "jr-timeline");
-    events.forEach((e) => {
-      if (e.phase !== currentPhase) {
-        currentPhase = e.phase;
-        const head = el("li", "jr-timeline-phase", PHASE_LABEL[e.phase] || e.phase);
-        list.appendChild(head);
+    visible.forEach((x) => {
+      if (x.phase !== currentPhase) {
+        currentPhase = x.phase;
+        list.appendChild(el("li", "jr-timeline-phase", PHASE_LABEL[x.phase] || x.phase));
       }
-      const li = el("li", "jr-timeline-item");
-      li.appendChild(el("span", "jr-timeline-time", fmtDateTime(e.ts)));
-      li.appendChild(el("span", `jr-timeline-system jr-timeline-system--${e.system}`, e.system));
-      li.appendChild(el("span", "jr-timeline-type", e.type));
-      const detail = summariseDetail(e.detail);
-      if (detail) li.appendChild(el("span", "jr-timeline-detail", detail));
+      const li = el("li", `jr-timeline-item${x.system ? " jr-timeline-item--system" : ""}`);
+      li.appendChild(el("span", "jr-timeline-time", fmtDateTime(x.ts)));
+      li.appendChild(el("span", "jr-timeline-what", x.label));
+      if (x.url && x.link) {
+        const wrap = el("span", "jr-timeline-detail");
+        const a = el("a", null, x.detail || x.url);
+        a.href = x.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        wrap.appendChild(a);
+        if (x.suffix) wrap.appendChild(el("span", "jr-timeline-suffix", ` ${x.suffix}`));
+        li.appendChild(wrap);
+      } else if (x.detail) {
+        li.appendChild(el("span", "jr-timeline-detail", x.detail));
+      }
       list.appendChild(li);
     });
     drawerBody.appendChild(list);
+
+    const hidden = shown.length - behaviour.length;
+    if (hidden > 0) {
+      const toggle = el("button", "btn btn-ghost btn-sm jr-timeline-toggle",
+        showAll ? "Hide system events" : `Show ${hidden} system events`);
+      toggle.type = "button";
+      toggle.addEventListener("click", () => {
+        if (showAll) drawer.removeAttribute("data-jr-show-all");
+        else drawer.setAttribute("data-jr-show-all", "");
+        renderTimeline(data, m);
+      });
+      drawerBody.appendChild(toggle);
+    }
   }
 
-  // detail is a JSON blob written by the builder. Show the few keys
-  // worth reading rather than dumping the object.
-  function summariseDetail(raw) {
-    if (!raw) return "";
-    let obj;
-    try { obj = JSON.parse(raw); } catch (_) { return ""; }
-    if (!obj || typeof obj !== "object") return "";
-    const parts = [];
-    if (obj.page) parts.push(obj.page);
-    if (obj.url) parts.push(obj.url);
-    if (obj.referrer) parts.push(`via ${obj.referrer}`);
-    if (obj.newsletter) parts.push(obj.newsletter);
-    if (obj.event) parts.push(obj.event);
-    if (typeof obj.amount === "number") parts.push(`$${(obj.amount / 100).toFixed(2)}`);
-    return parts.join(" · ");
+  /*
+   * Turn a stored event into something that reads like behaviour.
+   *
+   * The first version of this printed the raw type and a JSON summary,
+   * so a timeline read "read_completed" fourteen times without ever
+   * naming an article, buried in "tag:ghost-member" and
+   * "kit_record_created". Those are bookkeeping, not behaviour: they
+   * are marked system:true and hidden behind a toggle.
+   *
+   * Returns null for events not worth a row at all.
+   */
+  function describe(e) {
+    let d = {};
+    try { d = e.detail ? JSON.parse(e.detail) : {}; } catch (_) { d = {}; }
+    const base = { ts: e.ts, phase: e.phase };
+    const t = e.type;
+
+    if (t === "read_completed") {
+      return { ...base, label: "Read", detail: d.title || d.postId, url: d.url, link: !!d.url,
+        suffix: d.visibility && d.visibility !== "public" ? `(${d.visibility})` : "" };
+    }
+    if (t === "clicked_upgrade") {
+      return { ...base, label: "Clicked", detail: `${buttonName(d.href)} on ${surfaceName(d.surface, d.path)}` };
+    }
+    if (t === "saw_offer") {
+      return { ...base, label: "Saw the offer", detail: `on ${surfaceName(d.surface, d.path)}${d.via === "inline" ? " (scrolled to it)" : ""}` };
+    }
+    if (t === "checkout_completed") {
+      return { ...base, label: "Completed checkout", detail: `${d.page || "unknown page"}${d.amount ? ` · $${(d.amount / 100).toFixed(2)}` : ""}` };
+    }
+    if (t === "checkout_abandoned") {
+      return { ...base, label: "Abandoned checkout", detail: d.page || "unknown page" };
+    }
+    if (t === "signup") {
+      return { ...base, label: "Signed up (free)", detail: [d.url, d.referrer && `via ${d.referrer}`].filter(Boolean).join(" · ") };
+    }
+    if (t === "login") return { ...base, label: "Signed in", detail: "" };
+    if (t === "payment") return { ...base, label: "Paid", detail: d.amount ? `$${(d.amount / 100).toFixed(2)}` : "" };
+    if (t === "subscription_created") return { ...base, label: "Started paid membership", detail: "" };
+    if (t === "subscription_canceled") return { ...base, label: "Cancelled", detail: "" };
+    if (t === "subscription_expired") return { ...base, label: "Subscription expired", detail: "" };
+    if (t === "first_visit") return { ...base, label: "First ever visit", detail: d.url || "", url: d.url, link: !!d.url };
+    if (t === "free_subscription") return { ...base, label: "Subscribed free (HubSpot)", detail: d.event || "" };
+    if (t === "newsletter_subscribed") return { ...base, label: "Joined newsletter", detail: d.newsletter || "" };
+    if (t === "comment") return { ...base, label: "Commented", detail: "" };
+
+    if (t.startsWith("tag:")) {
+      const tag = t.slice(4);
+      if (tag.startsWith("Newsletter:")) return { ...base, label: "Joined", detail: tag.slice(11) };
+      if (tag.startsWith("topic-audio:")) return { ...base, label: "Played audio", detail: tag.slice(12) };
+      if (tag === "Address:Known") return { ...base, label: "Gave shipping address", detail: "" };
+      if (tag === "used:comments") return { ...base, label: "Commented", detail: "" };
+      if (tag === "used:gift-link") return { ...base, label: "Sent a gift link", detail: "" };
+      // Everything else is bookkeeping: ghost-member, ghost-status-*,
+      // source:*, tier:*, Upgraded, topic-read:* (duplicates the read
+      // event above it), top-topic:*, offer-seen:* / upgrade-from:*
+      // (duplicate the saw_offer / clicked_upgrade rows).
+      return { ...base, label: tag, detail: "", system: true };
+    }
+
+    // Stripe/Kit plumbing with no behavioural meaning.
+    if (["customer_created", "kit_record_created"].includes(t) || t.startsWith("invoice_")) {
+      return { ...base, label: t.replace(/_/g, " "), detail: "", system: true };
+    }
+    return { ...base, label: t.replace(/_/g, " "), detail: "", system: true };
+  }
+
+  // The href tells you which control was clicked. Portal signup is the
+  // buy button inside the pricing block; a /membership/ link is the
+  // "Become a Member" nav/CTA that only navigates.
+  function buttonName(href) {
+    if (!href) return "upgrade";
+    if (/portal\/signup/.test(href)) return "the buy button";
+    if (/portal\/offers/.test(href)) return "an offer link";
+    if (/stripe\.com/.test(href)) return "a Stripe checkout link";
+    if (/^\/membership\/?$/.test(href)) return "Become a Member";
+    return href;
+  }
+
+  function surfaceName(surface, path) {
+    const names = {
+      home: "the homepage", article: "an article", membership: "the membership page",
+      about: "the about page", groups: "the groups page", institutions: "the institutions page",
+      gift: "the gift page", offer: "an offer page", other: "another page",
+    };
+    return names[surface] || path || "an unknown page";
   }
 
   if (drawer) {

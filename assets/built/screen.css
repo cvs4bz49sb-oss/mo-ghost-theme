@@ -21983,19 +21983,16 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
-.jr-timeline-system {
+.jr-timeline-what {
   flex: 0 0 auto;
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--color-muted);
+  color: var(--color-dark);
+  font-weight: 600;
 }
-.jr-timeline-system--stripe { background: rgba(238, 125, 81, 0.14); color: var(--color-secondary); }
-.jr-timeline-system--ghost { background: rgba(0, 0, 0, 0.07); }
-.jr-timeline-type { color: var(--color-dark); }
+.jr-timeline-item--system { opacity: 0.55; }
+.jr-timeline-item--system .jr-timeline-what { font-weight: 400; }
+.jr-timeline-detail a { color: var(--color-secondary); }
+.jr-timeline-suffix { color: var(--color-muted); }
+.jr-timeline-toggle { margin-top: 18px; }
 .jr-timeline-detail {
   flex: 1 1 100%;
   padding-left: 124px;
@@ -22016,4 +22013,15 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   .jr-timeline-item { gap: 6px; }
   .jr-timeline-time { min-width: 0; flex: 1 1 100%; }
   .jr-timeline-detail { flex: 1 1 100%; padding-left: 0; }
+}
+
+/* Says what the acquisitions-only filter removed, so the headline count
+   is explainable rather than mysteriously smaller than Ghost's. */
+.jr-excluded {
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border-left: 2px solid var(--color-card-border);
+  font-size: 13px;
+  color: var(--color-muted);
+  max-width: 78ch;
 }
