@@ -37,11 +37,22 @@
 
   // ── helpers ───────────────────────────────────────────────────────
 
-  function api(path) {
+  function api(path, init) {
     if (!window.MOAuth) return Promise.reject(new Error("no-auth"));
-    return window.MOAuth.fetch(WORKER + path).then((res) => {
+    return window.MOAuth.fetch(WORKER + path, init).then((res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return res.json();
+    });
+  }
+
+  // A member address never goes in a query string — it would leak into
+  // logs and Referer headers. The lookup is a POST with the subject in
+  // the body; the JWT still identifies the staff member making it.
+  function fetchMember(email) {
+    return api("/journeys/member", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email }),
     });
   }
 
@@ -193,7 +204,7 @@
     const closeBtn = drawer.querySelector("button[data-jr-drawer-close]");
     if (closeBtn) closeBtn.focus();
 
-    api(`/journeys/member?email=${encodeURIComponent(m.email)}`)
+    fetchMember(m.email)
       .then((data) => renderTimeline(data, m))
       .catch((err) => {
         if (!drawerBody) return;
