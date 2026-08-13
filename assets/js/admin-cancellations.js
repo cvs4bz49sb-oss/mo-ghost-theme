@@ -157,7 +157,7 @@
       const xe = x === null || x === undefined || x === "";
       const ye = y === null || y === undefined || y === "";
       if (xe && ye) return 0;
-      if (xe) return 1;      // missing data sinks, in both directions
+      if (xe) return 1; // missing data sinks, in both directions
       if (ye) return -1;
       if (typeof x === "number" && typeof y === "number") return (x - y) * dir;
       return String(x).localeCompare(String(y), undefined, { numeric: true, sensitivity: "base" }) * dir;
