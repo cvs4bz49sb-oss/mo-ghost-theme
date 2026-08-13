@@ -1923,20 +1923,20 @@
     </div>`);
 
     out.push(hBarBlock("The seven homepage themes",
-      "Articles carrying each tag. Posts carry more than one, so these sum past " + fmt(t.posts) + " — this is a count per theme, not slices of a pie.",
+      `Articles carrying each tag. Posts carry more than one, so these sum past ${fmt(t.posts)} — this is a count per theme, not slices of a pie.`,
       t.rail.map((r) => [r.name, r.posts, r.sole]),
       { shareOf: t.posts, legend: ["Articles carrying the tag", "Articles where it is the only theme"] }));
 
     out.push(tableBlock("Carried vs. sole theme",
       "The right-hand column is the sharper number: how often a theme is the only one on a piece.",
       ["Theme", { label: "Articles", num: true }, { label: "Share", num: true }, { label: "Sole theme", num: true }],
-      t.rail.map((r) => ({ cells: [r.name, fmt(r.posts), r.share + "%", fmt(r.sole)] })),
-      { foot: "Share is of all " + fmt(t.posts) + " articles, not of a pie." }));
+      t.rail.map((r) => ({ cells: [r.name, fmt(r.posts), `${r.share}%`, fmt(r.sole)] })),
+      { foot: `Share is of all ${fmt(t.posts)} articles, not of a pie.` }));
 
     if (t.by_month && t.by_month.length) {
       const slugs = t.rail.map((r) => r.slug);
       out.push(tableBlock("Month by month", "Partial months at each end of the window.",
-        ["Theme"].concat(t.by_month.map((m) => ({ label: bucketOf(m.month + "-01", "month").label, num: true }))),
+        ["Theme"].concat(t.by_month.map((m) => ({ label: bucketOf(`${m.month}-01`, "month").label, num: true }))),
         [{ total: true, cells: ["All articles"].concat(t.by_month.map((m) => fmt(m.total))) }].concat(
           slugs.map((slug, i) => ({
             cells: [t.rail[i].name].concat(t.by_month.map((m) => fmt(m[slug] || 0))),
@@ -1946,7 +1946,7 @@
 
     if (t.overlaps && t.overlaps.length) {
       out.push(hBarBlock("Where themes overlap", "Articles carrying both tags.",
-        t.overlaps.slice(0, 10).map((o) => [o.a + " + " + o.b, o.posts]), {}));
+        t.overlaps.slice(0, 10).map((o) => [`${o.a} + ${o.b}`, o.posts]), {}));
     }
 
     if (t.secondary && t.secondary.length) {
@@ -1959,8 +1959,8 @@
     const hist = t.tag_count_histogram || {};
     out.push(`<p class="kpi-note">Tagging: ${fmt(hist[0] || 0)} articles carry no topic tag, `
       + `${fmt(hist[1] || 0)} carry one, ${fmt(hist[2] || 0)} two, ${fmt(hist[3] || 0)} three, `
-      + `${fmt(hist[4] || 0)} four. Themes read from the live homepage rail`
-      + (t.rail_source === "fallback" ? " could not be read, so a stored list was used." : ".") + `</p>`);
+      + `${fmt(hist[4] || 0)} four. Themes read from the live homepage rail${
+       t.rail_source === "fallback" ? " could not be read, so a stored list was used." : "."}</p>`);
 
     host.innerHTML = out.filter(Boolean).join("");
 
@@ -1971,7 +1971,7 @@
         .concat((t.secondary_only || []).map((a) => ({ cells: [mdy(a.date), a.title, (a.authors || []).join(", "), (a.tags || []).join(", ")] })));
       gaps.innerHTML = rows.length
         ? tableBlock("Never surfaces under a homepage pill",
-          fmt(rows.length) + " of " + fmt(t.posts) + " articles. Tagging any of these to one of the seven puts it back on the rail.",
+          `${fmt(rows.length)} of ${fmt(t.posts)} articles. Tagging any of these to one of the seven puts it back on the rail.`,
           ["Date", "Title", "Author", "Tags it does carry"], rows, {})
         : '<p class="kpi-empty">Every article carries at least one homepage theme.</p>';
     }
