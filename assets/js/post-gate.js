@@ -182,7 +182,17 @@
     return wrap;
   }
 
-  function buildSubscribeForm() {
+  /*
+   * The gate card and the gift banner share this form so they stay
+   * one component. opts lets the gift banner label its own signup
+   * source, own its success-replacement target, and namespace its
+   * field ids (the two cards are mutually exclusive on a page, but
+   * duplicate ids would be a latent label/for bug if that changed).
+   */
+  function buildSubscribeForm(opts) {
+    const o = opts || {};
+    const idPrefix = o.idPrefix || "post-gate";
+
     // [data-inline-signup] is picked up by inline-signup.js via
     // event delegation; it POSTs directly to
     // /members/api/send-magic-link/ and renders an inline success
@@ -190,15 +200,15 @@
     const form = document.createElement("div");
     form.className = "post-gate-form";
     form.setAttribute("data-inline-signup", "");
-    form.setAttribute("data-source", "gate-modal");
-    // On successful subscribe, swap the entire gate card (pitch copy
-    // + form + Sign-in row) for the success state so the messaging
+    form.setAttribute("data-source", o.source || "gate-modal");
+    // On successful subscribe, swap the entire card (pitch copy +
+    // form + Sign-in row) for the success state so the messaging
     // doesn't double up.
-    form.setAttribute("data-replace-on-success", ".post-gate-card");
+    form.setAttribute("data-replace-on-success", o.replaceOnSuccess || ".post-gate-card");
 
-    form.appendChild(field("post-gate-first", "First Name", "text", "given-name", "data-signup-first"));
-    form.appendChild(field("post-gate-last", "Last Name", "text", "family-name", "data-signup-last"));
-    form.appendChild(field("post-gate-email", "Email", "email", "email", "data-signup-email"));
+    form.appendChild(field(`${idPrefix}-first`, "First Name", "text", "given-name", "data-signup-first"));
+    form.appendChild(field(`${idPrefix}-last`, "Last Name", "text", "family-name", "data-signup-last"));
+    form.appendChild(field(`${idPrefix}-email`, "Email", "email", "email", "data-signup-email"));
 
     const submit = document.createElement("button");
     submit.type = "button";
@@ -332,81 +342,38 @@
   }
 
   function renderGiftBanner(root, claims) {
-    // Reuse the homepage Digest CTA's markup + styling exactly
-    // (.digest-cta / .digest-copy / .digest-form) so the top-of-article
-    // gift note sits in the same visual family as the rest of the site.
-    const cta = document.createElement("div");
-    cta.className = "gift-banner digest-cta";
+    /*
+     * Same component as the soft gate's card, not a lookalike.
+     *
+     * This used to reuse the homepage Digest CTA (.digest-cta), which
+     * carries no background of its own because on the homepage it
+     * sits on a tan section already. Dropped into a dark article page
+     * it read as a dark band rather than a signup card. Rendering the
+     * real .post-gate-card gets the tan panel, border, radius, type
+     * scale, field styling, and the dark-mode overrides for free, and
+     * leaves one card to maintain instead of two.
+     *
+     * .gift-banner stays on the element as the hook for the layout
+     * override and the success-state replacement target.
+     */
+    const cta = document.createElement("aside");
+    cta.className = "gift-banner post-gate-card";
     cta.setAttribute("role", "region");
     cta.setAttribute("aria-label", "Gifted article");
 
-    const copy = document.createElement("div");
-    copy.className = "digest-copy";
-
-    const eb = document.createElement("p");
-    eb.className = "eyebrow";
-    eb.textContent = "A gift for you";
-    copy.appendChild(eb);
-
-    const h = document.createElement("h3");
-    h.textContent = `${claims.by} shared this essay with you.`;
-    copy.appendChild(h);
-
-    const body = document.createElement("p");
-    body.textContent = "Subscribe for free to read all of our essays.";
-    copy.appendChild(body);
-
-    cta.appendChild(copy);
-    cta.appendChild(buildGiftSubscribeForm());
-
-    root.insertBefore(cta, root.firstChild);
-  }
-
-  function buildGiftSubscribeForm() {
-    const form = document.createElement("div");
-    form.className = "digest-form";
-    form.setAttribute("data-inline-signup", "");
+    cta.appendChild(eyebrow("A gift for you"));
+    cta.appendChild(heading(`${claims.by} shared this essay with you.`));
+    cta.appendChild(body("Subscribe for free to read all of our essays."));
     // source:gift-link lands as a Kit tag on the new subscriber
     // (mo-kit mirrors Ghost labels to Kit tags). Pairs with the
     // "used:gift-link" tag the mo-kit worker sets on the gifter.
-    form.setAttribute("data-source", "gift-link");
-    form.setAttribute("data-replace-on-success", ".gift-banner");
+    cta.appendChild(buildSubscribeForm({
+      idPrefix: "gift",
+      source: "gift-link",
+      replaceOnSuccess: ".gift-banner",
+    }));
 
-    form.appendChild(giftField("gift-first", "First Name", "text", "given-name", "First", "data-signup-first"));
-    form.appendChild(giftField("gift-last", "Last Name", "text", "family-name", "Last", "data-signup-last"));
-    form.appendChild(giftField("gift-email", "Email", "email", "email", "you@example.com", "data-signup-email"));
-
-    const submit = document.createElement("button");
-    submit.type = "button";
-    submit.className = "digest-submit";
-    submit.setAttribute("data-signup-submit", "");
-    submit.textContent = "Subscribe";
-    form.appendChild(submit);
-
-    const status = document.createElement("p");
-    status.className = "digest-status";
-    status.setAttribute("data-signup-status", "");
-    form.appendChild(status);
-
-    return form;
-  }
-
-  function giftField(id, labelText, type, autocomplete, placeholder, signupAttr) {
-    const wrap = document.createElement("div");
-    wrap.className = "digest-field";
-    const lbl = document.createElement("label");
-    lbl.setAttribute("for", id);
-    lbl.textContent = labelText;
-    const input = document.createElement("input");
-    input.id = id;
-    input.type = type;
-    if (autocomplete) input.autocomplete = autocomplete;
-    if (placeholder) input.placeholder = placeholder;
-    input.required = true;
-    if (signupAttr) input.setAttribute(signupAttr, "");
-    wrap.appendChild(lbl);
-    wrap.appendChild(input);
-    return wrap;
+    root.insertBefore(cta, root.firstChild);
   }
 
   function eyebrow(text) {
