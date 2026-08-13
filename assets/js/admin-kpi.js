@@ -428,6 +428,13 @@
         const k = s.kpi || {};
         const pct = k.dl_subscribers ? Math.round((k.dl_only / k.dl_subscribers) * 100) : null;
         return [
+          // Ghost's label count includes cancelled and bounced subscribers,
+          // so it reads higher than the deliverable list. Show both rather
+          // than appear to contradict the number Ghost puts on screen.
+          typeof k.dl_labelled === "number" && typeof k.dl_subscribers === "number"
+            && k.dl_labelled !== k.dl_subscribers
+            ? `<b>${fmt(k.dl_labelled)}</b> carry the label in Ghost · <b>${fmt(k.dl_labelled - k.dl_subscribers)}</b> cancelled or bounced`
+            : "",
           typeof k.dl_only === "number" ? `<b>${fmt(k.dl_only)}</b> take only the Daily Liturgy${pct == null ? "" : ` — ${pct}% of the list`}` : "",
           typeof k.dl_both === "number" ? `<b>${fmt(k.dl_both)}</b> also take a weekly digest` : "",
           s.liturgy && typeof s.liturgy.via_form === "number" ? `<b>${fmt(s.liturgy.via_form)}</b> arrived through the Daily Liturgy signup itself` : ""
