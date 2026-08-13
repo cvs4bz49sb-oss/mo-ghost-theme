@@ -22083,3 +22083,27 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   line-height: 1.55;
   color: var(--color-dark);
 }
+
+/* --- Cancellations ------------------------------------------------------ */
+/* Reuses the journeys chrome (.jr-*, .admin-table, .admin-ranked). Only the
+   quoted-reason list and the long-silence marker are new. */
+.cx-reasons { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.cx-reason {
+  padding-left: 14px;
+  border-left: 2px solid var(--color-primary);
+}
+.cx-reason-quote {
+  margin: 0 0 4px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--color-dark);
+}
+.cx-reason-who {
+  display: block;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+/* A member who went quiet for a month before cancelling is the clearest
+   inferred "why" we have. Mark it so it reads at a glance. */
+.cx-dark { color: var(--color-secondary); }
