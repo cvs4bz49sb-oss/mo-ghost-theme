@@ -258,6 +258,12 @@
     fact("Converted", `${fmtDateTime(row.converted_at)} · ${row.is_comped ? "comped" : (row.plan || "—")}`);
     fact("Converted on", `${row.conversion_surface || "unrecorded"}${row.conversion_page ? ` (${row.conversion_page})` : ""}`);
     if (row.abandoned_checkouts) fact("Abandoned", `${row.abandoned_checkouts} on ${row.abandoned_pages || "unknown"}`);
+    if (row.kit_emails_sent) {
+      // Lifetime, not windowed — Kit does not expose a date-bounded
+      // figure. Say so, because for anyone whose Kit record predates
+      // conversion this spans their whole free-subscriber history.
+      fact("Emails (lifetime)", `${row.kit_emails_opened || 0} opened / ${row.kit_emails_sent} sent · ${row.kit_emails_clicked || 0} clicked${row.kit_record_predates_conv ? " — spans their free-subscriber history" : ""}`);
+    }
     if (row.d7_first_read_title) fact("First thing read", row.d7_first_read_title);
     if (row.notes) fact("Notes", row.notes);
     drawerBody.appendChild(facts);
@@ -358,6 +364,17 @@
     if (t === "free_subscription") return { ...base, label: "Subscribed free (HubSpot)", detail: d.event || "" };
     if (t === "newsletter_subscribed") return { ...base, label: "Joined newsletter", detail: d.newsletter || "" };
     if (t === "comment") return { ...base, label: "Commented", detail: "" };
+    // Kit has no per-email open event, so these two timestamps are the
+    // only dated email engagement that exists. Labelled "most recent" so
+    // nobody reads them as "the only time they opened an email".
+    if (t === "email_last_opened") {
+      return { ...base, label: "Most recent email open",
+        detail: d.opened ? `${d.opened} of ${d.sent} opened, lifetime` : "" };
+    }
+    if (t === "email_last_clicked") {
+      return { ...base, label: "Most recent email click",
+        detail: d.clicked ? `${d.clicked} clicked, lifetime` : "" };
+    }
 
     if (t.startsWith("tag:")) {
       const tag = t.slice(4);
