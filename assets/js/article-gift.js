@@ -17,6 +17,17 @@
   const btn = document.querySelector("[data-article-gift]");
   if (!btn) return;
 
+  /*
+   * Must stay in sync with GIFT_PARAM in post-gate.js.
+   *
+   * NOT "gift". Ghost Pro 301-redirects any post URL carrying a
+   * `gift` query param to the bare post URL and drops the whole
+   * query string, so a link minted under that name arrives at the
+   * recipient's browser with no token at all. Verified against
+   * production 2026-08-13.
+   */
+  const GIFT_PARAM = "mo_gift";
+
   const workerUrl = (btn.getAttribute("data-worker-url") || "").trim().replace(/\/$/, "");
   const email = (btn.getAttribute("data-member-email") || "").trim();
   const postId = (btn.getAttribute("data-post-id") || "").trim();
@@ -48,7 +59,7 @@
         let u;
         try {
           u = new URL(postUrl);
-          u.searchParams.set("gift", data.token);
+          u.searchParams.set(GIFT_PARAM, data.token);
         } catch (_) {
           showToast({ message: "Couldn't build gift link." });
           return;

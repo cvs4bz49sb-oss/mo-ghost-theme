@@ -44,6 +44,26 @@
   const MAGIC_URL = "/members/api/send-magic-link/";
   const REGISTER_PATH = "/forum-register";
 
+  /*
+   * Query params that carry a bearer-ish secret and must never be
+   * recorded. `mo_gift` is a signed gift-link token; the rest are
+   * single-use credentials that show up on the pages this script
+   * runs on. Ghost stores urlHistory on the member record and echoes
+   * `redirect` into the plaintext magic-link email, so anything left
+   * here outlives the page view.
+   */
+  const TOKEN_PARAMS = ["mo_gift", "gift", "token", "session_id", "uuid", "key"];
+
+  function scrubTokens(href) {
+    try {
+      const u = new URL(href, window.location.origin);
+      for (const name of TOKEN_PARAMS) u.searchParams.delete(name);
+      return u;
+    } catch (_) {
+      return null;
+    }
+  }
+
   // Mirrors what Portal records: where the visitor is, where they came
   // from, and any campaign tagging on the URL. Ghost reads UTM parameters
   // off the path, so the query string is kept intact.
@@ -55,7 +75,12 @@
       try { refHost = ref ? new URL(ref).hostname.replace(/^www\./, "") : ""; } catch (_) { refHost = ""; }
       const sameSite = refHost && refHost === window.location.hostname.replace(/^www\./, "");
       const entry = {
-        path: window.location.pathname + window.location.search,
+        // Scrubbed: UTM tagging has to survive for attribution, secrets
+        // must not. See TOKEN_PARAMS above.
+        path: (function () {
+          const u = scrubTokens(window.location.href);
+          return u ? u.pathname + u.search : window.location.pathname;
+        })(),
         time: Date.now()
       };
       // utm_source wins over the referring host: a campaign says what it is,
@@ -184,7 +209,7 @@
             name,
             labels,
             requestSrc: "portal",
-            redirect: window.location.href,
+            redirect: (scrubTokens(window.location.href) || window.location).href,
             // Ghost derives member attribution from urlHistory — it is how
             // Portal populates referrer_source and the utm_* columns. We were
             // not sending it, so 456 of the last 600 signups recorded their

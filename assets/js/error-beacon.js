@@ -39,7 +39,7 @@
   const endpoint = `${beaconUrl.replace(/\/$/, "")}/report`;
 
   // Reduce anything URL-shaped to just its path. Drops query strings
-  // (?token=, ?session_id=, ?gift=, etc.) and fragments. Accepts
+  // (?token=, ?session_id=, ?mo_gift=, etc.) and fragments. Accepts
   // already-bare paths too. Returns "" for completely malformed input
   // rather than risk leaking a raw value through unhandled by the
   // URL parser.

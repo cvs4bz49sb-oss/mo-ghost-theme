@@ -19,16 +19,62 @@
  * pre-JS HTML so crawlers and AI agents index everything for
  * training-data reach. We'll promote to a worker-enforced gate
  * (flipping post visibility) when we want real enforcement.
+ *
+ * Gift links are handled up front, independent of gate timing — see
+ * the GIFT_PARAM note below.
  */
 (function () {
   const content = document.querySelector("[data-post-gate]");
   if (!content) return;
 
+  /*
+   * Gift-link query parameter.
+   *
+   * NOT "gift". Ghost Pro 301-redirects any post URL carrying a
+   * `gift` query param to the bare post URL and drops the entire
+   * query string, so the token never reaches the browser and the
+   * recipient just hits the normal gate. It is specific to that
+   * exact lowercase name on post routes: `gifts`, `giftx`, `GIFT`,
+   * and `mo_gift` all pass through untouched, as does `gift` on
+   * pages like /success/. Verified against production 2026-08-13.
+   *
+   * LEGACY_GIFT_PARAM is read as a fallback only. Every link minted
+   * under the old name is already unreachable for the reason above,
+   * so this recovers nothing today; it exists so the reader keeps
+   * working if a link ever arrives by a route that preserves it.
+   */
+  const GIFT_PARAM = "mo_gift";
+  const LEGACY_GIFT_PARAM = "gift";
+
+  const isMember = content.getAttribute("data-is-member") === "true";
+  const memberStatus = content.getAttribute("data-member-status") || "";
+  const visibility = content.getAttribute("data-post-visibility") || "public";
+
+  /*
+   * Gift handling runs at init, NOT inside the gate evaluation.
+   *
+   * The gate only evaluates once settings have arrived AND the post
+   * is older than gate_days. Deciding the gift banner in there meant
+   * a recipient saw no "A gift for you" note at all when the post
+   * was still inside the free window, or when the mo-admin settings
+   * fetch failed. The note is the point of the feature, so it now
+   * renders whenever a valid token is present and the gate simply
+   * stands down.
+   *
+   * Signed-in members don't need it, and on a non-public post Ghost
+   * has already stripped the body server-side, so a "gift" note
+   * would sit above an article the token cannot unlock.
+   */
+  const giftClaims = (!isMember && visibility === "public") ? readGiftClaims() : null;
+  if (giftClaims) renderGiftBanner(content, giftClaims);
+
   function run() {
+    // A valid gift token bypasses the gate entirely.
+    if (giftClaims) return;
+
     const days = parseInt(content.getAttribute("data-gate-days"), 10);
     if (!days || days <= 0) return;
 
-    const visibility = content.getAttribute("data-post-visibility") || "public";
     if (visibility !== "public") return;
 
     const publishedAt = Date.parse(content.getAttribute("data-published-at") || "");
@@ -38,55 +84,23 @@
     if (Date.now() < gateAt) return;
 
     const tier = content.getAttribute("data-gate-tier") || "members";
-    initGate(tier);
+
+    // Tier gate: members = any signed-in account bypasses; paid = must
+    // be on a paid plan. Free Subscribers hit the gate when tier=paid.
+    if (isMember) {
+      if (tier === "members") return;
+      if (tier === "paid" && memberStatus === "paid") return;
+    }
+
+    applyGate(content, tier);
   }
 
-  const days = parseInt(content.getAttribute("data-gate-days"), 10);
-  if (days > 0) {
+  const initialDays = parseInt(content.getAttribute("data-gate-days"), 10);
+  if (initialDays > 0) {
     run();
   } else {
     document.addEventListener("mo:settings", () => { run(); }, { once: true });
   }
-
-  function initGate(tier) {
-  const isMember = content.getAttribute("data-is-member") === "true";
-  const memberStatus = content.getAttribute("data-member-status") || "";
-
-  // Gift-link bypass: if URL carries ?gift=<token> and the reader
-  // isn't already a signed-in member, decode the token for display
-  // (name + tier), skip the gate, and render a top banner crediting
-  // the gifter with an inline free-subscribe form. Token is signed
-  // but not verified client-side — the soft gate is bypassable
-  // anyway. See workers/gift/gift.js.
-  //
-  // Post-scoping: the token's `p` field must match the current post's
-  // ID. A token minted for post A can't unlock post B.
-  if (!isMember) {
-    const giftClaims = readGiftClaims();
-    if (giftClaims) {
-      const currentPostId = content.getAttribute("data-post-id") || "";
-      if (giftClaims.p && currentPostId && giftClaims.p !== currentPostId) {
-        // Token belongs to a different post — strip it from the URL
-        // so the visitor doesn't see a stale/mismatched parameter,
-        // then fall through to the normal gate.
-        const cleaned = new URL(window.location.href);
-        cleaned.searchParams.delete("gift");
-        window.history.replaceState(null, "", cleaned.toString());
-      } else {
-        renderGiftBanner(content, giftClaims);
-        return;
-      }
-    }
-  }
-
-  // Tier gate: members = any signed-in account bypasses; paid = must
-  // be on a paid plan. Free Subscribers hit the gate when tier=paid.
-  if (isMember) {
-    if (tier === "members") return;
-    if (tier === "paid" && memberStatus === "paid") return;
-  }
-
-  applyGate(content, tier);
 
   function applyGate(root, tier) {
     // Mobile readers get fewer free paragraphs so the gate sits at a
@@ -219,30 +233,102 @@
     return wrap;
   }
 
+  // Decode the token for display (name + tier). Signed but not
+  // verified client-side — the soft gate is bypassable anyway, so a
+  // forged token just shows a bogus name on an article the reader
+  // could already have reached via View Source. See workers/gift.
+  //
+  // Post-scoping: the token's `p` field must match the current post's
+  // ID. A token minted for post A can't unlock post B.
   function readGiftClaims() {
     try {
       const params = new URLSearchParams(window.location.search);
-      const token = params.get("gift");
+      const token = params.get(GIFT_PARAM) || params.get(LEGACY_GIFT_PARAM);
       if (!token) return null;
       const dot = token.indexOf(".");
       if (dot < 0) return null;
       const payload = token.slice(0, dot);
-      // Base64url → base64 → UTF-8 string. Signature is not verified
-      // here; presence is the signal. A forged token just shows a
-      // bogus name on an already-soft-gated article.
+      // Base64url → base64 → UTF-8 string.
       let b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
       while (b64.length % 4) b64 += "=";
       const json = decodeURIComponent(Array.prototype.map.call(atob(b64), (c) => {
         return `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`;
       }).join(""));
       const claims = JSON.parse(json);
-      if (typeof claims.exp === "number" && claims.exp * 1000 < Date.now()) return null;
+
+      // Expiry fails CLOSED. A missing or non-numeric `exp` is a
+      // malformed token, not a token that never expires. Moot while
+      // the signature goes unverified, but this is the check that
+      // has to already be right on the day verification lands.
+      if (typeof claims.exp !== "number" || !isFinite(claims.exp)) {
+        stripGiftParam();
+        return null;
+      }
+      if (claims.exp * 1000 < Date.now()) {
+        stripGiftParam();
+        return null;
+      }
+
+      // Post-scoping is REQUIRED, not best-effort. Demanding a
+      // present, matching `p` is what stops a hand-rolled payload
+      // (`?mo_gift=e30.x` decodes to `{}`) from standing the gate
+      // down on every post at once. A token minted for post A can't
+      // unlock post B, and a token minted for no post unlocks
+      // nothing. Mismatches are stripped from the URL so the visitor
+      // isn't left staring at a stale parameter.
+      const currentPostId = content.getAttribute("data-post-id") || "";
+      const tokenPostId = claims.p ? String(claims.p) : "";
+      if (!tokenPostId || !currentPostId || tokenPostId !== currentPostId) {
+        stripGiftParam();
+        return null;
+      }
+
       return {
-        p: claims.p ? String(claims.p) : "",
-        by: String(claims.by || "A Subscriber"),
+        p: tokenPostId,
+        by: safeDisplayName(claims.by),
         tier: String(claims.tier || "Subscriber"),
       };
     } catch (_) { return null; }
+  }
+
+  /*
+   * claims.by is attacker-authored.
+   *
+   * The theme deliberately doesn't verify the HMAC, so anyone can
+   * base64url some JSON and choose the text in the banner headline —
+   * and that headline sits directly above an email-capture form on
+   * our own domain. textContent already makes it inert as markup, so
+   * this is not an XSS guard; it's to stop the banner being used as
+   * a phishing or brand-defacement surface. Clamp it to something
+   * name-shaped and fall back to the generic label otherwise.
+   */
+  function safeDisplayName(raw) {
+    const fallback = "A Subscriber";
+    const s = String(raw == null ? "" : raw)
+      // Control chars, zero-width joiners, and bidi overrides — the
+      // characters used to smuggle a second apparent message into a
+      // single line of text. Matching control characters is the
+      // whole point here, so no-control-regex is off deliberately.
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\u202A-\u202E\u2066-\u2069]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!s || s.length > 60) return fallback;
+    // URL-, address-, or domain-shaped input is not a name. The last
+    // test wants a dot glued to two or more letters, so it rejects
+    // "evil.com" while leaving "J.R.R. Tolkien" and "Ph.D" alone.
+    if (/:\/\/|@|\bwww\./i.test(s)) return fallback;
+    if (/\.[a-z]{2,}/i.test(s)) return fallback;
+    return s;
+  }
+
+  function stripGiftParam() {
+    try {
+      const cleaned = new URL(window.location.href);
+      cleaned.searchParams.delete(GIFT_PARAM);
+      cleaned.searchParams.delete(LEGACY_GIFT_PARAM);
+      window.history.replaceState(null, "", cleaned.toString());
+    } catch (_) { /* URL rewriting is cosmetic; never block the read */ }
   }
 
   function renderGiftBanner(root, claims) {
@@ -322,8 +408,6 @@
     wrap.appendChild(input);
     return wrap;
   }
-
-  } // end initGate
 
   function eyebrow(text) {
     const p = document.createElement("p");
