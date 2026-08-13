@@ -325,11 +325,112 @@
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
+
+  /*
+   * A plain-English summary of the journey, above the facts.
+   *
+   * The timeline answers "what happened" but makes you assemble the
+   * story yourself, and at 344 rows nobody does. This composes the same
+   * data into three or four sentences: where they came from, what they
+   * did in between, what closed it, and whether they came back.
+   *
+   * Composed, not generated — every clause is driven by a field, and a
+   * clause is dropped entirely when the data behind it is missing
+   * rather than filled with a hedge. House style: no em dashes.
+   */
+  function narrate(row, events) {
+    const conv = row.converted_at;
+    const pre = events.filter((e) => e.ts < conv);
+    const preReads = pre.filter((e) => e.type === "read_completed").length;
+    const preOpens = pre.filter((e) => e.type === "hubspot_email_open").length;
+    const preClicks = pre.filter((e) => e.type === "hubspot_email_click").length;
+    const sentences = [];
+
+    // 1. Where they came from.
+    const firstUrl = row.legacy_first_url || row.signup_attribution_url;
+    const page = firstUrl ? prettyPath(firstUrl) : null;
+    if (row.first_seen_system === "hubspot" && row.first_seen_at) {
+      sentences.push(`Found Mere Orthodoxy in ${monthYear(row.first_seen_at)}${page ? `, landing on ${page}` : ""}, and subscribed free.`);
+    } else if (row.signup_at) {
+      const ref = row.signup_referrer_source && row.signup_referrer_source !== "Direct"
+        ? ` after arriving from ${row.signup_referrer_source}` : "";
+      sentences.push(`Signed up free in ${monthYear(row.signup_at)}${ref}${page ? ` on ${page}` : ""}.`);
+    }
+
+    // 2. What they did in between.
+    const spanMonths = monthsBetween(row.first_seen_at, conv);
+    const bits = [];
+    if (preOpens) bits.push(`opened ${preOpens} email${preOpens === 1 ? "" : "s"}`);
+    if (preClicks) bits.push(`clicked ${preClicks}`);
+    if (preReads) bits.push(`read ${preReads} essay${preReads === 1 ? "" : "s"}`);
+    if (bits.length && spanMonths >= 1) {
+      sentences.push(`Over the ${spanMonths} month${spanMonths === 1 ? "" : "s"} before paying, ${joinList(bits)}.`);
+    } else if (bits.length) {
+      sentences.push(`Before paying, ${joinList(bits)}.`);
+    } else if (row.minutes_to_convert !== null && row.minutes_to_convert !== undefined && row.minutes_to_convert < 1440) {
+      sentences.push(`Nothing was recorded in between: the account and the payment were ${row.minutes_to_convert} minutes apart.`);
+    }
+
+    // 3. What closed it.
+    const where = surfaceName(row.conversion_surface, row.conversion_page);
+    const plan = row.is_comped ? "was comped" : `took the ${String(row.plan || "paid").toLowerCase()} plan`;
+    let close = `Converted on ${where} and ${plan}`;
+    if (row.abandoned_checkouts) {
+      close += `, after abandoning ${row.abandoned_checkouts === 1 ? "a checkout" : `${row.abandoned_checkouts} checkouts`}${row.abandoned_pages ? ` on ${row.abandoned_pages}` : ""}`;
+    }
+    sentences.push(`${close}.`);
+
+    // 4. Whether they came back.
+    if (row.d7_essays_read === null || row.d7_essays_read === undefined) {
+      sentences.push("Post-conversion reading could not be read for this member.");
+    } else if (row.d7_essays_read > 0) {
+      sentences.push(`Since paying, has read ${row.d7_essays_read} essay${row.d7_essays_read === 1 ? "" : "s"} across ${row.d7_days_active || 1} day${(row.d7_days_active || 1) === 1 ? "" : "s"}${row.d7_first_read_title ? `, starting with "${row.d7_first_read_title}"` : ""}.`);
+    } else if (row.d7_window_complete) {
+      sentences.push("Has not read anything in the week since paying.");
+    } else {
+      sentences.push("Has not read anything yet, though the first week is not over.");
+    }
+
+    if (row.duplicate_record && row.legacy_email) {
+      sentences.push(`Also still exists as a separate record under ${row.legacy_email}.`);
+    }
+    return sentences.join(" ");
+  }
+
+  function joinList(a) {
+    if (a.length === 1) return a[0];
+    if (a.length === 2) return `${a[0]} and ${a[1]}`;
+    return `${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}`;
+  }
+
+  function monthYear(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return "an unknown month";
+    return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  }
+
+  function monthsBetween(a, b) {
+    if (!a || !b) return 0;
+    return Math.max(0, Math.round((new Date(b) - new Date(a)) / (30 * 864e5)));
+  }
+
+  function prettyPath(url) {
+    try {
+      const u = new URL(url, "https://mereorthodoxy.com");
+      const p = u.pathname.replace(/\/$/, "");
+      return p && p !== "" ? p : "the homepage";
+    } catch (_) { return url; }
+  }
+
   function renderTimeline(data, m) {
     if (!drawerBody) return;
     drawerBody.textContent = "";
 
     const row = data.member || m;
+
+    const story = narrate(row, data.events || []);
+    if (story) drawerBody.appendChild(el("p", "jr-narrative", story));
+
     const facts = el("dl", "jr-facts");
     const fact = (label, value) => {
       facts.appendChild(el("dt", null, label));
