@@ -11016,9 +11016,32 @@ label.site-form-field-check {
    matches the top admin-nav's mobile treatment. */
 .admin-members-layout {
   display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 48px;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 36px;
   align-items: start;
+}
+
+/*
+ * Centre the DATA, not the layout.
+ *
+ * The nav sits inside a centred .container, so the main column is always
+ * pushed right of the page centre line by half the nav block
+ * (180px + 36px gap = 108px). On a wide screen that reads as a large
+ * dead margin on the left with the tables floating right.
+ *
+ * Equal negative-left / positive-right margins slide the whole grid back
+ * by that 108px without changing its width, which puts the main column
+ * on the centre line and lets the nav occupy space that was empty.
+ *
+ * Gated at 1680px: below that the container is already filling the
+ * available width, there is no dead space to move into, and shifting
+ * would push the nav under the workspace rail.
+ */
+@media (min-width: 1680px) {
+  .admin-members-layout {
+    margin-left: -108px;
+    margin-right: 108px;
+  }
 }
 .admin-members-sidebar { position: static; align-self: start; }
 .admin-members-subnav-list {
