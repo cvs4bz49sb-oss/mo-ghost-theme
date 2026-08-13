@@ -406,6 +406,20 @@
     if (t === "first_visit") return { ...base, label: "First ever visit", detail: d.url || "", url: d.url, link: !!d.url };
     if (t === "free_subscription") return { ...base, label: "Subscribed free (HubSpot)", detail: d.event || "" };
     // Not a visit — an imported or API-created contact record.
+    // Dated HubSpot-era engagement. Labelled "last" because HubSpot only
+    // exposes the most recent one without the marketing.email.read scope.
+    if (t === "hubspot_email_open") {
+      return { ...base, label: "Last email open (HubSpot)",
+        detail: d.total ? `${d.total} opens in the HubSpot era` : "" };
+    }
+    if (t === "hubspot_email_click") {
+      return { ...base, label: "Clicked an email (HubSpot)",
+        detail: [d.email, d.total ? `${d.total} clicks total` : ""].filter(Boolean).join(" · ") };
+    }
+    if (t === "hubspot_last_visit") {
+      return { ...base, label: "Last visit (HubSpot)",
+        detail: [d.visits ? `${d.visits} visits` : "", d.views ? `${d.views} page views` : ""].filter(Boolean).join(" · ") };
+    }
     if (t === "hubspot_record_created") {
       return { ...base, label: "HubSpot record created", detail: `no visit recorded · source ${d.source || "unknown"}`, system: true };
     }
