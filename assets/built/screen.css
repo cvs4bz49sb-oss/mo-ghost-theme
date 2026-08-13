@@ -22043,3 +22043,32 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   color: var(--color-muted);
   max-width: 78ch;
 }
+
+/* Sortable table headers. Kept as <th> with role/tabindex rather than a
+   nested <button> so the header text stays the click target and the
+   column does not grow a control that looks like an admin action. */
+.admin-table th[data-jr-sort] {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.admin-table th[data-jr-sort]:hover,
+.admin-table th[data-jr-sort]:focus-visible {
+  color: var(--color-dark);
+}
+.admin-table th[data-jr-sort]::after {
+  content: "";
+  display: inline-block;
+  margin-left: 6px;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 4px solid currentColor;
+  opacity: 0;
+  transform: translateY(-1px);
+}
+.admin-table th[data-jr-sort]:hover::after { opacity: 0.35; }
+.admin-table th[data-jr-sort].is-sorted::after { opacity: 0.9; }
+.admin-table th[data-jr-sort].is-sorted.is-desc::after {
+  border-bottom: 0;
+  border-top: 4px solid currentColor;
+}

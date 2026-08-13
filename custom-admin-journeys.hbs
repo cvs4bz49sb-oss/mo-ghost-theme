@@ -90,14 +90,17 @@
                   <div class="admin-table-wrap">
                     <table class="admin-table">
                       <thead>
+                        {{!-- Sortable. JS turns each [data-jr-sort] into a
+                             button and sorts the already-fetched rows in
+                             place; no refetch, so it stays instant. --}}
                         <tr>
-                          <th scope="col">Member</th>
-                          <th scope="col">Converted</th>
-                          <th scope="col">Plan</th>
-                          <th scope="col">First seen</th>
-                          <th scope="col">To convert</th>
-                          <th scope="col">Converted on</th>
-                          <th scope="col">First 7 days</th>
+                          <th scope="col" data-jr-sort="name">Member</th>
+                          <th scope="col" data-jr-sort="converted_at" data-jr-sort-default="desc">Converted</th>
+                          <th scope="col" data-jr-sort="plan">Plan</th>
+                          <th scope="col" data-jr-sort="first_seen_at">First seen</th>
+                          <th scope="col" data-jr-sort="days_since_first_seen">To convert</th>
+                          <th scope="col" data-jr-sort="conversion_surface">Converted on</th>
+                          <th scope="col" data-jr-sort="d7_essays_read">First 7 days</th>
                           <th scope="col"><span class="visually-hidden">Actions</span></th>
                         </tr>
                       </thead>

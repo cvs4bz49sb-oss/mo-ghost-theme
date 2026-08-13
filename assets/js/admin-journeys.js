@@ -34,6 +34,9 @@
 
   let days = 30;
   let lastFocus = null;
+  let rows = [];
+  let sortKey = "converted_at";
+  let sortDir = "desc";
 
   // ── helpers ───────────────────────────────────────────────────────
 
@@ -185,8 +188,59 @@
 
   // ── member table ──────────────────────────────────────────────────
 
+  /*
+   * Sorting happens client-side over the rows already fetched. The
+   * cohort is a few dozen at most, so a refetch per click would be
+   * latency for nothing.
+   *
+   * Nulls always sink to the bottom regardless of direction — a member
+   * with no first-seen date is missing information, not the earliest
+   * one, and floating them to the top of an ascending sort would read
+   * as though they were the oldest readers on the list.
+   */
+  function sortRows(list) {
+    const dir = sortDir === "asc" ? 1 : -1;
+    return list.slice().sort((a, b) => {
+      const x = a[sortKey]; const y = b[sortKey];
+      const xEmpty = x === null || x === undefined || x === "";
+      const yEmpty = y === null || y === undefined || y === "";
+      if (xEmpty && yEmpty) return 0;
+      if (xEmpty) return 1;
+      if (yEmpty) return -1;
+      if (typeof x === "number" && typeof y === "number") return (x - y) * dir;
+      return String(x).localeCompare(String(y), undefined, { numeric: true, sensitivity: "base" }) * dir;
+    });
+  }
+
+  function wireSorting() {
+    root.querySelectorAll("[data-jr-sort]").forEach((th) => {
+      const key = th.getAttribute("data-jr-sort");
+      if (th.getAttribute("data-jr-wired")) {
+        th.setAttribute("aria-sort", key === sortKey ? (sortDir === "asc" ? "ascending" : "descending") : "none");
+        th.classList.toggle("is-sorted", key === sortKey);
+        th.classList.toggle("is-desc", key === sortKey && sortDir === "desc");
+        return;
+      }
+      th.setAttribute("data-jr-wired", "1");
+      th.setAttribute("role", "columnheader");
+      th.tabIndex = 0;
+      const activate = () => {
+        if (sortKey === key) sortDir = sortDir === "asc" ? "desc" : "asc";
+        else { sortKey = key; sortDir = th.getAttribute("data-jr-sort-default") || "asc"; }
+        renderRows(rows);
+      };
+      th.addEventListener("click", activate);
+      th.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+      });
+    });
+  }
+
   function renderRows(members) {
     if (!tbody) return;
+    rows = members;
+    members = sortRows(members);
+    wireSorting();
     tbody.textContent = "";
 
     members.forEach((m) => {
@@ -213,9 +267,12 @@
       tr.appendChild(surface);
 
       const d7 = document.createElement("td");
-      const silent = !m.d7_essays_read;
+      // null means the reading lookup failed, which is not the same as
+      // zero and must never be shown as it.
+      const unknown = m.d7_essays_read === null || m.d7_essays_read === undefined;
+      const silent = !unknown && !m.d7_essays_read;
       d7.appendChild(el("span", silent ? "jr-d7 jr-d7--silent" : "jr-d7",
-        `${m.d7_essays_read || 0} read · ${m.d7_days_active || 0}d active`));
+        unknown ? "unknown" : `${m.d7_essays_read} read · ${m.d7_days_active || 0}d active`));
       if (!m.d7_window_complete) d7.appendChild(el("span", "jr-flag", "partial"));
       if (!m.d7_still_active) d7.appendChild(el("span", "jr-flag jr-flag--warn", "churned"));
       tr.appendChild(d7);
