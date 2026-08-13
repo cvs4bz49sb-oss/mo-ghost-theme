@@ -50,15 +50,21 @@
                   <button type="button" class="admin-period-option" data-jr-days="365">1 year</button>
                 </div>
 
+                {{!-- Exactly six. .admin-stats is a 6-column grid, so a
+                      seventh tile orphans onto a second row. Values must
+                      stay short — a wrapped value breaks tile height and
+                      the whole strip goes ragged. Caveats go in
+                      .jr-caveats below, never inside a tile. --}}
                 <ul class="admin-stats" data-jr-stats>
                   <li class="admin-stat"><span class="admin-stat-label">New members</span><span class="admin-stat-value" data-stat="members">&mdash;</span></li>
                   <li class="admin-stat"><span class="admin-stat-label">Same-day converts</span><span class="admin-stat-value" data-stat="same_day">&mdash;</span></li>
-                  <li class="admin-stat"><span class="admin-stat-label">Avg days to convert</span><span class="admin-stat-value" data-stat="avg_days">&mdash;</span></li>
-                  <li class="admin-stat"><span class="admin-stat-label">Opened email before paying</span><span class="admin-stat-value" data-stat="opened_before">&mdash;</span></li>
+                  <li class="admin-stat"><span class="admin-stat-label">Opened email first</span><span class="admin-stat-value" data-stat="opened_before">&mdash;</span></li>
                   <li class="admin-stat"><span class="admin-stat-label">Abandoned a checkout</span><span class="admin-stat-value" data-stat="abandoned">&mdash;</span></li>
-                  <li class="admin-stat"><span class="admin-stat-label">Read nothing in 7 days</span><span class="admin-stat-value" data-stat="silent">&mdash;</span></li>
+                  <li class="admin-stat"><span class="admin-stat-label">Read nothing yet</span><span class="admin-stat-value" data-stat="silent">&mdash;</span></li>
                   <li class="admin-stat"><span class="admin-stat-label">Already churned</span><span class="admin-stat-value" data-stat="churned">&mdash;</span></li>
                 </ul>
+
+                <ul class="jr-caveats" data-jr-caveats hidden></ul>
 
                 <p class="jr-excluded" data-jr-excluded hidden></p>
 

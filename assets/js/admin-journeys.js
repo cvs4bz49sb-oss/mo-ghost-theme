@@ -78,11 +78,16 @@
     return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
   }
 
+  // The year is not optional. These timelines routinely open in 2022 and
+  // close this week, and without it "Jun 3" on a HubSpot signup reads as
+  // this June — i.e. after the May 2026 switchover, which would be
+  // impossible. Dropping the year turned real 2025 history into an
+  // apparent data corruption.
   function fmtDateTime(iso) {
     if (!iso) return "—";
     const d = new Date(iso);
     if (isNaN(d)) return "—";
-    return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
   }
 
   function fmtDuration(row) {
@@ -125,16 +130,33 @@
     const n = t.members || 0;
     set("members", n);
     set("same_day", n ? `${t.same_day || 0} of ${n}` : "—");
-    set("avg_days", t.avg_days_to_convert === null || t.avg_days_to_convert === undefined
-      ? "—" : Math.round(t.avg_days_to_convert));
-    // Trailing "?" flags that some rows could not be split, so the
-    // figure is a floor rather than a count.
-    set("opened_before", n
-      ? `${t.opened_before || 0} of ${n}${t.pre_conv_unknown ? ` (+${t.pre_conv_unknown} unsplittable)` : ""}`
-      : "—");
+    set("opened_before", n ? `${t.opened_before || 0} of ${n}` : "—");
     set("abandoned", t.abandoned || 0);
     set("silent", t.silent || 0);
     set("churned", t.churned || 0);
+
+    /*
+     * Caveats live here, not in the tiles.
+     *
+     * The first version wrote "11 of 18 (+11 unsplittable)" into a stat
+     * value. It wrapped to three lines, broke the tile heights, leaked
+     * the word "unsplittable" into the UI, and read as though 11 + 11
+     * exceeded the 18 it was counting. A stat value has to be a short
+     * token; anything qualifying it belongs in prose underneath.
+     */
+    const caveats = [];
+    if (t.pre_conv_unknown) {
+      caveats.push(`${t.pre_conv_unknown} more had email history before paying, but Kit reports opens as a lifetime total only, so those cannot be split at the conversion date. The count above is a floor.`);
+    }
+    if (t.partial_windows) {
+      caveats.push(`${t.partial_windows} of these converted less than seven days ago, so their reading figures are still filling in. "Read nothing yet" is not final for them.`);
+    }
+    const cavEl = root.querySelector("[data-jr-caveats]");
+    if (cavEl) {
+      cavEl.textContent = "";
+      caveats.forEach((c) => cavEl.appendChild(el("li", null, c)));
+      cavEl.hidden = !caveats.length;
+    }
 
     renderRanked(root.querySelector("[data-jr-surfaces]"), data.by_surface || [], "surface");
     renderRanked(root.querySelector("[data-jr-firstseen]"), data.by_first_seen || [], "system");
@@ -383,6 +405,10 @@
     if (t === "subscription_expired") return { ...base, label: "Subscription expired", detail: "" };
     if (t === "first_visit") return { ...base, label: "First ever visit", detail: d.url || "", url: d.url, link: !!d.url };
     if (t === "free_subscription") return { ...base, label: "Subscribed free (HubSpot)", detail: d.event || "" };
+    // Not a visit — an imported or API-created contact record.
+    if (t === "hubspot_record_created") {
+      return { ...base, label: "HubSpot record created", detail: `no visit recorded · source ${d.source || "unknown"}`, system: true };
+    }
     if (t === "newsletter_subscribed") return { ...base, label: "Joined newsletter", detail: d.newsletter || "" };
     if (t === "comment") return { ...base, label: "Commented", detail: "" };
     // Kit has no per-email open event, so these two timestamps are the

@@ -21978,7 +21978,7 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 }
 .jr-timeline-time {
   flex: 0 0 auto;
-  min-width: 116px;
+  min-width: 152px;
   color: var(--color-muted);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
@@ -21995,7 +21995,7 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 .jr-timeline-toggle { margin-top: 18px; }
 .jr-timeline-detail {
   flex: 1 1 100%;
-  padding-left: 124px;
+  padding-left: 160px;
   color: var(--color-muted);
   font-size: 12px;
   word-break: break-word;
@@ -22013,6 +22013,24 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   .jr-timeline-item { gap: 6px; }
   .jr-timeline-time { min-width: 0; flex: 1 1 100%; }
   .jr-timeline-detail { flex: 1 1 100%; padding-left: 0; }
+}
+
+/* Caveats that qualify a stat. They must never live inside a tile: a
+   wrapped stat value breaks the tile heights and takes the whole
+   six-column strip ragged with it. */
+.jr-caveats {
+  list-style: none;
+  margin: -18px 0 28px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-width: 82ch;
+}
+.jr-caveats li {
+  padding-left: 14px;
+  border-left: 2px solid var(--color-card-border);
+  font-size: 13px;
+  color: var(--color-muted);
 }
 
 /* Says what the acquisitions-only filter removed, so the headline count
