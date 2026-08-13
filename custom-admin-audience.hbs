@@ -1,0 +1,128 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Audience | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Audience | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Audience | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/audience/ — who reads Mere Orthodoxy, from the reader surveys.
+
+     No worker, no fetch. Every number is precomputed by
+     website/archive/build-audience-survey-json.py and inlined below by the
+     audience-data partial, which sits INSIDE the {{#if @member}} block so
+     Ghost renders it server-side for signed-in members only. Putting the
+     same JSON under assets/ would publish member counts by metro at a
+     guessable URL.
+
+     Re-run the generator after a new survey lands, then rebuild. The page
+     needs no deploy coordination beyond that: it is static once rendered. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="audience"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Audience</em></h1>
+        <p class="admin-topbar-sub">Who reads Mere&nbsp;Orthodoxy, from the 2025 and 2026 reader surveys. <span class="aud-stamp" data-aud-stamp></span></p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container" data-audience>
+
+          {{!-- Cohort tabs. Free subscribers and paying members answered
+                separate instruments in 2026, so "everyone" is not a cohort
+                we can show without pooling two different populations. --}}
+          <div class="admin-period" role="tablist" aria-label="Cohort" data-aud-cohorts></div>
+
+          <p class="aud-cohort-note" data-aud-note></p>
+
+          <ul class="admin-stats" data-aud-stats></ul>
+
+          <div class="admin-section">
+            <div class="admin-section-header">
+              <h2 class="admin-section-title"><em>Patterns worth knowing</em></h2>
+              <p class="admin-section-hint">Findings that only show up when two cuts of the data are put next to each other. Open one to see what is behind it.</p>
+            </div>
+            <div class="aud-signals" data-aud-signals></div>
+          </div>
+
+          <div class="admin-section">
+            <div class="admin-section-header">
+              <h2 class="admin-section-title"><em>The profile</em></h2>
+              <p class="admin-section-hint">Every survey question for the selected cohort. Turn on Compare to see the other cohort behind each bar.</p>
+            </div>
+            <div class="aud-controls">
+              <label class="aud-check">
+                <input type="checkbox" data-aud-compare />
+                <span>Compare against</span>
+              </label>
+              <select class="aud-select" data-aud-compare-with aria-label="Cohort to compare against"></select>
+            </div>
+            <div class="aud-grid" data-aud-profile></div>
+          </div>
+
+          <div class="admin-section">
+            <div class="admin-section-header">
+              <h2 class="admin-section-title"><em>Break it down by age</em></h2>
+              <p class="admin-section-hint">The print-Journal finding was invisible until the join reasons were cut by age band. Pick a question and look for a row that climbs or falls across the columns.</p>
+            </div>
+            <div class="aud-controls">
+              <select class="aud-select" data-aud-xt-question aria-label="Question to cross-tabulate"></select>
+              <select class="aud-select" data-aud-xt-cohort aria-label="Cohort"></select>
+            </div>
+            <div class="aud-xt" data-aud-xt></div>
+          </div>
+
+          <div class="admin-section">
+            <div class="admin-section-header">
+              <h2 class="admin-section-title"><em>Where they are</em></h2>
+              <p class="admin-section-hint">Members never got asked their location, so density comes from the summer print mailing list. Print-tier only, which makes every count here a floor.</p>
+            </div>
+            <div class="aud-split">
+              <div>
+                <p class="aud-subhead">Print members by metro</p>
+                <ul class="admin-ranked" data-aud-metros></ul>
+              </div>
+              <div>
+                <p class="aud-subhead">Free readers vs paying members, by state</p>
+                <div class="aud-tablewrap">
+                  <table class="aud-table">
+                    <thead>
+                      <tr><th scope="col">State</th><th scope="col">Survey</th><th scope="col">Members</th><th scope="col">Gap</th></tr>
+                    </thead>
+                    <tbody data-aud-states></tbody>
+                  </table>
+                </div>
+                <p class="aud-foot" data-aud-geofoot></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-section">
+            <p class="aud-foot" data-aud-sources></p>
+          </div>
+
+          {{!-- Last child on purpose. .admin-body .container > :first-child
+                resets the 64px section margin, and a script tag sitting in
+                that slot would silently hand the gap to the cohort tabs
+                instead. Parsed long before the page script runs either way. --}}
+          {{> "audience-data"}}
+
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-audience.js"}}"></script>

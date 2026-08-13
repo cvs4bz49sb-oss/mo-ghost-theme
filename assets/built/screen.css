@@ -22293,3 +22293,254 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 /* Armed state for two-step destructive/outbound buttons. */
 .btn.is-armed { color: var(--color-secondary); font-weight: 600; }
 .btn.is-done { color: #2f7d55; }
+
+/* ---- /admin/audience/ — reader survey dashboard ----------------------- */
+/* Reuses .admin-stats, .admin-period and .admin-ranked wholesale. What is
+   added here is the compare ghost-bar, the signal disclosures, and the
+   cross-tab table. Tokens only: --color-dark, --color-primary,
+   --color-secondary, --color-muted, --color-card-border, --font-body. */
+
+.aud-stamp { color: var(--color-muted); font-size: 13px; }
+
+/* The note belongs to the tabs above it, so it should not inherit the
+   64px inter-section gap that .admin-body .container > .admin-stats carries
+   for every other block on the page. */
+.aud-cohort-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: -20px 0 0;
+  max-width: 640px;
+}
+.admin-body .container > .aud-cohort-note + .admin-stats { margin-top: 26px; }
+
+.aud-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+.aud-select {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  padding: 7px 10px;
+  border: 1px solid var(--color-card-border);
+  background: transparent;
+  border-radius: 3px;
+  max-width: 100%;
+}
+.aud-select:disabled { opacity: 0.45; }
+.aud-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+/* 20px box + the label as hit area keeps this over the 44px touch target
+   on a phone without making the control look oversized on desktop. */
+.aud-check input { width: 18px; height: 18px; }
+
+/* The comparison cohort sits behind the primary bar as a hairline outline
+   rather than a second fill, so the primary reading stays unambiguous. */
+.aud-ghostbar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-right: 2px solid rgba(193, 89, 60, 0.55);
+  pointer-events: none;
+  z-index: 0;
+}
+.aud-delta {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  min-width: 42px;
+  text-align: right;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+.aud-delta.is-up { color: #2f7d55; }
+.aud-delta.is-down { color: var(--color-secondary); }
+
+/* ---- signals ---- */
+.aud-signals { display: block; }
+.aud-signal {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0;
+}
+.aud-signal:last-child { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+.aud-signal-head {
+  display: block;
+  padding: 16px 34px 16px 0;
+  cursor: pointer;
+  position: relative;
+  list-style: none;
+}
+.aud-signal-head::-webkit-details-marker { display: none; }
+.aud-signal-head::after {
+  content: "+";
+  position: absolute;
+  right: 6px;
+  top: 15px;
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-muted);
+}
+.aud-signal[open] .aud-signal-head::after { content: "\2013"; }
+.aud-signal-title {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-dark);
+  margin-bottom: 4px;
+}
+/* The orange rule marks the claim as the thing to read, and is the only
+   decoration on the row. */
+.aud-signal-claim {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #4a4440;
+  border-left: 2px solid var(--color-primary);
+  padding-left: 10px;
+  max-width: 760px;
+}
+.aud-signal-body { padding: 4px 0 22px; max-width: 760px; }
+.aud-signal-unit {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 8px 0 0;
+}
+.aud-signal-detail {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #4a4440;
+  margin: 12px 0 0;
+}
+
+/* ---- profile grid ---- */
+.aud-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px 48px;
+}
+@media (max-width: 880px) {
+  .aud-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+.aud-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.aud-subhead {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-dark);
+  margin: 0 0 8px;
+}
+.aud-block-head .aud-subhead { margin: 0; }
+.aud-block-n {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* ---- geography ---- */
+.aud-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+@media (max-width: 880px) {
+  .aud-split { grid-template-columns: 1fr; gap: 36px; }
+}
+
+/* ---- tables ---- */
+/* Wide tables scroll inside their own box; the page body never scrolls
+   sideways on a phone. */
+.aud-tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.aud-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+.aud-table th,
+.aud-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  vertical-align: baseline;
+}
+.aud-table thead th {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.aud-rowhead {
+  font-weight: 400;
+  color: var(--color-dark);
+}
+.aud-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.aud-th-n {
+  display: block;
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--color-muted);
+}
+.aud-table--xt .aud-rowhead {
+  min-width: 190px;
+  max-width: 280px;
+}
+.aud-cell {
+  position: relative;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* Opacity is set inline per cell from the row's own max, which is what
+   makes a rising or falling row visible at a glance. */
+.aud-cell-fill {
+  position: absolute;
+  inset: 2px;
+  background: var(--color-primary);
+  pointer-events: none;
+}
+.aud-cell-v { position: relative; }
+.aud-cell-empty { color: var(--color-muted); }
+
+.aud-foot {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 12px 0 0;
+  max-width: 760px;
+}
+
+@media (max-width: 640px) {
+  .aud-signal-title { font-size: 14px; }
+  .aud-signal-claim { font-size: 13px; }
+  .aud-table th, .aud-table td { padding: 7px 8px; }
+  .aud-table--xt .aud-rowhead { min-width: 150px; }
+  .aud-controls { gap: 10px; }
+  .aud-select { width: 100%; }
+}

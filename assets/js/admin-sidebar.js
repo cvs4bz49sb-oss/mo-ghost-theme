@@ -85,6 +85,10 @@
     agenda: "agenda",
     settings: "settings",
     kpi: "kpi",
+    // Rides on the kpi grant rather than a tool of its own: same class of
+    // business data, and it means existing non-staff grants keep working
+    // without a KV edit. Split it out if audience ever needs its own key.
+    audience: "kpi",
     coverage: "coverage",
     editorial: "editorial",
     contact: "contact",

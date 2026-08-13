@@ -142,6 +142,8 @@ routes:
     template: custom-admin-heatmap
   /admin/kpi/:
     template: custom-admin-kpi
+  /admin/audience/:
+    template: custom-admin-audience
   /admin/tfr/:
     template: custom-admin-tfr
   /admin/migration/:
