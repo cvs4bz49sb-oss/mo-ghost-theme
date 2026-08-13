@@ -453,6 +453,18 @@
             ? `<b>${fmt(k.dl_labelled)}</b> carry the label in Ghost, <b>${fmt(k.dl_labelled - k.dl_subscribers)}</b> can no longer receive it`
             : "",
           offList(k.dl_cancelled, k.dl_bounced, k.dl_complained),
+          // Where the list came from. "New contact" means the Daily Liturgy
+          // is the reason they exist in the database at all; the rest were
+          // already subscribers or members who added it. The signup-form
+          // count is a third, overlapping thing — an existing subscriber can
+          // use the form too — so it is stated separately rather than
+          // implied by the split.
+          typeof k.dl_new_contacts === "number" && typeof k.dl_existing_optins === "number"
+            ? `<b>${fmt(k.dl_new_contacts)}</b> arrived as new contacts · <b>${fmt(k.dl_existing_optins)}</b> already subscribed and opted in`
+            : "",
+          typeof k.dl_via_form === "number"
+            ? `<b>${fmt(k.dl_via_form)}</b> signed up through the Daily Liturgy form`
+            : "",
           typeof k.dl_only === "number" ? `<b>${fmt(k.dl_only)}</b> take only the Daily Liturgy${pct == null ? "" : ` — ${pct}% of the list`}` : "",
           typeof k.dl_both === "number" ? `<b>${fmt(k.dl_both)}</b> also take a weekly digest` : "",
           s.liturgy && typeof s.liturgy.via_form === "number" ? `<b>${fmt(s.liturgy.via_form)}</b> arrived through the Daily Liturgy signup itself` : ""
