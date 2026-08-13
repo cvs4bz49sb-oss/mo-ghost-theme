@@ -127,6 +127,11 @@
     set("same_day", n ? `${t.same_day || 0} of ${n}` : "—");
     set("avg_days", t.avg_days_to_convert === null || t.avg_days_to_convert === undefined
       ? "—" : Math.round(t.avg_days_to_convert));
+    // Trailing "?" flags that some rows could not be split, so the
+    // figure is a floor rather than a count.
+    set("opened_before", n
+      ? `${t.opened_before || 0} of ${n}${t.pre_conv_unknown ? ` (+${t.pre_conv_unknown} unsplittable)` : ""}`
+      : "—");
     set("abandoned", t.abandoned || 0);
     set("silent", t.silent || 0);
     set("churned", t.churned || 0);
@@ -258,6 +263,22 @@
     fact("Converted", `${fmtDateTime(row.converted_at)} · ${row.is_comped ? "comped" : (row.plan || "—")}`);
     fact("Converted on", `${row.conversion_surface || "unrecorded"}${row.conversion_page ? ` (${row.conversion_page})` : ""}`);
     if (row.abandoned_checkouts) fact("Abandoned", `${row.abandoned_checkouts} on ${row.abandoned_pages || "unknown"}`);
+    // The number Ian actually wants: engagement BEFORE they paid.
+    // Kit has no date-bounded figure, so say which basis this rests on
+    // rather than presenting a derived number as a measured one.
+    const preParts = [];
+    if (row.pre_conv_basis === "partial") {
+      preParts.push("not split by Kit — they opened email after converting too");
+    } else if (row.pre_conv_basis === "none") {
+      preParts.push("no email relationship before they paid");
+    } else if (row.pre_conv_emails_opened !== null && row.pre_conv_emails_opened !== undefined) {
+      preParts.push(`${row.pre_conv_emails_opened} opened, ${row.pre_conv_emails_clicked ?? 0} clicked (Kit)`);
+    }
+    if (row.pre_conv_hubspot_opens) {
+      preParts.push(`${row.pre_conv_hubspot_opens} opened, ${row.pre_conv_hubspot_clicks || 0} clicked (HubSpot era)`);
+    }
+    if (preParts.length) fact("Email before converting", preParts.join(" · "));
+
     if (row.kit_emails_sent) {
       // Lifetime, not windowed — Kit does not expose a date-bounded
       // figure. Say so, because for anyone whose Kit record predates
