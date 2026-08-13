@@ -106,6 +106,8 @@ routes:
     template: custom-admin
   /admin/members/:
     template: custom-admin-members
+  /admin/members/journeys/:
+    template: custom-admin-journeys
   /admin/members/addresses/:
     template: custom-admin-addresses
   /admin/members/gifts/:

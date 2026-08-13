@@ -1,0 +1,147 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>New Member Journeys | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="New Member Journeys | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="New Member Journeys | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/members/journeys/ — how new members actually arrive.
+
+     Every row is one person reconstructed across Ghost, Stripe, Kit and
+     HubSpot: first trackable interaction, the route to conversion, and
+     what they did in the seven days after paying.
+
+     This page READS ONLY. The tables are written by
+     website/workers/scripts/build-member-journeys.mjs, which is run
+     weekly by hand — the reconstruction needs all four systems and is
+     far too slow to do inside a request. If the page is empty, the
+     script has not been run for that window.
+
+     Data: mo-admin worker, GET /journeys/summary, /journeys/list and
+     /journeys/member — all JWT+staff, gated on the "members" tool. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="members"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>New Member Journeys</em></h1>
+        <p class="admin-topbar-sub">Where new members come from, what converted them, and whether they came back.</p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container">
+          <div class="admin-members-layout">
+            <aside class="admin-members-sidebar">
+              {{> "admin-members-subnav" active="journeys"}}
+            </aside>
+
+            <div class="admin-members-main">
+              <div class="jr-host" data-journeys data-worker-url="{{@custom.admin_worker_url}}">
+
+                <div class="admin-period" role="group" aria-label="Date range">
+                  <button type="button" class="admin-period-option is-active" data-jr-days="30">30 days</button>
+                  <button type="button" class="admin-period-option" data-jr-days="90">90 days</button>
+                  <button type="button" class="admin-period-option" data-jr-days="365">1 year</button>
+                </div>
+
+                <ul class="admin-stats" data-jr-stats>
+                  <li class="admin-stat"><span class="admin-stat-label">New members</span><span class="admin-stat-value" data-stat="members">&mdash;</span></li>
+                  <li class="admin-stat"><span class="admin-stat-label">Same-day converts</span><span class="admin-stat-value" data-stat="same_day">&mdash;</span></li>
+                  <li class="admin-stat"><span class="admin-stat-label">Avg days to convert</span><span class="admin-stat-value" data-stat="avg_days">&mdash;</span></li>
+                  <li class="admin-stat"><span class="admin-stat-label">Abandoned a checkout</span><span class="admin-stat-value" data-stat="abandoned">&mdash;</span></li>
+                  <li class="admin-stat"><span class="admin-stat-label">Read nothing in 7 days</span><span class="admin-stat-value" data-stat="silent">&mdash;</span></li>
+                  <li class="admin-stat"><span class="admin-stat-label">Already churned</span><span class="admin-stat-value" data-stat="churned">&mdash;</span></li>
+                </ul>
+
+                <p class="admin-table-status" data-jr-status>Loading journeys&hellip;</p>
+
+                <div class="jr-split" data-jr-panels hidden>
+                  <section class="jr-panel">
+                    <div class="section-intro section-intro-left">
+                      <p class="eyebrow">Converted on</p>
+                      <h2 class="section-heading"><em>Which offer did the work.</em></h2>
+                    </div>
+                    <p class="admin-sub">The copy of the pricing block they actually clicked. The same block appears on the homepage, in article footers, and on the membership page.</p>
+                    <ul class="admin-ranked" data-jr-surfaces></ul>
+                  </section>
+
+                  <section class="jr-panel">
+                    <div class="section-intro section-intro-left">
+                      <p class="eyebrow">First seen in</p>
+                      <h2 class="section-heading"><em>Where they started.</em></h2>
+                    </div>
+                    <p class="admin-sub">A HubSpot first touch means a long-time free reader, not cold traffic. Anyone first seen in Ghost signed up and paid without a prior record.</p>
+                    <ul class="admin-ranked" data-jr-firstseen></ul>
+                  </section>
+                </div>
+
+                <section class="jr-section" data-jr-table-section hidden>
+                  <div class="section-intro section-intro-left">
+                    <p class="eyebrow">Every new member</p>
+                    <h2 class="section-heading"><em>One row, one journey.</em></h2>
+                  </div>
+                  <p class="admin-sub">Newest first. Select a row to open the full cross-system timeline.</p>
+                  <div class="admin-table-wrap">
+                    <table class="admin-table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Member</th>
+                          <th scope="col">Converted</th>
+                          <th scope="col">Plan</th>
+                          <th scope="col">First seen</th>
+                          <th scope="col">To convert</th>
+                          <th scope="col">Converted on</th>
+                          <th scope="col">First 7 days</th>
+                          <th scope="col"><span class="visually-hidden">Actions</span></th>
+                        </tr>
+                      </thead>
+                      <tbody data-jr-tbody></tbody>
+                    </table>
+                  </div>
+                  <p class="admin-table-count" data-jr-count></p>
+                </section>
+
+                <p class="admin-empty" data-jr-empty hidden>
+                  No journeys recorded for this window. Run
+                  <code>node website/workers/scripts/build-member-journeys.mjs --days 7</code>
+                  to populate it.
+                </p>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    {{!-- Timeline drawer. Populated on demand from /journeys/member. --}}
+    <div class="jr-drawer" data-jr-drawer hidden>
+      <div class="jr-drawer-scrim" data-jr-drawer-close></div>
+      <aside class="jr-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="jr-drawer-title">
+        <header class="jr-drawer-head">
+          <div>
+            <h2 class="jr-drawer-title" id="jr-drawer-title">Journey</h2>
+            <p class="jr-drawer-sub" data-jr-drawer-sub></p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" data-jr-drawer-close>Close</button>
+        </header>
+        <div class="jr-drawer-body" data-jr-drawer-body></div>
+      </aside>
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-journeys.js"}}"></script>

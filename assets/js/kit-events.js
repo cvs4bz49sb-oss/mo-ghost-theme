@@ -48,11 +48,40 @@
   // fires when the pricing block is genuinely scrolled into view.
   const membershipPaths = ["/membership", "/groups", "/institutions", "/gift"];
   const path = window.location.pathname.replace(/\/+$/, "");
+
+  /*
+   * Which copy of the offer this is.
+   *
+   * partials/membership-body.hbs is included from index.hbs, post.hbs,
+   * custom-membership.hbs, custom-about.hbs, custom-institution-guide.hbs
+   * and partials/offer-body.hbs, so "saw the offer" and "clicked
+   * upgrade" were both being recorded without any record of WHICH of
+   * the six the reader was actually looking at. Ghost's body_class
+   * already distinguishes the two that matter most (home vs post)
+   * without touching a single template, so read that first and fall
+   * back to the path.
+   */
+  function surfaceName() {
+    const cls = document.body.className || "";
+    if (/\bhome-template\b/.test(cls)) return "home";
+    if (/\bpost-template\b/.test(cls)) return "article";
+    if (!path || path === "") return "home";
+    for (let i = 0; i < membershipPaths.length; i++) {
+      if (path === membershipPaths[i] || path.indexOf(`${membershipPaths[i]}/`) === 0) {
+        return membershipPaths[i].slice(1);
+      }
+    }
+    if (path === "/about") return "about";
+    const slug = path.replace(/^\//, "").split("/")[0];
+    return slug ? slug.slice(0, 32) : "other";
+  }
+  const surface = surfaceName();
+
   let sawOffer = false;
   const emitSaw = (via) => {
     if (sawOffer) return;
     sawOffer = true;
-    window.__kitEmit("visited_membership", { path, via });
+    window.__kitEmit("visited_membership", { path, via, surface });
   };
   for (let i = 0; i < membershipPaths.length; i++) {
     if (path === membershipPaths[i] || path.indexOf(`${membershipPaths[i]}/`) === 0) {
@@ -89,7 +118,7 @@
     const isCheckout = /^#?\/portal\/(signup|offers)/.test(href)
       || portal === "signup" || portal.indexOf("offers") === 0;
     if (!isCheckout && !/stripe\.com|join\.mereorthodoxy\.com|^\/membership\/?/.test(href)) return;
-    window.__kitEmit("clicked_upgrade", { href });
+    window.__kitEmit("clicked_upgrade", { href, path, surface });
   });
 
   // ---- read_completed ----------------------------------------------------
