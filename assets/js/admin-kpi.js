@@ -410,11 +410,17 @@
       label: "Daily Liturgy", key: "dl", agg: "last", f: fmt, goodUp: true, cap: "TDL list",
       periodBullets(rows, prev) {
         const end = rows.length ? rows[rows.length - 1] : {};
-        const out = [`<b>${signed(changeOf(rows, prev, "dl"))}</b> net new over the period`];
+        const out = [];
+        // `dln` is a real signup count from Kit's per-subscriber tagged_at.
+        // Prefer it over the change between two nightly totals, which nets
+        // signups against unsubscribes and cannot tell you either number.
+        const hasNew = rows.some((r) => typeof r.dln === "number");
+        if (hasNew) out.push(`<b>${fmt(sumOf(rows, "dln"))}</b> joined during the period`);
+        out.push(`<b>${signed(changeOf(rows, prev, "dl"))}</b> net change over the period`);
         if (typeof end.dlo === "number") out.push(`<b>${fmt(end.dlo)}</b> take only the Daily Liturgy`);
         if (typeof end.dlb === "number") out.push(`<b>${fmt(end.dlb)}</b> also take a weekly digest`);
-        if (!rows.some((r) => typeof r.dl === "number" && r.d < "2026-08-06")) {
-          out.push("net change, not signup events — history starts 5 Aug 2026");
+        if (!hasNew) {
+          out.push("net change, not signup events — signup dates start 13 Aug 2026");
         }
         return out;
       },

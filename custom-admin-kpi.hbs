@@ -152,10 +152,18 @@
                 block, or live from /kpi/themes when the snapshot predates it. --}}
           <details class="kpi-sec" open>
             <summary><span class="kpi-chev"></span>Content Themes</summary>
-            <div class="kpi-panel" data-kpi-themes></div>
+            {{!-- kpi-charts, not kpi-panel: renderThemes emits .kpi-chart
+                  cards, and .kpi-chart already carries the card background,
+                  border and radius. Putting them inside a .kpi-panel (also a
+                  card) nested a card in a card and, because kpi-panel is not
+                  a grid, left no gap between them. kpi-charts is the standard
+                  container every other chart section uses; is-single keeps
+                  this one full width because the theme labels and the
+                  month-by-month table need the room. --}}
+            <div class="kpi-charts is-single" data-kpi-themes></div>
             <details class="kpi-sub">
               <summary><span class="kpi-chev"></span>Articles that never surface under a pill</summary>
-              <div class="kpi-panel" data-kpi-themes-gaps></div>
+              <div class="kpi-charts is-single" data-kpi-themes-gaps></div>
             </details>
           </details>
 

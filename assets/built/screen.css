@@ -21095,6 +21095,10 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
    them read tighter than the gap between cards inside either. */
 .kpi-charts + .kpi-charts { margin-top: 12px; }
 .kpi-charts > * { min-width: 0; }
+/* Full-width variant. The two-column default squeezes cards whose content is
+   inherently wide — long theme labels, the month-by-month matrix — into a
+   column narrow enough to wrap every heading. */
+.kpi-charts.is-single { grid-template-columns: 1fr; }
 .kpi-chart {
   background: var(--k-surface); border: 1px solid var(--k-line);
   border-radius: 12px; padding: 15px 16px;
