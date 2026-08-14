@@ -23076,25 +23076,34 @@ body:has(.welcome-page) { padding-top: 61px; }
   .welcome-actions { gap: 14px; }
   .welcome-intro { font-size: 16px; }
 
-/* Short viewports, which is most phones once browser chrome is counted: a
-   375x812 device is nearer 640 of usable height. Keyed on height because that
-   is the constraint being hit, and placed AFTER the width block on purpose —
-   the two overlap on a phone and the later rule wins, so the width block was
-   quietly restoring 132px of bottom padding. */
-@media (max-height: 700px) {
-  .welcome-page { padding: 20px 0 92px !important; }
-  .welcome-title { font-size: clamp(26px, 5vw, 34px); margin: 0 0 10px; }
-  .welcome-intro { font-size: 15px; line-height: 1.5; margin: 0 0 10px; }
-  .welcome-q { font-size: clamp(19px, 3.4vw, 26px); }
-  .welcome-hint { margin-bottom: 10px; }
-  .welcome-field { margin-top: 18px; }
-  .welcome-options { margin-top: 10px; }
-  .welcome-option { padding: 9px 4px; font-size: 15px; }
-  .welcome-select { margin-top: 14px; padding: 10px; }
-  .welcome-bar-inner { padding: 10px 16px; }
-  /* Decorative, and 45px is the difference between the first screen fitting
-     and being cut off. The title carries the same job. */
-  .welcome-page .hero-kicker { display: none; }
+/* Fit, measured rather than guessed.
+   welcome-survey.js renders a step, checks whether it overflows the box, and
+   escalates: is-compact tightens type and spacing, is-compact-2 additionally
+   sends every option list two-up. A height media query could only ever guess
+   at one threshold, and it guessed wrong on a short desktop window, where the
+   seven age options ran past the fold. */
+.welcome-page.is-compact { padding: 20px 0 92px; }
+.welcome-page.is-compact .welcome-title { font-size: clamp(26px, 5vw, 34px); margin: 0 0 10px; }
+.welcome-page.is-compact .welcome-intro { font-size: 15px; line-height: 1.5; margin: 0 0 10px; }
+.welcome-page.is-compact .welcome-q { font-size: clamp(19px, 3.4vw, 26px); }
+.welcome-page.is-compact .welcome-hint { margin-bottom: 10px; }
+.welcome-page.is-compact .welcome-field { margin-top: 18px; }
+.welcome-page.is-compact .welcome-options { margin-top: 10px; }
+.welcome-page.is-compact .welcome-option { padding: 9px 4px; font-size: 15px; }
+.welcome-page.is-compact .welcome-select { margin-top: 14px; padding: 10px; }
+.welcome-page.is-compact .welcome-bar-inner { padding: 10px 16px; }
+/* Decorative, and worth 45px when the alternative is a cut-off question. */
+.welcome-page.is-compact .hero-kicker { display: none; }
+
+.welcome-page.is-compact-2 .welcome-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 28px;
+}
+.welcome-page.is-compact-2 .welcome-option { padding: 7px 4px; }
+@media (max-width: 420px) {
+  .welcome-page.is-compact-2 .welcome-options { column-gap: 14px; }
+}
 }
 
   .welcome-lfull { display: none; }

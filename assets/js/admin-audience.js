@@ -853,10 +853,6 @@
   fillSegmentControl();
   fillProductControl();
   renderProduct();
-  loadRows();
-  // Fetch the live cohort up front so its tab shows a real count rather than
-  // zero until someone clicks it.
-  loadLive(renderTabs);
 
   // ---- sticky cohort bar ---------------------------------------------------
   // The offset is the topbar's rendered height, not a constant: its subtitle
@@ -1129,4 +1125,9 @@
   renderAll();
   renderXt();
   loadSayVsDo();
+
+  loadRows();
+  // Fetch the live cohort up front so its tab shows a real count rather than
+  // zero until someone clicks it.
+  loadLive(renderTabs);
 })();
