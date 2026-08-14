@@ -17,20 +17,42 @@
   const root = document.querySelector("[data-audience]");
   if (!root) return;
 
-  const holder = root.querySelector("[data-audience-data]");
+  // Nothing is inlined in the page. The cohort data is fetched from mo-admin,
+  // which verifies the caller against the Ghost staff list server-side, so a
+  // signed-in subscriber who lands here receives an empty skeleton and a 403
+  // rather than the numbers.
+  const BOOT_WORKER = (root.getAttribute("data-worker-url") || "").replace(/\/+$/, "");
   let DATA = null;
-  try {
-    DATA = JSON.parse(holder ? holder.textContent : "null");
-  } catch (err) {
-    DATA = null;
-  }
-  if (!DATA || !DATA.meta) {
+
+  function bootFail(message) {
     const p = document.createElement("p");
     p.className = "admin-sub";
-    p.textContent = "Survey data failed to load. Re-run build-audience-survey-json.py and redeploy.";
+    p.textContent = message;
     root.appendChild(p);
+  }
+
+  if (!BOOT_WORKER || !window.MOAuth) {
+    bootFail("This page needs the admin worker.");
     return;
   }
+  window.MOAuth.fetch(`${BOOT_WORKER}/audience/static`)
+    .then((res) => {
+      if (res.status === 401 || res.status === 403) throw new Error("forbidden");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
+    .then((data) => {
+      DATA = data;
+      if (!DATA || !DATA.meta) throw new Error("empty");
+      start();
+    })
+    .catch((err) => {
+      bootFail(err && err.message === "forbidden"
+        ? "You don't have permission to view audience data."
+        : "Couldn't load audience data.");
+    });
+
+  function start() {
 
   // Whole audience leads and is the default: it is the only cohort that
   // answers "what does our audience think" without a caveat attached. The two
@@ -1130,4 +1152,5 @@
   // Fetch the live cohort up front so its tab shows a real count rather than
   // zero until someone clicks it.
   loadLive(renderTabs);
+  }
 })();

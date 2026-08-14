@@ -10,15 +10,18 @@
 {{/contentFor}}
 {{!-- /admin/audience/ — who reads Mere Orthodoxy, from the reader surveys.
 
-     No worker, no fetch. Every number is precomputed by
-     website/archive/build-audience-survey-json.py and inlined below by the
-     audience-data partial, which sits INSIDE the {{#if @member}} block so
-     Ghost renders it server-side for signed-in members only. Putting the
-     same JSON under assets/ would publish member counts by metro at a
-     guessable URL.
+     This template renders a SKELETON ONLY. Every number arrives at runtime
+     from mo-admin, which checks the caller against the live Ghost staff list
+     server-side.
 
-     Re-run the generator after a new survey lands, then rebuild. The page
-     needs no deploy coordination beyond that: it is static once rendered. --}}
+     Nothing may be inlined here. {{#if @member}} is the only gate a Ghost
+     template has, and it cannot tell staff from any other signed-in member,
+     so anything rendered into this page is delivered to every subscriber
+     with an account. The Access Denied panel is drawn by JavaScript after
+     Ghost has already sent the response. That is why the precomputed cohorts
+     moved out of a partial and into the worker: see
+     website/archive/build-audience-survey-json.py, which now writes
+     website/workers/admin/lib/audience-data.json. --}}
 
 <main class="admin-page admin-workspace">
 
@@ -174,12 +177,6 @@
           <div class="admin-section">
             <p class="aud-foot" data-aud-sources></p>
           </div>
-
-          {{!-- Last child on purpose. .admin-body .container > :first-child
-                resets the 64px section margin, and a script tag sitting in
-                that slot would silently hand the gap to the cohort tabs
-                instead. Parsed long before the page script runs either way. --}}
-          {{> "audience-data"}}
 
         </div>
       </section>
