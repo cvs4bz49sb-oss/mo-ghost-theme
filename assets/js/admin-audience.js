@@ -32,14 +32,16 @@
     return;
   }
 
-  // Weighted whole-audience sits last: it is a derived view, and leading with
-  // it would hide that the two real samples disagree.
-  const COHORTS = ["sub", "mem", "r25", "all"];
+  // Whole audience leads and is the default: it is the only cohort that
+  // answers "what does our audience think" without a caveat attached. The two
+  // raw samples sit behind it for when the member/free split IS the question,
+  // and the note under the tabs states the weighting so the derivation is not
+  // hidden by being first.
+  const COHORTS = ["all", "sub", "mem", "r25"];
   const meta = DATA.meta;
-  // Members first: the paying audience is the one most decisions turn on.
-  let cohort = "mem";
+  let cohort = "all";
   let compare = false;
-  let compareWith = "sub";
+  let compareWith = "mem";
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
