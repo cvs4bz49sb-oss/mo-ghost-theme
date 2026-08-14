@@ -23089,6 +23089,7 @@ body:has(.welcome-page) { padding-top: 61px; }
   .welcome-option { font-size: 16px; padding: 12px 2px; }
   .welcome-actions { gap: 14px; }
   .welcome-intro { font-size: 16px; }
+}
 
 /* Fit, measured rather than guessed.
    welcome-survey.js renders a step, checks whether it overflows the box, and
@@ -23118,8 +23119,8 @@ body:has(.welcome-page) { padding-top: 61px; }
 @media (max-width: 420px) {
   .welcome-page.is-compact-2 .welcome-options { column-gap: 14px; }
 }
-}
 
+@media (max-width: 640px) {
   .welcome-lfull { display: none; }
   .welcome-labbr { display: inline; }
   .welcome-count { font-size: 12px; }
