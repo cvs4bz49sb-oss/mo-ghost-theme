@@ -22635,6 +22635,41 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   background: var(--color-primary);
 }
 
+/* Reading key for the gap column. The sign carries the meaning, and a colour
+   alone does not say which direction is good, so the words are on the page
+   rather than in a title attribute. */
+.aud-key-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 0 0 14px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.aud-key-line .aud-delta {
+  min-width: 0;
+  font-weight: 600;
+  font-size: 13px;
+}
+.aud-key-item { display: inline-flex; align-items: baseline; gap: 6px; }
+.aud-key-text { margin-right: 8px; }
+
+/* Gap cell: number on top, verdict underneath, so the column is readable
+   without decoding the colour. */
+.aud-gap-n { display: block; font-weight: 600; }
+.aud-gap-word {
+  display: block;
+  font-size: 10px;
+  line-height: 1.3;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+.aud-th-right .aud-th-btn { text-align: right; }
+.aud-table--svd .aud-rowhead { min-width: 120px; }
+.aud-table--svd td { vertical-align: top; }
+
 .aud-foot {
   font-family: var(--font-body);
   font-size: 12px;

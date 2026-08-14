@@ -98,6 +98,10 @@
                 <option value="6mo" selected>Last 6 months</option>
                 <option value="12mo">Last 12 months</option>
               </select>
+              {{!-- Segments re-cut the stated-interest column only. Output and
+                    reads are supply-side and identical for everyone, which is
+                    what makes the gap per segment the interesting number. --}}
+              <select class="aud-select" data-aud-svd-segment aria-label="Reader segment"></select>
               <span class="aud-legend" data-aud-svd-status role="status" aria-live="polite"></span>
             </div>
             <div data-aud-svd></div>

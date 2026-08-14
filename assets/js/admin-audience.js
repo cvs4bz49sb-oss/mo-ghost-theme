@@ -405,6 +405,41 @@
 
   function svdSay(msg) { if (svdStatus) svdStatus.textContent = msg || ""; }
 
+  const svdSegSel = root.querySelector("[data-aud-svd-segment]");
+  let svdSort = { col: "gap", dir: "desc" };
+
+  function svdInterest(cat) {
+    const sv = DATA.sayvsdo;
+    const seg = svdSegSel && svdSegSel.value
+      ? (sv.segments || []).find((s) => s.key === svdSegSel.value)
+      : null;
+    if (seg) return seg.interest[cat] === undefined ? 0 : seg.interest[cat];
+    const st = sv.stated[cat];
+    return st[cohort] !== undefined ? st[cohort] : st.all;
+  }
+
+  function fillSegmentControl() {
+    if (!svdSegSel || svdSegSel.options.length) return;
+    const base = el("option", null, "Everyone");
+    base.value = "";
+    svdSegSel.appendChild(base);
+    const groups = {};
+    (DATA.sayvsdo.segments || []).forEach((s) => {
+      if (!groups[s.group]) {
+        groups[s.group] = el("optgroup");
+        groups[s.group].label = s.group;
+        svdSegSel.appendChild(groups[s.group]);
+      }
+      const o = el("option", null, `${s.label} (n=${s.n})`);
+      o.value = s.key;
+      groups[s.group].appendChild(o);
+    });
+    svdSegSel.addEventListener("change", () => {
+      const period = svdPeriod ? svdPeriod.value : "6mo";
+      if (svdCache[period]) renderSayVsDo(svdCache[period]);
+    });
+  }
+
   function renderSayVsDo(topics) {
     const sv = DATA.sayvsdo;
     svdHost.textContent = "";
@@ -425,38 +460,86 @@
     });
 
     const cats = sv.categories.filter((c) => sv.stated[c]);
-    const statedTotal = cats.reduce((a, c) => a + (sv.stated[c][cohort] || sv.stated[c].all || 0), 0);
+    const statedTotal = cats.reduce((a, c) => a + svdInterest(c), 0);
     const postsTotal = cats.reduce((a, c) => a + (sv.posts[c] || 0), 0);
 
     const rows = cats.map((c) => {
-      const stated = sv.stated[c][cohort] !== undefined ? sv.stated[c][cohort] : sv.stated[c].all;
+      const stated = svdInterest(c);
       const posts = sv.posts[c] || 0;
       const noTag = sv.noTagCategories.indexOf(c) !== -1;
-      // Shares, not raw percentages: a multi-select interest figure and a share
-      // of output are not on the same scale until both are normalised.
+      // Shares, not raw percentages: a multi-select interest figure and a
+      // share of output are not on the same scale until both are normalised.
       const interestShare = statedTotal ? (stated / statedTotal) * 100 : 0;
       const outputShare = postsTotal ? (posts / postsTotal) * 100 : 0;
+      const readShare = mappedReads ? ((reads[c] || 0) / mappedReads) * 100 : 0;
       return {
-        cat: c, stated, posts, noTag,
-        interestShare, outputShare,
+        cat: c, stated, posts, noTag, interestShare, outputShare, readShare,
         gap: noTag ? null : interestShare - outputShare,
-        reads: reads[c] || 0,
         perPiece: posts ? (reads[c] || 0) / posts : null,
       };
     });
-    rows.sort((a, b) => (b.gap === null ? -1 : a.gap === null ? 1 : b.gap - a.gap));
+
+    const SORTS = {
+      cat: (r) => r.cat, interestShare: (r) => r.interestShare, readShare: (r) => r.readShare,
+      outputShare: (r) => r.outputShare, gap: (r) => r.gap, posts: (r) => r.posts,
+      perPiece: (r) => r.perPiece,
+    };
+    const pick = SORTS[svdSort.col] || SORTS.gap;
+    rows.sort((a, b) => {
+      // Rows with no tag have no output side at all. They sort to the bottom
+      // in every ordering rather than pretending to be a zero.
+      if (a.noTag !== b.noTag && svdSort.col !== "cat" && svdSort.col !== "interestShare") {
+        return a.noTag ? 1 : -1;
+      }
+      const x = pick(a);
+      const y = pick(b);
+      if (typeof x === "string") return svdSort.dir === "asc" ? (x < y ? -1 : x > y ? 1 : 0) : (x > y ? -1 : x < y ? 1 : 0);
+      if (x === null && y === null) return 0;
+      if (x === null) return 1;
+      if (y === null) return -1;
+      return svdSort.dir === "asc" ? x - y : y - x;
+    });
+
+    // Reading key, on the page rather than in a tooltip. The sign of a gap is
+    // the whole point of the table and it is not self-evident from a colour.
+    const key = el("p", "aud-key-line");
+    // Each sign travels with its own sentence: a bare flex row lets the
+    // second sign wrap onto the first line and read as part of the first
+    // sentence, which inverts the meaning at a glance.
+    [["is-up", "+", "readers want more of it than we publish (under-served)"],
+     ["is-down", "\u2212", "we publish more than they ask for (over-served)"]].forEach(([cls, sign, text]) => {
+      const item = el("span", "aud-key-item");
+      item.appendChild(el("span", `aud-delta ${cls}`, sign));
+      item.appendChild(el("span", "aud-key-text", text));
+      key.appendChild(item);
+    });
+    svdHost.appendChild(key);
 
     const wrap = el("div", "aud-tablewrap");
     const t = el("table", "aud-table aud-table--svd");
     const thead = el("thead");
     const hr = el("tr");
-    [["Topic", ""], ["Interest", "share of stated interest"], ["Output", "share of what we publish"],
-     ["Gap", "interest minus output"], ["Posts", "primary-tag basis"],
-     ["Reads/post", "in the selected period"]].forEach(([label, hint], i) => {
-      const th = el("th", i === 0 ? null : "aud-num");
+    [["Topic", "", "cat"], ["Interest", "share of stated interest", "interestShare"],
+     ["Reads", "share of actual reads", "readShare"], ["Output", "share of what we publish", "outputShare"],
+     ["Gap", "want minus publish", "gap"], ["Posts", "primary-tag basis", "posts"],
+     ["Reads/post", "period reads / archive size", "perPiece"]].forEach(([label, hint, col], i) => {
+      const th = el("th", `aud-th-sort${svdSort.col === col ? " is-sorted" : ""}${i === 0 ? "" : " aud-th-right"}`);
       th.setAttribute("scope", "col");
-      th.appendChild(el("span", null, label));
-      if (hint) { const h = el("span", "aud-th-n", hint); th.appendChild(h); }
+      th.setAttribute("aria-sort",
+        svdSort.col === col ? (svdSort.dir === "asc" ? "ascending" : "descending") : "none");
+      const btn = el("button", "aud-th-btn");
+      btn.type = "button";
+      btn.appendChild(el("span", "aud-th-band", label));
+      if (hint) btn.appendChild(el("span", "aud-th-n", hint));
+      btn.appendChild(el("span", "aud-th-caret",
+        svdSort.col === col ? (svdSort.dir === "asc" ? "\u2191" : "\u2193") : "\u2195"));
+      btn.setAttribute("aria-label", `Sort by ${label}`);
+      btn.addEventListener("click", () => {
+        if (svdSort.col !== col) svdSort = { col, dir: col === "cat" ? "asc" : "desc" };
+        else svdSort = { col, dir: svdSort.dir === "desc" ? "asc" : "desc" };
+        renderSayVsDo(topics);
+      });
+      th.appendChild(btn);
       hr.appendChild(th);
     });
     thead.appendChild(hr);
@@ -470,42 +553,49 @@
       tr.appendChild(th);
       tr.appendChild(el("td", "aud-num", `${Math.round(r.interestShare * 10) / 10}%`));
       if (r.noTag) {
-        const td = el("td", "aud-num aud-cell-empty", "no tag");
-        td.title = "This survey category has no matching Ghost tag, so output cannot be measured.";
-        tr.appendChild(td);
-        tr.appendChild(el("td", "aud-num aud-cell-empty", "·"));
-        tr.appendChild(el("td", "aud-num aud-cell-empty", "·"));
-        tr.appendChild(el("td", "aud-num aud-cell-empty", "·"));
+        ["\u00b7", "no tag", "\u00b7", "\u00b7", "\u00b7"].forEach((txt) => {
+          const td = el("td", "aud-num aud-cell-empty", txt);
+          td.title = "This survey category has no matching Ghost tag, so output cannot be measured.";
+          tr.appendChild(td);
+        });
         tb.appendChild(tr);
         return;
       }
+      tr.appendChild(el("td", "aud-num", `${Math.round(r.readShare * 10) / 10}%`));
       tr.appendChild(el("td", "aud-num", `${Math.round(r.outputShare * 10) / 10}%`));
       const g = Math.round(r.gap * 10) / 10;
-      const gtd = el("td", `aud-num aud-delta${g > 0 ? " is-up" : g < 0 ? " is-down" : ""}`,
-        `${g > 0 ? "+" : ""}${g}`);
-      gtd.title = g > 0
-        ? "More wanted than published — under-served"
-        : "More published than wanted — over-served";
+      const gtd = el("td", `aud-num aud-delta${g > 0 ? " is-up" : g < 0 ? " is-down" : ""}`);
+      gtd.appendChild(el("span", "aud-gap-n", `${g > 0 ? "+" : ""}${g}`));
+      gtd.appendChild(el("span", "aud-gap-word", g > 0 ? "under-served" : g < 0 ? "over-served" : "even"));
       tr.appendChild(gtd);
       tr.appendChild(el("td", "aud-num", r.posts));
-      tr.appendChild(el("td", "aud-num", r.perPiece === null ? "·" : Math.round(r.perPiece)));
+      tr.appendChild(el("td", "aud-num", r.perPiece === null ? "\u00b7" : Math.round(r.perPiece)));
       tb.appendChild(tr);
     });
     t.appendChild(tb);
     wrap.appendChild(t);
     svdHost.appendChild(wrap);
 
+    const seg = svdSegSel && svdSegSel.value
+      ? (sv.segments || []).find((s) => s.key === svdSegSel.value) : null;
+    const who = seg
+      ? `${seg.group}: ${seg.label} (n=${seg.n}, both surveys re-weighted to the real population mix)`
+      : `the ${cohortLabel(cohort)} cohort`;
+    svdHost.appendChild(el("p", "aud-foot",
+      `Interest is from ${who}. Reads and Output are the same for every segment — only the demand side re-cuts, which is what makes a segment's gap worth reading.`));
+
     const cov = sv.coverage;
     const totalReads = mappedReads + structuralReads + tailReads;
     const covPct = totalReads ? Math.round((mappedReads / totalReads) * 1000) / 10 : 0;
-    svdHost.appendChild(el("p", "aud-foot",
-      `Interest is from the ${cohortLabel(cohort)} cohort. A positive gap means readers ask for more of it than we publish. Reads/post divides period reads by posts ever published in that topic, so it ranks appetite per unit of supply rather than raw volume.`));
     const pubCov = cov
       ? `On the publishing side ${cov.mappedPct}% of posts map, ${cov.structuralPct}% carry a structural first tag ("featured", "uncategorized", issue tags) and ${cov.tailPct}% sit in the long tail. `
       : "";
     svdHost.appendChild(el("p", "aud-foot",
-      `Coverage: ${covPct}% of reads in this period landed on a topic that maps to a survey category. ${pubCov}A post whose first tag is structural files its reads under that tag, not its topic, which is why the two coverage figures are worth watching.`));
+      `Coverage: ${covPct}% of reads in this period landed on a topic that maps to a survey category. ${pubCov}A post whose first tag is structural files its reads under that tag, not its topic.`));
+    svdHost.appendChild(el("p", "aud-foot",
+      "Reads/post divides period reads by the whole archive for that topic, so a large old archive drags it down and it is a rough guide only. Compare the Reads and Output columns for the cleaner read: a topic taking a bigger share of reads than of output is earning attention above its weight."));
   }
+
 
   function loadSayVsDo() {
     const period = svdPeriod ? svdPeriod.value : "6mo";
@@ -532,6 +622,7 @@
       });
   }
   if (svdPeriod) svdPeriod.addEventListener("change", loadSayVsDo);
+  fillSegmentControl();
 
   // ---- geography -----------------------------------------------------------
   function renderGeo() {
