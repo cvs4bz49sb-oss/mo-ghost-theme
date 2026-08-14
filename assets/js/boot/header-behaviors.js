@@ -18,7 +18,20 @@
   const header = document.querySelector('.site-header');
   if (!header) return;
 
+  const isFixed = () => getComputedStyle(header).position === 'fixed';
+
   function syncOffset() {
+    // Only a fixed header needs paying for. /welcome/ puts the header back in
+    // the flow so a full-height page needs no offset constant, and adding one
+    // there reserves the header's height a SECOND time: an empty band above
+    // the header, and that much less room for the survey. Clear the inline
+    // styles rather than just skipping, or a page that starts fixed and goes
+    // static keeps a stale offset.
+    if (!isFixed()) {
+      document.body.style.paddingTop = '';
+      document.documentElement.style.scrollPaddingTop = '';
+      return;
+    }
     const h = header.getBoundingClientRect().height;
     document.body.style.paddingTop = `${h}px`;
     // Anchor jumps (href="#x") should land the target at the bottom
@@ -30,12 +43,24 @@
   if (window.ResizeObserver) {
     new ResizeObserver(syncOffset).observe(header);
   }
+  // This file is loaded before {{{body}}} on purpose (see default.hbs), which
+  // means the page's own markup is not in the DOM yet. A rule keyed to it —
+  // body:has(.welcome-page) makes the header static — therefore cannot match
+  // on the first call, so the header reads as fixed and gets an offset it
+  // does not want. The ResizeObserver does not save us: fixed-to-static does
+  // not change the header's height, so it never fires. Re-check once the rest
+  // of the document exists.
+  document.addEventListener('DOMContentLoaded', syncOffset);
+  window.addEventListener('load', syncOffset);
 
   let lastY = window.pageYOffset || window.scrollY || 0;
   const threshold = 80;
   const downDelta = 10;
   let ticking = false;
   function onScroll() {
+    // An in-flow header must not be transformed away: it would take its space
+    // with it and drag the page up under nothing.
+    if (!isFixed()) return;
     const y = window.pageYOffset || window.scrollY || 0;
     if (y < threshold) {
       header.classList.remove('is-hidden');
