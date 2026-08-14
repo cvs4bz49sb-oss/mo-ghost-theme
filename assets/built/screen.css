@@ -22762,25 +22762,35 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
    routes.yaml with no Page record behind it, so {{body_class}} comes out
    EMPTY and every page-template-* selector misses. Same reason the admin
    workspace uses body:has(.admin-workspace). */
-body:has(.welcome-page) .site-header,
-body:has(.welcome-page) .site-footer,
-body:has(.welcome-page) .site-header-spacer {
+body:has(.welcome-page) .site-footer {
   display: none !important;
 }
+/* The nav stays. Only the footer goes, and the page is pinned to the
+   viewport so the flow never scrolls. body keeps the padding-top that
+   header-behaviors.js sets to clear the fixed header: box-sizing is
+   border-box site-wide, so that padding sits inside the 100% height and
+   .welcome-page gets exactly what is left. */
 html:has(.welcome-page),
 body:has(.welcome-page) {
   height: 100%;
   min-height: 100%;
   overflow: hidden;
-  /* header-behaviors.js sets body padding-top to clear the fixed header.
-     With the header gone that padding is dead space at the top of a page
-     that is trying to fit exactly one screen. */
-  padding-top: 0 !important;
   margin: 0 !important;
 }
+/* Fallback only. header-behaviors.js measures the header and writes an inline
+   padding-top, which wins over this. Without a stylesheet default, any failure
+   of that script drops the first question underneath a fixed header, and the
+   page has no scroll left to recover with. */
+body:has(.welcome-page) { padding-top: 61px; }
+@media (max-width: 640px) {
+  body:has(.welcome-page) { padding-top: 56px; }
+}
 .welcome-page {
-  /* Fill the screen rather than merely being tall enough: the bar is fixed
-     to the bottom and the content should sit above it, not float mid-page. */
+  /* Fill what remains rather than merely being tall enough: the bar is fixed
+     to the bottom and the content should sit above it, not float mid-page.
+     overflow-y is the escape hatch for short viewports — on a phone in
+     landscape the sixteen-option question scrolls inside the page rather
+     than pushing the whole document. */
   height: 100%;
   overflow-y: auto;
 }
