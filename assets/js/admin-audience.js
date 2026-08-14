@@ -218,6 +218,10 @@
   // 44% cell in a strong one — the opposite of what the eye should be told.
   const shade = (v) => Math.round((0.03 + (Math.min(v, 100) / 100) * 0.5) * 1000) / 1000;
 
+  // null = default order (overall strength across all bands).
+  let sortBand = null;
+  let sortDir = "desc";
+
   const xtQ = root.querySelector("[data-aud-xt-question]");
   const xtC = root.querySelector("[data-aud-xt-cohort]");
 
@@ -256,6 +260,11 @@
       return;
     }
     const bands = meta.ages.filter((b) => table[b]);
+    // A band that vanished (different question, different cohort) can't stay
+    // the sort key, or the table silently renders in default order while the
+    // header still claims otherwise.
+    if (sortBand && bands.indexOf(sortBand) === -1) sortBand = null;
+
     // Union of every answer that clears the floor in any band, ordered by
     // its average so the strongest answers sit at the top.
     const keys = {};
@@ -264,7 +273,27 @@
         keys[k] = (keys[k] || 0) + table[b].rows[k];
       });
     });
+    // Take the top 10 on overall strength FIRST, then reorder. Sorting before
+    // slicing would let a band-specific sort pull in answers that are noise
+    // everywhere else, and the row set would change every time you sorted.
     const ordered = Object.keys(keys).sort((a, b) => keys[b] - keys[a]).slice(0, 10);
+    if (sortBand) {
+      const at = (k) => {
+        const v = table[sortBand].rows[k];
+        return v === undefined ? null : v;
+      };
+      ordered.sort((a, b) => {
+        const x = at(a);
+        const y = at(b);
+        // Dots are "below the floor", not zero. They sort last either way,
+        // because promoting an unknown to the top of an ascending sort would
+        // read as a finding.
+        if (x === null && y === null) return 0;
+        if (x === null) return 1;
+        if (y === null) return -1;
+        return sortDir === "asc" ? x - y : y - x;
+      });
+    }
 
     const wrap = el("div", "aud-tablewrap");
     const t = el("table", "aud-table aud-table--xt");
@@ -274,10 +303,29 @@
     corner.setAttribute("scope", "col");
     hr.appendChild(corner);
     bands.forEach((b) => {
-      const th = el("th", null, b);
+      const th = el("th", `aud-th-sort${b === sortBand ? " is-sorted" : ""}`);
       th.setAttribute("scope", "col");
-      const n = el("span", "aud-th-n", `n=${table[b].n}`);
-      th.appendChild(n);
+      th.setAttribute("aria-sort",
+        b === sortBand ? (sortDir === "asc" ? "ascending" : "descending") : "none");
+      // A real button, so the column is reachable by keyboard and announced
+      // as actionable rather than as a bare label.
+      const btn = el("button", "aud-th-btn");
+      btn.type = "button";
+      btn.appendChild(el("span", "aud-th-band", b));
+      btn.appendChild(el("span", "aud-th-n", `n=${table[b].n}`));
+      btn.appendChild(el("span", "aud-th-caret",
+        b === sortBand ? (sortDir === "asc" ? "↑" : "↓") : "↕"));
+      btn.title = b === sortBand && sortDir === "desc"
+        ? `Sort ${b} low to high`
+        : b === sortBand ? "Back to overall order" : `Sort by what ${b} picks most`;
+      btn.setAttribute("aria-label", `Sort by ${b}`);
+      btn.addEventListener("click", () => {
+        // desc -> asc -> off, so there is always a way back to the default
+        // without hunting for a reset control.
+        if (sortBand !== b) { sortBand = b; sortDir = "desc"; } else if (sortDir === "desc") { sortDir = "asc"; } else { sortBand = null; }
+        renderXt();
+      });
+      th.appendChild(btn);
       hr.appendChild(th);
     });
     thead.appendChild(hr);
@@ -290,8 +338,8 @@
       th.setAttribute("scope", "row");
       tr.appendChild(th);
       const vals = bands.map((b) => (table[b].rows[k] === undefined ? null : table[b].rows[k]));
-      vals.forEach((v) => {
-        const td = el("td", "aud-cell");
+      vals.forEach((v, i) => {
+        const td = el("td", `aud-cell${bands[i] === sortBand ? " is-sorted" : ""}`);
         if (v === null) {
           td.appendChild(el("span", "aud-cell-empty", "·"));
           td.title = "below the reporting floor in this band";
@@ -324,8 +372,12 @@
     key.appendChild(el("span", "aud-key-label", "Higher"));
     host.appendChild(key);
 
+    const foot = sortBand
+      ? `Sorted by what the ${sortBand} band picks ${sortDir === "asc" ? "least" : "most"}. Click that column again to flip it, once more to go back to overall order.`
+      : "Click an age column to rank the answers by what that cohort picks most. Rows are otherwise ordered by overall strength.";
+    host.appendChild(el("p", "aud-foot", foot));
     host.appendChild(el("p", "aud-foot",
-      "Shading is the same scale everywhere, so a darker cell is always a bigger number. Bands under five respondents are dropped, and an answer under 5% inside a band shows as a dot. Read across a row, not down a column."));
+      "Shading is the same scale everywhere, so a darker cell is always a bigger number. Bands under five respondents are dropped, and an answer under 5% inside a band shows as a dot. The ten strongest answers overall are shown, so sorting reorders those ten rather than swapping in new ones."));
   }
 
   // ---- geography -----------------------------------------------------------
