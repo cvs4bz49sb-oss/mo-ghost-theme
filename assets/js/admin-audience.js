@@ -696,10 +696,20 @@
     const t = el("table", "aud-table aud-table--svd");
     const thead = el("thead");
     const hr = el("tr");
-    [["Topic", "", "cat"], ["Interest", "share of stated interest", "interestShare"],
-     ["Reads", "share of actual reads", "readShare"], ["Output", "share of what we publish", "outputShare"],
-     ["Gap", "want minus publish", "gap"], ["Posts", "published this period", "posts"],
-     ["Attention", "reads share / output share", "attention"]].forEach(([label, hint, col], i) => {
+    // Conclusions first: Gap and Attention are the two numbers a decision
+    // turns on, and they answer different questions (what readers say vs what
+    // they do, each against supply), so they sit together at the front. The
+    // shares they are derived from follow as the working.
+    const COLUMNS = [
+      ["Topic", "", "cat"],
+      ["Gap", "want minus publish", "gap"],
+      ["Attention", "reads share / output share", "attention"],
+      ["Interest", "share of stated interest", "interestShare"],
+      ["Reads", "share of actual reads", "readShare"],
+      ["Output", "share of what we publish", "outputShare"],
+      ["Posts", "published this period", "posts"],
+    ];
+    COLUMNS.forEach(([label, hint, col], i) => {
       const th = el("th", `aud-th-sort${svdSort.col === col ? " is-sorted" : ""}${i === 0 ? "" : " aud-th-right"}`);
       th.setAttribute("scope", "col");
       th.setAttribute("aria-sort",
@@ -728,46 +738,54 @@
       const th = el("th", "aud-rowhead", r.cat);
       th.setAttribute("scope", "row");
       tr.appendChild(th);
-      tr.appendChild(el("td", "aud-num", `${Math.round(r.interestShare * 10) / 10}%`));
+
+      // Cells are built by column id and appended in COLUMNS order, so header
+      // and body cannot drift out of step when the order changes again.
+      const cell = {};
+      cell.interestShare = el("td", "aud-num", `${Math.round(r.interestShare * 10) / 10}%`);
+
       if (r.noTag) {
-        ["\u00b7", "no tag", "\u00b7", "\u00b7", "\u00b7"].forEach((txt) => {
-          const td = el("td", "aud-num aud-cell-empty", txt);
-          td.title = "This survey category has no matching Ghost tag, so output cannot be measured.";
-          tr.appendChild(td);
+        ["gap", "attention", "readShare", "outputShare", "posts"].forEach((k) => {
+          cell[k] = el("td", "aud-num aud-cell-empty", k === "outputShare" ? "no tag" : "\u00b7");
+          cell[k].title = "This survey category has no matching Ghost tag, so output cannot be measured.";
         });
-        tb.appendChild(tr);
-        return;
-      }
-      tr.appendChild(el("td", "aud-num", `${Math.round(r.readShare * 10) / 10}%`));
-      tr.appendChild(el("td", "aud-num", `${Math.round(r.outputShare * 10) / 10}%`));
-      const g = Math.round(r.gap * 10) / 10;
-      const gtd = el("td", `aud-num aud-delta${r.stale ? "" : g > 0 ? " is-up" : g < 0 ? " is-down" : ""}`);
-      gtd.appendChild(el("span", "aud-gap-n", `${g > 0 ? "+" : ""}${g}`));
-      gtd.appendChild(el("span", "aud-gap-word",
-        r.stale ? "unreliable" : g > 0 ? "under-served" : g < 0 ? "over-served" : "even"));
-      tr.appendChild(gtd);
-      const ptd = el("td", "aud-num");
-      ptd.appendChild(el("span", null, r.posts));
-      if (r.stale) {
-        const warn = el("span", "aud-gap-word", r.lastUsed ? `tag unused since ${r.lastUsed}` : "tag unused");
-        warn.title = `${r.archive} posts carry this tag historically, but none in the selected period. The subject may still be running under a different tag.`;
-        ptd.appendChild(warn);
-      }
-      tr.appendChild(ptd);
-      const atd = el("td", "aud-num");
-      if (r.attention === null) {
-        atd.appendChild(el("span", "aud-cell-empty", "\u00b7"));
-        atd.title = r.stale
-          ? "Nothing published in this period, so there is no output share to divide by."
-          : "No output to measure against.";
       } else {
-        const a = Math.round(r.attention * 10) / 10;
-        atd.className = `aud-num aud-delta${a > 1 ? " is-up" : a < 1 ? " is-down" : ""}`;
-        atd.appendChild(el("span", "aud-gap-n", `${a}\u00d7`));
-        atd.appendChild(el("span", "aud-gap-word",
-          r.attentionThin ? `${r.posts} posts, volatile` : a > 1 ? "above its weight" : a < 1 ? "below its weight" : "even"));
+        cell.readShare = el("td", "aud-num", `${Math.round(r.readShare * 10) / 10}%`);
+        cell.outputShare = el("td", "aud-num", `${Math.round(r.outputShare * 10) / 10}%`);
+
+        const g = Math.round(r.gap * 10) / 10;
+        cell.gap = el("td", `aud-num aud-delta${r.stale ? "" : g > 0 ? " is-up" : g < 0 ? " is-down" : ""}`);
+        cell.gap.appendChild(el("span", "aud-gap-n", `${g > 0 ? "+" : ""}${g}`));
+        cell.gap.appendChild(el("span", "aud-gap-word",
+          r.stale ? "unreliable" : g > 0 ? "under-served" : g < 0 ? "over-served" : "even"));
+
+        cell.attention = el("td", "aud-num");
+        if (r.attention === null) {
+          cell.attention.appendChild(el("span", "aud-cell-empty", "\u00b7"));
+          cell.attention.title = r.stale
+            ? "Nothing published in this period, so there is no output share to divide by."
+            : "No output to measure against.";
+        } else {
+          const a = Math.round(r.attention * 10) / 10;
+          cell.attention.className = `aud-num aud-delta${a > 1 ? " is-up" : a < 1 ? " is-down" : ""}`;
+          cell.attention.appendChild(el("span", "aud-gap-n", `${a}\u00d7`));
+          cell.attention.appendChild(el("span", "aud-gap-word",
+            r.attentionThin ? `${r.posts} posts, volatile`
+              : a > 1 ? "more reads than output" : a < 1 ? "fewer reads than output" : "even"));
+        }
+
+        cell.posts = el("td", "aud-num");
+        cell.posts.appendChild(el("span", null, r.posts));
+        if (r.stale) {
+          const warn = el("span", "aud-gap-word", r.lastUsed ? `tag unused since ${r.lastUsed}` : "tag unused");
+          warn.title = `${r.archive} posts carry this tag historically, but none in the selected period. The subject may still be running under a different tag.`;
+          cell.posts.appendChild(warn);
+        }
       }
-      tr.appendChild(atd);
+
+      COLUMNS.slice(1).forEach(([, , col]) => {
+        if (cell[col]) tr.appendChild(cell[col]);
+      });
       tb.appendChild(tr);
     });
     t.appendChild(tb);
