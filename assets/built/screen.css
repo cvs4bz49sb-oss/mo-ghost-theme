@@ -22659,7 +22659,14 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   display: inline-flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: flex-end;
 }
+/* Every control in this row is a labelled box, so they line up on the box,
+   not on the row's centre. The Clear button and the status text sit on the
+   same bottom edge. */
+.aud-controls--filters { align-items: flex-end; }
+.aud-controls--filters .kpi-btn,
+.aud-controls--filters .aud-legend { margin-bottom: 1px; }
 .aud-filter {
   display: inline-flex;
   flex-direction: column;

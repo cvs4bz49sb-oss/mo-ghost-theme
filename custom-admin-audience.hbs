@@ -60,12 +60,20 @@
               <h2 class="admin-section-title"><em>Supply and Demand</em></h2>
               <p class="admin-section-hint">What readers tell us they want, against what they actually read. Interest share is each topic's slice of all stated interest; output share is its slice of what we publish. The gap between them is the number to act on.</p>
             </div>
-            <div class="aud-controls">
-              <select class="aud-select" data-aud-svd-period aria-label="Traffic period">
-                <option value="30d">Last 30 days</option>
-                <option value="6mo" selected>Last 6 months</option>
-                <option value="12mo">Last 12 months</option>
-              </select>
+            {{!-- --filters aligns the row to the bottom of the boxes. The
+                  four filter selects carry a label above them and the period
+                  select did not, so on a center-aligned row it floated half a
+                  label-height low. It gets the same label rather than the
+                  others losing theirs. --}}
+            <div class="aud-controls aud-controls--filters">
+              <label class="aud-filter">
+                <span class="aud-filter-label">Period</span>
+                <select class="aud-select" data-aud-svd-period aria-label="Traffic period">
+                  <option value="30d">Last 30 days</option>
+                  <option value="6mo" selected>Last 6 months</option>
+                  <option value="12mo">Last 12 months</option>
+                </select>
+              </label>
               {{!-- Segments re-cut the stated-interest column only. Output and
                     reads are supply-side and identical for everyone, which is
                     what makes the gap per segment the interesting number.
