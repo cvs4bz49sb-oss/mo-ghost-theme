@@ -52,14 +52,19 @@
   // every chart reads on its own terms rather than against a global max.
   function barRow(label, value, max, unit, ghost) {
     const li = el("li", "admin-ranked-item");
+    // Bars live in a track that stops short of the numeric column, so a bar
+    // or comparison line near 100% ends beside the numbers instead of being
+    // drawn through them. Widths stay proportional; only the track is inset.
+    const track = el("div", "aud-track");
     const bar = el("div", "admin-ranked-bar");
     bar.style.width = `${max > 0 ? Math.max(1.5, (value / max) * 100) : 0}%`;
-    li.appendChild(bar);
+    track.appendChild(bar);
     if (ghost && ghost.value !== null && ghost.value !== undefined) {
       const g = el("div", "aud-ghostbar");
       g.style.width = `${max > 0 ? Math.max(1.5, (ghost.value / max) * 100) : 0}%`;
-      li.appendChild(g);
+      track.appendChild(g);
     }
+    li.appendChild(track);
     li.appendChild(el("span", "admin-ranked-label", label));
     const val = el("span", "admin-ranked-value", unit === "n" ? value : pct(value));
     li.appendChild(val);
@@ -207,6 +212,12 @@
   }
 
   // ---- cross-tab explorer --------------------------------------------------
+  // Cell shading is ABSOLUTE: 60% is always darker than 30%, on every row and
+  // every question. An earlier version scaled each row against its own max,
+  // which made a 10% cell that happened to lead a weak row read darker than a
+  // 44% cell in a strong one — the opposite of what the eye should be told.
+  const shade = (v) => Math.round((0.03 + (Math.min(v, 100) / 100) * 0.5) * 1000) / 1000;
+
   const xtQ = root.querySelector("[data-aud-xt-question]");
   const xtC = root.querySelector("[data-aud-xt-cohort]");
 
@@ -279,7 +290,6 @@
       th.setAttribute("scope", "row");
       tr.appendChild(th);
       const vals = bands.map((b) => (table[b].rows[k] === undefined ? null : table[b].rows[k]));
-      const maxV = Math.max.apply(null, vals.map((v) => (v === null ? 0 : v)));
       vals.forEach((v) => {
         const td = el("td", "aud-cell");
         if (v === null) {
@@ -287,7 +297,7 @@
           td.title = "below the reporting floor in this band";
         } else {
           const fill = el("span", "aud-cell-fill");
-          fill.style.opacity = String(maxV ? Math.max(0.06, (v / maxV) * 0.42) : 0);
+          fill.style.opacity = String(shade(v));
           td.appendChild(fill);
           td.appendChild(el("span", "aud-cell-v", pct(v)));
         }
@@ -298,8 +308,24 @@
     t.appendChild(tb);
     wrap.appendChild(t);
     host.appendChild(wrap);
+
+    // Shading legend. Without it the ramp is a guess, and the whole point of
+    // the heatmap is that you can read it without reading the numbers.
+    const key = el("div", "aud-key");
+    key.appendChild(el("span", "aud-key-label", "Lower"));
+    const ramp = el("span", "aud-key-ramp");
+    [5, 20, 40, 60, 80, 100].forEach((v) => {
+      const step = el("span", "aud-key-step");
+      step.style.opacity = String(shade(v));
+      step.title = pct(v);
+      ramp.appendChild(step);
+    });
+    key.appendChild(ramp);
+    key.appendChild(el("span", "aud-key-label", "Higher"));
+    host.appendChild(key);
+
     host.appendChild(el("p", "aud-foot",
-      "Bands under five respondents are dropped, and an answer under 5% inside a band shows as a dot. Read across a row, not down a column."));
+      "Shading is the same scale everywhere, so a darker cell is always a bigger number. Bands under five respondents are dropped, and an answer under 5% inside a band shows as a dot. Read across a row, not down a column."));
   }
 
   // ---- geography -----------------------------------------------------------
@@ -347,6 +373,20 @@
 
   const cmpBox = root.querySelector("[data-aud-compare]");
   const cmpSel = root.querySelector("[data-aud-compare-with]");
+  const cmpLegend = root.querySelector("[data-aud-legend]");
+
+  // Names the ghost line and the bare delta number in one line, next to the
+  // control that turns them on.
+  function renderLegend() {
+    cmpLegend.textContent = "";
+    cmpLegend.hidden = !compare;
+    if (!compare) return;
+    cmpLegend.appendChild(el("span", "aud-legend-mark"));
+    cmpLegend.appendChild(el("span", "aud-legend-text", `${cohortLabel(compareWith)}`));
+    cmpLegend.appendChild(el("span", "aud-legend-sep", "·"));
+    cmpLegend.appendChild(el("span", "aud-legend-text", "number is the gap"));
+  }
+
   function renderCompareControl() {
     const keep = cmpSel.value;
     cmpSel.textContent = "";
@@ -358,14 +398,17 @@
     if (keep && [].some.call(cmpSel.options, (o) => o.value === keep)) cmpSel.value = keep;
     compareWith = cmpSel.value;
     cmpSel.disabled = !compare;
+    renderLegend();
   }
   cmpBox.addEventListener("change", () => {
     compare = cmpBox.checked;
     cmpSel.disabled = !compare;
+    renderLegend();
     renderProfile();
   });
   cmpSel.addEventListener("change", () => {
     compareWith = cmpSel.value;
+    renderLegend();
     if (compare) renderProfile();
   });
   xtC.addEventListener("change", () => { syncXtQuestions(); renderXt(); });

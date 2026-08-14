@@ -62,6 +62,11 @@
                 <span>Compare against</span>
               </label>
               <select class="aud-select" data-aud-compare-with aria-label="Cohort to compare against"></select>
+              {{!-- The ghost line is meaningless until it is named. A title
+                    tooltip does not count: it is undiscoverable and dead on
+                    touch. One legend beside the control beats repeating the
+                    cohort name on all 11 blocks. --}}
+              <span class="aud-legend" data-aud-legend hidden></span>
             </div>
             <div class="aud-grid" data-aud-profile></div>
           </div>

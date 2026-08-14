@@ -22345,6 +22345,22 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
    on a phone without making the control look oversized on desktop. */
 .aud-check input { width: 18px; height: 18px; }
 
+/* Bar track. Reserves the right-hand numeric column so a bar or comparison
+   line at 100% stops beside the value and delta rather than running under
+   them. Only .aud-track rows are affected, so .admin-ranked elsewhere in
+   MOAdmin keeps its full-bleed bars. */
+/* Reserve = value text + 12px gap + the delta's 42px min-width + the row's
+   14px right padding, rounded up. Measured worst case is ~109px desktop and
+   ~100px narrow; these clear both with a visible gutter. */
+.aud-track {
+  position: absolute;
+  inset: 0 124px 0 0;
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .aud-track { inset: 0 112px 0 0; }
+}
+
 /* The comparison cohort sits behind the primary bar as a hairline outline
    rather than a second fill, so the primary reading stays unambiguous. */
 .aud-ghostbar {
@@ -22517,8 +22533,9 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-/* Opacity is set inline per cell from the row's own max, which is what
-   makes a rising or falling row visible at a glance. */
+/* Opacity is set inline per cell from the cell's own value on a fixed 0-100
+   scale, so a darker cell is always a bigger number no matter which row or
+   question it sits in. */
 .aud-cell-fill {
   position: absolute;
   inset: 2px;
@@ -22527,6 +22544,45 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 }
 .aud-cell-v { position: relative; }
 .aud-cell-empty { color: var(--color-muted); }
+
+/* ---- comparison legend ---- */
+.aud-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.aud-legend[hidden] { display: none; }
+/* Same 2px terracotta rule the ghost bar draws, so the legend is a sample of
+   the mark rather than a description of it. */
+.aud-legend-mark {
+  display: inline-block;
+  width: 2px;
+  height: 15px;
+  background: rgba(193, 89, 60, 0.55);
+  flex: 0 0 auto;
+}
+.aud-legend-sep { opacity: 0.5; }
+
+/* ---- cross-tab shading key ---- */
+.aud-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-muted);
+}
+.aud-key-ramp { display: inline-flex; }
+.aud-key-step {
+  display: inline-block;
+  width: 22px;
+  height: 12px;
+  background: var(--color-primary);
+}
 
 .aud-foot {
   font-family: var(--font-body);
