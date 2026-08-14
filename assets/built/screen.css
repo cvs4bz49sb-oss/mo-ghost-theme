@@ -11,6 +11,9 @@
   --color-dark: #2d2927;
   --color-white: #ffffff;
   --color-cream: #f5efe1;
+  /* Alert/error text. --color-secondary (#c1593c) is only 3.99:1 on the
+     page background and fails AA at body sizes; this is 5.95:1. */
+  --color-alert-text: #9c4126;
   --color-card-border: #d9c6a7;
   --color-card-featured-bg: #f1e0c9;
   --color-muted: #6b6660;
@@ -3031,7 +3034,7 @@ body {
 .digest-form .digest-fallback a {
   display: inline-block;
   padding: 12px 0;
-  color: #9c4126;
+  color: var(--color-alert-text);
   text-decoration: underline;
 }
 
@@ -3067,7 +3070,7 @@ body {
 /* Every error this form raises renders here, and --color-secondary is
    3.85:1 on cream. Same value and scope as the fallback link below it,
    so the explanation is at least as legible as the recovery. */
-.events-register-form .digest-status.is-error { color: #9c4126; }
+.events-register-form .digest-status.is-error { color: var(--color-alert-text); }
 .events-register-form .digest-submit[disabled]:hover { background: var(--color-dark); }
 .events-register-form .digest-submit[disabled]:hover::after { transform: none; }
 
@@ -5998,6 +6001,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .admin-table-link:hover { border-bottom-color: var(--color-secondary); }
 
 /* ── /admin/events/ — forum registrations ──────────────────────── */
+/* .btn is display:inline-flex, an author rule, so it beats the UA
+   [hidden] rule and a hidden button stays visible. Fixed for the whole
+   workspace rather than this page, since every admin table's CSV button
+   has the same latent bug. */
+.admin-workspace .btn[hidden] { display: none; }
 .admin-events-bar {
   display: flex;
   align-items: center;
@@ -6023,16 +6031,27 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   background: #3f7d58;
   vertical-align: middle;
 }
-.admin-events-live.is-stale::before { background: var(--color-muted); }
+.admin-events-live.is-stale::before {
+  /* Hollow rather than merely greyer: the live and stale dots differ by
+     1.16:1 in luminance, which is no difference at all in greyscale or
+     to a deuteranope. Shape carries the state. */
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--color-muted);
+}
+.admin-events-live.is-down::before {
+  background: var(--color-alert-text);
+  box-shadow: none;
+}
 .admin-events-actions { display: flex; gap: 10px; align-items: center; }
 .admin-events-status {
   margin: 0 0 16px;
   font-family: var(--font-body);
   font-size: 13px;
-  color: #9c4126;
+  color: var(--color-alert-text);
 }
 .admin-events-status:empty { display: none; }
 
+.admin-events-cards[hidden] { display: none; }
 .admin-events-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -6056,9 +6075,14 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   transition: border-color 0.15s, background 0.15s;
 }
 .admin-event-card:hover { border-color: var(--color-secondary); }
+.admin-event-card:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
 .admin-event-card.is-active {
   border-color: var(--color-dark);
-  background: rgba(0, 0, 0, 0.02);
+  box-shadow: inset 0 0 0 1px var(--color-dark);
+  background: rgba(0, 0, 0, 0.05);
 }
 .admin-event-card-title {
   font-size: 14px;
@@ -6067,13 +6091,18 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   line-height: 1.35;
 }
 .admin-event-card-count {
-  font-family: var(--font-display);
-  font-size: 20px;
+  /* Matches .admin-stat-value. The workspace de-brands --font-display,
+     and IM Fell only ships weight 400, so a display numeral here would
+     render lighter than the 600-weight title above it. */
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
   color: var(--color-dark);
 }
 .admin-event-card-split,
 .admin-event-card-zoom { font-size: 12px; color: var(--color-muted); }
-.admin-event-card-zoom.is-warn { color: #9c4126; }
+.admin-event-card-zoom.is-warn { color: var(--color-alert-text); }
 
 .admin-events-tablehead {
   display: flex;
@@ -6082,7 +6111,10 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   gap: 16px;
   margin-bottom: 12px;
 }
-.admin-events-tablehead .admin-section-heading {
+/* Unscoped on purpose: custom-admin-students.hbs already uses this
+   class and had no rule at all, so the same class rendered two ways on
+   two pages one click apart. */
+.admin-section-heading {
   margin: 0;
   font-family: var(--font-body);
   font-size: 14px;
@@ -6093,13 +6125,39 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-family: var(--font-body);
   font-size: 13px;
   padding: 8px 12px;
-  min-height: 40px;
+  min-height: 44px;
   min-width: 220px;
-  border: 1px solid var(--color-card-border);
+  /* Same border as .admin-table-search input, so the two search boxes
+     one click apart don't read as different controls. */
+  border: 1px solid rgba(0, 0, 0, 0.14);
   border-radius: 4px;
   background: var(--color-white);
   color: var(--color-dark);
 }
+.admin-events-search:focus { border-color: var(--color-dark); outline: none; }
+.admin-events-hint {
+  margin: 0 0 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+/* Held-back rows and the filter escape hatch. */
+.admin-events-pending,
+.admin-events-clear {
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-height: 36px;
+  margin-left: 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+.admin-events-pending { border-color: var(--color-dark); font-weight: 600; }
+.admin-events-pending:hover,
+.admin-events-clear:hover { background: rgba(0, 0, 0, 0.04); }
 .admin-events-empty {
   font-family: var(--font-body);
   font-size: 14px;
@@ -6112,16 +6170,22 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
    deficiency. */
 .admin-pill {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-family: var(--font-body);
-  font-size: 11px;
+  /* 12px, not 11px: these pills ARE the content of two columns, not
+     fine print. */
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
-.admin-pill--new { background: #e7f0e9; color: #245c3a; }
-.admin-pill--existing { background: #ece6f3; color: #4b3c69; }
+/* New and Existing are a categorical axis, neither one "good", so they
+   are two tints of one hue. Green and amber below belong to the Zoom
+   status axis alone; sharing a green across both made a New + Not-in-Zoom
+   row read as reassurance about the very thing being warned about. */
+.admin-pill--new { background: #f2eef7; color: #6a5a8c; }
+.admin-pill--existing { background: #e2daee; color: #43356b; }
 .admin-pill--unknown { background: rgba(0, 0, 0, 0.06); color: #5b5651; }
 .admin-pill--ok { background: #e7f0e9; color: #245c3a; }
 .admin-pill--wait { background: #f6e7df; color: #8a3c22; }
@@ -6133,13 +6197,32 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   color: var(--color-muted);
 }
 
+/* An email is one unbreakable token, so the column otherwise forces the
+   table ~200px wider than a phone and pushes the Zoom status, the most
+   actionable cell, off the right edge. */
+.admin-events-table td:nth-child(2) { overflow-wrap: anywhere; }
+/* The cell's padding belongs to the cell, not the anchor, so the
+   tappable box is the glyph run alone without this. */
+.admin-events-table td a {
+  display: inline-block;
+  padding: 6px 2px;
+  margin: -6px -2px;
+}
+
 @media (max-width: 640px) {
   .admin-events-bar,
   .admin-events-tablehead { flex-wrap: wrap; gap: 10px; }
   .admin-events-search { min-width: 0; width: 100%; }
   .admin-events-cards { grid-template-columns: 1fr; }
   .admin-events-actions { width: 100%; }
-  .admin-events-actions .btn { flex: 1; }
+  /* .admin-workspace .btn-sm is 5px padding on an 11px label, ~28px
+     tall. These two are the page's only actions. */
+  .admin-events-actions .btn { flex: 1; min-height: 44px; font-size: 13px; }
+  .admin-pill, .admin-cell-note { font-size: 12px; }
+  /* Six forums of full-height cards push the table ~1000px down. */
+  .admin-event-card { padding: 12px 14px; }
+  .admin-event-card-count { font-size: 18px; }
+  .admin-event-card-split { display: none; }
 }
 
 /* ── Per-institution admin detail page ─────────────────────────── */

@@ -1,0 +1,97 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Events | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Events | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Events | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/events/ — who has registered for each online forum.
+
+     Data is the forum_registrations table mo-forms writes on every
+     /forum/ signup, served by mo-membership GET /api/admin/events and
+     enriched there with whether Ghost already knew the address before
+     they registered. admin-events.js polls it, so the roster updates
+     while the page sits open. --}}
+
+<main class="admin-page admin-workspace">
+  {{#if @member}}
+    {{> "admin-sidebar" active="events"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Events</em></h1>
+        <p class="admin-topbar-sub">Everyone who has registered for an online forum, updating as they come in.</p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container">
+          <div class="admin-events" data-admin-events
+               data-api-base="{{@custom.membership_api_base}}">
+
+            {{!-- The visible label carries a seconds ticker, so it is
+                 aria-hidden: a live region that rewrites itself every
+                 second makes a screen reader talk continuously and
+                 buries the thing worth announcing. The announcement
+                 lives in the sr-only region below and fires only when
+                 the number of registrations actually changes. --}}
+            <div class="admin-events-bar">
+              <p class="admin-events-live" data-live-label aria-hidden="true">Loading&hellip;</p>
+              <p class="visually-hidden" data-live-sr role="status" aria-live="polite"></p>
+              <div class="admin-events-actions">
+                <button type="button" class="btn btn-outline btn-sm" data-refresh>Refresh now</button>
+                <a href="#" class="btn btn-primary btn-sm" data-download-csv hidden>Download CSV</a>
+              </div>
+            </div>
+
+            {{!-- Errors and degraded states. This one DOES need
+                 announcing, and previously didn't have it. --}}
+            <p class="admin-events-status" data-status role="status" aria-live="polite"></p>
+
+            {{!-- One card per forum, newest first. --}}
+            <div class="admin-events-cards" data-event-cards hidden></div>
+
+            <div class="admin-events-tablewrap" data-table-wrap hidden>
+              <div class="admin-events-tablehead">
+                <h2 class="admin-section-heading" data-table-title>Registrants</h2>
+                <input type="search" class="admin-events-search" data-search
+                       placeholder="Search name or email&hellip;" aria-label="Search registrants" />
+              </div>
+              {{!-- The New/Existing distinction is not self-evident, and
+                   a title tooltip is invisible on touch and to the
+                   keyboard. --}}
+              <p class="admin-events-hint">New means we had no record of that address before they registered. Zoom shows whether a seat is booked for them yet.</p>
+              <div class="admin-table-wrap" tabindex="0" role="region" aria-label="Registrants">
+                <table class="admin-table admin-events-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Already in Ghost?</th>
+                      <th scope="col">Signed up</th>
+                      <th scope="col">Zoom</th>
+                    </tr>
+                  </thead>
+                  <tbody data-tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <p class="admin-events-empty" data-empty hidden>
+              No forum registrations yet. They appear here the moment someone signs up on
+              <a href="/forum/">the forum page</a>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-events.js"}}"></script>

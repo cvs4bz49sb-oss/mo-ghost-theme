@@ -172,6 +172,9 @@ routes:
     template: custom-admin-sponsors
   /admin/podcasts/:
     template: custom-admin-podcasts
+  # Forum registrations. Distinct from the public /events/ library.
+  /admin/events/:
+    template: custom-admin-events
   /digest-gen/:
     template: custom-digest-gen
   # Public ebook catalog. Anonymous-viewable; tiles route through
