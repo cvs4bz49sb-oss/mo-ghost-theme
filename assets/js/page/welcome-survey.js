@@ -159,14 +159,29 @@
   nextBtn.addEventListener("click", next);
   backBtn.addEventListener("click", () => { if (index > 0) show(index - 1, true); });
 
-  // Auto-advance on the single-choice questions only. A third of a second is
-  // long enough that the choice registers before the screen moves. Doing this
-  // on the multi-selects would advance on the first of three answers.
+  // Auto-advance on the single-choice questions. A third of a second is long
+  // enough that the choice registers before the screen moves. Deliberately NOT
+  // on the two multi-selects, where advancing on the first of three answers
+  // would be wrong; those wait for Next, and their hint says so.
   form.querySelectorAll("[data-single]").forEach((group) => {
     group.addEventListener("change", (e) => {
       if (e.target && e.target.type === "radio") setTimeout(next, 350);
     });
   });
+
+  // The location dropdown is a single choice too, so it advances like the
+  // radios. It needs a longer, resetting timer rather than a fixed one:
+  // arrow-keying through a closed select fires a change event per keystroke,
+  // and a fixed delay would carry a keyboard user off the question before
+  // they reached the option they wanted.
+  if (locationSel) {
+    let settle = null;
+    locationSel.addEventListener("change", () => {
+      if (!locationSel.value) return;
+      clearTimeout(settle);
+      settle = setTimeout(next, 600);
+    });
+  }
 
   // Enter should advance rather than submit: there is nothing to submit to.
   form.addEventListener("submit", (e) => { e.preventDefault(); next(); });
