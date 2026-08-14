@@ -32,7 +32,11 @@
       </header>
 
       <section class="admin-body">
-        <div class="container" data-audience>
+        {{!-- The worker URL is only for the Say vs do section, which is the
+              one part of this page that is not precomputed: it reads live
+              Plausible topic traffic through mo-admin. Everything else
+              renders with no network at all. --}}
+        <div class="container" data-audience data-worker-url="{{@custom.admin_worker_url}}">
 
           {{!-- Cohort tabs. Free subscribers and paying members answered
                 separate instruments in 2026, so "everyone" is not a cohort
@@ -85,6 +89,22 @@
 
           <div class="admin-section">
             <div class="admin-section-header">
+              <h2 class="admin-section-title"><em>Say vs do</em></h2>
+              <p class="admin-section-hint">What readers tell us they want, against what they actually read. Interest share is each topic's slice of all stated interest; output share is its slice of what we publish. The gap between them is the number to act on.</p>
+            </div>
+            <div class="aud-controls">
+              <select class="aud-select" data-aud-svd-period aria-label="Traffic period">
+                <option value="30d">Last 30 days</option>
+                <option value="6mo" selected>Last 6 months</option>
+                <option value="12mo">Last 12 months</option>
+              </select>
+              <span class="aud-legend" data-aud-svd-status role="status" aria-live="polite"></span>
+            </div>
+            <div data-aud-svd></div>
+          </div>
+
+          <div class="admin-section">
+            <div class="admin-section-header">
               <h2 class="admin-section-title"><em>Where they are</em></h2>
               <p class="admin-section-hint">Members never got asked their location, so density comes from the summer print mailing list. Print-tier only, which makes every count here a floor.</p>
             </div>
@@ -131,3 +151,6 @@
 
 <script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-audience.js"}}"></script>
+{{!-- admin-auth.js ships inside boot.min.js in <head>, so window.MOAuth is
+     already defined by the time the page script runs. Listed here only as a
+     reminder that the Say vs do fetch depends on it. --}}
