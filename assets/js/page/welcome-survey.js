@@ -109,10 +109,18 @@
     pageEl.classList.add("is-compact-2");
   }
   let fitTimer = null;
-  window.addEventListener("resize", () => {
+  const refit = () => {
     clearTimeout(fitTimer);
     fitTimer = setTimeout(fit, 120);
-  }, { passive: true });
+  };
+  window.addEventListener("resize", refit, { passive: true });
+  // A mobile browser collapsing or restoring its toolbars changes the visible
+  // height without always firing resize. visualViewport does report it, and
+  // that height change is exactly the one that pushes an option out of sight.
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", refit, { passive: true });
+    window.visualViewport.addEventListener("scroll", refit, { passive: true });
+  }
 
   // ---- steps ---------------------------------------------------------------
   function show(i, viaBack) {

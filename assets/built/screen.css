@@ -22858,8 +22858,16 @@ body:has(.welcome-page) .site-footer {
    .welcome-page gets exactly what is left. */
 html:has(.welcome-page),
 body:has(.welcome-page) {
+  /* dvh, not %. On a mobile browser with collapsing toolbars, 100% resolves
+     against the LARGE viewport (the height with the URL bar retracted), so
+     the page is sized taller than what is actually visible, the bottom of it
+     sits under the browser chrome, and overflow:hidden means it cannot be
+     scrolled to. dvh tracks the visible area. The % lines stay first as the
+     fallback for browsers without dvh. */
   height: 100%;
+  height: 100dvh;
   min-height: 100%;
+  min-height: 100dvh;
   overflow: hidden;
   margin: 0 !important;
 }
