@@ -33,8 +33,11 @@
       <section class="welcome-step is-active" data-step="1">
         <p class="hero-kicker"><span class="dot"></span> Welcome</p>
         <h1 class="welcome-title"><em>You're in.</em></h1>
-        <p class="welcome-intro">Mere&nbsp;Orthodoxy is read by church members, pastors, and academics. Knowing who you are, and what you came looking for, helps us write for you rather than for an audience in the abstract.</p>
-        <p class="welcome-intro">Six questions, less than a minute.</p>
+        {{!-- Two lines, not five. On a phone with both browser toolbars
+              showing, the usable height is about 445px: the long version ate
+              more than half of it and pushed the last option under the bar
+              no matter how hard the fit routine compacted. --}}
+        <p class="welcome-intro">Knowing who you are helps us write for you rather than for an audience in the abstract. Six questions, less than a minute.</p>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your age range?</legend>
           {{!-- Two-up under 640px: this step also carries the intro, so it is

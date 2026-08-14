@@ -5997,6 +5997,151 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .admin-table-link:hover { border-bottom-color: var(--color-secondary); }
 
+/* ── /admin/events/ — forum registrations ──────────────────────── */
+.admin-events-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.admin-events-live {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+/* The live label carries a dot so "is this actually updating" is
+   answerable at a glance from across a desk. */
+.admin-events-live::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #3f7d58;
+  vertical-align: middle;
+}
+.admin-events-live.is-stale::before { background: var(--color-muted); }
+.admin-events-actions { display: flex; gap: 10px; align-items: center; }
+.admin-events-status {
+  margin: 0 0 16px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #9c4126;
+}
+.admin-events-status:empty { display: none; }
+
+.admin-events-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+/* Each card filters the table, so it is a real button: full-width
+   text alignment, pressed state, visible focus. */
+.admin-event-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: 16px 18px;
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: border-color 0.15s, background 0.15s;
+}
+.admin-event-card:hover { border-color: var(--color-secondary); }
+.admin-event-card.is-active {
+  border-color: var(--color-dark);
+  background: rgba(0, 0, 0, 0.02);
+}
+.admin-event-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  line-height: 1.35;
+}
+.admin-event-card-count {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--color-dark);
+}
+.admin-event-card-split,
+.admin-event-card-zoom { font-size: 12px; color: var(--color-muted); }
+.admin-event-card-zoom.is-warn { color: #9c4126; }
+
+.admin-events-tablehead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.admin-events-tablehead .admin-section-heading {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+.admin-events-search {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px 12px;
+  min-height: 40px;
+  min-width: 220px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  background: var(--color-white);
+  color: var(--color-dark);
+}
+.admin-events-empty {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  padding: 32px 0;
+}
+
+/* Status pills. Text carries the meaning, colour only reinforces it,
+   so these still read correctly in greyscale or with colour vision
+   deficiency. */
+.admin-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.admin-pill--new { background: #e7f0e9; color: #245c3a; }
+.admin-pill--existing { background: #ece6f3; color: #4b3c69; }
+.admin-pill--unknown { background: rgba(0, 0, 0, 0.06); color: #5b5651; }
+.admin-pill--ok { background: #e7f0e9; color: #245c3a; }
+.admin-pill--wait { background: #f6e7df; color: #8a3c22; }
+.admin-cell-note {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+@media (max-width: 640px) {
+  .admin-events-bar,
+  .admin-events-tablehead { flex-wrap: wrap; gap: 10px; }
+  .admin-events-search { min-width: 0; width: 100%; }
+  .admin-events-cards { grid-template-columns: 1fr; }
+  .admin-events-actions { width: 100%; }
+  .admin-events-actions .btn { flex: 1; }
+}
+
 /* ── Per-institution admin detail page ─────────────────────────── */
 .admin-page .admin-back-link {
   margin: 0 0 24px;
@@ -22856,6 +23001,54 @@ body:has(.welcome-page) .site-footer {
    header-behaviors.js sets to clear the fixed header: box-sizing is
    border-box site-wide, so that padding sits inside the 100% height and
    .welcome-page gets exactly what is left. */
+body:has(.welcome-page) {
+  display: flex;
+  flex-direction: column;
+}
+.welcome-page {
+  flex: 1 1 auto;
+  /* Without min-height:0 a flex item refuses to shrink below its content,
+     which is exactly how content ends up under the bar again. */
+  min-height: 0;
+}
+/* The bar lives inside the form, so making it static alone just puts it at
+   the end of the SCROLLING content, where a tall step pushes it off-screen.
+   The column has to be built all the way down: page -> container -> form,
+   with the active step as the one part that scrolls and the bar pinned after
+   it. Then the bar is structurally incapable of being covered or pushed off,
+   with no reserved padding to guess at. */
+body:has(.welcome-page) .welcome-bar {
+  position: static;
+  flex: 0 0 auto;
+}
+.welcome-page > .container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.welcome {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.welcome-step.is-active {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  /* Plain center. `safe center` parses in Chrome but does not actually fall
+     back to start there, so it bought nothing and cost the centring. The
+     overflow case is handled explicitly below instead, driven by fit(). */
+  justify-content: center;
+}
+/* Centring content that overflows pushes its top above the scroll origin,
+   where it cannot be reached. fit() sets this when the active step has to
+   scroll, so the overflow all falls downward where it is scrollable. */
+.welcome-page.is-overflowing .welcome-step.is-active { justify-content: flex-start; }
+
 html:has(.welcome-page),
 body:has(.welcome-page) {
   /* dvh, not %. On a mobile browser with collapsing toolbars, 100% resolves
@@ -22880,7 +23073,16 @@ body:has(.welcome-page) {
    is 61px at both widths, so the mobile value being 56 was five pixels of
    hidden text whenever the script did not run. Rounded up rather than exact:
    overshooting costs whitespace, undershooting costs content. */
-body:has(.welcome-page) { padding-top: 64px; }
+/* The header goes into the flow here, and the body reserves nothing for it.
+   A fixed header has to be paid for with a padding-top constant, and that
+   constant was wrong: 64px against a header that is 61px on a phone and 85px
+   on desktop, which put the sixteen-option question 3px underneath it on a
+   short desktop window. Static, it is simply the first item in the column and
+   the page gets exactly what is left, at every breakpoint, with nothing
+   measured or guessed. Nothing on this page scrolls, so there is no sticky
+   behaviour to lose. */
+body:has(.welcome-page) { padding-top: 0; }
+body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
 .welcome-page {
   /* Fill what remains rather than merely being tall enough: the bar is fixed
      to the bottom and the content should sit above it, not float mid-page.
@@ -22904,28 +23106,32 @@ body:has(.welcome-page) { padding-top: 64px; }
 
 .welcome-page {
   display: flex;
-  /* Centred with auto margins on the child, NOT align-items: center. When
-     content is taller than the box, centring pushes the overflow above the
-     scroll origin where it cannot be reached: on a 640px viewport the
-     denomination question sat at y=36, behind the 61px fixed header, and
-     scrolling to the top did not recover it. Auto margins centre while
-     leaving both ends reachable. */
-  padding: 48px 0 140px;
+  /* COLUMN, and it matters. As a row container, flex:1 1 auto on the child
+     sized its WIDTH, so nothing ever bounded the child's height and the
+     column below it could not shrink: step five overflowed and carried the
+     bar off the bottom of the screen. In a column the child's height is the
+     constrained axis, which is the whole point of the chain. */
+  flex-direction: column;
+  align-items: stretch;
+  /* The page itself must not scroll. The active step is the single scroll
+     region; if the page scrolled too, a tall step would move the bar. */
+  overflow: hidden;
+  padding: 32px 0 24px;
 }
 .welcome-page > .container {
-  margin: auto;
+  /* Horizontal centring only. Vertical position is now the column's job, and
+     a vertical auto margin here would fight the flex sizing. */
+  margin: 0 auto;
   width: 100%;
 }
-/* Last resort when even full compaction will not fit. Auto margins centre by
-   pushing overflow off both ends, and the top end sits before the scroll
-   origin, so the heading becomes unreachable rather than merely off-screen.
-   Anchoring to the top sends all the overflow downward, where it can be
-   scrolled to. */
-.welcome-page.is-overflowing > .container { margin-top: 0; margin-bottom: auto; }
 .welcome { width: 100%; }
 
 .welcome-step { display: none; }
-.welcome-step.is-active { display: block; }
+/* flex, not block. This rule sits after the flex column above and carries the
+   same specificity, so a `display: block` here silently won and left
+   justify-content inert — the content sat at the top of the step with all the
+   slack below it. Keep the two in agreement. */
+.welcome-step.is-active { display: flex; }
 .welcome-step[hidden] { display: none; }
 
 .welcome-title {
@@ -23105,41 +23311,127 @@ body:has(.welcome-page) { padding-top: 64px; }
 .welcome-count { white-space: nowrap; }
 
 @media (max-width: 640px) {
-  .welcome-page { padding: 28px 0 132px; }
+  .welcome-page { padding: 20px 0 16px; }
   .welcome-bar-inner { padding: 12px 16px; gap: 10px; }
   .welcome-option { font-size: 16px; padding: 12px 2px; }
   .welcome-actions { gap: 14px; }
   .welcome-intro { font-size: 16px; }
 }
 
-/* Fit, measured rather than guessed.
-   welcome-survey.js renders a step, checks whether it overflows the box, and
-   escalates: is-compact tightens type and spacing, is-compact-2 additionally
-   sends every option list two-up. A height media query could only ever guess
-   at one threshold, and it guessed wrong on a short desktop window, where the
-   seven age options ran past the fold. */
-.welcome-page.is-compact { padding: 20px 0 92px; }
-.welcome-page.is-compact .welcome-title { font-size: clamp(26px, 5vw, 34px); margin: 0 0 10px; }
-.welcome-page.is-compact .welcome-intro { font-size: 15px; line-height: 1.5; margin: 0 0 10px; }
-.welcome-page.is-compact .welcome-q { font-size: clamp(19px, 3.4vw, 26px); }
-.welcome-page.is-compact .welcome-hint { margin-bottom: 10px; }
-.welcome-page.is-compact .welcome-field { margin-top: 18px; }
-.welcome-page.is-compact .welcome-options { margin-top: 10px; }
-.welcome-page.is-compact .welcome-option { padding: 9px 4px; font-size: 15px; }
-.welcome-page.is-compact .welcome-select { margin-top: 14px; padding: 10px; }
-.welcome-page.is-compact .welcome-bar-inner { padding: 10px 16px; }
-/* Decorative, and worth 45px when the alternative is a cut-off question. */
-.welcome-page.is-compact .hero-kicker { display: none; }
+/* Height tiers. Every step has to fit its viewport without scrolling, and the
+   viewport that matters is a phone with both browser toolbars showing, which
+   is far shorter than the device height suggests: a 393x852 iPhone leaves
+   about 445px.
+   This was JS for a while — render a step, measure it, add a compaction class
+   until it fit. It failed twice over: it measured before the web fonts
+   swapped, so it under-measured and never compacted, and it measured the page
+   rather than the step, so it declared a fit while the last option sat under
+   the bar. Media queries cannot be mistimed. The one genuinely dynamic bit,
+   the option grid, shrinks through flex instead of through measurement. */
+@media (max-height: 780px) {
+  .welcome-page { padding: 16px 0 16px; }
+  .welcome-page .welcome-title { font-size: clamp(26px, 5vw, 34px); margin: 0 0 10px; }
+  .welcome-page .welcome-intro { font-size: 15px; line-height: 1.5; margin: 0 0 10px; }
+  .welcome-page .welcome-q { font-size: clamp(19px, 3.4vw, 26px); }
+  .welcome-page .welcome-hint { margin-bottom: 10px; }
+  .welcome-page .welcome-field { margin-top: 14px; }
+  .welcome-page .welcome-options { margin-top: 8px; }
+  .welcome-page .welcome-option { padding: 8px 4px; font-size: 15px; }
+  .welcome-page .welcome-select { margin-top: 14px; padding: 10px; }
+  .welcome-page .welcome-bar-inner { padding: 10px 16px; }
+  .welcome-page .hero-kicker { display: none; }
+}
+/* Below this there is no room for a seven-option list in one column at all,
+   so every option list goes two-up regardless of what the fit routine
+   decides. 445px of usable height is a real iPhone with both toolbars up. */
+@media (max-height: 620px) {
+  .welcome-page .welcome-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+  }
+  .welcome-page .welcome-option { padding: 5px 4px; line-height: 1.3; }
+  .welcome-page .welcome-title { font-size: 26px; }
+  .welcome-page .welcome-intro { font-size: 14px; margin-bottom: 8px; }
+}
+/* 445px of usable height is a real iPhone with both browser toolbars up, and
+   step five puts sixteen options into it. Nothing above is enough there. */
+@media (max-height: 560px) {
+  /* max-height:100% caps the field's border box, not its margin, so this
+     margin was the last 14px of overflow. The spacing it provided is
+     already carried by the question and grid margins inside the field. */
+  .welcome-page .welcome-field { margin-top: 0; }
+  .welcome-page .welcome-q { font-size: 18px; }
+  .welcome-page .welcome-hint { font-size: 13px; margin-bottom: 6px; }
+  .welcome-page .welcome-options { margin-top: 6px; }
+  .welcome-page .welcome-option { padding: 2px 4px; font-size: 14px; line-height: 1.25; }
+  /* The row's floor is min-content, and at this size that is set by the
+     control rather than the label. Left at 19px it holds every row 2px
+     taller than its own text, which is enough to tip step five into
+     scrolling on a short phone. */
+  .welcome-page .welcome-option input { width: 16px; height: 16px; }
+}
+/* Step one carries the title and the intro on top of its seven options, and
+   neither of those can shrink the way the options grid can. Below this the
+   only give left is in the page's own chrome. */
+@media (max-height: 470px) {
+  .welcome-page { padding: 8px 0; }
+  .welcome-page .welcome-title { font-size: 23px; margin: 0 0 6px; }
+  .welcome-page .welcome-intro { font-size: 13px; line-height: 1.4; margin-bottom: 6px; }
+  .welcome-page .welcome-bar-inner { padding: 8px 16px; }
+}
 
-.welcome-page.is-compact-2 .welcome-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 28px;
+/* The field is the shrinkable part of the step, and the options grid inside
+   it is where the give has to come from. Without these the grid keeps its
+   full content height and the step scrolls instead.
+   grid-auto-rows: minmax(0, 1fr) is the point: rows divide whatever the
+   column leaves rather than each insisting on its own content height. That
+   turns "sixteen options on an unknown phone" into something the browser
+   solves, instead of a height tier I keep guessing at and getting wrong. The
+   tiers above still do the work of keeping the type readable when it does. */
+.welcome-step.is-active .welcome-field {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
+  /* A fieldset will not shrink as a flex item however hard you ask: flex:0 1
+     auto and min-height:0 both get ignored and it keeps its content height,
+     which is why the grid inside it never felt any pressure. A percentage
+     max-height does work, because it resolves against the step's own height
+     rather than going through flex sizing at all. */
+  max-height: 100%;
 }
-.welcome-page.is-compact-2 .welcome-option { padding: 7px 4px; }
-@media (max-width: 420px) {
-  .welcome-page.is-compact-2 .welcome-options { column-gap: 14px; }
+.welcome-step.is-active .welcome-options {
+  flex: 0 1 auto;
+  min-height: 0;
+  /* The floor matters more than it looks. At 0 the rows keep shrinking past
+     the height of their own text and the labels are silently cut in half,
+     which reads as deliberate rather than broken. At min-content the floor
+     is set by whichever of the control or a wrapped label is tallest, which
+     came out well above the text and tipped step five into scrolling on a
+     phone that had room for it. 1.5em is tied to the text itself: always
+     taller than the 1.25 line-height, never taller than it needs to be. */
+  grid-auto-rows: minmax(1.5em, 1fr);
+  /* Deliberately INSIDE the field rather than below it. The field's cap is a
+     max-height, so a margin under the field would sit outside the cap and
+     push the step over again; a margin here is absorbed by the same shrink
+     that sizes the rows. Without it the last option ends up flush against
+     the bar, which reads as clipped even when it is fully visible. */
+  margin-bottom: 12px;
 }
+.welcome-step.is-active .welcome-option { min-height: 0; }
+/* Has to sit AFTER the rule it trims, not up in the 470px tier with the rest
+   of them: that block comes earlier in the file and the selectors carry the
+   same specificity, so an override there loses silently. */
+@media (max-height: 470px) {
+  .welcome-step.is-active .welcome-options { margin-bottom: 6px; }
+}
+
+/* The .is-compact / .is-compact-2 escalation lived here. It was set by a
+   JS measure-and-retry pass that ran before the web fonts swapped and
+   measured the wrong box, so it silently did nothing on the phones it
+   existed for. The @media (max-height: ...) tiers above do the same job at
+   a time that cannot be mistimed. */
 
 @media (max-width: 640px) {
   .welcome-lfull { display: none; }

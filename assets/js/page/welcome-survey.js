@@ -91,30 +91,30 @@
   }
 
   // ---- fit -----------------------------------------------------------------
-  // Measure, do not guess. A height media query can only pick one threshold,
-  // and the threshold that fits a phone leaves a short desktop window
-  // scrolling: the seven age options ran past the fold at ~1000px tall.
-  // After each step renders, check whether the content overflows its box and
-  // escalate until it does not.
+  // What is left for JS to decide is small, and deliberately so. The layout
+  // is a flex column — page, container, form, active step, bar — and the bar
+  // is the last item in it, so it cannot be covered or pushed off screen by
+  // anything. The step above it is the one scroll region, and the option grid
+  // inside it shrinks to whatever the column leaves.
   //
-  //   is-compact    tighter type and spacing, and the decorative eyebrow goes
-  //   is-compact-2  every option list additionally goes two-up
+  // Measuring to pick a compaction class used to live here and caused two
+  // separate bugs: it ran before the web fonts swapped, so it under-measured
+  // and never compacted, and it measured the page rather than the step, so on
+  // a phone with both toolbars up it concluded everything fit while the last
+  // option sat under the bar. Sizing is now the stylesheet's job, at height
+  // breakpoints that cannot be mistimed.
+  //
+  // The one thing CSS cannot express is this: centre the step's content, but
+  // only while it fits. Centring content that overflows pushes its top above
+  // the scroll origin, where it cannot be reached at all. So when the active
+  // step has to scroll, anchor it to the top and let the overflow fall
+  // downward where it is scrollable.
   const pageEl = document.querySelector(".welcome-page");
   function fit() {
     if (!pageEl) return;
-    pageEl.classList.remove("is-compact", "is-compact-2", "is-overflowing");
-    const over = () => pageEl.scrollHeight > pageEl.clientHeight + 1;
-    if (!over()) return;
-    pageEl.classList.add("is-compact");
-    if (!over()) return;
-    pageEl.classList.add("is-compact-2");
-    if (!over()) return;
-    // Still too tall even fully compacted (a very short window, or text
-    // scaled up in the OS). Stop centring: auto margins push the overflow
-    // off BOTH ends, which puts the heading above the scroll origin where it
-    // cannot be reached. Top-anchored, the overflow all goes downward and is
-    // scrollable.
-    pageEl.classList.add("is-overflowing");
+    const active = pageEl.querySelector(".welcome-step.is-active");
+    const over = !!active && active.scrollHeight > active.clientHeight + 1;
+    pageEl.classList.toggle("is-overflowing", over);
   }
   let fitTimer = null;
   const refit = () => {
@@ -145,6 +145,14 @@
       s.hidden = n !== i;
       s.classList.toggle("is-active", n === i);
     });
+    // finish() hides the bar and activates the thank-you panel, and neither
+    // is in `steps`, so showing a question again would otherwise leave the
+    // panel stacked behind it with no bar to navigate by. Nothing in the
+    // reader's flow goes back after finishing, but the state should be
+    // consistent whichever order these run in.
+    done.hidden = true;
+    done.classList.remove("is-active");
+    bar.hidden = false;
     index = i;
     const human = i + 1;
     // Two labels, one shown per breakpoint. Same welcome-lfull / welcome-labbr
