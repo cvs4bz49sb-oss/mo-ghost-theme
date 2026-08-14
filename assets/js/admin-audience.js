@@ -54,18 +54,19 @@
 
   function start() {
 
-  // Whole audience leads and is the default: it is the only cohort that
-  // answers "what does our audience think" without a caveat attached. The two
-  // raw samples sit behind it for when the member/free split IS the question,
-  // and the note under the tabs states the weighting so the derivation is not
-  // hidden by being first.
-  const COHORTS = ["all", "sub", "mem", "r25", "live"];
+  // Real Time leads and is the default. It is the only cohort that is still
+  // moving: the surveys behind it are fixed samples that will read the same
+  // next month, so opening on live is the difference between a dashboard and
+  // an archive. The weighted whole-audience view sits immediately behind it
+  // for the questions live data cannot answer yet, then the two raw 2026
+  // samples for when the member/free split IS the question, then 2025.
+  const COHORTS = ["live", "all", "sub", "mem", "r25"];
   const meta = DATA.meta;
   // Placeholder so the Real Time tab exists before its fetch resolves.
   // renderTabs skips any cohort with no entry, which would otherwise hide it.
   meta.cohorts.live = { label: "Real Time Audience", n: 0, base: null, live: true,
     note: "Loading live responses…" };
-  let cohort = "all";
+  let cohort = "live";
   let compare = false;
   let compareWith = "mem";
 
@@ -1189,8 +1190,10 @@
   loadSayVsDo();
 
   loadRows();
-  // Fetch the live cohort up front so its tab shows a real count rather than
-  // zero until someone clicks it.
-  loadLive(renderTabs);
+  // Live is the cohort the page opens on, so the renderAll() above necessarily
+  // ran before its data existed. Re-render the whole page when it lands, not
+  // just the tabs, or the default view sits empty until you click something.
+  // (Fetching up front also gives the tab a real count instead of zero.)
+  loadLive(() => { if (cohort === "live") renderAll(); else renderTabs(); });
   }
 })();

@@ -11682,6 +11682,20 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin: 0 0 32px;
   border-bottom: 1px solid var(--color-card-border);
   overflow-x: auto;
+  /* Setting overflow-x alone is not enough: a `visible` value on the other
+     axis computes to `auto`, so the strip became scrollable vertically too.
+     The range is only the 1px the active tab's underline pokes out by, but
+     that is enough for a touch browser to claim the vertical gesture and
+     rubber-band the tabs instead of scrolling the page. */
+  overflow-y: hidden;
+  /* And say so to the touch layer directly, so a vertical swipe that starts
+     on a tab scrolls the page rather than being swallowed. */
+  touch-action: pan-x;
+  /* Don't chain a horizontal fling to the page or to browser back-swipe. */
+  overscroll-behavior-x: contain;
+  /* Pays back the 1px that overflow-y: hidden would otherwise clip off the
+     active tab's 2px underline. */
+  padding-bottom: 1px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
