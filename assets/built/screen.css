@@ -22875,10 +22875,12 @@ body:has(.welcome-page) {
    padding-top, which wins over this. Without a stylesheet default, any failure
    of that script drops the first question underneath a fixed header, and the
    page has no scroll left to recover with. */
-body:has(.welcome-page) { padding-top: 61px; }
-@media (max-width: 640px) {
-  body:has(.welcome-page) { padding-top: 56px; }
-}
+/* Must never be SHORTER than the real header, or the first line of content
+   sits under it on a page with no scroll to recover with. The measured header
+   is 61px at both widths, so the mobile value being 56 was five pixels of
+   hidden text whenever the script did not run. Rounded up rather than exact:
+   overshooting costs whitespace, undershooting costs content. */
+body:has(.welcome-page) { padding-top: 64px; }
 .welcome-page {
   /* Fill what remains rather than merely being tall enough: the bar is fixed
      to the bottom and the content should sit above it, not float mid-page.
@@ -22893,7 +22895,12 @@ body:has(.welcome-page) { padding-top: 61px; }
    sits inside a dark hero. This page is cream, so it needs its own colour or
    the eyebrow is invisible. The pilcrow keeps the primary orange, which reads
    on both backgrounds. */
-.welcome-page .hero-kicker { color: var(--color-muted); }
+/* The kicker ships with margin-bottom 24px for dark hero sections, and the
+   title adds another 6 on top. Thirty pixels of gap between an eyebrow and
+   the headline it labels is more than the pairing needs, and on this page it
+   is thirty pixels the last option could be using. */
+.welcome-page .hero-kicker { color: var(--color-muted); margin-bottom: 8px; }
+.welcome-page .welcome-title { margin-top: 0; }
 
 .welcome-page {
   display: flex;
@@ -22909,6 +22916,12 @@ body:has(.welcome-page) { padding-top: 61px; }
   margin: auto;
   width: 100%;
 }
+/* Last resort when even full compaction will not fit. Auto margins centre by
+   pushing overflow off both ends, and the top end sits before the scroll
+   origin, so the heading becomes unreachable rather than merely off-screen.
+   Anchoring to the top sends all the overflow downward, where it can be
+   scrolled to. */
+.welcome-page.is-overflowing > .container { margin-top: 0; margin-bottom: auto; }
 .welcome { width: 100%; }
 
 .welcome-step { display: none; }

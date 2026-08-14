@@ -102,11 +102,19 @@
   const pageEl = document.querySelector(".welcome-page");
   function fit() {
     if (!pageEl) return;
-    pageEl.classList.remove("is-compact", "is-compact-2");
-    if (pageEl.scrollHeight <= pageEl.clientHeight + 1) return;
+    pageEl.classList.remove("is-compact", "is-compact-2", "is-overflowing");
+    const over = () => pageEl.scrollHeight > pageEl.clientHeight + 1;
+    if (!over()) return;
     pageEl.classList.add("is-compact");
-    if (pageEl.scrollHeight <= pageEl.clientHeight + 1) return;
+    if (!over()) return;
     pageEl.classList.add("is-compact-2");
+    if (!over()) return;
+    // Still too tall even fully compacted (a very short window, or text
+    // scaled up in the OS). Stop centring: auto margins push the overflow
+    // off BOTH ends, which puts the heading above the scroll origin where it
+    // cannot be reached. Top-anchored, the overflow all goes downward and is
+    // scrollable.
+    pageEl.classList.add("is-overflowing");
   }
   let fitTimer = null;
   const refit = () => {
@@ -114,6 +122,15 @@
     fitTimer = setTimeout(fit, 120);
   };
   window.addEventListener("resize", refit, { passive: true });
+  // Web fonts land AFTER first paint. Measuring before they swap reports a
+  // shorter page than the reader ends up with, so fit() concludes everything
+  // fits and never compacts — which is what a desktop harness with the fonts
+  // already cached will never show you.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit).catch(() => {});
+  window.addEventListener("load", refit);
+  // One frame after paint, for the same reason: layout is not final on the
+  // tick that show() runs.
+  requestAnimationFrame(() => requestAnimationFrame(fit));
   // A mobile browser collapsing or restoring its toolbars changes the visible
   // height without always firing resize. visualViewport does report it, and
   // that height change is exactly the one that pushes an option out of sight.
