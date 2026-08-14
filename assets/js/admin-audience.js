@@ -386,6 +386,88 @@
   }
 
 
+
+  // ---- who uses what -------------------------------------------------------
+  // Each product's audience profiled against the whole weighted audience. The
+  // baseline rides in as the ghost bar, so every bar reads as a deviation
+  // rather than as a number with nothing to sit against.
+  const prodSel = root.querySelector("[data-aud-product]");
+  const prodStats = root.querySelector("[data-aud-product-stats]");
+  const prodProfile = root.querySelector("[data-aud-product-profile]");
+  const prodNote = root.querySelector("[data-aud-product-note]");
+  const prodFoot = root.querySelector("[data-aud-product-foot]");
+  // Below this a profile is a handful of people; the shape is still worth
+  // seeing but not worth acting on without saying so.
+  const THIN_N = 40;
+
+  function fillProductControl() {
+    const w = DATA.whoUsesWhat;
+    if (!prodSel || !w || prodSel.options.length) return;
+    w.products.forEach((p) => {
+      const o = el("option", null, `${p.label} (n=${p.n})`);
+      o.value = p.key;
+      prodSel.appendChild(o);
+    });
+    prodSel.addEventListener("change", renderProduct);
+  }
+
+  function renderProduct() {
+    const w = DATA.whoUsesWhat;
+    if (!w || !prodSel) return;
+    const p = w.products.find((x) => x.key === prodSel.value) || w.products[0];
+    if (!p) return;
+
+    prodStats.textContent = "";
+    prodProfile.textContent = "";
+
+    const stats = [["Respondents", String(p.n)]];
+    if (p.membersOnly) {
+      stats.push(["Paying share", "members only"]);
+    } else {
+      stats.push(["Paying share", pct(p.paidShare)]);
+      const lift = p.paidShare / w.baselinePaidShare;
+      stats.push(["vs audience", `${Math.round(lift * 100) / 100}x`]);
+    }
+    const prof = p.profile;
+    const u45 = ["18-24", "25-34", "35-44"].reduce((a, k) => a + (prof.age[k] || 0), 0);
+    stats.push(["Under 45", pct(Math.round(u45 * 10) / 10)]);
+    stats.push(["Male", pct(prof.gender.Male)]);
+    stats.push(["Pastors", pct(prof.role.Pastor)]);
+    stats.forEach(([label, value]) => {
+      const li = el("li", "admin-stat");
+      li.appendChild(el("span", "admin-stat-value", value));
+      li.appendChild(el("span", "admin-stat-label", label));
+      prodStats.appendChild(li);
+    });
+
+    w.dims.forEach((dim) => {
+      const block2 = el("div", "aud-block");
+      const head = el("div", "aud-block-head");
+      head.appendChild(el("h3", "aud-subhead", dim.label));
+      head.appendChild(el("span", "aud-block-n", "line = whole audience"));
+      block2.appendChild(head);
+      const vals = dim.values.map((v) => ({
+        k: v, v: prof[dim.key][v] || 0, base: w.baseline[dim.key][v] || 0,
+      })).filter((r) => r.v > 0 || r.base > 0);
+      const max = Math.max.apply(null, vals.map((r) => Math.max(r.v, r.base)));
+      const list = el("ul", "admin-ranked");
+      vals.sort((a, b) => b.v - a.v).forEach((r) => {
+        list.appendChild(barRow(r.k, r.v, max, "pct", { value: r.base }));
+      });
+      block2.appendChild(list);
+      prodProfile.appendChild(block2);
+    });
+
+    prodNote.textContent = p.membersOnly
+      ? "Members only — this was never asked of free subscribers."
+      : `${p.nSub} free / ${p.nMem} member respondents, re-weighted to the real population mix.`;
+
+    const thin = p.n < THIN_N
+      ? `Only ${p.n} respondents use this product, so read the shape and ignore the decimals. `
+      : "";
+    prodFoot.textContent = `${thin}Paying share is the weighted share of this product's audience that pays, against ${w.baselinePaidShare}% for the audience as a whole. The delta beside each bar is this product minus the whole audience.`;
+  }
+
   // ---- say vs do -----------------------------------------------------------
   // The one section that talks to the network. Stated interest and post counts
   // are precomputed; topic traffic comes live from mo-admin, which reads
@@ -623,6 +705,8 @@
   }
   if (svdPeriod) svdPeriod.addEventListener("change", loadSayVsDo);
   fillSegmentControl();
+  fillProductControl();
+  renderProduct();
 
   // ---- geography -----------------------------------------------------------
   function renderGeo() {
