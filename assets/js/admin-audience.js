@@ -468,7 +468,7 @@
     prodFoot.textContent = `${thin}Paying share is the weighted share of this product's audience that pays, against ${w.baselinePaidShare}% for the audience as a whole. The delta beside each bar is this product minus the whole audience.`;
   }
 
-  // ---- say vs do -----------------------------------------------------------
+  // ---- supply and demand (data attributes remain data-aud-svd-*) -----------
   // The one section that talks to the network. Stated interest and post counts
   // are precomputed; topic traffic comes live from mo-admin, which reads
   // Plausible "Article Read" events grouped by the post's first public tag.
@@ -487,45 +487,113 @@
 
   function svdSay(msg) { if (svdStatus) svdStatus.textContent = msg || ""; }
 
-  const svdSegSel = root.querySelector("[data-aud-svd-segment]");
+  const svdFilterHost = root.querySelector("[data-aud-svd-filters]");
+  const svdClearBtn = root.querySelector("[data-aud-svd-clear]");
   let svdSort = { col: "gap", dir: "desc" };
+  // dim key -> chosen value. Empty means "Any".
+  const svdFilters = {};
+
+  // Keys are built in the generator's dimension order, so lookups must use the
+  // same order or every multi-filter combination misses.
+  function segKey() {
+    const sv = DATA.sayvsdo;
+    return (sv.segmentDims || [])
+      .filter((d) => svdFilters[d.key])
+      .map((d) => `${d.key}=${svdFilters[d.key]}`)
+      .join("|");
+  }
+  function activeFilterCount() {
+    return Object.keys(svdFilters).filter((k) => svdFilters[k]).length;
+  }
+  function currentSegment() {
+    const sv = DATA.sayvsdo;
+    const key = segKey();
+    if (!key) return null;
+    return (sv.segments || []).find((x) => x.key === key) || null;
+  }
 
   function svdInterest(cat) {
     const sv = DATA.sayvsdo;
-    const seg = svdSegSel && svdSegSel.value
-      ? (sv.segments || []).find((s) => s.key === svdSegSel.value)
-      : null;
+    const seg = currentSegment();
     if (seg) return seg.interest[cat] === undefined ? 0 : seg.interest[cat];
     const st = sv.stated[cat];
     return st[cohort] !== undefined ? st[cohort] : st.all;
   }
 
   function fillSegmentControl() {
-    if (!svdSegSel || svdSegSel.options.length) return;
-    const base = el("option", null, "Everyone");
-    base.value = "";
-    svdSegSel.appendChild(base);
-    const groups = {};
-    (DATA.sayvsdo.segments || []).forEach((s) => {
-      if (!groups[s.group]) {
-        groups[s.group] = el("optgroup");
-        groups[s.group].label = s.group;
-        svdSegSel.appendChild(groups[s.group]);
-      }
-      const o = el("option", null, `${s.label} (n=${s.n})`);
-      o.value = s.key;
-      groups[s.group].appendChild(o);
+    const sv = DATA.sayvsdo;
+    if (!svdFilterHost || !sv || svdFilterHost.childElementCount) return;
+    (sv.segmentDims || []).forEach((dim) => {
+      const wrap = el("label", "aud-filter");
+      wrap.appendChild(el("span", "aud-filter-label", dim.label));
+      const sel = el("select", "aud-select");
+      sel.setAttribute("aria-label", dim.label);
+      const any = el("option", null, "Any");
+      any.value = "";
+      sel.appendChild(any);
+      dim.values.forEach((v) => {
+        const o = el("option", null, v);
+        o.value = v;
+        sel.appendChild(o);
+      });
+      sel.addEventListener("change", () => {
+        svdFilters[dim.key] = sel.value;
+        const period = svdPeriod ? svdPeriod.value : "6mo";
+        if (svdCache[period]) renderSayVsDo(svdCache[period]);
+      });
+      wrap.appendChild(sel);
+      svdFilterHost.appendChild(wrap);
     });
-    svdSegSel.addEventListener("change", () => {
-      const period = svdPeriod ? svdPeriod.value : "6mo";
-      if (svdCache[period]) renderSayVsDo(svdCache[period]);
-    });
+    if (svdClearBtn) {
+      svdClearBtn.addEventListener("click", () => {
+        Object.keys(svdFilters).forEach((k) => { svdFilters[k] = ""; });
+        svdFilterHost.querySelectorAll("select").forEach((s2) => { s2.value = ""; });
+        const period = svdPeriod ? svdPeriod.value : "6mo";
+        if (svdCache[period]) renderSayVsDo(svdCache[period]);
+      });
+    }
+  }
+
+  // Explains why a filter set shows no segment, which is the difference
+  // between a usable control and one that appears broken.
+  function renderFilterState() {
+    const sv = DATA.sayvsdo;
+    const count = activeFilterCount();
+    if (svdClearBtn) svdClearBtn.hidden = count === 0;
+    const existing = svdHost.querySelector(".aud-filter-msg");
+    if (existing) existing.remove();
+    if (!count) return null;
+
+    const max = sv.segmentMaxFilters || 3;
+    const key = segKey();
+    const seg = currentSegment();
+    let msg = null;
+    let tone = "";
+    if (count > max) {
+      msg = `That is ${count} filters. Three is the most any combination in this survey can support — drop one.`;
+      tone = " is-warn";
+    } else if (!seg) {
+      const n = sv.segmentCounts ? sv.segmentCounts[key] : undefined;
+      const who = (sv.segmentDims || []).filter((d) => svdFilters[d.key])
+        .map((d) => svdFilters[d.key]).join(" + ");
+      msg = n === null || n === undefined
+        ? `Fewer than five respondents are ${who}, so this combination is not reported. Drop a filter.`
+        : `Only ${n} respondents are ${who} — under the ${sv.segmentMin} needed to report. Showing everyone instead. Drop a filter.`;
+      tone = " is-warn";
+    } else if (seg.thin) {
+      msg = `${seg.n} respondents are ${seg.label}. Read the shape, not the decimals.`;
+    }
+    if (!msg) return seg;
+    const p = el("p", `aud-filter-msg${tone}`, msg);
+    svdHost.appendChild(p);
+    return seg;
   }
 
   function renderSayVsDo(topics) {
     const sv = DATA.sayvsdo;
     svdHost.textContent = "";
     if (!sv) return;
+    renderFilterState();
 
     // Fold Plausible's tag slugs up into survey categories.
     const reads = {};
@@ -541,21 +609,38 @@
       mappedReads += n;
     });
 
+    // Output share follows the period selector. The whole archive is the
+    // wrong denominator for an editorial decision: 480 of the Politics posts
+    // predate 2024 and none were published in the last twelve months.
+    const PERIOD_MONTHS = { "30d": 1, "6mo": 6, "12mo": 12 };
+    const periodNow = svdPeriod ? svdPeriod.value : "6mo";
+    const window = PERIOD_MONTHS[periodNow];
+    const months = (sv.months || []).slice(-(window || 0));
+    const postsIn = (c) => {
+      if (!window) return sv.posts[c] || 0;
+      const bucket = (sv.postsByMonth || {})[c] || {};
+      return months.reduce((a, m) => a + (bucket[m] || 0), 0);
+    };
+
     const cats = sv.categories.filter((c) => sv.stated[c]);
     const statedTotal = cats.reduce((a, c) => a + svdInterest(c), 0);
-    const postsTotal = cats.reduce((a, c) => a + (sv.posts[c] || 0), 0);
+    const postsTotal = cats.reduce((a, c) => a + postsIn(c), 0);
 
     const rows = cats.map((c) => {
       const stated = svdInterest(c);
-      const posts = sv.posts[c] || 0;
+      const posts = postsIn(c);
       const noTag = sv.noTagCategories.indexOf(c) !== -1;
+      // Nothing tagged this period, but a real archive: the tag went stale
+      // rather than the subject being dropped. Different claim, said plainly.
+      const stale = !noTag && posts === 0 && (sv.posts[c] || 0) > 0;
       // Shares, not raw percentages: a multi-select interest figure and a
       // share of output are not on the same scale until both are normalised.
       const interestShare = statedTotal ? (stated / statedTotal) * 100 : 0;
       const outputShare = postsTotal ? (posts / postsTotal) * 100 : 0;
       const readShare = mappedReads ? ((reads[c] || 0) / mappedReads) * 100 : 0;
       return {
-        cat: c, stated, posts, noTag, interestShare, outputShare, readShare,
+        cat: c, stated, posts, noTag, stale, interestShare, outputShare, readShare,
+        lastUsed: (sv.lastUsed || {})[c] || null, archive: sv.posts[c] || 0,
         gap: noTag ? null : interestShare - outputShare,
         perPiece: posts ? (reads[c] || 0) / posts : null,
       };
@@ -646,11 +731,19 @@
       tr.appendChild(el("td", "aud-num", `${Math.round(r.readShare * 10) / 10}%`));
       tr.appendChild(el("td", "aud-num", `${Math.round(r.outputShare * 10) / 10}%`));
       const g = Math.round(r.gap * 10) / 10;
-      const gtd = el("td", `aud-num aud-delta${g > 0 ? " is-up" : g < 0 ? " is-down" : ""}`);
+      const gtd = el("td", `aud-num aud-delta${r.stale ? "" : g > 0 ? " is-up" : g < 0 ? " is-down" : ""}`);
       gtd.appendChild(el("span", "aud-gap-n", `${g > 0 ? "+" : ""}${g}`));
-      gtd.appendChild(el("span", "aud-gap-word", g > 0 ? "under-served" : g < 0 ? "over-served" : "even"));
+      gtd.appendChild(el("span", "aud-gap-word",
+        r.stale ? "unreliable" : g > 0 ? "under-served" : g < 0 ? "over-served" : "even"));
       tr.appendChild(gtd);
-      tr.appendChild(el("td", "aud-num", r.posts));
+      const ptd = el("td", "aud-num");
+      ptd.appendChild(el("span", null, r.posts));
+      if (r.stale) {
+        const warn = el("span", "aud-gap-word", r.lastUsed ? `tag unused since ${r.lastUsed}` : "tag unused");
+        warn.title = `${r.archive} posts carry this tag historically, but none in the selected period. The subject may still be running under a different tag.`;
+        ptd.appendChild(warn);
+      }
+      tr.appendChild(ptd);
       tr.appendChild(el("td", "aud-num", r.perPiece === null ? "\u00b7" : Math.round(r.perPiece)));
       tb.appendChild(tr);
     });
@@ -658,10 +751,9 @@
     wrap.appendChild(t);
     svdHost.appendChild(wrap);
 
-    const seg = svdSegSel && svdSegSel.value
-      ? (sv.segments || []).find((s) => s.key === svdSegSel.value) : null;
+    const seg = currentSegment();
     const who = seg
-      ? `${seg.group}: ${seg.label} (n=${seg.n}, both surveys re-weighted to the real population mix)`
+      ? `${seg.label} (n=${seg.n}, both surveys re-weighted to the real population mix)`
       : `the ${cohortLabel(cohort)} cohort`;
     svdHost.appendChild(el("p", "aud-foot",
       `Interest is from ${who}. Reads and Output are the same for every segment — only the demand side re-cuts, which is what makes a segment's gap worth reading.`));
@@ -675,7 +767,7 @@
     svdHost.appendChild(el("p", "aud-foot",
       `Coverage: ${covPct}% of reads in this period landed on a topic that maps to a survey category. ${pubCov}A post whose first tag is structural files its reads under that tag, not its topic.`));
     svdHost.appendChild(el("p", "aud-foot",
-      "Reads/post divides period reads by the whole archive for that topic, so a large old archive drags it down and it is a rough guide only. Compare the Reads and Output columns for the cleaner read: a topic taking a bigger share of reads than of output is earning attention above its weight."));
+      "Output is what we published in the selected period, not the whole archive. A topic showing zero posts with a live archive means the TAG fell out of use, not necessarily the subject — politics was last tagged in 2024-03 and philosophy in 2024-09 — so those gaps are marked unreliable rather than read as an editorial decision. Reads/post still divides period reads by the whole archive, so treat it as a rough guide."));
   }
 
 
@@ -707,6 +799,38 @@
   fillSegmentControl();
   fillProductControl();
   renderProduct();
+
+  // ---- sticky cohort bar ---------------------------------------------------
+  // The offset is the topbar's rendered height, not a constant: its subtitle
+  // wraps to two lines under ~700px, and a hardcoded value leaves either a gap
+  // or an overlap at exactly the widths where the page is hardest to use.
+  (function stickyCohorts() {
+    const bar = root.querySelector("[data-aud-cohorts]");
+    const topbar = document.querySelector(".admin-topbar");
+    if (!bar || !topbar) return;
+    const sync = () => {
+      const h = Math.round(topbar.getBoundingClientRect().height);
+      root.style.setProperty("--aud-sticky-top", `${h}px`);
+      // Parked when its top edge has reached the offset. 1px of slack absorbs
+      // subpixel rounding, which otherwise flickers the shadow while scrolling.
+      bar.classList.toggle("is-stuck", bar.getBoundingClientRect().top <= h + 1);
+    };
+    // The workspace scrolls .admin-main, not the window — html/body are both
+    // overflow:hidden at full viewport height. A window scroll listener here
+    // never fires, so find the real scrolling ancestor and listen to that.
+    let scroller = bar.parentElement;
+    while (scroller && scroller !== document.body) {
+      const oy = getComputedStyle(scroller).overflowY;
+      if ((oy === "auto" || oy === "scroll") && scroller.scrollHeight > scroller.clientHeight + 2) break;
+      scroller = scroller.parentElement;
+    }
+    const target = scroller && scroller !== document.body ? scroller : window;
+
+    sync();
+    target.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync, { passive: true });
+    if (window.ResizeObserver) new ResizeObserver(sync).observe(topbar);
+  })();
 
   // ---- geography -----------------------------------------------------------
   function renderGeo() {

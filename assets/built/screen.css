@@ -22302,6 +22302,25 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 
 .aud-stamp { color: var(--color-muted); font-size: 13px; }
 
+/* Cohort bar follows the scroll so the cohort can be switched from anywhere
+   on a long page. .admin-topbar is already sticky at top:0 with z-index 50,
+   so this sits directly beneath it and below it in stacking order. The offset
+   is measured at runtime (admin-audience.js) because the topbar's subtitle
+   wraps to two lines on narrow screens. */
+.admin-body .container > .admin-period {
+  position: sticky;
+  top: var(--aud-sticky-top, 0px);
+  z-index: 40;
+  background: var(--color-page);
+  padding-top: 10px;
+  margin-top: -10px;
+}
+/* Only once it has actually parked: a shadow on a bar sitting in its natural
+   place reads as an unexplained seam. */
+.admin-body .container > .admin-period.is-stuck {
+  box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.28);
+}
+
 /* The note belongs to the tabs above it, so it should not inherit the
    64px inter-section gap that .admin-body .container > .admin-stats carries
    for every other block on the page. */
@@ -22633,6 +22652,42 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   width: 22px;
   height: 12px;
   background: var(--color-primary);
+}
+
+/* ---- multi-filter controls ---- */
+.aud-filters {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.aud-filter {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.aud-filter-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-muted);
+}
+.aud-filter-msg {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #4a4440;
+  margin: 0 0 14px;
+  max-width: 760px;
+  border-left: 2px solid var(--color-card-border);
+  padding-left: 10px;
+}
+/* An unreportable combination is not a soft note: the table below it is
+   showing something other than what the controls say. */
+.aud-filter-msg.is-warn {
+  border-left-color: var(--color-secondary);
+  color: var(--color-dark);
+}
+@media (max-width: 640px) {
+  .aud-filters { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .aud-filter .aud-select { width: 100%; }
 }
 
 /* Reading key for the gap column. The sign carries the meaning, and a colour

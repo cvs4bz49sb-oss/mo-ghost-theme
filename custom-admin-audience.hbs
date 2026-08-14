@@ -32,8 +32,8 @@
       </header>
 
       <section class="admin-body">
-        {{!-- The worker URL is only for the Say vs do section, which is the
-              one part of this page that is not precomputed: it reads live
+        {{!-- The worker URL is only for Supply and Demand, which is the one
+              part of this page that is not precomputed: it reads live
               Plausible topic traffic through mo-admin. Everything else
               renders with no network at all. --}}
         <div class="container" data-audience data-worker-url="{{@custom.admin_worker_url}}">
@@ -53,6 +53,30 @@
               <p class="admin-section-hint">Findings that only show up when two cuts of the data are put next to each other. Open one to see what is behind it.</p>
             </div>
             <div class="aud-signals" data-aud-signals></div>
+          </div>
+
+          <div class="admin-section">
+            <div class="admin-section-header">
+              <h2 class="admin-section-title"><em>Supply and Demand</em></h2>
+              <p class="admin-section-hint">What readers tell us they want, against what they actually read. Interest share is each topic's slice of all stated interest; output share is its slice of what we publish. The gap between them is the number to act on.</p>
+            </div>
+            <div class="aud-controls">
+              <select class="aud-select" data-aud-svd-period aria-label="Traffic period">
+                <option value="30d">Last 30 days</option>
+                <option value="6mo" selected>Last 6 months</option>
+                <option value="12mo">Last 12 months</option>
+              </select>
+              {{!-- Segments re-cut the stated-interest column only. Output and
+                    reads are supply-side and identical for everyone, which is
+                    what makes the gap per segment the interesting number.
+                    Filters combine, but only combinations with enough
+                    respondents behind them are reportable — the page says so
+                    rather than rendering six people's opinions as a finding. --}}
+              <span class="aud-filters" data-aud-svd-filters></span>
+              <button type="button" class="kpi-btn" data-aud-svd-clear hidden>Clear filters</button>
+              <span class="aud-legend" data-aud-svd-status role="status" aria-live="polite"></span>
+            </div>
+            <div data-aud-svd></div>
           </div>
 
           <div class="admin-section">
@@ -99,26 +123,6 @@
             <ul class="admin-stats" data-aud-product-stats></ul>
             <div class="aud-grid" data-aud-product-profile></div>
             <p class="aud-foot" data-aud-product-foot></p>
-          </div>
-
-          <div class="admin-section">
-            <div class="admin-section-header">
-              <h2 class="admin-section-title"><em>Say vs do</em></h2>
-              <p class="admin-section-hint">What readers tell us they want, against what they actually read. Interest share is each topic's slice of all stated interest; output share is its slice of what we publish. The gap between them is the number to act on.</p>
-            </div>
-            <div class="aud-controls">
-              <select class="aud-select" data-aud-svd-period aria-label="Traffic period">
-                <option value="30d">Last 30 days</option>
-                <option value="6mo" selected>Last 6 months</option>
-                <option value="12mo">Last 12 months</option>
-              </select>
-              {{!-- Segments re-cut the stated-interest column only. Output and
-                    reads are supply-side and identical for everyone, which is
-                    what makes the gap per segment the interesting number. --}}
-              <select class="aud-select" data-aud-svd-segment aria-label="Reader segment"></select>
-              <span class="aud-legend" data-aud-svd-status role="status" aria-live="polite"></span>
-            </div>
-            <div data-aud-svd></div>
           </div>
 
           <div class="admin-section">
