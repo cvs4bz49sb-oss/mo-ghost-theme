@@ -147,8 +147,15 @@
   function finish() {
     form.__answers = collect();
     steps.forEach((s) => { s.hidden = true; s.classList.remove("is-active"); });
+    // BOTH are required. .welcome-step is display:none and only .is-active
+    // sets display:block, so clearing the hidden attribute on its own leaves
+    // the panel invisible and the last answer drops the reader onto a blank
+    // screen. Verify this with computed display, not the hidden property.
     done.hidden = false;
+    done.classList.add("is-active");
     bar.hidden = true;
+    const page = document.querySelector(".welcome-page");
+    if (page) page.scrollTop = 0;
     const title = done.querySelector(".welcome-title");
     if (title) {
       title.setAttribute("tabindex", "-1");
