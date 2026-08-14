@@ -33,23 +33,13 @@
       <section class="welcome-step is-active" data-step="1">
         <p class="hero-kicker"><span class="dot"></span> Welcome</p>
         <h1 class="welcome-title"><em>You're in.</em></h1>
-        <p class="welcome-intro">Mere&nbsp;Orthodoxy is read by pastors, academics, and people who simply want to think more carefully about the things that matter. Knowing which of those you are, and what you came looking for, helps us write for you rather than for an audience in the abstract.</p>
-        <p class="welcome-intro">Six questions, less than a minute, and it shapes what we publish and where we gather.</p>
-
-        <fieldset class="welcome-field">
-          <legend class="welcome-q" tabindex="-1">What is your gender?</legend>
-          <div class="welcome-options" data-single>
-            <label class="welcome-option"><input type="radio" name="gender" value="Male" /><span>Male</span></label>
-            <label class="welcome-option"><input type="radio" name="gender" value="Female" /><span>Female</span></label>
-            <label class="welcome-option"><input type="radio" name="gender" value="Prefer not to say" /><span>Prefer not to say</span></label>
-          </div>
-        </fieldset>
-      </section>
-
-      <section class="welcome-step" data-step="2" hidden>
+        <p class="welcome-intro">Mere&nbsp;Orthodoxy is read by church members, pastors, and academics. Knowing who you are, and what you came looking for, helps us write for you rather than for an audience in the abstract.</p>
+        <p class="welcome-intro">Six questions, less than a minute.</p>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your age range?</legend>
-          <div class="welcome-options" data-single>
+          {{!-- Two-up under 640px: this step also carries the intro, so it is
+                the tallest of the single-choice screens. --}}
+          <div class="welcome-options welcome-options--dense" data-single>
             <label class="welcome-option"><input type="radio" name="age" value="18-24" /><span>18-24</span></label>
             <label class="welcome-option"><input type="radio" name="age" value="25-34" /><span>25-34</span></label>
             <label class="welcome-option"><input type="radio" name="age" value="35-44" /><span>35-44</span></label>
@@ -60,8 +50,7 @@
           </div>
         </fieldset>
       </section>
-
-      <section class="welcome-step" data-step="3" hidden>
+      <section class="welcome-step" data-step="2" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your denomination?</legend>
           {{!-- Ten options, the longest list in the flow. Goes two-up under
@@ -80,23 +69,21 @@
           </div>
         </fieldset>
       </section>
-
-      <section class="welcome-step" data-step="4" hidden>
+      <section class="welcome-step" data-step="3" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your relationship to the church?</legend>
           <p class="welcome-hint">Select any that apply, then press Next.</p>
           <div class="welcome-options">
-            <label class="welcome-option"><input type="checkbox" name="role" value="Pastor" /><span>Pastor</span></label>
-            <label class="welcome-option"><input type="checkbox" name="role" value="Elder or Deacon" /><span>Elder or Deacon</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Member or Lay Person" /><span>Member or Lay Person</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Elder or Deacon" /><span>Elder or Deacon</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Pastor" /><span>Pastor</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Academic" /><span>Academic</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Parachurch Ministry" /><span>Parachurch Ministry</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Not currently attending" /><span>Not currently attending</span></label>
           </div>
         </fieldset>
       </section>
-
-      <section class="welcome-step" data-step="5" hidden>
+      <section class="welcome-step" data-step="4" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">Where do you live?</legend>
           {{!-- A dropdown, not a text input. The 2026 survey took free text and
@@ -106,8 +93,7 @@
           <select class="welcome-select" name="location" data-location aria-label="Where do you live"></select>
         </fieldset>
       </section>
-
-      <section class="welcome-step" data-step="6" hidden>
+      <section class="welcome-step" data-step="5" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What do you most want to read?</legend>
           <p class="welcome-hint">Choose up to five, then save.</p>
@@ -134,6 +120,16 @@
             <label class="welcome-option"><input type="checkbox" name="interests" value="Film/Music/Art" /><span>Film/Music/Art</span></label>
             <label class="welcome-option"><input type="checkbox" name="interests" value="Poetry" /><span>Poetry</span></label>
             <label class="welcome-option"><input type="checkbox" name="interests" value="Neighborly Arts" /><span>Neighborly Arts</span></label>
+          </div>
+        </fieldset>
+      </section>
+      <section class="welcome-step" data-step="6" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your gender?</legend>
+          <div class="welcome-options" data-single>
+            <label class="welcome-option"><input type="radio" name="gender" value="Male" /><span>Male</span></label>
+            <label class="welcome-option"><input type="radio" name="gender" value="Female" /><span>Female</span></label>
+            <label class="welcome-option"><input type="radio" name="gender" value="Prefer not to say" /><span>Prefer not to say</span></label>
           </div>
         </fieldset>
       </section>
