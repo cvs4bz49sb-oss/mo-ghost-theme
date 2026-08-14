@@ -51,7 +51,7 @@
     const at = email.lastIndexOf('@');
     if (at === -1) return false;
     const domain = email.slice(at + 1).toLowerCase();
-    return CA_UNIVERSITY_DOMAINS.some((d) => domain === d || domain.endsWith('.' + d));
+    return CA_UNIVERSITY_DOMAINS.some((d) => domain === d || domain.endsWith(`.${d}`));
   };
   const isPrint = () => {
     const c = form.querySelector('input[name="student-variant"]:checked');

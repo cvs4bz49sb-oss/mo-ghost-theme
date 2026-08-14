@@ -35,7 +35,7 @@
   // same way. "/" normalizes to "/".
   function normalizePath(p) {
     const s = String(p || "/").toLowerCase().split("?")[0].split("#")[0];
-    return s.replace(/\/+$/, "") + "/";
+    return `${s.replace(/\/+$/, "")}/`;
   }
   const currentPath = normalizePath(window.location.pathname);
 
