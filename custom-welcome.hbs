@@ -34,7 +34,7 @@
         <p class="hero-kicker"><span class="dot"></span> Welcome</p>
         <h1 class="welcome-title"><em>You're in.</em></h1>
         <p class="welcome-intro">Mere&nbsp;Orthodoxy is read by pastors, academics, and people who simply want to think more carefully about the things that matter. Knowing which of those you are, and what you came looking for, helps us write for you rather than for an audience in the abstract.</p>
-        <p class="welcome-intro">Six questions, about a minute, and it shapes what we publish and where we gather.</p>
+        <p class="welcome-intro">Six questions, less than a minute, and it shapes what we publish and where we gather.</p>
 
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your gender?</legend>
@@ -64,7 +64,9 @@
       <section class="welcome-step" data-step="3" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your denomination?</legend>
-          <div class="welcome-options" data-single>
+          {{!-- Ten options, the longest list in the flow. Goes two-up under
+                640px so it clears a short phone without scrolling. --}}
+          <div class="welcome-options welcome-options--dense" data-single>
             <label class="welcome-option"><input type="radio" name="denomination" value="Presbyterian" /><span>Presbyterian</span></label>
             <label class="welcome-option"><input type="radio" name="denomination" value="Baptist" /><span>Baptist</span></label>
             <label class="welcome-option"><input type="radio" name="denomination" value="Non-Denominational" /><span>Non-Denominational</span></label>

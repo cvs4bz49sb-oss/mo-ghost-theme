@@ -22803,9 +22803,17 @@ body:has(.welcome-page) { padding-top: 61px; }
 
 .welcome-page {
   display: flex;
-  align-items: center;
-  /* Room for the fixed bar so a long question never hides under it. */
+  /* Centred with auto margins on the child, NOT align-items: center. When
+     content is taller than the box, centring pushes the overflow above the
+     scroll origin where it cannot be reached: on a 640px viewport the
+     denomination question sat at y=36, behind the 61px fixed header, and
+     scrolling to the top did not recover it. Auto margins centre while
+     leaving both ends reachable. */
   padding: 48px 0 140px;
+}
+.welcome-page > .container {
+  margin: auto;
+  width: 100%;
 }
 .welcome { width: 100%; }
 
@@ -22872,6 +22880,16 @@ body:has(.welcome-page) { padding-top: 61px; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 28px;
+}
+/* Ten options is the longest single-column list in the flow and the only one
+   that overflows a short phone. Two-up on narrow screens only: on desktop
+   there is room, and a single column reads better. */
+@media (max-width: 640px) {
+  .welcome-options--dense {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 14px;
+  }
 }
 @media (max-width: 420px) {
   .welcome-options--two { column-gap: 14px; }
@@ -22978,6 +22996,23 @@ body:has(.welcome-page) { padding-top: 61px; }
 .welcome-skip,
 .welcome-back,
 .welcome-count { white-space: nowrap; }
+
+/* Short viewports, which is most phones once browser chrome is counted: a
+   375x812 device is nearer 640 of usable height. Keyed on height rather than
+   width because that is the constraint being hit. Everything tightens rather
+   than any question being cut. */
+@media (max-height: 700px) {
+  .welcome-page { padding: 20px 0 92px; }
+  .welcome-title { font-size: clamp(26px, 5vw, 34px); margin: 4px 0 10px; }
+  .welcome-intro { font-size: 15px; line-height: 1.5; margin: 0 0 10px; }
+  .welcome-q { font-size: clamp(19px, 3.4vw, 26px); }
+  .welcome-hint { margin-bottom: 10px; }
+  .welcome-field { margin-top: 18px; }
+  .welcome-options { margin-top: 10px; }
+  .welcome-option { padding: 9px 4px; font-size: 15px; }
+  .welcome-select { margin-top: 14px; padding: 10px; }
+  .welcome-bar-inner { padding: 10px 16px; }
+}
 
 @media (max-width: 640px) {
   .welcome-page { padding: 28px 0 132px; }
