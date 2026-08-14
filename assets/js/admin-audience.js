@@ -644,14 +644,21 @@
         cat: c, stated, posts, noTag, stale, interestShare, outputShare, readShare,
         lastUsed: (sv.lastUsed || {})[c] || null, archive: sv.posts[c] || 0,
         gap: noTag ? null : interestShare - outputShare,
-        perPiece: posts ? (reads[c] || 0) / posts : null,
+        // Attention index: share of reads over share of output. Above 1 means
+        // the topic pulls more attention than its shelf space. This is the
+        // supply-adjusted demand signal — reads alone cannot be one, since a
+        // topic can only be read in proportion to how much of it exists.
+        attention: noTag || !outputShare ? null : readShare / outputShare,
+        // Volatile when the denominator is a handful of posts: one strong
+        // piece can send the ratio into double digits.
+        attentionThin: posts > 0 && posts < 5,
       };
     });
 
     const SORTS = {
       cat: (r) => r.cat, interestShare: (r) => r.interestShare, readShare: (r) => r.readShare,
       outputShare: (r) => r.outputShare, gap: (r) => r.gap, posts: (r) => r.posts,
-      perPiece: (r) => r.perPiece,
+      attention: (r) => r.attention,
     };
     const pick = SORTS[svdSort.col] || SORTS.gap;
     rows.sort((a, b) => {
@@ -676,7 +683,8 @@
     // second sign wrap onto the first line and read as part of the first
     // sentence, which inverts the meaning at a glance.
     [["is-up", "+", "readers want more of it than we publish (under-served)"],
-     ["is-down", "\u2212", "we publish more than they ask for (over-served)"]].forEach(([cls, sign, text]) => {
+     ["is-down", "\u2212", "we publish more than they ask for (over-served)"],
+     ["is-up", "\u00d7", "Attention above 1 means a topic pulls more reads than its share of output"]].forEach(([cls, sign, text]) => {
       const item = el("span", "aud-key-item");
       item.appendChild(el("span", `aud-delta ${cls}`, sign));
       item.appendChild(el("span", "aud-key-text", text));
@@ -690,8 +698,8 @@
     const hr = el("tr");
     [["Topic", "", "cat"], ["Interest", "share of stated interest", "interestShare"],
      ["Reads", "share of actual reads", "readShare"], ["Output", "share of what we publish", "outputShare"],
-     ["Gap", "want minus publish", "gap"], ["Posts", "primary-tag basis", "posts"],
-     ["Reads/post", "period reads / archive size", "perPiece"]].forEach(([label, hint, col], i) => {
+     ["Gap", "want minus publish", "gap"], ["Posts", "published this period", "posts"],
+     ["Attention", "reads share / output share", "attention"]].forEach(([label, hint, col], i) => {
       const th = el("th", `aud-th-sort${svdSort.col === col ? " is-sorted" : ""}${i === 0 ? "" : " aud-th-right"}`);
       th.setAttribute("scope", "col");
       th.setAttribute("aria-sort",
@@ -746,7 +754,20 @@
         ptd.appendChild(warn);
       }
       tr.appendChild(ptd);
-      tr.appendChild(el("td", "aud-num", r.perPiece === null ? "\u00b7" : Math.round(r.perPiece)));
+      const atd = el("td", "aud-num");
+      if (r.attention === null) {
+        atd.appendChild(el("span", "aud-cell-empty", "\u00b7"));
+        atd.title = r.stale
+          ? "Nothing published in this period, so there is no output share to divide by."
+          : "No output to measure against.";
+      } else {
+        const a = Math.round(r.attention * 10) / 10;
+        atd.className = `aud-num aud-delta${a > 1 ? " is-up" : a < 1 ? " is-down" : ""}`;
+        atd.appendChild(el("span", "aud-gap-n", `${a}\u00d7`));
+        atd.appendChild(el("span", "aud-gap-word",
+          r.attentionThin ? `${r.posts} posts, volatile` : a > 1 ? "above its weight" : a < 1 ? "below its weight" : "even"));
+      }
+      tr.appendChild(atd);
       tb.appendChild(tr);
     });
     t.appendChild(tb);
@@ -769,7 +790,9 @@
     svdHost.appendChild(el("p", "aud-foot",
       `Coverage: ${covPct}% of reads in this period landed on a topic that maps to a survey category. ${pubCov}A post whose first tag is structural files its reads under that tag, not its topic.`));
     svdHost.appendChild(el("p", "aud-foot",
-      "Output is what we published in the selected period, not the whole archive. A topic showing zero posts with a live archive means the TAG fell out of use, not necessarily the subject — politics was last tagged in 2024-03 and philosophy in 2024-09 — so those gaps are marked unreliable rather than read as an editorial decision. Reads/post still divides period reads by the whole archive, so treat it as a rough guide."));
+      "Output is what we published in the selected period, not the whole archive. A topic showing zero posts with a live archive means the TAG fell out of use, not necessarily the subject, so those gaps are marked unreliable rather than read as an editorial decision."));
+    svdHost.appendChild(el("p", "aud-foot",
+      "Reads share cannot be read as demand on its own: a topic can only be read in proportion to how much of it we publish. Attention divides reads share by output share to take that out, so it is the column to look at when asking whether a topic punches above its volume. It gets unstable when a topic has only a few posts in the window, which is flagged in the cell."));
   }
 
 
