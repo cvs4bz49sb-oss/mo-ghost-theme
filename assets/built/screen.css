@@ -22754,6 +22754,12 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
    should feel like the front matter of a journal rather than a form in an
    app. Tokens only. */
 
+/* .hero-kicker is white by default because every other kicker in the theme
+   sits inside a dark hero. This page is cream, so it needs its own colour or
+   the eyebrow is invisible. The pilcrow keeps the primary orange, which reads
+   on both backgrounds. */
+.welcome-page .hero-kicker { color: var(--color-muted); }
+
 .welcome-page {
   min-height: 70vh;
   display: flex;
