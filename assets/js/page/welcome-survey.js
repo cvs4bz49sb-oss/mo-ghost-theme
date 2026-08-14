@@ -90,6 +90,30 @@
     });
   }
 
+  // ---- fit -----------------------------------------------------------------
+  // Measure, do not guess. A height media query can only pick one threshold,
+  // and the threshold that fits a phone leaves a short desktop window
+  // scrolling: the seven age options ran past the fold at ~1000px tall.
+  // After each step renders, check whether the content overflows its box and
+  // escalate until it does not.
+  //
+  //   is-compact    tighter type and spacing, and the decorative eyebrow goes
+  //   is-compact-2  every option list additionally goes two-up
+  const pageEl = document.querySelector(".welcome-page");
+  function fit() {
+    if (!pageEl) return;
+    pageEl.classList.remove("is-compact", "is-compact-2");
+    if (pageEl.scrollHeight <= pageEl.clientHeight + 1) return;
+    pageEl.classList.add("is-compact");
+    if (pageEl.scrollHeight <= pageEl.clientHeight + 1) return;
+    pageEl.classList.add("is-compact-2");
+  }
+  let fitTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(fit, 120);
+  }, { passive: true });
+
   // ---- steps ---------------------------------------------------------------
   function show(i, viaBack) {
     steps.forEach((s, n) => {
@@ -126,6 +150,8 @@
     // which is the standard way step flows quietly break.
     const legend = steps[i].querySelector(".welcome-q");
     if (legend && (viaBack !== undefined)) legend.focus();
+
+    fit();
   }
 
   // ---- persistence ---------------------------------------------------------

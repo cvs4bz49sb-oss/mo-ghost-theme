@@ -1099,26 +1099,27 @@
   }
 
   // ---- wiring --------------------------------------------------------------
-  // Signals, product profiles and geography are computed from the 2025/2026
-  // surveys and the print mailing list. They do not recompute per cohort, so
-  // on the live tab they would otherwise read as live findings.
-  const SCOPE_NOTES = {
-    signals: "These are findings from the 2025 and 2026 surveys. They do not recompute for this cohort.",
-    product: "Product audiences are from the 2026 surveys. They do not recompute for this cohort.",
-    geo: "Geography is from the summer 2026 print mailing list, not from this cohort.",
-  };
-  function renderScopeNotes() {
-    root.querySelectorAll("[data-aud-scope]").forEach((n) => {
-      const key = n.getAttribute("data-aud-scope");
-      const show = cohort === "live";
-      n.textContent = show ? SCOPE_NOTES[key] || "" : "";
-      n.hidden = !show;
-    });
+  // Real Time means real time. Patterns, the age cross-tab, product profiles
+  // and geography are all computed from the 2025/2026 surveys and the print
+  // mailing list; none of them can be recomputed from welcome-survey answers.
+  // Labelling them was not enough: a 2026 finding sitting under a Real Time
+  // heading still reads as a live finding. They are removed from the tab
+  // instead, with one line saying where they went.
+  const hiddenNote = root.querySelector("[data-aud-hidden-note]");
+  function renderSectionScope() {
+    const live = cohort === "live";
+    root.querySelectorAll("[data-aud-static-section]").forEach((sec) => { sec.hidden = live; });
+    if (hiddenNote) {
+      hiddenNote.hidden = !live;
+      hiddenNote.textContent = live
+        ? "Patterns, the age breakdown, product profiles and geography are hidden here. They are computed from the 2025 and 2026 surveys and the print mailing list, and cannot be recomputed from live responses. Switch cohorts to see them."
+        : "";
+    }
   }
 
   function renderAll() {
     renderTabs();
-    renderScopeNotes();
+    renderSectionScope();
     renderStats();
     renderSignals();
     renderCompareControl();
