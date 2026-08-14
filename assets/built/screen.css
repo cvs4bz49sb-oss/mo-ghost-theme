@@ -22754,6 +22754,37 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
    should feel like the front matter of a journal rather than a form in an
    app. Tokens only. */
 
+/* The welcome survey owns the whole screen: site header and footer are
+   hidden and the page is locked to the viewport, so the flow never scrolls
+   and the fixed bar never collides with the footer.
+
+   Matched with :has() rather than a body class. Ghost renders this page from
+   routes.yaml with no Page record behind it, so {{body_class}} comes out
+   EMPTY and every page-template-* selector misses. Same reason the admin
+   workspace uses body:has(.admin-workspace). */
+body:has(.welcome-page) .site-header,
+body:has(.welcome-page) .site-footer,
+body:has(.welcome-page) .site-header-spacer {
+  display: none !important;
+}
+html:has(.welcome-page),
+body:has(.welcome-page) {
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  /* header-behaviors.js sets body padding-top to clear the fixed header.
+     With the header gone that padding is dead space at the top of a page
+     that is trying to fit exactly one screen. */
+  padding-top: 0 !important;
+  margin: 0 !important;
+}
+.welcome-page {
+  /* Fill the screen rather than merely being tall enough: the bar is fixed
+     to the bottom and the content should sit above it, not float mid-page. */
+  height: 100%;
+  overflow-y: auto;
+}
+
 /* .hero-kicker is white by default because every other kicker in the theme
    sits inside a dark hero. This page is cream, so it needs its own colour or
    the eyebrow is invisible. The pilcrow keeps the primary orange, which reads
@@ -22761,7 +22792,6 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 .welcome-page .hero-kicker { color: var(--color-muted); }
 
 .welcome-page {
-  min-height: 70vh;
   display: flex;
   align-items: center;
   /* Room for the fixed bar so a long question never hides under it. */

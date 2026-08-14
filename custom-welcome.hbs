@@ -108,11 +108,14 @@
       <section class="welcome-step" data-step="6" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What do you most want to read?</legend>
-          <p class="welcome-hint">Choose up to three, then save.</p>
-          {{!-- Two columns on a phone so twelve options still clear the fold.
-                Same category names as the 2026 survey and the Supply and
-                Demand tag map: changing the wording here breaks that join. --}}
-          <div class="welcome-options welcome-options--two" data-cap="3">
+          <p class="welcome-hint">Choose up to five, then save.</p>
+          {{!-- Two columns so sixteen options stay reachable on a phone.
+                The first twelve match the 2026 survey and the Supply and
+                Demand tag map exactly; changing that wording breaks the join.
+                The last four are new and have no 2026 counterpart, so the
+                dashboard needs its category list extended before they can be
+                charted. See the note in build-audience-survey-json.py. --}}
+          <div class="welcome-options welcome-options--two" data-cap="5">
             <label class="welcome-option"><input type="checkbox" name="interests" value="Theology" /><span>Theology</span></label>
             <label class="welcome-option"><input type="checkbox" name="interests" value="Culture" /><span>Culture</span></label>
             <label class="welcome-option"><input type="checkbox" name="interests" value="Church" /><span>Church</span></label>
@@ -125,6 +128,10 @@
             <label class="welcome-option"><input type="checkbox" name="interests" value="Education" /><span>Education</span></label>
             <label class="welcome-option"><input type="checkbox" name="interests" value="Leadership" /><span>Leadership</span></label>
             <label class="welcome-option"><input type="checkbox" name="interests" value="Interviews" /><span>Interviews</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Global" /><span>Global</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Film/Music/Art" /><span>Film/Music/Art</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Poetry" /><span>Poetry</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Neighborly Arts" /><span>Neighborly Arts</span></label>
           </div>
         </fieldset>
       </section>
