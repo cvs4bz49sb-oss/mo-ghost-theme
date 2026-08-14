@@ -1,0 +1,156 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Welcome | Mere Orthodoxy</title>
+<meta name="robots" content="noindex, nofollow" />
+{{/contentFor}}
+{{!-- /welcome/ — the post-signup welcome survey.
+
+     PREVIEW BUILD. Two things are deliberately NOT wired yet:
+
+     1. No redirect. Nothing sends anyone here. Ghost's signup is two steps
+        (submit email, then confirm by magic link) and the person is not a
+        member until the second one, so when this is connected it must hang
+        off the post-confirmation landing, never the "check your inbox"
+        interstitial, or every row arrives with no member to attach it to.
+
+     2. No persistence. Save advances to the thank-you panel and keeps the
+        answers in memory only. When storage lands it should POST on every
+        Next rather than once at the end: in a six-step flow, mid-way
+        abandonment is common and each of those is data that would otherwise
+        be lost.
+
+     The whole flow is real otherwise: steps, Back, auto-advance on the
+     single-choice questions, the three-answer cap on interests, focus
+     handling, and the progress bar. --}}
+
+<main class="welcome-page">
+  <div class="container container-narrow">
+
+    <form class="welcome" data-welcome novalidate>
+
+      {{!-- Intro rides on step one instead of taking a screen of its own.
+            A separate "Begin" panel is one more tap for no information. --}}
+      <section class="welcome-step is-active" data-step="1">
+        <p class="hero-kicker"><span class="dot"></span> Welcome</p>
+        <h1 class="welcome-title"><em>You're in.</em></h1>
+        <p class="welcome-intro">Mere&nbsp;Orthodoxy is read by pastors, academics, and people who simply want to think more carefully about the things that matter. Knowing which of those you are, and what you came looking for, helps us write for you rather than for an audience in the abstract.</p>
+        <p class="welcome-intro">Six questions, about a minute, and it shapes what we publish and where we gather.</p>
+
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your gender?</legend>
+          <div class="welcome-options" data-single>
+            <label class="welcome-option"><input type="radio" name="gender" value="Male" /><span>Male</span></label>
+            <label class="welcome-option"><input type="radio" name="gender" value="Female" /><span>Female</span></label>
+            <label class="welcome-option"><input type="radio" name="gender" value="Prefer not to say" /><span>Prefer not to say</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="2" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your age range?</legend>
+          <div class="welcome-options" data-single>
+            <label class="welcome-option"><input type="radio" name="age" value="18-24" /><span>18-24</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="25-34" /><span>25-34</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="35-44" /><span>35-44</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="45-54" /><span>45-54</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="55-64" /><span>55-64</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="65-74" /><span>65-74</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="75+" /><span>75+</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="3" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your denomination?</legend>
+          <div class="welcome-options" data-single>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Presbyterian" /><span>Presbyterian</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Baptist" /><span>Baptist</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Non-Denominational" /><span>Non-Denominational</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Anglican" /><span>Anglican</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Lutheran" /><span>Lutheran</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Methodist" /><span>Methodist</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Episcopal" /><span>Episcopal</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Pentecostal" /><span>Pentecostal</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Other" /><span>Other</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Not Protestant" /><span>Not Protestant</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="4" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your relationship to the church?</legend>
+          <p class="welcome-hint">Select any that apply.</p>
+          <div class="welcome-options">
+            <label class="welcome-option"><input type="checkbox" name="role" value="Pastor" /><span>Pastor</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Elder or Deacon" /><span>Elder or Deacon</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Member or Lay Person" /><span>Member or Lay Person</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Academic" /><span>Academic</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Parachurch Ministry" /><span>Parachurch Ministry</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Not currently attending" /><span>Not currently attending</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="5" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">Where do you live?</legend>
+          {{!-- A dropdown, not a text input. The 2026 survey took free text and
+                got "Cookeville, Tennessee", "Virigina" and "Outwith
+                Americaland", which cost a normalisation pass and still left a
+                typo sitting in the international bucket. --}}
+          <select class="welcome-select" name="location" data-location aria-label="Where do you live"></select>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="6" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What do you most want to read?</legend>
+          <p class="welcome-hint">Choose up to three.</p>
+          {{!-- Two columns on a phone so twelve options still clear the fold.
+                Same category names as the 2026 survey and the Supply and
+                Demand tag map: changing the wording here breaks that join. --}}
+          <div class="welcome-options welcome-options--two" data-cap="3">
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Theology" /><span>Theology</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Culture" /><span>Culture</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Church" /><span>Church</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Formation" /><span>Formation</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Philosophy" /><span>Philosophy</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Book Reviews" /><span>Book Reviews</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Family" /><span>Family</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Politics" /><span>Politics</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Technology" /><span>Technology</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Education" /><span>Education</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Leadership" /><span>Leadership</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Interviews" /><span>Interviews</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step welcome-done" data-step="done" hidden>
+        <h1 class="welcome-title"><em>Thank you.</em></h1>
+        <p class="welcome-intro">That helps more than you would think. Your first Mere&nbsp;Orthodoxy email is already on its way.</p>
+        <p><a class="btn" href="/">Read something now</a></p>
+      </section>
+
+      <div class="welcome-bar" data-welcome-bar>
+        <div class="welcome-track" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="1" aria-label="Progress">
+          <div class="welcome-fill" data-welcome-fill></div>
+        </div>
+        <div class="welcome-bar-inner">
+          <span class="welcome-count" data-welcome-count>Question 1 of 6</span>
+          <span class="welcome-actions">
+            <button type="button" class="welcome-back" data-welcome-back hidden>Back</button>
+            <button type="button" class="btn btn-primary welcome-next" data-welcome-next>Next</button>
+            <a class="welcome-skip" href="/" data-welcome-skip aria-label="Skip survey"><span class="welcome-lfull" aria-hidden="true">Skip survey</span><span class="welcome-labbr" aria-hidden="true">Skip</span></a>
+          </span>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<script src="{{asset "js/page/welcome-survey.js"}}"></script>

@@ -22748,3 +22748,199 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   .aud-controls { gap: 10px; }
   .aud-select { width: 100%; }
 }
+
+/* ---- /welcome/ — post-signup survey ----------------------------------- */
+/* One question per screen. Typographic, no cards, warm rules: the page
+   should feel like the front matter of a journal rather than a form in an
+   app. Tokens only. */
+
+.welcome-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  /* Room for the fixed bar so a long question never hides under it. */
+  padding: 48px 0 140px;
+}
+.welcome { width: 100%; }
+
+.welcome-step { display: none; }
+.welcome-step.is-active { display: block; }
+.welcome-step[hidden] { display: none; }
+
+.welcome-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(34px, 6vw, 52px);
+  line-height: 1.1;
+  color: var(--color-dark);
+  margin: 6px 0 18px;
+}
+.welcome-intro {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: #4a4440;
+  max-width: 62ch;
+  margin: 0 0 16px;
+}
+
+.welcome-field {
+  border: 0;
+  padding: 0;
+  margin: 34px 0 0;
+}
+/* A legend is a poor layout box in several engines, so it is taken out of
+   the flow and rendered as a plain block heading. */
+.welcome-q {
+  display: block;
+  float: none;
+  width: 100%;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 1.2;
+  color: var(--color-dark);
+  padding: 0;
+  margin: 0 0 6px;
+}
+.welcome-q:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+.welcome-hint {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 18px;
+}
+
+.welcome-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 18px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  max-width: 680px;
+}
+.welcome-options--two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 28px;
+}
+@media (max-width: 420px) {
+  .welcome-options--two { column-gap: 14px; }
+}
+
+/* Whole row is the target, which on a phone is the difference between a
+   comfortable tap and a careful one. */
+.welcome-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.welcome-option:hover { color: var(--color-secondary); }
+.welcome-option input {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  accent-color: var(--color-primary);
+}
+.welcome-option.is-disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.welcome-option.is-disabled:hover { color: var(--color-dark); }
+
+.welcome-select {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 420px;
+  padding: 12px 12px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--color-dark);
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+}
+
+/* ---- the bar ---- */
+.welcome-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-page);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 60;
+}
+.welcome-bar[hidden] { display: none; }
+.welcome-track {
+  height: 2px;
+  background: var(--color-card-border);
+}
+.welcome-fill {
+  height: 2px;
+  width: 16.6%;
+  background: var(--color-primary);
+  transition: width 0.25s ease;
+}
+.welcome-bar-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.welcome-count {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.welcome-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+}
+.welcome-back,
+.welcome-skip {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  background: transparent;
+  border: 0;
+  padding: 6px 2px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.welcome-back:hover,
+.welcome-skip:hover { color: var(--color-dark); }
+.welcome-back[hidden] { display: none; }
+.welcome-next { white-space: nowrap; }
+
+.welcome-labbr { display: none; }
+.welcome-skip,
+.welcome-back,
+.welcome-count { white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .welcome-page { padding: 28px 0 132px; }
+  .welcome-bar-inner { padding: 12px 16px; gap: 10px; }
+  .welcome-option { font-size: 16px; padding: 12px 2px; }
+  .welcome-actions { gap: 14px; }
+  .welcome-intro { font-size: 16px; }
+  .welcome-lfull { display: none; }
+  .welcome-labbr { display: inline; }
+  .welcome-count { font-size: 12px; }
+  .welcome-next { padding-left: 18px; padding-right: 18px; }
+}

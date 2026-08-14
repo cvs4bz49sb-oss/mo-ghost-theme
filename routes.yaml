@@ -144,6 +144,8 @@ routes:
     template: custom-admin-kpi
   /admin/audience/:
     template: custom-admin-audience
+  /welcome/:
+    template: custom-welcome
   /admin/tfr/:
     template: custom-admin-tfr
   /admin/migration/:
