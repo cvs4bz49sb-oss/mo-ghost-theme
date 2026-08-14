@@ -547,12 +547,26 @@
     return (sv.segments || []).find((x) => x.key === key) || null;
   }
 
+  // null means "this cohort has no interest data", which is different from
+  // zero interest. The caller stops rather than falling through to another
+  // cohort's numbers under this cohort's label.
   function svdInterest(cat) {
     const sv = DATA.sayvsdo;
     const seg = currentSegment();
     if (seg) return seg.interest[cat] === undefined ? 0 : seg.interest[cat];
+    if (cohort === "live") {
+      // Live interest comes from the welcome survey's own answers, which are
+      // stored on the topics question by applyLive().
+      const q = findQ("topics");
+      const live = q && q.series.live;
+      if (!live || !live.n) return null;
+      const row = live.rows.find((r) => r.k === cat);
+      return row ? row.pct : 0;
+    }
     const st = sv.stated[cat];
-    return st[cohort] !== undefined ? st[cohort] : st.all;
+    // A cohort with no entry for this category gets nothing, not the
+    // weighted average wearing its name.
+    return st[cohort] !== undefined ? st[cohort] : null;
   }
 
   function fillSegmentControl() {
@@ -658,11 +672,18 @@
     };
 
     const cats = sv.categories.filter((c) => sv.stated[c]);
-    const statedTotal = cats.reduce((a, c) => a + svdInterest(c), 0);
+    if (cats.every((c) => svdInterest(c) === null)) {
+      svdHost.appendChild(el("p", "admin-sub",
+        cohort === "live"
+          ? "No welcome-survey responses yet, so there is no live demand to compare against what we publish. Switch cohorts to use the 2025 or 2026 surveys."
+          : `${cohortLabel(cohort)} has no content-interest data.`));
+      return;
+    }
+    const statedTotal = cats.reduce((a, c) => a + (svdInterest(c) || 0), 0);
     const postsTotal = cats.reduce((a, c) => a + postsIn(c), 0);
 
     const rows = cats.map((c) => {
-      const stated = svdInterest(c);
+      const stated = svdInterest(c) || 0;
       const posts = postsIn(c);
       const noTag = sv.noTagCategories.indexOf(c) !== -1;
       // Nothing tagged this period, but a real archive: the tag went stale
@@ -1078,8 +1099,26 @@
   }
 
   // ---- wiring --------------------------------------------------------------
+  // Signals, product profiles and geography are computed from the 2025/2026
+  // surveys and the print mailing list. They do not recompute per cohort, so
+  // on the live tab they would otherwise read as live findings.
+  const SCOPE_NOTES = {
+    signals: "These are findings from the 2025 and 2026 surveys. They do not recompute for this cohort.",
+    product: "Product audiences are from the 2026 surveys. They do not recompute for this cohort.",
+    geo: "Geography is from the summer 2026 print mailing list, not from this cohort.",
+  };
+  function renderScopeNotes() {
+    root.querySelectorAll("[data-aud-scope]").forEach((n) => {
+      const key = n.getAttribute("data-aud-scope");
+      const show = cohort === "live";
+      n.textContent = show ? SCOPE_NOTES[key] || "" : "";
+      n.hidden = !show;
+    });
+  }
+
   function renderAll() {
     renderTabs();
+    renderScopeNotes();
     renderStats();
     renderSignals();
     renderCompareControl();

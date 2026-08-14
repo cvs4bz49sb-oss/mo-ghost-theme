@@ -22804,6 +22804,20 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 .aud-table--svd .aud-rowhead { min-width: 120px; }
 .aud-table--svd td { vertical-align: top; }
 
+/* Marks a section that does NOT recompute for the selected cohort. Reads as
+   a caveat, not a decoration: on the live tab these sections would otherwise
+   look like live findings. */
+.aud-scope {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+  max-width: 760px;
+  border-left: 2px solid var(--color-secondary);
+  padding-left: 10px;
+}
+.aud-scope[hidden] { display: none; }
+
 .aud-foot {
   font-family: var(--font-body);
   font-size: 12px;
