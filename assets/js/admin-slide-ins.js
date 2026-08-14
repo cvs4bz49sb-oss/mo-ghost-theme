@@ -8,6 +8,9 @@
   const workerUrl = host.getAttribute("data-worker-url");
   if (!workerUrl) return;
 
+  const siteUrl = (host.dataset.siteUrl || "").replace(/\/$/, "");
+  const contentApiKey = host.dataset.contentApiKey || "";
+
   const listView = host.querySelector("[data-slide-in-list]");
   const itemsContainer = host.querySelector("[data-slide-in-items]");
   const editorView = host.querySelector("[data-slide-in-editor]");
@@ -24,6 +27,11 @@
   const triggerValueInput = form.querySelector('[name="trigger_value"]');
   const triggerHint = form.querySelector("[data-trigger-hint]");
   const audienceGroup = form.querySelector("[data-audience-group]");
+  const excludeHidden = form.querySelector('[name="exclude_paths"]');
+  const excludeList = form.querySelector("[data-exclude-list]");
+  const excludeSelect = form.querySelector("[data-exclude-select]");
+  const excludeCustom = form.querySelector("[data-exclude-custom]");
+  const excludeAdd = form.querySelector("[data-exclude-add]");
   const audienceBoxes = form.querySelectorAll('[name="audience"]');
   const previewBtn = host.querySelector("[data-slide-in-preview]");
   const previewPanel = host.querySelector("[data-slide-in-preview-panel]");
@@ -58,6 +66,207 @@
         if (everyoneBox) everyoneBox.checked = false;
       }
     });
+  });
+
+  // ── Page exclusions ───────────────────────────────────────────
+  // "Hide on" holds a list of paths the slide-in must never appear on.
+  // It is checked after the "Show on" rule, so an exclusion always wins.
+  // The picker offers the theme's routed pages plus every Ghost page,
+  // and falls back to a free-typed path for posts and one-offs.
+
+  // Routed theme pages. These have no Ghost Page record, so the Content
+  // API can't see them. Keep in step with routes.yaml when public pages
+  // are added; anything missing can still be typed as a custom path.
+  const ROUTED_PAGES = [
+    ["Homepage", "/"],
+    ["Membership", "/membership/"],
+    ["Donate", "/donate/"],
+    ["Give a gift", "/give/"],
+    ["Student membership", "/student/"],
+    ["Institutions", "/institutions/"],
+    ["Groups", "/groups/"],
+    ["Sponsorship", "/sponsorship/"],
+    ["About", "/about/"],
+    ["Contributors", "/contributors/"],
+    ["Archive", "/archive/"],
+    ["Books", "/books/"],
+    ["Contact", "/contact/"],
+    ["Events", "/events/"],
+    ["Forum", "/forum/"],
+    ["Submissions", "/submissions/"],
+    ["Writers meetings", "/writers-meetings/"],
+    ["Privacy", "/privacy/"],
+    ["Ebook catalog", "/ebooks/"],
+    ["Bible", "/bible/"],
+    ["Daily Liturgy", "/daily-liturgy/"],
+    ["The Faith Received", "/the-faith-received/"],
+    ["Welcome", "/welcome/"],
+    ["Checkout success", "/success/"],
+    ["Manage membership", "/manage/"],
+  ];
+
+  const ROUTED_SECTIONS = [
+    ["Member dashboard", "/dashboard/*"],
+    ["Admin tools", "/admin/*"],
+    ["Ebook pages", "/ebook/*"],
+    ["The Faith Received", "/the-faith-received/*"],
+    ["Journal archive", "/journal-archive/*"],
+    ["Podcast pages", "/podcasts/*"],
+    ["Tag archives", "/tag/*"],
+    ["Author pages", "/author/*"],
+  ];
+
+  let excludePaths = [];
+
+  // Mirrors cleanExcludePath() in the admin worker. Returns "" for
+  // anything that isn't a usable site path so the worker never has to
+  // reject what the UI accepted.
+  function cleanPath(entry) {
+    let p = String(entry || "").trim().toLowerCase();
+    if (!p) return "";
+    const wildcard = p.slice(-1) === "*";
+    if (wildcard) p = p.slice(0, -1);
+    if (p.charAt(0) !== "/") p = `/${p}`;
+    p = `${p.replace(/\/+$/, "")}/`;
+    if (!/^\/[a-z0-9\-._~/]*$/.test(p)) return "";
+    if (p.indexOf("//") >= 0 || p.split("/").indexOf("..") >= 0) return "";
+    return wildcard ? `${p}*` : p;
+  }
+
+  function optionEl(label, value) {
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = `${label} — ${value}`;
+    return opt;
+  }
+
+  function groupEl(label, rows) {
+    const group = document.createElement("optgroup");
+    group.label = label;
+    rows.forEach((row) => { group.appendChild(optionEl(row[0], row[1])); });
+    return group;
+  }
+
+  function buildExcludeSelect(ghostPages) {
+    excludeSelect.textContent = "";
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Choose a page…";
+    excludeSelect.appendChild(placeholder);
+
+    const seen = {};
+    const pages = [];
+    ROUTED_PAGES.forEach((row) => {
+      seen[row[1]] = true;
+      pages.push(row);
+    });
+    (ghostPages || []).forEach((row) => {
+      if (seen[row[1]]) return;
+      seen[row[1]] = true;
+      pages.push(row);
+    });
+
+    excludeSelect.appendChild(groupEl("Pages", pages));
+    excludeSelect.appendChild(groupEl("Everything under", ROUTED_SECTIONS));
+
+    const custom = document.createElement("option");
+    custom.value = "__custom";
+    custom.textContent = "Custom path…";
+    excludeSelect.appendChild(custom);
+  }
+
+  // Ghost pages, so anything published as a Page shows up without a
+  // theme change. Posts are deliberately not listed — there are
+  // thousands; use a custom path for a one-off essay.
+  function loadGhostPages() {
+    if (!siteUrl || !contentApiKey) { buildExcludeSelect([]); return; }
+    const url = `${siteUrl}/ghost/api/content/pages/?key=${encodeURIComponent(contentApiKey)
+      }&limit=all&fields=title,url&order=${encodeURIComponent("title asc")}`;
+    fetch(url)
+      .then((r) => { return r.ok ? r.json() : { pages: [] }; })
+      .then((data) => {
+        const rows = (data.pages || []).map((p) => {
+          let path = "";
+          try { path = cleanPath(new URL(p.url).pathname); } catch (e) { path = ""; }
+          return path ? [p.title || path, path] : null;
+        }).filter(Boolean);
+        buildExcludeSelect(rows);
+      })
+      .catch(() => { buildExcludeSelect([]); });
+  }
+
+  function renderExcludeList() {
+    excludeList.textContent = "";
+    excludeHidden.value = excludePaths.join(",");
+    if (!excludePaths.length) {
+      const empty = document.createElement("li");
+      empty.className = "slide-in-exclude-empty";
+      empty.textContent = "Not hidden anywhere yet.";
+      excludeList.appendChild(empty);
+      return;
+    }
+    excludePaths.forEach((path) => {
+      const li = document.createElement("li");
+      li.className = "slide-in-exclude-item";
+
+      const label = document.createElement("span");
+      label.className = "slide-in-exclude-path";
+      label.textContent = path;
+      li.appendChild(label);
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "slide-in-exclude-remove";
+      remove.setAttribute("aria-label", `Stop hiding on ${path}`);
+      remove.innerHTML = "&times;";
+      remove.addEventListener("click", () => {
+        excludePaths = excludePaths.filter((p) => { return p !== path; });
+        renderExcludeList();
+      });
+      li.appendChild(remove);
+
+      excludeList.appendChild(li);
+    });
+  }
+
+  function setExcludePaths(raw) {
+    excludePaths = String(raw || "").split(",")
+      .map(cleanPath)
+      .filter((p, i, arr) => { return p && arr.indexOf(p) === i; });
+    excludeSelect.value = "";
+    excludeCustom.value = "";
+    excludeCustom.hidden = true;
+    renderExcludeList();
+  }
+
+  function addExcludePath() {
+    const isCustom = excludeSelect.value === "__custom";
+    const rawValue = isCustom ? excludeCustom.value : excludeSelect.value;
+    if (!rawValue.trim()) return;
+    const path = cleanPath(rawValue);
+    if (!path) {
+      showStatus("That isn't a valid page path. Use something like /membership/ or /dashboard/*.", true);
+      return;
+    }
+    if (excludePaths.indexOf(path) < 0) excludePaths.push(path);
+    excludeSelect.value = "";
+    excludeCustom.value = "";
+    excludeCustom.hidden = true;
+    statusEl.hidden = true;
+    renderExcludeList();
+  }
+
+  excludeSelect.addEventListener("change", () => {
+    const isCustom = excludeSelect.value === "__custom";
+    excludeCustom.hidden = !isCustom;
+    if (isCustom) excludeCustom.focus();
+    else if (excludeSelect.value) addExcludePath();
+  });
+
+  excludeAdd.addEventListener("click", addExcludePath);
+
+  excludeCustom.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); addExcludePath(); }
   });
 
   function updateTriggerUI() {
@@ -162,6 +371,8 @@
       triggerValueInput.value = item.trigger_value || 0;
       updateTriggerUI();
 
+      setExcludePaths(item.exclude_paths);
+
       const pages = item.pages || "all";
       if (pages.indexOf("tag:") === 0) {
         pagesSelect.value = "tag";
@@ -183,6 +394,7 @@
         else el.value = "";
       });
       setImage("");
+      setExcludePaths("");
       tagField.hidden = true;
       triggerValueInput.value = "3";
       updateTriggerUI();
@@ -204,6 +416,7 @@
       button_text: form.querySelector('[name="button_text"]').value.trim(),
       button_url: form.querySelector('[name="button_url"]').value.trim(),
       pages,
+      exclude_paths: excludePaths.join(","),
       audience: Array.from(audienceBoxes).filter((b) => { return b.checked; }).map((b) => { return b.value; }).join(",") || "everyone",
       frequency: form.querySelector('[name="frequency"]').value,
       priority: parseInt(form.querySelector('[name="priority"]').value, 10) || 0,
@@ -233,6 +446,11 @@
       };
       const audience = (item.audience || "everyone").split(",").map((a) => { return audLabels[a] || a; }).join(", ");
 
+      const hidden = String(item.exclude_paths || "").split(",").filter(Boolean);
+      const hiddenLabel = hidden.length
+        ? ` &middot; hidden on ${hidden.length === 1 ? esc(hidden[0]) : `${hidden.length} pages`}`
+        : "";
+
       let triggerLabel = { delay: "Delay", exit: "Exit intent", scroll: "Scroll" }[item.trigger || "delay"] || "Delay";
       if (item.trigger === "scroll" && item.trigger_value) triggerLabel += ` ${item.trigger_value}%`;
       else if ((!item.trigger || item.trigger === "delay") && item.trigger_value) triggerLabel += ` ${item.trigger_value}s`;
@@ -242,7 +460,7 @@
         + `<h3 class="admin-slide-in-name"><em>${esc(item.name || item.headline)}</em></h3>`
         + `<p class="admin-slide-in-meta">`
         + `<span class="admin-slide-in-status ${statusClass}">${statusLabel}</span>`
-        + ` &middot; ${esc(target)} &middot; ${esc(audience)
+        + ` &middot; ${esc(target)}${hiddenLabel} &middot; ${esc(audience)
          } &middot; ${esc(triggerLabel)
          } &middot; ${esc(item.frequency)
          }${stats[item.id] ? ` &middot; ${stats[item.id].impressions || 0} views, ${stats[item.id].clicks || 0} clicks` : ''
@@ -429,4 +647,6 @@
   // MOAuth.fetch attaches the JWT internally; loadAll's first call
   // will surface 401/403 if the visitor isn't a staff member.
   loadAll();
+  loadGhostPages();
+  renderExcludeList();
 })();

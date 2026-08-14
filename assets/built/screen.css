@@ -13745,6 +13745,78 @@ body.mo-search-open { overflow: hidden; }
   font-style: italic;
 }
 
+/* Page-exclusion picker ("Hide on") in the slide-in targeting form */
+.slide-in-exclude-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.slide-in-exclude-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px 5px 12px;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+}
+.slide-in-exclude-path {
+  letter-spacing: 0.01em;
+}
+.slide-in-exclude-remove {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.slide-in-exclude-remove:hover {
+  color: #b94a48;
+}
+.slide-in-exclude-empty {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-muted);
+}
+.slide-in-exclude-add {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 6px;
+}
+.slide-in-exclude-add select,
+.slide-in-exclude-add input[type="text"] {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.slide-in-exclude-add .btn {
+  flex: 0 0 auto;
+}
+.slide-in-exclude-add input[type="text"][hidden] {
+  display: none;
+}
+@media (max-width: 640px) {
+  .slide-in-exclude-add { flex-wrap: wrap; }
+  .slide-in-exclude-add select,
+  .slide-in-exclude-add input[type="text"] { flex-basis: 100%; }
+  /* Comfortable tap target for the chip's remove control */
+  .slide-in-exclude-item { padding-right: 4px; }
+  .slide-in-exclude-remove { width: 32px; height: 32px; }
+}
+
 /* Fix: hidden attribute must override display:flex on form fields */
 .dashboard-form-field[hidden],
 [data-tag-field][hidden],
@@ -22997,13 +23069,21 @@ body:has(.welcome-page) { padding-top: 61px; }
 .welcome-back,
 .welcome-count { white-space: nowrap; }
 
+@media (max-width: 640px) {
+  .welcome-page { padding: 28px 0 132px; }
+  .welcome-bar-inner { padding: 12px 16px; gap: 10px; }
+  .welcome-option { font-size: 16px; padding: 12px 2px; }
+  .welcome-actions { gap: 14px; }
+  .welcome-intro { font-size: 16px; }
+
 /* Short viewports, which is most phones once browser chrome is counted: a
-   375x812 device is nearer 640 of usable height. Keyed on height rather than
-   width because that is the constraint being hit. Everything tightens rather
-   than any question being cut. */
+   375x812 device is nearer 640 of usable height. Keyed on height because that
+   is the constraint being hit, and placed AFTER the width block on purpose —
+   the two overlap on a phone and the later rule wins, so the width block was
+   quietly restoring 132px of bottom padding. */
 @media (max-height: 700px) {
-  .welcome-page { padding: 20px 0 92px; }
-  .welcome-title { font-size: clamp(26px, 5vw, 34px); margin: 4px 0 10px; }
+  .welcome-page { padding: 20px 0 92px !important; }
+  .welcome-title { font-size: clamp(26px, 5vw, 34px); margin: 0 0 10px; }
   .welcome-intro { font-size: 15px; line-height: 1.5; margin: 0 0 10px; }
   .welcome-q { font-size: clamp(19px, 3.4vw, 26px); }
   .welcome-hint { margin-bottom: 10px; }
@@ -23012,14 +23092,11 @@ body:has(.welcome-page) { padding-top: 61px; }
   .welcome-option { padding: 9px 4px; font-size: 15px; }
   .welcome-select { margin-top: 14px; padding: 10px; }
   .welcome-bar-inner { padding: 10px 16px; }
+  /* Decorative, and 45px is the difference between the first screen fitting
+     and being cut off. The title carries the same job. */
+  .welcome-page .hero-kicker { display: none; }
 }
 
-@media (max-width: 640px) {
-  .welcome-page { padding: 28px 0 132px; }
-  .welcome-bar-inner { padding: 12px 16px; gap: 10px; }
-  .welcome-option { font-size: 16px; padding: 12px 2px; }
-  .welcome-actions { gap: 14px; }
-  .welcome-intro { font-size: 16px; }
   .welcome-lfull { display: none; }
   .welcome-labbr { display: inline; }
   .welcome-count { font-size: 12px; }

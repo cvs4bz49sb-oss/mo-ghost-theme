@@ -7,9 +7,10 @@
  * On each page load:
  *   1. Fetch active slide-ins (sessionStorage cache, 5-min TTL).
  *   2. Filter to those matching the current page + audience.
- *   3. Exclude any the visitor has dismissed within its frequency window.
- *   4. Pick the highest-priority remaining item.
- *   5. Render it and animate in after a short delay.
+ *   3. Drop any whose exclude_paths list covers the current path.
+ *   4. Exclude any the visitor has dismissed within its frequency window.
+ *   5. Pick the highest-priority remaining item.
+ *   6. Render it and animate in after a short delay.
  */
 (function () {
   const workerUrl = (document.body.getAttribute("data-admin-worker-url") || "").replace(/\/$/, "");
@@ -28,6 +29,15 @@
     const m = bodyClass.match(/\btag-([a-z0-9-]+)/g);
     if (m) pageTags = m.map((c) => { return c.replace("tag-", ""); });
   }
+
+  // Every path is compared lowercase with exactly one trailing slash, so
+  // "/Membership", "/membership/" and "/membership//" all normalize the
+  // same way. "/" normalizes to "/".
+  function normalizePath(p) {
+    const s = String(p || "/").toLowerCase().split("?")[0].split("#")[0];
+    return s.replace(/\/+$/, "") + "/";
+  }
+  const currentPath = normalizePath(window.location.pathname);
 
   const memberEmail = document.body.getAttribute("data-member-email") || "";
   const memberStatus = document.body.getAttribute("data-member-status") || "";
@@ -69,6 +79,26 @@
       return isPost && pageTags.indexOf(slug) >= 0;
     }
     return false;
+  }
+
+  // exclude_paths is a comma-separated list of page paths the slide-in
+  // must never appear on. It is checked AFTER matchesPage, so it always
+  // wins: "all posts, but not this one" is expressed as pages=posts plus
+  // an exclusion. A trailing "*" covers everything under a path
+  // ("/dashboard/*" hides it on /dashboard/ and every page beneath it).
+  function isExcluded(item) {
+    const raw = item.exclude_paths || "";
+    if (!raw) return false;
+    return raw.split(",").some((entry) => {
+      const pattern = entry.trim().toLowerCase();
+      if (!pattern) return false;
+      if (pattern.slice(-1) === "*") {
+        const prefix = pattern.slice(0, -1).replace(/\/+$/, "");
+        if (!prefix) return true;
+        return currentPath.indexOf(`${prefix}/`) === 0;
+      }
+      return currentPath === normalizePath(pattern);
+    });
   }
 
   function matchesAudience(item) {
@@ -233,6 +263,7 @@
 
     const candidates = items
       .filter(matchesPage)
+      .filter((i) => { return !isExcluded(i); })
       .filter(matchesAudience)
       .filter((i) => { return !isDismissed(i); });
 

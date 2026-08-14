@@ -27,7 +27,9 @@
       <div class="container container-narrow">
         <div class="admin-slide-ins"
              data-admin-slide-ins
-             data-worker-url="{{@custom.admin_worker_url}}">
+             data-worker-url="{{@custom.admin_worker_url}}"
+             {{#if @custom.content_api_key}}data-content-api-key="{{@custom.content_api_key}}"{{/if}}
+             data-site-url="{{@site.url}}">
 
           {{!-- List view --}}
           <div data-slide-in-list>
@@ -105,6 +107,19 @@
                   <input type="text" name="tag_slug" placeholder="e.g. family" />
                   <span class="dashboard-form-hint">The tag's URL slug, not its display name.</span>
                 </label>
+                <div class="dashboard-form-field" data-exclude-group>
+                  <span class="dashboard-form-label">Hide on</span>
+                  <ul class="slide-in-exclude-list" data-exclude-list></ul>
+                  <div class="slide-in-exclude-add">
+                    <select data-exclude-select aria-label="Page to hide this slide-in on">
+                      <option value="">Choose a page&hellip;</option>
+                    </select>
+                    <input type="text" data-exclude-custom aria-label="Custom path" placeholder="/some-page/" hidden />
+                    <button type="button" class="btn btn-ghost btn-sm" data-exclude-add>Add</button>
+                  </div>
+                  <input type="hidden" name="exclude_paths" />
+                  <span class="dashboard-form-hint">Optional. The slide-in never appears on these pages, even when "Show on" matches. End a path with * to cover everything beneath it.</span>
+                </div>
                 <fieldset class="dashboard-form-field" data-audience-group>
                   <span class="dashboard-form-label">Audience</span>
                   <div class="dashboard-checkbox-group">
