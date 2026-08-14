@@ -1,9 +1,14 @@
 /*
  * /welcome/ — post-signup welcome survey, one question per screen.
  *
- * PREVIEW BUILD: Save does not persist anything. See the note at the top of
- * custom-welcome.hbs for what is deliberately missing (the signup redirect,
- * and per-step persistence).
+ * Answers POST to mo-membership /api/welcome-survey after every step, authed
+ * by the Ghost member identity JWT that window.MOAuth attaches. Identity comes
+ * from that token on the worker side, never from this page.
+ *
+ * Every save is fire-and-forget. A reader must never wait on, or be blocked
+ * by, a network call for an optional survey: if the save fails the flow
+ * continues and the next step's post carries the same answers again, since
+ * each post sends the whole object rather than a delta.
  *
  * Page-template script: runs BEFORE site.min.js, so it uses no bundle
  * globals. It needs none.
@@ -123,13 +128,37 @@
     if (legend && (viaBack !== undefined)) legend.focus();
   }
 
+  // ---- persistence ---------------------------------------------------------
+  const API = (form.getAttribute("data-api-base") || window.MO_API_BASE || "").replace(/\/+$/, "");
+  const SOURCE = form.getAttribute("data-source") || "welcome";
+  let lastSent = "";
+
+  function save(completed) {
+    if (!API || !window.MOAuth) return;
+    const payload = collect();
+    payload.completed = !!completed;
+    payload.source = SOURCE;
+    // Skip a post that would say exactly what the last one said. Back and
+    // forth through the steps is normal and would otherwise fire a write per
+    // keystroke of navigation.
+    const fingerprint = JSON.stringify(payload);
+    if (fingerprint === lastSent) return;
+    lastSent = fingerprint;
+    window.MOAuth.fetch(`${API}/api/welcome-survey`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: fingerprint,
+    }).catch(() => { /* optional survey; never surface a network error */ });
+  }
+
   function next() {
+    // Save on the way out of a step, so a reader who abandons mid-flow still
+    // leaves behind everything they answered up to that point.
+    save(false);
     if (index < TOTAL - 1) show(index + 1, false);
     else finish();
   }
 
-  // Answers are collected but go nowhere yet. Kept as a single object so
-  // wiring persistence later is one fetch, not a rewrite.
   function collect() {
     const data = { role: [], interests: [] };
     ["gender", "age", "denomination"].forEach((name) => {
@@ -146,6 +175,9 @@
 
   function finish() {
     form.__answers = collect();
+    // completed:true only ever ratchets up on the worker side, so a reader
+    // who returns to the page later cannot un-complete themselves.
+    save(true);
     steps.forEach((s) => { s.hidden = true; s.classList.remove("is-active"); });
     // BOTH are required. .welcome-step is display:none and only .is-active
     // sets display:block, so clearing the hidden attribute on its own leaves

@@ -37,8 +37,12 @@
   // raw samples sit behind it for when the member/free split IS the question,
   // and the note under the tabs states the weighting so the derivation is not
   // hidden by being first.
-  const COHORTS = ["all", "sub", "mem", "r25"];
+  const COHORTS = ["all", "sub", "mem", "r25", "live"];
   const meta = DATA.meta;
+  // Placeholder so the Real Time tab exists before its fetch resolves.
+  // renderTabs skips any cohort with no entry, which would otherwise hide it.
+  meta.cohorts.live = { label: "Real Time Audience", n: 0, base: null, live: true,
+    note: "Loading live responses…" };
   let cohort = "all";
   let compare = false;
   let compareWith = "mem";
@@ -99,7 +103,8 @@
         if (compareWith === cohort) {
           compareWith = COHORTS.find((k) => k !== cohort && meta.cohorts[k]) || cohort;
         }
-        renderAll();
+        if (key === "live") loadLive(renderAll);
+        else renderAll();
       });
       tabsHost.appendChild(btn);
     });
@@ -129,9 +134,15 @@
     const stats = [];
 
     stats.push(["Respondents", String(c.n)]);
-    // A weighted cohort has no single response rate: it is two samples with
-    // very different ones, deliberately recombined.
-    stats.push(["Response rate", c.weighted ? "weighted" : c.base ? `${Math.round((c.n / c.base) * 1000) / 10}%` : "n/a"]);
+    if (c.live) {
+      // Completion is the live cohort's own health metric: partial rows are
+      // people who started the flow and left, which no static cohort has.
+      stats.push(["Finished", c.completed === undefined ? "n/a" : String(c.completed)]);
+    } else {
+      // A weighted cohort has no single response rate: it is two samples with
+      // very different ones, deliberately recombined.
+      stats.push(["Response rate", c.weighted ? "weighted" : c.base ? `${Math.round((c.n / c.base) * 1000) / 10}%` : "n/a"]);
+    }
 
     const female = val("gender", "Female", cohort);
     stats.push(["Women", female === null ? "n/a" : pct(female)]);
@@ -842,6 +853,10 @@
   fillSegmentControl();
   fillProductControl();
   renderProduct();
+  loadRows();
+  // Fetch the live cohort up front so its tab shows a real count rather than
+  // zero until someone clicks it.
+  loadLive(renderTabs);
 
   // ---- sticky cohort bar ---------------------------------------------------
   // The offset is the topbar's rendered height, not a constant: its subtitle
@@ -874,6 +889,142 @@
     window.addEventListener("resize", sync, { passive: true });
     if (window.ResizeObserver) new ResizeObserver(sync).observe(topbar);
   })();
+
+  // ---- live welcome-survey cohort ------------------------------------------
+  // Every other cohort is precomputed from a CSV at build time. This one is
+  // computed per request from D1, so it moves as subscribers answer. The
+  // summary is folded into the SAME questions structure the static cohorts
+  // use, which means the profile grid, the compare control and the topline
+  // tiles all work on it unchanged.
+  //
+  // The survey's five demographic questions map onto existing question ids;
+  // there is no live equivalent of the channel, frequency, media or join
+  // questions, so those blocks simply do not render for this cohort.
+  const LIVE_MAP = {
+    gender: "gender", age: "age", denomination: "denom",
+    role: "role", interests: "topics",
+  };
+  let liveLoaded = false;
+  let liveLoading = false;
+
+  function applyLive(summary) {
+    Object.keys(LIVE_MAP).forEach((dim) => {
+      const q = findQ(LIVE_MAP[dim]);
+      const src = summary.series[dim];
+      if (!q || !src) return;
+      q.series.live = { n: src.n, rows: src.rows };
+    });
+    meta.cohorts.live = {
+      label: "Real Time Audience",
+      n: summary.total,
+      base: null,
+      live: true,
+      completed: summary.completed,
+      partial: summary.partial,
+      latest: summary.latest,
+      note: summary.total
+        ? `Live from the welcome survey: ${summary.total} responses so far, ${summary.completed} of them finished. Recomputed on every load, so it moves as people answer.`
+        : "Live from the welcome survey. No responses yet: the survey is built but nothing is routed to it until the free tier's welcome page points at /welcome/.",
+    };
+    liveLoaded = true;
+  }
+
+  function loadLive(then) {
+    if (liveLoaded || liveLoading) { if (then) then(); return; }
+    if (!WORKER || !window.MOAuth) {
+      meta.cohorts.live = { label: "Real Time Audience", n: 0, base: null, live: true,
+        note: "Live responses need the admin worker." };
+      liveLoaded = true;
+      if (then) then();
+      return;
+    }
+    liveLoading = true;
+    window.MOAuth.fetch(`${WORKER}/audience/survey/summary`)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((d) => { applyLive(d); })
+      .catch(() => {
+        meta.cohorts.live = { label: "Real Time Audience", n: 0, base: null, live: true,
+          note: "Couldn't load live responses. The rest of this page is unaffected." };
+        liveLoaded = true;
+      })
+      .then(() => { liveLoading = false; if (then) then(); });
+  }
+
+  // ---- every response ------------------------------------------------------
+  const rowsHost = root.querySelector("[data-aud-rows]");
+  const rowsCount = root.querySelector("[data-aud-rows-count]");
+  const rowsPrev = root.querySelector("[data-aud-rows-prev]");
+  const rowsNext = root.querySelector("[data-aud-rows-next]");
+  const ROWS_PAGE = 50;
+  let rowsOffset = 0;
+
+  function renderRows(d) {
+    rowsHost.textContent = "";
+    if (!d.rows.length) {
+      rowsHost.appendChild(el("p", "admin-sub",
+        d.total ? "No rows on this page." : "No welcome-survey responses yet."));
+      return;
+    }
+    const wrap = el("div", "aud-tablewrap");
+    const t = el("table", "aud-table");
+    const thead = el("thead");
+    const hr = el("tr");
+    ["Email", "Answered", "Age", "Gender", "Denomination", "Church role", "Location", "Interests", "Done"]
+      .forEach((label) => {
+        const th = el("th", null, label);
+        th.setAttribute("scope", "col");
+        hr.appendChild(th);
+      });
+    thead.appendChild(hr);
+    t.appendChild(thead);
+    const tb = el("tbody");
+    d.rows.forEach((r) => {
+      const tr = el("tr");
+      const th = el("th", "aud-rowhead", r.email);
+      th.setAttribute("scope", "row");
+      tr.appendChild(th);
+      tr.appendChild(el("td", null, (r.answeredAt || "").slice(0, 10)));
+      tr.appendChild(el("td", null, r.age || "\u00b7"));
+      tr.appendChild(el("td", null, r.gender || "\u00b7"));
+      tr.appendChild(el("td", null, r.denomination || "\u00b7"));
+      tr.appendChild(el("td", null, r.role.length ? r.role.join(", ") : "\u00b7"));
+      tr.appendChild(el("td", null, r.location || "\u00b7"));
+      tr.appendChild(el("td", null, r.interests.length ? r.interests.join(", ") : "\u00b7"));
+      tr.appendChild(el("td", null, r.completed ? "yes" : "partial"));
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    wrap.appendChild(t);
+    rowsHost.appendChild(wrap);
+  }
+
+  function loadRows() {
+    if (!rowsHost) return;
+    if (!WORKER || !window.MOAuth) {
+      rowsHost.appendChild(el("p", "admin-sub", "Responses need the admin worker."));
+      return;
+    }
+    window.MOAuth.fetch(`${WORKER}/audience/survey/rows?limit=${ROWS_PAGE}&offset=${rowsOffset}`)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((d) => {
+        renderRows(d);
+        const from = d.total ? rowsOffset + 1 : 0;
+        const to = Math.min(rowsOffset + ROWS_PAGE, d.total);
+        if (rowsCount) rowsCount.textContent = `${from}\u2013${to} of ${d.total}`;
+        if (rowsPrev) rowsPrev.disabled = rowsOffset === 0;
+        if (rowsNext) rowsNext.disabled = to >= d.total;
+      })
+      .catch(() => {
+        rowsHost.textContent = "";
+        rowsHost.appendChild(el("p", "admin-sub", "Couldn't load responses."));
+      });
+  }
+  if (rowsPrev) rowsPrev.addEventListener("click", () => {
+    rowsOffset = Math.max(0, rowsOffset - ROWS_PAGE); loadRows();
+  });
+  if (rowsNext) rowsNext.addEventListener("click", () => {
+    rowsOffset += ROWS_PAGE; loadRows();
+  });
 
   // ---- geography -----------------------------------------------------------
   function renderGeo() {

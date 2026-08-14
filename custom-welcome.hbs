@@ -5,28 +5,28 @@
 {{/contentFor}}
 {{!-- /welcome/ — the post-signup welcome survey.
 
-     PREVIEW BUILD. Two things are deliberately NOT wired yet:
+     Answers POST to mo-membership /api/welcome-survey after every step,
+     authed by the Ghost member identity JWT. Identity comes from that token,
+     never from the page, so nothing here can write onto someone else's
+     record.
 
-     1. No redirect. Nothing sends anyone here. Ghost's signup is two steps
-        (submit email, then confirm by magic link) and the person is not a
-        member until the second one, so when this is connected it must hang
-        off the post-confirmation landing, never the "check your inbox"
-        interstitial, or every row arrives with no member to attach it to.
+     Saving per step rather than once at the end is deliberate: in a six-step
+     flow mid-way abandonment is normal, and each of those is data that would
+     otherwise be lost.
 
-     2. No persistence. Save advances to the thank-you panel and keeps the
-        answers in memory only. When storage lands it should POST on every
-        Next rather than once at the end: in a six-step flow, mid-way
-        abandonment is common and each of those is data that would otherwise
-        be lost.
-
-     The whole flow is real otherwise: steps, Back, auto-advance on the
-     single-choice questions, the three-answer cap on interests, focus
-     handling, and the progress bar. --}}
+     STILL TO WIRE: the redirect. Nothing sends anyone here yet. Ghost signup
+     is two steps and the browser is not authenticated until the magic link is
+     clicked, so this must hang off the tier's welcome_page_url (Ghost Admin
+     -> Settings -> Tiers -> Subscribe -> Welcome page), never the "check your
+     inbox" interstitial. Until then a visitor who is not signed in still sees
+     the questions; the save simply no-ops. --}}
 
 <main class="welcome-page">
   <div class="container container-narrow">
 
-    <form class="welcome" data-welcome novalidate>
+    <form class="welcome" data-welcome novalidate
+          data-api-base="{{@custom.membership_api_base}}"
+          data-source="welcome">
 
       {{!-- Intro rides on step one instead of taking a screen of its own.
             A separate "Begin" panel is one more tap for no information. --}}
@@ -73,13 +73,14 @@
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your relationship to the church?</legend>
           <p class="welcome-hint">Select any that apply, then press Next.</p>
-          <div class="welcome-options">
+          <div class="welcome-options welcome-options--dense">
             <label class="welcome-option"><input type="checkbox" name="role" value="Member or Lay Person" /><span>Member or Lay Person</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Elder or Deacon" /><span>Elder or Deacon</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Pastor" /><span>Pastor</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Academic" /><span>Academic</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Parachurch Ministry" /><span>Parachurch Ministry</span></label>
             <label class="welcome-option"><input type="checkbox" name="role" value="Not currently attending" /><span>Not currently attending</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Student" /><span>Student</span></label>
           </div>
         </fieldset>
       </section>

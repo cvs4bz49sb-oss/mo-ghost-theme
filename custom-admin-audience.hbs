@@ -159,6 +159,19 @@
           </div>
 
           <div class="admin-section">
+            <div class="admin-section-header">
+              <h2 class="admin-section-title"><em>Every response</em></h2>
+              <p class="admin-section-hint">Raw welcome-survey rows, newest first. This table only exists because it is fetched from a staff-gated endpoint rather than inlined: the precomputed cohorts above are rendered into the page and readable by any signed-in member.</p>
+            </div>
+            <div class="aud-controls">
+              <button type="button" class="kpi-btn" data-aud-rows-prev>Previous</button>
+              <button type="button" class="kpi-btn" data-aud-rows-next>Next</button>
+              <span class="aud-legend" data-aud-rows-count></span>
+            </div>
+            <div data-aud-rows></div>
+          </div>
+
+          <div class="admin-section">
             <p class="aud-foot" data-aud-sources></p>
           </div>
 
