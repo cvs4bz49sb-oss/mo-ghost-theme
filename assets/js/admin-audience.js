@@ -553,8 +553,17 @@
   // cohort's numbers under this cohort's label.
   function svdInterest(cat) {
     const sv = DATA.sayvsdo;
+    // A category the welcome survey introduced has no 2025/2026 figure at all.
+    // Its `stated` entry is an empty map rather than zeroes, so that "nobody
+    // was asked" cannot be read as "nobody wants it".
+    const neverAsked = !Object.keys(sv.stated[cat] || {}).length;
     const seg = currentSegment();
-    if (seg) return seg.interest[cat] === undefined ? 0 : seg.interest[cat];
+    // Segments are cut from the 2026 files, so they cannot speak to those
+    // categories either, whatever cohort is selected.
+    if (seg) {
+      if (neverAsked) return null;
+      return seg.interest[cat] === undefined ? 0 : seg.interest[cat];
+    }
     if (cohort === "live") {
       // Live interest comes from the welcome survey's own answers, which are
       // stored on the topics question by applyLive().
@@ -672,7 +681,11 @@
       return months.reduce((a, m) => a + (bucket[m] || 0), 0);
     };
 
-    const cats = sv.categories.filter((c) => sv.stated[c]);
+    // Filter on whether THIS cohort has a number, not on whether the 2026
+    // survey happened to ask. Live answers all sixteen options; the survey
+    // cohorts answer the twelve they were asked, and the other four drop out
+    // rather than appearing as a 0% that would read as an editorial verdict.
+    const cats = sv.categories.filter((c) => svdInterest(c) !== null);
     if (cats.every((c) => svdInterest(c) === null)) {
       svdHost.appendChild(el("p", "admin-sub",
         cohort === "live"
