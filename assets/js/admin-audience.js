@@ -705,9 +705,10 @@
       else if (cut.failed) liveMsg = `Couldn't recut the live responses for ${who}.`;
       else if (!cut.n) liveMsg = `No live respondent is ${who} yet, so there is nothing to compare against what we publish.`;
       else {
-        liveMsg = `${cut.n} live ${cut.n === 1 ? "respondent is" : "respondents are"} ${who}. `
-          + (cut.n < 20 ? "Far too few to read as a measurement: treat it as a direction at most."
-                        : "Read the shape, not the decimals.");
+        const caveat = cut.n < 20
+          ? "Far too few to read as a measurement: treat it as a direction at most."
+          : "Read the shape, not the decimals.";
+        liveMsg = `${cut.n} live ${cut.n === 1 ? "respondent is" : "respondents are"} ${who}. ${caveat}`;
         liveTone = cut.n < 20 ? " is-warn" : "";
       }
       if (liveMsg) svdHost.appendChild(el("p", `aud-filter-msg${liveTone}`, liveMsg));
