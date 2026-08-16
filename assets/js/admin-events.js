@@ -286,12 +286,20 @@
 
       const zoom = document.createElement('span');
       zoom.className = 'admin-event-card-zoom';
-      // in_zoom counts rows Zoom actually accepted. Everything else is
-      // held by us and still needs the link sent.
-      zoom.textContent = e.in_zoom === e.count
-        ? 'All in Zoom'
-        : `${e.count - e.in_zoom} still need the Zoom link`;
-      zoom.classList.toggle('is-warn', e.in_zoom !== e.count);
+      if (e.zoom_applies === false) {
+        // Writers meetings book no Zoom seat, so there is no link to be
+        // missing. Saying "N still need the Zoom link" here would be a
+        // standing false alarm about work nobody owes.
+        zoom.textContent = 'RSVP list only';
+        zoom.classList.remove('is-warn');
+      } else {
+        // in_zoom counts rows Zoom actually accepted. Everything else is
+        // held by us and still needs the link sent.
+        zoom.textContent = e.in_zoom === e.count
+          ? 'All in Zoom'
+          : `${e.count - e.in_zoom} still need the Zoom link`;
+        zoom.classList.toggle('is-warn', e.in_zoom !== e.count);
+      }
 
       card.append(title, count, split, zoom);
       cardsEl.appendChild(card);
@@ -351,14 +359,21 @@
       tr.appendChild(cell(formatWhen(r.registered_at)));
 
       const zoomTd = document.createElement('td');
-      const zoomBadge = document.createElement('span');
-      const inZoom = r.registration === 'registered';
-      zoomBadge.className = `admin-pill ${inZoom ? 'admin-pill--ok' : 'admin-pill--wait'}`;
-      // "In Zoom" rather than "Registered": the column next door is
-      // also called Registered and means a timestamp, and the flag
-      // this reads is whether Zoom holds a seat.
-      zoomBadge.textContent = inZoom ? 'In Zoom' : 'Not in Zoom';
-      zoomTd.appendChild(zoomBadge);
+      if (r.kind === 'writers-meeting') {
+        // No Zoom leg on this flow. A dash reads as not applicable; a
+        // "Not in Zoom" pill would read as something left undone.
+        zoomTd.className = 'admin-event-na';
+        zoomTd.textContent = '—';
+      } else {
+        const zoomBadge = document.createElement('span');
+        const inZoom = r.registration === 'registered';
+        zoomBadge.className = `admin-pill ${inZoom ? 'admin-pill--ok' : 'admin-pill--wait'}`;
+        // "In Zoom" rather than "Registered": the column next door is
+        // also called Registered and means a timestamp, and the flag
+        // this reads is whether Zoom holds a seat.
+        zoomBadge.textContent = inZoom ? 'In Zoom' : 'Not in Zoom';
+        zoomTd.appendChild(zoomBadge);
+      }
       tr.appendChild(zoomTd);
 
       tbody.appendChild(tr);

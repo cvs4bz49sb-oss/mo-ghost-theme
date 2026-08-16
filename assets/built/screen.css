@@ -6103,6 +6103,9 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 .admin-event-card-split,
 .admin-event-card-zoom { font-size: 12px; color: var(--color-muted); }
 .admin-event-card-zoom.is-warn { color: var(--color-alert-text); }
+/* Zoom cell for an event that has no Zoom leg (writers meetings). A dash
+   in muted text reads as not applicable; a pill would read as pending. */
+.admin-event-na { color: var(--color-muted); }
 
 .admin-events-tablehead {
   display: flex;
