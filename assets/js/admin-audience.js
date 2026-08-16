@@ -557,14 +557,24 @@
     // Its `stated` entry is an empty map rather than zeroes, so that "nobody
     // was asked" cannot be read as "nobody wants it".
     const neverAsked = !Object.keys(sv.stated[cat] || {}).length;
-    const seg = currentSegment();
-    // Segments are cut from the 2026 files, so they cannot speak to those
-    // categories either, whatever cohort is selected.
+    // Precomputed segments are cut from the 2026 files and belong to the
+    // survey cohorts only. On live, filters are answered by the live cut
+    // fetched above, which knows all sixteen categories.
+    const seg = cohort === "live" ? null : currentSegment();
     if (seg) {
       if (neverAsked) return null;
       return seg.interest[cat] === undefined ? 0 : seg.interest[cat];
     }
     if (cohort === "live") {
+      const segKeyNow = segKey();
+      if (segKeyNow) {
+        const cut = liveSegCache[segKeyNow];
+        // Not fetched yet, or nobody matches: no number for anything, rather
+        // than every category reading as a confident 0%.
+        if (!cut || !cut.n) return null;
+        const hit = cut.rows.find((r) => r.k === cat);
+        return hit ? hit.pct : 0;
+      }
       // Live interest comes from the welcome survey's own answers, which are
       // stored on the topics question by applyLive().
       const q = findQ("topics");
@@ -577,6 +587,63 @@
     // A cohort with no entry for this category gets nothing, not the
     // weighted average wearing its name.
     return st[cohort] !== undefined ? st[cohort] : null;
+  }
+
+  // ---- live segments -------------------------------------------------------
+  // Filtering on the live cohort has to re-cut the LIVE answers, which means
+  // asking the worker for them: /audience/survey/summary takes exactly these
+  // demographic filters. Falling through to the precomputed 2026 segments (as
+  // this did) silently swapped the Interest column for survey data while the
+  // tab still said Real Time, and dropped the four categories the 2026
+  // instrument never asked about.
+  const LIVE_PARAM = { gender: "gender", age: "age", denom: "denomination", role: "role" };
+  // The two instruments spell two of the church roles differently. The filter
+  // control is built from the 2026 vocabulary, so its values have to be
+  // translated on the way out or the worker matches nothing and reports an
+  // empty segment as fact.
+  const LIVE_VALUE = {
+    "Elder/Deacon": "Elder or Deacon",
+    "Member/Lay Person": "Member or Lay Person",
+  };
+  const liveSegCache = {};
+
+  function liveSegQuery() {
+    const sv = DATA.sayvsdo;
+    const parts = [];
+    (sv.segmentDims || []).forEach((d) => {
+      const v = svdFilters[d.key];
+      if (!v) return;
+      const param = LIVE_PARAM[d.key];
+      if (!param) return;
+      parts.push(`${param}=${encodeURIComponent(LIVE_VALUE[v] || v)}`);
+    });
+    return parts.join("&");
+  }
+
+  // Resolves once the live cut for the current filters is in the cache, or
+  // immediately when there is nothing to fetch.
+  function loadLiveSegment(then) {
+    const key = segKey();
+    if (cohort !== "live" || !key) { then(); return; }
+    if (liveSegCache[key]) { then(); return; }
+    if (!WORKER || !window.MOAuth) { liveSegCache[key] = { n: 0, rows: [], failed: true }; then(); return; }
+    svdSay("Recutting live responses\u2026");
+    window.MOAuth.fetch(`${WORKER}/audience/survey/summary?${liveSegQuery()}`)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((d) => {
+        const src = (d.series && d.series.interests) || { n: 0, rows: [] };
+        liveSegCache[key] = { n: src.n || 0, rows: src.rows || [], total: d.total || 0 };
+      })
+      .catch(() => { liveSegCache[key] = { n: 0, rows: [], failed: true }; })
+      .then(() => { svdSay(""); then(); });
+  }
+
+  // Every path that redraws the table goes through here, so a filtered live
+  // view is never rendered before its numbers exist.
+  function svdRender() {
+    const period = svdPeriod ? svdPeriod.value : "6mo";
+    if (!svdCache[period]) return;
+    loadLiveSegment(() => renderSayVsDo(svdCache[period]));
   }
 
   function fillSegmentControl() {
@@ -597,8 +664,7 @@
       });
       sel.addEventListener("change", () => {
         svdFilters[dim.key] = sel.value;
-        const period = svdPeriod ? svdPeriod.value : "6mo";
-        if (svdCache[period]) renderSayVsDo(svdCache[period]);
+        svdRender();
       });
       wrap.appendChild(sel);
       svdFilterHost.appendChild(wrap);
@@ -607,8 +673,7 @@
       svdClearBtn.addEventListener("click", () => {
         Object.keys(svdFilters).forEach((k) => { svdFilters[k] = ""; });
         svdFilterHost.querySelectorAll("select").forEach((s2) => { s2.value = ""; });
-        const period = svdPeriod ? svdPeriod.value : "6mo";
-        if (svdCache[period]) renderSayVsDo(svdCache[period]);
+        svdRender();
       });
     }
   }
@@ -625,6 +690,30 @@
 
     const max = sv.segmentMaxFilters || 3;
     const key = segKey();
+    const who = (sv.segmentDims || []).filter((d) => svdFilters[d.key])
+      .map((d) => svdFilters[d.key]).join(" + ");
+
+    // Live is filtered by the worker against the welcome-survey rows, so none
+    // of the 2026 segment bookkeeping below applies to it: no precomputed
+    // combination, no 20-respondent reporting floor derived from that survey.
+    // What it needs saying is how many live people the filter actually caught.
+    if (cohort === "live") {
+      const cut = liveSegCache[key];
+      let liveMsg = null;
+      let liveTone = " is-warn";
+      if (!cut) liveMsg = null;
+      else if (cut.failed) liveMsg = `Couldn't recut the live responses for ${who}.`;
+      else if (!cut.n) liveMsg = `No live respondent is ${who} yet, so there is nothing to compare against what we publish.`;
+      else {
+        liveMsg = `${cut.n} live ${cut.n === 1 ? "respondent is" : "respondents are"} ${who}. `
+          + (cut.n < 20 ? "Far too few to read as a measurement: treat it as a direction at most."
+                        : "Read the shape, not the decimals.");
+        liveTone = cut.n < 20 ? " is-warn" : "";
+      }
+      if (liveMsg) svdHost.appendChild(el("p", `aud-filter-msg${liveTone}`, liveMsg));
+      return null;
+    }
+
     const seg = currentSegment();
     let msg = null;
     let tone = "";
@@ -633,8 +722,6 @@
       tone = " is-warn";
     } else if (!seg) {
       const n = sv.segmentCounts ? sv.segmentCounts[key] : undefined;
-      const who = (sv.segmentDims || []).filter((d) => svdFilters[d.key])
-        .map((d) => svdFilters[d.key]).join(" + ");
       msg = n === null || n === undefined
         ? `Fewer than five respondents are ${who}, so this combination is not reported. Drop a filter.`
         : `Only ${n} respondents are ${who} — under the ${sv.segmentMin} needed to report. Showing everyone instead. Drop a filter.`;
@@ -689,7 +776,9 @@
     if (cats.every((c) => svdInterest(c) === null)) {
       svdHost.appendChild(el("p", "admin-sub",
         cohort === "live"
-          ? "No welcome-survey responses yet, so there is no live demand to compare against what we publish. Switch cohorts to use the 2025 or 2026 surveys."
+          ? (activeFilterCount()
+            ? "No live responses match that filter, so there is nothing to compare against what we publish. Clear a filter."
+            : "No welcome-survey responses yet, so there is no live demand to compare against what we publish. Switch cohorts to use the 2025 or 2026 surveys.")
           : `${cohortLabel(cohort)} has no content-interest data.`));
       return;
     }
@@ -884,7 +973,7 @@
 
   function loadSayVsDo() {
     const period = svdPeriod ? svdPeriod.value : "6mo";
-    if (svdCache[period]) { renderSayVsDo(svdCache[period]); svdSay(""); return; }
+    if (svdCache[period]) { svdRender(); svdSay(""); return; }
     if (!WORKER || !window.MOAuth) {
       svdHost.textContent = "";
       svdHost.appendChild(el("p", "admin-sub",
@@ -896,7 +985,7 @@
       .then((res) => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
       .then((d) => {
         svdCache[period] = d.topics || [];
-        renderSayVsDo(svdCache[period]);
+        svdRender();
         svdSay("");
       })
       .catch(() => {
@@ -1139,8 +1228,7 @@
     renderCompareControl();
     renderProfile();
     renderGeo();
-    const period = svdPeriod ? svdPeriod.value : "6mo";
-    if (svdCache[period]) renderSayVsDo(svdCache[period]);
+    svdRender();
   }
 
   const cmpBox = root.querySelector("[data-aud-compare]");
