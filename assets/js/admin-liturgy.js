@@ -310,7 +310,10 @@
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ mode: "schedule", from, to }),
       });
-      setSync(`Scheduled ${(data.created || 0) + (data.promoted || 0)} · ${data.failed || 0} failed`);
+      const bits = [`Scheduled ${(data.created || 0) + (data.promoted || 0)}`];
+      if (data.skipped) bits.push(`${data.skipped} past their send time`);
+      bits.push(`${data.failed || 0} failed`);
+      setSync(bits.join(" · "));
       await loadMonth();
     } catch (err) {
       setSync(`Failed: ${err.message}`, "is-error");
@@ -330,9 +333,13 @@
         return { from: s, to: s, label: "tomorrow" };
       }
       case "this-week": {
-        // remaining days this week (Mon-Sat). If today is Sun, start tomorrow.
-        const daysUntilSat = (6 - dow + 7) % 7 || 7;
-        const from = new Date(y, m, d + 1);
+        // Today through Saturday. Ranges start on today, not tomorrow: today's
+        // day is the one most likely to be missing, and starting a day late
+        // left it permanently empty because no other range covers it either.
+        // Sunday has no calendar entry, so a Sunday run simply yields nothing
+        // for that first day. On Saturday the range is today alone.
+        const daysUntilSat = (6 - dow + 7) % 7;
+        const from = new Date(y, m, d);
         const to = new Date(y, m, d + daysUntilSat);
         return { from: ymd(from), to: ymd(to), label: "this week" };
       }
@@ -343,7 +350,7 @@
         return { from: ymd(mon), to: ymd(sat), label: "next week" };
       }
       case "this-month": {
-        const from = new Date(y, m, d + 1);
+        const from = new Date(y, m, d);
         const to = new Date(y, m + 1, 0);
         return { from: ymd(from), to: ymd(to), label: "this month" };
       }
@@ -353,7 +360,7 @@
         return { from: ymd(from), to: ymd(to), label: "next month" };
       }
       default:
-        return { from: ymd(new Date(y, m, d + 1)), to: ymd(new Date(y, m, d + 7)), label: "the next 7 days" };
+        return { from: ymd(new Date(y, m, d)), to: ymd(new Date(y, m, d + 6)), label: "the next 7 days" };
     }
   }
 
@@ -372,8 +379,12 @@
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ from, to, schedule: true }),
       });
-      const msg = `Generated ${data.generated || 0}, scheduled ${(data.scheduleResult && data.scheduleResult.scheduled) || 0}`;
-      setSync(msg);
+      const sched = data.scheduleResult || {};
+      const parts = [`Generated ${data.generated || 0}`, `scheduled ${sched.scheduled || 0}`];
+      // A day whose send time has already gone by keeps its content but is
+      // not queued in Kit, or it would go out the moment it was created.
+      if (sched.skipped) parts.push(`${sched.skipped} past its send time (content saved, not queued)`);
+      setSync(parts.join(", "));
       await loadMonth();
     } catch (err) {
       setSync(`Generate failed: ${err.message}`, "is-error");
