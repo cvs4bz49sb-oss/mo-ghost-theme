@@ -595,8 +595,7 @@
   // Keys are built in the generator's dimension order, so lookups must use the
   // same order or every multi-filter combination misses.
   function segKey() {
-    const sv = DATA.sayvsdo;
-    return (sv.segmentDims || [])
+    return activeDims()
       .filter((d) => svdFilters[d.key])
       .map((d) => `${d.key}=${svdFilters[d.key]}`)
       .join("|");
@@ -668,12 +667,44 @@
     "Elder/Deacon": "Elder or Deacon",
     "Member/Lay Person": "Member or Lay Person",
   };
+  // Same pairs, usable in either direction, for carrying a chosen filter
+  // across a cohort switch instead of silently dropping it.
+  const VOCAB_ALIAS = [
+    ["Elder/Deacon", "Elder or Deacon"],
+    ["Member/Lay Person", "Member or Lay Person"],
+  ];
   const liveSegCache = {};
 
-  function liveSegQuery() {
+  // The filter control was built once, from the 2026 survey's option lists.
+  // That survey never offered Student or Home or Small Group Leader, so on the
+  // live cohort those answers existed in the data and could not be selected.
+  // The worker returns the welcome survey's own option sets alongside the
+  // summary, so live gets its own vocabulary and the survey cohorts keep
+  // theirs. Keys are normalised to the segment-dim names (denomination ->
+  // denom) so nothing downstream has to know which vocabulary is in play.
+  const LIVE_DIM_KEY = { gender: "gender", age: "age", denomination: "denom", role: "role" };
+  let liveDims = null;
+
+  function activeDims() {
     const sv = DATA.sayvsdo;
+    if (cohort === "live" && liveDims) return liveDims;
+    return sv.segmentDims || [];
+  }
+
+  // A value the other vocabulary spells differently, or cannot express at all.
+  function translateValue(v, values) {
+    if (!v || values.indexOf(v) !== -1) return v;
+    for (let i = 0; i < VOCAB_ALIAS.length; i += 1) {
+      const pair = VOCAB_ALIAS[i];
+      const other = v === pair[0] ? pair[1] : v === pair[1] ? pair[0] : null;
+      if (other && values.indexOf(other) !== -1) return other;
+    }
+    return "";
+  }
+
+  function liveSegQuery() {
     const parts = [];
-    (sv.segmentDims || []).forEach((d) => {
+    activeDims().forEach((d) => {
       const v = svdFilters[d.key];
       if (!v) return;
       const param = LIVE_PARAM[d.key];
@@ -709,10 +740,36 @@
     loadLiveSegment(() => renderSayVsDo(svdCache[period]));
   }
 
+  // Which vocabulary the rendered control was built from. Rebuilding on every
+  // render would throw away an open dropdown mid-interaction, so it only
+  // happens when the option lists actually differ.
+  let filterVocab = null;
+  let clearWired = false;
+
   function fillSegmentControl() {
     const sv = DATA.sayvsdo;
-    if (!svdFilterHost || !sv || svdFilterHost.childElementCount) return;
-    (sv.segmentDims || []).forEach((dim) => {
+    if (!svdFilterHost || !sv) return;
+    const dims = activeDims();
+    const signature = dims.map((d) => `${d.key}:${d.values.join(",")}`).join("|");
+    if (signature === filterVocab) return;
+    filterVocab = signature;
+
+    // Carry selections across the switch where the other vocabulary can
+    // express them, and say so when it cannot: a filter that silently cleared
+    // itself looks like the page ignoring a click.
+    const dropped = [];
+    dims.forEach((dim) => {
+      const was = svdFilters[dim.key];
+      if (!was) return;
+      const now = translateValue(was, dim.values);
+      if (now !== was) {
+        svdFilters[dim.key] = now;
+        if (!now) dropped.push(was);
+      }
+    });
+
+    svdFilterHost.textContent = "";
+    dims.forEach((dim) => {
       const wrap = el("label", "aud-filter");
       wrap.appendChild(el("span", "aud-filter-label", dim.label));
       const sel = el("select", "aud-select");
@@ -725,6 +782,7 @@
         o.value = v;
         sel.appendChild(o);
       });
+      sel.value = svdFilters[dim.key] || "";
       sel.addEventListener("change", () => {
         svdFilters[dim.key] = sel.value;
         svdRender();
@@ -732,7 +790,16 @@
       wrap.appendChild(sel);
       svdFilterHost.appendChild(wrap);
     });
-    if (svdClearBtn) {
+
+    if (dropped.length) {
+      svdSay(`${dropped.join(" and ")} ${dropped.length > 1 ? "are" : "is"} not a `
+        + `${cohortLabel(cohort)} option, so that filter was cleared.`);
+    }
+
+    // Once only. The control is rebuilt on a vocabulary change and this button
+    // is not inside it, so re-wiring here would stack a handler per rebuild.
+    if (svdClearBtn && !clearWired) {
+      clearWired = true;
       svdClearBtn.addEventListener("click", () => {
         Object.keys(svdFilters).forEach((k) => { svdFilters[k] = ""; });
         svdFilterHost.querySelectorAll("select").forEach((s2) => { s2.value = ""; });
@@ -753,7 +820,7 @@
 
     const max = sv.segmentMaxFilters || 3;
     const key = segKey();
-    const who = (sv.segmentDims || []).filter((d) => svdFilters[d.key])
+    const who = activeDims().filter((d) => svdFilters[d.key])
       .map((d) => svdFilters[d.key]).join(" + ");
 
     // Live is filtered by the worker against the welcome-survey rows, so none
@@ -1114,6 +1181,15 @@
   let liveLoading = false;
 
   function applyLive(summary) {
+    if (Array.isArray(summary.dimensions)) {
+      const labels = {};
+      (DATA.sayvsdo.segmentDims || []).forEach((d) => { labels[d.key] = d.label; });
+      liveDims = summary.dimensions
+        .filter((d) => LIVE_DIM_KEY[d.key])
+        .map((d) => ({ key: LIVE_DIM_KEY[d.key],
+          label: labels[LIVE_DIM_KEY[d.key]] || d.key,
+          values: d.values }));
+    }
     Object.keys(LIVE_MAP).forEach((dim) => {
       const q = findQ(LIVE_MAP[dim]);
       const src = summary.series[dim];
@@ -1286,6 +1362,10 @@
 
   function renderAll() {
     renderTabs();
+    // Before anything reads svdFilters: a cohort switch can change which
+    // options exist, and segKey() must not be computed from a value the new
+    // vocabulary cannot express.
+    fillSegmentControl();
     renderSectionScope();
     renderStats();
     renderSignals();
