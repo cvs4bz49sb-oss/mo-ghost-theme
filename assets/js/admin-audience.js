@@ -1237,7 +1237,10 @@
   const rowsCount = root.querySelector("[data-aud-rows-count]");
   const rowsPrev = root.querySelector("[data-aud-rows-prev]");
   const rowsNext = root.querySelector("[data-aud-rows-next]");
-  const ROWS_PAGE = 50;
+  // Ten. Fifty rows of nine columns is a wall on a phone, and the table is
+  // for reading individual answers rather than scanning a distribution — the
+  // cohorts above are what you scan.
+  const ROWS_PAGE = 10;
   let rowsOffset = 0;
 
   function renderRows(d) {
