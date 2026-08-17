@@ -27,7 +27,21 @@
      default.hbs loads on every page, so this template does NOT add a
      second <script> tag for it. --}}
 
-<main class="podcast-page">
+<main class="podcast-page podcast-page--roman">
+
+  {{!-- This page runs upright. The house style italicises section
+       headings, show names, host names and episode titles; here the
+       display italic is spent on one phrase, "Light of Light" in the
+       hero, and nothing else competes with it. Scoped to this template
+       so Mere Fidelity and Christians Reading Classics keep the house
+       treatment, and written as font-style rather than stripped <em>
+       tags so the emphasis stays in the markup for screen readers and
+       for anyone who wants the italics back. --}}
+  <style>
+    .podcast-page--roman em,
+    .podcast-page--roman .podcast-host-initial { font-style: normal; }
+    .podcast-page--roman .podcast-hero-headline .highlight em { font-style: italic; }
+  </style>
 
   <section class="hero podcast-hero">
     <div class="container">
@@ -54,8 +68,8 @@
 
         <div class="podcast-episodes">
           <div class="section-intro section-intro-left">
-            <p class="eyebrow">The Series</p>
-            <h2 class="section-heading"><em>Thirteen episodes, in order.</em></h2>
+            <p class="eyebrow">Thirteen Chapters</p>
+            <h2 class="section-heading"><em>The creed, clause by clause.</em></h2>
           </div>
           <div class="listen-grid podcast-episode-list"
                data-show="passages-nicaea"
