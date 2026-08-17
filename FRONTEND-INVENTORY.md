@@ -22,7 +22,7 @@ Companion reference for FRONTEND-AGENT.md. This is the complete inventory of eve
 | Content (core Ghost) | 6 | index, post, page, tag, author, error |
 | Membership/Commerce | 12 | membership, dashboard (+6 sub-pages), manage, complete-membership, gift, groups, institutions, group-manage, institution-manage, migrate, success, donate |
 | Editorial Pages | 8 | about, archive, contact, submissions, contributors, events, forum, ebooks (+3 landing) |
-| Podcasts | 2 | mere-fidelity, christians-reading-classics |
+| Podcasts | 3 | mere-fidelity, christians-reading-classics, passages-nicaea |
 | Admin | 13 | admin overview, members (+addresses/gifts/groups/institutions/drift), traffic, editorial, settings, slide-ins, institution detail, digest-gen, heatmap |
 | Faith Received | 41 | hub, 22 documents, 13 topics, topics index, scripture, today, devotional, search, 3 memorize |
 | Readers | 12 | 9 journal issues, 3 ebook readers |

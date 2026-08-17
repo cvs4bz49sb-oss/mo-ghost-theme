@@ -98,6 +98,8 @@ routes:
     template: custom-mere-fidelity
   /podcasts/christians-reading-classics/:
     template: custom-christians-reading-classics
+  /podcasts/passages-nicaea/:
+    template: custom-passages-nicaea
   /daily-liturgy/:
     template: custom-daily-liturgy
   /daily-liturgy/read/:

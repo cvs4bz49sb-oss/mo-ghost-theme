@@ -1,13 +1,15 @@
 /*
  * Podcast feed wiring.
  *
- * Fetches the Cloudflare Worker proxy (which hits Buzzsprout's API
- * for both Mere Fidelity and Christians Reading Classics), flattens
- * episodes across shows, sorts by publish date descending, and
- * renders cards in any [data-show] grid on the page. The worker's
- * enriched payload includes per-episode artwork, episode/season
- * numbers, slugs, transcript availability, and a Buzzsprout player
- * embed URL — those drive the show-page card variant.
+ * Fetches the Cloudflare Worker proxy (which reads each show's public
+ * RSS: Buzzsprout for Mere Fidelity, Christians Reading Classics and
+ * the Daily Liturgy Podcast, Libsyn for Passages: Nicaea), flattens
+ * episodes across shows, sorts by publish date (descending, or
+ * ascending with data-order="asc"), and renders cards in any
+ * [data-show] grid on the page. The worker's enriched payload includes
+ * per-episode artwork, episode/season numbers, slugs, transcript
+ * availability, and — for Buzzsprout shows — a player embed URL, which
+ * drive the show-page card variant.
  *
  * Per-show Apple/Spotify URLs are read from data-* attributes on
  * the .listen-grid so they can be edited in Ghost admin via
@@ -35,6 +37,11 @@
   let showLimit = parseInt(grid.getAttribute("data-show-limit"), 10);
   if (!showLimit || showLimit <= 0) showLimit = isShowPage ? 8 : 4;
 
+  // data-order="asc" (show pages only): list oldest first. Default stays
+  // newest first. A closed, sequential series like Passages: Nicaea is meant
+  // to be heard from episode one, so its page opts in.
+  const orderAsc = (grid.getAttribute("data-order") || "").toLowerCase() === "asc";
+
   // Wiki lens (opt-in via data-wiki="<json url>"): lets the show page
   // browse the FULL archive by topic/guest, not just the latest N. The
   // index is a same-origin static asset (assets/data/podcast-wiki.json),
@@ -56,6 +63,10 @@
     "daily-liturgy": {
       apple: grid.getAttribute("data-dlp-apple") || "",
       spotify: grid.getAttribute("data-dlp-spotify") || "",
+    },
+    "passages-nicaea": {
+      apple: grid.getAttribute("data-pn-apple") || "",
+      spotify: grid.getAttribute("data-pn-spotify") || "",
     },
   };
 
@@ -115,6 +126,10 @@
             hasTranscript: !!ep.hasTranscript,
             transcriptUrl: ep.transcriptUrl || "",
             embedUrl: ep.embedUrl || "",
+            // The episode's page on its host. Buzzsprout shows derive this
+            // from embedUrl; Libsyn shows (Passages: Nicaea) have no embed,
+            // so the worker sends the page URL directly.
+            episodeUrl: ep.episodeUrl || "",
           });
         });
       });
@@ -122,7 +137,7 @@
       if (isCoversLayout) {
         renderCoversLayout(data);
       } else if (all.length) {
-        all.sort((a, b) => { return b.ts - a.ts; });
+        all.sort((a, b) => { return orderAsc ? a.ts - b.ts : b.ts - a.ts; });
         liveEpisodes = all;
         renderLatest();
         if (wikiEnabled) initWiki();
@@ -198,8 +213,10 @@
       ? `<p class="pod-excerpt">${escapeHtml(summary)}</p>`
       : "";
 
-    // Custom audio player using the direct audio URL from Buzzsprout.
-    const audioSrc = ep.embedUrl ? (ep.audioUrl || "") : "";
+    // Custom audio player using the direct audio URL from the host. Any
+    // episode with an audio file gets a player — Libsyn shows have no
+    // embedUrl, so gating on that would leave them silent.
+    const audioSrc = ep.audioUrl || "";
     const durationSecs = parseInt(ep.duration, 10) || 0;
     const durationDisplay = durationSecs ? formatDuration(durationSecs) : "";
     const player = audioSrc
@@ -250,11 +267,11 @@
   function renderShowListenLinks(ep) {
     const episodePageUrl = ep.embedUrl
       ? ep.embedUrl.split("?")[0]
-      : "";
+      : (ep.episodeUrl || "");
     if (!episodePageUrl) return renderListenLinks(ep);
     return (
       `<div class="pod-listen">` +
-        `<a href="${escapeAttr(episodePageUrl)}" class="pod-listen-episode-link" target="_blank" rel="noopener">Listen on Apple, Spotify &amp; more &rarr;</a>` +
+        `<a href="${escapeAttr(window.MOSafeHref.sanitize(episodePageUrl, "#"))}" class="pod-listen-episode-link" target="_blank" rel="noopener">Listen on Apple, Spotify &amp; more &rarr;</a>` +
       `</div>`
     );
   }

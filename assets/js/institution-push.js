@@ -261,6 +261,7 @@
       const coverMap = {
         'mere-fidelity': '/assets/images/mere-fidelity.jpg',
         'christians-reading-classics': '/assets/images/christians-reading-classics.jpg',
+        'passages-nicaea': '/assets/images/passages-nicaea.jpg',
       };
       const feature_image = coverMap[show_slug] ? (window.location.origin + coverMap[show_slug]) : '';
       return { title, show_slug, feature_image };

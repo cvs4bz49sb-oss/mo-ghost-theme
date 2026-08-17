@@ -21,6 +21,7 @@
     "/the-faith-received/": [{ name: "The Faith Received" }],
     "/podcasts/mere-fidelity/": [{ name: "Podcasts", url: "/" }, { name: "Mere Fidelity" }],
     "/podcasts/christians-reading-classics/": [{ name: "Podcasts", url: "/" }, { name: "Christians Reading Classics" }],
+    "/podcasts/passages-nicaea/": [{ name: "Podcasts", url: "/" }, { name: "Passages: Nicaea" }],
     "/daily-liturgy/": [{ name: "The Daily Liturgy" }],
     "/sponsorship/": [{ name: "Sponsorship" }],
     "/kirk-offer/": [{ name: "Membership", url: "/membership/" }, { name: "July Book Offer" }]
