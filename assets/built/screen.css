@@ -22809,6 +22809,49 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   color: var(--color-muted);
   white-space: nowrap;
 }
+/* n and the sort control travel together on the right of the block head. On a
+   narrow screen the head wraps as a unit rather than stranding the control on
+   a line of its own. */
+.aud-block-head { flex-wrap: wrap; }
+.aud-block-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.aud-sort-btn {
+  background: transparent;
+  border: 0;
+  padding: 6px 2px;
+  position: relative;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+/* The visible control is 22px tall, which is right for a label sitting on the
+   baseline beside the n and far too small for a thumb. Grow the hit area with
+   a pseudo-element instead of padding: padding would change the height of a
+   baseline-aligned row and push the n out of line, this changes nothing about
+   layout and gives a ~42px target. */
+.aud-sort-btn::after {
+  content: "";
+  position: absolute;
+  inset: -10px -8px;
+}
+.aud-sort-btn:hover { color: var(--color-dark); }
+.aud-sort-btn.is-sorted { color: var(--color-dark); font-weight: 500; }
+.aud-sort-caret { font-size: 11px; }
+.aud-sort-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
 
 /* ---- geography ---- */
 .aud-split {

@@ -218,6 +218,41 @@
   }
 
   // ---- profile grid --------------------------------------------------------
+  // Per-question sort, defaulting to what the generator already delivers:
+  // every series arrives sorted by value, largest first. There is no
+  // "as the survey asked it" order to return to — the option order is not
+  // preserved anywhere in the data — so the third mode is alphabetical, which
+  // is the one that makes a sixteen-item list scannable when you are hunting
+  // for a specific answer rather than reading a ranking. For the age bands
+  // alphabetical is also chronological, since the labels start with their
+  // lower bound, so that mode doubles as "read this as a distribution".
+  const PROFILE_SORT_CYCLE = ["desc", "asc", "az"];
+  const PROFILE_SORT_LABEL = {
+    desc: ["Largest", "\u2193", "largest first"],
+    asc: ["Smallest", "\u2191", "smallest first"],
+    az: ["A\u2013Z", "\u2195", "alphabetically"],
+  };
+  const PROFILE_SORT_DEFAULT = "desc";
+  const profileSort = {};
+
+  function profileRows(q, series) {
+    const mode = profileSort[q.id] || PROFILE_SORT_DEFAULT;
+    const rows = series.rows.slice();
+    // localeCompare with numeric so "65-74" sorts under "75+" rather than
+    // above it, which a plain string comparison gets right by luck here and
+    // would get wrong the moment a band loses its leading digit.
+    if (mode === "az") {
+      rows.sort((a, b) => String(a.k).localeCompare(String(b.k), undefined, { numeric: true }));
+      return rows;
+    }
+    // Sorts on the SELECTED cohort's value, which is the bar being drawn. With
+    // Compare on, the ghost line is a second cohort behind that bar and
+    // sorting by it would order the chart by a series the reader is not
+    // looking at.
+    rows.sort((a, b) => (mode === "desc" ? b.pct - a.pct : a.pct - b.pct));
+    return rows;
+  }
+
   function renderProfile() {
     const host = root.querySelector("[data-aud-profile]");
     host.textContent = "";
@@ -228,14 +263,42 @@
       const block = el("div", "aud-block");
       const head = el("div", "aud-block-head");
       head.appendChild(el("h3", "aud-subhead", q.label));
-      head.appendChild(el("span", "aud-block-n",
+      const meta2 = el("span", "aud-block-meta");
+      meta2.appendChild(el("span", "aud-block-n",
         `${meta.cohorts[cohort].weighted ? `weighted, n=${series.n}` : `n=${series.n}`}${q.multi ? " · multi-select" : ""}`));
+
+      // A single option cannot be ordered against anything, so the control
+      // would be a button that does nothing.
+      if (series.rows.length > 1) {
+        const mode = profileSort[q.id] || PROFILE_SORT_DEFAULT;
+        const [word, caret, spoken] = PROFILE_SORT_LABEL[mode];
+        const sortBtn = el("button", `aud-sort-btn${mode === PROFILE_SORT_DEFAULT ? "" : " is-sorted"}`);
+        sortBtn.type = "button";
+        sortBtn.appendChild(el("span", "aud-sort-word", word));
+        sortBtn.appendChild(el("span", "aud-sort-caret", caret));
+        // The visible label names the CURRENT state, so say that out loud
+        // rather than leaving a screen reader to guess whether the word is
+        // the state or the action.
+        sortBtn.setAttribute("aria-label", `${q.label}: sorted ${spoken}. Change sort.`);
+        sortBtn.addEventListener("click", () => {
+          const at = PROFILE_SORT_CYCLE.indexOf(profileSort[q.id] || PROFILE_SORT_DEFAULT);
+          profileSort[q.id] = PROFILE_SORT_CYCLE[(at + 1) % PROFILE_SORT_CYCLE.length];
+          renderProfile();
+          // Re-render replaces the button, so move focus to its successor or
+          // a keyboard user is dropped back to the top of the document.
+          const next = host.querySelector(`[data-aud-sort="${q.id}"]`);
+          if (next) next.focus();
+        });
+        sortBtn.setAttribute("data-aud-sort", q.id);
+        meta2.appendChild(sortBtn);
+      }
+      head.appendChild(meta2);
       block.appendChild(head);
 
       const other = compare ? q.series[compareWith] : null;
       const max = Math.max.apply(null, series.rows.map((r) => r.pct));
       const list = el("ul", "admin-ranked");
-      series.rows.forEach((r) => {
+      profileRows(q, series).forEach((r) => {
         let ghost = null;
         if (other) {
           const match = other.rows.find((o) => o.k === r.k);
