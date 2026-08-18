@@ -136,6 +136,11 @@ routes:
     template: custom-admin-influencers
   /admin/members/drift/:
     template: custom-admin-drift
+  # Store orders, read live from Stripe by the mo-store Worker. Needs
+  # @custom.store_worker_url set, and mo-store needs GHOST_ADMIN_API_KEY
+  # for the staff check or every request 403s.
+  /admin/orders/:
+    template: custom-admin-orders
   /admin/content/:
     template: custom-admin-content
   /admin/agenda/:

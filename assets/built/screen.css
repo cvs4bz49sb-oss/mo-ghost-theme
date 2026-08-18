@@ -23663,9 +23663,13 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
   color: var(--color-dark);
   margin: 0 0 18px;
 }
+/* Body font, not display. IM Fell's numerals are old-style — the 2 sits
+   high and the 0 small — which reads as a flourish in a headline and as
+   a typo on a price. A price should be legible before it is branded. */
 .store-item-price {
-  font-family: var(--font-display);
-  font-size: 26px;
+  font-family: var(--font-body);
+  font-size: 24px;
+  font-weight: 600;
   line-height: 1;
   color: var(--color-dark);
   margin: 0 0 20px;
@@ -23753,3 +23757,15 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
   .store-grid { gap: 20px; }
   .store-item-buy { width: 100%; }
 }
+
+/* Footnote under the /admin/orders/ table. Says where the data really
+   lives, because the page is a view of Stripe rather than a record of
+   our own — anyone about to "fix" an order needs to know that. */
+.admin-orders-note {
+  margin: 20px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 62ch;
+  color: var(--color-muted, #6b6b6b);
+}
+.admin-orders-note a { color: var(--color-secondary); text-decoration: underline; text-underline-offset: 3px; }

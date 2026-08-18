@@ -1,0 +1,73 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Store Orders | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Store Orders | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Store Orders | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/orders/ — every paid order from /store/, read live from
+     Stripe by the mo-store Worker. Nothing is stored on our side; this
+     page is a view of Stripe, so a refund or an address correction made
+     in Stripe shows up here on the next load.
+
+     Gating, same as every other admin page: the shell renders for any
+     signed-in member, and the Worker is what actually enforces staff —
+     it verifies the Ghost identity JWT and checks the email against the
+     live /ghost/ staff list, returning 403 otherwise. The table surfaces
+     that as a denied state. Do not treat the {{#if @member}} below as
+     the security boundary; it only decides what shell to draw.
+
+     Columns come from the Worker's flat row shape (see buildOrders in
+     website/workers/store/store.js). Download CSV hits the same
+     endpoint with ?format=csv — that is the fulfillment list. --}}
+
+<main class="admin-page admin-workspace">
+  {{#if @member}}
+    {{> "admin-sidebar" active="orders"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Store Orders</em></h1>
+        <p class="admin-topbar-sub">Every paid order from the store, newest first, read live from Stripe. Search or sort any column. Download CSV for the mailing list.</p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container">
+          <div class="admin-table-host"
+               data-admin-table
+               data-title="Orders"
+               data-endpoint="/orders"
+               data-collection="orders"
+               data-api-base="{{@custom.store_worker_url}}"
+               data-member-email="{{@member.email}}"
+               data-columns="placed,product,qty,amount,name,email,line1,line2,city,state,postal_code,country,phone,session"
+               data-column-labels="Placed,Product,Qty,Amount,Name,Email,Street,Apt,City,State,ZIP,Country,Phone,Stripe Session"
+               data-search="1">
+            <div class="admin-table-toolbar">
+              <p class="admin-table-count" data-count-label>Loading&hellip;</p>
+              <a href="#" class="btn btn-primary btn-sm" data-download-csv hidden>Download CSV</a>
+            </div>
+            <p class="admin-table-status" data-status></p>
+            <div class="admin-table-wrap">
+              <table class="admin-table" data-table hidden>
+                <thead><tr data-thead></tr></thead>
+                <tbody data-tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <p class="admin-orders-note">Orders live in Stripe, not here. Refunds, address edits, and receipts are all done in the <a href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener">Stripe dashboard</a>; this page re-reads them on every load. An order with no street address means the payment link was not collecting one at the time of purchase.</p>
+        </div>
+      </section>
+
+    </div>
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-table.js"}}"></script>
