@@ -1,21 +1,25 @@
 {{!< default}}
 {{#contentFor "moHead"}}
-<title>Homepage Heatmap | MO Admin</title>
+<title>Click Heatmap | MO Admin</title>
 <meta name="robots" content="noindex, nofollow" />
 <meta name="description" content="Internal Mere Orthodoxy staff tool." />
-<meta property="og:title" content="Homepage Heatmap | MO Admin" />
+<meta property="og:title" content="Click Heatmap | MO Admin" />
 <meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
-<meta name="twitter:title" content="Homepage Heatmap | MO Admin" />
+<meta name="twitter:title" content="Click Heatmap | MO Admin" />
 <meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
 {{/contentFor}}
-{{!-- /admin/heatmap/ — click heatmap for the homepage. Frames the live
-     homepage and paints aggregated clicks over it, with the conversion
-     and fall-off breakdowns the picture can't show on its own.
+{{!-- /admin/heatmap/ — click heatmap. Frames a live page and paints
+     aggregated clicks over it, with the conversion and fall-off
+     breakdowns the picture can't show on its own.
+
+     Two page buckets: the homepage, and the article template with every
+     essay aggregated into one map. The Articles frame shows the most
+     recent essay as a stand-in layout.
 
      Data comes from the mo-admin worker (GET /heatmap/summary,
      GET /heatmap/points — both JWT+staff). Collection happens in
-     assets/js/heatmap-collect.js, which ships in site.min.js and only
-     runs on "/". --}}
+     assets/js/heatmap-collect.js, which ships in site.min.js and runs
+     on "/" and on post-template pages. --}}
 
 <main class="admin-page admin-workspace">
 
@@ -24,8 +28,8 @@
     {{> "admin-sidebar" active="heatmap"}}
     <div class="admin-main">
       <header class="admin-topbar">
-        <h1 class="admin-topbar-title"><em>Homepage Heatmap</em></h1>
-        <p class="admin-topbar-sub">Where visitors click on the homepage, where they convert, and where they drop off.</p>
+        <h1 class="admin-topbar-title"><em>Click Heatmap</em></h1>
+        <p class="admin-topbar-sub">Where visitors click, where they convert, and where they drop off.</p>
       </header>
 
       <section class="admin-body">
@@ -116,14 +120,14 @@
 
                   <div class="hm-stage" data-hm-stage>
                     <div class="hm-scaler" data-hm-scaler>
-                      {{!-- The live homepage. ?mo-hm-preview=1 tells
+                      {{!-- The live page. ?mo-hm-preview=1 tells
                            heatmap-collect.js to stand down inside the
                            frame so staff review doesn't write clicks
                            into the data it is displaying. --}}
                       <iframe
                         class="hm-frame"
                         data-hm-frame
-                        title="Homepage preview"
+                        title="Page preview"
                         loading="lazy"
                         referrerpolicy="same-origin"
                         scrolling="no"
@@ -133,7 +137,18 @@
                     </div>
                   </div>
 
-                  <p class="hm-caption">Clicks are anchored to page sections, so the overlay stays accurate as the homepage changes. Rendered at a fixed width per device and scaled to fit.</p>
+                  <p class="hm-caption">Clicks are anchored to page sections, so the overlay stays accurate as the page changes. Articles are one map across every essay, drawn on the most recent one. Rendered at a fixed width per device and scaled to fit.</p>
+                </div>
+
+                {{!-- Scroll depth sits under the map rather than in the
+                      side column: the stage is capped at 78vh, so the
+                      map column runs out well before the side stack
+                      does, and a horizontal bar chart is the panel that
+                      most wants the extra width. --}}
+                <div class="hm-panel">
+                  <h2 class="hm-panel-title"><em>Scroll depth</em></h2>
+                  <p class="hm-panel-sub">Share of sessions reaching each depth.</p>
+                  <div class="hm-scroll" data-hm-scroll></div>
                 </div>
               </div>
 
@@ -160,12 +175,6 @@
                   <h2 class="hm-panel-title"><em>Fall-off by section</em></h2>
                   <p class="hm-panel-sub">How far down the page visitors get, and what share of the people who saw each section clicked in it.</p>
                   <div class="hm-funnel" data-hm-funnel></div>
-                </div>
-
-                <div class="hm-panel">
-                  <h2 class="hm-panel-title"><em>Scroll depth</em></h2>
-                  <p class="hm-panel-sub">Share of sessions reaching each depth.</p>
-                  <div class="hm-scroll" data-hm-scroll></div>
                 </div>
 
                 <div class="hm-panel">
