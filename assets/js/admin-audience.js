@@ -253,11 +253,109 @@
     return rows;
   }
 
+  // The series a chart should draw: the filtered live cut when one is asked
+  // for, the cohort's own series otherwise. Returns null when a filter is on
+  // and this question has no live equivalent, so the chart drops out rather
+  // than showing unfiltered numbers under a filtered heading.
+  function profileSeries(q) {
+    if (cohort === "live" && profKey()) {
+      const cut = profSegCache[profKey()];
+      if (!cut || cut.failed) return null;
+      const dim = Q_TO_LIVE_DIM[q.id];
+      const src = dim && cut.series[dim];
+      if (!src) return null;
+      return { n: src.n, rows: src.rows || [] };
+    }
+    return q.series[cohort];
+  }
+
+  // Rebuilt only when the vocabulary changes, so an open dropdown is not
+  // thrown away mid-interaction. Same reasoning as fillSegmentControl.
+  let profVocab = null;
+  function fillProfileFilters() {
+    if (!profFilterHost) return;
+    // Live only: the survey cohorts are precomputed aggregates and cannot be
+    // re-cut by an arbitrary demographic on this page.
+    if (cohort !== "live") {
+      profFilterHost.textContent = "";
+      profVocab = null;
+      Object.keys(profFilters).forEach((k) => { delete profFilters[k]; });
+      profFilterHost.appendChild(el("span", "aud-legend",
+        `Filters apply to Real Time answers. ${cohortLabel(cohort)} is a precomputed aggregate, so it can only be cut by age, in Break it down by age below.`));
+      return;
+    }
+    const dims = activeDims();
+    const signature = dims.map((d) => `${d.key}:${d.values.join(",")}`).join("|");
+    if (signature === profVocab) { renderProfileFilterState(); return; }
+    profVocab = signature;
+    profFilterHost.textContent = "";
+
+    dims.forEach((dim) => {
+      const wrap = el("label", "aud-filter");
+      wrap.appendChild(el("span", "aud-filter-label", dim.label));
+      const sel = el("select", "aud-select");
+      sel.setAttribute("aria-label", dim.label);
+      const any = el("option", null, "Any");
+      any.value = "";
+      sel.appendChild(any);
+      dim.values.forEach((v) => {
+        const o = el("option", null, v);
+        o.value = v;
+        sel.appendChild(o);
+      });
+      sel.value = profFilters[dim.key] || "";
+      sel.addEventListener("change", () => {
+        profFilters[dim.key] = sel.value;
+        loadProfSegment(() => { renderProfileFilterState(); renderProfile(); });
+      });
+      wrap.appendChild(sel);
+      profFilterHost.appendChild(wrap);
+    });
+    const clear = el("button", "kpi-btn", "Clear filters");
+    clear.type = "button";
+    clear.setAttribute("data-aud-prof-clear", "");
+    clear.addEventListener("click", () => {
+      Object.keys(profFilters).forEach((k) => { profFilters[k] = ""; });
+      profFilterHost.querySelectorAll("select").forEach((s2) => { s2.value = ""; });
+      renderProfileFilterState();
+      renderProfile();
+    });
+    profFilterHost.appendChild(clear);
+    const st = el("span", "aud-legend");
+    st.setAttribute("data-aud-prof-status", "");
+    profFilterHost.appendChild(st);
+    profStatus = st;
+    renderProfileFilterState();
+  }
+
+  // n and a caution, next to the control rather than buried under a chart.
+  // The live cohort divides fast: two filters can leave single figures, and a
+  // percentage of four people should not be read as a finding.
+  function renderProfileFilterState() {
+    const clear = profFilterHost && profFilterHost.querySelector("[data-aud-prof-clear]");
+    if (clear) clear.hidden = profActiveCount() === 0;
+    if (!profStatus) return;
+    const key = profKey();
+    if (!key) { profStatus.textContent = ""; profStatus.className = "aud-legend"; return; }
+    const cut = profSegCache[key];
+    if (!cut) { profStatus.textContent = "Recutting live responses\u2026"; return; }
+    if (cut.failed) {
+      profStatus.textContent = "Couldn't re-cut the live responses.";
+      profStatus.className = "aud-legend is-warn";
+      return;
+    }
+    const who = activeDims().filter((d) => profFilters[d.key]).map((d) => profFilters[d.key]).join(" + ");
+    profStatus.className = cut.total < 20 ? "aud-legend is-warn" : "aud-legend";
+    profStatus.textContent = cut.total
+      ? `${cut.total} live ${cut.total === 1 ? "response is" : "responses are"} ${who}${cut.total < 20 ? " \u2014 read the shape, not the decimals." : "."}`
+      : `No live responses are ${who}.`;
+  }
+
   function renderProfile() {
     const host = root.querySelector("[data-aud-profile]");
     host.textContent = "";
     DATA.questions.forEach((q) => {
-      const series = q.series[cohort];
+      const series = profileSeries(q);
       if (!series || !series.rows.length) return;
 
       const block = el("div", "aud-block");
@@ -295,6 +393,9 @@
       head.appendChild(meta2);
       block.appendChild(head);
 
+      // Deliberately the other cohort's UNFILTERED series: the ghost line is
+      // there to answer "and how does everyone else answer this", which a
+      // filter applied to both sides would destroy.
       const other = compare ? q.series[compareWith] : null;
       const max = Math.max.apply(null, series.rows.map((r) => r.pct));
       const list = el("ul", "admin-ranked");
@@ -313,6 +414,11 @@
       }
       host.appendChild(block);
     });
+    if (!host.childElementCount) {
+      host.appendChild(el("p", "admin-sub", cohort === "live" && profKey()
+        ? "No live responses match those filters."
+        : `${cohortLabel(cohort)} has no answers to show.`));
+    }
   }
 
   // ---- cross-tab explorer --------------------------------------------------
@@ -587,6 +693,8 @@
   function svdSay(msg) { if (svdStatus) svdStatus.textContent = msg || ""; }
 
   const svdFilterHost = root.querySelector("[data-aud-svd-filters]");
+  const profFilterHost = root.querySelector("[data-aud-profile-filters]");
+  let profStatus = null;
   const svdClearBtn = root.querySelector("[data-aud-svd-clear]");
   let svdSort = { col: "gap", dir: "desc" };
   // dim key -> chosen value. Empty means "Any".
@@ -714,6 +822,52 @@
     return parts.join("&");
   }
 
+  /* ---- profile filters -------------------------------------------------
+   * The Profile charts get their own demographic filters, separate from the
+   * Supply and Demand ones above: those re-cut stated interest against a
+   * fixed supply side, these re-cut every question at once. Both hit the same
+   * endpoint and both are keyed caches, so switching between them costs one
+   * request per distinct combination and nothing after that.
+   *
+   * Live only. The 2025 and 2026 cohorts are precomputed aggregates with no
+   * per-respondent rows behind them on this page, so they cannot be re-cut by
+   * an arbitrary demographic. Age is the exception and already has its own
+   * section further down.
+   */
+  const profFilters = {};
+  const profSegCache = {};
+
+  function profKey() {
+    return activeDims()
+      .filter((d) => profFilters[d.key])
+      .map((d) => `${d.key}=${profFilters[d.key]}`)
+      .join("|");
+  }
+  function profQuery() {
+    return activeDims()
+      .filter((d) => profFilters[d.key])
+      .map((d) => `${LIVE_PARAM[d.key]}=${encodeURIComponent(LIVE_VALUE[profFilters[d.key]] || profFilters[d.key])}`)
+      .join("&");
+  }
+  function profActiveCount() {
+    return activeDims().filter((d) => profFilters[d.key]).length;
+  }
+
+  function loadProfSegment(then) {
+    const key = profKey();
+    if (cohort !== "live" || !key) { then(); return; }
+    if (profSegCache[key]) { then(); return; }
+    if (!WORKER || !window.MOAuth) { profSegCache[key] = { failed: true, total: 0, series: {} }; then(); return; }
+    if (profStatus) profStatus.textContent = "Recutting live responses\u2026";
+    window.MOAuth.fetch(`${WORKER}/audience/survey/summary?${profQuery()}`)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((d) => { profSegCache[key] = { total: d.total || 0, series: d.series || {} }; })
+      .catch(() => { profSegCache[key] = { failed: true, total: 0, series: {} }; })
+      .then(() => { then(); });
+  }
+
+  // Question id -> the dimension the worker returns it under.
+  const Q_TO_LIVE_DIM = {};
   // Resolves once the live cut for the current filters is in the cache, or
   // immediately when there is nothing to fetch.
   function loadLiveSegment(then) {
@@ -1177,6 +1331,7 @@
     gender: "gender", age: "age", denomination: "denom",
     role: "role", interests: "topics",
   };
+  Object.keys(LIVE_MAP).forEach((dim) => { Q_TO_LIVE_DIM[LIVE_MAP[dim]] = dim; });
   let liveLoaded = false;
   let liveLoading = false;
 
@@ -1369,6 +1524,8 @@
     // options exist, and segKey() must not be computed from a value the new
     // vocabulary cannot express.
     fillSegmentControl();
+    // Same reason: a cohort switch changes whether these exist at all.
+    fillProfileFilters();
     renderSectionScope();
     renderStats();
     renderSignals();

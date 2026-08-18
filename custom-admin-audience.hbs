@@ -97,6 +97,12 @@
               <h2 class="admin-section-title"><em>The profile</em></h2>
               <p class="admin-section-hint">Every survey question for the selected cohort. Turn on Compare to see the other cohort behind each bar.</p>
             </div>
+            {{!-- Demographic filters for the charts below. Live only: the
+                  2025/2026 cohorts are precomputed aggregates with no
+                  per-respondent rows behind them here, so they cannot be
+                  re-cut by an arbitrary demographic. The control says so
+                  rather than sitting there inert. --}}
+            <div class="aud-controls aud-controls--filters" data-aud-profile-filters></div>
             <div class="aud-controls">
               <label class="aud-check">
                 <input type="checkbox" data-aud-compare />
