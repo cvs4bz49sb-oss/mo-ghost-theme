@@ -23769,3 +23769,180 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
   color: var(--color-muted, #6b6b6b);
 }
 .admin-orders-note a { color: var(--color-secondary); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── /admin/articles/ — Article Performance ──────────────────────────────
+   Reuses the audience board's table language (.aud-table, .aud-th-sort,
+   .aud-num) so the two admin data pages read as one system. What is new
+   here is the verdict column, the row expansion, and a card layout for
+   phones, because a seven-column table at 393px is three viewports wide. */
+
+.art-key {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--color-muted);
+  margin: 0 0 14px;
+  max-width: 760px;
+}
+.art-key-term { color: var(--color-dark); font-weight: 600; }
+.art-key-sep { opacity: 0.5; }
+
+/* overflow-y is stated, not left to compute. Setting overflow-x alone makes
+   the other axis resolve to auto, which on a touch device claims the vertical
+   gesture and rubber-bands the table instead of scrolling the page. Same bug
+   that was fixed on .admin-period. touch-action is deliberately NOT pinned
+   here: on a full-height table, swallowing vertical swipes would stop the
+   page scrolling at all. */
+.art-tablewrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+.art-table { width: 100%; }
+.art-table th,
+.art-table td { vertical-align: top; }
+
+.art-title { min-width: 240px; max-width: 380px; }
+.art-title-stack { display: inline-block; vertical-align: top; }
+.art-title-link {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  color: var(--color-dark);
+  text-decoration: none;
+  font-weight: 500;
+}
+.art-title-link:hover { color: var(--color-secondary); text-decoration: underline; }
+.art-title-meta {
+  display: block;
+  font-size: 11px;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+/* The expander is a real button. 22px visually, with a pseudo-element hit
+   area so a thumb gets ~40px without changing the row's height. */
+.art-toggle {
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+  padding: 0;
+  margin-right: 10px;
+  color: var(--color-muted);
+  cursor: pointer;
+  position: relative;
+  flex: 0 0 auto;
+  font-size: 14px;
+}
+.art-toggle::after { content: ""; position: absolute; inset: -9px; }
+.art-toggle:hover { color: var(--color-dark); border-color: var(--color-muted); }
+
+/* Verdict. Colour is a quiet accent on the two states that imply an action,
+   not a red/green scoreboard: every author would otherwise have a red row,
+   and red/green alone is unreadable to a deuteranope. The word carries the
+   meaning; the colour only draws the eye. */
+.art-verdict {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+.art-v-converted { color: #2f7d55; }
+.art-v-grew { color: #2f7d55; }
+.art-v-underexposed { color: var(--color-primary); font-weight: 600; }
+.art-v-noconvert { color: var(--color-alert-text); }
+.art-v-accumulating,
+.art-v-thin,
+.art-v-unknown { color: var(--color-muted); font-style: italic; }
+.art-v-steady { color: var(--color-muted); }
+
+/* Immature rows: a left hairline, never a tinted row. A background tint on a
+   table row reads as a selection state. */
+.art-immature > th:first-child { box-shadow: inset 3px 0 0 var(--color-card-border); }
+
+.art-detail > td {
+  background: rgba(0, 0, 0, 0.015);
+  padding-top: 10px;
+  padding-bottom: 12px;
+}
+.art-detail-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+}
+.art-detail-item { display: flex; flex-direction: column; gap: 2px; }
+.art-detail-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+.art-detail-value { font-size: 13px; color: var(--color-dark); }
+
+.art-table tbody tr:hover td { background: rgba(238, 125, 81, 0.04); }
+.art-stamp { font-size: 12px; color: var(--color-muted); white-space: nowrap; }
+
+/* Phones get cards, not a sideways table. Seven columns at 393px is roughly
+   three viewports wide, and the article title scrolls out of view long before
+   the numbers do, which makes every figure unattributable to a piece. */
+@media (max-width: 640px) {
+  /* Both axes, not just x. overflow-x: visible next to an overflow-y of
+     hidden computes back to auto, which would leave a scroll container on a
+     layout that has nothing to scroll. */
+  .art-tablewrap { overflow: visible; }
+  /* 22px is right beside a table row and wrong under a thumb. In the card
+     layout there is room to simply make it bigger, which beats relying on a
+     pseudo-element hit area that other card padding can win against. */
+  .art-toggle { width: 32px; height: 32px; font-size: 16px; }
+  .art-table,
+  .art-table tbody,
+  .art-table tr,
+  .art-table th,
+  .art-table td { display: block; width: auto; }
+  .art-table thead { display: none; }
+  .art-table tbody tr {
+    border: 1px solid var(--color-card-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .art-table tbody tr:hover td { background: transparent; }
+  .art-table .art-title {
+    min-width: 0;
+    max-width: none;
+    border: 0;
+    padding: 0 0 10px;
+    display: flex;
+    align-items: flex-start;
+  }
+  .art-table .art-title-link { -webkit-line-clamp: 3; font-size: 15px; }
+  .art-table td {
+    border: 0;
+    padding: 4px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    text-align: right;
+  }
+  /* The header row is gone, so each value carries its own label. */
+  .art-table td::before {
+    content: attr(data-label);
+    font-size: 12px;
+    color: var(--color-muted);
+    text-align: left;
+    flex: 0 0 auto;
+  }
+  /* The date is already on the title line in card layout, so the Published
+     row would say it twice. */
+  .art-table td[data-label="Published"] { display: none; }
+  .art-immature > th:first-child { box-shadow: none; }
+  .art-table tbody tr.art-immature { border-left: 3px solid var(--color-card-border); }
+  .art-detail > td { background: transparent; padding-top: 8px; }
+  .art-detail > td::before { content: none; }
+  .art-detail-grid { gap: 8px 20px; }
+}

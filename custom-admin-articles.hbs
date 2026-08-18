@@ -1,0 +1,78 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Article Performance | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Article Performance | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Article Performance | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/articles/ — how each piece travelled.
+
+     SKELETON ONLY. Every number arrives at runtime from mo-admin, which
+     checks the caller against the live Ghost staff list server-side and
+     omits the signup and conversion fields entirely for anyone without the
+     members tool.
+
+     Nothing may be inlined here. {{#if @member}} is the only gate a Ghost
+     template has and it cannot tell staff from any other signed-in member,
+     so anything rendered into this page is delivered to every subscriber
+     with an account. Same rule, and the same reason, as
+     custom-admin-audience.hbs. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="articles"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Article Performance</em></h1>
+        <p class="admin-topbar-sub">How each piece travelled: who saw it, and who joined because of it. <span class="art-stamp" data-art-stamp></span></p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container" data-articles data-worker-url="{{@custom.admin_worker_url}}">
+
+          {{!-- Period tabs. Labelled "Published in" rather than a bare date
+                range: the control picks which posts are LISTED, and their
+                views are counted over the same window, so a piece cannot
+                borrow traffic from before it existed. --}}
+          <div class="admin-period" role="tablist" aria-label="Published in" data-art-periods></div>
+
+          <ul class="admin-stats" data-art-stats></ul>
+
+          <div class="admin-section">
+            <div class="admin-section-header">
+              <h2 class="admin-section-title"><em>Every piece</em></h2>
+              <p class="admin-section-hint">Sorted newest first, because the usual question is how the thing we just ran did. Sort by any column to ask a different one. The verdict is the column to read: the numbers say what happened, it says which of them is worth acting on.</p>
+            </div>
+            <p class="art-key" data-art-key></p>
+            <div class="aud-controls">
+              <span class="aud-legend" data-art-status role="status" aria-live="polite"></span>
+            </div>
+            <div data-art-table></div>
+          </div>
+
+          <div class="admin-section">
+            <p class="aud-foot" data-art-foot></p>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-articles.js"}}"></script>
+{{!-- admin-auth.js ships inside boot.min.js in <head>, so window.MOAuth and
+     window.MOSafeHref are both defined before this page script runs. Page
+     scripts execute BEFORE site.min.js, so nothing here may reach for a
+     site-bundle global. --}}

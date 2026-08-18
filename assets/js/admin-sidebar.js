@@ -90,6 +90,9 @@
     // without a KV edit. Split it out if audience ever needs its own key.
     audience: "kpi",
     coverage: "coverage",
+    // Matches toolForRoute("/articles") on mo-admin. The signup and
+    // conversion columns are gated separately, inside the endpoint.
+    articles: "traffic",
     editorial: "editorial",
     contact: "contact",
     inbox: "inbox",
