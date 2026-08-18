@@ -799,8 +799,9 @@
     },
     {
       id: "subs", type: "bar", agg: "sum", title: "Subscribes and unsubscribes",
-      sub: "Ghost signups against unsubscribes recorded on Kit sends.",
-      keys: ["nsub", "unsub"], names: ["Subscribed", "Unsubscribed"], f: fmt
+      sub: "Ghost signups against unsubscribes recorded on Kit sends. The summary row is net growth, signups minus unsubscribes, not the two added together.",
+      keys: ["nsub", "unsub"], names: ["Subscribed", "Unsubscribed"], f: fmt,
+      summary: "net"
     },
     {
       id: "traffic", type: "line", agg: "sum", title: "Traffic, all channels",
@@ -959,6 +960,19 @@
     chartBuckets = buckets;
   }
 
+  // The summary row under a chart and in its hover tooltip. Adding the series
+  // up only means something when they accumulate. Signups against
+  // unsubscribes share a unit but their sum is a number nobody wants: the
+  // useful one is the difference, so `summary: "net"` subtracts every series
+  // after the first from the first.
+  const summaryVal = (cfg, rows, i) => (cfg.summary === "net"
+    ? rows.slice(1).reduce((t, s) => t - s[i].v, rows[0][i].v)
+    : rows.reduce((t, s) => t + s[i].v, 0));
+  // A net missing one of its terms is not a net, so it is suppressed when a
+  // series was dropped for want of history. A total still adds up.
+  const showSummary = (cfg, dropped) =>
+    !cfg.noTotal && !(cfg.summary === "net" && dropped);
+
   function chartHtml(cfg, g) {
     const rawAll = cfg.keys.map((k) => bucketize(k, cfg.agg, g));
     // A series with no data must not erase the ones that have it. Taking
@@ -980,7 +994,10 @@
     const dropped = cfg.keys.length - keep.length;
     const n = Math.min(...raw.map((b) => b.length));
     const buckets = raw.map((b) => b.slice(b.length - n));
-    chartState[cfg.id] = { cfg, buckets };
+    // `names` is remapped by `keep`; cfg.names is not. The hover tooltip read
+    // cfg.names[j] against the KEPT buckets, so every dropped series shifted
+    // the remaining labels onto the wrong rows.
+    chartState[cfg.id] = { cfg, buckets, names, dropped };
     // Cap the table at the most recent 24 buckets. At Day grain the full
     // series is over a thousand columns, which is unreadable and drags the
     // card open however wide the scroll container is.
@@ -989,7 +1006,7 @@
     const table = `<div class="kpi-tbl" id="tbl-${cfg.id}"><table>
       <thead><tr><th>Series</th>${tb[0].map((b) => `<th>${b.label}</th>`).join("")}</tr></thead>
       <tbody>${tb.map((sr, j) => `<tr><td><span class="kpi-swatch" style="background:${SERIES_COLORS[j]}"></span>${names[j]}</td>${sr.map((b) => `<td>${cfg.f(b.v)}</td>`).join("")}</tr>`).join("")}${
-        cfg.noTotal ? "" : `<tr class="is-total"><td><b>Total</b></td>${tb[0].map((_, i) => `<td><b>${cfg.f(tb.reduce((t, sr) => t + sr[i].v, 0))}</b></td>`).join("")}</tr>`}</tbody>
+        showSummary(cfg, dropped) ? `<tr class="is-total"><td><b>${cfg.summary === "net" ? "Net" : "Total"}</b></td>${tb[0].map((_, i) => `<td><b>${cfg.f(summaryVal(cfg, tb, i))}</b></td>`).join("")}</tr>` : ""}</tbody>
     </table>${capped ? `<p class="kpi-note">Most recent 24 of ${buckets[0].length} periods.</p>` : ""}</div>`;
     return `<div class="kpi-chart" data-chart="${cfg.id}">
       <div class="kpi-chart-head">
@@ -1299,11 +1316,13 @@
         const i = Number(z.getAttribute("data-i"));
         z.addEventListener("mouseenter", (ev) => {
           const rows = st.buckets.map((s, j) =>
-            `<div class="r"><span class="kpi-key" style="background:${SERIES_COLORS[j]}"></span>${st.cfg.names[j]}<span class="v">${st.cfg.f(s[i].v)}</span></div>`
+            `<div class="r"><span class="kpi-key" style="background:${SERIES_COLORS[j]}"></span>${(st.names || st.cfg.names)[j]}<span class="v">${st.cfg.f(s[i].v)}</span></div>`
           ).join("");
-          // A total only means something when the series share a unit.
-          const total = st.cfg.noTotal ? "" :
-            `<div class="r is-total"><b>Total</b><span class="v"><b>${st.cfg.f(st.buckets.reduce((t, s) => t + s[i].v, 0))}</b></span></div>`;
+          // A total only means something when the series share a unit AND
+          // accumulate. On subscribes against unsubscribes it is a net.
+          const total = showSummary(st.cfg, st.dropped)
+            ? `<div class="r is-total"><b>${st.cfg.summary === "net" ? "Net" : "Total"}</b><span class="v"><b>${st.cfg.f(summaryVal(st.cfg, st.buckets, i))}</b></span></div>`
+            : "";
           els.tip.innerHTML = `<div class="m">${st.buckets[0][i].range || st.buckets[0][i].label}</div>${rows}${total}`;
           els.tip.style.opacity = 1;
           const r = ev.target.getBoundingClientRect();
