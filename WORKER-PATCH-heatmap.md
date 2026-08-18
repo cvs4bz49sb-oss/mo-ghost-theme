@@ -516,3 +516,67 @@ shows a banner where the overlay would be; only the picture is lost.
    the overlay should put a blob on whatever you clicked.
 4. Confirm the frame does **not** record: click inside the preview on the
    admin page, refresh, and check that `heatmap_points` didn't grow.
+
+---
+
+## 9. Page buckets (added 2026-08-18)
+
+The collector originally returned on every URL but `/`. It now records
+two buckets, named by the beacon's `page` field rather than its URL:
+
+| Bucket | Matches | Sections |
+|--------|---------|----------|
+| `home` | pathname `/` | `index.hbs` + `default.hbs` |
+| `post` | `post-template` on `<body>` | `post.hbs` + `default.hbs` |
+
+**Articles are bucketed by template, not by URL.** Every essay rolls
+into one heatmap. Per-URL would mean thousands of maps holding a handful
+of sessions each: useless statistically, and unbounded in storage. The
+consequence to keep in mind when reading it is the same one the homepage
+already has, only stronger — the map shows where people click *on the
+article template*, and the prose under the blobs is whichever essay the
+frame happened to load.
+
+### Storage, without a table rebuild
+
+`page` is an additive column on all four tables
+(`migrations/heatmap-add-page.sql`). No primary key changed, because two
+things make the existing keys sufficient:
+
+1. **Section keys are namespaced on write.** Non-home sections are stored
+   as `post:body`, `post:header`, and so on. `header` and `footer` come
+   from `default.hbs` and appear on both templates, so without the prefix
+   an article's header clicks would land on the homepage's row and become
+   unfilterable. The worker strips the prefix on read (`hmStripSec`), so
+   the overlay still matches the bare `data-hm-section` attribute.
+2. **Session ids are scoped per page view.** `heatmap_sessions` is keyed
+   on `sid` alone, and the two session tables on `(sid, sec)` /
+   `(sid, goal)`. The collector mixes an FNV hash of the pathname into
+   its tab id, so a tab that reads three essays writes three rows rather
+   than one row carrying the deepest scroll of the three.
+
+For the `post` bucket this means **"sessions" is article page views**,
+which is the denominator the per-template rates want. The homepage
+bucket is unchanged: one row per tab.
+
+The tradeoff bought by not rebuilding: a tab's homepage view and its
+article view can no longer be joined, so a cross-page funnel ("read an
+essay, then hit #join on the homepage") is not answerable from these
+tables. Nothing built today asks that question.
+
+### Deploy order
+
+1. `migrations/heatmap-add-page.sql` against mo-membership.
+2. mo-admin worker. Every read query carries `AND page = ?`, so deploying
+   it before the migration 500s the whole dashboard.
+3. Theme. The collector starts sending `page`; the worker drops any
+   beacon whose bucket isn't on the allowlist, so an old cached
+   collector (no `page` field) is ignored rather than misfiled.
+
+### Range semantics
+
+`days` is now inclusive of today: `1` is today alone, `7` is today plus
+the six before it. It previously subtracted N whole days from now, so
+`day >= since` spanned N+1 days and "last 7 days" was really 8. Every
+range therefore reports very slightly lower than it did before this
+change. `day` is a UTC date, so "Today" rolls over at 7pm Central.

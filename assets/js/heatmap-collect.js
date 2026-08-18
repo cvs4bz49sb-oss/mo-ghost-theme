@@ -1,16 +1,19 @@
 /*
- * Homepage click-heatmap collector.
+ * Click-heatmap collector.
  *
- * Records where visitors click on the homepage, which sections they
- * actually reach, and which clicks go nowhere — the raw material for
- * /admin/heatmap/. Ships in site.min.js and returns immediately on
- * every page except "/", so the cost elsewhere is one string compare.
+ * Records where visitors click, which sections they actually reach, and
+ * which clicks go nowhere — the raw material for /admin/heatmap/.
+ * Ships in site.min.js and runs on two page buckets: the homepage, and
+ * the article template (every essay aggregated into one heatmap, not
+ * one heatmap per URL). Everywhere else it returns immediately, so the
+ * cost is a string compare and a class check.
  *
  * What it stores
  * ==============
  * Nothing that identifies a person. Per pageview:
  *   - a random tab-scoped id (sessionStorage, cleared when the tab
- *     closes) so repeat homepage views in one visit count once
+ *     closes), mixed with a hash of the path so one tab reading three
+ *     essays counts as three page views rather than one
  *   - device bucket, viewport width, document height
  *   - whether the visitor was signed in (boolean — never the email)
  *   - referrer HOSTNAME only, never the full referring URL
@@ -60,7 +63,21 @@
     return;
   }
 
-  if (window.location.pathname !== "/") return;
+  // ── Page bucket ───────────────────────────────────────────────────
+  //
+  // Clicks are bucketed by TEMPLATE, not by URL. "post" is every essay
+  // on the site rolled into one heatmap: per-URL tracking would mean
+  // thousands of heatmaps with a handful of sessions each, which is
+  // both useless statistically and unbounded in storage. Templates
+  // that carry no [data-hm-section] markers stay unrecorded — a page
+  // with no sections yields nothing but a shapeless `page` blob.
+  const PAGE = (function () {
+    if (window.location.pathname === "/") return "home";
+    if (document.body && document.body.classList.contains("post-template")) return "post";
+    return null;
+  })();
+
+  if (!PAGE) return;
 
   // ── Consent signals ───────────────────────────────────────────────
   if (
@@ -93,6 +110,22 @@
     return Array.from(buf, (b) => b.toString(16).padStart(2, "0")).join("");
   }
 
+  // heatmap_sessions is keyed on sid alone, and section/goal rows on
+  // (sid, sec) and (sid, goal). A tab that reads three essays would
+  // collapse into one row and report the deepest scroll of the three as
+  // if it were one page view. Mixing a hash of the path into the tab id
+  // makes the id per-page-view: stable across this page's early flush
+  // and its pagehide beacon, distinct between pages, still hex for the
+  // worker's sid check. The path never leaves the browser.
+  function pathHash(path) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < path.length; i += 1) {
+      h ^= path.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16).padStart(8, "0");
+  }
+
   let sid;
   let sampledIn;
   try {
@@ -118,6 +151,9 @@
   }
 
   if (!sampledIn) return;
+
+  // Tab id from here on is the page-view id.
+  sid = sid.slice(0, 16) + pathHash(window.location.pathname);
 
   // ── Constants ─────────────────────────────────────────────────────
   // Per session: a hard cap on stored clicks, and the buffer size that
@@ -329,7 +365,7 @@
     return {
       v: 1,
       sid,
-      path: "/",
+      page: PAGE,
       dev: deviceBucket(window.innerWidth),
       vw: window.innerWidth,
       vh: window.innerHeight,

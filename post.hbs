@@ -4,7 +4,7 @@
 {{#post}}
 
 <article{{#has tag="#event"}} data-event-post{{/has}}>
-    <header class="article-header">
+    <header class="article-header" data-hm-section="header-block">
         <div class="article-header-inner">
             {{!-- Topic pill: render every public tag; CSS hides
                  author-* slugs and separates the rest with "·". --}}
@@ -82,7 +82,7 @@
                          data-post-title="{{title}}"
                          data-post-author="{{#if primary_author}}{{primary_author.name}}{{else}}Mere Orthodoxy{{/if}}"
                          {{#if feature_image}}data-post-image="{{img_url feature_image size="m"}}"{{/if}}>
-                        <button class="article-audio-trigger" type="button" data-audio-trigger data-feature-gate="audio" aria-label="Listen to this essay">
+                        <button class="article-audio-trigger" type="button" data-hm-goal="listen" data-audio-trigger data-feature-gate="audio" aria-label="Listen to this essay">
                             <svg class="article-audio-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5l12 7-12 7V5z"/></svg>
                             <span class="article-audio-label">Listen to this essay</span>
                         </button>
@@ -93,7 +93,7 @@
                      line instead of breaking one-by-one. --}}
                 <div class="article-actions-icons">
                     {{#if @custom.kit_worker_url}}
-                        <button class="article-bookmark" type="button"
+                        <button class="article-bookmark" type="button" data-hm-goal="bookmark"
                                 data-article-bookmark
                                 data-feature-gate="bookmark"
                                 data-post-id="{{id}}"
@@ -111,7 +111,7 @@
                          users who don't have access and shows a popup with
                          a CTA to subscribe / become a member. Gating tier
                          lives in data-feature-gate on each button. --}}
-                    <a class="article-pdf" href="#"
+                    <a class="article-pdf" href="#" data-hm-goal="pdf"
                        data-article-pdf
                        data-feature-gate="pdf"
                        data-post-id="{{id}}"
@@ -125,7 +125,7 @@
                         <span class="article-pdf-label">Download PDF</span>
                     </a>
                     {{#if @custom.gift_worker_url}}
-                    <button class="article-gift" type="button"
+                    <button class="article-gift" type="button" data-hm-goal="gift-essay"
                             data-article-gift
                             data-feature-gate="gift"
                             data-post-id="{{id}}"
@@ -142,7 +142,7 @@
                         <span class="article-gift-label">Gift this essay</span>
                     </button>
                     {{/if}}
-                    <button class="article-theme" type="button"
+                    <button class="article-theme" type="button" data-hm-goal="dark-mode"
                             data-dark-mode-toggle
                             aria-label="Switch to dark mode"
                             aria-pressed="false">
@@ -157,7 +157,7 @@
     </header>
 
     {{#if feature_image}}
-        <div class="article-feature-img">
+        <div class="article-feature-img" data-hm-section="feature-img">
             <div class="article-feature-img-inner">
                 <img src="{{img_url feature_image size="xl"}}"
                      srcset="{{img_url feature_image size="s"}} 300w,
@@ -177,7 +177,7 @@
     {{!-- Mobile-only TOC slot. JS populates both this and the desktop rail from
          the article's <h2> headings. Hidden on desktop via CSS; hidden on mobile
          when empty so posts without subheads don't show an empty container. --}}
-    <nav class="toc-mobile" aria-label="In this essay" data-toc hidden>
+    <nav class="toc-mobile" aria-label="In this essay" data-hm-section="toc-mobile" data-toc hidden>
         <p class="toc-label">In this essay</p>
         <ol class="toc-list" data-toc-list></ol>
     </nav>
@@ -185,10 +185,11 @@
     <div class="article-body">
         <div class="article-body-inner">
 
-            <aside class="article-rail" aria-label="Share">
+            <aside class="article-rail" aria-label="Share" data-hm-section="share-rail">
                 <div>
                     <div class="rail-label">Share</div>
                     <div class="share-buttons"
+                         data-hm-goal="share"
                          data-share
                          data-share-title="{{title}}"
                          data-share-url="{{url absolute="true"}}"
@@ -209,6 +210,7 @@
                  real paywall. For enforced access control we'll
                  promote to a worker that flips post visibility. --}}
             <div class="article-content"
+                 data-hm-section="body"
                  data-post-gate
                  data-post-id="{{id}}"
                  data-published-at="{{published_at}}"
@@ -227,19 +229,19 @@
                 {{#match @member.status "comped"}}{{else}}
                 {{#if @member}}
                     {{!-- Free subscriber — already on the list; upgrade nudge. --}}
-                    <div class="inline-support">
+                    <div class="inline-support" data-hm-section="inline-cta">
                         <p class="eyebrow">A Reader-Supported Publication</p>
                         <h3><em>You're reading the kind of essay we exist to publish.</em></h3>
                         <p>
                             Mere Orthodoxy publishes long-form essays on theology, culture, and spiritual formation because readers like you make them possible. If this piece is worth your time, consider supporting the work.
                         </p>
                         <div class="inline-support-ctas">
-                            <a href="#join" class="btn btn-primary">Become a Member</a>
+                            <a href="#join" class="btn btn-primary" data-hm-goal="member-cta">Become a Member</a>
                         </div>
                     </div>
                 {{else}}
                     {{!-- Anonymous visitor — convert to digest subscriber first. --}}
-                    <div class="inline-support">
+                    <div class="inline-support" data-hm-section="inline-cta">
                         <p class="eyebrow">The Weekly Digest</p>
                         <h3><em>Premier Thought Every Thursday.</em></h3>
                         <p>All of our recent essays and podcasts, delivered to you. Free.</p>
@@ -256,7 +258,7 @@
                                 <label for="article-digest-email">Email</label>
                                 <input id="article-digest-email" type="email" autocomplete="email" placeholder="you@example.com" data-signup-email required />
                             </div>
-                            <button type="button" class="digest-submit" data-signup-submit>Subscribe</button>
+                            <button type="button" class="digest-submit" data-hm-goal="digest-cta" data-signup-submit>Subscribe</button>
                             <p class="digest-fineprint">Free. Delivered Thursday mornings.</p>
                             <p class="digest-status" data-signup-status></p>
                         </div>
@@ -266,7 +268,8 @@
                 {{/match}}
             </div>
 
-            <aside class="article-rail article-rail-toc" aria-label="Contents" data-toc hidden>
+            <aside class="article-rail article-rail-toc" aria-label="Contents"
+                   data-hm-section="toc" data-toc hidden>
                 <div>
                     <div class="rail-label">In this essay</div>
                     <ol class="toc-list" data-toc-list></ol>
@@ -275,7 +278,7 @@
 
         </div>
 
-        <div class="container-narrow">
+        <div class="container-narrow" data-hm-section="author-bio">
             {{!-- Contributor bio block mirrors the byline override: any author- tag replaces
                  the staff author bio. One bio block per contributor tag on the post. --}}
             <div class="author-bio-contributors" data-bio>
@@ -345,6 +348,7 @@
      variables, not properties of the post object. Use the block helpers
      {{#next_post}} and {{#prev_post}} directly as renderers instead. --}}
 <section class="related"
+         data-hm-section="read-next"
          data-related
          data-post-id="{{id}}"
          data-tag-slugs="{{#foreach tags visibility="public"}}{{slug}}{{#unless @last}},{{/unless}}{{/foreach}}">
@@ -356,7 +360,7 @@
         <h2 class="section-heading related-sub-heading"><em>Recent Articles</em></h2>
         <div class="week-grid">
             {{#next_post}}
-            <a href="{{url}}" class="entry" data-neighbor-entry data-post-id="{{id}}">
+            <a href="{{url}}" class="entry" data-hm-goal="read-next" data-neighbor-entry data-post-id="{{id}}">
                 <div class="entry-plate">
                     <div class="entry-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="m"}});"{{/if}}></div>
                 </div>
@@ -373,7 +377,7 @@
             </a>
             {{/next_post}}
             {{#prev_post}}
-            <a href="{{url}}" class="entry" data-neighbor-entry data-post-id="{{id}}">
+            <a href="{{url}}" class="entry" data-hm-goal="read-next" data-neighbor-entry data-post-id="{{id}}">
                 <div class="entry-plate">
                     <div class="entry-plate-inner"{{#if feature_image}} style="background-image: url({{img_url feature_image size="m"}});"{{/if}}></div>
                 </div>
@@ -406,7 +410,7 @@
      used on the homepage #join anchor and /membership/. Wrapped in a
      .membership.homepage-membership div so it picks up the same
      containing styles the homepage uses. --}}
-<div class="membership homepage-membership" id="join">
+<div class="membership homepage-membership" id="join" data-hm-section="join">
   {{> "membership-body"}}
 </div>
 

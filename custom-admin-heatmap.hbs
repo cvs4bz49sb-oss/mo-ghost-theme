@@ -34,9 +34,22 @@
 
             {{!-- Controls --}}
             <div class="hm-controls">
+              {{!-- Page bucket. Articles are one heatmap across every
+                    essay, not one per URL: per-URL would be thousands
+                    of near-empty maps. The frame loads the most recent
+                    essay as a stand-in layout. --}}
+              <label class="hm-control">
+                <span class="hm-control-label">Page</span>
+                <select data-hm-page>
+                  <option value="home" selected>Homepage</option>
+                  <option value="post">Articles</option>
+                </select>
+              </label>
+
               <label class="hm-control">
                 <span class="hm-control-label">Range</span>
                 <select data-hm-days>
+                  <option value="1">Today</option>
                   <option value="7">Last 7 days</option>
                   <option value="30" selected>Last 30 days</option>
                   <option value="90">Last 90 days</option>

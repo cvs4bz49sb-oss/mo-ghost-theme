@@ -61,9 +61,19 @@
   // a heat blob hides the difference entirely.
   const RENDER_SCALE = 0.5;
 
+  // One array covers both page buckets. The two blocks never co-occur
+  // in a single response — a homepage query cannot return `body`, an
+  // article query cannot return `hero` — so the only ordering that
+  // matters is within a block, plus the shared keys pinned to the end.
   const SECTION_ORDER = [
+    // Homepage
     "header", "hero", "today", "digest", "this-week", "dlp-band",
-    "listen", "journal", "readers", "join", "footer", "page",
+    "listen", "journal", "readers",
+    // Article, in reading order
+    "header-block", "feature-img", "toc-mobile", "toc", "share-rail",
+    "body", "inline-cta", "author-bio", "read-next",
+    // Shared
+    "join", "footer", "page",
   ];
 
   const SECTION_LABEL = {
@@ -76,6 +86,15 @@
     listen: "Podcasts",
     journal: "Print journal",
     readers: "Reader quotes",
+    "header-block": "Title + byline + tools",
+    "feature-img": "Feature image",
+    "toc-mobile": "Contents (mobile)",
+    toc: "Contents rail",
+    "share-rail": "Share rail",
+    body: "Essay body",
+    "inline-cta": "In-essay CTA",
+    "author-bio": "Author bio",
+    "read-next": "Read Next",
     join: "Membership (#join)",
     footer: "Footer",
     page: "Unsectioned",
@@ -93,11 +112,19 @@
     archive: "Browse the archive",
     podcast: "Podcast link",
     nav: "Header navigation",
+    listen: "Listen to this essay",
+    bookmark: "Bookmark",
+    pdf: "Download PDF",
+    "gift-essay": "Gift this essay",
+    "dark-mode": "Dark mode toggle",
+    share: "Share buttons",
+    "read-next": "Read Next essay",
   };
 
   // ── Elements ──────────────────────────────────────────────────────
   const el = {
     days: root.querySelector("[data-hm-days]"),
+    page: root.querySelector("[data-hm-page]"),
     device: root.querySelector("[data-hm-device]"),
     mode: root.querySelector("[data-hm-mode]"),
     intensity: root.querySelector("[data-hm-intensity]"),
@@ -129,6 +156,9 @@
     frameHtml: null,
     frameAnon: false,
     loading: false,
+    // Resolved once per page bucket: the URL the frame should show.
+    // "home" is always "/", "post" is whatever the newest essay is.
+    frameUrls: { home: "/" },
   };
 
   // ── Small helpers ─────────────────────────────────────────────────
@@ -194,6 +224,17 @@
     return (el.mode && el.mode.value) || "heat";
   }
 
+  function currentPage() {
+    return (el.page && el.page.value) || "home";
+  }
+
+  // `days` is inclusive of today, so 1 is today alone. The worker reads
+  // it the same way; see hmRange() in admin.js.
+  function rangeLabel() {
+    const days = currentDays();
+    return days === 1 ? "today" : `last ${days} days`;
+  }
+
   function pointKind() {
     const mode = currentMode();
     if (mode === "dead") return "dead";
@@ -218,7 +259,10 @@
     state.loading = true;
     setStatus("Loading…");
 
-    const q = `?days=${currentDays()}&dev=${encodeURIComponent(currentDevice())}`;
+    const q =
+      `?days=${currentDays()}` +
+      `&dev=${encodeURIComponent(currentDevice())}` +
+      `&page=${encodeURIComponent(currentPage())}`;
 
     Promise.all([
       api(`/heatmap/summary${q}`),
@@ -233,10 +277,11 @@
         renderPanels();
         draw();
         const total = state.summary.sessions || 0;
+        const noun = currentPage() === "post" ? "article page views" : "homepage sessions";
         setStatus(
           total
-            ? `${num(total)} homepage sessions · ${num(state.summary.clicks || 0)} clicks · last ${currentDays()} days`
-            : "No sessions recorded yet for this range and device."
+            ? `${num(total)} ${noun} · ${num(state.summary.clicks || 0)} clicks · ${rangeLabel()}`
+            : `No sessions recorded yet for this page, range, and device.`
         );
       })
       .catch((err) => {
@@ -278,20 +323,39 @@
     const s = state.summary || {};
     const sessions = s.sessions || 0;
 
+    // On the article bucket a "session" is one essay page view, not one
+    // tab: the collector scopes its id per path so a visitor who reads
+    // three essays counts three times, which is the denominator the
+    // per-template rates below actually want.
+    const isPost = currentPage() === "post";
+    const sessionNoun = isPost ? "Page views" : "Sessions";
+
+    // Labelled "Avg", not "Median": the worker computes these with
+    // AVG(), and on dwell time the two are far apart. Renaming beats
+    // quietly leaving the more flattering number under the more
+    // conservative word. A real median needs a window function.
     const tiles = [
-      { label: "Sessions", value: num(sessions), sub: `last ${currentDays()} days` },
-      { label: "Clicks", value: num(s.clicks || 0), sub: `${num(s.clickSessions || 0)} sessions clicked` },
+      { label: sessionNoun, value: num(sessions), sub: rangeLabel() },
+      {
+        label: "Clicks",
+        value: num(s.clicks || 0),
+        sub: `${num(s.clickSessions || 0)} ${isPost ? "views" : "sessions"} clicked`,
+      },
       {
         label: "Clicked anything",
         value: pct(s.clickSessions || 0, sessions),
-        sub: "share of sessions",
+        sub: `share of ${isPost ? "views" : "sessions"}`,
       },
       {
-        label: "Median scroll",
+        label: "Avg scroll",
         value: s.medianScroll ? `${Math.round(s.medianScroll / 10)}%` : "—",
         sub: "of page height",
       },
-      { label: "Median time", value: duration(s.medianDwellMs || s.avgDwellMs), sub: "on the homepage" },
+      {
+        label: "Avg time",
+        value: duration(s.medianDwellMs || s.avgDwellMs),
+        sub: isPost ? "on the essay" : "on the homepage",
+      },
       {
         label: "Dead clicks",
         value: num(s.deadClicks || 0),
@@ -530,15 +594,61 @@
     el.frame.style.width = `${width}px`;
     el.frame.style.height = "800px";
 
-    const url = `/?mo-hm-preview=1&w=${width}`;
-
     // Fetch first, navigate second. The load handler has to know
     // whether an anonymous copy arrived before it decides to inject,
     // and resolving the fetch up front removes that race.
-    fetchSignedOut(url).then((html) => {
-      state.frameHtml = html;
-      state.frameAnon = Boolean(html);
-      el.frame.setAttribute("src", url);
+    framePath().then((path) => {
+      if (!path) {
+        setStatus("Could not find a recent essay to draw the article map on.", true);
+        return;
+      }
+      const url = `${path}?mo-hm-preview=1&w=${width}`;
+      fetchSignedOut(url).then((html) => {
+        state.frameHtml = html;
+        state.frameAnon = Boolean(html);
+        el.frame.setAttribute("src", url);
+      });
+    });
+  }
+
+  // Which URL the overlay is drawn on. The article heatmap aggregates
+  // every essay, so there is no one true page to frame — the most
+  // recent one stands in for the template. Clicks are anchored to
+  // section keys, not pixels, so any essay with the same sections
+  // projects the same map; what changes underneath is the prose.
+  function framePath() {
+    const page = currentPage();
+    if (state.frameUrls[page]) return Promise.resolve(state.frameUrls[page]);
+
+    return fetchSignedOut("/").then((html) => {
+      if (!html) return null;
+      let doc;
+      try {
+        doc = new DOMParser().parseFromString(html, "text/html");
+      } catch (_) {
+        return null;
+      }
+      // Hero feature first, then the grid: newest essay either way.
+      const link =
+        doc.querySelector("a.hero-feature[href]") ||
+        doc.querySelector("a.feature-entry[href]") ||
+        doc.querySelector("a.entry[href]");
+      if (!link) return null;
+
+      // Same-origin, path only. The href comes from page markup, so it
+      // is treated as untrusted input rather than dropped into src.
+      let path;
+      try {
+        const parsed = new URL(link.getAttribute("href"), window.location.origin);
+        if (parsed.origin !== window.location.origin) return null;
+        path = parsed.pathname;
+      } catch (_) {
+        return null;
+      }
+      if (!path || path === "/") return null;
+
+      state.frameUrls[page] = path;
+      return path;
     });
   }
 
@@ -916,6 +1026,13 @@
 
   if (el.device) {
     el.device.addEventListener("change", () => {
+      loadFrame();
+      load();
+    });
+  }
+
+  if (el.page) {
+    el.page.addEventListener("change", () => {
       loadFrame();
       load();
     });
