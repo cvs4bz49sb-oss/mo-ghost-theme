@@ -1,0 +1,92 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>The Store | Mere Orthodoxy</title>
+<meta name="description" content="Print copies of the Mere Orthodoxy journal. Limited print runs, while they last." />
+<meta property="og:title" content="The Store" />
+<meta property="og:description" content="Print copies of the Mere Orthodoxy journal. Limited print runs, while they last." />
+<meta property="og:image" content="{{asset "images/journal-issue-010-cover.jpg"}}" />
+<meta name="twitter:title" content="The Store" />
+<meta name="twitter:description" content="Print copies of the Mere Orthodoxy journal. Limited print runs, while they last." />
+<meta name="twitter:image" content="{{asset "images/journal-issue-010-cover.jpg"}}" />
+{{/contentFor}}
+{{!-- /store/ — public storefront for physical goods (today: back issues
+     of the print journal). Anyone can view; checkout is a Stripe Payment
+     Link, so no member state and no form handling live on this page.
+
+     ADDING A PRODUCT
+     1. Create the Stripe Payment Link in the Stripe dashboard.
+     2. Copy a <li class="store-item"> block below and fill in the cover
+        image, copy, price, and the payment-link href.
+     3. Give it a unique data-store-sku. If the run is limited, add the
+        stock block with data-store-total="<run size>" and register the
+        same sku in the mo-store Worker's PRODUCTS var
+        (website/workers/store/wrangler.toml) so the live counter has a
+        Stripe payment link to count against. Products without a stock
+        block need no Worker config at all.
+
+     THE LIVE COUNTER
+     store-inventory.js asks the mo-store Worker how many completed
+     Stripe checkouts each sku has, and rewrites the copies-left line and
+     the meter. If the Worker is unset, unreachable, or doesn't know the
+     sku, the server-rendered fallback text stands and the buy button is
+     untouched. Never let the counter become load-bearing for checkout. --}}
+
+<main class="store-page" data-store-base="{{@custom.store_worker_url}}">
+
+  <section class="hero store-hero">
+    <div class="container">
+      <p class="hero-kicker"><span class="dot"></span> The Store</p>
+      <h1 class="hero-headline">Back issues, in <span class="highlight"><em>print</em></span>.</h1>
+      <p class="hero-sub">The journal as it was made to be read. Print runs are small, and when an issue is gone it stays gone.</p>
+    </div>
+  </section>
+
+  <section class="store-body">
+    <div class="container">
+
+      <ul class="store-grid">
+
+        <li class="store-item" data-store-sku="journal-issue-010">
+          <div class="store-item-cover">
+            <img src="{{asset "images/journal-issue-010-cover.jpg"}}"
+                 alt="Cover of Mere Orthodoxy journal, Issue 010, Summer 2026"
+                 class="store-item-image"
+                 width="772" height="1000" loading="lazy" />
+          </div>
+
+          <div class="store-item-detail">
+            <p class="eyebrow">Print Journal &middot; Issue 010</p>
+            <h2 class="store-item-title"><em>Summer 2026</em></h2>
+            <p class="store-item-excerpt">On attention, dignity, and the work of seeing a person. Essays by Brian Auten, Annie Crawford, Agnes R. Howard, Joshua Heavin, Kirsten Sanders, and more.</p>
+
+            <p class="store-item-price">$20</p>
+
+            <div class="store-item-actions">
+              <a class="btn btn-primary btn-lg store-item-buy"
+                 href="https://buy.stripe.com/dRm3cwbN69tRbG95egd7q02"
+                 data-store-buy
+                 rel="noopener">Buy this issue</a>
+            </div>
+
+            {{!-- Live stock. data-store-total is the print run; the text
+                  below it is the pre-JS fallback and is replaced with the
+                  real count once mo-store answers. --}}
+            <div class="store-stock" data-store-stock data-store-total="50">
+              <div class="store-stock-meter" role="presentation">
+                <span class="store-stock-fill" data-store-fill></span>
+              </div>
+              <p class="store-stock-text" data-store-text aria-live="polite">Limited to 50 copies.</p>
+            </div>
+          </div>
+        </li>
+
+      </ul>
+
+      <p class="store-note">Members receive every new issue in the mail as part of their membership. <a href="/membership/">Become a Member</a> to get the next one, plus the full essay archive and the digital journal library.</p>
+
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/page/store-inventory.js"}}"></script>

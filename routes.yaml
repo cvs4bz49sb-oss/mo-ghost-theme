@@ -79,6 +79,12 @@ routes:
     template: custom-privacy
   /books/:
     template: custom-bookstore
+  # Storefront for physical goods (back issues of the print journal).
+  # Checkout is a Stripe Payment Link; the live "copies left" counter
+  # is the mo-store Worker (website/workers/store/). Distinct from
+  # /books/, which is affiliate recommendations, not our inventory.
+  /store/:
+    template: custom-store
   /submissions/:
     template: custom-submissions
   # New Writers Meetings — three Zoom conversations, Sep/Oct/Nov 2026.

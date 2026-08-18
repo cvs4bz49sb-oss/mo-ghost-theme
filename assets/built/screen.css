@@ -13450,6 +13450,16 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   margin: 8px 0 0;
 }
 
+/* Lifetime — its own row under the two subscription tiers, set off
+   by a hairline rule so it reads as a separate kind of purchase
+   rather than a third equal option. */
+.migrate-cta-lifetime {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-rule);
+}
+.migrate-cta-lifetime .btn-error:empty { display: none; }
+
 @media (max-width: 640px) {
   .migrate-warning { padding: 24px 0 4px; }
   .migrate-cta { padding: 32px 0 64px; }
@@ -13457,6 +13467,7 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   .migrate-cta-options { gap: 20px; }
   .migrate-cta-option .btn { width: 100%; }
   .migrate-cta-option { width: 100%; max-width: 320px; }
+  .migrate-cta-lifetime { margin-top: 26px; padding-top: 26px; }
 }
 
 /* -------- Site search modal --------
@@ -23581,4 +23592,164 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
   .welcome-labbr { display: inline; }
   .welcome-count { font-size: 12px; }
   .welcome-next { padding-left: 18px; padding-right: 18px; }
+}
+
+/* -------- Store (/store/) ------------------------------------------
+   Storefront for physical goods. Today that is back issues of the
+   print journal; the markup is a list so more products drop in
+   without a layout change.
+
+   One product per row rather than a tile grid: the cover is the sales
+   pitch and a 280px plate next to the copy earns its space, where a
+   3-up grid would shrink both. Rows stack, so the page grows down as
+   the catalog grows.
+
+   The stock meter under each product is written by
+   assets/js/page/store-inventory.js from the mo-store Worker. Every
+   state below also has to look deliberate BEFORE that script answers,
+   because on a cold Worker or a blocked request it never will: the
+   server-rendered fallback ("Limited to 50 copies.") sits in the same
+   line with the meter at its full 100%.                              */
+
+.store-body { padding: 16px 0 80px; }
+
+.store-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 880px;
+  display: grid;
+  gap: 32px;
+}
+
+.store-item {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 36px;
+  align-items: start;
+  padding: 32px;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-background);
+}
+
+.store-item-cover { margin: 0; }
+.store-item-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Brand rule: plates get a 6px radius, never razor edges. */
+  border-radius: 6px;
+  box-shadow: var(--shadow-card);
+}
+
+.store-item-detail { min-width: 0; }
+.store-item-detail .eyebrow {
+  color: var(--color-primary);
+  margin: 0 0 10px;
+}
+.store-item-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.15;
+  margin: 0 0 12px;
+  color: var(--color-dark);
+}
+.store-item-title em { font-style: italic; }
+.store-item-excerpt {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-dark);
+  margin: 0 0 18px;
+}
+.store-item-price {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--color-dark);
+  margin: 0 0 20px;
+}
+.store-item-actions { margin: 0 0 20px; }
+
+/* Sold out. The link is REPLACED with a <span> by the JS, so this is
+   styling an inert element — there is no pointer-events trick holding
+   back a live anchor. */
+.store-item-buy.is-disabled {
+  background: transparent;
+  color: var(--color-muted);
+  border: 1px solid var(--color-card-border);
+  cursor: default;
+  box-shadow: none;
+}
+.store-item-buy.is-disabled:hover { transform: none; }
+.store-item.is-sold-out .store-item-image { opacity: 0.55; }
+
+/* ── Stock meter ─────────────────────────────────────────────────── */
+
+.store-stock { max-width: 320px; }
+.store-stock-meter {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(45, 41, 39, 0.12);
+  overflow: hidden;
+}
+.store-stock-fill {
+  display: block;
+  height: 100%;
+  /* Full until told otherwise. The pre-JS state is "nothing is known
+     to be sold", not "the bar is empty" — an empty bar on a page that
+     never got an answer reads as sold out. */
+  width: 100%;
+  border-radius: 999px;
+  background: var(--color-primary);
+  transition: width 0.4s ease, background 0.2s;
+}
+.store-stock-text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 10px 0 0;
+}
+/* Last fifth of the run. --color-alert-text, not --color-secondary:
+   the latter is 3.99:1 on this background and fails AA at 14px. */
+.store-stock.is-low .store-stock-fill { background: var(--color-alert-text); }
+.store-stock.is-low .store-stock-text {
+  color: var(--color-alert-text);
+  font-weight: 600;
+}
+
+.store-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 40px auto 0;
+  max-width: 620px;
+  font-style: italic;
+  text-align: center;
+}
+.store-note a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 720px) {
+  .store-item {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px;
+  }
+  /* The cover is 772x1000. Full-bleed on a phone it swallows the fold
+     and pushes the price and the buy button off screen, so cap it and
+     center it above the copy. */
+  .store-item-cover {
+    max-width: 220px;
+    margin: 0 auto;
+  }
+  .store-stock { max-width: none; }
+}
+
+@media (max-width: 520px) {
+  .store-hero { padding: 40px 0 32px; }
+  .store-grid { gap: 20px; }
+  .store-item-buy { width: 100%; }
 }

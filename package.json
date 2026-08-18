@@ -92,6 +92,10 @@
         "default": "100",
         "description": "Percentage of homepage sessions recorded by the click heatmap at /admin/heatmap/. Sampling is decided once per browser tab, so a recorded session is recorded whole. Set to 0 to switch collection off entirely."
       },
+      "store_worker_url": {
+        "type": "text",
+        "description": "URL of the deployed mo-store Cloudflare Worker (e.g. https://mo-store.mo-podcast-feed.workers.dev). Powers the live 'copies left' counter on /store/. Empty is safe: the store page still renders and still sells, it just shows the static print-run line instead of a live count."
+      },
       "bible_worker_url": {
         "type": "text",
         "description": "Full URL of the deployed mo-bible Cloudflare Worker (e.g. https://mo-bible.mo-podcast-feed.workers.dev). Powers the Scripture reader and Daily Liturgy passage lookups. Empty disables Scripture display."
