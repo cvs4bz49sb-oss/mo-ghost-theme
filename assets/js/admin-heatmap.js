@@ -455,9 +455,16 @@
         ? Math.round(((previousReach - reached) / previousReach) * 100)
         : 0;
       const dropText = drop >= 1 ? ` · −${drop}% vs previous section` : "";
+      // Spelled out because the two numbers have different denominators
+      // and sit next to each other: 52 clicks came from 24 people, not
+      // from 52. The rate is deliberately sessions-that-clicked over
+      // sessions-that-reached — clicks over viewers double-counts anyone
+      // who clicked twice and can exceed 100% on a section with a
+      // toggle.
       meta.textContent =
-        `${num(row.clicks || 0)} clicks · ` +
-        `${pct(row.clickSessions || 0, reached)} of viewers clicked here${dropText}`;
+        `${num(row.clicks || 0)} clicks from ` +
+        `${num(row.clickSessions || 0)} of ${num(reached)} viewers ` +
+        `(${pct(row.clickSessions || 0, reached)})${dropText}`;
       if (drop >= 10) meta.classList.add("is-drop");
       item.appendChild(meta);
 
