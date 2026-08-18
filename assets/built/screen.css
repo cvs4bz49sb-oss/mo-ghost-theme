@@ -21913,6 +21913,37 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   left: 0;
   pointer-events: none;
 }
+
+/* ── Scroll-depth rules over the map ─────────────────────────────
+   Lines sit in the scaler's coordinate space so they scroll with the
+   page, but each label is counter-scaled by JS so it stays legible
+   whatever the stage is scaled to. */
+.hm-depth {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hm-depth-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.45);
+}
+.hm-depth-line.is-drop { border-top-color: rgba(214, 118, 63, 0.95); }
+.hm-depth-label {
+  position: absolute;
+  left: 0;
+  transform-origin: left top;
+  padding: 2px 7px;
+  border-radius: 0 4px 4px 0;
+  background: rgba(20, 18, 16, 0.82);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hm-depth-label.is-drop { background: rgba(214, 118, 63, 0.95); }
 .hm-caption {
   margin: 12px 0 0;
   font-size: 12px;

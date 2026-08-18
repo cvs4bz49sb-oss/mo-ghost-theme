@@ -94,6 +94,11 @@
                 <span class="hm-control-label">Dim page</span>
               </label>
 
+              <label class="hm-control hm-control--check">
+                <input type="checkbox" data-hm-depth-toggle checked />
+                <span class="hm-control-label">Depth marks</span>
+              </label>
+
               <button type="button" class="btn btn-sm" data-hm-refresh>Refresh</button>
             </div>
 
@@ -134,10 +139,15 @@
                         tabindex="-1"></iframe>
                       <div class="hm-scrim" data-hm-scrim-layer></div>
                       <canvas class="hm-canvas" data-hm-canvas aria-hidden="true"></canvas>
+                      {{!-- Scroll-depth rules, drawn in the DOM rather
+                           than on the canvas so the labels stay crisp:
+                           the canvas renders at half size and the whole
+                           scaler is transform-scaled to fit. --}}
+                      <div class="hm-depth" data-hm-depth aria-hidden="true"></div>
                     </div>
                   </div>
 
-                  <p class="hm-caption">Clicks are anchored to page sections, so the overlay stays accurate as the page changes. Articles are one map across every essay, drawn on the most recent one. Rendered at a fixed width per device and scaled to fit.</p>
+                  <p class="hm-caption">Clicks are anchored to page sections, so the overlay stays accurate as the page changes. Articles are one map across every essay, drawn on the most recent one. Depth rules mark how far down the page visitors got, measured against each visitor's own page height rather than this render. Rendered at a fixed width per device and scaled to fit.</p>
                 </div>
 
                 {{!-- Scroll depth sits under the map rather than in the

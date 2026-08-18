@@ -136,6 +136,8 @@
     frame: root.querySelector("[data-hm-frame]"),
     canvas: root.querySelector("[data-hm-canvas]"),
     scrimLayer: root.querySelector("[data-hm-scrim-layer]"),
+    depth: root.querySelector("[data-hm-depth]"),
+    depthToggle: root.querySelector("[data-hm-depth-toggle]"),
     status: root.querySelector("[data-hm-status]"),
     note: root.querySelector("[data-hm-note]"),
     tiles: root.querySelector("[data-hm-tiles]"),
@@ -159,6 +161,9 @@
     // Resolved once per page bucket: the URL the frame should show.
     // "home" is always "/", "post" is whatever the newest essay is.
     frameUrls: { home: "/" },
+    // Current stage scale. Depth labels divide by it so they render at
+    // a constant size no matter how far the stage is scaled down.
+    scale: 1,
   };
 
   // ── Small helpers ─────────────────────────────────────────────────
@@ -276,6 +281,7 @@
         );
         renderPanels();
         draw();
+        renderDepthMarks();
         const total = state.summary.sessions || 0;
         const noun = currentPage() === "post" ? "article page views" : "homepage sessions";
         setStatus(
@@ -748,6 +754,7 @@
     const available = el.stage.clientWidth;
     const scale = available && available < width ? available / width : 1;
     el.scaler.style.transform = `scale(${scale})`;
+    state.scale = scale || 1;
     // The scaler's layout box stays at the reference width whatever the
     // transform does, so a mobile frame would sit against the left edge
     // of a desktop-wide panel. Nudge it into the middle by hand.
@@ -757,6 +764,69 @@
     // the stage needs the scaled height to scroll correctly.
     const height = parseFloat(el.scaler.style.height || "0");
     el.stage.style.height = height ? `${Math.round(height * scale)}px` : "";
+    renderDepthMarks();
+  }
+
+  // ── Scroll-depth rules ────────────────────────────────────────────
+  //
+  // The scroll buckets are cumulative — a session that reached 80% also
+  // reached 40% — so each rule answers "how many people ever saw this
+  // far down". Drawn in the DOM rather than on the canvas: the canvas
+  // renders at RENDER_SCALE and is stretched, which would blur text.
+  //
+  // Caveat worth remembering: `scroll` is permille of the visitor's own
+  // page height, and the frame is one fixed-width render. If the page
+  // was materially shorter or taller for them, their 50% and this 50%
+  // are not the same pixel row.
+  function renderDepthMarks() {
+    if (!el.depth) return;
+    clear(el.depth);
+
+    const on = !el.depthToggle || el.depthToggle.checked;
+    el.depth.hidden = !on;
+    if (!on) return;
+
+    const height = parseFloat(el.scaler && el.scaler.style.height) || 0;
+    if (!height) return;
+
+    const s = state.summary || {};
+    const buckets = (s.scroll || []).slice().sort((a, b) => a.bucket - b.bucket);
+    const sessions = s.sessions || 0;
+    if (!buckets.length || !sessions) return;
+
+    // Labels are drawn inside a scaled box, so divide out the scale to
+    // keep them at their CSS size.
+    const inverse = 1 / (state.scale || 1);
+    let previous = null;
+
+    buckets.forEach((b) => {
+      const reached = b.sessions || 0;
+      const depth = b.bucket || 0;
+      if (!depth) return;
+
+      // Flag the rule where the audience thins fastest, same 10-point
+      // threshold the section funnel uses to call something a drop.
+      const drop = previous && previous > reached
+        ? Math.round(((previous - reached) / previous) * 100)
+        : 0;
+      previous = reached;
+
+      const top = Math.round((height * depth) / 100);
+
+      const line = document.createElement("div");
+      line.className = `hm-depth-line${drop >= 10 ? " is-drop" : ""}`;
+      line.style.top = `${top}px`;
+      el.depth.appendChild(line);
+
+      const label = document.createElement("span");
+      label.className = `hm-depth-label${drop >= 10 ? " is-drop" : ""}`;
+      label.style.top = `${top}px`;
+      label.style.transform = `scale(${inverse})`;
+      const dropText = drop >= 10 ? ` · −${drop}%` : "";
+      label.textContent =
+        `${depth}% · ${num(reached)} (${pct(reached, sessions)})${dropText}`;
+      el.depth.appendChild(label);
+    });
   }
 
   // ── Heat rendering ────────────────────────────────────────────────
@@ -1058,6 +1128,7 @@
   if (el.intensity) el.intensity.addEventListener("input", draw);
   if (el.radius) el.radius.addEventListener("input", draw);
   if (el.scrim) el.scrim.addEventListener("change", draw);
+  if (el.depthToggle) el.depthToggle.addEventListener("change", renderDepthMarks);
 
   window.addEventListener("resize", () => {
     fitStage();
