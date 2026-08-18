@@ -32,11 +32,11 @@
     {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
       <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
         <div class="toggle">
-          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true">
+          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true" data-hm-goal="plan-annual">
             Annual
             <span class="badge">Save 17%</span>
           </button>
-          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false">Monthly</button>
+          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false" data-hm-goal="plan-monthly">Monthly</button>
         </div>
       </div>
     {{/match}}{{/match}}
@@ -134,5 +134,6 @@
   </section>
 
   <script src="{{asset "js/page/membership-toggle.js"}}"></script>
+  <script src="{{asset "js/page/membership-cards.js"}}"></script>
   <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
   <script src="{{asset "js/lifetime-checkout.js"}}"></script>

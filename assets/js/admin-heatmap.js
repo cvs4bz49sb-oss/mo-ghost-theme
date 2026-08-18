@@ -119,6 +119,10 @@
     "dark-mode": "Dark mode toggle",
     share: "Share buttons",
     "read-next": "Read Next essay",
+    "plan-annual": "Billing toggle — Annual",
+    "plan-monthly": "Billing toggle — Monthly",
+    "join-card": "Member card (body)",
+    "lifetime-card": "Lifetime card (body)",
   };
 
   // ── Elements ──────────────────────────────────────────────────────

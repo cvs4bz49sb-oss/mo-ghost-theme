@@ -9,7 +9,10 @@
 <section class="pricing">
   <div class="container">
     <div class="cards">
-      <article class="card card-member is-featured">
+      {{!-- data-card-cta: assets/js/page/membership-cards.js makes the
+           whole card fire the CTA. data-hm-goal so the heatmap can tell
+           card-body clicks from button clicks. --}}
+      <article class="card card-member is-featured" data-card-cta data-hm-goal="join-card">
         <span class="card-flag">Most Popular</span>
         <p class="card-label"><em>Member</em></p>
         <div class="card-price" data-price-display>
@@ -42,7 +45,7 @@
         </ul>
       </article>
 
-      <article class="card card-lifetime">
+      <article class="card card-lifetime" data-card-cta data-hm-goal="lifetime-card">
         <p class="card-label"><em>Lifetime</em></p>
         <div class="card-price">
           <span class="price-amount">$995</span>

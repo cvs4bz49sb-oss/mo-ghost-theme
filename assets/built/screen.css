@@ -3937,6 +3937,13 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   box-shadow: none;
   position: relative;
 }
+/* The whole card fires the CTA (assets/js/page/membership-cards.js),
+   so it takes the pointer. Text keeps its own cursor: selecting the
+   pitch copy is reading, and the script stands down for it. */
+.membership .card[data-card-cta] { cursor: pointer; }
+.membership .card[data-card-cta] p,
+.membership .card[data-card-cta] li,
+.membership .card[data-card-cta] .card-price { cursor: text; }
 .membership .card.is-featured {
   background: transparent;
   border: 0;
