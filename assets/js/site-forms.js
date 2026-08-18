@@ -213,9 +213,11 @@
     } else {
       url = `${worker}/submissions`;
       const fd = new FormData(form);
-      // Normalize the checkbox to the value the worker expects.
+      // Normalize the checkboxes to the values the worker expects.
       const attEl = form.querySelector("[name=aiAttested]");
       fd.set("aiAttested", attEl && attEl.checked ? "true" : "false");
+      const origEl = form.querySelector("[name=originalAttested]");
+      fd.set("originalAttested", origEl && origEl.checked ? "true" : "false");
       fd.set("turnstile_token", turnstileToken);
       init = { method: "POST", body: fd };
     }

@@ -218,7 +218,7 @@ Every template renders exactly one `<h1>`. Known locations:
 | Template | Form ID / data-attr | Worker | Fields |
 |----------|-------------------|--------|--------|
 | custom-contact.hbs | `data-site-form="contact"` | mo-forms | firstName, lastName, email, message |
-| custom-submissions.hbs | `data-site-form="submissions"` | mo-forms | firstName, lastName, email, phone, essayAbout, bio, essay (.docx file), headshot (image file), aiAttested (checkbox) |
+| custom-submissions.hbs | `data-site-form="submissions"` | mo-forms | firstName, lastName, email, phone, essayAbout, bio, essay (.docx file), headshot (image file), aiAttested (checkbox), originalAttested (checkbox) |
 | custom-gift.hbs | #gift-form | mo-membership | tier, purchaser_name/email, recipient_name/email, message, deliver_at, address fields |
 | custom-groups.hbs | #group-form | mo-membership | seats, org_name, admin_email/name |
 | custom-institutions.hbs | #institutional-form | mo-membership | org_name, email_domain, headcount, org_type, contact_name/email/role, notes |

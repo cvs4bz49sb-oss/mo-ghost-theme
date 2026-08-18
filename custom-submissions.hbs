@@ -48,6 +48,13 @@
             <li class="submissions-guideline">
               <span class="submissions-guideline-numeral">III</span>
               <div>
+                <h3 class="submissions-guideline-label"><em>Unpublished work only</em></h3>
+                <p>We do not accept work that has been published elsewhere, including on your own Substack or blog. We occasionally republish a piece from one of our contributing writers, but that is by invitation.</p>
+              </div>
+            </li>
+            <li class="submissions-guideline">
+              <span class="submissions-guideline-numeral">IV</span>
+              <div>
                 <h3 class="submissions-guideline-label"><em>Patience</em></h3>
                 <p>Allow up to two weeks for a reply before asking for an update. If the submission is time-sensitive, note that in the subject line and we'll do our best to review it sooner.</p>
               </div>
@@ -137,6 +144,13 @@
                 </label>
               </div>
 
+              <div class="site-form-field site-form-field-check">
+                <label>
+                  <input name="originalAttested" type="checkbox" value="true" required />
+                  <span>This piece has not been published elsewhere, including on my own Substack or blog.</span>
+                </label>
+              </div>
+
               {{!-- Cloudflare Turnstile widget — see custom-contact.hbs
                    for the rationale + site-key meta-tag pattern. --}}
               <div class="site-form-field" data-turnstile-wrap></div>
@@ -171,6 +185,14 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Use hyperlinks rather than footnotes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you accept previously published work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Mere Orthodoxy does not accept work that has been published elsewhere, including on your own Substack or blog. Pieces from contributing writers are occasionally republished, but only by invitation."
       }
     },
     {
