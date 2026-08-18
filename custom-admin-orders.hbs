@@ -40,7 +40,7 @@
                data-title="Orders"
                data-endpoint="/orders"
                data-collection="orders"
-               data-api-base="{{@custom.store_worker_url}}"
+               data-api-base="{{#if @custom.store_worker_url}}{{@custom.store_worker_url}}{{else}}https://mo-store.mo-podcast-feed.workers.dev{{/if}}"
                data-member-email="{{@member.email}}"
                data-columns="placed,product,qty,amount,name,email,line1,line2,city,state,postal_code,country,phone,session"
                data-column-labels="Placed,Product,Qty,Amount,Name,Email,Street,Apt,City,State,ZIP,Country,Phone,Stripe Session"

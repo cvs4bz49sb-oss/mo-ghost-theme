@@ -163,7 +163,7 @@
          Hardcoded here at template render time so the runtime never
          re-reads DOM-mutable state. New worker → add its URL to this
          list AND to the connect-src directive in the CSP above. --}}
-    <meta name="mo-trusted-hosts" content="{{@custom.kit_worker_url}}|{{@custom.admin_worker_url}}|{{@custom.search_worker_url}}|{{@custom.error_worker_url}}|{{@custom.podcast_feed_url}}|{{@custom.membership_api_base}}|{{@custom.gift_worker_url}}|{{@custom.kit_bridge_url}}|{{@custom.store_worker_url}}|https://mo-audio.mo-podcast-feed.workers.dev|https://mo-pdf.mo-podcast-feed.workers.dev|https://mo-forms.mo-podcast-feed.workers.dev|https://mo-ebook-access.mo-podcast-feed.workers.dev|https://mo-email.mo-podcast-feed.workers.dev|https://mo-tfr-events.mo-podcast-feed.workers.dev" />
+    <meta name="mo-trusted-hosts" content="{{@custom.kit_worker_url}}|{{@custom.admin_worker_url}}|{{@custom.search_worker_url}}|{{@custom.error_worker_url}}|{{@custom.podcast_feed_url}}|{{@custom.membership_api_base}}|{{@custom.gift_worker_url}}|{{@custom.kit_bridge_url}}|{{@custom.store_worker_url}}|https://mo-audio.mo-podcast-feed.workers.dev|https://mo-pdf.mo-podcast-feed.workers.dev|https://mo-store.mo-podcast-feed.workers.dev|https://mo-forms.mo-podcast-feed.workers.dev|https://mo-ebook-access.mo-podcast-feed.workers.dev|https://mo-email.mo-podcast-feed.workers.dev|https://mo-tfr-events.mo-podcast-feed.workers.dev" />
 
     {{!-- TFR engagement telemetry endpoint. faith-events.js (in the site
          bundle) returns immediately when this meta is absent, so this tag

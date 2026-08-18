@@ -31,7 +31,13 @@
      sku, the server-rendered fallback text stands and the buy button is
      untouched. Never let the counter become load-bearing for checkout. --}}
 
-<main class="store-page" data-store-base="{{@custom.store_worker_url}}">
+{{!-- Worker URL falls back to the deployed host. @custom still wins when
+      set, so a staging worker can be swapped in from Ghost admin, but
+      the page is not dark until someone remembers to fill that field —
+      Ghost blocks API tokens from writing custom theme settings, so it
+      is a human-only step. Same hardcode-with-override the trusted-hosts
+      meta in default.hbs already uses for mo-audio and mo-pdf. --}}
+<main class="store-page" data-store-base="{{#if @custom.store_worker_url}}{{@custom.store_worker_url}}{{else}}https://mo-store.mo-podcast-feed.workers.dev{{/if}}">
 
   <section class="hero store-hero">
     <div class="container">
