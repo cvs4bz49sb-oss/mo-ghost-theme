@@ -23883,6 +23883,10 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
 }
 .art-detail-value { font-size: 13px; color: var(--color-dark); }
 
+.art-pager { margin: 0 0 12px; }
+/* The pager under the table needs air above it, and none below — the foot
+   paragraph supplies its own. */
+.art-tablewrap + .art-pager { margin: 14px 0 0; }
 .art-table tbody tr:hover td { background: rgba(238, 125, 81, 0.04); }
 .art-stamp { font-size: 12px; color: var(--color-muted); white-space: nowrap; }
 

@@ -39,6 +39,11 @@
   let DATA = null;
   let sort = { col: "published", dir: "desc" };
   const expanded = {};
+  // Paged in the browser, not the worker: the endpoint already returns the
+  // whole window in one response, so paging is instant and a sort still
+  // orders every piece rather than only the 25 currently on screen.
+  const PAGE_SIZE = 25;
+  let page = 0;
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -100,6 +105,7 @@
       b.addEventListener("click", () => {
         if (period === p.key) return;
         period = p.key;
+        page = 0;
         [].forEach.call(periodHost.children, (c) => {
           const on = c === b;
           c.classList.toggle("is-active", on);
@@ -168,13 +174,47 @@
     return tr;
   }
 
+  function pager(total, pages) {
+    const bar = el("div", "aud-controls art-pager");
+    const prev = el("button", "kpi-btn", "Previous");
+    prev.type = "button";
+    prev.disabled = page === 0;
+    prev.addEventListener("click", () => {
+      if (page === 0) return;
+      page -= 1;
+      renderTable();
+      tableHost.scrollIntoView({ block: "start" });
+    });
+    const next = el("button", "kpi-btn", "Next");
+    next.type = "button";
+    next.disabled = page >= pages - 1;
+    next.addEventListener("click", () => {
+      if (page >= pages - 1) return;
+      page += 1;
+      renderTable();
+      // Otherwise the next page opens wherever the last one ended, which on
+      // a phone is 25 cards below its own first row.
+      tableHost.scrollIntoView({ block: "start" });
+    });
+    const from = total ? page * PAGE_SIZE + 1 : 0;
+    const to = Math.min((page + 1) * PAGE_SIZE, total);
+    bar.appendChild(prev);
+    bar.appendChild(next);
+    bar.appendChild(el("span", "aud-legend", `${from}\u2013${to} of ${total}`));
+    return bar;
+  }
+
   function renderTable() {
     tableHost.textContent = "";
-    const rows = sortedRows();
-    if (!rows.length) {
+    const all = sortedRows();
+    if (!all.length) {
       tableHost.appendChild(el("p", "admin-sub", "Nothing published in this window."));
       return;
     }
+    const pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+    if (page > pages - 1) page = pages - 1;
+    const rows = all.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    if (pages > 1) tableHost.appendChild(pager(all.length, pages));
     const cols = COLS.filter((c) => DATA.canSeeMembers || (c.key !== "signups" && c.key !== "conversions"));
 
     const wrap = el("div", "aud-tablewrap art-tablewrap");
@@ -200,6 +240,8 @@
         const keepLeft = wrap.scrollLeft;
         if (sort.col === c.key) sort.dir = sort.dir === "asc" ? "desc" : "asc";
         else sort = { col: c.key, dir: c.num || c.key === "published" ? "desc" : "asc" };
+        // A re-sort makes the old page number meaningless.
+        page = 0;
         renderTable();
         // Rebuilding the table resets the horizontal scroller, which on a
         // phone snaps the view back to column one and makes the sort look
@@ -260,6 +302,7 @@
     t.appendChild(tb);
     wrap.appendChild(t);
     tableHost.appendChild(wrap);
+    if (pages > 1) tableHost.appendChild(pager(all.length, pages));
   }
 
   function renderFoot() {
