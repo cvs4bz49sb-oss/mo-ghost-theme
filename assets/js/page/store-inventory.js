@@ -40,6 +40,24 @@
     .filter((el) => el.querySelector('[data-store-stock]'));
   if (!items.length) return;
 
+  /*
+   * Send the click through the worker's /buy door instead of straight
+   * to Stripe. The door re-counts at click time, so a tab left open
+   * since before the last copy sold can't still buy one.
+   *
+   * Progressive on purpose: the markup ships with the real Stripe URL,
+   * and this only upgrades it. If this script never runs, or the
+   * worker is unreachable, the button is still a working link to
+   * checkout. A sold-out guard that can take the store offline when it
+   * breaks is worse than the overselling it prevents.
+   */
+  const routeThroughWorker = (item) => {
+    const buy = item.querySelector('[data-store-buy]');
+    const sku = item.getAttribute('data-store-sku');
+    if (!buy || !sku || !buy.getAttribute('href')) return;
+    buy.setAttribute('href', `${endpoint.replace(/\/inventory$/, '/buy')}?sku=${encodeURIComponent(sku)}`);
+  };
+
   const copiesLine = (remaining, total) => {
     if (remaining <= 0) return 'Sold out.';
     if (remaining === 1) return `One copy left of ${total}.`;
@@ -82,6 +100,10 @@
     stock.classList.toggle('is-low', remaining > 0 && remaining <= Math.ceil(total / 5));
     if (remaining <= 0) markSoldOut(item);
   };
+
+  // Upgrade the buy links first, independently of the count request.
+  // The gate shouldn't be waiting on a number it doesn't need.
+  items.forEach(routeThroughWorker);
 
   fetch(endpoint, { credentials: 'omit' })
     .then((r) => (r.ok ? r.json() : null))
