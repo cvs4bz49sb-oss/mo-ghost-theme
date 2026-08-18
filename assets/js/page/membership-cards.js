@@ -37,8 +37,13 @@
 
       // Someone dragging across the pitch copy is reading it, not
       // buying. Firing checkout under a text selection is hostile.
+      //
+      // isCollapsed, not toString(): a live selection can report an
+      // empty string while still being a real one, so the string test
+      // alone lets the click through. A plain click collapses the
+      // selection at mousedown, so ordinary clicks are unaffected.
       const selection = window.getSelection();
-      if (selection && String(selection).trim().length) return;
+      if (selection && (!selection.isCollapsed || String(selection).trim().length)) return;
 
       const cta = card.querySelector(".btn");
       if (!cta || cta.disabled) return;

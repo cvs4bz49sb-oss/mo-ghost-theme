@@ -21925,6 +21925,14 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
    Lines sit in the scaler's coordinate space so they scroll with the
    page, but each label is counter-scaled by JS so it stays legible
    whatever the stage is scaled to. */
+/* The signed-in fallback means every blob is drawn on a layout most
+   visitors never saw, which is a correctness problem rather than a
+   footnote. Same treatment as a failed load. */
+.hm-note.is-error {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
 .hm-depth {
   position: absolute;
   inset: 0;

@@ -168,6 +168,8 @@
     // Current stage scale. Depth labels divide by it so they render at
     // a constant size no matter how far the stage is scaled down.
     scale: 1,
+    // Bumped per frame load so the src always changes; see loadFrame.
+    frameNonce: 0,
   };
 
   // ── Small helpers ─────────────────────────────────────────────────
@@ -194,10 +196,11 @@
     el.status.classList.toggle("is-error", !!isError);
   }
 
-  function showNote(text) {
+  function showNote(text, isError) {
     if (!el.note) return;
     el.note.textContent = text || "";
     el.note.hidden = !text;
+    el.note.classList.toggle("is-error", !!isError);
   }
 
   function clear(node) {
@@ -591,9 +594,11 @@
 
   // ── Frame ─────────────────────────────────────────────────────────
   const FRAME_SIGNED_IN_NOTE =
-    "Couldn't load a signed-out copy of the homepage, so the frame below " +
-    "is your own signed-in view. Section positions may differ from what " +
-    "most visitors see.";
+    "Couldn't load a signed-out copy of this page, so the frame below is " +
+    "your own signed-in view: \"Your Dashboard\" where a visitor sees " +
+    "\"Become a Member\", your name where they see Sign in. The clicks are " +
+    "still real, but they are drawn on a layout most visitors never saw. " +
+    "Reload to try again.";
 
   let frameObserver = null;
 
@@ -626,12 +631,24 @@
         setStatus("Could not find a recent essay to draw the article map on.", true);
         return;
       }
-      const url = `${path}?mo-hm-preview=1&w=${width}`;
-      fetchSignedOut(url).then((html) => {
-        state.frameHtml = html;
-        state.frameAnon = Boolean(html);
-        el.frame.setAttribute("src", url);
-      });
+      // Every load gets a distinct URL. Assigning the src it already
+      // has is a no-op in every browser: no navigation, so no load
+      // event, so the injection below never runs and the frame keeps
+      // whatever it was showing — including a signed-in render left
+      // over from a failed attempt.
+      state.frameNonce += 1;
+      const url = `${path}?mo-hm-preview=1&w=${width}&n=${state.frameNonce}`;
+
+      // One retry. This fetch is the only thing standing between staff
+      // and a heatmap drawn on their own member view, and a single
+      // blip shouldn't cost the whole picture.
+      fetchSignedOut(url)
+        .then((html) => (html ? html : fetchSignedOut(url)))
+        .then((html) => {
+          state.frameHtml = html;
+          state.frameAnon = Boolean(html);
+          el.frame.setAttribute("src", url);
+        });
     });
   }
 
@@ -705,7 +722,7 @@
       return;
     }
 
-    showNote(state.frameAnon ? "" : FRAME_SIGNED_IN_NOTE);
+    showNote(state.frameAnon ? "" : FRAME_SIGNED_IN_NOTE, !state.frameAnon);
     applyFrameStyles(doc);
 
     const measure = () => {
