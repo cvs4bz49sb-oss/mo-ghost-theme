@@ -125,15 +125,24 @@
     const withVis = rows.filter((r) => typeof r.vis === "number" && r.vis > 0);
     const vis = withVis.reduce((t, r) => t + r.vis, 0);
     const nsub = withVis.reduce((t, r) => t + (r.nsub || 0), 0);
-    const nsubAll = sumOf(rows, "nsub");
-    const nmem = sumOf(rows, "nmem");
+    // nnew, not nmem: a migrating legacy payer was never a free subscriber
+    // who converted, so counting them here inflated the rate. But nnew only
+    // exists from the 2026-08-01 split, so its denominator has to be the
+    // signups from those same days \u2014 three weeks of new members over three
+    // years of signups reports ~0%, the identical trap the visitor clip
+    // above exists to avoid.
+    const withNew = rows.filter((r) => typeof r.nnew === "number");
+    const nsubAll = withNew.reduce((t, r) => t + (r.nsub || 0), 0);
+    const nnew = sumOf(withNew, "nnew");
     return {
-      vis, nsub, nsubAll, nmem,
+      vis, nsub, nsubAll, nnew,
       r2s: rate(nsub, vis),
-      s2m: rate(nmem, nsubAll),
+      s2m: rate(nnew, nsubAll),
       clipped: withVis.length > 0 && withVis.length < rows.length,
       from: withVis.length ? withVis[0].d : null,
-      label: `${rate(nsub, vis)} \u00b7 ${rate(nmem, nsubAll)}`
+      mclipped: withNew.length > 0 && withNew.length < rows.length,
+      mfrom: withNew.length ? withNew[0].d : null,
+      label: `${rate(nsub, vis)} \u00b7 ${rate(nnew, nsubAll)}`
     };
   }
   const compact = (n) => {
@@ -291,11 +300,40 @@
     return v.length ? Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 10) / 10 : null;
   };
 
+  // The date the three-way start split begins. Earlier rows only ever had
+  // `nmem`, which counted new members, migrations and comps as one number.
+  const NSPLIT_FROM = "2026-08-01";
+  // Paying subscriptions started, over any window. Rows before the split
+  // carry only `nmem`, so a bare sumOf("nnew") reads 0 for every historical
+  // period — sumOf coerces a missing key to 0 while bucketize skips the row
+  // entirely, and that asymmetry is what turns a redefinition into a wrong
+  // number. Falls back per row, never per window.
+  const startsPaid = (rows) => rows.reduce((t, r) => t + (
+    typeof r.nnew === "number" || typeof r.nmig === "number"
+      ? (r.nnew || 0) + (r.nmig || 0)
+      : (typeof r.nmem === "number" ? r.nmem : 0)), 0);
+  // A night whose HubSpot classification failed writes null to all three
+  // start keys rather than guessing, and a date the cron never wrote at all
+  // is absent from `series` entirely. Both are holes in a summed total, and
+  // neither is visible to a caller that only sees bucketed rows — bucketize
+  // has already dropped them. So count against the calendar, from the raw
+  // series, or this note is dead code that never fires.
+  const degradedNote = (from, to) => {
+    const lo = from < NSPLIT_FROM ? NSPLIT_FROM : from;
+    if (!lo || !to || lo > to) return "";
+    let expected = 0;
+    for (let t = Date.parse(lo); t <= Date.parse(to); t += 86400000) expected++;
+    const have = series.filter((r) => r.d >= lo && r.d <= to && typeof r.nnew === "number").length;
+    const gaps = expected - have;
+    if (gaps <= 0) return "";
+    return `<b>${gaps}</b> ${gaps === 1 ? "day is" : "days are"} missing their new, migration and comp split, and ${gaps === 1 ? "is" : "are"} not counted above`;
+  };
+
   const TOTAL_FIELD = {
     rev: "membership_revenue", mem: "total_members", sub: "total_subscribers",
-    nmem: "new_members_24h", nsub: "new_subscribers_24h", pv: "web_traffic_30d",
-    pod: "podcast_lifetime", op: "digest_open", mig: "migration_done",
-    cxl: "cancels_total", dl: "dl_subscribers",
+    nnew: "new_members_24h", nsub: "new_subscribers_24h", pv: "web_traffic_30d",
+    pod: "podcast_lifetime", op: "digest_open", migd: "migration_done",
+    cmp: "comp_overhang", cxl: "cancels_total", dl: "dl_subscribers",
   };
 
   const KPIS = [
@@ -313,17 +351,45 @@
       ]
     },
     {
-      label: "Migration", key: "mig", agg: "last", f: fmt, goodUp: true, cap: "moved to Stripe",
+      // Scoped to members labelled source:hubspot-migration. Everything here
+      // used to be site-wide paid vs site-wide comped, so "migrated" counted
+      // Substack converts and Portal signups who never migrated anything,
+      // and "still to convert" counted every comp on the site including
+      // Substack, students and gifts. Sparkline starts 2026-08-17: `migd`
+      // is a new series key rather than a redefinition of `mig`, so the old
+      // history is not re-read under the new meaning.
+      label: "Migration", key: "migd", agg: "last", f: fmt, goodUp: true,
+      cap: "legacy members moved to Stripe",
       periodBullets: (rows, prev) => [
-        `<b>${signed(changeOf(rows, prev, "mig"))}</b> migrated during the period`,
-        `<b>${fmt((lastOf(rows, "migt") || 0) - (lastOf(rows, "mig") || 0))}</b> still to convert`,
+        `<b>${signed(changeOf(rows, prev, "migd"))}</b> migrated during the period`,
+        `<b>${fmt(lastOf(rows, "migr"))}</b> still to convert`,
         `<b>${fmt(lastOf(rows, "hsp"))}</b> legacy members with a recent checkout`
       ],
       value: (s) => `${fmt(s.kpi.migration_done)} / ${fmt(s.kpi.migration_total)}`,
       bullets: (s) => [
-        s.ghost ? `<b>${fmt(s.ghost.comped)}</b> still to convert` : "",
+        s.ghost ? `<b>${fmt(s.ghost.mig_remaining)}</b> still to convert — legacy comps, lifetime excluded` : "",
         s.hubspot ? `<b>${fmt(legacyMembers12m(s.hubspot))}</b> legacy members paid in the last 12 months` : "",
         s.hubspot ? `<b>${fmt(s.hubspot.payers)}</b> in HubSpot's paying list` : ""
+      ]
+    },
+    {
+      // The comp overhang is a deadline, not a migration: every comp on the
+      // site expires, whatever its origin, and the ones outside the HubSpot
+      // cohort (Substack, students, gifts, Patreon) have no legacy
+      // subscription to convert. Split out so neither number has to stand
+      // in for the other.
+      label: "Comps outstanding", key: "cmp", agg: "last", f: fmt, goodUp: false,
+      cap: "all origins, expiring",
+      periodBullets: (rows, prev) => [
+        `<b>${signed(changeOf(rows, prev, "cmp"))}</b> change during the period`,
+        `<b>${fmt(lastOf(rows, "migr"))}</b> of them are legacy members still to convert`,
+        `<b>${fmt((lastOf(rows, "cmp") || 0) - (lastOf(rows, "migr") || 0))}</b> are comps with nothing to migrate`
+      ],
+      value: (s) => fmt(s.kpi.comp_overhang),
+      bullets: (s) => [
+        s.ghost ? `<b>${fmt(s.ghost.mig_remaining)}</b> legacy members still to convert` : "",
+        s.ghost && s.ghost.mig_lifetime ? `<b>${fmt(s.ghost.mig_lifetime)}</b> lifetime members — permanent, never convert` : "",
+        s.kpi.days_to_sunset != null ? `<b>${fmt(s.kpi.days_to_sunset)}</b> days to the 31 March 2027 expiry` : ""
       ]
     },
     {
@@ -336,7 +402,13 @@
       value: () => fmt(recentSum("cxl")),
       periodBullets: (rows) => [
         `<b>${fmt(sumOf(rows, "cxl"))}</b> cancelled in the period`,
-        `<b>${fmt(sumOf(rows, "nmem"))}</b> started — net <b>${signed(sumOf(rows, "nmem") - sumOf(rows, "cxl"))}</b>`,
+        // Nets against paying cancellations, so it counts every paying
+        // subscription that started, migrations included. A migration does add
+        // a paying Stripe subscription even though it is not new custom.
+        // startsPaid, not sumOf: this tile's key is `cxl`, which has full
+        // history, so the period navigator reaches July — where a bare
+        // sumOf("nnew") would print "0 started" against real cancellations.
+        `<b>${fmt(startsPaid(rows))}</b> paying subscriptions started — net <b>${signed(startsPaid(rows) - sumOf(rows, "cxl"))}</b>`,
         `<b>${perDay(rows, "cxl")}</b> a day across ${rows.length} days`
       ],
       bullets: (s) => (s.stripe ? [
@@ -360,7 +432,7 @@
         const c = convo(series);
         return [
           `<b>${c.r2s}</b> of ${fmt(c.vis)} visitors subscribed${c.clipped ? ` (from ${mdy(c.from)}, when traffic data starts)` : ""}`,
-          `<b>${c.s2m}</b> of ${fmt(c.nsubAll)} subscribers became members`,
+          `<b>${c.s2m}</b> of ${fmt(c.nsubAll)} subscribers became members${c.mclipped ? ` (from ${mdy(c.mfrom)}, when the new-member split starts)` : ""}`,
           s.ghost && s.stripe
             ? `<b>${rate(s.stripe.paying + s.ghost.comped, s.ghost.total)}</b> of the whole list holds a membership today`
             : ""
@@ -371,7 +443,7 @@
         const c = convo(rows);
         return [
           `<b>${c.r2s}</b> reader to subscriber \u2014 ${fmt(c.nsub)} of ${fmt(c.vis)} visitors`,
-          `<b>${c.s2m}</b> subscriber to member \u2014 ${fmt(c.nmem)} of ${fmt(c.nsubAll)} signups`,
+          `<b>${c.s2m}</b> subscriber to member \u2014 ${fmt(c.nnew)} of ${fmt(c.nsubAll)} signups`,
           c.vis ? "" : "no visitor data in this period, so the first rate cannot be computed"
         ];
       }
@@ -475,17 +547,30 @@
       // Total means all time on every other tile, so a flow shows its
       // running total here rather than the last 24 hours — two neighbouring
       // tiles reading different windows is unreadable.
-      label: "New members", key: "nmem", agg: "sum", f: fmt, goodUp: true,
-      cap: "last 30 days, migrations excluded",
-      value: () => fmt(recentSum("nmem")),
+      label: "New members", key: "nnew", agg: "sum", f: fmt, goodUp: true,
+      // The split only starts 1 Aug 2026, so until 30 days of it exist the
+      // headline covers fewer days than "last 30 days" claims. Say the real
+      // window rather than promising one the number does not cover.
+      // A function, not a string: KPIS is built before `series` is fetched,
+      // so anything computed here at construction time sees an empty array.
+      cap() {
+        const have = series.filter((r) => typeof r.nnew === "number").length;
+        return have && have < RECENT_DAYS
+          ? `since ${mdy(NSPLIT_FROM)}, migrations and comps excluded`
+          : "last 30 days, migrations and comps excluded";
+      },
+      value: () => fmt(recentSum("nnew")),
       periodBullets: (rows) => [
-        `<b>${fmt(sumOf(rows, "nmem"))}</b> Stripe subscriptions started by new members`,
-        `<b>${fmt(sumOf(rows, "nmig"))}</b> more were legacy members migrating, counted on the Migration tile`,
-        `<b>${perDay(rows, "nmem")}</b> a day across ${rows.length} days`
+        `<b>${fmt(sumOf(rows, "nnew"))}</b> of <b>${fmt(sumOf(rows, "nnew") + sumOf(rows, "nmig") + sumOf(rows, "ncmp"))}</b> subscriptions started were new members`,
+        `<b>${fmt(sumOf(rows, "nmig"))}</b> were legacy members migrating, counted on the Migration tile, and <b>${fmt(sumOf(rows, "ncmp"))}</b> were comps`,
+        `<b>${perDay(rows, "nnew")}</b> a day across ${rows.length} days`,
+        degradedNote(rows.length ? rows[0].d : null, rows.length ? rows[rows.length - 1].d : null)
       ],
       bullets: (s) => [
-        `<b>${fmt(sumOf(series, "nmig"))}</b> more were legacy members migrating, counted on the Migration tile`,
-        s.stripe ? `<b>${fmt(s.stripe.started_24h)}</b> started in the last 24 hours` : "",
+        // Was printing s.stripe.started_24h, the unsplit total, two lines
+        // under a caption promising migrations were excluded.
+        s.stripe ? `<b>${fmt(s.stripe.started_new_24h)}</b> of <b>${fmt(s.stripe.started_24h)}</b> subscriptions started in the last 24 hours were new members` : "",
+        s.stripe ? `<b>${fmt(s.stripe.started_mig_24h)}</b> migrations · <b>${fmt(s.stripe.started_comp_24h)}</b> comps` : "",
         s.stripe ? `<b>${fmt(s.stripe.renewals_next_90d)}</b> renewals due in 90 days` : ""
       ]
     },
@@ -697,8 +782,15 @@
     },
     {
       id: "new", type: "bar", agg: "sum", title: "New and renewed memberships",
-      sub: "Stripe subscriptions started, and HubSpot deals closed, in each period.",
-      keys: ["nmem", "hsn"], names: ["Stripe", "HubSpot deals"], f: fmt
+      // `nmem` is kept alongside `nnew` on purpose. The Stripe series splits
+      // at 1 Aug 2026, and `nnew` alone has too few buckets at month grain to
+      // clear the >= 2 rule, so it would be dropped outright — and once a
+      // second month exists, `Math.min` across series would truncate HubSpot
+      // deals to the same two buckets and amputate years off the card. Same
+      // shape as the traffic chart carrying `oldpv` next to `pvd`.
+      sub: "New paying members, and HubSpot deals closed, in each period. The Stripe series splits at 1 Aug 2026: before that date the nightly job counted new members, migrations and comps as one number, so the earlier bars are all starts. After it, migrations and comps appear on the Migration and Comps tiles.",
+      keys: ["nnew", "nmem", "hsn"],
+      names: ["Stripe (new members)", "Stripe (all starts, to 1 Aug)", "HubSpot deals"], f: fmt
     },
     {
       id: "cash", type: "bar", agg: "sum", title: "Cash collected",
@@ -2579,7 +2671,18 @@
       { label: "Subscribed", n: sumOf(win.rows, "nsub"), note: "joined the email list" },
       viewed ? { label: "Saw the offer", n: inWin(viewed.daily), note: "reached the pricing block, wherever it sits" } : null,
       upgrade ? { label: "Opened checkout", n: inWin(upgrade.daily), note: "clicked a buy button" } : null,
-      { label: "Became a member", n: sumOf(win.rows, "nmem"), note: "paid, migrations excluded" }
+      // startsNew, not sumOf("nnew"): funnelWindow returns the WHOLE series
+      // on the Total view, where "Subscribed" above sums three years of nsub.
+      // A bare nnew would put three weeks against three years and render this
+      // stage at the 2px minimum, which reads as collapse rather than as a
+      // series that starts in August.
+      {
+        label: "Became a member",
+        n: startsPaid(win.rows),
+        note: win.from < NSPLIT_FROM
+          ? "paid; before 1 Aug 2026 migrations and comps are counted in too"
+          : "paid, migrations and comps excluded"
+      }
     ].filter(Boolean);
     if (!stages.length || !stages[0].n) return "";
 
@@ -3429,10 +3532,19 @@
           action: null,
           kpi: {
             membership_revenue: row.rev, total_members: row.mem, total_subscribers: row.sub,
-            new_members_24h: (row.nmem || 0) + (row.hsn || 0), new_subscribers_24h: row.nsub,
+            // Rows before the 2026-08-01 split have only `nmem`, which lumped
+            // new members, migrations and comps together. Read null rather
+            // than showing that number under a label that now means less.
+            new_members_24h: row.nnew != null ? row.nnew + (row.hsn || 0) : null,
+            new_migrations_24h: row.nmig, new_comps_24h: row.ncmp,
+            new_subscribers_24h: row.nsub,
             web_traffic_30d: row.pv || row.totpv,
             podcast_lifetime: row.pod, digest_open: row.op, digest_click: row.cl,
-            migration_done: row.mig, migration_total: row.migt,
+            // Rows before 2026-08-17 have neither key — the tile reads null
+            // rather than the old site-wide numbers under the new label.
+            migration_done: row.migd,
+            migration_total: row.migd != null ? (row.migd || 0) + (row.migr || 0) : null,
+            comp_overhang: row.cmp,
             donations_total: row.dontot, donations_12m: row.don12,
             days_to_sunset: Math.round((Date.parse("2027-04-01") - Date.parse(d)) / 86400000)
           },
