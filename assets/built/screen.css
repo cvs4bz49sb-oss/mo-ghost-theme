@@ -23802,8 +23802,16 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
 .art-table th,
 .art-table td { vertical-align: top; }
 
-.art-title { min-width: 240px; max-width: 380px; }
-.art-title-stack { display: inline-block; vertical-align: top; }
+/* Flex, not inline-block. With an inline toggle beside an inline-block
+   stack, a headline that wraps to two lines pushes the stack onto its own
+   line and strands the expander above it. */
+.art-title {
+  min-width: 240px;
+  max-width: 380px;
+  display: flex;
+  align-items: flex-start;
+}
+.art-title-stack { min-width: 0; flex: 1 1 auto; }
 .art-title-link {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -23882,6 +23890,36 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
   color: var(--color-muted);
 }
 .art-detail-value { font-size: 13px; color: var(--color-dark); }
+
+/* Tag pills under the byline. Buttons rather than text: the tag you can see
+   is the quickest way to ask what else we ran on the subject, and making it
+   inert would be a worse answer than not showing it. */
+.art-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 5px;
+}
+.art-tag {
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+}
+.art-tag:hover { color: var(--color-dark); border-color: var(--color-muted); }
+.art-tag.is-on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.art-tag:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 .art-pager { margin: 0 0 12px; }
 /* The pager under the table needs air above it, and none below — the foot

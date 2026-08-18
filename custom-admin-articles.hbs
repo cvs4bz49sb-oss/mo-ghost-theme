@@ -49,6 +49,10 @@
               <p class="admin-section-hint">Sorted newest first, because the usual question is how the thing we just ran did. Sort by any column to ask a different one. The verdict is the column to read: the numbers say what happened, it says which of them is worth acting on.</p>
             </div>
             <p class="art-key" data-art-key></p>
+            {{!-- Topic and author filters. Both are built at runtime from
+                  whatever the window actually contains, with counts, so the
+                  list never offers a tag that would return nothing. --}}
+            <div class="aud-controls aud-controls--filters" data-art-filters></div>
             <div class="aud-controls">
               <span class="aud-legend" data-art-status role="status" aria-live="polite"></span>
             </div>

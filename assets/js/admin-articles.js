@@ -26,6 +26,7 @@
   const periodHost = root.querySelector("[data-art-periods]");
   const statusEl = root.querySelector("[data-art-status]");
   const keyEl = root.querySelector("[data-art-key]");
+  const filterHost = root.querySelector("[data-art-filters]");
   const footEl = root.querySelector("[data-art-foot]");
   const stampEl = root.querySelector("[data-art-stamp]");
 
@@ -44,6 +45,9 @@
   // orders every piece rather than only the 25 currently on screen.
   const PAGE_SIZE = 25;
   let page = 0;
+  // Empty means "all". Both filters combine, so Culture + Jake Meador is the
+  // intersection rather than the union.
+  const filters = { tag: "", author: "" };
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -69,9 +73,31 @@
     { key: "conversions", label: "Upgraded", hint: "paid conversions credited here", num: true, get: (r) => num(r.conversions) },
   ];
 
+  function filteredRows() {
+    return DATA.rows.filter((r) => {
+      if (filters.tag && !(r.tags || []).some((t) => t.slug === filters.tag)) return false;
+      if (filters.author && !(r.authors || []).some((a) => a.slug === filters.author)) return false;
+      return true;
+    });
+  }
+
+  // slug -> {name, n} over the whole window, so the counts in the dropdown
+  // describe the period rather than the current page.
+  function facets(key) {
+    const out = {};
+    DATA.rows.forEach((r) => {
+      (r[key] || []).forEach((t) => {
+        if (!out[t.slug]) out[t.slug] = { slug: t.slug, name: t.name, n: 0 };
+        out[t.slug].n += 1;
+      });
+    });
+    return Object.keys(out).map((k) => out[k])
+      .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+  }
+
   function sortedRows() {
     const col = COLS.find((c) => c.key === sort.col) || COLS[0];
-    const rows = DATA.rows.slice();
+    const rows = filteredRows();
     const dir = sort.dir === "asc" ? 1 : -1;
     rows.sort((a, b) => {
       // Immature posts sink in every METRIC ordering — their counts are real
@@ -117,16 +143,58 @@
     });
   }
 
+  function renderFilters() {
+    if (!filterHost) return;
+    filterHost.textContent = "";
+    const build = (key, facetKey, label, allLabel) => {
+      const wrap = el("label", "aud-filter");
+      wrap.appendChild(el("span", "aud-filter-label", label));
+      const sel = el("select", "aud-select");
+      sel.setAttribute("aria-label", label);
+      const any = el("option", null, allLabel);
+      any.value = "";
+      sel.appendChild(any);
+      facets(facetKey).forEach((f) => {
+        const o = el("option", null, `${f.name} (${f.n})`);
+        o.value = f.slug;
+        sel.appendChild(o);
+      });
+      sel.value = filters[key];
+      sel.addEventListener("change", () => {
+        filters[key] = sel.value;
+        page = 0;
+        renderStats();
+        renderTable();
+      });
+      wrap.appendChild(sel);
+      filterHost.appendChild(wrap);
+    };
+    build("tag", "tags", "Topic", "All topics");
+    build("author", "authors", "Author", "All authors");
+    const clear = el("button", "kpi-btn", "Clear filters");
+    clear.type = "button";
+    clear.hidden = !filters.tag && !filters.author;
+    clear.addEventListener("click", () => {
+      filters.tag = ""; filters.author = ""; page = 0;
+      renderFilters(); renderStats(); renderTable();
+    });
+    filterHost.appendChild(clear);
+  }
+
   function renderStats() {
     statsHost.textContent = "";
-    const t = DATA.totals || {};
+    // Recomputed from the filtered rows rather than read off the server's
+    // window totals: with a topic selected, a header saying 83 pieces above
+    // a table showing nine is just wrong.
+    const rows = filteredRows();
+    const sum = (f) => rows.reduce((a, r) => a + (f(r) || 0), 0);
     const items = [
-      ["Pieces", t.posts],
-      ["Views", t.views],
+      ["Pieces", rows.length],
+      ["Views", sum((r) => r.views)],
     ];
     if (DATA.canSeeMembers) {
-      items.push(["Subscribed", t.signups]);
-      items.push(["Upgraded", t.conversions]);
+      items.push(["Subscribed", sum((r) => r.signups)]);
+      items.push(["Upgraded", sum((r) => r.conversions)]);
     }
     items.forEach(([label, v]) => {
       const li = el("li", "admin-stat");
@@ -208,7 +276,10 @@
     tableHost.textContent = "";
     const all = sortedRows();
     if (!all.length) {
-      tableHost.appendChild(el("p", "admin-sub", "Nothing published in this window."));
+      const filtered = filters.tag || filters.author;
+      tableHost.appendChild(el("p", "admin-sub", filtered
+        ? "Nothing published in this window matches those filters."
+        : "Nothing published in this window."));
       return;
     }
     const pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
@@ -275,10 +346,29 @@
       else a.setAttribute("href", r.url);
       a.setAttribute("target", "_blank");
       a.setAttribute("rel", "noopener");
-      const meta = el("span", "art-title-meta", `${(r.publishedAt || "").slice(0, 10)} · ${r.ageDays}d old`);
+      const byline = (r.authors || []).map((x) => x.name).join(", ");
+      const meta = el("span", "art-title-meta",
+        `${byline ? `${byline} · ` : ""}${(r.publishedAt || "").slice(0, 10)} · ${r.ageDays}d old`);
       const stack = el("span", "art-title-stack");
       stack.appendChild(a);
       stack.appendChild(meta);
+      if ((r.tags || []).length) {
+        const tagWrap = el("span", "art-tags");
+        r.tags.forEach((t) => {
+          // A button, not a pill of text: the tag you can see is the fastest
+          // way to ask "what else did we run on this".
+          const b = el("button", `art-tag${filters.tag === t.slug ? " is-on" : ""}`, t.name);
+          b.type = "button";
+          b.setAttribute("aria-label", `Filter to ${t.name}`);
+          b.addEventListener("click", () => {
+            filters.tag = filters.tag === t.slug ? "" : t.slug;
+            page = 0;
+            renderFilters(); renderStats(); renderTable();
+          });
+          tagWrap.appendChild(b);
+        });
+        stack.appendChild(tagWrap);
+      }
       th.appendChild(toggle);
       th.appendChild(stack);
       tr.appendChild(th);
@@ -320,6 +410,7 @@
   }
 
   function renderAll() {
+    renderFilters();
     renderStats();
     renderKey();
     renderTable();
