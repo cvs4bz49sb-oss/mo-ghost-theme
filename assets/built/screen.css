@@ -22004,7 +22004,8 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
 /* ── Scroll depth ────────────────────────────────────────────── */
 .hm-scroll-row {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 46px;
+  /* Third column fits "1,204 · 46%" — count plus share, not share alone. */
+  grid-template-columns: 42px minmax(0, 1fr) 104px;
   align-items: center;
   gap: 10px;
   margin-bottom: 8px;

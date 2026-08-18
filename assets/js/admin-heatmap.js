@@ -502,7 +502,14 @@
         bar.appendChild(fill);
         row.appendChild(bar);
 
-        row.appendChild(cell("span", pct(reached, sessions), "hm-scroll-value"));
+        // Count first, then share. "46%" alone leaves you doing mental
+        // arithmetic against the sessions tile to find out whether it is
+        // 46% of 2,600 or of 12.
+        row.appendChild(cell(
+          "span",
+          `${num(reached)} · ${pct(reached, sessions)}`,
+          "hm-scroll-value"
+        ));
         el.scroll.appendChild(row);
       });
   }
