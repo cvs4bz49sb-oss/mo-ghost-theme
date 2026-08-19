@@ -60,6 +60,26 @@
   const fmt = (v) => (v === null || v === undefined ? "·" : v.toLocaleString());
   const fmtRate = (v) => (v === null || v === undefined ? "·" : String(v));
 
+  // pushed_at is SQLite CURRENT_TIMESTAMP: "YYYY-MM-DD HH:MM:SS", UTC, space
+  // separated, no zone marker. Safari returns Invalid Date for that form and
+  // other engines disagree on local vs UTC, so normalize to an explicit
+  // instant and render in UTC rather than passing it straight to new Date().
+  function pushDate(value) {
+    if (!value) return "";
+    const m = String(value).match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})/);
+    const d = m ? new Date(`${m[1]}T${m[2]}Z`) : new Date(value);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  }
+  // A lapsed contract still counts as an assignment — the piece was worth
+  // assigning — but say so, or the name reads as a current customer.
+  function pushLabel(p) {
+    const name = p.name || "Unnamed organization";
+    const when = pushDate(p.pushedAt);
+    const lapsed = p.status && p.status !== "active" ? `, ${p.status}` : "";
+    return when || lapsed ? `${name} (${[when, lapsed.replace(/^, /, "")].filter(Boolean).join(", ")})` : name;
+  }
+
   // Columns. `get` returns null for "not measurable", which is what sinks a
   // row rather than letting it sort as a zero.
   const COLS = [
@@ -71,6 +91,8 @@
     { key: "readers", label: "Readers", hint: "unique visitors", num: true, get: (r) => num(r.readers) },
     { key: "signups", label: "Subscribed", hint: "free signups credited here", num: true, get: (r) => num(r.signups) },
     { key: "conversions", label: "Upgraded", hint: "paid conversions credited here", num: true, get: (r) => num(r.conversions) },
+    // Assignments, not distinct organizations. Expand a row to see which ones.
+    { key: "pushes", label: "Assigned", hint: "organizations that pushed it", num: true, get: (r) => num(r.pushes) },
   ];
 
   function filteredRows() {
@@ -196,6 +218,11 @@
       items.push(["Subscribed", sum((r) => r.signups)]);
       items.push(["Upgraded", sum((r) => r.conversions)]);
     }
+    // Omitted rather than shown as 0 when the institution read failed —
+    // a 0 would read as "no organization assigned anything this period".
+    if (DATA.totals && DATA.totals.pushes !== null && DATA.totals.pushes !== undefined) {
+      items.push(["Assigned", sum((r) => r.pushes)]);
+    }
     items.forEach(([label, v]) => {
       const li = el("li", "admin-stat");
       li.appendChild(el("div", "admin-stat-value", v === null || v === undefined ? "·" : v.toLocaleString()));
@@ -237,6 +264,11 @@
       add("Upgrades per 1k views", fmtRate(r.convPer1k));
     }
     if (r.verdict && r.verdict.hint) add("Why", r.verdict.hint);
+    // Which organizations assigned it. Only present for callers with the
+    // members tool; everyone else sees the count in the column and no names.
+    if (r.pushedBy && r.pushedBy.length) {
+      add("Assigned by", r.pushedBy.map(pushLabel).join(" · "));
+    }
     td.appendChild(dl);
     tr.appendChild(td);
     return tr;
