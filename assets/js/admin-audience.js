@@ -60,11 +60,21 @@
   // an archive. The weighted whole-audience view sits immediately behind it
   // for the questions live data cannot answer yet, then the two raw 2026
   // samples for when the member/free split IS the question, then 2025.
-  const COHORTS = ["live", "all", "sub", "mem", "r25"];
+  // Three live cohorts, not one. "Who answered" and "who answered and pays"
+  // are different questions, and pooling them repeats the mistake the 2026
+  // weighting exists to correct. They are ordinary cohorts, so Compare works
+  // between them and against the survey cohorts without any special case.
+  const COHORTS = ["live", "liveFree", "livePaid", "all", "sub", "mem", "r25"];
+  const LIVE_COHORTS = { live: null, liveFree: "free", livePaid: "paid" };
+  const isLive = (k) => Object.prototype.hasOwnProperty.call(LIVE_COHORTS, k);
   const meta = DATA.meta;
   // Placeholder so the Real Time tab exists before its fetch resolves.
   // renderTabs skips any cohort with no entry, which would otherwise hide it.
-  meta.cohorts.live = { label: "Real Time Audience", n: 0, base: null, live: true,
+  meta.cohorts.live = { label: "Real Time: everyone", n: 0, base: null, live: true,
+    note: "Loading live responses…" };
+  meta.cohorts.liveFree = { label: "Real Time: subscribers", n: 0, base: null, live: true,
+    note: "Loading live responses…" };
+  meta.cohorts.livePaid = { label: "Real Time: members", n: 0, base: null, live: true,
     note: "Loading live responses…" };
   let cohort = "live";
   let compare = false;
@@ -126,7 +136,7 @@
         if (compareWith === cohort) {
           compareWith = COHORTS.find((k) => k !== cohort && meta.cohorts[k]) || cohort;
         }
-        if (key === "live") loadLive(renderAll);
+        if (isLive(key)) loadLiveCohort(key, renderAll);
         else renderAll();
       });
       tabsHost.appendChild(btn);
@@ -258,7 +268,7 @@
   // and this question has no live equivalent, so the chart drops out rather
   // than showing unfiltered numbers under a filtered heading.
   function profileSeries(q) {
-    if (cohort === "live" && profKey()) {
+    if (isLive(cohort) && profKey()) {
       const cut = profSegCache[profKey()];
       if (!cut || cut.failed) return null;
       const dim = Q_TO_LIVE_DIM[q.id];
@@ -276,7 +286,7 @@
     if (!profFilterHost) return;
     // Live only: the survey cohorts are precomputed aggregates and cannot be
     // re-cut by an arbitrary demographic on this page.
-    if (cohort !== "live") {
+    if (!isLive(cohort)) {
       profFilterHost.textContent = "";
       profVocab = null;
       Object.keys(profFilters).forEach((k) => { delete profFilters[k]; });
@@ -415,7 +425,7 @@
       host.appendChild(block);
     });
     if (!host.childElementCount) {
-      host.appendChild(el("p", "admin-sub", cohort === "live" && profKey()
+      host.appendChild(el("p", "admin-sub", isLive(cohort) && profKey()
         ? "No live responses match those filters."
         : `${cohortLabel(cohort)} has no answers to show.`));
     }
@@ -730,12 +740,12 @@
     // Precomputed segments are cut from the 2026 files and belong to the
     // survey cohorts only. On live, filters are answered by the live cut
     // fetched above, which knows all sixteen categories.
-    const seg = cohort === "live" ? null : currentSegment();
+    const seg = isLive(cohort) ? null : currentSegment();
     if (seg) {
       if (neverAsked) return null;
       return seg.interest[cat] === undefined ? 0 : seg.interest[cat];
     }
-    if (cohort === "live") {
+    if (isLive(cohort)) {
       const segKeyNow = segKey();
       if (segKeyNow) {
         const cut = liveSegCache[segKeyNow];
@@ -795,7 +805,7 @@
 
   function activeDims() {
     const sv = DATA.sayvsdo;
-    if (cohort === "live" && liveDims) return liveDims;
+    if (isLive(cohort) && liveDims) return liveDims;
     return sv.segmentDims || [];
   }
 
@@ -855,7 +865,7 @@
 
   function loadProfSegment(then) {
     const key = profKey();
-    if (cohort !== "live" || !key) { then(); return; }
+    if (!isLive(cohort) || !key) { then(); return; }
     if (profSegCache[key]) { then(); return; }
     if (!WORKER || !window.MOAuth) { profSegCache[key] = { failed: true, total: 0, series: {} }; then(); return; }
     if (profStatus) profStatus.textContent = "Recutting live responses\u2026";
@@ -872,7 +882,7 @@
   // immediately when there is nothing to fetch.
   function loadLiveSegment(then) {
     const key = segKey();
-    if (cohort !== "live" || !key) { then(); return; }
+    if (!isLive(cohort) || !key) { then(); return; }
     if (liveSegCache[key]) { then(); return; }
     if (!WORKER || !window.MOAuth) { liveSegCache[key] = { n: 0, rows: [], failed: true }; then(); return; }
     svdSay("Recutting live responses\u2026");
@@ -981,7 +991,7 @@
     // of the 2026 segment bookkeeping below applies to it: no precomputed
     // combination, no 20-respondent reporting floor derived from that survey.
     // What it needs saying is how many live people the filter actually caught.
-    if (cohort === "live") {
+    if (isLive(cohort)) {
       const cut = liveSegCache[key];
       let liveMsg = null;
       let liveTone = " is-warn";
@@ -1060,7 +1070,7 @@
     const cats = sv.categories.filter((c) => svdInterest(c) !== null);
     if (cats.every((c) => svdInterest(c) === null)) {
       svdHost.appendChild(el("p", "admin-sub",
-        cohort === "live"
+        isLive(cohort)
           ? (activeFilterCount()
             ? "No live responses match that filter, so there is nothing to compare against what we publish. Clear a filter."
             : "No welcome-survey responses yet, so there is no live demand to compare against what we publish. Switch cohorts to use the 2025 or 2026 surveys.")
@@ -1339,7 +1349,14 @@
   let liveLoaded = false;
   let liveLoading = false;
 
-  function applyLive(summary) {
+  const LIVE_NOTE = {
+    live: "Everyone who has answered the welcome or member survey.",
+    liveFree: "Only respondents Ghost had as free subscribers when they answered.",
+    livePaid: "Only respondents Ghost had as paying or comped members when they answered.",
+  };
+
+  function applyLive(summary, key) {
+    const target = key || "live";
     if (Array.isArray(summary.dimensions)) {
       const labels = {};
       (DATA.sayvsdo.segmentDims || []).forEach((d) => { labels[d.key] = d.label; });
@@ -1352,22 +1369,56 @@
     Object.keys(LIVE_MAP).forEach((dim) => {
       const q = findQ(LIVE_MAP[dim]);
       const src = summary.series[dim];
-      if (!q || !src) return;
-      q.series.live = { n: src.n, rows: src.rows };
+      if (!q) return;
+      // Written even when empty, so a cohort nobody has answered yet reads as
+      // "no responses" rather than silently falling through to another
+      // cohort's numbers under this one's label.
+      q.series[target] = src ? { n: src.n, rows: src.rows } : { n: 0, rows: [] };
     });
-    meta.cohorts.live = {
-      label: "Real Time Audience",
+    const label = (meta.cohorts[target] && meta.cohorts[target].label) || "Real Time";
+    // Status is what Ghost said they were AT ANSWER TIME. Said plainly on the
+    // two split cohorts, because a reader would otherwise assume it tracks
+    // current membership and it does not.
+    const drift = target === "live" ? ""
+      : " Status is as of when they answered, so somebody who has upgraded since still counts where they started.";
+    meta.cohorts[target] = {
+      label,
       n: summary.total,
       base: null,
       live: true,
+      loaded: true,
       completed: summary.completed,
       partial: summary.partial,
       latest: summary.latest,
+      byStatus: summary.byStatus || null,
       note: summary.total
-        ? `Live from the welcome survey: ${summary.total} responses so far, ${summary.completed} of them finished. Recomputed on every load, so it moves as people answer.`
-        : "Live from the welcome survey. No responses yet: the survey is built but nothing is routed to it until the free tier's welcome page points at /welcome/.",
+        ? `${LIVE_NOTE[target]} ${summary.total} responses so far, ${summary.completed} of them finished. Recomputed on every load, so it moves as people answer.${drift}`
+        : `${LIVE_NOTE[target]} No responses yet.`,
     };
-    liveLoaded = true;
+    if (target === "live") liveLoaded = true;
+  }
+
+  // Each live cohort is its own summary request, filtered server-side by the
+  // status recorded when the person answered. Keyed by cohort so switching
+  // tabs costs one request each and nothing after that.
+  function loadLiveCohort(key, then) {
+    if (meta.cohorts[key] && meta.cohorts[key].loaded) { then(); return; }
+    if (!WORKER || !window.MOAuth) {
+      meta.cohorts[key] = { ...meta.cohorts[key], n: 0, loaded: true,
+        note: "Live responses need the admin worker." };
+      then();
+      return;
+    }
+    const status = LIVE_COHORTS[key];
+    const qs = status ? `?status=${encodeURIComponent(status)}` : "";
+    window.MOAuth.fetch(`${WORKER}/audience/survey/summary${qs}`)
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((d) => { applyLive(d, key); })
+      .catch(() => {
+        meta.cohorts[key] = { ...meta.cohorts[key], n: 0, loaded: true,
+          note: "Couldn't load live responses. The rest of this page is unaffected." };
+      })
+      .then(() => { then(); });
   }
 
   function loadLive(then) {
@@ -1382,7 +1433,18 @@
     liveLoading = true;
     window.MOAuth.fetch(`${WORKER}/audience/survey/summary`)
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then((d) => { applyLive(d); })
+      .then((d) => {
+        applyLive(d, "live");
+        // The unfiltered summary already carries the split, so the two
+        // status tabs can show a real count on first paint without two more
+        // requests. Their SERIES still load on click; only the number is
+        // seeded here, which is why loaded stays false.
+        const bs = d.byStatus || {};
+        ["liveFree", "livePaid"].forEach((k) => {
+          const n = k === "liveFree" ? bs.free : bs.paid;
+          if (meta.cohorts[k]) meta.cohorts[k] = { ...meta.cohorts[k], n: n || 0 };
+        });
+      })
       .catch(() => {
         meta.cohorts.live = { label: "Real Time Audience", n: 0, base: null, live: true,
           note: "Couldn't load live responses. The rest of this page is unaffected." };
@@ -1512,7 +1574,7 @@
   // instead, with one line saying where they went.
   const hiddenNote = root.querySelector("[data-aud-hidden-note]");
   function renderSectionScope() {
-    const live = cohort === "live";
+    const live = isLive(cohort);
     root.querySelectorAll("[data-aud-static-section]").forEach((sec) => { sec.hidden = live; });
     if (hiddenNote) {
       hiddenNote.hidden = !live;
@@ -1603,6 +1665,6 @@
   // ran before its data existed. Re-render the whole page when it lands, not
   // just the tabs, or the default view sits empty until you click something.
   // (Fetching up front also gives the tab a real count instead of zero.)
-  loadLive(() => { if (cohort === "live") renderAll(); else renderTabs(); });
+  loadLive(() => { if (isLive(cohort)) renderAll(); else renderTabs(); });
   }
 })();
