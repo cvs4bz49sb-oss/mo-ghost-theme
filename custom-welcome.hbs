@@ -37,7 +37,7 @@
               showing, the usable height is about 445px: the long version ate
               more than half of it and pushed the last option under the bar
               no matter how hard the fit routine compacted. --}}
-        <p class="welcome-intro">Knowing who you are helps us write for you rather than for an audience in the abstract. Six questions, less than a minute.</p>
+        <p class="welcome-intro">Knowing who you are helps us write for you rather than for an audience in the abstract. Seven questions, less than a minute.</p>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your age range?</legend>
           {{!-- Two-up under 640px: this step also carries the intro, so it is
@@ -128,7 +128,28 @@
           </div>
         </fieldset>
       </section>
-      <section class="welcome-step" data-step="6" hidden>
+      {{!-- Never asked before, so there is no prior wording to match. Options
+            are grouped the way a reader remembers finding something, not the
+            way Plausible records it: "Direct" is 70% of real traffic and is
+            not an answer anyone can give. "I can't remember" is deliberate —
+            without it, someone who genuinely does not know picks the nearest
+            plausible option and the answer becomes noise that looks like
+            signal. --}}
+      <section class="welcome-step" data-step="6" data-answered-by="heard" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">How did you hear about Mere Orthodoxy?</legend>
+          <div class="welcome-options welcome-options--dense" data-single>
+            <label class="welcome-option"><input type="radio" name="heard" value="A friend or someone at my church" /><span>A friend or someone at my church</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="A web search" /><span>A web search</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="Social media" /><span>Social media</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="Another site or newsletter linked to an essay" /><span>Another site or newsletter linked to an essay</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="One of our podcasts or the Daily Liturgy" /><span>One of our podcasts or the Daily Liturgy</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="The print Journal" /><span>The print Journal</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="I can&#39;t remember" /><span>I can&#39;t remember</span></label>
+          </div>
+        </fieldset>
+      </section>
+      <section class="welcome-step" data-step="7" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What is your gender?</legend>
           <div class="welcome-options" data-single>
@@ -146,11 +167,11 @@
       </section>
 
       <div class="welcome-bar" data-welcome-bar>
-        <div class="welcome-track" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="1" aria-label="Progress">
+        <div class="welcome-track" role="progressbar" aria-valuemin="0" aria-valuemax="7" aria-valuenow="1" aria-label="Progress">
           <div class="welcome-fill" data-welcome-fill></div>
         </div>
         <div class="welcome-bar-inner">
-          <span class="welcome-count" data-welcome-count>Question 1 of 6</span>
+          <span class="welcome-count" data-welcome-count>Question 1 of 7</span>
           <span class="welcome-actions">
             <button type="button" class="welcome-back" data-welcome-back hidden>Back</button>
             <button type="button" class="btn btn-primary welcome-next" data-welcome-next>Next</button>

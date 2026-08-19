@@ -71,9 +71,9 @@
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">Where should we mail the journal?</legend>
           <div class="welcome-form">
-            <label class="welcome-flabel"><span>Full name on label</span>
+            <label class="welcome-flabel welcome-flabel--wide"><span>Full name on label</span>
               <input class="welcome-input" type="text" name="name" autocomplete="name" value="{{@member.name}}" /></label>
-            <label class="welcome-flabel"><span>Street</span>
+            <label class="welcome-flabel welcome-flabel--wide"><span>Street</span>
               <input class="welcome-input" type="text" name="line1" autocomplete="address-line1" required /></label>
             <label class="welcome-flabel"><span>Apartment, suite, or unit <em>optional</em></span>
               <input class="welcome-input" type="text" name="line2" autocomplete="address-line2" /></label>
@@ -293,7 +293,7 @@
                   account page. --}}
             <label class="welcome-flabel"><span>Organization <em>optional</em></span>
               <input class="welcome-input" type="text" name="organization" /></label>
-            <label class="welcome-flabel"><span>Church <em>optional</em></span>
+            <label class="welcome-flabel welcome-flabel--wide"><span>Church <em>optional</em></span>
               <input class="welcome-input" type="text" name="church" /></label>
           </div>
         </fieldset>
@@ -394,7 +394,28 @@
             of thing that makes a survey feel careless. The engine derives
             the survey's location field from the address instead. --}}
 
-      <section class="welcome-step" data-step="7" data-answered-by="join" hidden>
+      {{!-- Never asked before, so there is no prior wording to match. Options
+            are grouped the way a reader remembers finding something, not the
+            way Plausible records it: "Direct" is 70% of real traffic and is
+            not an answer anyone can give. "I can't remember" is deliberate —
+            without it, someone who genuinely does not know picks the nearest
+            plausible option and the answer becomes noise that looks like
+            signal. --}}
+      <section class="welcome-step" data-step="7" data-answered-by="heard" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">How did you hear about Mere Orthodoxy?</legend>
+          <div class="welcome-options welcome-options--dense" data-single>
+            <label class="welcome-option"><input type="radio" name="heard" value="A friend or someone at my church" /><span>A friend or someone at my church</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="A web search" /><span>A web search</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="Social media" /><span>Social media</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="Another site or newsletter linked to an essay" /><span>Another site or newsletter linked to an essay</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="One of our podcasts or the Daily Liturgy" /><span>One of our podcasts or the Daily Liturgy</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="The print Journal" /><span>The print Journal</span></label>
+            <label class="welcome-option"><input type="radio" name="heard" value="I can&#39;t remember" /><span>I can&#39;t remember</span></label>
+          </div>
+        </fieldset>
+      </section>
+      <section class="welcome-step" data-step="8" data-answered-by="join" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What prompted you to become a member?</legend>
           <p class="welcome-hint">Select any that apply, then press Next.</p>
@@ -403,13 +424,14 @@
             <label class="welcome-option"><input type="checkbox" name="join" value="Support the mission" /><span>Support the mission</span></label>
             <label class="welcome-option"><input type="checkbox" name="join" value="Get the print Journal" /><span>Get the print Journal</span></label>
             <label class="welcome-option"><input type="checkbox" name="join" value="Support for Mere Fidelity" /><span>Support for Mere Fidelity</span></label>
-            <label class="welcome-option"><input type="checkbox" name="join" value="Join the online community (the Discord)" /><span>Join the online community (the Discord)</span></label>
             <label class="welcome-option"><input type="checkbox" name="join" value="Support for Christians Reading Classics" /><span>Support for Christians Reading Classics</span></label>
+            <label class="welcome-option"><input type="checkbox" name="join" value="Support for the Daily Liturgy" /><span>Support for the Daily Liturgy</span></label>
+            <label class="welcome-option"><input type="checkbox" name="join" value="Join the online community (the Discord)" /><span>Join the online community (the Discord)</span></label>
           </div>
         </fieldset>
       </section>
 
-      <section class="welcome-step" data-step="8" data-answered-by="ask" hidden>
+      <section class="welcome-step" data-step="9" data-answered-by="ask" hidden>
         <fieldset class="welcome-field">
           <legend class="welcome-q" tabindex="-1">What would make Mere Orthodoxy more valuable to you?</legend>
           <p class="welcome-hint">Select any that apply, then save.</p>
@@ -432,11 +454,11 @@
       </section>
 
       <div class="welcome-bar" data-welcome-bar>
-        <div class="welcome-track" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="1" aria-label="Progress">
+        <div class="welcome-track" role="progressbar" aria-valuemin="0" aria-valuemax="9" aria-valuenow="1" aria-label="Progress">
           <div class="welcome-fill" data-welcome-fill></div>
         </div>
         <div class="welcome-bar-inner">
-          <span class="welcome-count" data-welcome-count>Question 1 of 8</span>
+          <span class="welcome-count" data-welcome-count>Question 1 of 9</span>
           <span class="welcome-actions">
             <button type="button" class="welcome-back" data-welcome-back hidden>Back</button>
             <button type="button" class="btn btn-primary welcome-next" data-welcome-next>Next</button>

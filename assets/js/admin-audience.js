@@ -1330,6 +1330,10 @@
   const LIVE_MAP = {
     gender: "gender", age: "age", denomination: "denom",
     role: "role", interests: "topics",
+    // Asked by the welcome and member surveys. join and ask have 2026
+    // counterparts so they compare; heard is new and live-only, which is why
+    // the generator emits an empty stub for it.
+    heard: "heard", join: "join", ask: "ask",
   };
   Object.keys(LIVE_MAP).forEach((dim) => { Q_TO_LIVE_DIM[LIVE_MAP[dim]] = dim; });
   let liveLoaded = false;

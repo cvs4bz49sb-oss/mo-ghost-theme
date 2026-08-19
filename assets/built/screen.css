@@ -23379,6 +23379,28 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
 @media (max-width: 420px) {
   .welcome-form-row { grid-template-columns: 1fr; }
 }
+/* Two columns on anything wider than a phone, so the address fits a desktop
+   screen without scrolling. display:contents on the paired rows flattens
+   them into the same grid, which keeps the markup readable as pairs while
+   the layout treats every field as one cell.
+   Nine fields at one per row is about 620px of form; paired, it is 380px,
+   which clears a 700px window with the header and the bar taken off. */
+@media (min-width: 641px) {
+  .welcome-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    align-content: start;
+  }
+  .welcome-form-row { display: contents; }
+  .welcome-flabel--wide { grid-column: 1 / -1; }
+  /* Tighter than the mobile rhythm: a desktop row has a label and an input
+     side by side with its neighbour, so the vertical gap does the separating
+     rather than the padding. */
+  .welcome-input,
+  .welcome-form .welcome-select { padding: 7px 10px; font-size: 15px; }
+  .welcome-flabel { font-size: 11.5px; }
+}
 
 .welcome-step { display: none; }
 /* flex, not block. This rule sits after the flex column above and carries the
