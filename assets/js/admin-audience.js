@@ -1380,7 +1380,14 @@
     // two split cohorts, because a reader would otherwise assume it tracks
     // current membership and it does not.
     const drift = target === "live" ? ""
-      : " Status is as of when they answered, so somebody who has upgraded since still counts where they started.";
+      : " Refreshed against Ghost nightly, so it follows people who upgrade rather than freezing at whatever they were when they answered.";
+    // A row whose status could not be resolved belongs to neither split, so
+    // the two would quietly not add up to the total. Say the number rather
+    // than letting the arithmetic look wrong.
+    const bs = summary.byStatus || {};
+    const orphaned = target === "live" && bs.unknown
+      ? ` ${bs.unknown} could not be matched to a Ghost account and are in neither split.`
+      : "";
     meta.cohorts[target] = {
       label,
       n: summary.total,
@@ -1392,7 +1399,7 @@
       latest: summary.latest,
       byStatus: summary.byStatus || null,
       note: summary.total
-        ? `${LIVE_NOTE[target]} ${summary.total} responses so far, ${summary.completed} of them finished. Recomputed on every load, so it moves as people answer.${drift}`
+        ? `${LIVE_NOTE[target]} ${summary.total} responses so far, ${summary.completed} of them finished. Recomputed on every load, so it moves as people answer.${drift}${orphaned}`
         : `${LIVE_NOTE[target]} No responses yet.`,
     };
     if (target === "live") liveLoaded = true;
