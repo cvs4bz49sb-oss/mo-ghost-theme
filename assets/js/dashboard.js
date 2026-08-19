@@ -189,7 +189,11 @@
           renderOpenResponse(content, data.allowAnonymous);
         } else if (data.type === "link" && data.url) {
           const a = document.createElement("a");
-          a.href = data.url;
+          // Worker-supplied URL, so it goes through MOSafeHref (SECURITY-AGENT
+          // M5). Pre-existing: this was a raw assignment of a value that
+          // crossed a trust boundary, which is the javascript: sink M5 exists
+          // to close.
+          window.MOSafeHref.set(a, data.url, "#");
           a.className = "btn btn-pill btn-primary engagement-link-btn";
           a.textContent = data.linkLabel || "Learn more";
           content.appendChild(a);
@@ -372,7 +376,7 @@
       const wrap = document.createElement("p");
       wrap.className = "dashboard-view-all";
       const a = document.createElement("a");
-      a.href = viewAllHref;
+      window.MOSafeHref.set(a, viewAllHref, "/dashboard/");
       a.textContent = `View all ${fullList.length} →`;
       wrap.appendChild(a);
       mount.appendChild(wrap);
@@ -570,7 +574,9 @@
         const kindEl = card.querySelector("[data-institution-card-kind]");
         if (kindEl && withItems[0].name) kindEl.textContent = withItems[0].name;
         const countEl = card.querySelector("[data-institution-card-count]");
-        if (countEl) countEl.textContent = total + (total === 1 ? " reading" : " readings");
+        // "pieces", not "readings": an administrator can push podcast episodes as
+        // well as essays, so a reading count was wrong for half the feature.
+        if (countEl) countEl.textContent = total + (total === 1 ? " piece" : " pieces");
         card.hidden = false;
       })
       .catch(() => {
@@ -618,7 +624,7 @@
       const wrap = document.createElement("p");
       wrap.className = "dashboard-view-all";
       const a = document.createElement("a");
-      a.href = viewAllHref;
+      window.MOSafeHref.set(a, viewAllHref, "/dashboard/");
       a.textContent = `View all ${fullList.length} \u2192`;
       wrap.appendChild(a);
       mount.appendChild(wrap);
