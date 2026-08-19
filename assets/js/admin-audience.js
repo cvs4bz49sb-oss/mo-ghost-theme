@@ -67,6 +67,18 @@
   const COHORTS = ["live", "liveFree", "livePaid", "all", "sub", "mem", "r25"];
   const LIVE_COHORTS = { live: null, liveFree: "free", livePaid: "paid" };
   const isLive = (k) => Object.prototype.hasOwnProperty.call(LIVE_COHORTS, k);
+  /*
+   * Reporting floor for a live cohort, per question rather than per cohort.
+   * Pooling the address-form data made this necessary: Real Time: members is
+   * 651 people for age and church role, and one person for content interests,
+   * because the address form never asked that. Without a floor the interests
+   * chart on that cohort draws a 100% bar off a single respondent and reads
+   * exactly like the 651-person charts beside it.
+   * 20 is the same floor the 2026 segments use, and for the same reason: at
+   * n=20 a 50% reading still carries roughly a +/-22pt interval, so it is a
+   * floor for "which direction", never for "how much".
+   */
+  const LIVE_MIN_N = 20;
   const meta = DATA.meta;
   // Placeholder so the Real Time tab exists before its fetch resolves.
   // renderTabs skips any cohort with no entry, which would otherwise hide it.
@@ -367,6 +379,23 @@
     DATA.questions.forEach((q) => {
       const series = profileSeries(q);
       if (!series || !series.rows.length) return;
+
+      // Too few to draw. The block still renders, with its n and the reason,
+      // rather than vanishing: a chart that disappears looks like a bug, and
+      // "one person answered this" is itself worth knowing.
+      if (isLive(cohort) && series.n < LIVE_MIN_N) {
+        const thinBlock = el("div", "aud-block");
+        const thinHead = el("div", "aud-block-head");
+        thinHead.appendChild(el("h3", "aud-subhead", q.label));
+        thinHead.appendChild(el("span", "aud-block-n", `n=${series.n}`));
+        thinBlock.appendChild(thinHead);
+        thinBlock.appendChild(el("p", "aud-foot",
+          series.n === 1
+            ? "One person has answered this in this cohort, so there is nothing to chart yet."
+            : `Only ${series.n} people have answered this in this cohort, under the ${LIVE_MIN_N} needed to report a shape.`));
+        host.appendChild(thinBlock);
+        return;
+      }
 
       const block = el("div", "aud-block");
       const head = el("div", "aud-block-head");
@@ -1067,6 +1096,17 @@
     // survey happened to ask. Live answers all sixteen options; the survey
     // cohorts answer the twelve they were asked, and the other four drop out
     // rather than appearing as a 0% that would read as an editorial verdict.
+    // The demand side is the interests question, which on a live cohort can
+    // be a fraction of that cohort's size.
+    if (isLive(cohort) && !segKey()) {
+      const tq = findQ("topics");
+      const tn = (tq && tq.series[cohort] && tq.series[cohort].n) || 0;
+      if (tn < LIVE_MIN_N) {
+        svdHost.appendChild(el("p", "admin-sub",
+          `Only ${tn} ${tn === 1 ? "person has" : "people have"} given content interests in this cohort, under the ${LIVE_MIN_N} needed to compare demand against what we publish. The address-form import filled in age, gender, denomination and church role for members, but it never asked what they want to read.`));
+        return;
+      }
+    }
     const cats = sv.categories.filter((c) => svdInterest(c) !== null);
     if (cats.every((c) => svdInterest(c) === null)) {
       svdHost.appendChild(el("p", "admin-sub",
