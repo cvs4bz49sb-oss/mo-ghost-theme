@@ -709,7 +709,19 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
           // fall back to episodes[0] when there's nothing scheduled.
           const ep = showData.nextScheduled || episodes[0];
           if (!ep) throw new Error('No episodes returned for this show.');
-          return { row, show: showData.show, episode: ep };
+          // Carry HOW we got this episode all the way to the UI. Falling back
+          // to the last published episode is a silent, plausible-looking
+          // wrong answer — the digest went out with the previous week's
+          // episode for weeks before anyone noticed. It must be visible on
+          // every pull, not inferable only by reading the episode title.
+          return {
+            row,
+            show: showData.show,
+            episode: ep,
+            usedScheduled: !!showData.nextScheduled,
+            scheduledSource: showData.nextScheduledSource || null,
+            scheduledError: showData.nextScheduledError || null,
+          };
         } catch (err) {
           return { row, error: err.message };
         }
@@ -718,6 +730,16 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
 
     const fresh = [];
     const errors = [];
+    const warnings = [];
+
+    // "Aug 20" — enough for Ian to tell next Thursday's episode from last
+    // Thursday's at a glance, which is the whole point of the warning.
+    const shortDate = (d) => {
+      const t = Date.parse(d || '');
+      return Number.isNaN(t)
+        ? null
+        : new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    };
 
     results.forEach((r, i) => {
       const slot = existing[i] || {};
@@ -727,6 +749,26 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
         return;
       }
       const ep = r.episode;
+      const showName = r.row.label || (r.show && r.show.title) || r.row.slug;
+      if (!r.usedScheduled) {
+        // Nothing scheduled in Buzzsprout, so this slot holds the LAST
+        // PUBLISHED episode — i.e. the one that already went out in the
+        // previous digest. Usually it means the episode hasn't been given a
+        // release date yet: schedule it, then click Pull Podcasts again.
+        const when = shortDate(ep.pubDate);
+        warnings.push(
+          `${showName}: no upcoming episode is scheduled in Buzzsprout, so this slot is the LAST PUBLISHED one` +
+          `${when ? ` (${when})` : ''} — "${ep.title}". Schedule the new episode, then Pull Podcasts again.`
+        );
+      }
+      if (r.scheduledSource === 'prebuilt-fallback') {
+        // The worker could not read Buzzsprout live and used data that can be
+        // hours old. Even if it produced an episode, it may be the wrong one.
+        warnings.push(
+          `${showName}: the live Buzzsprout read failed (${r.scheduledError || 'unknown error'}), so this used cached data that can be hours stale. ` +
+          `Check ${podcastWorkerUrl.trim().replace(/\/+$/, '')}/health/scheduled.`
+        );
+      }
       let episodeNum = slot.episode || 'Episode';
       if (ep.episode) {
         episodeNum = `Episode ${ep.episode}`;
@@ -744,7 +786,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
         url: ep.link || ep.audioUrl || slot.url || '#',
       });
     });
-    return { fresh, errors, total: results.length };
+    return { fresh, errors, warnings, total: results.length };
   };
 
   const fetchPodcastFeeds = async () => {
@@ -762,14 +804,19 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
     setPodcastLoading(true);
     try {
       const next = JSON.parse(JSON.stringify(content));
-      const { fresh, errors, total } = await collectPodcastSlots(next.podcasts || []);
+      const { fresh, errors, warnings, total } = await collectPodcastSlots(next.podcasts || []);
       next.podcasts = fresh;
       onChange(next);
 
       const ok = total - errors.length;
       let msg = `Pulled ${ok}/${total} show${total === 1 ? '' : 's'}.`;
       if (errors.length) msg += ' Errors: ' + errors.join(' · ');
-      if (errors.length && !ok) setPodcastError(msg);
+      // A pull that "succeeded" but used last week's episode is the failure
+      // mode that actually bites, so route warnings to the RED banner rather
+      // than appending them to the green "Pulled 2/2 shows." line where they
+      // read as reassurance.
+      if (warnings.length) msg += (errors.length ? ' ' : ' ') + '⚠ ' + warnings.join(' ⚠ ');
+      if ((errors.length && !ok) || warnings.length) setPodcastError(msg);
       else setPodcastMessage(msg);
     } catch (err) {
       setPodcastError(/failed to fetch|networkerror/i.test(err.message)
@@ -874,11 +921,14 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
           // Named apart from the essay `fresh` above so the shadowing is
           // not a trap for the next person editing this.
           const pod = await collectPodcastSlots(next.podcasts || []);
-          const { errors, total } = pod;
+          const { errors, warnings, total } = pod;
           next.podcasts = pod.fresh;
           const ok = total - errors.length;
           notes.push(`Pulled ${ok}/${total} podcast show${total === 1 ? '' : 's'}.`);
           if (errors.length) notes.push('Podcast errors: ' + errors.join(' · '));
+          // Must not be swallowed by the green "Pulled 2/2" note — see the
+          // `soft` regex below, which promotes this to the amber banner.
+          if (warnings && warnings.length) notes.push('⚠ Podcast warning: ' + warnings.join(' ⚠ '));
         } catch (err) {
           notes.push(`Podcasts failed: ${err.message}`);
         }
@@ -888,7 +938,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
       const bad = notes.some((n) => /failed|errors:/i.test(n));
       // "All N already ran" leaves the list untouched, so it must not read as
       // a clean green success — nothing changed.
-      const soft = notes.some((n) => /^(no essays|all \d+ essays|skipped|that is a lot)/i.test(n));
+      const soft = notes.some((n) => /^(no essays|all \d+ essays|skipped|that is a lot|⚠ podcast warning)/i.test(n));
       setAutoNote({ kind: bad ? 'err' : soft ? 'warn' : 'ok', text: notes.join(' ') });
     } catch (err) {
       setAutoNote({

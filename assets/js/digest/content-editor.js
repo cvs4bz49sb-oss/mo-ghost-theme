@@ -541,7 +541,14 @@
             const episodes = showData.episodes || [];
             const ep = showData.nextScheduled || episodes[0];
             if (!ep) throw new Error("No episodes returned for this show.");
-            return { row, show: showData.show, episode: ep };
+            return {
+              row,
+              show: showData.show,
+              episode: ep,
+              usedScheduled: !!showData.nextScheduled,
+              scheduledSource: showData.nextScheduledSource || null,
+              scheduledError: showData.nextScheduledError || null
+            };
           } catch (err) {
             return { row, error: err.message };
           }
@@ -549,6 +556,11 @@
       );
       const fresh = [];
       const errors = [];
+      const warnings = [];
+      const shortDate = (d) => {
+        const t = Date.parse(d || "");
+        return Number.isNaN(t) ? null : new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      };
       results.forEach((r, i) => {
         const slot = existing[i] || {};
         if (r.error) {
@@ -557,6 +569,18 @@
           return;
         }
         const ep = r.episode;
+        const showName = r.row.label || r.show && r.show.title || r.row.slug;
+        if (!r.usedScheduled) {
+          const when = shortDate(ep.pubDate);
+          warnings.push(
+            `${showName}: no upcoming episode is scheduled in Buzzsprout, so this slot is the LAST PUBLISHED one${when ? ` (${when})` : ""} \u2014 "${ep.title}". Schedule the new episode, then Pull Podcasts again.`
+          );
+        }
+        if (r.scheduledSource === "prebuilt-fallback") {
+          warnings.push(
+            `${showName}: the live Buzzsprout read failed (${r.scheduledError || "unknown error"}), so this used cached data that can be hours stale. Check ${podcastWorkerUrl.trim().replace(/\/+$/, "")}/health/scheduled.`
+          );
+        }
         let episodeNum = slot.episode || "Episode";
         if (ep.episode) {
           episodeNum = `Episode ${ep.episode}`;
@@ -574,7 +598,7 @@
           url: ep.link || ep.audioUrl || slot.url || "#"
         });
       });
-      return { fresh, errors, total: results.length };
+      return { fresh, errors, warnings, total: results.length };
     };
     const fetchPodcastFeeds = async () => {
       setPodcastError(null);
@@ -590,13 +614,14 @@
       setPodcastLoading(true);
       try {
         const next = JSON.parse(JSON.stringify(content));
-        const { fresh, errors, total } = await collectPodcastSlots(next.podcasts || []);
+        const { fresh, errors, warnings, total } = await collectPodcastSlots(next.podcasts || []);
         next.podcasts = fresh;
         onChange(next);
         const ok = total - errors.length;
         let msg = `Pulled ${ok}/${total} show${total === 1 ? "" : "s"}.`;
         if (errors.length) msg += " Errors: " + errors.join(" \xB7 ");
-        if (errors.length && !ok) setPodcastError(msg);
+        if (warnings.length) msg += (errors.length ? " " : " ") + "\u26A0 " + warnings.join(" \u26A0 ");
+        if (errors.length && !ok || warnings.length) setPodcastError(msg);
         else setPodcastMessage(msg);
       } catch (err) {
         setPodcastError(/failed to fetch|networkerror/i.test(err.message) ? `Network error reaching the Worker. Check the Worker URL is correct and deployed. (${err.message})` : err.message);
@@ -657,18 +682,19 @@
         } else {
           try {
             const pod = await collectPodcastSlots(next.podcasts || []);
-            const { errors, total } = pod;
+            const { errors, warnings, total } = pod;
             next.podcasts = pod.fresh;
             const ok = total - errors.length;
             notes.push(`Pulled ${ok}/${total} podcast show${total === 1 ? "" : "s"}.`);
             if (errors.length) notes.push("Podcast errors: " + errors.join(" \xB7 "));
+            if (warnings && warnings.length) notes.push("\u26A0 Podcast warning: " + warnings.join(" \u26A0 "));
           } catch (err) {
             notes.push(`Podcasts failed: ${err.message}`);
           }
         }
         onChange(next);
         const bad = notes.some((n) => /failed|errors:/i.test(n));
-        const soft = notes.some((n) => /^(no essays|all \d+ essays|skipped|that is a lot)/i.test(n));
+        const soft = notes.some((n) => /^(no essays|all \d+ essays|skipped|that is a lot|⚠ podcast warning)/i.test(n));
         setAutoNote({ kind: bad ? "err" : soft ? "warn" : "ok", text: notes.join(" ") });
       } catch (err) {
         setAutoNote({
