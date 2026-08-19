@@ -1,11 +1,11 @@
 {{!< default}}
 {{#contentFor "moHead"}}
-<title>Chosen for You | Mere Orthodoxy</title>
+<title>Organizational Membership | Mere Orthodoxy</title>
 <meta name="robots" content="noindex, nofollow" />
 <meta name="description" content="Essays and episodes picked for you by your seminary, college, or organization." />
-<meta property="og:title" content="Chosen for You" />
+<meta property="og:title" content="Organizational Membership" />
 <meta property="og:description" content="Essays and episodes picked for you by your seminary, college, or organization." />
-<meta name="twitter:title" content="Chosen for You" />
+<meta name="twitter:title" content="Organizational Membership" />
 <meta name="twitter:description" content="Essays and episodes picked for you by your seminary, college, or organization." />
 {{/contentFor}}
 {{!-- /dashboard/institution/ — full institution curated content page.
@@ -31,7 +31,7 @@
     {{!-- Not signed in. --}}
     <section class="hero dashboard-hero">
       <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <p class="hero-kicker"><span class="dot"></span> Organizational Membership</p>
         <h1 class="hero-headline">See what your organization <span class="highlight"><em>picked for you</em></span>.</h1>
         <p class="hero-sub">Essays and episodes picked by your organization's administrator.</p>
         <p class="dashboard-actions">
@@ -45,8 +45,12 @@
 
     <section class="hero dashboard-hero">
       <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
-        <h1 class="hero-headline"><em>Chosen</em> <span class="highlight"><em>for You</em></span></h1>
+        <p class="hero-kicker"><span class="dot"></span> Organizational Membership</p>
+        {{!-- The headline is the organization's own name, set by
+             assets/js/page/dashboard-institution.js once the fetch lands.
+             No .highlight span: the name is arbitrary length and a full-width
+             terracotta block behind a long one reads as a mistake. --}}
+        <h1 class="hero-headline"><em data-institution-page-name>Your organization</em></h1>
         <p class="hero-sub">Essays and episodes picked by your organization's administrator.</p>
       </div>
     </section>
@@ -63,7 +67,7 @@
     {{!-- Free subscriber. --}}
     <section class="hero dashboard-hero">
       <div class="container">
-        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <p class="hero-kicker"><span class="dot"></span> Organizational Membership</p>
         <h1 class="hero-headline">This is a <span class="highlight"><em>member feature</em></span>.</h1>
         <p class="hero-sub">Organizational memberships give every person on your roster full access.</p>
         <p class="dashboard-actions">

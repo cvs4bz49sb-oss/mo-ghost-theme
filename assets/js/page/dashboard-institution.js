@@ -176,18 +176,35 @@
         return;
       }
       mount.innerHTML = '';
+
+      // The hero headline IS the organization's name. Server-rendered as a
+      // placeholder because the name only exists in this response.
+      const pageName = document.querySelector('[data-institution-page-name]');
+      if (pageName) {
+        pageName.textContent = institutions.length === 1 && institutions[0].name
+          ? institutions[0].name
+          : 'Your organizations';
+      }
+
+      // With one organization the hero already carries the name, so a section
+      // heading beneath it would just say the same thing twice. Members of
+      // more than one still need the per-section headings to tell them apart.
+      const showSectionHeadings = institutions.length > 1;
+
       institutions.forEach((inst) => {
         const items = inst.curated || [];
 
         const section = document.createElement('section');
         section.className = 'institution-section';
 
-        const heading = document.createElement('h2');
-        heading.className = 'dashboard-module-title institution-section-title';
-        const em = document.createElement('em');
-        em.textContent = inst.name || 'Your Organization';
-        heading.appendChild(em);
-        section.appendChild(heading);
+        if (showSectionHeadings) {
+          const heading = document.createElement('h2');
+          heading.className = 'dashboard-module-title institution-section-title';
+          const em = document.createElement('em');
+          em.textContent = inst.name || 'Your organization';
+          heading.appendChild(em);
+          section.appendChild(heading);
+        }
 
         if (!items.length) {
           const empty = document.createElement('p');

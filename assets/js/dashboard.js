@@ -571,8 +571,15 @@
         const card = document.querySelector("[data-institution-card]");
         if (!card) return;
         const total = withItems.reduce((sum, inst) => sum + (inst.curated || []).length, 0);
-        const kindEl = card.querySelector("[data-institution-card-kind]");
-        if (kindEl && withItems[0].name) kindEl.textContent = withItems[0].name;
+        // The organization's own name is the card title. The eyebrow above it
+        // is the fixed label ("Organizational Membership"), which is the way
+        // round every other dash-card works.
+        const nameEl = card.querySelector("[data-institution-card-name]");
+        if (nameEl) {
+          nameEl.textContent = withItems.length === 1 && withItems[0].name
+            ? withItems[0].name
+            : "Your organizations";
+        }
         const countEl = card.querySelector("[data-institution-card-count]");
         // "pieces", not "readings": an administrator can push podcast episodes as
         // well as essays, so a reading count was wrong for half the feature.
