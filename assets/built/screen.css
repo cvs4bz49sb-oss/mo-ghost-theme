@@ -23327,6 +23327,59 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
 }
 .welcome { width: 100%; }
 
+/* Address fields inside a survey step. The one step that is a form rather
+   than a question, so it gets form affordances without leaving the flow.
+   It is also the only step that can legitimately need to scroll: nine fields
+   will not fit a phone, and the engine already pins the bar and top-anchors
+   an overflowing step, so this degrades the way it should. */
+.welcome-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+.welcome-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.welcome-flabel {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  min-width: 0;
+}
+.welcome-flabel em {
+  font-style: normal;
+  opacity: 0.7;
+}
+.welcome-input {
+  font-family: var(--font-body);
+  font-size: 16px;
+  /* 16px, not smaller: iOS zooms the whole page in on focus for anything
+     under 16px, and on a height-locked layout that zoom is very hard to
+     undo. */
+  padding: 9px 10px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--color-dark);
+  width: 100%;
+  min-width: 0;
+}
+.welcome-input:focus-visible,
+.welcome-form .welcome-select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+.welcome-form .welcome-select { margin-top: 0; font-size: 16px; }
+@media (max-width: 420px) {
+  .welcome-form-row { grid-template-columns: 1fr; }
+}
+
 .welcome-step { display: none; }
 /* flex, not block. This rule sits after the flex column above and carries the
    same specificity, so a `display: block` here silently won and left

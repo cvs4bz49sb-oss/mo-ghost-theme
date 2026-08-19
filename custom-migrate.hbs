@@ -37,7 +37,26 @@
      @custom.migration_payment_link_monthly / _annual; retired to
      free up @custom slots since these URLs are stable Stripe IDs
      and the page is one-and-done migration infrastructure). To
-     swap a URL, edit it here and push. --}}
+     swap a URL, edit it here and push.
+
+     Lifetime ($995, one-time) is the third option. It does NOT use
+     a Stripe Payment Link — none exists, and one wouldn't work:
+     Ghost Portal can't do one-time payments, so every lifetime
+     purchase on the site goes through the mo-membership worker
+     (POST /api/create-lifetime-checkout → Stripe Checkout →
+     checkout.session.completed webhook provisions the Ghost member
+     with the lifetime tier). Same button contract as
+     partials/membership-pricing.hbs. No discount: the 25% coupons
+     are subscription coupons and lifetime is already one payment.
+
+     data-lifetime-source="migrate" is what makes a lifetime bought
+     here count as a migration. It rides the POST body → Stripe
+     session metadata.migration="1" → the webhook runs flagMigrant
+     after provisionLifetime, so the buyer gets mo_migrated_at in
+     HubSpot and the migrated:complete label, and their legacy
+     Membership still gets cancelled and refunded. Without it a
+     lifetime migrant would pay and never appear on the
+     cancellation list. --}}
 
 <main class="membership membership-support migrate-page">
 
@@ -134,7 +153,35 @@
           <p class="btn-tagline">25% off your first year &mdash; applies automatically</p>
         </div>
       </div>
+
+      {{!-- Lifetime sits on its own row below the two subscription
+           tiers: different kind of purchase, no discount, and a
+           dark button so it doesn't compete with the two primary
+           CTAs. Worker-driven, not a Payment Link — see the note
+           at the top of this file. --}}
+      <div class="migrate-cta-options migrate-cta-lifetime">
+        <div class="migrate-cta-option">
+          <button
+            type="button"
+            class="btn btn-dark btn-lg"
+            data-lifetime-checkout
+            data-lifetime-source="migrate"
+            data-member-email="{{#if @member}}{{@member.email}}{{/if}}"
+            data-member-name="{{#if @member}}{{@member.name}}{{/if}}"
+          >
+            <span class="btn-label">Become a Lifetime Member</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="btn-tagline">Only pay once. Lifetime access to Mere Orthodoxy.</p>
+          <p class="btn-error" data-lifetime-error role="alert"></p>
+        </div>
+      </div>
     </div>
   </section>
+
+  {{!-- MOSafeRedirect and MOAuth, which this script depends on, both
+       ship in boot.min.js (head), so they're already defined by the
+       time the click handler fires. --}}
+  <script src="{{asset "js/lifetime-checkout.js"}}"></script>
 
 </main>

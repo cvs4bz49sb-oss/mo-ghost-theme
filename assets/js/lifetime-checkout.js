@@ -29,6 +29,12 @@
       btn.classList.add('is-loading');
 
       const payload = {};
+      // Which page the click came from. Only /migrate/ sets this, and
+      // the worker only honours the exact value "migrate" — it makes the
+      // purchase count as a migration (HubSpot mo_migrated_at + the
+      // migrated:complete label) so the buyer's legacy Membership still
+      // gets cancelled and refunded.
+      if (btn.dataset.lifetimeSource) payload.source = btn.dataset.lifetimeSource;
       const isSignedIn = !!btn.dataset.memberEmail;
       // For anonymous visitors, prefill name if we have it; Stripe
       // collects email at checkout. For signed-in members we send a

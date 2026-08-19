@@ -8,93 +8,86 @@
 <meta name="twitter:title" content="Complete Your Membership" />
 <meta name="twitter:description" content="Add the print journal, the ebook library, audio essays, and the full member archive to your Mere Orthodoxy subscription." />
 {{/contentFor}}
-{{!-- custom-complete-membership: new Members land here after Portal
-     checkout to give us their shipping address for the print journal.
-     Ghost doesn't expose custom member fields on our plan, so we
-     collect + store via the mo-membership Worker instead. --}}
+{{!-- /complete-membership/ — where a new Member lands after Portal checkout.
 
-<main class="membership membership-support">
+     One flow, one screen at a time, sharing the engine and the styles with
+     /welcome/. Three kinds of step:
 
-  {{!-- Free subscribers don't get the print journal, so skip the
-       address form entirely and route them straight to the site.
-       Only paid / comped / lifetime / gift / group / admin-preview
-       members see the address form. --}}
-  {{#match @member.status "free"}}
+       address   the shipping address for the print journal. Always asked,
+                 always first: it is the thing they just paid for and the
+                 only step that is not optional. Posts to
+                 /api/member/address, which needs street, city and postcode
+                 together, so it saves only once all three exist.
+
+       base      the six questions /welcome/ asks. A member who subscribed
+                 free first has already answered these, so each one carries
+                 data-answered-by and drops out if it is already on file.
+                 Someone who went straight to paid answers them here, which
+                 is how that cohort stops being a hole in the audience data.
+
+       member    the two questions only members are asked. Wording is the
+                 2026 member survey's, character for character, so answers
+                 pool with the 186 responses already on the dashboard.
+
+     Demographics post to /api/welcome-survey, NOT to the address endpoint.
+     That is the change that makes them countable: the survey store is what
+     produces Ghost labels and Kit tags and what the Audience board reads.
+     The address endpoint keeps the address. --}}
+
+{{#match @member.status "free"}}
+  {{!-- Free subscribers don't get the print journal, and they answered the
+       six base questions on /welcome/ already. Nothing to ask. --}}
+  <main class="membership membership-support">
     <section class="page-hero">
       <div class="container">
         <p class="eyebrow">Welcome to Mere Orthodoxy</p>
         <h1 class="page-hero-headline">You're <em>subscribed</em>.</h1>
-        <p class="page-hero-sub">You'll receive the Weekly Digest in your inbox and can read every free essay online. Want the full experience — the print journal, the ebook library, audio versions, church calendar site themes, and the Member Dashboard? Upgrade any time.</p>
+        <p class="page-hero-sub">You'll receive the Weekly Digest in your inbox and can read every free essay online. Want the full experience, the print journal, the ebook library, audio versions, church calendar site themes, and the Member Dashboard? Upgrade any time.</p>
         <div class="button-row" style="margin-top: 24px;">
           <a href="/membership/" class="btn btn-primary btn-inline">Become a Member</a>
           <a href="https://mereorthodoxy.com" class="btn btn-dark btn-inline">Read Mere Orthodoxy</a>
         </div>
       </div>
     </section>
-  {{else}}
-  <section class="page-hero">
-    <div class="container">
-      <p class="eyebrow">Welcome to Mere Orthodoxy</p>
-      <h1 class="page-hero-headline"><em>One last thing</em> — where should we mail the journal?</h1>
-      <p class="page-hero-sub">Members receive the quarterly print journal by mail. Give us an address and we'll take it from there. You can update this any time from your dashboard.</p>
-    </div>
-  </section>
+  </main>
+{{else}}
+{{#if @member}}
 
-  <section class="form-section">
-    <div class="container">
-      {{#if @member}}
-        <form id="address-form"
-              class="stacked-form"
-              novalidate
-              data-member-email="{{@member.email}}"
-              data-member-name="{{@member.name}}">
+<main class="welcome-page">
+  <div class="container container-narrow">
 
-          <fieldset class="form-group">
-            <legend class="form-legend">Recipient</legend>
-            <label class="form-field">
-              <span class="form-label">Full name on label</span>
-              <input type="text" name="name" autocomplete="name" value="{{@member.name}}" required />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Organization <span class="form-hint">(optional)</span></span>
-              <input type="text" name="organization" autocomplete="organization" />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Church <span class="form-hint">(optional)</span></span>
-              <input type="text" name="church" />
-            </label>
-          </fieldset>
+    <form class="welcome" data-welcome novalidate
+          data-api-base="{{@custom.membership_api_base}}"
+          data-source="complete-membership"
+          data-dedupe="1">
 
-          <fieldset class="form-group">
-            <legend class="form-legend">Address</legend>
-            <p class="form-intro">Please provide your mailing address to receive your print Journal.</p>
-            <label class="form-field">
-              <span class="form-label">Street</span>
-              <input type="text" name="line1" autocomplete="address-line1" required />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Apartment, suite, or unit <span class="form-hint">(optional)</span></span>
-              <input type="text" name="line2" autocomplete="address-line2" />
-            </label>
-            <div class="form-row">
-              <label class="form-field">
-                <span class="form-label">City</span>
-                <input type="text" name="city" autocomplete="address-level2" required />
-              </label>
-              <label class="form-field">
-                <span class="form-label">State / Province</span>
-                <input type="text" name="state" autocomplete="address-level1" maxlength="100" />
-                <span class="form-hint">State, county, or province (if applicable)</span>
-              </label>
+      {{!-- Step one is the address and is never pruned, so there is no flash
+            of a question that is about to disappear while the dedupe
+            request is in flight. --}}
+      <section class="welcome-step is-active" data-step="1" data-target="address">
+        <p class="hero-kicker"><span class="dot"></span> Welcome</p>
+        <h1 class="welcome-title"><em>You're a member.</em></h1>
+        <p class="welcome-intro">First, where should the print journal go? Then a few quick questions so we know who we're writing for.</p>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">Where should we mail the journal?</legend>
+          <div class="welcome-form">
+            <label class="welcome-flabel"><span>Full name on label</span>
+              <input class="welcome-input" type="text" name="name" autocomplete="name" value="{{@member.name}}" /></label>
+            <label class="welcome-flabel"><span>Street</span>
+              <input class="welcome-input" type="text" name="line1" autocomplete="address-line1" required /></label>
+            <label class="welcome-flabel"><span>Apartment, suite, or unit <em>optional</em></span>
+              <input class="welcome-input" type="text" name="line2" autocomplete="address-line2" /></label>
+            <div class="welcome-form-row">
+              <label class="welcome-flabel"><span>City</span>
+                <input class="welcome-input" type="text" name="city" autocomplete="address-level2" required /></label>
+              <label class="welcome-flabel"><span>State / Province</span>
+                <input class="welcome-input" type="text" name="state" autocomplete="address-level1" /></label>
             </div>
-            <div class="form-row">
-              <label class="form-field">
-                <span class="form-label">ZIP / Postal code</span>
-                <input type="text" name="postal_code" autocomplete="postal-code" required />
-              </label>
-              <label class="form-field">
-                <span class="form-label">Country</span>
-                <select name="country" required>
+            <div class="welcome-form-row">
+              <label class="welcome-flabel"><span>ZIP / Postal code</span>
+                <input class="welcome-input" type="text" name="postal_code" autocomplete="postal-code" required /></label>
+              <label class="welcome-flabel"><span>Country</span>
+                <select name="country" class="welcome-select" required>
                   <option value="US" selected>United States</option>
                   <option value="CA">Canada</option>
                   <option value="GB">United Kingdom</option>
@@ -292,68 +285,183 @@
                   <option value="YE">Yemen</option>
                   <option value="ZM">Zambia</option>
                   <option value="ZW">Zimbabwe</option>
-                </select>
-              </label>
+                </select></label>
             </div>
-          </fieldset>
+            {{!-- Optional, and carried rather than dropped: the address
+                  endpoint writes every column it is sent, so omitting these
+                  would null out anything a member had already set from the
+                  account page. --}}
+            <label class="welcome-flabel"><span>Organization <em>optional</em></span>
+              <input class="welcome-input" type="text" name="organization" /></label>
+            <label class="welcome-flabel"><span>Church <em>optional</em></span>
+              <input class="welcome-input" type="text" name="church" /></label>
+          </div>
+        </fieldset>
+      </section>
 
-          <fieldset class="form-group">
-            <legend class="form-legend">About You <span class="form-hint">(all optional)</span></legend>
-            <div class="form-field">
-              <span class="form-label">Age range</span>
-              <div class="radio-group">
-                <label class="radio-option"><input type="radio" name="age_range" value="Under 18" /> Under 18</label>
-                <label class="radio-option"><input type="radio" name="age_range" value="18-24" /> 18&ndash;24</label>
-                <label class="radio-option"><input type="radio" name="age_range" value="25-34" /> 25&ndash;34</label>
-                <label class="radio-option"><input type="radio" name="age_range" value="35-44" /> 35&ndash;44</label>
-                <label class="radio-option"><input type="radio" name="age_range" value="45-54" /> 45&ndash;54</label>
-                <label class="radio-option"><input type="radio" name="age_range" value="55-64" /> 55&ndash;64</label>
-                <label class="radio-option"><input type="radio" name="age_range" value="65-74" /> 65&ndash;74</label>
-                <label class="radio-option"><input type="radio" name="age_range" value="75+" /> 75+</label>
-              </div>
-            </div>
-            <div class="form-field">
-              <span class="form-label">Gender</span>
-              <div class="radio-group">
-                <label class="radio-option"><input type="radio" name="gender" value="Male" /> Male</label>
-                <label class="radio-option"><input type="radio" name="gender" value="Female" /> Female</label>
-              </div>
-            </div>
-            <div class="form-field">
-              <span class="form-label">Relationship to the church</span>
-              <div class="checkbox-group">
-                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Pastor" /> Pastor</label>
-                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Academic" /> Academic</label>
-                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Elder/Deacon" /> Elder/Deacon</label>
-                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Member/Lay Person" /> Member/Lay Person</label>
-                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Parachurch Ministry" /> Parachurch Ministry</label>
-                <label class="checkbox-option"><input type="checkbox" name="church_role" value="Not currently attending church" /> Not currently attending church</label>
-              </div>
-            </div>
-            <label class="form-field">
-              <span class="form-label">Church tradition / denomination</span>
-              <input type="text" name="denomination" placeholder="e.g. Presbyterian, Anglican, Catholic" />
-            </label>
-          </fieldset>
+      {{!-- The six base questions. Identical wording and identical option
+            sets to /welcome/, because the answers land in the same column of
+            the same table and a second vocabulary could never be pooled with
+            the first. Each drops out if it is already answered. --}}
+      <section class="welcome-step" data-step="2" data-answered-by="age" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your age range?</legend>
+          <div class="welcome-options welcome-options--dense" data-single>
+            <label class="welcome-option"><input type="radio" name="age" value="18-24" /><span>18-24</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="25-34" /><span>25-34</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="35-44" /><span>35-44</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="45-54" /><span>45-54</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="55-64" /><span>55-64</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="65-74" /><span>65-74</span></label>
+            <label class="welcome-option"><input type="radio" name="age" value="75+" /><span>75+</span></label>
+          </div>
+        </fieldset>
+      </section>
 
-          <button type="submit" class="btn btn-pill btn-primary btn-wide" id="address-submit">
-            <span class="btn-label">Save address</span>
-            <span class="btn-spinner" aria-hidden="true"></span>
-          </button>
-          <p class="btn-tagline">You can update this any time from your dashboard.</p>
-          <p class="btn-error" id="address-error" role="alert"></p>
-          <p class="form-success" id="address-success" hidden>Got it. Your journal will start with the next issue.</p>
-        </form>
-      {{else}}
+      <section class="welcome-step" data-step="3" data-answered-by="denomination" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your denomination?</legend>
+          <div class="welcome-options welcome-options--dense" data-single>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Presbyterian" /><span>Presbyterian</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Baptist" /><span>Baptist</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Non-Denominational" /><span>Non-Denominational</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Anglican" /><span>Anglican</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Lutheran" /><span>Lutheran</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Methodist" /><span>Methodist</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Episcopal" /><span>Episcopal</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Pentecostal" /><span>Pentecostal</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Other" /><span>Other</span></label>
+            <label class="welcome-option"><input type="radio" name="denomination" value="Not Protestant" /><span>Not Protestant</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="4" data-answered-by="role" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your relationship to the church?</legend>
+          <p class="welcome-hint">Select any that apply, then press Next.</p>
+          <div class="welcome-options welcome-options--dense">
+            <label class="welcome-option"><input type="checkbox" name="role" value="Member or Lay Person" /><span>Member or Lay Person</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Home or Small Group Leader" /><span>Home or Small Group Leader</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Elder or Deacon" /><span>Elder or Deacon</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Pastor" /><span>Pastor</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Academic" /><span>Academic</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Parachurch Ministry" /><span>Parachurch Ministry</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Not currently attending" /><span>Not currently attending</span></label>
+            <label class="welcome-option"><input type="checkbox" name="role" value="Student" /><span>Student</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="5" data-answered-by="interests" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What do you most want to read?</legend>
+          <p class="welcome-hint">Choose up to five, then press Next.</p>
+          <div class="welcome-options welcome-options--two" data-cap="5">
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Theology" /><span>Theology</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Culture" /><span>Culture</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Church" /><span>Church</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Formation" /><span>Formation</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Philosophy" /><span>Philosophy</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Book Reviews" /><span>Book Reviews</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Family" /><span>Family</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Politics" /><span>Politics</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Technology" /><span>Technology</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Education" /><span>Education</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Leadership" /><span>Leadership</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Interviews" /><span>Interviews</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Global" /><span>Global</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Film/Music/Art" /><span>Film/Music/Art</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Poetry" /><span>Poetry</span></label>
+            <label class="welcome-option"><input type="checkbox" name="interests" value="Neighborly Arts" /><span>Neighborly Arts</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="6" data-answered-by="gender" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What is your gender?</legend>
+          <div class="welcome-options" data-single>
+            <label class="welcome-option"><input type="radio" name="gender" value="Male" /><span>Male</span></label>
+            <label class="welcome-option"><input type="radio" name="gender" value="Female" /><span>Female</span></label>
+            <label class="welcome-option"><input type="radio" name="gender" value="Prefer not to say" /><span>Prefer not to say</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      {{!-- No "where do you live?" step. They just typed a full postal
+            address, and asking again two screens later is exactly the kind
+            of thing that makes a survey feel careless. The engine derives
+            the survey's location field from the address instead. --}}
+
+      <section class="welcome-step" data-step="7" data-answered-by="join" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What prompted you to become a member?</legend>
+          <p class="welcome-hint">Select any that apply, then press Next.</p>
+          <div class="welcome-options">
+            <label class="welcome-option"><input type="checkbox" name="join" value="Appreciate the theological and cultural perspectives" /><span>Appreciate the theological and cultural perspectives</span></label>
+            <label class="welcome-option"><input type="checkbox" name="join" value="Support the mission" /><span>Support the mission</span></label>
+            <label class="welcome-option"><input type="checkbox" name="join" value="Get the print Journal" /><span>Get the print Journal</span></label>
+            <label class="welcome-option"><input type="checkbox" name="join" value="Support for Mere Fidelity" /><span>Support for Mere Fidelity</span></label>
+            <label class="welcome-option"><input type="checkbox" name="join" value="Join the online community (the Discord)" /><span>Join the online community (the Discord)</span></label>
+            <label class="welcome-option"><input type="checkbox" name="join" value="Support for Christians Reading Classics" /><span>Support for Christians Reading Classics</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step" data-step="8" data-answered-by="ask" hidden>
+        <fieldset class="welcome-field">
+          <legend class="welcome-q" tabindex="-1">What would make Mere Orthodoxy more valuable to you?</legend>
+          <p class="welcome-hint">Select any that apply, then save.</p>
+          <div class="welcome-options">
+            <label class="welcome-option"><input type="checkbox" name="ask" value="More cultural commentary" /><span>More cultural commentary</span></label>
+            <label class="welcome-option"><input type="checkbox" name="ask" value="More in-depth theological content" /><span>More in-depth theological content</span></label>
+            <label class="welcome-option"><input type="checkbox" name="ask" value="Regional in-person events" /><span>Regional in-person events</span></label>
+            <label class="welcome-option"><input type="checkbox" name="ask" value="More podcast content" /><span>More podcast content</span></label>
+            <label class="welcome-option"><input type="checkbox" name="ask" value="Topical ebooks" /><span>Topical ebooks</span></label>
+            <label class="welcome-option"><input type="checkbox" name="ask" value="Online events" /><span>Online events</span></label>
+            <label class="welcome-option"><input type="checkbox" name="ask" value="More video content" /><span>More video content</span></label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section class="welcome-step welcome-done" data-step="done" hidden>
+        <h1 class="welcome-title"><em>Thank you.</em></h1>
+        <p class="welcome-intro">Your journal will start with the next issue. That helps us tremendously. We're so glad you're here.</p>
+        <p><a class="btn btn-primary" href="/dashboard/">Go to your dashboard</a></p>
+      </section>
+
+      <div class="welcome-bar" data-welcome-bar>
+        <div class="welcome-track" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="1" aria-label="Progress">
+          <div class="welcome-fill" data-welcome-fill></div>
+        </div>
+        <div class="welcome-bar-inner">
+          <span class="welcome-count" data-welcome-count>Question 1 of 8</span>
+          <span class="welcome-actions">
+            <button type="button" class="welcome-back" data-welcome-back hidden>Back</button>
+            <button type="button" class="btn btn-primary welcome-next" data-welcome-next>Next</button>
+            <a class="welcome-skip" href="/dashboard/" data-welcome-skip aria-label="Skip survey"><span class="welcome-lfull" aria-hidden="true">Skip survey</span><span class="welcome-labbr" aria-hidden="true">Skip</span></a>
+          </span>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+{{else}}
+  <main class="membership membership-support">
+    <section class="form-section">
+      <div class="container">
         <div class="empty-state">
           <p class="eyebrow">Sign in needed</p>
           <h2><em>Please sign in</em> before completing your membership.</h2>
           <p>This page only works when you're signed in as a member. Check your inbox for the Mere Orthodoxy magic-link email, or <a href="#/portal/signin">sign in here</a>.</p>
         </div>
-      {{/if}}
-    </div>
-  </section>
-  {{/match}}
+      </div>
+    </section>
+  </main>
+{{/if}}
+{{/match}}
 
-  <script src="{{asset "js/complete-membership.js"}}"></script>
-</main>
+<script src="{{asset "js/page/welcome-survey.js"}}"></script>
