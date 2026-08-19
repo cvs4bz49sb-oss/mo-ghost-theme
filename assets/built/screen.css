@@ -4260,6 +4260,79 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .included-cta { text-align: center; }
 
+/* --- /institutions/guide/ — no italics ----------------------------------
+   Ian asked for no italics on this page (2026-08-19). Removing the em tags
+   from the template got the headings and the hero, but two rules set italic
+   on the element itself and are invisible to a markup edit:
+
+     .benefit-item h3                              (0,1,1)
+     .membership-support .institutional-point h3   (0,2,1)
+
+   Both are shared with /membership/ and /institutions/, so they can only be
+   overridden in this page's scope, never edited in place.
+
+   Chaining .membership-support.institution-guide gives 0,3,1 and beats both.
+   Scoping on .institution-guide alone would tie the second rule at 0,2,1 and
+   then depend on source order, which is FRONTEND-AGENT §6.22 exactly.
+
+   Verified by computed style, not by reading: grep for "font-style: italic"
+   misses these because the declaration sits on its own line, several lines
+   below the selector. --------------------------------------------------- */
+.membership-support.institution-guide .benefit-item h3,
+.membership-support.institution-guide .institutional-point h3 {
+  font-style: normal;
+}
+
+/* --- /institutions/guide/ product screenshots ---------------------------
+   Scoped to .institution-guide so nothing here reaches the other pages that
+   share the .included band.
+
+   White plates, because both shots carry their own background — one is the
+   dark article action bar, the other a cream dashboard card — and would
+   otherwise sit on the terracotta with no edge to separate them from it.
+   6px radius is the theme's image-plate radius (.entry-plate, .dash-new-plate).
+
+   Captions are the same rgba(255,255,255,0.82) as .capstone-body: the band
+   is terracotta, so a caption on --color-muted renders near-invisible.
+   ---------------------------------------------------------------------- */
+.institution-guide .guide-shots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  align-items: start;
+  margin: 48px 0 0;
+}
+.institution-guide .guide-shot { margin: 0; }
+.institution-guide .guide-shot-plate {
+  background: var(--color-white);
+  border-radius: 6px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(45, 41, 39, 0.14);
+}
+/* The two shots have very different aspect ratios (4.7:1 and 2.1:1), so the
+   figures are top-aligned and each image keeps its own height rather than
+   being forced into a shared box. */
+.institution-guide .guide-shot-plate img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+}
+.institution-guide .guide-shot-caption {
+  margin: 14px 0 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+@media (max-width: 640px) {
+  .institution-guide .guide-shots {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-top: 36px;
+  }
+}
+
 /* --- Membership responsive --- */
 @media (max-width: 900px) {
   .mb-hero .hero-grid { grid-template-columns: 1fr; gap: 36px; }
