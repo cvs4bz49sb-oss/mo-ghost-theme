@@ -121,6 +121,16 @@
     window.__kitEmit("clicked_upgrade", { href, path, surface });
   });
 
+  // ---- dashboard_viewed --------------------------------------------------
+  // Any /dashboard/ page, not only the index: someone who lives in
+  // /dashboard/bookmarks/ is using the dashboard. Fires on load rather than
+  // on scroll or dwell, because opening it IS the action being measured.
+  // The worker dedupes to one count per member per day, so clicking through
+  // four sub-pages in one sitting counts once.
+  if (path === "/dashboard" || path.indexOf("/dashboard/") === 0) {
+    window.__kitEmit("dashboard_viewed", { path });
+  }
+
   // ---- read_completed ----------------------------------------------------
   // Fires once per page load when the reader has either scrolled past
   // 80% of the article OR spent 60+ seconds on the page. Only fires
