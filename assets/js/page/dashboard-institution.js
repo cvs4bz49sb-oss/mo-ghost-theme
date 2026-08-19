@@ -10,6 +10,20 @@
  * "Loading curated content..." forever with an empty mount, because
  * nothing ever executed to replace it. Do not move this back inline.
  *
+ * The first externalized version kept the original markup, which was
+ * wrong in a way the CSP bug had been hiding: it emitted
+ * article.entry > a.entry-link > (.entry-image + .entry-body). Only one
+ * of those classes exists in screen.css. `.entry` is a
+ * `grid-template-columns: 150px 1fr` two-child grid, so wrapping both
+ * halves in a single <a> dropped the whole tile into the 150px image
+ * column and titles wrapped to five lines.
+ *
+ * This version renders .dash-new-* tiles instead — the vocabulary from
+ * the "New since your last visit" rail on /dashboard/, which already
+ * handles a dense grid mixing 16:9 essay art with 1:1 podcast covers.
+ * See the .institution-grid block in screen.css for why not .week-grid,
+ * and why .dash-new-item specifically is NOT reused.
+ *
  * window.MOAuth and window.MOSafeHref both come from boot.min.js, which
  * default.hbs loads in <head> before {{{body}}}. Page scripts run BEFORE
  * site.min.js, so nothing here may reach for a site-bundle global.
@@ -20,13 +34,25 @@
 
   const loadingEl = document.querySelector('[data-institution-loading]');
 
-  function fail(message) {
+  function fail(message, linkHref, linkText) {
     if (loadingEl) loadingEl.hidden = true;
+    mount.innerHTML = '';
     const p = document.createElement('p');
     p.className = 'dashboard-empty';
     p.textContent = message;
-    mount.innerHTML = '';
     mount.appendChild(p);
+    if (linkHref) {
+      const wrap = document.createElement('p');
+      wrap.className = 'dashboard-actions';
+      const a = document.createElement('a');
+      // Always a same-origin literal from this file, but M5 is mechanical
+      // and routing it costs nothing.
+      window.MOSafeHref.set(a, linkHref, '/');
+      a.className = 'btn btn-ghost';
+      a.textContent = linkText;
+      wrap.appendChild(a);
+      mount.appendChild(wrap);
+    }
   }
 
   const apiBaseMeta = document.querySelector('meta[name="mo-api-base"]');
@@ -44,27 +70,120 @@
     return;
   }
 
+  // pushed_at is SQLite CURRENT_TIMESTAMP: "YYYY-MM-DD HH:MM:SS", UTC,
+  // space-separated, no zone marker. Passing that straight to new Date()
+  // is unreliable — Safari returns Invalid Date for the space form, and
+  // engines that do accept it disagree on whether to read it as local or
+  // UTC. Normalize to an explicit ISO instant, then render in UTC so the
+  // displayed day can't slide backwards for members west of Greenwich.
+  function parseTimestamp(value) {
+    if (typeof value !== 'string') return new Date(value);
+    const dateTime = value.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})/);
+    if (dateTime) return new Date(`${dateTime[1]}T${dateTime[2]}Z`);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date(`${value}T00:00:00Z`);
+    return new Date(value);
+  }
+
+  function formatCurated(value) {
+    // new Date(null) is the epoch, not an invalid date, so a null
+    // pushed_at would otherwise render "Curated Jan 1".
+    if (!value) return '';
+    const d = parseTimestamp(value);
+    if (isNaN(d.getTime())) return '';
+    // Short month: the theme's long "MMMM D" overruns a 160px tile at
+    // the ≤640 two-up breakpoint.
+    return `Curated ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })}`;
+  }
+
+  function buildPlate(item) {
+    const plate = document.createElement('span');
+    plate.className = 'dash-new-plate';
+    // The plate is ALWAYS rendered, even with no image. Omitting it in a
+    // stacked grid pulls that tile's title to the top of its cell while
+    // every neighbour's title sits a plate-height lower.
+    if (item.feature_image && window.MOSafeHref.isSafe(item.feature_image)) {
+      // JSON.stringify quotes and escapes the URL. isSafe() vets the
+      // scheme but not a `");` inside the path, which would otherwise
+      // break out of the CSS string. Mirrors dashboard.js.
+      plate.style.backgroundImage = `url(${JSON.stringify(item.feature_image)})`;
+    } else {
+      plate.classList.add('dash-new-plate--empty');
+      const mark = document.createElement('span');
+      mark.className = 'dash-new-plate-mark';
+      mark.textContent = '¶';
+      plate.appendChild(mark);
+    }
+    return plate;
+  }
+
+  function buildTile(item) {
+    const isPodcast = item.content_type === 'podcast';
+    const url = isPodcast
+      ? `/podcasts/${item.show_slug || 'mere-fidelity'}/#ep-${String(item.content_id || '').replace('podcast:', '')}`
+      : `/${item.slug || ''}`;
+
+    const li = document.createElement('li');
+    li.className = 'institution-item';
+
+    const a = document.createElement('a');
+    a.className = 'dash-new-link';
+    // slug / show_slug are worker-supplied, so the href goes through
+    // MOSafeHref (SECURITY-AGENT M5). A slug beginning with "/" would
+    // otherwise make "/" + slug a protocol-relative off-site URL.
+    window.MOSafeHref.set(a, url, '/dashboard/');
+
+    a.appendChild(buildPlate(item));
+
+    // The kind is emitted for EVERY item, not just podcasts. The plate
+    // and the eyebrow are the fixed-height run-up to the title; skipping
+    // the eyebrow on essays would knock those titles out of line with
+    // the podcasts beside them.
+    const kind = document.createElement('span');
+    kind.className = 'dash-new-kind';
+    kind.textContent = isPodcast ? 'Podcast' : 'Essay';
+    a.appendChild(kind);
+
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'dash-new-item-title';
+    titleEl.textContent = item.title || item.content_id;
+    a.appendChild(titleEl);
+
+    const curated = item.pushed_at ? formatCurated(item.pushed_at) : '';
+    if (curated) {
+      const dateEl = document.createElement('p');
+      dateEl.className = 'institution-item-date';
+      dateEl.textContent = curated;
+      a.appendChild(dateEl);
+    }
+
+    li.appendChild(a);
+    return li;
+  }
+
   window.MOAuth.fetch(`${apiBase.replace(/\/$/, '')}/api/institution/curated-for-me`, {
     credentials: 'omit'
   })
-    .then((r) => { return r.ok ? r.json() : null; })
+    .then((r) => (r.ok ? r.json() : null))
     .then((data) => {
       if (loadingEl) loadingEl.hidden = true;
       const institutions = (data && data.institutions) || [];
       if (!institutions.length) {
-        fail('You are not a member of any organization, or no content has been curated yet.');
+        fail(
+          'You are not a member of any organization yet.',
+          '/institutions/',
+          'About organizational membership'
+        );
         return;
       }
+      mount.innerHTML = '';
       institutions.forEach((inst) => {
         const items = inst.curated || [];
-        // Inline spacing rather than a class: screen.css has no rule for
-        // this page, and adding one would mean a full min-file rebuild
-        // for 48px. style-src allows 'unsafe-inline', so this is safe.
-        const section = document.createElement('div');
-        section.style.marginBottom = '48px';
+
+        const section = document.createElement('section');
+        section.className = 'institution-section';
 
         const heading = document.createElement('h2');
-        heading.className = 'dashboard-module-title';
+        heading.className = 'dashboard-module-title institution-section-title';
         const em = document.createElement('em');
         em.textContent = inst.name || 'Your Organization';
         heading.appendChild(em);
@@ -79,59 +198,9 @@
           return;
         }
 
-        const grid = document.createElement('div');
-        grid.className = 'week-grid dashboard-entry-grid';
-        items.forEach((item) => {
-          const entry = document.createElement('article');
-          entry.className = 'entry';
-          const url = item.content_type === 'podcast'
-            ? `/podcasts/${item.show_slug || 'mere-fidelity'}/#ep-${String(item.content_id || '').replace('podcast:', '')}`
-            : `/${item.slug || ''}`;
-
-          // slug / show_slug / feature_image are worker-supplied, so both
-          // the href and the src go through MOSafeHref (SECURITY-AGENT M5).
-          // A slug beginning with "/" would otherwise make "/" + slug a
-          // protocol-relative off-site URL.
-          const a = document.createElement('a');
-          window.MOSafeHref.set(a, url, '/dashboard/');
-          a.className = 'entry-link';
-
-          if (item.feature_image && window.MOSafeHref.isSafe(item.feature_image)) {
-            const imgWrap = document.createElement('div');
-            imgWrap.className = 'entry-image';
-            const img = document.createElement('img');
-            img.src = item.feature_image;
-            img.alt = '';
-            img.loading = 'lazy';
-            imgWrap.appendChild(img);
-            a.appendChild(imgWrap);
-          }
-
-          const body = document.createElement('div');
-          body.className = 'entry-body';
-          const titleEl = document.createElement('h3');
-          titleEl.className = 'entry-title';
-          titleEl.textContent = item.title || item.content_id;
-          body.appendChild(titleEl);
-
-          if (item.content_type === 'podcast') {
-            const badge = document.createElement('p');
-            badge.className = 'entry-meta';
-            badge.textContent = 'Podcast';
-            body.appendChild(badge);
-          }
-
-          if (item.pushed_at) {
-            const dateEl = document.createElement('p');
-            dateEl.className = 'entry-meta';
-            dateEl.textContent = `Curated ${new Date(item.pushed_at).toLocaleDateString()}`;
-            body.appendChild(dateEl);
-          }
-
-          a.appendChild(body);
-          entry.appendChild(a);
-          grid.appendChild(entry);
-        });
+        const grid = document.createElement('ul');
+        grid.className = 'institution-grid';
+        items.forEach((item) => { grid.appendChild(buildTile(item)); });
         section.appendChild(grid);
         mount.appendChild(section);
       });

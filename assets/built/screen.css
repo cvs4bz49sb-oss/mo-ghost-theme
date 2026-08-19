@@ -20854,6 +20854,74 @@ html[data-theme="dark"] .dlr-play-btn {
 }
 
 /* ---------------------------------------------------------------------------
+   /dashboard/institution/ — the reading an organization's administrator has
+   pushed to its members.
+
+   This grid deliberately does NOT use .week-grid. That grid is hardcoded two
+   wide: its ::before divider is pinned at left:50%, and .entry:nth-child(n+3)
+   draws the row rule and the ❦ on the assumption that item 3 opens row two.
+   At 3- and 4-up both misfire — the divider bisects a gap and the ornament
+   lands mid-row-one — and .week-grid is shared with the homepage and
+   /dashboard/bookmarks/, so it can't be bent to fit this page.
+
+   The tiles reuse the .dash-new-* vocabulary from the "New since your last
+   visit" rail on /dashboard/. That rail already solves this exact problem:
+   one dense grid mixing 16:9 essay feature art with 1:1 podcast cover art.
+   The 1/1 plate is why — square show art sits uncropped and essay art
+   centre-crops, where .entry-plate's 4/5 portrait crops both.
+
+   What is NOT reused is .dash-new-item. That class is flex sizing for a
+   horizontal carousel, and at ≤640 it carries filter:grayscale(1);opacity:.45
+   for the peek-either-side effect. In a static grid every mobile tile would
+   render grey and half-faded. .institution-item is the grid-side stand-in.
+--------------------------------------------------------------------------- */
+.institution-section + .institution-section { margin-top: 72px; }
+
+/* .dashboard-module-title is styled for use inside <summary>, which supplies
+   the rule and the padding under it. Standalone it needs both here. */
+.institution-section-title {
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--color-card-border);
+  margin: 0 0 24px;
+}
+
+.institution-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 44px 32px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+.institution-item { position: relative; min-width: 0; }
+
+/* Sits BELOW the title, not folded into .dash-new-kind. That eyebrow is
+   white-space:nowrap and its own source comment warns that a longer label
+   knocks the tile's title out of line with the rest of the row — and
+   "PODCAST · JUL 15" at 0.16em tracking overruns a 160px tile at ≤640. */
+.institution-item-date {
+  margin: 8px 0 0;
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
+}
+
+@media (max-width: 1024px) {
+  .institution-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 32px; }
+}
+@media (max-width: 640px) {
+  /* Two up, not one. The tile is a square plate, a one-word kind and a
+     title; at one-up a 335px square spends the whole screen on a single
+     item, and this is a list built for scanning. 160px tiles clear the
+     132px floor the same tiles hold in the rail. */
+  .institution-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 16px; }
+  .institution-section + .institution-section { margin-top: 56px; }
+}
+
+/* ---------------------------------------------------------------------------
    /admin/kpi/ — nightly KPI dashboard.
 
    Deliberately unbranded. This is an internal tool read every morning, so
