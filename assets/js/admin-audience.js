@@ -1349,10 +1349,17 @@
   let liveLoaded = false;
   let liveLoading = false;
 
+  // Not only survey respondents. 663 members gave age, gender, denomination
+  // and church role on the journal address form long before the survey
+  // existed, and that data was sitting in a table nothing counted. It is
+  // pooled here, which is why the demographic charts carry several hundred
+  // answers while content interests carries about a hundred: everyone in the
+  // first group answered those four questions, and only survey respondents
+  // answered the rest. Each chart states its own n for that reason.
   const LIVE_NOTE = {
-    live: "Everyone who has answered the welcome or member survey.",
-    liveFree: "Only respondents Ghost had as free subscribers when they answered.",
-    livePaid: "Only respondents Ghost had as paying or comped members when they answered.",
+    live: "Everyone we hold answers for: the welcome and member surveys, plus members who gave their details on the journal address form without taking a survey.",
+    liveFree: "Free subscribers only.",
+    livePaid: "Paying and comped members only.",
   };
 
   function applyLive(summary, key) {
