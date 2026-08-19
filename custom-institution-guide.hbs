@@ -11,9 +11,16 @@
 {{!-- custom-institution-guide: /institutions/guide/.
      Restructured 2026-08-12 on the StoryBrand frame at Ian's direction.
      The organization is the hero; Mere Orthodoxy is the guide. The
-     practical content is unchanged in substance, only reframed: the
-     three-step plan IS the Push feature, and the administrator, member,
-     and librarian sections are the plan in detail.
+     three-step plan IS the Push feature, and the administrator and
+     member sections are the plan in detail.
+
+     NO ITALICS on this page, per Ian 2026-08-19. The theme's house style
+     italicises display headings by wrapping the phrase in an em tag
+     (.section-heading em and .membership-support .page-hero-headline em
+     are the only rules that turn italics on), so italics here are
+     entirely a markup decision — the CSS sets none by itself. Do not
+     reintroduce em tags when editing copy. UI labels that need to stand
+     out use strong, as Push/Pushed and Sign in do.
 
      ONE .included band, not four. That class carries 96px of band-edge
      padding and is meant to be used once, as membership-body.hbs does;
@@ -54,7 +61,7 @@
   <section class="page-hero">
     <div class="container">
       <p class="eyebrow">Organizational Membership</p>
-      <h1 class="page-hero-headline">Give your people something <em>worth being formed by.</em></h1>
+      <h1 class="page-hero-headline">Give your people something worth being formed by.</h1>
       <p class="page-hero-sub">Every congregation and every faculty is being formed by something. This is how you get a say in what.</p>
     </div>
   </section>
@@ -63,7 +70,7 @@
   <section class="form-section">
     <div class="container">
       <div class="section-intro">
-        <h2 class="section-heading"><em>The problem is not that your people aren't reading.</em></h2>
+        <h2 class="section-heading">The problem is not that your people aren't reading.</h2>
       </div>
 
       <div class="institutional-overview">
@@ -88,7 +95,7 @@
     <div class="container">
       <div class="section-intro">
         <p class="eyebrow eyebrow-light">The plan</p>
-        <h2 class="section-heading section-heading-light"><em>Choose what your people read.</em></h2>
+        <h2 class="section-heading section-heading-light">Choose what your people read.</h2>
       </div>
 
       <div class="benefit-grid">
@@ -117,7 +124,7 @@
       {{!-- The plan in detail. Practical content, unchanged in substance. --}}
       <div class="section-intro">
         <p class="eyebrow eyebrow-light">Getting started</p>
-        <h2 class="section-heading section-heading-light"><em>If you administer it.</em></h2>
+        <h2 class="section-heading section-heading-light">If you administer it.</h2>
       </div>
 
       <div class="benefit-grid">
@@ -155,7 +162,7 @@
 
       <div class="section-intro">
         <p class="eyebrow eyebrow-light">For your people</p>
-        <h2 class="section-heading section-heading-light"><em>If someone sent you a link.</em></h2>
+        <h2 class="section-heading section-heading-light">If someone sent you a link.</h2>
       </div>
 
       <div class="benefit-grid">
@@ -172,37 +179,14 @@
         <div class="benefit-item">
           <span class="benefit-numeral">III</span>
           <h3>Signing in later</h3>
-          <p>Use <em>Sign in</em> at the top of any page. We email you a link rather than asking you to invent another password.</p>
+          <p>Use <strong>Sign in</strong> at the top of any page. We email you a link rather than asking you to invent another password.</p>
         </div>
       </div>
 
-      <div class="section-intro">
-        <p class="eyebrow eyebrow-light">For librarians</p>
-        <h2 class="section-heading section-heading-light"><em>No proxy, no IP ranges.</em></h2>
-      </div>
-
-      <div class="benefit-grid">
-        <div class="benefit-item">
-          <span class="benefit-numeral">I</span>
-          <h3>Authentication is by email domain</h3>
-          <p>This is the question we are asked most, so plainly: there is no IP range to register, no EZproxy stanza to write, and no SAML to configure. A patron off campus has exactly the same access as one in the building, with no VPN.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">II</span>
-          <h3>Linking from a LibGuide or course page</h3>
-          <p>Link straight to the article URL. A covered reader who is signed in goes right through. One who is not sees a prompt to sign in with their institutional address.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">III</span>
-          <h3>Course reserves and coursepacks</h3>
-          <p>Email us. We are a small publication and generally glad to grant permission for classroom use. We would simply like to know where our writers' work is going.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">IV</span>
-          <h3>The print journal is separate</h3>
-          <p>We can add copies for the library to your agreement. Tell us how many you would like.</p>
-        </div>
-      </div>
+      {{!-- The "For librarians" section (no proxy / no IP ranges, LibGuide
+           linking, course reserves, library print copies) was removed
+           2026-08-19 at Ian's direction. If it comes back, it belongs after
+           the "For your people" grid and before the closing capstone. --}}
 
       {{!-- 6 and 7. What is at stake, and what success looks like. --}}
       <div class="capstone">
