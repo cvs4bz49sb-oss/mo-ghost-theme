@@ -4287,50 +4287,109 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
    Scoped to .institution-guide so nothing here reaches the other pages that
    share the .included band.
 
-   White plates, because both shots carry their own background — one is the
-   dark article action bar, the other a cream dashboard card — and would
-   otherwise sit on the terracotta with no edge to separate them from it.
-   6px radius is the theme's image-plate radius (.entry-plate, .dash-new-plate).
+   The first attempt padded each shot inside a white plate sized to its own
+   image. That failed three ways and is worth recording so it is not redone:
 
-   Captions are the same rgba(255,255,255,0.82) as .capstone-body: the band
-   is terracotta, so a caption on --color-muted renders near-invisible.
+     1. The two small shots are 4.7:1 and 2.1:1. At equal widths that is a
+        1:2.3 height ratio, so the plates ended wildly unequal and the two
+        captions landed at unrelated heights. The pair read as an accident.
+     2. The dashboard shot is ALREADY a white card with its own cream
+        surround. Putting it in a white plate made a white card inside a
+        cream border inside a white plate.
+     3. Two white slabs plus the dark .capstone below them put three
+        competing surfaces on the terracotta in one screenful.
+
+   So: no plates. Each shot fills a frame edge to edge and becomes an object
+   on the band rather than a picture mounted on a card. The pair share one
+   5/2 frame, which is the ratio that letterboxes both about equally (the
+   wide bar by height, the taller card by width), so their captions sit on a
+   common baseline.
+
+   The letterbox ground is --color-dark, not the warm tan. Tan was tried and
+   is muddy: it sits a shade off the dashboard shot's own cream background,
+   so the two nearly-but-not-quite matched, and it left visibly dead bands
+   above and below the Push bar. Dark does the opposite in both cases. The
+   Push bar's own background IS --color-dark, so it reads as filling its
+   frame edge to edge, and the pale dashboard card gets a mount that makes
+   it look deliberately placed rather than stranded.
    ---------------------------------------------------------------------- */
 .institution-guide .guide-shots {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 32px;
-  align-items: start;
-  margin: 48px 0 0;
+  gap: 36px;
+  margin: 56px 0 0;
 }
 .institution-guide .guide-shot { margin: 0; }
-.institution-guide .guide-shot-plate {
-  background: var(--color-white);
-  border-radius: 6px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(45, 41, 39, 0.14);
+
+.institution-guide .guide-shot-frame {
+  background: var(--color-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(45, 41, 39, 0.18);
 }
-/* The two shots have very different aspect ratios (4.7:1 and 2.1:1), so the
-   figures are top-aligned and each image keeps its own height rather than
-   being forced into a shared box. */
-.institution-guide .guide-shot-plate img {
+/* The pair only. The wide shot below keeps its own aspect ratio. */
+.institution-guide .guide-shots .guide-shot-frame {
+  aspect-ratio: 5 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.institution-guide .guide-shots .guide-shot-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* The full-page shot. Runs the width of the band, fills its frame, no forced
+   ratio.
+
+   It is a partial page capture, so its bottom edge slices through the row of
+   cover art. Left hard that reads as a broken image rather than a page that
+   continues. So the frame fades out instead: no background, no shadow, top
+   corners only, and a mask that dissolves the last fifth into the terracotta.
+   The cut becomes deliberate, and it says "there is more below" without
+   needing a taller screenshot. */
+.institution-guide .guide-shot--wide { margin: 36px 0 0; }
+.institution-guide .guide-shot--wide .guide-shot-frame {
+  background: none;
+  box-shadow: none;
+  border-radius: 8px 8px 0 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+}
+.institution-guide .guide-shot--wide .guide-shot-frame img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 3px;
 }
+/* The fade eats the bottom of the frame, so the caption needs its own air
+   rather than the 16px that works under a hard edge. */
+.institution-guide .guide-shot--wide .guide-shot-caption { margin-top: 4px; }
+
 .institution-guide .guide-shot-caption {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.82);
 }
+
 @media (max-width: 640px) {
   .institution-guide .guide-shots {
     grid-template-columns: 1fr;
-    gap: 28px;
-    margin-top: 36px;
+    gap: 32px;
+    margin-top: 40px;
   }
+  /* The 5/2 letterbox is dead space once the frame is only ~335px wide, and
+     the Push bar inside it would render about 70px tall. Drop the shared
+     ratio on one column and let each shot take its own height. */
+  .institution-guide .guide-shots .guide-shot-frame {
+    aspect-ratio: auto;
+    display: block;
+  }
+  .institution-guide .guide-shots .guide-shot-frame img { height: auto; }
+  .institution-guide .guide-shot--wide { margin-top: 32px; }
 }
 
 /* --- Membership responsive --- */
