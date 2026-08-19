@@ -1,233 +1,235 @@
 {{!< default}}
 {{#contentFor "moHead"}}
-<title>Formation for Your Whole Community | Mere Orthodoxy</title>
+<title>Setting Up Your Organization's Membership | Mere Orthodoxy</title>
 <meta name="robots" content="noindex, nofollow" />
-<meta name="description" content="Christian renewal for the common good, in your church, seminary, or organization. How organizational membership works and how to use it." />
-<meta property="og:title" content="Formation for Your Whole Community" />
-<meta property="og:description" content="Christian renewal for the common good, in your church, seminary, or organization." />
-<meta name="twitter:title" content="Formation for Your Whole Community" />
-<meta name="twitter:description" content="Christian renewal for the common good, in your church, seminary, or organization." />
+<meta name="description" content="How to set up organizational membership at Mere Orthodoxy: add your domains, send out your code, and push essays and episodes to your people." />
+<meta property="og:title" content="Setting Up Your Organization's Membership" />
+<meta property="og:description" content="How to add your domains, send out your code, and push essays and episodes to your people." />
+<meta name="twitter:title" content="Setting Up Your Organization's Membership" />
+<meta name="twitter:description" content="How to add your domains, send out your code, and push essays and episodes to your people." />
 {{/contentFor}}
 {{!-- custom-institution-guide: /institutions/guide/.
-     Restructured 2026-08-12 on the StoryBrand frame at Ian's direction.
-     The organization is the hero; Mere Orthodoxy is the guide. The
-     three-step plan IS the Push feature, and the administrator and
-     member sections are the plan in detail.
 
-     NO ITALICS on this page, per Ian 2026-08-19. The theme's house style
-     italicises display headings by wrapping the phrase in an em tag
-     (.section-heading em and .membership-support .page-hero-headline em
-     are the only rules that turn italics on), so italics here are
-     entirely a markup decision — the CSS sets none by itself. Do not
-     reintroduce em tags when editing copy. UI labels that need to stand
-     out use strong, as Push/Pushed and Sign in do.
+     Rebuilt 2026-08-19 as a TUTORIAL, at Ian's direction. It had been a
+     StoryBrand sales page with screenshots bolted into the middle of it,
+     which was wrong twice over: the only inbound link is "Already purchased?
+     Read the setup guide" from partials/organization-purchase.hbs, so every
+     reader has already bought, and a pitch is the last thing they need. The
+     pitch lives at /institutions/. This page teaches the feature.
 
-     ONE .included band, not four. That class carries 96px of band-edge
-     padding and is meant to be used once, as membership-body.hbs does;
-     stacking it produced ~744px of dead terracotta.
+     Structure follows the Diátaxis tutorial rules:
+       - Destination first. The reader sees the finished Organization Reading
+         page before step one, so every instruction afterwards has somewhere
+         to land. This is also why the widest screenshot is at the top rather
+         than buried mid-page.
+       - One path, no alternatives. Two audiences with genuinely different
+         jobs get two separate numbered runs rather than one merged list.
+       - Every step ends in a visible result, stated in .tut-result, so the
+         reader can tell whether it worked.
+       - Explanation is minimal. The persuasive copy (the problem, the
+         capstone, "you cannot outpublish the feed") was cut, not moved.
 
-     Light variants on every .eyebrow and .section-heading inside the
-     band. Without them the eyebrow renders at 1.03:1 and is invisible. --}}
+     Screenshots sit INSIDE the step they illustrate and after its prose,
+     which is the documented convention: the reader needs to know what to
+     look for before they look.
 
-<style>
-  /* Links inside the band. The theme's default link colour is terracotta,
-     which is also .included's background, so an unstyled link here is
-     invisible. --color-white keeps this on the token set; 4px offset keeps
-     it on the spacing grid. */
-  .institution-guide .included .benefit-item a,
-  .institution-guide .capstone a {
-    color: var(--color-white);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-thickness: 1px;
-  }
-  .institution-guide .included .benefit-item a:hover,
-  .institution-guide .capstone a:hover {
-    text-decoration-thickness: 2px;
-  }
-  /* screen.css has no global :focus-visible rule, so without this these
-     links have no keyboard indicator at all on a dark background. */
-  .institution-guide .included .benefit-item a:focus-visible,
-  .institution-guide .capstone a:focus-visible {
-    outline: 2px solid var(--color-white);
-    outline-offset: 4px;
-    text-decoration-thickness: 2px;
-  }
-</style>
+     NO ITALICS, per Ian. The house style italicises several display-heading
+     selectors, so rather than chase each one as markup changes, screen.css
+     forces upright inside .institution-guide. Do not add em tags here.
+
+     The terracotta .included band is deliberately gone. Screenshots need a
+     calm ground; a saturated brand colour behind UI captures is what made
+     the previous two attempts unreadable. --}}
 
 <main class="membership membership-support institution-guide">
 
-  {{!-- 1. The hero, and what they want. --}}
   <section class="page-hero">
     <div class="container">
       <p class="eyebrow">Organizational Membership</p>
-      <h1 class="page-hero-headline">Give your people something worth being formed by.</h1>
-      <p class="page-hero-sub">Every congregation and every faculty is being formed by something. This is how you get a say in what.</p>
+      <h1 class="page-hero-headline">Setting up your organization's membership.</h1>
+      <p class="page-hero-sub">Twenty minutes once, and then a button you press whenever something is worth your people's time.</p>
     </div>
   </section>
 
-  {{!-- 2. The problem, and 3. the guide. Empathy first, then authority. --}}
-  <section class="form-section">
+  {{!-- Destination first. Diátaxis: show the learner where they are going
+       before asking them to do anything. --}}
+  <section class="tut-destination">
     <div class="container">
-      <div class="section-intro">
-        <h2 class="section-heading">The problem is not that your people aren't reading.</h2>
-      </div>
-
-      <div class="institutional-overview">
-        <div class="institutional-point">
-          <h3>They are being formed by something</h3>
-          <p>Everyone in your congregation, your faculty, or your staff is being catechized this week by someone. The only question is by whom, and whether anyone chose it on their behalf.</p>
-        </div>
-        <div class="institutional-point">
-          <h3>You cannot outpublish the feed</h3>
-          <p>Most churches and schools have no staff writer, no editor, and no publishing arm. Producing serious formation content is a full-time vocation, and you already have one of those.</p>
-        </div>
-        <div class="institutional-point">
-          <h3>So borrow ours</h3>
-          <p>We exist to form Christians in the church to participate in the culture for the common good. Twenty years of essays, two podcasts, a quarterly journal, and writers who take the tradition seriously. There are four of us. We know what a small budget looks like.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {{!-- 4. The plan. Three steps, which is also the Push feature. --}}
-  <section class="included">
-    <div class="container">
-      <div class="section-intro">
-        <p class="eyebrow eyebrow-light">The plan</p>
-        <h2 class="section-heading section-heading-light">Choose what your people read.</h2>
-      </div>
-
-      <div class="benefit-grid">
-        <div class="benefit-item">
-          <span class="benefit-numeral">I</span>
-          <h3>Cover everyone at once</h3>
-          <p>Access runs on your email domain, so anyone at your organization gets a full membership without you assigning a single seat.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">II</span>
-          <h3>Push what matters</h3>
-          <p>When you are signed in as an administrator, a <strong>Push</strong> button appears on every essay and on every episode of Mere&nbsp;Fidelity and Christians Reading Classics. One click sends it to your people. The button changes to <strong>Pushed</strong> so you can see what you have already sent, and clicking again takes it back down.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">III</span>
-          <h3>They read it together</h3>
-          <p>What you push appears under <a href="/dashboard/institution/">Organization Reading</a> on each member's dashboard, credited to you rather than to us. It reads as something their church or school handed them, because it is.</p>
-        </div>
-      </div>
-
-      {{!-- The plan, shown. The two controls sit as a pair in matched
-           frames; the destination gets the full width because it is a whole
-           page rather than a detail. width/height are the real pixel
-           dimensions, which reserves the space and stops the band reflowing
-           as the images arrive. See the .guide-shots block in screen.css for
-           why these are unplated. --}}
-      <div class="guide-shots">
-        <figure class="guide-shot">
-          <div class="guide-shot-frame">
-            <img src="{{asset "images/guide/push-button.png"}}"
-                 alt="The row of article buttons, with a Push button at the right-hand end."
-                 width="730" height="156" loading="lazy" />
-          </div>
-          <figcaption class="guide-shot-caption">The Push button sits with the other article controls, and only administrators see it.</figcaption>
-        </figure>
-        <figure class="guide-shot">
-          <div class="guide-shot-frame">
-            <img src="{{asset "images/guide/dashboard-card.png"}}"
-                 alt="A dashboard card headed Mere Orthodoxy, reading Institution Reading, content curated by your institution, five readings, with an Open link."
-                 width="766" height="370" loading="lazy" />
-          </div>
-          <figcaption class="guide-shot-caption">A card waiting on each member's dashboard, with your name on it.</figcaption>
-        </figure>
-      </div>
-
-      <figure class="guide-shot guide-shot--wide">
-        <div class="guide-shot-frame">
-          <img src="{{asset "images/guide/organization-reading.jpg"}}"
-               alt="The Organization Reading page, headed Member Dashboard, listing the essays and episodes an administrator has pushed."
-               width="2240" height="1045" loading="lazy" />
-        </div>
-        <figcaption class="guide-shot-caption">And this is where it lands: everything you have pushed, gathered on one page under your organization's name.</figcaption>
+      <p class="eyebrow">Where this ends up</p>
+      <h2 class="tut-destination-title">This page, with your organization's name on it.</h2>
+      <p class="tut-destination-lede">Everything you send your people gathers here, on every member's dashboard, credited to you rather than to us. The rest of this page is how to fill it.</p>
+      <figure class="tut-shot tut-shot--wide">
+        <img src="{{asset "images/guide/organization-reading.jpg"}}"
+             alt="The Organization Reading page. A dark header reads Member Dashboard and Organization Reading, and below it a row of four covers sits under the heading Mere Orthodoxy."
+             width="2240" height="1045" fetchpriority="high" />
       </figure>
+    </div>
+  </section>
 
-      <div class="capstone">
-        <p class="capstone-body">This is the difference between buying a subscription and running a media ministry. A pastor can put the essay on forgiveness in front of the elders before Thursday's meeting. A dean can hand the whole faculty one piece on the university's vocation and know they all have it. A campus minister can build a semester of reading without a coursepack, a budget line, or a permissions request.</p>
-        <p class="capstone-body">You are not asking anyone to find the good stuff. You are choosing it for them, which is what shepherding attention has always meant.</p>
+  {{!-- Role chooser. Two audiences, two jobs, and neither should have to
+       read the other's steps to find their own. --}}
+  <section class="tut-paths">
+    <div class="container">
+      <ul class="tut-path-list">
+        <li class="tut-path">
+          <a href="#administer">
+            <span class="tut-path-label">If you administer it</span>
+            <span class="tut-path-note">Seven steps: your domains, your code, and how to push.</span>
+          </a>
+        </li>
+        <li class="tut-path">
+          <a href="#your-people">
+            <span class="tut-path-label">If someone sent you a link</span>
+            <span class="tut-path-note">Three steps: nothing to pay, nothing to cancel.</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="tut-section" id="administer">
+    <div class="container">
+      <div class="tut-section-head">
+        <p class="eyebrow">Part One</p>
+        <h2 class="tut-section-title">If you administer it</h2>
+        <p class="tut-section-lede">Steps one to four are the setup and you do them once. Step five is the one you will use every week.</p>
       </div>
 
-      {{!-- The plan in detail. Practical content, unchanged in substance. --}}
-      <div class="section-intro">
-        <p class="eyebrow eyebrow-light">Getting started</p>
-        <h2 class="section-heading section-heading-light">If you administer it.</h2>
+      <ol class="tut-steps" role="list">
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">01</span>
+          <div class="tut-body">
+            <h3>Sign in with the address you bought with</h3>
+            <p>Everything below needs you signed in as an administrator. Use <strong>Sign in</strong> at the top of any page and we will email you a link. A different address, even your own personal one, will not carry your administrator rights.</p>
+            <p class="tut-result">You are signed in correctly if <a href="/institution-manage/">your organization page</a> opens rather than asking you to sign in.</p>
+          </div>
+        </li>
+
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">02</span>
+          <div class="tut-body">
+            <h3>Check your email domains</h3>
+            <p>Open <a href="/institution-manage/">your organization page</a>. Under <strong>Email domains</strong> you will see every domain on your agreement. Anyone whose email address ends in one of them gets access by signing up.</p>
+            <p>Most organizations have more than one. A second campus, a school inside the university, an address people still use from before a rebrand. Check that all of them are listed <em>before</em> you announce anything, because people on a missing domain will be turned away.</p>
+            <p>You cannot add a domain yourself. Email <a href="mailto:institutions@mereorthodoxy.com">institutions@mereorthodoxy.com</a> and we will add it.</p>
+            <p class="tut-result">Every domain your people use appears as a pill under Email domains.</p>
+          </div>
+        </li>
+
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">03</span>
+          <div class="tut-body">
+            <h3>Send out your link and code</h3>
+            <p>Both are on your organization page, each with a <strong>Copy</strong> button next to it. They were also in your confirmation email. The link looks like <code>mereorthodoxy.com/join/<wbr>?i=your-organization</code>, and the code is eight characters.</p>
+            <p>Put them where your people actually look. A staff email, the intranet, a syllabus, the weekly bulletin. Send them this guide as well, so they have Part Two.</p>
+            <p class="tut-result">Anyone at one of your domains who opens the link and enters the code is a member from that moment. If your agreement has a seat limit, the join page shows how many are left.</p>
+          </div>
+        </li>
+
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">04</span>
+          <div class="tut-body">
+            <h3>Invite anyone outside your domains</h3>
+            <p>Adjuncts, partners, board members, a staff member who only has a personal address. On your organization page, use <strong>Invite an individual</strong> with their first name, last name and email. For a list, open <strong>Invite several at once</strong> and paste one person per line, name and email separated by a comma.</p>
+            <p class="tut-result">They appear under <strong>Recently invited</strong>, and they do not need the code.</p>
+          </div>
+        </li>
+
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">05</span>
+          <div class="tut-body">
+            <h3>Push your first piece</h3>
+            <p>Open any essay, or any episode of Mere Fidelity or Christians Reading Classics. Signed in as an administrator, you will see a <strong>Push</strong> button at the end of the row of controls under the title. Press it once.</p>
+            <p>No Push button means your account is not an administrator yet. Add yourself from the <strong>Administrators</strong> section of your organization page, or email us and we will do it.</p>
+            <figure class="tut-shot">
+              <img src="{{asset "images/guide/push-button.png"}}"
+                   alt="The row of article controls: play, bookmark, PDF, gift and dark-mode buttons, then a Push button at the right-hand end."
+                   width="730" height="156" loading="lazy" />
+              <figcaption>The Push button sits at the end of the article controls. Only administrators see it.</figcaption>
+            </figure>
+            <p class="tut-result">The button changes to <strong>Pushed</strong>. That is the whole action. Your people have it.</p>
+          </div>
+        </li>
+
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">06</span>
+          <div class="tut-body">
+            <h3>See what you have sent, and take things down</h3>
+            <p>Your organization page lists everything you have pushed under <strong>Curated content</strong>. That list is exactly what your people see.</p>
+            <p>To remove something, open it and press <strong>Pushed</strong> again. Nothing is deleted and nobody is notified.</p>
+            <p class="tut-result">The button returns to <strong>Push</strong> and the piece leaves both the Curated content list and your people's page.</p>
+          </div>
+        </li>
+
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">07</span>
+          <div class="tut-body">
+            <h3>Let a colleague push too</h3>
+            <p>In the <strong>Administrators</strong> section of your organization page, enter a colleague's email and press <strong>Add admin</strong>. Useful if your communications director chooses the reading and you would rather not be the bottleneck.</p>
+            <p class="tut-result">Their name joins the administrator list, and the Push button appears for them on every article.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  {{!-- The one flourish on the page, at its only real division. Uses the
+       house partial rather than a hand-rolled mark. --}}
+  <div class="container">
+    <div class="flourish">{{> "flourish-mark"}}</div>
+  </div>
+
+  <section class="tut-section" id="your-people">
+    <div class="container">
+      <div class="tut-section-head">
+        <p class="eyebrow">Part Two</p>
+        <h2 class="tut-section-title">If someone sent you a link</h2>
+        <p class="tut-section-lede">Your church, school, or employer has already paid for this.</p>
       </div>
 
-      <div class="benefit-grid">
-        <div class="benefit-item">
-          <span class="benefit-numeral">I</span>
-          <h3>Send out the link and code</h3>
-          <p>Both came in your confirmation email. The link looks like <code>mereorthodoxy.com/join/?i=your-organization</code>, and the code is eight characters. Only people with an email address at your domain can use them.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">II</span>
-          <h3>Put them where people look</h3>
-          <p>A staff email, the intranet, a syllabus, the weekly bulletin. This is the step that decides whether any of the rest happens, and it is the one most often skipped.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">III</span>
-          <h3>Add your other domains</h3>
-          <p>Most organizations have more than one. A second campus or a legacy domain will not work until it is added. Do it on <a href="/institution-manage/">your organization page</a>.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">IV</span>
-          <h3>Make sure you can Push</h3>
-          <p>The Push button only renders for administrators. If you cannot find it, your account has not been made one yet. Email us and it takes a minute.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">V</span>
-          <h3>See who has joined</h3>
-          <p>Your organization page lists everyone signed up, so you know whether this is being used well before renewal comes around.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">VI</span>
-          <h3>Renewal is a conversation</h3>
-          <p>We reach out before your year is up. Nothing renews automatically and we keep no card on file.</p>
-        </div>
-      </div>
+      <ol class="tut-steps" role="list">
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">01</span>
+          <div class="tut-body">
+            <h3>Open the link and fill in one form</h3>
+            <p>Your name, your email, and the eight-character code you were sent. One page, one button.</p>
+            <p>Use your work or school email. That address is what identifies you as covered, and a personal account will not be recognized even if it is the one you use for everything else. If your only address is a personal one, ask whoever sent you the link to invite you directly.</p>
+            <p class="tut-result">You are finished. Nothing to pay, and no trial to remember to cancel.</p>
+          </div>
+        </li>
 
-      <div class="section-intro">
-        <p class="eyebrow eyebrow-light">For your people</p>
-        <h2 class="section-heading section-heading-light">If someone sent you a link.</h2>
-      </div>
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">02</span>
+          <div class="tut-body">
+            <h3>Find what your organization has sent you</h3>
+            <p>Go to your dashboard. If anyone at your organization has pushed something, a card is waiting there with your organization's name on it. Open it for the full page, the one at the top of this guide.</p>
+            <figure class="tut-shot">
+              <img src="{{asset "images/guide/dashboard-card.png"}}"
+                   alt="A dashboard card headed Mere Orthodoxy, titled Institution Reading, reading Content curated by your institution, five readings, with an Open link."
+                   width="766" height="370" loading="lazy" />
+              <figcaption>The card counts what is waiting for you.</figcaption>
+            </figure>
+            <p class="tut-result">No card means nothing has been pushed yet, not that something has gone wrong.</p>
+          </div>
+        </li>
 
-      <div class="benefit-grid">
-        <div class="benefit-item">
-          <span class="benefit-numeral">I</span>
-          <h3>Use your work or school email</h3>
-          <p>That address is what identifies you as covered. A personal account will not be recognised, even if it is the one you use for everything.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">II</span>
-          <h3>Enter the code</h3>
-          <p>Then you are finished. Nothing to pay, and no trial to remember to cancel.</p>
-        </div>
-        <div class="benefit-item">
-          <span class="benefit-numeral">III</span>
-          <h3>Signing in later</h3>
-          <p>Use <strong>Sign in</strong> at the top of any page. We email you a link rather than asking you to invent another password.</p>
-        </div>
-      </div>
+        <li class="tut-step">
+          <span class="tut-num" aria-hidden="true">03</span>
+          <div class="tut-body">
+            <h3>Signing in later</h3>
+            <p>Use <strong>Sign in</strong> at the top of any page. We email you a link rather than asking you to invent another password. Sign in with the same work or school address you joined with, or we will not know you are covered.</p>
+            <p class="tut-result">Your organization's card is on your dashboard every time you return.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
 
-      {{!-- The "For librarians" section (no proxy / no IP ranges, LibGuide
-           linking, course reserves, library print copies) was removed
-           2026-08-19 at Ian's direction. If it comes back, it belongs after
-           the "For your people" grid and before the closing capstone. --}}
-
-      {{!-- 6 and 7. What is at stake, and what success looks like. --}}
-      <div class="capstone">
-        <p class="capstone-body">The people in your care will be formed either way. That is not in your control. What is in your control is whether anyone who loves them chose some of it on purpose, or whether it was all handed to them by whatever happened to be loudest that week.</p>
-        <p class="capstone-body">Questions of any kind: <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>. A person answers.</p>
-        <p class="capstone-body"><a href="/institutions/">Back to organizational membership</a></p>
-      </div>
+  <section class="tut-close">
+    <div class="container">
+      <p class="tut-close-body">Renewal is a conversation. We reach out before your year is up, nothing renews automatically, and we keep no card on file.</p>
+      <p class="tut-close-body">Anything at all: <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a>.</p>
+      <p class="tut-close-back"><a href="/institutions/">Back to organizational membership</a></p>
     </div>
   </section>
 

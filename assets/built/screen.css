@@ -768,6 +768,7 @@ img { max-width: 100%; height: auto; }
   filter: sepia(0.1) saturate(0.9);
   border-radius: 2px;
 }
+
 .hero-feature-img-inner::after {
   content: "";
   position: absolute;
@@ -897,6 +898,7 @@ img { max-width: 100%; height: auto; }
   background-size: cover;
   background-position: center;
 }
+
 .feature-plate-inner::after {
   content: "";
   position: absolute;
@@ -907,9 +909,8 @@ img { max-width: 100%; height: auto; }
 .feature-body { padding: 0 8px; flex: 1; display: flex; flex-direction: column; }
 
 .feature-topic {
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 18px;
@@ -968,9 +969,7 @@ img { max-width: 100%; height: auto; }
   font-size: 18px;
 }
 .feature-date {
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-size: 13px;
   color: var(--color-muted);
   margin: 0;
   white-space: nowrap;
@@ -990,6 +989,7 @@ img { max-width: 100%; height: auto; }
 .card-media.mock-6 { background: linear-gradient(135deg, #2d2927 0%, #5a4a3e 100%); }
 .card-media.mock-7 { background: linear-gradient(135deg, #ee7d51 0%, #c1593c 100%); }
 
+
 .card-media::after {
   content: "";
   position: absolute;
@@ -1005,12 +1005,12 @@ img { max-width: 100%; height: auto; }
 }
 
 .card-topic {
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 14px;
+  font-variant: small-caps;
 }
 
 .card-title {
@@ -1133,9 +1133,9 @@ img { max-width: 100%; height: auto; }
 .read-text { min-width: 0; }
 
 .read-list .card-topic {
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  font-variant: small-caps;
   color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 6px;
@@ -1483,9 +1483,8 @@ img { max-width: 100%; height: auto; }
 }
 
 .entry-topic {
-  font-size: 10px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   color: var(--color-primary-text);
   font-weight: 600;
   margin: 0 0 12px;
@@ -1577,9 +1576,7 @@ img { max-width: 100%; height: auto; }
   font-size: 16px;
 }
 .entry-date {
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-size: 13px;
   color: var(--color-muted);
   margin: 0;
   white-space: nowrap;
@@ -2301,9 +2298,9 @@ body {
 
 .article-topic {
   display: inline-block;
-  font-size: 11px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  font-variant: small-caps;
   color: var(--color-primary-text);
   font-weight: 600;
   padding: 6px 14px;
@@ -4260,136 +4257,320 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .included-cta { text-align: center; }
 
-/* --- /institutions/guide/ — no italics ----------------------------------
-   Ian asked for no italics on this page (2026-08-19). Removing the em tags
-   from the template got the headings and the hero, but two rules set italic
-   on the element itself and are invisible to a markup edit:
+/* --- /institutions/guide/ — the setup tutorial --------------------------
+   The page is a tutorial, not a pitch, and this is the type system for it.
+   Everything is scoped to .institution-guide.
 
-     .benefit-item h3                              (0,1,1)
-     .membership-support .institutional-point h3   (0,2,1)
+   Two earlier attempts failed by treating screenshots as decoration on the
+   terracotta .included band: plated, lumped together after the prose, and
+   sized to their own images so nothing aligned. Both are recorded in git if
+   the reasoning is ever needed again. The corrections here:
 
-   Both are shared with /membership/ and /institutions/, so they can only be
-   overridden in this page's scope, never edited in place.
+     - Light ground. UI captures need a calm background. A saturated brand
+       colour behind a screenshot is what made the first two unreadable.
+     - Screenshots live INSIDE the step they illustrate, after its prose,
+       sharing the step's left edge and its measure. There is no separate
+       screenshot region to align, because there is no separate region.
+     - One measure for everything. Prose, headings and images all sit in a
+       680px column against a numeral rail, so the left edge never moves
+       from the first step to the last. That single alignment is what makes
+       a page of mixed text and images read as one document.
+     - Steps are separated by a hairline and generous padding rather than
+       by boxes. No cards, per the house rule; the rule and the whitespace
+       do the grouping.
+   ---------------------------------------------------------------------- */
 
-   Chaining .membership-support.institution-guide gives 0,3,1 and beats both.
-   Scoping on .institution-guide alone would tie the second rule at 0,2,1 and
-   then depend on source order, which is FRONTEND-AGENT §6.22 exactly.
-
-   Verified by computed style, not by reading: grep for "font-style: italic"
-   misses these because the declaration sits on its own line, several lines
-   below the selector. --------------------------------------------------- */
-.membership-support.institution-guide .benefit-item h3,
-.membership-support.institution-guide .institutional-point h3 {
+/* Ian: no italics on this page. Belt and braces. The house style sets
+   italic on several display-heading selectors (.benefit-item h3,
+   .membership-support .institutional-point h3, .section-heading em), and
+   chasing each one as the markup changes is how the last two attempts
+   shipped with italics still on. Everything inside this page is upright. */
+.membership-support.institution-guide :is(h1, h2, h3, h4, em, i) {
   font-style: normal;
 }
 
-/* --- /institutions/guide/ product screenshots ---------------------------
-   Scoped to .institution-guide so nothing here reaches the other pages that
-   share the .included band.
-
-   The first attempt padded each shot inside a white plate sized to its own
-   image. That failed three ways and is worth recording so it is not redone:
-
-     1. The two small shots are 4.7:1 and 2.1:1. At equal widths that is a
-        1:2.3 height ratio, so the plates ended wildly unequal and the two
-        captions landed at unrelated heights. The pair read as an accident.
-     2. The dashboard shot is ALREADY a white card with its own cream
-        surround. Putting it in a white plate made a white card inside a
-        cream border inside a white plate.
-     3. Two white slabs plus the dark .capstone below them put three
-        competing surfaces on the terracotta in one screenful.
-
-   So: no plates. Each shot fills a frame edge to edge and becomes an object
-   on the band rather than a picture mounted on a card. The pair share one
-   5/2 frame, which is the ratio that letterboxes both about equally (the
-   wide bar by height, the taller card by width), so their captions sit on a
-   common baseline.
-
-   The letterbox ground is --color-dark, not the warm tan. Tan was tried and
-   is muddy: it sits a shade off the dashboard shot's own cream background,
-   so the two nearly-but-not-quite matched, and it left visibly dead bands
-   above and below the Push bar. Dark does the opposite in both cases. The
-   Push bar's own background IS --color-dark, so it reads as filling its
-   frame edge to edge, and the pale dashboard card gets a mount that makes
-   it look deliberately placed rather than stranded.
-   ---------------------------------------------------------------------- */
-.institution-guide .guide-shots {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 36px;
-  margin: 56px 0 0;
+/* One centred measure for the whole tutorial. Left-aligning a 680px column
+   inside the 1180px container left ~400px of dead space down the right of
+   every section, which reads as an unfinished layout rather than as a
+   controlled measure. 764px = 56px numeral rail + 28px gap + 680px of
+   prose, so the steps, the section heads and the closing all sit on the
+   same block. The destination screenshot is the one thing allowed out of
+   it, which is what makes it read as the establishing shot. */
+.institution-guide .tut-destination > .container > *,
+.institution-guide .tut-paths > .container > *,
+.institution-guide .tut-section > .container > *,
+.institution-guide .tut-close > .container > * {
+  max-width: 764px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.institution-guide .guide-shot { margin: 0; }
 
-.institution-guide .guide-shot-frame {
-  background: var(--color-dark);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 6px 20px rgba(45, 41, 39, 0.18);
+/* The hero ships at max-width 780px, which put its text 20px inside the
+   tutorial's left edge and broke the page's one structural claim on its
+   very first element. 820 = 764 measure + 2x28 container padding, which
+   lands the hero text on 338, the same x as every eyebrow, heading, rule
+   and numeral below it.
+
+   Chained .membership-support.institution-guide for (0,3,1). The rule it
+   overrides is .membership-support .page-hero .container at (0,2,1), and
+   scoping on .institution-guide alone ties it and loses on source order.
+   Same trap as FRONTEND-AGENT 6.22, hit twice on this page now. */
+.membership-support.institution-guide .page-hero .container { max-width: 820px; }
+
+/* --- Destination ------------------------------------------------------- */
+/* Diátaxis rule one: show the learner where they are going before asking
+   them to do anything. The widest screenshot earns the top of the page. */
+.institution-guide .tut-destination { padding: 72px 0 0; }
+.institution-guide .tut-destination-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3.2vw, 38px);
+  line-height: 1.14;
+  color: var(--color-dark);
+  margin: 0 0 16px;
 }
-/* The pair only. The wide shot below keeps its own aspect ratio. */
-.institution-guide .guide-shots .guide-shot-frame {
-  aspect-ratio: 5 / 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.institution-guide .tut-destination-lede {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
 }
-.institution-guide .guide-shots .guide-shot-frame img {
+
+/* --- Role chooser ------------------------------------------------------ */
+/* Two audiences with different jobs. Neither should have to read the
+   other's steps to find their own. */
+.institution-guide .tut-paths { padding: 56px 0 0; }
+/* Not cards. The first version boxed these in a 1px border with an 8px
+   radius and a background swap on hover, which is the one pattern the house
+   style forbids outright, and it put the only boxed objects on the page two
+   screens above anything else. Editorial rows on the same hairline rhythm
+   as the steps, with the label carrying link colour so it reads as
+   navigation rather than as a heading. */
+.institution-guide .tut-path-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.institution-guide .tut-path { border-top: 1px solid var(--color-card-border); }
+.institution-guide .tut-path:last-child { border-bottom: 1px solid var(--color-card-border); }
+.institution-guide .tut-path a {
   display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  padding: 22px 0;
+  text-decoration: none;
+}
+.institution-guide .tut-path a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+.institution-guide .tut-path-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--color-secondary);
+  margin-bottom: 4px;
+  transition: color 0.15s ease;
+}
+.institution-guide .tut-path a:hover .tut-path-label { color: var(--color-primary); }
+.institution-guide .tut-path-note {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-muted);
 }
 
-/* The full-page shot. Runs the width of the band, fills its frame, no forced
-   ratio.
-
-   It is a partial page capture, so its bottom edge slices through the row of
-   cover art. Left hard that reads as a broken image rather than a page that
-   continues. So the frame fades out instead: no background, no shadow, top
-   corners only, and a mask that dissolves the last fifth into the terracotta.
-   The cut becomes deliberate, and it says "there is more below" without
-   needing a taller screenshot. */
-.institution-guide .guide-shot--wide { margin: 36px 0 0; }
-.institution-guide .guide-shot--wide .guide-shot-frame {
-  background: none;
-  box-shadow: none;
-  border-radius: 8px 8px 0 0;
-  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+/* --- Step sections ----------------------------------------------------- */
+.institution-guide .tut-section { padding: 80px 0 0; }
+/* scroll-margin so the role-chooser anchors do not tuck the heading under
+   the sticky site header. */
+.institution-guide .tut-section[id] { scroll-margin-top: 96px; }
+.institution-guide .tut-section-head { margin-bottom: 8px; }
+.institution-guide .tut-section-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.12;
+  color: var(--color-dark);
+  margin: 0 0 14px;
 }
-.institution-guide .guide-shot--wide .guide-shot-frame img {
+.institution-guide .tut-section-lede {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* --- Steps ------------------------------------------------------------- */
+.institution-guide .tut-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* The rail is what holds the page together: 56px of numeral, then one
+   column for everything else. Prose, headings and screenshots all start at
+   the same x from the first step to the last. */
+.institution-guide .tut-step {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  column-gap: 28px;
+  padding: 40px 0;
+  border-top: 1px solid var(--color-card-border);
+}
+.institution-guide .tut-step:first-child { border-top: 0; padding-top: 32px; }
+.institution-guide .tut-num {
+  /* Body face, not the display face. IM Fell sets old-style figures, so
+     "03" renders with a zero the height of an x and reads as "o3". In a
+     numbered tutorial the step number has to be unambiguous. */
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: var(--color-primary-text);
+  line-height: 1;
+  padding-top: 9px;
+}
+.institution-guide .tut-body { max-width: 680px; }
+.institution-guide .tut-body h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+}
+.institution-guide .tut-body p {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.62;
+  color: var(--color-dark);
+  margin: 0 0 14px;
+}
+.institution-guide .tut-body p:last-child { margin-bottom: 0; }
+.institution-guide .tut-body p,
+.institution-guide .tut-section-lede,
+.institution-guide .tut-destination-lede,
+.institution-guide .tut-close-body,
+.institution-guide .tut-shot figcaption { text-wrap: pretty; }
+/* Without clone, a wrapped inline code fragment takes the left padding and
+   radius on line one and the right on line two, so the URL breaks into two
+   differently shaped tan blocks. */
+.institution-guide .tut-body code {
+  -webkit-box-decoration-break: clone;
+          box-decoration-break: clone;
+  overflow-wrap: anywhere;
+  font-size: 0.92em;
+  background: var(--color-background);
+  padding: 2px 6px;
+  border-radius: 4px;
+  word-break: break-word;
+}
+
+/* The result line. Every step ends in something the reader can check, and
+   it is set apart from the instruction so it reads as confirmation rather
+   than as one more thing to do. */
+.institution-guide .tut-body .tut-shot + .tut-result { margin-top: 34px; }
+.institution-guide .tut-body .tut-result {
+  margin-top: 16px;
+  padding-left: 16px;
+  border-left: 2px solid var(--color-primary);
+  color: var(--color-muted);
+  font-size: 16px;
+}
+
+/* --- Screenshots ------------------------------------------------------- */
+/* Inside the step, after the prose that explains what to look for. A
+   hairline and the theme's 6px image-plate radius, nothing else: these are
+   captures of the product, not illustrations, and they should look like
+   evidence rather than art. */
+/* 560, not the full 680 measure. At 680 the dashboard capture renders its
+   own display type larger than this page's h3 and the screenshot shouts
+   over the instruction it is supposed to serve. These are evidence. */
+.institution-guide .tut-shot {
+  margin: 24px 0 0;
+  max-width: 560px;
+}
+.institution-guide .tut-shot img {
   display: block;
   width: 100%;
   height: auto;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
 }
-/* The fade eats the bottom of the frame, so the caption needs its own air
-   rather than the 16px that works under a hard edge. */
-.institution-guide .guide-shot--wide .guide-shot-caption { margin-top: 4px; }
-
-.institution-guide .guide-shot-caption {
-  margin: 16px 0 0;
+.institution-guide .tut-shot figcaption {
+  margin-top: 10px;
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--color-muted);
+}
+/* The destination shot is a whole page rather than a detail, so it takes
+   the full container. It is the one image allowed off the 680px measure. */
+/* Raised to (0,4,0). The container rule above is (0,3,0) and silently won,
+   so the establishing shot rendered at 764px like everything else and its UI
+   text was illegible. This is the one image allowed off the measure. */
+.institution-guide .tut-destination > .container > .tut-shot--wide {
+  max-width: none;
+  margin-top: 32px;
 }
 
+/* The one flourish on the page, at its only true division. The gap between
+   Part One and Part Two was larger than any step gap and carried no mark at
+   all, so it read as the page having stopped rather than turned. */
+.institution-guide .flourish { margin: 72px auto 0; }
+
+/* --- Close ------------------------------------------------------------- */
+/* The rule goes on the measure, not the section. On the section it rendered
+   edge to edge at 1440 while every other hairline on the page is 764 wide,
+   which is the single most visible "bad border" on the layout. 40 above and
+   40 below matches a step boundary exactly. */
+.institution-guide .tut-close { padding: 0 0 72px; }
+.institution-guide .tut-close > .container > *:first-child {
+  padding-top: 40px;
+  border-top: 1px solid var(--color-card-border);
+}
+.institution-guide .tut-close-body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+  max-width: 680px;
+}
+.institution-guide .tut-close-back {
+  font-family: var(--font-body);
+  font-size: 15px;
+  margin: 0;
+}
+/* 19px tall as plain inline text, and it is the page's only way out. */
+.institution-guide .tut-close-back a { display: inline-block; padding: 12px 0; }
+
 @media (max-width: 640px) {
-  .institution-guide .guide-shots {
+  .institution-guide .tut-destination { padding-top: 48px; }
+  .institution-guide .tut-paths { padding-top: 40px; }
+  .institution-guide .tut-path-list { grid-template-columns: 1fr; gap: 14px; }
+  .institution-guide .tut-path a { padding: 20px 20px; }
+  .institution-guide .tut-section { padding-top: 56px; }
+  .institution-guide .tut-section[id] { scroll-margin-top: 72px; }
+
+  /* The numeral moves above the step rather than beside it. A 56px rail on
+     a 335px screen costs a fifth of the measure and forces the prose into
+     a column too narrow to read. */
+  .institution-guide .tut-step {
     grid-template-columns: 1fr;
-    gap: 32px;
-    margin-top: 40px;
+    row-gap: 6px;
+    padding: 32px 0;
   }
-  /* The 5/2 letterbox is dead space once the frame is only ~335px wide, and
-     the Push bar inside it would render about 70px tall. Drop the shared
-     ratio on one column and let each shot take its own height. */
-  .institution-guide .guide-shots .guide-shot-frame {
-    aspect-ratio: auto;
-    display: block;
-  }
-  .institution-guide .guide-shots .guide-shot-frame img { height: auto; }
-  .institution-guide .guide-shot--wide { margin-top: 32px; }
+  .institution-guide .tut-step:first-child { padding-top: 24px; }
+  .institution-guide .tut-num { padding-top: 0; font-size: 15px; }
+  .institution-guide .tut-body h3 { font-size: 22px; }
+  .institution-guide .tut-body p { font-size: 16px; }
+  .institution-guide .tut-shot--wide { margin-top: 28px; }
+  .institution-guide .tut-close { padding: 0 0 56px; }
+  .institution-guide .tut-close > .container > *:first-child { padding-top: 32px; }
+  .institution-guide .flourish { margin-top: 56px; }
 }
 
 /* --- Membership responsive --- */
@@ -6775,16 +6956,11 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   height: 100%;
   display: block;
 }
+/* Active stage reads by colour alone. The drop-shadow glow pulse that
+   used to live here signalled liveness on a static icon; the stage is
+   promoted by hand anyway. Ian, 2026-08-19. */
 .journal-status-mark.is-active {
   color: var(--color-primary);
-  animation: journal-status-glow 2.6s ease-in-out infinite;
-}
-@keyframes journal-status-glow {
-  0%, 100% { filter: drop-shadow(0 0 4px rgba(238, 125, 81, 0.45)) drop-shadow(0 0 10px rgba(238, 125, 81, 0.20)); }
-  50%      { filter: drop-shadow(0 0 8px rgba(238, 125, 81, 0.80)) drop-shadow(0 0 18px rgba(238, 125, 81, 0.45)); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .journal-status-mark.is-active { animation: none; filter: drop-shadow(0 0 6px rgba(238, 125, 81, 0.55)); }
 }
 .journal-status-label {
   font-family: var(--font-body);
@@ -7709,7 +7885,6 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
 }
 .reading-tracker-dots .dot.is-filled {
   background: var(--color-primary);
-  box-shadow: 0 0 6px 2px rgba(238, 125, 81, 0.5);
 }
 .reading-tracker-count {
   font-family: var(--font-display);
