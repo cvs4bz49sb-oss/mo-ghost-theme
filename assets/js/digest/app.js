@@ -19,13 +19,20 @@
     padding: 8px 10px !important;
   }
   [data-mo-topbar-divider] { display: none !important; }
-  [data-mo-topbar-spacer] { display: none !important; }
   [data-mo-topbar-brand] {
     flex: 1 1 100% !important;
     border-bottom: 1px solid #d8c4a3 !important;
     padding-bottom: 6px !important;
     margin-bottom: 2px !important;
+    /* It trails the Template row on desktop; on a phone it goes back to
+       being the masthead at the top, which is what order:-1 restores. */
+    order: -1 !important;
+    margin-left: 0 !important;
   }
+  /* The forced row breaks are a desktop affordance. On a phone every group
+     wraps anyway, and keeping them would spend a rowGap on each empty
+     break \u2014 five wasted rows on the shortest screen. */
+  [data-mo-topbar-break] { display: none !important; }
   [data-mo-topbar] button {
     padding: 6px 10px !important;
     font-size: 10px !important;
@@ -40,7 +47,10 @@
     flex-wrap: wrap !important;
     align-items: center !important;
   }
-  [data-mo-topbar-group] > [data-mo-topbar-grouplabel] { display: none !important; }
+  /* Not scoped to [data-mo-topbar-group] \u2014 the Edit and Publish labels are
+     direct children of the bar, and a descendant-only selector left those
+     two visible while hiding the other three. */
+  [data-mo-topbar-grouplabel] { display: none !important; }
 
   /* Modals \u2014 full screen on mobile */
   [data-mo-modal-overlay] {
@@ -838,30 +848,57 @@
       background: active ? "#2d2927" : "transparent",
       color: active ? "#fbf7ee" : "#2d2927",
       border: "1.5px solid #2d2927",
-      padding: "7px 16px",
+      padding: "5px 11px",
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-      fontSize: 11,
+      fontSize: 10,
       fontWeight: 700,
-      letterSpacing: "0.14em",
+      letterSpacing: "0.1em",
       textTransform: "uppercase",
       cursor: "pointer",
-      borderRadius: 10
+      borderRadius: 7
+    } }, children);
+    const Break = () => /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-break": true, style: { flexBasis: "100%", width: 0, height: 0, margin: 0 } });
+    const GroupLabel = ({ children }) => /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: {
+      fontSize: 9,
+      fontWeight: 700,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: "#9a8773",
+      // Every row's label sits in the same column, so the controls line up
+      // down the bar instead of stepping in and out with the label length.
+      minWidth: 62
     } }, children);
     return /* @__PURE__ */ React.createElement("div", { "data-mo-topbar": true, style: {
       background: "#f1e0c9",
       borderBottom: "1px solid #d8c4a3",
-      padding: "14px 24px",
+      padding: "10px 20px",
       display: "flex",
       alignItems: "center",
       // Thirteen controls need 1694px on one row. Without a wrap the bar
       // blows past 100vw and the whole tool scrolls sideways — measured at
       // 820px: documentElement.scrollWidth was 1694 with 29 boxes overhanging.
+      //
+      // Wrapping alone stopped the overflow but left the row breaks wherever
+      // the viewport happened to put them, so the same bar re-flowed into a
+      // different shape on every window size. The [data-mo-topbar-break]
+      // elements below (flexBasis 100%) pin it to five rows — Template,
+      // Audience, View, Edit, Publish — one concern each, in the order the
+      // work happens. Narrower viewports still wrap *within* a row, which is
+      // what keeps the page from ever scrolling sideways.
       flexWrap: "wrap",
-      gap: 24,
-      rowGap: 10,
+      // One spacing value for every sibling control on a row, so a button
+      // next to a button is spaced the same as a tab next to a tab. It also
+      // has to match the label→controls gap inside the Template/Audience/View
+      // groups: at 24 the Edit and Publish rows, whose labels are direct
+      // children of the bar rather than of a group, started their first
+      // button 10px right of the other three.
+      gap: 8,
+      rowGap: 5,
       flexShrink: 0,
+      boxSizing: "border-box",
+      maxWidth: "100%",
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif'
-    } }, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-brand": true, style: { display: "flex", alignItems: "center", gap: 12 } }, /* @__PURE__ */ React.createElement("img", { src: window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS["mere-o-logo.png"] || "assets/mere-o-logo.png", alt: "", style: { height: 22 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "Template"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6 } }, Object.entries(EMAIL_TEMPLATES).map(([k, t]) => /* @__PURE__ */ React.createElement(Tab, { key: k, active: (templateKey || "digest") === k, onClick: () => onTemplate(k) }, t.label))))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-spacer": true, style: { flex: 1 } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "Audience"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 0, marginLeft: -1 } }, /* @__PURE__ */ React.createElement(Tab, { active: version === "free", onClick: () => onVersion("free") }, "Free Subscriber"), /* @__PURE__ */ React.createElement("div", { style: { width: 0 } }), /* @__PURE__ */ React.createElement(Tab, { active: version === "paid", onClick: () => onVersion("paid") }, "Paid Member"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 14 } }, /* @__PURE__ */ React.createElement("span", { "data-mo-topbar-grouplabel": true, style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#9a8773" } }, "View"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 0 } }, /* @__PURE__ */ React.createElement(Tab, { active: preview === "raw", onClick: () => onPreview("raw") }, "Raw Email"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "client", onClick: () => onPreview("client") }, "In Gmail"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "mobile", onClick: () => onPreview("mobile") }, "Mobile"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement(
+    } }, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "Template"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, Object.entries(EMAIL_TEMPLATES).map(([k, t]) => /* @__PURE__ */ React.createElement(Tab, { key: k, active: (templateKey || "digest") === k, onClick: () => onTemplate(k) }, t.label)))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-brand": true, style: { display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" } }, /* @__PURE__ */ React.createElement("img", { src: window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS["mere-o-logo.png"] || "assets/mere-o-logo.png", alt: "", style: { height: 22 } })), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "Audience"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Tab, { active: version === "free", onClick: () => onVersion("free") }, "Free Subscriber"), /* @__PURE__ */ React.createElement(Tab, { active: version === "paid", onClick: () => onVersion("paid") }, "Paid Member"))), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "View"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Tab, { active: preview === "raw", onClick: () => onPreview("raw") }, "Raw Email"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "client", onClick: () => onPreview("client") }, "In Gmail"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "mobile", onClick: () => onPreview("mobile") }, "Mobile"))), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement(GroupLabel, null, "Edit"), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: onEditContent,
@@ -869,20 +906,20 @@
           background: "#ee7d51",
           color: "#fff",
           border: "1.5px solid #ee7d51",
-          padding: "7px 18px",
+          padding: "5px 11px",
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
-          letterSpacing: "0.14em",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           cursor: "pointer",
-          borderRadius: 10,
+          borderRadius: 7,
           display: "inline-flex",
           alignItems: "center",
-          gap: 8
+          gap: 6
         }
       },
-      /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M12 20h9" }), /* @__PURE__ */ React.createElement("path", { d: "M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" })),
+      /* @__PURE__ */ React.createElement("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M12 20h9" }), /* @__PURE__ */ React.createElement("path", { d: "M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" })),
       "Edit Content"
     ), /* @__PURE__ */ React.createElement(
       "button",
@@ -893,47 +930,23 @@
           background: justSaved ? "#1d9e75" : "#2d2927",
           color: "#fff",
           border: justSaved ? "1.5px solid #1d9e75" : "1.5px solid #2d2927",
-          padding: "7px 18px",
+          padding: "5px 11px",
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
-          letterSpacing: "0.14em",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           cursor: "pointer",
-          borderRadius: 10,
+          borderRadius: 7,
           display: "inline-flex",
           alignItems: "center",
-          gap: 8,
+          gap: 6,
           transition: "background 0.2s"
         }
       },
-      /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }), /* @__PURE__ */ React.createElement("polyline", { points: "17 21 17 13 7 13 7 21" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 3 7 8 15 8" })),
+      /* @__PURE__ */ React.createElement("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }), /* @__PURE__ */ React.createElement("polyline", { points: "17 21 17 13 7 13 7 21" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 3 7 8 15 8" })),
       justSaved ? "Saved \u2713" : "Save"
-    ), !onPushKit ? null : /* @__PURE__ */ React.createElement(
-      "button",
-      {
-        onClick: onPushKit,
-        title: "Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now.",
-        style: {
-          background: "#c1593c",
-          color: "#fff",
-          border: "1.5px solid #c1593c",
-          padding: "7px 18px",
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          cursor: "pointer",
-          borderRadius: 10,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8
-        }
-      },
-      /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("line", { x1: "22", y1: "2", x2: "11", y2: "13" }), /* @__PURE__ */ React.createElement("polygon", { points: "22 2 15 22 11 13 2 9 22 2" })),
-      "Push to Kit\u2026"
-    ), savedAt ? /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-saved": true, style: { display: "inline-flex", alignItems: "center", gap: 10 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9a8773", whiteSpace: "nowrap" } }, "Saved ", new Date(savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })), /* @__PURE__ */ React.createElement(
+    ), savedAt ? /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-saved": true, style: { display: "inline-flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9a8773", whiteSpace: "nowrap" } }, "Saved ", new Date(savedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: onRestore,
@@ -942,18 +955,18 @@
           background: "transparent",
           color: "#2d2927",
           border: "1.5px solid #d8c4a3",
-          padding: "6px 12px",
+          padding: "4px 9px",
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 10,
+          fontSize: 9,
           fontWeight: 700,
-          letterSpacing: "0.12em",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           cursor: "pointer",
-          borderRadius: 10
+          borderRadius: 7
         }
       },
       "Restore"
-    )) : null, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-divider": true, style: { width: 1, height: 28, background: "#d8c4a3" } }), /* @__PURE__ */ React.createElement(
+    )) : null, /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: onHistory,
@@ -962,21 +975,45 @@
           background: "transparent",
           color: "#2d2927",
           border: "1.5px solid #2d2927",
-          padding: "7px 16px",
+          padding: "5px 11px",
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
-          letterSpacing: "0.14em",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           cursor: "pointer",
-          borderRadius: 10,
+          borderRadius: 7,
           display: "inline-flex",
           alignItems: "center",
-          gap: 8
+          gap: 6
         }
       },
-      /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M3 3v5h5" }), /* @__PURE__ */ React.createElement("path", { d: "M3.05 13A9 9 0 1 0 6 5.3L3 8" }), /* @__PURE__ */ React.createElement("path", { d: "M12 7v5l4 2" })),
+      /* @__PURE__ */ React.createElement("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M3 3v5h5" }), /* @__PURE__ */ React.createElement("path", { d: "M3.05 13A9 9 0 1 0 6 5.3L3 8" }), /* @__PURE__ */ React.createElement("path", { d: "M12 7v5l4 2" })),
       "History"
+    ), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement(GroupLabel, null, "Publish"), !onPushKit ? null : /* @__PURE__ */ React.createElement(
+      "button",
+      {
+        onClick: onPushKit,
+        title: "Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now.",
+        style: {
+          background: "#c1593c",
+          color: "#fff",
+          border: "1.5px solid #c1593c",
+          padding: "5px 11px",
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          cursor: "pointer",
+          borderRadius: 7,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6
+        }
+      },
+      /* @__PURE__ */ React.createElement("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("line", { x1: "22", y1: "2", x2: "11", y2: "13" }), /* @__PURE__ */ React.createElement("polygon", { points: "22 2 15 22 11 13 2 9 22 2" })),
+      "Push to Kit\u2026"
     ), /* @__PURE__ */ React.createElement(
       "button",
       {
@@ -986,20 +1023,20 @@
           background: "transparent",
           color: "#2d2927",
           border: "1.5px solid #d8c4a3",
-          padding: "7px 18px",
+          padding: "5px 11px",
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
-          letterSpacing: "0.14em",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           cursor: "pointer",
-          borderRadius: 10,
+          borderRadius: 7,
           display: "inline-flex",
           alignItems: "center",
-          gap: 8
+          gap: 6
         }
       },
-      /* @__PURE__ */ React.createElement("svg", { width: "13", height: "13", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 10 12 15 17 10" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "15", x2: "12", y2: "3" })),
+      /* @__PURE__ */ React.createElement("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 10 12 15 17 10" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "15", x2: "12", y2: "3" })),
       "Export HTML"
     ));
   }
@@ -1215,7 +1252,10 @@
       }
     );
     return /* @__PURE__ */ React.createElement("div", { style: {
-      width: "100vw",
+      // 100%, not 100vw: vw includes the vertical scrollbar, so on a page
+      // tall enough to scroll the shell was ~15px wider than the viewport
+      // and the whole tool could be dragged sideways.
+      width: "100%",
       minHeight: "100vh",
       display: "flex",
       flexDirection: "column",

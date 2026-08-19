@@ -22,13 +22,20 @@ const MOBILE_TOOL_STYLES = `
     padding: 8px 10px !important;
   }
   [data-mo-topbar-divider] { display: none !important; }
-  [data-mo-topbar-spacer] { display: none !important; }
   [data-mo-topbar-brand] {
     flex: 1 1 100% !important;
     border-bottom: 1px solid #d8c4a3 !important;
     padding-bottom: 6px !important;
     margin-bottom: 2px !important;
+    /* It trails the Template row on desktop; on a phone it goes back to
+       being the masthead at the top, which is what order:-1 restores. */
+    order: -1 !important;
+    margin-left: 0 !important;
   }
+  /* The forced row breaks are a desktop affordance. On a phone every group
+     wraps anyway, and keeping them would spend a rowGap on each empty
+     break — five wasted rows on the shortest screen. */
+  [data-mo-topbar-break] { display: none !important; }
   [data-mo-topbar] button {
     padding: 6px 10px !important;
     font-size: 10px !important;
@@ -43,7 +50,10 @@ const MOBILE_TOOL_STYLES = `
     flex-wrap: wrap !important;
     align-items: center !important;
   }
-  [data-mo-topbar-group] > [data-mo-topbar-grouplabel] { display: none !important; }
+  /* Not scoped to [data-mo-topbar-group] — the Edit and Publish labels are
+     direct children of the bar, and a descendant-only selector left those
+     two visible while hiding the other three. */
+  [data-mo-topbar-grouplabel] { display: none !important; }
 
   /* Modals — full screen on mobile */
   [data-mo-modal-overlay] {
@@ -959,74 +969,108 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
       background: active ? '#2d2927' : 'transparent',
       color: active ? '#fbf7ee' : '#2d2927',
       border: '1.5px solid #2d2927',
-      padding: '7px 16px',
+      padding: '5px 11px',
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-      fontSize: 11,
+      fontSize: 10,
       fontWeight: 700,
-      letterSpacing: '0.14em',
+      letterSpacing: '0.1em',
       textTransform: 'uppercase',
       cursor: 'pointer',
-      borderRadius: 10,
+      borderRadius: 7,
     }}>{children}</button>
+  );
+  // A zero-height full-width flex item: forces the next control onto a new
+  // row without a wrapper element around each group, which would otherwise
+  // mean re-indenting every button in here. `gap` applies to it like any
+  // other item, so rowGap alone controls the spacing between rows.
+  const Break = () => (
+    <div data-mo-topbar-break style={{ flexBasis: '100%', width: 0, height: 0, margin: 0 }} />
+  );
+  const GroupLabel = ({ children }) => (
+    <span data-mo-topbar-grouplabel style={{
+      fontSize: 9, fontWeight: 700, letterSpacing: '0.16em',
+      textTransform: 'uppercase', color: '#9a8773',
+      // Every row's label sits in the same column, so the controls line up
+      // down the bar instead of stepping in and out with the label length.
+      minWidth: 62,
+    }}>{children}</span>
   );
   return (
     <div data-mo-topbar style={{
       background: '#f1e0c9',
       borderBottom: '1px solid #d8c4a3',
-      padding: '14px 24px',
+      padding: '10px 20px',
       display: 'flex',
       alignItems: 'center',
       // Thirteen controls need 1694px on one row. Without a wrap the bar
       // blows past 100vw and the whole tool scrolls sideways — measured at
       // 820px: documentElement.scrollWidth was 1694 with 29 boxes overhanging.
+      //
+      // Wrapping alone stopped the overflow but left the row breaks wherever
+      // the viewport happened to put them, so the same bar re-flowed into a
+      // different shape on every window size. The [data-mo-topbar-break]
+      // elements below (flexBasis 100%) pin it to five rows — Template,
+      // Audience, View, Edit, Publish — one concern each, in the order the
+      // work happens. Narrower viewports still wrap *within* a row, which is
+      // what keeps the page from ever scrolling sideways.
       flexWrap: 'wrap',
-      gap: 24,
-      rowGap: 10,
+      // One spacing value for every sibling control on a row, so a button
+      // next to a button is spaced the same as a tab next to a tab. It also
+      // has to match the label→controls gap inside the Template/Audience/View
+      // groups: at 24 the Edit and Publish rows, whose labels are direct
+      // children of the bar rather than of a group, started their first
+      // button 10px right of the other three.
+      gap: 8,
+      rowGap: 5,
       flexShrink: 0,
+      boxSizing: 'border-box',
+      maxWidth: '100%',
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
     }}>
-      <div data-mo-topbar-brand style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <img src={(window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS['mere-o-logo.png']) || 'assets/mere-o-logo.png'} alt="" style={{ height: 22 }} />
-        <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
-        <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <span data-mo-topbar-grouplabel style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9a8773' }}>
-            Template
-          </span>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {Object.entries(EMAIL_TEMPLATES).map(([k, t]) => (
-              <Tab key={k} active={(templateKey || 'digest') === k} onClick={() => onTemplate(k)}>{t.label}</Tab>
-            ))}
-          </div>
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <GroupLabel>Template</GroupLabel>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {Object.entries(EMAIL_TEMPLATES).map(([k, t]) => (
+            <Tab key={k} active={(templateKey || 'digest') === k} onClick={() => onTemplate(k)}>{t.label}</Tab>
+          ))}
         </div>
       </div>
 
-      <div data-mo-topbar-spacer style={{ flex: 1 }} />
+      {/* Trailing the Template row, pushed right. It used to lead the bar,
+          but anything sitting left of the first label shoves that row's
+          controls out of the column the other four line up in — and giving
+          it a line of its own would have made six rows out of five. */}
+      <div data-mo-topbar-brand style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
+        <img src={(window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS['mere-o-logo.png']) || 'assets/mere-o-logo.png'} alt="" style={{ height: 22 }} />
+      </div>
 
-      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <span data-mo-topbar-grouplabel style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9a8773' }}>
-          Audience
-        </span>
-        <div style={{ display: 'flex', gap: 0, marginLeft: -1 }}>
+      <Break />
+
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <GroupLabel>Audience</GroupLabel>
+        <div style={{ display: 'flex', gap: 8 }}>
           <Tab active={version === 'free'} onClick={() => onVersion('free')}>Free Subscriber</Tab>
-          <div style={{ width: 0 }} />
           <Tab active={version === 'paid'} onClick={() => onVersion('paid')}>Paid Member</Tab>
         </div>
       </div>
 
-      <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
+      <Break />
 
-      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <span data-mo-topbar-grouplabel style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9a8773' }}>
-          View
-        </span>
-        <div style={{ display: 'flex', gap: 0 }}>
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <GroupLabel>View</GroupLabel>
+        <div style={{ display: 'flex', gap: 8 }}>
           <Tab active={preview === 'raw'} onClick={() => onPreview('raw')}>Raw Email</Tab>
           <Tab active={preview === 'client'} onClick={() => onPreview('client')}>In Gmail</Tab>
           <Tab active={preview === 'mobile'} onClick={() => onPreview('mobile')}>Mobile</Tab>
         </div>
       </div>
 
-      <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
+      <Break />
+
+      {/* Edit — everything that changes the draft in this browser. History
+          belongs here rather than beside Export: restoring a past version is
+          an editing move, not an outbound one. */}
+      <GroupLabel>Edit</GroupLabel>
 
       <button
         onClick={onEditContent}
@@ -1034,20 +1078,20 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
           background: '#ee7d51',
           color: '#fff',
           border: '1.5px solid #ee7d51',
-          padding: '7px 18px',
+          padding: '5px 11px',
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
-          letterSpacing: '0.14em',
+          letterSpacing: '0.1em',
           textTransform: 'uppercase',
           cursor: 'pointer',
-          borderRadius: 10,
+          borderRadius: 7,
           display: 'inline-flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 6,
         }}
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 20h9"/>
           <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
         </svg>
@@ -1061,21 +1105,21 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
           background: justSaved ? '#1d9e75' : '#2d2927',
           color: '#fff',
           border: justSaved ? '1.5px solid #1d9e75' : '1.5px solid #2d2927',
-          padding: '7px 18px',
+          padding: '5px 11px',
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
-          letterSpacing: '0.14em',
+          letterSpacing: '0.1em',
           textTransform: 'uppercase',
           cursor: 'pointer',
-          borderRadius: 10,
+          borderRadius: 7,
           display: 'inline-flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 6,
           transition: 'background 0.2s',
         }}
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
           <polyline points="17 21 17 13 7 13 7 21"/>
           <polyline points="7 3 7 8 15 8"/>
@@ -1083,43 +1127,9 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         {justSaved ? 'Saved ✓' : 'Save'}
       </button>
 
-      {/* Sits next to Save because compose → save → push is the actual order
-          of work; History and Export are occasional. "Push", not "Send": it
-          opens a panel, it does not put an email in anyone's inbox, and that
-          distinction matters at 20k subscribers. Hidden entirely if
-          kit-push.js failed to load, so the button is never a no-op. */}
-      {!onPushKit ? null : (
-      <button
-        onClick={onPushKit}
-        title="Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now."
-        style={{
-          background: '#c1593c',
-          color: '#fff',
-          border: '1.5px solid #c1593c',
-          padding: '7px 18px',
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          borderRadius: 10,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-        Push to Kit&hellip;
-      </button>
-      )}
-
       {savedAt ? (
-        <div data-mo-topbar-saved style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9a8773', whiteSpace: 'nowrap' }}>
+        <div data-mo-topbar-saved style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9a8773', whiteSpace: 'nowrap' }}>
             Saved {new Date(savedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
           </span>
           <button
@@ -1129,22 +1139,18 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
               background: 'transparent',
               color: '#2d2927',
               border: '1.5px solid #d8c4a3',
-              padding: '6px 12px',
+              padding: '4px 9px',
               fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: 700,
-              letterSpacing: '0.12em',
+              letterSpacing: '0.1em',
               textTransform: 'uppercase',
               cursor: 'pointer',
-              borderRadius: 10,
+              borderRadius: 7,
             }}
           >Restore</button>
         </div>
       ) : null}
-
-      {/* Separates the everyday actions (Edit / Save / Push to Kit) from the
-          occasional ones (History / Export HTML). */}
-      <div data-mo-topbar-divider style={{ width: 1, height: 28, background: '#d8c4a3' }} />
 
       <button
         onClick={onHistory}
@@ -1153,20 +1159,20 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
           background: 'transparent',
           color: '#2d2927',
           border: '1.5px solid #2d2927',
-          padding: '7px 16px',
+          padding: '5px 11px',
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
-          letterSpacing: '0.14em',
+          letterSpacing: '0.1em',
           textTransform: 'uppercase',
           cursor: 'pointer',
-          borderRadius: 10,
+          borderRadius: 7,
           display: 'inline-flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 6,
         }}
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 3v5h5"/>
           <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
           <path d="M12 7v5l4 2"/>
@@ -1174,10 +1180,48 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         History
       </button>
 
+      <Break />
+
+      {/* Publish — the two ways an email leaves this tool. "Push", not
+          "Send": it opens a panel, it does not put an email in anyone's
+          inbox, and that distinction matters at 20k subscribers. Hidden
+          entirely if kit-push.js failed to load, so the button is never a
+          no-op. */}
+      <GroupLabel>Publish</GroupLabel>
+
+      {!onPushKit ? null : (
+      <button
+        onClick={onPushKit}
+        title="Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now."
+        style={{
+          background: '#c1593c',
+          color: '#fff',
+          border: '1.5px solid #c1593c',
+          padding: '5px 11px',
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+          borderRadius: 7,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Push to Kit&hellip;
+      </button>
+      )}
+
       {/* Export stays as the escape hatch — hand the HTML to another ESP,
-          or upload it to Kit as a layout template. Day-to-day the Push to
-          Kit button below is the one you want, so Export drops to the
-          tan outline the tool uses for tertiary actions (cf. Restore). */}
+          or upload it to Kit as a layout template. Day-to-day Push to Kit
+          is the one you want, so Export keeps the tan outline the tool uses
+          for tertiary actions (cf. Restore). */}
       <button
         onClick={onExport}
         title="Download or copy the flat HTML. Use Push to Kit for a normal send."
@@ -1185,20 +1229,20 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
           background: 'transparent',
           color: '#2d2927',
           border: '1.5px solid #d8c4a3',
-          padding: '7px 18px',
+          padding: '5px 11px',
           fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: 700,
-          letterSpacing: '0.14em',
+          letterSpacing: '0.1em',
           textTransform: 'uppercase',
           cursor: 'pointer',
-          borderRadius: 10,
+          borderRadius: 7,
           display: 'inline-flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 6,
         }}
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
           <line x1="12" y1="15" x2="12" y2="3"/>
@@ -1485,7 +1529,10 @@ function App() {
 
   return (
     <div style={{
-      width: '100vw', minHeight: '100vh',
+      // 100%, not 100vw: vw includes the vertical scrollbar, so on a page
+      // tall enough to scroll the shell was ~15px wider than the viewport
+      // and the whole tool could be dragged sideways.
+      width: '100%', minHeight: '100vh',
       display: 'flex', flexDirection: 'column',
       background: '#f1e0c9',
     }}>
