@@ -561,6 +561,11 @@
         const t = Date.parse(d || "");
         return Number.isNaN(t) ? null : new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" });
       };
+      const staleDays = (d) => {
+        const t = Date.parse(d || "");
+        return Number.isNaN(t) ? null : Math.floor((Date.now() - t) / 864e5);
+      };
+      const THIS_WEEK_DAYS = 7;
       results.forEach((r, i) => {
         const slot = existing[i] || {};
         if (r.error) {
@@ -570,10 +575,10 @@
         }
         const ep = r.episode;
         const showName = r.row.label || r.show && r.show.title || r.row.slug;
-        if (!r.usedScheduled) {
+        if (!r.usedScheduled && staleDays(ep.pubDate) !== null && staleDays(ep.pubDate) > THIS_WEEK_DAYS) {
           const when = shortDate(ep.pubDate);
           warnings.push(
-            `${showName}: no upcoming episode is scheduled in Buzzsprout, so this slot is the LAST PUBLISHED one${when ? ` (${when})` : ""} \u2014 "${ep.title}". Schedule the new episode, then Pull Podcasts again.`
+            `${showName}: nothing upcoming is scheduled in Buzzsprout and the episode in this slot is ${staleDays(ep.pubDate)} days old${when ? ` (${when})` : ""} \u2014 "${ep.title}". That is almost certainly a repeat of a previous digest. Schedule the new episode, then Pull Podcasts again.`
           );
         }
         if (r.scheduledSource === "prebuilt-fallback") {

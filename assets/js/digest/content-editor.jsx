@@ -740,6 +740,15 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
         ? null
         : new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     };
+    // Whole days since an episode published; null if the date is unusable.
+    const staleDays = (d) => {
+      const t = Date.parse(d || '');
+      return Number.isNaN(t) ? null : Math.floor((Date.now() - t) / 86400000);
+    };
+    // The digest is weekly, so an episode published within the last 7 days
+    // belongs to THIS issue even if it is already out. Beyond that it is a
+    // repeat of an issue that already shipped.
+    const THIS_WEEK_DAYS = 7;
 
     results.forEach((r, i) => {
       const slot = existing[i] || {};
@@ -750,15 +759,24 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
       }
       const ep = r.episode;
       const showName = r.row.label || (r.show && r.show.title) || r.row.slug;
-      if (!r.usedScheduled) {
-        // Nothing scheduled in Buzzsprout, so this slot holds the LAST
-        // PUBLISHED episode — i.e. the one that already went out in the
-        // previous digest. Usually it means the episode hasn't been given a
-        // release date yet: schedule it, then click Pull Podcasts again.
+      if (!r.usedScheduled && staleDays(ep.pubDate) !== null && staleDays(ep.pubDate) > THIS_WEEK_DAYS) {
+        // Nothing scheduled in Buzzsprout AND the episode we fell back to is
+        // older than this issue's window — so this slot is repeating an
+        // episode that already went out in a previous digest. Usually it
+        // means the new episode has no release date yet: schedule it, then
+        // click Pull Podcasts again.
+        //
+        // The age test is what keeps this warning worth reading. Mere
+        // Fidelity publishes before the digest goes out, so at pull time its
+        // episode is legitimately already-published rather than scheduled.
+        // Warning on "not scheduled" alone fired on that show EVERY week,
+        // and a banner that is always on is a banner Ian stops seeing —
+        // which is how the original silent bug survived in the first place.
         const when = shortDate(ep.pubDate);
         warnings.push(
-          `${showName}: no upcoming episode is scheduled in Buzzsprout, so this slot is the LAST PUBLISHED one` +
-          `${when ? ` (${when})` : ''} — "${ep.title}". Schedule the new episode, then Pull Podcasts again.`
+          `${showName}: nothing upcoming is scheduled in Buzzsprout and the episode in this slot is ` +
+          `${staleDays(ep.pubDate)} days old${when ? ` (${when})` : ''} — "${ep.title}". ` +
+          `That is almost certainly a repeat of a previous digest. Schedule the new episode, then Pull Podcasts again.`
         );
       }
       if (r.scheduledSource === 'prebuilt-fallback') {
