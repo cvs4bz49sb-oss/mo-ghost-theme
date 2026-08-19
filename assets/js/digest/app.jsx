@@ -22,16 +22,6 @@ const MOBILE_TOOL_STYLES = `
     padding: 8px 10px !important;
   }
   [data-mo-topbar-divider] { display: none !important; }
-  [data-mo-topbar-brand] {
-    flex: 1 1 100% !important;
-    border-bottom: 1px solid #d8c4a3 !important;
-    padding-bottom: 6px !important;
-    margin-bottom: 2px !important;
-    /* It trails the Template row on desktop; on a phone it goes back to
-       being the masthead at the top, which is what order:-1 restores. */
-    order: -1 !important;
-    margin-left: 0 !important;
-  }
   /* The forced row breaks are a desktop affordance. On a phone every group
      wraps anyway, and keeping them would spend a rowGap on each empty
      break — five wasted rows on the shortest screen. */
@@ -1056,12 +1046,10 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </div>
       </div>
 
-      {/* Closes row 1, pushed right. It used to lead the bar, but anything
-          sitting left of the first label shoves that row's controls in, and
-          a line of its own would have made a third row out of two. */}
-      <div data-mo-topbar-brand style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
-        <img src={(window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS['mere-o-logo.png']) || 'assets/mere-o-logo.png'} alt="" style={{ height: 22 }} />
-      </div>
+      {/* No logo. It sat at the right of row 1 on a wide window, but the row
+          wraps below ~1230px and `marginLeft: auto` then stranded it alone on
+          a line of its own — a third row that existed only to hold a mark
+          nobody needs in a tool you reach from the admin nav. */}
       <Break />
 
       {/* Edit — everything that changes the draft in this browser. History
