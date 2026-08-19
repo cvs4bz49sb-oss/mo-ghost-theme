@@ -8,133 +8,81 @@
 <meta name="twitter:title" content="Organization Reading" />
 <meta name="twitter:description" content="Shared reading for your seminary, college, or organization." />
 {{/contentFor}}
-{{!-- /dashboard/institution/ — full institution curated content page --}}
+{{!-- /dashboard/institution/ — full institution curated content page.
 
-{{#if @member}}
-{{#match @member.status "!=" "free"}}
+     2026-08-19: this page was stuck on "Loading curated content..."
+     forever. Everything on it — the fetch, the render, and both
+     gating redirects — lived in inline <script> blocks, and
+     default.hbs sets `script-src 'self'` with NO 'unsafe-inline'.
+     The browser blocked all three. It was the only template in the
+     theme still carrying inline JS.
+
+     The fetch/render now lives in assets/js/page/dashboard-institution.js.
+     The redirects are gone entirely, replaced by rendered sign-in and
+     upgrade panels matching custom-dashboard-bookmarks.hbs and the
+     other /dashboard/* pages. That is both CSP-safe and better: a
+     signed-out visitor sees where they are instead of being bounced.
+
+     Do NOT put script logic back in this file. --}}
 
 <main class="dashboard-page">
-  <section class="hero dashboard-hero">
-    <div class="container">
-      <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
-      <h1 class="hero-headline"><em>Organization</em> <span class="highlight"><em>Reading</em></span></h1>
-      <p class="hero-sub">Content curated by your organization's administrator.</p>
-    </div>
-  </section>
 
-  <section class="dashboard-body">
-    <div class="container">
-      <p class="admin-back-link"><a href="/dashboard/"><span aria-hidden="true">&larr;</span> Back to dashboard</a></p>
-      <div data-dashboard-institution-full></div>
-      <p class="dashboard-empty" data-institution-loading>Loading curated content...</p>
-    </div>
-  </section>
+  {{#unless @member}}
+    {{!-- Not signed in. --}}
+    <section class="hero dashboard-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <h1 class="hero-headline">Sign in to see your <span class="highlight"><em>organization's reading</em></span>.</h1>
+        <p class="hero-sub">Content curated by your organization's administrator.</p>
+        <p class="dashboard-actions">
+          <a href="#/portal/signin" class="btn btn-primary" data-portal="signin">Sign in</a>
+          <a href="/membership/" class="btn btn-ghost">Become a Member</a>
+        </p>
+      </div>
+    </section>
+  {{else}}
+  {{#match @member.status "!=" "free"}}
+
+    <section class="hero dashboard-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <h1 class="hero-headline"><em>Organization</em> <span class="highlight"><em>Reading</em></span></h1>
+        <p class="hero-sub">Content curated by your organization's administrator.</p>
+      </div>
+    </section>
+
+    <section class="dashboard-body">
+      <div class="container">
+        <p class="admin-back-link"><a href="/dashboard/"><span aria-hidden="true">&larr;</span> Back to dashboard</a></p>
+        <div data-dashboard-institution-full></div>
+        <p class="dashboard-empty" data-institution-loading>Loading curated content...</p>
+      </div>
+    </section>
+
+  {{else}}
+    {{!-- Free subscriber. --}}
+    <section class="hero dashboard-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <h1 class="hero-headline">Organization reading is a <span class="highlight"><em>member feature</em></span>.</h1>
+        <p class="hero-sub">Organizational memberships give every person on your roster full access.</p>
+        <p class="dashboard-actions">
+          <a href="/membership/" class="btn btn-primary">Become a Member</a>
+          <a href="/institutions/" class="btn btn-ghost">Organizational membership</a>
+        </p>
+      </div>
+    </section>
+  {{/match}}
+  {{/unless}}
+
 </main>
 
-<script src="{{asset "js/admin-auth.js"}}"></script>
-<script>
-(function() {
-  var apiBase = (document.querySelector('meta[name="mo-api-base"]') || {}).content || '';
-  if (!apiBase || !window.MOAuth) return;
-  var mount = document.querySelector('[data-dashboard-institution-full]');
-  var loadingEl = document.querySelector('[data-institution-loading]');
-  if (!mount) return;
-
-  window.MOAuth.fetch(apiBase.replace(/\/$/, '') + '/api/institution/curated-for-me', {
-    credentials: 'omit'
-  })
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(data) {
-      if (loadingEl) loadingEl.hidden = true;
-      var institutions = (data && data.institutions) || [];
-      if (!institutions.length) {
-        mount.innerHTML = '<p class="dashboard-empty">You are not a member of any institution, or no content has been curated yet.</p>';
-        return;
-      }
-      institutions.forEach(function(inst) {
-        var items = inst.curated || [];
-        var section = document.createElement('div');
-        section.style.marginBottom = '48px';
-
-        var heading = document.createElement('h2');
-        heading.className = 'dashboard-module-title';
-        var em = document.createElement('em');
-        em.textContent = inst.name || 'Your Institution';
-        heading.appendChild(em);
-        section.appendChild(heading);
-
-        if (!items.length) {
-          var empty = document.createElement('p');
-          empty.className = 'dashboard-empty';
-          empty.textContent = 'No content curated yet.';
-          section.appendChild(empty);
-          mount.appendChild(section);
-          return;
-        }
-
-        var grid = document.createElement('div');
-        grid.className = 'week-grid dashboard-entry-grid';
-        items.forEach(function(item) {
-          var entry = document.createElement('article');
-          entry.className = 'entry';
-          var url = item.content_type === 'podcast'
-            ? '/podcasts/' + (item.show_slug || 'mere-fidelity') + '/#ep-' + item.content_id.replace('podcast:', '')
-            : '/' + (item.slug || '');
-
-          var a = document.createElement('a');
-          a.href = url;
-          a.className = 'entry-link';
-
-          if (item.feature_image) {
-            var imgWrap = document.createElement('div');
-            imgWrap.className = 'entry-image';
-            var img = document.createElement('img');
-            img.src = item.feature_image;
-            img.alt = '';
-            img.loading = 'lazy';
-            imgWrap.appendChild(img);
-            a.appendChild(imgWrap);
-          }
-
-          var body = document.createElement('div');
-          body.className = 'entry-body';
-          var titleEl = document.createElement('h3');
-          titleEl.className = 'entry-title';
-          titleEl.textContent = item.title || item.content_id;
-          body.appendChild(titleEl);
-
-          if (item.content_type === 'podcast') {
-            var badge = document.createElement('p');
-            badge.className = 'entry-meta';
-            badge.textContent = 'Podcast';
-            body.appendChild(badge);
-          }
-
-          var dateEl = document.createElement('p');
-          dateEl.className = 'entry-meta';
-          dateEl.textContent = item.pushed_at ? 'Curated ' + new Date(item.pushed_at).toLocaleDateString() : '';
-          body.appendChild(dateEl);
-
-          a.appendChild(body);
-          entry.appendChild(a);
-          grid.appendChild(entry);
-        });
-        section.appendChild(grid);
-        mount.appendChild(section);
-      });
-    })
-    .catch(function() {
-      if (loadingEl) loadingEl.hidden = true;
-      mount.innerHTML = '<p class="dashboard-empty">Could not load curated content. Try reloading.</p>';
-    });
-})();
-</script>
-
-{{else}}
-  {{!-- Free subscriber: redirect to membership --}}
-  <script>window.location.href = '/membership/';</script>
-{{/match}}
-{{else}}
-  {{!-- Not signed in --}}
-  <script>window.location.href = '/#/portal/signin';</script>
-{{/if}}
+{{!-- admin-auth.js ships inside boot.min.js in <head>, so window.MOAuth and
+     window.MOSafeHref are both defined before this page script runs. This
+     template used to re-load assets/js/admin-auth.js here; that re-ran the
+     IIFE after {{{body}}} render and re-read <meta name="mo-trusted-hosts">
+     from a DOM that page content had already touched, defeating the
+     read-once-in-head guarantee the allowlist depends on. Removed
+     2026-08-19. Page scripts execute BEFORE site.min.js, so nothing here
+     may reach for a site-bundle global. --}}
+<script src="{{asset "js/page/dashboard-institution.js"}}"></script>
