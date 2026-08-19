@@ -864,9 +864,9 @@
       letterSpacing: "0.16em",
       textTransform: "uppercase",
       color: "#9a8773",
-      // Every row's label sits in the same column, so the controls line up
-      // down the bar instead of stepping in and out with the label length.
-      minWidth: 62
+      // No minWidth: with three groups sharing row 1, a fixed label column
+      // just pads dead space between each label and its own controls.
+      whiteSpace: "nowrap"
     } }, children);
     return /* @__PURE__ */ React.createElement("div", { "data-mo-topbar": true, style: {
       background: "#f1e0c9",
@@ -880,11 +880,14 @@
       //
       // Wrapping alone stopped the overflow but left the row breaks wherever
       // the viewport happened to put them, so the same bar re-flowed into a
-      // different shape on every window size. The [data-mo-topbar-break]
-      // elements below (flexBasis 100%) pin it to five rows — Template,
-      // Audience, View, Edit, Publish — one concern each, in the order the
-      // work happens. Narrower viewports still wrap *within* a row, which is
-      // what keeps the page from ever scrolling sideways.
+      // different shape on every window size. The single [data-mo-topbar-break]
+      // below (flexBasis 100%) pins it to two: what you are looking at
+      // (Template / Audience / View) above what you do to it (Edit /
+      // Publish). Groups within a row are separated by a divider rather than
+      // by spacing alone, because at an 8px control gap a group boundary is
+      // otherwise indistinguishable from the gap between two buttons.
+      // Narrower viewports still wrap *within* a row, which is what keeps the
+      // page from ever scrolling sideways.
       flexWrap: "wrap",
       // One spacing value for every sibling control on a row, so a button
       // next to a button is spaced the same as a tab next to a tab. It also
@@ -898,7 +901,7 @@
       boxSizing: "border-box",
       maxWidth: "100%",
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif'
-    } }, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "Template"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, Object.entries(EMAIL_TEMPLATES).map(([k, t]) => /* @__PURE__ */ React.createElement(Tab, { key: k, active: (templateKey || "digest") === k, onClick: () => onTemplate(k) }, t.label)))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-brand": true, style: { display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" } }, /* @__PURE__ */ React.createElement("img", { src: window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS["mere-o-logo.png"] || "assets/mere-o-logo.png", alt: "", style: { height: 22 } })), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "Audience"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Tab, { active: version === "free", onClick: () => onVersion("free") }, "Free Subscriber"), /* @__PURE__ */ React.createElement(Tab, { active: version === "paid", onClick: () => onVersion("paid") }, "Paid Member"))), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "View"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Tab, { active: preview === "raw", onClick: () => onPreview("raw") }, "Raw Email"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "client", onClick: () => onPreview("client") }, "In Gmail"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "mobile", onClick: () => onPreview("mobile") }, "Mobile"))), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement(GroupLabel, null, "Edit"), /* @__PURE__ */ React.createElement(
+    } }, /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "Template"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, Object.entries(EMAIL_TEMPLATES).map(([k, t]) => /* @__PURE__ */ React.createElement(Tab, { key: k, active: (templateKey || "digest") === k, onClick: () => onTemplate(k) }, t.label)))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8, marginLeft: 18 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "Audience"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Tab, { active: version === "free", onClick: () => onVersion("free") }, "Free Subscriber"), /* @__PURE__ */ React.createElement(Tab, { active: version === "paid", onClick: () => onVersion("paid") }, "Paid Member"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8, marginLeft: 18 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "View"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8 } }, /* @__PURE__ */ React.createElement(Tab, { active: preview === "raw", onClick: () => onPreview("raw") }, "Raw Email"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "client", onClick: () => onPreview("client") }, "In Gmail"), /* @__PURE__ */ React.createElement(Tab, { active: preview === "mobile", onClick: () => onPreview("mobile") }, "Mobile"))), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-brand": true, style: { display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" } }, /* @__PURE__ */ React.createElement("img", { src: window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS["mere-o-logo.png"] || "assets/mere-o-logo.png", alt: "", style: { height: 22 } })), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "Edit"), /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: onEditContent,
@@ -990,7 +993,7 @@
       },
       /* @__PURE__ */ React.createElement("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M3 3v5h5" }), /* @__PURE__ */ React.createElement("path", { d: "M3.05 13A9 9 0 1 0 6 5.3L3 8" }), /* @__PURE__ */ React.createElement("path", { d: "M12 7v5l4 2" })),
       "History"
-    ), /* @__PURE__ */ React.createElement(Break, null), /* @__PURE__ */ React.createElement(GroupLabel, null, "Publish"), !onPushKit ? null : /* @__PURE__ */ React.createElement(
+    )), /* @__PURE__ */ React.createElement("div", { "data-mo-topbar-group": true, style: { display: "flex", alignItems: "center", gap: 8, marginLeft: 18 } }, /* @__PURE__ */ React.createElement(GroupLabel, null, "Publish"), !onPushKit ? null : /* @__PURE__ */ React.createElement(
       "button",
       {
         onClick: onPushKit,
@@ -1038,7 +1041,7 @@
       },
       /* @__PURE__ */ React.createElement("svg", { width: "12", height: "12", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }), /* @__PURE__ */ React.createElement("polyline", { points: "7 10 12 15 17 10" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "15", x2: "12", y2: "3" })),
       "Export HTML"
-    ));
+    )));
   }
   function HistoryModal({ open, history, onClose, onRestore, onDelete }) {
     if (!open) return null;

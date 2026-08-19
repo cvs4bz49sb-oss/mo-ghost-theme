@@ -990,9 +990,9 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
     <span data-mo-topbar-grouplabel style={{
       fontSize: 9, fontWeight: 700, letterSpacing: '0.16em',
       textTransform: 'uppercase', color: '#9a8773',
-      // Every row's label sits in the same column, so the controls line up
-      // down the bar instead of stepping in and out with the label length.
-      minWidth: 62,
+      // No minWidth: with three groups sharing row 1, a fixed label column
+      // just pads dead space between each label and its own controls.
+      whiteSpace: 'nowrap',
     }}>{children}</span>
   );
   return (
@@ -1008,11 +1008,14 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
       //
       // Wrapping alone stopped the overflow but left the row breaks wherever
       // the viewport happened to put them, so the same bar re-flowed into a
-      // different shape on every window size. The [data-mo-topbar-break]
-      // elements below (flexBasis 100%) pin it to five rows — Template,
-      // Audience, View, Edit, Publish — one concern each, in the order the
-      // work happens. Narrower viewports still wrap *within* a row, which is
-      // what keeps the page from ever scrolling sideways.
+      // different shape on every window size. The single [data-mo-topbar-break]
+      // below (flexBasis 100%) pins it to two: what you are looking at
+      // (Template / Audience / View) above what you do to it (Edit /
+      // Publish). Groups within a row are separated by a divider rather than
+      // by spacing alone, because at an 8px control gap a group boundary is
+      // otherwise indistinguishable from the gap between two buttons.
+      // Narrower viewports still wrap *within* a row, which is what keeps the
+      // page from ever scrolling sideways.
       flexWrap: 'wrap',
       // One spacing value for every sibling control on a row, so a button
       // next to a button is spaced the same as a tab next to a tab. It also
@@ -1036,17 +1039,7 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </div>
       </div>
 
-      {/* Trailing the Template row, pushed right. It used to lead the bar,
-          but anything sitting left of the first label shoves that row's
-          controls out of the column the other four line up in — and giving
-          it a line of its own would have made six rows out of five. */}
-      <div data-mo-topbar-brand style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
-        <img src={(window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS['mere-o-logo.png']) || 'assets/mere-o-logo.png'} alt="" style={{ height: 22 }} />
-      </div>
-
-      <Break />
-
-      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 18 }}>
         <GroupLabel>Audience</GroupLabel>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tab active={version === 'free'} onClick={() => onVersion('free')}>Free Subscriber</Tab>
@@ -1054,9 +1047,7 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </div>
       </div>
 
-      <Break />
-
-      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 18 }}>
         <GroupLabel>View</GroupLabel>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tab active={preview === 'raw'} onClick={() => onPreview('raw')}>Raw Email</Tab>
@@ -1065,191 +1056,199 @@ function TopBar({ version, preview, templateKey, onVersion, onPreview, onEditCon
         </div>
       </div>
 
+      {/* Closes row 1, pushed right. It used to lead the bar, but anything
+          sitting left of the first label shoves that row's controls in, and
+          a line of its own would have made a third row out of two. */}
+      <div data-mo-topbar-brand style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
+        <img src={(window.MO_DIGEST_ASSETS && window.MO_DIGEST_ASSETS['mere-o-logo.png']) || 'assets/mere-o-logo.png'} alt="" style={{ height: 22 }} />
+      </div>
       <Break />
 
       {/* Edit — everything that changes the draft in this browser. History
           belongs here rather than beside Export: restoring a past version is
           an editing move, not an outbound one. */}
-      <GroupLabel>Edit</GroupLabel>
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <GroupLabel>Edit</GroupLabel>
 
-      <button
-        onClick={onEditContent}
-        style={{
-          background: '#ee7d51',
-          color: '#fff',
-          border: '1.5px solid #ee7d51',
-          padding: '5px 11px',
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          borderRadius: 7,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 20h9"/>
-          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-        </svg>
-        Edit Content
-      </button>
+        <button
+          onClick={onEditContent}
+          style={{
+            background: '#ee7d51',
+            color: '#fff',
+            border: '1.5px solid #ee7d51',
+            padding: '5px 11px',
+            fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            borderRadius: 7,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+          Edit Content
+        </button>
 
-      <button
-        onClick={onSave}
-        title="Save your progress to this browser. Use Restore to bring it back if anything changes."
-        style={{
-          background: justSaved ? '#1d9e75' : '#2d2927',
-          color: '#fff',
-          border: justSaved ? '1.5px solid #1d9e75' : '1.5px solid #2d2927',
-          padding: '5px 11px',
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          borderRadius: 7,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-          transition: 'background 0.2s',
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-          <polyline points="17 21 17 13 7 13 7 21"/>
-          <polyline points="7 3 7 8 15 8"/>
-        </svg>
-        {justSaved ? 'Saved ✓' : 'Save'}
-      </button>
+        <button
+          onClick={onSave}
+          title="Save your progress to this browser. Use Restore to bring it back if anything changes."
+          style={{
+            background: justSaved ? '#1d9e75' : '#2d2927',
+            color: '#fff',
+            border: justSaved ? '1.5px solid #1d9e75' : '1.5px solid #2d2927',
+            padding: '5px 11px',
+            fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            borderRadius: 7,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            transition: 'background 0.2s',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          {justSaved ? 'Saved ✓' : 'Save'}
+        </button>
 
-      {savedAt ? (
-        <div data-mo-topbar-saved style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9a8773', whiteSpace: 'nowrap' }}>
-            Saved {new Date(savedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-          </span>
-          <button
-            onClick={onRestore}
-            title="Replace the current draft with your last saved version."
-            style={{
-              background: 'transparent',
-              color: '#2d2927',
-              border: '1.5px solid #d8c4a3',
-              padding: '4px 9px',
-              fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-              fontSize: 9,
-              fontWeight: 700,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              borderRadius: 7,
-            }}
-          >Restore</button>
-        </div>
-      ) : null}
+        {savedAt ? (
+          <div data-mo-topbar-saved style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#9a8773', whiteSpace: 'nowrap' }}>
+              Saved {new Date(savedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+            </span>
+            <button
+              onClick={onRestore}
+              title="Replace the current draft with your last saved version."
+              style={{
+                background: 'transparent',
+                color: '#2d2927',
+                border: '1.5px solid #d8c4a3',
+                padding: '4px 9px',
+                fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                borderRadius: 7,
+              }}
+            >Restore</button>
+          </div>
+        ) : null}
 
-      <button
-        onClick={onHistory}
-        title="Browse past saved versions and reuse one as a starting point."
-        style={{
-          background: 'transparent',
-          color: '#2d2927',
-          border: '1.5px solid #2d2927',
-          padding: '5px 11px',
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          borderRadius: 7,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 3v5h5"/>
-          <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
-          <path d="M12 7v5l4 2"/>
-        </svg>
-        History
-      </button>
+        <button
+          onClick={onHistory}
+          title="Browse past saved versions and reuse one as a starting point."
+          style={{
+            background: 'transparent',
+            color: '#2d2927',
+            border: '1.5px solid #2d2927',
+            padding: '5px 11px',
+            fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            borderRadius: 7,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3v5h5"/>
+            <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+            <path d="M12 7v5l4 2"/>
+          </svg>
+          History
+        </button>
 
-      <Break />
-
+      </div>
       {/* Publish — the two ways an email leaves this tool. "Push", not
           "Send": it opens a panel, it does not put an email in anyone's
           inbox, and that distinction matters at 20k subscribers. Hidden
           entirely if kit-push.js failed to load, so the button is never a
           no-op. */}
-      <GroupLabel>Publish</GroupLabel>
+      <div data-mo-topbar-group style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 18 }}>
+        <GroupLabel>Publish</GroupLabel>
 
-      {!onPushKit ? null : (
-      <button
-        onClick={onPushKit}
-        title="Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now."
-        style={{
-          background: '#c1593c',
-          color: '#fff',
-          border: '1.5px solid #c1593c',
-          padding: '5px 11px',
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          borderRadius: 7,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"/>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-        Push to Kit&hellip;
-      </button>
-      )}
+        {!onPushKit ? null : (
+        <button
+          onClick={onPushKit}
+          title="Opens the Kit panel. Sets the broadcast up in Kit; does not send anything now."
+          style={{
+            background: '#c1593c',
+            color: '#fff',
+            border: '1.5px solid #c1593c',
+            padding: '5px 11px',
+            fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            borderRadius: 7,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          Push to Kit&hellip;
+        </button>
+        )}
 
-      {/* Export stays as the escape hatch — hand the HTML to another ESP,
-          or upload it to Kit as a layout template. Day-to-day Push to Kit
-          is the one you want, so Export keeps the tan outline the tool uses
-          for tertiary actions (cf. Restore). */}
-      <button
-        onClick={onExport}
-        title="Download or copy the flat HTML. Use Push to Kit for a normal send."
-        style={{
-          background: 'transparent',
-          color: '#2d2927',
-          border: '1.5px solid #d8c4a3',
-          padding: '5px 11px',
-          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          borderRadius: 7,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Export HTML
-      </button>
+        {/* Export stays as the escape hatch — hand the HTML to another ESP,
+            or upload it to Kit as a layout template. Day-to-day Push to Kit
+            is the one you want, so Export keeps the tan outline the tool uses
+            for tertiary actions (cf. Restore). */}
+        <button
+          onClick={onExport}
+          title="Download or copy the flat HTML. Use Push to Kit for a normal send."
+          style={{
+            background: 'transparent',
+            color: '#2d2927',
+            border: '1.5px solid #d8c4a3',
+            padding: '5px 11px',
+            fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            borderRadius: 7,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export HTML
+        </button>
 
+      </div>
     </div>
   );
 }
