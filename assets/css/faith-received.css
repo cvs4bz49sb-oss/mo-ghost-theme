@@ -4724,3 +4724,13 @@ mark.faith-find-hit.is-current {
 .lp-shelf p { font-size: 12px; }
 @media (max-width: 1100px) { .lp-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .lp-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ── The results band holds nothing until it holds results ─────────
+   The search page's body band keeps its 92px of padding whether or not
+   a search has run, which read as a blank stripe between the hero and
+   the section below it. When the results list is empty and the
+   no-results message is hidden, there is nothing to show, so the band
+   takes no room. It comes back the moment the list has children. */
+.faith-feature-body:has([data-faith-search-results]:empty):has([data-faith-search-empty][hidden]) {
+  display: none;
+}
