@@ -71,6 +71,18 @@
   // first half of a catalogue we still fetch for its second.
   const AUGUSTINE_FROM = 151;
 
+  // An image URL out of a catalogue we do not own is trusted only to
+  // address the host that catalogue is served from. Same rule the rest
+  // of the theme applies to worker-returned media URLs: check the
+  // origin, not just the scheme.
+  function sameOrigin(url, base) {
+    try {
+      return new URL(url).origin === new URL(base).origin;
+    } catch (_) {
+      return false;
+    }
+  }
+
   function pickAugustine(d) {
     const out = [];
     (Array.isArray(d) ? d : []).forEach((group) => {
@@ -105,6 +117,15 @@
       lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
       reader: "shards",
       readable: true,
+      // The source folded its sister collections into this catalogue on
+      // 2026-08-16: Patrologia Latina, Graeca, Orientalis and Early
+      // English Books now appear here as 17,064 pointer rows (pld-1,
+      // pg-1, po-1, eebo-113) that carry a title and no text. Their
+      // pages live on the four hosts each already has its own entry
+      // for, so listing them here would duplicate four whole shelves,
+      // inflate this collection's count from 1,550 to 18,614, and hand
+      // the reader rows whose meta.json is a 404.
+      exclude: (w) => /^(pld|pg|po|eebo)-\d+$/.test(w.slug || ""),
       tradition: (w) => w.tradition || "",
       normalize: (w) => ({
         corpus: "tfr",
@@ -113,6 +134,11 @@
         author: (w.author || "").trim(),
         eyebrow: w.tradition || "",
         extent: w.n_pages || 0,
+        // The work's own title page, where the source has scanned one.
+        // 738 of these works ship page images; the rest are born-digital
+        // or transcribed, and get the plain card they have always had.
+        cover: w.img_base && w.title_page && sameOrigin(w.img_base, BLOB)
+          ? `${w.img_base}${w.title_page}.webp` : "",
         url: `/the-faith-received/reader/?w=${encodeURIComponent(w.slug)}`,
       }),
     },
@@ -645,6 +671,10 @@
       subset,
     ])
       .then(([d, byAuthor, keep]) => c.pick(d)
+        // A corpus may disown rows in its own catalogue — see `exclude`
+        // on the Latin Library, where the source now lists collections
+        // this theme already carries separately.
+        .filter((raw) => !c.exclude || !c.exclude(raw))
         .map((raw) => {
           const w = c.normalize(raw);
           // Tradition comes from the work where the catalogue carries

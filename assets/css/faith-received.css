@@ -266,6 +266,11 @@
   gap: 0;
   max-width: 1180px;
   margin: 0 auto;
+  /* Cards size to their own content. Stretching them to the tallest in
+     the row was invisible while every card was type; once one of them
+     carries a title-page scan it leaves its neighbours as tall empty
+     boxes with a full-height rule down the side. */
+  align-items: start;
 }
 .faith-card {
   display: block;
@@ -286,6 +291,12 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 260px;
 }
+/* 260px is the estimate for a card of pure type. A card carrying a
+   title-page scan runs about twice that, and an estimate that far out
+   makes the page jump under the reader as each one scrolls into view
+   and gets measured. Scoped with :has() so the majority keep the
+   tighter guess; browsers without :has() behave exactly as before. */
+.faith-card:has(.faith-card-cover) { contain-intrinsic-size: auto 500px; }
 /* Strip the left border on the leftmost column and the top border
    on the first row (3 columns means first 3 cards get no top). */
 .faith-card:nth-child(3n+1) { border-left: 0; }
@@ -349,6 +360,99 @@
   gap: 8px;
 }
 .faith-card-arrow { display: inline-block; transition: transform 0.15s; }
+
+/* ── Title-page covers ────────────────────────────────────────────
+   Only the Latin Library carries scans, and only for the 738 works
+   the source photographed, so a cover has to sit in a card that is
+   otherwise all type and hairlines. Ruled like everything else, not a
+   shadowed thumbnail: it reads as a leaf laid on the shelf. Cropped
+   from the top, which is where a 17th-century title page puts its
+   title. */
+.faith-card-cover {
+  display: block;
+  margin: 0 0 18px;
+  /* A fixed matte rather than a ratio box. Only 738 of the Latin
+     Library's 1,550 works were scanned, so a plated card and a plain
+     one share every row, and the leaves themselves are photographed at
+     every ratio a 17th-century folio comes in. One height for all of
+     them keeps the plated cards level with each other, and holds a
+     card carrying a scan to roughly twice a plain card rather than
+     three times it. Ratio-plus-max-height was tried first and is
+     wrong: the box keeps its ratio by narrowing instead, so each
+     cover came out a different width. */
+  height: 220px;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-cream);
+  overflow: hidden;
+}
+.faith-card-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Contain, not cover: a title page is the one page of a book where
+     cropping loses the thing you came for. Matted on cream, the way a
+     plate is mounted. */
+  object-fit: contain;
+  object-position: center;
+}
+
+/* ── Continue reading ─────────────────────────────────────────────
+   Above the collections, and only when there is something to
+   continue. Deliberately quieter than a card: three ruled lines, no
+   covers, no arrows. It is a bookmark, not a shelf. */
+.faith-continue {
+  max-width: 1180px;
+  margin: 0 auto 44px;
+}
+.faith-continue .eyebrow { margin-bottom: 12px; }
+.faith-continue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+}
+.faith-continue-item { min-width: 0; }
+.faith-continue-link {
+  display: block;
+  padding: 14px 24px 14px 0;
+  border-top: 1px solid var(--color-card-border);
+  text-decoration: none;
+  color: inherit;
+}
+.faith-continue-link:hover { text-decoration: none; }
+.faith-continue-link:hover .faith-continue-title { color: var(--color-secondary); }
+.faith-continue-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  transition: color 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.faith-continue-title em { font-style: italic; }
+.faith-continue-author {
+  display: block;
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 960px) {
+  .faith-continue-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .faith-continue { margin-bottom: 32px; }
+  .faith-continue-list { grid-template-columns: 1fr; }
+  .faith-continue-link { padding-right: 0; }
+}
 
 @media (max-width: 960px) {
   .faith-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -24,6 +24,21 @@
   const BASE = ((baseMeta && baseMeta.getAttribute("content")) || "").replace(/\/+$/, "");
   const LANG_KEY = "fr_lang_pref";
   const LASTREAD_KEY = "fr_lastread";
+  const RECENT_KEY = "fr_recent";
+  const RECENT_MAX = 6;
+
+  // A URL from the catalogue is only trusted to address the host the
+  // catalogue itself is served from — the same rule the worker-returned
+  // media URLs follow elsewhere in the theme. BASE comes from a meta tag
+  // the template renders, so it cannot be moved by anything on the page.
+  function sameHostAsBase(url) {
+    try {
+      const u = new URL(url, BASE);
+      return u.protocol === "https:" && u.origin === new URL(BASE).origin;
+    } catch (_) {
+      return false;
+    }
+  }
 
   // ── DOM refs ──────────────────────────────────────────────────
   const titleEl = document.querySelector("[data-fr-title]");
@@ -163,6 +178,20 @@
         renderContent(m);
         hideLoading();
         saveLastRead();
+        // The printed leaf beside the transcription, for the works the
+        // source scanned. These are early modern folios read in English
+        // translation, so the Latin column answers "is this rendered
+        // faithfully" and the scan answers "is this what the page says".
+        // img_base is a URL out of a catalogue we do not own. It is only
+        // ever meant to point back at the host this work came from, so
+        // check that it does rather than letting a poisoned record aim
+        // the pane at someone else's server.
+        if (m.img_base && sameHostAsBase(m.img_base)) {
+          initFacsimile(null, {
+            imgBase: String(m.img_base).replace(/\/*$/, "/"),
+            titlePage: m.title_page || 0,
+          });
+        }
         openInitialSection();
         initModernizer();
       })
@@ -760,17 +789,25 @@
   //   strip  one tall image per work, cut into segments, with each
   //          block carrying its fractional position down the whole
   //          strip (data-fy). Patrologia Orientalis.
+  //   pages  one image per numbered page, addressed by the page number
+  //          the block already carries (data-page) against the work's
+  //          own img_base. The Latin Library: 738 works, 525,831 leaves.
   //
   // Either way the pane follows the text: whichever block is nearest
   // the top of the reading column is the page it shows.
 
   let facs = null;
 
-  function initFacsimile(strip) {
-    const hasPage = !!contentEl.querySelector("[data-scan]");
-    const hasStrip = Array.isArray(strip) && strip.length &&
+  function initFacsimile(strip, opts) {
+    // The Latin Library hydrates its pages lazily, so at init there is
+    // nothing in the column to detect. meta.json is the authority for
+    // that corpus: if it names an image base, the scans exist.
+    const imgBase = (opts && opts.imgBase) || "";
+    const firstPage = (opts && opts.titlePage) || 0;
+    const hasPage = !imgBase && !!contentEl.querySelector("[data-scan]");
+    const hasStrip = !imgBase && Array.isArray(strip) && strip.length &&
       !!contentEl.querySelector("[data-fy]");
-    if (!hasPage && !hasStrip) return;
+    if (!imgBase && !hasPage && !hasStrip) return;
 
     const controls = document.querySelector("[data-faith-controls]");
     if (!controls) return;
@@ -798,9 +835,18 @@
     const stage = panel.querySelector("[data-facs-stage]");
     const citeEl = panel.querySelector("[data-facs-cite]");
 
-    facs = { panel, stage, citeEl, mode: hasPage ? "page" : "strip", strip, shown: "" };
+    facs = {
+      panel,
+      stage,
+      citeEl,
+      mode: imgBase ? "pages" : (hasPage ? "page" : "strip"),
+      strip,
+      shown: "",
+      imgBase,
+      firstPage,
+    };
 
-    if (facs.mode === "page") {
+    if (facs.mode === "page" || facs.mode === "pages") {
       const img = document.createElement("img");
       img.className = "faith-facs-img";
       img.alt = "Page scan";
@@ -855,9 +901,16 @@
     facs.sync = sync;
 
     function sync(force) {
-      const sel = facs.mode === "page" ? "[data-scan]" : "[data-fy]";
+      const sel = facs.mode === "pages"
+        ? "[data-page]"
+        : (facs.mode === "page" ? "[data-scan]" : "[data-fy]");
       const blocks = contentEl.querySelectorAll(sel);
-      if (!blocks.length) return;
+      if (!blocks.length) {
+        // Opened before any section was expanded. Show the work's own
+        // title page rather than an empty pane.
+        if (facs.mode === "pages" && facs.firstPage) showPage(facs.firstPage, force);
+        return;
+      }
       // The block nearest the top of the viewport that is still on
       // screen — the one the reader is actually looking at.
       let best = null;
@@ -874,8 +927,22 @@
       showFor(best, force);
     }
 
+    // Page images are named by number under the work's image base.
+    function showPage(n, force) {
+      const key = String(n);
+      if (!key || (key === facs.shown && !force)) return;
+      facs.shown = key;
+      facs.img.src = `${facs.imgBase}${encodeURIComponent(key)}.webp`;
+      citeEl.textContent = `p. ${key}`;
+    }
+
     function showFor(block, force) {
       const cite = block.getAttribute("data-cite") || "";
+      if (facs.mode === "pages") {
+        const n = block.getAttribute("data-page");
+        if (n) showPage(n, force);
+        return;
+      }
       if (facs.mode === "page") {
         const url = block.getAttribute("data-scan");
         if (!url || (url === facs.shown && !force)) return;
@@ -1483,6 +1550,13 @@
         // English has to catch up, or the work reads half-modernized.
         if (modernOn) modernizeWithin(details);
         else initModernizer();
+        // <details> fires `toggle` the instant it opens, which is before
+        // this fetch resolved and put any [data-page] block in the DOM.
+        // Without this the open pane keeps showing the previous page
+        // until the reader happens to scroll.
+        if (facs && facs.mode === "pages" && facs.panel && !facs.panel.hidden) {
+          facs.sync(false);
+        }
       })
       .catch((err) => {
         details.dataset.frState = "";
@@ -1741,6 +1815,35 @@
         page: 1,
         ts: Date.now(),
       }));
+    } catch (_) {}
+    pushRecent();
+  }
+
+  // One work is what you were last reading; a shelf is what you are
+  // reading. The Library's "Continue reading" row is built from this
+  // (faith-library-browse.js) — a reader who moves between Calvin and
+  // Charnock across a week should find both waiting, not just whichever
+  // was opened most recently.
+  function pushRecent() {
+    if (!meta || !slug) return;
+    try {
+      const c = corpusId && corpusId !== "tfr" ? `&c=${encodeURIComponent(corpusId)}` : "";
+      const url = `/the-faith-received/reader/?w=${encodeURIComponent(slug)}${c}`;
+      let list = [];
+      try {
+        list = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+      } catch (_) {}
+      if (!Array.isArray(list)) list = [];
+      list = list.filter((r) => r && (r.slug !== slug || r.corpus !== corpusId));
+      list.unshift({
+        slug,
+        corpus: corpusId,
+        title: meta.title || slug,
+        author: meta.author || "",
+        url,
+        ts: Date.now(),
+      });
+      localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_MAX)));
     } catch (_) {}
   }
 

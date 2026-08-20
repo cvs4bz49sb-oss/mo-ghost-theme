@@ -5,11 +5,16 @@
  *
  *   Collection  ->  Author  ->  Works
  *
- * The reading room spans 37,223 works across eight collections and
- * roughly 10,000 authors, so a flat shelf is not an option — EEBO
+ * The reading room spans roughly 20,000 works across eight collections
+ * and some 10,000 authors, so a flat shelf is not an option — EEBO
  * alone has 5,725 authors. Collection first keeps the top level to
  * nine cards; the author level is filterable; the work level is one
  * author's shelf.
+ *
+ * (It read 37,223 until the Latin Library stopped listing the four
+ * collections its source folded into itself — see `exclude` in
+ * faith-corpora.js. Those works are still here; they are counted once
+ * now, on the shelf that actually holds their text.)
  *
  * State lives in the URL (?collection=, ?author=) so the back button
  * works and any level is a shareable link.
@@ -182,9 +187,16 @@
     const desc = w.native
       ? escapeHtml(w.description || "")
       : (w.extent ? `${w.extent.toLocaleString()} pp.` : "");
+    // The title page as the cover. Decorative: the title it shows is
+    // the next line of the card, so an alt would only repeat it. Lazy
+    // because a shelf can run to a few dozen scans at ~150 KB each.
+    const cover = w.cover
+      ? `<span class="faith-card-cover"><img src="${escapeHtml(w.cover)}" alt="" ` +
+        `loading="lazy" decoding="async"></span>`
+      : "";
     const inner =
-      `${w.eyebrow ? `<p class="faith-card-date">${escapeHtml(w.eyebrow)}</p>` : "" 
-      }<h3 class="faith-card-title"><em>${escapeHtml(w.title)}</em></h3>${ 
+      `${cover}${w.eyebrow ? `<p class="faith-card-date">${escapeHtml(w.eyebrow)}</p>` : ""
+      }<h3 class="faith-card-title"><em>${escapeHtml(w.title)}</em></h3>${
       w.titleLatin && w.titleLatin !== w.title
         ? `<p class="faith-card-author"><em>${escapeHtml(w.titleLatin)}</em></p>` : "" 
       }${desc ? `<p class="faith-card-desc">${desc}</p>` : ""}`;
@@ -210,6 +222,52 @@
       .map((id) => collections.get(id))
       .filter(Boolean);
     appendCards(grid, ordered, buildCollectionCard);
+    renderContinueShelf(grid);
+  }
+
+  // ── Continue reading ──────────────────────────────────────────
+  //
+  // The reader has always recorded what was opened; nothing ever read
+  // it back, so a reader who left off mid-work had to walk collection
+  // -> author -> work again to return to it. This is the shelf that
+  // remembers, above the collections and only once there is something
+  // to remember.
+  //
+  // Local to the device. Nothing here is sent anywhere, and no account
+  // is involved, which is also why the shelf is silent when empty
+  // rather than inviting a sign-in that does not exist.
+
+  const RECENT_KEY = "fr_recent";
+
+  function readRecent() {
+    let raw = null;
+    try {
+      raw = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+    } catch (_) {
+      return [];
+    }
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .filter((r) => r && typeof r.url === "string" && r.title)
+      // Only ever a reader link. localStorage is writable by anything
+      // that runs on this origin, and this value becomes an href.
+      .filter((r) => r.url.indexOf("/the-faith-received/reader/?") === 0)
+      .slice(0, 6);
+  }
+
+  function renderContinueShelf(grid) {
+    const items = readRecent();
+    if (!items.length) return;
+    const html =
+      `<div class="faith-continue" data-faith-browse-chrome>` +
+      `<p class="eyebrow">Continue reading</p>` +
+      `<ul class="faith-continue-list">${items.map((r) =>
+        `<li class="faith-continue-item">` +
+        `<a class="faith-continue-link" href="${escapeHtml(r.url)}">` +
+        `<span class="faith-continue-title"><em>${escapeHtml(r.title)}</em></span>${
+        r.author ? `<span class="faith-continue-author">${escapeHtml(r.author)}</span>` : ""
+        }</a></li>`).join("")}</ul></div>`;
+    grid.insertAdjacentHTML("beforebegin", html);
   }
 
   // Nothing renders a whole level at once. Opening Early English Books
