@@ -30,12 +30,6 @@
   const collectionId = ((meta && meta.getAttribute("content")) ||
     params.get("collection") || "tfr").replace(/[^a-z0-9_-]/gi, "");
 
-  // A tradition narrows the room to one shelf within the collection.
-  // The Divinity Library holds seven, from English Divines to the Greek
-  // Fathers, and 2,290 works in one list is not a table of contents.
-  const tmeta = document.querySelector('meta[name="tfr-room-tradition"]');
-  const tradition = (tmeta && tmeta.getAttribute("content")) || params.get("tradition") || "";
-
   let works = [];
   let filter = params.get("q") || "";
   let letter = params.get("letter") || "";
@@ -44,10 +38,7 @@
   const corpus = window.MOCorpora.get(collectionId);
   root.innerHTML = '<p class="faith-room-status">Loading the collection&hellip;</p>';
 
-  window.MOCorpora.load(collectionId).then((all) => {
-    const list = tradition
-      ? all.filter((w) => (w.tradition || w.eyebrow || "") === tradition)
-      : all;
+  window.MOCorpora.load(collectionId).then((list) => {
     // Sort by the name the reader is scanning for, then by title so a
     // multi-volume set reads in order rather than in catalogue order.
     works = list.slice().sort((a, b) => {
@@ -148,7 +139,7 @@
     const letters = [...new Set(filtered.map((w) => initial(w.author)))]
       .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
 
-    const label = tradition || (corpus ? corpus.label : "the collection");
+    const label = corpus ? corpus.label : "the collection";
     const rail = letters.length > 1
       ? `<nav class="faith-room-letters" aria-label="Jump to a letter"><button type="button" data-room-letter="" class="${letter ? "" : "is-active"}">All</button>${
           letters.map((l) => `<button type="button" data-room-letter="${l}" class="${letter === l ? "is-active" : ""}">${l}</button>`).join("")}</nav>`

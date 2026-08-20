@@ -294,8 +294,6 @@ routes:
     template: custom-faith-room-augustine
   /the-faith-received/confessions/:
     template: custom-faith-room-confessions
-  /the-faith-received/english-editions/:
-    template: custom-faith-room-english-editions
   /the-faith-received/room/:
     template: custom-faith-room
   # Feature pages
