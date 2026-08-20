@@ -220,7 +220,7 @@
   position: relative;
   transition: color 0.15s;
 }
-.faith-tradition-tab em { font-style: italic; }
+.faith-tradition-tab em { font-style: normal; }
 .faith-tradition-tab:hover { color: var(--color-dark); }
 .faith-tradition-tab.is-active { color: var(--color-primary); }
 .faith-tradition-tab.is-active::after {
@@ -663,7 +663,7 @@
   margin: 0 0 20px;
   max-width: 26ch;
 }
-.faith-today-q em { font-style: italic; }
+.faith-today-q em { font-style: normal; }
 .faith-today-a p {
   font-family: var(--font-body);
   font-size: 18px;
@@ -1414,7 +1414,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-white);
   margin: 16px 0 24px;
 }
-.faith-coda-heading em { font-style: italic; }
+.faith-coda-heading em { font-style: normal; }
 .faith-coda-body {
   font-size: 18px;
   line-height: 1.7;
@@ -1844,7 +1844,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-dark);
   margin: 0 0 18px;
 }
-.faith-qa-question em { font-style: italic; }
+.faith-qa-question em { font-style: normal; }
 .faith-qa-answer { margin: 8px 0 0; }
 .faith-qa-answer p { font-size: 17px; line-height: 1.75; }
 .faith-qa-references {
@@ -2923,7 +2923,7 @@ mark.faith-find-hit.is-current {
   margin: 0 0 8px;
   color: var(--color-dark);
 }
-.faith-memorize-question em { font-style: italic; }
+.faith-memorize-question em { font-style: normal; }
 
 .faith-memorize-answer {
   margin: 24px 0 8px;
@@ -3667,7 +3667,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-dark);
   margin: 0;
 }
-.faith-memorize-card-question em { font-style: italic; }
+.faith-memorize-card-question em { font-style: normal; }
 .faith-memorize-answer {
   border-top: 1px solid var(--color-rule);
   padding-top: 20px;
@@ -3819,7 +3819,7 @@ mark.faith-find-hit.is-current {
   position: relative;
   transition: color 0.15s;
 }
-.faith-view-toggle-tab em { font-style: italic; }
+.faith-view-toggle-tab em { font-style: normal; }
 .faith-view-toggle-tab:hover { color: var(--color-dark); }
 .faith-view-toggle-tab.is-active {
   color: var(--color-primary);
@@ -4185,7 +4185,7 @@ mark.faith-find-hit.is-current {
   max-width: 22ch;
   color: #fff;
 }
-.lp-hero h1 em { font-style: italic; }
+.lp-hero h1 em { font-style: normal; }
 @media (max-width: 700px) { .lp-hero h1 br { display: none; } }
 .lp-hero-sub {
   font-family: var(--font-body);
@@ -4228,7 +4228,7 @@ mark.faith-find-hit.is-current {
   line-height: 1.12;
   margin: 0 0 18px;
 }
-.lp-head em { font-style: italic; }
+.lp-head em { font-style: normal; }
 .lp-body {
   font-family: var(--font-body);
   font-size: 17px;
@@ -4525,3 +4525,48 @@ mark.faith-find-hit.is-current {
   .lp-band { padding: 56px 0; }
 }
 @media (max-width: 900px) { .lp-plates { grid-template-columns: 1fr; } }
+
+/* Scripture, Topics and Search wear the browse page's hero so the three
+   tools read as one set: the same plate, held shorter, with room for the
+   sentence that says what the tool does. */
+.bhero--tool { min-height: 0; padding: 92px 0 84px; align-items: center; }
+.bhero--tool h1 { max-width: 24ch; }
+.bhero-sub {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.55;
+  color: #ffffffd6;
+  margin: 0;
+  max-width: 60ch;
+}
+@media (max-width: 640px) { .bhero--tool { padding: 56px 0 52px; } }
+
+/* ══ Type scale ═══════════════════════════════════════════════════
+   Standardised 2026-08-20. Components had been choosing their own
+   sizes, so a reader's section title ran to 40px beside a 15px
+   contents list. Six steps, and everything in The Faith Received sits
+   on one of them.
+
+     display-l  page headline            clamp(32, 4vw, 52)
+     display-m  band heading             clamp(26, 3vw, 38)
+     display-s  section + work title     clamp(22, 2.4vw, 28)
+     body       reading and prose        17
+     meta       captions, list seconds   14
+     micro      labels and eyebrows      11  */
+:root {
+  --tfr-display-l: clamp(32px, 4vw, 52px);
+  --tfr-display-m: clamp(26px, 3vw, 38px);
+  --tfr-display-s: clamp(22px, 2.4vw, 28px);
+  --tfr-body: 17px;
+  --tfr-meta: 14px;
+  --tfr-micro: 11px;
+}
+.faith-section-title { font-size: var(--tfr-display-s); }
+.faith-book-title { font-size: var(--tfr-display-m); }
+.faith-doc-title { font-size: var(--tfr-display-l); }
+.bhero h1, .lp-hero h1 { font-size: var(--tfr-display-l); }
+.bhead h2, .lp-head { font-size: var(--tfr-display-m); }
+.lp-door h3, .btrad h3, .faith-card-title, .brow-t { font-size: var(--tfr-display-s); }
+.faith-toc-link, .faith-toc-label { font-size: var(--tfr-meta); }
+.faith-toc-num, .blabel, .lp-num, .brow-m, .faith-card-era { font-size: var(--tfr-micro); }
+.lp-body, .bhero-sub, .br-blurb, .lp-hero-sub { font-size: var(--tfr-body); }

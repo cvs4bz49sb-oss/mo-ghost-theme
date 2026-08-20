@@ -201,7 +201,7 @@ function header(doc, hasToc) {
       </div>
     </div>
   </section>
-  {{> "faith-received/_nav"}}`;
+`;
 }
 
 // ── Editorial introduction (collapsed by default behind "Read introduction") ──
@@ -1137,7 +1137,7 @@ function renderMemorize(doc, entries) {
       </div>
     </section>
 
-    {{> "faith-received/_nav"}}
+
 
     <section class="faith-feature-body faith-memorize-body">
       <div class="container container-narrow">
@@ -1488,7 +1488,7 @@ for (const m of MEMORIZE_TARGETS) {
         <p class="faith-doc-description">${m.count} questions and answers, one card at a time. Press <kbd>Space</kbd> to reveal, <kbd>M</kbd> to mark memorized, <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> to navigate.</p>
       </div>
     </section>
-    {{> "faith-received/_nav"}}
+
     <section class="faith-feature-body faith-memorize-body">
       <div class="container container-narrow">
         <div class="faith-memorize-progress">
@@ -1675,7 +1675,7 @@ if (topicsBundle) {
       headline: "<em>Topics</em>",
       sub: "From God and the Trinity to salvation, the Church, and the life to come. Trace each doctrine across two millennia of Christian writing.",
     })}
-    {{> "faith-received/_nav"}}
+
     <section class="faith-feature-body">
       <div class="container">
         {{> "faith-received/_topics-body"}}
@@ -1913,7 +1913,7 @@ if (topicsBundle) {
         <p class="faith-doc-description">${escape(smarten(meta.description))}</p>
       </div>
     </section>
-    {{> "faith-received/_nav"}}
+
     <div class="article-body faith-doc-body">
       <div class="container faith-doc-inner">
         ${filterBar}

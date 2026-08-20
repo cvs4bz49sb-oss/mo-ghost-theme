@@ -14,37 +14,16 @@
 
 <main class="faith-received faith-feature">
 
-  <section class="hero faith-feature-hero">
-    <div class="container">
-      <p class="hero-kicker"><span class="dot"></span> The Faith Received &middot; Search</p>
-      <h1 class="hero-headline faith-hero-headline">
-        <em>Search</em>
-      </h1>
-      <p class="hero-sub">Search across every creed, confession, catechism, and library work in the reading room. Results link directly to the passage.</p>
-
-      <form class="faith-search-form" data-faith-search novalidate>
-        <label class="visually-hidden" for="faith-search-input">Search The Faith Received</label>
-        <input
-          type="search"
-          id="faith-search-input"
-          name="q"
-          autocomplete="off"
-          autocapitalize="off"
-          autocorrect="off"
-          spellcheck="false"
-          placeholder="Try &ldquo;justification&rdquo; or &ldquo;Lord's Supper&rdquo; or &ldquo;Augustine&rdquo;"
-          data-faith-search-input
-        />
-        <button type="submit" class="btn btn-primary" aria-label="Search">
-          <span class="btn-label">Search</span>
-        </button>
-      </form>
-    </div>
-  </section>
+  <section class="bhero bhero--tool">
+  <div class="bhero-inner container">
+    <p class="bhero-kicker">The Faith Received &middot; Search</p>
+    <h1>Search</h1>
+    <p class="bhero-sub">Search across every creed, confession, catechism, and library work in the reading room. Results link directly to the passage.</p>
+  </div>
+</section>
 
 
-  {{> "faith-received/_nav"}}
-  <section class="faith-feature-body">
+  <section class="bband faith-feature-body">
     <div class="container container-narrow" data-faith-search-page>
       <p class="faith-search-status" data-faith-search-status role="status" aria-live="polite">Type a word or phrase to search the library.</p>
       <ol class="faith-search-results" data-faith-search-results></ol>

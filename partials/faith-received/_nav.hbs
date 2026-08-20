@@ -1,24 +1,4 @@
-{{!-- The Faith Received section nav. Persists on every TFR page so
-     readers can move between Documents / Library / Traditions /
-     Topics / Scripture / Today / Devotional / Search without
-     bouncing back to the home page. The first seven are tab targets
-     on the home page; clicking from inside a document or feature
-     page navigates to /the-faith-received/#<tab> and the home tab
-     state activates from the hash. Search is its own routed page —
-     the search input is heavy enough to keep on a dedicated URL. --}}
-<nav class="faith-section-nav" aria-label="The Faith Received">
-  <div class="container faith-section-nav-inner" data-faith-section-nav-inner>
-    <a href="/the-faith-received/" class="faith-section-nav-brand"><em>The Faith Received</em> <span class="faith-beta">Beta</span></a>
-    <a href="/the-faith-received/" class="faith-section-nav-link" data-faith-tab-target="start">Start here</a>
-    {{!-- "Documents" and "Library" told a newcomer nothing. These say
-         what is actually behind them. --}}
-    <a href="/the-faith-received/browse/" class="faith-section-nav-link" data-faith-tab-target="documents">Creeds &amp; Catechisms</a>
-    <a href="/the-faith-received/browse/" class="faith-section-nav-link" data-faith-tab-target="library">The Library</a>
-    <a href="/the-faith-received/browse/#by-tradition" class="faith-section-nav-link" data-faith-tab-target="traditions">Traditions</a>
-    <a href="/the-faith-received/topics/" class="faith-section-nav-link" data-faith-tab-target="topics">Topics</a>
-    <a href="/the-faith-received/scripture/" class="faith-section-nav-link" data-faith-tab-target="scripture">Scripture</a>
-    <a href="/the-faith-received/today/" class="faith-section-nav-link" data-faith-tab-target="today">Today</a>
-    <a href="/the-faith-received/devotional/" class="faith-section-nav-link" data-faith-tab-target="devotional">Devotional</a>
-    <a href="/the-faith-received/search/" class="faith-section-nav-link">Search</a>
-  </div>
-</nav>
+{{!-- Retired 2026-08-20. The section rail duplicated navigation that
+     now lives on the landing page and at /the-faith-received/browse/,
+     and it pointed at tab anchors that no longer exist. Kept as an
+     empty partial so any include left anywhere renders nothing. --}}
