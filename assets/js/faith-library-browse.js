@@ -170,15 +170,33 @@
       `<span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
   }
 
+  // How many of an author's works the card names before it stops
+  // counting them and starts counting. Five fits the card without
+  // changing its proportions; the shelf behind it holds the rest, and
+  // one author ("Anonymous", in Early English Books) holds 9,122.
+  const CARD_WORKS = 5;
+
   function buildAuthorCard(collectionId, name, works) {
     const n = works.length;
     const pages = works.reduce((a, w) => a + (w.extent || 0), 0);
     const withEyebrow = works.find((w) => w.eyebrow);
-    return `<a class="faith-card" href="?collection=${encodeURIComponent(collectionId)}&author=${encodeURIComponent(name)}" data-faith-author="${escapeHtml(name)}">${ 
-      withEyebrow ? `<p class="faith-card-date">${escapeHtml(withEyebrow.eyebrow)}</p>` : "" 
+    // What the author actually wrote, on the card. A name and a count
+    // asked the reader to click to find out whether this was the
+    // Augustine they wanted.
+    const shown = works.slice(0, CARD_WORKS);
+    const rest = n - shown.length;
+    const list =
+      `<ul class="faith-card-works">${shown.map((w) =>
+        `<li class="faith-card-work">${escapeHtml(w.title)}</li>`).join("")}${
+        rest > 0
+          ? `<li class="faith-card-work faith-card-work--more">and ${rest.toLocaleString()} more</li>`
+          : ""
+      }</ul>`;
+    return `<a class="faith-card" href="?collection=${encodeURIComponent(collectionId)}&author=${encodeURIComponent(name)}" data-faith-author="${escapeHtml(name)}">${
+      withEyebrow ? `<p class="faith-card-date">${escapeHtml(withEyebrow.eyebrow)}</p>` : ""
       }<h3 class="faith-card-title"><em>${escapeHtml(name)}</em></h3>` +
       `<p class="faith-card-desc">${n.toLocaleString()} work${n === 1 ? "" : "s"}` +
-      `${pages ? ` &middot; ${pages.toLocaleString()} pp.` : ""}</p>` +
+      `${pages ? ` &middot; ${pages.toLocaleString()} pp.` : ""}</p>${list}` +
       `<span class="faith-card-link">Works <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
   }
 

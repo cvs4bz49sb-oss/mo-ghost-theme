@@ -297,6 +297,9 @@
    and gets measured. Scoped with :has() so the majority keep the
    tighter guess; browsers without :has() behave exactly as before. */
 .faith-card:has(.faith-card-cover) { contain-intrinsic-size: auto 500px; }
+/* An author card naming five works runs taller than the 260px estimate
+   for the same reason. */
+.faith-card:has(.faith-card-works) { contain-intrinsic-size: auto 380px; }
 /* Strip the left border on the leftmost column and the top border
    on the first row (3 columns means first 3 cards get no top). */
 .faith-card:nth-child(3n+1) { border-left: 0; }
@@ -332,14 +335,14 @@
   color: var(--color-dark);
   transition: color 0.15s;
 }
-.faith-card-title em { font-style: italic; }
+.faith-card-title em { font-style: normal; }
 .faith-card-author {
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-muted);
   margin: 0 0 12px;
 }
-.faith-card-author em { font-style: italic; }
+.faith-card-author em { font-style: normal; }
 .faith-card-desc {
   font-family: var(--font-body);
   font-size: 15px;
@@ -348,6 +351,31 @@
   margin: 0 0 18px;
   max-width: 480px;
 }
+/* ── An author's works, on the author's card ──────────────────────
+   Named, not just counted. Each title holds one line and truncates,
+   so a card of five Latin folio titles keeps the grid's proportions
+   instead of setting the row height by whichever author wrote the
+   longest title. */
+.faith-card-works {
+  list-style: none;
+  margin: 12px 0 18px;
+  padding: 0;
+}
+.faith-card-work {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.faith-card-work--more {
+  color: var(--color-muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
 .faith-card-link {
   font-family: var(--font-body);
   font-size: 12px;
@@ -434,7 +462,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.faith-continue-title em { font-style: italic; }
+.faith-continue-title em { font-style: normal; }
 .faith-continue-author {
   display: block;
   font-size: 13px;
@@ -1291,7 +1319,7 @@ mark.faith-find-hit.is-current {
   margin: 0 0 6px;
   color: var(--color-dark);
 }
-.faith-author-name em { font-style: italic; }
+.faith-author-name em { font-style: normal; }
 .faith-author-dates {
   font-family: var(--font-display);
   font-style: italic;
@@ -1346,7 +1374,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-dark);
   margin: 0 0 10px;
 }
-.faith-tool-title em { font-style: italic; }
+.faith-tool-title em { font-style: normal; }
 .faith-tool-body {
   font-family: var(--font-body);
   font-size: 16px;
@@ -1671,7 +1699,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-dark);
   margin: 0 0 16px;
 }
-.faith-section-title em { font-style: italic; }
+.faith-section-title em { font-style: normal; }
 .faith-section-subtitle,
 .faith-section-subtitle-inline {
   font-family: var(--font-body);
@@ -2078,7 +2106,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-dark);
   margin: 0 0 24px;
 }
-.faith-book-title em { font-style: italic; }
+.faith-book-title em { font-style: normal; }
 .faith-book .flourish { margin-bottom: 32px; }
 /* Per-chapter <details> nested inside a book — slightly tighter
    summary padding so book-level framing reads as the dominant rhythm
@@ -2473,6 +2501,10 @@ mark.faith-find-hit.is-current {
   transition: opacity 0.15s;
 }
 .faith-search-hit-link:hover { opacity: 1; }
+/* Titles are roman. The <em> inside a title is a display hook the markup
+   has always carried, not emphasis, so every title element names its own
+   font-style rather than inheriting the browser's italic. */
+.faith-search-hit-title em { font-style: normal; }
 .faith-search-hit-link:hover .faith-search-hit-title { color: var(--color-secondary); }
 .faith-search-hit-meta {
   font-family: var(--font-body);
@@ -3054,7 +3086,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-dark);
   margin: 0 0 8px;
 }
-.faith-topic-title em { font-style: italic; }
+.faith-topic-title em { font-style: normal; }
 .faith-topic-body {
   font-family: var(--font-body);
   font-size: 15px;
@@ -3109,7 +3141,7 @@ mark.faith-find-hit.is-current {
   margin: 0 0 10px;
   transition: color 0.15s;
 }
-.faith-topic-card-title em { font-style: italic; }
+.faith-topic-card-title em { font-style: normal; }
 .faith-topic-card-desc {
   font-family: var(--font-body);
   font-size: 15px;
@@ -3426,6 +3458,11 @@ mark.faith-find-hit.is-current {
   font-size: clamp(20px, 2.5vw, 28px);
   margin: 0;
 }
+/* Same rule for the passage pages: the work title and its author are
+   titles, not emphasis. Neither had an em rule, so both were falling
+   through to the browser's italic. */
+.faith-topic-group-header .section-heading em,
+.faith-topic-group-author em { font-style: normal; }
 .faith-topic-group-author {
   font-family: var(--font-body);
   font-size: 14px;
@@ -3974,7 +4011,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-primary);
   transition: color 0.15s;
 }
-.faith-front-matter-title em { font-style: italic; }
+.faith-front-matter-title em { font-style: normal; }
 .faith-front-matter-subtitle {
   font-family: var(--font-body);
   font-size: 14px;
