@@ -4700,3 +4700,15 @@ mark.faith-find-hit.is-current {
   .faith-join-cards { grid-template-columns: 1fr; gap: 32px; }
   .faith-join-card { border-left: 0; padding: 0; }
 }
+
+/* ── The membership block on TFR pages ─────────────────────────────
+   One section on the page ground rather than a dark band above a light
+   one. .card-flag is absolutely positioned at the top of its card, so
+   the card needs headroom or MOST POPULAR sits on the tier name. On
+   /membership/ the page furniture above it supplies that room; here it
+   has to be asked for. */
+.faith-join { padding: 88px 0 0; }
+.faith-join + .pricing { padding-top: 28px; }
+.faith-join + .pricing .card { padding-top: 34px; }
+.faith-join .toggle-wrap { margin-top: 28px; }
+@media (max-width: 640px) { .faith-join { padding-top: 56px; } }

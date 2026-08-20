@@ -287,10 +287,21 @@
   </div>
 </section>
 
-<section class="lp-band lp-band--dark faith-join">
+<section class="faith-join">
   <div class="container">
     <p class="lp-num">Become a member</p>
     <h2 class="lp-head">Use the tools and support the work.</h2>
+    {{#match @member.status "paid"}}{{else}}{{#match @member.status "comped"}}{{else}}
+      <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
+        <div class="toggle">
+          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true" data-hm-goal="plan-annual">
+            Annual
+            <span class="badge">Save 17%</span>
+          </button>
+          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false" data-hm-goal="plan-monthly">Monthly</button>
+        </div>
+      </div>
+    {{/match}}{{/match}}
   </div>
 </section>
 
@@ -305,6 +316,10 @@
   </div>
 </section>
 </main>
+
+<script src="{{asset "js/page/membership-toggle.js"}}"></script>
+<script src="{{asset "js/page/membership-cards.js"}}"></script>
+
 
 <meta name="tfr-library-base" content="https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com" />
 <script src="{{asset "js/faith-corpora.js"}}"></script>
