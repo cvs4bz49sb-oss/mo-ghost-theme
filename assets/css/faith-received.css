@@ -266,12 +266,13 @@
   gap: 0;
   max-width: 1180px;
   margin: 0 auto;
-  /* Cards size to their own content. Stretching them to the tallest in
-     the row was invisible while every card was type; once one of them
-     carries a title-page scan it leaves its neighbours as tall empty
-     boxes with a full-height rule down the side. */
-  align-items: start;
 }
+/* Cards size to their own content only where one of them carries a
+   title-page scan: stretching there leaves the plain neighbours as tall
+   empty boxes with a full-height rule down the side. Everywhere else
+   they must stretch, or the hairline grid breaks into ragged segments
+   wherever one card runs a line longer than another. */
+.faith-card-grid:has(.faith-card-cover) { align-items: start; }
 .faith-card {
   display: block;
   padding: 32px 32px 28px;
@@ -4152,3 +4153,344 @@ mark.faith-find-hit.is-current {
 .faith-gate--shake .faith-gate-card {
   animation: faith-gate-shake 0.35s ease;
 }
+
+/* ══ The Faith Received: landing and browse ═══════════════════════
+   The band language introduced 2026-08-20. Full-width sections on
+   three grounds (page, cream, dark), a small-caps label over a
+   display-face heading, ruled lists in place of card walls, oil
+   paintings on devotional surfaces and title-page facsimiles on
+   academic ones. See website/handoffs/TFR-REDESIGN.md. */
+/* ── Preview-scoped. Everything here is meant to be lifted into
+   faith-received.css once the shape is agreed. ─────────────────── */
+
+/* Hero: the site's own header plate, given a landing page's height. */
+.lp-hero {
+  background:
+    linear-gradient(to bottom, rgba(45,41,39,0.72), rgba(45,41,39,0.94) 72%),
+    /* Held above centre so the crop keeps the skyline and the spires
+       rather than the foreground roofs. */
+    url(/assets/images/mo-header-bg.jpg) center 30%/cover no-repeat,
+    var(--color-dark);
+  color: #fff;
+  padding: 132px 0 124px;
+  text-align: center;
+}
+.lp-hero .hero-kicker { justify-content: center; color: #ffffffcc; }
+.lp-hero h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(38px, 5vw, 66px);
+  line-height: 1.08;
+  margin: 14px auto 18px;
+  max-width: 22ch;
+  color: #fff;
+}
+.lp-hero h1 em { font-style: italic; }
+@media (max-width: 700px) { .lp-hero h1 br { display: none; } }
+.lp-hero-sub {
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: #ffffffd6;
+  margin: 0 auto 34px;
+  max-width: 46ch;
+}
+.lp-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+
+.lp-band { padding: 88px 0; }
+.lp-band--rule { border-top: 1px solid var(--color-card-border); }
+.lp-band--dark { background: var(--color-dark); color: #fff; }
+.lp-band--cream { background: var(--color-cream); }
+/* The counts sit on a landscape rather than on flat dark, which is the
+   page's one full-bleed image. */
+.lp-stats-band {
+  background:
+    linear-gradient(rgba(45,41,39,0.78), rgba(45,41,39,0.86)),
+    url(/assets/images/tfr/church-heart-of-the-andes.jpg) center 62%/cover no-repeat,
+    var(--color-dark);
+  color: #fff;
+  padding: 76px 0;
+}
+
+.lp-num {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  margin: 0 0 14px;
+}
+.lp-band--dark .lp-num { color: var(--color-primary); }
+.lp-head {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3.4vw, 44px);
+  line-height: 1.12;
+  margin: 0 0 18px;
+}
+.lp-head em { font-style: italic; }
+.lp-body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0 0 26px;
+  max-width: 48ch;
+}
+.lp-band--dark .lp-body { color: #ffffffd6; }
+
+/* Two-column band: plate on one side, a short block on the other. */
+.lp-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.lp-split--flip .lp-split-text { order: 2; }
+.lp-plate {
+  /* Used on <span> as well as <div>, so it has to say block. */
+  display: block;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-cream);
+  padding: 18px;
+}
+.lp-plate img { display: block; width: 100%; height: auto; }
+
+/* Art plates carry their own frame and are cropped to a panel: an icon
+   or a fresco is a picture, not a leaf, so it does not want the cream
+   matte the facsimiles get. Devotional bands use these; the academic
+   bands keep the scans. */
+.lp-plate--art { padding: 0; background: var(--color-dark); }
+/* Whole, never cropped. A painting cropped to fit a band is a painting
+   with its subject cut off, which is how the first pass hid the book
+   the woman was reading. */
+.lp-plate--art img { width: 100%; height: auto; max-height: 620px; object-fit: contain; }
+.lp-plates { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.lp-plates .lp-plate { padding: 12px; }
+
+/* Doors: three ways in, each with its own leaf. */
+.lp-doors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.lp-door {
+  display: block;
+  padding-top: 4px;
+  text-decoration: none;
+  color: inherit;
+  padding: 0 32px;
+  border-left: 1px solid var(--color-card-border);
+}
+.lp-door:first-child { border-left: 0; padding-left: 0; }
+.lp-door:last-child { padding-right: 0; }
+.lp-door:hover { text-decoration: none; }
+.lp-door h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 27px;
+  margin: 0 0 6px;
+  color: var(--color-dark);
+  transition: color 0.15s;
+}
+.lp-door:hover h3 { color: var(--color-secondary); }
+.lp-door p {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 0 0 14px;
+}
+
+/* Stats, in the house's small caps rather than a SaaS counter row. */
+.lp-stats { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; }
+.lp-stat { border-left: 1px solid #ffffff2e; padding: 8px 16px; }
+.lp-stat:first-child { border-left: 0; }
+.lp-stat b {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(30px, 3.6vw, 46px);
+  color: #fff;
+  line-height: 1;
+}
+.lp-stat span {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: #ffffffa8;
+  margin-top: 12px;
+}
+
+/* Collections: a shelf of plates. */
+.lp-shelf { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.lp-shelf a { display: block; text-decoration: none; color: inherit; }
+.lp-shelf a:hover { text-decoration: none; }
+.lp-shelf-plate {
+  display: block;
+  height: 168px;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-cream);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+/* Four of the eight collections were never scanned: their texts came
+   to us as text. Rather than borrow another book's leaf, those tiles
+   set their own name. */
+.lp-shelf-plate--set {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px;
+}
+.lp-shelf-plate--set em {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 21px;
+  line-height: 1.2;
+  color: var(--color-muted);
+}
+.lp-shelf-plate img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.lp-shelf h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 21px;
+  margin: 0 0 2px;
+}
+.lp-shelf p { font-family: var(--font-body); font-size: 13px; color: var(--color-muted); margin: 0; }
+
+/* Feature inventory. */
+.lp-features { columns: 3; column-gap: 48px; margin: 0; padding: 0; list-style: none; }
+.lp-features li {
+  break-inside: avoid;
+  border-top: 1px solid var(--color-card-border);
+  padding: 12px 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+.lp-features b { font-weight: 600; }
+.lp-features span { color: var(--color-muted); }
+
+.faith-card-era {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: -6px 0 12px;
+}
+.lp-more {
+  margin: 34px 0 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+}
+.lp-more-link { display: block; margin-top: 14px; }
+.lp-more a {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  text-decoration: none;
+}
+.lp-beta p { font-family: var(--font-body); font-size: 17px; line-height: 1.65; margin: 0 0 12px; }
+
+@media (max-width: 900px) {
+  .lp-split { grid-template-columns: 1fr; gap: 36px; }
+  .lp-split--flip .lp-split-text { order: 0; }
+  .lp-doors { grid-template-columns: 1fr; }
+  .lp-door { border-left: 0; border-top: 1px solid var(--color-card-border); padding: 28px 0 0; margin-top: 28px; }
+  .lp-door:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+  .lp-stats { grid-template-columns: 1fr 1fr; gap: 32px 0; }
+  .lp-stat:nth-child(3) { border-left: 0; }
+  .lp-shelf { grid-template-columns: 1fr 1fr; }
+  .lp-features { columns: 1; }
+}
+
+.bhero {
+  position: relative; min-height: 78vh; display: flex; align-items: flex-end;
+  background: linear-gradient(rgba(45,41,39,0.30), rgba(45,41,39,0.88) 78%),
+    url(/assets/images/tfr/durand-thanatopsis.jpg) center 42%/cover no-repeat, var(--color-dark);
+  color: #fff; padding: 0 0 72px;
+}
+.bhero-kicker { font-family: var(--font-body); font-size: 12px; letter-spacing: 0.3em;
+  text-transform: uppercase; color: #ffffffc4; margin: 0 0 14px; }
+.bhero h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(38px, 5.2vw, 72px);
+  line-height: 1.04; margin: 0 0 30px; max-width: 18ch; color: #fff; }
+.bsearch { display: flex; max-width: 660px; }
+.bsearch input { flex: 1; font-family: var(--font-body); font-size: 17px; padding: 17px 20px;
+  border: 1px solid #ffffff4d; background: #ffffff14; color: #fff; }
+.bsearch input::placeholder { color: #ffffff8f; }
+.bsearch button { font-family: var(--font-body); font-size: 13px; letter-spacing: 0.2em;
+  text-transform: uppercase; padding: 0 30px; border: 0; background: var(--color-primary);
+  color: #fff; cursor: pointer; }
+
+.bband { padding: 92px 0; border-top: 1px solid var(--color-card-border); }
+.bband--cream { background: var(--color-cream); }
+.bband--dark { background: var(--color-dark); color: #fff; border-top: 0; }
+.bhead { margin: 0 0 44px; max-width: 44ch; }
+.blabel { font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--color-primary-text); margin: 0 0 10px; }
+.bband--dark .blabel { color: var(--color-primary); }
+.bhead h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.15; margin: 0; }
+
+.bcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--color-card-border); }
+.bcard { display: block; background: var(--color-page); padding: 30px 30px 26px; text-decoration: none; color: inherit; }
+.bcard:hover { background: #fff; text-decoration: none; }
+.bcard-pre, .bcard-era { display: block; font-family: var(--font-body); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase; }
+.bcard-pre { color: var(--color-primary-text); }
+.bcard-era { color: var(--color-muted); margin-bottom: 12px; }
+.bcard h3 { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.15; margin: 0 0 8px; }
+.bcard p { font-family: var(--font-body); font-size: 15px; color: var(--color-muted); margin: 0 0 16px; }
+.bcard-read { font-family: var(--font-body); font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--color-secondary); }
+
+.blist { list-style: none; margin: 0; padding: 0; }
+.blist--3 { columns: 3; column-gap: 56px; }
+.blist--2 { columns: 2; column-gap: 56px; }
+.blist li { break-inside: avoid; border-top: 1px solid var(--color-card-border); }
+.blist--dark li { border-top-color: #ffffff2b; }
+.blist a { display: block; padding: 13px 0; text-decoration: none; color: inherit; }
+.blist a:hover .brow-t { color: var(--color-secondary); }
+.bband--dark .blist a:hover .brow-t { color: var(--color-primary); }
+.brow-t { display: block; font-family: var(--font-display); font-size: 20px; line-height: 1.2; }
+.brow-m { display: block; font-family: var(--font-body); font-size: 12px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--color-muted); margin-top: 3px; }
+.bband--dark .brow-m { color: #ffffff8a; }
+
+.btiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--color-card-border); }
+.btiles--4 { grid-template-columns: repeat(4, 1fr); }
+.btiles a { background: var(--color-cream); padding: 26px 24px; text-decoration: none; color: inherit; }
+.bband .btiles a { background: var(--color-page); }
+.btiles a:hover { background: #fff; text-decoration: none; }
+.btiles b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 21px; margin-bottom: 4px; }
+.btiles span { font-family: var(--font-body); font-size: 12px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--color-muted); }
+
+@media (max-width: 1000px) {
+  .bcards, .btiles, .btiles--4 { grid-template-columns: repeat(2, 1fr); }
+  .blist--3 { columns: 2; }
+}
+@media (max-width: 640px) {
+  .bcards, .btiles, .btiles--4 { grid-template-columns: 1fr; }
+  .blist--3, .blist--2 { columns: 1; }
+  .bband { padding: 60px 0; }
+  .bsearch { flex-direction: column; gap: 10px; }
+  .bsearch button { padding: 15px 0; }
+}
+
+.btrads { display: grid; grid-template-columns: 1fr 1fr; gap: 56px 64px; }
+.btrad h3 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0 0 14px; }
+.btrad .blist { columns: 1; }
+.btrad-all { display: inline-block; margin-top: 18px; font-family: var(--font-body); font-size: 11px;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-secondary); text-decoration: none; }
+.btrad-all:hover { text-decoration: none; color: var(--color-primary-text); }
+@media (max-width: 900px) { .btrads { grid-template-columns: 1fr; gap: 44px; } }
+
+/* The work's own title, under the English. Most of this library has never
+   had an English title before, so the English leads and the original stays
+   visible for anyone who wants to cite it. */
+.brow-la { display: block; font-family: var(--font-display); font-style: italic;
+  font-size: 15px; color: var(--color-muted); margin-top: 2px; }
+.bband--dark .brow-la { color: #ffffff87; }

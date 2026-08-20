@@ -250,6 +250,8 @@
   [
     '[data-faith-section="scripture"] .container',
     '[data-faith-section="library"] .container',
+    // The browse page took the library tab's job on 2026-08-20.
+    ".faith-browse .bhero-inner",
     "[data-faith-search-page]",
   ].forEach((sel) => {
     const host = document.querySelector(sel);

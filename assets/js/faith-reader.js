@@ -1306,8 +1306,35 @@
 
   // ── Populate header from meta ─────────────────────────────────
 
+  // ── Titles that were written to fill a title page ─────────────
+  //
+  // Early modern books carry their whole argument in the title: Perkins'
+  // "A golden chaine" runs 63 words and filled the reader's hero from
+  // edge to edge. They also carry their own break, almost always at
+  // "or," or a colon, and the part before it is the title everyone
+  // actually uses. Cut there, keep the whole thing for the tooltip and
+  // for the dek, and never let a heading run past a line or two.
+  const TITLE_BREAKS = [", or,", ": or", " or, ", ":", ";"];
+
+  function shortTitle(raw) {
+    const t = String(raw || "").trim();
+    if (t.length <= 64) return t;
+    for (const sep of TITLE_BREAKS) {
+      const i = t.toLowerCase().indexOf(sep);
+      if (i > 12 && i < 78) return t.slice(0, i).replace(/[\s,;:]+$/, "");
+    }
+    const cut = t.slice(0, 72);
+    return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[\s,;:]+$/, "")}\u2026`;
+  }
+
   function populateHeader(m) {
-    if (titleEl) titleEl.textContent = m.title || "Untitled";
+    if (titleEl) {
+      const full = m.title || "Untitled";
+      const short = shortTitle(full);
+      titleEl.textContent = short;
+      // The full title is the book's own, so keep it reachable.
+      if (short !== full) titleEl.setAttribute("title", full);
+    }
     if (dekEl) {
       const parts = [];
       if (m.author) parts.push(escapeHtml(m.author));

@@ -271,9 +271,12 @@ routes:
   # See memory/ghost-theme.md for the full operational guide.
   /the-faith-received/:
     template: custom-the-faith-received
-  # Documents and Library aren't separate routes — they're tab-swap
-  # views inside the home page, driven by the section nav rail and a
-  # hash indicator (#documents / #library). See custom-the-faith-received.hbs.
+  # The landing stopped being a tab shell on 2026-08-20: browsing moved
+  # to its own route below, and topics, scripture, today and devotional
+  # were already routed separately further down this file, so nothing
+  # was orphaned by the change. See website/handoffs/TFR-REDESIGN.md.
+  /the-faith-received/browse/:
+    template: custom-faith-browse
   # Feature pages
   /the-faith-received/search/:
     template: custom-faith-search
