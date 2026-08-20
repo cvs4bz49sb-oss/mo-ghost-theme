@@ -251,7 +251,9 @@
     '[data-faith-section="scripture"] .container',
     '[data-faith-section="library"] .container',
     // The browse page took the library tab's job on 2026-08-20.
-    ".faith-browse .bhero-inner",
+    // Not the hero: that is a dark full-bleed plate and the form
+    // would land above the headline it belongs under.
+    ".faith-browse .bband:first-of-type .container",
     "[data-faith-search-page]",
   ].forEach((sel) => {
     const host = document.querySelector(sel);

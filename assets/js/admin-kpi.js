@@ -413,8 +413,15 @@
       ],
       bullets: (s) => (s.stripe ? [
         `<b>${fmt(s.stripe.cancels_paid_30d)}</b> paying in 30 days · <b>${fmt(s.stripe.cancels_paid_12m)}</b> in twelve months`,
+        // paying_charged, not paying: `paying` counts every active Stripe
+        // subscription and a comp is an active $0 one, so it is about 2.5x
+        // the book that can actually churn. Older snapshots have no
+        // paying_charged, hence the fallback.
         s.stripe.churn_paid_30d != null
-          ? `<b>${s.stripe.churn_paid_30d}%</b> monthly churn against ${fmt(s.stripe.paying)} paying`
+          ? `<b>${s.stripe.churn_paid_30d}%</b> monthly churn against ${fmt(s.stripe.paying_charged || s.stripe.paying)} paying`
+          : "",
+        s.stripe.cancels_pending
+          ? `<b>${fmt(s.stripe.cancels_pending)}</b> cancelled but not yet expired — still being billed`
           : "",
         `<b>${usd(s.stripe.cancels_mrr_30d)}</b> of MRR lost · <b>${fmt(s.stripe.cancels_30d)}</b> including comped, migrations excluded`
       ] : [])
@@ -2859,11 +2866,16 @@
       rows.push({ total: true, cells: ["All time", fmt(st.cancels_paid_total), fmt(st.cancels_total), usd(st.cancels_mrr_12m)] });
       out.push(tableBlock("Membership cancellations",
         `<b>${fmt(st.cancels_paid_30d)}</b> paying members cancelled in the last 30 days — `
-        + `<b>${st.churn_paid_30d}%</b> monthly churn against ${fmt(st.paying)} paying. Migrations are not counted here.`,
+        + `<b>${st.churn_paid_30d}%</b> monthly churn against ${fmt(st.paying_charged || st.paying)} paying. `
+        + `Migrations are not counted here.`,
         ["Month", { label: "Paying", num: true }, { label: "All", num: true }, { label: "MRR lost", num: true }],
         rows,
-        { foot: "\u201cPaying\u201d counts only subscriptions that were ever charged; \u201call\u201d includes comped and "
-          + "zero-priced ones. The May and June 2026 gap between the two columns is the migration cancelling old "
+        { foot: "\u201cPaying\u201d counts subscriptions that were charged and whose owner is not still paying "
+          + "on another one, matched on email because Ghost issues a fresh Stripe customer per checkout; "
+          + "\u201call\u201d includes comped and zero-priced ones. Most of the gap between the two columns is a "
+          + "comped member converting to paying, which cancels the comp on the way in \u2014 counting that as "
+          + "churn books the conversion as a loss and books it again as a gain in new subscriptions. "
+          + "In May and June 2026 the gap is the migration cancelling old "
           + "subscriptions as members moved onto new ones — reading the \u201call\u201d column as churn would put it "
           + "above 5% when the real rate is under 1%." }));
     }

@@ -4192,7 +4192,7 @@ mark.faith-find-hit.is-current {
   font-size: 18px;
   color: #ffffffd6;
   margin: 0 auto 34px;
-  max-width: 46ch;
+  max-width: 62ch;
 }
 .lp-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
@@ -4268,7 +4268,7 @@ mark.faith-find-hit.is-current {
 .lp-plates .lp-plate { padding: 12px; }
 
 /* Doors: three ways in, each with its own leaf. */
-.lp-doors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.lp-doors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
 .lp-door {
   display: block;
   padding-top: 4px;
@@ -4494,3 +4494,34 @@ mark.faith-find-hit.is-current {
 .brow-la { display: block; font-family: var(--font-display); font-style: italic;
   font-size: 15px; color: var(--color-muted); margin-top: 2px; }
 .bband--dark .brow-la { color: #ffffff87; }
+
+/* Four doors, one of them gated. The tag carries the same small caps as
+   an eyebrow rather than a padlock, which belongs on a different sort of
+   site. */
+.lp-members {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  border: 1px solid var(--color-card-border);
+  padding: 3px 8px;
+}
+.lp-door h3 { font-size: 25px; }
+
+/* The collection cards ran taller than they needed to. */
+.faith-landing .faith-card { padding: 24px 24px 22px; }
+.faith-landing .faith-card-title { font-size: 23px; }
+.faith-landing .faith-card-desc { font-size: 14px; }
+
+@media (max-width: 1000px) { .lp-doors { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) {
+  /* Both new heroes and bands were missing what .faith-hero and .bband
+     already do at this width. */
+  .lp-hero { padding: 64px 0 56px; }
+  .lp-band { padding: 56px 0; }
+}
+@media (max-width: 900px) { .lp-plates { grid-template-columns: 1fr; } }
