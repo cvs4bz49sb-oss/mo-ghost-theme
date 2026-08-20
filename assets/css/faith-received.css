@@ -4737,3 +4737,58 @@ mark.faith-find-hit.is-current {
 
 /* The Vermeer carries a heavier frame than the facsimile plates. */
 .lp-plate--art { border-width: 3px; }
+
+/* ══ The Faith Received on a phone ═════════════════════════════════
+   The landing was built at desktop width and the two-column
+   compromises did not survive the trip. At 640 the doors stack, the
+   collection cards drop to author, date and title, and the collection
+   shelf drops its plates: a 375px-wide facsimile is a wall, not an
+   invitation, and the name is what the reader is choosing between. */
+@media (max-width: 640px) {
+  /* Doors: one per row, ruled, with the link on the floor of each. */
+  .lp-doors { grid-template-columns: 1fr; }
+  .lp-door {
+    border-left: 0;
+    border-top: 1px solid var(--color-card-border);
+    padding: 22px 0 0;
+    margin-top: 22px;
+  }
+  .lp-door:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+  .lp-door h3 { font-size: 22px; }
+  .lp-door p { margin-bottom: 10px; }
+  .lp-members { display: inline-block; margin: 0 0 0 8px; }
+
+  /* In the collection: the name, who wrote it and when. The blurb is
+     desktop furniture. */
+  .faith-landing .faith-card-desc { display: none; }
+  .faith-landing .faith-card {
+    padding: 16px 0;
+    border-left: 0 !important;
+    border-top: 1px solid var(--color-card-border);
+  }
+  .faith-landing .faith-card:first-child { border-top: 0; }
+  .faith-landing .faith-card-title { font-size: 20px; margin-bottom: 2px; }
+  .faith-landing .faith-card-link { display: none; }
+  .faith-card-era { margin-bottom: 6px; }
+
+  /* The collections: names, not plates. */
+  .lp-shelf { grid-template-columns: 1fr; gap: 0; }
+  .lp-shelf-plate { display: none; }
+  .lp-shelf a {
+    border-top: 1px solid var(--color-card-border);
+    padding: 14px 0;
+  }
+  .lp-shelf a:first-child { border-top: 0; }
+  .lp-shelf h4 { font-size: 20px; margin-bottom: 2px; }
+
+  /* The painting keeps its shape without taking the whole screen. */
+  .lp-plate--art img { max-height: 360px; }
+
+  /* Counts read as a 2x2 block rather than four cramped columns. */
+  .lp-stat b { font-size: 32px; }
+  .lp-stat { padding: 6px 8px; }
+
+  /* Tool lists and tradition blocks: one column, tighter rows. */
+  .blist--tools li { padding: 12px 0; }
+  .btrad h3 { font-size: 22px; }
+}
