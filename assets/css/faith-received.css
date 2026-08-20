@@ -4947,12 +4947,47 @@ mark.faith-find-hit.is-current {
 }
 
 /* The rooms lay their authors out the way the browse page lays out its
-   traditions: two columns of blocks, the name as the heading, the works
-   ruled beneath it. */
-.faith-room-blocks { margin-top: 8px; }
-.faith-room-blocks .btrad h3 { margin-bottom: 12px; }
+   traditions, with two differences the browse page does not need.
+
+   The author is a label, not a title. On browse the heading is one of
+   eight traditions and the context carries it; here it repeats every
+   few rows against dozens of works, so it takes the small-caps eyebrow
+   treatment and the works drop to reading size under it.
+
+   And the blocks flow in columns rather than a grid. A grid row is as
+   tall as its tallest block, so an author with twelve works opened a
+   dead gap beside an author with one. */
+.faith-room-blocks {
+  display: block;
+  columns: 2;
+  column-gap: 64px;
+}
+.faith-room-blocks .btrad {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 34px;
+}
+.faith-room-blocks .btrad h3 {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  margin: 0 0 2px;
+}
 .faith-room-blocks .blist li { border-top: 1px solid var(--color-card-border); }
+.faith-room-blocks .blist li:first-child { border-top-color: var(--color-secondary); }
 .faith-room-blocks .blist a,
-.faith-room-blocks .faith-room-row { display: block; padding: 13px 0; text-decoration: none; color: inherit; }
+.faith-room-blocks .faith-room-row {
+  display: block;
+  padding: 9px 0;
+  text-decoration: none;
+  color: inherit;
+}
+.faith-room-blocks .brow-t { font-size: 16px; line-height: 1.3; }
+.faith-room-blocks .brow-la { font-size: 13px; margin-top: 1px; }
+.faith-room-blocks .faith-room-pending .brow-t { color: var(--color-muted); }
 .faith-room-blocks .blist a:hover .brow-t { color: var(--color-secondary); }
-@media (max-width: 900px) { .faith-room-blocks { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .faith-room-blocks { columns: 1; } }

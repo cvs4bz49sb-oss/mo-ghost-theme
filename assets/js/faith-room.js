@@ -120,8 +120,12 @@
     slice.forEach((w) => {
       const name = (w.author || "").trim() || "Unattributed";
       const last = groups[groups.length - 1];
-      if (last && last.name === name) last.works.push(w);
-      else groups.push({ name, works: [w] });
+      if (last && last.name === name) {
+        const key = (w.title || "").toLowerCase();
+        if (!last.seen.has(key)) { last.seen.add(key); last.works.push(w); }
+      } else {
+        groups.push({ name, works: [w], seen: new Set([(w.title || "").toLowerCase()]) });
+      }
     });
 
     const letters = [...new Set(filtered.map((w) => initial(w.author)))]
