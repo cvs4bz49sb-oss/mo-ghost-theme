@@ -4712,3 +4712,15 @@ mark.faith-find-hit.is-current {
 .faith-join + .pricing .card { padding-top: 34px; }
 .faith-join .toggle-wrap { margin-top: 28px; }
 @media (max-width: 640px) { .faith-join { padding-top: 56px; } }
+
+/* ── The collections: five plates, one row ─────────────────────────
+   Only the collections with a scanned title page appear here now, so
+   the shelf holds five and the plates come down to suit the narrower
+   column. The three text-set tiles are gone; a collection without a
+   plate reads as a gap in a row of them. */
+.lp-shelf { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; }
+.lp-shelf-plate { height: 132px; margin-bottom: 12px; }
+.lp-shelf h4 { font-size: 18px; }
+.lp-shelf p { font-size: 12px; }
+@media (max-width: 1100px) { .lp-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .lp-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
