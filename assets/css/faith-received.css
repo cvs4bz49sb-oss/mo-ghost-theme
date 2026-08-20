@@ -4570,3 +4570,29 @@ mark.faith-find-hit.is-current {
 .faith-toc-link, .faith-toc-label { font-size: var(--tfr-meta); }
 .faith-toc-num, .blabel, .lp-num, .brow-m, .faith-card-era { font-size: var(--tfr-micro); }
 .lp-body, .bhero-sub, .br-blurb, .lp-hero-sub { font-size: var(--tfr-body); }
+
+/* ── In the collection: four across ────────────────────────────────
+   The twelve works divide evenly into three rows of four, and the
+   smaller card carries the shorter measure without crowding. The
+   hairline rules in the base grid are keyed to three columns, so the
+   3n rules are reinstated and 4n rules take their place inside the
+   landing only. */
+.faith-landing .faith-card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.faith-landing .faith-card:nth-child(3n+1) { border-left: 1px solid var(--color-card-border); }
+.faith-landing .faith-card:nth-child(-n+3) { border-top: 1px solid var(--color-card-border); padding-top: 24px; }
+.faith-landing .faith-card:nth-child(4n+1) { border-left: 0; }
+.faith-landing .faith-card:nth-child(-n+4) { border-top: 0; padding-top: 14px; }
+
+@media (max-width: 1100px) {
+  .faith-landing .faith-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .faith-landing .faith-card:nth-child(4n+1) { border-left: 1px solid var(--color-card-border); }
+  .faith-landing .faith-card:nth-child(-n+4) { border-top: 1px solid var(--color-card-border); padding-top: 24px; }
+  .faith-landing .faith-card:nth-child(2n+1) { border-left: 0; }
+  .faith-landing .faith-card:nth-child(-n+2) { border-top: 0; padding-top: 14px; }
+}
+@media (max-width: 600px) {
+  .faith-landing .faith-card-grid { grid-template-columns: 1fr; }
+  .faith-landing .faith-card { border-left: 0 !important; }
+  .faith-landing .faith-card:nth-child(-n+2) { border-top: 1px solid var(--color-card-border); padding-top: 24px; }
+  .faith-landing .faith-card:first-child { border-top: 0; padding-top: 8px; }
+}
