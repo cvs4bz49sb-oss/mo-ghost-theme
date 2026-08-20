@@ -1,0 +1,169 @@
+/*
+ * The Faith Received — a collection's reading room
+ *
+ * The whole table of contents for one collection: every work, in the
+ * row treatment the browse page uses. English title, the work's own
+ * title beneath it where the catalogue carries one, then the author.
+ *
+ * Sorted by author, then by title within an author, so an author's
+ * works sit together without a heading interrupting the list. Fifty to
+ * a page, an A-Z rail keyed on the author's surname, and a box that
+ * searches authors and titles at once.
+ *
+ * This replaced the author-card view, which showed a count and the
+ * first five titles and repeated itself wherever an author had a
+ * multi-volume set. A reader opening a table of contents wants the
+ * works.
+ */
+
+(function () {
+  "use strict";
+
+  const root = document.querySelector("[data-faith-room]");
+  if (!root || !window.MOCorpora) return;
+
+  const PAGE_SIZE = 50;
+  const params = new URLSearchParams(window.location.search);
+  const collectionId = (params.get("collection") || "tfr").replace(/[^a-z0-9_-]/gi, "");
+
+  let works = [];
+  let filter = params.get("q") || "";
+  let letter = params.get("letter") || "";
+  let page = Math.max(1, parseInt(params.get("page"), 10) || 1);
+
+  const corpus = window.MOCorpora.get(collectionId);
+  root.innerHTML = '<p class="faith-room-status">Loading the collection&hellip;</p>';
+
+  window.MOCorpora.load(collectionId).then((list) => {
+    // Sort by the name the reader is scanning for, then by title so a
+    // multi-volume set reads in order rather than in catalogue order.
+    works = list.slice().sort((a, b) => {
+      const an = surname(a.author), bn = surname(b.author);
+      return an.localeCompare(bn) || (a.title || "").localeCompare(b.title || "");
+    });
+    render();
+  });
+
+  // Sort on the last word of the name: these catalogues give "Johann
+  // Heinrich Alsted", not "Alsted, Johann Heinrich", so sorting on the
+  // raw string files every Johann together.
+  function surname(name) {
+    const n = String(name || "").trim();
+    if (!n) return "￿";
+    const parts = n.split(/\s+/);
+    return parts[parts.length - 1].toLowerCase();
+  }
+
+  function initial(name) {
+    const c = surname(name).charAt(0).toUpperCase();
+    return /[A-Z]/.test(c) ? c : "#";
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function matches(w) {
+    if (!filter) return true;
+    const q = filter.toLowerCase();
+    return (w.title || "").toLowerCase().includes(q) ||
+      (w.author || "").toLowerCase().includes(q) ||
+      (w.titleLatin || "").toLowerCase().includes(q);
+  }
+
+  function pushState() {
+    const q = new URLSearchParams();
+    q.set("collection", collectionId);
+    if (filter) q.set("q", filter);
+    if (letter) q.set("letter", letter);
+    if (page > 1) q.set("page", String(page));
+    window.history.replaceState(null, "", `?${q.toString()}`);
+  }
+
+  function row(w) {
+    const second = w.titleLatin && w.titleLatin !== w.title ? w.titleLatin : "";
+    const readable = w.readable !== false && w.url;
+    const second2 = second ? `<span class="brow-la">${escapeHtml(second)}</span>` : "";
+    const inner = `<span class="brow-t">${escapeHtml(w.title || w.id)}</span>${second2}<span class="brow-m">${escapeHtml(w.author || "")}</span>`;
+    if (readable) return `<li><a href="${escapeHtml(w.url)}">${inner}</a></li>`;
+    return `<li class="faith-room-pending"><span class="faith-room-row">${inner}</span></li>`;
+  }
+
+  function render() {
+    const filtered = works.filter(matches);
+    const scoped = letter ? filtered.filter((w) => initial(w.author) === letter) : filtered;
+    const pages = Math.max(1, Math.ceil(scoped.length / PAGE_SIZE));
+    if (page > pages) page = pages;
+    const slice = scoped.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+    const letters = [...new Set(filtered.map((w) => initial(w.author)))]
+      .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
+
+    const label = corpus ? corpus.label : "the collection";
+    root.innerHTML =
+      `<div class="faith-room-head">` +
+        `<input type="search" class="faith-room-filter" data-room-filter ` +
+          `placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" ` +
+          `aria-label="Search this collection" />` +
+        `<p class="faith-room-count">${scoped.length.toLocaleString()} work` +
+          `${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p>` +
+      `</div>${ 
+      letters.length > 1
+        ? `<nav class="faith-room-letters" aria-label="Jump to a letter">` +
+            `<button type="button" data-room-letter="" class="${letter ? "" : "is-active"}">All</button>${ 
+            letters.map((l) =>
+              `<button type="button" data-room-letter="${l}" ` +
+              `class="${letter === l ? "is-active" : ""}">${l}</button>`).join("") 
+          }</nav>`
+        : "" 
+      }${slice.length
+        ? `<ul class="blist faith-room-list">${slice.map(row).join("")}</ul>`
+        : `<p class="faith-room-status">Nothing matches that. Try another name or title.</p>` 
+      }${pager(page, pages)}`;
+
+    wire();
+    pushState();
+  }
+
+  function pager(p, pages) {
+    if (pages < 2) return "";
+    return `<nav class="faith-room-pager" aria-label="Pages">` +
+      `<button type="button" data-room-page="${p - 1}" ${p <= 1 ? "disabled" : ""}>&larr; Previous</button>` +
+      `<span class="faith-room-pages">Page ${p} of ${pages}</span>` +
+      `<button type="button" data-room-page="${p + 1}" ${p >= pages ? "disabled" : ""}>Next &rarr;</button>` +
+      `</nav>`;
+  }
+
+  function wire() {
+    const input = root.querySelector("[data-room-filter]");
+    if (input) {
+      let t = null;
+      input.addEventListener("input", () => {
+        window.clearTimeout(t);
+        t = window.setTimeout(() => {
+          filter = input.value.trim();
+          page = 1;
+          render();
+          const again = root.querySelector("[data-room-filter]");
+          if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
+        }, 180);
+      });
+    }
+    root.querySelectorAll("[data-room-letter]").forEach((b) => {
+      b.addEventListener("click", () => {
+        letter = b.getAttribute("data-room-letter");
+        page = 1;
+        render();
+        root.scrollIntoView({ block: "start" });
+      });
+    });
+    root.querySelectorAll("[data-room-page]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const n = parseInt(b.getAttribute("data-room-page"), 10);
+        if (!isNaN(n)) { page = n; render(); root.scrollIntoView({ block: "start" }); }
+      });
+    });
+  }
+})();

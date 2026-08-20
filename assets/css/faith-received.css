@@ -4844,3 +4844,104 @@ mark.faith-find-hit.is-current {
   .faith-room .faith-card { padding: 14px 0; }
   .faith-room .faith-card-title { font-size: 19px; }
 }
+
+/* ── The reading rooms ─────────────────────────────────────────────
+   A collection's whole table of contents in the browse page's row
+   treatment: the English title, the work's own title beneath it, then
+   the author in small caps. The furniture around it stays quiet, so
+   the list is the page. */
+.faith-room-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+.faith-room-filter {
+  flex: 1 1 340px;
+  max-width: 520px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 13px 16px;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-white);
+  color: var(--color-dark);
+}
+.faith-room-count {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* The rail reads as a line of type, not a row of buttons. */
+.faith-room-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 0;
+  border-top: 1px solid var(--color-card-border);
+  border-bottom: 1px solid var(--color-card-border);
+  padding: 12px 0;
+  margin-bottom: 30px;
+}
+.faith-room-letters button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  padding: 4px 12px;
+}
+.faith-room-letters button:hover { color: var(--color-secondary); }
+.faith-room-letters button.is-active { color: var(--color-primary-text); }
+
+.faith-room-list { columns: 1; max-width: 1180px; }
+.faith-room-list li { border-top: 1px solid var(--color-card-border); }
+.faith-room-list li:first-child { border-top: 0; }
+.faith-room-list a,
+.faith-room-row { display: block; padding: 15px 0; text-decoration: none; color: inherit; }
+.faith-room-list a:hover .brow-t { color: var(--color-secondary); }
+.faith-room-pending .brow-t { color: var(--color-muted); }
+
+.faith-room-pager {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid var(--color-card-border);
+}
+.faith-room-pager button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  padding: 0;
+}
+.faith-room-pager button[disabled] { color: var(--color-card-border); cursor: default; }
+.faith-room-pages {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--color-muted);
+}
+.faith-room-status {
+  font-family: var(--font-body);
+  font-size: var(--tfr-body);
+  color: var(--color-muted);
+}
+@media (max-width: 640px) {
+  .faith-room-head { gap: 12px; }
+  .faith-room-list a, .faith-room-row { padding: 13px 0; }
+  .faith-room-pager { gap: 16px; justify-content: space-between; }
+}
