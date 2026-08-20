@@ -4650,3 +4650,18 @@ mark.faith-find-hit.is-current {
   max-width: 60ch;
 }
 @media (max-width: 640px) { .faith-feature-hero { padding: 56px 0 52px; } }
+
+/* ── The tools list ────────────────────────────────────────────────
+   Read against Use. The rows carry no links yet: these are features,
+   some of them still Stiven's to hand over, and a dead link would
+   promise more than the site can do today. */
+.blist--tools li { cursor: default; padding: 14px 0; }
+.blist--tools .brow-t { display: block; }
+.blist--tools .brow-m {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: var(--tfr-meta);
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+.blist--tools .lp-members { margin-left: 12px; }
