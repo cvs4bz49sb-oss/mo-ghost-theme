@@ -6444,6 +6444,17 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-weight: 600;
   color: var(--color-dark);
 }
+/* Unscoped on purpose, same reason as .admin-section-heading above:
+   .admin-student-add and .admin-student-actions both use this class for
+   their intro copy and neither defined it, so it fell back to plain
+   paragraph styling instead of reading as secondary text. */
+.admin-section-sub {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
 .admin-events-search {
   font-family: var(--font-body);
   font-size: 13px;
@@ -10163,6 +10174,91 @@ label.site-form-field-check {
   color: #e65100;
 }
 
+/* Admin-only wrapper around the reused .sponsorship-grid (see
+   custom-admin-sponsors.hbs). On the public page this grid sits inside
+   .sponsorship-inventory, which supplies 48px of top padding before the
+   grid begins. The admin page has no such wrapper — the grid follows a
+   plain <p class="admin-sub"> with zero margin — so without this, the
+   bordered/backgrounded .sponsor-category cards would butt directly up
+   against the preceding paragraph text. */
+.sponsor-schedule {
+  margin-top: 24px;
+}
+
+/* Schedule variant — /admin/sponsors/ only (GET /sponsors/schedule).
+   The plain .sponsor-slot above is a single row (name + badge); this
+   variant stacks a booking list below that row, so it needs to become a
+   column instead of the base rule's row layout. */
+.sponsor-slot--schedule {
+  display: block;
+}
+/* The public page's rounded white cards (.sponsor-category) read as
+   pasted-in next to this page's flat metrics bar and kanban board
+   (.sponsor-metric, .sponsor-card — both hairline border, ~2px radius,
+   no shadow). Override to the admin's flat system for the schedule
+   section specifically; the public /sponsorship/ page is untouched. */
+.sponsor-schedule .sponsor-category {
+  border-radius: 2px;
+  box-shadow: none;
+}
+/* .sponsor-row--trio's 900px collapse (screen.css ~10102) is tuned for
+   the public page's full-viewport-width layout. Inside .admin-workspace
+   the fixed 240px sidebar (screen.css .ws-sidebar) plus container padding
+   eats real estate the public page doesn't lose, so three ~300px-min
+   category cards can be squeezed under their combined minimum well above
+   900px. Force single-column through a wider threshold that accounts for
+   the sidebar rather than reusing the public number as-is. */
+.admin-workspace .sponsor-row--trio {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1300px) {
+  .admin-workspace .sponsor-row--trio {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+.sponsor-slot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sponsor-schedule-bookings {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sponsor-schedule-bookings li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+}
+.sponsor-schedule-booking-name {
+  color: var(--color-dark);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sponsor-schedule-booking-dates {
+  color: var(--color-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sponsor-schedule-empty {
+  margin: 8px 0 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
 /* Subgroup — "Category Slide-Ins" inside Website card */
 .sponsor-subgroup {
   border-top: 1px solid var(--color-card-border);
@@ -12532,8 +12628,8 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
 }
 .sponsor-card {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
   padding: 8px 10px;
   border: 1px solid var(--color-rule);
   background: #fff;
@@ -12541,6 +12637,11 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   transition: border-color 0.15s;
 }
 .sponsor-card:hover { border-color: var(--color-card-border); }
+.sponsor-card-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .sponsor-card-name {
   font-family: var(--font-body);
   font-size: 13px;
@@ -12558,6 +12659,18 @@ a.admin-tool-link:hover { background: rgba(238, 125, 81, 0.06); }
   font-size: 11px;
   color: var(--color-muted);
   margin-left: auto;
+  white-space: nowrap;
+}
+/* Slot tag — only present when a deal has been tied to a real catalog
+   slot (see admin.js SPONSOR_SLOT_CATALOG). Not every card has one. */
+.sponsor-card-slot {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -19480,6 +19593,64 @@ body:has(.au-modal-overlay) {
   padding: 8px 0;
   font-style: italic;
   list-style: none;
+}
+
+/* Manual special-member add — /admin/members/students/ (custom-admin-students.hbs) */
+.admin-student-add {
+  margin-bottom: 28px;
+  padding: 18px 20px;
+  border: 1px solid #ece8e3;
+  border-radius: 12px;
+  background: #fbfaf8;
+}
+.admin-student-add .admin-section-sub {
+  margin: 4px 0 14px;
+}
+.admin-student-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.admin-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.admin-form-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #6b6660;
+}
+.admin-form-row input,
+.admin-form-row select {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid #ece8e3;
+  border-radius: 8px;
+  background: #fff;
+  color: #2d2927;
+}
+.admin-student-add-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.admin-student-add-feedback {
+  margin: 0;
+  font-size: 13px;
+  color: #2f7a44;
+  word-break: break-word;
+}
+.admin-student-add-feedback.is-error {
+  color: #c0392b;
+}
+@media (max-width: 640px) {
+  .admin-form-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Pending-student rescue panel — /admin/members/students/ (custom-admin-students.hbs) */

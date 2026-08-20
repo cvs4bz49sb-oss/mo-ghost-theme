@@ -21,6 +21,7 @@
   const statusEl = root.querySelector("[data-sponsor-status]");
   const inboxEl = root.querySelector("[data-sponsor-inbox]");
   const inboxEmpty = root.querySelector("[data-sponsor-inbox-empty]");
+  const scheduleEl = root.querySelector("[data-sponsor-schedule]");
   const boardCols = {};
   const boardCounts = {};
   ["prospecting", "negotiating", "agreed", "active", "completed"].forEach((s) => {
@@ -30,8 +31,14 @@
 
   const rows = {};
   const notesSaveTimers = {};
+  // Flat {id, label, categoryLabel} list, populated from /sponsors/schedule
+  // and reused to build the "Slot" dropdown in the create/edit form — one
+  // fetch serves both the schedule section and the form, so the catalog
+  // never drifts between the two.
+  let slotCatalog = [];
 
   hydrate();
+  hydrateSchedule();
   wireToolbar();
 
   // ---------------------------------------------------------------------------
@@ -54,6 +61,79 @@
         console.error("sponsors fetch failed", err);
         setStatus("Network error loading sponsorships.");
       });
+  }
+
+  function hydrateSchedule() {
+    if (!scheduleEl) return;
+    window.MOAuth.fetch(`${adminUrl}/sponsors/schedule`, { credentials: "omit" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) { scheduleEl.innerHTML = '<p class="admin-empty">Could not load the schedule.</p>'; return; }
+        const catalog = data.catalog || [];
+        slotCatalog = catalog.flatMap((cat) =>
+          cat.slots.map((s) => ({ id: s.id, label: s.label, categoryLabel: cat.categoryLabel })));
+        renderSchedule(catalog);
+      })
+      .catch((err) => {
+        console.error("sponsor schedule fetch failed", err);
+        if (scheduleEl) scheduleEl.innerHTML = '<p class="admin-empty">Network error loading the schedule.</p>';
+      });
+  }
+
+  function renderSchedule(catalog) {
+    if (!scheduleEl) return;
+    // Same DOM shape as the public /sponsorship/ inventory grid (row of
+    // three category cards, then Website full-width below) so the shared
+    // .sponsor-row--trio / .sponsor-category CSS applies without a new
+    // stylesheet section for the layout itself.
+    const byCategory = {};
+    catalog.forEach((cat) => { byCategory[cat.category] = cat; });
+    const trio = ["newsletter", "mere_fidelity", "crc"].map((c) => byCategory[c]).filter(Boolean);
+    const wide = byCategory.website;
+
+    let html = `<div class="sponsor-row sponsor-row--trio">${ 
+      trio.map(renderScheduleCategory).join("") 
+      }</div>`;
+    if (wide) html += renderScheduleCategory(wide, true);
+    scheduleEl.innerHTML = html;
+  }
+
+  function renderScheduleCategory(cat, wide) {
+    return (
+      `<div class="sponsor-category${wide ? ' sponsor-category--wide' : ''}">` +
+        `<div class="sponsor-category-header">` +
+          `<h3 class="sponsor-category-title"><em>${escapeHtml(cat.categoryLabel)}</em></h3>` +
+        `</div>` +
+        `<div class="sponsor-slots">${ 
+          cat.slots.map(renderScheduleSlot).join("") 
+        }</div>` +
+      `</div>`
+    );
+  }
+
+  function renderScheduleSlot(slot) {
+    const isAvailable = slot.manual_status === "available";
+    const badgeClass = isAvailable ? "is-available" : "is-filled";
+    const badgeText = isAvailable ? "Available" : (slot.manual_until ? `Booked thru ${escapeHtml(slot.manual_until)}` : "Booked");
+    const bookingsHtml = slot.bookings.length
+      ? `<ul class="sponsor-schedule-bookings">${ 
+          slot.bookings.map((b) => {
+            const range = [b.start_date, b.end_date].filter(Boolean).join(" – ") || "no dates set";
+            const amount = b.amount_cents ? ` · $${(b.amount_cents / 100).toLocaleString()}` : "";
+            return `<li><span class="sponsor-schedule-booking-name">${escapeHtml(b.sponsor_name)}</span>` +
+              `<span class="sponsor-schedule-booking-dates">${escapeHtml(range)}${amount}</span></li>`;
+          }).join("") 
+        }</ul>`
+      : `<p class="sponsor-schedule-empty">Nothing on the schedule.</p>`;
+    return (
+      `<div class="sponsor-slot sponsor-slot--schedule">` +
+        `<div class="sponsor-slot-row">` +
+          `<span class="sponsor-slot-name">${escapeHtml(slot.label)}</span>` +
+          `<span class="sponsor-slot-badge ${badgeClass}">${badgeText}</span>` +
+        `</div>${ 
+        bookingsHtml 
+      }</div>`
+    );
   }
 
   function repaint() {
@@ -85,6 +165,13 @@
       if (count) count.textContent = colRows.length;
       wireCards(col);
     });
+
+    // Any repaint means the underlying sponsorships changed (create, edit,
+    // status drag, delete) — re-pull the schedule too, since a slot
+    // assignment, date range, or status flip can all change what it shows.
+    // Harmless extra round-trip on the very first paint (hydrateSchedule()
+    // already ran once at boot); the KV read behind it is cheap.
+    hydrateSchedule();
   }
 
   function updateMetrics() {
@@ -110,11 +197,15 @@
   function renderCard(row) {
     const name = escapeHtml(row.sponsor_name);
     const type = escapeHtml(row.type || "");
+    const slotEntry = row.slot ? slotCatalog.find((s) => s.id === row.slot) : null;
     return (
-      `<article class="sponsor-card" data-id="${row.id}">` +
-        `<span class="sponsor-card-name" data-action="open-detail" data-id="${row.id}">${name}</span>` +
-        `<span class="sponsor-card-type">${type}</span>` +
-      `</article>`
+      `<article class="sponsor-card${slotEntry ? ' sponsor-card--has-slot' : ''}" data-id="${row.id}">` +
+        `<div class="sponsor-card-row">` +
+          `<span class="sponsor-card-name" data-action="open-detail" data-id="${row.id}">${name}</span>` +
+          `<span class="sponsor-card-type">${type}</span>` +
+        `</div>${ 
+        slotEntry ? `<span class="sponsor-card-slot">${escapeHtml(slotEntry.categoryLabel)} — ${escapeHtml(slotEntry.label)}</span>` : '' 
+      }</article>`
     );
   }
 
@@ -466,8 +557,9 @@
           }${formField("Contact name", "contact_name", row.contact_name || "") 
           }${formField("Contact email", "contact_email", row.contact_email || "", "email") 
           }${formSelect("Type", "type", row.type || "newsletter", ["newsletter", "podcast", "website", "event", "bundle"]) 
-          }${formField("Placement", "placement", row.placement || "", "text", false, "e.g. Tuesday newsletter, Mere Fidelity") 
-          }${formField("Amount ($)", "amount_display", row.amount_cents ? (row.amount_cents / 100).toFixed(2) : "", "number", false, "0.00") 
+          }${formField("Placement", "placement", row.placement || "", "text", false, "e.g. Tuesday newsletter, Mere Fidelity")
+          }${formSlotSelect(row.slot || "")
+          }${formField("Amount ($)", "amount_display", row.amount_cents ? (row.amount_cents / 100).toFixed(2) : "", "number", false, "0.00")
           }${formField("Start date", "start_date", row.start_date || "", "date") 
           }${formField("End date", "end_date", row.end_date || "", "date") 
           }${formTextarea("Description", "description", row.description || "", "What the sponsor gets") 
@@ -498,6 +590,7 @@
       payload.contact_email = fd.get("contact_email") || null;
       payload.type = fd.get("type");
       payload.placement = fd.get("placement") || null;
+      payload.slot = fd.get("slot") || null;
       const amountStr = fd.get("amount_display");
       payload.amount_cents = amountStr ? Math.round(parseFloat(amountStr) * 100) : null;
       payload.start_date = fd.get("start_date") || null;
@@ -544,6 +637,37 @@
       `<div class="sponsor-form-field">` +
         `<label class="sponsor-form-label">${escapeHtml(label)}</label>` +
         `<select name="${name}" class="sponsor-form-input">${opts}</select>` +
+      `</div>`
+    );
+  }
+
+  // Which of the ~20 catalog slots (if any) this deal occupies — separate
+  // from the freeform "Placement" text above, which stays for inquiries
+  // that haven't been assigned a real slot yet. Grouped by category
+  // (optgroup) since the flat list is ~20 options long. slotCatalog is
+  // populated by hydrateSchedule() before this form can be opened (the
+  // "+ New sponsorship" button and every card's edit action both run after
+  // initial page load, by which point the first schedule fetch has
+  // resolved) — an empty catalog just renders the placeholder alone.
+  function formSlotSelect(value) {
+    const byCategory = {};
+    slotCatalog.forEach((s) => {
+      if (!byCategory[s.categoryLabel]) byCategory[s.categoryLabel] = [];
+      byCategory[s.categoryLabel].push(s);
+    });
+    const groups = Object.keys(byCategory).map((label) =>
+      `<optgroup label="${escapeAttr(label)}">${ 
+        byCategory[label].map((s) =>
+          `<option value="${escapeAttr(s.id)}" ${s.id === value ? 'selected' : ''}>${escapeHtml(s.label)}</option>`
+        ).join("") 
+      }</optgroup>`
+    ).join("");
+    return (
+      `<div class="sponsor-form-field">` +
+        `<label class="sponsor-form-label">Slot</label>` +
+        `<select name="slot" class="sponsor-form-input">` +
+          `<option value="">— not assigned yet —</option>${groups}` +
+        `</select>` +
       `</div>`
     );
   }

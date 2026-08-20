@@ -54,6 +54,23 @@
           </div>
         </div>
 
+        {{!-- Assets &amp; Schedule: every sellable slot (mirrors the public
+             /sponsorship/ inventory grid) with its live status AND, new,
+             a chronological list of who's actually booked there and when
+             (agreed/active deals with a slot assigned — see
+             SPONSOR_SLOT_CATALOG in admin.js). This is the answer to "what's
+             available and what's coming up", which the pipeline board below
+             can't show on its own since it's grouped by deal stage, not by
+             slot or date. Data from GET /sponsors/schedule. --}}
+        <div class="section-intro section-intro-left">
+          <p class="eyebrow">Assets &amp; Schedule</p>
+          <h2 class="section-heading"><em>Every slot, what's booked, what's next.</em></h2>
+        </div>
+        <p class="admin-sub">The badge is set manually on the <a href="/admin/settings/">Settings</a> page and mirrors the public sponsorship page; the list below it is live from agreed/active deals in the pipeline below. They can disagree if a badge isn't updated or a deal has no slot assigned yet — assign a slot on any agreed or active deal to put it on this schedule.</p>
+        <div class="sponsorship-grid sponsor-schedule" data-sponsor-schedule>
+          <p class="admin-empty" data-sponsor-schedule-loading>Loading&hellip;</p>
+        </div>
+
         {{!-- Inbox: form inquiries land here --}}
         <div class="section-intro section-intro-left">
           <p class="eyebrow">Inbox</p>

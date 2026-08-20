@@ -29,6 +29,42 @@
             {{> "admin-members-subnav" active="students"}}
           </aside>
           <div class="admin-members-main">
+            {{!-- Manual add: a special case that never touched the public
+                 form at all (no academic email whatsoever, so the
+                 client-side gate blocked submission before anything was
+                 persisted). Generate a real Stripe payment link or comp
+                 them directly, bypassing the edu-email check — staff have
+                 verified enrollment out of band. Hydrated by
+                 admin-students-actions.js. --}}
+            <div class="admin-student-add" data-student-add
+                 data-api-base="{{@custom.membership_api_base}}" hidden>
+              <h2 class="admin-section-heading">Add a special member</h2>
+              <p class="admin-section-sub">For someone who can't get through the form at all &mdash; no academic email, homeschooler, seminary with no institutional address, etc. Verify their situation yourself first; this skips the .edu check entirely.</p>
+              <form class="admin-student-add-form" data-add-form>
+                <div class="admin-form-row">
+                  <label>Email<input type="email" name="email" required></label>
+                  <label>Variant
+                    <select name="variant">
+                      <option value="digital">Digital ($20/yr)</option>
+                      <option value="print">Print ($50/yr)</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="admin-form-row">
+                  <label>First name<input type="text" name="first_name"></label>
+                  <label>Last name<input type="text" name="last_name"></label>
+                </div>
+                <div class="admin-form-row">
+                  <label>School<input type="text" name="school"></label>
+                  <label>Grad year<input type="text" name="grad_year"></label>
+                </div>
+                <div class="admin-student-add-actions">
+                  <button type="submit" class="btn btn-primary btn-sm" data-add-act="link">Generate payment link</button>
+                  <button type="button" class="btn btn-sm" data-add-act="comp">Mark comped (free)</button>
+                </div>
+                <p class="admin-student-add-feedback" data-add-feedback hidden></p>
+              </form>
+            </div>
             {{!-- Pending-student rescue: students who filled the form but
                  haven't paid (often the confirmation email was blocked by
                  their school inbox). Send the payment link directly, or
