@@ -86,13 +86,25 @@
     window.history.replaceState(null, "", `?${q.toString()}`);
   }
 
+  // A work, under its author's name. The author is the block heading,
+  // so the row carries the title and the work's own title only.
   function row(w) {
     const second = w.titleLatin && w.titleLatin !== w.title ? w.titleLatin : "";
-    const readable = w.readable !== false && w.url;
     const second2 = second ? `<span class="brow-la">${escapeHtml(second)}</span>` : "";
-    const inner = `<span class="brow-t">${escapeHtml(w.title || w.id)}</span>${second2}<span class="brow-m">${escapeHtml(w.author || "")}</span>`;
-    if (readable) return `<li><a href="${escapeHtml(w.url)}">${inner}</a></li>`;
+    const inner = `<span class="brow-t">${escapeHtml(w.title || w.id)}</span>${second2}`;
+    if (w.readable !== false && w.url) {
+      return `<li><a href="${escapeHtml(w.url)}">${inner}</a></li>`;
+    }
     return `<li class="faith-room-pending"><span class="faith-room-row">${inner}</span></li>`;
+  }
+
+  // One block per author, laid out two across, exactly as the traditions
+  // are on the browse page.
+  function block(name, list) {
+    return `<div class="btrad">
+  <h3>${escapeHtml(name)}</h3>
+  <ul class="blist">${list.map(row).join("")}</ul>
+</div>`;
   }
 
   function render() {
@@ -102,30 +114,29 @@
     if (page > pages) page = pages;
     const slice = scoped.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+    // Group the page's works under their author, in the order they were
+    // sorted, so an author is never split across two headings.
+    const groups = [];
+    slice.forEach((w) => {
+      const name = (w.author || "").trim() || "Unattributed";
+      const last = groups[groups.length - 1];
+      if (last && last.name === name) last.works.push(w);
+      else groups.push({ name, works: [w] });
+    });
+
     const letters = [...new Set(filtered.map((w) => initial(w.author)))]
       .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
 
     const label = corpus ? corpus.label : "the collection";
-    root.innerHTML =
-      `<div class="faith-room-head">` +
-        `<input type="search" class="faith-room-filter" data-room-filter ` +
-          `placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" ` +
-          `aria-label="Search this collection" />` +
-        `<p class="faith-room-count">${scoped.length.toLocaleString()} work` +
-          `${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p>` +
-      `</div>${ 
-      letters.length > 1
-        ? `<nav class="faith-room-letters" aria-label="Jump to a letter">` +
-            `<button type="button" data-room-letter="" class="${letter ? "" : "is-active"}">All</button>${ 
-            letters.map((l) =>
-              `<button type="button" data-room-letter="${l}" ` +
-              `class="${letter === l ? "is-active" : ""}">${l}</button>`).join("") 
-          }</nav>`
-        : "" 
-      }${slice.length
-        ? `<ul class="blist faith-room-list">${slice.map(row).join("")}</ul>`
-        : `<p class="faith-room-status">Nothing matches that. Try another name or title.</p>` 
-      }${pager(page, pages)}`;
+    const rail = letters.length > 1
+      ? `<nav class="faith-room-letters" aria-label="Jump to a letter"><button type="button" data-room-letter="" class="${letter ? "" : "is-active"}">All</button>${
+          letters.map((l) => `<button type="button" data-room-letter="${l}" class="${letter === l ? "is-active" : ""}">${l}</button>`).join("")}</nav>`
+      : "";
+    const body = groups.length
+      ? `<div class="btrads faith-room-blocks">${groups.map((g) => block(g.name, g.works)).join("")}</div>`
+      : `<p class="faith-room-status">Nothing matches that. Try another name or title.</p>`;
+
+    root.innerHTML = `<div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count">${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p></div>${rail}${body}${pager(page, pages)}`;
 
     wire();
     pushState();

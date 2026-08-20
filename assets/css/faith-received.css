@@ -4945,3 +4945,14 @@ mark.faith-find-hit.is-current {
   .faith-room-list a, .faith-room-row { padding: 13px 0; }
   .faith-room-pager { gap: 16px; justify-content: space-between; }
 }
+
+/* The rooms lay their authors out the way the browse page lays out its
+   traditions: two columns of blocks, the name as the heading, the works
+   ruled beneath it. */
+.faith-room-blocks { margin-top: 8px; }
+.faith-room-blocks .btrad h3 { margin-bottom: 12px; }
+.faith-room-blocks .blist li { border-top: 1px solid var(--color-card-border); }
+.faith-room-blocks .blist a,
+.faith-room-blocks .faith-room-row { display: block; padding: 13px 0; text-decoration: none; color: inherit; }
+.faith-room-blocks .blist a:hover .brow-t { color: var(--color-secondary); }
+@media (max-width: 900px) { .faith-room-blocks { grid-template-columns: 1fr; } }
