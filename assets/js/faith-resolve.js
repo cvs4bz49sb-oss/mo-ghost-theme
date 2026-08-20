@@ -254,7 +254,6 @@
     // Not the hero: that is a dark full-bleed plate and the form
     // would land above the headline it belongs under.
     ".faith-browse .bband:first-of-type .container",
-    "[data-faith-search-page]",
   ].forEach((sel) => {
     const host = document.querySelector(sel);
     if (host) mount(host);
