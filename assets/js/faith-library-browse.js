@@ -294,7 +294,8 @@
   // crashed the browser. content-visibility defers painting, not
   // parsing, so it was no help at all. One author, "Anonymous", holds
   // 9,122 works and would have done the same again a level down.
-  const PAGE_SIZE = 120;
+  // Fifty to a page. Was 120, which was a wall on a phone.
+  const PAGE_SIZE = 50;
 
   function initial(name) {
     const ch = (name || "").trim().charAt(0).toUpperCase();
@@ -413,7 +414,7 @@
     head.setAttribute("data-faith-browse-chrome", "");
     const filterHtml = opts.filter != null
       ? `<input type="search" class="faith-browse-filter" data-faith-filter ` +
-        `placeholder="Filter authors&hellip;" value="${escapeHtml(opts.filter)}" ` +
+        `placeholder="Search an author or a title&hellip;" value="${escapeHtml(opts.filter)}" ` +
         `aria-label="Filter authors">`
       : "";
     const lettersHtml = opts.letters

@@ -4792,3 +4792,55 @@ mark.faith-find-hit.is-current {
   .blist--tools li { padding: 12px 0; }
   .btrad h3 { font-size: 22px; }
 }
+
+/* ── The reading rooms ─────────────────────────────────────────────
+   /the-faith-received/room/?collection=… puts a whole collection's
+   table of contents on the page: authors in order, their works beneath
+   the name, fifty to a page, an A-Z rail to jump by letter and a box
+   that searches names and titles.
+
+   The browse module renders cards. Here they become ruled rows, which
+   is the same treatment the tradition blocks use and the only one that
+   survives a list this long. */
+.faith-room .faith-card-grid { display: block; max-width: 1180px; }
+.faith-room .faith-card {
+  display: block;
+  border-left: 0;
+  border-top: 1px solid var(--color-card-border);
+  padding: 18px 0;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 96px;
+}
+.faith-room .faith-card:first-child { border-top: 0; }
+.faith-room .faith-card-title { font-size: var(--tfr-display-s); margin-bottom: 2px; }
+.faith-room .faith-card-date { margin-bottom: 4px; }
+.faith-room .faith-card-desc { font-size: var(--tfr-meta); color: var(--color-muted); margin: 0; }
+.faith-room .faith-card-link { display: none; }
+
+/* An author's works sit under the name rather than beside it. */
+.faith-room .faith-card-works { margin: 10px 0 0; }
+.faith-room .faith-card-work {
+  font-size: var(--tfr-meta);
+  white-space: normal;
+  padding: 2px 0;
+}
+
+/* The rail, the filter and the pager the module already draws. */
+.faith-room .faith-browse-filter {
+  width: 100%;
+  max-width: 520px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 13px 16px;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-white);
+  color: var(--color-dark);
+  margin-bottom: 26px;
+}
+.faith-room .faith-browse-letters { margin-bottom: 22px; }
+.faith-room .faith-pager { margin-top: 34px; }
+
+@media (max-width: 640px) {
+  .faith-room .faith-card { padding: 14px 0; }
+  .faith-room .faith-card-title { font-size: 19px; }
+}
