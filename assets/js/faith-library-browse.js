@@ -160,7 +160,7 @@
     const n = c.works.length;
     const authors = c.authors.size;
     const pending = c.meta.readable === false;
-    return `<a class="faith-card" href="?collection=${encodeURIComponent(c.id)}" data-faith-collection="${escapeHtml(c.id)}">` +
+    return `<a class="faith-card" href="/the-faith-received/room/?collection=${encodeURIComponent(c.id)}" data-faith-collection="${escapeHtml(c.id)}">` +
       `<p class="faith-card-date">${escapeHtml(c.meta.short || "")}</p>` +
       `<h3 class="faith-card-title"><em>${escapeHtml(c.meta.label)}</em></h3>` +
       `<p class="faith-card-desc">${n.toLocaleString()} work${n === 1 ? "" : "s"} &middot; ` +
