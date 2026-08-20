@@ -4991,3 +4991,53 @@ mark.faith-find-hit.is-current {
 .faith-room-blocks .faith-room-pending .brow-t { color: var(--color-muted); }
 .faith-room-blocks .blist a:hover .brow-t { color: var(--color-secondary); }
 @media (max-width: 900px) { .faith-room-blocks { columns: 1; } }
+
+/* The annual/monthly pill.
+
+   The markup is shared with /membership/, but the styling there comes
+   from Ghost code injection on that page rather than from the theme, so
+   on these pages the buttons rendered as bare browser defaults. This
+   rebuilds the pill in CSS the TFR pages actually load. Scoped under
+   .faith-received so it cannot reach /membership/ and fight the
+   injected rules. */
+.faith-received .toggle-wrap { display: flex; justify-content: center; margin: 0 0 44px; }
+.faith-received .toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px;
+  background: #fff;
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.06);
+}
+.faith-received .toggle-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 30px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1;
+  color: var(--color-muted);
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.faith-received .toggle-option:hover { color: var(--color-darkgrey); }
+.faith-received .toggle-option.is-active { background: var(--color-dark); color: #fff; }
+.faith-received .toggle-option .badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--color-secondary);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+@media (max-width: 640px) {
+  .faith-received .toggle-option { padding: 11px 18px; font-size: 16px; }
+  .faith-received .toggle-option .badge { font-size: 11px; padding: 4px 9px; }
+}
