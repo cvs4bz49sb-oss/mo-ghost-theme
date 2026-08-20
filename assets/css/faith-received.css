@@ -4990,7 +4990,17 @@ mark.faith-find-hit.is-current {
 .faith-room-blocks .brow-la { font-size: 13px; margin-top: 1px; }
 .faith-room-blocks .faith-room-pending .brow-t { color: var(--color-muted); }
 .faith-room-blocks .blist a:hover .brow-t { color: var(--color-secondary); }
-@media (max-width: 900px) { .faith-room-blocks { columns: 1; } }
+/* A long shelf takes the whole width and columns its own works. */
+.faith-room-blocks .btrad--wide {
+  display: block;
+  column-span: all;
+  margin-bottom: 40px;
+}
+.faith-room-blocks .btrad--wide .blist { columns: 2; column-gap: 64px; }
+@media (max-width: 900px) {
+  .faith-room-blocks { columns: 1; }
+  .faith-room-blocks .btrad--wide .blist { columns: 1; }
+}
 
 /* The annual/monthly pill.
 

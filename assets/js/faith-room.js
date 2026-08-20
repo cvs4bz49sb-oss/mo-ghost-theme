@@ -100,8 +100,15 @@
 
   // One block per author, laid out two across, exactly as the traditions
   // are on the browse page.
+  // An author with a long shelf spans the full width and runs their works
+  // in two columns. A block cannot break across a column, so leaving
+  // Aquinas in one would hold the left column for pages together and
+  // leave the right one empty.
+  const WIDE_AT = 10;
+
   function block(name, list) {
-    return `<div class="btrad">
+    const wide = list.length >= WIDE_AT ? " btrad--wide" : "";
+    return `<div class="btrad${wide}">
   <h3>${escapeHtml(name)}</h3>
   <ul class="blist">${list.map(row).join("")}</ul>
 </div>`;
