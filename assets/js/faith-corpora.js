@@ -102,8 +102,8 @@
       // name of this whole reading room — a collection inside it can't
       // carry it too. Paired with Early English Books: each named by
       // language and medium.
-      label: "The Divinity Library",
-      short: "Latin and English divinity, 1100–1700",
+      label: "The Latin Library",
+      short: "Latin divinity, 1100–1700",
       base: BLOB,
       catalogue: "/v1/works-index.json",
       pick: (d) => d.works || [],

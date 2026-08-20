@@ -31,6 +31,7 @@
     params.get("collection") || "tfr").replace(/[^a-z0-9_-]/gi, "");
 
   let works = [];
+  let tradition = params.get("tradition") || "";
   let filter = params.get("q") || "";
   let letter = params.get("letter") || "";
   let page = Math.max(1, parseInt(params.get("page"), 10) || 1);
@@ -69,7 +70,12 @@
     });
   }
 
+  function trad(w) {
+    return (w.tradition || w.eyebrow || "").trim();
+  }
+
   function matches(w) {
+    if (tradition && trad(w) !== tradition) return false;
     if (!filter) return true;
     const q = filter.toLowerCase();
     return (w.title || "").toLowerCase().includes(q) ||
@@ -81,6 +87,7 @@
     const q = new URLSearchParams();
     q.set("collection", collectionId);
     if (filter) q.set("q", filter);
+    if (tradition) q.set("tradition", tradition);
     if (letter) q.set("letter", letter);
     if (page > 1) q.set("page", String(page));
     window.history.replaceState(null, "", `?${q.toString()}`);
@@ -136,6 +143,17 @@
       }
     });
 
+    const counts = new Map();
+    works.forEach((w) => {
+      const t = trad(w);
+      if (t) counts.set(t, (counts.get(t) || 0) + 1);
+    });
+    const trads = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    const chips = trads.length > 1
+      ? `<nav class="faith-room-trads" aria-label="Filter by tradition"><button type="button" data-room-trad="" class="${tradition ? "" : "is-active"}">All${
+          trads.map(([t, n]) => `</button><button type="button" data-room-trad="${escapeHtml(t)}" class="${tradition === t ? "is-active" : ""}">${escapeHtml(t)} <span>${n.toLocaleString()}</span>`).join("")}</button></nav>`
+      : "";
+
     const letters = [...new Set(filtered.map((w) => initial(w.author)))]
       .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
 
@@ -178,6 +196,15 @@
         }, 180);
       });
     }
+    root.querySelectorAll("[data-room-trad]").forEach((b) => {
+      b.addEventListener("click", () => {
+        tradition = b.getAttribute("data-room-trad");
+        letter = "";
+        page = 1;
+        render();
+        root.scrollIntoView({ block: "start" });
+      });
+    });
     root.querySelectorAll("[data-room-letter]").forEach((b) => {
       b.addEventListener("click", () => {
         letter = b.getAttribute("data-room-letter");

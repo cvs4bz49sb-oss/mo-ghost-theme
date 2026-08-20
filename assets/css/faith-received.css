@@ -5051,3 +5051,33 @@ mark.faith-find-hit.is-current {
   .faith-received .toggle-option { padding: 11px 18px; font-size: 16px; }
   .faith-received .toggle-option .badge { font-size: 11px; padding: 4px 9px; }
 }
+
+/* Tradition chips: a filter inside a collection, never a regrouping of
+   one. The collections are the five the source ships; this only narrows
+   the shelf a reader is already standing in. */
+.faith-room-trads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 26px;
+}
+.faith-room-trads button {
+  padding: 8px 15px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--color-darkgrey);
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+.faith-room-trads button span { color: var(--color-muted); margin-left: 5px; }
+.faith-room-trads button:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+.faith-room-trads button.is-active {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: #fff;
+}
+.faith-room-trads button.is-active span { color: #ffffff8f; }
