@@ -4596,3 +4596,57 @@ mark.faith-find-hit.is-current {
   .faith-landing .faith-card:nth-child(-n+2) { border-top: 1px solid var(--color-card-border); padding-top: 24px; }
   .faith-landing .faith-card:first-child { border-top: 0; padding-top: 8px; }
 }
+
+/* ── The doors keep their links on one line ────────────────────────
+   Each door's sentence wraps to a different depth, so the links sat at
+   four different heights. The card becomes a column and the link is
+   pushed to the floor of it. */
+.lp-door { display: flex; flex-direction: column; height: 100%; }
+.lp-door p { flex: 1 0 auto; }
+.lp-door .faith-card-link { margin-top: auto; }
+
+/* ── The generated feature hero wears the tool hero ────────────────
+   Topics, and every other page the build script writes, carry
+   `.hero.faith-feature-hero` from the generator rather than markup we
+   can edit here. Restyling the class is what makes those pages match
+   Scripture and Search without hand-editing generated files. */
+.faith-feature-hero {
+  background:
+    linear-gradient(rgba(45,41,39,0.42), rgba(45,41,39,0.9) 78%),
+    url(/assets/images/tfr/durand-thanatopsis.jpg) center 42%/cover no-repeat,
+    var(--color-dark);
+  color: var(--color-white);
+  padding: 92px 0 84px;
+  text-align: left;
+}
+.faith-feature-hero .container { max-width: 1180px; }
+.faith-feature-hero .hero-kicker {
+  justify-content: flex-start;
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #ffffffc4;
+  margin: 0 0 14px;
+}
+.faith-feature-hero .hero-kicker .dot { display: none; }
+.faith-feature-hero .hero-headline,
+.faith-feature-hero .faith-hero-headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--tfr-display-l);
+  line-height: 1.04;
+  color: var(--color-white);
+  margin: 0 0 18px;
+  max-width: 24ch;
+}
+.faith-feature-hero .hero-headline em { font-style: normal; }
+.faith-feature-hero .hero-sub {
+  font-family: var(--font-body);
+  font-size: var(--tfr-body);
+  line-height: 1.55;
+  color: #ffffffd6;
+  margin: 0;
+  max-width: 60ch;
+}
+@media (max-width: 640px) { .faith-feature-hero { padding: 56px 0 52px; } }
