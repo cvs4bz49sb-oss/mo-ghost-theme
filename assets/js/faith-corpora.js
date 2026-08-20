@@ -133,10 +133,13 @@
         title: w.title || w.slug,
         // The catalogue carries the work's own title separately, so a
         // reader gets both without waiting on a translation pass.
-        titleLatin: w.title_la || "",
+        titleLatin: String(w.title_la || ""),
         // Volume tells two printings of the same title apart. Without
         // it a multi-volume set reads as the same row repeated.
-        volume: (w.volume || "").trim(),
+        // Volumes come through as numbers as often as strings, and a
+        // number has no .trim: calling it threw inside normalize, which
+        // rejected the whole load and emptied every room.
+        volume: String(w.volume == null ? "" : w.volume).trim(),
         tradition: w.tradition || "",
         author: (w.author || "").trim(),
         eyebrow: w.tradition || "",
