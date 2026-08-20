@@ -278,6 +278,24 @@ routes:
   /the-faith-received/browse/:
     template: custom-faith-browse
   # One route for all eight reading rooms; ?collection= picks which.
+  # A page per collection. The shared /room/ route stays as a fallback
+  # for links that still carry ?collection=.
+  /the-faith-received/latin-library/:
+    template: custom-faith-room-latin-library
+  /the-faith-received/early-english-books/:
+    template: custom-faith-room-early-english-books
+  /the-faith-received/patrologia-latina/:
+    template: custom-faith-room-patrologia-latina
+  /the-faith-received/patrologia-graeca/:
+    template: custom-faith-room-patrologia-graeca
+  /the-faith-received/patrologia-orientalis/:
+    template: custom-faith-room-patrologia-orientalis
+  /the-faith-received/augustine/:
+    template: custom-faith-room-augustine
+  /the-faith-received/confessions/:
+    template: custom-faith-room-confessions
+  /the-faith-received/english-editions/:
+    template: custom-faith-room-english-editions
   /the-faith-received/room/:
     template: custom-faith-room
   # Feature pages

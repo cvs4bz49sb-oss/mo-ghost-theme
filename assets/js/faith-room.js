@@ -24,7 +24,11 @@
 
   const PAGE_SIZE = 50;
   const params = new URLSearchParams(window.location.search);
-  const collectionId = (params.get("collection") || "tfr").replace(/[^a-z0-9_-]/gi, "");
+  // The page says which collection it is; ?collection= is only a
+  // fallback for the shared /room/ route.
+  const meta = document.querySelector('meta[name="tfr-room-collection"]');
+  const collectionId = ((meta && meta.getAttribute("content")) ||
+    params.get("collection") || "tfr").replace(/[^a-z0-9_-]/gi, "");
 
   let works = [];
   let filter = params.get("q") || "";

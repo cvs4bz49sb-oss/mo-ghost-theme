@@ -1,0 +1,37 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>The Latin Library &mdash; The Faith Received</title>
+<meta name="description" content="The whole table of contents for The Latin Library in The Faith Received: every work, every author, in one place." />
+<meta property="og:title" content="The Latin Library — The Faith Received" />
+<meta name="twitter:title" content="The Latin Library — The Faith Received" />
+{{/contentFor}}
+{{!-- /the-faith-received/latin-library/ — The Latin Library, whole.
+
+     One page per collection. faith-room.js reads which one from the
+     tfr-room-collection meta below, sorts every work by its author's
+     last name, pages at fifty, and draws the rail and the filter.
+
+     Generated as a set: if one changes, change them all. --}
+
+<main class="faith-received faith-room">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker">The Faith Received &middot; Reading room</p>
+      <h1>The Latin Library</h1>
+      <p class="bhero-sub">Latin divinity, 1100&ndash;1700. Every work in the collection, sorted by author. Jump by letter, or search for a name or a title.</p>
+    </div>
+  </section>
+
+  <section class="bband faith-room-body">
+    <div class="container" data-faith-room></div>
+  </section>
+
+</main>
+
+<meta name="tfr-room-collection" content="tfr" />
+<meta name="tfr-library-base" content="https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com" />
+<script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/faith-room.js"}}"></script>
+<script src="{{asset "js/faith-resolve.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>

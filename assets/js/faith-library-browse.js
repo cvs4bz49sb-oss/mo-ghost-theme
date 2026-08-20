@@ -40,6 +40,18 @@
 
   // Collections that make up the Library tab, in reading order.
   // Confessions are excluded — they belong to Documents.
+  // Each collection has its own page now.
+  const ROOM_PATH = {
+    tfr: "/the-faith-received/latin-library/",
+    eebo: "/the-faith-received/early-english-books/",
+    pld: "/the-faith-received/patrologia-latina/",
+    pg: "/the-faith-received/patrologia-graeca/",
+    po: "/the-faith-received/patrologia-orientalis/",
+    augustine: "/the-faith-received/augustine/",
+    confessions: "/the-faith-received/confessions/",
+    "mo-english": "/the-faith-received/english-editions/",
+  };
+
   const LIBRARY_IDS = ["tfr", "eebo", "pld", "po", "augustine", "pg"];
 
   // Curated English works ship server-rendered in the Library grid.
@@ -160,7 +172,7 @@
     const n = c.works.length;
     const authors = c.authors.size;
     const pending = c.meta.readable === false;
-    return `<a class="faith-card" href="/the-faith-received/room/?collection=${encodeURIComponent(c.id)}" data-faith-collection="${escapeHtml(c.id)}">` +
+    return `<a class="faith-card" href="${ROOM_PATH[c.id] || `/the-faith-received/room/?collection=${encodeURIComponent(c.id)}`}" data-faith-collection="${escapeHtml(c.id)}">` +
       `<p class="faith-card-date">${escapeHtml(c.meta.short || "")}</p>` +
       `<h3 class="faith-card-title"><em>${escapeHtml(c.meta.label)}</em></h3>` +
       `<p class="faith-card-desc">${n.toLocaleString()} work${n === 1 ? "" : "s"} &middot; ` +
