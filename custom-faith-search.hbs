@@ -100,14 +100,13 @@
   {{!-- No prices here on purpose: /membership/ is where they live, and a
        number repeated in two places is a number that goes stale in one. --}}
   <section class="bband bband--dark faith-join">
-    <div class="container">
-      <header class="bhead">
-        <p class="blabel">Become a member</p>
-        <h2>Use the tools and support the work.</h2>
-      </header>
-      {{> "membership-pricing"}}
-    </div>
-  </section>
+  <div class="container">
+    <p class="blabel">Become a member</p>
+    <h2>Use the tools and support the work.</h2>
+  </div>
+</section>
+
+{{> "membership-pricing"}}
 </main>
 
 {{!-- SRI on the CDN script: the browser refuses to execute if the
