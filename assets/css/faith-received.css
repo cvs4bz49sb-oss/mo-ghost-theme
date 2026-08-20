@@ -4665,3 +4665,38 @@ mark.faith-find-hit.is-current {
   margin-top: 4px;
 }
 .blist--tools .lp-members { margin-left: 12px; }
+
+/* ── Become a member ───────────────────────────────────────────────
+   Three cards on the dark ground, ruled rather than boxed, so the ask
+   reads as part of the page instead of an advertisement dropped into
+   it. */
+.faith-join-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+}
+.faith-join-card {
+  padding: 0 32px;
+  border-left: 1px solid #ffffff2e;
+}
+.faith-join-card:first-child { border-left: 0; padding-left: 0; }
+.faith-join-card:last-child { padding-right: 0; }
+.faith-join-card h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--tfr-display-s);
+  color: var(--color-white);
+  margin: 0 0 10px;
+}
+.faith-join-card p {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.55;
+  color: #ffffffd6;
+  margin: 0;
+}
+.faith-join-cta { margin: 44px 0 0; }
+@media (max-width: 900px) {
+  .faith-join-cards { grid-template-columns: 1fr; gap: 32px; }
+  .faith-join-card { border-left: 0; padding: 0; }
+}
