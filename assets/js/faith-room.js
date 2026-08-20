@@ -70,8 +70,13 @@
     });
   }
 
+  // Only a declared tradition counts. The eyebrow is whatever a corpus
+  // chooses to print under a title, and in Early English Books that is
+  // the year of printing, so falling back to it turned every year from
+  // 1641 to 1700 into its own filter. A corpus that says it has no
+  // traditions gets no chips.
   function trad(w) {
-    return (w.tradition || w.eyebrow || "").trim();
+    return String(w.tradition || "").trim();
   }
 
   function matches(w) {
@@ -149,7 +154,7 @@
       if (t) counts.set(t, (counts.get(t) || 0) + 1);
     });
     const trads = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-    const chips = trads.length > 1
+    const chips = trads.length > 1 && trads.length <= 12
       ? `<nav class="faith-room-trads" aria-label="Filter by tradition"><button type="button" data-room-trad="" class="${tradition ? "" : "is-active"}">All${
           trads.map(([t, n]) => `</button><button type="button" data-room-trad="${escapeHtml(t)}" class="${tradition === t ? "is-active" : ""}">${escapeHtml(t)} <span>${n.toLocaleString()}</span>`).join("")}</button></nav>`
       : "";
