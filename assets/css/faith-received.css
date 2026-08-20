@@ -4734,3 +4734,6 @@ mark.faith-find-hit.is-current {
 .faith-feature-body:has([data-faith-search-results]:empty):has([data-faith-search-empty][hidden]) {
   display: none;
 }
+
+/* The Vermeer carries a heavier frame than the facsimile plates. */
+.lp-plate--art { border-width: 3px; }
