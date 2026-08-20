@@ -30,6 +30,12 @@
   const collectionId = ((meta && meta.getAttribute("content")) ||
     params.get("collection") || "tfr").replace(/[^a-z0-9_-]/gi, "");
 
+  // A tradition narrows the room to one shelf within the collection.
+  // The Divinity Library holds seven, from English Divines to the Greek
+  // Fathers, and 2,290 works in one list is not a table of contents.
+  const tmeta = document.querySelector('meta[name="tfr-room-tradition"]');
+  const tradition = (tmeta && tmeta.getAttribute("content")) || params.get("tradition") || "";
+
   let works = [];
   let filter = params.get("q") || "";
   let letter = params.get("letter") || "";
@@ -38,7 +44,10 @@
   const corpus = window.MOCorpora.get(collectionId);
   root.innerHTML = '<p class="faith-room-status">Loading the collection&hellip;</p>';
 
-  window.MOCorpora.load(collectionId).then((list) => {
+  window.MOCorpora.load(collectionId).then((all) => {
+    const list = tradition
+      ? all.filter((w) => (w.tradition || w.eyebrow || "") === tradition)
+      : all;
     // Sort by the name the reader is scanning for, then by title so a
     // multi-volume set reads in order rather than in catalogue order.
     works = list.slice().sort((a, b) => {
@@ -91,7 +100,8 @@
   function row(w) {
     const second = w.titleLatin && w.titleLatin !== w.title ? w.titleLatin : "";
     const second2 = second ? `<span class="brow-la">${escapeHtml(second)}</span>` : "";
-    const inner = `<span class="brow-t">${escapeHtml(w.title || w.id)}</span>${second2}`;
+    const vol = w.volume ? `<span class="brow-m">${escapeHtml(w.volume)}</span>` : "";
+    const inner = `<span class="brow-t">${escapeHtml(w.title || w.id)}</span>${second2}${vol}`;
     if (w.readable !== false && w.url) {
       return `<li><a href="${escapeHtml(w.url)}">${inner}</a></li>`;
     }
@@ -128,17 +138,17 @@
       const name = (w.author || "").trim() || "Unattributed";
       const last = groups[groups.length - 1];
       if (last && last.name === name) {
-        const key = (w.title || "").toLowerCase();
+        const key = `${(w.title || "").toLowerCase()}|${w.volume || ""}`;
         if (!last.seen.has(key)) { last.seen.add(key); last.works.push(w); }
       } else {
-        groups.push({ name, works: [w], seen: new Set([(w.title || "").toLowerCase()]) });
+        groups.push({ name, works: [w], seen: new Set([`${(w.title || "").toLowerCase()}|${w.volume || ""}`]) });
       }
     });
 
     const letters = [...new Set(filtered.map((w) => initial(w.author)))]
       .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
 
-    const label = corpus ? corpus.label : "the collection";
+    const label = tradition || (corpus ? corpus.label : "the collection");
     const rail = letters.length > 1
       ? `<nav class="faith-room-letters" aria-label="Jump to a letter"><button type="button" data-room-letter="" class="${letter ? "" : "is-active"}">All</button>${
           letters.map((l) => `<button type="button" data-room-letter="${l}" class="${letter === l ? "is-active" : ""}">${l}</button>`).join("")}</nav>`

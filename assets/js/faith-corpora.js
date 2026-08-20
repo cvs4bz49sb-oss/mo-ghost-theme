@@ -102,8 +102,8 @@
       // name of this whole reading room — a collection inside it can't
       // carry it too. Paired with Early English Books: each named by
       // language and medium.
-      label: "The Latin Library",
-      short: "Latin divinity, 1100–1700",
+      label: "The Divinity Library",
+      short: "Latin and English divinity, 1100–1700",
       base: BLOB,
       catalogue: "/v1/works-index.json",
       pick: (d) => d.works || [],
@@ -131,6 +131,13 @@
         corpus: "tfr",
         id: w.slug,
         title: w.title || w.slug,
+        // The catalogue carries the work's own title separately, so a
+        // reader gets both without waiting on a translation pass.
+        titleLatin: w.title_la || "",
+        // Volume tells two printings of the same title apart. Without
+        // it a multi-volume set reads as the same row repeated.
+        volume: (w.volume || "").trim(),
+        tradition: w.tradition || "",
         author: (w.author || "").trim(),
         eyebrow: w.tradition || "",
         extent: w.n_pages || 0,
