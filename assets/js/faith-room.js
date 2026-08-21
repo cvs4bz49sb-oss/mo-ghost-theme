@@ -230,9 +230,28 @@
       ? `<div class="btrads faith-room-blocks">${groups.map((g) => block(g.name, g.works)).join("")}</div>`
       : `<p class="faith-room-status">Nothing matches that. Try another name or title.</p>`;
 
-    root.innerHTML = `<div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count">${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p></div>${filters}${rail}${body}${pager(page, pages)}`;
+    // The search box and the selects are built once and left alone.
+    // Rewriting the whole subtree on every render tore them out from
+    // under the reader: an open dropdown vanished the moment it was
+    // touched, because choosing an option rebuilt the element.
+    if (!root.querySelector("[data-room-shell]")) {
+      root.innerHTML = `<div data-room-shell><div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count" data-room-count></p></div><div data-room-controls>${filters}</div><div data-room-rail></div><div data-room-list></div><div data-room-pager></div></div>`;
+      wireOnce();
+    }
 
-    wire();
+    root.querySelector("[data-room-count]").innerHTML =
+      `${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}`;
+    root.querySelector("[data-room-rail]").innerHTML = rail;
+    root.querySelector("[data-room-list]").innerHTML = body;
+    root.querySelector("[data-room-pager]").innerHTML = pager(page, pages);
+
+    // Keep the selects in step with the state without replacing them.
+    [["in", collection], ["cent", century || ""], ["trad", tradition]].forEach(([k, v]) => {
+      const el = root.querySelector(`[data-room-${k}]`);
+      if (el && el.value !== String(v)) el.value = String(v);
+    });
+
+    wireList();
     pushState();
   }
 
@@ -245,7 +264,8 @@
       `</nav>`;
   }
 
-  function wire() {
+  // Bound once, on elements that are never rebuilt.
+  function wireOnce() {
     const input = root.querySelector("[data-room-filter]");
     if (input) {
       let t = null;
@@ -255,20 +275,9 @@
           filter = input.value.trim();
           page = 1;
           render();
-          const again = root.querySelector("[data-room-filter]");
-          if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
         }, 180);
       });
     }
-    root.querySelectorAll("[data-room-trad]").forEach((b) => {
-      b.addEventListener("click", () => {
-        tradition = b.getAttribute("data-room-trad");
-        letter = "";
-        page = 1;
-        render();
-        root.scrollIntoView({ block: "start" });
-      });
-    });
     const onPick = (sel, apply) => {
       const el = root.querySelector(`[data-room-${sel}]`);
       if (!el) return;
@@ -277,13 +286,14 @@
         letter = "";
         page = 1;
         render();
-        root.scrollIntoView({ block: "start" });
       });
     };
     onPick("in", (v) => { collection = v; });
     onPick("cent", (v) => { century = parseInt(v, 10) || 0; });
     onPick("trad", (v) => { tradition = v; });
+  }
 
+  function wireList() {
     root.querySelectorAll("[data-room-letter]").forEach((b) => {
       b.addEventListener("click", () => {
         letter = b.getAttribute("data-room-letter");
@@ -299,4 +309,5 @@
       });
     });
   }
+
 })();
