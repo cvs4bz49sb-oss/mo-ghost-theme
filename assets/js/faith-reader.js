@@ -1229,6 +1229,151 @@
     return d.innerHTML;
   }
 
+  // ── TEI ───────────────────────────────────────────────────────
+  //
+  // 802 works in the Latin corpus carry neither `shards` nor `single`
+  // in their meta, so this reader asked for work.json, took a 404 and
+  // dead-ended on a third of the collection. 733 of them are English
+  // divines whose text has been on the CDN the whole time as TEI.
+  //
+  // Parsed here into the same { n, la, en } page the shard reader
+  // produces, so sections, the contents rail, the language toggle, the
+  // facsimile pane, find-in-work and the notebook all work unchanged.
+  // The page is marked `tei` because this lane arrives as HTML and must
+  // not be run through the Markdown renderer.
+  //
+  // Fallback only, deliberately. The 1,494 works that already carry
+  // shards keep reading from them; nothing that works today changes
+  // path. Preferring TEI everywhere is the next step, and it is what
+  // buys the apparatus, but it is not this change.
+
+  const TEI_FILE = "__tei__";
+
+  // The bilingual exports declare the TEI namespace and the
+  // English-only ones do not, so nothing here may be namespace-aware.
+  // Elements are matched on local name and walked by hand.
+  function teiLocal(node) {
+    return String(node.localName || node.nodeName || "").toLowerCase();
+  }
+
+  // Inline run: everything that belongs inside a block. An element not
+  // named here contributes its text and no markup, which is the right
+  // default for a schema whose long tail is typographic.
+  function teiInline(el) {
+    let out = "";
+    const kids = el.childNodes || [];
+    for (let i = 0; i < kids.length; i++) {
+      const n = kids[i];
+      if (n.nodeType === 3) { out += escapeHtml(n.nodeValue || ""); continue; }
+      if (n.nodeType !== 1) continue;
+      const t = teiLocal(n);
+      // A page break inside a paragraph is rare (2 in 8,751) and the
+      // paragraph stays whole on the page it opened.
+      if (t === "pb" || t === "fw") continue;
+      if (t === "lb") { out += " "; continue; }
+      if (t === "hi") { out += `<em>${teiInline(n)}</em>`; continue; }
+      if (t === "label") { out += `<strong>${teiInline(n)}</strong> `; continue; }
+      // Margin notes and footnotes are the editor's apparatus, and the
+      // reader already styles them as such.
+      if (t === "note") { out += `<span class="faith-ed-note">${teiInline(n)}</span>`; continue; }
+      out += teiInline(n);
+    }
+    return out;
+  }
+
+  // Walk in document order, letting <pb n> move the cursor, and collect
+  // block-level HTML per page.
+  function parseTei(xml) {
+    const pages = new Map();
+    let doc = null;
+    try {
+      doc = new DOMParser().parseFromString(xml, "application/xml");
+    } catch (_) { return pages; }
+    if (!doc || !doc.documentElement) return pages;
+    if (doc.getElementsByTagName("parsererror").length) return pages;
+
+    let page = 1;
+    const push = (html) => {
+      if (!html) return;
+      pages.set(page, (pages.get(page) || "") + html);
+    };
+
+    const walk = (el) => {
+      const kids = el.childNodes || [];
+      for (let i = 0; i < kids.length; i++) {
+        const n = kids[i];
+        if (n.nodeType !== 1) continue;
+        const t = teiLocal(n);
+        // The header carries a <title> that would otherwise land in the
+        // text as a stray heading.
+        if (t === "teiheader") continue;
+        if (t === "pb") {
+          const num = parseInt(n.getAttribute("n"), 10);
+          if (!isNaN(num)) page = num;
+          continue;
+        }
+        // Running heads, catchwords and signatures are printing
+        // furniture, not the text.
+        if (t === "fw") continue;
+        if (t === "head") {
+          const sub = (n.getAttribute("type") || "") === "sub";
+          push(`<${sub ? "h3" : "h2"}>${teiInline(n)}</${sub ? "h3" : "h2"}>`);
+          continue;
+        }
+        if (t === "p") { push(`<p>${teiInline(n)}</p>`); continue; }
+        if (t === "list") {
+          let items = "";
+          const li = n.childNodes || [];
+          for (let j = 0; j < li.length; j++) {
+            if (li[j].nodeType === 1 && teiLocal(li[j]) === "item") {
+              items += `<li>${teiInline(li[j])}</li>`;
+            }
+          }
+          push(items ? `<ul>${items}</ul>` : "");
+          continue;
+        }
+        // text, div, body and anything else structural: keep walking so
+        // a <pb> nested inside it still moves the cursor.
+        walk(n);
+      }
+    };
+
+    walk(doc.documentElement);
+    return pages;
+  }
+
+  let teiPromise = null;
+
+  // Both lanes, in parallel. Either may be absent: the English-only
+  // works have no tei.la.xml, and a 404 on one lane must not lose the
+  // other.
+  function loadTei() {
+    if (teiPromise) return teiPromise;
+    const lane = (code) =>
+      fetch(`${BASE}/v1/works/${slug}/tei.${code}.xml`)
+        .then((r) => (r.ok ? r.text() : ""))
+        .then((t) => (t ? parseTei(t) : new Map()))
+        .catch(() => new Map());
+
+    teiPromise = Promise.all([lane("en"), lane("la")]).then(([en, la]) => {
+      if (!en.size && !la.size) throw new Error("tei: neither lane parsed");
+      const nums = new Set([...en.keys(), ...la.keys()]);
+      const out = [];
+      nums.forEach((n) => {
+        out.push({ n, en: en.get(n) || "", la: la.get(n) || "", tei: true });
+      });
+      out.sort((a, b) => a.n - b.n);
+      out.forEach((pg) => {
+        if (!pageStore.has(pg.n)) pageStore.set(pg.n, pg);
+      });
+      return out;
+    }).catch((err) => {
+      teiPromise = null;
+      throw err;
+    });
+    return teiPromise;
+  }
+
   // ── Shard loading ─────────────────────────────────────────────
 
   // Normalized shard list: [{ file, from, to }]. Single-file works are
@@ -1243,6 +1388,12 @@
         }
         return { file: s.file, from: s.from, to: s.to };
       });
+    }
+    // No shards and no single file: the text is only on the CDN as TEI.
+    // Modelled as one shard over the whole work, because the parse
+    // yields every page at once either way.
+    if (!m.single && m.has_tei) {
+      return [{ file: TEI_FILE, from: 1, to: m.n_pages || Infinity }];
     }
     return [{
       file: m.single || "work.json",
@@ -1259,6 +1410,7 @@
   }
 
   function loadShard(shard) {
+    if (shard.file === TEI_FILE) return loadTei();
     if (shardPromises.has(shard.file)) return shardPromises.get(shard.file);
     // Reading depth. Shard count is the only proxy for whether a work was
     // read or merely opened, and it cannot be observed from outside the
@@ -1601,17 +1753,21 @@
     block.className = "faith-parallel-block";
     block.setAttribute("data-page", p.n);
 
+    // A TEI page is already HTML and carries its own headings, lists
+    // and apparatus. Running it through the Markdown renderer would
+    // escape every tag and print the markup at the reader.
+    const lane = (text) => (p.tei ? sanitize(text || "") : renderMarkdown(text || ""));
+
     // English column.
     const enCol = document.createElement("div");
     enCol.className = "faith-col-en";
     enCol.innerHTML =
-      `<span class="faith-page-marker">[p. ${p.n}]</span>${
-      renderMarkdown(p.en || "")}`;
+      `<span class="faith-page-marker">[p. ${p.n}]</span>${lane(p.en)}`;
 
     // Latin column.
     const laCol = document.createElement("div");
     laCol.className = "faith-col-la";
-    laCol.innerHTML = renderMarkdown(p.la || "");
+    laCol.innerHTML = lane(p.la);
 
     block.appendChild(enCol);
     block.appendChild(laCol);
