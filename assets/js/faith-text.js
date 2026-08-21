@@ -140,5 +140,31 @@
     return remember(key, fn(c, id).catch(() => []));
   }
 
-  window.MOText = { load, strip };
+  // ── What counts as a match ────────────────────────────────────
+  //
+  // Whole words. Searching "sin" in Augustine on the Trinity returned
+  // 1,092 hits, and they were abusing, despising, since and choosing:
+  // the letters were there, the word was not. A reader looking for sin
+  // is not looking for the middle of "choosing".
+  //
+  // A phrase is bounded at its ends only, so "grace of God" still
+  // matches. Boundaries are by letter or number rather than \b, which
+  // is ASCII and would break at the first accent — and this corpus is
+  // full of them.
+  function wordPattern(term, flags) {
+    const t = String(term || "").trim();
+    if (!t) return null;
+    const esc = t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const open = /^[\p{L}\p{N}]/u.test(t) ? "(?<![\\p{L}\\p{N}])" : "";
+    const close = /[\p{L}\p{N}]$/u.test(t) ? "(?![\\p{L}\\p{N}])" : "";
+    try {
+      return new RegExp(open + esc + close, flags || "giu");
+    } catch (_) {
+      // Lookbehind is not everywhere. Fall back to the letters alone
+      // rather than to no search at all.
+      try { return new RegExp(esc, flags || "giu"); } catch (__) { return null; }
+    }
+  }
+
+  window.MOText = { load, strip, wordPattern };
 }());

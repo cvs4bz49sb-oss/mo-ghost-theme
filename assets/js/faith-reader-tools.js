@@ -307,7 +307,12 @@
       return;
     }
 
-    const needle = q.toLowerCase();
+    // Whole words. "sin" in Augustine on the Trinity reported 1,092
+    // matches and they were abusing, despising, since and choosing:
+    // the letters were there and the word was not.
+    const re = window.MOText && window.MOText.wordPattern
+      ? window.MOText.wordPattern(q, "giu") : null;
+    if (!re) { statusEl.textContent = ""; return; }
     const walker = document.createTreeWalker(contentEl, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
@@ -317,7 +322,8 @@
         if (p && p.closest && p.closest(".faith-cite, .faith-find, .faith-notebook")) {
           return NodeFilter.FILTER_REJECT;
         }
-        return node.nodeValue.toLowerCase().indexOf(needle) >= 0
+        re.lastIndex = 0;
+        return re.test(node.nodeValue)
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT;
       },
@@ -334,23 +340,29 @@
 
     targets.forEach((t) => {
       const text = t.nodeValue;
-      const lower = text.toLowerCase();
+      // Collected before splitting: splitText rewrites the node the
+      // pattern is walking, and the offsets would drift under it.
+      const spans = [];
+      re.lastIndex = 0;
+      let m = re.exec(text);
+      while (m) {
+        spans.push([m.index, m[0].length]);
+        if (re.lastIndex === m.index) re.lastIndex += 1;
+        m = re.exec(text);
+      }
       let from = 0;
       let cursor = t;
-      let idx = lower.indexOf(needle, from);
-      while (idx >= 0) {
-        const before = idx - from;
-        const mid = cursor.splitText(before);
-        const after = mid.splitText(needle.length);
+      spans.forEach(([idx, len]) => {
+        const mid = cursor.splitText(idx - from);
+        const after = mid.splitText(len);
         const mark = document.createElement("mark");
         mark.className = "faith-find-hit";
         mid.parentNode.insertBefore(mark, mid);
         mark.appendChild(mid);
         hits.push(mark);
         cursor = after;
-        from = idx + needle.length;
-        idx = lower.indexOf(needle, from);
-      }
+        from = idx + len;
+      });
     });
 
     // How much of the work this search could actually see. The shard

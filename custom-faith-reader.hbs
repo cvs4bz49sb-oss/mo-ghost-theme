@@ -176,6 +176,9 @@
      citation link from the index can land on the line rather than on
      the title page. Loaded before the reader, which calls it as soon as
      a work renders. --}}
+{{!-- What counts as a match: whole words, not letters inside words.
+     Shared with the searches on the browse and author pages. --}}
+<script src="{{asset "js/faith-text.js"}}"></script>
 <script src="{{asset "js/faith-scripture-ref.js"}}"></script>
 <script src="{{asset "js/faith-reader.js"}}"></script>
 {{!-- The citation resolver exposes window.MOResolve here rather than

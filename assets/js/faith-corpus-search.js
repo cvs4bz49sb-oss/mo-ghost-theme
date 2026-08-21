@@ -45,30 +45,36 @@
   // Three is enough to judge whether the work is worth opening.
   const MAX_PREVIEWS = 3;
 
-  function searchRows(rows, needle) {
+  function searchRows(rows, re) {
     const hits = [];
     let total = 0;
     for (let i = 0; i < rows.length; i += 1) {
       const text = rows[i].text;
-      const hay = fold(text);
-      let at = hay.indexOf(needle);
+      re.lastIndex = 0;
+      let m = re.exec(text);
       let firstInRow = true;
-      while (at >= 0) {
+      while (m) {
         total += 1;
         if (firstInRow && hits.length < MAX_PREVIEWS) {
-          hits.push({ loc: rows[i].loc, snippet: snippet(text, at, needle.length) });
+          hits.push({ loc: rows[i].loc, snippet: snippet(text, m.index, m[0].length) });
           firstInRow = false;
         }
-        at = hay.indexOf(needle, at + needle.length);
+        // A zero-length match would spin forever.
+        if (re.lastIndex === m.index) re.lastIndex += 1;
+        m = re.exec(text);
       }
     }
     return { hits, total };
   }
 
   function run(works, term, hooks) {
-    const needle = fold(String(term || "").trim());
+    // Whole words, not letters inside words: "sin" is not "choosing".
+    // The pattern is built once and reused for every row of every work.
+    const clean = String(term || "").trim();
+    const re = window.MOText && window.MOText.wordPattern
+      ? window.MOText.wordPattern(clean, "giu") : null;
     const h = hooks || {};
-    if (needle.length < 2) {
+    if (clean.length < 2 || !re) {
       if (h.done) h.done({ results: [], searched: 0, cancelled: false, short: true });
       return { cancel() {} };
     }
@@ -85,7 +91,7 @@
         try { rows = await window.MOText.load(w.corpus, w.id); } catch (_) { rows = []; }
         if (cancelled) return;
         if (rows.length) {
-          const { hits, total } = searchRows(rows, needle);
+          const { hits, total } = searchRows(rows, re);
           if (total) results.push({ work: w, hits, total });
         }
         searched += 1;
