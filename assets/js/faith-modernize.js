@@ -753,45 +753,89 @@ const MACRON_RE = /[āēīōū]/g;
 
 // Each is a single step. The search below composes them, so "soche"
 // reaches "such" through "suche" without anyone writing that down.
+//
+// The third column ranks the rule. Depth decides first — fewest
+// changes wins — but a word can reach two real words in the same one
+// step, and then the rank decides which. Three kinds, in order:
+//
+//   0  putting back a letter that was one letter then and is two now:
+//      u for v, i for j, y for i, the -ie that is now -y. This is
+//      recovering what was written, and it is nearly always right.
+//   1  taking away what the compositor added: the silent terminal e,
+//      the doubled letter, the plural -es. A reasonable guess.
+//   2  changing a vowel outright. The last resort.
+//
+// Without the ranking the array order decided, and a vowel swap sat
+// above every deletion, so "hee" reached "hie" before it reached "he",
+// "wee" reached "wie", "soe" reached "sue" and "Paule" reached "pale".
+// All four are real words, so nothing downstream could catch them,
+// and they are among the commonest words in the corpus.
+//
+// Restoring has to outrank taking away, or the correction lands one
+// letter short: "vse" is "use" and not "vs", "prayse" is "praise" and
+// not "prays", "glorie" is "glory" and not "glori".
+const RESTORE = 0;
+const TAKE = 1;
+const SHIFT = 2;
+
 const REWRITES = [
-  [/([aeiou])u([aeiou])/g, "$1v$2"], // haue, euery, deuil
-  [/^v([bcdfghjklmnpqrstvwxz])/, "u$1"], // vpon, vnto, vs
-  [/^i([aeou])/, "j$1"], // iudge, Iohn, ioy
-  [/(?!^)y(?!$)/g, "i"], // wyth, hym, dyuyne
-  [/ie$/, "y"], // maiestie, fidelitie
-  [/es$/, "s"], // writinges, thynges
-  [/nes$/, "ness"], // goodnes
-  [/oo/, "o"], // mooste
-  [/ee/, "ie"], // beleeue
-  [/au/, "a"], // seruaunt
-  [/o/g, "u"], // soche
-  [/e$/, ""], // silent terminal e
-  [/([bcdfgklmnprstvz])\1/, "$1"], // synne, allmighty
-  [/vv/g, "w"],
+  [/([aeiou])u([aeiou])/g, "$1v$2", RESTORE], // haue, euery, deuil
+  [/^v([bcdfghjklmnpqrstvwxz])/, "u$1", RESTORE], // vpon, vnto, vs
+  [/^i([aeou])/, "j$1", RESTORE], // iudge, Iohn, ioy
+  [/(?!^)y(?!$)/g, "i", RESTORE], // wyth, hym, dyuyne
+  [/ie$/, "y", RESTORE], // maiestie, fidelitie
+  [/es$/, "s", TAKE], // writinges, thynges
+  [/nes$/, "ness", TAKE], // goodnes
+  [/oo/, "o", TAKE], // mooste
+  [/ee/, "ie", SHIFT], // beleeue
+  [/au/, "a", SHIFT], // seruaunt
+  [/o/g, "u", SHIFT], // soche
+  [/e$/, "", TAKE], // silent terminal e
+  [/([bcdfgklmnprstvz])\1/, "$1", TAKE], // synne, allmighty
+  [/vv/g, "w", RESTORE],
 ];
 
 const MAX_DEPTH = 4;
 const MAX_FRONTIER = 400;
 const spellCache = new Map();
 
+// Two steps of taking away, which the search cannot reach in one and
+// which land on a real word one step earlier if it tries. "sinne" is
+// "sin", but dropping the e gives "sinn" and collapsing the n gives
+// "sine" — both one step, and "sine" is in the dictionary. In a
+// theological library that is not a spelling mistake, it is a
+// different subject.
+const SETTLED = { sinne: "sin", synne: "sin", sinnes: "sins", synnes: "sins" };
+
 // Fewest changes wins, so the search goes breadth first and stops at
 // the first depth that lands on a real word. Anything else would let a
-// four-step mangling beat a one-step correction.
+// four-step mangling beat a one-step correction. Within a depth the
+// rank above decides, so a deletion is preferred to a vowel swap.
 function bestSpelling(lower) {
   if (KNOWN.has(lower)) return null;
+  if (SETTLED[lower]) return SETTLED[lower];
   let frontier = [lower];
   const seen = new Set([lower]);
   for (let d = 0; d < MAX_DEPTH; d += 1) {
     const next = [];
+    let hit = null;
+    let hitRank = Infinity;
     for (let i = 0; i < frontier.length; i += 1) {
       for (let r = 0; r < REWRITES.length; r += 1) {
         const t = frontier[i].replace(REWRITES[r][0], REWRITES[r][1]);
         if (t === frontier[i] || t.length < 2 || seen.has(t)) continue;
         seen.add(t);
-        if (COMMON.has(t)) return t;
+        if (COMMON.has(t)) {
+          if (REWRITES[r][2] < hitRank) { hit = t; hitRank = REWRITES[r][2]; }
+          continue;
+        }
         if (next.length < MAX_FRONTIER) next.push(t);
       }
     }
+    // Every candidate at this depth has been seen before anything is
+    // returned, or the rank cannot be compared against rules that
+    // happen to sit later in the array.
+    if (hit) return hit;
     if (!next.length) break;
     frontier = next;
   }

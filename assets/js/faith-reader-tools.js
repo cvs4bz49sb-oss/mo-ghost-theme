@@ -485,6 +485,8 @@
       open(true);
       input.select();
     });
+
+    findFromUrl(bar, open);
   }
 
   // ── Notebook ──────────────────────────────────────────────────
@@ -831,6 +833,23 @@
   // Wait for the reader to render — the controls exist from the
   // template, but a work that fails to load should not offer tools
   // over an empty page.
+
+  // Arrived from a search across a shelf: the word is in the URL, so
+  // open Find with it rather than making the reader type it again.
+  function findFromUrl(bar, open) {
+    let q = "";
+    try { q = new URLSearchParams(window.location.search).get("q") || ""; } catch (_) { return; }
+    if (!q || q.length < 2) return;
+    const input = bar.querySelector("input");
+    const status = bar.querySelector("[data-find-status]");
+    if (!input || !status) return;
+    open(true);
+    input.value = q;
+    // After the sections render, or it searches an empty document. The
+    // reader only hydrates what is open, so this finds what is there
+    // and says how much was not — the same honesty Find already keeps.
+    window.setTimeout(() => runFind(q, status), 900);
+  }
 
   function boot() {
     if (!contentEl.children.length) return false;

@@ -5346,7 +5346,12 @@ mark.faith-find-hit.is-current {
 [data-fr-tint="dark"] .faith-reader .faith-reader-tags,
 [data-fr-tint="dark"] .faith-reader .faith-reader-tag,
 [data-fr-tint="dark"] .faith-reader .faith-page-marker,
+[data-fr-tint="dark"] .faith-reader .faith-margin-note,
+[data-fr-tint="dark"] .faith-reader .faith-gap,
 [data-fr-tint="dark"] .faith-reader .faith-reader-translator { color: #a9a29a; }
+/* The citations that resolve carry the accent, not the muted colour,
+   and on dark paper the accent is the one that has to be lifted. */
+[data-fr-tint="dark"] .faith-reader button.faith-margin-note { color: #e8a891; }
 [data-fr-tint="dark"] .faith-reader .faith-tool,
 [data-fr-tint="dark"] .faith-reader .faith-lang-btn,
 [data-fr-tint="dark"] .faith-reader .faith-find-input,
@@ -7050,4 +7055,142 @@ body.faith-toc-open .faith-dock { display: none; }
   .fa-search { padding: 16px; }
   .fa-search-input { flex: 1 0 100%; }
   .fa-search-btn { flex: 1 0 100%; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   THE PRINTED PAGE, 2026-08-21
+   ══════════════════════════════════════════════════════════════════
+
+   Early English Books transcribes a page rather than a document, and
+   the page has furniture: citations out in the margin, a brace holding
+   three clauses on one line, a break for the leaf, and a black square
+   where the ink failed. faith-reader.js pulls each of those out of the
+   prose (see "Dressing the printed page"); this sets them.
+
+   Last in the file, like the reader block above it, and for the same
+   reason: at equal specificity source order decides.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* The marginal citation. Below the width that has a margin to spare it
+   sets in the line, small and quiet, with space guaranteed on both
+   sides — the whole defect being that the source had none and printed
+   "a crowne:Pr. 5.15 2. chastely". */
+.faith-reader .faith-margin-note {
+  font-family: var(--font-body);
+  font-size: 0.68em;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
+  white-space: nowrap;
+  vertical-align: 0.35em;
+  margin: 0 0.28em;
+}
+.faith-reader button.faith-margin-note {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--color-primary-text);
+}
+.faith-reader button.faith-margin-note:hover { text-decoration: underline; }
+.faith-reader button.faith-margin-note:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Wide enough for a margin, so the citation goes back into one. It
+   floats where the line it annotates falls, which is where the
+   compositor set it, and several in one paragraph queue down the side
+   exactly as they did on the leaf. */
+@media (min-width: 1400px) {
+  .faith-reader [data-fr-content] .faith-margin-note {
+    float: right;
+    clear: right;
+    width: 6em;
+    margin: 0.2em -7em 0.5em 0.75em;
+    white-space: normal;
+    text-align: left;
+    vertical-align: baseline;
+  }
+}
+
+/* What the transcribers could not read. Kept, because what is missing
+   is worth knowing, and set to be passed over. */
+.faith-reader .faith-gap {
+  font-size: 0.78em;
+  color: var(--color-muted);
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+/* A heading whose whole content was the heading. It still exists,
+   because the contents rail links to it, but it does not pretend to
+   open onto anything. */
+.faith-reader [data-fr-content] .faith-section--empty > .faith-section-summary {
+  cursor: default;
+}
+.faith-reader [data-fr-content] .faith-section--empty .faith-chev,
+.faith-reader [data-fr-content] .faith-section--empty > .faith-section-body {
+  display: none;
+}
+
+/* Print keeps the citations in the line: paper here has no margin to
+   put them in. */
+@media print {
+  .faith-reader [data-fr-content] .faith-margin-note {
+    float: none;
+    width: auto;
+    margin: 0 0.28em;
+    white-space: nowrap;
+  }
+}
+
+/* Search mode, and what reading the shelf looks like while it happens. */
+.fa-search-mode { display: inline-flex; flex-direction: column; gap: 4px; flex: 0 0 auto; }
+.fa-search-mode > span {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.fa-search-mode select {
+  height: 40px;
+  padding: 0 26px 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+.fa-search-row { align-items: flex-end; }
+.fa-search-stop {
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  background: none;
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+}
+.fa-search-stop:hover { color: var(--color-secondary); border-color: var(--color-secondary); }
+.fa-search-snippet {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  text-decoration: none;
+  padding: 4px 0 4px 12px;
+  border-left: 2px solid var(--color-border);
+  margin-top: 4px;
+}
+.fa-search-snippet:hover { color: var(--color-dark); border-left-color: var(--color-secondary); }
+
+@media (max-width: 640px) {
+  .fa-search-mode { flex: 1 0 100%; }
+  .fa-search-mode select { width: 100%; }
 }

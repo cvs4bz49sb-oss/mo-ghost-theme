@@ -613,10 +613,13 @@
       let chunk = rows.slice(a, b);
       let title = "";
       // The title line is a row like any other; consuming it stops it
-      // being printed twice, once as a heading and once as prose.
-      if (starts.get(a) && chunk.length > 1) {
+      // being printed twice, once as a heading and once as prose. A
+      // division that is nothing but its title keeps the row, so the
+      // drawer is never empty — but it still takes its name from it
+      // rather than falling through to "Section N".
+      if (starts.get(a)) {
         title = divisionTitle(chunk[0]);
-        chunk = chunk.slice(1);
+        if (chunk.length > 1) chunk = chunk.slice(1);
       }
       if (!chunk.length) continue;
       if (!title) {
@@ -635,7 +638,29 @@
         children: [],
       });
     }
-    return out.length > 1 ? out : null;
+    if (out.length < 2) return null;
+    numberRepeats(out);
+    return out;
+  }
+
+  // Augustine preached thirty-two sermons on Psalm 118 and the source
+  // titles every one of them "On the Same Psalm 118". Thirty-two
+  // identical rows is not a table of contents, so a run of repeats is
+  // numbered within itself, in the quiet eyebrow the flat rail already
+  // draws beside a title. Only repeats are numbered: a title that says
+  // what it is needs no counter.
+  function numberRepeats(sections) {
+    const total = new Map();
+    sections.forEach((s) => {
+      if (s.title) total.set(s.title, (total.get(s.title) || 0) + 1);
+    });
+    const seen = new Map();
+    sections.forEach((s) => {
+      if (!s.title || total.get(s.title) < 2) return;
+      const n = (seen.get(s.title) || 0) + 1;
+      seen.set(s.title, n);
+      s.subtitle = `${n} of ${total.get(s.title)}`;
+    });
   }
 
   // "Ps99-120.17" → [17]. "deMus.1.17.57" → [1, 17, 57]. The bare work
@@ -738,12 +763,21 @@
   // "LETTER 1" followed by a mixed-case subtitle never reaches the
   // threshold — which left half the Letters shouting in the contents
   // and the other half, whose subtitles are also capitals, not.
+  // The second line is sometimes a descriptor — "Augustine to
+  // Nebridius" — and sometimes the whole early-modern salutation,
+  // which spends two hundred characters on honorifics before it
+  // reaches a name. Whole, it made a four-line row in the contents for
+  // two thirds of the Letters, so it gets a shorter budget than the
+  // label it hangs off.
+  const DIVISION_SUBTITLE_MAX = 60;
+
   function divisionTitle(r) {
     const parts = String(r.en || r.la || "")
       .split(/<br\s*\/?>/i)
       .map((p) => calmCaps(plainText(p)))
       .filter(Boolean);
-    return clampHeading(parts.join(" · "));
+    const rest = parts.slice(1).map((p) => clampTo(p, DIVISION_SUBTITLE_MAX));
+    return clampHeading(parts.slice(0, 1).concat(rest).join(" · "));
   }
 
   // ── Chapters ──────────────────────────────────────────────────
@@ -848,10 +882,17 @@
   }
 
   function clampHeading(raw) {
-    if (raw.length <= 90) return raw;
-    const cut = raw.slice(0, 90);
+    return clampTo(raw, 90);
+  }
+
+  // Cut at a word, and only if the cut still leaves most of the budget
+  // — a heading chopped at character three is worse than one chopped
+  // mid-word.
+  function clampTo(raw, max) {
+    if (raw.length <= max) return raw;
+    const cut = raw.slice(0, max);
     const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(" "));
-    return `${cut.slice(0, stop > 40 ? stop : 90).trim()}…`;
+    return `${cut.slice(0, stop > max * 0.45 ? stop : max).trim()}…`;
   }
 
   // These sources set every heading in full capitals. That is a
@@ -1340,14 +1381,14 @@
         const label = toggle.querySelector(".faith-toggle-label");
         if (label) label.textContent = modernOn ? label.dataset.on : label.dataset.off;
         document.body.classList.toggle("faith-modernized", modernOn);
-        if (!modernOn) { restoreWithin(contentEl); return; }
+        if (!modernOn) { restoreWithin(document); return; }
         // The first press waits on the dictionary. Rewriting first and
         // again on arrival would modernize the grammar, then visibly
         // re-set the spelling a moment later.
         toggle.setAttribute("aria-busy", "true");
         loadLexicon().then(() => {
           toggle.removeAttribute("aria-busy");
-          if (modernOn) modernizeWithin(contentEl);
+          if (modernOn) modernizeWithin(document);
         });
       });
     }
@@ -1399,39 +1440,74 @@
     return lexiconPromise;
   }
 
+  // Everything the reader set from the source: the text, the headings
+  // that name it, the contents rail beside it, and the title page at
+  // the top. It used to be the section bodies alone, which meant a
+  // work read half-modernized — the sentence said "The house of the
+  // righteous" while the heading over it and the rail beside it both
+  // still said "Wisedome, Stayednesse, Thrift". Section headings
+  // nested inside another section's body were rewritten and top-level
+  // ones were not, so the same page disagreed with itself.
+  //
+  // Chrome stays as written. A Modern English button that relabelled
+  // itself would be the reader modernizing us.
+  const MODERN_ZONES =
+    "[data-fr-content],[data-fr-toc],[data-fr-title],[data-fr-subtitle]," +
+    "[data-fr-dek],[data-fr-description],[data-fr-translator]";
+
+  // Never the Latin column. Migne and the schoolmen carry a Latin lane
+  // beside the translation, and running Latin through an English
+  // speller is how "causa" becomes a word nobody wrote. Never our own
+  // furniture inside the text either — a page number, a citation chip,
+  // an untranscribed gap.
+  const MODERN_SKIP =
+    ".faith-col-la,.faith-cite,.faith-page-marker,.faith-gap," +
+    ".faith-section-loading,.faith-section-error";
+
+  function modernZones(root) {
+    const scope = root || document;
+    if (scope.closest && scope.closest(MODERN_ZONES)) return [scope];
+    return Array.prototype.slice.call(scope.querySelectorAll(MODERN_ZONES));
+  }
+
+  // The original is kept on the text node itself rather than as a
+  // snapshot of some parent's innerHTML. Sections nest — EEBO puts a
+  // whole chapter inside its part — and a snapshot taken at the part
+  // and written back there throws away every child rendered since,
+  // along with the listeners on them. A text node survives both, and
+  // rewriting from the stored original rather than from what is on
+  // screen means a second pass cannot compound the first.
+  function eachModernizableText(zone, fn) {
+    const walker = document.createTreeWalker(zone, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = node.parentNode;
+        if (p && p.closest && p.closest(MODERN_SKIP)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+    let node;
+    while ((node = walker.nextNode())) fn(node);
+  }
+
   function modernizeWithin(root) {
-    if (!root || !window.FaithModernize) return;
-    root.querySelectorAll(".faith-section-body").forEach((el) => {
-      if (el.dataset.frModern === "1") return;
-      if (el._frOriginal == null) el._frOriginal = el.innerHTML;
-      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
-        acceptNode(node) {
-          // Never the Latin column. Migne and the schoolmen carry a
-          // Latin lane beside the translation, and running Latin
-          // through an English speller is how "causa" becomes a word
-          // nobody wrote.
-          const p = node.parentNode;
-          if (p && p.closest && p.closest(".faith-col-la")) return NodeFilter.FILTER_REJECT;
-          return NodeFilter.FILTER_ACCEPT;
-        },
-      });
-      let node;
-      while ((node = walker.nextNode())) {
+    if (!window.FaithModernize) return;
+    modernZones(root).forEach((zone) => {
+      eachModernizableText(zone, (node) => {
+        if (node.frRaw == null) node.frRaw = node.nodeValue;
         const next = window.FaithModernize.modernizeSpelling(
-          window.FaithModernize.modernizeText(node.nodeValue)
+          window.FaithModernize.modernizeText(node.frRaw)
         );
         if (next !== node.nodeValue) node.nodeValue = next;
-      }
-      el.dataset.frModern = "1";
+      });
     });
   }
 
   function restoreWithin(root) {
-    if (!root) return;
-    root.querySelectorAll(".faith-section-body").forEach((el) => {
-      if (el.dataset.frModern !== "1") return;
-      if (el._frOriginal != null) el.innerHTML = el._frOriginal;
-      el.dataset.frModern = "0";
+    modernZones(root).forEach((zone) => {
+      eachModernizableText(zone, (node) => {
+        if (node.frRaw != null && node.nodeValue !== node.frRaw) node.nodeValue = node.frRaw;
+      });
     });
   }
 
@@ -1513,7 +1589,11 @@
         body.innerHTML = sanitize(node.html);
         dressSource(body, label);
       }
-      const hasText = !!body.textContent.trim();
+      // Page markers are not text. A section whose whole content was
+      // its heading still carries the two page breaks that stood
+      // around it, and "[p. 78] [p. 145]" is not something to open a
+      // drawer onto.
+      const hasText = hasProse(body);
       const kids = node.kids || [];
 
       // A heading with children and nothing else is a part title. The
@@ -1579,6 +1659,354 @@
     let n = 0;
     kids.forEach((k) => { n += countTocLeaves(k); });
     return n;
+  }
+
+  function hasProse(el) {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = node.parentNode;
+        if (p && p.closest && p.closest(".faith-page-marker")) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+    return !!walker.nextNode();
+  }
+
+  // ── Dressing the printed page ─────────────────────────────────
+  //
+  // EEBO-TCP transcribes what the compositor set, and a page from 1609
+  // is not a stream of paragraphs. It opens with the section's own
+  // title in bold, keeps its scripture citations out in the margin,
+  // draws one brace to gather three clauses of a heading into a single
+  // line, breaks for the page, and prints a black square wherever the
+  // ink failed.
+  //
+  // Handed to a browser unchanged, that renders as the title twice
+  // over, the brace as a bulleted list inside the heading, and
+  // "Pr. 18.22HE that findeth a wise". Which is not one book's
+  // problem: across 40 sampled works and 4,932 sections, 92% of
+  // sections repeat their own heading, 30 works carry marginalia, 27
+  // carry black squares, and 18% of sections have nothing in them at
+  // all once the repeated heading is taken out.
+  //
+  // Order matters here. The braces flatten before the heading is
+  // compared, because the contents label has already flattened its
+  // own and the two have to be the same string to match.
+  function dressSource(root, label) {
+    if (!root) return;
+    flattenBraces(root);
+    dropRepeatedHeading(root, label);
+    dressMarginNotes(root);
+    dressPageBreaks(root);
+    mendGaps(root);
+    dressRefs(root);
+    // Lifting a heading out of its own paragraph leaves the paragraph
+    // behind, and an empty <p> still takes a line and a margin.
+    root.querySelectorAll("p,div,span").forEach((el) => {
+      if (!el.textContent.trim() && !el.querySelector("img,br,hr")) el.remove();
+    });
+  }
+
+  // ── The brace ─────────────────────────────────────────────────
+  //
+  // A printed brace is not a list. The compositor drew one "{" to hold
+  // three clauses on one line — "Who must beare himself {wisely,
+  // chastly, quietly and cheerefully}" — and EEBO-TCP transcribes it
+  // as <ul><li>. Set as a list, it breaks a sentence into bullets
+  // mid-clause, and inside a heading it breaks the heading.
+  //
+  // Only where the brace sits in a run of text. A genuine list
+  // standing on its own in the body is left as a list.
+  const BRACE_HOSTS = "b,strong,i,em,h1,h2,h3,h4,h5,h6";
+
+  function flattenBraces(root) {
+    const lists = Array.prototype.slice.call(root.querySelectorAll("ul,ol"));
+    // Innermost first, so a brace nested inside a brace is already
+    // flat by the time its parent is read.
+    lists.reverse().forEach((list) => {
+      if (!isBrace(list)) return;
+      const items = Array.prototype.slice.call(list.children)
+        .map((li) => li.textContent.replace(/\s+/g, " ").trim())
+        .filter(Boolean);
+      if (!items.length) { list.remove(); return; }
+      // The printer's own punctuation decides the join: the clauses
+      // usually already end in a comma, and a second one reads as a
+      // stammer.
+      let text = items[0];
+      for (let i = 1; i < items.length; i += 1) {
+        text += (/[,;:.?!]$/.test(text) ? " " : ", ") + items[i];
+      }
+      const span = document.createElement("span");
+      span.className = "faith-brace";
+      span.textContent = text;
+      // Where the brace was closed out of its own paragraph by the
+      // parser, put the words back in the paragraph they finish,
+      // rather than leaving a loose span between two of them.
+      const prev = list.previousElementSibling;
+      if (prev && /^(P|LI|TD|DIV)$/.test(prev.tagName) && !list.closest(BRACE_HOSTS)) {
+        prev.appendChild(document.createTextNode(" "));
+        prev.appendChild(span);
+        list.remove();
+        return;
+      }
+      list.replaceWith(span);
+    });
+  }
+
+  // A sentence cannot end on one of these, so a list that opens right
+  // after one is not a list — it is the rest of the sentence, held in
+  // a brace. "SALOMONS Divine Arts, Of {1. ETHICKES, 2. POLITICKES}".
+  const HANGING =
+    /\b(of|is|are|be|in|into|to|for|and|or|with|from|by|on|upon|that|these|those|both|either|neither|namely|viz|required|concerning|touching|whereof|wherein)$/i;
+
+  function isBrace(list) {
+    if (list.closest(BRACE_HOSTS)) return true;
+
+    const host = list.parentElement;
+    if (host && /^(P|SPAN|TD)$/.test(host.tagName)) {
+      // Text on either side of it inside the same paragraph: the brace
+      // is mid-sentence, and the sentence has to close.
+      if ((host.textContent || "").replace(list.textContent || "", "").trim()) return true;
+    }
+
+    // The commoner shape, and the one the parent test cannot see: a
+    // browser closes an open <p> the moment a <ul> starts, so the
+    // brace and the words it belongs to end up siblings rather than
+    // parent and child.
+    //
+    // Judged conservatively, because the other thing a <ul> is in this
+    // corpus is a table of contents, and 285 of 693 lists follow text
+    // that runs on. Collapsing an index into a paragraph is a worse
+    // outcome than leaving a brace as bullets, which is what ships
+    // today — so a brace has to be short, its items have to be
+    // fragments, and the words before it have to be unfinished.
+    const prev = list.previousElementSibling;
+    if (!prev) return false;
+    const lead = (prev.textContent || "").replace(/\s+/g, " ").trim();
+    if (!lead || !HANGING.test(lead)) return false;
+    const items = Array.prototype.slice.call(list.children);
+    if (!items.length || items.length > 6) return false;
+    return items.every((li) => li.textContent.trim().length <= 60);
+  }
+
+  // ── The heading, printed twice ────────────────────────────────
+  //
+  // Every EEBO section opens with its own title in bold, and the
+  // drawer above it prints the same words. The contents label is the
+  // better copy — it is already flat where the printed line carried a
+  // brace — so the printed one goes.
+  function dropRepeatedHeading(root, label) {
+    const want = headingKey(label);
+    if (!want) return;
+    const head = leadingHeading(root);
+    if (!head) return;
+    if (!sameHeading(headingKey(head.textContent), want)) return;
+    head.remove();
+  }
+
+  // The first thing on the page carrying text, provided it is set as a
+  // heading. Page markers and empty wrappers do not count; prose does,
+  // and stops the search — a section whose text opens before its
+  // heading has no repeated heading to drop.
+  function leadingHeading(root) {
+    let el = root.firstChild;
+    let guard = 0;
+    while (el && guard < 200) {
+      guard += 1;
+      if (el.nodeType === 3) {
+        if (el.nodeValue.trim()) return null;
+        el = el.nextSibling;
+        continue;
+      }
+      if (el.nodeType !== 1) { el = el.nextSibling; continue; }
+      if (el.matches("span.pb") || !el.textContent.trim()) { el = el.nextSibling; continue; }
+      if (el.matches("b,strong,h1,h2,h3,h4,h5,h6")) return el;
+      // A paragraph that opens with the bold title and then runs on
+      // into the text. Descend and judge the first thing inside it.
+      if (el.matches("p,div")) { el = el.firstChild; continue; }
+      return null;
+    }
+    return null;
+  }
+
+  const headingKey = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+  // Not equality. The label and the printed line disagree over a
+  // trailing full stop, a swallowed ampersand, an "&c." the contents
+  // dropped — so the shorter being the head of the longer is enough,
+  // provided there is enough of it for that to mean anything.
+  function sameHeading(a, b) {
+    if (!a || !b) return false;
+    if (a === b) return true;
+    return Math.min(a.length, b.length) >= 12 && (a.indexOf(b) === 0 || b.indexOf(a) === 0);
+  }
+
+  // ── The margin ────────────────────────────────────────────────
+  //
+  // The citations the printer set out in the margin. Transcribed
+  // inline they close up against the words on either side — "as the
+  // heade to which shee is a crowne:Pr. 5.15 2. chastely." — which is
+  // how a reader ends up trying to parse a verse number as part of the
+  // sentence.
+  //
+  // So they go back in the margin, where there is room and where they
+  // do not interrupt the line. Where the citation resolves it opens
+  // the verse in place, and where it is an authority rather than a
+  // citation — "Caluine.", "Bucer.", "Ibid." — it is quiet text.
+  function dressMarginNotes(root) {
+    Array.prototype.slice.call(root.querySelectorAll(".note")).forEach((note) => {
+      const raw = (note.textContent || "").replace(/\s+/g, " ").trim();
+      if (!raw) { note.remove(); return; }
+      const verse = marginVerse(raw);
+      const el = document.createElement(verse ? "button" : "span");
+      el.className = "faith-margin-note";
+      if (verse) {
+        el.type = "button";
+        el.classList.add("faith-margin-note--verse", "faith-verse-ref");
+        el.setAttribute("data-faith-verse", "");
+        el.setAttribute("data-book", verse.book);
+        // The printed form is what the reader sees; the popover is
+        // handed the modern one, because it parses chapter:verse and
+        // a 1609 printer wrote "18.22".
+        el.setAttribute("data-reference", verse.label);
+        el.setAttribute("aria-expanded", "false");
+        el.title = `${verse.label} — open the text`;
+      }
+      el.textContent = raw;
+      note.replaceWith(el);
+      // The margin puts the citation beside the line at reading width,
+      // and CSS spaces it in the line below that. Neither helps text
+      // copied out of the page, or find-in-work, which still read
+      // "a crowne:Pr. 5.15" as one word. So the space is real.
+      pad(el.previousSibling, "after");
+      pad(el.nextSibling, "before");
+    });
+  }
+
+  function pad(node, side) {
+    if (!node || node.nodeType !== 3) return;
+    const v = node.nodeValue;
+    if (side === "after" && v && !/\s$/.test(v)) node.nodeValue = `${v} `;
+    if (side === "before" && v && !/^\s/.test(v)) node.nodeValue = ` ${v}`;
+  }
+
+  // The abbreviations an English printer used before the modern ones
+  // settled, and before i and j were two letters. Expanded here rather
+  // than added to the resolver's alias list, which is the library's
+  // one table and is shared with search and the reference index —
+  // teaching it that "Pr" is Proverbs would teach that to everything.
+  //
+  // Only the unambiguous ones. "Cor." and "Tim." do not say which
+  // epistle, and a citation the reader can't trust is worse than one
+  // that stays as printed.
+  const EEBO_BOOKS = {
+    pr: "Prov", pro: "Prov", prou: "Prov", prov: "Prov",
+    ec: "Eccl", eccle: "Eccl", eccles: "Eccl",
+    psal: "Ps", psalme: "Ps",
+    mat: "Matt", mar: "Mark", luk: "Luke",
+    ioh: "John", iohn: "John", ioan: "John",
+    iam: "James", iames: "James", iud: "Jude",
+    apoc: "Rev", reu: "Rev",
+    exo: "Exod", levit: "Lev", deu: "Deut",
+    iosh: "Josh", iudg: "Judg", iob: "Job",
+    cant: "Song", esay: "Isa", ier: "Jer", iere: "Jer",
+    ezech: "Ezek", ose: "Hos", ion: "Jonah", mich: "Mic",
+    soph: "Zeph", agg: "Hag", zach: "Zech",
+  };
+
+  // "1 Ioh. 2.3", "Pr. 18.22", "Act. 15." — an optional ordinal, the
+  // book, then the locators.
+  const EEBO_CITE = /^((?:[1-4]|[ivx]{1,3})\s+)?([A-Za-z]{2,8})\.?\s*(\d[\d\s.:,-]*)$/i;
+
+  function marginVerse(raw) {
+    if (!window.MOResolve) return null;
+    // A marginal note often carries two; the first is the one the line
+    // is about, and it is the one the popover opens.
+    const first = raw.split(/[;&]/)[0].replace(/[.,\s]+$/, "").trim();
+    const m = EEBO_CITE.exec(first);
+    if (!m) return null;
+    const book = EEBO_BOOKS[m[2].toLowerCase()] || m[2];
+    // The printer's stop between chapter and verse is our colon.
+    const locus = m[3].trim().replace(/\s*\.\s*/g, ":").replace(/[:\s]+$/, "");
+    const parsed = window.MOResolve.parse(`${m[1] || ""}${book} ${locus}`.trim());
+    if (!parsed || parsed.kind !== "scripture") return null;
+    // "1 Pet. 56." is a leaf number the margin caught, not a chapter,
+    // and no book has 151. A citation that opens on nothing is worse
+    // than one left as printed.
+    const chapter = parseInt(locus, 10);
+    if (!(chapter >= 1 && chapter <= 150)) return null;
+    return { book: parsed.book, label: parsed.label };
+  }
+
+  // ── The page break ────────────────────────────────────────────
+  //
+  // The same inline marker the rest of the library uses, so a page
+  // number reads the same whichever collection it came out of. EEBO
+  // repeats the break where a page opens a new section — 72 of 120
+  // consecutive pairs in the sample were the same number twice — and
+  // an empty <span> between two words still sets a space.
+  function dressPageBreaks(root) {
+    let last = null;
+    Array.prototype.slice.call(root.querySelectorAll("span.pb")).forEach((pb) => {
+      const n = (pb.getAttribute("data-n") || "").trim();
+      if (!n || n === last) { pb.remove(); return; }
+      last = n;
+      const span = document.createElement("span");
+      span.className = "faith-page-marker";
+      span.setAttribute("data-page", n);
+      span.textContent = `[p. ${n}]`;
+      pb.replaceWith(span);
+    });
+  }
+
+  // ── What the transcribers could not read ──────────────────────
+  //
+  // A black square stands for a character the ink lost; 〈…〉 for a
+  // passage they left out — "the word 〈 in non-Latin alphabet 〉".
+  // Printed straight into the prose both read as typing, not as
+  // apparatus.
+  //
+  // The square is nearly always a stop the page ate: "in the Priests
+  // hearing▪ The Law of confessing". Where a capital follows, it
+  // closes the sentence and is set as a stop. Everywhere else it is
+  // taken out and the space kept — "as well▪ as to spiritual" is a
+  // lost comma, and closing the gap would invent the word "wellas".
+  const GAP_RE = /〈[^〉]*〉/;
+
+  function mendGaps(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const texts = [];
+    let node;
+    while ((node = walker.nextNode())) texts.push(node);
+    texts.forEach((t) => {
+      if (t.nodeValue.indexOf("▪") >= 0) {
+        t.nodeValue = t.nodeValue
+          .replace(/(\S)\s*▪\s+(?=[A-Z0-9])/g, "$1. ")
+          .replace(/\s*▪\s*/g, " ");
+      }
+      if (GAP_RE.test(t.nodeValue)) markGap(t);
+    });
+  }
+
+  // Kept, not deleted: what is missing is worth knowing. Set quietly,
+  // so the eye passes over it.
+  function markGap(text) {
+    const parts = text.nodeValue.split(/(〈[^〉]*〉)/);
+    const frag = document.createDocumentFragment();
+    parts.forEach((part) => {
+      if (!part) return;
+      if (part.charAt(0) !== "〈") {
+        frag.appendChild(document.createTextNode(part));
+        return;
+      }
+      const span = document.createElement("span");
+      span.className = "faith-gap";
+      span.title = "Not transcribed in the source";
+      span.textContent = part.replace(/\s+/g, " ").replace(/〈 /, "〈").replace(/ 〉/, "〉");
+      frag.appendChild(span);
+    });
+    text.replaceWith(frag);
   }
 
   // EEBO-TCP markup is third-party HTML. DOMPurify ships in the boot

@@ -91,11 +91,15 @@
     panel.innerHTML =
       `<h2 class="fa-search-head">Search this author</h2>` +
       `<div class="fa-search-row">` +
+      `<label class="fa-search-mode"><span>Search for</span>` +
+      `<select data-fa-mode aria-label="What to search for">` +
+      `<option value="ref">A scripture reference</option>` +
+      `<option value="kw">A word or phrase</option></select></label>` +
       `<input type="search" class="fa-search-input" data-fa-ref` +
       ` placeholder="A scripture reference, such as Romans 8 or 1 Cor 15:22"` +
-      ` aria-label="Search this author by scripture reference">` +
+      ` aria-label="Search this author">` +
       `<button type="button" class="fa-search-btn" data-fa-go>Find</button></div>` +
-      `<p class="fa-search-note">Every place this author cites a passage, from the generated index.</p>` +
+      `<p class="fa-search-note" data-fa-note>Every place this author cites a passage, from the generated index.</p>` +
       `<div class="fa-search-out" data-fa-out></div>`;
 
     const shelves = root.querySelector(".fa-shelf");
@@ -174,23 +178,101 @@
         }).join("")}</ol>`);
     }
 
-    panel.querySelector("[data-fa-go]").addEventListener("click", run);
-    input.addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+    // ── A word or phrase, across the shelf ──────────────────────
+    //
+    // The same walk Find does over one open work, over these works
+    // instead. Bounded on purpose: this shelf is a few megabytes and a
+    // few seconds, where the library is thirty thousand works.
+    const mode = panel.querySelector("[data-fa-mode]");
+    const note = panel.querySelector("[data-fa-note]");
+    let running = null;
+
+    function setMode() {
+      const kw = mode.value === "kw";
+      input.placeholder = kw
+        ? "A word or a phrase, as it appears in the text"
+        : "A scripture reference, such as Romans 8 or 1 Cor 15:22";
+      note.textContent = kw
+        ? `Reads the text of all ${works.length.toLocaleString()} work${works.length === 1 ? "" : "s"} under this name. It fetches as it goes, so it takes a moment.`
+        : "Every place this author cites a passage, from the generated index.";
+      say("");
+    }
+    mode.addEventListener("change", setMode);
+    setMode();
+
+    function runKeyword() {
+      const term = input.value.trim();
+      if (running) { running.cancel(); running = null; }
+      if (term.length < 2) {
+        say(`<p class="fa-search-msg">Two letters at least.</p>`);
+        return;
+      }
+      if (!window.MOCorpusSearch || !window.MOText) {
+        say(`<p class="fa-search-msg">Search is not available on this page.</p>`);
+        return;
+      }
+      const started = escapeHtml(term);
+      say(`<p class="fa-search-msg" data-fa-progress>Reading 0 of ${works.length}&hellip;</p>` +
+        `<button type="button" class="fa-search-stop" data-fa-stop>Stop</button>`);
+      const stop = panel.querySelector("[data-fa-stop]");
+      if (stop) stop.addEventListener("click", () => { if (running) running.cancel(); });
+
+      running = window.MOCorpusSearch.run(works, term, {
+        progress(n, total, found) {
+          const p = panel.querySelector("[data-fa-progress]");
+          if (p) {
+            p.textContent = `Reading ${n} of ${total}\u2026 ${found} work${found === 1 ? "" : "s"} so far`;
+          }
+        },
+        done({ results, searched, cancelled, short }) {
+          running = null;
+          if (short) return;
+          if (!results.length) {
+            say(`<p class="fa-search-msg">No work under this name uses "${started}"${
+              cancelled ? ` in the ${searched} read before stopping` : ""}.</p>`);
+            return;
+          }
+          const hits = results.reduce((a, r) => a + r.total, 0);
+          say(`<p class="fa-search-count">${hits.toLocaleString()} mention${hits === 1 ? "" : "s"} of "${started}" in ${results.length.toLocaleString()} work${results.length === 1 ? "" : "s"}${
+            cancelled ? `, of ${searched} read` : ""}</p>` +
+            `<ol class="fa-search-list">${results.map((r) => {
+              const first = r.hits[0] || {};
+              return `<li class="fa-search-hit">` +
+                `<a class="fa-search-title" href="${escapeHtml(readerUrl(r.work, first.loc, "", term))}">${escapeHtml(r.work.title || r.work.id)}</a>` +
+                `<span class="fa-search-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>${ 
+                r.hits.map((hh) =>
+                  `<a class="fa-search-snippet" href="${escapeHtml(readerUrl(r.work, hh.loc, "", term))}">${escapeHtml(hh.snippet)}</a>`).join("") 
+                }</li>`;
+            }).join("")}</ol>`);
+        },
+      });
+    }
+
+    function go() {
+      if (mode.value === "kw") runKeyword();
+      else run();
+    }
+
+    panel.querySelector("[data-fa-go]").addEventListener("click", go);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
   }
 
   // Same shape the indexes build, so a link from here lands where a
   // link from the scripture page would.
-  function readerUrl(w, loc, ref) {
+  function readerUrl(w, loc, ref, term) {
     const c = window.MOCorpora && window.MOCorpora.get(w.corpus);
-    const q = w.corpus === "tfr" || w.corpus === "confessions"
+    const which = w.corpus === "tfr" || w.corpus === "confessions"
       ? "" : `c=${encodeURIComponent(w.corpus)}&`;
-    let url = `/the-faith-received/reader/?${q}w=${encodeURIComponent(w.id)}`;
+    let url = `/the-faith-received/reader/?${which}w=${encodeURIComponent(w.id)}`;
     let hash = "";
     if (loc != null && loc !== "") {
       if (w.corpus === "tfr" || w.corpus === "confessions") url += `&p=${encodeURIComponent(loc)}`;
       else hash = `#${String(loc).trim().replace(/\s+/g, "-")}`;
     }
     if (ref) url += `&ref=${encodeURIComponent(ref)}`;
+    // Carried so the work opens with the word already found in it,
+    // rather than leaving the reader to type it a second time.
+    if (term) url += `&q=${encodeURIComponent(term)}`;
     return (c ? url : "/the-faith-received/") + hash;
   }
 
