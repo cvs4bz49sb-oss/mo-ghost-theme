@@ -6658,3 +6658,66 @@ body.faith-toc-open .faith-dock { display: none; }
 @media (max-width: 640px) {
   .faith-verse-link { min-width: 34px; min-height: 34px; padding: 6px 9px; }
 }
+
+/* ══ Who it is for ════════════════════════════════════════════════
+   Sits under the counts and on the same ground. The numbers say how
+   large the library is; this says who it is large for, so the two
+   belong to one band rather than to two. */
+.lp-for {
+  margin-top: 60px;
+  padding-top: 52px;
+  border-top: 1px solid #ffffff2e;
+}
+.lp-for-head {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 3.1vw, 40px);
+  line-height: 1.14;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 44px;
+}
+.lp-for-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+.lp-for-col {
+  padding: 0 32px;
+  border-left: 1px solid #ffffff2e;
+}
+/* The outer columns sit on the container's edges rather than inside
+   their own padding, so the block lines up with everything else on the
+   page instead of starting 32px in from it. */
+.lp-for-col:first-child { border-left: 0; padding-left: 0; }
+.lp-for-col:last-child { padding-right: 0; }
+.lp-for-col h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  color: #fff;
+  margin: 0 0 12px;
+}
+.lp-for-col p {
+  font-family: var(--font-body);
+  /* A shade under white. Three paragraphs of solid white over a
+     photograph is a glare; the headings keep the full value so the
+     three still read as three. */
+  color: #efe9e2;
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  /* Stacked, and the rule moves from the side to the top, since a
+     left border on a full-width block is a hanging tick. */
+  .lp-for-cols { grid-template-columns: 1fr; gap: 30px; }
+  .lp-for-col { padding: 0; border-left: 0; }
+  .lp-for-col + .lp-for-col { padding-top: 28px; border-top: 1px solid #ffffff2e; }
+}
+@media (max-width: 640px) {
+  .lp-for { margin-top: 44px; padding-top: 38px; }
+  .lp-for-head { margin-bottom: 32px; }
+}
