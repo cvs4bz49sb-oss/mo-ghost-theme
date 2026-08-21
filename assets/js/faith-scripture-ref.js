@@ -159,10 +159,21 @@
     return `(?:${n}|${forms.join("|")})`;
   }
 
-  function pattern(book, chapter) {
+  // A verse, when the index knows one, makes the match exact: a work
+  // that cites Romans 8 four times and Romans 8:28 once should open at
+  // the 28, not at the first mention of the chapter.
+  function pattern(book, chapter, verse) {
     const b = bookPattern(book);
     const c = chapterPattern(chapter);
     if (!b || !c) return null;
+    const v = parseInt(verse, 10);
+    if (v > 0) {
+      try {
+        return new RegExp(
+          `\\b${b}[\\s.,:]{1,4}${c}[\\s.,:]{1,4}${v}(?![0-9])`, "i"
+        );
+      } catch (_) { return null; }
+    }
     // A citation is the book, then a separator, then the chapter. The
     // separator is required rather than optional: without it the roman
     // numeral for chapter 1 matched the i inside the book's own name,
@@ -180,8 +191,8 @@
   // First occurrence in the rendered text. Returns the text node and
   // the offsets, so the caller can wrap exactly the citation rather
   // than highlighting a whole paragraph.
-  function locate(root, book, chapter) {
-    const re = pattern(book, chapter);
+  function locate(root, book, chapter, verse) {
+    const re = pattern(book, chapter, verse);
     if (!re || !root) return null;
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {

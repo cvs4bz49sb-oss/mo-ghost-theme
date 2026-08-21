@@ -2450,10 +2450,15 @@
   // long work mentions Romans 8 in its preface as well as at the place
   // the index meant, and the reader was dropped at the earlier one.
   function landOnRef(ref, tries, root, scroll) {
-    const m = String(ref || "").trim().match(/^(.*?)\s+(\d+)$/);
+    // "Romans 8" or "Romans 8:28". The verse, where the index knew
+    // one, is tried first and the chapter is the fallback: a printer
+    // who set "Rom. 8." and left the verse to the margin still gets
+    // the reader to the right paragraph.
+    const m = String(ref || "").trim().match(/^(.*?)\s+(\d+)(?::(\d+))?$/);
     if (!m || !window.MOScriptureRef) return;
     const where = root || contentEl;
-    const found = window.MOScriptureRef.locate(where, m[1], m[2]);
+    const found = window.MOScriptureRef.locate(where, m[1], m[2], m[3])
+      || (m[3] ? window.MOScriptureRef.locate(where, m[1], m[2]) : null);
     if (!found) {
       if (tries < REF_TRIES) {
         window.setTimeout(() => landOnRef(ref, tries + 1, root, scroll), 150);

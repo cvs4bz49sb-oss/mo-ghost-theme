@@ -6609,3 +6609,52 @@ body.faith-toc-open .faith-dock { display: none; }
   .faith-pager,
   .faith-room-pager { flex-wrap: wrap; }
 }
+
+/* ══ Verses ═══════════════════════════════════════════════════════
+   Which verses of the chapter a work actually names, each opening at
+   the line that names it. */
+.faith-verse-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0 0 0 2px;
+}
+.faith-verse-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-right: 4px;
+}
+.faith-verse-link {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 3px 7px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-dark);
+  cursor: pointer;
+  text-align: center;
+}
+.faith-verse-link:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+.faith-verse-link:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 1px;
+}
+.faith-verse-more {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+@media (max-width: 640px) {
+  .faith-verse-link { min-width: 34px; min-height: 34px; padding: 6px 9px; }
+}

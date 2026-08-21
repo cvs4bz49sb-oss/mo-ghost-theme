@@ -840,6 +840,23 @@
 
   // One reference: who cites it, and the words around the citation, so
   // the reader can judge before opening a 900-page folio.
+  // The verses this work names, each its own way in. Where the source
+  // gave a chapter and nothing more there is nothing to show, which is
+  // most of the Latin corpus: "as it is written Rom. 8" was a complete
+  // citation in 1640.
+  function verseLinks(e, ref) {
+    const vs = e.verses || [];
+    if (!vs.length) return "";
+    const shown = vs.slice(0, 12);
+    const links = shown.map(([v, loc]) =>
+      `<span class="faith-verse-link" role="link" tabindex="0" data-go="${
+        escapeHtml(readerUrl(e.corpus, e.id, loc == null ? e.loc : loc, { ref: `${ref}:${v}` }))
+      }">${v}</span>`).join("");
+    const more = vs.length > shown.length
+      ? `<span class="faith-verse-more">and ${vs.length - shown.length} more</span>` : "";
+    return `<p class="faith-verse-row"><span class="faith-verse-label">Verses</span>${links}${more}</p>`;
+  }
+
   function refItem(e, ref) {
     const c = window.MOCorpora.get(e.corpus);
     const li = document.createElement("li");
@@ -856,7 +873,7 @@
       e.author ? `<span class="faith-scripture-ref-author">${escapeHtml(e.author)}</span>` : "" 
       }${e.excerpt ? `<span class="faith-scripture-ref-excerpt">${escapeHtml(e.excerpt)}</span>` : "" 
       }${e.times > 1 ? `<span class="faith-scripture-ref-times">cited ${e.times} times</span>` : "" 
-      }</a>`;
+      }</a>${verseLinks(e, ref)}`;
     return li;
   }
 
@@ -1147,7 +1164,7 @@
       ).then((pairs) => {
         const cats = new Map(pairs);
         return rows.map((row) => {
-          const [corpus, id, times, loc, excerpt] = row;
+          const [corpus, id, times, loc, excerpt, verses] = row;
           const w = (cats.get(corpus) || new Map()).get(String(id));
           return {
             corpus,
@@ -1157,6 +1174,11 @@
             excerpt: excerpt || "",
             title: w ? w.title : String(id),
             author: w ? w.author : "",
+            // [[verse, locator], …] where the citation named one. Each
+            // has its own place in the text, so Romans 8:28 opens at
+            // the line that cites 8:28 and not at the head of the
+            // chapter's first mention.
+            verses: Array.isArray(verses) ? verses : [],
           };
         });
       }))

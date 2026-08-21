@@ -545,8 +545,13 @@ const CORPORA = {
 // The summary is small enough to load up front; a chapter's works and
 // their previews arrive only when that chapter is opened.
 async function merge() {
+  // The resume set and the surface-form key sit beside the indexes and
+  // are neither of them an index.
   const files = (await readdir(OUT_DIR)).filter(
-    (f) => f.endsWith(".json") && !f.endsWith(".done.json") && f !== "books.json"
+    (f) => f.endsWith(".json")
+      && !f.endsWith(".done.json")
+      && !f.endsWith(".variants.json")
+      && f !== "books.json"
   );
   const detail = new Map(); // "book/ch" -> rows
   const summary = {};
@@ -584,6 +589,21 @@ async function merge() {
     await writeFile(path.join(dir, `${ch}.json`), body);
   }
 
+  // The key, merged: every surface form the corpus actually uses and
+  // what it was read as, commonest first. This is what to read when a
+  // citation looks wrong.
+  const key = new Map();
+  for (const f of await readdir(OUT_DIR)) {
+    if (!f.endsWith(".variants.json")) continue;
+    for (const [k, n] of JSON.parse(await readFile(path.join(OUT_DIR, f), "utf8"))) {
+      key.set(k, (key.get(k) || 0) + n);
+    }
+  }
+  const keyRows = [...key.entries()]
+    .map(([k, n]) => { const [surface, canon] = k.split("\u0000"); return { surface, canon, n }; })
+    .sort((a, b) => b.n - a.n);
+  await writeFile(path.join(OUT_DIR, "out", "scripture-key.json"), JSON.stringify(keyRows));
+
   const summaryPath = path.join(OUT_DIR, "out", "scripture-books.json");
   await writeFile(summaryPath, JSON.stringify(summary));
   const sBytes = (await readFile(summaryPath)).length;
@@ -592,6 +612,8 @@ async function merge() {
   console.log(`${cites.toLocaleString()} citations across ${works.size.toLocaleString()} works`);
   console.log(`summary  ${(sBytes / 1024).toFixed(0)} KB  (loaded up front)`);
   console.log(`detail   ${(bytes / 1024 / 1024).toFixed(1)} MB across ${detail.size} files (loaded per chapter)`);
+  console.log(`key      ${keyRows.length.toLocaleString()} surface forms`);
+  console.log(`         ${keyRows.slice(0, 8).map((r) => `${r.surface}\u2192${r.canon}`).join(", ")}`);
 }
 
 async function run() {
