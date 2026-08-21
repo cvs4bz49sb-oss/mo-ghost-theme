@@ -170,8 +170,13 @@
         const era = c && window.MOCentury ? window.MOCentury.label(c) : "";
         const second = w.titleLatin && w.titleLatin !== w.title
           ? `<span class="fa-work-la">${escapeHtml(w.titleLatin)}</span>` : "";
+        // In much of this catalogue the volume field holds a bare
+        // printing year, so showing it beside the derived century
+        // prints the same fact twice: "1612 / 17th century".
+        const volIsYear = /^\s*\d{3,4}\s*$/.test(w.volume || "");
         const vol = w.volume ? `<span class="fa-work-vol">${escapeHtml(w.volume)}</span>` : "";
-        const eraTag = era ? `<span class="fa-work-era">${escapeHtml(era)}</span>` : "";
+        const eraTag = era && !volIsYear
+          ? `<span class="fa-work-era">${escapeHtml(era)}</span>` : "";
         const inner = `<span class="fa-work-t">${escapeHtml(w.title || w.id)}</span>${second}${vol}${eraTag}`;
         return w.readable !== false && w.url
           ? `<li><a href="${escapeHtml(w.url)}">${inner}</a></li>`
@@ -188,8 +193,13 @@
     const factRows = facts.map(([k, v]) =>
       `<div class="fa-fact"><dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd></div>`).join("");
     const meta = `<dl class="fa-meta">${factRows}</dl>`;
+    // A life we could write, a name we could not identify, and a gap
+    // are three different things and should not look alike. The middle
+    // case takes the quiet treatment: it is a statement about the
+    // record, not a biography.
+    const unsure = entry.confidence === "low";
     const bioBlock = bio
-      ? `<div class="fa-bio"><p>${escapeHtml(bio)}</p></div>`
+      ? `<div class="fa-bio${unsure ? " fa-bio--none" : ""}"><p>${escapeHtml(bio)}</p></div>`
       : `<div class="fa-bio fa-bio--none"><p>No biography has been written for this author yet. What follows is everything the library holds under the name.</p></div>`;
     const sig = entry.significance
       ? `<p class="fa-significance">${escapeHtml(houseStyle(entry.significance))}</p>` : "";
