@@ -105,6 +105,41 @@ console.log(`\n  ${holes.length} multi-volume sets have holes:`);
 holes.forEach((h) =>
   console.log(`    ${h.base.slice(0, 46).padEnd(48)} ${h.count}/${h.max}, missing ${h.missing.join(", ")}`));
 
+// ── Conflated authors ────────────────────────────────────────────
+//
+// One author field, more than one man. Found by writing about Thomas
+// Watson and discovering the shelf held Elizabethan love sonnets and a
+// Marian bishop's sacramental treatise alongside the Puritan divine.
+//
+// The test is crude on purpose: nobody publishes across seventy years.
+// It catches genuine conflation and also honest posthumous reprinting,
+// so the two have to be told apart by eye, and the report prints the
+// earliest and latest titles so they can be.
+const dated = new Map();
+works.forEach((w) => {
+  const y = parseInt((String(w.volume || "").match(/\b1[45678]\d{2}|\b1[89]\d{2}/) || [])[0], 10);
+  if (!y || !w.author) return;
+  if (!dated.has(w.author)) dated.set(w.author, []);
+  dated.get(w.author).push({ y, t: w.title || "" });
+});
+const spans = [...dated.entries()]
+  .map(([a, ws]) => {
+    const ys = ws.map((x) => x.y);
+    const sorted = ws.slice().sort((p, q) => p.y - q.y);
+    return { a, lo: Math.min(...ys), hi: Math.max(...ys), n: ws.length, sorted };
+  })
+  .filter((x) => x.hi - x.lo > 65)
+  .sort((x, y) => (y.hi - y.lo) - (x.hi - x.lo));
+
+console.log(`\n  ${spans.length} authors publish across more than 65 years, which one man cannot:`);
+spans.forEach((x) => {
+  const first = x.sorted[0];
+  const last = x.sorted[x.sorted.length - 1];
+  console.log(`    ${x.a.padEnd(24)} ${x.lo}–${x.hi}  (${x.n} works)`);
+  console.log(`        ${first.y}  ${first.t.slice(0, 62)}`);
+  console.log(`        ${last.y}  ${last.t.slice(0, 62)}`);
+});
+
 if (WRITE) {
   await mkdir(OUT, { recursive: true });
   await writeFile(path.join(OUT, "_gap-bios.json"),
