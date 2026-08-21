@@ -226,6 +226,18 @@
     // Goodwin and also a minister.
     "goodwin-happiness-princes-led-divine-counsel-sermon": "Thomas Goodwin the Younger",
     "goodwin-sermon-on-occasion-death-reverend-learned": "Thomas Goodwin the Younger",
+    // George Walker the London Puritan died in 1651. The seven 1689
+    // Londonderry items belong to George Walker the governor of the
+    // siege, who died at the Boyne in 1690. The 1690 devotional
+    // compilation is left where it is: it could be either man or a
+    // third, and the catalogue gives nothing to decide on.
+    "walker-a-new-letter-from-london-derry-giving-a-fart": "George Walker, Governor of Derry",
+    "walker-a-sermon-being-an-incouragement-for-protesta": "George Walker, Governor of Derry",
+    "walker-a-true-account-of-the-present-state-of-irela": "George Walker, Governor of Derry",
+    "walker-a-true-account-of-the-siege-of-london-derry": "George Walker, Governor of Derry",
+    "walker-a-vindication-of-the-true-account-of-the-sie": "George Walker, Governor of Derry",
+    "walker-the-christian-champion-being-the-substance-o": "George Walker, Governor of Derry",
+    "walker-the-substance-of-a-sermon-being-an-incourage": "George Walker, Governor of Derry",
     // The Lyons editors' preface to Albert's Opera, not Albert.
     "albertus-magnus-praefatio-editorum-lugdunensium-benevolo-lectori": "The Lyons editors of Albert's Opera",
   };

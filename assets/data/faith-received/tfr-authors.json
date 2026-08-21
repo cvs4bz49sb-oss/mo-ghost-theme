@@ -1542,5 +1542,13 @@
   "bio": "Son of Thomas Goodwin the Independent, and a minister in his own right, which the catalogue does not distinguish. The two funeral sermons under this name were preached in 1695 and 1700 and cannot belong to his father, who died in 1680. He edited and saw through the press part of his father's posthumous works, which is one reason the two are so readily confused.",
   "confidence": "medium",
   "source": "mere-orthodoxy"
+ },
+ "George Walker, Governor of Derry": {
+  "dates": "c. 1618–1690",
+  "tradition": "Church of Ireland",
+  "affiliation": "Rector of Donaghmore; joint governor of Londonderry during the siege of 1689",
+  "bio": "A clergyman of the Church of Ireland who raised a regiment and became joint governor of Londonderry through the siege of 1689, and a different man from George Walker the London Puritan controversialist, who died in 1651. His True Account of the Siege of London-Derry appeared within months and was at once disputed by John Mackenzie, which produced the Vindication also in this collection. He was killed at the Boyne in July 1690.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
  }
 }
