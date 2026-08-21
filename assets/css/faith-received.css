@@ -5211,6 +5211,12 @@ mark.faith-find-hit.is-current {
   margin: 0 0 28px;
 }
 .faith-room-select { display: flex; flex-direction: column; gap: 6px; }
+/* A bare `display` outranks the user-agent's [hidden] rule, and the
+   denomination select is written into the shell hidden and shown only
+   when the chosen tradition has children. Without this, every room
+   that has no denominations to offer rendered an empty dropdown
+   labelled "Within". */
+.faith-room-select[hidden] { display: none; }
 .faith-room-select > span {
   font-family: var(--font-body);
   font-size: var(--tfr-micro);
@@ -5346,6 +5352,20 @@ mark.faith-find-hit.is-current {
 [data-fr-tint="dark"] .faith-reader .faith-find-input,
 [data-fr-tint="dark"] .faith-reader .faith-find-nav,
 [data-fr-tint="dark"] .faith-reader .faith-doc-toc-toggle {
+  background: #2c2926;
+  border-color: #453f3a;
+  color: #e8e3dc;
+}
+/* The dock and the popovers that open out of it. They are not in the
+   list above because the dock did not exist when it was written, and a
+   panel left at its light default is a bright box on near-black paper —
+   the same defect as the transparent panel, moved rather than fixed.
+   .faith-dock-toggle is deliberately absent: it carries --color-dark
+   already, which is the tint's own chrome colour. */
+[data-fr-tint="dark"] .faith-reader .faith-dock-top,
+[data-fr-tint="dark"] .faith-reader .faith-dock-contents,
+[data-fr-tint="dark"] .faith-reader .faith-dock .faith-reading-controls,
+[data-fr-tint="dark"] .faith-reader .faith-prefs-panel {
   background: #2c2926;
   border-color: #453f3a;
   color: #e8e3dc;
@@ -6365,7 +6385,7 @@ mark.faith-find-hit.is-current {
   height: 46px;
   border-radius: 50%;
   border: 1px solid var(--color-card-border);
-  background: var(--color-white);
+  background: var(--color-page);
   color: var(--color-dark);
   font-size: 17px;
   line-height: 1;
@@ -6427,17 +6447,25 @@ mark.faith-find-hit.is-current {
   margin: 0;
   border: 1px solid var(--color-card-border);
   border-radius: 10px;
-  background: var(--color-white);
+  /* --color-page, not white: every other piece of floating chrome in
+     the reader (.faith-tool, .faith-find-input, .faith-doc-toc-toggle
+     and the preferences popover this sits above) is on the page ground
+     with a hairline and a shadow doing the separating. */
+  background: var(--color-page);
   box-shadow: 0 8px 28px rgba(45, 41, 39, 0.18);
 }
 .faith-dock .faith-reading-controls[hidden] { display: none; }
 
 /* Every control fills the width, so the panel reads as a list of
-   things you can do rather than as a row that wrapped. */
+   things you can do rather than as a row that wrapped.
+
+   44px, not 40: this is a thumb-height list on a phone, and the dock
+   buttons that open it already clear the floor. The panel scrolls, so
+   the extra 4px a row costs nothing. */
 .faith-dock .faith-tool,
 .faith-dock .faith-toggle-switch {
   width: 100%;
-  min-height: 40px;
+  min-height: 44px;
   justify-content: center;
   margin: 0;
 }
@@ -6446,13 +6474,13 @@ mark.faith-find-hit.is-current {
   width: 100%;
 }
 .faith-dock .faith-lang-toggle[hidden] { display: none; }
-.faith-dock .faith-lang-btn { flex: 1; min-height: 40px; }
+.faith-dock .faith-lang-btn { flex: 1; min-height: 44px; }
 
 /* The preferences panel is inside a panel that already scrolls, so it
    sits in the flow rather than floating out of it. Absolute here put
    it outside the scroll box and clipped it. */
 .faith-dock .faith-prefs { position: static; margin: 0; width: 100%; }
-.faith-dock .faith-prefs-toggle { width: 100%; min-height: 40px; }
+.faith-dock .faith-prefs-toggle { width: 100%; min-height: 44px; }
 .faith-dock .faith-prefs-panel {
   position: static;
   width: 100%;
@@ -6623,7 +6651,10 @@ body.faith-toc-open .faith-dock { display: none; }
   align-items: baseline;
   flex-wrap: wrap;
   gap: 4px;
-  margin: 4px 0 0;
+  /* Room under the row. The numbers sat directly on the rule that
+     divides one work from the next, so the verses of the work above
+     read as the heading of the work below. */
+  margin: 6px 0 18px;
   padding: 0 0 0 2px;
 }
 .faith-verse-label {
