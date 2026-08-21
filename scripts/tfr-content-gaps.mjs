@@ -70,6 +70,41 @@ console.log("\n  authors with the most unintroduced works:");
 [...byAuthor.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12)
   .forEach(([a, n]) => console.log(`    ${String(n).padStart(4)}  ${a}`));
 
+// ── Multi-volume sets ────────────────────────────────────────────
+//
+// A set with a hole in it is a different kind of gap from a work with
+// no introduction, and it is the source's to fill rather than ours.
+// Found by writing about Calvin: the Jeremiah lectures are one volume
+// slugged vol-1 and labelled Vol. 5, so four volumes are simply absent.
+const mismatched = [];
+const sets = new Map();
+works.forEach((w) => {
+  const inSlug = (w.slug || "").match(/-vol-(\d+)$/);
+  const inField = String(w.volume || "").match(/(\d+)/);
+  if (inSlug && inField && inSlug[1] !== inField[1]) {
+    mismatched.push([w.slug, w.volume]);
+  }
+  const m = (w.slug || "").match(/^(.*)-vol-(\d+)$/);
+  if (!m) return;
+  if (!sets.has(m[1])) sets.set(m[1], []);
+  sets.get(m[1]).push(parseInt(m[2], 10));
+});
+const holes = [...sets.entries()]
+  .map(([base, ns]) => {
+    const max = Math.max(...ns);
+    const have = new Set(ns);
+    const missing = [];
+    for (let i = 1; i <= max; i += 1) if (!have.has(i)) missing.push(i);
+    return { base, count: ns.length, max, missing };
+  })
+  .filter((s) => s.missing.length);
+
+console.log(`\n  slug and volume disagree on ${mismatched.length} works:`);
+mismatched.forEach(([s, v]) => console.log(`    ${s}  says ${JSON.stringify(v)}`));
+console.log(`\n  ${holes.length} multi-volume sets have holes:`);
+holes.forEach((h) =>
+  console.log(`    ${h.base.slice(0, 46).padEnd(48)} ${h.count}/${h.max}, missing ${h.missing.join(", ")}`));
+
 if (WRITE) {
   await mkdir(OUT, { recursive: true });
   await writeFile(path.join(OUT, "_gap-bios.json"),

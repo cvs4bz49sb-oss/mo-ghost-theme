@@ -1083,5 +1083,410 @@
   "blurb": "Eight books on dialectical argument: reasoning from premises that are merely probable or commonly held, the four predicables as the framework of such reasoning, and the long lists of topics, the places from which an arguer draws a line of attack or defence on a given kind of question. The last book treats the conduct of a disputation, which was the daily exercise of the schools.",
   "confidence": "medium",
   "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-romans": {
+  "blurb": "Calvin's first work of biblical exposition, and the place where he set out the rule that governed all the rest: the interpreter's whole task is lucid brevity, laying open the mind of the writer rather than piling up his own opinions. The dedication to Simon Grynaeus states that principle. On Romans itself he is occupied above all with justification, with election in chapters nine through eleven, and with the ordering of the Christian life that follows.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-institutes-of-the-christian-religion": {
+  "blurb": "The final Latin recension of 1559, in four books following the shape of the creed: the knowledge of God the Creator, the knowledge of God the Redeemer, the manner in which the grace of Christ is received, and the external means by which God sustains the church. Calvin intended it as a body of doctrinal commonplaces that would free his commentaries from long digressions. Beveridge's Victorian English is the version quoted in most older Reformed literature.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-genesis-vol-1": {
+  "blurb": "The first of two volumes, covering the creation account, the fall, the flood, and the call of Abraham. Calvin reads Moses as writing for ordinary people rather than for astronomers, a principle of accommodation he applies steadily to the six days and to the firmament. He resists allegory, keeps the covenant with Abraham in view as the same covenant the church now holds, and argues throughout with both Jewish and patristic readings.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-genesis-vol-2": {
+  "blurb": "The second and concluding volume, taking up the patriarchal narratives from Isaac through Jacob and the long Joseph account, and closing with Jacob's blessing of his sons. Calvin's interest here is providence worked out through family conflict, deception, and famine, and he sets down the failures of the patriarchs without softening them. The promise attached to Judah receives sustained attention.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-harmony-of-the-law-vol-1": {
+  "blurb": "The first of four volumes on Exodus through Deuteronomy, which Calvin arranged not in the order of the books but as a harmony: the historical narrative set out first, then the whole body of law distributed under the headings of the Decalogue. This volume carries the narrative, the exodus and the wilderness years. The arrangement makes plain what he takes the law to be for, and lets parallel passages from four books stand together.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-harmony-of-the-law-vol-2": {
+  "blurb": "The second of the four volumes, where the harmony turns from narrative to precept. Calvin places each statute under the commandment it serves, distinguishing the moral law, which binds always, from the ceremonial and judicial supplements given to Israel alone. It is in the middle volumes of the set that his exposition of the Decalogue itself is found, with his account of images, of oaths, and of the Sabbath.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-harmony-of-the-law-vol-3": {
+  "blurb": "The third of four volumes, continuing the distribution of the Mosaic legislation under the commandments together with the supplements attached to each: the ceremonial ordinances that served worship, and the judicial statutes governing life, property, and testimony. Calvin's habit is to ask what equity a given statute served in Israel, and then what of it remains binding once the polity that framed it has passed away.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-harmony-of-the-law-vol-4": {
+  "blurb": "The last of the four volumes, closing the harmony and returning to narrative for the end of Moses' life, the song, the blessing of the tribes, and the death on Nebo. Calvin gives extended treatment to the sanctions of the covenant, blessing and curse, and reads the promises attached to the land as neither cancelled nor simply transferred to the church without alteration.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-joshua": {
+  "blurb": "Calvin's last commentary, taken up in his final illness and published after his death. The conquest narrative puts questions to him that he does not evade: the destruction of the Canaanites, the ban, Rahab's lie, the division of the land, and the covenant renewal at Shechem. He reads the book as an account of God keeping a promise made centuries before, and of Israel's slowness to take possession of what was given.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-psalms-vol-1": {
+  "blurb": "The first of five volumes, and the one carrying the preface in which Calvin describes his own reluctant call to public work and his sudden conversion, the nearest thing to an autobiography he left. He calls the Psalter an anatomy of all the parts of the soul, and the exposition proceeds accordingly, tracing fear, complaint, and recovered confidence as the experience of the church and not of David only.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-psalms-vol-2": {
+  "blurb": "The second of five volumes. Calvin's method is to establish first what a psalm meant in David's own circumstances, the persecution, the flight, the sickness, before allowing any application to Christ or to the church, and he is sparing with the Messianic sense where the text does not compel it. The psalms of complaint draw from him some of his plainest writing on prayer offered in confusion.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-psalms-vol-3": {
+  "blurb": "The third of five volumes. Much of Calvin's attention in this stretch of the Psalter falls on the songs of the sanctuary and of the kingdom, where he argues that temple and throne were figures of Christ's reign rather than ends in themselves. He is severe with the notion that outward worship pleases God on its own account, and reads the historical psalms as instruction in how a people is to remember.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-psalms-vol-4": {
+  "blurb": "The fourth of five volumes, and the one in which his treatment of the law psalms falls. With it comes his answer to the objection that a religion of grace cannot also delight in commandments: the psalmist's love of the law is evidence that law, read as the rule of a covenant already established, stands in no opposition to faith. The psalms of God's reign occupy the earlier part.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-psalms-vol-5": {
+  "blurb": "The last of the five volumes, closing the Psalter. Calvin worked on this exposition alongside the effort to put the Psalms into French metre for congregational singing at Geneva, and the commentary keeps that use in view, asking what a congregation is to do with each psalm. The songs of ascents and the closing psalms of praise fall in this volume.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-isaiah-vol-1": {
+  "blurb": "The first of four volumes. The work began as lectures, was published from a hearer's notes, and was afterwards revised by Calvin himself. This volume covers the opening oracles against Judah and the beginning of the burdens against surrounding nations. He treats the prophets as preachers to their own generation first, and warns repeatedly against turning prophecy into a calendar. The book was dedicated to Edward VI of England, the later revision to Elizabeth.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-isaiah-vol-2": {
+  "blurb": "The second of four volumes, taking in the remaining burdens against the nations and the historical chapters on Hezekiah and the Assyrian siege. What holds Calvin's attention is the political question Isaiah presses on Judah: whether a small and threatened people will rest on a promise or on a treaty with a stronger neighbour. He applies it to the churches of his own day without embarrassment.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-isaiah-vol-3": {
+  "blurb": "The third of four volumes, covering the chapters of judgment and consolation that stand between the Assyrian crisis and the prophecies of return, including the polemic against idols and the naming of Cyrus as God's instrument. Calvin uses the Cyrus oracles to argue that prophecy is proof of divine foreknowledge, against readers who would place the writing after the event.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-isaiah-vol-4": {
+  "blurb": "The last of the four volumes, taking up the closing chapters, among them the servant passages and Isaiah 53. Calvin argues that the servant is Christ and not merely Israel or the prophet, and reads the chapter as the plainest statement of substitution in the Old Testament. The concluding prophecies of new heavens and a restored city he understands as descriptions of the church's condition under the gospel.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-jeremiah-and-lamentations-vol-1": {
+  "blurb": "The last volume of the five that make up Calvin's lectures on Jeremiah, carrying the prophecy to its close and then running through the whole of Lamentations. These were praelectiones delivered before the ministers and students of Geneva and taken down by hearers, which accounts for their pace and their directness. Calvin's Jeremiah is a preacher to a doomed city, and the application to France is never far from view.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-ezekiel-vol-1": {
+  "blurb": "The first of two volumes of lectures, covering the opening vision by the river Chebar, the prophet's commission, and the oracles of judgment on Jerusalem. Calvin is characteristically restrained about the chariot vision, refusing the elaborate schemes earlier commentators had built on it. Like his other prophetic lectures, the text was taken down by hearers as he delivered it rather than written out for the press.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-ezekiel-vol-2": {
+  "blurb": "The second volume, and the end of the work. Calvin lectured on Ezekiel only as far as chapter twenty and died before going further, so the commentary stops well short of the temple vision at the close of the book. What survives here includes the chapters on false prophets, on the soul that sins bearing its own guilt, and on Israel's history retold as a history of unfaithfulness.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-daniel-vol-1": {
+  "blurb": "The first of two volumes of lectures, covering the court narratives and the dream of the monarchies through chapter six. Calvin reads the four kingdoms as Babylon, Persia, Greece, and Rome, terminating at the coming of Christ, and refuses the reading that turns them into a chart of later European history. The dedication addresses the persecuted French Protestants, and the parallel between their case and Daniel's exile is stated without disguise.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-daniel-vol-2": {
+  "blurb": "The second volume, taking up the visions from chapter seven onward: the beasts, the ram and the goat, the seventy weeks, and the long final prophecy of the kings of north and south. Calvin works through the seventy weeks arithmetically and ends them in Christ. He rejects a future earthly reign of a thousand years, and reads the promise at the close of the book as the general and final resurrection.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-hosea": {
+  "blurb": "The first of five volumes of lectures on the Minor Prophets, given wholly to Hosea. Calvin takes the marriage of the opening chapters to have been shown to the prophet in vision rather than acted out, and the burden of the exposition is the covenant read as a marriage Israel has broken. As with his other prophetic lectures, the text comes from notes taken down while he spoke.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-joel-amos-obadiah": {
+  "blurb": "The second of five volumes of lectures on the Minor Prophets: Joel's locusts and day of the Lord, Amos preaching against a prosperous and comfortable Israel, and the short oracle of Obadiah against Edom. Calvin is at his most pointed in Amos, where the indictment of those at ease and the rebuke of a worship that continues while justice fails are turned directly on his own hearers.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-jonah-micah-nahum": {
+  "blurb": "The third of five volumes of lectures on the Minor Prophets. Calvin treats Jonah as history and reads the flight and the anger as a study of a believer's rebellion rather than as a marvel. Micah supplies the contrast between corrupt rulers and the promise attached to Bethlehem; Nahum raises the question of what it means for God to avenge, which Calvin handles without apology.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-habakkuk-zephaniah-haggai": {
+  "blurb": "The fourth of five volumes of lectures on the Minor Prophets. Habakkuk's complaint that God stays silent while the wicked prosper draws from Calvin a sustained treatment of faith holding on without sight, and of the just living by faith as Paul afterwards used the phrase. Zephaniah supplies the day of wrath, and Haggai the rebuilding of a temple by a discouraged and impoverished remnant.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-zechariah-malachi": {
+  "blurb": "The last of five volumes of lectures on the Minor Prophets. Zechariah's night visions Calvin handles cautiously, taking them as encouragement to a small returned community rather than as a key to the future, though he reads the pierced one and the stricken shepherd of the later chapters as fulfilled in Christ. Malachi closes the set with the dispute over careless worship and the covenant made with Levi.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-a-harmony-of-the-evangelists-matthew-mark-luke-vol-1": {
+  "blurb": "The third and closing volume of Calvin's harmony of Matthew, Mark, and Luke, a work that expounds the three narratives together rather than taking each Gospel in turn. This volume brings the harmony through the last week in Jerusalem, the passion, and the resurrection. Calvin deals candidly with the places where the evangelists differ in order, arguing that they did not set out to write chronicles.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-john-vol-1": {
+  "blurb": "The first of two volumes, running from the prologue through the discourses of the middle chapters to the raising of Lazarus. Calvin's preface argues that John supplies the key by which the other three Gospels are to be read, since he sets out the power and office of Christ where they narrate his acts. The exposition of chapter six carries his account of eating Christ by faith.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-john-vol-2": {
+  "blurb": "The second volume, taking up the entry into Jerusalem and continuing through the farewell discourses, the prayer of chapter seventeen, the passion, and the resurrection appearances. The promise of the Comforter receives extended treatment, as does the vine, which Calvin uses to state union with Christ while refusing any mixture of the believer's substance with his.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-acts-vol-1": {
+  "blurb": "The first of two volumes, covering the ascension and Pentecost, the early Jerusalem community, the trial and death of Stephen, and the mission that follows the scattering, up to the sending out of Paul. Calvin reads Acts as the record of how the church was in fact planted, and takes a steady interest in the ordering of ministry, the relief of the poor, and the discipline of a congregation.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-acts-vol-2": {
+  "blurb": "The second volume, following Paul from the first journey through the council at Jerusalem, the churches of Asia and Greece, the arrest in the temple, the hearings before governors and king, and the voyage to Rome. The council of chapter fifteen occasions Calvin's account of how a synod ought to proceed; the trial scenes occasion his remarks on the Christian standing before a magistrate.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-corinthians-vol-1": {
+  "blurb": "The first of two volumes, on First Corinthians: the parties in the congregation, the case of incest and its discipline, lawsuits between believers, marriage and celibacy, meat offered to idols, the covering of heads, the Supper, the spiritual gifts and their ordering, and the resurrection chapter. His treatment of the Supper here is among the fullest statements of his eucharistic position outside the Institutes.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-corinthians-vol-2": {
+  "blurb": "The second volume, on Second Corinthians, where Paul defends his ministry against rivals who have gained a hearing in the congregation. Calvin follows the argument about letter and Spirit, the treasure in earthen vessels, and the ministry of reconciliation, and gives close attention to the two chapters on the collection for Jerusalem, which he reads as a rule for how churches are to relieve one another.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-galatians-and-ephesians": {
+  "blurb": "Two letters in one volume. On Galatians Calvin works out justification against the imposition of the law, and the confrontation at Antioch gives him occasion to ask whether an apostle may be publicly corrected. On Ephesians he turns to election in the opening chapter, to the making of one body out of Jew and Gentile, and to the household instructions, which he treats as a serious account of Christian callings.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-philippians-colossians-and-thessalonians": {
+  "blurb": "Three sets of letters in one volume. Philippians brings Calvin to the hymn of chapter two and its account of Christ's self-emptying, which he expounds without surrendering the deity. Colossians occasions a polemic against additions to Christ, whether angels, ceremonies, or a false austerity. The Thessalonian letters bring him to the return of Christ and to the man of sin, whom he identifies with the papacy rather than a single future person.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-timothy-titus-philemon": {
+  "blurb": "The pastoral letters together with the short note to Philemon. Calvin uses them for the shape of the ministry: the qualifications of pastors and deacons, the calling and examining of men for office, the support of widows, the handling of accusations against elders. The exposition of the passage on all Scripture being breathed out by God stands here, as does his treatment of the injunctions concerning women.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentary-on-hebrews": {
+  "blurb": "Calvin denies that Paul wrote this letter, on the ground of its style and its manner of citing apostolic testimony, while insisting that its authority is in no way lessened by the author being unknown. The commentary follows the argument about the priesthood after the order of Melchizedek and the sacrifice offered once for all, and takes up the warnings against apostasy without conceding that the elect may finally be lost.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-commentaries-on-the-catholic-epistles": {
+  "blurb": "Calvin's exposition of James, First and Second Peter, First John, and Jude. He wrote nothing on Second and Third John, and never commented on Revelation, so this volume completes his work on the New Testament. James on faith and works receives the treatment the controversy demanded, Calvin arguing that James speaks of the proof of faith where Paul speaks of its ground. On First John the tests of assurance occupy him.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-a-treatise-on-relics": {
+  "blurb": "A polemical inventory of the relics venerated in the churches of Europe, written in French for lay readers: the pieces of the true cross, the bodies claimed by several cities at once, the milk of the Virgin, the several heads of John the Baptist. Calvin's method is to set the competing claims side by side and let the arithmetic do the work. The satire is dry, and the intent is pastoral rather than antiquarian.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "calvin-sermons-job-hezekiah-isaiah": {
+  "blurb": "A large collection of sermons preached at Geneva, dominated by the long series on Job, with shorter series on the song of Hezekiah in Isaiah 38, on Isaiah 53, and on the prophecy of Christ. Calvin preached without a manuscript and these texts derive from stenographic notes taken in the congregation, so the prose is spoken rather than composed, with the repetitions and direct address of a man at work on his hearers.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-collationes-seu-disputationes-subtilissimae": {
+  "blurb": "Short disputed questions held outside the ordinary lecture cycle, each putting one point and arguing it through: the divine attributes, the will, individuation, and the soul are among the matters that recur. The collations survive in an Oxford and a Paris group, and they are among the places where Scotus states a position more compactly than in the commentaries on the Sentences. The Wadding text is not a critical edition.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-de-cognitione-dei-tractatus-imperfectus": {
+  "blurb": "A short and unfinished treatise on the knowledge of God, printed among Scotus's works in the Wadding edition. That edition also carries pieces now firmly assigned to other authors, and this one does not stand among the securely attested works, so a reader should take it as Scotist rather than as certainly Scotus. The title promises an account of what the mind may reach of God short of the beatific vision.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-de-primo-rerum-omnium-principio": {
+  "blurb": "A compact treatise in four chapters arguing from creatures to a first principle. Scotus builds it on the essential orders of dependence and eminence, denies that an infinite regress is possible among essentially ordered causes, concludes to a being first in efficiency, in finality, and in eminence, and then shows that these coincide in one infinite being. The whole is addressed to God in the second person, in the form of a prayer.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-dilucidissima-expositio-et-quaestiones-in-octo-libros-physicorum-aristotelis": {
+  "blurb": "A running exposition of Aristotle's Physics with questions attached, printed in the Wadding edition under Scotus's name. The Physics material transmitted with his works is not secure, and this full exposition is generally judged to be by another hand. It remains a witness to how the early Scotist schools read Aristotle on motion, place, time, infinity, and the first mover.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-duos-libros-perihermenias-operis-secundi-quod-appellant-quaestiones-octo": {
+  "blurb": "Eight questions on Aristotle's two books on interpretation, forming the second of the two sets of Perihermenias questions transmitted under Scotus's name. Both belong to the logical teaching of his early years, before the theology, and take up signification, the truth of propositions about the future, and the relation between spoken words, written marks, and what is in the mind.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-libros-de-anima": {
+  "blurb": "Material on Aristotle's books on the soul, printed in the Wadding corpus. That corpus carries more than one body of De anima teaching under Scotus's name, and not all of it is his: the questions on the soul are now accepted as authentic, while other expositions printed alongside them are not. Which of these the present volume represents cannot be settled from the title alone.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-libros-elenchorum-quaestiones": {
+  "blurb": "Part of the course in logic Scotus gave early in his career, and accepted as his in the critical edition of the philosophical works. The Aristotelian text behind it is the Sophistical Refutations, and the subject accordingly is fallacy: how an argument can appear to conclude when it does not, and what that appearance shows about signification, equivocation, and the way words stand for things.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-praedicamentorum-quaestiones": {
+  "blurb": "From the same early course in logic, working through Aristotle on the ten categories. Scotus asks what the categories are categories of, whether the division is complete and on what principle it is made, and how substance differs from the accidents said of it. His handling of relation and of quantity bears on positions he takes later in theology, where relation carries the weight of the Trinitarian account.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-primum-posteriorum-analyticorum-aristotelis-quaestiones": {
+  "blurb": "Aristotle on demonstration, put into question form: what makes a proposition scientific, what the first principles of a science are and how they come to be known, and what it is for a science to have a subject at all. The Analytics commentaries in the Wadding edition are not among the logical works admitted as certainly Scotus's, and the ascription should be treated with caution.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-primum-priorum-analyticorum-aristotelis-quaestiones": {
+  "blurb": "The syllogism as such, taken question by question: the figures and the moods, the conversion of premises, and the reduction of imperfect syllogisms to the perfect. As with the questions on the Posterior Analytics, this set belongs to the part of the Wadding corpus whose ascription to Scotus is doubted, and it is better read as Scotist school material unless shown to be more.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-primum-sententiarum": {
+  "blurb": "Book one of the commentary on Peter Lombard, the Ordinatio or Opus Oxoniense, the version Scotus revised himself and the source of most of what he is known for: that being is said univocally of God and creatures, that a formal distinction holds among the divine attributes without dividing the essence, and the argument to an actually infinite being. The later distinctions treat the Trinity. Wadding prints Lychetus's commentary alongside the text.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-quartum-sententiarum": {
+  "blurb": "Book four, the longest part of the commentary, given to the sacraments and the last things. Scotus treats sacramental causality and the sense in which words effect what they signify, transubstantiation and the manner of Christ's presence, penance and attrition, orders, and marriage, before closing with resurrection, judgment, and beatitude. The distinctions on penance and on marriage are among the most detailed canonical discussions anywhere in his work.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-secundum-posteriorum-analyticorum-aristotelis-quaestiones": {
+  "blurb": "Aristotle's second book turns from demonstration to definition, to the knowledge of what a thing is as distinct from that it is, and to the way first principles are grasped; these questions follow him through it. The same caution applies as to the first book: the Analytics material in the Wadding edition is not securely Scotus's, though it was read as his for centuries.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-secundum-priorum-analyticorum-aristotelis-quaestiones": {
+  "blurb": "A brief set of questions on the second book of the Prior Analytics, on what follows once the figures are established: the conversion of syllogisms, circular proof, and what can be concluded from false premises. Its brevity and its place in the Wadding corpus, whose Analytics material is of doubtful ascription, both counsel against treating it as Scotus's own work.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-secundum-sententiarum": {
+  "blurb": "Book two, on creation and creatures. The third distinction carries Scotus's account of individuation, the positive entity by which a common nature is contracted to this thing and no other, later called haecceity, together with his rejection of matter, quantity, and negation as principles of individuality. The book also holds his angelology, his account of the will's freedom and its priority over intellect, and the fall.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-librum-tertium-sententiarum": {
+  "blurb": "Book three, on the Incarnation and the virtues. Two positions here are the ones most often cited: that Christ was predestined to glory independently of Adam's sin, so that the Incarnation was not occasioned by the fall, and that the Virgin was preserved from original sin, which Scotus defends by arguing that the most perfect redemption prevents rather than repairs. Faith, hope, and charity occupy the later distinctions.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-primum-librum-perihermenias-quaestiones": {
+  "blurb": "The first of the two sets of questions on Aristotle on interpretation transmitted under Scotus's name. The matter is the proposition: what a name and a verb signify, how affirmation and negation are opposed, and the problem of the sea battle, where a statement about a future contingent appears to be true or false already and so to remove contingency from the world.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-in-xii-libros-metaphysicorum-aristotelis-expositio": {
+  "blurb": "A literal exposition of Aristotle's Metaphysics printed with Scotus's works. It is not by him: the exposition has long been identified as the work of Antonius Andreas, a Catalan Franciscan who had studied under Scotus and was nicknamed the little Scotus for how closely he followed him. Read as what it is, it is an early and largely faithful record of how a direct pupil understood his master's metaphysics.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-incipit": {
+  "blurb": "A single leaf of front matter carrying the author's name and nothing else. The abbreviation before the name stands for Beatus, blessed, the style used of him once his cult was confirmed. Readers looking for text should turn to the works themselves; this page is retained because it stands where it does in the volume as printed.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-meteorologicorum": {
+  "blurb": "A commentary on Aristotle's Meteorology printed among Scotus's works. Like several of the pieces of natural philosophy in the Wadding corpus, its ascription to him is not accepted, and it is generally assigned to another master of roughly the same period. The subject is the region below the heavens: exhalations, comets, winds, rain and hail, the rainbow, and the salt sea, treated as effects of the elements under celestial causes.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-opusculum-de243-contradictionibus-quae-in-scoti-operibus-apparere-videntur-quarum-singulis-suas-adhibet-solutiones": {
+  "blurb": "Not a work of Scotus but a later reconciling exercise: someone has gathered two hundred and forty three places where his writings appear to contradict one another and supplied a solution to each. Lists of this kind were a standard genre in the Scotist schools, where the consistency and the authenticity of the master's corpus were live questions. Its chief use now is as evidence of what early readers found hard in him.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-quaestiones-disputatae-de-rerum-principio-sive-quaestiones-universales-in-philosophiam": {
+  "blurb": "Printed as Scotus's for centuries and now assigned to Vital du Four, a Franciscan of about the same generation. The misattribution had consequences, since these disputed questions teach universal hylomorphism, matter in every creature including the angels, a position Scotus does not hold, and older accounts of his thought that lean on this text misdescribe him.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-quaestiones-quodlibetales": {
+  "blurb": "The questions Scotus disputed as regent master at Paris, in the format where anyone present might propose the question and the master had to answer whatever was raised. The result ranges over the divine essence and attributes, relation, the Trinity, grace and merit, the will, and the Eucharist. Because they come from his last years, the Quodlibet is often read as his settled mind where it diverges from the earlier Sentences material.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-quaestiones-subtilissimae-super-libros-metaphysicorum": {
+  "blurb": "Questions rather than a running exposition on Aristotle's Metaphysics, and a work generally accepted as Scotus's own. He argues about the subject of metaphysics and settles on being as being, works out the univocity of the concept of being, treats the transcendentals and the distinctions among them, and takes up matter, form, and individuation from the philosophical side. The later books show signs of revision and of an unfinished state.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-quaestiones-super-libros-aristotelis-de-anima": {
+  "blurb": "Admitted as authentic in the critical edition of the philosophical works, and the place to see Scotus on the soul as a philosopher rather than as a theologian. He asks whether the soul can be the subject of a science, how the senses know, what the agent and possible intellect contribute, whether the intellect knows the singular directly, and whether immortality can be demonstrated or only held on faith.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-reportata-parisiensia-liber-primus": {
+  "blurb": "Book one of the report of Scotus's Paris lectures on the Sentences, taken down by a hearer rather than written out by him. For this book a version examined and corrected by Scotus himself is known, which gives it a standing the other reportationes lack. Read against the Ordinatio it shows where he changed his mind and where he was simply putting the same case more briefly to a Paris audience.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-reportata-parisiensia-liber-quartus": {
+  "blurb": "Book four of the Paris report, on the sacraments and the last things, covering the same ground as book four of the Ordinatio but as heard in the lecture room. The text is a student's record, so its authority is limited; where it differs from the Ordinatio the difference may be Scotus revising or the reporter mishearing, and the printed editions do not always let a reader tell which.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-reportata-parisiensia-liber-secundus": {
+  "blurb": "Book two of the Paris report, on creation, the angels, individuation, and the will. Scotus lectured on the Sentences more than once, at Oxford and at Paris, and the same distinctions therefore exist in several states; this is the Paris state of book two as a student set it down. It is a check on the Ordinatio rather than a substitute for it.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-reportata-parisiensia-liber-tertius": {
+  "blurb": "Book three of the Paris report, on the Incarnation, the Virgin, and the virtues. The Paris lectures are where Scotus is traditionally said to have defended the preservation of the Virgin from original sin in public disputation, and the material here should be compared with the corresponding distinctions of the Ordinatio, which he revised, before conclusions are drawn about his final position.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-super-universalia-porphyrii-quaestiones-acutissimae": {
+  "blurb": "Questions on Porphyry's Isagoge, the standard introduction to Aristotle's logic and the opening text of the medieval arts course. The subject is the five predicables, genus, species, difference, property, and accident, and behind them the question Porphyry raised and declined to answer: whether genera and species subsist in things or exist only in the understanding. The answers here bear on the common nature Scotus later works out.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-theoremata-subtilissima": {
+  "blurb": "A series of theorems set out with proofs rather than in the question form Scotus normally uses. Their authenticity has been argued over for a long time, chiefly because several of them deny that certain truths about God can be demonstrated, which is hard to reconcile with the arguments of De primo principio and the Ordinatio. Some resolve the tension by separating what metaphysics proves from what theology holds; others reject the work.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-tractatus-de-modis-significandi-sive-grammatica-speculativa": {
+  "blurb": "A treatise on the modes of signifying, the central text of speculative grammar, in which the ways a word signifies are correlated with the ways a thing exists and the ways the mind understands it. It is not by Scotus: it has been identified as the work of Thomas of Erfurt, though it circulated under his name for centuries and shaped how he was read. Heidegger's habilitation was written on it as Scotus's.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-tractatus-de-perfectione-statuum": {
+  "blurb": "A treatise on the states of life, arguing for the comparative perfection of the religious state and, within it, of the mendicant orders, against objections raised on behalf of the secular clergy. It is not accepted as Scotus's: it belongs to the polemical literature the mendicant controversies produced and was gathered into his works by later editors.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-summa-theologica-vol-1": {
+  "blurb": "Not a work Scotus wrote but a compilation: Hieronymus de Montefortino, a Franciscan of the eighteenth century, gathered Scotist doctrine from across the corpus and set it out in the order, and even the article form, of Aquinas's Summa, so that the two can be read against each other page by page. This first of six volumes begins where Aquinas begins, with the existence and nature of God and the divine attributes.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-summa-theologica-vol-2": {
+  "blurb": "The second of six volumes of Montefortino's arrangement of Scotus in the order of Aquinas's Summa. The seams show throughout: the compiler must supply an answer where Scotus left none, and must decide which of several states of a disputed question counts as the master's mind. Anyone working from it should treat it as an eighteenth-century Scotist's report and check the citations against the Ordinatio.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-summa-theologica-vol-3": {
+  "blurb": "The third of six volumes compiled from Scotus's works and laid out in the order of Aquinas's. Because the frame is Thomist and the matter Scotist, the compilation is most instructive where the two diverge: on the univocity of being, on the formal distinction, on the priority of will to intellect, and on where moral obligation is finally grounded.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-summa-theologica-vol-4": {
+  "blurb": "The fourth of six volumes of Montefortino's compilation. Since the arrangement follows Aquinas's plan, the moral part of the Summa occupies its own long stretch of the work, and there the Scotist positions on natural law, on whether the precepts of the second table admit of dispensation, and on charity and the virtues can be set directly beside the Thomist ones.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-summa-theologica-vol-5": {
+  "blurb": "The fifth of six volumes drawn out of Scotus's writings and arranged after Aquinas. Readers come to the later volumes chiefly for the Christological and sacramental matter, where the compiler has to represent the two theses Scotus is best known for, the Incarnation willed apart from the fall, and the preservation of the Virgin from original sin, inside a frame built by a man who denied the second.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "duns-scotus-summa-theologica-vol-6": {
+  "blurb": "The last of the six volumes of Montefortino's compilation. Aquinas's own Summa broke off unfinished and was completed by other hands from his earlier writings; this arrangement runs to the end, because its compiler was working from a corpus already complete. The completeness is the editor's rather than the author's, and the whole is best checked against the Ordinatio and the Quodlibet.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
  }
 }
