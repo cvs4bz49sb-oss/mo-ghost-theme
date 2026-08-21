@@ -127,16 +127,51 @@
 
   // Where the source wrote no dates, the works say roughly when. Two
   // centuries apart is a life that spanned them.
-  function derivedPeriod(byCorpus) {
-    const cs = [];
+  // Where the source wrote no dates, the works say roughly when. But
+  // the earliest work to the latest is not a life: it printed "3rd
+  // century – 12th century" under one name, which nobody's was. A span
+  // like that is evidence about the catalogue, not about a person —
+  // either the name gathers several people, which this catalogue does
+  // in at least thirteen known cases, or a work is dated by the
+  // edition that printed it rather than by its writing.
+  //
+  // So the period is where the works actually sit: the century holding
+  // most of them, widened to a neighbour only when that neighbour
+  // carries real weight too.
+  function centuryCounts(byCorpus) {
+    const counts = new Map();
     byCorpus.forEach((g) => g.works.forEach((w) => {
       const c = century(w);
-      if (c) cs.push(c);
+      if (c) counts.set(c, (counts.get(c) || 0) + 1);
     }));
-    if (!cs.length) return "";
-    const lo = Math.min(...cs), hi = Math.max(...cs);
+    return counts;
+  }
+
+  function derivedPeriod(byCorpus) {
+    const counts = centuryCounts(byCorpus);
+    if (!counts.size) return "";
+    const total = [...counts.values()].reduce((a, b) => a + b, 0);
+    const main = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0];
+    const near = [...counts.entries()]
+      .filter(([c, n]) => Math.abs(c - main) <= 1 && n / total >= 0.2)
+      .map(([c]) => c);
+    const lo = Math.min(...near), hi = Math.max(...near);
     const label = (c) => (window.MOCentury ? window.MOCentury.label(c) : `${c}`);
     return lo === hi ? label(lo) : `${label(lo)} – ${label(hi)}`;
+  }
+
+  // Said out loud rather than smoothed over. A reader looking at a
+  // shelf that runs from Origen to the schoolmen should be told why.
+  function spanNote(byCorpus) {
+    const counts = centuryCounts(byCorpus);
+    if (counts.size < 2) return "";
+    const cs = [...counts.keys()];
+    const lo = Math.min(...cs), hi = Math.max(...cs);
+    if (hi - lo < 3) return "";
+    const label = (c) => (window.MOCentury ? window.MOCentury.label(c) : `${c}`);
+    return `The works filed under this name run from the ${label(lo)} to the ${label(hi)}, `
+      + `which is longer than a life. More than one writer is gathered here, `
+      + `or some of these are dated by the edition that printed them.`;
   }
 
   function derivedTradition(byCorpus) {
@@ -203,6 +238,8 @@
       : `<div class="fa-bio fa-bio--none"><p>No biography has been written for this author yet. What follows is everything the library holds under the name.</p></div>`;
     const sig = entry.significance
       ? `<p class="fa-significance">${escapeHtml(houseStyle(entry.significance))}</p>` : "";
-    root.innerHTML = `${meta}${bioBlock}${sig}${shelves}`;
+    const span = entry.dates ? "" : spanNote(byCorpus);
+    const spanBlock = span ? `<p class="fa-span-note">${escapeHtml(span)}</p>` : "";
+    root.innerHTML = `${meta}${bioBlock}${spanBlock}${sig}${shelves}`;
   }
 })();

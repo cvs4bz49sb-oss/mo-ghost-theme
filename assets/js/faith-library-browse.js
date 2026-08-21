@@ -420,6 +420,33 @@
   }
 
   // Header above the grid: back link, title, count, optional filter.
+
+  // 1 … 5 6 [7] 8 9 … 42
+  //
+  // Previous and Next alone make a reader who wants page nine press
+  // Next seven times, and give no way at all to reach the end. The
+  // window is the first page, the last, and two either side of where
+  // the reader is; the gaps are elided rather than printing forty
+  // numbers across a phone.
+  function pageWindow(page, pages) {
+    const out = [];
+    const push = (n) => { if (out[out.length - 1] !== n) out.push(n); };
+    push(1);
+    if (page - 2 > 2) out.push(null);
+    for (let n = Math.max(2, page - 2); n <= Math.min(pages - 1, page + 2); n += 1) push(n);
+    if (page + 2 < pages - 1) out.push(null);
+    if (pages > 1) push(pages);
+    return out;
+  }
+
+  function pageLinks(page, pages, attr) {
+    return pageWindow(page, pages).map((n) => (n === null
+      ? '<span class="faith-pager-gap" aria-hidden="true">&hellip;</span>'
+      : `<button type="button" class="faith-pager-num${n === page ? " is-current" : ""}"`
+        + ` ${attr}="${n}"${n === page ? ' aria-current="page"' : ""}`
+        + ` aria-label="Page ${n}">${n}</button>`)).join("");
+  }
+
   function insertChrome(grid, opts) {
     const head = document.createElement("div");
     head.className = "faith-browse-head";
@@ -441,9 +468,9 @@
     const pagerHtml = opts.pager
       ? `<p class="faith-pager">` +
         `<button type="button" class="faith-pager-btn" data-faith-page="${opts.pager.page - 1}"${opts.pager.page <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
-        `<span class="faith-pager-count">Page ${opts.pager.page} of ${opts.pager.pages} &middot; ` +
-        `${opts.pager.total.toLocaleString()} ${escapeHtml(opts.pager.label)}</span>` +
+        `<span class="faith-pager-nums">${pageLinks(opts.pager.page, opts.pager.pages, "data-faith-page")}</span>` +
         `<button type="button" class="faith-pager-btn" data-faith-page="${opts.pager.page + 1}"${opts.pager.page >= opts.pager.pages ? " disabled" : ""}>Next &rarr;</button>` +
+        `<span class="faith-pager-count">${opts.pager.total.toLocaleString()} ${escapeHtml(opts.pager.label)}</span>` +
         `</p>`
       : "";
     head.innerHTML =

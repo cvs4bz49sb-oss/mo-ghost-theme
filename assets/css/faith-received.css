@@ -6544,3 +6544,68 @@ body.faith-toc-open .faith-dock { display: none; }
   .faith-room-scope { width: 100%; }
   .faith-room-scope select { width: 100%; }
 }
+
+/* A shelf whose dates cannot be one person's. Quiet, but said. */
+.fa-span-note {
+  margin: 0 0 22px;
+  padding-left: 14px;
+  border-left: 2px solid var(--color-border);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  max-width: 62ch;
+}
+
+/* ══ Numbered pages ═══════════════════════════════════════════════
+   Previous and Next alone made a reader who wanted page nine press
+   Next seven times, and gave no way at all to reach the end. */
+.faith-pager-nums {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.faith-pager-num {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: var(--color-muted);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.faith-pager-num:hover {
+  color: var(--color-secondary);
+  border-color: var(--color-border);
+}
+.faith-pager-num:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 1px;
+}
+.faith-pager-num.is-current {
+  color: var(--color-dark);
+  border-color: var(--color-border);
+  background: var(--color-bg);
+  font-weight: 600;
+  cursor: default;
+}
+.faith-pager-gap {
+  padding: 0 2px;
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  /* Room for a thumb, and the numbers wrap onto their own line rather
+     than squeezing Previous and Next off the ends. */
+  .faith-pager-num { min-width: 40px; min-height: 40px; }
+  .faith-pager-nums { order: 1; width: 100%; margin-top: 6px; }
+  .faith-pager,
+  .faith-room-pager { flex-wrap: wrap; }
+}

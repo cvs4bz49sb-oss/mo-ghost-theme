@@ -442,11 +442,38 @@
     pushState();
   }
 
+
+  // 1 … 5 6 [7] 8 9 … 42
+  //
+  // Previous and Next alone make a reader who wants page nine press
+  // Next seven times, and give no way at all to reach the end. The
+  // window is the first page, the last, and two either side of where
+  // the reader is; the gaps are elided rather than printing forty
+  // numbers across a phone.
+  function pageWindow(page, pages) {
+    const out = [];
+    const push = (n) => { if (out[out.length - 1] !== n) out.push(n); };
+    push(1);
+    if (page - 2 > 2) out.push(null);
+    for (let n = Math.max(2, page - 2); n <= Math.min(pages - 1, page + 2); n += 1) push(n);
+    if (page + 2 < pages - 1) out.push(null);
+    if (pages > 1) push(pages);
+    return out;
+  }
+
+  function pageLinks(page, pages, attr) {
+    return pageWindow(page, pages).map((n) => (n === null
+      ? '<span class="faith-pager-gap" aria-hidden="true">&hellip;</span>'
+      : `<button type="button" class="faith-pager-num${n === page ? " is-current" : ""}"`
+        + ` ${attr}="${n}"${n === page ? ' aria-current="page"' : ""}`
+        + ` aria-label="Page ${n}">${n}</button>`)).join("");
+  }
+
   function pager(p, pages) {
     if (pages < 2) return "";
     return `<nav class="faith-room-pager" aria-label="Pages">` +
       `<button type="button" data-room-page="${p - 1}" ${p <= 1 ? "disabled" : ""}>&larr; Previous</button>` +
-      `<span class="faith-room-pages">Page ${p} of ${pages}</span>` +
+      `<span class="faith-pager-nums">${pageLinks(p, pages, "data-room-page")}</span>` +
       `<button type="button" data-room-page="${p + 1}" ${p >= pages ? "disabled" : ""}>Next &rarr;</button>` +
       `</nav>`;
   }
