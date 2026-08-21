@@ -4319,7 +4319,7 @@ mark.faith-find-hit.is-current {
 }
 
 /* Collections: a shelf of plates. */
-.lp-shelf { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.lp-shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .lp-shelf a { display: block; text-decoration: none; color: inherit; }
 .lp-shelf a:hover { text-decoration: none; }
 .lp-shelf-plate {
