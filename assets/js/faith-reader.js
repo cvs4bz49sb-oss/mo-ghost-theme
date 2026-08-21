@@ -1996,8 +1996,30 @@
     details.dataset.frState = "loading";
     body.innerHTML = `<p class="faith-section-loading">Loading&hellip;</p>`;
 
-    pagesInRange(from, to)
-      .then((sectionPages) => {
+    // One page past the end, because the section's own conclusion sits
+    // at the top of the page the next section starts on.
+    const nextEl = sectionStartingAt(to);
+    const nextTitle = nextEl ? sectionTitleOf(nextEl) : "";
+    const ownTitle = sectionTitleOf(details);
+
+    pagesInRange(from, nextTitle ? to + 1 : to)
+      .then((loaded) => {
+        const sectionPages = loaded.filter((pg) => pg.n < to);
+        // Trim the tail of the previous section off the top of the
+        // first page.
+        if (sectionPages.length && ownTitle) {
+          const trimmed = cutPage(sectionPages[0], ownTitle, "after");
+          if (trimmed) sectionPages[0] = trimmed;
+        }
+        // And take back this section's own conclusion from the top of
+        // the next section's first page. Only when that page really
+        // does carry the next heading: without it there is nothing to
+        // cut at and the whole page would be printed twice.
+        if (nextTitle) {
+          const boundary = loaded.find((pg) => pg.n === to);
+          const kept = boundary ? cutPage(boundary, nextTitle, "before") : null;
+          if (kept && `${kept.en || ""}${kept.la || ""}`.trim()) sectionPages.push(kept);
+        }
         body.innerHTML = "";
         if (!sectionPages.length) {
           body.innerHTML = `<p class="faith-section-loading">No text on these pages.</p>`;
@@ -2056,6 +2078,197 @@
     return BLANK_PAGE.test(t.trim()) ? "" : t;
   }
 
+  // ── Sections that begin part-way down a page ──────────────────
+  //
+  // The outline in this collection is page-granular. It records that
+  // Disputation XXVII begins on page 538, not where on 538, and the
+  // whole page was handed to it. Cocceius' page 538 opens with 5,643
+  // characters of Disputation XXVI, mid sentence, "pre-designated, he
+  // also called", so XXVII began in the middle of a sentence of the
+  // disputation before it, and XXVI ended without its own conclusion.
+  // Both halves of that are wrong and it is not one bad page: any
+  // section in the collection that starts other than at the head of a
+  // page reads this way.
+  //
+  // The pages carry the printed headings as markdown rules, "###
+  // DISPUTATION XXVII.", which is a better boundary than the outline
+  // title, because the outline has been rewritten into modern English
+  // — "On Genesis 1:1" for what the page sets as "Concerning that Gen.
+  // 1: 1." — while the page keeps what was actually printed. What
+  // survives both is the identifying head of the title, Disputation
+  // and its numeral, so the match is made on that.
+  const HEADING_RE = /^[ \t]*#{1,6}[ \t]+(.+)$/gm;
+
+  function headTokens(t) {
+    return String(t || "")
+      .normalize("NFD").replace(/\p{M}/gu, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, " ")
+      .trim().split(" ").filter(Boolean);
+  }
+
+  // Where this section's own heading starts within the page text, or
+  // -1 if it cannot be found. Four identifying words, then three, then
+  // two: "Disputation XXVII" is enough to tell it from XXVI, and going
+  // below two would match any heading at all.
+  // The outline is in English and the Latin lane is not: the page that
+  // sets "DISPUTATION XXVII" in one column sets "DISPUTATIO XXVII" in
+  // the other, so exact words find the English heading and miss the
+  // Latin one, and the lanes come apart. A word matches its own stem.
+  //
+  // Numerals never do. "xxvii" is a prefix of "xxviii", and a
+  // tolerance that let those match would cut Disputation XXVII at the
+  // head of XXVIII and hand a whole disputation to the wrong section.
+  const NUMERALISH = /^(?:\d+|[ivxlcdm]+)$/;
+
+  function tokenMatch(want, has) {
+    if (want === has) return true;
+    const la = LABEL_CANON[want];
+    const lb = LABEL_CANON[has];
+    if (la || lb) return la === lb;
+    const a = numValue(want);
+    const b = numValue(has);
+    // If either side is a numeral the comparison is arithmetic and
+    // nothing else will do: xxvii is a prefix of xxviii, and letting
+    // those match would hand a whole disputation to the wrong section.
+    if (a !== null || b !== null) return a !== null && b !== null && a === b;
+    const short = want.length < has.length ? want : has;
+    const long = want.length < has.length ? has : want;
+    return short.length >= 4 && long.indexOf(short) === 0;
+  }
+
+  // Words that identify nothing. A title like "On the Sacrifice of
+  // Melchizedek" leads with "on the", and matching on those would cut
+  // at whichever heading happened to come first. What identifies that
+  // section is Sacrifice and Melchizedek. Latin is here too, because
+  // half these titles are matched against a Latin heading.
+  const HEAD_STOP = new Set([
+    "a", "an", "the", "of", "on", "in", "to", "for", "and", "or", "from",
+    "is", "it", "that", "this", "these", "those", "with", "by", "at", "as",
+    "concerning", "whether", "what", "how", "upon", "about", "against",
+    "de", "et", "ad", "in", "cum", "ex", "per", "pro", "sive", "seu", "quod",
+    "an", "utrum", "part", "section",
+  ]);
+
+  // The label survives into the page but rarely in the same form: the
+  // outline's "Chapter XI" is set as "CH. XI", its "Disputation XXVII"
+  // as the Latin "DISPUTATIO XXVII". These are the same word and are
+  // compared as one.
+  const LABEL_CANON = {
+    ch: "chapter", chap: "chapter", chapter: "chapter", caput: "chapter",
+    cap: "chapter", capitulum: "chapter",
+    disputation: "disputation", disputatio: "disputation", disp: "disputation",
+    question: "question", quaestio: "question", quest: "question", qu: "question",
+    treatise: "treatise", tractatus: "treatise", tract: "treatise",
+    article: "article", articulus: "article", art: "article",
+    book: "book", liber: "book", lib: "book",
+    locus: "locus", loc: "locus",
+    sermon: "sermon", sermo: "sermon",
+  };
+
+  // A numeral is a numeral however it is set. The outline says "Locus
+  // X" where the page says "TENTH LOCUS", and the page that carries
+  // Locus XVII also carries Locus XVI, so these have to compare equal
+  // by value and unequal by anything else. Comparing the strings made
+  // the seventeenth unfindable and left the sixteenth as the nearest
+  // wrong answer.
+  const ORDINAL_WORDS = {
+    first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6,
+    seventh: 7, eighth: 8, ninth: 9, tenth: 10, eleventh: 11, twelfth: 12,
+    thirteenth: 13, fourteenth: 14, fifteenth: 15, sixteenth: 16,
+    seventeenth: 17, eighteenth: 18, nineteenth: 19, twentieth: 20,
+    primus: 1, secundus: 2, tertius: 3, quartus: 4, quintus: 5,
+    sextus: 6, septimus: 7, octavus: 8, nonus: 9, decimus: 10,
+    primum: 1, primo: 1,
+  };
+
+  const ROMAN_VALUE = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
+
+  function numValue(t) {
+    if (/^\d+$/.test(t)) return parseInt(t, 10);
+    if (Object.prototype.hasOwnProperty.call(ORDINAL_WORDS, t)) return ORDINAL_WORDS[t];
+    if (!NUMERALISH.test(t)) return null;
+    let total = 0;
+    for (let i = 0; i < t.length; i += 1) {
+      const cur = ROMAN_VALUE[t[i]];
+      const next = ROMAN_VALUE[t[i + 1]];
+      if (!cur) return null;
+      total += next && next > cur ? -cur : cur;
+    }
+    return total || null;
+  }
+
+  function headingOffset(text, title) {
+    const all = headTokens(title);
+    // The numeral is what tells XXVI from XXVII and is never a stop
+    // word, so it is kept whatever else goes.
+    const want = all.filter((t) => numValue(t) !== null || !HEAD_STOP.has(t));
+    if (want.length < 2 || !text) return -1;
+    const heads = [];
+    HEADING_RE.lastIndex = 0;
+    let m;
+    while ((m = HEADING_RE.exec(text))) heads.push({ at: m.index, tokens: headTokens(m[1]) });
+    if (!heads.length) return -1;
+    // The section's own number is the discriminating fact and has to
+    // agree exactly; one further word then confirms it is this heading
+    // and not a passing mention of the number. Requiring the first
+    // three words of the title to match in order was too strict: the
+    // outline writes "Genesis" where the page sets "Gen.", and the
+    // whole match failed on a word that was never the point.
+    const wantNum = want.find((t) => numValue(t) !== null);
+    const words = want.filter((t) => numValue(t) === null);
+    for (let i = 0; i < heads.length; i += 1) {
+      const h = heads[i];
+      const confirmed = words.filter((w) => h.tokens.some((x) => tokenMatch(w, x)));
+      if (wantNum !== undefined) {
+        const v = numValue(wantNum);
+        if (!h.tokens.some((x) => numValue(x) === v)) continue;
+        if (confirmed.length >= 1) return h.at;
+        continue;
+      }
+      // Nothing numbered to go on. Two words have to agree, which is
+      // as much as an unnumbered title can be asked to prove.
+      if (words.length >= 2 && confirmed.length >= 2) return h.at;
+    }
+    return -1;
+  }
+
+  // Both lanes are cut independently: the Latin sets "DISPUTATIO
+  // XXVII" and the English "DISPUTATION XXVII", at different offsets
+  // in different strings, and cutting one at the other's offset would
+  // slice a word in half.
+  function cutPage(pg, title, keep) {
+    let cut = false;
+    const out = { ...pg };
+    ["en", "la"].forEach((k) => {
+      const text = pg[k];
+      if (typeof text !== "string" || !text) return;
+      const at = headingOffset(text, title);
+      if (at < 0) return;
+      // A heading already at the top means the section does start here
+      // and there is nothing to trim.
+      if (keep === "after" && at === 0) { cut = true; return; }
+      if (at === 0 && keep === "before") return;
+      out[k] = keep === "after" ? text.slice(at) : text.slice(0, at);
+      cut = true;
+    });
+    return cut ? out : null;
+  }
+
+  function sectionTitleOf(el) {
+    const h = el && el.querySelector(":scope > summary .faith-section-title");
+    return h ? h.textContent : "";
+  }
+
+  // The section that begins on the page this one ends at, if any. Its
+  // heading is where this section's last page has to be cut.
+  function sectionStartingAt(page) {
+    const all = contentEl.querySelectorAll("[data-from]");
+    for (let i = 0; i < all.length; i += 1) {
+      if (parseInt(all[i].getAttribute("data-from"), 10) === page) return all[i];
+    }
+    return null;
+  }
+
   function buildPagesBlock(pages) {
     const block = document.createElement("div");
     block.className = "faith-parallel-block";
@@ -2078,7 +2291,18 @@
         return sanitize(pages.map((p) => marker(p.n) + pageText(p, key)).join(""));
       }
       const raw = pages
-        .map((p) => `@@FRPAGE:${p.n}@@${pageText(p, key)}`)
+        .map((p) => {
+          const t = pageText(p, key);
+          // A page cut to begin at its own heading starts with "###",
+          // and a Markdown heading only counts at the head of a line.
+          // Prepending the page token pushed it off the line and the
+          // hashes printed as text: "### DISPUTATION XXVII." set as
+          // body copy directly under the same words as the section
+          // title. Give the heading its own line.
+          return /^\s*#{1,6}\s/.test(t)
+            ? `@@FRPAGE:${p.n}@@\n\n${t}`
+            : `@@FRPAGE:${p.n}@@${t}`;
+        })
         .join(" ");
       // The token is plain text, so it passes through escaping intact
       // and is swapped for the marker after the Markdown is built.
@@ -2094,8 +2318,13 @@
     // The Latin lane carries no page markers: the two lanes page
     // together, and printing the number twice on a parallel view reads
     // as an error.
-    laCol.innerHTML = lane("la").replace(
-      /<span class="faith-page-marker"[^>]*>\[p\. \d+\]<\/span>/g, "");
+    laCol.innerHTML = lane("la")
+      .replace(/<span class="faith-page-marker"[^>]*>\[p\. \d+\]<\/span>/g, "")
+      // Where the page began with a heading the marker stood in a
+      // paragraph of its own, and removing it from this lane left the
+      // empty paragraph behind as a blank line the two lanes did not
+      // share.
+      .replace(/<p>\s*<\/p>/g, "");
 
     block.appendChild(enCol);
     block.appendChild(laCol);
@@ -2369,7 +2598,20 @@
         const t = m.trim();
         if (t.length > HEADING_MAX) return false;
         // Two or more sentences is a paragraph, whatever it is marked.
-        return (t.match(/[.!?](\s|$)/g) || []).length < 2;
+        // But not every full stop closes a sentence. "DISPUTATION
+        // XXVII. Concerning that Gen. 1: 1." carries three and is one
+        // line: one closes an abbreviated book name, one closes the
+        // heading itself. Counting all three set the printed heading
+        // as body copy directly beneath the same words as the section
+        // title, which is what the reader saw at the head of every
+        // section that begins part-way down a page.
+        const sentences = t
+          // "Gen. 1", "cap. 3", "vers. 13": a stop before a number is
+          // part of a citation.
+          .replace(/\b[\p{L}]{1,4}\.\s*(?=\d)/gu, " ")
+          // The stop that closes the heading is not a second sentence.
+          .replace(/[.!?]\s*$/, "");
+        return (sentences.match(/[.!?](\s|$)/g) || []).length < 2;
       };
       if ((hMatch = para.match(/^### (.+)$/)) && asHeading(hMatch[1])) {
         html += `<h3>${inlineFormat(hMatch[1])}</h3>`;

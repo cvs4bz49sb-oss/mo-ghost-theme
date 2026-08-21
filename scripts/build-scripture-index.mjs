@@ -192,12 +192,37 @@ const NAMES = [...new Set([...LOOKUP.keys(), ...NUMBERED_STEMS])]
 const NAME_ALT = NAMES.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
 
 // "Rom. 9", "1 Cor 3:1", "Matth. xii. 3", "Psalm cxix", "Ioan. i. 14"
+//
+// The verse is optional and is the last group. A citation that gives
+// one is the difference between "somewhere in Romans 8" and Romans
+// 8:28, and between an index of chapters and a commentary. Where the
+// text gives none the group is undefined and the reference stays at
+// chapter level, which is most of the Latin corpus and much of the
+// English: "as it is written Rom. 8" is a complete citation in 1640.
 const REF_RE = new RegExp(
   String.raw`\b(?:(1|2|3|i{1,3}|iv|first|second|third|fourth|1st|2nd|3rd|4th)\s+)?` +
   String.raw`(${NAME_ALT})\b\.?\s*` +
-  String.raw`(\d{1,3}|[ivxlc]{1,7})\b`,
+  String.raw`(\d{1,3}|[ivxlc]{1,7})\b` +
+  String.raw`(?:\s*[.:,]\s*(\d{1,3})(?!\d))?`,
   "gi"
 );
+
+// Longest verse in the Bible is Esther 8:9; nothing is numbered past
+// 176 (Psalm 119). A "verse" above that is a page or a year that
+// happened to follow a chapter number.
+const MAX_VERSE = 176;
+
+// Every surface form actually seen, and what it was read as. This is
+// the key: not the table of forms we guessed at, but the forms the
+// corpus really uses, counted, so a wrong reading can be found by
+// looking rather than by suspecting. "Esay" outnumbering "Isaiah" is
+// something you can only learn from the text.
+export const VARIANTS = new Map();
+
+function noteVariant(surface, canon) {
+  const key = `${surface}\u0000${canon}`;
+  VARIANTS.set(key, (VARIANTS.get(key) || 0) + 1);
+}
 
 function romanToInt(s) {
   const map = { i: 1, v: 5, x: 10, l: 50, c: 100 };
@@ -257,13 +282,30 @@ export function extractRefs(segments) {
       const max = MAX_CHAPTERS[canon];
       if (max && n > max) continue;
 
+      // The verse, where the citation gave one.
+      let v = m[4] ? parseInt(m[4], 10) : 0;
+      if (v < 1 || v > MAX_VERSE) v = 0;
+
+      const surface = (m[1] ? `${m[1]} ` : "") + raw;
+      noteVariant(surface.toLowerCase(), canon);
+
+      const here = seg.loc == null ? null : seg.loc;
       const key = `${canon}|${n}`;
       const prev = found.get(key);
-      if (prev) { prev.n += 1; continue; }
+      if (prev) {
+        prev.n += 1;
+        // A verse gets its own locator, because the point of recording
+        // the verse is to land on the line that cites it. Capped: a
+        // concordance-like work can cite forty verses of one chapter
+        // and the file has to stay servable.
+        if (v && !prev.verses.has(v) && prev.verses.size < 40) prev.verses.set(v, here);
+        continue;
+      }
       found.set(key, {
         n: 1,
-        loc: seg.loc == null ? null : seg.loc,
+        loc: here,
         excerpt: excerptFrom(seg, m.index, segments, si),
+        verses: v ? new Map([[v, here]]) : new Map(),
       });
     }
   }
@@ -493,8 +535,8 @@ async function merge() {
         const key = `${book}/${ch}`;
         if (!detail.has(key)) detail.set(key, []);
         const rows = detail.get(key);
-        for (const [id, n, loc, excerpt] of list) {
-          rows.push([corpus, id, n, loc ?? null, excerpt || ""]);
+        for (const [id, n, loc, excerpt, verses] of list) {
+          rows.push([corpus, id, n, loc ?? null, excerpt || "", verses || 0]);
           cites += n;
           works.add(`${corpus}:${id}`);
         }
@@ -544,6 +586,10 @@ async function run() {
   // Resumable: a run over 53,831 works will be interrupted.
   const index = existsSync(outPath) ? JSON.parse(await readFile(outPath, "utf8")) : {};
   const donePath = path.join(OUT_DIR, `${corpus}.done.json`);
+  const varPath = path.join(OUT_DIR, `${corpus}.variants.json`);
+  if (existsSync(varPath)) {
+    for (const [k, n] of JSON.parse(await readFile(varPath, "utf8"))) VARIANTS.set(k, n);
+  }
   const done = new Set(existsSync(donePath) ? JSON.parse(await readFile(donePath, "utf8")) : []);
 
   const ids = (await c.works(limit)).filter((id) => !done.has(id));
@@ -563,7 +609,8 @@ async function run() {
           const [book, ch] = key.split("|");
           index[book] = index[book] || {};
           index[book][ch] = index[book][ch] || [];
-          index[book][ch].push([id, hit.n, hit.loc, hit.excerpt]);
+          index[book][ch].push([id, hit.n, hit.loc, hit.excerpt,
+            hit.verses.size ? [...hit.verses.entries()].sort((a, b) => a[0] - b[0]) : 0]);
           refs += hit.n;
         });
       } catch { failed += 1; }
@@ -597,6 +644,10 @@ async function run() {
       await rename(`${outPath}.tmp`, outPath);
       await writeFile(`${donePath}.tmp`, JSON.stringify([...done]));
       await rename(`${donePath}.tmp`, donePath);
+      // The key, written beside the index: every surface form this run
+      // actually read, and what it read it as.
+      await writeFile(`${varPath}.tmp`, JSON.stringify([...VARIANTS.entries()]));
+      await rename(`${varPath}.tmp`, varPath);
     }).catch(() => {});
     return saving;
   }
