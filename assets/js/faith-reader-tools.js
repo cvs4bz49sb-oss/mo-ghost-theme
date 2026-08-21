@@ -369,6 +369,41 @@
     if (hits.length) step(1, statusEl);
   }
 
+  // The sticky Mere Orthodoxy header plus the find bar. scrollIntoView
+  // does not know about either, so a match jumped to from the bar used
+  // to land underneath them.
+  const FIND_OFFSET = 150;
+
+  function scrollToMark(mark) {
+    const y = mark.getBoundingClientRect().top + window.pageYOffset - FIND_OFFSET;
+    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+  }
+
+  // A section opened by the jump fetches its text, and until it lands
+  // the section is a closed-height stub. Scrolling immediately put the
+  // reader at a position that then moved out from under them as the
+  // text arrived, which is why Find felt like it lost you. Wait for the
+  // section to report loaded, then scroll, and give up after a beat so
+  // a failed fetch cannot hang the jump.
+  function whenSettled(mark, done) {
+    const section = mark.closest('[data-from]');
+    if (!section || section.dataset.frState === "loaded") { done(); return; }
+    let stop = false;
+    const finish = () => {
+      if (stop) return;
+      stop = true;
+      obs.disconnect();
+      window.clearTimeout(timer);
+      // One frame after the DOM settles, so layout has run.
+      window.requestAnimationFrame(done);
+    };
+    const obs = new window.MutationObserver(() => {
+      if (section.dataset.frState === "loaded") finish();
+    });
+    obs.observe(section, { attributes: true, attributeFilter: ["data-fr-state"] });
+    const timer = window.setTimeout(finish, 2500);
+  }
+
   function step(dir, statusEl) {
     if (!hits.length) return;
     if (hitAt >= 0 && hits[hitAt]) hits[hitAt].classList.remove("is-current");
@@ -382,7 +417,7 @@
       if (n.tagName === "DETAILS" && !n.open) n.open = true;
       n = n.parentNode;
     }
-    mark.scrollIntoView({ block: "center" });
+    whenSettled(mark, () => scrollToMark(mark));
     if (statusEl) {
       statusEl.textContent = statusEl.textContent.replace(/^\d+ of \d+ · /, "");
       statusEl.textContent = `${hitAt + 1} of ${hits.length} · ${statusEl.textContent}`;
