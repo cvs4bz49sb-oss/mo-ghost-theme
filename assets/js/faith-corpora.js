@@ -102,7 +102,12 @@
   // put the well-known documents under the church that actually owns
   // them, and anything unmatched keeps the upstream label.
   const CONFESSION_TRADITION = [
-    [/thirty-nine articles|lambeth articles|book of common prayer|irish articles|articles of religion/i, "Anglican"],
+    [/thirty-nine articles|forty-two articles|lambeth articles|book of common prayer|irish articles|articles of religion|anglican catechism|church of england/i, "Anglican"],
+    // The Waldensians predate the Reformation by three centuries and
+    // kept their own confessional line through it.
+    [/waldensian|vaudois|chanforan|angrogna|m\u00e9rindol/i, "Waldensian"],
+    // The Bohemian Brethren likewise: Hussite in descent, not Swiss.
+    [/bohemian confession|unity of the brethren|unitas fratrum|hussite/i, "Bohemian Brethren"],
     [/westminster|scots confession|national covenant|solemn league/i, "Presbyterian"],
     [/savoy declaration|cambridge platform/i, "Congregational"],
     [/the london confession \(16|midlands confession|somerset confession|standard confession|orthodox creed|second london/i, "Baptist"],
