@@ -95,6 +95,28 @@
     return out;
   }
 
+  // The confessions catalogue carries three traditions only: Roman
+  // Catholic, Lutheran, and Reformed for everything else Protestant. So
+  // the Thirty-nine Articles read as Reformed rather than Anglican, and
+  // Westminster as Reformed rather than Presbyterian. These patterns
+  // put the well-known documents under the church that actually owns
+  // them, and anything unmatched keeps the upstream label.
+  const CONFESSION_TRADITION = [
+    [/thirty-nine articles|lambeth articles|book of common prayer|irish articles|articles of religion/i, "Anglican"],
+    [/westminster|scots confession|national covenant|solemn league/i, "Presbyterian"],
+    [/savoy declaration|cambridge platform/i, "Congregational"],
+    [/the london confession \(16|midlands confession|somerset confession|standard confession|orthodox creed|second london/i, "Baptist"],
+    [/schleitheim|dordrecht confession|mennonite/i, "Anabaptist"],
+  ];
+
+  function confessionTradition(title, given) {
+    const t = String(title || "");
+    for (const [pattern, tradition] of CONFESSION_TRADITION) {
+      if (pattern.test(t)) return tradition;
+    }
+    return given || "";
+  }
+
   const CORPORA = [
     {
       id: "tfr",
@@ -173,6 +195,7 @@
         // The catalogue dates these outright. A creed with year 0 is
         // genuinely undated rather than dated to the year nought.
         date: c.year ? String(c.year) : "",
+        tradition: confessionTradition(c.title, c.tradition),
         title: c.title || c.slug,
         author: "",
         eyebrow: [c.tradition, c.type].filter(Boolean).join(" · "),

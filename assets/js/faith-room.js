@@ -42,7 +42,7 @@
 
   // "all" is every collection at once, which is what the century page
   // reads: one table of contents cut by date rather than by shelf.
-  const ALL = ["pg", "pld", "po", "tfr", "eebo"];
+  const ALL = ["pg", "pld", "po", "tfr", "eebo", "confessions", "augustine"];
   const isAll = collectionId === "all";
   const corpus = isAll ? null : window.MOCorpora.get(collectionId);
   root.innerHTML = '<p class="faith-room-status">Loading the collection&hellip;</p>';
