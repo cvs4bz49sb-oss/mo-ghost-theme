@@ -97,6 +97,7 @@
   let all = null;
   let running = null;
   let term = "";
+  let lastTerm = "";
 
   function corpora() {
     if (all) return Promise.resolve(all);
@@ -250,25 +251,47 @@
       .sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]));
   }
 
-  // Above this many, the names go into columns and the block scrolls
-  // within itself. "john" matches 1,903 authors, which is a true
-  // answer and would otherwise push the works off the page. Scrolling
-  // is not hiding: every one of them is in the list.
-  const MANY_AUTHORS = 8;
+  // A page of names, then a pager. It used to scroll inside a box,
+  // which put 1,903 authors behind a 320px window and made the reader
+  // drag a scrollbar to see the second Calvin. Paged, the whole block
+  // is on the page and the numbers say how much more there is.
+  const AUTHORS_PER_PAGE = 24;
+  let authorPage = 1;
+
+  function authorPager(pages) {
+    if (pages < 2) return "";
+    const win = [];
+    const push = (n) => { if (win[win.length - 1] !== n) win.push(n); };
+    push(1);
+    if (authorPage - 2 > 2) win.push(null);
+    for (let n = Math.max(2, authorPage - 2); n <= Math.min(pages - 1, authorPage + 2); n += 1) push(n);
+    if (authorPage + 2 < pages - 1) win.push(null);
+    push(pages);
+    return `<p class="faith-pager bsearch-authors-pager">`
+      + `<button type="button" class="faith-pager-btn" data-bs-apage="${authorPage - 1}"${authorPage <= 1 ? " disabled" : ""}>&larr; Previous</button>`
+      + `<span class="faith-pager-nums">${win.map((n) => (n === null
+        ? `<span class="faith-pager-gap" aria-hidden="true">&hellip;</span>`
+        : `<button type="button" class="faith-pager-num${n === authorPage ? " is-current" : ""}" data-bs-apage="${n}"${n === authorPage ? ' aria-current="page"' : ""}>${n}</button>`)).join("")}</span>`
+      + `<button type="button" class="faith-pager-btn" data-bs-apage="${authorPage + 1}"${authorPage >= pages ? " disabled" : ""}>Next &rarr;</button></p>`;
+  }
 
   function authorBlock() {
     const found = authorsMatching();
     if (!found.length) return "";
-    const many = found.length > MANY_AUTHORS;
+    const pages = Math.max(1, Math.ceil(found.length / AUTHORS_PER_PAGE));
+    if (authorPage > pages) authorPage = 1;
+    const from = (authorPage - 1) * AUTHORS_PER_PAGE;
+    const slice = found.slice(from, from + AUTHORS_PER_PAGE);
     const label = found.length === 1 ? "Author" : `${found.length.toLocaleString()} authors`;
-    const rows = found.map(([name, n]) =>
+    const rows = slice.map(([name, n]) =>
       `<a class="bsearch-author" href="/the-faith-received/author/?a=${encodeURIComponent(fold(name))}">`
       + `<span class="bsearch-author-name">${escapeHtml(name)}</span>`
       + `<span class="bsearch-author-n">${n.toLocaleString()} work${n === 1 ? "" : "s"}</span>`
       + `<span class="bsearch-author-go" aria-hidden="true">&rarr;</span></a>`).join("");
-    return `<div class="bsearch-authors${many ? " bsearch-authors--many" : ""}">`
+    return `<div class="bsearch-authors">`
       + `<p class="bsearch-authors-label">${escapeHtml(label)}</p>`
-      + `<div class="bsearch-authors-list">${rows}</div></div>`;
+      + `<div class="bsearch-authors-list">${rows}</div>${
+       authorPager(pages)}</div>`;
   }
 
   const PAGE = 60;
@@ -339,6 +362,7 @@
   function search() {
     term = (input.value || "").trim();
     if (!term) return;
+    if (term !== lastTerm) { authorPage = 1; lastTerm = term; }
     panel.hidden = false;
     shown = PAGE;
     countEl.textContent = "Loading the catalogue…";
@@ -371,6 +395,19 @@
       if (term) search();
     });
   });
+  out.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-bs-apage]");
+    if (!btn || btn.disabled) return;
+    const n = parseInt(btn.getAttribute("data-bs-apage"), 10);
+    if (!n) return;
+    authorPage = n;
+    search();
+    // Back to the names, not to wherever the click happened to leave
+    // the viewport.
+    const block = out.querySelector(".bsearch-authors");
+    if (block) block.scrollIntoView({ block: "start" });
+  });
+
   panel.querySelector("[data-bs-close]").addEventListener("click", () => {
     if (running) running.cancel();
     panel.hidden = true;

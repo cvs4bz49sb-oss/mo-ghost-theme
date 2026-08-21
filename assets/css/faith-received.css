@@ -7322,35 +7322,30 @@ body.faith-toc-open .faith-dock { display: none; }
   color: var(--color-muted);
   margin: 0 0 8px;
 }
-.bsearch-authors-list { display: flex; flex-direction: column; gap: 8px; }
-
-/* Past a handful the names go into columns and the block scrolls
-   within itself, so a search that matches nineteen hundred authors
-   still leaves the works visible underneath. Everything is in the
-   list; only the viewport is bounded. */
-.bsearch-authors--many .bsearch-authors-list {
+/* Names in columns, paged rather than scrolled: a box that scrolls
+   puts 1,903 authors behind a 320px window and asks the reader to drag
+   a scrollbar to reach the second Calvin. */
+.bsearch-authors-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 6px 14px;
-  max-height: 320px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px 14px;
 }
-.bsearch-authors--many .bsearch-author { padding: 7px 11px; }
-.bsearch-authors--many .bsearch-author-name { font-size: 16px; }
 
+/* Three columns inside the card: the name takes what is left, the
+   count and the arrow hold their place. Without this the count and
+   arrow wrapped under a long name and the row went ragged. */
 .bsearch-author {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
+  column-gap: 10px;
   padding: 10px 14px;
   border: 1px solid var(--color-card-border);
   border-radius: 4px;
   background: var(--color-cream);
   text-decoration: none;
 }
+.bsearch-authors-pager { margin-top: 14px; }
 .bsearch-author:hover { border-color: var(--color-secondary); }
 .bsearch-author:hover .bsearch-author-name { color: var(--color-secondary); }
 .bsearch-author-name {
