@@ -174,27 +174,9 @@
       }
     });
 
-    const counts = new Map();
-    works.forEach((w) => {
-      const t = trad(w);
-      if (t) counts.set(t, (counts.get(t) || 0) + 1);
-    });
-    const trads = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-    const chips = trads.length > 1 && trads.length <= 12
-      ? `<nav class="faith-room-trads" aria-label="Filter by tradition"><button type="button" data-room-trad="" class="${tradition ? "" : "is-active"}">All${
-          trads.map(([t, n]) => `</button><button type="button" data-room-trad="${escapeHtml(t)}" class="${tradition === t ? "is-active" : ""}">${escapeHtml(t)} <span>${n.toLocaleString()}</span>`).join("")}</button></nav>`
-      : "";
-
     const inCounts = new Map();
     if (isAll) works.forEach((w) => inCounts.set(w.corpus, (inCounts.get(w.corpus) || 0) + 1));
     const ins = [...inCounts.entries()].sort((a, b) => b[1] - a[1]);
-    const collections = ins.length > 1
-      ? `<nav class="faith-room-ins" aria-label="Filter by collection"><button type="button" data-room-in="" class="${collection ? "" : "is-active"}">Every collection</button>${
-          ins.map(([id, n]) => {
-            const c = window.MOCorpora.get(id);
-            return `<button type="button" data-room-in="${escapeHtml(id)}" class="${collection === id ? "is-active" : ""}">${escapeHtml(c ? c.label : id)} <span>${n.toLocaleString()}</span></button>`;
-          }).join("")}</nav>`
-      : "";
 
     const cs = new Map();
     let undated = 0;
@@ -203,11 +185,37 @@
       if (c) cs.set(c, (cs.get(c) || 0) + 1); else undated += 1;
     });
     const cents = [...cs.entries()].sort((a, b) => a[0] - b[0]);
+
+    const tCounts = new Map();
+    works.forEach((w) => {
+      const t = trad(w);
+      if (t) tCounts.set(t, (tCounts.get(t) || 0) + 1);
+    });
+    const trads = [...tCounts.entries()].sort((a, b) => b[1] - a[1]);
+
+    function select(name, label, all, options, current) {
+      if (options.length < 2) return "";
+      const opts = options.map(([value, text, n]) =>
+        `<option value="${escapeHtml(value)}"${String(current) === String(value) ? " selected" : ""}>`
+        + `${escapeHtml(text)} (${n.toLocaleString()})</option>`).join("");
+      return `<label class="faith-room-select"><span>${escapeHtml(label)}</span>`
+        + `<select data-room-${name}><option value="">${escapeHtml(all)}</option>${opts}</select></label>`;
+    }
+
     const cLabel = (c) => (window.MOCentury ? window.MOCentury.label(c) : `${c}`);
-    const centuries = cents.length > 1
-      ? `<nav class="faith-room-cents" aria-label="Filter by century"><button type="button" data-room-cent="0" class="${century ? "" : "is-active"}">All centuries</button>${
-          cents.map(([c, n]) => `<button type="button" data-room-cent="${c}" class="${century === c ? "is-active" : ""}">${escapeHtml(cLabel(c))} <span>${n.toLocaleString()}</span>`
-            + `</button>`).join("")}${undated ? `<span class="faith-room-undated">${undated.toLocaleString()} undated</span>` : ""}</nav>`
+    const controls = [
+      isAll ? select("in", "Collection", "All collections",
+        ins.map(([id, n]) => {
+          const c = window.MOCorpora.get(id);
+          return [id, c ? c.label : id, n];
+        }), collection) : "",
+      select("cent", "Century", "All centuries",
+        cents.map(([c, n]) => [c, cLabel(c), n]), century || ""),
+      select("trad", "Tradition", "All traditions",
+        trads.map(([t, n]) => [t, t, n]), tradition),
+    ].filter(Boolean).join("");
+    const filters = controls
+      ? `<div class="faith-room-filters">${controls}${undated ? `<p class="faith-room-undated">${undated.toLocaleString()} works carry no date</p>` : ""}</div>`
       : "";
 
     const letters = [...new Set(filtered.map((w) => initial(w.author)))]
@@ -222,7 +230,7 @@
       ? `<div class="btrads faith-room-blocks">${groups.map((g) => block(g.name, g.works)).join("")}</div>`
       : `<p class="faith-room-status">Nothing matches that. Try another name or title.</p>`;
 
-    root.innerHTML = `<div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count">${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p></div>${collections}${centuries}${chips}${rail}${body}${pager(page, pages)}`;
+    root.innerHTML = `<div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count">${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p></div>${filters}${rail}${body}${pager(page, pages)}`;
 
     wire();
     pushState();
@@ -261,24 +269,21 @@
         root.scrollIntoView({ block: "start" });
       });
     });
-    root.querySelectorAll("[data-room-in]").forEach((b) => {
-      b.addEventListener("click", () => {
-        collection = b.getAttribute("data-room-in");
+    const onPick = (sel, apply) => {
+      const el = root.querySelector(`[data-room-${sel}]`);
+      if (!el) return;
+      el.addEventListener("change", () => {
+        apply(el.value);
         letter = "";
         page = 1;
         render();
         root.scrollIntoView({ block: "start" });
       });
-    });
-    root.querySelectorAll("[data-room-cent]").forEach((b) => {
-      b.addEventListener("click", () => {
-        century = parseInt(b.getAttribute("data-room-cent"), 10) || 0;
-        letter = "";
-        page = 1;
-        render();
-        root.scrollIntoView({ block: "start" });
-      });
-    });
+    };
+    onPick("in", (v) => { collection = v; });
+    onPick("cent", (v) => { century = parseInt(v, 10) || 0; });
+    onPick("trad", (v) => { tradition = v; });
+
     root.querySelectorAll("[data-room-letter]").forEach((b) => {
       b.addEventListener("click", () => {
         letter = b.getAttribute("data-room-letter");
