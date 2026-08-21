@@ -332,12 +332,81 @@
     }
   }
 
+  // How many of the index's answers to open for a preview. The index
+  // says which works use the word; the snippet has to come from the
+  // work itself, and forty is enough to fill a page of results
+  // without reading a library to do it.
+  const SNIPPET_DEPTH = 40;
+
+  async function runIndexed(list) {
+    countEl.textContent = "Asking the index…";
+    out.innerHTML = "";
+    let found;
+    try { found = await window.MOTermIndex.search(term); } catch (_) { found = null; }
+    // null means the index could not be reached, which is not the same
+    // as a word nobody uses.
+    if (found === null) return false;
+
+    // The filters apply to the index's answer, not to a page of it.
+    const allow = new Set(list.map((w) => `${w.corpus}:${w.id}`));
+    const byKey = new Map(list.map((w) => [`${w.corpus}:${w.id}`, w]));
+    const hits = found.filter((h) => allow.has(`${h.corpus}:${h.id}`));
+
+    if (!hits.length) {
+      countEl.textContent = "";
+      out.innerHTML = `<p class="bsearch-msg">No work in the library uses "${escapeHtml(term)}"`
+        + `${found.length ? " within these filters" : ""}.</p>`;
+      return true;
+    }
+
+    const total = hits.reduce((a, h) => a + h.count, 0);
+    countEl.textContent = `${total.toLocaleString()} mention${total === 1 ? "" : "s"} of "${term}" `
+      + `in ${hits.length.toLocaleString()} work${hits.length === 1 ? "" : "s"}`;
+
+    // Drawn at once from the index, then filled in with previews as
+    // the works arrive, so the answer is on screen immediately.
+    const top = hits.slice(0, SNIPPET_DEPTH);
+    out.innerHTML = `<ol class="bsearch-list">${top.map((h) => {
+      const w = byKey.get(`${h.corpus}:${h.id}`);
+      return card(w, `<span class="bsearch-hit-times">${h.count.toLocaleString()} mention${h.count === 1 ? "" : "s"}</span>`
+        + `<span class="bsearch-hit-snippet" data-snip="${escapeHtml(`${h.corpus}:${h.id}`)}">reading&hellip;</span>`);
+    }).join("")}</ol>${hits.length > top.length
+      ? `<p class="bsearch-msg">and ${(hits.length - top.length).toLocaleString()} more works, least-used last.</p>` : ""}`;
+
+    if (running) { running.cancel(); running = null; }
+    running = window.MOCorpusSearch.run(top.map((h) => byKey.get(`${h.corpus}:${h.id}`)), term, {
+      progress() { /* the results are already up; previews arrive quietly */ },
+      done({ results }) {
+        running = null;
+        results.forEach((r) => {
+          const el = out.querySelector(`[data-snip="${CSS.escape(`${r.work.corpus}:${r.work.id}`)}"]`);
+          if (el && r.hits[0]) el.textContent = r.hits[0].snippet;
+        });
+        out.querySelectorAll("[data-snip]").forEach((el) => {
+          if (el.textContent === "reading…") el.remove();
+        });
+      },
+    });
+    return true;
+  }
+
   function runKeyword(list) {
     if (running) { running.cancel(); running = null; }
     if (!window.MOCorpusSearch || !window.MOText) {
       out.innerHTML = `<p class="bsearch-msg">Keyword search is not available on this page.</p>`;
       return;
     }
+    // The index answers for the whole library. Reading the works is
+    // the fallback for when it cannot be reached, and it is the reason
+    // this used to refuse anything over four hundred.
+    if (window.MOTermIndex) {
+      runIndexed(list).then((ok) => { if (!ok) runByReading(list); });
+      return;
+    }
+    runByReading(list);
+  }
+
+  function runByReading(list) {
     if (list.length > KEYWORD_MAX) {
       countEl.textContent = "";
       out.innerHTML =
