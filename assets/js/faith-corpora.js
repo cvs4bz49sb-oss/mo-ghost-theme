@@ -910,14 +910,39 @@
     // corpus a work came from; the all-works page passes nothing and
     // gets the union, which is safe because no value has two parents.
     traditionParent(traditionName, corpusId) {
-      const name = String(traditionName || "");
+      const name = String(traditionName || "").trim().toLowerCase();
       if (!name) return "";
-      if (corpusId) return (TRADITION_PARENT[corpusId] || {})[name] || "";
+      // Matched case-insensitively. The catalogues capitalise a
+      // tradition and the per-work meta.json sometimes does not: every
+      // volume of Calvin's commentaries carries "reformed", so an
+      // exact-match lookup found no parent and the reader showed a
+      // denomination with no communion above it.
+      const look = (id) => {
+        const map = TRADITION_PARENT[id] || {};
+        const hit = Object.keys(map).find((k) => k.toLowerCase() === name);
+        return hit ? map[hit] : "";
+      };
+      if (corpusId) return look(corpusId);
       for (const id of Object.keys(TRADITION_PARENT)) {
-        const hit = TRADITION_PARENT[id][name];
+        const hit = look(id);
         if (hit) return hit;
       }
       return "";
+    },
+    // The canonical spelling of a tradition, so a lowercase value out
+    // of a meta.json is not printed beside a capitalised one.
+    traditionLabel(traditionName) {
+      const name = String(traditionName || "").trim();
+      if (!name) return "";
+      const lower = name.toLowerCase();
+      for (const id of Object.keys(TRADITION_PARENT)) {
+        const hit = Object.keys(TRADITION_PARENT[id]).find((k) => k.toLowerCase() === lower);
+        if (hit) return hit;
+        const parent = Object.values(TRADITION_PARENT[id])
+          .find((p) => p.toLowerCase() === lower);
+        if (parent) return parent;
+      }
+      return name.charAt(0).toUpperCase() + name.slice(1);
     },
     // Absolute URL for a corpus-relative path, e.g. an index file.
     url(id, path) {

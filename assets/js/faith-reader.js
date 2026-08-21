@@ -1538,10 +1538,13 @@
 
     // Tradition, and the communion it sits under where it has one, so
     // a Reformed confession reads "Protestant · Reformed".
-    const trad = m.tradition || m.group || "";
-    if (trad) {
-      const parent = window.MOCorpora && window.MOCorpora.traditionParent
-        ? window.MOCorpora.traditionParent(trad, corpusId) : "";
+    const rawTrad = m.tradition || m.group || "";
+    if (rawTrad) {
+      const MO = window.MOCorpora;
+      // Canonical spelling, because meta.json is inconsistent about
+      // case and a tag row should not read "Protestant · reformed".
+      const trad = MO && MO.traditionLabel ? MO.traditionLabel(rawTrad) : rawTrad;
+      const parent = MO && MO.traditionParent ? MO.traditionParent(trad, corpusId) : "";
       if (parent) add("tradition", parent);
       add("denomination", trad);
     }
