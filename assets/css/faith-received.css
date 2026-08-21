@@ -6198,3 +6198,19 @@ mark.faith-find-hit.is-current {
 .faith-scripture-toggle-btn,
 .faith-browse-note,
 .faith-author-dates { font-style: normal; }
+
+/* The page a reader arrived at from a scripture citation or a topic.
+   Marked so the eye lands on it, and faded rather than left as a
+   permanent highlight, because it is a signpost and not a state. */
+.faith-reader .faith-page-target,
+.faith-reader .faith-page-marker.faith-page-target {
+  animation: fr-arrive 2.6s ease-out 1;
+  border-radius: 2px;
+}
+@keyframes fr-arrive {
+  0%, 40% { background: #f6e2c8; box-shadow: 0 0 0 4px #f6e2c8; }
+  100% { background: transparent; box-shadow: 0 0 0 4px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faith-reader .faith-page-target { animation: none; background: #f6e2c8; }
+}

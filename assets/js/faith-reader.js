@@ -2155,6 +2155,26 @@
   // it names the page a citation sits on, and the section holding it
   // is whichever range covers that page. Sending a reader to the top
   // of a 900-page folio when we know the page would be a poor answer.
+  // Wait for the page marker to exist, then scroll to it. Tries for
+  // about five seconds, which is long enough for a shard fetch on a
+  // slow connection and short enough not to hijack the viewport of a
+  // reader who has given up and started reading somewhere else.
+  const LAND_TRIES = 50;
+
+  function landOnPage(section, page, tries) {
+    const block = section.querySelector(`[data-page="${page}"]`);
+    if (!block) {
+      if (tries < LAND_TRIES) {
+        window.setTimeout(() => landOnPage(section, page, tries + 1), 100);
+      }
+      return;
+    }
+    if (window.pageYOffset > 200 && tries > 0) return;
+    block.classList.add("faith-page-target");
+    const y = block.getBoundingClientRect().top + window.pageYOffset - 140;
+    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+  }
+
   function openInitialSection() {
     let wanted = null;
     try { wanted = parseInt(new URLSearchParams(window.location.search).get("p"), 10); } catch (_) {}
@@ -2170,12 +2190,18 @@
         // section. The page blocks carry data-page, so scroll to the
         // page itself and mark it, rather than leaving the reader at
         // the top of a 400-page run to hunt for the citation.
-        window.requestAnimationFrame(() => {
-          const block = target.querySelector(`[data-page="${wanted}"]`);
-          if (!block) return;
-          block.classList.add("faith-page-target");
-          block.scrollIntoView({ block: "center" });
-        });
+        // One frame is not enough. The section fetches its text after
+        // it opens, so a rAF here ran against an empty section, found
+        // no marker and returned, leaving a reader who had followed a
+        // scripture citation at the top of a four-hundred-page run.
+        // Wait for the section to report loaded, then scroll.
+        // Poll for the marker rather than watch the section's state.
+        // The state machine has several paths into "loaded" and a
+        // single observer missed at least one of them, which left a
+        // reader who had followed a scripture citation sitting at the
+        // top of a four-hundred-page run with the page they wanted
+        // eight thousand pixels below. Polling cannot miss.
+        landOnPage(target, wanted, 0);
         return;
       }
     }
