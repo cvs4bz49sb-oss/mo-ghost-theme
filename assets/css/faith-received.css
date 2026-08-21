@@ -6520,6 +6520,28 @@ mark.faith-find-hit.is-current {
    only thing on screen. */
 body.faith-toc-open .faith-dock { display: none; }
 
+/* Dark paper, continued. The tint block near the top of the reader
+   lists .faith-tool and .faith-lang-btn, but it is a 0,3,0 selector and
+   `.faith-reader .faith-toolbar button:not(.faith-prefs-opt):not(.faith-prefs-reset)`
+   at 5547 is 0,4,1, so it won and every control kept its light
+   background. That was true of the old toolbar row too; it only reads
+   as broken now that the same buttons are stacked inside a dark panel.
+   Equal specificity is settled by source order, which is why this sits
+   here at the end rather than beside the rest of the tint rules. */
+[data-fr-tint="dark"] .faith-reader .faith-toolbar button:not(.faith-prefs-opt):not(.faith-prefs-reset),
+[data-fr-tint="dark"] .faith-reader .faith-prefs-opt {
+  background: #2c2926;
+  border-color: #453f3a;
+  color: #e8e3dc;
+}
+/* The chosen size or measure keeps the accent: it is the one thing in
+   the panel that has to stay findable. */
+[data-fr-tint="dark"] .faith-reader .faith-prefs-opt.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
 @media print {
   .faith-dock { display: none; }
 }
@@ -6756,4 +6778,46 @@ body.faith-toc-open .faith-dock { display: none; }
 @media (max-width: 640px) {
   .lp-for { margin-top: 44px; padding-top: 38px; }
   .lp-for-head { margin-bottom: 32px; }
+}
+
+/* ══ The reference row, in two fixed columns ══════════════════════
+   It was a two-column grid filled by source order, so every child took
+   the next cell. A work whose author the catalogue could not resolve
+   rendered one element fewer, and everything after it shifted a cell:
+   the excerpt dropped into the 140px column meant for the collection
+   name and wrapped four words to a line beside half a screen of
+   nothing. The columns are assigned rather than counted now, so a
+   missing author leaves a gap instead of moving the text. */
+.faith-scripture-ref-link {
+  grid-template-columns: minmax(140px, 1fr) 2.4fr;
+}
+.faith-scripture-ref-source,
+.faith-scripture-ref-author { grid-column: 1; }
+.faith-scripture-ref-title,
+.faith-scripture-ref-excerpt,
+.faith-scripture-ref-times { grid-column: 2; }
+
+@media (max-width: 900px) {
+  /* One column, in reading order. */
+  .faith-scripture-ref-source,
+  .faith-scripture-ref-author,
+  .faith-scripture-ref-title,
+  .faith-scripture-ref-excerpt,
+  .faith-scripture-ref-times { grid-column: 1; }
+}
+
+/* ── Search scope, beside the box ─────────────────────────────── */
+.faith-refs-searchbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.faith-refs-searchbar .faith-refs-search { flex: 1 1 240px; min-width: 0; }
+.faith-refs-scope { flex: 0 0 auto; }
+
+@media (max-width: 640px) {
+  .faith-refs-searchbar { flex-direction: column; align-items: stretch; }
+  .faith-refs-scope select { width: 100%; }
 }

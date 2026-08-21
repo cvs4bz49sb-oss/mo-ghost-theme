@@ -712,14 +712,69 @@
   // rows. The bar is built once and never rebuilt: replacing it under
   // an open select closes the select mid-gesture, and replacing it
   // under the search box takes focus away between keystrokes.
+  // ── The filter bar ────────────────────────────────────────────
+  //
+  // Shared by a chapter of scripture and by a topic, because a chapter
+  // cited by a thousand works and a topic treated by two thousand are
+  // the same problem. Collection, tradition, the denomination under it,
+  // century, and a box that can be pointed at the author, the title,
+  // the subject, or all of them.
+  //
+  // Built once and never rebuilt: replacing it under an open select
+  // closes the select mid-gesture, and replacing it under the search
+  // box takes focus away between keystrokes. The denomination options
+  // are the one thing rewritten in place, and only when they differ.
+  const SCOPES = { all: "All", author: "Author", title: "Title", keyword: "Keyword" };
+
+  // What the second level is called depends on what it holds. Under
+  // Protestant it is a denomination; under The Fathers it is one of
+  // Migne's series, and calling those a denomination is nonsense.
+  const CHILD_LABEL = {
+    Protestant: ["Denomination", "All denominations"],
+    "The Fathers": ["Series", "All series"],
+  };
+
+  function tradOf(e) {
+    return String(e.tradition || "").trim();
+  }
+
+  function topTradOf(e) {
+    const t = tradOf(e);
+    if (!t) return "";
+    if (e._tp === undefined) {
+      e._tp = (window.MOCorpora && window.MOCorpora.traditionParent
+        ? window.MOCorpora.traditionParent(t, e.corpus) : "") || "";
+    }
+    return e._tp || t;
+  }
+
   function filterControls(entries, onChange) {
-    const state = { collection: "", tradition: "", century: "", q: "" };
+    const state = {
+      collection: "", tradition: "", denomination: "", century: "", q: "", scope: "all",
+    };
 
     const counts = (key) => {
       const m = new Map();
       entries.forEach((e) => {
-        const v = key === "century" ? e.century : e[key];
+        const v = key === "century" ? e.century
+          : key === "tradition" ? topTradOf(e)
+            : e[key];
         if (v) m.set(v, (m.get(v) || 0) + 1);
+      });
+      return [...m.entries()].sort((a, b) => b[1] - a[1]);
+    };
+
+    // Children of the chosen parent that are actually here, so a
+    // chapter only ever offers denominations it holds. A work sitting
+    // on the parent itself, a pan-Protestant confession, has no
+    // denomination and adds no option.
+    const childrenOf = (parent) => {
+      const m = new Map();
+      entries.forEach((e) => {
+        if (topTradOf(e) !== parent) return;
+        const t = tradOf(e);
+        if (!t || t === parent) return;
+        m.set(t, (m.get(t) || 0) + 1);
       });
       return [...m.entries()].sort((a, b) => b[1] - a[1]);
     };
@@ -738,13 +793,22 @@
     };
     const yLabel = (n) => (window.MOCentury ? window.MOCentury.label(n) : String(n));
 
+    const scopeOpts = Object.keys(SCOPES)
+      .map((k) => `<option value="${k}">${SCOPES[k]}</option>`).join("");
+
     const el = document.createElement("div");
     el.className = "faith-refs-controls";
     el.innerHTML =
+      `<div class="faith-refs-searchbar">` +
       `<input type="search" class="faith-refs-search" data-refs-q placeholder="Search an author or a title&hellip;" aria-label="Search these works">` +
+      `<label class="faith-refs-select faith-refs-scope"><span>Search in</span>` +
+      `<select data-refs-scope aria-label="What to search">${scopeOpts}</select></label></div>` +
       `<div class="faith-refs-selects">${
         select("collection", "Collection", "All collections", counts("corpus"), cLabel)}${
         select("tradition", "Tradition", "All traditions", counts("tradition"))}${
+        // Always in the shell, shown only when the chosen tradition has
+        // something under it.
+        `<label class="faith-refs-select" data-refs-denom-wrap hidden><span data-refs-denom-label>Denomination</span><select data-refs-denom></select></label>`}${
         select("century", "Century", "All centuries", counts("century"), yLabel)}</div>` +
       `<p class="faith-refs-count" data-refs-count></p>`;
 
@@ -752,15 +816,39 @@
       .normalize("NFD").replace(/\p{M}/gu, "")
       .toLowerCase().replace(/[^a-z0-9]+/g, "");
 
+    function haystack(e) {
+      if (state.scope === "author") {
+        if (e._qa === undefined) e._qa = fold(e.author || "");
+        return e._qa;
+      }
+      if (state.scope === "title") {
+        if (e._qt === undefined) e._qt = fold(e.title || "");
+        return e._qt;
+      }
+      // Keyword reaches past the catalogue line to what the work is
+      // about: the tradition it comes from, and the words around the
+      // citation itself, which is the only description most of these
+      // have.
+      if (state.scope === "keyword") {
+        if (e._qk === undefined) {
+          e._qk = fold([e.title, e.tradition, e.excerpt,
+            (e.secs || []).map((x) => x.t).join(" ")].filter(Boolean).join(" "));
+        }
+        return e._qk;
+      }
+      if (e._q === undefined) e._q = fold(`${e.author || ""} ${e.title || ""}`);
+      return e._q;
+    }
+
     function matching() {
       const q = fold(state.q);
       return entries.filter((e) => {
         if (state.collection && e.corpus !== state.collection) return false;
-        if (state.tradition && e.tradition !== state.tradition) return false;
+        if (state.tradition && topTradOf(e) !== state.tradition) return false;
+        if (state.denomination && tradOf(e) !== state.denomination) return false;
         if (state.century && String(e.century) !== state.century) return false;
         if (!q) return true;
-        if (e._q === undefined) e._q = fold(`${e.author || ""} ${e.title || ""}`);
-        return e._q.includes(q);
+        return haystack(e).includes(q);
       });
     }
 
@@ -773,14 +861,56 @@
         : `${shown.toLocaleString()} of ${entries.length.toLocaleString()} ${word}`;
     }
 
-    const bind = (sel, key) => {
+    // The denomination list follows the chosen tradition. Guarded on
+    // the options actually differing, because this element must not be
+    // touched while the reader has it open.
+    function paintDenoms() {
+      const wrap = el.querySelector("[data-refs-denom-wrap]");
+      const sel = el.querySelector("[data-refs-denom]");
+      if (!wrap || !sel) return;
+      const kids = state.tradition ? childrenOf(state.tradition) : [];
+      const [label, all] = CHILD_LABEL[state.tradition] || ["Within", "All"];
+      const want = kids.length
+        ? `<option value="">${escapeHtml(all)}</option>${kids.map(([t, n]) =>
+          `<option value="${escapeHtml(t)}">${escapeHtml(t)} (${n.toLocaleString()})</option>`).join("")}`
+        : "";
+      if (sel.innerHTML !== want) sel.innerHTML = want;
+      const lab = el.querySelector("[data-refs-denom-label]");
+      if (lab) lab.textContent = label;
+      wrap.hidden = !kids.length;
+    }
+
+    const bind = (sel, key, after) => {
       const node = el.querySelector(`[data-refs-${sel}]`);
-      if (node) node.addEventListener("change", () => { state[key] = node.value; onChange(); });
+      if (node) {
+        node.addEventListener("change", () => {
+          state[key] = node.value;
+          if (after) after();
+          onChange();
+        });
+      }
     };
     bind("collection", "collection");
-    bind("tradition", "tradition");
+    // Changing the tradition drops any denomination under the old one,
+    // which would otherwise filter to nothing.
+    bind("tradition", "tradition", () => { state.denomination = ""; paintDenoms(); });
+    bind("denom", "denomination");
     bind("century", "century");
+
     const box = el.querySelector("[data-refs-q]");
+    const scopeEl = el.querySelector("[data-refs-scope]");
+    if (scopeEl) {
+      scopeEl.addEventListener("change", () => {
+        state.scope = SCOPES[scopeEl.value] ? scopeEl.value : "all";
+        if (box) {
+          box.placeholder = state.scope === "author" ? "Search an author\u2026"
+            : state.scope === "title" ? "Search a title\u2026"
+              : state.scope === "keyword" ? "Search a subject or a passage\u2026"
+                : "Search an author or a title\u2026";
+        }
+        onChange();
+      });
+    }
     if (box) {
       let t = null;
       box.addEventListener("input", () => {
@@ -789,6 +919,7 @@
       });
     }
 
+    paintDenoms();
     return { el, state, matching, setCount };
   }
 
@@ -1157,9 +1288,14 @@
         if (!r.ok) throw new Error(String(r.status));
         return r.json();
       })
+      // Every collection, not a list of four. Patrologia Latina was
+      // missing from it, so its works arrived with no catalogue entry
+      // and printed their own id as a title: "8923", "89", "8870".
+      // Taken from the registry now, so a collection added later is
+      // resolved without anyone remembering to add it here.
       .then((rows) => Promise.all(
-        ["tfr", "eebo", "augustine", "confessions"].map((id) =>
-          window.MOCorpora.load(id).then((list) => [id, new Map(list.map((w) => [String(w.id), w]))]).catch(() => [id, new Map()])
+        window.MOCorpora.all.map((c) =>
+          window.MOCorpora.load(c.id).then((list) => [c.id, new Map(list.map((w) => [String(w.id), w]))]).catch(() => [c.id, new Map()])
         )
       ).then((pairs) => {
         const cats = new Map(pairs);
@@ -1174,6 +1310,13 @@
             excerpt: excerpt || "",
             title: w ? w.title : String(id),
             author: w ? w.author : "",
+            // Carried from the catalogue entry, which is the only
+            // place they exist: the generated index records where a
+            // citation is, not what tradition made it. Without these
+            // the chapter offered a Collection filter and nothing
+            // else.
+            tradition: w ? w.tradition || "" : "",
+            century: w ? centuryOf(w) : 0,
             // [[verse, locator], …] where the citation named one. Each
             // has its own place in the text, so Romans 8:28 opens at
             // the line that cites 8:28 and not at the head of the

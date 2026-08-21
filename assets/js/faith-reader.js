@@ -673,6 +673,18 @@
     if (!tocNav) return;
     const loadNote = tocNav.querySelector(".faith-toc-loading");
     if (loadNote) loadNote.remove();
+
+    // Where nothing nests, the drawer shape is dead weight. The
+    // Heidelberg is 181 sections and not one of them has a child, so
+    // the rail drew 181 summaries that open on nothing, each set as an
+    // uppercase eyebrow with a paragraph count beside it — and a
+    // summary is not a link, so no row in the contents went anywhere.
+    // A flat work gets a flat list of links.
+    if (!sections.some((s) => s.children.length)) {
+      buildFlatToc(sections);
+      return;
+    }
+
     let n = 0;
     sections.forEach((s) => {
       n += 1;
@@ -700,6 +712,29 @@
       }
       tocNav.appendChild(wrap);
     });
+  }
+
+  // One row per section, each a link to it. The numbering has to run the
+  // same way renderExtractSections runs it, or the links land on the
+  // wrong drawer; with no children that is one per section, in order.
+  function buildFlatToc(sections) {
+    const ol = document.createElement("ol");
+    ol.className = "faith-toc-list faith-toc-list--flat";
+    sections.forEach((s, i) => {
+      const li = document.createElement("li");
+      li.className = "faith-toc-item";
+      // The subtitle is the section's own numbering — "Lord's Day 1",
+      // "Q. 1", "Article XII" — and is worth more as an eyebrow above
+      // the title than it is buried after it.
+      const eyebrow = s.subtitle
+        ? `<span class="faith-toc-num">${escapeHtml(s.subtitle)}</span>`
+        : "";
+      li.innerHTML =
+        `<a href="#section-${i + 1}">${eyebrow}` +
+        `<span class="faith-toc-label">${escapeHtml(s.title || `Section ${i + 1}`)}</span></a>`;
+      ol.appendChild(li);
+    });
+    tocNav.appendChild(ol);
   }
 
   function renderExtractSections(sections) {
@@ -785,8 +820,14 @@
 
       const en = document.createElement("div");
       en.className = "faith-col-en";
-      en.innerHTML = sanitize(r.en);
-      dressRefs(en);
+      const apparatus = scriptureApparatus(r.en);
+      if (apparatus) {
+        en.appendChild(apparatus);
+        block.classList.add("faith-row--scripture");
+      } else {
+        en.innerHTML = sanitize(r.en);
+        dressRefs(en);
+      }
 
       const la = document.createElement("div");
       la.className = "faith-col-la";
@@ -1289,6 +1330,59 @@
       }
       a.replaceWith(span);
     });
+  }
+
+  // ── The proof texts ───────────────────────────────────────────
+  //
+  // A catechism's proof texts are a row of their own, and the hand
+  // written pages set each one as a button that opened the verse where
+  // you stood. Converting those pages to works flattened the buttons
+  // back to their own text — "Scripture Gen 2:17 · Ex 34:7 · …" — so
+  // the reader has to rebuild them. faith-received.js still owns the
+  // popover and listens for [data-faith-verse] on the document, which
+  // is all this has to produce.
+  //
+  // A row qualifies only if EVERY piece of it parses as a citation.
+  // Augsburg has a paragraph opening "Scripture also teaches that we
+  // are justified before God…", and it is prose.
+
+  function scriptureApparatus(text) {
+    const raw = String(text || "").trim();
+    if (!/^Scripture\s/.test(raw) || !window.MOResolve) return null;
+    const parts = raw.replace(/^Scripture\s+/, "").split("·")
+      .map((s) => s.trim()).filter(Boolean);
+    if (!parts.length) return null;
+
+    const refs = [];
+    for (let i = 0; i < parts.length; i += 1) {
+      const book = citedBook(parts[i]);
+      if (!book) return null;
+      refs.push({ ref: parts[i], book });
+    }
+
+    const p = document.createElement("p");
+    p.className = "faith-qa-references";
+    p.innerHTML =
+      `<span class="faith-qa-ref-label">Scripture</span> ${
+      refs.map((r) =>
+        `<button type="button" class="faith-verse-ref" data-faith-verse` +
+        ` data-book="${escapeHtml(r.book)}" data-reference="${escapeHtml(r.ref)}"` +
+        ` aria-expanded="false">${escapeHtml(r.ref)}</button>`
+      ).join('<span class="faith-verse-sep" aria-hidden="true"> &middot; </span>')}`;
+    return p;
+  }
+
+  // The book a citation names, spelled the way the popover's own table
+  // spells it. The resolver is the library's one alias list — "Jn",
+  // "Tit", "Nahum", "1 Pet" — but it reads a single chapter and verse
+  // and nothing after, so a range or a list is trimmed to its first
+  // locator before it is asked. The button keeps the whole citation.
+  function citedBook(ref) {
+    const head = ref.match(/^(.*?\d{1,3}\s*[:.]\s*\d{1,3})/)
+      || ref.match(/^(.*?\d{1,3})/);
+    if (!head) return "";
+    const parsed = window.MOResolve.parse(head[1].trim());
+    return parsed && parsed.kind === "scripture" ? parsed.book : "";
   }
 
   // ── Work introductions ────────────────────────────────────────

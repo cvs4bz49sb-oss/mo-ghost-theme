@@ -313,9 +313,11 @@
   initScripturePopovers();
 
   function initScripturePopovers() {
-    const refs = document.querySelectorAll("[data-faith-verse]");
-    if (!refs.length) return;
-
+    // No early return on an empty page. The reader builds its proof
+    // texts after fetching the work, which is long after this file
+    // runs, and the handler below is delegated to the document — so
+    // binding costs nothing and waiting for the buttons to exist meant
+    // every converted catechism lost its popovers.
     let popover = null;
     let popoverContent = null;
     let arrow = null;
@@ -340,6 +342,15 @@
       "1 John": 62, "2 John": 63, "3 John": 64, "Jude": 65, "Revelation": 66,
     };
 
+    // Matched without regard to case. The hand-written pages spell the
+    // book exactly as the table does, but the reader resolves it
+    // through MOResolve, which title-cases every word — "Song Of
+    // Solomon" for the table's "Song of Solomon".
+    const BOOK_BY_NAME = new Map();
+    Object.keys(BOOK_NUMBERS).forEach((k) => {
+      BOOK_BY_NAME.set(k.toLowerCase(), BOOK_NUMBERS[k]);
+    });
+
     function ensurePopover() {
       if (popover) return;
       popover = document.createElement("div");
@@ -358,12 +369,26 @@
     }
 
     function parseReference(reference) {
-      const m = String(reference || "").match(/(\d+):(\d+)(?:-(\d+))?/);
-      if (!m) return null;
+      const s = String(reference || "");
+      const m = s.match(/(\d+):(\d+)(?:-(\d+))?/);
+      if (m) {
+        return {
+          chapter: parseInt(m[1], 10),
+          startVerse: parseInt(m[2], 10),
+          endVerse: m[3] ? parseInt(m[3], 10) : parseInt(m[2], 10),
+          opening: false,
+        };
+      }
+      // A citation with no verse — "Lev 1-7", "Job 38-39". Ten of the
+      // Heidelberg's thousand point at whole chapters. Show where the
+      // chapter opens and say, with the ellipsis, that it goes on.
+      const c = s.match(/(\d+)/);
+      if (!c) return null;
       return {
-        chapter: parseInt(m[1], 10),
-        startVerse: parseInt(m[2], 10),
-        endVerse: m[3] ? parseInt(m[3], 10) : parseInt(m[2], 10),
+        chapter: parseInt(c[1], 10),
+        startVerse: 1,
+        endVerse: 3,
+        opening: true,
       };
     }
 
@@ -392,7 +417,7 @@
         setText(cache.get(key));
         return;
       }
-      const bookNum = BOOK_NUMBERS[book];
+      const bookNum = BOOK_BY_NAME.get(String(book).toLowerCase());
       const parsed = parseReference(reference);
       if (!bookNum || !parsed) {
         setStatus("Could not load verse text.");
@@ -402,11 +427,12 @@
       fetch(`https://bolls.life/get-text/CSB17/${bookNum}/${parsed.chapter}/`)
         .then((r) => { return r.ok ? r.json() : Promise.reject(); })
         .then((verses) => {
-          const picked = (verses || [])
+          let picked = (verses || [])
             .filter((v) => { return v.verse >= parsed.startVerse && v.verse <= parsed.endVerse; })
             .map((v) => { return stripHtml(v.text); })
             .join(" ");
           if (!picked) throw new Error("empty");
+          if (parsed.opening) picked += " …";
           cache.set(key, picked);
           setText(picked);
         })
