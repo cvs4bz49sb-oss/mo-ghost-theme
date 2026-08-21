@@ -78,6 +78,15 @@
             <p class="dash-card-meta">Everything you've read, most recent first.</p>
             <span class="dash-card-foot"><span class="dash-card-count" data-card-count="history"></span><span class="dash-card-open">Open &rarr;</span></span>
           </a>
+          {{!-- Works saved from the library. Kept in the same mo-kit
+               bookmark store as articles, under "tfr:" ids, and resolved
+               against the catalogues by faith-saved.js. --}}
+          <a class="dash-card" href="/dashboard/faith-received/">
+            <span class="dash-card-kind">Saved</span>
+            <h2 class="dash-card-title"><em>The Faith Received</em></h2>
+            <p class="dash-card-meta">Works you've saved from the library.</p>
+            <span class="dash-card-foot"><span class="dash-card-count" data-card-count="faith-received"></span><span class="dash-card-open">Open &rarr;</span></span>
+          </a>
 
           {{!-- Institution card — revealed by dashboard.js (hydrateInstitutions)
                only when the member belongs to an institution with curated

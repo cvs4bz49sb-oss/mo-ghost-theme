@@ -53,6 +53,10 @@ routes:
     template: custom-dashboard
   /dashboard/bookmarks/:
     template: custom-dashboard-bookmarks
+  # Works saved from the library, kept in the same bookmark store under
+  # "tfr:" ids and resolved against the catalogues client-side.
+  /dashboard/faith-received/:
+    template: custom-dashboard-faith-received
   /dashboard/commonplace/:
     template: custom-dashboard-commonplace
   /dashboard/history/:

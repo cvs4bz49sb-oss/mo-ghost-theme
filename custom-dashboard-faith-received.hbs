@@ -1,0 +1,56 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>The Faith Received | Mere Orthodoxy</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Works you have saved from The Faith Received library." />
+<meta property="og:title" content="The Faith Received" />
+<meta name="twitter:title" content="The Faith Received" />
+{{/contentFor}}
+{{!-- /dashboard/faith-received/ — works saved from the library.
+
+     Kept in the same mo-kit bookmark store as article bookmarks, under
+     "tfr:<corpus>:<slug>" ids, and resolved against the catalogues by
+     faith-saved.js. The enriched /bookmarks list cannot serve this
+     page: it resolves ids against Ghost and drops what Ghost does not
+     know, which is every work in the library.
+
+     Gating mirrors custom-dashboard-bookmarks.hbs. --}}
+
+<main class="dashboard">
+
+  {{#unless @member}}
+    <section class="hero dashboard-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <h1 class="hero-headline">Sign in to view your <span class="highlight"><em>saved works</em></span>.</h1>
+        <p class="dashboard-actions">
+          <a href="#/portal/signin" class="btn btn-primary" data-portal="signin">Sign in</a>
+          <a href="/membership/" class="btn btn-ghost">Become a Member</a>
+        </p>
+      </div>
+    </section>
+  {{else}}
+    <section class="hero dashboard-hero">
+      <div class="container">
+        <p class="hero-kicker"><span class="dot"></span> Member Dashboard</p>
+        <h1 class="hero-headline">The <span class="highlight"><em>Faith Received</em></span></h1>
+        <p class="dashboard-sub">Works you have saved from the library.</p>
+        <p class="dashboard-actions">
+          <a href="/dashboard/" class="btn btn-ghost">Back to dashboard</a>
+          <a href="/the-faith-received/browse/" class="btn btn-primary">Browse the library</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="container" data-faith-saved>
+        <p class="faith-saved-empty">Loading&hellip;</p>
+      </div>
+    </section>
+  {{/unless}}
+
+</main>
+
+<meta name="tfr-library-base" content="https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com" />
+<script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/faith-saved.js"}}"></script>
