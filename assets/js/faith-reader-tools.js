@@ -369,13 +369,21 @@
     if (hits.length) step(1, statusEl);
   }
 
-  // The sticky Mere Orthodoxy header plus the find bar. scrollIntoView
-  // does not know about either, so a match jumped to from the bar used
-  // to land underneath them.
-  const FIND_OFFSET = 150;
+  // The sticky Mere Orthodoxy header plus the find bar, measured
+  // rather than guessed. The constant that used to live here was 150,
+  // which is right on a desktop (85 + 56) and wrong on a phone, where
+  // the header is 61 and a three-row find bar is 144: the match the
+  // reader had just jumped to landed 55px behind the bar that found it.
+  function findChrome(bar) {
+    const header = document.querySelector(".site-header");
+    const h = header ? header.getBoundingClientRect().height : 0;
+    const b = bar && !bar.hidden ? bar.getBoundingClientRect().height : 0;
+    return h + b + 12;
+  }
 
   function scrollToMark(mark) {
-    const y = mark.getBoundingClientRect().top + window.pageYOffset - FIND_OFFSET;
+    const bar = document.querySelector(".faith-find");
+    const y = mark.getBoundingClientRect().top + window.pageYOffset - findChrome(bar);
     window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
   }
 

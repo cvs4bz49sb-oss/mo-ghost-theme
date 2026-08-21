@@ -5922,3 +5922,127 @@ mark.faith-find-hit.is-current {
   color: #fff;
 }
 @media (max-width: 700px) { .faith-saved-list { columns: 1; } }
+
+/* ══ Reader, after the mobile review ══════════════════════════════ */
+
+/* CRITICAL — the contents drawer was a trap below 1024px. The close
+   button was absolutely positioned inside the scrolling panel, so on
+   Alsted's 6,429px contents list it left the screen after one flick,
+   the page behind was frozen, and there was no backdrop element in
+   this template for the tap-away that the CSS and JS both expected.
+   The only way out was to navigate somewhere.
+
+   The drawer is now a column with a header row that does not scroll,
+   and the list scrolls under it. */
+@media (max-width: 1023px) {
+  .faith-reader .faith-toc-sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .faith-reader .faith-toc-bar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-card-border);
+    background: var(--color-page);
+  }
+  .faith-reader .faith-toc-bar-label {
+    font-family: var(--font-body);
+    font-size: var(--tfr-micro);
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0;
+  }
+  .faith-reader .faith-toc-close {
+    position: static;
+    height: 44px;
+    min-width: 44px;
+    font-size: 24px;
+    line-height: 1;
+    border: 0;
+    background: none;
+    color: var(--color-dark);
+    cursor: pointer;
+  }
+  .faith-reader .faith-toc {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 16px 32px;
+  }
+  /* The list's own heading is redundant beside the bar's. */
+  .faith-reader .faith-toc .faith-toc-label-heading { display: none; }
+}
+/* On desktop the bar is chrome for a drawer that is not there. */
+@media (min-width: 1024px) { .faith-reader .faith-toc-bar { display: none; } }
+
+/* HIGH — the measure was unbounded from 641px to 1023px: 87 characters
+   a line at 820px, and the Width preference did nothing on any phone
+   or tablet because --fr-measure was referenced only above 1024. */
+@media (max-width: 1023px) {
+  .faith-reader .faith-doc-inner {
+    max-width: calc(var(--fr-measure) + 40px);
+    margin: 0 auto;
+  }
+}
+
+/* The find bar sat at a guessed offset. The header is 85px above
+   640px and 61px below it, so 68px put the top of the bar behind it. */
+.faith-reader .faith-find { top: 86px; }
+@media (max-width: 640px) { .faith-reader .faith-find { top: 62px; } }
+
+/* Touch sizing belongs to the whole mobile band, not just phones: an
+   iPad in portrait is 820px and is a touch device. */
+@media (max-width: 1023px) {
+  .faith-reader .faith-tool,
+  .faith-reader .faith-lang-btn,
+  .faith-reader .faith-find-input,
+  .faith-reader .faith-find-nav,
+  .faith-reader .faith-toolbar button:not(.faith-prefs-opt):not(.faith-prefs-reset) {
+    height: 40px;
+  }
+  .faith-reader .faith-find-nav { min-width: 44px; }
+  /* Missed by the height bump, so it stayed 29x26 and stranded itself
+     on a third row beside the status. */
+  .faith-reader .faith-find-close { height: 40px; min-width: 44px; font-size: 20px; }
+  .faith-reader .faith-find-status { white-space: normal; font-size: 13px; }
+
+  /* The preference rows broke out of the 290px panel: four size
+     buttons plus a label do not fit on one line. */
+  .faith-prefs-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .faith-prefs-opts { flex-wrap: wrap; }
+  .faith-prefs-opt { min-height: 36px; padding: 0 12px; font-size: 13px; }
+  .faith-prefs-reset { min-height: 36px; font-size: 13px; }
+  .faith-prefs-row--reset { align-items: flex-end; }
+
+  /* justify-content governs the vertical axis once the actions row
+     turns into a column, so the Contents button centred itself while
+     every other line on the title page was left-aligned. */
+  .faith-reader .faith-doc-actions { align-items: flex-start; }
+}
+
+/* The middot category line gave each link a 19px line box 14px from
+   its neighbour. Keeping the setting, restoring the hit area. */
+@media (max-width: 640px) {
+  .faith-reader-tags { font-size: 13px; line-height: 2.4; }
+  .faith-reader-tag { display: inline-block; padding: 6px 0; }
+  .faith-reader-translator,
+  [data-fr-intro-kind="derived"] .faith-reader-intro-text { font-size: 14px; }
+}
+
+/* A page marker that shrinks with the type setting reached 9.9px at
+   "Small". It is apparatus, and apparatus still has to be readable. */
+.faith-reader .faith-page-marker { font-size: max(12px, 0.62em); }
+
+/* The section chevron sat 5px proud of the reading column. */
+.faith-reader .faith-chev { width: 12px; height: 12px; }
+
+/* Author page: 115px of air between the hero and the facts at 375px,
+   and a two-column life on a tablet means reading down and back up. */
+@media (max-width: 1023px) { .fa-bio { columns: 1; } }
+@media (max-width: 640px) { .faith-author-body { padding-top: 32px; } }

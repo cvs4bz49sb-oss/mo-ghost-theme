@@ -33,11 +33,25 @@
     <div class="faith-doc-layout">
 
       {{!-- Contents. Far left of the window on desktop, a drawer on
-            mobile. --}}
+            mobile.
+
+            The backdrop is not decoration. Below 1024px the drawer
+            covers the page and `body` scrolling is frozen, and both
+            faith-received.css and faith-received.js have always
+            expected a [data-faith-toc-backdrop] to close it. The
+            generated document partials ship one; this template did
+            not, so tapping away did nothing and the close button
+            scrolled out of reach on any long contents list. --}}
+      <div class="faith-toc-backdrop" data-faith-toc-backdrop hidden></div>
       <aside class="faith-toc-sidebar" data-faith-toc-drawer aria-label="Document contents">
-        <button type="button" class="faith-toc-close" data-faith-toc-close aria-label="Close contents">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        {{!-- Header row stays put while the list scrolls under it, so
+              the way out is always on screen. --}}
+        <div class="faith-toc-bar">
+          <p class="faith-toc-bar-label">Contents</p>
+          <button type="button" class="faith-toc-close" data-faith-toc-close aria-label="Close contents">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
         <nav class="faith-toc faith-toc--books" aria-label="Contents" data-fr-toc>
           <p class="faith-toc-label-heading">Contents</p>
           <p class="faith-toc-loading">Loading contents&hellip;</p>

@@ -1585,6 +1585,21 @@
     return bits.length ? `${bits.join(" ")}.` : "";
   }
 
+  // The author-page key. Folded the same way faith-author.js folds, so
+  // a name spelled three ways across the catalogues still resolves.
+  //
+  // Deleted by accident on 2026-08-21 in a block replacement that
+  // spanned it, which broke every work with an author: the throw
+  // inside populateHeader was swallowed by fetchWork's catch and the
+  // reader showed "Could not load this work."
+  function foldName(s) {
+    return String(s || "")
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "");
+  }
+
   function populateHeader(m) {
     if (titleEl) {
       const { head, tail } = splitTitle(m.title || "Untitled");
