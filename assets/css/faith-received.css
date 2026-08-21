@@ -4713,17 +4713,25 @@ mark.faith-find-hit.is-current {
 .faith-join .toggle-wrap { margin-top: 28px; }
 @media (max-width: 640px) { .faith-join { padding-top: 56px; } }
 
-/* ── The collections: five plates, one row ─────────────────────────
-   Only the collections with a scanned title page appear here now, so
-   the shelf holds five and the plates come down to suit the narrower
-   column. The three text-set tiles are gone; a collection without a
-   plate reads as a gap in a row of them. */
-.lp-shelf { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; }
-.lp-shelf-plate { height: 132px; margin-bottom: 12px; }
-.lp-shelf h4 { font-size: 18px; }
-.lp-shelf p { font-size: 12px; }
-@media (max-width: 1100px) { .lp-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 700px) { .lp-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* ── The collections: six plates, three across, two rows ───────────
+   Only the collections with a scanned title page appear here, so the
+   shelf holds six. The three text-set tiles are gone; a collection
+   without a plate reads as a gap in a row of them.
+
+   This rule is the one that decides the column count. An earlier pass
+   set the grid to three at its first declaration, five hundred lines
+   above, and the page went on rendering five across because this block
+   is later in the file at the same specificity. Six tiles in a
+   five-column grid left one stranded on a second row on its own.
+
+   The plates go back up to the base 168px: they were cut to 132 to
+   suit a narrow fifth-width column, and at a third of the row that
+   reads squat. */
+.lp-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.lp-shelf-plate { height: 168px; margin-bottom: 14px; }
+.lp-shelf h4 { font-size: 21px; }
+.lp-shelf p { font-size: 13px; }
+@media (max-width: 900px) { .lp-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* ── The results band holds nothing until it holds results ─────────
    The search page's body band keeps its 92px of padding whether or not
