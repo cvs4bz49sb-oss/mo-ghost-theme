@@ -1320,7 +1320,17 @@
           push(`<${sub ? "h3" : "h2"}>${teiInline(n)}</${sub ? "h3" : "h2"}>`);
           continue;
         }
-        if (t === "p") { push(`<p>${teiInline(n)}</p>`); continue; }
+        if (t === "p") {
+          // A paragraph the printer split across a page break is marked
+          // part="I" (initial), "M" (medial) or "F" (final). The
+          // fragments are left open here so that concatenating the
+          // pages closes them into the one paragraph they always were.
+          const part = (n.getAttribute("part") || "").toUpperCase();
+          const open = part === "M" || part === "F" ? "" : "<p>";
+          const close = part === "I" || part === "M" ? "" : "</p>";
+          push(`${open}${teiInline(n)}${close}`);
+          continue;
+        }
         if (t === "list") {
           let items = "";
           const li = n.childNodes || [];
@@ -1721,9 +1731,7 @@
           details.dataset.frState = "loaded";
           return;
         }
-        sectionPages.forEach((p) => {
-          body.appendChild(buildPageBlock(p));
-        });
+        body.appendChild(buildPagesBlock(sectionPages));
         details.dataset.frState = "loaded";
         // A section opened after the reader was switched to modern
         // English has to catch up, or the work reads half-modernized.
@@ -1748,26 +1756,61 @@
       });
   }
 
-  function buildPageBlock(p) {
+  // One block for the whole section, not one per page.
+  //
+  // A page is where the printer ran out of paper, and it lands
+  // mid-sentence far more often than not: page 20 of Alsted ends "151 3
+  // On" and page 21 opens "CHAPTER. 3 On". Rendering a block per page
+  // turned every one of those into a paragraph break, so the reader met
+  // a hard stop in the middle of a clause roughly every four hundred
+  // words. Paragraphs now break where the text breaks them and nowhere
+  // else.
+  //
+  // The page number survives as an inline marker in the flow. It still
+  // carries data-page, so the facsimile pane, which measures the
+  // marker nearest the top of the viewport, keeps working unchanged.
+  const PAGE_TOKEN = /@@FRPAGE:(\d+)@@/g;
+
+  function buildPagesBlock(pages) {
     const block = document.createElement("div");
     block.className = "faith-parallel-block";
-    block.setAttribute("data-page", p.n);
+    // The first page, so a section opened from the contents rail has
+    // something for the facsimile pane to show before any scrolling.
+    if (pages.length) block.setAttribute("data-page", pages[0].n);
 
-    // A TEI page is already HTML and carries its own headings, lists
-    // and apparatus. Running it through the Markdown renderer would
-    // escape every tag and print the markup at the reader.
-    const lane = (text) => (p.tei ? sanitize(text || "") : renderMarkdown(text || ""));
+    const marker = (n) =>
+      `<span class="faith-page-marker" data-page="${n}">[p. ${n}]</span>`;
 
-    // English column.
+    // Joined as source and rendered once, rather than rendered per page
+    // and concatenated: two rendered fragments are two paragraphs
+    // whatever the sentence was doing.
+    const lane = (key) => {
+      const tei = pages.length && pages[0].tei;
+      if (tei) {
+        // TEI marks a paragraph split across a page break with
+        // part="I|M|F", and parseTei leaves those fragments open, so
+        // concatenating the pages closes them back into one paragraph.
+        return sanitize(pages.map((p) => marker(p.n) + (p[key] || "")).join(""));
+      }
+      const raw = pages
+        .map((p) => `@@FRPAGE:${p.n}@@${p[key] || ""}`)
+        .join(" ");
+      // The token is plain text, so it passes through escaping intact
+      // and is swapped for the marker after the Markdown is built.
+      return renderMarkdown(raw).replace(PAGE_TOKEN, (_, n) => marker(n));
+    };
+
     const enCol = document.createElement("div");
     enCol.className = "faith-col-en";
-    enCol.innerHTML =
-      `<span class="faith-page-marker">[p. ${p.n}]</span>${lane(p.en)}`;
+    enCol.innerHTML = lane("en");
 
-    // Latin column.
     const laCol = document.createElement("div");
     laCol.className = "faith-col-la";
-    laCol.innerHTML = lane(p.la);
+    // The Latin lane carries no page markers: the two lanes page
+    // together, and printing the number twice on a parallel view reads
+    // as an error.
+    laCol.innerHTML = lane("la").replace(
+      /<span class="faith-page-marker"[^>]*>\[p\. \d+\]<\/span>/g, "");
 
     block.appendChild(enCol);
     block.appendChild(laCol);
