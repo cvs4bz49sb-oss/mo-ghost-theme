@@ -639,7 +639,7 @@
   "confidence": "medium",
   "source": "mere-orthodoxy"
  },
- "hill-natvrall-and-artificiall-conclvsions": {
+ "hill-natvrall-and-artificiall-conclvsions-compile": {
   "blurb": "Not by Thomas Hill the Westminster divine but by Thomas Hill, or Hyll, the Elizabethan compiler of popular science, whose books on gardening, physiognomy and natural curiosities went on being reprinted long after his death. A gathering of experiments, sleights and household secrets taken out of Latin authors: small marvels of nature and art, set down for use and amusement.",
   "confidence": "medium",
   "source": "mere-orthodoxy"
@@ -754,6 +754,246 @@
   "confidence": "high",
   "source": "mere-orthodoxy"
  },
+ "baronius-annales-ecclesiastici-vol-1": {
+  "blurb": "The opening tome of the Oratorian's year by year history of the church, undertaken as the Catholic answer to the Lutheran Magdeburg Centuries and built out of the manuscripts of the Vatican and the Roman archives. The annalistic form is itself the argument: every year is entered with the documents bearing on it, so that continuity with the apostolic church may be shown rather than asserted. This volume opens at the Nativity and carries the record through the apostolic age and the first century.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-2": {
+  "blurb": "The record continues into the second and third centuries, the age of the apologists and of the persecutions under the pagan emperors. Martyr acts, episcopal successions, heresies and the earliest synodical documents are entered under their years as Baronius found them in Roman collections, with his own notes on the credit due each source.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-3": {
+  "blurb": "The annals reach the fourth century, the age of Constantine and of the Arian controversy, where Baronius has conciliar acts and imperial legislation in quantity to work from. His concern with the standing of the Roman see against Eastern claims, present throughout the work, becomes plainest in the years handled here.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-4": {
+  "blurb": "The record runs through the later fourth century and into the fifth, the generation of Ambrose, Jerome, Chrysostom and Augustine, with the Nicene settlement consolidating in the West and the Pelagian and Christological quarrels beginning. Letters, canons and imperial constitutions are entered year by year in the usual manner of the annals.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-5": {
+  "blurb": "The fifth century and its Christological controversies, the councils held over them, the Roman bishops of the period, and the barbarian settlement of the western provinces. Baronius enters the letters and conciliar acts under their years and argues his case against the Protestant historians in the notes rather than in continuous narrative.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-6": {
+  "blurb": "The sixth century: Justinian's reign and his ecclesiastical legislation, the long dispute over the Three Chapters, the monastic foundations taking root in the West, and the missions to the peoples settled on the old imperial frontiers. Documentary throughout, with the sources set out under each year.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-7": {
+  "blurb": "The annals move through the late sixth and seventh centuries: Gregory the Great and his correspondence, the conversion of western peoples, the monothelite controversy and the council called to settle it, and the arrival of Islam on the eastern frontier. Gregory's letters give Baronius unusually full documentation for these years.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-8": {
+  "blurb": "The eighth century and after: the iconoclast quarrel and the council of Nicaea called against it, the shifting relations of Rome with Constantinople, and the rise of the Frankish kings, with Charlemagne's coronation among the events the volume must account for. Baronius handles the Roman see's western alignment as a matter of documented right.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-9": {
+  "blurb": "The ninth century, its Carolingian councils and its disputes over doctrine and discipline, and above all the Photian quarrel at Constantinople. Baronius treats that controversy at length, since the Roman claims his whole work was written to establish were directly in question there.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-10": {
+  "blurb": "The tenth century, the stretch Baronius himself describes in the darkest terms, when the Roman see fell under the control of local families and the surviving record grows thin. He does not conceal the scandals of those years, and his willingness to enter them under their dates is part of the work's claim to be an honest annal rather than an apology.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-11": {
+  "blurb": "The eleventh century: the reforming popes and the discipline they imposed, the beginnings of the quarrel over lay investiture, and the breach with Constantinople in 1054, whose documents are entered under their year. The materials here are fuller than for the century preceding, and Baronius uses them heavily.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "baronius-annales-ecclesiastici-vol-12": {
+  "blurb": "The twelfth century, and the last tome of the annals as Baronius left them at his death. Papal elections and schisms, the growth of canon law, the crusading enterprise and the new orders occupy the record; the continuation of the work beyond the point he reached was undertaken by later hands.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-confessio-tigurina": {
+  "blurb": "The confession and defence of the church of Zurich, issued over the names of its ministers after Luther's last attack on the sacramentarians. Bullinger sets out what Zurich holds on Scripture, the church, the ministry and above all the Lord's Supper, defends Zwingli's memory against the charge of heresy, and declines to answer abuse in kind. The plainest statement of the Zurich position in the years before agreement was reached with Geneva.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-de-origine-erroris": {
+  "blurb": "Two books on where religious error comes from: the first tracing the growth of the invocation of saints and the veneration of images out of pagan practice, the second the corruption of the Supper into the sacrifice of the mass. The method is historical throughout. Bullinger argues that the disputed usages can be dated, that they entered the church late, and that antiquity therefore stands with the reformers rather than against them.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-de-scripturae-authoritate": {
+  "blurb": "On the authority, certainty and sufficiency of Holy Scripture, joined with a treatment of the institution and office of bishops. Bullinger's contention is that the church is constituted by the word rather than the word authenticated by the church, and that the bishop's office is nothing other than the ministry of that word. Written with an English readership in view and addressed to Henry VIII.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-decades": {
+  "blurb": "Fifty sermons arranged in five sets of ten, amounting to a full body of divinity in preached form: the word of God and faith, the Decalogue at length, sin, grace and justification, then God and the Trinity, Christ, the church and its ministry, the sacraments, prayer and the office of the magistrate. Written for pastors and for ordinary Christians, and long used as a working manual by English clergy, who were at one point required to read it.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-in-acta-apostolorum": {
+  "blurb": "A commentary on Acts, following the narrative from the ascension to Paul's arrival at Rome. Bullinger writes plainly and pastorally, with a steady eye on what the apostolic churches show about ministry, order, and the handling of the word, and on the reformers' claim to be restoring that pattern rather than inventing a new one.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-in-apocalypsim": {
+  "blurb": "A course of sermons on Revelation, reading the visions as a prophetic history of the church from the apostles to the end, with the persecuting powers of the past and the papacy of the present identified in the imagery. Prepared in the years when Protestant refugees from Marian England were sheltering in Zurich, and shaped throughout by the problem of how a suffering church is to read its own circumstances.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-in-danielem": {
+  "blurb": "A sermon commentary on Daniel, taken as both history and prophecy: the four monarchies read as a succession of empires running down to Bullinger's own day, and the court narratives read as instruction for believers who must live under hostile powers. The homiletic form is the one he used for most of his later expositions.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-in-ioannem": {
+  "blurb": "A continuous exposition of the Fourth Gospel, with attention to the Word made flesh, to faith and eternal life, and to the discourses of the upper room. The manner is that of the Zurich prophezei: philology kept short, doctrine drawn out plainly for preachers, controversy admitted only where the text forces it forward.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-in-luculentum-evangelium": {
+  "blurb": "The wording here is the standard formula from the title pages of Bullinger's Gospel commentaries, and as given it does not say which evangelist the volume expounds. What holds of the series holds of this volume: continuous exposition in the Zurich manner, brief philological notes, doctrine and use drawn plainly from the text. A reader should establish the evangelist from the volume itself before relying on it.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-in-matthaeum": {
+  "blurb": "An exposition of Matthew, the fullest of Bullinger's Gospel commentaries, working through narrative and discourse alike. The Sermon on the Mount is treated at length, as is Matthew's material on the church and its discipline, a question on which Zurich's settlement and Geneva's did not agree and on which Bullinger had reason to be careful.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-in-pauli-epistolas": {
+  "blurb": "The Pauline commentaries gathered into a single volume, running from Romans to Philemon. Bullinger expounds continuously and draws doctrine and use from the text rather than arguing at length with other interpreters, giving sustained attention to justification, to the use of the law, and to the church order the epistles take for granted. A collected edition of work first issued piece by piece.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "bullinger-in-priorem-corinthios": {
+  "blurb": "A commentary on First Corinthians, from Bullinger's early years as Zwingli's successor at Zurich. The epistle gave him occasion for much of what a newly reformed city needed said: the ministry and the divisions that gather round it, discipline in the congregation, the ordering of public worship and of gifts, the Lord's Supper, and the resurrection of the body.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-commentarius-in-1-petri": {
+  "blurb": "A full commentary on the first epistle of Peter from the Jena professor, expounding verse by verse with the whole apparatus of Lutheran orthodox exegesis: the Greek weighed, the fathers cited, doctrinal questions opened where the text raises them, and practical use appended. Peter's matter on suffering, on baptism, on the priesthood of believers and on the ordering of the household receives the fullest handling.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-commentarius-in-2-petri": {
+  "blurb": "An exposition of the second epistle of Peter on the same plan as his commentary on the first: continuous verse by verse treatment, philological notes, patristic testimony, doctrinal questions taken up as they arise, and application drawn at the close of each section. The epistle's warnings against false teachers and its account of the dissolution of the elements at the last day occupy much of the volume.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-confessio-catholica-liber-1-as": {
+  "blurb": "The first and general book of Gerhard's long demonstration that the doctrine confessed at Augsburg is the catholic doctrine, argued out of Roman Catholic authors themselves. The method is to establish each article from the concessions of approved doctors, councils and canonists on the other side, so that the Lutherans stand as the party keeping the church's own teaching. This opening book sets out the principles and rules of proof before the particular articles are taken up.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-1": {
+  "blurb": "The opening volume of the standard dogmatic system of Lutheran orthodoxy, issued over more than a decade from Jena. It begins where the method requires, with the nature of theology and with Scripture, its inspiration, canon, perspicuity, sufficiency and authority, and then treats the being and attributes of God and the doctrine of the Trinity. Scholastic in form and polemical in aim, with the Roman, Reformed and Socinian positions answered under each head.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-2": {
+  "blurb": "Creation and the works of the six days, the angels, the government of providence, election and predestination, and then the fall, original sin and actual sin. Gerhard's doctrine of election is the Lutheran one, taken in view of faith in Christ and refusing any decree of reprobation, and the argument with Reformed authors is heavier in this volume than in most of the others.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-3": {
+  "blurb": "The law and its uses, the gospel and its promises, repentance, and then justification by faith, the article on which the whole system turns for Gerhard as for his tradition. Faith is defined and distinguished from its counterfeits, imputed righteousness is defended against the Roman doctrine of infusion, and the place of good works with respect to justification is fixed.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-4": {
+  "blurb": "Good works and their necessity, then the sacraments in general, their number, their efficacy and what they are said to confer, followed by baptism at length: its institution, its necessity, the baptism of infants and its defence, and the effects Lutherans ascribe to it against those who would make it a bare sign of a grace received elsewhere.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-5": {
+  "blurb": "The Lord's Supper, treated at the length the quarrel with the Reformed demanded: the words of institution and how they are to be read, the presence of Christ's body and the manner of it, the communication of attributes as it bears on the question, and the eating by the unworthy. The volume then turns to the church, its marks, its unity, and the authority it may claim.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-6": {
+  "blurb": "The ministry of the church, its institution, call, offices and power, including the keys and the exercise of discipline, and then the civil magistrate: the origin of political authority, its limits, the obedience owed it, and the relation between the two governments. Both estates are handled in the Lutheran manner as distinct in kind and each of divine ordinance.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-7": {
+  "blurb": "Marriage as an estate ordained by God and not a sacrament: its institution and ends, impediments, the degrees of kindred, divorce and remarriage, with the canonical tradition examined at every point. Set against it is the long argument over celibacy and vows, and over the Roman requirement of an unmarried clergy, which Gerhard answers from Scripture, the fathers and the canonists in turn.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-8": {
+  "blurb": "The last things as far as the resurrection: death and what it is, the condition of the soul between death and the end, the consolations proper to the dying, and then the raising of the body, its identity with the body laid in the grave, and the qualities ascribed to it when raised.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "gerhard-loci-theologici-tomus-9": {
+  "blurb": "The closing volume of the system: the last judgment, its time, its judge and its manner, the end of the world, and then the two final states, the punishment of the damned and the eternal life of the blessed, with what may be said of the vision of God and the fellowship of the saints. The order ends where the older dogmatic tradition required it to end.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-exposition-practical-observations-three-first-chapters": {
+  "blurb": "The first instalment of Caryl's exposition of Job, covering the opening three chapters in twenty-one lectures: Job's estate and integrity, the accusation and the two trials, the loss of goods and children, the affliction of his body, the coming of the friends, and Job's cursing of his day. The method is set out here and holds for the whole: the text opened phrase by phrase, then practical observations drawn from it, which is why three chapters fill a volume and the book fills twelve.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-exposition-practical-observations-continued-fourth-fifth": {
+  "blurb": "The exposition enters the debate, taking Eliphaz's first speech with its night vision and its counsel to commit the cause to God, Job's reply, and the complaint of chapters 6 and 7 that his days are swifter than a weaver's shuttle and his life a wind. Text opened clause by clause in Caryl's usual manner, with practical observations appended throughout.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-exposition-practicall-observations-continued-eighth-ninth": {
+  "blurb": "Bildad's first speech, with its appeal to the verdict of former ages, followed by Job's answer in chapters 9 and 10: how should a man be just with God, and the plea for a daysman who might lay his hand upon them both. Opened word by word, with practical observations drawn from each clause.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-exposition-practicall-observations-continued-fifteenth-six": {
+  "blurb": "Eliphaz's second speech and Job's reply, covering the charge that Job's own mouth condemns him, his answer to miserable comforters, his appeal to a witness in heaven, and the failing of his hope in chapter 17. The exposition proceeds in the settled manner, the words opened in detail and observations drawn for use.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-exposition-practicall-observations-continued-twenty-second": {
+  "blurb": "The last round of the debate: Eliphaz's final charge with its catalogue of alleged oppressions, Job's longing to find the seat of God and his account of the wicked who go unpunished, and Bildad's short closing speech on how man can be righteous before God. Expounded clause by clause with practical observations at every stage.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-exposition-practicall-observations-continued-thirty-second": {
+  "blurb": "The entrance of Elihu, the young man who has waited on his elders and now answers Job and the three friends alike, through his opening speeches on the ways God speaks to men, on the discipline of the pit, and on the justice of the Almighty. Text opened word by word, with observations drawn for practice.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-exposition-practical-observations-continued-thirty-fifth": {
+  "blurb": "Elihu's closing speeches: whether a man's righteousness profits God, the use God makes of affliction to instruct, and the long account of his works in cloud, storm, thunder and snow that leads directly into the voice from the whirlwind. One of the late instalments, from the closing stretch of an exposition Caryl preached over some two decades.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-exposition-practical-observations-continued-thirty-eighth": {
+  "blurb": "The voice out of the whirlwind: God's questioning of Job from the foundations of the earth through the ordering of the heavens, the beasts and the birds, and then the long descriptions of behemoth and leviathan. Caryl opens the interrogatories one by one and draws his observations from each, the answer to Job's case being given in questions rather than in explanations.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-ioy-out-joyed-joy-overcoming-evil": {
+  "blurb": "A sermon on the joy that overcomes joy, evidently from Christ's word to the returning seventy that they should rejoice less in the subjection of spirits than in their names written in heaven. Triumph over enemies, whether evil spirits or evil men, is set below the better ground of rejoicing, a distinction worth preaching in 1646, when English victories were supplying plenty of the lesser kind.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-renuntiation-declaration-ministers-congregational-churches": {
+  "blurb": "A short declaration by ministers and preachers of the Congregational churches disowning the Fifth Monarchy rising in London and the principles that produced it, published to separate their congregations from the insurrection at a moment when every gathered church stood under suspicion. Eleven pages, subscribed by Caryl among others, and a document of self-defence rather than of divinity.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-saints-thankfull-acclamation-at-christs-resumption": {
+  "blurb": "A sermon on the thanksgiving of the saints when Christ takes to himself his great power and begins to reign, the acclamation of the Apocalypse applied to what Caryl and his hearers took for the first stirrings of that kingdom in England. Preached in 1644 and printed with its occasion noted, as such sermons were.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "caryl-sermon-pressing-directing-that-great-duty": {
+  "blurb": "A sermon to the Parliament at Westminster on the duty of praising God, pressing the obligation first and then directing how it is to be discharged. Preached in the later years of the Protectorate, when days of public thanksgiving had as fixed a place in the parliamentary calendar as days of humiliation, and preachers were expected to furnish both.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
  "jeremy-taylor-answer-letter-written-r-r-ld": {
   "blurb": "A reply to John Warner, Bishop of Rochester, who had written to object to the chapter on original sin in Taylor's Unum Necessarium. Taylor answers the charge of Pelagianism, distinguishing the corruption of nature that Adam transmitted from a guilt personally imputed to his posterity, and argues that the fathers before Augustine do not teach what the schools took from them. The most exposed position Taylor ever defended in print.",
   "confidence": "medium",
@@ -855,7 +1095,7 @@
   "source": "mere-orthodoxy"
  },
  "sibbes-spirituall-favorite-at-throne-grace-late": {
-  "blurb": "A short work on access to God in prayer and on the favour the believer finds at the throne of grace. Printed among the Sibbes materials issued in the years after his death.",
+  "blurb": "A short work on access to God in prayer and on the favour the believer finds at the throne of grace. The figure in the title is the courtier admitted to a prince's presence and heard there, turned to the use of a doubting Christian who suspects he has no such standing. Printed among the Sibbes materials issued in the years after his death.",
   "confidence": "low",
   "source": "mere-orthodoxy"
  },
@@ -915,7 +1155,7 @@
   "source": "mere-orthodoxy"
  },
  "bond-the-downfal-of-old-common-counsel-men-being": {
-  "blurb": "Five pages reporting the defeat of the old common council men at Guildhall, a City election squib from 1642. News print, not preaching, and attributed here on the strength of a name shared with the Exeter minister.",
+  "blurb": "Five pages reporting the defeat of the old common council men at Guildhall the previous Friday, a City election squib from 1642, when control of London's government was worth contesting in print. News reporting rather than preaching, and attributed here on the strength of a name shared with the Exeter minister.",
   "confidence": "low",
   "source": "mere-orthodoxy"
  },
@@ -950,7 +1190,7 @@
   "source": "mere-orthodoxy"
  },
  "cheynell-aulicus-his-hue-and-cry-sent-forth-after-bri": {
-  "blurb": "Another episode in the running quarrel between the royalist Mercurius Aulicus and the parliamentarian Mercurius Britanicus, cast as a hue and cry raised after a man reported lost. Short, topical, and written for readers who followed the weekly newsbooks.",
+  "blurb": "Another episode in the running quarrel between the royalist Mercurius Aulicus, printed at Oxford, and the parliamentarian Mercurius Britanicus, cast here as a hue and cry raised after a man generally reported lost. Short, topical, and written for readers who followed the weekly newsbooks and knew the personalities behind them.",
   "confidence": "medium",
   "source": "mere-orthodoxy"
  },
@@ -1005,7 +1245,7 @@
   "source": "mere-orthodoxy"
  },
  "lightfoot-a-letter-to-a-member-of-parliament-on-the-ac": {
-  "blurb": "Two pages addressed to a member of Parliament about business then in hand. The date is well after Lightfoot's death, so the attribution here should be treated with caution; nothing in the title indicates the subject beyond present transactions.",
+  "blurb": "Two pages addressed to a member of Parliament about business then in hand, with nothing in the title to indicate the subject beyond present transactions. The date given is well after Lightfoot's death, so the attribution carried here should be treated with caution; short political letters were often printed under a borrowed name of weight.",
   "confidence": "low",
   "source": "mere-orthodoxy"
  },
@@ -1090,7 +1330,7 @@
   "source": "mere-orthodoxy"
  },
  "vines-the-corruption-of-minde-described-in-a-sermo": {
-  "blurb": "A sermon at Paul's in June 1655 on corruption of the mind, understood as a disorder of the understanding rather than only of the appetites. Twenty-four pages, from the last year of Vines's life.",
+  "blurb": "A sermon at Paul's in June 1655 on corruption of the mind, understood as a disorder of the understanding and the judgment rather than only of the appetites. The distinction matters for Vines, since a mind corrupted cannot be reformed by restraining the body. Twenty-four pages, from the last year of his life.",
   "confidence": "medium",
   "source": "mere-orthodoxy"
  },
@@ -1166,6 +1406,61 @@
  },
  "beza-theses-theologicae-genevenses": {
   "blurb": "Theses disputed in the Genevan Academy, covering the standard heads of doctrine in the compressed propositional form that academic exercises required. They show what students at Geneva were trained to defend and how the reformed system was ordered for teaching in the generation after Calvin.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-sacramentis-in-genere": {
+  "blurb": "The general treatise that opens Doronzo's Latin series on the sacraments: what a sacrament is, how the sign causes what it signifies, institution by Christ, the sevenfold number, matter and form, the intention required of the minister, the disposition required of the recipient, and the character imprinted by three of them. Neo-scholastic in method throughout, each question stated, the adversaries listed, the thesis proved from scripture, the fathers, the magisterium and reason.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-ordine-1": {
+  "blurb": "The first volume of Doronzo's three on holy orders, given to the institution of the sacrament: whether Christ instituted an order of priests distinct from the faithful, the evidence of the New Testament and the fathers, and the answers to the Protestant and modernist accounts of how a Christian ministry arose. A thousand pages on a question that earlier manuals settled in a chapter.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-ordine-2": {
+  "blurb": "The second volume on holy orders, completing the question of institution and then treating the matter and form of the sacrament: whether the essential rite is the imposition of hands or the handing over of the instruments, and what words constitute the form in each grade. The historical dossier is large, since the Latin and Eastern rites differ and the tradition had argued the point for centuries.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-ordine-3": {
+  "blurb": "The third volume on holy orders, on the extrinsic causes: the minister who confers the sacrament and the subject who may receive it. Questions of the validity of orders conferred by a bishop outside the church, the requirements laid on candidates, and the grades of the ministry belong here. The last of the three, and the one closest to practical canonical concerns.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-baptismo-et-confirmatione": {
+  "blurb": "The two sacraments of initiation after the general treatise, handled in a single volume: the necessity of baptism, its matter and form, the minister and subject, the effects and the character, and then confirmation, its sacramental status, its rite and its proper minister. The scholastic apparatus is the same as in the rest of the series, though the compass is smaller than Doronzo gave to orders or the Eucharist.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-eucharistia-1": {
+  "blurb": "The first of two volumes on the Eucharist, on the sacrament rather than the sacrifice: the real presence, transubstantiation and the accidents that remain, the moment of consecration, the manner of Christ's presence under each species, the effects of communion and the dispositions required of the communicant. The controversies with the reformers are stated in their own terms and then answered.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-eucharistia-2": {
+  "blurb": "The second Eucharistic volume, on the Mass as sacrifice: whether it is a true and proper sacrifice, what the sacrificial action consists in, how it relates to the one offering of the cross, and for whom and to what effect it is offered. The theories of the schools on the essence of the sacrifice are laid out and weighed against each other.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-poenitentia-2": {
+  "blurb": "The second volume on penance, on the first two acts of the penitent: contrition, with the distinction between perfect sorrow and attrition and the long dispute over what suffices for the sacrament, and confession, its necessity, integrity, and the obligations it lays on both penitent and priest. The largest single volume in the series.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-poenitentia-3": {
+  "blurb": "The third volume on penance, on satisfaction and absolution: the works imposed on the penitent and their relation to the temporal punishment due to sin, then the judicial form of the sacrament, the power of the keys, the effect of the priest's sentence, and the conditions under which absolution is valid or is to be withheld.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-extrema-unctione-1": {
+  "blurb": "The first of two volumes on the anointing of the sick, on the intrinsic causes: the institution of the sacrament, the evidence of the epistle of James and of the fathers, and the matter and form, the oil and the words of the anointing. Doronzo gives the historical development of the rite at length before drawing the doctrinal conclusions.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "doronzo-de-extrema-unctione-2": {
+  "blurb": "The second volume on the anointing of the sick, on the extrinsic causes: the priest who administers it, the sick person who may receive it, and the conditions of danger of death that govern its use. The effects of the sacrament and the question of its repetition belong to this part of the treatise.",
   "confidence": "medium",
   "source": "mere-orthodoxy"
  },
@@ -1345,7 +1640,7 @@
   "source": "mere-orthodoxy"
  },
  "jackson-index-biblicus-or-an-exact-concordance-to-th": {
-  "blurb": "A concordance to the Bible in the last translation, that is, the Authorized Version of 1611. What is held here runs to eight pages, so this is the opening of the book rather than the concordance entire. Printed 1668.",
+  "blurb": "A concordance to the Holy Bible in what the title page calls the last translation, meaning the Authorized Version of 1611. Printed 1668. What is held here runs to only eight pages, so this copy gives the opening of the book, its title and preliminaries, rather than the concordance itself.",
   "confidence": "low",
   "source": "mere-orthodoxy"
  },
@@ -1372,6 +1667,276 @@
  "jackson-the-true-euangelical-temper-wherein-divinity": {
   "blurb": "A treatise on the temper proper to a Christian, argued, as the title page says, by interweaving divinity with the history of the church, so that the disposition commended is shown from the record of how Christians have actually behaved toward one another. Printed 1641.",
   "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-in-corinthios": {
+  "blurb": "A commentary on both epistles to the Corinthians from the Bern professor whose expositions were among the standard Reformed helps of the middle sixteenth century. The Corinthian letters force questions of church order, discipline, marriage, the Lord's Supper and the use of gifts, and Musculus handles them with an eye to the ordering of the reformed congregations of his own day as well as to the text in front of him.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-in-esaiam": {
+  "blurb": "A commentary on Isaiah printed at Basel in 1557, running past eight hundred pages. Musculus proceeds as he does everywhere, a careful construction of the words followed by the doctrinal questions the passage raises and the observations he draws from it. Isaiah gave a Reformed expositor of this generation his fullest occasion for treating prophecy, the fate of nations, and the promises the church reads as fulfilled in Christ.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-in-galatas-ephesios": {
+  "blurb": "A commentary on Galatians and Ephesians in one volume. The pairing sets the sharpest of Paul's arguments against the works of the law beside the fullest of his statements about the church and its head. Musculus is writing in the decades when justification was the disputed article of the age, and the Galatians half of the book is shaped accordingly.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-in-genesim": {
+  "blurb": "A commentary on Genesis of nearly nine hundred pages, covering the creation and the fall, the flood, and the histories of the patriarchs. Reformed exposition of this book carried a great deal of doctrinal weight in the sixteenth century, since creation and providence, the image of God, the entry of sin, and the covenant made with Abraham were all settled from these chapters.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-in-matthaeum": {
+  "blurb": "A commentary on Matthew printed at Basel in 1548, the year the Interim unsettled the reformed cities of the empire and Musculus's own ministry at Augsburg with them. Matthew carries the Sermon on the Mount, and with it the matters the Reformation had made contentious: law and gospel, the lawfulness of oaths, and how much of Christ's teaching binds an ordinary Christian in an ordinary calling.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-in-philippenses-colossenses": {
+  "blurb": "One volume on the shorter Pauline letters, Philippians, Colossians, the two to the Thessalonians and Timothy. Colossians supplies the doctrine of Christ's person and pre-eminence, the Thessalonian letters the last things and the man of sin, and Timothy the ordering of the ministry and the qualifications of those who hold it.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-in-romanos": {
+  "blurb": "A commentary on Romans, the shortest of Musculus's Pauline volumes at some three hundred pages. Every Reformed expositor of the century had to give his account of this letter, and the weight falls in the same places: the righteousness of God received by faith, the standing and use of the law, and the chapters on election and the future of Israel.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-loci-communes": {
+  "blurb": "Musculus's body of divinity, arranged as commonplaces after the pattern Melanchthon had established, printed at Basel in 1560. It is one of the substantial Reformed dogmatics of the generation before scholastic orthodoxy set, and it treats the magistrate, oaths and the covenant at greater length than most books of its kind. Englished in 1563 as the Common Places of Christian Religion, in which form it was read in England for decades.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "musculus-in-psalterium-commentarii": {
+  "blurb": "A commentary on the whole Psalter and the largest of Musculus's works, close to twelve hundred pages. Reformed exposition of the Psalms was written for congregations that sang them, so the pressure of the commentary is practical as well as doctrinal: what a Christian is to make of the psalmist's complaints, his imprecations against enemies, and his confidence before God.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-1": {
+  "blurb": "The first volume of the course of theology Perrone taught at the Collegio Romano, on true religion: whether God has revealed, by what marks a revelation may be known, and the case for the Christian revelation against deists, rationalists and the indifferentism that held one religion as good as another. This is fundamental theology in the nineteenth-century Roman manner, laid out in numbered theses with the adversaries named and the proofs taken from Scripture, tradition and reason. Louvain, 1838.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-2": {
+  "blurb": "The second volume, on the one God and on the Trinity. The first tract treats the divine existence, unity and attributes; the second the processions, persons and relations, established from Scripture, the fathers and the conciliar definitions before the scholastic questions are taken up. The opponents Perrone has chiefly in mind here are the rationalist critics and the German philosophical theology of his own century. Louvain, 1838.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-3": {
+  "blurb": "The third volume, on God as creator: creation in time and out of nothing, the angels, the constitution of man, and the state in which man was made and from which he fell. The form is the manual's throughout, a sequence of theses each with its proofs, its authorities and its objections answered in order. Louvain, 1839.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-4": {
+  "blurb": "The fourth volume, joining the tract on the incarnation to the tract on the veneration of the saints. The first treats the person of Christ, the hypostatic union and the work of redemption; the second defends invocation of the saints, the honour given to relics and images, and the Marian devotion then gathering strength in Rome. Perrone would publish separately on the Immaculate Conception in the following decade. Louvain, 1839.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-5": {
+  "blurb": "The fifth volume, on grace and on the sacraments in general. The tract on grace covers actual and habitual grace, justification, merit and predestination, with the Jansenist and Baianist controversies still in view a century and a half after their condemnation. The sacramental tract treats institution, number, matter and form, and the manner in which a sacrament effects what it signifies. Louvain, 1840.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-6": {
+  "blurb": "The sixth volume takes the sacraments singly: baptism, confirmation, the Eucharist and penance. The eucharistic tract is the long business of the volume, covering the real presence and transubstantiation, communion under one kind, and the sacrifice of the Mass, argued outward from the decrees of Trent. The tract on penance treats contrition, confession, satisfaction and the power of the keys. Louvain, 1841.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-7": {
+  "blurb": "The seventh volume gathers what remains of the sacramental course, extreme unction, orders and matrimony, together with the treatise on indulgences. Marriage in a Roman manual of this date carries a heavy canonical load, since the impediments, the form required by Trent, and the relation of the sacrament to the marriage law of the new civil codes all have to be settled together. Louvain, 1842.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-8": {
+  "blurb": "The eighth volume opens the treatise on the theological loci, the sources from which doctrine is drawn, and begins with the church and the Roman pontiff: the constitution of the church, her marks and authority, the primacy of Peter and of his successors, and the infallibility of the pope, defended here a generation before the definition of 1870. Gallican and Febronian claims for national churches and for the superiority of councils are the adversaries in view. Louvain, 1843.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "perrone-praelectiones-theologicae-9": {
+  "blurb": "The ninth and last volume continues the treatise on the theological loci past the church and the papacy, taking up the remaining sources of doctrine, Scripture and tradition among them, and the weight each carries in establishing a theological conclusion. At nearly six hundred pages it is the largest volume of the set. Louvain, 1843.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-praelectiones-dogmaticae-1": {
+  "blurb": "The introductory volume of Pesch's dogmatic course, the propaedeutic to sacred theology: religion and revelation, the credibility of the Christian revelation and its marks, the church as the authority that proposes it, and the sources and method of theology as a science. This is fundamental theology of the neo-scholastic revival, set out in theses with proofs, scholia and objections answered. Freiburg, 1924, a late printing of a course by then long in use.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-praelectiones-dogmaticae-2": {
+  "blurb": "The tract on the one and triune God: the existence of God and how far he can be known, the divine attributes, then the processions, the persons, and the missions. Pesch writes within the Thomist recovery that followed Leo XIII's Aeterni Patris, so the questions are put in the older scholastic terms while the opponents answered are modern ones. Freiburg, 1906.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-praelectiones-dogmaticae-3": {
+  "blurb": "Creation and elevation, with the tract on God as man's last end. Creation out of nothing, the angels, the constitution of man, the supernatural order and the gifts of original justice, their loss, and beatitude as the end for which man exists. Pairing De Deo creante with De Deo elevante is standard in manuals of this school, since the whole question of nature and grace is settled at that seam. Freiburg, 1925.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-praelectiones-dogmaticae-4": {
+  "blurb": "The incarnate Word, the Blessed Virgin, and the veneration of the saints in one volume. The Christological tract takes the hypostatic union, the knowledge, will and grace of Christ, and the work of redemption. The Marian tract is written half a century after the definition of the Immaculate Conception and handles it as settled doctrine rather than as a disputed question. Freiburg, 1922.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-praelectiones-dogmaticae-5": {
+  "blurb": "Grace and the divine positive law: actual grace and the long dispute over how it is efficacious, habitual grace, justification, merit, predestination, and then the law God has positively imposed and the obligation it carries. A Jesuit manual of this date has the Molinist controversy in its bones, and Pesch sets out the Thomist and the Molinist accounts before he decides between them. Freiburg, 1916.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-praelectiones-dogmaticae-7": {
+  "blurb": "Penance, extreme unction, order and matrimony. The penitential tract covers contrition, confession and satisfaction, the power of the keys, and the conditions of absolution. The tract on marriage was printed three years after the Code of Canon Law of 1917 had recast the church's marriage discipline, and it has the civil marriage law of the European states to reckon with as well. Freiburg, 1920.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-praelectiones-dogmaticae-8": {
+  "blurb": "Virtue in general, then the theological virtues: what faith, hope and charity are, what each has for its object and its acts, how each is lost and recovered. The tract on faith carries the weight of the volume, since the nature of the act of faith was the point most pressed in the years around the modernist crisis. Freiburg, 1910.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-praelectiones-dogmaticae-9": {
+  "blurb": "The moral virtues, sin, and the last things. Prudence, justice, fortitude and temperance are handled in the scholastic manner as habits with their proper objects and opposed vices; the tract on sin treats its nature, its kinds, and the distinction of mortal from venial; the closing tract takes death, judgment, purgatory, hell and heaven. Freiburg, 1902.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "pesch-de-inspiratione-sacrae-scripturae": {
+  "blurb": "A monograph of some six hundred pages on the inspiration of Scripture: what inspiration is, how far it reaches, and what follows from it for the inerrancy of the sacred books. It was printed in 1906, between Leo XIII's Providentissimus Deus and the decrees of the Biblical Commission, at the moment when Catholic scholarship was under most pressure from historical criticism and from proposals to confine inerrancy to matters of faith and morals.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "owen-animadversions-on-treatise-intituled-fiat-lux": {
+  "blurb": "Owen's reply to Fiat Lux, a widely read and deliberately irenic tract by the Franciscan John Vincent Canes, which argued from the multiplying divisions of English Protestantism that peace could be had only under Rome. Owen answers at length and anonymously, denying both that Protestant differences are what Canes takes them for and that Rome supplies the unity she advertises. Canes replied, and Owen answered him again two years later. Printed 1662.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "owen-declaration-faith-order-owned-practiced-congregational": {
+  "blurb": "The Savoy Declaration, the confession of faith and platform of order agreed by the Congregational churches of England at their meeting in the Savoy and printed in 1659. Owen was among its principal framers, with Thomas Goodwin, Philip Nye and William Bridge. The doctrinal chapters follow the Westminster Confession closely, with the alterations falling mainly on the church, and the appended platform states the Congregational account of a gathered church, its officers and its liberties.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "owen-divine-originall-authority-self-evidencing-light": {
+  "blurb": "Owen's argument that Scripture carries its own evidence of divinity, and does not hold its authority on the testimony of the church or on proofs supplied from outside itself. Printed in 1659 with his defence of the purity and integrity of the Hebrew and Greek texts, written against the apparatus of variant readings in Brian Walton's London Polyglot, which Owen judged to unsettle the ground of faith. Walton answered him sharply.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "owen-eben-ezer-memoriall-deliverance-essex-county": {
+  "blurb": "A memorial of the deliverance of Essex, its county and its committee, framed as an exposition of the first ten verses of a text that the title, as this catalogue carries it, leaves incomplete. Printed 1648. Owen was then minister at Coggeshall in Essex, and the fighting of the second civil war in that county ended with the surrender of Colchester in August of that year. The method throughout is providential reading of recent events.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "owen-enquiry-into-original-nature-institution-power": {
+  "blurb": "Owen's late ecclesiology: where a Christian church comes from, what constitutes it, what power it holds and by whose institution, how its officers are set and how its congregations hold communion with one another. This is the first part only, printed in 1681 near the end of his life, and it argues the Congregational case at the length of a treatise against the parochial establishment on one side and the presbyterian classis on the other.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "owen-exercitations-concerning-name-original-nature-use": {
+  "blurb": "Owen on the Sabbath: the name, origin, nature, use and continuance of a day of sacred rest, and how far the fourth commandment binds Christians, as a moral precept, as a positive institution, or not at all. The exercitation is the form he used alongside his work on Hebrews, a long free-standing dissertation on a question raised by the text. Printed separately in 1671.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "owen-review-annotations-hugo-grotius-reference-unto": {
+  "blurb": "A short review of Grotius's Annotations on the Bible with respect to the deity and the satisfaction of Christ. Grotius had written against Socinus on the satisfaction, but many Reformed divines read his later exegesis as conceding in the notes what he had defended in the treatise, and Owen presses that charge here. Twenty-five pages, printed in 1656 with his further writing on the death of Christ.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "owen-temptation-nature-povver-it-danger-entring": {
+  "blurb": "An exposition of Christ's warning to watch and pray lest ye enter into temptation: what temptation is, where it gets its power, what it is to enter into it as distinct from merely being tempted, and the means of prevention. It belongs with Owen's treatises on mortification and on indwelling sin, and it is the plainest of the three, written for a Christian examining his own case rather than for controversy. Printed 1658.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "owen-vision-vnchangeable-free-mercy-sending-means": {
+  "blurb": "A sermon preached before Parliament in 1646 on the sending of the means of grace to sinners who have no claim on them, God's freedom in the disposal of the gospel being the whole of its argument. It was printed with a short appendix on church government, toleration and the petitions then being pressed about both, from the years in which Owen was moving toward the Congregational way.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-a-letter-of-many-ministers-in-old-england-re": {
+  "blurb": "A letter from ministers in England putting nine positions of church order to their brethren in New England and asking for their judgement, printed in 1643 with the answers returned. The questions concern the gathering of churches, the power that rests in a congregation, and who may be admitted to the sacraments. The exchange belongs to the argument between the presbyterian and congregational ways that was running while the Westminster Assembly sat.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-a-svpport-for-the-sinking-heart-in-times-of": {
+  "blurb": "A sermon preached in London and printed in 1642, to uphold hope in a time of public distress. Its business is the ordinary pastoral one of keeping a congregation from despair when the news is bad, and it was preached in the year the kingdom went to war with itself.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-a-true-relation-of-the-most-chiefe-occurrenc": {
+  "blurb": "Not a sermon but a piece of war reporting, fifteen pages, relating the chief occurrences at and since the late battle at Newbury. Ashe served as chaplain to the Earl of Manchester and sent accounts of the army back to London, where they were printed as news. Printed 1644.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-christ-the-riches-of-the-gospel-and-the-hope": {
+  "blurb": "A funeral sermon printed in 1654, on Christ as the wealth of the gospel and the ground of a Christian's hope. The form is the usual one for the occasion, a doctrine raised out of the text and applied to the hearers, with a character of the deceased at the close.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-good-courage-discovered-and-encouraged-in-a": {
+  "blurb": "A sermon preached before the commanders of the military company and printed in 1642, on courage and on what can properly warrant it. Preaching to the officers of the London trained bands was a standing occasion in the city calendar, and in that year it had stopped being ceremonial.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-gray-hayres-crowned-with-grace-a-sermon-prea": {
+  "blurb": "A funeral sermon preached at Redriff on the first of August 1654, its title echoing the proverb that the hoary head is a crown of glory when it is found in the way of righteousness. Old age honoured by grace is the subject, and the sermon runs to eighty-five pages in print.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-living-loves-betwixt-christ-and-dying-christ": {
+  "blurb": "A funeral sermon preached at St Mary Magdalene, Bermondsey, in Southwark, on the love that holds between Christ and his people at their death. Ninety-two pages, printed 1654, one of several funeral sermons Ashe put into print in that year.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-reall-thankfulnesse-or-a-sermon-preached-in": {
+  "blurb": "A sermon preached in Paul's church, London, on the second of November 1645, on the day appointed for public thanksgiving. The point the title presses is that thankfulness which stops at words is not real. Days of thanksgiving were set by Parliament for particular deliverances, and the sermons preached on them went into print as a matter of course.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "ashe-religious-covenanting-directed-and-covenant": {
+  "blurb": "A sermon on the swearing of covenants and the keeping of them, printed in 1646, three years after the Solemn League and Covenant had been imposed on England and while the question of what exactly it bound men to was still open. The preacher's concern is that a covenant publicly taken is not discharged by the taking.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-a-sermon-preached-at-the-funerals-of-the-rev": {
+  "blurb": "A funeral sermon for a fellow minister, printed in 1658. The name of the deceased is cut off in the title as this catalogue carries it. Sermons at the burial of ministers were the occasion on which the surviving clergy took stock of their own work, and the character appended to them is often the fullest account of the man that survives.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-a-sermon-tending-to-set-forth-the-right-vse": {
+  "blurb": "A fast sermon preached before Parliament and printed in 1644, on what is to be made of the defeats that befall one's own armies. Providential reading of the war cut both ways, and preachers had the harder task in weeks like these, explaining reverses to men who took their cause to be God's. Newcomen was among the ministers Parliament called on regularly.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-irenicum-or-an-essay-towards-a-brotherly-pea": {
+  "blurb": "An essay toward peace and union between those of the congregational and the presbyterian way, printed in 1659, when the collapse of the Protectorate had made the divisions among the godly a political danger as well as a scandal. Newcomen was a Presbyterian, a member of the Westminster Assembly, and one of the five authors who wrote as Smectymnuus.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-jerusalems-vvatch-men-the-lords-remembrancer": {
+  "blurb": "A fast sermon preached at the Abbey at Westminster before the House of Commons and printed in 1643. The watchmen of Jerusalem who are the Lord's remembrancers, and who are charged not to keep silence, stand for the preaching ministry pressing God for the deliverance of the nation and pressing the nation about its sins. Newcomen preached before Parliament often in these years.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-the-all-seeing-vnseen-eye-of-god-discovered": {
+  "blurb": "A sermon preached before the House of Commons and printed in 1647, on the God who sees everything and is himself unseen, and on what it means to conduct public business under that eye. The application to men holding power in a season of political bargaining is the point of the choice of subject.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-the-best-acquaintance-and-highest-honour-of": {
+  "blurb": "A discourse on acquaintance with God, printed in 1668, after Newcomen had been put out of his living by the Act of Uniformity and had gone to the Netherlands. This is practical divinity rather than controversy: what it is to know God as one knows a friend, and what such knowledge does to a life.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-the-craft-and-cruelty-of-the-churches-advers": {
+  "blurb": "A sermon preached at St Margaret's Westminster and printed in 1643, on the cunning and the violence by which the enemies of the church work against her. St Margaret's was the parish church of the House of Commons, and the sermons preached there on the appointed fast days were ordered into print by the House itself.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-the-duty-of-such-as-would-walke-worthy-of-th": {
+  "blurb": "A sermon arguing that those who would walk worthy of the gospel must labour for union, and neither divide nor settle for toleration, which the title treats as a third thing no better than the second. Printed in 1646, in the middle of the argument over whether the new church settlement would grant liberty to the gathered congregations. Newcomen takes the Presbyterian side of it.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "newcomen-ultimum-vale-or-the-last-farewell-of-a-minis": {
+  "blurb": "A minister's last farewell to a beloved people, printed in 1663. The farewell sermons of the ministers put out by the Act of Uniformity in August 1662 were gathered and printed in numbers, and dissenting families kept them long afterward as the record of what the ejection had cost. Newcomen had served at Dedham in Essex, and he left England not long after.",
+  "confidence": "medium",
   "source": "mere-orthodoxy"
  },
  "palmer-a-full-ansvver-to-a-printed-paper-entituled": {
@@ -6961,6 +7526,11 @@
  },
  "twisse-treatise-mr-cottons-clearing-certaine-doubts": {
   "blurb": "John Cotton's paper clearing certain doubts about predestination, printed together with Twisse's examination of it. The two men agreed on the substance of the Reformed doctrine and differed over how it should be stated and applied, particularly on the place of preparation and on what may be said to the unconverted. The volume prints both sides, and lets an English supralapsarian be seen reading a New England divine on their common ground.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "hill-natvrall-and-artificiall-conclvsions": {
+  "blurb": "Despite its place in a divinity collection, this is a book of experiments and curiosities, compiled first out of Latin authors and then englished: household chemistry, optical and mechanical tricks, sleights, receipts and observations of nature. It circulated for decades in cheap reprints as popular entertainment and instruction rather than as theology.",
   "confidence": "medium",
   "source": "mere-orthodoxy"
  }

@@ -1550,5 +1550,48 @@
   "bio": "A clergyman of the Church of Ireland who raised a regiment and became joint governor of Londonderry through the siege of 1689, and a different man from George Walker the London Puritan controversialist, who died in 1651. His True Account of the Siege of London-Derry appeared within months and was at once disputed by John Mackenzie, which produced the Vindication also in this collection. He was killed at the Boyne in July 1690.",
   "confidence": "high",
   "source": "mere-orthodoxy"
+ },
+ "John Bond (pamphleteer)": {
+  "tradition": "English, parliamentary",
+  "bio": "A writer of occasional news pamphlets and verse in London in the early 1640s, and not the John Bond who preached at Exeter and sat in the Westminster Assembly, under whose name these pieces are catalogued. The five works here welcome the King home, celebrate the Parliament's return, report the fall of the old common council, and include a recantation written by a man who had stood in the pillory. Nothing further about him can be established from the catalogue.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "William Ames (Quaker)": {
+  "dates": "d. 1662",
+  "tradition": "Quaker (Religious Society of Friends)",
+  "affiliation": "Travelling Friend in the Low Countries and the Palatinate",
+  "bio": "A different man from William Ames the Puritan theologian of the Medulla Theologiae, who died in 1633 and under whose name these tracts have been catalogued. This Ames was among the first Friends to carry Quakerism to the Continent, working in Amsterdam and the Palatinate and disputing with the Collegiants and with Mennonites. The Light upon the Candlestick belongs to that Dutch spiritualist exchange and has also been ascribed to Pieter Balling; the Declaration of the Witness of God is a convincement narrative of the kind early Friends wrote.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "Thomas Hyll": {
+  "dates": "c. 1528–c. 1574",
+  "tradition": "Elizabethan letters",
+  "affiliation": "London",
+  "bio": "An Elizabethan compiler and translator of popular science, and a different man from Thomas Hill the Westminster divine under whose name this work is catalogued. He wrote and englished cheap practical handbooks on gardening, astrology, physiognomy, dreams and household conjuring tricks, of which the Naturall and Artificiall Conclusions is one. He is in a theological library by a collision of names.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "Anonymous newsbook": {
+  "kind": "body",
+  "tradition": "English, parliamentary",
+  "bio": "Not an author. Two pieces of civil war ephemera, a naval report from the coast of Dunkirk and a declaration concerning Colonel John Poyer, catalogued under divines who cannot have written them: the first is dated thirteen years after John Preston died. Newsbooks of this kind were printed anonymously or under a bookseller's name, and no author can be recovered from the catalogue.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "Henry Wilkinson, Sr.": {
+  "dates": "1566–1647",
+  "tradition": "Church of England; Puritan",
+  "affiliation": "Rector of Waddesdon, Buckinghamshire",
+  "bio": "The elder of the two Henry Wilkinsons, and father of the Magdalen Hall principal under whose name the Debt Book has been catalogued. A Puritan rector in Buckinghamshire for some fifty years, he published little; the Debt Book of 1625 is an exposition of Romans 13:8 on the duty of love as a debt owed and never discharged.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "Captain Henry Wilkinson": {
+  "tradition": "English",
+  "bio": "Not a divine. The single item under this name is a printed information, that is a sworn deposition, laid during the Popish Plot years and concerning what had passed between the deponent and others. It is catalogued with the sermons of Henry Wilkinson the Oxford divine on a shared name.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
  }
 }

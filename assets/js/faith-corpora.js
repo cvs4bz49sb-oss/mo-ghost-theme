@@ -238,6 +238,41 @@
     "walker-a-vindication-of-the-true-account-of-the-sie": "George Walker, Governor of Derry",
     "walker-the-christian-champion-being-the-substance-o": "George Walker, Governor of Derry",
     "walker-the-substance-of-a-sermon-being-an-incourage": "George Walker, Governor of Derry",
+    // Five of the twelve works under John Bond are news pamphlets and
+    // verse rather than sermons, one of them written by a man who had
+    // stood in the pillory. They are not by the Exeter preacher who
+    // sat in the Westminster Assembly.
+    "bond-englands-reioycing-for-the-parliaments-retvr": "John Bond (pamphleteer)",
+    "bond-king-charles-his-welcome-home-or-a-congratvl": "John Bond (pamphleteer)",
+    "bond-the-parliaments-and-londons-preparation-for": "John Bond (pamphleteer)",
+    "bond-the-downfal-of-old-common-counsel-men-being": "John Bond (pamphleteer)",
+    "bond-the-poets-recantation-having-suffered-in-the": "John Bond (pamphleteer)",
+    // William Ames the Puritan theologian of the Medulla died in 1633
+    // and did not write Quaker tracts. These four are by William Ames
+    // the Quaker, who died in 1662: a convincement narrative, an
+    // address to the Friends of truth, and two pieces of Collegiant
+    // and Quaker spiritualism. The Bellarminus Enervatus, the Medulla
+    // and the posthumous exposition of Peter stay with the theologian.
+    "ames-declaration-witness-god-manifested-me-from": "William Ames (Quaker)",
+    "ames-good-counsell-advice-all-friends-truth": "William Ames (Quaker)",
+    "ames-light-candlestick-serving-observation-principal-things": "William Ames (Quaker)",
+    "ames-sound-out-sion-from-holy-mountain": "William Ames (Quaker)",
+    // Thomas Godwin's second schoolbook, a handbook of Hebrew
+    // antiquities, filed with the Independent divine like the first.
+    "goodwin-moses-aaron-ciuil-ecclesiastical-rites-vsed": "Thomas Godwin",
+    // A naval newsbook of 1641 under John Preston, who died in 1628.
+    "preston-great-sea-fight-which-was-fought": "Anonymous newsbook",
+    // Thomas Hyll the Elizabethan compiler of popular science, not
+    // Thomas Hill the Westminster divine.
+    "hill-natvrall-and-artificiall-conclvsions-compile": "Thomas Hyll",
+    // Civil war ephemera about Colonel John Poyer, not divinity.
+    "hill-the-declaration-and-resolution-of-col-john-p": "Anonymous newsbook",
+    // Henry Wilkinson the younger was born in 1610. The debt book of
+    // 1625 is his father's generation, and the 1681 information is a
+    // deposition from the Popish Plot years by a Captain Wilkinson,
+    // not divinity at all.
+    "wilkinson-jr-the-debt-book-or-a-treatise-vpon-romans-13-v": "Henry Wilkinson, Sr.",
+    "wilkinson-jr-the-information-of-capt-hen-wilkinson-of-wha": "Captain Henry Wilkinson",
     // The Lyons editors' preface to Albert's Opera, not Albert.
     "albertus-magnus-praefatio-editorum-lugdunensium-benevolo-lectori": "The Lyons editors of Albert's Opera",
   };

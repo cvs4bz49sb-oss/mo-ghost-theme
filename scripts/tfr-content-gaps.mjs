@@ -140,6 +140,40 @@ spans.forEach((x) => {
   console.log(`        ${last.y}  ${last.t.slice(0, 62)}`);
 });
 
+// ── Printed long after the author died ───────────────────────────
+//
+// A posthumous edition is normal and a work by a different man with
+// the same name is not, and the two look identical from here, so this
+// lists candidates rather than pronouncing. It found the Jeremy Taylor
+// pamphlet of 1673, six years after he died, and a 1689 letter under
+// John Lightfoot, who died in 1675.
+const deathYear = (e) => {
+  const s2 = typeof e === "string" ? "" : String((e && e.dates) || "");
+  const m = s2.match(/(?:–|-|d\.\s*|died\s*)\s*(1[45678]\d{2}|1[89]\d{2})\s*$/);
+  return m ? parseInt(m[1], 10) : 0;
+};
+let ourAuthors = {};
+try {
+  ourAuthors = JSON.parse(await readFile(
+    path.join(ROOT, "assets", "data", "faith-received", "tfr-authors.json"), "utf-8"));
+} catch { /* not written yet */ }
+const died = {};
+Object.entries({ ...ourAuthors, ...authors }).forEach(([n, e]) => {
+  const y = deathYear(e);
+  if (y) died[n] = y;
+});
+const posthumous = [];
+works.forEach((w) => {
+  const y = parseInt((String(w.volume || "").match(/1[45678]\d{2}|1[89]\d{2}/) || [])[0], 10);
+  const d = died[w.author];
+  if (y && d && y - d > 25) posthumous.push({ ...w, printed: y, died: d, gap: y - d });
+});
+posthumous.sort((a, b) => b.gap - a.gap);
+console.log(`\n  ${posthumous.length} works printed more than 25 years after the author died,`);
+console.log("  which is either a posthumous edition or a different man:");
+posthumous.slice(0, 20).forEach((w) =>
+  console.log(`    ${String(w.gap).padStart(3)}y  ${String(w.author).slice(0, 22).padEnd(24)} d.${w.died} printed ${w.printed}  ${String(w.title).slice(0, 44)}`));
+
 if (WRITE) {
   await mkdir(OUT, { recursive: true });
   await writeFile(path.join(OUT, "_gap-bios.json"),
