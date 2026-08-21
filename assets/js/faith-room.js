@@ -32,6 +32,7 @@
 
   let works = [];
   let tradition = params.get("tradition") || "";
+  let denomination = params.get("denomination") || "";
   let century = parseInt(params.get("century"), 10) || 0;
   // Only meaningful on the all-works page, where more than one
   // collection is in the room at once.
@@ -144,13 +145,43 @@
     return String(w.tradition || "").trim();
   }
 
+  // The tradition a work files under at the top level. A value with a
+  // declared parent shows under that parent, so "Reformed" sits inside
+  // "Protestant" rather than beside "Roman Catholic" as a peer. A value
+  // with no parent is its own top level and does not move.
+  function topTrad(w) {
+    const t = trad(w);
+    if (!t) return "";
+    if (w._tp === undefined) {
+      w._tp = (window.MOCorpora && window.MOCorpora.traditionParent
+        ? window.MOCorpora.traditionParent(t, w.corpus) : "") || "";
+    }
+    return w._tp || t;
+  }
+
+  // Children of the selected parent that are actually present, so a
+  // collection only ever offers denominations it holds.
+  function denomsUnder(list, parent) {
+    const seen = new Map();
+    list.forEach((w) => {
+      if (topTrad(w) !== parent) return;
+      const t = trad(w);
+      // A work sitting on the parent itself (a pan-Protestant union
+      // document) has no denomination and adds no option.
+      if (!t || t === parent) return;
+      seen.set(t, (seen.get(t) || 0) + 1);
+    });
+    return [...seen.entries()].sort((a, b) => b[1] - a[1]);
+  }
+
   // Derived once per work on load, not per keystroke.
   function cent(w) {
     return w._c === undefined ? (w._c = window.MOCentury ? window.MOCentury.of(w) : 0) : w._c;
   }
 
   function matches(w) {
-    if (tradition && trad(w) !== tradition) return false;
+    if (tradition && topTrad(w) !== tradition) return false;
+    if (denomination && trad(w) !== denomination) return false;
     if (century && cent(w) !== century) return false;
     if (collection && w.corpus !== collection) return false;
     if (!filter) return true;
@@ -165,6 +196,7 @@
     q.set("collection", collectionId);
     if (filter) q.set("q", filter);
     if (tradition) q.set("tradition", tradition);
+    if (denomination) q.set("denomination", denomination);
     if (century) q.set("century", String(century));
     if (collection) q.set("in", collection);
     if (letter) q.set("letter", letter);
@@ -234,12 +266,18 @@
     });
     const cents = [...cs.entries()].sort((a, b) => a[0] - b[0]);
 
+    // Counted at the top level, so "Protestant" reports the whole of
+    // its denominations rather than only the works sitting on it.
     const tCounts = new Map();
     works.forEach((w) => {
-      const t = trad(w);
+      const t = topTrad(w);
       if (t) tCounts.set(t, (tCounts.get(t) || 0) + 1);
     });
     const trads = [...tCounts.entries()].sort((a, b) => b[1] - a[1]);
+
+    // Denominations are offered only once their parent is chosen, and
+    // only where that parent actually has children here.
+    const denoms = tradition ? denomsUnder(works, tradition) : [];
 
     function select(name, label, all, options, current) {
       if (options.length < 2) return "";
@@ -261,6 +299,11 @@
         cents.map(([c, n]) => [c, cLabel(c), n]), century || ""),
       select("trad", "Tradition", "All traditions",
         trads.map(([t, n]) => [t, t, n]), tradition),
+      // Always in the shell, shown only when it has something to offer.
+      // Built here rather than injected on change, because the shell is
+      // written once and rewriting it mid-gesture is what tore the
+      // dropdowns out from under the reader before.
+      `<label class="faith-room-select" data-room-denom-wrap hidden><span>Denomination</span><select data-room-denom></select></label>`,
     ].filter(Boolean).join("");
     const filters = controls
       ? `<div class="faith-room-filters">${controls}${undated ? `<p class="faith-room-undated">${undated.toLocaleString()} works carry no date</p>` : ""}</div>`
@@ -293,8 +336,24 @@
     root.querySelector("[data-room-list]").innerHTML = body;
     root.querySelector("[data-room-pager]").innerHTML = pager(page, pages);
 
+    // The denomination list follows the chosen tradition, so its options
+    // are rewritten when that choice changes. Guarded on the option set
+    // actually differing: this element must not be touched while the
+    // reader has it open, and the only thing that changes it is a
+    // different select.
+    const dWrap = root.querySelector("[data-room-denom-wrap]");
+    const dSel = root.querySelector("[data-room-denom]");
+    if (dWrap && dSel) {
+      const dOpts = denoms.map(([t, n]) =>
+        `<option value="${escapeHtml(t)}">${escapeHtml(t)} (${n.toLocaleString()})</option>`).join("");
+      const want = denoms.length ? `<option value="">All denominations</option>${dOpts}` : "";
+      if (dSel.innerHTML !== want) dSel.innerHTML = want;
+      dWrap.hidden = !denoms.length;
+    }
+
     // Keep the selects in step with the state without replacing them.
-    [["in", collection], ["cent", century || ""], ["trad", tradition]].forEach(([k, v]) => {
+    [["in", collection], ["cent", century || ""], ["trad", tradition],
+      ["denom", denomination]].forEach(([k, v]) => {
       const el = root.querySelector(`[data-room-${k}]`);
       if (el && el.value !== String(v)) el.value = String(v);
     });
@@ -338,7 +397,10 @@
     };
     onPick("in", (v) => { collection = v; });
     onPick("cent", (v) => { century = parseInt(v, 10) || 0; });
-    onPick("trad", (v) => { tradition = v; });
+    // Changing the tradition drops any denomination under the old one,
+    // which would otherwise filter to nothing.
+    onPick("trad", (v) => { tradition = v; denomination = ""; });
+    onPick("denom", (v) => { denomination = v; });
   }
 
   function wireList() {

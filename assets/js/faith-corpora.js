@@ -110,17 +110,114 @@
     [/bohemian confession|unity of the brethren|unitas fratrum|hussite/i, "Bohemian Brethren"],
     [/westminster|scots confession|national covenant|solemn league/i, "Presbyterian"],
     [/savoy declaration|cambridge platform/i, "Congregational"],
-    [/the london confession \(16|midlands confession|somerset confession|standard confession|orthodox creed|second london/i, "Baptist"],
+    // `\bbaptist` and not `baptist`, so "Anabaptist" is not swept in
+    // here: there is no word boundary inside it, and Anabaptist
+    // documents are caught by their own rule below.
+    [/\bbaptist|the london confession \(16|midlands confession|somerset confession|standard confession|orthodox creed|second london/i, "Baptist"],
     [/schleitheim|dordrecht confession|mennonite/i, "Anabaptist"],
   ];
 
-  function confessionTradition(title, given) {
+  // ── Documents the source mislabels, corrected by slug ────────────
+  //
+  // The confessions catalogue is two print sources merged. The Catholic
+  // half is Denzinger, an avowedly Roman sourcebook, so every document
+  // in it arrived tagged "Roman Catholic" — including the ecumenical
+  // creeds and the first six ecumenical councils. Filing Nicaea and
+  // Chalcedon under Rome is wrong, and on this site conspicuously so.
+  //
+  // Only what East and West both received moves. Papal decretals and
+  // Western regional councils stay Roman Catholic, because that is what
+  // they are: Arles, Carthage, Orange, Braga, Toledo and the Lateran
+  // are local Western synods, however much Protestants value Orange II.
+  const CONFESSION_WHOLE_CHURCH = new Set([
+    "cf-001-apostolic-and-ancient-creeds",
+    "lc-001-three-ecumenical-creeds",
+    "cf-006-creed-quicumque",
+    "cf-013-council-of-nicea-i-325",
+    "cf-015-council-of-constantinople-i-381",
+    "cf-023-council-of-ephesus-431",
+    "cf-025-council-of-chalcedon-451",
+    "cf-033-council-of-constantinople-ii-553",
+    "cf-043-council-of-constantinople-iii-680-681",
+  ]);
+
+  // The other half is Dennison's Reformed Confessions, so everything in
+  // it arrived tagged "Reformed". Two of its documents are not: they are
+  // pan-Protestant union statements agreed between Lutherans, Reformed
+  // and the Bohemian Brethren, and Dennison's own introductions say so.
+  // They file at Protestant, under no denomination, which is what a
+  // union document should do.
+  const CONFESSION_PAN_PROTESTANT = new Set([
+    "rc-073-sandomierz-consensus-1570",
+    "rc-082-synod-of-piotrkow-1578",
+  ]);
+
+  // Four English separatist documents that Dennison's own introductions
+  // call independent or congregational outright, and which the title
+  // patterns miss because none of them says so in its name. The Leiden
+  // church is the Pilgrims'; the 1652 and 1654 confessions come from
+  // John Owen's committee of "Independents/Congregationalists".
+  const CONFESSION_CONGREGATIONAL = new Set([
+    "rc-090-second-confession-of-the-london-amsterdam-church-1596",
+    "rc-104-seven-articles-of-the-church-of-leiden-1617",
+    "rc-118-principles-of-faith-1652",
+    "rc-119-new-confession-of-faith-1654",
+  ]);
+
+  function confessionTradition(title, given, slug) {
+    const s = String(slug || "");
+    if (CONFESSION_WHOLE_CHURCH.has(s)) return "The Whole Church";
+    if (CONFESSION_PAN_PROTESTANT.has(s)) return "Protestant";
+    if (CONFESSION_CONGREGATIONAL.has(s)) return "Congregational";
     const t = String(title || "");
     for (const [pattern, tradition] of CONFESSION_TRADITION) {
       if (pattern.test(t)) return tradition;
     }
     return given || "";
   }
+
+  // ── Tradition trees ──────────────────────────────────────────────
+  //
+  // A collection's traditions are not all the same kind of thing. The
+  // confessions mix a communion, a denomination and a pre-Reformation
+  // body as siblings; the Latin Library mixes those with a period
+  // ("Medieval"), a nationality ("English Divines") and a genre
+  // ("Humanism and Law"). Rather than relabel two thousand rows we do
+  // not own, a collection may declare which of its values are children
+  // of which parent. Anything not named here stays exactly where it is,
+  // as a top-level value of its own, so the taxonomy can be corrected a
+  // piece at a time without moving anything undecided.
+  //
+  // A work may also sit on a parent directly: a pan-Protestant union
+  // document is Protestant and no denomination.
+  const TRADITION_PARENT = {
+    confessions: {
+      Lutheran: "Protestant",
+      Reformed: "Protestant",
+      Anglican: "Protestant",
+      Presbyterian: "Protestant",
+      Baptist: "Protestant",
+      Congregational: "Protestant",
+      Anabaptist: "Protestant",
+    },
+    tfr: {
+      Reformed: "Protestant",
+      Lutheran: "Protestant",
+      // 756 works, and `party` splits 730 of them Puritan and 2
+      // Anglican. Until that second level is wired the whole shelf
+      // hangs here, which is still truer than standing it beside
+      // "Roman Catholic" as a peer.
+      "English Divines": "Protestant",
+    },
+    // Early English Books carries exactly two, both English Protestant,
+    // and both need a parent or the all-works page lists "Anglican"
+    // twice: once at the top from here and once under Protestant from
+    // the confessions.
+    eebo: {
+      Anglican: "Protestant",
+      Puritan: "Protestant",
+    },
+  };
 
   const CORPORA = [
     {
@@ -193,14 +290,16 @@
       modernize: true,
       reader: "shards",
       readable: true,
-      tradition: (c) => c.tradition || "",
+      // Same correction as `normalize`, so both paths agree on what a
+      // document's tradition is rather than one quietly undoing the other.
+      tradition: (c) => confessionTradition(c.title, c.tradition, c.slug),
       normalize: (c) => ({
         corpus: "confessions",
         id: c.slug,
         // The catalogue dates these outright. A creed with year 0 is
         // genuinely undated rather than dated to the year nought.
         date: c.year ? String(c.year) : "",
-        tradition: confessionTradition(c.title, c.tradition),
+        tradition: confessionTradition(c.title, c.tradition, c.slug),
         title: c.title || c.slug,
         author: "",
         eyebrow: [c.tradition, c.type].filter(Boolean).join(" · "),
@@ -728,7 +827,16 @@
           // one, and from the collection's own character where it does
           // not — Migne's volumes are the Latin Fathers whether or not
           // any field says so.
-          w.tradition = (c.tradition ? c.tradition(raw) : "") || "";
+          //
+          // The collection accessor is a **fallback**, not an override.
+          // It used to run unconditionally, which silently undid every
+          // correction `normalize` had made: the confessions' whole
+          // pattern table was dead code from the day it was written, so
+          // the Thirty-Nine Articles shipped as "Reformed" and Nicaea
+          // as "Roman Catholic". Only tfr and confessions set a
+          // tradition in normalize, and tfr's two paths are identical,
+          // so nothing else changes shape here.
+          if (!w.tradition && c.tradition) w.tradition = c.tradition(raw) || "";
           if (!w.tradition && byAuthor && w.author) {
             w.tradition = byAuthor.get(w.author) || "";
           }
@@ -748,6 +856,19 @@
     all: CORPORA,
     get: (id) => byId.get(id),
     load: loadCorpus,
+    // The parent of a tradition, or "" if it has none. Callers pass the
+    // corpus a work came from; the all-works page passes nothing and
+    // gets the union, which is safe because no value has two parents.
+    traditionParent(traditionName, corpusId) {
+      const name = String(traditionName || "");
+      if (!name) return "";
+      if (corpusId) return (TRADITION_PARENT[corpusId] || {})[name] || "";
+      for (const id of Object.keys(TRADITION_PARENT)) {
+        const hit = TRADITION_PARENT[id][name];
+        if (hit) return hit;
+      }
+      return "";
+    },
     // Absolute URL for a corpus-relative path, e.g. an index file.
     url(id, path) {
       const c = byId.get(id);
