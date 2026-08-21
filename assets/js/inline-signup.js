@@ -43,6 +43,7 @@
 (function () {
   const MAGIC_URL = "/members/api/send-magic-link/";
   const REGISTER_PATH = "/forum-register";
+  const CAPACITY_PATH = "/forum-capacity";
 
   /*
    * Query params that carry a bearer-ish secret and must never be
@@ -170,6 +171,11 @@
           });
       })
       .catch((err) => {
+        // The last seat went while this form sat open. Not a failure
+        // to retry, so it gets the closed notice rather than an error
+        // and a "Register on Zoom instead" link into a webinar that is
+        // just as full.
+        if (err && err.forumFull && showForumFull(root, true)) return;
         restore(root, submit, originalText, err);
         showRecovery(root);
       });
@@ -281,6 +287,14 @@
     }).then((res) => {
       return res.json().catch(() => null).then((data) => {
         if (!res.ok || !data || data.ok !== true) {
+          // Flagged rather than thrown as plain text: the caller
+          // renders a different state for a full room, and matching on
+          // the message would break the first time the copy changes.
+          if (data && data.full === true) {
+            const full = new Error(data.error || "This forum is full.");
+            full.forumFull = true;
+            throw full;
+          }
           throw new Error((data && data.error) || "We couldn't save your registration. Try again in a minute, or use the link below.");
         }
         return { zoom: data.zoom === true, joinUrl: safeZoomUrl(data.joinUrl) };
@@ -547,11 +561,106 @@
   // Keyed off the endpoint, not the webinar: the bot check gates every
   // registration now, including the record-only ones taken before Zoom
   // is connected.
-  // offsetParent skips a form inside a section events.js left hidden
-  // (the no-upcoming-events state). Turnstile does not render happily
-  // into display:none, and an unreachable form has nothing to protect.
   document.querySelectorAll("[data-inline-signup][data-register-endpoint]")
-    .forEach((el) => { if (el.offsetParent) ensureTurnstile(el); });
+    .forEach((el) => { gateRegistration(el); });
+
+  // -------------------------------------------------------------------
+  // Capacity gate (/forum/ only)
+  // -------------------------------------------------------------------
+
+  /**
+   * Decide whether a registration form is shown at all, then render
+   * the bot check into it if it is.
+   *
+   * A form inside [data-events-register] is /forum/'s, and /forum/
+   * ships it hidden: an event that has hit the worker's seat limit
+   * gets the closed notice instead. Everything else keeps the old
+   * behaviour, where offsetParent skips a form in a section events.js
+   * left hidden (the no-upcoming-events state); Turnstile does not
+   * render happily into display:none, and an unreachable form has
+   * nothing to protect.
+   *
+   * This runs from site.min.js, which loads after {{{body}}} and
+   * therefore after events.js has written data-event-slug onto the
+   * form. That ordering is why the slug can be read synchronously
+   * here; see the note above this sweep.
+   */
+  function gateRegistration(root) {
+    const block = root.closest("[data-events-register]");
+    if (!block) {
+      if (root.offsetParent) ensureTurnstile(root);
+      return;
+    }
+
+    const slug = (root.getAttribute("data-event-slug") || "").trim();
+    const endpoint = (root.getAttribute("data-register-endpoint") || "").trim();
+    // No slug means events.js put no event on the page, so the section
+    // this sits inside is hidden anyway. Nothing to show, and no event
+    // to ask about.
+    if (!slug) return;
+    // No endpoint configured: nothing can answer, so show the form.
+    // Submitting it will fail loudly, which beats a page that quietly
+    // stops taking registrations.
+    if (!endpoint) { openRegistration(block, root); return; }
+
+    fetch(endpoint.replace(/\/$/, "") + CAPACITY_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ eventSlug: slug }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.ok === true && data.full === true && showForumFull(root, false)) return;
+        openRegistration(block, root);
+      })
+      // Fail OPEN, always. A worker outage, a CORS refusal or a rate
+      // limit must never be the reason a forum with seats left stopped
+      // taking anyone. The hard cap is on the worker, so the cost of
+      // opening a form we shouldn't have is one clear refusal at
+      // submit; the cost of closing one we shouldn't have is silence.
+      .catch(() => { openRegistration(block, root); });
+  }
+
+  function openRegistration(block, root) {
+    block.hidden = false;
+    // After the unhide, never before: Turnstile will not render into a
+    // hidden subtree, and this is the only path that reveals the form.
+    ensureTurnstile(root);
+  }
+
+  /**
+   * Swap in the closed notice the template carries.
+   *
+   * Returns false when the page has no such notice, which is any
+   * registration form outside /forum/. The caller falls back to its
+   * ordinary path then, because a visitor left with neither a form nor
+   * an explanation is the one outcome worse than either.
+   *
+   * moveFocus is for the submit-time case: the button the visitor just
+   * pressed is about to be removed, and without this focus falls to
+   * <body> and a keyboard or screen-reader user is dropped at the top
+   * of the document with no idea why. On page load nobody has focus
+   * here yet, so moving it would be a hijack.
+   */
+  function showForumFull(root, moveFocus) {
+    const full = document.querySelector("[data-events-full]");
+    if (!full) return false;
+    full.hidden = false;
+    const block = root && root.closest("[data-events-register]");
+    if (block) {
+      // Tell Turnstile before orphaning its iframe and timers.
+      const widgetId = widgetByRoot.get(root);
+      if (widgetId && window.turnstile && window.turnstile.remove) {
+        try { window.turnstile.remove(widgetId); } catch (_) { /* already gone */ }
+      }
+      block.remove();
+    }
+    if (moveFocus) {
+      full.setAttribute("tabindex", "-1");
+      try { full.focus(); } catch (_) { /* pre-focus() browsers */ }
+    }
+    return true;
+  }
 
   function renderSuccess(root, email) {
     const success = document.createElement("div");

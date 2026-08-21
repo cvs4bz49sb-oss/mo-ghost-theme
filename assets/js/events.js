@@ -143,13 +143,14 @@
     // What follows only adds the Zoom half.
     const regForm = document.querySelector("[data-inline-signup][data-event-name-from]");
     if (regForm) {
+      // The slug is the handoff. inline-signup.js reads it out of this
+      // attribute when site.min.js loads (after this file, which runs
+      // inside the body), asks mo-forms whether the event still has
+      // seats, and only then unhides the form and renders the bot
+      // check into it. Rendering Turnstile from here would put the
+      // widget inside a block that is still hidden, which it does not
+      // survive, and would draw a form before we know it should exist.
       regForm.setAttribute("data-event-slug", e.slug);
-      // The bot check gates the registration endpoint, so it is needed
-      // on every event, not just the ones with a webinar. Rendered
-      // interaction-only, so most visitors never see anything.
-      if (window.MOInlineSignup && window.MOInlineSignup.ensureTurnstile) {
-        window.MOInlineSignup.ensureTurnstile(regForm);
-      }
     }
     if (regForm && e.zoom) {
       regForm.setAttribute("data-zoom-webinar", e.zoom.id);

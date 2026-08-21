@@ -42,6 +42,12 @@
 <script src="{{asset "js/faith-corpora.js"}}"></script>
 <script src="{{asset "js/faith-century.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
+{{!-- The generated index: every citation found by walking the text
+     itself, rather than the partial indexes the source sites ship.
+     Too large for the theme zip, so it lives in our own R2 bucket and
+     this points at it. Set the tag and the shipped source indexes stop
+     being used; unset it, or let the fetch fail, and they come back. --}}
+<meta name="tfr-scripture-index" content="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/index/scripture-books.json" />
 <script src="{{asset "js/faith-indexes.js"}}"></script>
 
 <script src="{{asset "js/faith-gate.js"}}"></script>

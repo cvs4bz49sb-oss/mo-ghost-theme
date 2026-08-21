@@ -6364,8 +6364,8 @@ mark.faith-find-hit.is-current {
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg);
+  border: 1px solid var(--color-card-border);
+  background: var(--color-white);
   color: var(--color-dark);
   font-size: 17px;
   line-height: 1;
@@ -6397,7 +6397,7 @@ mark.faith-find-hit.is-current {
 .faith-dock-toggle {
   background: var(--color-dark);
   border-color: var(--color-dark);
-  color: var(--color-bg);
+  color: var(--color-white);
 }
 .faith-dock-toggle:hover {
   background: var(--color-secondary);
@@ -6425,9 +6425,9 @@ mark.faith-find-hit.is-current {
   overscroll-behavior: contain;
   padding: 14px;
   margin: 0;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-card-border);
   border-radius: 10px;
-  background: var(--color-bg);
+  background: var(--color-white);
   box-shadow: 0 8px 28px rgba(45, 41, 39, 0.18);
 }
 .faith-dock .faith-reading-controls[hidden] { display: none; }
@@ -6530,9 +6530,9 @@ body.faith-toc-open .faith-dock { display: none; }
 .faith-room-scope select {
   min-height: 40px;
   padding: 0 30px 0 10px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-card-border);
   border-radius: 4px;
-  background-color: var(--color-bg);
+  background-color: var(--color-white);
   color: var(--color-dark);
   font-family: var(--font-body);
   font-size: 14px;
@@ -6541,6 +6541,11 @@ body.faith-toc-open .faith-dock { display: none; }
   /* Stacked, and the select takes the width rather than sitting in a
      column of its own two thirds empty. */
   .faith-room-searchbar { flex-direction: column; gap: 8px; }
+  /* flex-basis is the main axis, and the main axis is now vertical, so
+     the 260px that gave the box its width on a desktop row was giving
+     it a 260px HEIGHT on a phone: a search field a third of a screen
+     tall with the placeholder floating in the middle of it. */
+  .faith-room-searchbar .faith-room-filter { flex: 0 0 auto; }
   .faith-room-scope { width: 100%; }
   .faith-room-scope select { width: 100%; }
 }
@@ -6549,7 +6554,7 @@ body.faith-toc-open .faith-dock { display: none; }
 .fa-span-note {
   margin: 0 0 22px;
   padding-left: 14px;
-  border-left: 2px solid var(--color-border);
+  border-left: 2px solid var(--color-card-border);
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
@@ -6582,7 +6587,7 @@ body.faith-toc-open .faith-dock { display: none; }
 }
 .faith-pager-num:hover {
   color: var(--color-secondary);
-  border-color: var(--color-border);
+  border-color: var(--color-card-border);
 }
 .faith-pager-num:focus-visible {
   outline: 2px solid var(--color-secondary);
@@ -6590,8 +6595,8 @@ body.faith-toc-open .faith-dock { display: none; }
 }
 .faith-pager-num.is-current {
   color: var(--color-dark);
-  border-color: var(--color-border);
-  background: var(--color-bg);
+  border-color: var(--color-card-border);
+  background: var(--color-white);
   font-weight: 600;
   cursor: default;
 }
@@ -6633,7 +6638,7 @@ body.faith-toc-open .faith-dock { display: none; }
   min-width: 28px;
   min-height: 28px;
   padding: 3px 7px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-card-border);
   border-radius: 3px;
   font-family: var(--font-body);
   font-size: 13px;

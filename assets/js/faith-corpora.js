@@ -55,6 +55,9 @@
   "use strict";
 
   const BLOB = "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com";
+  // Our own R2, behind mo-tfr-library. The scripture index and our
+  // own editions are served from here.
+  const LIBRARY = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
 
   // Every corpus below is ported with permission — MO is working with
   // the author of these sites. Patrologia Latina's UI is passphrase-
@@ -497,6 +500,46 @@
         place: w.p || "",
         extent: 0,
         url: `/the-faith-received/reader/?c=eebo&w=${encodeURIComponent(w.i)}`,
+      }),
+    },
+    {
+      // ── Our own editions ──────────────────────────────────────
+      //
+      // A hundred works were built as hand-written pages, one template
+      // each, before there was a reader: the creeds, the catechisms and
+      // confessions, the Ante-Nicene fathers in English, and a shelf of
+      // classics. Several are in no other collection here — the
+      // Didache, the Chalcedonian Definition, the 1689, Rerum Novarum,
+      // the 1928 prayer book, and eight of the Ante-Nicene fathers are
+      // absent from the Latin library and from Migne alike.
+      //
+      // So they were converted rather than replaced:
+      // scripts/convert-native-works.mjs reads the templates and writes
+      // the same section/row shape Patrologia Latina uses, which means
+      // the reader serves them with no new code path and the templates
+      // can go. 69 works, 3,255,830 words, 3,362 sections.
+      id: "mo",
+      label: "English Editions",
+      short: "The creeds, the confessions, and the fathers in English",
+      base: LIBRARY,
+      catalogue: "/v1/mo/index.json",
+      pick: (d) => d.works || [],
+      lanes: [{ id: "en", label: "English" }],
+      modernize: true,
+      reader: "json-sections",
+      readable: true,
+      textBase: `${LIBRARY}/v1/mo/`,
+      textSuffix: ".json",
+      tradition: (w) => w.tradition || "",
+      normalize: (w) => ({
+        corpus: "mo",
+        id: String(w.slug),
+        title: w.title || w.slug,
+        author: (w.author || "").trim(),
+        tradition: w.tradition || "",
+        eyebrow: w.eyebrow || "",
+        extent: w.n_sections || 0,
+        url: `/the-faith-received/reader/?c=mo&w=${encodeURIComponent(w.slug)}`,
       }),
     },
     {

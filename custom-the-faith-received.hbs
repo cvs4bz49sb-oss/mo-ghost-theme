@@ -23,7 +23,10 @@
 <section class="lp-hero">
   <div class="container">
     <p class="hero-kicker"><span class="dot"></span> The Faith Received <span class="faith-beta">Beta</span></p>
-    <h1>The Christian tradition is<br />the <em>Christian&rsquo;s inheritance.</em></h1>
+    {{!-- The space after the <br /> is load-bearing: the break is
+          display:none below 700px, and without a space beside it the
+          two text nodes ran together as "isthe". --}}
+    <h1>The Christian tradition is<br /> the <em>Christian&rsquo;s inheritance.</em></h1>
     <p class="lp-hero-sub">The Faith Received gathers the creeds, confessions, and classic works of the Christian tradition into a single reading room, designed to be publicly available, practically usable, and beautifully readable.</p>
     <div class="lp-ctas">
       <a href="/the-faith-received/browse/" class="btn btn-primary btn-lg">Begin reading</a>
@@ -103,7 +106,7 @@
         </div>
         <div class="lp-for-col">
           <h3>Pastors</h3>
-          <p>Prepare your sermons and counsel your people with the resources of the whole Christian tradition.</p>
+          <p>Prepare your sermons and counsel your people with the width and depth of historical Christian thought.</p>
         </div>
         <div class="lp-for-col">
           <h3>Academics</h3>
