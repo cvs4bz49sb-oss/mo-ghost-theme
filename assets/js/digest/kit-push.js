@@ -297,9 +297,10 @@
     const defaultTemplateName = ((meta && meta.templates || []).find((t) => t.isDefault) || {}).name || "";
     const sendableAddresses = (meta && meta.sendingAddresses || []).filter((a) => a.confirmed);
     const defaultSendingAddress = (sendableAddresses.find((a) => a.isDefault) || {}).email || "";
+    const addressLabel = (a) => a.fromNames.length === 1 ? `${a.fromNames[0]} <${a.email}>` : `${a.email} (Kit picks: ${a.fromNames.join(" / ")})`;
     const selectedAddress = sendableAddresses.find((a) => a.email === (emailAddress || defaultSendingAddress));
     const fromNames = selectedAddress && selectedAddress.fromNames || [];
-    const fromNameNote = fromNames.length > 1 ? `Kit has ${fromNames.length} display names on this address (${fromNames.join(", ")}). Its API sets the address only, so Kit picks the name. Open the broadcast in Kit to check it before sending.` : fromNames.length === 1 ? `Goes out as "${fromNames[0]}".` : "";
+    const fromNameNote = fromNames.length > 1 ? `This address carries ${fromNames.length} display names in Kit (${fromNames.join(", ")}), and Kit's API sets the address only, so it picks which one sends. Give the address a single display name in Kit to make the name yours to choose.` : fromNames.length === 1 ? `Goes out as ${fromNames[0]} <${selectedAddress.email}>.` : "";
     const audienceSummary = audienceMode === "everyone" ? "every subscriber in Kit" : criteria.length ? `anyone ${audienceMode === "any" ? "in" : "in every one of"} ${criteria.map((c) => c.name).join(audienceMode === "any" ? " or " : " and ")}` : "nobody yet";
     const toggleCriterion = (type, id, name) => {
       setCriteria((prev) => {
@@ -629,7 +630,7 @@
             disabled: loadingMeta
           },
           /* @__PURE__ */ React.createElement("option", { value: "" }, loadingMeta ? "Loading\u2026" : defaultSendingAddress ? `Account default \u2014 ${defaultSendingAddress}` : "Account default"),
-          sendableAddresses.map((a) => /* @__PURE__ */ React.createElement("option", { key: a.email, value: a.email }, a.email, a.isDefault ? " (account default)" : ""))
+          sendableAddresses.map((a) => /* @__PURE__ */ React.createElement("option", { key: a.email, value: a.email }, addressLabel(a), a.isDefault ? " (account default)" : ""))
         ), /* @__PURE__ */ React.createElement("p", { style: { ...noteStyle, margin: "6px 0 0" } }, fromNameNote || "Only addresses confirmed in Kit are listed. Add one under Settings \u2192 Email in Kit, confirm it from that inbox, then Refresh.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-subject", style: labelStyle }, "Subject line"), /* @__PURE__ */ React.createElement("input", { id: "kit-subject", type: "text", value: subject, onChange: (e) => setSubject(e.target.value), style: inputStyle })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-preheader", style: labelStyle }, "Preheader (preview text)"), /* @__PURE__ */ React.createElement(
           "input",
           {

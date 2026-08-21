@@ -383,15 +383,24 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
   const sendableAddresses = ((meta && meta.sendingAddresses) || []).filter((a) => a.confirmed);
   const defaultSendingAddress = (sendableAddresses.find((a) => a.isDefault) || {}).email || '';
   // Kit stores the display name against the address, and its broadcast API
-  // takes no from-name field. When an address carries more than one name
-  // there is no way to say from here which one Kit will use, and guessing
-  // in silence is how an email goes out signed by the wrong person.
+  // takes no from-name field of any kind: an RFC "Name <addr>" string is
+  // rejected outright, a from_name alongside the address is ignored, and
+  // there are no sending-address ids to reference instead. So the name
+  // follows the address, and picking the name means picking an address
+  // that carries exactly one. An address with several is offered but named
+  // honestly — guessing in silence is how an email goes out signed by the
+  // wrong person.
+  const addressLabel = (a) => (
+    a.fromNames.length === 1
+      ? `${a.fromNames[0]} <${a.email}>`
+      : `${a.email} (Kit picks: ${a.fromNames.join(' / ')})`
+  );
   const selectedAddress = sendableAddresses.find((a) => a.email === (emailAddress || defaultSendingAddress));
   const fromNames = (selectedAddress && selectedAddress.fromNames) || [];
   const fromNameNote = fromNames.length > 1
-    ? `Kit has ${fromNames.length} display names on this address (${fromNames.join(', ')}). Its API sets the address only, so Kit picks the name. Open the broadcast in Kit to check it before sending.`
+    ? `This address carries ${fromNames.length} display names in Kit (${fromNames.join(', ')}), and Kit's API sets the address only, so it picks which one sends. Give the address a single display name in Kit to make the name yours to choose.`
     : fromNames.length === 1
-      ? `Goes out as "${fromNames[0]}".`
+      ? `Goes out as ${fromNames[0]} <${selectedAddress.email}>.`
       : '';
 
   const audienceSummary = audienceMode === 'everyone'
@@ -789,7 +798,7 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
                 </option>
                 {sendableAddresses.map((a) => (
                   <option key={a.email} value={a.email}>
-                    {a.email}{a.isDefault ? ' (account default)' : ''}
+                    {addressLabel(a)}{a.isDefault ? ' (account default)' : ''}
                   </option>
                 ))}
               </select>
