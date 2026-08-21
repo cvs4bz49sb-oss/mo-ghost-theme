@@ -97,6 +97,8 @@
   //
   // Both fall back to the raw string rather than to nothing, so a name
   // that is only a parenthetical still sorts somewhere.
+  const PARTICLE = /^(?:le|la|les|du|de|del|della|delle|di|da|dos|van|von|der|den|ten|ter)$/i;
+
   function surname(name) {
     // Square brackets around a name are the cataloguer saying the
     // attribution is conjectural, not part of it: "[Brothyel,
@@ -113,6 +115,20 @@
     const amp = n.split(/\s+(?:&|and)\s+/i);
     if (amp.length > 1 && amp[0].trim().split(/\s+/).length > 1) n = amp[0].trim();
     const parts = n.split(/\s+/);
+    // A capitalised particle opens the surname and is part of it, so
+    // "Louis Le Blanc de Beaulieu" files at Le Blanc rather than at
+    // Beaulieu. Jake went looking for Louis Le Blanc under L and found
+    // nothing, because the last word of his name is a place.
+    //
+    // The particle must be followed by a capitalised word, or EEBO's
+    // author field, which sometimes holds a Latin title, files
+    // "Plutarch. De capienda ex inimicis utilitate" under D.
+    for (let i = 1; i < parts.length - 1; i++) {
+      if (PARTICLE.test(parts[i]) && /^[A-ZÀ-Þ]/.test(parts[i])
+        && /^[A-ZÀ-Þ]/.test(parts[i + 1])) {
+        return parts.slice(i).join(" ").toLowerCase();
+      }
+    }
     return parts[parts.length - 1].toLowerCase();
   }
 
@@ -196,10 +212,25 @@
     if (century && cent(w) !== century) return false;
     if (collection && w.corpus !== collection) return false;
     if (!filter) return true;
-    const q = filter.toLowerCase();
-    return (w.title || "").toLowerCase().includes(q) ||
-      (w.author || "").toLowerCase().includes(q) ||
-      (w.titleLatin || "").toLowerCase().includes(q);
+    // Folded on both sides, so a reader who types the name the way it
+    // is usually written finds it however the catalogue spells it:
+    // "leblanc" reaches "Louis Le Blanc de Beaulieu", "sanchez" reaches
+    // "Sánchez", "a lasco" reaches "à Lasco". Jake searched LeBlanc,
+    // got nothing, and reasonably concluded the man was missing.
+    if (w._q === undefined) {
+      w._q = fold(`${w.title || ""} ${w.author || ""} ${w.titleLatin || ""}`);
+    }
+    return w._q.includes(fold(filter));
+  }
+
+  // Lowercase, strip accents, drop everything that is not a letter or a
+  // number. Spaces go too, which is the point.
+  function fold(s) {
+    return String(s || "")
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "");
   }
 
   function pushState() {
