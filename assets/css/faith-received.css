@@ -5151,3 +5151,15 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
   margin-left: 4px;
 }
+
+/* The century index. Same blocks as a room, with the century as the
+   heading and its total beside it. */
+.faith-cent-grid { display: block; columns: 3; column-gap: 56px; }
+.faith-cent-grid .btrad { break-inside: avoid; display: inline-block; width: 100%; margin: 0 0 30px; }
+.faith-cent-grid .btrad h3 { font-size: var(--tfr-display-s); margin: 0 0 10px; }
+.faith-cent-grid .btrad h3 span { font-family: var(--font-body); font-size: var(--tfr-meta); color: var(--color-muted); margin-left: 8px; }
+.faith-cent-grid .blist li { border-top: 1px solid var(--color-card-border); }
+.faith-cent-grid .blist a { padding: 10px 0; }
+.faith-cent-grid .brow-t { font-size: 16px; }
+.faith-cent-note { font-size: var(--tfr-meta); color: var(--color-muted); margin: 0 0 26px; }
+@media (max-width: 900px) { .faith-cent-grid { columns: 1; } }

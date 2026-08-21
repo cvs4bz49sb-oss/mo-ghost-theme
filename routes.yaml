@@ -277,6 +277,8 @@ routes:
   # was orphaned by the change. See website/handoffs/TFR-REDESIGN.md.
   /the-faith-received/fathers/:
     template: custom-faith-fathers
+  /the-faith-received/century/:
+    template: custom-faith-centuries
   /the-faith-received/browse/:
     template: custom-faith-browse
   # One route for all eight reading rooms; ?collection= picks which.

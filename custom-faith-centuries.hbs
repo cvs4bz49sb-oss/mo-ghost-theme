@@ -1,0 +1,32 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>By century &mdash; The Faith Received</title>
+<meta name="description" content="Every century in The Faith Received, across all five collections: what the church wrote, when, and where to read it." />
+{{/contentFor}}
+{{!-- /the-faith-received/century/ — the collections cut by date.
+
+     The rooms answer what is in a collection. This answers what the
+     church has from a century, which is the other axis entirely.
+     Counting is client-side: faith-century.js derives the date, this
+     page tallies it, and each row hands off to a room already filtered
+     to that century. --}}
+
+<main class="faith-received faith-room">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker">The Faith Received &middot; By century</p>
+      <h1 class="bhero-title">Every century, across every collection</h1>
+      <p class="bhero-lede">The fifth century means Augustine in the Latin fathers and Chrysostom in the Greek. Pick a century to see what each collection holds from it.</p>
+    </div>
+  </section>
+
+  <section class="bband">
+    <div class="container" data-faith-centuries></div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/faith-century.js"}}"></script>
+<script src="{{asset "js/faith-centuries-page.js"}}"></script>
