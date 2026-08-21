@@ -172,7 +172,7 @@
         // they are linked without a ?c=, so the corpus default alone
         // would give them a Latin button over an empty column.
         if (m.en_only) lanes = [{ id: "en", label: "English" }];
-        buildLangToggle();
+        buildLangToggle(langLabelForWork(m));
         populateHeader(m);
         buildToc(m.structure || []);
         renderContent(m);
@@ -324,7 +324,7 @@
           if (corpus.enLayer && !joined) lanes = lanes.slice(1);
           // The second lane is labelled by the language the work is
           // actually in — "Syriac" or "Greek", not "Original".
-          buildLangToggle(langLabelFrom(data.sections));
+          buildLangToggle(langLabelFrom(data.sections) || langLabelForWork(meta));
           buildExtractToc(data.sections);
           renderExtractSections(data.sections);
           hideLoading();
@@ -431,6 +431,85 @@
     gez: "Ge'ez", ar: "Arabic", arabic: "Arabic",
     he: "Hebrew", hbo: "Hebrew", ka: "Georgian", sla: "Slavonic",
   };
+
+  // The language a work's second lane is actually in, for corpora whose
+  // rows carry no lang attribute to read.
+  //
+  // Patrologia Orientalis is the hard case: 400 works in Syriac,
+  // Coptic, Armenian, Ge'ez, Arabic, Georgian, Slavonic and Greek, and
+  // the catalogue records the language nowhere. 79 of them name it in
+  // their own French title, so those are read; the rest fall back to a
+  // label that says it is the original rather than naming it wrongly.
+  const TITLE_LANG = [
+    [/syriaque|syriac/i, "Syriac"],
+    [/copte|coptic/i, "Coptic"],
+    [/arm[ée]nien|armenian/i, "Armenian"],
+    [/[ée]thiopien|ethiopic|ge.ez/i, "Ge\u02bcez"],
+    [/arabe|arabic/i, "Arabic"],
+    [/g[ée]orgien|georgian/i, "Georgian"],
+    [/slave|slavonic/i, "Slavonic"],
+    [/grec|greek/i, "Greek"],
+  ];
+
+  // The most reliable answer is the text itself.
+  //
+  // Nothing in this library records a work's language: the Latin
+  // Library's meta carries an empty tradition on the Gennadius
+  // Scholarios volumes, and Patrologia Orientalis records nothing for
+  // any of its 400. But a script is visible in the characters, so the
+  // second lane is read rather than guessed at.
+  //
+  // A threshold, because a Latin text quoting a Greek phrase is still
+  // Latin. Two per cent of the letters in a sample of a few thousand
+  // is far above an incidental quotation and far below a text actually
+  // written in the script.
+  const SCRIPTS = [
+    [/[\u0370-\u03FF\u1F00-\u1FFF]/g, "Greek"],
+    [/[\u0600-\u06FF\u0750-\u077F]/g, "Arabic"],
+    [/[\u0700-\u074F]/g, "Syriac"],
+    [/[\u0590-\u05FF]/g, "Hebrew"],
+    [/[\u0530-\u058F]/g, "Armenian"],
+    [/[\u10A0-\u10FF\u1C90-\u1CBF]/g, "Georgian"],
+    [/[\u1200-\u137F]/g, "Ge\u02bcez"],
+    [/[\u0400-\u04FF]/g, "Slavonic"],
+  ];
+
+  function scriptOf(text) {
+    const sample = String(text || "").slice(0, 4000);
+    const letters = (sample.match(/\p{L}/gu) || []).length;
+    if (letters < 200) return "";
+    for (let i = 0; i < SCRIPTS.length; i += 1) {
+      const hits = (sample.match(SCRIPTS[i][0]) || []).length;
+      if (hits / letters > 0.02) return SCRIPTS[i][1];
+    }
+    return "";
+  }
+
+  // Relabel once the second lane has actually arrived.
+  let laneSniffed = false;
+  function sniffSecondLane(text) {
+    if (laneSniffed || lanes.length < 2) return;
+    const name = scriptOf(text);
+    laneSniffed = true;
+    if (name && name !== lanes[1].label) buildLangToggle(name);
+  }
+
+  function langLabelForWork(m) {
+    // An explicit declaration always wins, if the source ever ships one.
+    const declared = String((m && (m.lang || m.language || m.orig_lang)) || "")
+      .toLowerCase().split("-")[0];
+    if (declared && LANG_NAMES[declared]) return LANG_NAMES[declared];
+
+    const title = `${(m && m.title) || ""} ${(m && m.title_la) || ""}`;
+    const hit = TITLE_LANG.find(([re]) => re.test(title));
+    if (hit) return hit[1];
+
+    // The Latin Library is Latin except where a collection inside it is
+    // not: the Gennadius Scholarios volumes are Greek.
+    const trad = String((m && (m.tradition || m.group)) || "");
+    if (/greek/i.test(trad)) return "Greek";
+    return "";
+  }
 
   function langLabelFrom(sections) {
     for (let i = 0; i < sections.length; i += 1) {
@@ -1384,6 +1463,14 @@
 
     teiPromise = Promise.all([lane("en"), lane("la")]).then(([en, la]) => {
       if (!en.size && !la.size) throw new Error("tei: neither lane parsed");
+      // A work whose second lane 404s on the CDN, which is every one of
+      // the 733 English-only works, was still being offered the button.
+      // The switch is narrowed to what actually arrived.
+      if (!la.size && lanes.length > 1) {
+        lanes = [lanes[0]];
+        buildLangToggle();
+      }
+      if (la.size) sniffSecondLane([...la.values()].join(" ").replace(/<[^>]*>/g, " "));
       const nums = new Set([...en.keys(), ...la.keys()]);
       const out = [];
       nums.forEach((n) => {
@@ -1458,6 +1545,7 @@
         arr.forEach((pg) => {
           if (pg && pg.n != null && !pageStore.has(pg.n)) pageStore.set(pg.n, pg);
         });
+        sniffSecondLane(arr.map((pg) => (pg && pg.la) || "").join(" "));
         return arr;
       })
       .catch((err) => {

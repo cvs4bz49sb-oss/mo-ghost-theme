@@ -691,7 +691,10 @@
       // an English rendering. English leads; the original sits beside
       // it. The printed translation is kept as a footer line on the
       // block rather than a third column the reader has no room for.
-      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Original" }],
+      // PO holds eight languages and records which nowhere, so this is the
+      // fallback when neither the rows nor the title say. See
+      // langLabelForWork in faith-reader.js.
+      lanes: [{ id: "en", label: "English" }, { id: "la", label: "Original language" }],
       notesBase: "https://mo-tfr.mo-podcast-feed.workers.dev",
       authors: "/v1/notes/po-authors.json",
       blurbs: "/v1/notes/po-works.json",
