@@ -1,4 +1,504 @@
 {
+ "aq-108articul-105": {
+  "blurb": "A reply to the master general of the Dominican order, who had forwarded a list of one hundred and eight propositions excerpted from another friar's teaching and asked whether each could be held. Thomas answers them in order, marking what is true, what is false, what is merely badly worded, and what he would not himself say. A record of how he judged other men's formulations when he had no room to argue.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-1cor-56": {
+  "blurb": "Lectures on the first letter to Corinth, given as part of Thomas's course on the whole Pauline corpus. He follows Paul through the factions at Corinth, the case of the incestuous man, marriage and virginity, food offered to idols, the conduct of the assembly, the institution of the Supper, the gifts and the primacy of charity, and the argument for the resurrection of the body in chapter fifteen. The eucharistic and resurrection sections are the fullest.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-1thess-62": {
+  "blurb": "A short exposition of the first letter to the Thessalonians, read as instruction to a young church under pressure. The commentary turns on the fourth chapter, where Paul answers the community's anxiety about those who have already died, and on the coming of the Lord like a thief in the night. Brief throughout, with Thomas's divisions of the text carrying much of the weight.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-1tim-64": {
+  "blurb": "An exposition of the first pastoral letter, taken as Paul's instruction to a bishop about the ordering of a church: the correction of false teachers, public prayer, the qualities required in bishops and deacons, the treatment of widows and elders, and the warning about the love of money. Thomas reads the letter as legislation for the clergy, and much of the commentary is practical rather than speculative.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-2cor-57": {
+  "blurb": "Lectures on the second Corinthian letter, the most personal of Paul's, in which the apostle defends his ministry against rivals. Thomas follows the argument on the letter that kills and the Spirit that gives life, the treasure held in earthen vessels, the collection for the saints at Jerusalem, and the account of the thorn in the flesh and the rapture to the third heaven, which he treats at length.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-2thess-63": {
+  "blurb": "A brief exposition of the second letter to Thessalonica, most of it spent on the second chapter, where Paul describes the falling away and the man of sin who must come before the day of the Lord. Thomas sets out the readings available to him for the restraining force and declines to date what Paul left undated. The closing rule that the idle should not eat receives a short treatment.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-2tim-65": {
+  "blurb": "An exposition of the letter presented as Paul's last, written to Timothy from prison. Thomas takes up the charge to guard the deposit of teaching, the images of the soldier and the athlete, the description of the last days, the statement that all Scripture is inspired and useful for teaching, and the final commission to preach in season and out.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-30articuli-106": {
+  "blurb": "Three pages answering a list of thirty propositions sent by a Dominican lector at Lodi. The questions are of the kind a working teacher runs into, and Thomas replies to each in a sentence or two, conceding some, correcting others, and occasionally noting that a question has been put in a way that cannot be answered as it stands.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-36articuli-108": {
+  "blurb": "A second and longer set of replies to the same Dominican lector at Lodi, this time on thirty-six articles. The form is the one Thomas used for all such requests, question followed by short determination, but the answers here run further than in the shorter list, and several touch on matters he treats at length elsewhere.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-43articuli-107": {
+  "blurb": "Answers to forty-three questions put by the master general of the order, a shorter companion to the reply on one hundred and eight articles sent to the same correspondent. Each article gets a determination of a few lines. Read together, the two sets show what a Dominican superior thought worth referring to Thomas and how quickly Thomas was willing to settle it.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-6articulis-109": {
+  "blurb": "A page of replies to six questions sent by a Dominican of Besancon. The shortest of the several lists of articles Thomas was asked to adjudicate, and the least systematic, but of a piece with the rest: a question stated flatly, a determination given in a line or two, and no argument beyond what the answer requires.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-abiciamus-126": {
+  "blurb": "A university sermon on the words of Romans thirteen, let us cast off the works of darkness and put on the armour of light. Like the rest of Thomas's surviving preaching it comes down as a report taken by a hearer, and it is short. The text is the sermon's whole frame; Thomas divides the verse and preaches the divisions.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-adbernardu-114": {
+  "blurb": "A single page written to the abbot of Monte Cassino, who had sent Thomas a passage from Gregory the Great that seemed to make divine foreknowledge destroy the freedom of the man foreknown. Thomas answers with a distinction about how God's knowledge stands to what is future for us, and returns the passage read in a way that leaves free choice intact.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-attendite-137": {
+  "blurb": "A sermon on the warning of Matthew seven, beware of false prophets who come in sheep's clothing. Three pages, surviving as a hearer's record of what was preached. Thomas takes the marks by which a true teacher may be told from a deceiver, but this is preaching rather than the sort of polemic he conducts in his disputed and controversial writings.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-avemaria-150": {
+  "blurb": "Short conferences on the angelic salutation, taken down from Thomas's preaching and belonging with his series on the Creed, the Lord's Prayer, and the commandments. He goes through the greeting clause by clause, full of grace, the Lord is with thee, blessed art thou among women, treating each as a statement about what God has done in Mary rather than as devotional praise.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-beata-143": {
+  "blurb": "A sermon on the psalm verse, happy the nation whose God is the Lord. Two or three pages, preserved as a report of preaching rather than as a text Thomas wrote out. The verse supplies the divisions and the sermon keeps to them, which is most of what can be said of it.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-beati-142": {
+  "blurb": "Preaching on the psalm verse, happy those who dwell in your house, they will praise you for ever. Like the other surviving sermons it is short and comes down secondhand, taken from the mouth of the preacher rather than composed on the page. The house of the verse gives the sermon its structure.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-beatus-144": {
+  "blurb": "A sermon on the psalm verse, happy the man whose help is from you, who has set ascents in his heart. Two pages, recorded by a hearer. Thomas takes the ascent of the verse as his frame and preaches on it, and there is little here beyond the sermon itself.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-cajohn-72": {
+  "blurb": "The John volume of the chain of patristic comment Thomas assembled on the four gospels. The method is the same throughout: the gospel is taken a few verses at a time and glossed with passages from the fathers, each named, so that the running commentary is made entirely of other men's words. The John volume leans heavily on Augustine and Chrysostom, with Greek authors Thomas had obtained in new translations.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-caluke-71": {
+  "blurb": "Luke's volume in the gospel chain, the longest of the four. Thomas quotes Greek and Latin fathers verse by verse, giving each an attribution, and arranges the excerpts so that they answer one another and carry the exposition forward. The infancy chapters and the parables peculiar to Luke draw the fullest gatherings of patristic material.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-camark-70": {
+  "blurb": "Mark's volume in the gospel chain, and the shortest, since the gospel is short and much of what the fathers said about it they said while commenting on Matthew. Thomas still supplies a running commentary of named patristic excerpts for every passage, and the volume is worth having for the Greek writers on Mark whom Latin readers had not previously seen.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-camatt-69": {
+  "blurb": "Matthew's volume, the first of the four to be compiled and the one undertaken at the request of Urban the Fourth. The gospel is broken into short lemmas, each followed by excerpts from the fathers with the source named, so that the exposition is a chain of authorities rather than Thomas's own comment. The Sermon on the Mount attracts the densest gathering.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-coelum-129": {
+  "blurb": "A single page of preaching on the saying that heaven and earth will pass away but my words will not pass away. Recorded by a hearer rather than written out by Thomas. Too brief to do more than divide the text and press it home.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-col-61": {
+  "blurb": "An exposition of the letter to Colossae, given with the rest of the Pauline course. The commentary is organised around the first chapter's account of Christ as image of the invisible God, firstborn of all creation, and head of the body, which Thomas takes as the letter's doctrinal core and reads against any account that would make Christ one among the heavenly powers. The later chapters on observances and household duties go briskly.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-contradoct-97": {
+  "blurb": "A defence of the right of young men to enter religious life without delay, written against those who argued that they should be held back until older or better tested. Thomas answers the objections one by one, including the charge that a vow taken young is rash, and argues that counselling delay in a good is itself a harm. One of the pieces belonging to the Paris quarrel over the mendicant orders.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-contraimpu-95": {
+  "blurb": "Thomas's answer to the secular masters at Paris who attacked the mendicant orders, William of Saint-Amour above all. The questions are the ones the quarrel turned on: whether religious may teach, whether they may live by begging, whether manual labour is commanded, whether an order may be founded for study or preaching. He argues from law and Scripture rather than speculation, and the polemical edge is unusually visible.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-corpuschri-121": {
+  "blurb": "The office for the feast of Corpus Christi in the version beginning Sacerdos in aeternum, with its antiphons, responsories, lessons, and the hymns sung at the hours. Thomas is traditionally named as its compiler at Urban the Fourth's request. A second office, opening Sapientia aedificavit sibi domum, also circulates under his name, and the relation between the two is disputed.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-credo-147": {
+  "blurb": "Conferences on the Apostles' Creed, taken down from Thomas's preaching to ordinary hearers and preserved in Latin. He goes through the twelve articles in order, from belief in one God to life everlasting, giving under each a plain account of what is held, the reasons that support it, and the errors it excludes. Catechesis rather than disputation, and the simplest sustained statement of his theology.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-ct-90": {
+  "blurb": "An unfinished summary of Christian teaching addressed to Reginald of Piperno and organised on the three theological virtues. The treatise on faith is complete and runs from the Trinity through creation, the fall, the incarnation, and the last things; the treatise on hope breaks off early in the exposition of the Lord's Prayer, and the part on charity was never written. Shorter and more continuous than the Summa, with no objections and replies.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deaeternit-99": {
+  "blurb": "A single page arguing that a world both created and without beginning involves no contradiction, written against theologians who held that the eternity of the world could be refuted by reason. Thomas holds that the world did begin, on the authority of faith, but denies that the beginning can be demonstrated, and shows that being caused and being everlasting are compatible. Aimed at fellow Christians rather than at Aristotelians.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-dean-79": {
+  "blurb": "A line by line exposition of Aristotle's three books on the soul, and not to be confused with the disputed questions on the same subject. Thomas follows the text through the opinions of earlier thinkers, the definition of soul as the act of an organic body, the nutritive and sensitive powers, the account of sensation, and the difficult chapters on intellect in the third book, where his case against the Averroist reading is made from within the commentary.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-dearticuli-102": {
+  "blurb": "A brief handbook written for an archbishop who had asked for something usable: first the articles of faith, listed as they concern the divinity and then the humanity of Christ, each paired with the errors that deny it, then the seven sacraments with their matter, form, minister, and the defects that can occur in them. Practical instruction for clergy rather than argument.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-decael-76": {
+  "blurb": "An exposition of Aristotle's books on the heavens, treating the perfection of the universe, the nature of the fifth body of which the heavens are made, the claim that the world is one and complete, weight and lightness, and the elements. The commentary is unfinished and breaks off partway through the third book. Read for Thomas handling a cosmology he took seriously without treating it as a matter of faith.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-decemprae-149": {
+  "blurb": "Conferences on the ten commandments, from the same course of preaching as the series on the Creed and the Lord's Prayer. Thomas takes the precepts in order, explains what each forbids and what it requires, and works through cases: what honouring parents obliges, how far killing and stealing extend, how the sabbath precept stands in the new law. Moral instruction pitched at ordinary hearers.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-decretalem-101": {
+  "blurb": "A short exposition of two decretals of the Fourth Lateran Council, undertaken at the request of an archdeacon. The first is a creedal text and gives Thomas occasion to gloss its clauses on the Trinity, creation, and the sacrament of the altar; the second condemns the trinitarian teaching of Joachim of Fiore. A rare instance of Thomas commenting on canon law.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-dedivnom-88": {
+  "blurb": "A commentary on the Dionysian treatise about the names given to God, which Thomas read as a serious authority and took chapter by chapter: the good, being, life, wisdom, the one, and the question whether evil has any nature at all. Much of the labour goes into rendering a Neoplatonic text in terms he could use, and it is here that his account of participation and of the analogy of names is worked out at length.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deemp-110": {
+  "blurb": "A single page answering a question from a lector about merchants who sell goods on credit at one price and for cash at another. Thomas distinguishes charging for time, which is usury, from a price that reflects a genuine difference in the thing sold or a real risk borne, and gives a rule the questioner could actually apply.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deente-92": {
+  "blurb": "Six pages on what essence is and how it is found in different kinds of being: in composite substances, where it takes in matter and form; in the separate substances and the soul, where Thomas argues that essence and existence remain distinct and that this distinction is what keeps them creatures; and in accidents, which have essence only in a qualified sense. Generally placed among his early writings, and the shortest statement of the metaphysics underlying the rest.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deforma-104": {
+  "blurb": "On the words used in sacramental absolution, written to settle whether the priest should say I absolve you or should instead pray that God absolve. Thomas defends the indicative form, arguing from what a sacrament is and from the way the other sacraments are administered, and answers the objection that the older prayers of petition show the indicative to be an innovation.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-degen-77": {
+  "blurb": "An exposition of Aristotle on coming to be and passing away, distinguishing substantial change from alteration, growth, and mere mixture, and taking up the action of one body on another and the combination of the elements. The commentary is unfinished and stops within the first book. Of interest chiefly for Thomas's treatment of matter and of what does and does not survive a substantial change.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deheb-87": {
+  "blurb": "A commentary on the short Boethian treatise asking how substances can be good in what they are without being the good itself. Thomas takes the axioms one at a time and uses the question to set out the difference between what a thing is and the act by which it is, and the sense in which creatures are good by participation while God is good by essence. Five pages, and dense.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deiudiciis-113": {
+  "blurb": "A page-long reply on whether a Christian may make use of astrology. Thomas allows that the heavenly bodies act on bodies, and so on the dispositions that incline men, and permits judgments about weather, health, and the like; he denies that they determine choices, and so rejects predictions of human acts and any consultation that amounts to seeking hidden knowledge from another source.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-demem-81": {
+  "blurb": "A commentary on Aristotle's short treatise on memory and recollection, one of the pieces of the Parva naturalia that Thomas expounded. It treats what memory is, its dependence on the image and on the sense of time, the difference between simply remembering and deliberately hunting for what has been forgotten, and the order among images that makes recollection possible.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-demix-116": {
+  "blurb": "A single page on an old problem: when elements combine into a compound, do they remain in it or not? Thomas rejects both the view that they persist unchanged, which would leave the compound a heap, and the view that they are destroyed, which would leave it without their qualities, and argues that their powers remain in the compound while their forms do not.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-demotu-117": {
+  "blurb": "A short piece on the movement of the heart, asking what kind of motion it is, given that it is neither voluntary nor obviously forced, and how a motion continuous through the whole of life can be natural to the organ. Thomas answers within an Aristotelian physics and refers the motion to the soul as the principle of the living body.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deoccultis-118": {
+  "blurb": "A reply about the powers in natural things that produce effects with no evident cause, the magnet being the standing example. Thomas argues that such powers belong to the forms of the bodies themselves and are given with the influence of the heavens, and that there is no need to explain them by hidden agreements with spirits, which is what the question was really asking.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deperfect-96": {
+  "blurb": "A treatise on where the perfection of the Christian life lies, written in the course of the Paris quarrel about the religious orders. Thomas argues that perfection consists essentially in charity, that the counsels are instruments of charity rather than its substance, and that bishops and religious stand in a state of perfection in different ways. The later part answers the charge that voluntary poverty and the religious state are novelties.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deprinnat-91": {
+  "blurb": "Six pages introducing the vocabulary of Aristotelian natural philosophy for a beginner: matter, form, and privation as the principles of change; the difference between coming to be simply and coming to be in a certain respect; and the four causes, with an account of how causes may be prior to one another and how the same thing can be cause and effect in different orders. Written plainly, with no objections and replies.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deratio-100": {
+  "blurb": "Written for a correspondent in Antioch who had to argue with Muslims, Greeks, and Armenians and asked how to proceed with people who would not grant the same authorities. Thomas answers that the articles of faith cannot be demonstrated and should not be defended as though they could, then treats the Trinity, the incarnation, the Eucharist, predestination, and purgatory in a way meant to show that they involve no absurdity.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deregimine-115": {
+  "blurb": "A reply to a noblewoman who had put a series of practical questions of government to Thomas: whether she might tax the Jews of her lands and on what terms, what to do with money got by usury, whether taxes may be levied on subjects and when, and how officials should be appointed and punished. The answers are cast as rulings rather than arguments, and the treatment of the Jewish communities is severe.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deregno-94": {
+  "blurb": "A treatise on kingship addressed to a king of Cyprus, arguing that rule by one man is best, distinguishing the king from the tyrant, and asking what reward could be adequate to a good king. The second part turns to the founding of a city, the goods a ruler must provide, and the relation between temporal rule and the priesthood. The work is unfinished, and the continuation printed with it is another hand's.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-desecreto-111": {
+  "blurb": "A determination on the obligation of secrecy, produced together with others in the course of the order's business: whether a superior may command a brother to disclose what he learned in confidence, and whether the brother is bound to answer. The distinctions concern what can be commanded by obedience and where the bond of secrecy stands against it.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-desen-80": {
+  "blurb": "An exposition of Aristotle on sensation and the objects of sense, the longer of the two Parva naturalia commentaries Thomas produced. It covers the sense organs and their relation to the elements, colour, sound, odour, flavour, and touch, the question whether sensible qualities and bodies are divisible without limit, and how several senses can be at work at once.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-desortibus-112": {
+  "blurb": "On the drawing of lots, written for a correspondent who wanted to know when the practice is legitimate. Thomas sorts the cases: lots cast to divide property, lots cast to settle who shall hold an office, and lots cast to learn what is hidden or what is to come. The first two he allows within limits; the last he treats as an attempt to force an answer from a cause that owes none.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-desubstant-93": {
+  "blurb": "An unfinished treatise on the angels, beginning with what the philosophers held about separate substances, Plato and Aristotle first, then Avicebron and the later Platonists, correcting each in turn. Thomas then sets out what is to be held on the authority of Scripture: the number and orders of the angels, their knowledge and will, their creation, and the fall of some of them. It stops before the treatment is complete.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-detrin-86": {
+  "blurb": "An exposition of the opening of Boethius on the Trinity that turns into something larger. Thomas asks how the mind knows God at all, whether the divine can be the object of a human science, and, in the fifth and sixth questions, how the speculative sciences divide into natural philosophy, mathematics, and divine science, and by what degree of abstraction each proceeds. Incomplete, and the questions on method are the part most often read.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-deunitate-98": {
+  "blurb": "Five pages against the position that all men share a single separate intellect, held at Paris by masters reading Aristotle through Averroes. Thomas argues first that the position is not Aristotle's, going through the text of the De anima, then that it is false in itself, and finally that it destroys any ground for saying that this particular man understands. The tone is sharper than anywhere else in his writing.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-ecceego-130": {
+  "blurb": "A page of preaching on the prophecy quoted in the gospels, behold I send my messenger before your face. A hearer's record of a sermon rather than a composed text. The verse supplies the divisions and the sermon keeps to them, in the manner of the rest of the surviving preaching.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-eccerex-128": {
+  "blurb": "Preaching on the words behold your king comes to you, three pages long and preserved as a report taken down by someone who heard it. Thomas divides the text and draws out the manner of the king's coming. Short, occasional, and of a piece with the other sermons that survive under his name.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-emitte-134": {
+  "blurb": "A single page on the psalm verse, send forth your Spirit and they shall be created, and you shall renew the face of the earth. Recorded from Thomas's preaching rather than written by him. Brief enough that the divisions of the verse are most of what has come down.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-eph-59": {
+  "blurb": "An exposition of the letter to Ephesus, read as Paul's fullest statement about the church. Thomas takes the opening chapters on election, on the reconciliation of Jew and gentile into one body, and on the gifts given for the building up of that body, then the moral chapters on the new man, the household, and the armour of God. The treatment of Christ as head of the church is the doctrinal centre.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-eth-83": {
+  "blurb": "A commentary on the whole of the Nicomachean Ethics, following Aristotle's text closely and without the theological additions a reader might expect. It covers happiness as the end of human life, virtue as a mean, the particular virtues, voluntariness and choice, justice, the intellectual virtues, incontinence, pleasure, friendship at length, and the return to contemplation at the end. Thomas expounds Aristotle here as Aristotle, leaving the corrections to be made elsewhere.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-exiit-132": {
+  "blurb": "A sermon on the parable's opening, a sower went out to sow his seed, running to a few pages and surviving as a hearer's record. Thomas works from the parable and the explanation given with it, taking the kinds of ground as the kinds of hearer. Preaching, not exegesis of the sort found in his gospel commentaries.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-gal-58": {
+  "blurb": "An exposition of Galatians, the letter in which Paul defends his gospel against those requiring circumcision. Thomas follows the autobiographical opening, the confrontation with Peter at Antioch, which he treats carefully because Augustine and Jerome had read it differently, the argument that the law cannot justify, the allegory of the two covenants, and the closing contrast between the works of the flesh and the fruit of the Spirit.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-germinet-141": {
+  "blurb": "Preaching on the words let the earth bring forth. Four pages, taken down by a hearer rather than composed by Thomas on the page. He divides the verse and preaches from it in the manner of the other surviving sermons; the occasion on which it was given is not evident from the text alone.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-graecorum-103": {
+  "blurb": "Written at the pope's request on a dossier of Greek patristic texts assembled for the negotiations with the Eastern church. Thomas takes the passages that had been urged as evidence against Latin teaching and argues that the fathers, read with attention to how Greek and Latin usage differ, do not say what they were being made to say. The topics are the procession of the Spirit, the primacy of the Roman see, purgatory, and unleavened bread.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-heb-68": {
+  "blurb": "An exposition of Hebrews, which Thomas read as Pauline and as the letter that treats Christ's priesthood most fully. The commentary follows the argument for Christ's superiority to the angels and to Moses, the priesthood after the order of Melchizedek, the comparison of the old covenant's sacrifices with the one offering, and the chapter on faith and its examples. The christology is the reason to come to it.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-hicest-45": {
+  "blurb": "An inaugural lecture given on taking up a chair, built on the words this is the book of the commandments of God. Thomas uses the text to commend Scripture and to lay out the division of the sacred books, Old Testament and New, with an account of what each part contains and why the order stands as it does. A short piece, and formal in the way its occasion required.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-homo-fecit-136": {
+  "blurb": "A sermon on the parable of the man who made a great supper and invited many. Three pages, preserved as a report of preaching. Thomas takes the invitation, the excuses, and the gathering of the poor from the highways in turn, and does not stray far from the text he is expounding.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-homoerat-138": {
+  "blurb": "Preaching on the gospel opening, there was a certain rich man, over four pages and recorded by a hearer rather than written out. Thomas divides the text and presses it in the ordinary way of his sermons. It is preaching for a particular day whose identity the text alone does not fix.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-hymns-120": {
+  "blurb": "The eucharistic hymns written for the office of Corpus Christi and traditionally given to Thomas: Pange lingua with the Tantum ergo that closes it, Verbum supernum with O salutaris hostia, Sacris solemniis, and the sequence Lauda Sion. Adoro te devote is printed with them and has long been ascribed to him, though that ascription is not secure. Three pages of verse.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-immensa-123": {
+  "blurb": "The sermon read within the office of Corpus Christi, opening with the boundless benefits of divine generosity, on the institution of the sacrament and what the feast was established to commemorate. A single page, belonging with the other office material that comes down under Thomas's name.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-inveni-139": {
+  "blurb": "A short sermon on the psalm verse, I have found David my servant, with my holy oil I have anointed him. Two pages, surviving as a hearer's record. The verse is divided and preached, and the sermon does not extend beyond its text.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-ioan-53": {
+  "blurb": "The first half of Thomas's lectures on John, covering chapters one through eight. The exposition of the prologue is the longest continuous treatment of the Word in his writings and answers a long list of misreadings of in the beginning was the Word. The lectures then run through Cana, Nicodemus, the woman at the well, the discourse on the bread of life, and the disputes in the temple. Taken down from his teaching by a hearer.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-ioan-54": {
+  "blurb": "The second half of the John lectures, chapters nine to twenty-one. It covers the man born blind, the good shepherd, the raising of Lazarus, then the long farewell discourse and the prayer of chapter seventeen, which occupies a large part of the volume, before the passion and resurrection narratives. The christology and the treatment of the Spirit's mission are what a reader comes here for.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-isaiah-49": {
+  "blurb": "A literal exposition of Isaiah, working through the prophecy verse by verse with attention to the historical sense before the spiritual. Some manuscripts carry short marginal collations gathering scriptural texts on the themes as they arise. It is generally counted among the earliest of Thomas's scriptural works and reads as a young lecturer's course rather than as a mature commentary.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-jerem-47": {
+  "blurb": "A running exposition of Jeremiah, brief on each verse and concerned first with the letter: the call of the prophet, the oracles against Judah, the confrontations with the false prophets, and the material on the new covenant. Like the exposition of Isaiah it belongs with Thomas's early lecturing on the Old Testament, and it does not linger.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-job-50": {
+  "blurb": "An exposition of Job read strictly according to the letter, on the ground that the spiritual sense had already been supplied by Gregory the Great. Thomas takes the book as an argument about divine providence: whether God governs human affairs, and how the suffering of the just is compatible with that government. The speeches of the friends are treated as positions to be examined, and the answer from the whirlwind as the resolution.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-lam-48": {
+  "blurb": "A short exposition of Lamentations, taken verse by verse and mostly literal, following the sequence of the alphabetic poems on the destruction of Jerusalem. It belongs with the expositions of Isaiah and Jeremiah among Thomas's early Old Testament lecturing, and it keeps close to the text throughout.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-lauda-125": {
+  "blurb": "Preaching on a prophetic call to praise and rejoice. Two pages, recorded from a sermon rather than composed as a text. The verse gives the divisions and the sermon holds to them, as with the rest of the preaching that survives under Thomas's name.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-libcaus-89": {
+  "blurb": "A commentary on the anonymous Book of Causes, a set of propositions on the first cause and the separate intelligences that had circulated as Aristotle's. Thomas, having Moerbeke's translation of Proclus in hand, identified the work as an Arabic reworking of the Elements of Theology and says so, then expounds it proposition by proposition, marking where the Neoplatonic doctrine of emanating intelligences must be corrected.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-lux-140": {
+  "blurb": "A sermon on the psalm verse, a light has risen for the just. Three pages, surviving as a hearer's report of preaching. Thomas divides the verse and preaches the divisions; the piece is occasional and short, and does not develop beyond its text.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-matt-51": {
+  "blurb": "The first half of Thomas's lectures on Matthew, chapters one through twelve, taken down by hearers. It includes the genealogy and infancy narratives, the baptism and temptation, and a long treatment of the Sermon on the Mount, which Thomas reads as the law of the new covenant. The transmission of these lectures is uneven, and in some copies part of the text comes from a second reporter.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-matt-52": {
+  "blurb": "The second half of the Matthew lectures, chapters thirteen to twenty-eight: the parables of the kingdom, the confession at Caesarea Philippi and the promise to Peter, the transfiguration, the discourses on the church and on the last things, and the passion. Reported from Thomas's teaching rather than written by him, and briefer verse by verse than his lectures on John.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-metaph-82": {
+  "blurb": "A commentary on Aristotle's Metaphysics covering the first twelve books, the last two being left aside. Thomas expounds the search for wisdom as knowledge of first causes, the survey of earlier philosophers, the aporiae, the account of being as being and of substance, act and potency, and finally the argument to the first unmoved mover in the twelfth book. His prologue on the subject of the science, and his reading of substance, draw the most readers.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-meteor-78": {
+  "blurb": "An exposition of Aristotle's Meteorology, on the region below the heavens and above the earth: comets and the milky way as they were then explained, rain, wind, thunder, the sea and its saltness, rivers, and the halo and the rainbow. The commentary is unfinished and breaks off in the second book. The natural science is obsolete; the interest lies in watching Thomas work through it.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-officesas-122": {
+  "blurb": "The office for Corpus Christi in the version beginning Sapientia aedificavit sibi domum, distinct from the office opening Sacerdos in aeternum and shorter than it. Both come down under Thomas's name, and the relation between them, including whether one is a first draft superseded by the other, is a question the manuscripts have not settled.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-orationes-119": {
+  "blurb": "The prayers that circulate under Thomas's name, among them the prayer before study, the prayers before and after communion, and a prayer for the ordering of a life. Eight pages of devotional matter, some of it securely his and some attached to his name by long use. They are prayers rather than arguments, printed as the tradition transmitted them.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-osanna-127": {
+  "blurb": "A sermon on the acclamation, hosanna to the son of David, blessed is he who comes in the name of the Lord. Three pages, preserved as a record of what was preached rather than as a text Thomas composed. The verse is divided and expounded in the ordinary way of his surviving sermons.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-paternoste-148": {
+  "blurb": "Conferences on the Lord's Prayer, from the same preaching as the series on the Creed and the commandments. Thomas takes the address and the seven petitions one by one, explaining what is asked in each, why the order stands as it does, and how the prayer answers the whole range of human need. He treats it as the model of all prayer and keeps the exposition within reach of an unlearned hearer.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-peri-73": {
+  "blurb": "A commentary on Aristotle's On Interpretation, treating the noun and the verb, the proposition as the kind of speech that can be true or false, affirmation and negation, contradictories and contraries, and the argument of the ninth chapter about statements concerning future contingents, which Thomas uses to distinguish what is necessary given God's knowledge from what is necessary in itself. The commentary is incomplete and was finished by a later hand.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-petite-133": {
+  "blurb": "Two pages of preaching on the words ask and you will receive, that your joy may be full. A hearer's record rather than a composed text. The sermon divides the promise and presses it, and does not run beyond the occasion for which it was given.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-philemon-67": {
+  "blurb": "Two pages on the shortest of Paul's letters, the note asking Philemon to receive back the runaway slave Onesimus. Thomas treats it as an example of how a request may be made with authority and yet left free, and draws from it what can be drawn about the standing of slaves and the obligations of a Christian master.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-philip-60": {
+  "blurb": "An exposition of the letter to Philippi, given with the rest of the Pauline course. The weight falls on the second chapter, where Paul says that Christ, being in the form of God, emptied himself and took the form of a servant; Thomas reads the passage against any account that would make the emptying a loss of divinity, and treats the exaltation that follows. The rest of the letter is handled briefly.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-phys-75": {
+  "blurb": "A complete commentary on the eight books of the Physics. It runs from the principles of natural things and the definition of nature through the four causes and chance, then motion, the infinite, place, the void, and time, and ends with the books arguing that motion has no beginning and that it requires a first unmoved mover. Thomas stays close to the text, and where he thinks a conclusion cannot be held he says so without rewriting Aristotle.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-polit-85": {
+  "blurb": "An exposition of Aristotle's Politics covering the household, slavery, property, the criticism of Plato's Republic, the definition of the citizen, and the classification of constitutions. Thomas's own work breaks off in the third book, and what circulates beyond that point is a continuation by another Dominican. This is where his treatment of political community as natural rather than merely remedial is set out at length.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-post-74": {
+  "blurb": "A commentary on the Posterior Analytics, Aristotle's account of what makes a body of knowledge a science: demonstration from premises that are true, prior, and causes of the conclusion; the difference between knowing that and knowing why; definition and its relation to demonstration; and the final chapter on how the mind arrives at first principles that cannot themselves be demonstrated. The theory of science Thomas relies on everywhere else is explained here.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-psalm-46": {
+  "blurb": "An exposition of the psalms that breaks off partway through the psalter, covering the first fifty-odd psalms in the Latin numbering. Thomas prefaces it with an account of how the psalms are to be read, taking David as a prophet and the literal sense as often referring to Christ. The comment on each verse is short, and much of it is occupied with the christological reading of the psalms of suffering.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-puer-131": {
+  "blurb": "A sermon on the boy Jesus remaining behind in Jerusalem without his parents' knowledge. Four pages, recorded from preaching rather than written out. Thomas divides the gospel text and preaches its parts; the sermon is occasional and does not develop the material as his commentaries do.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qdean-27": {
+  "blurb": "Disputed questions on the soul, and not the commentary on Aristotle's treatise of the same name. The form is the scholastic question: objections, a determination, replies to the objections. The matter is whether the soul can be both a subsistent thing and the form of a body, whether all men share one intellect, how soul and body are united, what the soul's powers are, and how a separated soul knows anything at all.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
  "aq-qdemalo-31": {
   "blurb": "Sixteen disputed questions on evil, each broken into articles that state the objections, answer them, and reply in turn. Thomas begins from evil as a privation rather than a nature, then treats sin, original sin and its transmission, venial sin, the punishment of sin, and the seven capital vices one by one. The sixth question, on human choice, holds his fullest account of how the will is free while still moved by God. The demons come last.",
   "confidence": "high",
