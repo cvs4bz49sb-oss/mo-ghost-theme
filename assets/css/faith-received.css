@@ -6438,6 +6438,14 @@ mark.faith-find-hit.is-current {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  /* nowrap, because .faith-reader .faith-toolbar sets flex-wrap: wrap
+     for the row this used to be. A wrapping COLUMN with a max-height
+     wraps into a second column, and the panel is 280px wide: opening
+     the preferences made .faith-prefs 479px tall, which pushed Save,
+     Page scan, Find and Notebook into a column at x=689 — off the side
+     of a 375px screen, leaving an empty box and a horizontal
+     scrollbar. */
+  flex-wrap: nowrap;
   gap: 10px;
   width: min(280px, calc(100vw - 36px));
   max-height: min(70vh, 520px);
@@ -6455,6 +6463,9 @@ mark.faith-find-hit.is-current {
   box-shadow: 0 8px 28px rgba(45, 41, 39, 0.18);
 }
 .faith-dock .faith-reading-controls[hidden] { display: none; }
+/* And nowrap means the panel scrolls instead of wrapping, so nothing in
+   it may be squeezed to make the set fit. */
+.faith-dock .faith-reading-controls > * { flex-shrink: 0; }
 
 /* Every control fills the width, so the panel reads as a list of
    things you can do rather than as a row that wrapped.
@@ -6821,3 +6832,73 @@ body.faith-toc-open .faith-dock { display: none; }
   .faith-refs-searchbar { flex-direction: column; align-items: stretch; }
   .faith-refs-scope select { width: 100%; }
 }
+
+/* ══ The contents rail, made readable ═════════════════════════════
+   Every row in the rail was set as an uppercase, letter-spaced,
+   accent-coloured eyebrow. That is a label style, and it was being
+   asked to carry a title: "WHAT DO YOU NEED TO KNOW IN ORDER TO LIVE
+   AND DIE IN THE JOY OF THIS COMFORT?" over four lines, in orange, in
+   caps, with the tracking pulling the words apart. Caps cost about a
+   fifth of reading speed on anything longer than three words, and
+   --color-secondary is an accent, not a text colour.
+
+   So the rail reads as text: the title black, the numbering quiet
+   beside it, and the accent kept for the hover and the open section —
+   which is what tells you where you are. */
+.faith-toc-book-summary .faith-toc-book-label {
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 600;
+  color: var(--color-dark);
+  line-height: 1.35;
+  transition: color 0.12s;
+}
+.faith-toc-book-summary:hover .faith-toc-book-label { color: var(--color-secondary); }
+.faith-toc-book-count { letter-spacing: 0.08em; }
+
+/* The eyebrow is the section's own numbering — "Q. 1", "Lord's Day 2".
+   Quiet, and it follows the row into the accent on hover rather than
+   sitting there in a second colour of its own. */
+.faith-reader .faith-toc-num {
+  letter-spacing: 0.1em;
+  text-transform: none;
+  font-weight: 600;
+  color: var(--color-muted);
+  transition: color 0.12s;
+}
+.faith-reader .faith-toc-item a:hover .faith-toc-num { color: var(--color-secondary); }
+
+/* A flat work's rail is a list of links, so the rows want a little
+   more room than the two-line eyebrow+title rows of a nested one. */
+.faith-toc-list--flat .faith-toc-item a { padding: 10px 8px 10px 12px; }
+.faith-toc-list--flat .faith-toc-label { line-height: 1.35; }
+
+/* ══ The proof texts ══════════════════════════════════════════════
+   Rebuilt by the reader inside a lane column rather than printed by
+   the template as a sibling of the answer, so the spacing that used to
+   come from the paragraph before it has to be stated. */
+.faith-reader .faith-col-en > .faith-qa-references,
+.faith-reader .faith-col-la > .faith-qa-references { margin: 0; }
+.faith-reader .faith-row--scripture { margin-top: 18px; }
+
+/* ══ The reading-tools panel ══════════════════════════════════════
+   The dock's panel is 280px and the preference rows are label-left,
+   options-right. Size alone is a label and four buttons, which does
+   not fit, so the row pushed the panel's scroll width past its box:
+   "Larger" was cut off at the edge and the only way to reach it was a
+   horizontal scroll nobody would look for. The rows stack in the dock
+   at every width — the ≤1023px rule below already does this, but the
+   dock is on screen above that breakpoint too. */
+.faith-dock .faith-prefs-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.faith-dock .faith-prefs-row--reset { align-items: flex-end; }
+.faith-dock .faith-prefs-opts { flex-wrap: wrap; }
+/* Nothing inside the panel may set its width. A flex child's floor is
+   its content, so one unwrappable row is enough to widen the column
+   and clip everything in it. */
+.faith-dock .faith-reading-controls > * { min-width: 0; max-width: 100%; }
+.faith-dock .faith-reading-controls { overflow-x: hidden; }
