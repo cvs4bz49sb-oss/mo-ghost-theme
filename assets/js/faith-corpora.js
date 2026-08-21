@@ -191,6 +191,58 @@
     return given || "";
   }
 
+  // ── Works filed under the wrong man ──────────────────────────────
+  //
+  // The catalogue's author field is a name, not a person, so where two
+  // writers share a name their shelves are merged. Three cases in the
+  // Latin Library, each caught because the printed years span a life
+  // nobody lived. Corrected by slug, because only the work knows which
+  // man it belongs to.
+  //
+  // "Thomas Watson" is three. The Puritan divine of the Body of
+  // Practical Divinity published from 1654; the Elizabethan poet died
+  // in 1592; and the Marian Bishop of Lincoln printed under Mary. The
+  // break is clean: nothing between 1594 and 1654.
+  const WORK_AUTHOR = {
+    // Thomas Watson, Bishop of Lincoln (c. 1513–1584), Roman Catholic.
+    "watson-twoo-notable-sermons-made-thirde-fyfte": "Thomas Watson, Bishop of Lincoln",
+    "watson-holsome-catholyke-doctryne-concerninge-seuen-sacramentes": "Thomas Watson, Bishop of Lincoln",
+    // Thomas Watson (c. 1555–1592), poet and madrigalist. Not a divine
+    // at all, and his love poetry had been shelved as English Divinity.
+    "watson-hekatompathia-passionate-centurie-loue-diuided-into": "Thomas Watson (poet)",
+    "watson-lamentations-amyntas-death-phillis-paraphrastically-transl": "Thomas Watson (poet)",
+    "watson-eglogue-death-right-honorable-sir-francis": "Thomas Watson (poet)",
+    "watson-first-sett-italian-madrigalls-englished-not": "Thomas Watson (poet)",
+    "watson-ould-facioned-love-loue-ould-facion": "Thomas Watson (poet)",
+    // An American oration of 1800, filed under the Bishop of Norwich,
+    // who died in 1656.
+    "joseph-hall-oration-pronounced-july-at-request-inhabitants": "Joseph Hall of Boston",
+    // Thomas Godwin (1587–1642), schoolmaster and antiquary. A
+    // different man from Thomas Goodwin the Independent, and a Roman
+    // antiquities handbook rather than divinity.
+    "goodwin-roman-histori-anthologia-english-exposition-romane": "Thomas Godwin",
+    // Thomas Goodwin the elder died in 1680, so a sermon occasioned by
+    // a death in 1699 is not his. Both belong to his son, also Thomas
+    // Goodwin and also a minister.
+    "goodwin-happiness-princes-led-divine-counsel-sermon": "Thomas Goodwin the Younger",
+    "goodwin-sermon-on-occasion-death-reverend-learned": "Thomas Goodwin the Younger",
+    // The Lyons editors' preface to Albert's Opera, not Albert.
+    "albertus-magnus-praefatio-editorum-lugdunensium-benevolo-lectori": "The Lyons editors of Albert's Opera",
+  };
+
+  // One man under two spellings. Merged so his works meet on one page
+  // rather than splitting his shelf in half.
+  const AUTHOR_ALIAS = {
+    "Willem van Est": "Willem Hessels van Est",
+  };
+
+  function correctAuthor(slug, author) {
+    const bySlug = WORK_AUTHOR[String(slug || "")];
+    if (bySlug) return bySlug;
+    const name = String(author || "").trim();
+    return AUTHOR_ALIAS[name] || name;
+  }
+
   // ── Tradition trees ──────────────────────────────────────────────
   //
   // A collection's traditions are not all the same kind of thing. The
@@ -298,7 +350,9 @@
         // rejected the whole load and emptied every room.
         volume: String(w.volume == null ? "" : w.volume).trim(),
         tradition: w.tradition || "",
-        author: (w.author || "").trim(),
+        // Corrected where the catalogue has filed a work under a man
+        // who did not write it. See WORK_AUTHOR.
+        author: correctAuthor(w.slug, w.author),
         eyebrow: w.tradition || "",
         extent: w.n_pages || 0,
         // The work's own title page, where the source has scanned one.

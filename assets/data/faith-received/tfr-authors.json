@@ -1498,5 +1498,49 @@
   "bio": "Lorraine-born Benedictine who left his monastery in 1527, worked as Bucer's secretary at Strasbourg, and then led the reform at Augsburg from 1531 until the Augsburg Interim drove him out in 1548. From 1549 he taught theology at Bern. He was present at the Wittenberg Concord of 1536 and at the colloquies with Catholic theologians at Worms and Regensburg. He is read for the Loci communes sacrae theologiae (1560), Englished as Common Places of Christian Religion, and for substantial commentaries on Genesis, the Psalms, Matthew, John and the Pauline letters.",
   "confidence": "high",
   "source": "mere-orthodoxy"
+ },
+ "Thomas Watson, Bishop of Lincoln": {
+  "dates": "c. 1513–1584",
+  "tradition": "Roman Catholic",
+  "affiliation": "Bishop of Lincoln, 1557 to 1559; Master of St John's College, Cambridge",
+  "bio": "A Cambridge Catholic who kept his position under Edward VI only by silence, Watson rose under Mary as chaplain and then almoner to Bishop Gardiner, Dean of Durham, and from 1557 Bishop of Lincoln. His Holsome and Catholyke Doctryne concerninge the Seven Sacramentes of 1558 is among the fullest English statements of sacramental theology printed in the Marian years. Deprived at Elizabeth's accession for refusing the oath of supremacy, he spent most of the rest of his life in custody, latterly at Wisbech Castle, and died there.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "Thomas Watson (poet)": {
+  "dates": "c. 1555–1592",
+  "tradition": "Elizabethan letters",
+  "affiliation": "London; associated with the circle of Sir Francis Walsingham",
+  "bio": "Not a divine at all, and in this library by a collision of names. Watson was a lawyer by training and a poet and translator by vocation, admired by his contemporaries as a Latinist above all. The Hekatompathia of 1582 is a sequence of a hundred love poems with the author's own prose headnotes; the Lamentations of Amyntas and the Amintae Gaudia are Latin pastoral, the first Englished by Abraham Fraunce in hexameters; and the First Sett of Italian Madrigalls Englished of 1590 fitted English words to Marenzio's music. Marlowe was a friend.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "Joseph Hall of Boston": {
+  "tradition": "American",
+  "bio": "An American, and no relation to Joseph Hall the Bishop of Norwich, who died in 1656. The single item under this name is a civic oration delivered on 4 July 1800 at the request of a Massachusetts town and printed the same year. It is in this collection on a name match alone and belongs to a different country and a different century from everything around it.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "Thomas Godwin": {
+  "dates": "1587–1642",
+  "tradition": "Church of England",
+  "affiliation": "Headmaster of the free school at Abingdon",
+  "bio": "A schoolmaster and antiquary, not to be confused with Thomas Goodwin the Independent divine, under whose name this work has been filed. The Romanae Historiae Anthologia of 1614 is a handbook of Roman antiquities written for schoolboys, explaining the offices, calendar, religion and customs a pupil met in Latin authors. It was reprinted many times through the century. His Moses and Aaron did the same office for Hebrew antiquities.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "The Lyons editors of Albert's Opera": {
+  "kind": "editor",
+  "bio": "Not Albert. The item under this name is the preface to the reader prefixed by the editors of the seventeenth-century Lyons edition of Albert's collected works, describing the edition itself rather than anything Albert wrote. It is catalogued here as though it were one of his compositions.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "Thomas Goodwin the Younger": {
+  "dates": "c. 1650–1716",
+  "tradition": "Reformed; Congregationalist (Independent)",
+  "affiliation": "Independent minister in London; Pinner's Hall lecturer",
+  "bio": "Son of Thomas Goodwin the Independent, and a minister in his own right, which the catalogue does not distinguish. The two funeral sermons under this name were preached in 1695 and 1700 and cannot belong to his father, who died in 1680. He edited and saw through the press part of his father's posthumous works, which is one reason the two are so readily confused.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
  }
 }
