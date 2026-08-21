@@ -1661,13 +1661,19 @@ if (topicsBundle) {
       sub: "From God and the Trinity to salvation, the Church, and the life to come. Trace each doctrine across two millennia of Christian writing.",
     })}
 
+    {{!-- The thirteen curated cards that used to sit here are gone.
+         They were a second, smaller topic index stacked above the real
+         one, listing "passages" from the hundred static documents while
+         the merged index below listed thousands of works from the
+         library. Two indexes of the same thing on one page, disagreeing
+         about how many there were. The merged one is the index now. --}}
     <section class="faith-feature-body" data-faith-section="topics">
       <div class="container">
-        {{> "faith-received/_topics-body"}}
       </div>
     </section>
   </main>
 <script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/faith-century.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
 <script src="{{asset "js/faith-indexes.js"}}"></script>`;
   await writeFile(

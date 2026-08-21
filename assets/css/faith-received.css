@@ -6214,3 +6214,107 @@ mark.faith-find-hit.is-current {
 @media (prefers-reduced-motion: reduce) {
   .faith-reader .faith-page-target { animation: none; background: #f6e2c8; }
 }
+
+/* ══ Scripture reference filters ══════════════════════════════════
+   A chapter of Romans is cited by four thousand works. Without a way
+   to ask it a question the index is a list nobody reads, so the
+   controls sit directly under the chapter and narrow it in place. */
+.faith-refs-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px 20px;
+  padding: 16px 0 14px;
+  border-bottom: 1px solid var(--color-card-border);
+  margin: 0 0 6px;
+}
+.faith-refs-search {
+  grid-column: 1;
+  height: 36px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 0 12px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-dark);
+}
+.faith-refs-search:focus { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.faith-refs-selects { grid-column: 2; display: flex; flex-wrap: wrap; gap: 10px; }
+.faith-refs-select { display: inline-flex; flex-direction: column; gap: 4px; }
+.faith-refs-select > span {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.faith-refs-select select {
+  height: 36px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 0 26px 0 10px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-dark);
+}
+.faith-refs-count {
+  grid-column: 1 / -1;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 0;
+}
+.faith-refs-empty {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  padding: 20px 0;
+  margin: 0;
+}
+@media (max-width: 700px) {
+  .faith-refs-controls { grid-template-columns: 1fr; }
+  .faith-refs-search, .faith-refs-selects { grid-column: 1; }
+  .faith-refs-search { height: 40px; }
+  .faith-refs-select select { height: 40px; }
+}
+
+/* Where in a work a topic is actually treated. A card that says "Read
+   the passage" and then names the passages is the difference between
+   an index entry and a commentary. */
+.faith-card-secs { display: block; margin: 10px 0 0; }
+.faith-card-sec {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-muted);
+  padding: 3px 0 3px 12px;
+  border-left: 1px solid var(--color-card-border);
+}
+.faith-card:hover .faith-card-sec { border-left-color: var(--color-primary); }
+.faith-card-sec-more {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  padding: 4px 0 0 12px;
+}
+/* Titles are roman here as everywhere else in TFR. */
+.faith-card-title, .faith-card-author { font-style: normal; }
+
+/* Each named section is its own link, so it has to read and behave
+   like one. */
+.faith-card-sec { cursor: pointer; }
+.faith-card-sec:hover {
+  color: var(--color-primary-text);
+  border-left-color: var(--color-primary);
+}
+.faith-card-sec:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

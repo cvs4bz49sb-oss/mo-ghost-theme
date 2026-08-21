@@ -29,6 +29,43 @@
 
   const PAGE_SIZE = 120;
 
+  // The loci in the order a systematic theology takes them, rather
+  // than by how many works happen to touch each one. Sorting by count
+  // put Sin first and Prolegomena two thirds of the way down, which is
+  // no order at all: it read as a tag cloud. This is the shape of the
+  // discipline, from method and Scripture through God, creation, sin,
+  // Christ, salvation, the church and the Christian life to the last
+  // things. Anything not listed falls to the end, largest first.
+  const TOPIC_ORDER = [
+    "prolegomena / theological method", "scripture", "religion / true worship",
+    "the existence of god", "god", "the divine attributes & the essence of god",
+    "divine simplicity", "the eternity of god", "divine omnipresence & immensity",
+    "omnipotence & absolute power", "god's knowledge & middle knowledge",
+    "the will of god", "the trinity", "the divine processions & emanations",
+    "subsistent relations & the persons", "the filioque & the procession of the spirit",
+    "the holy spirit",
+    "predestination", "covenant",
+    "creation", "providence", "angels", "man / anthropology",
+    "sin", "free will",
+    "christ / christology", "the gospel",
+    "grace", "faith", "justification", "sanctification", "christian liberty",
+    "the church", "sacraments", "baptism", "the lord's supper",
+    "the law", "virtues / moral theology", "prayer", "the civil magistrate",
+    "resurrection", "eternal life", "last things",
+  ];
+
+  // Prefix match, because the labels are long and the sources abbreviate
+  // them inconsistently ("Prolegomena / Theological Method" against
+  // "Prolegomena / Theological").
+  function topicRank(label) {
+    const l = String(label || "").toLowerCase().trim();
+    for (let i = 0; i < TOPIC_ORDER.length; i += 1) {
+      const t = TOPIC_ORDER[i];
+      if (l === t || l.startsWith(t) || t.startsWith(l)) return i;
+    }
+    return TOPIC_ORDER.length + 1;
+  }
+
   // Topic vocabularies differ collection to collection — only 13 of
   // the Latin Library's 43 loci match Patrologia Latina's 41 by label.
   // These pairs are the same doctrine under different names; anything
@@ -93,7 +130,21 @@
     });
   }
 
-  const titleCase = (s) => s.replace(/\b[a-z]/g, (m) => m.toUpperCase());
+  // \b matches after an apostrophe, so a naive title case produced
+  // "God'S Knowledge", and capitalising every word gave "The Existence
+  // Of God". Small words stay down unless they open the label.
+  const TITLE_DOWN = new Set([
+    "of", "the", "and", "in", "to", "for", "or", "a", "an", "on", "by", "from",
+  ]);
+  const titleCase = (s) => String(s || "")
+    .split(/(\s+)/)
+    .map((word, i) => {
+      if (!word.trim()) return word;
+      const lower = word.toLowerCase();
+      if (i > 0 && TITLE_DOWN.has(lower)) return lower;
+      return lower.replace(/^[a-z]|(?<=[^a-z'])[a-z]/g, (m) => m.toUpperCase());
+    })
+    .join("");
 
   // ── Data ──────────────────────────────────────────────────────
 
@@ -105,6 +156,16 @@
   // Which collections actually contribute, so the pages can be honest
   // about what a reader is and isn't searching.
   const COVERAGE = { scripture: [], topics: [], missing: { scripture: [], topics: [] } };
+
+  // The same derivation the reading rooms use, so a work's century is
+  // the same number in both places. Cached on the work.
+  function centuryOf(w) {
+    if (!w) return 0;
+    if (w._c === undefined) {
+      w._c = window.MOCentury ? window.MOCentury.of(w) : 0;
+    }
+    return w._c || 0;
+  }
 
   function addScripture(book, chapter, entry) {
     const lower = norm(book);
@@ -179,7 +240,13 @@
               id: e[0],
               title: w ? w.title : e[0],
               author: w ? w.author : "",
-              page: e[1],
+              // `loc`, not `page`. refItem reads loc, so storing it
+              // under another name dropped the page from all 12,659 of
+              // these links and landed every one at the top of the
+              // work instead of at the citation.
+              loc: e[1],
+              tradition: w ? w.tradition || "" : "",
+              century: w ? centuryOf(w) : 0,
               excerpt: e[2] || "",
             });
           });
@@ -204,7 +271,10 @@
             const w = byId.get(String(id));
             if (!w) return;
             n += 1;
-            addScripture(m[1], m[2], { corpus: "eebo", id: w.id, title: w.title, author: w.author });
+            addScripture(m[1], m[2], {
+              corpus: "eebo", id: w.id, title: w.title, author: w.author,
+              tradition: w.tradition || "", century: centuryOf(w),
+            });
           });
         });
         COVERAGE.scripture.push({ id: "eebo", n });
@@ -220,11 +290,23 @@
       list.forEach((t) => {
         (t.works || []).forEach((w) => {
           n += 1;
+          // `secs` is where in the work the topic is actually
+          // treated: a page and the section's own heading. Without it
+          // a topic link opens a nine-hundred-page folio at page one
+          // and leaves the reader to find the passage themselves.
+          const secs = (w.secs || w.sections || [])
+            .map((x) => ({ p: x.p != null ? x.p : x.page, t: x.t || x.title || "" }))
+            .filter((x) => x.p != null);
           addTopic(t.label || t.id, {
             corpus: corpusId,
             id: String(w.slug || w.d || w.id || ""),
             title: w.te || w.title || w.t || "",
             author: w.ae || w.author || w.a || "",
+            tradition: w.tradition || "",
+            secs,
+            // The card opens at the first relevant section rather than
+            // at the front of the book.
+            loc: secs.length ? secs[0].p : null,
           });
         });
       });
@@ -318,13 +400,70 @@
   function workCard(e) {
     const c = window.MOCorpora.get(e.corpus);
     const pending = c && c.readable === false;
-    return `<a class="faith-card" href="${escapeHtml(readerUrl(e.corpus, e.id))}">` +
+    const secs = e.secs || [];
+    // A work that treats the topic in several places gets a link to
+    // each. A work that is about the topic end to end, Tertullian on
+    // baptism, carries no sections and opens at its first page, which
+    // is the right place for it.
+    const more = secs.length > 1
+      ? `<span class="faith-card-secs">${secs.slice(0, 4).map((x) =>
+        `<span class="faith-card-sec" role="link" tabindex="0" data-go="${escapeHtml(readerUrl(e.corpus, e.id, x.p))}">${
+          escapeHtml(x.t ? shorten(x.t) : `Page ${x.p}`)}</span>`).join("")}${
+        secs.length > 4 ? `<span class="faith-card-sec-more">and ${secs.length - 4} more</span>` : ""}</span>`
+      : "";
+    const label = pending ? "Browse" : (secs.length ? "Read the passage" : "Read");
+    return `<a class="faith-card" href="${escapeHtml(readerUrl(e.corpus, e.id, e.loc))}">` +
       `<p class="faith-card-date">${escapeHtml(c ? c.label : e.corpus)}</p>` +
-      `<h3 class="faith-card-title"><em>${escapeHtml(e.title || e.id)}</em></h3>${ 
-      e.author ? `<p class="faith-card-author"><em>${escapeHtml(e.author)}</em></p>` : "" 
-      }${e.excerpt ? `<p class="faith-card-desc">${escapeHtml(e.excerpt.slice(0, 160))}</p>` : "" 
-      }<span class="faith-card-link">${pending ? "Browse" : "Read"} <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
+      `<h3 class="faith-card-title">${escapeHtml(e.title || e.id)}</h3>${
+      e.author ? `<p class="faith-card-author">${escapeHtml(e.author)}</p>` : ""
+      }${secs.length === 1 && secs[0].t ? `<p class="faith-card-desc">${escapeHtml(shorten(secs[0].t, 150))}</p>` : ""
+      }${e.excerpt ? `<p class="faith-card-desc">${escapeHtml(e.excerpt.slice(0, 160))}</p>` : ""
+      }${more}<span class="faith-card-link">${label} <span class="faith-card-arrow" aria-hidden="true">&rarr;</span></span></a>`;
   }
+
+  // Section headings in this corpus run to full sentences.
+  function shorten(text, max) {
+    const t = String(text || "").trim();
+    const n = max || 64;
+    if (t.length <= n) return t;
+    const cut = t.slice(0, n);
+    return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[\s,;:—-]+$/, "")}…`;
+  }
+
+  // These URLs are ours, built by readerUrl from a slug and a page,
+  // but they still go through the theme's sanitiser rather than round
+  // it: the rule exists so that no path to navigation is exempt.
+  function goTo(href) {
+    const safe = window.MOSafeHref ? window.MOSafeHref.sanitize(href) : "";
+    if (!safe) return;
+    // eslint-disable-next-line no-restricted-syntax -- same-origin reader path, sanitized above
+    window.location.href = safe;
+  }
+
+  // Every named section is its own way in.
+  //
+  // The section lines sit inside the card's own <a>, and an anchor
+  // cannot contain another anchor, so a click on one would otherwise
+  // follow the card and land at the first passage rather than the one
+  // the reader actually pointed at. Delegated once, at the document,
+  // because the grids are rebuilt on every view change.
+  document.addEventListener("click", (e) => {
+    const sec = e.target.closest("[data-go]");
+    if (!sec) return;
+    const href = sec.getAttribute("data-go");
+    if (!href) return;
+    e.preventDefault();
+    e.stopPropagation();
+    goTo(href);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const sec = e.target.closest && e.target.closest("[data-go]");
+    if (!sec) return;
+    e.preventDefault();
+    goTo(sec.getAttribute("data-go"));
+  });
 
   function paged(list, page) {
     const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
@@ -480,31 +619,131 @@
   }
 
   // 120 at a time: Romans 9 alone is cited by 4,509 works.
-  function fillChapter(body, book, ch, entries, page) {
-    const p = page || 1;
-    const pages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
-    const slice = entries.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE);
+  //
+  // A chapter of Romans cited by four thousand works is a list nobody
+  // can read. The point of this index is to be a commentary, so a
+  // reader has to be able to ask it a question: what did the Reformed
+  // say about this, what did the seventeenth century say, what did
+  // this one man say. Collection, tradition and century narrow it, and
+  // the box searches author and title together.
+  //
+  // Shell and slots, for the reason the reading rooms are: rebuilding
+  // the controls on every render tears an open dropdown out from under
+  // the reader mid-gesture.
+  function fillChapter(body, book, ch, entries) {
     body.innerHTML = "";
-    const ol = document.createElement("ol");
-    ol.className = "faith-scripture-refs";
-    slice.forEach((e) => ol.appendChild(refItem(e)));
-    body.appendChild(ol);
-    if (pages > 1) {
-      const nav = document.createElement("p");
-      nav.className = "faith-pager";
-      nav.innerHTML =
-        `<button type="button" class="faith-pager-btn" data-ref-page="${p - 1}"${p <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
-        `<span class="faith-pager-count">Page ${p} of ${pages} · ${entries.length.toLocaleString()} works</span>` +
-        `<button type="button" class="faith-pager-btn" data-ref-page="${p + 1}"${p >= pages ? " disabled" : ""}>Next &rarr;</button>`;
-      nav.querySelectorAll("[data-ref-page]").forEach((b) => {
-        b.addEventListener("click", (ev) => {
-          ev.preventDefault();
-          if (b.disabled) return;
-          fillChapter(body, book, ch, entries, parseInt(b.getAttribute("data-ref-page"), 10));
-        });
+    const state = { collection: "", tradition: "", century: "", q: "" };
+
+    const controls = document.createElement("div");
+    controls.className = "faith-refs-controls";
+    const list = document.createElement("div");
+    list.className = "faith-refs-list";
+
+    const counts = (key) => {
+      const m = new Map();
+      entries.forEach((e) => {
+        const v = key === "century" ? e.century : e[key];
+        if (v) m.set(v, (m.get(v) || 0) + 1);
       });
-      body.appendChild(nav);
+      return [...m.entries()].sort((a, b) => b[1] - a[1]);
+    };
+
+    const select = (name, label, all, opts, fmt) => {
+      if (opts.length < 2) return "";
+      const o = opts.map(([v, n]) =>
+        `<option value="${escapeHtml(String(v))}">${escapeHtml(fmt ? fmt(v) : String(v))} (${n.toLocaleString()})</option>`).join("");
+      return `<label class="faith-refs-select"><span>${escapeHtml(label)}</span>` +
+        `<select data-refs-${name}><option value="">${escapeHtml(all)}</option>${o}</select></label>`;
+    };
+
+    const cLabel = (id) => {
+      const c = window.MOCorpora.get(id);
+      return c ? c.label : id;
+    };
+    const yLabel = (n) => (window.MOCentury ? window.MOCentury.label(n) : String(n));
+
+    controls.innerHTML =
+      `<input type="search" class="faith-refs-search" data-refs-q placeholder="Search an author or a title&hellip;" aria-label="Search these references">` +
+      `<div class="faith-refs-selects">${
+        select("collection", "Collection", "All collections", counts("corpus"), cLabel)}${
+        select("tradition", "Tradition", "All traditions", counts("tradition"))}${
+        select("century", "Century", "All centuries", counts("century"), yLabel)}</div>` +
+      `<p class="faith-refs-count" data-refs-count></p>`;
+
+    body.appendChild(controls);
+    body.appendChild(list);
+
+    const fold = (x) => String(x || "")
+      .normalize("NFD").replace(/\p{M}/gu, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+    function matching() {
+      const q = fold(state.q);
+      return entries.filter((e) => {
+        if (state.collection && e.corpus !== state.collection) return false;
+        if (state.tradition && e.tradition !== state.tradition) return false;
+        if (state.century && String(e.century) !== state.century) return false;
+        if (!q) return true;
+        if (e._q === undefined) e._q = fold(`${e.author || ""} ${e.title || ""}`);
+        return e._q.includes(q);
+      });
     }
+
+    function render(page) {
+      const rows = matching();
+      const p = page || 1;
+      const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      const slice = rows.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE);
+      const countEl = controls.querySelector("[data-refs-count]");
+      if (countEl) {
+        countEl.textContent = rows.length === entries.length
+          ? `${rows.length.toLocaleString()} work${rows.length === 1 ? "" : "s"}`
+          : `${rows.length.toLocaleString()} of ${entries.length.toLocaleString()} works`;
+      }
+      list.innerHTML = "";
+      if (!rows.length) {
+        list.innerHTML = `<p class="faith-refs-empty">Nothing here matches that. Try another name, or widen the filters.</p>`;
+        return;
+      }
+      const ol = document.createElement("ol");
+      ol.className = "faith-scripture-refs";
+      slice.forEach((e) => ol.appendChild(refItem(e)));
+      list.appendChild(ol);
+      if (pages > 1) {
+        const nav = document.createElement("p");
+        nav.className = "faith-pager";
+        nav.innerHTML =
+          `<button type="button" class="faith-pager-btn" data-ref-page="${p - 1}"${p <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
+          `<span class="faith-pager-count">Page ${p} of ${pages}</span>` +
+          `<button type="button" class="faith-pager-btn" data-ref-page="${p + 1}"${p >= pages ? " disabled" : ""}>Next &rarr;</button>`;
+        nav.querySelectorAll("[data-ref-page]").forEach((b) => {
+          b.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            if (b.disabled) return;
+            render(parseInt(b.getAttribute("data-ref-page"), 10));
+          });
+        });
+        list.appendChild(nav);
+      }
+    }
+
+    const bind = (sel, key) => {
+      const el = controls.querySelector(`[data-refs-${sel}]`);
+      if (el) el.addEventListener("change", () => { state[key] = el.value; render(1); });
+    };
+    bind("collection", "collection");
+    bind("tradition", "tradition");
+    bind("century", "century");
+    const box = controls.querySelector("[data-refs-q]");
+    if (box) {
+      let t = null;
+      box.addEventListener("input", () => {
+        window.clearTimeout(t);
+        t = window.setTimeout(() => { state.q = box.value.trim(); render(1); }, 180);
+      });
+    }
+
+    render(1);
   }
 
   // One reference: who cites it, and the words around the citation, so
@@ -537,7 +776,9 @@
       const list = [...topics.entries()]
         .map(([key, t]) => ({ key, ...t, n: t.entries.length }))
         .filter((t) => t.n)
-        .sort((a, b) => (a.genre - b.genre) || b.n - a.n);
+        .sort((a, b) => (a.genre - b.genre)
+          || (topicRank(a.label) - topicRank(b.label))
+          || b.n - a.n);
       chrome(host, {
         title: "Topics",
         sub: `${list.length} headings · ${list.reduce((a, t) => a + t.n, 0).toLocaleString()} entries`,
