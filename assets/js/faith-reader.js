@@ -1585,6 +1585,16 @@
     return `${parts.join(" · ")}${where}. No editorial introduction has been written for this work yet.`;
   }
 
+  // The author-page key. Folded the same way faith-author.js folds, so
+  // a name spelled three ways across the catalogues still resolves.
+  function foldName(s) {
+    return String(s || "")
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "");
+  }
+
   function populateHeader(m) {
     if (titleEl) {
       const { head, tail } = splitTitle(m.title || "Untitled");
@@ -1600,7 +1610,14 @@
     }
     if (dekEl) {
       const parts = [];
-      if (m.author) parts.push(escapeHtml(m.author));
+      // The author's name goes to their page, where their dates, their
+      // tradition, a life and the rest of their shelf are.
+      if (m.author) {
+        parts.push(
+          `<a class="faith-reader-author" href="/the-faith-received/author/?a=${
+            encodeURIComponent(foldName(m.author))}">${escapeHtml(m.author)}</a>`
+        );
+      }
       if (m.date) parts.push(escapeHtml(m.date));
       dekEl.innerHTML = parts.join(" &middot; ");
     }

@@ -1,0 +1,39 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Author &mdash; The Faith Received</title>
+<meta name="description" content="An author in The Faith Received: their dates, tradition, a short life, and every work of theirs the library holds." />
+<meta property="og:title" content="Author — The Faith Received" />
+<meta name="twitter:title" content="Author — The Faith Received" />
+{{/contentFor}}
+{{!-- /the-faith-received/author/?a=<folded-name>
+
+     One page per author, rendered at read time by faith-author.js.
+     There are well over fourteen thousand names across the seven
+     collections and they change whenever the source republishes, so
+     generating a template each is not the shape of this problem.
+
+     Built on the room hero so an author reads as a place in the
+     library rather than as a search result. --}}
+
+<main class="faith-received faith-author-page">
+
+  <section class="bhero bhero--tool bhero--author">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker">The Faith Received &middot; Author</p>
+      <h1 data-faith-author-name>Loading&hellip;</h1>
+    </div>
+  </section>
+
+  <section class="bband faith-author-body">
+    <div class="container" data-faith-author>
+      <p class="faith-author-empty">Loading&hellip;</p>
+    </div>
+  </section>
+
+</main>
+
+<meta name="tfr-library-base" content="https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com" />
+<script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/faith-century.js"}}"></script>
+<script src="{{asset "js/faith-author.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>

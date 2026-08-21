@@ -269,8 +269,14 @@
 
   function block(name, list) {
     const wide = list.length >= WIDE_AT ? " btrad--wide" : "";
+    // The author heading goes to their page. "Unattributed" is a bucket
+    // rather than a person, so it stays plain text.
+    const key = fold(name);
+    const head = key && name !== "Unattributed"
+      ? `<a class="brow-author" href="/the-faith-received/author/?a=${encodeURIComponent(key)}">${escapeHtml(name)}</a>`
+      : escapeHtml(name);
     return `<div class="btrad${wide}">
-  <h3>${escapeHtml(name)}</h3>
+  <h3>${head}</h3>
   <ul class="blist">${list.map(row).join("")}</ul>
 </div>`;
   }

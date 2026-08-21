@@ -5379,11 +5379,11 @@ mark.faith-find-hit.is-current {
 /* The tail of a long title, printed rather than hidden. */
 .faith-reader-subtitle {
   font-family: var(--font-display);
-  font-style: italic;
+  font-style: normal;
   font-weight: 400;
   font-size: clamp(17px, 1.6vw, 21px);
   line-height: 1.35;
-  color: var(--color-secondary);
+  color: var(--color-muted);
   margin: 10px 0 0;
   max-width: 46ch;
 }
@@ -5396,7 +5396,7 @@ mark.faith-find-hit.is-current {
 .faith-reader-translator {
   font-family: var(--font-body);
   font-size: 13px;
-  font-style: italic;
+  font-style: normal;
   color: var(--color-muted);
   margin: 4px 0 0;
 }
@@ -5417,7 +5417,7 @@ mark.faith-find-hit.is-current {
   font-size: 11px;
   letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: var(--color-secondary);
+  color: var(--color-muted);
   border: 1px solid var(--color-card-border);
   border-radius: 2px;
   padding: 5px 10px;
@@ -5446,13 +5446,13 @@ mark.faith-find-hit.is-current {
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
-  color: var(--color-secondary);
+  color: var(--color-dark);
   margin: 0;
 }
 /* A derived line is orientation, not an editor's introduction, so it
    is set quieter and says so. */
 [data-fr-intro-kind="derived"] .faith-reader-intro-text {
-  font-style: italic;
+  font-style: normal;
   color: var(--color-muted);
 }
 
@@ -5479,7 +5479,7 @@ mark.faith-find-hit.is-current {
   border: 1px solid var(--color-card-border);
   border-radius: 3px;
   background: var(--color-page);
-  color: var(--color-secondary);
+  color: var(--color-dark);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
@@ -5546,7 +5546,7 @@ mark.faith-find-hit.is-current {
   border: 1px solid var(--color-card-border);
   border-radius: 3px;
   background: var(--color-page);
-  color: var(--color-secondary);
+  color: var(--color-dark);
   cursor: pointer;
 }
 .faith-prefs-opt.is-active {
@@ -5669,7 +5669,7 @@ mark.faith-find-hit.is-current {
   border: 1px solid var(--color-card-border);
   border-radius: 3px;
   background: var(--color-page);
-  color: var(--color-secondary);
+  color: var(--color-dark);
   cursor: pointer;
 }
 .faith-reader .faith-find-nav:hover { border-color: var(--color-primary); color: var(--color-primary-text); }
@@ -5690,4 +5690,130 @@ mark.faith-find-hit.is-current {
   .faith-reader .faith-find { top: 56px; flex-wrap: wrap; }
   .faith-reader .faith-find-input { flex: 1 1 100%; height: 40px; }
   .faith-reader .faith-find-nav { height: 40px; min-width: 44px; }
+}
+
+/* ══ Author pages ═════════════════════════════════════════════════
+   /the-faith-received/author/?a=<folded-name>. Built on the room hero
+   so an author reads as a place in the library. */
+.bhero--author h1 { max-width: 20ch; }
+.faith-author-body { padding-top: 56px; }
+.faith-author-empty {
+  font-family: var(--font-body);
+  font-size: var(--tfr-body);
+  color: var(--color-muted);
+}
+
+/* The facts, as a rule-separated band rather than a card: dates,
+   tradition, affiliation, extent. */
+.fa-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--color-card-border);
+  border: 1px solid var(--color-card-border);
+  margin: 0 0 40px;
+}
+.fa-fact { background: var(--color-page); padding: 18px 20px; }
+.fa-fact dt {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  margin: 0 0 6px;
+}
+.fa-fact dd {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+/* The life runs the full width of the page in two columns rather than
+   sitting in a single 62ch strip down the left with half the screen
+   empty beside it. Two columns keep the measure readable while the
+   block fills the band, the way a printed life would set. */
+.fa-bio { margin: 0 0 22px; columns: 2; column-gap: 52px; }
+.fa-bio p {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0;
+}
+.fa-bio--none p { color: var(--color-muted); }
+.fa-significance {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--color-dark);
+  border-left: 2px solid var(--color-primary);
+  padding-left: 20px;
+  margin: 0 0 8px;
+}
+
+/* One shelf per collection the author appears in. */
+.fa-shelf { margin: 48px 0 0; }
+.fa-shelf-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--color-primary-text);
+  border-bottom: 1px solid var(--color-card-border);
+  padding-bottom: 10px;
+  margin: 0 0 4px;
+}
+.fa-shelf-head a { color: inherit; text-decoration: none; }
+.fa-shelf-head a:hover { color: var(--color-primary); text-decoration: none; }
+.fa-shelf-count { color: var(--color-muted); letter-spacing: 0.1em; }
+
+.fa-works { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 44px; }
+.fa-works li { break-inside: avoid; border-bottom: 1px solid var(--color-card-border); }
+.fa-works a, .fa-works > li > span {
+  display: block;
+  padding: 13px 0;
+  text-decoration: none;
+  color: inherit;
+}
+.fa-works a:hover { text-decoration: none; }
+.fa-works a:hover .fa-work-t { color: var(--color-primary-text); }
+.fa-work-t {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.32;
+  color: var(--color-dark);
+}
+.fa-work-la, .fa-work-vol, .fa-work-era {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+.fa-work-la { font-style: normal; }
+.fa-work-era { letter-spacing: 0.1em; text-transform: uppercase; font-size: 10px; }
+/* A work with no text behind it is listed but not offered. */
+.fa-work-pending .fa-work-t { color: var(--color-muted); }
+
+/* The author's name in a room heading and in the reader byline. */
+.brow-author, .faith-reader-author { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; }
+.brow-author:hover, .faith-reader-author:hover {
+  color: var(--color-primary-text);
+  text-decoration: none;
+  border-bottom-color: var(--color-primary);
+}
+
+@media (max-width: 700px) {
+  .fa-works { columns: 1; }
+  .fa-bio { columns: 1; }
+  .fa-meta { grid-template-columns: 1fr; }
 }

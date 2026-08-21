@@ -302,6 +302,10 @@ routes:
     template: custom-faith-room-confessions
   /the-faith-received/room/:
     template: custom-faith-room
+  # One page per author, keyed by ?a=<folded-name>. Rendered at read
+  # time: there are 14,000+ names across the seven collections.
+  /the-faith-received/author/:
+    template: custom-faith-author
   # Feature pages
   /the-faith-received/search/:
     template: custom-faith-search
