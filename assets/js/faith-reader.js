@@ -589,6 +589,15 @@
     for (let i = 1; i < rows.length; i += 1) {
       if (!opensDivision(tails[i - 1], tails[i])) continue;
       if (starts.has(i) || starts.has(i - 1)) continue;
+      // Unless the printed paragraph numbers run straight through it,
+      // in which case the citation is simply wrong and the text is
+      // continuous. Psalm 105 is cited ".22" at paragraph 12 and ".13"
+      // at paragraph 13 — one bad address in this corpus, and left
+      // alone it cut the psalm in half under a drawer called
+      // "Section 12".
+      const before = printedNumber(rows[i - 1]);
+      const after = printedNumber(rows[i]);
+      if (before !== null && after === before + 1) continue;
       starts.set(i, false);
     }
 
@@ -641,6 +650,17 @@
       out.push(parseInt(parts[i], 10));
     }
     return out;
+  }
+
+  // The paragraph number the edition printed, which is the last number
+  // in the bold lead: "<b>1.</b>" → 1, "<b>1. 1.</b>" → 1 (chapter and
+  // paragraph), "<b>I. 1.</b>" → 1. It is a second opinion on where a
+  // division ends, independent of the citation.
+  function printedNumber(r) {
+    const lead = /^\s*<b>([\s\S]*?)<\/b>/.exec(String((r && (r.en || r.la)) || ""));
+    if (!lead) return null;
+    const nums = lead[1].replace(/<[^>]*>/g, "").match(/\d+/g);
+    return nums ? parseInt(nums[nums.length - 1], 10) : null;
   }
 
   function opensDivision(a, b) {

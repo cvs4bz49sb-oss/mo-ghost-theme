@@ -295,10 +295,11 @@ export function extractRefs(segments) {
       if (prev) {
         prev.n += 1;
         // A verse gets its own locator, because the point of recording
-        // the verse is to land on the line that cites it. Capped: a
-        // concordance-like work can cite forty verses of one chapter
-        // and the file has to stay servable.
-        if (v && !prev.verses.has(v) && prev.verses.size < 40) prev.verses.set(v, here);
+        // the verse is to land on the line that cites it. Every one of
+        // them: a cap here is a reference the reader is never offered,
+        // and no chapter runs past 176 verses, so the ceiling was
+        // never protecting the file from anything.
+        if (v && !prev.verses.has(v)) prev.verses.set(v, here);
         continue;
       }
       found.set(key, {

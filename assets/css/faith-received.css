@@ -6272,10 +6272,19 @@ mark.faith-find-hit.is-current {
   border-bottom: 1px solid var(--color-card-border);
   margin: 0 0 6px;
 }
-/* The two wrappers exist for the markup's sake; their children belong
-   to the one row. */
-.faith-refs-searchbar,
-.faith-refs-selects { display: contents; }
+/* The box and what it searches share the first line, because they are
+   one control read left to right. The filters take the line under it,
+   all four together: Collection had been riding up beside the box and
+   sitting apart from Tradition and Century, which are the same kind of
+   thing and belong in the same row. */
+.faith-refs-searchbar { display: contents; }
+.faith-refs-selects {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 14px;
+}
 .faith-refs-count { flex: 1 0 100%; }
 
 /* An empty select is not a filter. .faith-refs-select sets its own

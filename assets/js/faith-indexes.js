@@ -478,11 +478,12 @@
     // each. A work that is about the topic end to end, Tertullian on
     // baptism, carries no sections and opens at its first page, which
     // is the right place for it.
+    // Every passage, for the same reason: a work that treats the topic
+    // in nine places should offer nine ways in, not four and a count.
     const more = secs.length > 1
-      ? `<span class="faith-card-secs">${secs.slice(0, 4).map((x) =>
+      ? `<span class="faith-card-secs">${secs.map((x) =>
         `<span class="faith-card-sec" role="link" tabindex="0" data-go="${escapeHtml(readerUrl(e.corpus, e.id, x.p, secOpts(x)))}">${
-          escapeHtml(x.t ? shorten(x.t) : (typeof x.p === "number" ? `Page ${x.p}` : "This passage"))}</span>`).join("")}${
-        secs.length > 4 ? `<span class="faith-card-sec-more">and ${secs.length - 4} more</span>` : ""}</span>`
+          escapeHtml(x.t ? shorten(x.t) : (typeof x.p === "number" ? `Page ${x.p}` : "This passage"))}</span>`).join("")}</span>`
       : "";
     const label = pending ? "Browse" : (secs.length ? "Read the passage" : "Read");
     return `<a class="faith-card" href="${escapeHtml(readerUrl(e.corpus, e.id, e.loc, secOpts(secs[0])))}">` +
@@ -1004,14 +1005,14 @@
   function verseLinks(e, ref) {
     const vs = e.verses || [];
     if (!vs.length) return "";
-    const shown = vs.slice(0, 12);
-    const links = shown.map(([v, loc]) =>
+    // All of them. A reference the index holds and does not show is a
+    // reference the reader cannot follow, and "and 2 more" names the
+    // two it is keeping back.
+    const links = vs.map(([v, loc]) =>
       `<span class="faith-verse-link" role="link" tabindex="0" data-go="${
         escapeHtml(readerUrl(e.corpus, e.id, loc == null ? e.loc : loc, { ref: `${ref}:${v}` }))
       }">${v}</span>`).join("");
-    const more = vs.length > shown.length
-      ? `<span class="faith-verse-more">and ${vs.length - shown.length} more</span>` : "";
-    return `<p class="faith-verse-row"><span class="faith-verse-label">Verses</span>${links}${more}</p>`;
+    return `<p class="faith-verse-row"><span class="faith-verse-label">Verses</span>${links}</p>`;
   }
 
   function refItem(e, ref) {
