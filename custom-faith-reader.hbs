@@ -8,40 +8,32 @@
 <meta name="twitter:description" content="Read the early modern theological library of The Faith Received, thousands of works in a clean reader." />
 {{/contentFor}}
 {{!-- Dynamic reader for The Faith Received library works.
-     Renders works from R2/CDN JSON (meta.json + work.json) instead of
-     baking content into the template. URL: /the-faith-received/reader/?w=slug
+     URL: /the-faith-received/reader/?w=slug&c=corpus
 
-     Header fields, TOC, and content are populated by faith-reader.js
-     from the work's meta.json and pages data. --}}
+     Rebuilt 2026-08-21. The header was the last surface wearing the
+     old magazine chrome: a full-bleed dark hero with a 72px display
+     title, centred, which pushed the first line of text most of a
+     screen down and truncated any title over 64 characters into an
+     ellipsis with the rest hidden in a tooltip.
 
-<main class="article faith-doc faith-doc--library faith-doc--books faith-doc--editorial">
+     It is now a title page rather than a hero. The plate colour and
+     kicker come from the TFR band language so the reader belongs to
+     the same product as the rooms, but it is set at reading scale,
+     left-aligned on the reading measure, and it carries the work's
+     categories and its introduction where every work has them in the
+     same place.
 
-  <section class="article-header faith-doc-header faith-doc-header--library">
-    <div class="article-header-inner">
-      <p class="article-topic">
-        <a href="/the-faith-received/" class="article-topic-tag">The Faith Received</a>
-        <a href="/the-faith-received/#traditions" class="article-topic-tag" data-fr-tradition></a>
-      </p>
-      <h1 class="article-title" data-fr-title>Loading&hellip;</h1>
-      <p class="article-dek faith-doc-dek" data-fr-dek></p>
-      <p class="faith-doc-translator" data-fr-translator></p>
-      <p class="faith-doc-description" data-fr-description></p>
-      <hr class="faith-doc-rule" aria-hidden="true">
+     Every data-fr-* and data-faith-* hook here is read by
+     faith-reader.js or faith-reader-tools.js. Check both before
+     removing one. --}}
 
-      <div class="faith-doc-actions">
-        <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
-          <span class="faith-doc-toc-toggle-icon" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </span>
-          <span class="faith-doc-toc-toggle-label">Contents</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
+<main class="article faith-doc faith-doc--library faith-doc--books faith-doc--editorial faith-reader">
 
   <div class="article-body faith-doc-body faith-doc-body--has-sidebar">
     <div class="faith-doc-layout">
+
+      {{!-- Contents. Far left of the window on desktop, a drawer on
+            mobile. --}}
       <aside class="faith-toc-sidebar" data-faith-toc-drawer aria-label="Document contents">
         <button type="button" class="faith-toc-close" data-faith-toc-close aria-label="Close contents">
           <span aria-hidden="true">&times;</span>
@@ -53,28 +45,69 @@
       </aside>
 
       <div class="faith-doc-inner">
-        <div class="faith-reading-controls" data-faith-controls>
-          <button type="button" class="faith-toggle-switch" data-faith-expand-toggle aria-pressed="false">
-            <span class="faith-toggle-label" data-off="Collapsed" data-on="Expanded">Collapsed</span>
+
+        {{!-- ── The work's title page ──────────────────────────── --}}
+        <header class="faith-reader-head">
+          <p class="faith-reader-kicker">
+            <a href="/the-faith-received/">The Faith Received</a>
+            <span class="faith-reader-kicker-sep" aria-hidden="true">&middot;</span>
+            <a href="/the-faith-received/browse/" data-fr-collection>The Library</a>
+          </p>
+
+          <h1 class="faith-reader-title" data-fr-title>Loading&hellip;</h1>
+          <p class="faith-reader-subtitle" data-fr-subtitle hidden></p>
+
+          <p class="faith-reader-byline" data-fr-dek></p>
+          <p class="faith-reader-translator" data-fr-translator></p>
+
+          {{!-- Every category the catalogue knows about this work:
+                collection, tradition and its parent, century, kind,
+                region. Built by faith-reader.js. --}}
+          <ul class="faith-reader-tags" data-fr-tags>
+            <li hidden><a href="/the-faith-received/browse/#traditions" class="faith-reader-tag" data-fr-tradition></a></li>
+          </ul>
+
+          {{!-- The introduction. One place, every work: the corpus
+                blurb where there is one, the catalogue description
+                otherwise. --}}
+          <div class="faith-reader-intro" data-fr-intro hidden>
+            <p class="faith-reader-intro-text" data-fr-description></p>
+          </div>
+
+          <div class="faith-doc-actions">
+            <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
+              <span class="faith-doc-toc-toggle-icon" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </span>
+              <span class="faith-doc-toc-toggle-label">Contents</span>
+            </button>
+          </div>
+        </header>
+
+        {{!-- ── The toolbar ─────────────────────────────────────
+             One row, one control height. faith-reader-tools.js
+             appends Find and Notebook here, and faith-reader.js
+             rebuilds the language buttons from the corpus's declared
+             lanes, so the three below are only the Latin defaults
+             shown before the work's meta arrives. --}}
+        <div class="faith-reading-controls faith-toolbar" data-faith-controls>
+          <button type="button" class="faith-tool" data-faith-expand-toggle aria-pressed="false">
+            <span class="faith-toggle-label" data-off="Expand all" data-on="Collapse all">Expand all</span>
           </button>
 
-          {{!-- Buttons are rebuilt by faith-reader.js from the corpus's
-               declared lanes, narrowed by what the work actually
-               carries — an en_only confession gets no switch at all,
-               Patrologia Graeca gets Greek rather than Latin. These
-               are the Latin-corpus defaults, shown before the work's
-               meta arrives. --}}
-          <div class="faith-lang-toggle" data-faith-lang-toggle hidden>
+          <div class="faith-lang-toggle" data-faith-lang-toggle hidden role="group" aria-label="Language">
             <button type="button" class="faith-lang-btn" data-lang="en" aria-pressed="true">English</button>
             <button type="button" class="faith-lang-btn" data-lang="la" aria-pressed="false">Latin</button>
             <button type="button" class="faith-lang-btn" data-lang="parallel" aria-pressed="false">Parallel</button>
           </div>
 
-          {{!-- Unhidden by the reader only where the corpus opts into
-               modernizing and the text actually reads archaically. --}}
-          <button type="button" class="faith-toggle-switch faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
-            <span class="faith-toggle-label faith-modernizer-label" data-off="Original" data-on="Modern English">Original</span>
+          <button type="button" class="faith-tool faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
+            <span class="faith-toggle-label faith-modernizer-label" data-off="Original spelling" data-on="Modern spelling">Original spelling</span>
           </button>
+
+          {{!-- Reading preferences: type size, face, line spacing,
+                measure. Mounted by faith-reader-prefs.js. --}}
+          <div class="faith-prefs" data-faith-prefs></div>
         </div>
 
         {{!-- Loading state --}}
@@ -95,217 +128,13 @@
   </div>
 </main>
 
-<style>
-/* ── Language toggle ──────────────────────────────────────────── */
-.faith-lang-toggle {
-  display: inline-flex;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-left: 1rem;
-}
-.faith-lang-btn {
-  font: 600 0.72rem/1 -apple-system, BlinkMacSystemFont, sans-serif;
-  padding: 0.45rem 0.75rem;
-  border: 0;
-  border-right: 1px solid var(--color-border);
-  background: var(--color-page);
-  color: var(--color-secondary);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-.faith-lang-btn:last-child { border-right: 0; }
-.faith-lang-btn[aria-pressed="true"] {
-  background: var(--color-secondary);
-  color: #fff;
-}
-
-/* ── Parallel columns ─────────────────────────────────────────── */
-.faith-parallel-block {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  /* Every block here is a paragraph, and until this rule existed they
-     were set flush against one another — a thousand paragraphs of
-     Augustine arriving as one wall. `gap` only separates the two
-     language columns; nothing separated a paragraph from the next. */
-  margin-bottom: 1.15rem;
-}
-.faith-parallel-block:last-child { margin-bottom: 0; }
-/* A run-in heading that stayed in the body — a chapter opening the
-   nester did not promote — should still read as a heading. */
-.faith-row--heading {
-  margin-top: 2rem;
-  font-family: var(--font-display);
-  font-weight: 600;
-}
-.faith-row--heading:first-child { margin-top: 0; }
-.faith-lang-en .faith-col-la,
-.faith-lang-la .faith-col-en { display: none; }
-.faith-lang-en .faith-parallel-block,
-.faith-lang-la .faith-parallel-block {
-  grid-template-columns: 1fr;
-}
-
-/* ── Quieter hierarchy in the reader ──────────────────────────────
-   A work with 211 chapters cannot set every chapter title at display
-   size in italic — the page reads as an argument between headings
-   rather than a text with an outline. Scoped to [data-fr-content] so
-   the tabs on /the-faith-received/ keep their own scale.
-
-   The work title is the one thing that should be large. Below it:
-   the book is a quiet label, the chapter is a plain line, and the
-   text is what the eye lands on. */
-/* screen.css sets `.faith-book .faith-book-chapter .faith-section-title`
-   at clamp(22px, 2.4vw, 28px) — three classes, which outranks a
-   attribute-plus-class selector. Match its weight so source order
-   decides, and this block is later in the document. */
-[data-fr-content] .faith-book-chapter .faith-section-title,
-[data-fr-content] .faith-section-summary-inner .faith-section-title,
-[data-fr-content] .faith-section-title {
-  font-size: 17px;
-  line-height: 1.35;
-  font-style: normal;
-  margin: 0 0 10px;
-}
-[data-fr-content] .faith-section-title em,
-[data-fr-content] .faith-book-chapter .faith-section-title em { font-style: normal; }
-[data-fr-content] .faith-section-subtitle {
-  font-family: var(--font-body);
-  font-style: normal;
-  font-size: 13px;
-  color: var(--color-muted);
-}
-/* The book label: a running head, not a headline. */
-[data-fr-content] .faith-part-eyebrow {
-  text-align: left;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  color: var(--color-muted);
-  margin: 0 0 6px;
-}
-[data-fr-content] .faith-book-subtitle { font-size: 12px; }
-
-/* Headings inside the text itself. The source conversions emit h1/h2
-   liberally, and the article styles size those for a magazine feature,
-   not for a scholastic question every third paragraph. Body text is
-   17px; these sit just above it and no higher. */
-[data-fr-content] .faith-col-en h1,
-[data-fr-content] .faith-col-la h1 { font-size: 20px; line-height: 1.3; margin: 1.6rem 0 0.5rem; }
-[data-fr-content] .faith-col-en h2,
-[data-fr-content] .faith-col-la h2 { font-size: 18px; line-height: 1.3; margin: 1.4rem 0 0.5rem; }
-[data-fr-content] .faith-col-en h3,
-[data-fr-content] .faith-col-la h3 { font-size: 16px; line-height: 1.35; margin: 1.2rem 0 0.4rem; }
-[data-fr-content] .faith-col-en h1:first-child,
-[data-fr-content] .faith-col-en h2:first-child,
-[data-fr-content] .faith-col-en h3:first-child { margin-top: 0; }
-[data-fr-content] .faith-col-en p,
-[data-fr-content] .faith-col-la p { margin: 0 0 0.9rem; }
-[data-fr-content] .faith-col-en p:last-child,
-[data-fr-content] .faith-col-la p:last-child { margin-bottom: 0; }
-
-/* Editors' scripture citations. Apparatus, not prose and not links:
-   they sit in the line at a smaller size, with room in front of them,
-   and take the accent only when they actually resolve somewhere. */
-.faith-ref {
-  font-size: 0.82em;
-  color: var(--color-muted);
-  white-space: nowrap;
-}
-.faith-ref::before { content: " "; }
-a.faith-ref { color: var(--color-primary); text-decoration: none; }
-a.faith-ref:hover { text-decoration: underline; }
-
-/* Markup carried inside the translation itself. The quarter-column
-   letter is the finest address this corpus has, so it is set like the
-   citation chips: small, raised, out of the reading line. */
-.faith-col-q {
-  font-family: var(--font-body);
-  font-size: 0.62em;
-  font-weight: 600;
-  vertical-align: super;
-  color: var(--color-primary);
-  margin: 0 0.15em 0 0.05em;
-}
-.faith-en-head { font-family: var(--font-display); font-weight: 600; }
-.faith-ed-note {
-  font-size: 0.82em;
-  font-style: italic;
-  color: var(--color-muted);
-}
-
-/* ── Latin text styling ───────────────────────────────────────── */
-.faith-col-la {
-  font-style: italic;
-  color: var(--color-secondary);
-}
-
-/* ── Mobile: stack parallel columns ───────────────────────────── */
-@media (max-width: 768px) {
-  .faith-parallel-block {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  .faith-lang-parallel .faith-col-la {
-    border-top: 1px solid var(--color-border);
-    padding-top: 1rem;
-  }
-}
-
-/* ── Page number markers ──────────────────────────────────────── */
-.faith-page-marker {
-  font: 600 0.65rem/1 -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--color-secondary);
-  opacity: 0.5;
-  margin-right: 0.5rem;
-}
-
-/* ── Loading / error states ───────────────────────────────────── */
-.faith-reader-loading,
-.faith-reader-error {
-  padding: 3rem 0;
-  text-align: center;
-}
-.faith-reader-loading-text,
-.faith-reader-error-text {
-  font: 400 0.9rem/1.6 -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--color-secondary);
-}
-.faith-reader-error-text { color: var(--color-error, #b91c1c); }
-
-.faith-toc-loading {
-  font: 400 0.8rem/1.4 -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--color-secondary);
-  padding: 0.5rem 0;
-}
-
-/* ── Per-section lazy load states ─────────────────────────────── */
-.faith-section-loading,
-.faith-section-error {
-  font: 400 0.85rem/1.5 -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--color-secondary);
-  padding: 1.25rem 0;
-  margin: 0;
-}
-.faith-section-error { color: var(--color-error, #b91c1c); }
-.faith-retry {
-  font: 600 0.75rem/1 -apple-system, BlinkMacSystemFont, sans-serif;
-  background: none;
-  border: 0;
-  border-bottom: 1px solid currentColor;
-  color: inherit;
-  padding: 0 0 1px;
-  margin-left: 0.35rem;
-  cursor: pointer;
-}
-</style>
-
 {{!-- CDN base URL for fetching work data. Read by faith-reader.js.
      Uses a <meta> tag instead of inline JS so the CSP can remain
      free of 'unsafe-inline' on script-src. --}}
 <meta name="tfr-library-base" content="https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com" />
 <script src="{{asset "js/faith-modernize.js"}}"></script>
 <script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/faith-century.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
 <script src="{{asset "js/faith-reader.js"}}"></script>
 {{!-- The citation resolver exposes window.MOResolve here rather than
@@ -317,4 +146,5 @@ a.faith-ref:hover { text-decoration: underline; }
 {{!-- Find in work + notebook. Loaded after the reader so the tools
      mount over rendered content. --}}
 <script src="{{asset "js/faith-reader-tools.js"}}"></script>
+<script src="{{asset "js/faith-reader-prefs.js"}}"></script>
 <script src="{{asset "js/faith-gate.js"}}"></script>

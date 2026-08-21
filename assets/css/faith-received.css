@@ -5269,3 +5269,368 @@ mark.faith-find-hit.is-current {
 /* Under the shelf, centred: the five collections first, the whole
    library as the fallback. */
 .tfr-browse-all--under { margin: 36px 0 0; text-align: center; }
+
+/* ══════════════════════════════════════════════════════════════════
+   THE READER, rebuilt 2026-08-21
+   ══════════════════════════════════════════════════════════════════
+
+   Last in the file on purpose. Everything above it that touches
+   .faith-doc-* was written for the old dark-hero reader, and at equal
+   specificity source order decides, which is the trap that left the
+   collections shelf rendering five across for a day.
+
+   The shape: contents pinned far left of the window, the text taking
+   the rest. The work's title page sits at the top of the reading
+   column rather than in a full-bleed hero, so the first line of text
+   is a scroll away instead of a screen away.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Reading preferences ──────────────────────────────────────────
+   Set on <html> by faith-reader-prefs.js and read here, so anything
+   rendered later obeys them too. */
+:root {
+  --fr-size: 18px;
+  --fr-lead: 1.62;
+  --fr-measure: 720px;
+  --fr-face: var(--font-body);
+}
+[data-fr-size="s"]  { --fr-size: 16px; }
+[data-fr-size="m"]  { --fr-size: 18px; }
+[data-fr-size="l"]  { --fr-size: 20px; }
+[data-fr-size="xl"] { --fr-size: 23px; }
+[data-fr-lead="tight"]  { --fr-lead: 1.45; }
+[data-fr-lead="normal"] { --fr-lead: 1.62; }
+[data-fr-lead="loose"]  { --fr-lead: 1.85; }
+[data-fr-measure="narrow"] { --fr-measure: 620px; }
+[data-fr-measure="normal"] { --fr-measure: 720px; }
+[data-fr-measure="wide"]   { --fr-measure: 860px; }
+[data-fr-face="sans"] { --fr-face: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+
+/* Paper. A tint, not a theme: the site chrome stays as it is and the
+   reading surface changes under the text. */
+[data-fr-tint="warm"] .faith-reader .faith-doc-inner { background: #faf4e8; }
+[data-fr-tint="dark"] .faith-reader .faith-doc-inner { background: #23211f; color: #e8e3dc; }
+[data-fr-tint="dark"] .faith-reader .faith-col-la { color: #bdb6ac; }
+[data-fr-tint="dark"] .faith-reader .faith-reader-title,
+[data-fr-tint="dark"] .faith-reader .faith-section-title { color: #f4efe8; }
+
+/* ── Layout: contents far left, text in the rest ──────────────── */
+@media (min-width: 1024px) {
+  .faith-reader .faith-doc-layout {
+    grid-template-columns: 270px minmax(0, 1fr);
+    column-gap: 0;
+    /* Was capped at 1200px and centred, which put the contents rail in
+       the middle of the window and wasted the left fifth. */
+    max-width: none;
+    margin: 0;
+    padding: 0 0 96px;
+  }
+  .faith-reader .faith-toc-sidebar {
+    position: sticky;
+    top: 84px;
+    max-height: calc(100vh - 104px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 40px 26px 40px 32px;
+    border-right: 1px solid var(--color-card-border);
+    background: transparent;
+  }
+  /* The reading column is centred in the space left over, not jammed
+     against the rail. */
+  .faith-reader .faith-doc-inner {
+    max-width: var(--fr-measure);
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+}
+
+/* ── The title page ───────────────────────────────────────────── */
+.faith-reader-head {
+  padding: 56px 0 30px;
+  border-bottom: 1px solid var(--color-card-border);
+  margin-bottom: 30px;
+}
+.faith-reader-kicker {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  margin: 0 0 18px;
+}
+.faith-reader-kicker a { color: inherit; text-decoration: none; }
+.faith-reader-kicker a:hover { color: var(--color-primary); text-decoration: none; }
+.faith-reader-kicker-sep { margin: 0 8px; opacity: 0.55; }
+
+/* The title. Down from a 72px display line to something a long early
+   modern title can actually wear: Perkins runs 63 words and used to be
+   cut to an ellipsis with the rest hidden in a tooltip. */
+.faith-reader-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3.1vw, 40px);
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--color-dark);
+  text-align: left;
+  max-width: 24ch;
+}
+/* The tail of a long title, printed rather than hidden. */
+.faith-reader-subtitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(17px, 1.6vw, 21px);
+  line-height: 1.35;
+  color: var(--color-secondary);
+  margin: 10px 0 0;
+  max-width: 46ch;
+}
+.faith-reader-byline {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  color: var(--color-muted);
+  margin: 16px 0 0;
+}
+.faith-reader-translator {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-muted);
+  margin: 4px 0 0;
+}
+
+/* ── Categories ───────────────────────────────────────────────── */
+.faith-reader-tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 18px 0 0;
+  padding: 0;
+}
+.faith-reader-tags:empty { display: none; }
+.faith-reader-tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  border: 1px solid var(--color-card-border);
+  border-radius: 2px;
+  padding: 5px 10px;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.faith-reader-tag:hover {
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
+  text-decoration: none;
+}
+/* The collection is the work's home shelf, so it leads. */
+.faith-reader-tag--collection {
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
+}
+
+/* ── The introduction ─────────────────────────────────────────── */
+.faith-reader-intro {
+  margin: 24px 0 0;
+  padding: 18px 22px;
+  background: var(--color-cream);
+  border-left: 2px solid var(--color-primary);
+}
+.faith-reader-intro-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-secondary);
+  margin: 0;
+}
+/* A derived line is orientation, not an editor's introduction, so it
+   is set quieter and says so. */
+[data-fr-intro-kind="derived"] .faith-reader-intro-text {
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+/* ── The toolbar ──────────────────────────────────────────────── */
+.faith-reader .faith-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 0 18px;
+  margin: 0 0 28px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+/* One control height across the row. The old bar mixed bordered
+   buttons with bare text links at three different heights. */
+.faith-reader .faith-tool,
+.faith-reader .faith-lang-btn,
+.faith-reader .faith-toolbar button:not(.faith-prefs-opt):not(.faith-prefs-reset) {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.faith-reader .faith-tool:hover,
+.faith-reader .faith-lang-btn:hover { border-color: var(--color-primary); color: var(--color-primary-text); }
+.faith-reader .faith-tool[aria-pressed="true"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+/* The language switch is one control, so its buttons share a border
+   rather than each carrying their own. */
+.faith-reader .faith-lang-toggle {
+  display: inline-flex;
+  margin: 0;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.faith-reader .faith-lang-toggle .faith-lang-btn {
+  border-radius: 0;
+  border-right-width: 0;
+}
+.faith-reader .faith-lang-toggle .faith-lang-btn:first-child { border-radius: 3px 0 0 3px; }
+.faith-reader .faith-lang-toggle .faith-lang-btn:last-child {
+  border-radius: 0 3px 3px 0;
+  border-right-width: 1px;
+}
+.faith-reader .faith-lang-btn[aria-pressed="true"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* ── Preferences ──────────────────────────────────────────────── */
+.faith-prefs { position: relative; margin-left: auto; }
+.faith-prefs-toggle .faith-prefs-icon { font-family: var(--font-display); font-size: 15px; }
+.faith-prefs-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 40;
+  width: 290px;
+  padding: 16px 18px 12px;
+  background: var(--color-page);
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  box-shadow: 0 12px 40px rgba(45, 41, 39, 0.16);
+}
+.faith-prefs-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.faith-prefs-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.faith-prefs-opts { display: inline-flex; gap: 4px; }
+.faith-prefs-opt {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1;
+  padding: 6px 9px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-secondary);
+  cursor: pointer;
+}
+.faith-prefs-opt.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.faith-prefs-row--reset { justify-content: flex-end; margin: 0; border-top: 1px solid var(--color-card-border); padding-top: 10px; }
+.faith-prefs-reset {
+  font-family: var(--font-body);
+  font-size: 11px;
+  background: none;
+  border: 0;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 0;
+}
+.faith-prefs-reset:hover { color: var(--color-primary-text); }
+
+/* ── The text ─────────────────────────────────────────────────── */
+.faith-reader [data-fr-content] .faith-col-en,
+.faith-reader [data-fr-content] .faith-col-la {
+  font-family: var(--fr-face);
+  font-size: var(--fr-size);
+  line-height: var(--fr-lead);
+}
+/* Space between paragraphs, everywhere, one value. Prose in this
+   corpus arrives from four converters and each had its own idea. */
+.faith-reader [data-fr-content] p {
+  margin: 0 0 1.1em;
+}
+.faith-reader [data-fr-content] p:last-child { margin-bottom: 0; }
+
+/* The page number, inline in the flow now that a section is one
+   continuous block. Quiet enough to read past, there when wanted. */
+.faith-reader .faith-page-marker {
+  font-family: var(--font-body);
+  font-size: 0.62em;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  opacity: 0.75;
+  margin-right: 0.45em;
+  user-select: none;
+}
+
+/* Section headings at reading scale. A work with 211 chapters cannot
+   set every chapter title at display size. */
+.faith-reader [data-fr-content] .faith-section-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.3;
+  font-style: normal;
+  margin: 0 0 4px;
+}
+.faith-reader [data-fr-content] .faith-book-chapter .faith-section-title { font-size: 18px; }
+.faith-reader [data-fr-content] .faith-section-title em { font-style: normal; }
+.faith-reader [data-fr-content] .faith-col-en h1,
+.faith-reader [data-fr-content] .faith-col-la h1 { font-size: 1.18em; line-height: 1.3; margin: 1.7em 0 0.5em; }
+.faith-reader [data-fr-content] .faith-col-en h2,
+.faith-reader [data-fr-content] .faith-col-la h2 { font-size: 1.08em; line-height: 1.3; margin: 1.5em 0 0.5em; }
+.faith-reader [data-fr-content] .faith-col-en h3,
+.faith-reader [data-fr-content] .faith-col-la h3 { font-size: 1em; font-weight: 600; margin: 1.3em 0 0.4em; }
+.faith-reader [data-fr-content] .faith-col-en h1:first-child,
+.faith-reader [data-fr-content] .faith-col-en h2:first-child,
+.faith-reader [data-fr-content] .faith-col-en h3:first-child { margin-top: 0; }
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .faith-reader .faith-doc-inner { padding: 0 20px; max-width: none; }
+  .faith-reader-head { padding: 32px 0 24px; }
+  .faith-reader-title { font-size: clamp(25px, 6.4vw, 32px); max-width: none; }
+  .faith-reader .faith-toolbar { gap: 8px; }
+  .faith-prefs { margin-left: 0; }
+  .faith-prefs-panel { right: auto; left: 0; width: min(290px, calc(100vw - 48px)); }
+}
+@media (max-width: 640px) {
+  /* Touch targets come up to 40px, and the row is allowed to wrap
+     rather than scroll sideways. */
+  .faith-reader .faith-tool,
+  .faith-reader .faith-lang-btn,
+  .faith-reader .faith-toolbar button:not(.faith-prefs-opt):not(.faith-prefs-reset) {
+    height: 40px;
+    padding: 0 13px;
+  }
+  .faith-reader-tags { gap: 6px; }
+  .faith-reader-intro { padding: 14px 16px; }
+}

@@ -796,6 +796,19 @@
   // JSON. PLD's catalogue, topics and 236,351 reference keys are all
   // reachable; only the text is gated.
 
+  // The reading room each collection has a page for. Kept here rather
+  // than on each corpus so the routes are readable as a set, and so a
+  // route rename is one edit.
+  const CORPUS_ROOM = {
+    tfr: "/the-faith-received/latin-library/",
+    confessions: "/the-faith-received/confessions/",
+    eebo: "/the-faith-received/early-english-books/",
+    pld: "/the-faith-received/patrologia-latina/",
+    pg: "/the-faith-received/patrologia-graeca/",
+    po: "/the-faith-received/patrologia-orientalis/",
+    augustine: "/the-faith-received/augustine/",
+  };
+
   const byId = new Map(CORPORA.map((c) => [c.id, c]));
 
   // Author-keyed tradition lists, loaded once per corpus that has
@@ -891,6 +904,8 @@
     all: CORPORA,
     get: (id) => byId.get(id),
     load: loadCorpus,
+    // The reading room page for a collection, or "" if it has none.
+    room: (id) => CORPUS_ROOM[id] || "",
     // The parent of a tradition, or "" if it has none. Callers pass the
     // corpus a work came from; the all-works page passes nothing and
     // gets the union, which is safe because no value has two parents.

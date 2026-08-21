@@ -1478,24 +1478,125 @@
   // for the dek, and never let a heading run past a line or two.
   const TITLE_BREAKS = [", or,", ": or", " or, ", ":", ";"];
 
-  function shortTitle(raw) {
+  // The whole title, never an ellipsis. A cut-off headline with a "\u2026"
+  // and the rest hidden in a tooltip is not a title, and a reader
+  // cannot tell whether the book is called "The light upon the
+  // candlestick" or something four lines longer.
+  //
+  // Where the title carries its own break the tail becomes a subtitle,
+  // so the eye gets a short line to land on and the rest is still
+  // there. Perkins' "A golden chaine, or, the description of
+  // theologie\u2026" reads as a title and a subtitle rather than as 63 words
+  // set at display size.
+  function splitTitle(raw) {
     const t = String(raw || "").trim();
-    if (t.length <= 64) return t;
+    if (t.length <= 64) return { head: t, tail: "" };
     for (const sep of TITLE_BREAKS) {
       const i = t.toLowerCase().indexOf(sep);
-      if (i > 12 && i < 78) return t.slice(0, i).replace(/[\s,;:]+$/, "");
+      if (i > 12 && i < 78) {
+        return {
+          head: t.slice(0, i).replace(/[\s,;:]+$/, ""),
+          tail: t.slice(i).replace(/^[\s,;:]*(or,?|:)?\s*/i, "").trim(),
+        };
+      }
     }
-    const cut = t.slice(0, 72);
-    return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[\s,;:]+$/, "")}\u2026`;
+    return { head: t, tail: "" };
+  }
+
+  // The room each category links back to, so a tag is a way further in
+  // rather than a label. Everything routes through the all-works page,
+  // which already reads collection, century and tradition from the URL.
+  function tagHref(kind, value) {
+    const room = "/the-faith-received/all-works/";
+    if (kind === "collection") return `${room}?in=${encodeURIComponent(corpusId)}`;
+    if (kind === "tradition") return `${room}?tradition=${encodeURIComponent(value)}`;
+    if (kind === "denomination") {
+      const parent = window.MOCorpora && window.MOCorpora.traditionParent
+        ? window.MOCorpora.traditionParent(value, corpusId) : "";
+      return parent
+        ? `${room}?tradition=${encodeURIComponent(parent)}&denomination=${encodeURIComponent(value)}`
+        : `${room}?tradition=${encodeURIComponent(value)}`;
+    }
+    if (kind === "century") return `${room}?century=${encodeURIComponent(value)}`;
+    return room;
+  }
+
+  function buildTags(m) {
+    const host = document.querySelector("[data-fr-tags]");
+    if (!host) return;
+
+    const tags = [];
+    const seen = new Set();
+    const add = (kind, label, value) => {
+      const text = String(label || "").trim();
+      if (!text || seen.has(text.toLowerCase())) return;
+      seen.add(text.toLowerCase());
+      tags.push({ kind, text, value: value === undefined ? text : value });
+    };
+
+    if (corpus && corpus.label) add("collection", corpus.label);
+
+    // Tradition, and the communion it sits under where it has one, so
+    // a Reformed confession reads "Protestant · Reformed".
+    const trad = m.tradition || m.group || "";
+    if (trad) {
+      const parent = window.MOCorpora && window.MOCorpora.traditionParent
+        ? window.MOCorpora.traditionParent(trad, corpusId) : "";
+      if (parent) add("tradition", parent);
+      add("denomination", trad);
+    }
+
+    // The century, derived the same way the rooms derive it, so the
+    // two never disagree.
+    if (window.MOCentury) {
+      const c = window.MOCentury.of({
+        date: m.date || "", year: m.year || 0, volume: m.volume || "",
+        title: m.title || "", corpus: corpusId,
+      });
+      if (c) add("century", window.MOCentury.label(c), c);
+    }
+
+    // Whatever else the source carries. These are the fields Stiven's
+    // meta.json ships and nothing on the site had ever shown.
+    add("kind", m.doc_type || "");
+    add("region", m.region || "");
+
+    host.innerHTML = tags.map((t) =>
+      `<li><a class="faith-reader-tag faith-reader-tag--${escapeHtml(t.kind)}" ` +
+      `href="${escapeHtml(tagHref(t.kind, t.value))}">${escapeHtml(t.text)}</a></li>`
+    ).join("");
+  }
+
+  // Where the source gave no blurb and no description, say what the
+  // catalogue does know. It is a sentence rather than a hundred words,
+  // but it is in the same place on the page as every other work's
+  // introduction, which is the point.
+  function fallbackIntro(m) {
+    const bits = [];
+    if (m.author) bits.push(m.author);
+    if (m.date || m.year) bits.push(String(m.date || m.year));
+    const who = bits.join(", ");
+    const where = corpus && corpus.label ? ` in ${corpus.label}` : "";
+    const extent = m.n_pages ? `${m.n_pages.toLocaleString()} pages` : "";
+    const parts = [];
+    if (who) parts.push(who);
+    if (extent) parts.push(extent);
+    if (!parts.length) return "";
+    return `${parts.join(" · ")}${where}. No editorial introduction has been written for this work yet.`;
   }
 
   function populateHeader(m) {
     if (titleEl) {
-      const full = m.title || "Untitled";
-      const short = shortTitle(full);
-      titleEl.textContent = short;
-      // The full title is the book's own, so keep it reachable.
-      if (short !== full) titleEl.setAttribute("title", full);
+      const { head, tail } = splitTitle(m.title || "Untitled");
+      titleEl.textContent = head;
+      titleEl.removeAttribute("title");
+      // The remainder of a long title is printed, not hidden. There is
+      // a slot for it in the header markup.
+      const subEl = document.querySelector("[data-fr-subtitle]");
+      if (subEl) {
+        subEl.textContent = tail;
+        subEl.hidden = !tail;
+      }
     }
     if (dekEl) {
       const parts = [];
@@ -1503,6 +1604,23 @@
       if (m.date) parts.push(escapeHtml(m.date));
       dekEl.innerHTML = parts.join(" &middot; ");
     }
+    // ── Categories ───────────────────────────────────────────
+    //
+    // Every category the catalogue knows, in one row, each one a link
+    // back into the shelf it names. A reader who has landed on a work
+    // from a search should be able to see at a glance what it is and
+    // walk outward from it, and until now the header carried a single
+    // tradition pill and nothing else.
+    buildTags(m);
+
+    // The kicker names the collection this work sits in, and links to
+    // its reading room rather than to the project's front door.
+    const collEl = document.querySelector("[data-fr-collection]");
+    if (collEl && corpus) {
+      collEl.textContent = corpus.label;
+      if (corpus.room) collEl.href = corpus.room;
+    }
+
     if (traditionEl && m.tradition) {
       traditionEl.textContent = m.tradition;
       traditionEl.href = "/the-faith-received/#traditions";
@@ -1514,16 +1632,27 @@
         translatorEl.hidden = true;
       }
     }
+    // ── The introduction ─────────────────────────────────────
+    //
+    // One place on every work, whatever the source gave us. The corpus
+    // blurb is the best of them and covers 649 works; a catalogue
+    // description is the fallback; and where there is neither, the
+    // work still gets an orienting line built from what the catalogue
+    // does know, rather than an empty space where other works have a
+    // paragraph.
     if (descEl) {
-      descEl.textContent = m.description || "";
-      if (!m.description) descEl.hidden = true;
-      // A hundred words on what this thing is, before anyone has to
-      // decide whether to read it. The corpus ships these for 649 of
-      // its works and nothing had ever put them on the page.
-      loadBlurb().then((text) => {
-        if (!text) return;
+      const wrap = document.querySelector("[data-fr-intro]");
+      const show = (text, kind) => {
         descEl.textContent = text;
-        descEl.hidden = false;
+        descEl.hidden = !text;
+        if (wrap) {
+          wrap.hidden = !text;
+          wrap.setAttribute("data-fr-intro-kind", kind);
+        }
+      };
+      show(m.description || fallbackIntro(m), m.description ? "description" : "derived");
+      loadBlurb().then((text) => {
+        if (text) show(text, "blurb");
       });
     }
     // Update the page title.
@@ -1771,6 +1900,18 @@
   // marker nearest the top of the viewport, keeps working unchanged.
   const PAGE_TOKEN = /@@FRPAGE:(\d+)@@/g;
 
+  // What a transcriber writes on a leaf that carries nothing. Printed
+  // as if it were the text, these read as the author's own words:
+  // Le Blanc's front matter opened "This page is blank. [No text
+  // present on this page.]". The page number stays either way, so the
+  // count and the facsimile pane remain honest about the leaf.
+  const BLANK_PAGE = /^[\s[(]*(?:this page (?:is|was) (?:blank|intentionally left blank)|no text (?:is )?(?:present |found )?on this page|page (?:is )?blank|blank(?: page)?|illegible|not scanned)[\s.\])]*$/i;
+
+  function pageText(p, key) {
+    const t = String(p[key] || "");
+    return BLANK_PAGE.test(t.trim()) ? "" : t;
+  }
+
   function buildPagesBlock(pages) {
     const block = document.createElement("div");
     block.className = "faith-parallel-block";
@@ -1790,10 +1931,10 @@
         // TEI marks a paragraph split across a page break with
         // part="I|M|F", and parseTei leaves those fragments open, so
         // concatenating the pages closes them back into one paragraph.
-        return sanitize(pages.map((p) => marker(p.n) + (p[key] || "")).join(""));
+        return sanitize(pages.map((p) => marker(p.n) + pageText(p, key)).join(""));
       }
       const raw = pages
-        .map((p) => `@@FRPAGE:${p.n}@@${p[key] || ""}`)
+        .map((p) => `@@FRPAGE:${p.n}@@${pageText(p, key)}`)
         .join(" ");
       // The token is plain text, so it passes through escaping intact
       // and is swapped for the marker after the Markdown is built.

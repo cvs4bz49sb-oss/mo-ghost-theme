@@ -130,28 +130,13 @@ const LIBRARY_TRANSLATORS = {
   "augustine-confessions": "J.G. Pilkington",
   "polanus-syntagma": "Stiven Peter",
 };
-const LIBRARY_DOWNLOADS_AVAILABLE = new Set([
-  // Slugs in this set render the format-downloads row. Rest skip it
-  // until files ship. Add slugs as PDFs/EPUBs become available.
-]);
-
-function formatDownloadsRow(doc) {
-  // Render the row even when files aren't ready — keeps the editorial
-  // layout consistent and gives Ian a placeholder to wire up later.
-  // The hrefs use the original TFR API path shape so the swap to a
-  // Worker or R2 redirect is a one-line change per format.
-  if (doc.category !== "library") return "";
-  const ready = LIBRARY_DOWNLOADS_AVAILABLE.has(doc.slug);
-  const dlAttr = ready ? "" : ` data-faith-download-pending aria-disabled="true"`;
-  const base = `/the-faith-received/${doc.slug}/download`;
-  return `
-      <p class="faith-format-downloads">
-        <a class="faith-format-link" href="${base}/pdf"${dlAttr}>PDF</a>
-        <a class="faith-format-link" href="${base}/epub"${dlAttr}>EPUB</a>
-        <span class="faith-format-sep" aria-hidden="true">|</span>
-        <a class="faith-format-link faith-format-link--muted" href="${base}/modern/pdf"${dlAttr}>PDF (Modern)</a>
-        <a class="faith-format-link faith-format-link--muted" href="${base}/modern/epub"${dlAttr}>EPUB (Modern)</a>
-      </p>`;
+// The PDF and EPUB row is gone. It advertised four downloads on 56
+// documents, every one of them a dead link: the set of slugs with files
+// behind them was empty from the day the row was written, so each was
+// rendered aria-disabled and did nothing when clicked. Offering a
+// reader four formats and delivering none is worse than offering none.
+function formatDownloadsRow() {
+  return "";
 }
 
 // ── Header (dark hero atop every document) ────────────────────
