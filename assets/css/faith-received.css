@@ -5082,32 +5082,17 @@ mark.faith-find-hit.is-current {
 }
 .faith-room-trads button.is-active span { color: #ffffff8f; }
 
-/* The fathers band. Same column packing as a reading room, on the dark
-   ground: blocks flow rather than sitting in a grid, so Tertullian's
-   twenty works do not open a hole beside Papias's one. */
-.lp-fathers-grid { display: block; columns: 3; column-gap: 56px; }
-.lp-fathers-grid .btrad {
-  break-inside: avoid;
-  display: inline-block;
-  width: 100%;
-  margin: 0 0 32px;
-}
-.lp-fathers-grid .btrad h3 {
+/* The fathers band: a line pointing at the table of contents, not the
+   table of contents itself. */
+.lp-fathers .lp-more { margin-top: 26px; }
+.lp-fathers .lp-more a {
   font-family: var(--font-body);
-  font-size: var(--tfr-micro);
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  font-size: var(--tfr-meta);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-secondary);
-  margin: 0 0 2px;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
 }
-.lp-fathers-grid .blist li { border-top: 1px solid #ffffff2b; }
-.lp-fathers-grid .blist a { padding: 10px 0; }
-.lp-fathers-grid .brow-t { font-size: 16px; line-height: 1.3; color: #fff; }
-.lp-fathers-grid .brow-m { margin-top: 2px; }
-.lp-fathers-grid .btrad--wide { display: block; column-span: all; }
-.lp-fathers-grid .btrad--wide .blist { columns: 3; column-gap: 56px; }
-@media (max-width: 900px) {
-  .lp-fathers-grid,
-  .lp-fathers-grid .btrad--wide .blist { columns: 1; }
+.lp-fathers .lp-more a:hover { border-bottom-color: var(--color-secondary); }
 }

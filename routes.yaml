@@ -275,6 +275,8 @@ routes:
   # to its own route below, and topics, scripture, today and devotional
   # were already routed separately further down this file, so nothing
   # was orphaned by the change. See website/handoffs/TFR-REDESIGN.md.
+  /the-faith-received/fathers/:
+    template: custom-faith-fathers
   /the-faith-received/browse/:
     template: custom-faith-browse
   # One route for all eight reading rooms; ?collection= picks which.
