@@ -566,6 +566,11 @@
           current = {
             id: r.id || "",
             title: headingText(r),
+            // A section built from a heading is titled in English
+            // where there is a translation, but Patrologia Latina's
+            // topic index names the same heading in Latin. Keep the
+            // Latin alongside so a link from that index can find it.
+            alt: String(r.la || "").replace(/<[^>]*>/g, "").trim(),
             subtitle: "",
             rows: [],
             children: [],
@@ -742,6 +747,7 @@
     // index points at) is carried as an alias rather than as the id,
     // so #section-N links keep working too.
     if (s.id && s.id !== details.id) details.setAttribute("data-src-id", s.id);
+    if (s.alt && s.alt !== s.title) details.setAttribute("data-heading-alt", s.alt.slice(0, 200));
     details.dataset.frState = "loaded";
     const sum = document.createElement("summary");
     sum.className = "faith-section-summary";
@@ -2171,13 +2177,117 @@
     }
     if (window.pageYOffset > 200 && tries > 0) return;
     block.classList.add("faith-page-target");
-    const y = block.getBoundingClientRect().top + window.pageYOffset - 140;
-    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    // Instant, and asserted three times. A smooth scroll of twelve
+    // thousand pixels is slow to begin with and fragile besides: the
+    // reference marker splits a text node inside the same section on
+    // its way past, and the reflow cancelled the animation partway,
+    // leaving the reader back at the top of the work with no sign that
+    // anything had been attempted. Nothing cancels a jump.
+    const go = () => {
+      const y = block.getBoundingClientRect().top + window.pageYOffset - 140;
+      window.scrollTo({ top: Math.max(0, y), behavior: "instant" });
+    };
+    go();
+    window.setTimeout(go, 200);
+    window.setTimeout(go, 600);
+  }
+
+  // The Early English Books scripture index knows which works cite
+  // Romans 8 and nothing further: no page, no section, just the work.
+  // That is the larger half of the index, and following one of those
+  // citations opened a folio at its title page.
+  //
+  // So find the citation in the words. Works in that collection arrive
+  // as one document rather than in shards, so the whole text is already
+  // in the page and this is a walk over the DOM, not another request.
+  // Where a work is sharded the walk sees only what is open, finds
+  // nothing, and the reader is left where the page number put them.
+  const REF_TRIES = 20;
+
+  // `root` scopes the search and `scroll` says who is steering. Where
+  // the index gave a page, the page decides where the reader lands and
+  // the reference only marks the line once that section is open: the
+  // two ran loose together at first and the reference won, because a
+  // long work mentions Romans 8 in its preface as well as at the place
+  // the index meant, and the reader was dropped at the earlier one.
+  function landOnRef(ref, tries, root, scroll) {
+    const m = String(ref || "").trim().match(/^(.*?)\s+(\d+)$/);
+    if (!m || !window.MOScriptureRef) return;
+    const where = root || contentEl;
+    const found = window.MOScriptureRef.locate(where, m[1], m[2]);
+    if (!found) {
+      if (tries < REF_TRIES) {
+        window.setTimeout(() => landOnRef(ref, tries + 1, root, scroll), 150);
+      }
+      return;
+    }
+    // Someone who gave up waiting and started reading keeps their place.
+    if (scroll && window.pageYOffset > 200 && tries > 0) return;
+    const mid = found.node.splitText(found.index);
+    mid.splitText(found.length);
+    const mark = document.createElement("mark");
+    mark.className = "faith-ref-target";
+    mid.parentNode.insertBefore(mark, mid);
+    mark.appendChild(mid);
+    let parent = mark.parentElement;
+    while (parent && parent !== contentEl) {
+      if (parent.tagName === "DETAILS") parent.open = true;
+      parent = parent.parentElement;
+    }
+    if (!scroll) return;
+    // Instant and asserted, for the reason landOnPage is: the
+    // stylesheet sets scroll-behavior smooth, so an unqualified
+    // scrollIntoView animates, and the first section opening underneath
+    // cancels the animation partway. Asserted three times because the
+    // sections above this one settle at their own pace.
+    const go = () => mark.scrollIntoView({ block: "center", behavior: "instant" });
+    window.requestAnimationFrame(go);
+    window.setTimeout(go, 200);
+    window.setTimeout(go, 600);
+  }
+
+  // Patrologia Latina's topic index names each passage by its heading
+  // and by an ordinal that indexes nothing this reader holds, so the
+  // heading is what arrives. Long sections are split at their headings
+  // here, which means the heading is a section of its own and the
+  // match is against a section title rather than loose text.
+  function landOnHeading(text, tries) {
+    const want = normHeading(text);
+    if (!want || want.length < 6) return;
+    const all = contentEl.querySelectorAll(".faith-section-details");
+    let hit = null;
+    for (let i = 0; i < all.length && !hit; i += 1) {
+      const sum = all[i].querySelector(":scope > summary");
+      const shown = sum ? normHeading(sum.textContent) : "";
+      const alt = normHeading(all[i].getAttribute("data-heading-alt"));
+      if ((shown && shown.indexOf(want) >= 0) || (alt && alt.indexOf(want) >= 0)) hit = all[i];
+    }
+    if (!hit) {
+      if (tries < REF_TRIES) window.setTimeout(() => landOnHeading(text, tries + 1), 150);
+      return;
+    }
+    if (window.pageYOffset > 200 && tries > 0) return;
+    if (hit.id) revealSection(`#${hit.id}`, true);
+  }
+
+  function normHeading(t) {
+    return String(t || "")
+      .normalize("NFD").replace(/\p{M}/gu, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, " ")
+      .trim();
   }
 
   function openInitialSection() {
     let wanted = null;
-    try { wanted = parseInt(new URLSearchParams(window.location.search).get("p"), 10); } catch (_) {}
+    let ref = null;
+    let heading = null;
+    try {
+      const q = new URLSearchParams(window.location.search);
+      wanted = parseInt(q.get("p"), 10);
+      ref = q.get("ref") || null;
+      heading = q.get("h") || null;
+    } catch (_) {}
+    if (heading) landOnHeading(heading, 0);
     if (wanted) {
       const target = [...contentEl.querySelectorAll("[data-from]")].find((d) => {
         const from = parseInt(d.getAttribute("data-from"), 10);
@@ -2202,9 +2312,16 @@
         // top of a four-hundred-page run with the page they wanted
         // eight thousand pixels below. Polling cannot miss.
         landOnPage(target, wanted, 0);
+        // Inside that section only, and without stealing the scroll:
+        // the page puts the reader on the right folio, this puts a mark
+        // on the line.
+        if (ref) landOnRef(ref, 0, target, false);
         return;
       }
     }
+    // No page: the reference is the only locator there is, which is
+    // every Early English Books citation in the index.
+    if (ref) landOnRef(ref, 0, contentEl, true);
     if (window.location.hash && revealSection(window.location.hash, true)) return;
     const first = contentEl.querySelector(".faith-section-details");
     if (first) revealSection(`#${first.id}`, false);

@@ -150,6 +150,11 @@
 <script src="{{asset "js/faith-corpora.js"}}"></script>
 <script src="{{asset "js/faith-century.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
+{{!-- Matches a scripture reference against early modern printing, so a
+     citation link from the index can land on the line rather than on
+     the title page. Loaded before the reader, which calls it as soon as
+     a work renders. --}}
+<script src="{{asset "js/faith-scripture-ref.js"}}"></script>
 <script src="{{asset "js/faith-reader.js"}}"></script>
 {{!-- The citation resolver exposes window.MOResolve here rather than
      any UI: an arriving constellation addresses Patrologia Graeca by

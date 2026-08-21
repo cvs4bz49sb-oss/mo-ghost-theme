@@ -6215,6 +6215,20 @@ mark.faith-find-hit.is-current {
   .faith-reader .faith-page-target { animation: none; background: #f6e2c8; }
 }
 
+/* The citation itself, where the reader arrived by a reference rather
+   than a page: Rom. viij. 28, four words inside a paragraph. This one
+   holds rather than fades. The page marker is a signpost the reader can
+   see at a glance; this is a few characters in the middle of a column
+   of early modern type, and losing it after two seconds means losing
+   it. */
+.faith-reader mark.faith-ref-target {
+  background: #f6e2c8;
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 #d9b98a;
+}
+
 /* ══ Scripture reference filters ══════════════════════════════════
    A chapter of Romans is cited by four thousand works. Without a way
    to ask it a question the index is a list nobody reads, so the

@@ -282,7 +282,12 @@
   }
 
   // { topics: [{ label, works: [{ slug|d, title|t|te, author|a }] }] }
-  function loadTopics(url, corpusId) {
+  function loadTopics(url, corpusId, catalogue) {
+    // Joined against the collection's own catalogue for the same reason
+    // the scripture loaders are: the topic files carry an author and a
+    // tradition but no date, so without this the Century filter has
+    // nothing to offer and quietly does not appear.
+    const byId = new Map((catalogue || []).map((w) => [String(w.id), w]));
     return fetch(url).then((r) => r.json()).then((d) => {
       const list = d.topics || d;
       if (!Array.isArray(list)) return;
@@ -294,15 +299,32 @@
           // treated: a page and the section's own heading. Without it
           // a topic link opens a nine-hundred-page folio at page one
           // and leaves the reader to find the passage themselves.
-          const secs = (w.secs || w.sections || [])
-            .map((x) => ({ p: x.p != null ? x.p : x.page, t: x.t || x.title || "" }))
-            .filter((x) => x.p != null);
+          // Three sources, three names for the same thing. Patrologia
+          // Latina ships `divs`, a list of [anchor, heading] pairs, and
+          // reading only `secs` threw away the section for all 3,697 of
+          // its works: every one of them opened at the front of the
+          // volume. Patrologia Orientalis ships no sections at all, so
+          // its 231 works legitimately open whole.
+          const raw = w.secs || w.sections || w.divs || [];
+          const secs = raw
+            .map((x) => (Array.isArray(x)
+              ? { p: x[0], t: x[1] || "" }
+              : { p: x.p != null ? x.p : x.page, t: x.t || x.title || "" }))
+            .filter((x) => x.p != null && x.p !== "");
+          const id = String(w.slug || w.d || w.id || "");
+          const cat = byId.get(id);
           addTopic(t.label || t.id, {
             corpus: corpusId,
-            id: String(w.slug || w.d || w.id || ""),
+            id,
             title: w.te || w.title || w.t || "",
             author: w.ae || w.author || w.a || "",
-            tradition: w.tradition || "",
+            tradition: w.tradition || (cat ? cat.tradition || "" : ""),
+            // Patrologia Latina and Orientalis state the century
+            // outright; the Latin Library does not, so it comes from
+            // the catalogue entry the same way it does everywhere else
+            // in the library, and a work reads as the same century here
+            // as it does on the shelf.
+            century: w.c || (cat ? centuryOf(cat) : 0),
             secs,
             // The card opens at the first relevant section rather than
             // at the front of the book.
@@ -321,12 +343,16 @@
   // a page number for the Latin Library, whose sections
   // are page ranges. The reader resolves ?p= to the section holding
   // that page, so both land on the passage rather than the front page.
-  function readerUrl(corpus, id, loc) {
+  function readerUrl(corpus, id, loc, opts) {
     const c = window.MOCorpora.get(corpus);
     if (!c) return "/the-faith-received/";
     if (c.readable === false) return `/the-faith-received/?collection=${encodeURIComponent(corpus)}`;
     const q = corpus === "tfr" || corpus === "confessions" ? "" : `c=${encodeURIComponent(corpus)}&`;
     let url = `/the-faith-received/reader/?${q}w=${encodeURIComponent(id)}`;
+    // The fragment has to be last, so it is held back rather than
+    // appended in place: "?w=x#sec&ref=Romans+8" would make the
+    // reference part of the fragment and the reader would never see it.
+    let hash = "";
     if (loc != null && loc !== "") {
       // The Latin Library and the confessions are paginated, so their
       // locator is a page number the reader resolves to the section
@@ -335,11 +361,23 @@
       // onto the block it renders — so it is the anchor verbatim.
       // Wrapping it as "#section-<loc>" pointed every link at an
       // element that does not exist.
-      url += corpus === "tfr" || corpus === "confessions"
-        ? `&p=${encodeURIComponent(loc)}`
-        : `#${String(loc).trim().replace(/\s+/g, "-")}`;
+      if (corpus === "tfr" || corpus === "confessions") {
+        url += `&p=${encodeURIComponent(loc)}`;
+      } else {
+        hash = `#${String(loc).trim().replace(/\s+/g, "-")}`;
+      }
     }
-    return url;
+    const o = opts || {};
+    // Carried even when there is a page, because a page is a folio side
+    // and the citation is one line on it.
+    if (o.ref) url += `&ref=${encodeURIComponent(o.ref)}`;
+    // Patrologia Latina numbers its sections in the topic file as
+    // <work>_<section>_<n>, and n indexes nothing the reader holds: for
+    // Lactantius it is two off the heading it names. Rather than guess
+    // at the offset, send the heading itself, which that file gives
+    // verbatim, and let the reader match it.
+    if (o.h) url += `&h=${encodeURIComponent(String(o.h).slice(0, 120))}`;
+    return url + hash;
   }
 
   function coverageNote(kind) {
@@ -397,6 +435,13 @@
     return g;
   }
 
+  // A page number the reader can resolve on its own; anything else and
+  // the heading is what actually finds the passage.
+  function secOpts(sec) {
+    if (!sec || typeof sec.p === "number" || !sec.t) return null;
+    return { h: sec.t };
+  }
+
   function workCard(e) {
     const c = window.MOCorpora.get(e.corpus);
     const pending = c && c.readable === false;
@@ -407,12 +452,12 @@
     // is the right place for it.
     const more = secs.length > 1
       ? `<span class="faith-card-secs">${secs.slice(0, 4).map((x) =>
-        `<span class="faith-card-sec" role="link" tabindex="0" data-go="${escapeHtml(readerUrl(e.corpus, e.id, x.p))}">${
-          escapeHtml(x.t ? shorten(x.t) : `Page ${x.p}`)}</span>`).join("")}${
+        `<span class="faith-card-sec" role="link" tabindex="0" data-go="${escapeHtml(readerUrl(e.corpus, e.id, x.p, secOpts(x)))}">${
+          escapeHtml(x.t ? shorten(x.t) : (typeof x.p === "number" ? `Page ${x.p}` : "This passage"))}</span>`).join("")}${
         secs.length > 4 ? `<span class="faith-card-sec-more">and ${secs.length - 4} more</span>` : ""}</span>`
       : "";
     const label = pending ? "Browse" : (secs.length ? "Read the passage" : "Read");
-    return `<a class="faith-card" href="${escapeHtml(readerUrl(e.corpus, e.id, e.loc))}">` +
+    return `<a class="faith-card" href="${escapeHtml(readerUrl(e.corpus, e.id, e.loc, secOpts(secs[0])))}">` +
       `<p class="faith-card-date">${escapeHtml(c ? c.label : e.corpus)}</p>` +
       `<h3 class="faith-card-title">${escapeHtml(e.title || e.id)}</h3>${
       e.author ? `<p class="faith-card-author">${escapeHtml(e.author)}</p>` : ""
@@ -630,14 +675,17 @@
   // Shell and slots, for the reason the reading rooms are: rebuilding
   // the controls on every render tears an open dropdown out from under
   // the reader mid-gesture.
-  function fillChapter(body, book, ch, entries) {
-    body.innerHTML = "";
+  // Collection, tradition, century, and a box that searches author and
+  // title together. Lifted out of the scripture chapter view so the
+  // topic view can have the same instrument: a topic that gathers four
+  // hundred works is no more usable than a chapter that does.
+  //
+  // Handed back rather than wired in, because the caller owns its own
+  // rows. The bar is built once and never rebuilt: replacing it under
+  // an open select closes the select mid-gesture, and replacing it
+  // under the search box takes focus away between keystrokes.
+  function filterControls(entries, onChange) {
     const state = { collection: "", tradition: "", century: "", q: "" };
-
-    const controls = document.createElement("div");
-    controls.className = "faith-refs-controls";
-    const list = document.createElement("div");
-    list.className = "faith-refs-list";
 
     const counts = (key) => {
       const m = new Map();
@@ -662,16 +710,15 @@
     };
     const yLabel = (n) => (window.MOCentury ? window.MOCentury.label(n) : String(n));
 
-    controls.innerHTML =
-      `<input type="search" class="faith-refs-search" data-refs-q placeholder="Search an author or a title&hellip;" aria-label="Search these references">` +
+    const el = document.createElement("div");
+    el.className = "faith-refs-controls";
+    el.innerHTML =
+      `<input type="search" class="faith-refs-search" data-refs-q placeholder="Search an author or a title&hellip;" aria-label="Search these works">` +
       `<div class="faith-refs-selects">${
         select("collection", "Collection", "All collections", counts("corpus"), cLabel)}${
         select("tradition", "Tradition", "All traditions", counts("tradition"))}${
         select("century", "Century", "All centuries", counts("century"), yLabel)}</div>` +
       `<p class="faith-refs-count" data-refs-count></p>`;
-
-    body.appendChild(controls);
-    body.appendChild(list);
 
     const fold = (x) => String(x || "")
       .normalize("NFD").replace(/\p{M}/gu, "")
@@ -689,17 +736,65 @@
       });
     }
 
+    function setCount(shown, noun) {
+      const countEl = el.querySelector("[data-refs-count]");
+      if (!countEl) return;
+      const word = `${noun}${shown === 1 ? "" : "s"}`;
+      countEl.textContent = shown === entries.length
+        ? `${shown.toLocaleString()} ${word}`
+        : `${shown.toLocaleString()} of ${entries.length.toLocaleString()} ${word}`;
+    }
+
+    const bind = (sel, key) => {
+      const node = el.querySelector(`[data-refs-${sel}]`);
+      if (node) node.addEventListener("change", () => { state[key] = node.value; onChange(); });
+    };
+    bind("collection", "collection");
+    bind("tradition", "tradition");
+    bind("century", "century");
+    const box = el.querySelector("[data-refs-q]");
+    if (box) {
+      let t = null;
+      box.addEventListener("input", () => {
+        window.clearTimeout(t);
+        t = window.setTimeout(() => { state.q = box.value.trim(); onChange(); }, 180);
+      });
+    }
+
+    return { el, state, matching, setCount };
+  }
+
+  function pagerNav(page, pages, go) {
+    const nav = document.createElement("p");
+    nav.className = "faith-pager";
+    nav.innerHTML =
+      `<button type="button" class="faith-pager-btn" data-ref-page="${page - 1}"${page <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
+      `<span class="faith-pager-count">Page ${page} of ${pages}</span>` +
+      `<button type="button" class="faith-pager-btn" data-ref-page="${page + 1}"${page >= pages ? " disabled" : ""}>Next &rarr;</button>`;
+    nav.querySelectorAll("[data-ref-page]").forEach((b) => {
+      b.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        if (b.disabled) return;
+        go(parseInt(b.getAttribute("data-ref-page"), 10));
+      });
+    });
+    return nav;
+  }
+
+  function fillChapter(body, book, ch, entries) {
+    body.innerHTML = "";
+    const list = document.createElement("div");
+    list.className = "faith-refs-list";
+    const f = filterControls(entries, () => render(1));
+    body.appendChild(f.el);
+    body.appendChild(list);
+
     function render(page) {
-      const rows = matching();
+      const rows = f.matching();
       const p = page || 1;
       const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
       const slice = rows.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE);
-      const countEl = controls.querySelector("[data-refs-count]");
-      if (countEl) {
-        countEl.textContent = rows.length === entries.length
-          ? `${rows.length.toLocaleString()} work${rows.length === 1 ? "" : "s"}`
-          : `${rows.length.toLocaleString()} of ${entries.length.toLocaleString()} works`;
-      }
+      f.setCount(rows.length, "work");
       list.innerHTML = "";
       if (!rows.length) {
         list.innerHTML = `<p class="faith-refs-empty">Nothing here matches that. Try another name, or widen the filters.</p>`;
@@ -707,40 +802,9 @@
       }
       const ol = document.createElement("ol");
       ol.className = "faith-scripture-refs";
-      slice.forEach((e) => ol.appendChild(refItem(e)));
+      slice.forEach((e) => ol.appendChild(refItem(e, `${book} ${ch}`)));
       list.appendChild(ol);
-      if (pages > 1) {
-        const nav = document.createElement("p");
-        nav.className = "faith-pager";
-        nav.innerHTML =
-          `<button type="button" class="faith-pager-btn" data-ref-page="${p - 1}"${p <= 1 ? " disabled" : ""}>&larr; Previous</button>` +
-          `<span class="faith-pager-count">Page ${p} of ${pages}</span>` +
-          `<button type="button" class="faith-pager-btn" data-ref-page="${p + 1}"${p >= pages ? " disabled" : ""}>Next &rarr;</button>`;
-        nav.querySelectorAll("[data-ref-page]").forEach((b) => {
-          b.addEventListener("click", (ev) => {
-            ev.preventDefault();
-            if (b.disabled) return;
-            render(parseInt(b.getAttribute("data-ref-page"), 10));
-          });
-        });
-        list.appendChild(nav);
-      }
-    }
-
-    const bind = (sel, key) => {
-      const el = controls.querySelector(`[data-refs-${sel}]`);
-      if (el) el.addEventListener("change", () => { state[key] = el.value; render(1); });
-    };
-    bind("collection", "collection");
-    bind("tradition", "tradition");
-    bind("century", "century");
-    const box = controls.querySelector("[data-refs-q]");
-    if (box) {
-      let t = null;
-      box.addEventListener("input", () => {
-        window.clearTimeout(t);
-        t = window.setTimeout(() => { state.q = box.value.trim(); render(1); }, 180);
-      });
+      if (pages > 1) list.appendChild(pagerNav(p, pages, render));
     }
 
     render(1);
@@ -748,11 +812,15 @@
 
   // One reference: who cites it, and the words around the citation, so
   // the reader can judge before opening a 900-page folio.
-  function refItem(e) {
+  function refItem(e, ref) {
     const c = window.MOCorpora.get(e.corpus);
     const li = document.createElement("li");
     li.className = "faith-scripture-ref";
-    const href = readerUrl(e.corpus, e.id, e.loc);
+    // The reference travels with the link. Where the source gave no
+    // locator, which is every Early English Books citation, the reader
+    // matches the reference against the work's own text and lands on
+    // the line that makes it.
+    const href = readerUrl(e.corpus, e.id, e.loc, { ref });
     li.innerHTML =
       `<a class="faith-scripture-ref-link" href="${escapeHtml(href)}">` +
       `<span class="faith-scripture-ref-source">${escapeHtml(c ? c.label : e.corpus)}</span>` +
@@ -796,14 +864,46 @@
 
     const t = topics.get(topicState.topic);
     if (!t) { topicState = { view: "topics" }; return renderTopics(); }
-    const { slice, page, pages } = paged(t.entries, topicState.page);
+
+    // Shell and slots. The heading and the filter bar are built once
+    // when the topic opens; only the grid is redrawn as the filters
+    // move. A topic that gathers two thousand works needs the same
+    // instrument a chapter of Romans does: narrow by collection,
+    // tradition or century, or go straight to one author and read what
+    // that person said about it.
     chrome(host, {
       back: { to: "topics", label: "All topics" },
       title: t.label,
       sub: `${t.entries.length.toLocaleString()} work${t.entries.length === 1 ? "" : "s"}`,
-      pager: pages > 1 ? { page, pages, total: t.entries.length, label: "works" } : null,
     });
-    grid(host).insertAdjacentHTML("beforeend", slice.map(workCard).join(""));
+    const f = filterControls(t.entries, () => draw(1));
+    // Marked as chrome so the next topic's chrome() clears it rather
+    // than stacking a second bar underneath the first.
+    f.el.setAttribute("data-faith-index-chrome", "");
+    const head = host.querySelector(".faith-browse-head");
+    if (head && head.nextSibling) host.insertBefore(f.el, head.nextSibling);
+    else host.appendChild(f.el);
+
+    function draw(page) {
+      const rows = f.matching();
+      const { slice, page: p, pages } = paged(rows, page);
+      f.setCount(rows.length, "work");
+      const g = grid(host);
+      if (!rows.length) {
+        g.innerHTML = `<p class="faith-refs-empty">Nothing here matches that. Try another name, or widen the filters.</p>`;
+        return;
+      }
+      g.insertAdjacentHTML("beforeend", slice.map(workCard).join(""));
+      const old = host.querySelector(".faith-pager[data-faith-topic-pager]");
+      if (old) old.remove();
+      if (pages > 1) {
+        const nav = pagerNav(p, pages, draw);
+        nav.setAttribute("data-faith-topic-pager", "");
+        g.parentNode.insertBefore(nav, g.nextSibling);
+      }
+    }
+
+    draw(topicState.page || 1);
   }
 
   // ── Traditions ────────────────────────────────────────────────
@@ -1057,9 +1157,15 @@
 
   Promise.all([
     ...scriptureSources,
-    loadTopics(`${BLOB}/v1/topics.json`, "tfr").catch(() => {}),
-    loadTopics("https://pld-patrologia-latina.vercel.app/data/topics.json", "pld").catch(() => {}),
-    loadTopics("https://patrologia-orientalis.vercel.app/data/topics.json", "po").catch(() => {}),
+    window.MOCorpora.load("tfr")
+      .then((cat) => loadTopics(`${BLOB}/v1/topics.json`, "tfr", cat))
+      .catch(() => {}),
+    window.MOCorpora.load("pld")
+      .then((cat) => loadTopics("https://pld-patrologia-latina.vercel.app/data/topics.json", "pld", cat))
+      .catch(() => {}),
+    window.MOCorpora.load("po")
+      .then((cat) => loadTopics("https://patrologia-orientalis.vercel.app/data/topics.json", "po", cat))
+      .catch(() => {}),
   ]).then(() => {
     renderScripture();
     renderTopics();
