@@ -7322,6 +7322,24 @@ body.faith-toc-open .faith-dock { display: none; }
   color: var(--color-muted);
   margin: 0 0 8px;
 }
+.bsearch-authors-list { display: flex; flex-direction: column; gap: 8px; }
+
+/* Past a handful the names go into columns and the block scrolls
+   within itself, so a search that matches nineteen hundred authors
+   still leaves the works visible underneath. Everything is in the
+   list; only the viewport is bounded. */
+.bsearch-authors--many .bsearch-authors-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 6px 14px;
+  max-height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+}
+.bsearch-authors--many .bsearch-author { padding: 7px 11px; }
+.bsearch-authors--many .bsearch-author-name { font-size: 16px; }
+
 .bsearch-author {
   display: flex;
   align-items: baseline;
@@ -7332,7 +7350,6 @@ body.faith-toc-open .faith-dock { display: none; }
   border-radius: 4px;
   background: var(--color-cream);
   text-decoration: none;
-  margin-bottom: 8px;
 }
 .bsearch-author:hover { border-color: var(--color-secondary); }
 .bsearch-author:hover .bsearch-author-name { color: var(--color-secondary); }

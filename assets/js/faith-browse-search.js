@@ -244,21 +244,31 @@
       m.set(a, (m.get(a) || 0) + 1);
     });
     return [...m.entries()]
-      .sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]))
-      .slice(0, 3);
+      // All of them, most works first. Three was a cap, and a cap on
+      // a name search is what hid the fact that the catalogue spells
+      // Calvin two ways.
+      .sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]));
   }
+
+  // Above this many, the names go into columns and the block scrolls
+  // within itself. "john" matches 1,903 authors, which is a true
+  // answer and would otherwise push the works off the page. Scrolling
+  // is not hiding: every one of them is in the list.
+  const MANY_AUTHORS = 8;
 
   function authorBlock() {
     const found = authorsMatching();
     if (!found.length) return "";
-    return `<div class="bsearch-authors">` +
-      `<p class="bsearch-authors-label">${found.length === 1 ? "Author" : "Authors"}</p>${ 
-      found.map(([name, n]) =>
-        `<a class="bsearch-author" href="/the-faith-received/author/?a=${encodeURIComponent(fold(name))}">` +
-        `<span class="bsearch-author-name">${escapeHtml(name)}</span>` +
-        `<span class="bsearch-author-n">${n.toLocaleString()} work${n === 1 ? "" : "s"} in the library</span>` +
-        `<span class="bsearch-author-go" aria-hidden="true">&rarr;</span></a>`).join("") 
-      }</div>`;
+    const many = found.length > MANY_AUTHORS;
+    const label = found.length === 1 ? "Author" : `${found.length.toLocaleString()} authors`;
+    const rows = found.map(([name, n]) =>
+      `<a class="bsearch-author" href="/the-faith-received/author/?a=${encodeURIComponent(fold(name))}">`
+      + `<span class="bsearch-author-name">${escapeHtml(name)}</span>`
+      + `<span class="bsearch-author-n">${n.toLocaleString()} work${n === 1 ? "" : "s"}</span>`
+      + `<span class="bsearch-author-go" aria-hidden="true">&rarr;</span></a>`).join("");
+    return `<div class="bsearch-authors${many ? " bsearch-authors--many" : ""}">`
+      + `<p class="bsearch-authors-label">${escapeHtml(label)}</p>`
+      + `<div class="bsearch-authors-list">${rows}</div></div>`;
   }
 
   const PAGE = 60;
