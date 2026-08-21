@@ -299,7 +299,12 @@
 
   function renderCatalogue(hits) {
     const slice = hits.slice(0, shown);
-    countEl.textContent = `${hits.length.toLocaleString()} work${hits.length === 1 ? "" : "s"} matching "${term}"`;
+    const where = scopeEl.value === "author" ? "with that author"
+      : scopeEl.value === "title" ? "with that in the title"
+        : "by author or title";
+    countEl.textContent = hits.length
+      ? `${hits.length.toLocaleString()} work${hits.length === 1 ? "" : "s"} matching "${term}"`
+      : `No works ${where}`;
     // Not on a title search: someone looking for a title has not asked
     // about a person.
     const people = scopeEl.value === "title" ? "" : authorBlock();
@@ -307,10 +312,23 @@
       ? `${people}<ol class="bsearch-list">${slice.map((w) => card(w)).join("")}</ol>${
         hits.length > slice.length
           ? `<button type="button" class="bsearch-more" data-bs-more>Show more</button>` : ""}`
-      : `${people}<p class="bsearch-msg">Nothing in the library matches that. Try another name or title.</p>`;
+      : `${people}<p class="bsearch-msg">No author or title in the library uses that word. `
+        + `Words like this usually live inside the works rather than on their covers.</p>`
+        + `<button type="button" class="bsearch-more" data-bs-totext>Search inside the works instead</button>`;
     const more = out.querySelector("[data-bs-more]");
     if (more) {
       more.addEventListener("click", () => { shown += PAGE; renderCatalogue(hits); });
+    }
+    // A word that is not in any title is usually a word in the text.
+    // "procreation" appears on no cover in the library and in eight of
+    // our sixty-nine English editions alone, so a bare "nothing
+    // matches" was telling the reader something false.
+    const toText = out.querySelector("[data-bs-totext]");
+    if (toText) {
+      toText.addEventListener("click", () => {
+        scopeEl.value = "keyword";
+        search();
+      });
     }
   }
 
