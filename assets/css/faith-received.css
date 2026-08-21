@@ -7374,15 +7374,18 @@ body.faith-toc-open .faith-dock { display: none; }
    section on the page with no h2 of its own, which is why its
    headings were competing with the h2s in every other band. */
 .btrad h3 {
-  font-size: 20px;
+  /* Between the 38px section headings and the 17px titles under it,
+     with room to be seen. The first pass at this put it at 20px, which
+     traded one flat page for a small one. */
+  font-size: clamp(25px, 2.3vw, 29px);
   line-height: 1.15;
-  margin: 0 0 10px;
-  padding-bottom: 8px;
+  margin: 0 0 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--color-card-border);
 }
 .btrad .brow-t {
-  font-size: 16px;
-  line-height: 1.3;
+  font-size: 17px;
+  line-height: 1.32;
 }
 .btrad .brow-la { font-size: 13px; }
 .btrad .blist a { padding: 10px 0; }
