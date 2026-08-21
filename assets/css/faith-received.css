@@ -6187,3 +6187,14 @@ mark.faith-find-hit.is-current {
   cursor: pointer;
 }
 .faith-reader .faith-retry:hover { border-color: var(--color-primary); color: var(--color-primary-text); }
+
+/* ══ The scripture index, roman ═══════════════════════════════════
+   The house rule is that titles are roman throughout TFR, and this
+   page was setting every book, every chapter and both testament tabs
+   in italic: 1,108 italic elements on one screen. The book names are
+   the index; they are not asides. */
+.faith-scripture-book-name,
+.faith-scripture-chapter-name,
+.faith-scripture-toggle-btn,
+.faith-browse-note,
+.faith-author-dates { font-style: normal; }

@@ -26,7 +26,10 @@
 </section>
 
 
-  <section class="bband faith-feature-body">
+  {{!-- data-faith-section is the mount faith-indexes.js looks for.
+        Without it the script returned at its first line, so this page
+        rendered "Loading scripture index…" and never resolved. --}}
+  <section class="bband faith-feature-body" data-faith-section="scripture">
     <div class="container">
       {{> "faith-received/_scripture-body"}}
     </div>
@@ -34,6 +37,10 @@
 
 </main>
 
+{{!-- The index is merged from every collection at read time, so the
+     corpus registry has to be present before faith-indexes.js runs. --}}
+<script src="{{asset "js/faith-corpora.js"}}"></script>
 <script src="{{asset "js/faith-received.js"}}"></script>
+<script src="{{asset "js/faith-indexes.js"}}"></script>
 
 <script src="{{asset "js/faith-gate.js"}}"></script>
