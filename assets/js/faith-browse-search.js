@@ -339,7 +339,7 @@
   const SNIPPET_DEPTH = 40;
 
   async function runIndexed(list) {
-    countEl.textContent = "Asking the index…";
+    countEl.textContent = "Asking the index\u2026";
     out.innerHTML = "";
     let found;
     try { found = await window.MOTermIndex.search(term); } catch (_) { found = null; }
@@ -359,34 +359,51 @@
       return true;
     }
 
+    // A word in tens of thousands of works keeps only the two thousand
+    // it matters most in. Saying "2,000 works" alone would pass that
+    // off as the whole answer: God is in 55,252 of the 68,724.
     const total = hits.reduce((a, h) => a + h.count, 0);
+    const note = found.usedBy && found.usedBy > found.length
+      ? `, the ones that use it most of ${found.usedBy.toLocaleString()}`
+      : found.capped ? ", the works these words are commonest in" : "";
     countEl.textContent = `${total.toLocaleString()} mention${total === 1 ? "" : "s"} of "${term}" `
-      + `in ${hits.length.toLocaleString()} work${hits.length === 1 ? "" : "s"}`;
+      + `in ${hits.length.toLocaleString()} work${hits.length === 1 ? "" : "s"}${note}`;
 
     // Drawn at once from the index, then filled in with previews as
-    // the works arrive, so the answer is on screen immediately.
-    const top = hits.slice(0, SNIPPET_DEPTH);
-    out.innerHTML = `<ol class="bsearch-list">${top.map((h) => {
-      const w = byKey.get(`${h.corpus}:${h.id}`);
-      return card(w, `<span class="bsearch-hit-times">${h.count.toLocaleString()} mention${h.count === 1 ? "" : "s"}</span>`
-        + `<span class="bsearch-hit-snippet" data-snip="${escapeHtml(`${h.corpus}:${h.id}`)}">reading&hellip;</span>`);
-    }).join("")}</ol>${hits.length > top.length
-      ? `<p class="bsearch-msg">and ${(hits.length - top.length).toLocaleString()} more works, least-used last.</p>` : ""}`;
+    // the works arrive, so the answer is on screen immediately. The
+    // rest are a button away rather than a count of what is being
+    // withheld.
+    let shownHits = SNIPPET_DEPTH;
+    const draw = () => {
+      const top = hits.slice(0, shownHits);
+      out.innerHTML = `<ol class="bsearch-list">${top.map((h) => {
+        const w = byKey.get(`${h.corpus}:${h.id}`);
+        return card(w, `<span class="bsearch-hit-times">${h.count.toLocaleString()} mention${h.count === 1 ? "" : "s"}</span>`
+          + `<span class="bsearch-hit-snippet" data-snip="${escapeHtml(`${h.corpus}:${h.id}`)}">reading&hellip;</span>`);
+      }).join("")}</ol>${hits.length > top.length
+        ? `<button type="button" class="bsearch-more" data-bs-hitmore>Show more</button>` : ""}`;
 
-    if (running) { running.cancel(); running = null; }
-    running = window.MOCorpusSearch.run(top.map((h) => byKey.get(`${h.corpus}:${h.id}`)), term, {
-      progress() { /* the results are already up; previews arrive quietly */ },
-      done({ results }) {
-        running = null;
-        results.forEach((r) => {
-          const el = out.querySelector(`[data-snip="${CSS.escape(`${r.work.corpus}:${r.work.id}`)}"]`);
-          if (el && r.hits[0]) el.textContent = r.hits[0].snippet;
-        });
-        out.querySelectorAll("[data-snip]").forEach((el) => {
-          if (el.textContent === "reading…") el.remove();
-        });
-      },
-    });
+      const more = out.querySelector("[data-bs-hitmore]");
+      if (more) {
+        more.addEventListener("click", () => { shownHits += SNIPPET_DEPTH; draw(); });
+      }
+
+      if (running) { running.cancel(); running = null; }
+      running = window.MOCorpusSearch.run(top.map((h) => byKey.get(`${h.corpus}:${h.id}`)), term, {
+        progress() { /* the results are already up; previews arrive quietly */ },
+        done({ results }) {
+          running = null;
+          results.forEach((r) => {
+            const el = out.querySelector(`[data-snip="${CSS.escape(`${r.work.corpus}:${r.work.id}`)}"]`);
+            if (el && r.hits[0]) el.textContent = r.hits[0].snippet;
+          });
+          out.querySelectorAll("[data-snip]").forEach((el) => {
+            if (el.textContent === "reading\u2026") el.remove();
+          });
+        },
+      });
+    };
+    draw();
     return true;
   }
 

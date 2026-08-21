@@ -17,7 +17,12 @@
  * is why every result carries the term in its link.
  */
 (function () {
-  const BASE = "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/index";
+  // Overridable so a half-built index can be proved somewhere other
+  // than in front of readers. A partial index is worse than none: it
+  // answers "no work uses that" for words it has simply not read yet.
+  const meta = document.querySelector('meta[name="tfr-term-index"]');
+  const BASE = (meta && meta.getAttribute("content"))
+    || "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/index";
 
   let manifest = null;
   const shards = new Map();
@@ -42,11 +47,16 @@
     return manifest;
   }
 
+  // A shard that could not be fetched is not an empty shard. Reading a
+  // failure as {} makes the next line say "no work uses that word"
+  // about a file that simply did not arrive, which is the one answer
+  // this index must never give. null means "no answer" and the caller
+  // falls back to reading the works.
   function loadShard(n) {
     if (shards.has(n)) return shards.get(n);
     const p = fetch(`${BASE}/terms/${n}.json`)
-      .then((r) => (r.ok ? r.json() : {}))
-      .catch(() => ({}));
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
     shards.set(n, p);
     return p;
   }
@@ -81,10 +91,18 @@
     if (!man || !man.works) return null;
 
     let hits = null;
+    let partial = 0;
     for (const w of words) {
       const shard = await loadShard(shardOf(w, man.shards || 4096));
+      if (!shard) return null;
       const found = decode(shard[w], man.works);
       if (!found.length) return [];
+      // A very common word keeps only the works that use it most. Say
+      // so, rather than let "2,000 works" pass for the whole answer.
+      const all = shard[`~${w}`];
+      if (all && all > found.length) {
+        partial = Math.max(partial, all);
+      }
       if (!hits) {
         hits = new Map(found.map((h) => [`${h.corpus}:${h.id}`, h]));
         continue;
@@ -99,7 +117,21 @@
       hits = next;
       if (!hits.size) return [];
     }
-    return [...hits.values()].sort((a, b) => b.count - a.count);
+    const out = [...hits.values()].sort((a, b) => b.count - a.count);
+    // Carried on the array rather than wrapped in an object, so every
+    // caller that already treats this as a list keeps working.
+    //
+    // `usedBy` is how many works use the word, and it only means that
+    // for a single word. On "mortification sin" the count belongs to
+    // "sin" alone, and printing it beside an intersection of 793 would
+    // say the wrong thing about the wrong set. The intersection is
+    // still drawn from truncated lists, so it is still incomplete:
+    // `capped` says that much without inventing a number for it.
+    if (partial) {
+      if (words.length === 1) out.usedBy = partial;
+      out.capped = true;
+    }
+    return out;
   }
 
   function available() {
