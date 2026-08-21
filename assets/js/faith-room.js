@@ -39,6 +39,12 @@
   let collection = params.get("in") || "";
   let filter = params.get("q") || "";
   let letter = params.get("letter") || "";
+  // What the box searches. "All" is the old behaviour and stays the
+  // default; the others exist because a search for a name that is also
+  // a common word — Baxter, whose name is in the title of everything
+  // written against him — buries the man under the argument.
+  const SCOPES = { all: "All", author: "Author", title: "Title", keyword: "Keyword" };
+  let scope = SCOPES[params.get("scope")] ? params.get("scope") : "all";
   let page = Math.max(1, parseInt(params.get("page"), 10) || 1);
 
   // "all" is every collection at once, which is what the century page
@@ -217,10 +223,30 @@
     // "leblanc" reaches "Louis Le Blanc de Beaulieu", "sanchez" reaches
     // "Sánchez", "a lasco" reaches "à Lasco". Jake searched LeBlanc,
     // got nothing, and reasonably concluded the man was missing.
+    const q = fold(filter);
+    if (!q) return true;
+    if (scope === "author") {
+      if (w._qa === undefined) w._qa = fold(w.author || "");
+      return w._qa.includes(q);
+    }
+    if (scope === "title") {
+      if (w._qt === undefined) w._qt = fold(`${w.title || ""} ${w.titleLatin || ""}`);
+      return w._qt.includes(q);
+    }
+    // Keyword reaches past the catalogue line into what the work is
+    // about: the subject and the shelf it sits on, which is the only
+    // description the library holds for most of these.
+    if (scope === "keyword") {
+      if (w._qk === undefined) {
+        w._qk = fold([w.title, w.titleLatin, w.subject, w.topic, w.tradition,
+          w.school, w.eyebrow, w.volume].filter(Boolean).join(" "));
+      }
+      return w._qk.includes(q);
+    }
     if (w._q === undefined) {
       w._q = fold(`${w.title || ""} ${w.author || ""} ${w.titleLatin || ""}`);
     }
-    return w._q.includes(fold(filter));
+    return w._q.includes(q);
   }
 
   // Lowercase, strip accents, drop everything that is not a letter or a
@@ -237,6 +263,7 @@
     const q = new URLSearchParams();
     q.set("collection", collectionId);
     if (filter) q.set("q", filter);
+    if (scope !== "all") q.set("scope", scope);
     if (tradition) q.set("tradition", tradition);
     if (denomination) q.set("denomination", denomination);
     if (century) q.set("century", String(century));
@@ -374,7 +401,9 @@
     // under the reader: an open dropdown vanished the moment it was
     // touched, because choosing an option rebuilt the element.
     if (!root.querySelector("[data-room-shell]")) {
-      root.innerHTML = `<div data-room-shell><div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count" data-room-count></p></div><div data-room-controls>${filters}</div><div data-room-rail></div><div data-room-list></div><div data-room-pager></div></div>`;
+      const scopeOpts = Object.keys(SCOPES).map((k) =>
+        `<option value="${k}"${k === scope ? " selected" : ""}>${SCOPES[k]}</option>`).join("");
+      root.innerHTML = `<div data-room-shell><div class="faith-room-head"><div class="faith-room-searchbar"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><label class="faith-room-scope"><span class="faith-room-scope-label">Search in</span><select data-room-scope aria-label="What to search">${scopeOpts}</select></label></div><p class="faith-room-count" data-room-count></p></div><div data-room-controls>${filters}</div><div data-room-rail></div><div data-room-list></div><div data-room-pager></div></div>`;
       wireOnce();
     }
 
@@ -452,6 +481,22 @@
     // which would otherwise filter to nothing.
     onPick("trad", (v) => { tradition = v; denomination = ""; });
     onPick("denom", (v) => { denomination = v; });
+    const scopeEl = root.querySelector("[data-room-scope]");
+    if (scopeEl) {
+      scopeEl.addEventListener("change", () => {
+        scope = SCOPES[scopeEl.value] ? scopeEl.value : "all";
+        const box = root.querySelector("[data-room-filter]");
+        if (box) {
+          box.placeholder = scope === "author" ? "Search an author\u2026"
+            : scope === "title" ? "Search a title\u2026"
+              : scope === "keyword" ? "Search a subject or tradition\u2026"
+                : "Search an author or a title\u2026";
+        }
+        letter = "";
+        page = 1;
+        render();
+      });
+    }
   }
 
   function wireList() {

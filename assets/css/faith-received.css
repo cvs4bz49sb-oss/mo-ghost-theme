@@ -5621,6 +5621,12 @@ mark.faith-find-hit.is-current {
 .faith-prefs-reset:hover { color: var(--color-primary-text); }
 
 /* ── The text ─────────────────────────────────────────────────── */
+/* Bound to the section body as well as to the lane columns. The
+   columns only exist where a work is set in parallel; Early English
+   Books renders one lane and builds no columns at all, so Size, Face
+   and Spacing did nothing on 53,832 works — the largest collection in
+   the library, and the one whose type most needs adjusting. */
+.faith-reader [data-fr-content] .faith-section-body,
 .faith-reader [data-fr-content] .faith-col-en,
 .faith-reader [data-fr-content] .faith-col-la {
   font-family: var(--fr-face);
@@ -6331,4 +6337,210 @@ mark.faith-find-hit.is-current {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+
+/* ══ The dock ═════════════════════════════════════════════════════
+   The reading tools, fixed at the bottom right and staying there.
+   As a row above the text they were reachable only from the top of
+   the work: four hundred pages down, wanting larger type or the way
+   back, a reader had to scroll up to ask and then find their place
+   again. */
+.faith-dock {
+  position: fixed;
+  z-index: 60;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.faith-dock-btn {
+  /* 46px: a touch target that clears the 44px floor with the border
+     inside it, on a page whose readers are as often on a phone in one
+     hand as at a desk. */
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-dark);
+  font-size: 17px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(45, 41, 39, 0.14);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.faith-dock-btn:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+.faith-dock-btn:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+.faith-dock-btn[hidden] { display: none; }
+
+.faith-dock-aa {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 16px;
+  letter-spacing: 0.01em;
+}
+
+/* The tools button is the one that opens something, so it carries the
+   weight; the other two are quiet until wanted. */
+.faith-dock-toggle {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-bg);
+}
+.faith-dock-toggle:hover {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: #fff;
+}
+.faith-dock.is-open .faith-dock-toggle {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: #fff;
+}
+
+/* The panel opens above the buttons, right-aligned to them, and
+   scrolls inside itself rather than off the screen: on a short phone
+   in landscape the whole set of controls is taller than the viewport. */
+.faith-dock .faith-reading-controls {
+  order: -1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: min(280px, calc(100vw - 36px));
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px;
+  margin: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  box-shadow: 0 8px 28px rgba(45, 41, 39, 0.18);
+}
+.faith-dock .faith-reading-controls[hidden] { display: none; }
+
+/* Every control fills the width, so the panel reads as a list of
+   things you can do rather than as a row that wrapped. */
+.faith-dock .faith-tool,
+.faith-dock .faith-toggle-switch {
+  width: 100%;
+  min-height: 40px;
+  justify-content: center;
+  margin: 0;
+}
+.faith-dock .faith-lang-toggle {
+  display: flex;
+  width: 100%;
+}
+.faith-dock .faith-lang-toggle[hidden] { display: none; }
+.faith-dock .faith-lang-btn { flex: 1; min-height: 40px; }
+
+/* The preferences panel is inside a panel that already scrolls, so it
+   sits in the flow rather than floating out of it. Absolute here put
+   it outside the scroll box and clipped it. */
+.faith-dock .faith-prefs { position: static; margin: 0; width: 100%; }
+.faith-dock .faith-prefs-toggle { width: 100%; min-height: 40px; }
+.faith-dock .faith-prefs-panel {
+  position: static;
+  width: 100%;
+  margin-top: 8px;
+  box-shadow: none;
+  border-radius: 8px;
+}
+
+/* Phones. The dock keeps its distance from the home indicator, and the
+   panel is allowed the full width it can have. */
+@media (max-width: 640px) {
+  .faith-dock {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    gap: 7px;
+  }
+  .faith-dock-btn { width: 44px; height: 44px; }
+  .faith-dock .faith-reading-controls {
+    width: calc(100vw - 24px);
+    max-height: 62vh;
+  }
+}
+
+/* Above the contents rail's breakpoint the drawer button in the dock
+   is redundant: the rail is on screen the whole time. */
+@media (min-width: 1024px) {
+  .faith-dock-contents { display: none; }
+}
+
+/* The old row is gone from the flow, so nothing above the text needs
+   to reserve space for it. */
+.faith-reader .faith-doc-inner > .faith-reading-controls { display: none; }
+
+/* The contents drawer is a full-height overlay at z-index 100 and the
+   dock sits at 60, so an open drawer covered the tools while their
+   shadow still showed through it. While the drawer is open it is the
+   only thing on screen. */
+body.faith-toc-open .faith-dock { display: none; }
+
+@media print {
+  .faith-dock { display: none; }
+}
+
+
+/* ══ Search scope ═════════════════════════════════════════════════
+   The box searches author and title together, which is right until a
+   name is also a common word in titles: "baxter" returned Richard
+   Baxter under a pile of everything written against him. This says
+   which of the two, or neither. */
+.faith-room-searchbar {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.faith-room-searchbar .faith-room-filter {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.faith-room-scope {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  flex: 0 0 auto;
+}
+.faith-room-scope-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.faith-room-scope select {
+  min-height: 40px;
+  padding: 0 30px 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-bg);
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+@media (max-width: 640px) {
+  /* Stacked, and the select takes the width rather than sitting in a
+     column of its own two thirds empty. */
+  .faith-room-searchbar { flex-direction: column; gap: 8px; }
+  .faith-room-scope { width: 100%; }
+  .faith-room-scope select { width: 100%; }
 }

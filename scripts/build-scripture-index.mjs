@@ -352,10 +352,34 @@ function snap(src, at) {
 
 /* ── Corpus readers ─────────────────────────────────────────────── */
 
+// Retried with backoff. Running four corpora at once against the same
+// host got 34,815 of EEBO's works and nearly all of the Latin
+// Library's refused in a single pass, and a refusal that is not
+// retried is indistinguishable from a work with no citations in it.
+const RETRIES = 4;
+
+async function withRetry(fn, label) {
+  let wait = 400;
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await fn();
+    } catch (e) {
+      const status = parseInt(String(e.message), 10);
+      // A real 404 is an answer: the work has no text at this address
+      // and asking four more times will not change that.
+      if (status === 404 || attempt >= RETRIES) throw e;
+      await new Promise((r) => setTimeout(r, wait));
+      wait *= 2;
+    }
+  }
+}
+
 async function getJSON(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`${r.status} ${url}`);
-  return r.json();
+  return withRetry(async () => {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`${r.status} ${url}`);
+    return r.json();
+  }, url);
 }
 
 async function eeboWorks(limit) {
@@ -395,9 +419,11 @@ async function aquinasStudiesWorks(limit, wantAugustine) {
 // section early. Source ids cannot drift.
 
 async function eeboText(id) {
-  const r = await fetch(`${BLOB}/eebo/${id}.json.gz`);
-  if (!r.ok) throw new Error(`${r.status}`);
-  const buf = Buffer.from(await r.arrayBuffer());
+  const buf = await withRetry(async () => {
+    const r = await fetch(`${BLOB}/eebo/${id}.json.gz`);
+    if (!r.ok) throw new Error(`${r.status}`);
+    return Buffer.from(await r.arrayBuffer());
+  }, id);
   const j = JSON.parse((await gunzip(buf)).toString("utf8"));
   const segs = [];
   (function walk(nodes) {
@@ -613,8 +639,13 @@ async function run() {
             hit.verses.size ? [...hit.verses.entries()].sort((a, b) => a[0] - b[0]) : 0]);
           refs += hit.n;
         });
-      } catch { failed += 1; }
-      done.add(id);
+        done.add(id);
+      } catch {
+        // Not marked done, so the next run tries it again. Marking a
+        // failure done meant a rate-limited pass was recorded as a
+        // completed one, and no resume would ever go back for it.
+        failed += 1;
+      }
       scanned += 1;
       // Checkpointing serialises the entire index. At EEBO scale that
       // is a ~400 MB string built from a ~400 MB object, and doing it

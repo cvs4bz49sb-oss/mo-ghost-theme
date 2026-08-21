@@ -98,32 +98,6 @@
           </div>
         </header>
 
-        {{!-- ── The toolbar ─────────────────────────────────────
-             One row, one control height. faith-reader-tools.js
-             appends Find and Notebook here, and faith-reader.js
-             rebuilds the language buttons from the corpus's declared
-             lanes, so the three below are only the Latin defaults
-             shown before the work's meta arrives. --}}
-        <div class="faith-reading-controls faith-toolbar" data-faith-controls>
-          <button type="button" class="faith-tool" data-faith-expand-toggle aria-pressed="false">
-            <span class="faith-toggle-label" data-off="Expand all" data-on="Collapse all">Expand all</span>
-          </button>
-
-          <div class="faith-lang-toggle" data-faith-lang-toggle hidden role="group" aria-label="Language">
-            <button type="button" class="faith-lang-btn" data-lang="en" aria-pressed="true">English</button>
-            <button type="button" class="faith-lang-btn" data-lang="la" aria-pressed="false">Latin</button>
-            <button type="button" class="faith-lang-btn" data-lang="parallel" aria-pressed="false">Parallel</button>
-          </div>
-
-          <button type="button" class="faith-tool faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
-            <span class="faith-toggle-label faith-modernizer-label" data-off="Original spelling" data-on="Modern spelling">Original spelling</span>
-          </button>
-
-          {{!-- Reading preferences: type size, face, line spacing,
-                measure. Mounted by faith-reader-prefs.js. --}}
-          <div class="faith-prefs" data-faith-prefs></div>
-        </div>
-
         {{!-- Loading state --}}
         <div class="faith-reader-loading" data-fr-loading>
           <p class="faith-reader-loading-text">Loading work&hellip;</p>
@@ -140,6 +114,54 @@
       </div>
     </div>
   </div>
+        {{!-- ── The tools ───────────────────────────────────────
+       A dock, fixed at the bottom right, rather than a row at
+       the top of the work. A row at the top is only reachable
+       from the top: a reader four hundred pages down who wants
+       larger type, or the contents, or the way back, had to
+       scroll all the way up to ask for it.
+       
+       The mount points inside are unchanged, because other files
+       own them: faith-reader-tools.js appends Find and Notebook
+       to [data-faith-controls], faith-reader-prefs.js mounts
+       into [data-faith-prefs], and faith-reader.js rebuilds the
+       language buttons from the corpus's declared lanes, so the
+       three below are only the Latin defaults shown before the
+       work's meta arrives. --}}
+  <div class="faith-dock" data-faith-dock>
+    <button type="button" class="faith-dock-btn faith-dock-top" data-faith-dock-top hidden
+            aria-label="Back to the top of the work">
+      <span aria-hidden="true">&uarr;</span>
+    </button>
+    <button type="button" class="faith-dock-btn faith-dock-contents" data-faith-dock-contents
+            aria-label="Contents">
+      <span aria-hidden="true">&#9776;</span>
+    </button>
+    <button type="button" class="faith-dock-btn faith-dock-toggle" data-faith-dock-toggle
+            aria-expanded="false" aria-controls="faith-dock-panel" aria-label="Reading tools">
+      <span class="faith-dock-aa" aria-hidden="true">Aa</span>
+    </button>
+  <div class="faith-reading-controls faith-toolbar" id="faith-dock-panel" data-faith-controls hidden>
+    <button type="button" class="faith-tool" data-faith-expand-toggle aria-pressed="false">
+      <span class="faith-toggle-label" data-off="Expand all" data-on="Collapse all">Expand all</span>
+    </button>
+
+    <div class="faith-lang-toggle" data-faith-lang-toggle hidden role="group" aria-label="Language">
+      <button type="button" class="faith-lang-btn" data-lang="en" aria-pressed="true">English</button>
+      <button type="button" class="faith-lang-btn" data-lang="la" aria-pressed="false">Latin</button>
+      <button type="button" class="faith-lang-btn" data-lang="parallel" aria-pressed="false">Parallel</button>
+    </div>
+
+    <button type="button" class="faith-tool faith-modernizer-toggle" data-modernizer-toggle aria-pressed="false" hidden>
+      <span class="faith-toggle-label faith-modernizer-label" data-off="Original spelling" data-on="Modern spelling">Original spelling</span>
+    </button>
+
+    {{!-- Reading preferences: type size, face, line spacing,
+          measure. Mounted by faith-reader-prefs.js. --}}
+    <div class="faith-prefs" data-faith-prefs></div>
+  </div>
+  </div>
+
 </main>
 
 {{!-- CDN base URL for fetching work data. Read by faith-reader.js.
@@ -166,5 +188,7 @@
      mount over rendered content. --}}
 <script src="{{asset "js/faith-reader-tools.js"}}"></script>
 <script src="{{asset "js/faith-reader-prefs.js"}}"></script>
+{{!-- Docks the tools at the bottom right and keeps them there. --}}
+<script src="{{asset "js/faith-dock.js"}}"></script>
 <script src="{{asset "js/faith-bookmark.js"}}"></script>
 <script src="{{asset "js/faith-gate.js"}}"></script>
