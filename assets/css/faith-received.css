@@ -6046,3 +6046,144 @@ mark.faith-find-hit.is-current {
    and a two-column life on a tablet means reading down and back up. */
 @media (max-width: 1023px) { .fa-bio { columns: 1; } }
 @media (max-width: 640px) { .faith-author-body { padding-top: 32px; } }
+
+/* ══ The lanes ════════════════════════════════════════════════════
+   Restoring what the template rewrite dropped.
+
+   The old reader carried these in an inline <style> block. Moving the
+   reader's styling into this file, I ported the typography and left
+   the lane rules behind, so `.faith-lang-en` and `.faith-lang-la`
+   existed in the JS and in the markup and in no stylesheet at all.
+
+   The visible result is what Ian found: both columns render, one after
+   the other, so a work reads in English until the English runs out and
+   then begins again in Latin with no break and no warning. The
+   English / Latin / Parallel switch appeared to do nothing, because it
+   was doing nothing. */
+
+/* Parallel is two columns. The gap separates the languages; the margin
+   separates one block from the next, and without it a thousand
+   paragraphs of Augustine arrive as one wall. */
+.faith-reader [data-fr-content] .faith-parallel-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 2.5rem;
+  margin-bottom: 1.15rem;
+}
+.faith-reader [data-fr-content] .faith-parallel-block:last-child { margin-bottom: 0; }
+
+/* One language: hide the other and give the survivor the full measure. */
+.faith-reader .faith-lang-en .faith-col-la,
+.faith-reader .faith-lang-la .faith-col-en { display: none; }
+.faith-reader .faith-lang-en .faith-parallel-block,
+.faith-reader .faith-lang-la .faith-parallel-block {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+/* The second lane is set quieter than the first so a parallel reading
+   has a near side and a far side. Not italic: house rule, and a column
+   of italic Latin is punishing to read at length. */
+.faith-reader .faith-col-la { color: var(--color-muted); }
+[data-fr-tint="dark"] .faith-reader .faith-col-la { color: #a9a29a; }
+
+/* A run-in heading the section nester did not promote still reads as a
+   heading. */
+.faith-reader [data-fr-content] .faith-row--heading {
+  margin-top: 2rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.faith-reader [data-fr-content] .faith-row--heading:first-child { margin-top: 0; }
+
+/* Editors' scripture citations: apparatus, not prose and not links.
+   They sit in the line at a smaller size and take the accent only when
+   they actually resolve somewhere. */
+.faith-reader .faith-ref {
+  font-size: 0.82em;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.faith-reader .faith-ref::before { content: " "; }
+.faith-reader a.faith-ref { color: var(--color-primary-text); text-decoration: none; }
+.faith-reader a.faith-ref:hover { text-decoration: underline; }
+
+/* Markup carried inside the translation itself. The quarter-column
+   letter is the finest address this corpus has, so it is set like a
+   citation: small, raised, out of the reading line. */
+.faith-reader .faith-col-q {
+  font-family: var(--font-body);
+  font-size: 0.62em;
+  font-weight: 600;
+  vertical-align: super;
+  color: var(--color-primary-text);
+  margin: 0 0.15em 0 0.05em;
+}
+.faith-reader .faith-en-head { font-family: var(--font-display); font-weight: 600; }
+/* Margin notes and footnotes out of the TEI, and editors' interpolations. */
+.faith-reader .faith-ed-note {
+  font-size: 0.82em;
+  color: var(--color-muted);
+}
+
+.faith-reader [data-fr-content] .faith-section-subtitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.faith-reader [data-fr-content] .faith-part-eyebrow {
+  text-align: left;
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.2em;
+  color: var(--color-muted);
+  margin: 0 0 6px;
+}
+.faith-reader [data-fr-content] .faith-book-subtitle { font-size: 12px; }
+
+/* Phones: the two lanes stack, with a rule between them so the reader
+   can see where one language ends and the other begins. */
+@media (max-width: 768px) {
+  .faith-reader [data-fr-content] .faith-parallel-block { grid-template-columns: 1fr; gap: 0; }
+  .faith-reader .faith-lang-parallel .faith-col-la {
+    border-top: 1px solid var(--color-card-border);
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+  }
+}
+
+/* ── States ───────────────────────────────────────────────────────
+   Loading, error and retry had no styling at all, so a failed section
+   dropped a user-agent grey button into a serif editorial page. */
+.faith-reader .faith-reader-loading,
+.faith-reader .faith-reader-error { padding: 3rem 0; }
+.faith-reader .faith-reader-loading-text,
+.faith-reader .faith-section-loading,
+.faith-reader .faith-toc-loading {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0;
+  padding: 1rem 0;
+}
+.faith-reader .faith-reader-error-text,
+.faith-reader .faith-section-error {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-dark);
+  border-left: 2px solid var(--color-primary);
+  padding: 2px 0 2px 18px;
+  margin: 0;
+}
+.faith-reader .faith-retry {
+  font-family: var(--font-body);
+  font-size: 13px;
+  height: 32px;
+  padding: 0 12px;
+  margin-left: 10px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-dark);
+  cursor: pointer;
+}
+.faith-reader .faith-retry:hover { border-color: var(--color-primary); color: var(--color-primary-text); }
