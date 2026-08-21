@@ -1,1 +1,587 @@
-{}
+{
+ "aq-qdemalo-31": {
+  "blurb": "Sixteen disputed questions on evil, each broken into articles that state the objections, answer them, and reply in turn. Thomas begins from evil as a privation rather than a nature, then treats sin, original sin and its transmission, venial sin, the punishment of sin, and the seven capital vices one by one. The sixth question, on human choice, holds his fullest account of how the will is free while still moved by God. The demons come last.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qdepot-26": {
+  "blurb": "Ten disputed questions on what God can do. The first take up the power of God in himself, generation within the Godhead, and creation, including whether creatures can be given creative power and what is to be made of unformed matter. Then the conservation of things in being and the working of miracles. Question seven, on the simplicity of the divine essence and how our names for God signify, is often read on its own; three questions on the Trinity close the set.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qdespir-28": {
+  "blurb": "Eleven articles on the nature of created spirit. Thomas argues first that spiritual substances are not composed of matter and form, against the universal hylomorphism common among his contemporaries, and then that the rational soul is the single substantial form of the human body. Further articles ask whether each angel constitutes its own species, how angels stand to place and to bodies, and how a separated substance knows.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qdeuni-30": {
+  "blurb": "Five articles on the union of the Word with the humanity he assumed, asking whether the union takes place in the person rather than the nature, whether there is one hypostasis and one nature in Christ, whether there is a single act of being in him, and how his human activity is to be described. The article on being grants the assumed nature a secondary act of existing, which sits awkwardly beside the third part of the Summa, and the discrepancy has kept the work in dispute.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qdever-25": {
+  "blurb": "Twenty-nine disputed questions, the largest such set Thomas held, running to some two hundred and fifty articles. The first half turns on knowledge: truth itself, God's knowledge and the divine ideas, providence, predestination, the knowledge of angels and of the separated soul, prophecy, rapture, faith, and the question on the teacher, which asks whether one man can teach another. The second half turns to appetite: the good, the will, free choice, the passions, grace, and the knowledge of Christ.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qdevirt-29": {
+  "blurb": "Five disputed questions on virtue: on the virtues in general, on charity, on fraternal correction, on hope, and on the cardinal virtues. The first asks whether virtues are habits acquired or infused and where in the soul they are seated. The question on charity treats it as friendship with God and asks whether it can increase without limit and whether it can be lost. Fraternal correction is handled as an act charity requires rather than as advice.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qi-32": {
+  "blurb": "A quodlibetal disputation was a session at which the master took questions on anything at all from anyone present and gave his determination afterwards. Twelve of Thomas's survive. This one is arranged, as these collections usually are, from questions about God and Christ downward to matters of conscience and religious life. Because the questions came from the floor rather than from a plan, the sequence is not systematic and the articles are short.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qii-33": {
+  "blurb": "The second of the twelve surviving quodlibets. Topics within a single session are unrelated to one another by design, moving between questions on Christ and the angels and practical cases put by clergy and religious. The articles are brief, since a master answering what he had not chosen could not develop much. What the reader has is a record of what was actually being asked at Paris, not what Thomas wanted to argue.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qiii-34": {
+  "blurb": "Third of the twelve quodlibets. The form is fixed and compressed: an objection or two, a short determination, a reply, with none of the elaboration of the formal disputed questions. What sits in front of the reader is therefore a list of things a Paris audience wanted settled, theological and canonical matters together, in whatever order they happened to be raised.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qiv-35": {
+  "blurb": "Fourth of the twelve quodlibets. Several of these sessions carry questions thrown up by the quarrel over the mendicant orders at Paris, on whether friars might teach, beg, or hear confessions, and whether the young could licitly enter religion, and Thomas answered as a Dominican with a stake in the outcome. Which of those questions falls in this session is a matter for the text rather than for a note above it.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qv-36": {
+  "blurb": "Fifth of the twelve quodlibets. The genre allowed no filtering of questions, so the weighty and the slight sit side by side and the answers are compressed to a paragraph or two. Read alongside the Summa, these sessions show Thomas working without a plan, applying settled positions to whatever case was put to him rather than building an argument of his own.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qvi-37": {
+  "blurb": "Sixth of the twelve quodlibets. A good deal of what came from the floor at these sessions was practical: the binding of oaths and vows, the duties of confessors and prelates, restitution, fasting, what a religious owes a superior. Thomas treats such cases with the same apparatus he brings to the Trinity, which is part of why the quodlibets are read by historians of medieval life as well as by theologians.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qvii-38": {
+  "blurb": "Seventh of the twelve quodlibets, and the one usually cited for its questions on the senses of Scripture, where Thomas asks whether a single passage can carry several meanings under one letter and how the spiritual senses rest on the literal. The other questions run in the usual way over God, the angels, the soul, and cases of conscience raised by whoever was in the room.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qviii-39": {
+  "blurb": "Eighth of the twelve quodlibets. The audience at such a session included masters, bachelors, and secular clergy as well as students, and any of them might ask; the collection preserves the result without smoothing it. Articles are brief, the arrangement runs from divine matters downward, and the interest lies less in doctrine developed than in doctrine applied under pressure.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qix-40": {
+  "blurb": "Ninth of the twelve quodlibets. A set of short determinations of the questions put at a single session, each stating the difficulty, answering it, and disposing of the objections in a few lines. No thread runs through them; the unity of the collection is the occasion on which it was held, not its subject.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qx-41": {
+  "blurb": "Tenth of the twelve quodlibets. Nothing in the genre required a question to be difficult or a determination to be long, and many here run to a paragraph. For a reader working through Thomas systematically, these sessions are best used as a check: positions held in the larger works reappear here under questioning from an audience that chose the terms.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qxi-42": {
+  "blurb": "Eleventh of the twelve quodlibets, and the shortest of them as it stands. Whether that is because the session itself was brief or because the record is incomplete is not something the text settles. The determinations follow the usual form, stating the question, answering it, and clearing away the objections in turn.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-qxii-43": {
+  "blurb": "Twelfth of the quodlibets, and unlike the others it survives only as a hearer's report, taken down as Thomas spoke and never worked up by him afterwards. The consequence shows on the page: questions are answered in a sentence, objections are noted rather than resolved, and some articles amount to little more than a heading. Useful as evidence of what was asked, weaker as a statement of what Thomas held.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-rigans-44": {
+  "blurb": "The inaugural lecture Thomas gave on becoming a master of theology at Paris, built on the psalm verse about God watering the mountains from his upper rooms. The mountains are the teachers, who receive from above and pass down to the hearers below. From that image he sets out what Scripture is, what a teacher of it owes, and why the work exceeds anyone who takes it up. Two pages, and about as close as the corpus comes to a statement of vocation.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-rom-55": {
+  "blurb": "Lectures on Paul's letter to the Romans, worked through verse by verse with the argument of each section set out before the exposition begins. Thomas reads the whole Pauline corpus as concerned with the grace of Christ and takes Romans to consider grace in itself. The long treatments of justification, of law and sin in chapters five through eight, and of Israel's election in chapters nine through eleven carry most of the weight.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sapient-145": {
+  "blurb": "A single leaf from a sermon on the verse from Ecclesiastes that wisdom strengthens the wise more than ten rulers of a city. Only the fragment survives, and there is not enough of it to say what occasion it was preached for or how the argument ran. Sermons circulated under Thomas's name in large numbers and not all of them are his; a page offers little on which to judge.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-scg1-11": {
+  "blurb": "First of the four books of the work Thomas titled the truth of the Catholic faith against the errors of unbelievers, which argues from reason where reason can reach and holds back what only revelation supplies. The opening chapters state the office of the wise man and that division of labour. The rest establishes that God exists and then works out what follows: simplicity, perfection, goodness, infinity, eternity, unity, knowledge, will, and life.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-scg2-12": {
+  "blurb": "The second of four books, on creation and creatures. Thomas argues that God creates freely and from nothing, then descends through the kinds of creature to the human soul, where the book settles. Against those who read Aristotle as teaching one separate intellect for all human beings, he argues at length that the intellect is the form of this body and is multiplied with individuals. The eternity of the world is treated here as a question reason cannot settle.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-scg3-13": {
+  "blurb": "The third and longest of the four books, on the end of creatures and God's government of them. It argues that every agent acts for an end, that the last end of intellectual creatures is the vision of God's essence, and that no created good can serve as that end. From there it takes up evil as defect rather than thing, providence over particulars, fate and chance, angelic and human government, law, grace, and predestination.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-scg4-14": {
+  "blurb": "The fourth and last book, taking up what the first three held back: what is confessed on the authority of revelation and cannot be demonstrated. The Trinity and the procession of the persons come first, then the Incarnation with the objections raised against it, then the sacraments, and finally the resurrection of the body, the judgment, and the state of the soul afterwards. The method shifts with the subject, arguing from Scripture and from the fittingness of what is believed.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-i-1": {
+  "blurb": "The opening stretch of Thomas's commentary on the Sentences of Peter Lombard, the textbook every bachelor of theology had to lecture on. These distinctions cover the Lombard's division of things to be enjoyed and things to be used, then the Trinity: the processions, the generation of the Son, the procession of the Spirit, the relations, and the persons taken together and singly. The prologue, on theology as a science, should be read with them.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-i-2": {
+  "blurb": "The rest of Book One. Once the Trinitarian relations and the divine names are finished, the questions turn to God considered in himself: what may be said of him and how our words signify, then his knowledge, the divine ideas, foreknowledge, predestination and reprobation, providence, and power. The closing distinctions on the divine will, whether it is always fulfilled and how ours is to be conformed to it, end the book.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-ii-3": {
+  "blurb": "Book Two opens the treatment of creation. These distinctions cover the production of things from nothing and whether the world could have been eternal, then the angels, their nature, their knowledge, and the fall of some of them, then the work of the six days and the formation of the human being in body and soul. The state of innocence and the image of God in man close the stretch.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-ii-4": {
+  "blurb": "The second half of Book Two, on sin. The fall of Adam and Eve, the nature of original sin and how it passes to descendants, concupiscence, free choice and what survives of it, grace and merit, actual sin with its kinds and causes, and ignorance. The final distinctions, on obedience and when a subject is not bound to obey, are where Thomas treats unjust authority.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-iii-5": {
+  "blurb": "Book Three, on the Incarnation. Why God became man and whether another person might have assumed another nature, the union in the person, what the Word took to himself and what he did not, the grace and knowledge and power of Christ's soul, the defects he bore, his prayer and merit, his passion and death. The distinctions on the two wills in Christ and on whether he feared belong here.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-iii-6": {
+  "blurb": "The remainder of Book Three turns from Christ to the virtues: faith and the articles of the creed, hope, charity and its order, the gifts of the Spirit, and the four cardinal virtues. Then the commandments, with the Decalogue taken precept by precept and questions on oaths, on the sabbath, and on what the old law required of those under it. This is Thomas's first sustained treatment of moral matter.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-iv-7": {
+  "blurb": "Book Four begins the sacraments: what a sacrament is, how those of the old law differ from those of the new, then baptism at length, its matter and form, its minister, the baptism of infants, and confirmation. From the eighth distinction the subject is the Eucharist, the words of consecration, the change of bread and wine, and the manner of Christ's presence under the species.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-iv-8": {
+  "blurb": "Continuing Book Four. The long run of distinctions on penance comes first: contrition, confession, satisfaction, the power of the keys, the remission of guilt and of punishment, and whether forgiven sins return. Extreme unction follows, then orders, with the grades of ministry, the character conferred, and the ordination of unworthy men. Much of this is canonical as well as theological, since the Lombard's own text sets the agenda.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-iv-9": {
+  "blurb": "The marriage distinctions of Book Four, and the longest continuous treatment of matrimony Thomas wrote: consent and what makes a marriage, betrothal, the goods of marriage, impediments of error, condition, vow, consanguinity and affinity, bigamy, divorce and separation, the marriage of Mary and Joseph, and the degrees within which marriage is forbidden. Later editors drew on these distinctions to fill out the unfinished Summa.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-sent-iv-10": {
+  "blurb": "The close of the Sentences commentary, on the last things: the resurrection of the body and the qualities of risen bodies, the general judgment and the fire that precedes it, the punishment of the damned, purgatory and the suffrages offered for the dead, and finally the beatitude of the saints. Thomas's account of whether the blessed see God's essence through any created medium belongs here.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-seraphim-135": {
+  "blurb": "A short university sermon taking its text from Isaiah's vision, where the seraphim stand above the throne and call to one another. Two pages is all there is, and the piece shows how a master preached rather than developing an argument at any length. Sermons circulated under Thomas's name in large numbers; the body of securely authentic ones is small.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-i-15": {
+  "blurb": "The first half of the first part. Question one defines sacred doctrine as a science taking its principles from God's own knowledge; question two asks whether God's existence is self-evident and gives the five ways. What follows is the divine essence approached by way of remotion, simplicity through to unity, then knowledge, will, power, and beatitude, then the Trinity, and finally creation, the distinction of things, and evil.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-i-16": {
+  "blurb": "The second half of the first part, on creatures. The angels come first, their substance, knowledge, will, creation, and fall; then the work of the six days; then the human being, which takes the largest share, with the soul's union with the body, its powers, how it knows, the making of the first man and woman, and the state of innocence. The part ends with divine government and the ordering of creatures to one another.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-i-ii-17": {
+  "blurb": "The first half of the second part's first division, on human action considered in general. It opens with the last end, asking whether happiness lies in wealth, honour, power, or the goods of the body, and locates it in the vision of God. Then the anatomy of the human act: voluntariness, intention, choice, the goodness and malice of acts, the passions taken one at a time, and finally habits, the virtues, the gifts, the beatitudes, and the fruits.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-i-ii-18": {
+  "blurb": "The rest of the first division of the second part. Vice and sin come first, their causes, original sin, and their effects. Then the treatise on law, where eternal, natural, human, old, and new law are distinguished and the precepts of the old law are gone through at length, moral, ceremonial, and judicial. The closing questions treat grace: its necessity, its divisions, justification, and merit.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-ii-ii-19": {
+  "blurb": "The second part's second division takes the virtues one at a time. This half covers faith, its object and act and the articles of the creed, with unbelief, heresy, and apostasy against it; hope, with despair and presumption; charity, including the order of love, almsgiving, fraternal correction, and the sins opposed to it; prudence; justice, with restitution, judicial process, and the sins of speech; and then religion, devotion, prayer, and sacrifice.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-ii-ii-20": {
+  "blurb": "The remainder of the second division, continuing through the virtues annexed to justice and then the rest. Superstition, divination, and simony; piety, obedience, gratitude, truthfulness, and liberality; fortitude with martyrdom, patience, and perseverance; temperance with abstinence, sobriety, chastity, and the questions on humility, pride, and curiosity. The last stretch leaves the virtues for prophecy and the gratuitous graces, the active and contemplative lives, and the states of life, bishops and religious.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-iii-21": {
+  "blurb": "The third part, on Christ. Whether it was fitting that God become incarnate, the mode of union in the person, what the assumed nature received in grace, knowledge, and power, and what defects it took on. Then Mary, her sanctification, her virginity, her consent. Then the life: conception and birth, baptism, manner of living, teaching, miracles, transfiguration, passion, death, burial, descent, resurrection, ascension, and the judicial power given to him as man.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-iii-22": {
+  "blurb": "The sacramental questions of the third part, and the last pages Thomas wrote of the work. Sacraments in general first, what they signify and how they cause grace, then baptism and confirmation, then eleven questions on the Eucharist, on Christ's presence under the species, the change wrought by the words, and the effects of the sacrament. Penance follows, and the text stops in the middle of it, unfinished.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-iiisup-23": {
+  "blurb": "Not by Thomas. When he stopped writing in the middle of the questions on penance, his editors completed the third part by cutting material out of his much earlier commentary on the Sentences and setting it in the form of the Summa. This first half continues penance to its end, then extreme unction and orders, then the long treatment of marriage. The doctrine is his, the arrangement and the seams are not.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-st-iiisup-24": {
+  "blurb": "The second half of the compilation his editors assembled from the Sentences commentary to finish the unfinished Summa. It covers the last things: the resurrection, the qualities of risen bodies, the general judgment, the fire of the last day, the punishment of the damned, and the beatitude of the saints. As with the first half, the words are Thomas's own but the selection and ordering are the work of others after his death.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "aq-surge-146": {
+  "blurb": "One page, all that survives of a sermon preached on the word arise. There is too little to reconstruct the occasion or to follow the development, and the fragment is better treated as evidence that the piece existed than as a text to be studied. Attribution across the sermon corpus is uneven, and a fragment this short offers almost nothing on which to judge it.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "aq-tabula-84": {
+  "blurb": "Not a treatise but a working tool: an alphabetical index to Aristotle's Nicomachean Ethics, listing topics with the places where the Philosopher treats them and often a line of summary under each. It is the sort of thing a master compiled for his own use while lecturing, and it breaks off rather than concluding. Of interest chiefly for what it shows about how Thomas read the Ethics and filed what he found there.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-titus-66": {
+  "blurb": "A short commentary on the letter to Titus, part of Thomas's lectures on the Pauline corpus, which reach us for the most part in reports taken down by hearers rather than in texts he wrote out himself. The letter concerns the ordering of churches, so the exposition follows Paul through the qualities required in a bishop, the correction of unruly teachers, instruction for the several ages and states, and the grace that has appeared to all.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "aq-veniet-124": {
+  "blurb": "A sermon on the prophetic promise that the desired of all nations will come, which places it in Advent. Three pages, following the university form of a text divided and then developed rather than the shape of a modern sermon. It belongs with the academic sermons preached before clergy and students, a small body of material next to the commentaries and disputations.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-commentarii-in-de-mystica-theologia": {
+  "blurb": "An exposition of the short Dionysian treatise on the ascent to God by negation, part of Albert's running commentary on the whole corpus of Pseudo-Dionysius. He follows the text as it strips away every affirmative name until thought is left in what Dionysius calls the divine darkness, which Albert reads as excess of light rather than absence. A reader comes to it for the point where his Aristotelian vocabulary meets an apophatic source.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-commentarii-in-epistolas-b-dionysii-areopagitae": {
+  "blurb": "An exposition of the ten letters that close the Dionysian corpus, addressed to monks, priests, a bishop, and finally to John on Patmos. The letters are brief and occasional, so much of the commentary turns on the opening ones, where Dionysius states that God is known by unknowing, and on the long letter to Titus concerning symbolic theology. It belongs with Albert's complete reading of Dionysius.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-commentarii-in-librum-baruch": {
+  "blurb": "One of Albert's prophetic commentaries, working through the short book that Latin Bibles print after Jeremiah, including the letter of Jeremiah that stands as its final chapter. He reads it as the Latin schools did, dividing the text and settling the literal sense before drawing the moral application, with the exile as the governing situation throughout.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-commentarii-in-librum-danielis-prophetae": {
+  "blurb": "A verse commentary on the prophet, covering both the court narratives of the first half and the visions of the second, together with the Greek additions the Vulgate carries: Susanna, Bel, and the dragon. The four kingdoms and the seventy weeks are the passages a medieval commentator was obliged to settle, and Albert works through them with the standard Latin authorities in hand.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-commentarii-in-librum-sancti-dionysii-areopagitae-de-ecclesiastica-hierarchia": {
+  "blurb": "An exposition of the Dionysian treatise on the ordered ranks of the church: the sacraments of baptism, synaxis, and the ointment; the orders of bishop, priest, and deacon; and the states beneath them. Albert takes the hierarchy as a real communication of light downward through mediating ranks, and reads the rites Dionysius describes against the Latin liturgy he himself knew.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-commentarii-in-octo-libros-politicorum-aristotelis": {
+  "blurb": "A commentary on all eight books of the Politics, and one of the first in Latin to treat the complete work. Albert takes up slavery, household management, the classification of constitutions, the causes of revolution, and the education of citizens, keeping a practical eye on the cities and princes of his own day. Where Aquinas's exposition of the same text breaks off partway, this one runs to the end.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-commentarii-in-psalmos": {
+  "blurb": "The whole psalter expounded psalm by psalm, the largest of Albert's scriptural works and the one closest to the daily business of a Dominican house, where the psalms were recited through every week. Each psalm receives its title, its division, and then a phrase-by-phrase reading, christological where the Latin tradition had long read it so. Long stretches serve as material for preaching.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-adhaerendo-deo": {
+  "blurb": "A short devotional treatise on recollection, detachment from images, and the soul's cleaving to God in the ground of the mind. It was printed for centuries under Albert's name and widely read in that form. Scholarship no longer accepts the attribution; the work is a later German product, generally assigned to the Benedictine Johann von Kastl, and belongs to a current of mystical writing well after Albert's own.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-aetate-sive-de-juventute-et-senectute-liber": {
+  "blurb": "A brief paraphrase of one of the Aristotelian short treatises on life, taking up the stages of a living body's career: the growth and heat of youth, the drying and cooling of age, and the seat of the vital heat in the heart. It belongs with the group of small physical works Albert wrote to complete his coverage of the Parva naturalia.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-anima": {
+  "blurb": "A paraphrase of Aristotle's three books on the soul, done in Albert's usual method: the argument restated in his own order, with digressions wherever the Greek and Arabic commentators disagree. The soul as form of an organic body, the senses and their proper objects, imagination, and the agent and possible intellect are all treated. On intellect he argues at length with Averroes and Avicenna without adopting either.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-animalibus": {
+  "blurb": "Twenty-six books of zoology. The first nineteen paraphrase the Aristotelian works on animals as the Arabic-Latin version transmitted them; two more take up general questions about the animal body; and the last five are Albert's own catalogue of quadrupeds, birds, sea creatures, serpents, and small crawling things, arranged alphabetically and full of observations he claims to have made or verified himself.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-causis-et-proprietatibus-elementorum": {
+  "blurb": "A paraphrase of the short treatise that circulated in Latin as Aristotle's work on the elements, dealing with the places and powers of earth, water, air, and fire, the reasons parts of the earth are dry or habitable, and the causes of change in sea and land over long spans of time. Albert uses it to extend his physics toward the earth itself.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-coelo-et-mundo": {
+  "blurb": "Four books paraphrasing Aristotle on the heavens: the simple bodies and their natural motions, the fifth body of which the heavens are made and its incorruptibility, the eternity or beginning of the world, the sphericity and rest of the earth, and the elements and their transformations. Albert reports the astronomical opinions available to him and marks where philosophy cannot decide what faith holds about a beginning.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-generatione-et-corruptione": {
+  "blurb": "Two books on substantial change: how a thing comes to be simply rather than merely altering, what happens to the ingredients of a mixture, action and passion between bodies, and the cycle by which the four elements pass into one another. The questions settled here stand behind everything Albert says elsewhere about matter, form, and compounded bodies.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-intellectu-et-intelligibili": {
+  "blurb": "Not a paraphrase of any Aristotelian book but Albert's own treatise, gathering what the Peripatetic tradition, Greek and Arabic, had made of the intellect: the possible and agent intellects, the way a form becomes intelligible in act, the grades of intellect from the merely potential to the acquired, and what the mind's happiness would consist in. Short and dense.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-laudibus-beatae-mariae-virginis-libri-duodecim": {
+  "blurb": "Twelve books of Marian material, arranged around her titles, her virtues, and the words spoken to and about her in Scripture, compiled in the encyclopedic manner of the thirteenth century. It was printed among Albert's works for centuries, but the attribution has not held; the compilation is assigned to Richard of Saint-Laurent, a canon of Rouen. A witness to Latin Marian devotion rather than to Albert.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-morte-et-vita": {
+  "blurb": "A short paraphrase in the Parva naturalia series, on why living things die: the vital heat that must be maintained, the balance of the moist and the dry, the part respiration and the heart play in preserving it, and the natural limits of a lifespan. Length of life in different kinds of animals and plants is treated alongside.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-motibus-animalium": {
+  "blurb": "Two books on how animals move themselves from place to place: the parts that serve progressive motion, the necessity of something at rest for anything to push against, and the desire and imagination that set the whole in motion. Albert works from the Aristotelian treatises on animal motion and animal progression, taking them together as a single subject.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-praedicabilibus": {
+  "blurb": "The opening of Albert's logical course, expounding Porphyry's Isagoge on genus, species, difference, property, and accident. It carries a long prologue on what logic is, what its subject matter is, and why it must be learned before anything else. Albert uses the occasion to state the plan of his whole project of making the Peripatetic sciences intelligible to Latin readers.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-praedicamentis": {
+  "blurb": "A paraphrase of Aristotle's Categories, running through substance, quantity, relation, quality, and the rest, with the preliminary matter on equivocals and univocals and on what is said of a subject as against what is in one. Albert treats the categories as divisions both of what can be said and of what is, so a good deal of metaphysics is carried inside a logical book.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-sacrosancto-eucharistiae-sacramento-sermones-plane-divini": {
+  "blurb": "Sermons on the sacrament of the altar, printed among Albert's works and long circulated under his name. They preach the eucharist rather than dispute it, taking up the Old Testament figures fulfilled in it, the effects of worthy and unworthy reception, and the dispositions expected of a communicant. The sermon collections attached to Albert's name vary in their claim to be his.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-sex-principiis": {
+  "blurb": "A commentary on the Liber sex principiorum, the twelfth-century treatise usually ascribed to Gilbert of Poitiers, which supplied the schools with a treatment of the six categories Aristotle had left thin: action, passion, when, where, position, and habit. It formed part of the standard logical course, and Albert expounds it as he does the genuine Aristotelian books.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-somno-et-vigilia": {
+  "blurb": "Three books on sleep, in the Aristotelian series but much expanded. The first treats sleep and waking as states of the sensory power together with their bodily causes; the second, dreams and how images are formed and disturbed in sleep; the third, whether anything true can be foreseen in dreams, where Albert takes up divination and prophecy and sorts what he will allow from what he will not.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-spiritu-et-respiratione": {
+  "blurb": "A short physical treatise on breathing and on the vital spirit: what the spirit is that carries heat and life through the body, how it is generated, why some animals must breathe while others are cooled another way, and what respiration does for the heart. It fills out the Aristotelian account of living things with material drawn from medical sources.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-de-vegetabilibus-et-plantis": {
+  "blurb": "Seven books of botany, built on the treatise on plants that circulated in Latin under Aristotle's name and is in fact by Nicholas of Damascus. Albert treats the parts, nutrition, generation, and grafting of plants, then gives an alphabetical catalogue of trees and herbs with their appearance, habitat, and uses, much of it from his own looking rather than from books.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-elenchorum": {
+  "blurb": "Two books on sophistical refutations, closing Albert's course through the Organon. He sets out the fallacies in speech and outside speech, equivocation, amphiboly, composition and division, accident, arguing from a qualified statement to an unqualified one, begging the question, and the rest, with the means of solving each. The interest lies in how the schools trained a student to detect a bad argument.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-ethica": {
+  "blurb": "A paraphrase of the ten books of the Nicomachean Ethics: happiness, the voluntary, the moral virtues one by one, justice, the intellectual virtues, continence and its failure, pleasure, friendship, and the contemplative life. This is Albert's later exposition of the text, to be distinguished from his earlier course of lectures on the same work, which survives with disputed questions attached.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-apocalypsim-b-joannis-apostoli": {
+  "blurb": "A commentary on the Revelation of John, dividing the book in the manner of the Latin schools and reading the seals, trumpets, and vials as a sequence bearing on the church's course from the apostles onward. It is printed among Albert's works, but commentaries of this kind circulated under more than one name, and the ascription carries less weight than that of his gospel commentaries.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-de-coelesti-hierarchia": {
+  "blurb": "An exposition of the Dionysian treatise on the angelic orders: the nine choirs in their three hierarchies, the purification, illumination, and perfection that pass from rank to rank, and the reason Scripture describes spirits under gross and unlikely images. Albert takes the sequence seriously as an account of how anything created receives from God through mediation, and it stands behind his angelology elsewhere.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-duodecim-prophetas-minores-enarratio": {
+  "blurb": "A running exposition of the twelve minor prophets from Hosea to Malachi, each with its historical occasion, its division, and a phrase-by-phrase reading that moves from the literal sense to the moral and to Christ. It belongs with the prophetic commentaries Albert produced alongside his work on the Psalms and the gospels.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-evangelium-secundum-joannem": {
+  "blurb": "A commentary on the fourth gospel, and the most doctrinal of Albert's gospel expositions because the text forces it: the prologue on the Word, the discourses on the bread of life and the good shepherd, the farewell discourse, and the passion. He divides the text closely, states the questions the schools had attached to each passage, and settles them before moving on.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-evangelium-secundum-lucam": {
+  "blurb": "The longest of the gospel commentaries, expounding Luke at a scale that suggests years of lecturing. Albert treats the infancy narratives, the parables peculiar to this gospel, and the journey to Jerusalem in the same close way, dividing each passage, raising the questions on it, and gathering the authorities. Much of it reads as a preacher's resource as much as a schoolman's.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-evangelium-secundum-marcum": {
+  "blurb": "An exposition of the shortest gospel, following the text through in the manner of Albert's other gospel commentaries: division of the passage, literal exposition, questions raised and answered, then the moral sense. Since Mark carries little that the other gospels lack, much of the interest lies in how he handles the places where its account is the fuller one.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-evangelium-secundum-matthei": {
+  "blurb": "A commentary on the first gospel, the one a medieval master was most likely to lecture on because of its discourses. The genealogy, the sermon on the mount, the parables of the kingdom, and the passion are each divided and expounded, with the disputed questions of the schools brought in wherever the text raises them and answered in place.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-mineralium": {
+  "blurb": "Five books on stones and metals: what gives a stone its matter and form, why some are transparent or coloured, the powers ascribed to particular stones, engraved gems and what to make of their reported effects, the generation of metals within the earth, and their kinds. One book is a lapidary listing stones alphabetically. Albert says plainly where he has tested a claim and where he has not.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-in-threnos-jeremiae-commentarii": {
+  "blurb": "A commentary on the five poems over the ruin of Jerusalem, handling the alphabetic structure of the Hebrew acrostic as the Latin tradition understood it and reading the city's desolation both as history and as a figure of the soul under sin. Short, and closely tied to the use of Lamentations in the offices of Holy Week.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-libellus-de-alchimia": {
+  "blurb": "A practical alchemical tract, also known as the Semita recta, giving rules for the conduct of the work, the furnishing of a laboratory, the cautions an operator should observe, and procedures for the metals and their spirits. It circulated widely under Albert's name and helped fix his later reputation as a magician. Its authenticity has been argued over and is not generally granted.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-libellus-de-unitate-intellectus-contra-averroem": {
+  "blurb": "A treatise against the Averroist doctrine that there is one intellect for all human beings. Albert first sets out the arguments for that position at length and in their strongest form, then answers them one by one, holding that the intellect is multiplied with the individuals whose form the soul is. It is his most concentrated engagement with the Commentator on the question that would divide the faculty of arts.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-apprehensione-a-quibusdam-adscriptus": {
+  "blurb": "The title itself records the doubt: this is a work ascribed to Albert by some hands rather than transmitted as his. Its subject is apprehension, the soul taking hold of its objects. The ascription is not accepted, and beyond the title there is little here that can be stated with confidence, so it is best read as a product of the psychological writing his authentic works fed.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-causis-et-processu-universitatis": {
+  "blurb": "Two books on the flowing of all things from the first cause. The first is Albert's own construction, drawing on Avicenna and al-Farabi, of how the first principle is what it is, how the intelligences proceed from it, and what causality by way of flow amounts to. The second expounds the Liber de causis proposition by proposition, a book Albert took to complete the Aristotelian metaphysics.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-memoria-et-reminiscentia": {
+  "blurb": "A short paraphrase distinguishing memory, which retains an image bearing the mark of past time, from recollection, which hunts down what has slipped away by moving along the order in which things were first taken in. Albert's account of that ordered search, and of the images by which a thing is recovered, was taken up by later writers on the art of memory.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-natura-et-origine-animae": {
+  "blurb": "Not a paraphrase but Albert's own tract, taking up questions the Aristotelian books left unsettled: where the rational soul comes from, given that it cannot be drawn out of matter as the vegetative and sensitive powers are; how it is united to the body as its form; whether it can perish; and what it knows once separated from the body at death.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-natura-locorum": {
+  "blurb": "A treatise on place as a cause: how latitude, exposure, altitude, water, and the influence of the heavens make one region hot and another cold, one habitable and another not, and how such conditions shape the plants, animals, and human complexions found there. Albert argues about which zones of the earth can be lived in and gathers what reports he can of distant lands.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-nutrimento-et-nutribili": {
+  "blurb": "A brief tract on food and the thing fed: what makes something nourishing, how nutriment is converted into the substance of the body, the relation of nutrition to growth and to the vital heat, and why a body that is nourished nonetheless declines. Among the shortest of the pieces Albert wrote to complete the Aristotelian account of living things.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-passionibus-aeris-sive-de-vaporum-impressionibus": {
+  "blurb": "A short treatise on what happens in the air: the vapours and exhalations drawn upward by heat, and the winds, rain, hail, thunder, and comets that the schools explained by them. The material overlaps Albert's much larger work on the Meteorologica, and the piece reads as a compact statement of the same doctrine, of the kind used for judging weather.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-sacramento-eucharistiae": {
+  "blurb": "A systematic treatment of the eucharist, taking up in order the sacrament itself, the matter of bread and wine, the form of words and the moment of conversion, the manner in which Christ's body is present, the accidents that remain without a subject, the effects of the sacrament, and what is required for worthy reception. The scholastic apparatus of objection and reply is used throughout.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-sacrificio-missae": {
+  "blurb": "An exposition of the mass as celebrated, going through the rite in order from the preparation and the vesting to the canon and the communion, and explaining the words, gestures, and objects both for what they do and for what they signify. It belongs to the medieval genre of liturgical commentary rather than to disputation, and shows what a Dominican house understood itself to be doing at the altar.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-liber-de-sensu-et-sensato": {
+  "blurb": "A paraphrase of the Aristotelian treatise on sensation, with additions: the organs of the five senses and the elements they answer to, light and colour and the medium through which sight works, then sound, smell, taste, and touch, and the question whether sensible bodies are divisible without limit. Albert draws on the Arabic writers on optics where Aristotle is thin.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-mariale-sive-quaestiones-super-evangelium": {
+  "blurb": "Questions on the annunciation narrative, arranged as a scholastic exposition of the words spoken to Mary and worked out into a full treatment of her privileges, her knowledge, her virtues, and her place in the order of grace. Long printed as Albert's and cited as such in Marian theology, it is now generally denied to him and assigned to another thirteenth-century hand.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-metaphysicorum-libri-xiii": {
+  "blurb": "A paraphrase of the Metaphysics in the thirteen books the Latin tradition counted, from the survey of earlier opinions about the causes through being as being, substance, act and potency, and on to the separate substances and the first mover. Albert argues with Avicenna and Averroes at every turn, and the digressions on the subject of this science and on the divine intellect are his own.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-meteororum": {
+  "blurb": "Four books on what happens between the heavens and the earth: exhalations and vapours, comets and the milky way, winds, rain, snow and hail, thunder and lightning, rivers and springs, the saltness of the sea, earthquakes, haloes and the rainbow. The last book turns to the qualities of compounded bodies and how they answer to heat and cold, and leads directly into his work on minerals.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-oratio-divi-alberti-magni-de-sacrosancto-eucharistiae-sacramento-saluberrima": {
+  "blurb": "A single page: a prayer on the sacrament of the altar carried under Albert's name in the printed editions and set among his eucharistic writings. Devotional rather than argumentative, it is the sort of short piece that attaches itself to a famous name in the course of transmission, and nothing about it as printed settles whether it is his.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-orationes-super-evangelia-dominicalia-totius-anni": {
+  "blurb": "Short prayers, one for each Sunday gospel through the year, following the order of the temporal cycle, each taking a phrase from the day's reading and turning it into petition. The collection is brief and is printed among Albert's works, and the title is very nearly all there is to go on.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-paradisus-animae-sive-libellis-de-virtutibus": {
+  "blurb": "A short treatise on the virtues, given in a series of brief chapters, each defining a single virtue and then applying it to the interior life of someone who wants to be at peace with God and with himself. It circulated very widely in the later middle ages under Albert's name and in translation. Its authorship is doubtful and it is not part of the certain corpus.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-perihermenias": {
+  "blurb": "A paraphrase of Aristotle's On Interpretation: the noun and the verb, what makes a sentence capable of truth, affirmation and negation and the ways they oppose, the modal propositions, and the problem of the sea battle, where a statement about a future contingent seems to be true or false already. Albert follows the standard Latin discussion of that last question closely.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-philosophia-pauperum": {
+  "blurb": "A compact summary of natural philosophy, running through physics, the heavens, generation, meteorology, and the soul within the space of a manual, made for students who could not work through the full paraphrases. It travelled under Albert's name for centuries. The attribution has not held; the work is generally assigned to Albert of Orlamünde, and derives from Albert's commentaries rather than being written by him.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-physicorum": {
+  "blurb": "Eight books paraphrasing the Physics, and the first instalment of Albert's project to put the whole of Aristotle before Latin readers in a form they could use. Nature and the principles of change, matter and privation, the definitions of motion, place, void, time, and infinity, and finally the argument to a first unmoved mover. The prologue states the plan and method of the entire series.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-posteriorum-analyticorum": {
+  "blurb": "Two books on demonstration: what it is to know a thing scientifically, the premises a demonstration requires and why they cannot themselves be demonstrated without end, the difference between knowing that and knowing why, definition and its relation to proof, and how first principles are grasped by induction and by intellect. The theory of science behind Albert's whole Aristotelian project is set out here.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-praefatio-editorum-lugdunensium-benevolo-lectori": {
+  "blurb": "Editorial matter rather than a work of Albert's: the preface addressed to the reader by the editors of the folio edition of his collected works printed at Lyons. It states what they took themselves to be doing, what they gathered, and how they judged the pieces they chose to print. Useful chiefly for what it shows about how the Albertine corpus was assembled and handed on.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-priorum-analyticorum": {
+  "blurb": "Two books on the syllogism as such: the conversion of propositions, the three figures and their valid moods, proof by reduction and by impossibility, the modal syllogisms that occupied so much of the schools' attention, and then the resolution of arguments into syllogistic form, with induction, example, and paralogism. Albert expounds the apparatus that every later medieval argument presupposes.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-scriptum-super-abborem-aristotelis": {
+  "blurb": "Three pages, and the Latin title as it stands here is corrupt, so what the piece is cannot be established from it. The English rendering supplied points toward the De anima, but Albert's paraphrase of that work is printed separately and at length. Treat this as a fragment or as a piece of editorial matter; no account of its contents should be trusted without seeing it.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-sermones-de-sanctis": {
+  "blurb": "Sermons for the feasts of the saints through the year, brief and schematic in the manner of thirteenth-century preaching aids: a text, a division, and the matter left to be filled out by the preacher. The sermon collections printed under Albert's name are of uneven claim to be his, and this one is best used as a specimen of Dominican preaching.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-sermones-de-tempore": {
+  "blurb": "Sermons following the temporal cycle from Advent through the Sundays after Pentecost, each built on the day's gospel or epistle, divided into heads and supported with scriptural authorities. Like the companion collection for the saints' days, this is a preacher's working stock rather than a finished literary work, and the ascription to Albert is not secure across the whole.",
+  "confidence": "low",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-speculum-astronomiae": {
+  "blurb": "A short survey sorting the books on the stars available in Latin into those that may be read and those that may not: astronomy proper and the judicial astrology built on it on one side, and the books of images, necromancy, and invocation on the other. It has been transmitted as Albert's and defended as his, but the attribution is disputed and the question is not closed.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-summa-de-creaturis": {
+  "blurb": "An early theological summa in two large parts. The first, on the four coeval things, treats matter, time, the heaven, and the angels, including the fall of the bad angels. The second, on man, is a full treatise on the soul, its powers, its union with the body, and the condition of the first man before and after sin. His most substantial early work in question-and-answer form.",
+  "confidence": "high",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-summa-theologiae": {
+  "blurb": "The late theological summa, sometimes given the fuller title on the wonderful knowledge of God. The first part treats theology as a science, then the existence, the names, and the attributes of God, and the Trinity; the second does not carry the announced plan through to its end, and the work was left unfinished. It is not to be confused with the earlier summa on creatures or with the commentary on the Sentences.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ },
+ "albertus-magnus-topicorum": {
+  "blurb": "Eight books on dialectical argument: reasoning from premises that are merely probable or commonly held, the four predicables as the framework of such reasoning, and the long lists of topics, the places from which an arguer draws a line of attack or defence on a given kind of question. The last book treats the conduct of a disputation, which was the daily exercise of the schools.",
+  "confidence": "medium",
+  "source": "mere-orthodoxy"
+ }
+}
