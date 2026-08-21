@@ -37,10 +37,19 @@
   let letter = params.get("letter") || "";
   let page = Math.max(1, parseInt(params.get("page"), 10) || 1);
 
-  const corpus = window.MOCorpora.get(collectionId);
+  // "all" is every collection at once, which is what the century page
+  // reads: one table of contents cut by date rather than by shelf.
+  const ALL = ["pg", "pld", "po", "tfr", "eebo"];
+  const isAll = collectionId === "all";
+  const corpus = isAll ? null : window.MOCorpora.get(collectionId);
   root.innerHTML = '<p class="faith-room-status">Loading the collection&hellip;</p>';
 
-  window.MOCorpora.load(collectionId).then((list) => {
+  const source = isAll
+    ? Promise.all(ALL.map((id) => window.MOCorpora.load(id).catch(() => [])))
+        .then((sets) => sets.flat())
+    : window.MOCorpora.load(collectionId);
+
+  source.then((list) => {
     // Sort by the name the reader is scanning for, then by title so a
     // multi-volume set reads in order rather than in catalogue order.
     works = list.slice().sort((a, b) => {
@@ -184,7 +193,7 @@
     const letters = [...new Set(filtered.map((w) => initial(w.author)))]
       .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
 
-    const label = corpus ? corpus.label : "the collection";
+    const label = isAll ? "the whole library" : (corpus ? corpus.label : "the collection");
     const rail = letters.length > 1
       ? `<nav class="faith-room-letters" aria-label="Jump to a letter"><button type="button" data-room-letter="" class="${letter ? "" : "is-active"}">All</button>${
           letters.map((l) => `<button type="button" data-room-letter="${l}" class="${letter === l ? "is-active" : ""}">${l}</button>`).join("")}</nav>`

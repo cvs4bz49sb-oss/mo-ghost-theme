@@ -1,32 +1,31 @@
 {{!< default}}
 {{#contentFor "moHead"}}
 <title>By century &mdash; The Faith Received</title>
-<meta name="description" content="Every century in The Faith Received, across all five collections: what the church wrote, when, and where to read it." />
+<meta name="description" content="The whole of The Faith Received, cut by century: pick a century and read what the church wrote in it, by author, across all five collections." />
+<meta name="tfr-room-collection" content="all" />
 {{/contentFor}}
-{{!-- /the-faith-received/century/ — the collections cut by date.
+{{!-- /the-faith-received/century/ — every collection at once, cut by date.
 
-     The rooms answer what is in a collection. This answers what the
-     church has from a century, which is the other axis entirely.
-     Counting is client-side: faith-century.js derives the date, this
-     page tallies it, and each row hands off to a room already filtered
-     to that century. --}}
+     The same reading room the collections use, over all five at once.
+     Pick a century from the rail and the table of contents below it
+     narrows to what the church wrote then, by author. --}}
 
 <main class="faith-received faith-room">
 
   <section class="bhero bhero--tool">
     <div class="bhero-inner container">
       <p class="bhero-kicker">The Faith Received &middot; By century</p>
-      <h1 class="bhero-title">Every century, across every collection</h1>
-      <p class="bhero-lede">The fifth century means Augustine in the Latin fathers and Chrysostom in the Greek. Pick a century to see what each collection holds from it.</p>
+      <h1 class="bhero-title">Read by century</h1>
+      <p class="bhero-lede">Every collection at once, cut by date rather than by shelf. Pick a century and the table of contents narrows to what the church wrote in it, sorted by author.</p>
     </div>
   </section>
 
-  <section class="bband">
-    <div class="container" data-faith-centuries></div>
+  <section class="bband faith-room-body">
+    <div class="container" data-faith-room></div>
   </section>
 
 </main>
 
 <script src="{{asset "js/faith-corpora.js"}}"></script>
 <script src="{{asset "js/faith-century.js"}}"></script>
-<script src="{{asset "js/faith-centuries-page.js"}}"></script>
+<script src="{{asset "js/faith-room.js"}}"></script>
