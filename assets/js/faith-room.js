@@ -53,6 +53,10 @@
     // Sort by the name the reader is scanning for, then by title so a
     // multi-volume set reads in order rather than in catalogue order.
     works = list.slice().sort((a, b) => {
+      if (isAll) {
+        const ac = cent(a) || 9999, bc = cent(b) || 9999;
+        if (ac !== bc) return ac - bc;
+      }
       const an = surname(a.author), bn = surname(b.author);
       return an.localeCompare(bn) || (a.title || "").localeCompare(b.title || "");
     });
@@ -202,7 +206,7 @@
       ? `<div class="btrads faith-room-blocks">${groups.map((g) => block(g.name, g.works)).join("")}</div>`
       : `<p class="faith-room-status">Nothing matches that. Try another name or title.</p>`;
 
-    root.innerHTML = `<div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count">${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p></div>${chips}${rail}${body}${pager(page, pages)}`;
+    root.innerHTML = `<div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count">${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p></div>${centuries}${chips}${rail}${body}${pager(page, pages)}`;
 
     wire();
     pushState();
