@@ -732,8 +732,18 @@
       .trim();
   }
 
+  // A division heading is two lines: a label and what it is about,
+  // divided by the <br> the source printed. They are recased apart,
+  // because calmCaps judges a line by how much of it is capitals and
+  // "LETTER 1" followed by a mixed-case subtitle never reaches the
+  // threshold — which left half the Letters shouting in the contents
+  // and the other half, whose subtitles are also capitals, not.
   function divisionTitle(r) {
-    return clampHeading(calmCaps(plainText(r.en || r.la)));
+    const parts = String(r.en || r.la || "")
+      .split(/<br\s*\/?>/i)
+      .map((p) => calmCaps(plainText(p)))
+      .filter(Boolean);
+    return clampHeading(parts.join(" · "));
   }
 
   // ── Chapters ──────────────────────────────────────────────────
@@ -1471,13 +1481,66 @@
 
   // Render the contents tree directly. Text is already in hand, so
   // sections are filled at build time rather than hydrated on open.
+  //
+  // Exactly one element carrying id="section-N" per node, in the order
+  // buildTocLinks counts them. The shape below that varies — a node
+  // with no text of its own is a part heading, not an empty drawer —
+  // but the count must not, or every link in the rail lands a section
+  // out.
   function renderTocTree(nodes) {
     if (!contentEl) return;
     contentEl.innerHTML = "";
     let counter = 0;
 
+    function srcAlias(node, id) {
+      if (!node.id) return "";
+      const alias = String(node.id).trim().replace(/\s+/g, "-");
+      return alias && alias !== id ? alias : "";
+    }
+
     function sectionFor(node, depth) {
       counter += 1;
+      const id = `section-${counter}`;
+      const alias = srcAlias(node, id);
+      const label = node.label || "Untitled";
+
+      // Clean first, then ask whether anything is left. The answer is
+      // no for 18% of EEBO's sections, because their whole content was
+      // the heading the drawer already prints.
+      const body = document.createElement("div");
+      body.className = "faith-section-body article-content";
+      if (node.html) {
+        body.innerHTML = sanitize(node.html);
+        dressSource(body, label);
+      }
+      const hasText = !!body.textContent.trim();
+      const kids = node.kids || [];
+
+      // A heading with children and nothing else is a part title. The
+      // rest of the reader already has one — the same <details> the
+      // Latin corpus uses for a book — so use it rather than a drawer
+      // that opens on nothing.
+      if (!hasText && kids.length) {
+        const book = document.createElement("details");
+        book.className = "faith-book faith-book-details faith-book-details--editorial";
+        book.id = id;
+        if (alias) book.setAttribute("data-src-id", alias);
+        const leaves = countTocLeaves(node);
+        const sum = document.createElement("summary");
+        sum.className = "faith-book-summary";
+        sum.innerHTML =
+          `<div class="faith-book-summary-inner">` +
+          `<p class="eyebrow faith-part-eyebrow">${escapeHtml(label)}</p>` +
+          `<p class="faith-book-subtitle">${leaves} section${leaves === 1 ? "" : "s"}</p>` +
+          `</div><span class="faith-chev" aria-hidden="true"></span>`;
+        book.appendChild(sum);
+        const shelf = document.createElement("div");
+        shelf.className = "faith-book-body";
+        kids.forEach((kid) => shelf.appendChild(sectionFor(kid, depth + 1)));
+        book.appendChild(shelf);
+        return book;
+      }
+
       const details = document.createElement("details");
       details.className = "faith-section-details faith-book-chapter";
       // The contents rail links by position, but the scripture index
@@ -1485,30 +1548,37 @@
       // positional id for the rail, the source id as an alias so a
       // citation's anchor resolves. Counting in two places is what
       // put every link a section early.
-      details.id = `section-${counter}`;
-      if (node.id) {
-        const alias = String(node.id).trim().replace(/\s+/g, "-");
-        if (alias && alias !== details.id) details.setAttribute("data-src-id", alias);
-      }
+      details.id = id;
+      if (alias) details.setAttribute("data-src-id", alias);
       details.dataset.frState = "loaded";
+      // A heading with neither text nor children — a running head the
+      // source caught, a part with its body elsewhere. It still has to
+      // exist, because the rail links to it; it does not have to
+      // pretend there is something behind it.
+      if (!hasText && !kids.length) details.classList.add("faith-section--empty");
 
       const summary = document.createElement("summary");
       summary.className = "faith-section-summary";
       summary.innerHTML =
         `<div class="faith-section-summary-inner">` +
-        `<h2 class="faith-section-title"><em>${escapeHtml(node.label || "Untitled")}</em></h2>` +
+        `<h2 class="faith-section-title"><em>${escapeHtml(label)}</em></h2>` +
         `</div><span class="faith-chev" aria-hidden="true"></span>`;
       details.appendChild(summary);
 
-      const body = document.createElement("div");
-      body.className = "faith-section-body article-content";
-      if (node.html) body.innerHTML = sanitize(node.html);
-      (node.kids || []).forEach((kid) => body.appendChild(sectionFor(kid, depth + 1)));
+      kids.forEach((kid) => body.appendChild(sectionFor(kid, depth + 1)));
       details.appendChild(body);
       return details;
     }
 
     nodes.forEach((n) => contentEl.appendChild(sectionFor(n, 0)));
+  }
+
+  function countTocLeaves(node) {
+    const kids = node.kids || [];
+    if (!kids.length) return 1;
+    let n = 0;
+    kids.forEach((k) => { n += countTocLeaves(k); });
+    return n;
   }
 
   // EEBO-TCP markup is third-party HTML. DOMPurify ships in the boot

@@ -6953,3 +6953,101 @@ body.faith-toc-open .faith-dock { display: none; }
 }
 .faith-verse-popover-text,
 .faith-verse-popover-text:not(.is-loaded) { font-style: normal; }
+
+/* ══ Searching one author's shelf ═════════════════════════════════
+   A list of 124 works is only a list. The question a reader arrives
+   with is narrower than the shelf: where does this man handle Romans 8. */
+.fa-search {
+  margin: 0 0 34px;
+  padding: 20px 22px 22px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg);
+}
+.fa-search-head {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+.fa-search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.fa-search-input {
+  flex: 1 1 320px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+.fa-search-input:focus { outline: 2px solid var(--color-secondary); outline-offset: 1px; }
+.fa-search-btn {
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid var(--color-dark);
+  border-radius: 3px;
+  background: var(--color-dark);
+  color: var(--color-bg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.fa-search-btn:hover { background: var(--color-secondary); border-color: var(--color-secondary); color: #fff; }
+.fa-search-note,
+.fa-search-msg {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 10px 0 0;
+}
+.fa-search-count {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 18px 0 8px;
+}
+.fa-search-list { list-style: none; margin: 0; padding: 0; }
+.fa-search-hit {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-border);
+}
+.fa-search-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-decoration: none;
+}
+.fa-search-title:hover { color: var(--color-secondary); }
+.fa-search-times,
+.fa-search-excerpt {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.fa-search-excerpt::before { content: "\201C"; }
+.fa-search-excerpt::after { content: "\201D"; }
+.fa-search-verses {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.fa-search-verses .faith-verse-link { text-decoration: none; }
+
+@media (max-width: 640px) {
+  .fa-search { padding: 16px; }
+  .fa-search-input { flex: 1 0 100%; }
+  .fa-search-btn { flex: 1 0 100%; }
+}

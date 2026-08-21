@@ -241,5 +241,12 @@
     const span = entry.dates ? "" : spanNote(byCorpus);
     const spanBlock = span ? `<p class="fa-span-note">${escapeHtml(span)}</p>` : "";
     root.innerHTML = `${meta}${bioBlock}${spanBlock}${sig}${shelves}`;
+
+    // The shelf is drawn; now the way into it. Handed the works rather
+    // than re-deriving them, since this page has already done the
+    // matching across every collection.
+    if (window.MOAuthorSearch) {
+      window.MOAuthorSearch.mount(byCorpus.reduce((all, g) => all.concat(g.works), []));
+    }
   }
 })();
