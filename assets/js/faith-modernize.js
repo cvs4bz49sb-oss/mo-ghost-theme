@@ -699,5 +699,153 @@ function hasArchaicLanguage(text) {
   );
 }
 
-  root.FaithModernize = { modernizeText, modernizeParagraphs, hasArchaicLanguage };
+/* ── Spelling ─────────────────────────────────────────────────────
+ *
+ * The rules above modernise grammar: hath to has, saith to says. They
+ * leave the spelling alone, and in a book printed in 1550 the spelling
+ * is most of what stands between the reader and the sentence:
+ *
+ *   "mooste deare brothers in Christ, & most faythful seruauntes"
+ *
+ * The old approach was a hand-written list of about forty words. It
+ * knew "haue" and not "writinges", and a list can only ever know the
+ * words someone thought to add. So these are rules instead: u and v
+ * exchanged, i for j, y for i, the plural -es, the silent -e, the
+ * macron that stands in for a following n or m.
+ *
+ * Rules alone would be worse than the list. "wyth" to "with" and
+ * "type" to "tipe" are the same rule; what separates them is that
+ * "with" is a word and "tipe" is not. So nothing is rewritten unless
+ * the result is a word the library itself uses and the original is
+ * not. The dictionary is harvested from the modern English
+ * translations that ship beside the Latin (scripts/build-modern-
+ * lexicon.mjs), which means it knows "Sabellianism" and "propitiation"
+ * as well as "type", where a general word list would know neither.
+ *
+ * With no dictionary loaded only the macrons are expanded, since those
+ * are unreadable either way and cannot be mistaken for modern text.
+ */
+
+// Two tiers, because the two questions are different.
+//
+// KNOWN answers "is this already modern, leave it alone?" and is
+// generous: a rare word wrongly taken for archaic gets rewritten into
+// something else, which is the worst outcome available.
+//
+// COMMON answers "may a rewrite produce this?" and is strict. Held to
+// one tier, "menne" became "mene" and "sute" became "sut" — both real
+// entries harvested from a few quoted passages, and both beat the
+// right answer by sitting one step nearer.
+let KNOWN = null;
+let COMMON = null;
+
+function setLexicon(common, known) {
+  COMMON = common instanceof Set ? common : new Set(common);
+  KNOWN = known ? (known instanceof Set ? known : new Set(known)) : COMMON;
+  // Archaic forms quoted often enough in the translations to be
+  // harvested as modern. They are not.
+  ["hym", "hem", "ony", "seyd", "thei", "wol", "nat", "mene", "sut"]
+    .forEach((w) => { COMMON.delete(w); KNOWN.delete(w); });
+}
+
+const MACRON = { "ā": "a", "ē": "e", "ī": "i", "ō": "o", "ū": "u" };
+const MACRON_RE = /[āēīōū]/g;
+
+// Each is a single step. The search below composes them, so "soche"
+// reaches "such" through "suche" without anyone writing that down.
+const REWRITES = [
+  [/([aeiou])u([aeiou])/g, "$1v$2"], // haue, euery, deuil
+  [/^v([bcdfghjklmnpqrstvwxz])/, "u$1"], // vpon, vnto, vs
+  [/^i([aeou])/, "j$1"], // iudge, Iohn, ioy
+  [/(?!^)y(?!$)/g, "i"], // wyth, hym, dyuyne
+  [/ie$/, "y"], // maiestie, fidelitie
+  [/es$/, "s"], // writinges, thynges
+  [/nes$/, "ness"], // goodnes
+  [/oo/, "o"], // mooste
+  [/ee/, "ie"], // beleeue
+  [/au/, "a"], // seruaunt
+  [/o/g, "u"], // soche
+  [/e$/, ""], // silent terminal e
+  [/([bcdfgklmnprstvz])\1/, "$1"], // synne, allmighty
+  [/vv/g, "w"],
+];
+
+const MAX_DEPTH = 4;
+const MAX_FRONTIER = 400;
+const spellCache = new Map();
+
+// Fewest changes wins, so the search goes breadth first and stops at
+// the first depth that lands on a real word. Anything else would let a
+// four-step mangling beat a one-step correction.
+function bestSpelling(lower) {
+  if (KNOWN.has(lower)) return null;
+  let frontier = [lower];
+  const seen = new Set([lower]);
+  for (let d = 0; d < MAX_DEPTH; d += 1) {
+    const next = [];
+    for (let i = 0; i < frontier.length; i += 1) {
+      for (let r = 0; r < REWRITES.length; r += 1) {
+        const t = frontier[i].replace(REWRITES[r][0], REWRITES[r][1]);
+        if (t === frontier[i] || t.length < 2 || seen.has(t)) continue;
+        seen.add(t);
+        if (COMMON.has(t)) return t;
+        if (next.length < MAX_FRONTIER) next.push(t);
+      }
+    }
+    if (!next.length) break;
+    frontier = next;
+  }
+  return null;
+}
+
+function matchWordCase(src, repl) {
+  if (src === src.toUpperCase() && src !== src.toLowerCase()) return repl.toUpperCase();
+  if (src[0] === src[0].toUpperCase()) return repl.charAt(0).toUpperCase() + repl.slice(1);
+  return repl;
+}
+
+// A macron stands for a following n or m: "cā" is can, "Testamēt" is
+// Testament, "cōpany" is company. Which of the two it is depends on
+// the word, so both are offered to the dictionary and n is the
+// fallback, being far the commoner.
+function expandMacrons(word) {
+  if (!MACRON_RE.test(word)) return null;
+  MACRON_RE.lastIndex = 0;
+  const withN = word.replace(MACRON_RE, (c) => `${MACRON[c]}n`);
+  const withM = word.replace(MACRON_RE, (c) => `${MACRON[c]}m`);
+  if (KNOWN) {
+    if (KNOWN.has(withN.toLowerCase())) return withN;
+    if (KNOWN.has(withM.toLowerCase())) return withM;
+    const n = bestSpelling(withN.toLowerCase());
+    if (n) return matchWordCase(withN, n);
+    const m = bestSpelling(withM.toLowerCase());
+    if (m) return matchWordCase(withM, m);
+  }
+  return withN;
+}
+
+const WORD_RE = /[A-Za-zÀ-ɏāēīōū]+/g;
+
+function modernizeSpelling(text) {
+  if (!text) return text;
+  return String(text).replace(WORD_RE, (word) => {
+    const macron = expandMacrons(word);
+    const w = macron === null ? word : macron;
+    if (!KNOWN) return w;
+    const lower = w.toLowerCase();
+    if (spellCache.has(lower)) {
+      const hit = spellCache.get(lower);
+      return hit ? matchWordCase(w, hit) : w;
+    }
+    const found = bestSpelling(lower);
+    spellCache.set(lower, found);
+    return found ? matchWordCase(w, found) : w;
+  });
+}
+
+  root.FaithModernize = {
+    modernizeText, modernizeParagraphs, hasArchaicLanguage,
+    modernizeSpelling, setLexicon,
+    get hasLexicon() { return !!KNOWN; },
+  };
 })(window);

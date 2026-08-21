@@ -1072,8 +1072,15 @@
         const label = toggle.querySelector(".faith-toggle-label");
         if (label) label.textContent = modernOn ? label.dataset.on : label.dataset.off;
         document.body.classList.toggle("faith-modernized", modernOn);
-        if (modernOn) modernizeWithin(contentEl);
-        else restoreWithin(contentEl);
+        if (!modernOn) { restoreWithin(contentEl); return; }
+        // The first press waits on the dictionary. Rewriting first and
+        // again on arrival would modernize the grammar, then visibly
+        // re-set the spelling a moment later.
+        toggle.setAttribute("aria-busy", "true");
+        loadLexicon().then(() => {
+          toggle.removeAttribute("aria-busy");
+          if (modernOn) modernizeWithin(contentEl);
+        });
       });
     }
   }
@@ -1090,47 +1097,38 @@
   const EARLY_MODERN =
     /\b(vpon|vnto|vs|vse|vnder|haue|giue|loue|euery|neuer|ouer|euen|seruice|deuil|iudge|iust|maiestie|obiect|subiect|reioyce|adioyn)\b/i;
 
-  // Curated rather than a blanket u<->v swap: the letters map both
-  // ways depending on position ("vpon" -> upon, but "haue" -> have),
-  // and a wrong modernization is worse than a missed one.
-  const ORTHOGRAPHY = [
-    [/\bvpon\b/gi, "upon"], [/\bvnto\b/gi, "unto"], [/\bvntill?\b/gi, "until"],
-    [/\bvnder(\w*)/gi, "under$1"], [/\bvse(d|s|th)?\b/gi, "use$1"],
-    [/\bvs\b/gi, "us"], [/\bvp\b/gi, "up"], [/\bvpp?on\b/gi, "upon"],
-    [/\bvnity\b/gi, "unity"], [/\bvniuersal(\w*)/gi, "universal$1"],
-    [/\bd[vu]ke\b/gi, "duke"], [/\bsov?ldier(\w*)/gi, "soldier$1"],
-    [/\bhaue\b/gi, "have"], [/\bgiue(n|th)?\b/gi, "give$1"],
-    [/\bloue(d|th)?\b/gi, "love$1"], [/\beuery\b/gi, "every"],
-    [/\bneuer\b/gi, "never"], [/\bouer\b/gi, "over"], [/\beuen\b/gi, "even"],
-    [/\beuer\b/gi, "ever"], [/\bseruice\b/gi, "service"], [/\bseruant(s?)\b/gi, "servant$1"],
-    [/\bdeuil(s?)\b/gi, "devil$1"], [/\bliue(d|th)?\b/gi, "live$1"],
-    [/\bleaue\b/gi, "leave"], [/\bbeleeue(d|th)?\b/gi, "believe$1"],
-    [/\bheauen(\w*)/gi, "heaven$1"], [/\bsaluation\b/gi, "salvation"],
-    [/\biudge(d|s|th|ment)?\b/gi, "judge$1"], [/\biust(ice|ly|ified)?\b/gi, "just$1"],
-    [/\bmaiestie\b/gi, "majesty"], [/\bobiect(\w*)/gi, "object$1"],
-    [/\bsubiect(\w*)/gi, "subject$1"], [/\breioyc(\w*)/gi, "rejoic$1"],
-    [/\badioyn(\w*)/gi, "adjoin$1"], [/\bioy(full?|ful)?\b/gi, "joy$1"],
-    [/\bkinges\b/gi, "kings"], [/\bVV/g, "W"], [/\bvv/g, "w"],
-  ];
+  // Spelling is handled by faith-modernize.js, which works from rules
+  // and a dictionary rather than from the list of about forty words
+  // that used to sit here. That list knew "haue" and not "writinges",
+  // and a list can only ever know the words someone thought to add.
+  //
+  // The dictionary is fetched the first time the reader asks for
+  // modern spelling and not before: it is half a megabyte, and most
+  // visitors never turn this on.
+  let lexiconPromise = null;
 
-  // Early modern printing sets whole lines in capitals, so a lowercase
-  // replacement turns "THE FRENCH KINGES" into "THE FRENCH kings".
-  function matchCase(src, repl) {
-    if (src === src.toUpperCase() && src !== src.toLowerCase()) return repl.toUpperCase();
-    if (src[0] === src[0].toUpperCase()) return repl.charAt(0).toUpperCase() + repl.slice(1);
-    return repl;
-  }
-
-  function modernizeOrthography(s) {
-    let out = s;
-    ORTHOGRAPHY.forEach(([re, to]) => {
-      out = out.replace(re, (match, ...groups) => {
-        // Resolve $1 against the captured group before matching case.
-        const filled = to.replace(/\$(\d)/g, (_, n) => groups[n - 1] || "");
-        return matchCase(match, filled);
-      });
-    });
-    return out;
+  function loadLexicon() {
+    if (lexiconPromise) return lexiconPromise;
+    const url = window.moAssetUrl
+      ? window.moAssetUrl("/assets/data/faith-received/modern-words.txt")
+      : "/assets/data/faith-received/modern-words.txt";
+    lexiconPromise = fetch(url)
+      .then((r) => (r.ok ? r.text() : ""))
+      .then((text) => {
+        if (!text) return false;
+        // Common words above the rule, everything else below it. Only
+        // the common half may be produced by a rewrite; the whole of
+        // it decides whether a word was already modern.
+        const parts = text.split("\n---\n");
+        const common = parts[0].split("\n").filter(Boolean);
+        const rest = (parts[1] || "").split("\n").filter(Boolean);
+        window.FaithModernize.setLexicon(new Set(common), new Set(common.concat(rest)));
+        return true;
+      })
+      // Without it the grammar still modernizes and the macrons still
+      // expand; only the spelling stays as printed.
+      .catch(() => false);
+    return lexiconPromise;
   }
 
   function modernizeWithin(root) {
@@ -1138,10 +1136,22 @@
     root.querySelectorAll(".faith-section-body").forEach((el) => {
       if (el.dataset.frModern === "1") return;
       if (el._frOriginal == null) el._frOriginal = el.innerHTML;
-      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          // Never the Latin column. Migne and the schoolmen carry a
+          // Latin lane beside the translation, and running Latin
+          // through an English speller is how "causa" becomes a word
+          // nobody wrote.
+          const p = node.parentNode;
+          if (p && p.closest && p.closest(".faith-col-la")) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
       let node;
       while ((node = walker.nextNode())) {
-        const next = modernizeOrthography(window.FaithModernize.modernizeText(node.nodeValue));
+        const next = window.FaithModernize.modernizeSpelling(
+          window.FaithModernize.modernizeText(node.nodeValue)
+        );
         if (next !== node.nodeValue) node.nodeValue = next;
       }
       el.dataset.frModern = "1";
