@@ -5172,3 +5172,23 @@ mark.faith-find-hit.is-current {
 }
 .lp-shelf-cross a { color: var(--color-secondary); text-decoration: none; border-bottom: 1px solid transparent; }
 .lp-shelf-cross a:hover { border-bottom-color: var(--color-secondary); }
+
+/* The collection rail on the all-works page. Same pill language as the
+   centuries and the traditions, one row above both. */
+.faith-room-ins { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.faith-room-ins button {
+  padding: 8px 15px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--color-darkgrey);
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+.faith-room-ins button span { color: var(--color-muted); margin-left: 5px; }
+.faith-room-ins button:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+.faith-room-ins button.is-active { background: var(--color-dark); border-color: var(--color-dark); color: #fff; }
+.faith-room-ins button.is-active span { color: #ffffff8f; }

@@ -33,6 +33,9 @@
   let works = [];
   let tradition = params.get("tradition") || "";
   let century = parseInt(params.get("century"), 10) || 0;
+  // Only meaningful on the all-works page, where more than one
+  // collection is in the room at once.
+  let collection = params.get("in") || "";
   let filter = params.get("q") || "";
   let letter = params.get("letter") || "";
   let page = Math.max(1, parseInt(params.get("page"), 10) || 1);
@@ -101,6 +104,7 @@
   function matches(w) {
     if (tradition && trad(w) !== tradition) return false;
     if (century && cent(w) !== century) return false;
+    if (collection && w.corpus !== collection) return false;
     if (!filter) return true;
     const q = filter.toLowerCase();
     return (w.title || "").toLowerCase().includes(q) ||
@@ -114,6 +118,7 @@
     if (filter) q.set("q", filter);
     if (tradition) q.set("tradition", tradition);
     if (century) q.set("century", String(century));
+    if (collection) q.set("in", collection);
     if (letter) q.set("letter", letter);
     if (page > 1) q.set("page", String(page));
     window.history.replaceState(null, "", `?${q.toString()}`);
@@ -180,6 +185,17 @@
           trads.map(([t, n]) => `</button><button type="button" data-room-trad="${escapeHtml(t)}" class="${tradition === t ? "is-active" : ""}">${escapeHtml(t)} <span>${n.toLocaleString()}</span>`).join("")}</button></nav>`
       : "";
 
+    const inCounts = new Map();
+    if (isAll) works.forEach((w) => inCounts.set(w.corpus, (inCounts.get(w.corpus) || 0) + 1));
+    const ins = [...inCounts.entries()].sort((a, b) => b[1] - a[1]);
+    const collections = ins.length > 1
+      ? `<nav class="faith-room-ins" aria-label="Filter by collection"><button type="button" data-room-in="" class="${collection ? "" : "is-active"}">Every collection</button>${
+          ins.map(([id, n]) => {
+            const c = window.MOCorpora.get(id);
+            return `<button type="button" data-room-in="${escapeHtml(id)}" class="${collection === id ? "is-active" : ""}">${escapeHtml(c ? c.label : id)} <span>${n.toLocaleString()}</span></button>`;
+          }).join("")}</nav>`
+      : "";
+
     const cs = new Map();
     let undated = 0;
     works.forEach((w) => {
@@ -206,7 +222,7 @@
       ? `<div class="btrads faith-room-blocks">${groups.map((g) => block(g.name, g.works)).join("")}</div>`
       : `<p class="faith-room-status">Nothing matches that. Try another name or title.</p>`;
 
-    root.innerHTML = `<div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count">${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p></div>${centuries}${chips}${rail}${body}${pager(page, pages)}`;
+    root.innerHTML = `<div class="faith-room-head"><input type="search" class="faith-room-filter" data-room-filter placeholder="Search an author or a title&hellip;" value="${escapeHtml(filter)}" aria-label="Search this collection" /><p class="faith-room-count">${scoped.length.toLocaleString()} work${scoped.length === 1 ? "" : "s"} in ${escapeHtml(label)}</p></div>${collections}${centuries}${chips}${rail}${body}${pager(page, pages)}`;
 
     wire();
     pushState();
@@ -239,6 +255,15 @@
     root.querySelectorAll("[data-room-trad]").forEach((b) => {
       b.addEventListener("click", () => {
         tradition = b.getAttribute("data-room-trad");
+        letter = "";
+        page = 1;
+        render();
+        root.scrollIntoView({ block: "start" });
+      });
+    });
+    root.querySelectorAll("[data-room-in]").forEach((b) => {
+      b.addEventListener("click", () => {
+        collection = b.getAttribute("data-room-in");
         letter = "";
         page = 1;
         render();

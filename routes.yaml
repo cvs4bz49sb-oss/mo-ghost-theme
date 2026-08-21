@@ -277,6 +277,8 @@ routes:
   # was orphaned by the change. See website/handoffs/TFR-REDESIGN.md.
   /the-faith-received/fathers/:
     template: custom-faith-fathers
+  /the-faith-received/all-works/:
+    template: custom-faith-centuries
   /the-faith-received/century/:
     template: custom-faith-centuries
   /the-faith-received/browse/:
