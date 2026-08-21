@@ -1534,7 +1534,8 @@
       tags.push({ kind, text, value: value === undefined ? text : value });
     };
 
-    if (corpus && corpus.label) add("collection", corpus.label);
+    // The collection is deliberately NOT a tag: the kicker two lines
+    // above already names it, in the same words and to the same place.
 
     // Tradition, and the communion it sits under where it has one, so
     // a Reformed confession reads "Protestant · Reformed".
@@ -1575,27 +1576,13 @@
   // but it is in the same place on the page as every other work's
   // introduction, which is the point.
   function fallbackIntro(m) {
+    // The byline directly above already carries the author, so this
+    // line says only what the byline does not: how long it is, and
+    // which shelf it sits on.
     const bits = [];
-    if (m.author) bits.push(m.author);
-    if (m.date || m.year) bits.push(String(m.date || m.year));
-    const who = bits.join(", ");
-    const where = corpus && corpus.label ? ` in ${corpus.label}` : "";
-    const extent = m.n_pages ? `${m.n_pages.toLocaleString()} pages` : "";
-    const parts = [];
-    if (who) parts.push(who);
-    if (extent) parts.push(extent);
-    if (!parts.length) return "";
-    return `${parts.join(" · ")}${where}. No editorial introduction has been written for this work yet.`;
-  }
-
-  // The author-page key. Folded the same way faith-author.js folds, so
-  // a name spelled three ways across the catalogues still resolves.
-  function foldName(s) {
-    return String(s || "")
-      .normalize("NFD")
-      .replace(/\p{M}/gu, "")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "");
+    if (m.n_pages) bits.push(`${m.n_pages.toLocaleString()} pages`);
+    if (corpus && corpus.label) bits.push(`in ${corpus.label}`);
+    return bits.length ? `${bits.join(" ")}.` : "";
   }
 
   function populateHeader(m) {

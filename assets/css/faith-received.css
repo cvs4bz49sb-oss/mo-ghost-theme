@@ -5285,6 +5285,14 @@ mark.faith-find-hit.is-current {
    is a scroll away instead of a screen away.
    ══════════════════════════════════════════════════════════════════ */
 
+/* [hidden] means hidden. Several rules in this block set `display` on
+   elements the JS hides by attribute (the language switch on a work
+   with one lane, the find bar until it is opened), and a bare
+   `display` outranks the user-agent's [hidden] rule. The result was
+   90px of chrome and an extra rule on every work in the library, which
+   is most of why the header felt wrong. */
+.faith-reader [hidden] { display: none !important; }
+
 /* ── Reading preferences ──────────────────────────────────────────
    Set on <html> by faith-reader-prefs.js and read here, so anything
    rendered later obeys them too. */
@@ -5307,12 +5315,46 @@ mark.faith-find-hit.is-current {
 [data-fr-face="sans"] { --fr-face: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 
 /* Paper. A tint, not a theme: the site chrome stays as it is and the
-   reading surface changes under the text. */
-[data-fr-tint="warm"] .faith-reader .faith-doc-inner { background: #faf4e8; }
-[data-fr-tint="dark"] .faith-reader .faith-doc-inner { background: #23211f; color: #e8e3dc; }
+   reading surface changes under the text.
+   
+   Painted on .faith-reader rather than .faith-doc-inner. Tinting only
+   the reading column left a hard-edged 720px rectangle sitting in an
+   untinted window with the contents rail still light, and paper does
+   not have a seam down the middle of it. */
+[data-fr-tint="warm"] .faith-reader { background: #faf4e8; }
+[data-fr-tint="dark"] .faith-reader { background: #23211f; color: #e8e3dc; }
+[data-fr-tint="dark"] .faith-reader .faith-toc-sidebar { border-right-color: #453f3a; }
 [data-fr-tint="dark"] .faith-reader .faith-col-la { color: #bdb6ac; }
+/* Everything that carries its own colour has to be told, or a dark
+   page keeps eight white chips and a black-on-black heading. */
 [data-fr-tint="dark"] .faith-reader .faith-reader-title,
-[data-fr-tint="dark"] .faith-reader .faith-section-title { color: #f4efe8; }
+[data-fr-tint="dark"] .faith-reader .faith-reader-subtitle,
+[data-fr-tint="dark"] .faith-reader .faith-reader-byline,
+[data-fr-tint="dark"] .faith-reader .faith-reader-intro-text,
+[data-fr-tint="dark"] .faith-reader [data-fr-content] .faith-section-title,
+[data-fr-tint="dark"] .faith-reader [data-fr-content] h1,
+[data-fr-tint="dark"] .faith-reader [data-fr-content] h2,
+[data-fr-tint="dark"] .faith-reader [data-fr-content] h3,
+[data-fr-tint="dark"] .faith-reader .faith-toc a { color: #f4efe8; }
+[data-fr-tint="dark"] .faith-reader .faith-reader-kicker,
+[data-fr-tint="dark"] .faith-reader .faith-reader-tags,
+[data-fr-tint="dark"] .faith-reader .faith-reader-tag,
+[data-fr-tint="dark"] .faith-reader .faith-page-marker,
+[data-fr-tint="dark"] .faith-reader .faith-reader-translator { color: #a9a29a; }
+[data-fr-tint="dark"] .faith-reader .faith-tool,
+[data-fr-tint="dark"] .faith-reader .faith-lang-btn,
+[data-fr-tint="dark"] .faith-reader .faith-find-input,
+[data-fr-tint="dark"] .faith-reader .faith-find-nav,
+[data-fr-tint="dark"] .faith-reader .faith-doc-toc-toggle {
+  background: #2c2926;
+  border-color: #453f3a;
+  color: #e8e3dc;
+}
+[data-fr-tint="dark"] .faith-reader .faith-toolbar,
+[data-fr-tint="dark"] .faith-reader .faith-toc-sidebar,
+[data-fr-tint="dark"] .faith-reader [data-fr-content] .faith-section-details {
+  border-color: #453f3a;
+}
 
 /* ── Layout: contents far left, text in the rest ──────────────── */
 @media (min-width: 1024px) {
@@ -5338,24 +5380,34 @@ mark.faith-find-hit.is-current {
   /* The reading column is centred in the space left over, not jammed
      against the rail. */
   .faith-reader .faith-doc-inner {
-    max-width: var(--fr-measure);
-    margin: 0 auto;
+    /* +64px because the padding is inside the box: "normal / 720" was
+       rendering a 656px measure. */
+    max-width: calc(var(--fr-measure) + 64px);
+    /* Anchored to the rail rather than centred in the remainder. At
+       1920 the centred column left a 497px void between the contents
+       and the text it indexes; the surplus now goes to the right
+       margin, which is where a book puts it. */
+    margin-left: clamp(56px, 7vw, 150px);
+    margin-right: auto;
     padding: 0 32px;
   }
 }
 
 /* ── The title page ───────────────────────────────────────────── */
 .faith-reader-head {
-  padding: 56px 0 30px;
-  border-bottom: 1px solid var(--color-card-border);
-  margin-bottom: 30px;
+  padding: 56px 0 26px;
+  margin-bottom: 0;
 }
 .faith-reader-kicker {
   font-family: var(--font-body);
   font-size: var(--tfr-micro);
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--color-primary-text);
+  /* --color-primary-text is 4.12:1 on the page colour, under AA at
+     11px, and it was one of three orange events inside 200px of the
+     header. Muted is 5.16:1 and leaves the accent for the one thing
+     that should have it. */
+  color: var(--color-muted);
   margin: 0 0 18px;
 }
 .faith-reader-kicker a { color: inherit; text-decoration: none; }
@@ -5388,10 +5440,11 @@ mark.faith-find-hit.is-current {
   max-width: 46ch;
 }
 .faith-reader-byline {
-  font-family: var(--font-body);
-  font-size: var(--tfr-meta);
-  color: var(--color-muted);
-  margin: 16px 0 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.3;
+  color: var(--color-dark);
+  margin: 12px 0 0;
 }
 .faith-reader-translator {
   font-family: var(--font-body);
@@ -5406,53 +5459,54 @@ mark.faith-find-hit.is-current {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  margin: 18px 0 0;
+  margin: 12px 0 0;
   padding: 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
 }
 .faith-reader-tags:empty { display: none; }
+/* Set as a middot line, the way the shelf and the rooms set a work's
+   associations ("Nicaea · Chalcedon · Augsburg"). The bordered chips
+   this replaced existed nowhere else in TFR and read as filter tags. */
+.faith-reader-tags li + li::before {
+  content: "·";
+  margin: 0 7px;
+  color: var(--color-card-border);
+}
 .faith-reader-tag {
-  display: inline-block;
-  font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
   color: var(--color-muted);
-  border: 1px solid var(--color-card-border);
-  border-radius: 2px;
-  padding: 5px 10px;
   text-decoration: none;
-  transition: border-color 0.15s, color 0.15s;
+  border-bottom: 1px solid transparent;
 }
 .faith-reader-tag:hover {
   color: var(--color-primary-text);
-  border-color: var(--color-primary);
   text-decoration: none;
-}
-/* The collection is the work's home shelf, so it leads. */
-.faith-reader-tag--collection {
-  color: var(--color-primary-text);
-  border-color: var(--color-primary);
+  border-bottom-color: var(--color-card-border);
 }
 
 /* ── The introduction ─────────────────────────────────────────── */
 .faith-reader-intro {
-  margin: 24px 0 0;
-  padding: 18px 22px;
-  background: var(--color-cream);
+  margin: 22px 0 0;
+  padding: 2px 0 2px 20px;
   border-left: 2px solid var(--color-primary);
 }
 .faith-reader-intro-text {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
   color: var(--color-dark);
   margin: 0;
 }
-/* A derived line is orientation, not an editor's introduction, so it
-   is set quieter and says so. */
+/* A derived line is not an introduction. No rule, no fill, no
+   ceremony: absence should not be dressed like presence. */
+[data-fr-intro-kind="derived"].faith-reader-intro {
+  border-left: 0;
+  padding: 0;
+  margin: 10px 0 0;
+}
 [data-fr-intro-kind="derived"] .faith-reader-intro-text {
-  font-style: normal;
+  font-size: 13px;
   color: var(--color-muted);
 }
 
@@ -5612,6 +5666,23 @@ mark.faith-find-hit.is-current {
 .faith-reader [data-fr-content] .faith-col-en h1:first-child,
 .faith-reader [data-fr-content] .faith-col-en h2:first-child,
 .faith-reader [data-fr-content] .faith-col-en h3:first-child { margin-top: 0; }
+
+/* The only route to the contents below 1024px, and it was still
+   dressed for the dark hero this rebuild deleted: white on cream, at
+   1.1:1, a 999px pill among 3px rectangles, under the touch minimum. */
+.faith-reader .faith-doc-actions { justify-content: flex-start; margin: 22px 0 0; }
+.faith-reader .faith-doc-toc-toggle {
+  color: var(--color-dark);
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  height: 40px;
+  padding: 0 16px;
+  background: var(--color-page);
+}
+.faith-reader .faith-doc-toc-toggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
 
 /* ── Mobile ───────────────────────────────────────────────────── */
 @media (max-width: 1023px) {
