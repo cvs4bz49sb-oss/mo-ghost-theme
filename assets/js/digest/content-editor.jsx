@@ -1882,7 +1882,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
             />
             <div style={{ marginBottom: 12 }}>
               <label style={fieldStyles.label}>Signature</label>
-              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
                 {Object.entries(window.SIGNATURES || {}).map(([key, sig]) => {
                   const isActive = content.signatureKey === key;
                   return (
@@ -1895,7 +1895,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                         onChange(next);
                       }}
                       style={{
-                        flex: 1,
+                        flex: '1 1 150px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 10,
@@ -1929,6 +1929,56 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                     </button>
                   );
                 })}
+                {(() => {
+                  const isActive = !content.signatureKey && !content.editorSignature;
+                  return (
+                    <button
+                      onClick={() => {
+                        const next = JSON.parse(JSON.stringify(content));
+                        next.signatureKey = null;
+                        next.editorSignature = '';
+                        onChange(next);
+                      }}
+                      style={{
+                        flex: '1 1 150px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 14px',
+                        background: isActive ? '#fbf3e3' : '#fff',
+                        border: '1.5px solid ' + (isActive ? '#c1593c' : '#e8d9bd'),
+                        borderRadius: 10,
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: '"Source Sans 3", Arial, sans-serif',
+                      }}
+                    >
+                      <span
+                        aria-hidden="true"
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: '50%',
+                          flexShrink: 0,
+                          background: '#f4ece0',
+                          border: '1px dashed #d8c5a5',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 16,
+                          color: '#9a8773',
+                          lineHeight: 1,
+                        }}
+                      >
+                        &#8709;
+                      </span>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#2d2927', lineHeight: 1.2 }}>No signature</div>
+                        <div style={{ fontSize: 10, color: '#9a8773', marginTop: 2, lineHeight: 1.2 }}>Omit sign-off</div>
+                      </div>
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </Group>

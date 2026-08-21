@@ -146,6 +146,7 @@
     const [metaError, setMetaError] = React.useState(null);
     const [loadingMeta, setLoadingMeta] = React.useState(false);
     const [templateId, setTemplateId] = React.useState(() => readPrefs().templateId || "");
+    const [emailAddress, setEmailAddress] = React.useState(() => readPrefs().emailAddress || "");
     const [subject, setSubject] = React.useState("");
     const [preheader, setPreheader] = React.useState("");
     const [description, setDescription] = React.useState("");
@@ -270,8 +271,13 @@
       };
     }, [open, isMember, accent, density, divider, content, preheader]);
     React.useEffect(() => {
-      writePrefs({ templateId, audienceMode, criteria, sendTime, sendZone });
-    }, [templateId, audienceMode, criteria, sendTime, sendZone]);
+      writePrefs({ templateId, emailAddress, audienceMode, criteria, sendTime, sendZone });
+    }, [templateId, emailAddress, audienceMode, criteria, sendTime, sendZone]);
+    React.useEffect(() => {
+      if (!emailAddress || !meta || !Array.isArray(meta.sendingAddresses)) return;
+      const live = meta.sendingAddresses.find((a) => a.email === emailAddress);
+      if (!live || !live.confirmed) setEmailAddress("");
+    }, [meta, emailAddress]);
     React.useEffect(() => {
       if (!open) return void 0;
       const onKey = (e) => {
@@ -289,6 +295,11 @@
     const blockReason = building ? "Building the email\u2026" : buildError ? "The email could not be built." : !html ? "No email content yet." : !subject.trim() ? "Add a subject line." : audienceMode === "everyone" && !confirmEveryone ? "Tick the box to confirm sending to everyone." : !audienceReady ? "Pick at least one tag or segment." : scheduleMode === "schedule" && !sendAtIso ? "Pick a send date." : alreadySent ? "This broadcast has already been sent. Use Start new." : null;
     const canPush = !busy && !blockReason;
     const defaultTemplateName = ((meta && meta.templates || []).find((t) => t.isDefault) || {}).name || "";
+    const sendableAddresses = (meta && meta.sendingAddresses || []).filter((a) => a.confirmed);
+    const defaultSendingAddress = (sendableAddresses.find((a) => a.isDefault) || {}).email || "";
+    const selectedAddress = sendableAddresses.find((a) => a.email === (emailAddress || defaultSendingAddress));
+    const fromNames = selectedAddress && selectedAddress.fromNames || [];
+    const fromNameNote = fromNames.length > 1 ? `Kit has ${fromNames.length} display names on this address (${fromNames.join(", ")}). Its API sets the address only, so Kit picks the name. Open the broadcast in Kit to check it before sending.` : fromNames.length === 1 ? `Goes out as "${fromNames[0]}".` : "";
     const audienceSummary = audienceMode === "everyone" ? "every subscriber in Kit" : criteria.length ? `anyone ${audienceMode === "any" ? "in" : "in every one of"} ${criteria.map((c) => c.name).join(audienceMode === "any" ? " or " : " and ")}` : "nobody yet";
     const toggleCriterion = (type, id, name) => {
       setCriteria((prev) => {
@@ -321,6 +332,7 @@
             description,
             html,
             templateId: templateId || null,
+            emailAddress: emailAddress || null,
             sendAt: sendAtIso,
             audience: { mode: audienceMode, criteria },
             confirmEveryone,
@@ -353,7 +365,13 @@
         const data = await api("/kit/test", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ subject, previewText: preheader, html, templateId: templateId || null })
+          body: JSON.stringify({
+            subject,
+            previewText: preheader,
+            html,
+            templateId: templateId || null,
+            emailAddress: emailAddress || null
+          })
         });
         setResult({ ...data, isTest: true });
       } catch (err) {
@@ -601,7 +619,18 @@
           },
           /* @__PURE__ */ React.createElement("option", { value: "" }, loadingMeta ? "Loading\u2026" : defaultTemplateName ? `Account default \u2014 ${defaultTemplateName}` : "Account default"),
           (meta && meta.templates || []).map((t) => /* @__PURE__ */ React.createElement("option", { key: t.id, value: t.id }, t.name, t.isDefault ? " (account default)" : ""))
-        ), /* @__PURE__ */ React.createElement("p", { style: { ...noteStyle, margin: "6px 0 0" } }, "Whatever you pick must be an ", /* @__PURE__ */ React.createElement("strong", null, "empty"), " template, whose whole body is the", " ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "{{ message_content }}"), " ", "tag. This email brings its own header, footer, and unsubscribe link. A template built by uploading a finished email hides that tag in a zero-height div, so Kit renders the template and drops everything we push. Leaving this on the account default is fine as long as the default is an empty template.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-subject", style: labelStyle }, "Subject line"), /* @__PURE__ */ React.createElement("input", { id: "kit-subject", type: "text", value: subject, onChange: (e) => setSubject(e.target.value), style: inputStyle })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-preheader", style: labelStyle }, "Preheader (preview text)"), /* @__PURE__ */ React.createElement(
+        ), /* @__PURE__ */ React.createElement("p", { style: { ...noteStyle, margin: "6px 0 0" } }, "Whatever you pick must be an ", /* @__PURE__ */ React.createElement("strong", null, "empty"), " template, whose whole body is the", " ", /* @__PURE__ */ React.createElement("code", { style: { fontFamily: "ui-monospace, monospace", fontSize: 11 } }, "{{ message_content }}"), " ", "tag. This email brings its own header, footer, and unsubscribe link. A template built by uploading a finished email hides that tag in a zero-height div, so Kit renders the template and drops everything we push. Leaving this on the account default is fine as long as the default is an empty template.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-from", style: labelStyle }, "From address"), /* @__PURE__ */ React.createElement(
+          "select",
+          {
+            id: "kit-from",
+            value: emailAddress,
+            onChange: (e) => setEmailAddress(e.target.value),
+            style: inputStyle,
+            disabled: loadingMeta
+          },
+          /* @__PURE__ */ React.createElement("option", { value: "" }, loadingMeta ? "Loading\u2026" : defaultSendingAddress ? `Account default \u2014 ${defaultSendingAddress}` : "Account default"),
+          sendableAddresses.map((a) => /* @__PURE__ */ React.createElement("option", { key: a.email, value: a.email }, a.email, a.isDefault ? " (account default)" : ""))
+        ), /* @__PURE__ */ React.createElement("p", { style: { ...noteStyle, margin: "6px 0 0" } }, fromNameNote || "Only addresses confirmed in Kit are listed. Add one under Settings \u2192 Email in Kit, confirm it from that inbox, then Refresh.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-subject", style: labelStyle }, "Subject line"), /* @__PURE__ */ React.createElement("input", { id: "kit-subject", type: "text", value: subject, onChange: (e) => setSubject(e.target.value), style: inputStyle })), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("label", { htmlFor: "kit-preheader", style: labelStyle }, "Preheader (preview text)"), /* @__PURE__ */ React.createElement(
           "input",
           {
             id: "kit-preheader",

@@ -184,6 +184,10 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
   const [loadingMeta, setLoadingMeta] = React.useState(false);
 
   const [templateId, setTemplateId] = React.useState(() => readPrefs().templateId || '');
+  // From address. '' means "whatever Kit's account default is", which is
+  // what every push did before this was selectable, so an empty pref keeps
+  // the old behaviour rather than guessing an address.
+  const [emailAddress, setEmailAddress] = React.useState(() => readPrefs().emailAddress || '');
   const [subject, setSubject] = React.useState('');
   const [preheader, setPreheader] = React.useState('');
   const [description, setDescription] = React.useState('');
@@ -323,8 +327,17 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
   }, [open, isMember, accent, density, divider, content, preheader]);
 
   React.useEffect(() => {
-    writePrefs({ templateId, audienceMode, criteria, sendTime, sendZone });
-  }, [templateId, audienceMode, criteria, sendTime, sendZone]);
+    writePrefs({ templateId, emailAddress, audienceMode, criteria, sendTime, sendZone });
+  }, [templateId, emailAddress, audienceMode, criteria, sendTime, sendZone]);
+
+  // A remembered address that Kit no longer has (deleted, or never
+  // confirmed) would fail the push with a 400 the moment it's sent. Drop
+  // back to the account default as soon as the meta load proves it's gone.
+  React.useEffect(() => {
+    if (!emailAddress || !meta || !Array.isArray(meta.sendingAddresses)) return;
+    const live = meta.sendingAddresses.find((a) => a.email === emailAddress);
+    if (!live || !live.confirmed) setEmailAddress('');
+  }, [meta, emailAddress]);
 
   // Escape closes, matching every other drawer in the tool.
   React.useEffect(() => {
@@ -363,6 +376,23 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
   // never returns email_template_id — so naming the default here is the only
   // way the panel can tell you what your email will actually render inside.
   const defaultTemplateName = (((meta && meta.templates) || []).find((t) => t.isDefault) || {}).name || '';
+
+  // Sending addresses. Kit only lets a broadcast go out as an address it
+  // has confirmed, so an unconfirmed one is left out of the list rather
+  // than offered and rejected at push time.
+  const sendableAddresses = ((meta && meta.sendingAddresses) || []).filter((a) => a.confirmed);
+  const defaultSendingAddress = (sendableAddresses.find((a) => a.isDefault) || {}).email || '';
+  // Kit stores the display name against the address, and its broadcast API
+  // takes no from-name field. When an address carries more than one name
+  // there is no way to say from here which one Kit will use, and guessing
+  // in silence is how an email goes out signed by the wrong person.
+  const selectedAddress = sendableAddresses.find((a) => a.email === (emailAddress || defaultSendingAddress));
+  const fromNames = (selectedAddress && selectedAddress.fromNames) || [];
+  const fromNameNote = fromNames.length > 1
+    ? `Kit has ${fromNames.length} display names on this address (${fromNames.join(', ')}). Its API sets the address only, so Kit picks the name. Open the broadcast in Kit to check it before sending.`
+    : fromNames.length === 1
+      ? `Goes out as "${fromNames[0]}".`
+      : '';
 
   const audienceSummary = audienceMode === 'everyone'
     ? 'every subscriber in Kit'
@@ -414,6 +444,7 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
           description,
           html,
           templateId: templateId || null,
+          emailAddress: emailAddress || null,
           sendAt: sendAtIso,
           audience: { mode: audienceMode, criteria },
           confirmEveryone,
@@ -447,7 +478,11 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
       const data = await api('/kit/test', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ subject, previewText: preheader, html, templateId: templateId || null }),
+        body: JSON.stringify({
+          subject, previewText: preheader, html,
+          templateId: templateId || null,
+          emailAddress: emailAddress || null,
+        }),
       });
       setResult({ ...data, isTest: true });
     } catch (err) {
@@ -735,6 +770,31 @@ function KitPushModal({ open, onClose, isMember, accent, density, divider, conte
                 zero-height div, so Kit renders the template and drops everything we
                 push. Leaving this on the account default is fine as long as the
                 default is an empty template.
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="kit-from" style={labelStyle}>From address</label>
+              <select
+                id="kit-from"
+                value={emailAddress}
+                onChange={(e) => setEmailAddress(e.target.value)}
+                style={inputStyle}
+                disabled={loadingMeta}
+              >
+                <option value="">
+                  {loadingMeta ? 'Loading…'
+                    : defaultSendingAddress ? `Account default — ${defaultSendingAddress}`
+                      : 'Account default'}
+                </option>
+                {sendableAddresses.map((a) => (
+                  <option key={a.email} value={a.email}>
+                    {a.email}{a.isDefault ? ' (account default)' : ''}
+                  </option>
+                ))}
+              </select>
+              <p style={{ ...noteStyle, margin: '6px 0 0' }}>
+                {fromNameNote || 'Only addresses confirmed in Kit are listed. Add one under Settings → Email in Kit, confirm it from that inbox, then Refresh.'}
               </p>
             </div>
 
