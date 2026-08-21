@@ -68,10 +68,14 @@
   // A normalized work, plus whatever raw row it came from.
   function centuryOf(w, raw) {
     const r = raw || w || {};
-    return fromYear(r.y || r.date || w.date) ||
-      fromYear(w.volume || r.volume || r.v_year) ||
-      (w.corpus === "pld" ? fromVolume(PL, r.v) : 0) ||
-      (w.corpus === "pg" ? fromVolume(PG, r.v) : 0) ||
+    // Migne first for his two sets. Their volume field is a volume
+    // number, and reading it as a year turns Patrologia Latina 117 into
+    // the year 117, which put four fifths of that corpus in the second
+    // century.
+    if (w.corpus === "pld") return fromVolume(PL, w.volume || r.v) || fromAuthor(w.author) || 0;
+    if (w.corpus === "pg") return fromVolume(PG, w.volume || r.v) || fromAuthor(w.author) || 0;
+    return fromYear(r.y || r.date || w.date || w.eyebrow) ||
+      fromYear(w.volume || r.volume) ||
       fromAuthor(w.author) || 0;
   }
 

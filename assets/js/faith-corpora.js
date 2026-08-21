@@ -263,6 +263,9 @@
         corpus: "pld",
         // te/ae are the English title and author; t/a the Latin.
         id: String(w._id),
+        // Migne ordered his volumes by date, so the volume number
+        // is what places a work in a century.
+        volume: String(w.v == null ? "" : w.v),
         title: w.te || w.t || "",
         titleLatin: w.t || "",
         author: (w.ae || w.a || "").trim(),
@@ -383,6 +386,9 @@
         // `e` is the English title where one exists; `t` is the Greek
         // or Latin form.
         id: String(w._id),
+        // Migne ordered his volumes by date, so the volume number
+        // is what places a work in a century.
+        volume: String(w.v == null ? "" : w.v),
         title: w.e || w.t || "",
         titleLatin: w.e && w.t !== w.e ? w.t : "",
         author: (w.a || "").trim(),

@@ -32,6 +32,7 @@
 
   let works = [];
   let tradition = params.get("tradition") || "";
+  let century = parseInt(params.get("century"), 10) || 0;
   let filter = params.get("q") || "";
   let letter = params.get("letter") || "";
   let page = Math.max(1, parseInt(params.get("page"), 10) || 1);
@@ -79,8 +80,14 @@
     return String(w.tradition || "").trim();
   }
 
+  // Derived once per work on load, not per keystroke.
+  function cent(w) {
+    return w._c === undefined ? (w._c = window.MOCentury ? window.MOCentury.of(w) : 0) : w._c;
+  }
+
   function matches(w) {
     if (tradition && trad(w) !== tradition) return false;
+    if (century && cent(w) !== century) return false;
     if (!filter) return true;
     const q = filter.toLowerCase();
     return (w.title || "").toLowerCase().includes(q) ||
@@ -93,6 +100,7 @@
     q.set("collection", collectionId);
     if (filter) q.set("q", filter);
     if (tradition) q.set("tradition", tradition);
+    if (century) q.set("century", String(century));
     if (letter) q.set("letter", letter);
     if (page > 1) q.set("page", String(page));
     window.history.replaceState(null, "", `?${q.toString()}`);
@@ -159,6 +167,20 @@
           trads.map(([t, n]) => `</button><button type="button" data-room-trad="${escapeHtml(t)}" class="${tradition === t ? "is-active" : ""}">${escapeHtml(t)} <span>${n.toLocaleString()}</span>`).join("")}</button></nav>`
       : "";
 
+    const cs = new Map();
+    let undated = 0;
+    works.forEach((w) => {
+      const c = cent(w);
+      if (c) cs.set(c, (cs.get(c) || 0) + 1); else undated += 1;
+    });
+    const cents = [...cs.entries()].sort((a, b) => a[0] - b[0]);
+    const cLabel = (c) => (window.MOCentury ? window.MOCentury.label(c) : `${c}`);
+    const centuries = cents.length > 1
+      ? `<nav class="faith-room-cents" aria-label="Filter by century"><button type="button" data-room-cent="0" class="${century ? "" : "is-active"}">All centuries</button>${
+          cents.map(([c, n]) => `<button type="button" data-room-cent="${c}" class="${century === c ? "is-active" : ""}">${escapeHtml(cLabel(c))} <span>${n.toLocaleString()}</span>`
+            + `</button>`).join("")}${undated ? `<span class="faith-room-undated">${undated.toLocaleString()} undated</span>` : ""}</nav>`
+      : "";
+
     const letters = [...new Set(filtered.map((w) => initial(w.author)))]
       .sort((a, b) => (a === "#") - (b === "#") || a.localeCompare(b));
 
@@ -204,6 +226,15 @@
     root.querySelectorAll("[data-room-trad]").forEach((b) => {
       b.addEventListener("click", () => {
         tradition = b.getAttribute("data-room-trad");
+        letter = "";
+        page = 1;
+        render();
+        root.scrollIntoView({ block: "start" });
+      });
+    });
+    root.querySelectorAll("[data-room-cent]").forEach((b) => {
+      b.addEventListener("click", () => {
+        century = parseInt(b.getAttribute("data-room-cent"), 10) || 0;
         letter = "";
         page = 1;
         render();

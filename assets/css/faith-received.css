@@ -5112,3 +5112,42 @@ mark.faith-find-hit.is-current {
   line-height: 1.5;
   color: var(--color-muted);
 }
+
+/* The century rail. Same pill language as the tradition chips, one row
+   down, and it says plainly how many works it cannot date rather than
+   quietly dropping them. */
+.faith-room-cents {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 26px;
+}
+.faith-room-cents button {
+  padding: 8px 15px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--color-darkgrey);
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+.faith-room-cents button span { color: var(--color-muted); margin-left: 5px; }
+.faith-room-cents button:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+.faith-room-cents button.is-active {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: #fff;
+}
+.faith-room-cents button.is-active span { color: #ffffff8f; }
+.faith-room-undated {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-left: 4px;
+}
