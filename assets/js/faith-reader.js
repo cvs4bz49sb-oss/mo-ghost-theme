@@ -1464,10 +1464,18 @@
     ".faith-col-la,.faith-cite,.faith-page-marker,.faith-gap," +
     ".faith-section-loading,.faith-section-error";
 
+  // A work set in parallel keeps the old, narrow scope. Migne's
+  // chapter heads and Patrologia's contents rail are in the original
+  // language, and an English speller let loose on those is the same
+  // mistake as running it down the Latin column — just somewhere the
+  // .faith-col-la guard cannot reach. The corpora this widens for are
+  // the single-lane English ones, which is where the complaint was:
+  // Early English Books, our own editions, the confessions.
   function modernZones(root) {
+    const zones = lanes && lanes.length > 1 ? ".faith-section-body" : MODERN_ZONES;
     const scope = root || document;
-    if (scope.closest && scope.closest(MODERN_ZONES)) return [scope];
-    return Array.prototype.slice.call(scope.querySelectorAll(MODERN_ZONES));
+    if (scope.closest && scope.closest(zones)) return [scope];
+    return Array.prototype.slice.call(scope.querySelectorAll(zones));
   }
 
   // The original is kept on the text node itself rather than as a

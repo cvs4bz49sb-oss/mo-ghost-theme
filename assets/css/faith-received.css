@@ -7194,3 +7194,114 @@ body.faith-toc-open .faith-dock { display: none; }
   .fa-search-mode { flex: 1 0 100%; }
   .fa-search-mode select { width: 100%; }
 }
+
+/* ══ Results, under the bar that asked for them ═══════════════════
+   The search used to leave the page. It answers in place now, in a
+   section directly beneath the hero, with the shelves left where they
+   were underneath it. */
+.bsearch-results {
+  padding: 30px 0 40px;
+  border-bottom: 1px solid var(--color-card-border);
+  background: var(--color-page);
+}
+.bsearch-results[hidden] { display: none; }
+.bsearch-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 14px;
+  margin: 0 0 14px;
+}
+.bsearch-close {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: none;
+  color: var(--color-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.bsearch-close:hover { color: var(--color-secondary); border-color: var(--color-secondary); }
+.bsearch-count {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  margin: 0 0 10px;
+}
+.bsearch-msg {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  max-width: 62ch;
+  margin: 0 0 12px;
+}
+.bsearch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0 28px;
+}
+.bsearch-hit {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 0;
+  border-top: 1px solid var(--color-card-border);
+}
+.bsearch-hit-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-dark);
+  text-decoration: none;
+}
+.bsearch-hit-title:hover { color: var(--color-secondary); }
+.bsearch-hit-author {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+.bsearch-hit-where,
+.bsearch-hit-times {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.bsearch-hit-snippet {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  padding-left: 10px;
+  border-left: 2px solid var(--color-card-border);
+  margin-top: 4px;
+}
+.bsearch-more {
+  margin-top: 16px;
+  padding: 9px 18px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: none;
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+}
+.bsearch-more:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+
+@media (max-width: 640px) {
+  .bsearch-controls .faith-refs-select { flex: 1 1 140px; }
+  .bsearch-controls .faith-refs-select select { width: 100%; }
+  .bsearch-list { grid-template-columns: 1fr; }
+}
