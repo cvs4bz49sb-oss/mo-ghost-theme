@@ -216,17 +216,65 @@
       extra || ""}</li>`;
   }
 
+  // Entries in the author field that are not a person: the
+  // catalogue's own annotations. "Unknown author (Augustine of
+  // Hippo?)" is a librarian's guess, and offering it as a page beside
+  // Augustine's own reads as though the library thinks they are two
+  // men who happen to share a name.
+  const NOT_A_NAME = /^(unknown|anonymous|anon\b|unattributed|\[?various)|\?\s*\)?$/i;
+
+  // ── The people, before their books ────────────────────────────
+  //
+  // Searching a name and being handed 345 title cards buries the man
+  // under his own bibliography. If the name matches an author the
+  // library knows, say so first and offer the page that gathers
+  // everything under it.
+  //
+  // Counted against the whole catalogue rather than the filtered set,
+  // because the number has to be what the author's page will show.
+  function authorsMatching() {
+    const q = fold(term);
+    if (!q || !all) return [];
+    const m = new Map();
+    all.forEach((w) => {
+      const a = String(w.author || "").trim();
+      if (!a || NOT_A_NAME.test(a)) return;
+      if (w._fa === undefined) w._fa = fold(a);
+      if (!w._fa.includes(q)) return;
+      m.set(a, (m.get(a) || 0) + 1);
+    });
+    return [...m.entries()]
+      .sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]))
+      .slice(0, 3);
+  }
+
+  function authorBlock() {
+    const found = authorsMatching();
+    if (!found.length) return "";
+    return `<div class="bsearch-authors">` +
+      `<p class="bsearch-authors-label">${found.length === 1 ? "Author" : "Authors"}</p>${ 
+      found.map(([name, n]) =>
+        `<a class="bsearch-author" href="/the-faith-received/author/?a=${encodeURIComponent(fold(name))}">` +
+        `<span class="bsearch-author-name">${escapeHtml(name)}</span>` +
+        `<span class="bsearch-author-n">${n.toLocaleString()} work${n === 1 ? "" : "s"} in the library</span>` +
+        `<span class="bsearch-author-go" aria-hidden="true">&rarr;</span></a>`).join("") 
+      }</div>`;
+  }
+
   const PAGE = 60;
   let shown = PAGE;
 
   function renderCatalogue(hits) {
     const slice = hits.slice(0, shown);
     countEl.textContent = `${hits.length.toLocaleString()} work${hits.length === 1 ? "" : "s"} matching "${term}"`;
+    // Not on a title search: someone looking for a title has not asked
+    // about a person.
+    const people = scopeEl.value === "title" ? "" : authorBlock();
     out.innerHTML = hits.length
-      ? `<ol class="bsearch-list">${slice.map((w) => card(w)).join("")}</ol>${
+      ? `${people}<ol class="bsearch-list">${slice.map((w) => card(w)).join("")}</ol>${
         hits.length > slice.length
           ? `<button type="button" class="bsearch-more" data-bs-more>Show more</button>` : ""}`
-      : `<p class="bsearch-msg">Nothing in the library matches that. Try another name or title.</p>`;
+      : `${people}<p class="bsearch-msg">Nothing in the library matches that. Try another name or title.</p>`;
     const more = out.querySelector("[data-bs-more]");
     if (more) {
       more.addEventListener("click", () => { shown += PAGE; renderCatalogue(hits); });

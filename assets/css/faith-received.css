@@ -7305,3 +7305,47 @@ body.faith-toc-open .faith-dock { display: none; }
   .bsearch-controls .faith-refs-select select { width: 100%; }
   .bsearch-list { grid-template-columns: 1fr; }
 }
+
+/* ══ The person, above their books ════════════════════════════════
+   Searching a name and being handed 345 title cards buries the man
+   under his own bibliography. */
+.bsearch-authors {
+  margin: 0 0 22px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.bsearch-authors-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 8px;
+}
+.bsearch-author {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  background: var(--color-cream);
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+.bsearch-author:hover { border-color: var(--color-secondary); }
+.bsearch-author:hover .bsearch-author-name { color: var(--color-secondary); }
+.bsearch-author-name {
+  font-family: var(--font-display);
+  font-size: 19px;
+  color: var(--color-dark);
+}
+.bsearch-author-n {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.bsearch-author-go { margin-left: auto; color: var(--color-secondary); }
