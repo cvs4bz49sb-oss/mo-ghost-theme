@@ -154,7 +154,7 @@
     },
     {
       id: "confessions",
-      label: "Confessions",
+      label: "The Confessions",
       short: "Creeds, confessions & catechisms",
       base: BLOB,
       catalogue: "/v1/confessions-index.json",
@@ -170,6 +170,9 @@
       normalize: (c) => ({
         corpus: "confessions",
         id: c.slug,
+        // The catalogue dates these outright. A creed with year 0 is
+        // genuinely undated rather than dated to the year nought.
+        date: c.year ? String(c.year) : "",
         title: c.title || c.slug,
         author: "",
         eyebrow: [c.tradition, c.type].filter(Boolean).join(" · "),

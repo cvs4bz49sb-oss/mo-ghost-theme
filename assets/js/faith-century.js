@@ -147,7 +147,10 @@
     if (w.corpus === "pg") return fromVolume(PG, w.volume || r.v) || fromAuthor(w.author) || 0;
     return fromYear(r.y || r.date || w.date || w.eyebrow) ||
       fromYear(w.volume || r.volume) ||
-      fromAuthor(w.author) || 0;
+      fromAuthor(w.author) ||
+      // Last: a year printed in the title, as the confessions do.
+      // "The London Confession (1646)" dates itself.
+      fromYear((String(w.title || "").match(/\((1\d{3})[^)]*\)/) || [])[1]) || 0;
   }
 
   const ORDINALS = ["", "1st", "2nd", "3rd"];
