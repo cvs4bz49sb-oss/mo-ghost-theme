@@ -6965,9 +6965,9 @@ body.faith-toc-open .faith-dock { display: none; }
 .fa-search {
   margin: 0 0 34px;
   padding: 20px 22px 22px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-card-border);
   border-radius: 6px;
-  background: var(--color-bg);
+  background: var(--color-page);
 }
 .fa-search-head {
   font-family: var(--font-display);
@@ -6981,7 +6981,7 @@ body.faith-toc-open .faith-dock { display: none; }
   min-width: 0;
   height: 40px;
   padding: 0 12px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-card-border);
   border-radius: 3px;
   background: var(--color-page);
   color: var(--color-dark);
@@ -6995,7 +6995,7 @@ body.faith-toc-open .faith-dock { display: none; }
   border: 1px solid var(--color-dark);
   border-radius: 3px;
   background: var(--color-dark);
-  color: var(--color-bg);
+  color: var(--color-page);
   font-family: var(--font-body);
   font-size: 14px;
   letter-spacing: 0.06em;
@@ -7023,7 +7023,7 @@ body.faith-toc-open .faith-dock { display: none; }
   flex-direction: column;
   gap: 5px;
   padding: 12px 0;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-card-border);
 }
 .fa-search-title {
   font-family: var(--font-body);
@@ -7157,7 +7157,7 @@ body.faith-toc-open .faith-dock { display: none; }
 .fa-search-mode select {
   height: 40px;
   padding: 0 26px 0 10px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-card-border);
   border-radius: 3px;
   background: var(--color-page);
   color: var(--color-dark);
@@ -7168,7 +7168,7 @@ body.faith-toc-open .faith-dock { display: none; }
 .fa-search-stop {
   margin-top: 8px;
   padding: 6px 14px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-card-border);
   border-radius: 3px;
   background: none;
   color: var(--color-muted);
@@ -7185,7 +7185,7 @@ body.faith-toc-open .faith-dock { display: none; }
   color: var(--color-muted);
   text-decoration: none;
   padding: 4px 0 4px 12px;
-  border-left: 2px solid var(--color-border);
+  border-left: 2px solid var(--color-card-border);
   margin-top: 4px;
 }
 .fa-search-snippet:hover { color: var(--color-dark); border-left-color: var(--color-secondary); }
