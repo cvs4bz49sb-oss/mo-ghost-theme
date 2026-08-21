@@ -129,46 +129,61 @@
   // Western regional councils stay Roman Catholic, because that is what
   // they are: Arles, Carthage, Orange, Braga, Toledo and the Lateran
   // are local Western synods, however much Protestants value Orange II.
-  const CONFESSION_WHOLE_CHURCH = new Set([
-    "cf-001-apostolic-and-ancient-creeds",
-    "lc-001-three-ecumenical-creeds",
-    "cf-006-creed-quicumque",
-    "cf-013-council-of-nicea-i-325",
-    "cf-015-council-of-constantinople-i-381",
-    "cf-023-council-of-ephesus-431",
-    "cf-025-council-of-chalcedon-451",
-    "cf-033-council-of-constantinople-ii-553",
-    "cf-043-council-of-constantinople-iii-680-681",
-  ]);
+  // Keyed on slug, which is the only unique and stable field the
+  // catalogue has: `num` repeats across the two sources and titles vary
+  // by a comma. Each entry below was settled by reading the document's
+  // own editorial introduction out of the corpus, not by pattern.
+  const CONFESSION_OVERRIDE = {
+    // Received by East and West alike. Papal decretals and Western
+    // regional councils are not here on purpose: Arles, Carthage,
+    // Orange, Braga, Toledo and the Lateran are local Western synods,
+    // however much Protestants value Orange II.
+    "cf-001-apostolic-and-ancient-creeds": "The Whole Church",
+    "lc-001-three-ecumenical-creeds": "The Whole Church",
+    "cf-006-creed-quicumque": "The Whole Church",
+    "cf-013-council-of-nicea-i-325": "The Whole Church",
+    "cf-015-council-of-constantinople-i-381": "The Whole Church",
+    "cf-023-council-of-ephesus-431": "The Whole Church",
+    "cf-025-council-of-chalcedon-451": "The Whole Church",
+    "cf-033-council-of-constantinople-ii-553": "The Whole Church",
+    "cf-043-council-of-constantinople-iii-680-681": "The Whole Church",
 
-  // The other half is Dennison's Reformed Confessions, so everything in
-  // it arrived tagged "Reformed". Two of its documents are not: they are
-  // pan-Protestant union statements agreed between Lutherans, Reformed
-  // and the Bohemian Brethren, and Dennison's own introductions say so.
-  // They file at Protestant, under no denomination, which is what a
-  // union document should do.
-  const CONFESSION_PAN_PROTESTANT = new Set([
-    "rc-073-sandomierz-consensus-1570",
-    "rc-082-synod-of-piotrkow-1578",
-  ]);
+    // The other half is Dennison's Reformed Confessions, so everything
+    // in it arrived tagged "Reformed". These four are agreed between
+    // communions rather than held by one, so they file at the parent
+    // under no denomination: Sandomierz and Piotrkow unite Lutherans,
+    // Reformed and Bohemian Brethren, Leipzig is a Lutheran and
+    // Reformed colloquy, and Thorn attempted Protestants and Rome
+    // together.
+    "rc-073-sandomierz-consensus-1570": "Protestant",
+    "rc-082-synod-of-piotrkow-1578": "Protestant",
+    "rc-107-leipzig-colloquy-1631": "Protestant",
+    "rc-110-colloquy-of-thorn-1645": "Protestant",
 
-  // Four English separatist documents that Dennison's own introductions
-  // call independent or congregational outright, and which the title
-  // patterns miss because none of them says so in its name. The Leiden
-  // church is the Pilgrims'; the 1652 and 1654 confessions come from
-  // John Owen's committee of "Independents/Congregationalists".
-  const CONFESSION_CONGREGATIONAL = new Set([
-    "rc-090-second-confession-of-the-london-amsterdam-church-1596",
-    "rc-104-seven-articles-of-the-church-of-leiden-1617",
-    "rc-118-principles-of-faith-1652",
-    "rc-119-new-confession-of-faith-1654",
-  ]);
+    // English separatists. Dennison's introductions call these
+    // independent or congregational outright, and the title patterns
+    // miss them because none says so in its name. Leiden is the
+    // Pilgrims'; 1652 and 1654 come from John Owen's committee of
+    // "Independents/Congregationalists".
+    "rc-090-second-confession-of-the-london-amsterdam-church-1596": "Congregational",
+    "rc-104-seven-articles-of-the-church-of-leiden-1617": "Congregational",
+    "rc-118-principles-of-faith-1652": "Congregational",
+    "rc-119-new-confession-of-faith-1654": "Congregational",
+
+    // The founding Arminian document, which Dort was called to answer.
+    // Its Gomarist reply, the Counter Remonstrance of 1611, stays
+    // Reformed.
+    "rc-097-remonstrance-1610": "Arminian",
+
+    // Lukaris was Greek Orthodox patriarch of Alexandria and then of
+    // Constantinople. His confession is Calvinist in content, but this
+    // axis is communion, and his was not Protestant.
+    "rc-106-confession-of-cyril-lukaris-1629": "Eastern Orthodox",
+  };
 
   function confessionTradition(title, given, slug) {
     const s = String(slug || "");
-    if (CONFESSION_WHOLE_CHURCH.has(s)) return "The Whole Church";
-    if (CONFESSION_PAN_PROTESTANT.has(s)) return "Protestant";
-    if (CONFESSION_CONGREGATIONAL.has(s)) return "Congregational";
+    if (CONFESSION_OVERRIDE[s]) return CONFESSION_OVERRIDE[s];
     const t = String(title || "");
     for (const [pattern, tradition] of CONFESSION_TRADITION) {
       if (pattern.test(t)) return tradition;
@@ -199,6 +214,12 @@
       Baptist: "Protestant",
       Congregational: "Protestant",
       Anabaptist: "Protestant",
+      // Remonstrant theology arose inside the Dutch Reformed church and
+      // was expelled from it, so it belongs under Protestant and beside
+      // Reformed rather than inside it.
+      Arminian: "Protestant",
+      // "Eastern Orthodox" and "The Whole Church" take no parent. Both
+      // are top-level traditions in their own right.
     },
     tfr: {
       Reformed: "Protestant",
@@ -217,7 +238,19 @@
       Anglican: "Protestant",
       Puritan: "Protestant",
     },
+    // Migne's two series, Patrologia Orientalis and the Augustine
+    // collection are one thing wearing four labels. Gathered under a
+    // single parent they read as the Fathers, which is what they are,
+    // and the top level stops being four fifths patristic shelving.
+    pld: { "Latin Fathers": "The Fathers" },
+    pg: { "Greek Fathers": "The Fathers" },
+    po: { "Eastern Fathers": "The Fathers" },
+    augustine: { Patristic: "The Fathers" },
   };
+
+  // The Latin Library carries eight Greek Fathers of its own, and they
+  // belong with the rest rather than standing alone at the top level.
+  TRADITION_PARENT.tfr["Greek Fathers"] = "The Fathers";
 
   const CORPORA = [
     {
@@ -278,7 +311,9 @@
     },
     {
       id: "confessions",
-      label: "The Confessions",
+      // "The Confessions" collided with Augustine's own Confessions,
+      // which is a work in two other collections here.
+      label: "Creeds, Confessions, & Catechisms",
       short: "Creeds, confessions & catechisms",
       base: BLOB,
       catalogue: "/v1/confessions-index.json",

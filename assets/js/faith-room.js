@@ -159,6 +159,17 @@
     return w._tp || t;
   }
 
+  // What the second level is called depends on what it holds. Under
+  // Protestant it is a denomination; under The Fathers it is one of
+  // Migne's series and calling those a denomination is nonsense.
+  const CHILD_LABEL = {
+    Protestant: ["Denomination", "All denominations"],
+    "The Fathers": ["Series", "All series"],
+  };
+  function childLabel(parent) {
+    return CHILD_LABEL[parent] || ["Within", "All"];
+  }
+
   // Children of the selected parent that are actually present, so a
   // collection only ever offers denominations it holds.
   function denomsUnder(list, parent) {
@@ -303,7 +314,7 @@
       // Built here rather than injected on change, because the shell is
       // written once and rewriting it mid-gesture is what tore the
       // dropdowns out from under the reader before.
-      `<label class="faith-room-select" data-room-denom-wrap hidden><span>Denomination</span><select data-room-denom></select></label>`,
+      `<label class="faith-room-select" data-room-denom-wrap hidden><span data-room-denom-label>Denomination</span><select data-room-denom></select></label>`,
     ].filter(Boolean).join("");
     const filters = controls
       ? `<div class="faith-room-filters">${controls}${undated ? `<p class="faith-room-undated">${undated.toLocaleString()} works carry no date</p>` : ""}</div>`
@@ -344,10 +355,13 @@
     const dWrap = root.querySelector("[data-room-denom-wrap]");
     const dSel = root.querySelector("[data-room-denom]");
     if (dWrap && dSel) {
+      const [dLabel, dAll] = childLabel(tradition);
       const dOpts = denoms.map(([t, n]) =>
         `<option value="${escapeHtml(t)}">${escapeHtml(t)} (${n.toLocaleString()})</option>`).join("");
-      const want = denoms.length ? `<option value="">All denominations</option>${dOpts}` : "";
+      const want = denoms.length ? `<option value="">${escapeHtml(dAll)}</option>${dOpts}` : "";
       if (dSel.innerHTML !== want) dSel.innerHTML = want;
+      const dSpan = root.querySelector("[data-room-denom-label]");
+      if (dSpan && dSpan.textContent !== dLabel) dSpan.textContent = dLabel;
       dWrap.hidden = !denoms.length;
     }
 
