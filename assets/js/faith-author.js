@@ -32,6 +32,16 @@
       .replace(/[^a-z0-9]+/g, "");
   }
 
+  // The house rule applies to the page, not only to what we wrote:
+  // the source's own biographies carry em dashes and they render here
+  // as Mere Orthodoxy.
+  function houseStyle(text) {
+    return String(text || "")
+      .replace(/\s+—\s+/g, ", ")
+      .replace(/(\d)\s*—\s*(\d)/g, "$1–$2")
+      .replace(/—/g, ", ");
+  }
+
   function escapeHtml(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -54,11 +64,20 @@
   // the English divines run across the Latin Library and EEBO.
   const corpora = (window.MOCorpora && window.MOCorpora.all) || [];
 
+  // Stiven's entry first, ours second. His catalogue is the standard,
+  // so where he has written a life it wins outright; ours fills the
+  // gap under it, which today is 196 of the Latin Library's 387 names.
+  const oursUrl = window.moAssetUrl
+    ? window.moAssetUrl("/assets/data/faith-received/tfr-authors.json")
+    : "/assets/data/faith-received/tfr-authors.json";
+
   Promise.all([
     fetch(`${BLOB}/v1/authors.json`).then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
     Promise.all(corpora.map((c) =>
       window.MOCorpora.load(c.id).catch(() => []))),
-  ]).then(([authors, sets]) => {
+    fetch(oursUrl).then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
+  ]).then(([theirs, sets, ours]) => {
+    const authors = { ...ours, ...theirs };
     // ── The author's own entry, matched folded ─────────────────
     let entry = null;
     let displayName = wanted;
@@ -133,7 +152,7 @@
   function render(entry, name, byCorpus, total) {
     const period = entry.dates || derivedPeriod(byCorpus);
     const tradition = entry.tradition || derivedTradition(byCorpus);
-    const bio = entry.bio || "";
+    const bio = houseStyle(entry.bio || "");
 
     document.title = `${name} — The Faith Received — Mere Orthodoxy`;
     const h1 = document.querySelector("[data-faith-author-name]");
@@ -173,7 +192,7 @@
       ? `<div class="fa-bio"><p>${escapeHtml(bio)}</p></div>`
       : `<div class="fa-bio fa-bio--none"><p>No biography has been written for this author yet. What follows is everything the library holds under the name.</p></div>`;
     const sig = entry.significance
-      ? `<p class="fa-significance">${escapeHtml(entry.significance)}</p>` : "";
+      ? `<p class="fa-significance">${escapeHtml(houseStyle(entry.significance))}</p>` : "";
     root.innerHTML = `${meta}${bioBlock}${sig}${shelves}`;
   }
 })();

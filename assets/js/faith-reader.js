@@ -1205,18 +1205,35 @@
 
   let blurbPromise = null;
 
+  // Stiven's blurb first, ours second.
+  //
+  // His catalogue is the standard, so where he has written an
+  // introduction it wins and ours is never consulted. Ours fills the
+  // gap underneath: 1,506 of the Latin Library's 2,296 works had no
+  // introduction of any kind, and a reader meeting Aquinas for the
+  // first time should not be handed a page count.
+  //
+  // Both are fetched once and shared across every call.
   function loadBlurb() {
-    if (!corpus || !corpus.blurbs) return Promise.resolve("");
     if (!blurbPromise) {
-      blurbPromise = fetch((corpus.notesBase || corpus.base) + corpus.blurbs)
-        .then((r) => (r.ok ? r.json() : null))
-        .catch(() => null);
+      const theirs = corpus && corpus.blurbs
+        ? fetch((corpus.notesBase || corpus.base) + corpus.blurbs)
+          .then((r) => (r.ok ? r.json() : null)).catch(() => null)
+        : Promise.resolve(null);
+      const ours = fetch(window.moAssetUrl
+        ? window.moAssetUrl("/assets/data/faith-received/tfr-intros.json")
+        : "/assets/data/faith-received/tfr-intros.json")
+        .then((r) => (r.ok ? r.json() : null)).catch(() => null);
+      blurbPromise = Promise.all([theirs, ours]);
     }
-    return blurbPromise.then((all) => {
-      if (!all) return "";
-      const hit = all[slug];
-      if (!hit) return "";
-      return typeof hit === "string" ? hit : hit.blurb || "";
+    return blurbPromise.then(([theirs, ours]) => {
+      const pick = (all) => {
+        if (!all) return "";
+        const hit = all[slug];
+        if (!hit) return "";
+        return typeof hit === "string" ? hit : hit.blurb || "";
+      };
+      return pick(theirs) || pick(ours);
     });
   }
 
@@ -1575,6 +1592,17 @@
   // catalogue does know. It is a sentence rather than a hundred words,
   // but it is in the same place on the page as every other work's
   // introduction, which is the point.
+  // The house rule applies to the page, not only to what we wrote.
+  // Stiven's blurbs carry em dashes, and they render as Mere Orthodoxy
+  // whoever typed them. A spaced em dash becomes a comma; an unspaced
+  // one, which is nearly always a range, becomes an en dash.
+  function houseStyle(text) {
+    return String(text || "")
+      .replace(/\s+—\s+/g, ", ")
+      .replace(/(\d)\s*—\s*(\d)/g, "$1–$2")
+      .replace(/—/g, ", ");
+  }
+
   function fallbackIntro(m) {
     // The byline directly above already carries the author, so this
     // line says only what the byline does not: how long it is, and
@@ -1672,9 +1700,9 @@
           wrap.setAttribute("data-fr-intro-kind", kind);
         }
       };
-      show(m.description || fallbackIntro(m), m.description ? "description" : "derived");
+      show(houseStyle(m.description) || fallbackIntro(m), m.description ? "description" : "derived");
       loadBlurb().then((text) => {
-        if (text) show(text, "blurb");
+        if (text) show(houseStyle(text), "blurb");
       });
     }
     // Update the page title.
