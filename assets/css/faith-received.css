@@ -5163,3 +5163,12 @@ mark.faith-find-hit.is-current {
 .faith-cent-grid .brow-t { font-size: 16px; }
 .faith-cent-note { font-size: var(--tfr-meta); color: var(--color-muted); margin: 0 0 26px; }
 @media (max-width: 900px) { .faith-cent-grid { columns: 1; } }
+
+/* The cross-link out of a browse band and into the century index. */
+.lp-shelf-cross {
+  margin: 6px 0 22px;
+  font-size: var(--tfr-meta);
+  color: var(--color-muted);
+}
+.lp-shelf-cross a { color: var(--color-secondary); text-decoration: none; border-bottom: 1px solid transparent; }
+.lp-shelf-cross a:hover { border-bottom-color: var(--color-secondary); }
