@@ -6259,17 +6259,34 @@ mark.faith-find-hit.is-current {
    A chapter of Romans is cited by four thousand works. Without a way
    to ask it a question the index is a list nobody reads, so the
    controls sit directly under the chapter and narrow it in place. */
+/* One row: the box, what it searches, and the filters, all on the same
+   line. It was a two-column grid with the box alone on the left, so
+   "Search in" sat underneath its own box a column away from it and
+   the reader had to look in two places to see one control. */
 .faith-refs-controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 12px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 14px;
   padding: 16px 0 14px;
   border-bottom: 1px solid var(--color-card-border);
   margin: 0 0 6px;
 }
+/* The two wrappers exist for the markup's sake; their children belong
+   to the one row. */
+.faith-refs-searchbar,
+.faith-refs-selects { display: contents; }
+.faith-refs-count { flex: 1 0 100%; }
+
+/* An empty select is not a filter. .faith-refs-select sets its own
+   display, which beats the browser's [hidden] rule, so the
+   denomination control showed as a blank dropdown with nothing in it
+   whenever no tradition was chosen. */
+.faith-refs-select[hidden] { display: none !important; }
+
 .faith-refs-search {
-  grid-column: 1;
+  flex: 1 1 240px;
+  min-width: 180px;
   height: 36px;
   font-family: var(--font-body);
   font-size: 14px;
@@ -6280,7 +6297,6 @@ mark.faith-find-hit.is-current {
   color: var(--color-dark);
 }
 .faith-refs-search:focus { outline: 2px solid var(--color-primary); outline-offset: 1px; }
-.faith-refs-selects { grid-column: 2; display: flex; flex-wrap: wrap; gap: 10px; }
 .faith-refs-select { display: inline-flex; flex-direction: column; gap: 4px; }
 .faith-refs-select > span {
   font-family: var(--font-body);
@@ -6818,19 +6834,11 @@ body.faith-toc-open .faith-dock { display: none; }
 }
 
 /* ── Search scope, beside the box ─────────────────────────────── */
-.faith-refs-searchbar {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-  width: 100%;
-}
-.faith-refs-searchbar .faith-refs-search { flex: 1 1 240px; min-width: 0; }
-.faith-refs-scope { flex: 0 0 auto; }
-
 @media (max-width: 640px) {
-  .faith-refs-searchbar { flex-direction: column; align-items: stretch; }
-  .faith-refs-scope select { width: 100%; }
+  /* On a phone the row becomes a column and the box takes the width. */
+  .faith-refs-search { flex: 1 0 100%; }
+  .faith-refs-select { flex: 1 1 140px; }
+  .faith-refs-select select { width: 100%; }
 }
 
 /* ══ The contents rail, made readable ═════════════════════════════
@@ -6902,3 +6910,37 @@ body.faith-toc-open .faith-dock { display: none; }
    and clip everything in it. */
 .faith-dock .faith-reading-controls > * { min-width: 0; max-width: 100%; }
 .faith-dock .faith-reading-controls { overflow-x: hidden; }
+
+/* ══ The section headings ═════════════════════════════════════════
+   IM Fell is the house display face and it belongs on the work's own
+   title — "Confessions", "Augustine of Hippo" — where there is one of
+   it, set large, and the letterforms are the point. A catechism is 129
+   headings in a row at 18px, and at that size and that count the same
+   face reads as texture rather than as type. The section headings take
+   Source Serif, which is what the text under them is set in and what
+   the contents rail beside them already used.
+
+   The rail is body-faced by inheritance from .faith-toc; the rules
+   below are the ones that were reaching past it for the display face.
+   The reader's own <h1> and byline are deliberately not here. */
+.faith-reader [data-fr-content] .faith-section-title,
+.faith-reader [data-fr-content] .faith-book-title,
+.faith-reader [data-fr-content] .faith-row--heading,
+.faith-reader .faith-en-head {
+  font-family: var(--font-body);
+}
+/* Source Serif carries a heading at a weight IM Fell does not need. */
+.faith-reader [data-fr-content] .faith-section-title { font-weight: 600; }
+
+/* The popover was written for the hand-written catechism pages, before
+   the house rule against italics in The Faith Received. It is now the
+   verse pane for every converted work, so it follows the rule: the
+   citation in the text face, the verse upright. */
+.faith-verse-popover-ref {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 16px;
+  font-weight: 600;
+}
+.faith-verse-popover-text,
+.faith-verse-popover-text:not(.is-loaded) { font-style: normal; }

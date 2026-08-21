@@ -533,6 +533,12 @@
   // when present). Match the original TFR pattern.
   initSectionActions();
 
+  // The reader builds its sections after fetching the work, so there is
+  // nothing on the page when this file runs and every converted work
+  // came out without a copy row. It calls this back once the text is
+  // in; the guard against double-injecting is already below.
+  window.MOFaithSections = { refresh: initSectionActions };
+
   function initSectionActions() {
     if (!navigator.clipboard) return;
     // Every readable unit gets its own Copy link / Copy passage row.
@@ -657,7 +663,10 @@
     const numeral = clone.querySelector(
       ".faith-section-numeral, .faith-qa-number, .faith-lords-day-numeral, " +
       ".faith-thesis-number, .faith-edwards-number, " +
-      ".faith-part-eyebrow, .faith-topic-row-label"
+      ".faith-part-eyebrow, .faith-topic-row-label, " +
+      // The reader prints the same thing — "Q. 1", "Lord's Day 1" — as
+      // a subtitle under the heading rather than as a numeral over it.
+      ".faith-section-subtitle, .faith-book-subtitle"
     );
     // Title / heading.
     const title = clone.querySelector(
@@ -666,6 +675,14 @@
     );
     if (numeral) pushTrim(numeral.textContent);
     if (title) pushTrim(title.textContent);
+    // Read the proof texts before the body strips them out. On the
+    // hand-written pages they sat beside the answer and survived; the
+    // reader nests them inside it, so taking them at the end found
+    // nothing and the citations fell out of every copied passage.
+    const refsText = (() => {
+      const el = clone.querySelector(".faith-qa-references");
+      return el ? el.textContent.replace(/^Scripture\s*/i, "").trim() : "";
+    })();
     // Body — broadest selector for any reading-content container.
     const body = clone.querySelector(
       ".faith-section-body, .faith-qa-answer, " +
@@ -675,7 +692,10 @@
     if (body) {
       const refsInBody = body.querySelector(".faith-qa-references");
       if (refsInBody) refsInBody.remove();
-      const paras = body.querySelectorAll("p, li");
+      // The reader's rows are lane columns, not paragraphs: their text
+      // sits directly in .faith-col-*, so a p/li query found nothing
+      // and the whole section came out as one run-on line.
+      const paras = body.querySelectorAll("p, li, .faith-col-en, .faith-col-la");
       if (paras.length) {
         Array.prototype.forEach.call(paras, (p) => { pushTrim(p.textContent); });
       } else {
@@ -690,11 +710,7 @@
       );
       if (fallback) pushTrim(fallback.textContent);
     }
-    const refs = clone.querySelector(".faith-qa-references");
-    if (refs) {
-      const refText = refs.textContent.replace(/^Scripture\s*/i, "").trim();
-      if (refText) lines.push(`Scripture: ${refText}`);
-    }
+    if (refsText) lines.push(`Scripture: ${refsText}`);
     return lines.join("\n\n");
   }
 

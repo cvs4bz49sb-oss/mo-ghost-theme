@@ -779,6 +779,28 @@
       return [...m.entries()].sort((a, b) => b[1] - a[1]);
     };
 
+    // Which level of tradition actually tells these works apart.
+    //
+    // Normally the parent: Protestant, The Fathers, Roman Catholic,
+    // with the denomination under it. But a chapter can be entirely
+    // patristic — Deuteronomy 6 is 328 works from Patrologia Latina
+    // and 29 from Augustine — and both of those roll up to The
+    // Fathers, so the parent level had one value and the control
+    // correctly hid itself, leaving nothing to filter by at all.
+    // Where the parent does not discriminate, offer the tradition
+    // itself: Latin Fathers 328, Patristic 29.
+    const parentCounts = counts("tradition");
+    const rawCounts = (() => {
+      const m = new Map();
+      entries.forEach((e) => {
+        const t = tradOf(e);
+        if (t) m.set(t, (m.get(t) || 0) + 1);
+      });
+      return [...m.entries()].sort((a, b) => b[1] - a[1]);
+    })();
+    const useRaw = parentCounts.length < 2 && rawCounts.length >= 2;
+    const tradCounts = useRaw ? rawCounts : parentCounts;
+
     const select = (name, label, all, opts, fmt) => {
       if (opts.length < 2) return "";
       const o = opts.map(([v, n]) =>
@@ -802,10 +824,12 @@
       `<div class="faith-refs-searchbar">` +
       `<input type="search" class="faith-refs-search" data-refs-q placeholder="Search an author or a title&hellip;" aria-label="Search these works">` +
       `<label class="faith-refs-select faith-refs-scope"><span>Search in</span>` +
-      `<select data-refs-scope aria-label="What to search">${scopeOpts}</select></label></div>` +
+      `<select data-refs-scope aria-label="What to search" ` +
+      `title="Keyword searches the title, the tradition and the quoted passage. ` +
+      `It does not search the full text of the work.">${scopeOpts}</select></label></div>` +
       `<div class="faith-refs-selects">${
         select("collection", "Collection", "All collections", counts("corpus"), cLabel)}${
-        select("tradition", "Tradition", "All traditions", counts("tradition"))}${
+        select("tradition", "Tradition", "All traditions", tradCounts)}${
         // Always in the shell, shown only when the chosen tradition has
         // something under it.
         `<label class="faith-refs-select" data-refs-denom-wrap hidden><span data-refs-denom-label>Denomination</span><select data-refs-denom></select></label>`}${
@@ -844,7 +868,8 @@
       const q = fold(state.q);
       return entries.filter((e) => {
         if (state.collection && e.corpus !== state.collection) return false;
-        if (state.tradition && topTradOf(e) !== state.tradition) return false;
+        if (state.tradition
+          && (useRaw ? tradOf(e) : topTradOf(e)) !== state.tradition) return false;
         if (state.denomination && tradOf(e) !== state.denomination) return false;
         if (state.century && String(e.century) !== state.century) return false;
         if (!q) return true;
@@ -868,7 +893,8 @@
       const wrap = el.querySelector("[data-refs-denom-wrap]");
       const sel = el.querySelector("[data-refs-denom]");
       if (!wrap || !sel) return;
-      const kids = state.tradition ? childrenOf(state.tradition) : [];
+      // A raw tradition has nothing under it by definition.
+      const kids = state.tradition && !useRaw ? childrenOf(state.tradition) : [];
       const [label, all] = CHILD_LABEL[state.tradition] || ["Within", "All"];
       const want = kids.length
         ? `<option value="">${escapeHtml(all)}</option>${kids.map(([t, n]) =>

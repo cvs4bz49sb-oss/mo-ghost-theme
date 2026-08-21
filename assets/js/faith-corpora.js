@@ -908,13 +908,24 @@
           const en = r.querySelector(".col-en");
           if (!la && !en) return;
           loose.push({
+            // Same source row id the claimed rows carry. Without it a
+            // scripture link like #r310499 lands nowhere, which is
+            // every citation into the two thirds of this corpus that
+            // ships no <details> at all.
+            id: r.getAttribute("id") || "",
             kind: (r.className.match(/row-([\w-]+)/) || [])[1] || "",
             cite: r.getAttribute("data-cite") || "",
             la: la ? la.innerHTML : "",
             en: en ? en.innerHTML : "",
           });
         });
-        if (loose.length) sections.unshift({ title: "Prologue", subtitle: "", rows: loose, children: [] });
+        // `flat` marks the one section that is a bag of rows rather
+        // than a division of the work, and is the only thing the
+        // reader's divideFlatSections will take apart. See
+        // faith-reader.js.
+        if (loose.length) {
+          sections.unshift({ title: "Prologue", subtitle: "", rows: loose, children: [], flat: true });
+        }
 
         return {
           title: txt(doc.querySelector(".page-header h1")),

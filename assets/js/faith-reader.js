@@ -277,7 +277,7 @@
           if (!Array.isArray(s.children)) s.children = [];
           if (!Array.isArray(s.rows)) s.rows = [];
         });
-        data.sections = nestByHeadings(data.sections);
+        data.sections = nestByHeadings(divideFlatSections(data.sections));
         meta = {
           title: data.title || slug,
           author: data.author || data.work || corpus.label,
@@ -310,7 +310,7 @@
         if (!data || !data.sections || !data.sections.length) {
           throw new Error("no readable sections");
         }
-        data.sections = nestByHeadings(data.sections);
+        data.sections = nestByHeadings(divideFlatSections(data.sections));
         meta = {
           title: data.title || slug,
           author: data.work || corpus.label,
@@ -522,6 +522,200 @@
     return "";
   }
 
+  // ── Divisions ─────────────────────────────────────────────────
+  //
+  // Two thirds of the Augustine corpus ships no <details> at all, so
+  // the adapter has nothing to divide on and hands the whole work back
+  // as one bag of rows. The Expositions of the Psalms 99-120 arrived
+  // as 690 consecutive paragraphs under a single drawer called
+  // "Prologue", with a contents rail one line long — and that file is
+  // twenty-two psalms and thirty-six sermons. The Letters, the
+  // Sermons, and the dialogues are all the same shape.
+  //
+  // The divisions are in the source, just not in its markup. Every row
+  // carries a `data-cite` address — "Ps99-120.17", "deMus.1.17.57" —
+  // whose leading number is the division and whose trailing numbers
+  // are the paragraph inside it, and the address restarts at each new
+  // psalm, letter, sermon or book. That restart is the seam. Where the
+  // source also prints a line naming the division ("Exposition of
+  // Psalm 100", "<b>LETTER 2</b>", "FROM LEVITICUS") it becomes the
+  // section's title; where it does not, the drawer is left for the
+  // renderer to number.
+  //
+  // Only a section the adapter marked `flat` is touched, and only
+  // where the citations themselves say a division ends. Nothing is
+  // read out of the prose: the last line of a book of De musica sits
+  // in exactly the position a heading would, and is told apart from
+  // one only by the full stop it ends with.
+
+  const DIVIDE_MIN_ROWS = 12;
+  // Half the rows reading as titles means we have misread the file.
+  const DIVIDE_MAX_TITLE_RATIO = 0.5;
+  // A bold lead that is nothing but numerals numbers a paragraph —
+  // "<b>1.</b>", "<b>I. 1.</b>" — it does not name anything.
+  const NUMERALS_ONLY = /^[\dIVXLCDMivxlcdm.,;:()[\]\s–—-]+$/;
+  const SENTENCE_END = /[.?!;:,]$/;
+  const TRAILING_QUOTE = /["'»”)\]]+$/;
+
+  function divideFlatSections(sections) {
+    const out = [];
+    sections.forEach((s) => {
+      const parts =
+        s.flat && !(s.children || []).length ? divideRows(s.rows || []) : null;
+      if (!parts) {
+        out.push(s);
+        return;
+      }
+      parts.forEach((p) => out.push(p));
+    });
+    return out;
+  }
+
+  function divideRows(rows) {
+    if (!rows || rows.length < DIVIDE_MIN_ROWS) return null;
+    const tails = rows.map((r) => citeTail(r.cite));
+
+    const starts = new Map();
+    let titles = 0;
+    for (let i = 0; i < rows.length; i += 1) {
+      if (!isDivisionTitle(rows, tails, i)) continue;
+      starts.set(i, true);
+      titles += 1;
+    }
+    if (titles > rows.length * DIVIDE_MAX_TITLE_RATIO) return null;
+
+    // A seam the source titled is already a start; one it did not
+    // opens an unnamed division at the row after it.
+    for (let i = 1; i < rows.length; i += 1) {
+      if (!opensDivision(tails[i - 1], tails[i])) continue;
+      if (starts.has(i) || starts.has(i - 1)) continue;
+      starts.set(i, false);
+    }
+
+    const cuts = Array.from(starts.keys()).sort((a, b) => a - b);
+    if (!cuts.length) return null;
+    const bounds = (cuts[0] === 0 ? [] : [0]).concat(cuts, [rows.length]);
+
+    const out = [];
+    for (let k = 0; k < bounds.length - 1; k += 1) {
+      const a = bounds[k];
+      const b = bounds[k + 1];
+      if (a >= b) continue;
+      let chunk = rows.slice(a, b);
+      let title = "";
+      // The title line is a row like any other; consuming it stops it
+      // being printed twice, once as a heading and once as prose.
+      if (starts.get(a) && chunk.length > 1) {
+        title = divisionTitle(chunk[0]);
+        chunk = chunk.slice(1);
+      }
+      if (!chunk.length) continue;
+      if (!title) {
+        const t = citeTail(chunk[0].cite);
+        // Only a three-deep address (book.chapter.paragraph) says the
+        // leading number is a book. Two deep it may as easily be a
+        // chapter, and an unnamed drawer the renderer numbers itself
+        // is better than a label that says the wrong thing.
+        if (t && t.length > 2 && t[0] > 0) title = `Book ${t[0]}`;
+      }
+      out.push({
+        id: chunk[0].id || "",
+        title,
+        subtitle: "",
+        rows: chunk,
+        children: [],
+      });
+    }
+    return out.length > 1 ? out : null;
+  }
+
+  // "Ps99-120.17" → [17]. "deMus.1.17.57" → [1, 17, 57]. The bare work
+  // id "Ps99-120" → [], which is a row with no paragraph address at
+  // all. A component that is not a number makes the whole address
+  // unusable and returns null, which reads as "do not guess".
+  function citeTail(cite) {
+    const parts = String(cite || "").split(".");
+    const out = [];
+    for (let i = 1; i < parts.length; i += 1) {
+      if (!/^\d+$/.test(parts[i])) return null;
+      out.push(parseInt(parts[i], 10));
+    }
+    return out;
+  }
+
+  function opensDivision(a, b) {
+    if (!a || !b || !a.length || !b.length) return false;
+    const n = Math.min(a.length, b.length);
+    let j = 0;
+    while (j < n && a[j] === b[j]) j += 1;
+    // Differing below the top level is the next paragraph, not the
+    // next division; an identical prefix is no change at all.
+    if (j > 0 || j === n) return false;
+    // The counter went backwards: a new psalm, letter or sermon.
+    if (b[0] < a[0]) return true;
+    // It went forwards and everything under it reset to one: a new
+    // book. "deMus.1.17.57" → "deMus.2.1.1".
+    if (b.length < 2) return false;
+    return b.slice(1).every((x) => x === 1) && !a.slice(1).every((x) => x === 1);
+  }
+
+  function isDivisionTitle(rows, tails, i) {
+    const r = rows[i];
+    const html = String((r && (r.en || r.la)) || "");
+    const text = plainText(html);
+    if (!text) return false;
+
+    const lead = /^\s*<b>([\s\S]*?)<\/b>/.exec(html);
+    if (lead) {
+      // "<b>LETTER 2</b><br>Augustine to Zenobius" names a division.
+      // "<b>1.</b> You have heard the psalm…" numbers a paragraph.
+      if (NUMERALS_ONLY.test(plainText(lead[1]))) return false;
+      return plainText(html.slice(lead[0].length)).length <= 400;
+    }
+
+    // An unbolded line is a heading only where the citations agree
+    // that something ends here. Without that test every short line of
+    // a dialogue — "Student: Two." — reads as a title.
+    if (text.length > 140) return false;
+    if (SENTENCE_END.test(text.replace(TRAILING_QUOTE, ""))) return false;
+    const t = tails[i];
+    if (!t) return false;
+    // No paragraph address at all: a standing head like "Book One".
+    if (!t.length) return true;
+    if (i + 1 < rows.length && opensDivision(t, tails[i + 1])) return true;
+    // A line set in full capitals that did not advance the paragraph
+    // counter is a rubric, not a sentence — "FROM LEVITICUS".
+    const letters = text.replace(/[^A-Za-z]/g, "");
+    return (
+      letters.length >= 4 &&
+      letters === letters.toUpperCase() &&
+      i > 0 &&
+      rows[i - 1].cite === r.cite
+    );
+  }
+
+  // Tags come out as a space, not as nothing: "<b>LETTER 2</b><br>To
+  // Zenobius" is two lines of a heading and closing them up spells
+  // "LETTER 2To Zenobius".
+  function plainText(html) {
+    return String(html || "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/&#(\d+);/g, (m, d) => String.fromCharCode(parseInt(d, 10)))
+      .replace(/&#x([0-9a-f]+);/gi, (m, d) => String.fromCharCode(parseInt(d, 16)))
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&[a-z]+;/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function divisionTitle(r) {
+    return clampHeading(calmCaps(plainText(r.en || r.la)));
+  }
+
   // ── Chapters ──────────────────────────────────────────────────
   //
   // The ported corpora arrive as a handful of very long sections.
@@ -620,7 +814,10 @@
   // English, fall back to the original, and keep it to a line — some
   // of these headings run to the whole argument of the psalm.
   function headingText(r) {
-    const raw = calmCaps(String(r.en || r.la || "").replace(/<[^>]*>/g, "").trim());
+    return clampHeading(calmCaps(String(r.en || r.la || "").replace(/<[^>]*>/g, "").trim()));
+  }
+
+  function clampHeading(raw) {
     if (raw.length <= 90) return raw;
     const cut = raw.slice(0, 90);
     const stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(" "));
@@ -788,7 +985,7 @@
     sum.className = "faith-section-summary";
     sum.innerHTML =
       `<div class="faith-section-summary-inner">` +
-      `<h2 class="faith-section-title"><em>${escapeHtml(s.title)}</em></h2>${ 
+      `<h2 class="faith-section-title"><em>${escapeHtml(s.title || `Section ${n}`)}</em></h2>${
       s.subtitle ? `<p class="faith-section-subtitle">${escapeHtml(s.subtitle)}</p>` : "" 
       }</div><span class="faith-chev" aria-hidden="true"></span>`;
     details.appendChild(sum);
@@ -2883,8 +3080,13 @@
     if (tocLoading) tocLoading.hidden = true;
   }
 
+  // Every path through this file ends here, whichever reader kind the
+  // corpus declared, which makes it the one place the text is reliably
+  // on the page. Copy link / Copy passage belongs to faith-received.js
+  // and is injected by walking the DOM, so it has to be told.
   function hideLoading() {
     if (loadingEl) loadingEl.hidden = true;
+    if (window.MOFaithSections) window.MOFaithSections.refresh();
   }
 
   // ── Utility ───────────────────────────────────────────────────
