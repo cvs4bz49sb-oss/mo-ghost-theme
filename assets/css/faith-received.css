@@ -5257,3 +5257,7 @@ mark.faith-find-hit.is-current {
 .tfr-browse-btn:hover { background: var(--color-dark); color: #fff; }
 .tfr-browse-all--hero { margin: 20px 0 0; }
 .bhero .tfr-browse-btn { box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25); }
+
+/* Under the shelf, centred: the five collections first, the whole
+   library as the fallback. */
+.tfr-browse-all--under { margin: 36px 0 0; text-align: center; }
