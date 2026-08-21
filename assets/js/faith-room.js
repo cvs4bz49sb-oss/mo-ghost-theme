@@ -66,19 +66,67 @@
     render();
   });
 
-  // Sort on the last word of the name: these catalogues give "Johann
-  // Heinrich Alsted", not "Alsted, Johann Heinrich", so sorting on the
-  // raw string files every Johann together.
+  // The name a work files under. Two catalogue conventions collide
+  // here, so the comma decides which one we are looking at.
+  //
+  //   Inverted, "Little, Richard, fl. 1645-1646". EEBO catalogues this
+  //   way and it is 87% of that collection: 12,240 of 14,033 authors.
+  //   The filing name is everything before the first comma. Reading
+  //   the last word instead took a death date, which is why 7,521 EEBO
+  //   authors sat under "#" and the rest filed under a forename.
+  //
+  //   Direct, "Johann Heinrich Alsted". The Latin corpora give names
+  //   this way round, so the last word is the one to file under.
+  //   Sorting the raw string here files every Johann together.
+  //
+  // Two things are never part of a direct name:
+  //
+  //   A trailing parenthetical is an editorial role or a byname, so
+  //   "Heinrich Finke (ed.)" filed under "(" and the rail sent it to
+  //   "#". Stripped, it lands under F, and "Council of Pisa (acta)"
+  //   under P.
+  //
+  //   A second author after "&" is not who the work is filed under,
+  //   but only where the first side is a whole name. "August Franzen &
+  //   Wolfgang Müller" belongs at Franzen, the way a library shelves
+  //   it. "Adrian & Peter Walenburg" is two brothers sharing one
+  //   surname, so the "&" there joins forenames and the name to file
+  //   under is still Walenburg. One word before the "&" means the
+  //   surname is on the far side; two or more means it is not.
+  //
+  // Both fall back to the raw string rather than to nothing, so a name
+  // that is only a parenthetical still sorts somewhere.
   function surname(name) {
-    const n = String(name || "").trim();
-    if (!n) return "￿";
+    // Square brackets around a name are the cataloguer saying the
+    // attribution is conjectural, not part of it: "[Brothyel,
+    // Mathias]" files at Brothyel like any other.
+    const raw = String(name || "")
+      .trim()
+      .replace(/^\[+/, "")
+      .replace(/\]+$/, "")
+      .trim();
+    if (!raw) return "￿";
+    const comma = raw.indexOf(",");
+    if (comma > 0) return raw.slice(0, comma).trim().toLowerCase();
+    let n = raw.replace(/\s*\([^()]*\)\s*$/, "").trim() || raw;
+    const amp = n.split(/\s+(?:&|and)\s+/i);
+    if (amp.length > 1 && amp[0].trim().split(/\s+/).length > 1) n = amp[0].trim();
     const parts = n.split(/\s+/);
     return parts[parts.length - 1].toLowerCase();
   }
 
+  // The rail is A-Z, so a name opening on a diacritic needs folding
+  // rather than a "#": Marcin Śmiglecki belongs under S. NFD splits
+  // most accents off their letter; the handful below carry the stroke
+  // inside the glyph and do not decompose, so they are mapped by hand.
+  const STRUCK = { Ł: "L", Ø: "O", Đ: "D", Ð: "D", Þ: "T", Æ: "A", Œ: "O", ẞ: "S" };
   function initial(name) {
-    const c = surname(name).charAt(0).toUpperCase();
-    return /[A-Z]/.test(c) ? c : "#";
+    const c = surname(name)
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .charAt(0)
+      .toUpperCase();
+    return /[A-Z]/.test(c) ? c : STRUCK[c] || "#";
   }
 
   function escapeHtml(s) {
