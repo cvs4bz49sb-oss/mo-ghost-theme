@@ -85,11 +85,13 @@
     `<button type="button" class="bsearch-close" data-bs-close aria-label="Close results">&times;</button>` +
     `</div>` +
     `<p class="bsearch-count" data-bs-count></p>` +
+    `<p class="bsearch-note" data-bs-note hidden></p>` +
     `<div data-bs-out></div></div>`;
   hero.insertAdjacentElement("afterend", panel);
 
   const out = panel.querySelector("[data-bs-out]");
   const countEl = panel.querySelector("[data-bs-count]");
+  const noteEl = panel.querySelector("[data-bs-note]");
   const scopeEl = panel.querySelector("[data-bs-scope]");
   const input = form.querySelector("input[name='q']");
 
@@ -207,10 +209,39 @@
     });
   }
 
-  function card(w, extra) {
+  // ── Where a result opens ──────────────────────────────────────
+  //
+  // A search result that opens the work at page one has answered a
+  // different question than the one asked. The reader already takes
+  // ?q= and runs Find on arrival, and it already resolves a locator,
+  // so a hit can hand over both: land on the passage, and light up
+  // the word that was searched for.
+  //
+  // The locator follows the same rule as every other link into the
+  // reader: the Latin Library and the confessions are paginated and
+  // take a page number, and everywhere else the locator IS the id of
+  // the block in the source, so it is the anchor verbatim. The
+  // fragment has to come last or it swallows the query.
+  function hitUrl(w, loc) {
+    const base = w.url || "";
+    if (!base) return "#";
+    let url = base + (base.indexOf("?") >= 0 ? "&" : "?") + `q=${encodeURIComponent(term)}`;
+    let hash = "";
+    if (loc != null && loc !== "") {
+      if (w.corpus === "tfr" || w.corpus === "confessions") {
+        url += `&p=${encodeURIComponent(loc)}`;
+      } else {
+        hash = `#${String(loc).trim().replace(/\s+/g, "-")}`;
+      }
+    }
+    return url + hash;
+  }
+
+  function card(w, extra, loc) {
     const c = window.MOCorpora && window.MOCorpora.get(w.corpus);
     return `<li class="bsearch-hit">` +
-      `<a class="bsearch-hit-title" href="${escapeHtml(w.url || "#")}">${escapeHtml(w.title || w.id)}</a>${ 
+      `<a class="bsearch-hit-title" data-hit-for="${escapeHtml(`${w.corpus}:${w.id}`)}" ` +
+      `href="${escapeHtml(hitUrl(w, loc))}">${escapeHtml(w.title || w.id)}</a>${ 
       w.author ? `<span class="bsearch-hit-author">${escapeHtml(w.author)}</span>` : "" 
       }<span class="bsearch-hit-where">${escapeHtml(c ? c.label : w.corpus)}${
         w.tradition ? ` · ${escapeHtml(w.tradition)}` : ""}</span>${ 
@@ -334,9 +365,11 @@
 
   // How many of the index's answers to open for a preview. The index
   // says which works use the word; the snippet has to come from the
-  // work itself, and forty is enough to fill a page of results
-  // without reading a library to do it.
-  const SNIPPET_DEPTH = 40;
+  // work itself, so this number is not a page size, it is how many
+  // works are fetched before anything can be read. Forty of them is
+  // the wait. Twelve fills the screen, and Show more costs another
+  // twelve rather than making the first result wait on the fortieth.
+  const SNIPPET_DEPTH = 12;
 
   async function runIndexed(list) {
     countEl.textContent = "Asking the index\u2026";
@@ -359,15 +392,36 @@
       return true;
     }
 
-    // A word in tens of thousands of works keeps only the two thousand
-    // it matters most in. Saying "2,000 works" alone would pass that
-    // off as the whole answer: God is in 55,252 of the 68,724.
+    // ── A phrase is not two words that both turn up ──────────────
+    //
+    // The index records which works use each word, not where in them,
+    // so it cannot tell "baptize infants" from a work that says
+    // "baptize" on one page and "infants" on another. What it can do
+    // is narrow 68,724 works to the 81 that use both, which is few
+    // enough to open and check. So on a phrase the index is the
+    // filter and the reading is the answer: only works that actually
+    // contain the phrase are reported, and the count is the phrase's
+    // own, not the smaller of the two words' counts.
+    if (term.trim().split(/\s+/).length > 1) return runPhrase(hits, byKey);
+
     const total = hits.reduce((a, h) => a + h.count, 0);
-    const note = found.usedBy && found.usedBy > found.length
-      ? `, the ones that use it most of ${found.usedBy.toLocaleString()}`
-      : found.capped ? ", the works these words are commonest in" : "";
     countEl.textContent = `${total.toLocaleString()} mention${total === 1 ? "" : "s"} of "${term}" `
-      + `in ${hits.length.toLocaleString()} work${hits.length === 1 ? "" : "s"}${note}`;
+      + `in ${hits.length.toLocaleString()} work${hits.length === 1 ? "" : "s"}`;
+    // Said on its own line and in plain sentences. Hung on the end of
+    // the count it read as "in 81 works, the works these words are
+    // commonest in", which explains nothing and is the trailing
+    // comma-modifier the house style does not use.
+    const note = found.usedBy && found.usedBy > found.length
+      ? `"${term}" is in ${found.usedBy.toLocaleString()} works. These are the `
+        + `${found.length.toLocaleString()} that use it most.`
+      : found.capped
+        ? "These words are common. The index keeps the works that use each of them most, "
+          + "so there may be more."
+        : "";
+    if (noteEl) {
+      noteEl.textContent = note;
+      noteEl.hidden = !note;
+    }
 
     // Drawn at once from the index, then filled in with previews as
     // the works arrive, so the answer is on screen immediately. The
@@ -394,8 +448,15 @@
         done({ results }) {
           running = null;
           results.forEach((r) => {
-            const el = out.querySelector(`[data-snip="${CSS.escape(`${r.work.corpus}:${r.work.id}`)}"]`);
+            const key = `${r.work.corpus}:${r.work.id}`;
+            const el = out.querySelector(`[data-snip="${CSS.escape(key)}"]`);
             if (el && r.hits[0]) el.textContent = r.hits[0].snippet;
+            // The index knows which works, not where in them. The
+            // preview does, so the link is sharpened when it lands.
+            if (r.hits[0] && r.hits[0].loc != null) {
+              const a = out.querySelector(`[data-hit-for="${CSS.escape(key)}"]`);
+              if (a) a.setAttribute("href", hitUrl(r.work, r.hits[0].loc));
+            }
           });
           out.querySelectorAll("[data-snip]").forEach((el) => {
             if (el.textContent === "reading\u2026") el.remove();
@@ -404,6 +465,88 @@
       });
     };
     draw();
+    return true;
+  }
+
+  // How many candidates to open for a phrase at a time. The index has
+  // already cut the library down to the works using every word; these
+  // are opened to see which of them actually say it. A batch, not the
+  // lot: three hundred works is a minute of reading before the first
+  // result appears, and the reader usually knows from the first
+  // screen whether this is the phrase they meant.
+  const PHRASE_BATCH = 40;
+
+  function runPhrase(hits, byKey) {
+    const works = hits.map((h) => byKey.get(`${h.corpus}:${h.id}`)).filter(Boolean);
+    let checked = 0;
+    let found = [];
+
+    const paint = (busy) => {
+      const mentions = found.reduce((a, r) => a + r.total, 0);
+      countEl.textContent = found.length
+        ? `${mentions.toLocaleString()} mention${mentions === 1 ? "" : "s"} of "${term}" `
+          + `in ${found.length.toLocaleString()} work${found.length === 1 ? "" : "s"}`
+        : (busy ? "" : "");
+      if (noteEl) {
+        // What was actually looked at. A phrase can only be confirmed
+        // by opening the work, so the honest thing is to say how far
+        // the reading has got rather than imply the whole library was
+        // checked.
+        const note = `${works.length.toLocaleString()} work${works.length === 1 ? "" : "s"} `
+          + `use every one of these words. ${checked.toLocaleString()} `
+          + `${checked === 1 ? "has" : "have"} been opened to check for the phrase.`;
+        noteEl.textContent = works.length ? note : "";
+        noteEl.hidden = !works.length;
+      }
+      const rest = works.length - checked;
+      const list = found.length
+        ? `<ol class="bsearch-list">${found.map((r) => card(r.work,
+          `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>${ 
+          r.hits.map((h) => `<span class="bsearch-hit-snippet">${escapeHtml(h.snippet)}</span>`).join("")}`,
+          r.hits[0] ? r.hits[0].loc : null
+        )).join("")}</ol>`
+        : (busy ? "" : `<p class="bsearch-msg">None of the ${checked.toLocaleString()} works opened so far `
+          + `uses "${escapeHtml(term)}" as a phrase.</p>`);
+      const tail = busy
+        ? `<p class="bsearch-msg" data-bs-progress>Reading…</p>`
+          + `<button type="button" class="bsearch-more" data-bs-stop>Stop</button>`
+        : rest > 0
+          ? `<button type="button" class="bsearch-more" data-bs-phrasemore>Check ${Math.min(rest, PHRASE_BATCH)} more work${Math.min(rest, PHRASE_BATCH) === 1 ? "" : "s"}</button>`
+          : "";
+      out.innerHTML = list + tail;
+
+      const stopBtn = out.querySelector("[data-bs-stop]");
+      if (stopBtn) stopBtn.addEventListener("click", () => { if (running) running.cancel(); });
+      const moreBtn = out.querySelector("[data-bs-phrasemore]");
+      if (moreBtn) moreBtn.addEventListener("click", () => batch());
+    };
+
+    function batch() {
+      const slice = works.slice(checked, checked + PHRASE_BATCH);
+      if (!slice.length) { paint(false); return; }
+      paint(true);
+      if (running) { running.cancel(); running = null; }
+      running = window.MOCorpusSearch.run(slice, term, {
+        progress(n, all, hitsSoFar) {
+          const p = out.querySelector("[data-bs-progress]");
+          if (p) {
+            p.textContent = `Read ${(checked + n).toLocaleString()} of ${works.length.toLocaleString()}… `
+              + `${(found.length + hitsSoFar).toLocaleString()} with the phrase`;
+          }
+        },
+        done({ results, searched, cancelled }) {
+          running = null;
+          // Only what was actually read counts as checked, or a run
+          // the reader stopped would claim to have looked at works it
+          // never opened.
+          checked += cancelled ? (searched || 0) : slice.length;
+          found = found.concat(results);
+          paint(false);
+        },
+      });
+    }
+
+    batch();
     return true;
   }
 
@@ -456,7 +599,8 @@
         out.innerHTML = results.length
           ? `<ol class="bsearch-list">${results.map((r) => card(r.work,
             `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>${ 
-            r.hits.map((h) => `<span class="bsearch-hit-snippet">${escapeHtml(h.snippet)}</span>`).join("")}`
+            r.hits.map((h) => `<span class="bsearch-hit-snippet">${escapeHtml(h.snippet)}</span>`).join("")}`,
+            r.hits[0] ? r.hits[0].loc : null
           )).join("")}</ol>`
           : `<p class="bsearch-msg">Not one of the ${searched.toLocaleString()} works read uses "${escapeHtml(term)}".</p>`;
       },
@@ -470,6 +614,10 @@
     panel.hidden = false;
     shown = PAGE;
     countEl.textContent = "Loading the catalogue…";
+    // Cleared here rather than in each renderer: the note belongs to
+    // one answer, and a stale one sitting under the next search says
+    // something untrue about it.
+    if (noteEl) { noteEl.textContent = ""; noteEl.hidden = true; }
     out.innerHTML = "";
     corpora().then((list) => {
       paintDenoms();

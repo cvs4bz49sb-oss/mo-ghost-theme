@@ -42,14 +42,20 @@ const OUT = process.env.TERM_OUT || path.join(os.tmpdir(), "mo-term-index");
 // a 170 KB download to look up one word. Sixteen thousand keeps a
 // shard near 50 KB.
 const SHARDS = parseInt(process.env.TERM_SHARDS, 10) || 4096;
-// Nothing is dropped for being common. The first cut of this threw
-// away any word appearing in more than half the works, which on a test
-// of 69 removed "baptism" — and on a theological corpus would remove
-// God, grace, sin and faith, which is to say the words people come
-// here to search. Instead a word keeps the works that use it most, so
-// "God" answers with the thousand most concerned with it rather than
-// with nothing at all.
-const POSTINGS_CAP = 2000;
+// Nothing is dropped, for being common or for anything else.
+//
+// The first cut of this threw away any word appearing in more than
+// half the works, which on a test of 69 removed "baptism". The second
+// kept a word's two thousand most-using works, which sounds harmless
+// until you search a phrase: the index is the filter that decides
+// which works are opened to check for "baptize infants", so a work
+// dropped here is a result that cannot be found at all, and the page
+// has to admit it is leaving works out.
+//
+// Keeping everything costs 645 MB on top of 745, and the worst case
+// is the word "in" at about half a megabyte in its shard. Nobody
+// searches for "in". Set TERM_CAP to a number to bring a cap back.
+const POSTINGS_CAP = parseInt(process.env.TERM_CAP, 10) || 0;
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
@@ -428,7 +434,7 @@ async function shard() {
       let o = buckets.get(sh);
       if (!o) { o = {}; buckets.set(sh, o); }
       let pairs = arr;
-      if (arr.length > POSTINGS_CAP * 2) {
+      if (POSTINGS_CAP && arr.length > POSTINGS_CAP * 2) {
         // Most-used first, then keep the head. A reader looking for a
         // common word wants the works it matters in.
         const rows = [];

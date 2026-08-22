@@ -393,10 +393,16 @@
     return h + b + 12;
   }
 
-  function scrollToMark(mark) {
+  // Smooth when the reader asked for the next match and nothing is
+  // moving. Instant when arriving from a link, because the sections
+  // are still hydrating and a smooth scroll is cancelled the moment
+  // the layout shifts under it — which is exactly how a search result
+  // opened the right page and stopped six hundred pixels short of the
+  // word it promised.
+  function scrollToMark(mark, instant) {
     const bar = document.querySelector(".faith-find");
     const y = mark.getBoundingClientRect().top + window.pageYOffset - findChrome(bar);
-    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    window.scrollTo({ top: Math.max(0, y), behavior: instant ? "instant" : "smooth" });
   }
 
   // A section opened by the jump fetches its text, and until it lands
@@ -860,7 +866,24 @@
     // After the sections render, or it searches an empty document. The
     // reader only hydrates what is open, so this finds what is there
     // and says how much was not — the same honesty Find already keeps.
-    window.setTimeout(() => runFind(q, status), 900);
+    //
+    // Then hold the position. A link from a search result usually
+    // carries a page as well, to load the right section, and the page
+    // lander goes on re-asserting itself as that section's text
+    // arrives and moves the layout under it. Landing on the match and
+    // then being dragged to the top of its page is the reader losing
+    // the thing they clicked. Whoever writes last wins, so Find
+    // writes last: the same trick landOnPage already uses on the
+    // smooth-scroll that kept getting cancelled.
+    const hold = () => {
+      const mark = document.querySelector("mark.faith-find-hit.is-current")
+        || document.querySelector("mark.faith-find-hit");
+      if (mark) scrollToMark(mark, true);
+    };
+    window.setTimeout(() => {
+      runFind(q, status);
+      [400, 1200, 2400].forEach((t) => window.setTimeout(hold, t));
+    }, 900);
   }
 
   function boot() {

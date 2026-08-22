@@ -7233,6 +7233,18 @@ body.faith-toc-open .faith-dock { display: none; }
   color: var(--color-primary-text);
   margin: 0 0 10px;
 }
+/* Why an answer is not the whole answer. A sentence, not a shouted
+   label: the count above it is already in caps, and this is the part
+   the reader actually has to read. */
+.bsearch-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: -4px 0 12px;
+  max-width: 62ch;
+}
+.bsearch-note[hidden] { display: none; }
 .bsearch-msg {
   font-family: var(--font-body);
   font-size: 15px;

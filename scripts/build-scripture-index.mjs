@@ -38,7 +38,12 @@ const ROOT = path.join(import.meta.dirname, "..");
 // Dropbox.
 const OUT_DIR = process.env.SCRIPTURE_OUT
   || path.join(os.tmpdir(), "mo-scripture-index");
-const BLOB = "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com";
+// Our own R2, not the source's blob. The last full run over this
+// index died on a 403: reading fifty thousand works out of someone
+// else's storage rate-limits, and after two of those the whole
+// catalogue answers 403 for a while. Everything here now lives in the
+// bucket we control, so this can be re-run whenever the corpus moves.
+const BLOB = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
 
 /* ── Canon ──────────────────────────────────────────────────────── */
 
@@ -384,21 +389,25 @@ async function getJSON(url) {
 }
 
 async function eeboWorks(limit) {
-  const cat = await getJSON("https://eebo-backup.vercel.app/data/catalogue.json");
+  const cat = await getJSON(`${BLOB}/eebo/catalogue.json`);
   const list = Array.isArray(cat) ? cat : cat.works || [];
   return (limit ? list.slice(0, limit) : list).map((w) => String(w.i));
 }
 
 async function tfrWorks(limit) {
   const idx = await getJSON(`${BLOB}/v1/works-index.json`);
-  const list = idx.works || [];
+  // Upstream folded the other collections into this index as pointer
+  // rows: 17,064 of the 19,360 entries are a slug like "pld-4412" with
+  // no text behind them, and they are indexed under their own corpus
+  // anyway. Scanning them is 17,064 fetches to find nothing.
+  const list = (idx.works || []).filter((w) => !/^(pld|pg|po|eebo)-\d+$/.test(w.slug || ""));
   return (limit ? list.slice(0, limit) : list).map((w) => w.slug);
 }
 
 // Aquinas and Augustine share one source catalogue, split at file id
 // 150 — the same boundary faith-corpora.js uses.
 async function aquinasStudiesWorks(limit, wantAugustine) {
-  const nav = await getJSON("https://aquinas-studies.vercel.app/data/nav.json");
+  const nav = await getJSON(`${BLOB}/augustine/nav.json`);
   const out = [];
   (Array.isArray(nav) ? nav : []).forEach((g) => {
     (g.s || []).forEach((sec) => {
@@ -445,19 +454,35 @@ async function tfrText(slug) {
     ? meta.shards.map((s) => s.file)
     : [meta.single || "work.json"];
   const segs = [];
+  let got = 0;
   for (const f of files) {
-    const d = await getJSON(`${BLOB}/v1/works/${slug}/${f}`);
+    let d;
+    try { d = await getJSON(`${BLOB}/v1/works/${slug}/${f}`); } catch (_) { continue; }
+    got += 1;
     for (const p of d.pages || d) {
       // Page number: the reader resolves it to the section covering
       // that page, then scrolls to the page block itself.
       segs.push({ loc: p.n, text: `${p.la || ""} ${p.en || ""}`, en: p.en || "" });
     }
   }
+  // Around eight hundred of the Latin Library publish no page JSON at
+  // all, only TEI. Without this they contribute no citations, and a
+  // reader who can open the work cannot reach it from a verse. The
+  // whole file is one segment because TEI carries no page number to
+  // land on; the reader falls back to the heading.
+  if (!got) {
+    const r = await fetch(`${BLOB}/v1/works/${slug}/tei.en.xml`);
+    if (!r.ok) throw new Error(`no text for ${slug}`);
+    const tei = await r.text();
+    const body = tei.match(/<text[^>]*>([\s\S]*)<\/text>/);
+    const text = (body ? body[1] : tei).replace(/<[^>]+>/g, " ");
+    segs.push({ loc: 0, text, en: text });
+  }
   return segs;
 }
 
 async function aquinasStudiesText(id) {
-  const r = await fetch(`https://aquinas-studies.vercel.app/read/${id}.html`);
+  const r = await fetch(`${BLOB}/augustine/read/${id}.html`);
   if (!r.ok) throw new Error(String(r.status));
   const html = await r.text();
   const segs = [];

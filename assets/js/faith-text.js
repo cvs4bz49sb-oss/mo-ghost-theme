@@ -154,7 +154,12 @@
   function wordPattern(term, flags) {
     const t = String(term || "").trim();
     if (!t) return null;
-    const esc = t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Whitespace inside a phrase is elastic. "baptize infants" has to
+    // match across a line break and across the double space a
+    // seventeenth-century compositor left after a comma, or a phrase
+    // search finds the one printing that happens to use a single
+    // space. The ends stay bounded; only the gaps loosen.
+    const esc = t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
     const open = /^[\p{L}\p{N}]/u.test(t) ? "(?<![\\p{L}\\p{N}])" : "";
     const close = /[\p{L}\p{N}]$/u.test(t) ? "(?![\\p{L}\\p{N}])" : "";
     try {
