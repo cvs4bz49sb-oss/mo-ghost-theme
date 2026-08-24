@@ -3,7 +3,7 @@
  *
  * Every collection ships its own prebuilt index, in its own shape and
  * its own vocabulary. This merges them into two browsable indexes
- * spanning the whole reading room:
+ * spanning the whole library:
  *
  *   Scripture  ->  book  ->  chapter  ->  the works that cite it
  *   Topics     ->  locus ->  the works that treat it
@@ -157,7 +157,7 @@
   // about what a reader is and isn't searching.
   const COVERAGE = { scripture: [], topics: [], missing: { scripture: [], topics: [] } };
 
-  // The same derivation the reading rooms use, so a work's century is
+  // The same derivation the collection pages use, so a work's century is
   // the same number in both places. Cached on the work.
   function centuryOf(w) {
     if (!w) return 0;
@@ -701,7 +701,7 @@
   // this one man say. Collection, tradition and century narrow it, and
   // the box searches author and title together.
   //
-  // Shell and slots, for the reason the reading rooms are: rebuilding
+  // Shell and slots, for the reason the collection pages are: rebuilding
   // the controls on every render tears an open dropdown out from under
   // the reader mid-gesture.
   // Collection, tradition, century, and a box that searches author and

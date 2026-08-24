@@ -1,5 +1,5 @@
 /*
- * The Faith Received — a collection's reading room
+ * The Faith Received — a collection's page
  *
  * The whole table of contents for one collection: every work, in the
  * row treatment the browse page uses. English title, the work's own

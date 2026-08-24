@@ -182,7 +182,7 @@
     //
     // The same walk Find does over one open work, over these works
     // instead. Bounded on purpose: this shelf is a few megabytes and a
-    // few seconds, where the library is thirty thousand works.
+    // few seconds, where the library is sixty-eight thousand works.
     const mode = panel.querySelector("[data-fa-mode]");
     const note = panel.querySelector("[data-fa-note]");
     let running = null;

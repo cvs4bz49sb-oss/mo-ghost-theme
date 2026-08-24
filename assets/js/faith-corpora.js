@@ -358,7 +358,7 @@
     {
       id: "tfr",
       // Named "The Faith Received" on the source site, but that is the
-      // name of this whole reading room — a collection inside it can't
+      // name of this whole library — a collection inside it can't
       // carry it too. Paired with Early English Books: each named by
       // language and medium.
       label: "The Latin Library",
@@ -453,7 +453,7 @@
       // Not "every book printed in English" any more, and the label
       // should not promise that. The full 53,831 includes newsbooks,
       // proclamations, ballads, weaving manuals and murder pamphlets;
-      // a theological reading room has no use for them and carrying
+      // a theological library has no use for them and carrying
       // them makes the library harder to search.
       short: "Theological and devotional printing, 1473–1700",
       base: "https://eebo-backup.vercel.app",
@@ -954,7 +954,7 @@
   // JSON. PLD's catalogue, topics and 236,351 reference keys are all
   // reachable; only the text is gated.
 
-  // The reading room each collection has a page for. Kept here rather
+  // The page each collection has. Kept here rather
   // than on each corpus so the routes are readable as a set, and so a
   // route rename is one edit.
   const CORPUS_ROOM = {
@@ -1062,7 +1062,7 @@
     all: CORPORA,
     get: (id) => byId.get(id),
     load: loadCorpus,
-    // The reading room page for a collection, or "" if it has none.
+    // The page for a collection, or "" if it has none.
     room: (id) => CORPUS_ROOM[id] || "",
     // The parent of a tradition, or "" if it has none. Callers pass the
     // corpus a work came from; the all-works page passes nothing and

@@ -29,7 +29,7 @@
 /* =============================================================
    The Faith Received
    -------------------------------------------------------------
-   Project home + per-document reading rooms + feature pages
+   Project home + per-document collection pages + feature pages
    (search, scripture, today, topics, devotional). All styles
    scoped under `.faith-received` to keep them isolated. Uses the
    site's existing tokens (--color-primary, --font-display, etc.)
@@ -4810,7 +4810,7 @@ mark.faith-find-hit.is-current {
   .btrad h3 { font-size: 22px; }
 }
 
-/* ── The reading rooms ─────────────────────────────────────────────
+/* ── The collection pages ─────────────────────────────────────────────
    /the-faith-received/room/?collection=… puts a whole collection's
    table of contents on the page: authors in order, their works beneath
    the name, fifty to a page, an A-Z rail to jump by letter and a box
@@ -4862,7 +4862,7 @@ mark.faith-find-hit.is-current {
   .faith-room .faith-card-title { font-size: 19px; }
 }
 
-/* ── The reading rooms ─────────────────────────────────────────────
+/* ── The collection pages ─────────────────────────────────────────────
    A collection's whole table of contents in the browse page's row
    treatment: the English title, the work's own title beneath it, then
    the author in small caps. The furniture around it stays quiet, so

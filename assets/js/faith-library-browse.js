@@ -5,7 +5,7 @@
  *
  *   Collection  ->  Author  ->  Works
  *
- * The reading room spans roughly 20,000 works across eight collections
+ * The library spans 68,814 works across seven collections
  * and some 10,000 authors, so a flat shelf is not an option — EEBO
  * alone has 5,725 authors. Collection first keeps the top level to
  * nine cards; the author level is filterable; the work level is one

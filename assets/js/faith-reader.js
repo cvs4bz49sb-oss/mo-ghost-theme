@@ -2035,7 +2035,7 @@
       span.textContent = raw;
 
       // A citation the resolver understands becomes a real link into
-      // the reading room. "See Gen 3:16; Sir 40:1." carries two, and
+      // the library. "See Gen 3:16; Sir 40:1." carries two, and
       // the first is the one worth landing on.
       const first = raw.replace(/^\s*(see|cf\.?|compare)\s+/i, "").split(";")[0]
         .replace(/[.,]\s*$/, "").trim();
@@ -2585,7 +2585,7 @@
     buildTags(m);
 
     // The kicker names the collection this work sits in, and links to
-    // its reading room rather than to the project's front door.
+    // its collection page rather than to the project's front door.
     const collEl = document.querySelector("[data-fr-collection]");
     if (collEl && corpus) {
       collEl.textContent = corpus.label;

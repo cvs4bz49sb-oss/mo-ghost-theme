@@ -1,5 +1,5 @@
 /*
- * The reading room's own search bar.
+ * The library's own search bar.
  *
  * It used to be a form that left the page. Now it answers in place: the
  * results open in a section directly under the hero, and the shelves

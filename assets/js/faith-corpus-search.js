@@ -8,7 +8,7 @@
  * does.
  *
  * Bounded is the whole point. Augustine's 124 works are a few megabytes
- * and a few seconds; the library is thirty thousand works and Early
+ * and a few seconds; the library is sixty-eight thousand works and Early
  * English Books alone is 1.66 GB, so this stops where a reader's
  * patience and connection do. Searching everything is a server's job
  * and a different build.
