@@ -6,12 +6,14 @@
  * are not something to ship as markup, and a frozen list would go
  * stale the moment a collection moved.
  *
- * The same four collections the Translation Transparency panel labels,
- * for the same reason. Early English Books is English already, the
- * creeds and the English Editions are historic human translations, and
- * Patrologia Orientalis prints the translation its own fascicles
- * carry. Listing those here would be claiming a machine wrote
- * something a person did.
+ * The same collections the Translation Transparency panel labels, for
+ * the same reason. Early English Books is English already, the English
+ * Editions are historic translations made by people, and Patrologia
+ * Orientalis prints the translation its own fascicles carry. Listing
+ * those here would be claiming a machine wrote something a person did.
+ *
+ * The creeds are mixed and have to be asked one at a time: 29 of the
+ * 260 were composed in English and were never translated at all.
  *
  * Fifty at a time. The whole list is thousands long, and a page that
  * renders all of it at once is a page that stops responding.
@@ -21,6 +23,11 @@
   if (!root) return;
 
   const AI_CORPORA = ["tfr", "pld", "pg", "augustine"];
+  // The creeds are mixed: 29 of the 260 were composed in English and
+  // were never translated. Each one has to be asked where it came
+  // from, so this collection is resolved separately.
+  const MIXED = "confessions";
+  const ENGLISH_ORIGIN = /^(English|Scottish)/i;
   const PAGE = 50;
 
   const worksEl = root.querySelector("[data-tp-works]");
@@ -35,6 +42,34 @@
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
     }[c]));
+  }
+
+
+  // Ask each creed where it came from, sixteen at a time. Two hundred
+  // and sixty small files, and the alternative is calling a work
+  // written in English a translation.
+  function addMixed() {
+    const meta = window.MOCorpora.get(MIXED);
+    if (!meta) return Promise.resolve();
+    const label = meta.label || MIXED;
+    return window.MOCorpora.load(MIXED).then((works) => {
+      let i = 0;
+      const base = (document.querySelector('meta[name="tfr-library-base"]') || {}).content || "";
+      const root = String(base).replace(/\/+$/, "");
+      return Promise.all(Array.from({ length: 16 }, async () => {
+        while (i < works.length) {
+          const w = works[i]; i += 1;
+          if (!w) continue;
+          let region = "";
+          try {
+            const r = await fetch(`${root}/v1/works/${encodeURIComponent(w.id)}/meta.json`);
+            if (r.ok) region = String((await r.json()).region || "");
+          } catch (_) { region = ""; }
+          if (ENGLISH_ORIGIN.test(region)) continue;
+          all.push({ id: w.id, title: w.title, author: w.author, url: w.url, corpus: label });
+        }
+      }));
+    }).catch(() => {});
   }
 
   function render() {
@@ -91,6 +126,9 @@
         });
       });
 
+      return addMixed();
+    })
+    .then(() => {
       all.sort((a, b) => String(a.author || "~").localeCompare(String(b.author || "~"))
         || String(a.title || "").localeCompare(String(b.title || "")));
 

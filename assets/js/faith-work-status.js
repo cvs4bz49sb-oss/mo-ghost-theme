@@ -30,19 +30,28 @@
   const BASE = ((baseMeta && baseMeta.getAttribute("content")) || "").replace(/\/+$/, "");
 
   // Which collections carry a machine translation, and what the
-  // machine actually produced in each.
+  // machine worked from.
   //
-  // Early English Books is English already. The creeds and the English
-  // Editions are historic translations made by people. Patrologia
-  // Orientalis prints the translation its own fascicles carry. Those
-  // four are not labelled, because labelling a human translation as
+  // Early English Books is English already, and the English Editions
+  // are historic translations made by people. Patrologia Orientalis
+  // prints the translation its own fascicles carry. Labelling those as
   // machine work would be its own kind of dishonesty.
+  //
+  // null means the collection is mixed and each work has to be asked
+  // about separately. The creeds are: 29 of the 260 were written in
+  // English and were never translated at all, and calling the Forty-Two
+  // Articles a translation would be wrong in the other direction.
   const AI_TRANSLATED = {
     tfr: "Latin",
     pld: "Latin",
     pg: "Greek",
     augustine: "Latin",
+    confessions: null,
   };
+
+  // Regions whose confessions were composed in English. Everything
+  // else in that collection reached English by translation.
+  const ENGLISH_ORIGIN = /^(English|Scottish)/i;
 
   function param(name) {
     try { return new URLSearchParams(window.location.search).get(name) || ""; }
@@ -66,11 +75,13 @@
   const workId = param("w");
   if (!workId) return;
 
+  // Two states, not three. "Under review" is a third thing to keep
+  // accurate for no gain to the reader: what they need to know is
+  // whether a translator has read this work, and the answer is yes or
+  // it is no.
   const REVIEW = {
     reviewed: { label: "Reviewed", cls: "is-reviewed",
       note: "The translation committee has reviewed this work against the original." },
-    under: { label: "Under review", cls: "is-under",
-      note: "The translation committee is reviewing this work now." },
     needs: { label: "Needs review", cls: "is-needs",
       note: "The translation committee has not reviewed this work yet." },
   };
@@ -82,9 +93,25 @@
   // that decide whether to trust the page, so a reader who never opens
   // it has still been told. Hiding "translated by a machine" behind a
   // click would be a disclosure that discloses nothing.
-  const source = AI_TRANSLATED[corpus];
-  if (!source) return;
+  if (!(corpus in AI_TRANSLATED)) return;
 
+  // A collection with a fixed answer needs no request. A mixed one
+  // does: the creeds record where they came from, and that is what
+  // decides whether this work was translated at all.
+  const known = AI_TRANSLATED[corpus];
+  const resolve = known
+    ? Promise.resolve(known)
+    : fetch(`${BASE}/v1/works/${encodeURIComponent(workId)}/meta.json`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((m) => (m && !ENGLISH_ORIGIN.test(String(m.region || "")) ? "the original" : ""))
+      .catch(() => "");
+
+  resolve.then((source) => {
+    if (!source) return;
+    draw(source);
+  });
+
+  function draw(source) {
   mount.innerHTML =
     `<details class="fr-tt">`
     + `<summary class="fr-tt-head">`
@@ -156,4 +183,5 @@
         + `<span class="fr-tt-value">${history}</span></div>`;
     })
     .catch(() => { /* the notice in the body stands on its own */ });
+  }
 }());
