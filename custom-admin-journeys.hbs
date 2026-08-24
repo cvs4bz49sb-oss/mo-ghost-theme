@@ -14,14 +14,19 @@
      HubSpot: first trackable interaction, the route to conversion, and
      what they did in the seven days after paying.
 
-     This page READS ONLY. The tables are written by
-     website/workers/scripts/build-member-journeys.mjs, which is run
-     weekly by hand — the reconstruction needs all four systems and is
-     far too slow to do inside a request. If the page is empty, the
-     script has not been run for that window.
+     The tables are written by mo-admin: a 2-day rebuild on the 05:30 UTC
+     cron, plus POST /journeys/rebuild behind the Refresh button. The
+     reconstruction is too slow to do inside the request that renders
+     this page, so Refresh kicks off a background run and the page polls
+     /journeys/status until it lands.
 
-     Data: mo-admin worker, GET /journeys/summary, /journeys/list and
-     /journeys/member — all JWT+staff, gated on the "members" tool. --}}
+     It used to be a script run by hand on Ian's Mac. That is why this
+     page has a freshness line now: the hand-run job stopped running and
+     nothing here said so for five days.
+
+     Data: mo-admin worker, GET /journeys/summary, /journeys/list,
+     /journeys/status, POST /journeys/member and /journeys/rebuild — all
+     JWT+staff, gated on the "members" tool. --}}
 
 <main class="admin-page admin-workspace">
 
@@ -48,6 +53,20 @@
                   <button type="button" class="admin-period-option is-active" data-jr-days="30">30 days</button>
                   <button type="button" class="admin-period-option" data-jr-days="90">90 days</button>
                   <button type="button" class="admin-period-option" data-jr-days="365">1 year</button>
+                </div>
+
+                {{!-- How old the data is, and the button that fixes it.
+
+                      The page had neither until Aug 2026. The nightly
+                      rebuild failed five days running and this dashboard
+                      went on presenting Aug 19 as though it were today,
+                      because nothing on screen distinguished "no new
+                      members this week" from "nothing has run since
+                      Tuesday". A dashboard that cannot say how old it is
+                      will eventually lie. --}}
+                <div class="jr-freshness" data-jr-freshness hidden>
+                  <p class="jr-freshness-text" data-jr-freshness-text></p>
+                  <button type="button" class="btn btn-outline btn-sm jr-refresh" data-jr-refresh>Refresh</button>
                 </div>
 
                 {{!-- Exactly six. .admin-stats is a 6-column grid, so a
@@ -110,10 +129,14 @@
                   <p class="admin-table-count" data-jr-count></p>
                 </section>
 
+                {{!-- Say which of the two it is. "No journeys recorded"
+                      on its own is ambiguous between a genuinely quiet
+                      window and a rebuild that has not run, and reading
+                      the second as the first is the whole reason the
+                      freshness line above exists. --}}
                 <p class="admin-empty" data-jr-empty hidden>
-                  No journeys recorded for this window. Run
-                  <code>node website/workers/scripts/build-member-journeys.mjs --days 7</code>
-                  to populate it.
+                  No new members converted in this window. Use Refresh above if
+                  you expected some. The rebuild runs nightly at 05:30&nbsp;UTC.
                 </p>
 
               </div>

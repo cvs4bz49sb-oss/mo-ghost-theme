@@ -23040,6 +23040,51 @@ p.kpi-more .kpi-btn { width: 100%; justify-content: center; }
   max-width: 80ch;
 }
 
+/* How old the data is, and the Refresh that fixes it.
+
+   Sits directly under the range buttons, above the stat tiles, because
+   the age of the numbers qualifies every one of them. Muted while the
+   data is current; .is-stale promotes it to alert colouring once the
+   nightly rebuild has visibly not run. That contrast is the point — the
+   page previously looked identical whether it was an hour old or six
+   days old. */
+.jr-freshness {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 0 0 20px;
+  padding: 8px 0 0;
+}
+.jr-freshness-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.jr-freshness.is-stale .jr-freshness-text {
+  color: var(--color-alert-text);
+  font-weight: 500;
+}
+/* The button is deliberately quiet. It triggers a four-system walk, so
+   it should not read as the primary action on a page whose job is
+   reading. */
+.jr-refresh { flex: none; }
+.jr-refresh[disabled] {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  /* Stack rather than squeeze: at 375px the timestamp and the button
+     both fit on one line only by truncating the timestamp, which is the
+     half that carries the information. */
+  .jr-freshness { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+
 /* Sortable table headers. Kept as <th> with role/tabindex rather than a
    nested <button> so the header text stays the click target and the
    column does not grow a control that looks like an admin action. */

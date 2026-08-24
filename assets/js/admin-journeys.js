@@ -22,6 +22,10 @@
 
   const WORKER = (root.getAttribute("data-worker-url") || "").replace(/\/+$/, "");
 
+  const freshEl = root.querySelector("[data-jr-freshness]");
+  const freshTextEl = root.querySelector("[data-jr-freshness-text]");
+  const refreshBtn = root.querySelector("[data-jr-refresh]");
+
   const statusEl = root.querySelector("[data-jr-status]");
   const panelsEl = root.querySelector("[data-jr-panels]");
   const tableSection = root.querySelector("[data-jr-table-section]");
@@ -729,6 +733,106 @@
     });
   }
 
+  // ── freshness + refresh ───────────────────────────────────────────
+
+  /*
+   * The nightly rebuild lands at 05:30 UTC, so anything past 36 hours has
+   * missed at least one run and is stale by definition rather than by
+   * judgement. Below that it is just "current", stated plainly — a
+   * relative age on fresh data is noise.
+   */
+  const STALE_AFTER_MS = 36 * 60 * 60 * 1000;
+
+  function agePhrase(ms) {
+    const hours = Math.floor(ms / 3600000);
+    if (hours < 1) return "just now";
+    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+    const d = Math.floor(hours / 24);
+    return `${d} day${d === 1 ? "" : "s"} ago`;
+  }
+
+  function renderFreshness(builtAt) {
+    if (!freshEl || !freshTextEl) return;
+    freshEl.hidden = false;
+    if (!builtAt) {
+      freshEl.classList.add("is-stale");
+      freshTextEl.textContent = "No rebuild has ever been recorded. The figures below may be empty or out of date.";
+      return;
+    }
+    const age = Date.now() - new Date(builtAt).getTime();
+    const stale = !(age < STALE_AFTER_MS);
+    freshEl.classList.toggle("is-stale", stale);
+    freshTextEl.textContent = stale
+      ? `Last rebuilt ${agePhrase(age)} (${fmtDateTime(builtAt)}). The nightly rebuild has not run since — these numbers are out of date.`
+      : `Data as of ${fmtDateTime(builtAt)}, rebuilt ${agePhrase(age)}.`;
+  }
+
+  /*
+   * Refresh is fire-and-poll, not fire-and-wait.
+   *
+   * The rebuild walks Ghost, Stripe, Kit and HubSpot for every member who
+   * converted in the window; holding the connection open for that would
+   * time out in the browser long before the job finished. The worker
+   * returns 202 and does the work in waitUntil, so the button polls
+   * /journeys/status and reloads once the run lands.
+   */
+  let polling = null;
+
+  function setRefreshBusy(busy, label) {
+    if (!refreshBtn) return;
+    refreshBtn.disabled = busy;
+    refreshBtn.textContent = label || (busy ? "Rebuilding…" : "Refresh");
+  }
+
+  function pollRebuild(startedAt, tries) {
+    // 75 polls at 4s apart is a 5-minute ceiling.
+    if (tries > 75) {
+      setRefreshBusy(false);
+      setStatus("Rebuild is taking longer than expected. It may still finish — reload in a minute.");
+      return;
+    }
+    polling = setTimeout(() => {
+      api("/journeys/status").then((s) => {
+        if (s.running) { pollRebuild(startedAt, tries + 1); return; }
+        const st = s.status || {};
+        setRefreshBusy(false);
+        if (st.state === "failed") {
+          setStatus(`Rebuild failed: ${st.error || "unknown error"}`);
+          return;
+        }
+        // A rebuild that wrote nothing is a real answer, not a failure:
+        // it means nobody converted in the window.
+        load();
+      }).catch(() => {
+        setRefreshBusy(false);
+        setStatus("Lost track of the rebuild. Reload the page to see where it got to.");
+      });
+    }, 4000);
+  }
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", () => {
+      if (polling) clearTimeout(polling);
+      setRefreshBusy(true);
+      setStatus("Rebuilding from Ghost, Stripe, Kit and HubSpot…");
+      api("/journeys/rebuild", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ days: 2 }),
+      }).then(() => {
+        pollRebuild(Date.now(), 0);
+      }).catch((err) => {
+        // 409 is someone else's rebuild already in flight — that is a
+        // reason to wait for it, not to report a failure.
+        if (err.message === "HTTP 409") { pollRebuild(Date.now(), 0); return; }
+        setRefreshBusy(false);
+        setStatus(err.message === "HTTP 500"
+          ? "Rebuild could not start: mo-admin is missing a credential. Check its secrets."
+          : `Could not start the rebuild (${err.message}).`);
+      });
+    });
+  }
+
   // ── load ──────────────────────────────────────────────────────────
 
   function load() {
@@ -741,6 +845,9 @@
     ]).then(([summary, list]) => {
       const members = list.members || [];
       setStatus("");
+      // Before the empty check, deliberately. An empty window is exactly
+      // when the reader most needs to know whether the rebuild ran.
+      renderFreshness(summary.built_at);
       if (!members.length) {
         if (panelsEl) panelsEl.hidden = true;
         if (tableSection) tableSection.hidden = true;
