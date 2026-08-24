@@ -25,6 +25,11 @@ const SHOWS = {
   "christians-reading-classics": "2612793",
 };
 const TOP_N = 5;
+// Episodes kept per show in podcast-totals.json for the KPI board's
+// per-episode chart. 60 covers two months of the Daily Liturgy's daily
+// cadence and the whole of a weekly show's recent run; the board never asks
+// for more than 60 at once.
+const RECENT_N = 60;
 const TOP_OUT = fileURLToPath(new URL("../assets/data/top-episodes.json", import.meta.url));
 const SCHED_OUT = fileURLToPath(new URL("../assets/data/scheduled-episodes.json", import.meta.url));
 // Lifetime play totals per show, for the KPI dashboard. Same reason as the
@@ -138,10 +143,41 @@ async function fetchShow(slug, podcastId) {
   // Every released episode, not just the top N: the KPI tile reports
   // lifetime plays across the whole catalogue.
   const all = (Array.isArray(list) ? list : []).filter((ep) => isReleasable(ep, now));
+  const byDate = [...all]
+    .filter((ep) => ep.published_at)
+    .sort((a, b) => String(a.published_at).localeCompare(String(b.published_at)));
+
+  // Per-episode plays, oldest first, for the KPI board's "plays per episode"
+  // chart. Buzzsprout reports lifetime plays per episode and nothing per day,
+  // so this is the only per-episode series that exists — and it was missing
+  // from podcast-totals.json entirely, which is why that chart has been blank.
+  const recent = byDate.slice(-RECENT_N).map((ep) => ({
+    date: String(ep.published_at).slice(0, 10),
+    title: ep.title || "",
+    plays: ep.total_plays || 0,
+  }));
+
+  // Average plays for the episodes published in each month. A fallback for
+  // shows with too few episodes to make the per-episode chart worth drawing,
+  // and the long view for the ones that publish daily.
+  const months = new Map();
+  for (const ep of byDate) {
+    const m = String(ep.published_at).slice(0, 7);
+    const b = months.get(m) || { month: m, plays: 0, episodes: 0 };
+    b.plays += ep.total_plays || 0;
+    b.episodes++;
+    months.set(m, b);
+  }
+  const perEpisode = [...months.values()]
+    .sort((a, b) => a.month.localeCompare(b.month))
+    .map((b) => ({ month: b.month, avg: Math.round(b.plays / b.episodes), episodes: b.episodes }));
+
   const totals = {
     episodes: all.length,
     plays: all.reduce((t, ep) => t + (ep.total_plays || 0), 0),
-    earliest: all.map((ep) => ep.published_at || "").filter(Boolean).sort()[0] || null,
+    earliest: byDate.length ? String(byDate[0].published_at).slice(0, 10) : null,
+    recent,
+    per_episode: perEpisode,
   };
   return { top, scheduled: nextScheduled(list, now, slug, podcastId), totals };
 }

@@ -60,7 +60,7 @@ jobs:
           git config user.name "mo-bot"
           git config user.email "bot@users.noreply.github.com"
 
-          if git diff --quiet -- assets/data/top-episodes.json assets/data/scheduled-episodes.json; then
+          if git diff --quiet -- assets/data/top-episodes.json assets/data/scheduled-episodes.json assets/data/podcast-totals.json; then
             echo "No change to podcast data."
             exit 0
           fi
@@ -69,7 +69,7 @@ jobs:
           # out with them in the working tree risks a conflict once the data
           # branch has diverged from main.
           tmp="$(mktemp -d)"
-          cp assets/data/top-episodes.json assets/data/scheduled-episodes.json "$tmp/"
+          cp assets/data/top-episodes.json assets/data/scheduled-episodes.json assets/data/podcast-totals.json "$tmp/"
 
           # Discard everything else the build touched. The previous version
           # skipped this and its retry path died on "cannot pull with rebase:
@@ -83,14 +83,14 @@ jobs:
             git checkout -B "$DATA_BRANCH"
           fi
 
-          cp "$tmp/top-episodes.json" "$tmp/scheduled-episodes.json" assets/data/
+          cp "$tmp/top-episodes.json" "$tmp/scheduled-episodes.json" "$tmp/podcast-totals.json" assets/data/
 
-          if git diff --quiet -- assets/data/top-episodes.json assets/data/scheduled-episodes.json; then
+          if git diff --quiet -- assets/data/top-episodes.json assets/data/scheduled-episodes.json assets/data/podcast-totals.json; then
             echo "Data branch already current."
             exit 0
           fi
 
-          git add assets/data/top-episodes.json assets/data/scheduled-episodes.json
+          git add assets/data/top-episodes.json assets/data/scheduled-episodes.json assets/data/podcast-totals.json
           git commit -m "Update podcast data (Most Listened + scheduled) [skip ci]"
 
           # Nothing else writes this branch and the concurrency group keeps
