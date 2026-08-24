@@ -1483,30 +1483,36 @@
 
   function archaicIn(text) {
     if (!text || !window.FaithModernize) return false;
-    const t = String(text).slice(0, 120000);
-    return window.FaithModernize.hasArchaicLanguage(t) || EARLY_MODERN.test(t);
+    return window.FaithModernize.hasArchaicLanguage(text) || EARLY_MODERN.test(text);
   }
 
-  // Ask the text, not the screen.
+  // Ask the text, not the screen, and ask all of it.
   //
   // This used to read contentEl.textContent, which on arrival is one
   // open section and a row of closed summaries: Ames rendered 567
-  // characters, none of them archaic, and the toggle stayed hidden
-  // over a book that says hath, doth, thee, thou and saith throughout.
-  // The pages are already in memory, so the question can be put to the
-  // whole work instead of to the part of it that happens to be
-  // expanded.
+  // characters, none of them archaic, over a book that says hath,
+  // doth, thee, thou and saith throughout.
+  //
+  // It then read the first 120,000 characters, which is its own
+  // version of the same mistake. Patrologia Orientalis prints the
+  // Greek and the French first and the English after: in the Acts of
+  // the Persian Martyrs the first "Thou" is at character 182,947, so
+  // a work that is archaic for half its length answered no.
+  //
+  // There is no reason to sample. This is one regular expression over
+  // text already in memory, it runs once when the work lands, and the
+  // pages are tested one at a time so nothing large is built to throw
+  // away.
   function hasArchaic(root) {
     if (!window.FaithModernize) return false;
-    let sample = "";
+    let found = false;
     pageStore.forEach((pg) => {
-      if (sample.length > 120000) return;
-      if (pg && pg.en) sample += ` ${pg.en}`;
+      if (found || !pg) return;
+      if (pg.en && archaicIn(pg.en)) found = true;
     });
-    if (sample && archaicIn(sample)) return true;
+    if (found) return true;
     // The extract collections keep their text in the rendered rows
-    // rather than in pageStore, so the DOM is still the source for
-    // those, and it is still worth asking about what is on screen.
+    // rather than in pageStore, so the DOM is the source for those.
     return archaicIn(root ? root.textContent || "" : "");
   }
 
