@@ -8106,7 +8106,7 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 }
 .faith-tp-work-coll { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
 .faith-tp-more { margin: 16px 0 0; }
-.faith-tp-act { margin: 26px 0 0; }
+.faith-tp-act { margin: 26px 0 30px; }
 .lp-beta-act {
   display: flex;
   align-items: center;

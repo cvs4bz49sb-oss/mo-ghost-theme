@@ -49,17 +49,32 @@
   // outright rather than rewritten, because a poisoned record should
   // not be able to aim the pane at someone else's server and a rewrite
   // would quietly launder it into a request we make.
-  const SCAN_SOURCES = [
-    "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com",
-  ];
+  // Three hosts, because three projects made these scans. Each is
+  // served through our own worker, which fetches a page from the
+  // source the first time it is asked for and keeps it. The path we
+  // serve it at differs per collection, so the mapping is explicit
+  // rather than a blanket rewrite.
+  const SCAN_SOURCES = {
+    // The Latin Library, already under the path we serve.
+    "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com": (p) => p,
+    // Migne's columns, Patrologia Graeca.
+    "https://xmw4yslyv6oq3m7i.public.blob.vercel-storage.com": (p) => `/pg/scan${p}`,
+    // The facsimile strip, Patrologia Orientalis.
+    "https://fqzfe6cpzqk0a5qv.public.blob.vercel-storage.com": (p) => `/po/scan${p}`,
+  };
 
   function rebaseOnLibrary(url) {
     let u;
     try { u = new URL(url, BASE); } catch (_) { return ""; }
     if (u.protocol !== "https:") return "";
     const here = new URL(BASE).origin;
-    if (u.origin !== here && SCAN_SOURCES.indexOf(u.origin) < 0) return "";
-    return `${BASE}${u.pathname}`;
+    if (u.origin === here) return `${BASE}${u.pathname}`;
+    const map = SCAN_SOURCES[u.origin];
+    // Anything else is refused rather than rewritten. Silently
+    // rewriting a poisoned record would launder it into a request we
+    // make on the reader's behalf.
+    if (!map) return "";
+    return `${BASE}${map(u.pathname)}`;
   }
 
   // ── DOM refs ──────────────────────────────────────────────────
@@ -1282,7 +1297,9 @@
       strip.forEach((seg) => {
         const im = document.createElement("img");
         im.className = "faith-facs-seg";
-        im.src = seg.url;
+        const segUrl = rebaseOnLibrary(seg.url);
+        if (!segUrl) return;
+        im.src = segUrl;
         im.alt = "";
         im.decoding = "async";
         im.loading = "lazy";
@@ -1361,7 +1378,8 @@
         return;
       }
       if (facs.mode === "page") {
-        const url = block.getAttribute("data-scan");
+        const raw = block.getAttribute("data-scan");
+        const url = raw ? rebaseOnLibrary(raw) : "";
         if (!url || (url === facs.shown && !force)) return;
         facs.shown = url;
         facs.img.src = url;
