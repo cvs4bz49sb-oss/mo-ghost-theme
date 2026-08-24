@@ -54,6 +54,24 @@
             {{!-- Totals --}}
             <div class="admin-tfr-totals" data-tfr-totals hidden></div>
 
+            {{!-- Reader reports lead. Everything else on this page is a
+                  measurement; this is the only panel where a person has
+                  asked for something and is waiting on an answer. --}}
+            <section class="admin-tfr-section" data-tfr-issues
+                     data-admin-url="{{@custom.admin_worker_url}}">
+              <h2 class="admin-tfr-section-title"><em>Reported issues</em></h2>
+              <p class="admin-tfr-section-note">Problems readers have reported from inside a work: a bad translation, broken formatting, a page that will not load.</p>
+              <div class="tfr-issue-bar">
+                <div class="tfr-issue-tabs" data-issues-tabs role="group" aria-label="Which reports">
+                  <button type="button" class="tfr-issue-tab is-current" data-issue-status="open">Open</button>
+                  <button type="button" class="tfr-issue-tab" data-issue-status="done">Completed</button>
+                </div>
+                <p class="admin-tfr-status" data-issues-status role="status" aria-live="polite"></p>
+              </div>
+              <div data-issues-list></div>
+              <div class="tfr-issue-pager" data-issues-pager></div>
+            </section>
+
             {{!-- Zero-result searches lead. This is the one panel that
                   generates work: it is a standing list of what the library
                   is missing, written by the readers. --}}
@@ -104,3 +122,4 @@
 
 <script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-tfr.js"}}"></script>
+<script src="{{asset "js/admin-tfr-issues.js"}}"></script>

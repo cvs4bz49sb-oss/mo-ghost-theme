@@ -137,9 +137,14 @@
             aria-label="Contents">
       <span aria-hidden="true">&#9776;</span>
     </button>
+    {{!-- A pill rather than a circle: "Aa" alone is a guess unless you
+          already know what it opens, and this is the control the whole
+          set of reading tools hangs off. The rule between the two is
+          drawn in CSS so it cannot be read aloud as punctuation. --}}
     <button type="button" class="faith-dock-btn faith-dock-toggle" data-faith-dock-toggle
-            aria-expanded="false" aria-controls="faith-dock-panel" aria-label="Reading tools">
+            aria-expanded="false" aria-controls="faith-dock-panel" aria-label="Text tools">
       <span class="faith-dock-aa" aria-hidden="true">Aa</span>
+      <span class="faith-dock-toggle-label" aria-hidden="true">Text Tools</span>
     </button>
   <div class="faith-reading-controls faith-toolbar" id="faith-dock-panel" data-faith-controls hidden>
     <button type="button" class="faith-tool" data-faith-expand-toggle aria-pressed="false">
@@ -181,6 +186,11 @@
 <script src="{{asset "js/faith-text.js"}}"></script>
 <script src="{{asset "js/faith-scripture-ref.js"}}"></script>
 <script src="{{asset "js/faith-reader.js"}}"></script>
+{{!-- "Report An Issue" in the text tools: a reader who has found a bad
+     translation or a broken page is already looking at it, so the form
+     comes to them and carries the work with it. Appended to the same
+     controls the reader's own tools use, so it loads after them. --}}
+<script src="{{asset "js/faith-report-issue.js"}}"></script>
 {{!-- The citation resolver exposes window.MOResolve here rather than
      any UI: an arriving constellation addresses Patrologia Graeca by
      volume and column, and the resolver is what turns that into the

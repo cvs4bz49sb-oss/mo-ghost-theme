@@ -6452,11 +6452,30 @@ mark.faith-find-hit.is-current {
 }
 
 /* The tools button is the one that opens something, so it carries the
-   weight; the other two are quiet until wanted. */
+   weight; the other two are quiet until wanted.
+
+   It is also the only one that says what it does, so it is a pill
+   rather than a circle: width grows to its label while the height
+   stays on the same 46px line as its neighbours. */
 .faith-dock-toggle {
   background: var(--color-dark);
   border-color: var(--color-dark);
   color: var(--color-white);
+  width: auto;
+  min-width: 46px;
+  border-radius: 23px;
+  gap: 9px;
+  padding: 0 16px 0 14px;
+}
+.faith-dock-toggle-label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  /* The divider. A drawn rule rather than a "|" character, which a
+     screen reader would otherwise have to make sense of. */
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.32);
 }
 .faith-dock-toggle:hover {
   background: var(--color-secondary);
@@ -6548,6 +6567,10 @@ mark.faith-find-hit.is-current {
     gap: 7px;
   }
   .faith-dock-btn { width: 44px; height: 44px; }
+  /* The tools pill keeps its label on a phone. Without this the
+     narrow-screen rule above wins on source order alone and squeezes
+     it back into a 44px circle with the words spilling out of it. */
+  .faith-dock-toggle { width: auto; border-radius: 22px; padding: 0 14px 0 12px; }
   .faith-dock .faith-reading-controls {
     width: calc(100vw - 24px);
     max-height: 62vh;
@@ -7499,3 +7522,266 @@ body.faith-toc-open .faith-dock { display: none; }
 @media (max-width: 860px) {
   .bcolls { grid-template-columns: 1fr; gap: 28px; }
 }
+
+/* ── Report an issue ─────────────────────────────────────────────
+   A dialog in the middle of the screen, over the work rather than
+   away from it: the reader is reporting the thing they are looking
+   at, and should not lose their place to say so. */
+.fr-report-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(45, 41, 39, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.fr-report {
+  background: var(--color-page);
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(45, 41, 39, 0.28);
+  width: 100%;
+  max-width: 520px;
+  /* Taller than a short phone in landscape, so it scrolls inside
+     itself rather than off the screen. */
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 22px 24px 24px;
+}
+.fr-report-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fr-report-title {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: var(--tfr-display-s, 24px);
+  color: var(--color-dark);
+  margin: 0;
+}
+.fr-report-close {
+  background: none;
+  border: 0;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0 2px;
+}
+.fr-report-close:hover { color: var(--color-dark); }
+.fr-report-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 6px 0 16px;
+}
+.fr-report-form { display: block; }
+.fr-report-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.fr-report-field { display: block; margin: 0 0 12px; }
+.fr-report-field > span {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  margin: 0 0 5px;
+}
+.fr-report-field input,
+.fr-report-field select,
+.fr-report-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-dark);
+  background: var(--color-white, #fff);
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  padding: 9px 10px;
+}
+.fr-report-field textarea { resize: vertical; min-height: 96px; }
+.fr-report-field input:focus,
+.fr-report-field select:focus,
+.fr-report-field textarea:focus {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 1px;
+  border-color: var(--color-secondary);
+}
+.fr-report-turnstile { margin: 4px 0 12px; }
+.fr-report-msg {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+}
+.fr-report-msg.is-bad { color: var(--color-secondary); }
+.fr-report-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  align-items: center;
+}
+.fr-report-cancel {
+  font-family: var(--font-body);
+  font-size: 15px;
+  background: none;
+  border: 0;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 10px 6px;
+}
+.fr-report-cancel:hover { color: var(--color-dark); }
+.fr-report-send {
+  font-family: var(--font-body);
+  font-size: 15px;
+  background: var(--color-dark);
+  color: var(--color-white, #fff);
+  border: 1px solid var(--color-dark);
+  border-radius: 4px;
+  padding: 10px 18px;
+  cursor: pointer;
+}
+.fr-report-send:hover { background: var(--color-secondary); border-color: var(--color-secondary); }
+.fr-report-send[disabled] { opacity: 0.55; cursor: default; }
+.fr-report-done { text-align: left; }
+.fr-report-done p {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 8px 0 18px;
+}
+@media (max-width: 520px) {
+  .fr-report-row { grid-template-columns: 1fr; gap: 0; }
+  .fr-report { padding: 18px 16px 20px; }
+}
+
+/* ── Reported issues, on the Faith Received board ────────────────
+   An inbox, so each report is a card with everything needed to act on
+   it: who, what, where, and the two things that can be done. */
+.tfr-issue-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+.tfr-issue-tabs { display: flex; gap: 6px; }
+.tfr-issue-tab {
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: none;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  color: var(--color-muted);
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.tfr-issue-tab.is-current {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-white, #fff);
+}
+.tfr-issue-list { list-style: none; margin: 0; padding: 0; }
+.tfr-issue {
+  border: 1px solid var(--color-card-border);
+  border-radius: 5px;
+  padding: 14px 16px;
+  margin: 0 0 10px;
+  background: var(--color-page);
+}
+.tfr-issue-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tfr-issue-type {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+}
+.tfr-issue-when {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.tfr-issue-work {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 18px;
+  color: var(--color-dark);
+  margin: 7px 0 3px;
+}
+.tfr-issue-where { margin: 0 0 3px; }
+.tfr-issue-link,
+.tfr-issue-who a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-primary-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.tfr-issue-link:hover,
+.tfr-issue-who a:hover { color: var(--color-secondary); }
+.tfr-issue-who {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0 0 9px;
+}
+.tfr-issue-comment {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  white-space: pre-wrap;
+  border-left: 2px solid var(--color-rule);
+  padding-left: 12px;
+  margin: 0 0 12px;
+}
+.tfr-issue-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.tfr-issue-btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: none;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  color: var(--color-dark);
+  padding: 7px 13px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.tfr-issue-btn:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+.tfr-issue-btn[disabled] { opacity: 0.5; cursor: default; }
+.tfr-issue-pager { display: flex; gap: 5px; flex-wrap: wrap; margin: 12px 0 0; }
+.tfr-issue-page {
+  font-family: var(--font-body);
+  font-size: 13px;
+  min-width: 32px;
+  background: none;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  color: var(--color-muted);
+  padding: 6px 9px;
+  cursor: pointer;
+}
+.tfr-issue-page.is-current {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-white, #fff);
+}
+

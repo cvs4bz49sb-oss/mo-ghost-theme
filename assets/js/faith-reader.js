@@ -2629,6 +2629,11 @@
     // Update the page title.
     if (m.title) {
       document.title = `${m.title} — The Faith Received — Mere Orthodoxy`;
+      // Left where anything else on the page can read the work's own
+      // name without having to unpick it from the document title, which
+      // carries two suffixes and an em dash the work may also contain.
+      // The issue-report form prefills from this.
+      document.documentElement.setAttribute("data-fr-work-title", m.title);
     }
   }
 
