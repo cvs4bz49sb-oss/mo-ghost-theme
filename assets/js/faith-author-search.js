@@ -19,7 +19,12 @@
   const root = document.querySelector("[data-faith-author]");
   if (!root) return;
 
-  const LIBRARY = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
+  // From the page's own meta, like faith-author.js and
+  // faith-author-scripture.js. Hardcoding it here meant this panel and
+  // the fingerprint that now drives it could be pointed at two
+  // different workers by one edit to the template.
+  const LIBRARY = (document.querySelector('meta[name="tfr-library-base"]') || {}).content
+    || "https://mo-tfr-library.mo-podcast-feed.workers.dev";
   const INDEX = `${LIBRARY}/v1/index`;
 
   let booksPromise = null;
@@ -79,8 +84,16 @@
     return { book: key, chapter: parseInt(m[2], 10), verse: m[3] ? parseInt(m[3], 10) : 0 };
   }
 
+  // Title case, with the same two words left alone that
+  // faith-author-scripture.js leaves alone: it is the Song of Solomon
+  // and not the Song Of Solomon. The fingerprint above hands this panel
+  // the reference it printed, so a reader who presses "Song of Solomon
+  // 2:1" should not be answered under a different spelling of it.
+  const LOWER = new Set(["of", "the"]);
   function title(book) {
-    return book.replace(/\b[a-z]/g, (c) => c.toUpperCase());
+    return String(book || "").split(" ").map((w, i) =>
+      (i && LOWER.has(w) ? w : w.replace(/^[a-z]/, (c) => c.toUpperCase()))
+    ).join(" ");
   }
 
   // ── Mounted after faith-author.js has drawn the shelves ────────
@@ -100,6 +113,13 @@
       ` aria-label="Search this author">` +
       `<button type="button" class="fa-search-btn" data-fa-go>Find</button></div>` +
       `<p class="fa-search-note" data-fa-note>Every place this author cites a passage, from the generated index.</p>` +
+      // A one-line summary, said out loud. The search can be started
+      // from the fingerprint above rather than from this field — the
+      // page scrolls and a count appears — and without this a screen
+      // reader is told none of it and the press reads as having done
+      // nothing at all. The results themselves are not the live region:
+      // eighty-nine works with excerpts would be read out entire.
+      `<p class="fa-search-status visually-hidden" role="status" aria-live="polite"></p>` +
       `<div class="fa-search-out" data-fa-out></div>`;
 
     const shelves = root.querySelector(".fa-shelf");
@@ -110,9 +130,30 @@
     const out = panel.querySelector("[data-fa-out]");
     const byKey = new Map(works.map((w) => [`${w.corpus}:${w.id}`, w]));
 
-    function say(html) { out.innerHTML = html; }
+    const status = panel.querySelector(".fa-search-status");
+
+    // Whatever is said on screen, said once to a screen reader: the
+    // first line of the result — the count, or the message explaining
+    // why there is none — and nothing of the list under it.
+    function say(html) {
+      out.innerHTML = html;
+      if (!status) return;
+      const head = out.querySelector(".fa-search-count, .fa-search-msg");
+      status.textContent = head ? head.textContent : "";
+    }
 
     async function run() {
+      // A keyword crawl reads every work on the shelf and on a large
+      // one that is minutes, not seconds. Left running it finishes long
+      // after this answer is on screen and writes its own over the top:
+      // press "Romans 5:5" a second after starting one on Augustine's
+      // 268 works and the panel shows the 89 works for forty seconds,
+      // then silently becomes "No work under this name uses …" under a
+      // field that still reads Romans 5:5. The reader did nothing to
+      // ask for that, so the crawl is stopped when a reference is
+      // asked for. Cancelling calls `done` at once, which is why this
+      // happens before anything is drawn rather than after.
+      stopKeyword();
       const raw = input.value.trim();
       if (!raw) { say(""); return; }
       const index = await books();
@@ -168,11 +209,11 @@
           const vlinks = h.verses.length
             ? `<span class="fa-search-verses"><span class="faith-verse-label">Verses</span>${
               h.verses.map(([v, vloc]) =>
-                `<a class="faith-verse-link" href="${escapeHtml(readerUrl(h.w, vloc == null ? h.loc : vloc, `${label}:${v}`))}">${v}</a>`).join("")}</span>`
+                `<a class="faith-verse-link" href="${escapeHtml(readerUrl(h.w, vloc == null ? h.loc : vloc, `${label}:${v}`))}">${escapeHtml(v)}</a>`).join("")}</span>`
             : "";
           return `<li class="fa-search-hit">` +
             `<a class="fa-search-title" href="${escapeHtml(url)}">${escapeHtml(h.w.title || h.w.id)}</a>${ 
-            h.times > 1 ? `<span class="fa-search-times">cited ${h.times} times</span>` : "" 
+            h.times > 1 ? `<span class="fa-search-times">cited ${escapeHtml(h.times)} times</span>` : "" 
             }${h.excerpt ? `<span class="fa-search-excerpt">${escapeHtml(h.excerpt)}</span>` : "" 
             }${vlinks}</li>`;
         }).join("")}</ol>`);
@@ -186,6 +227,23 @@
     const mode = panel.querySelector("[data-fa-mode]");
     const note = panel.querySelector("[data-fa-note]");
     let running = null;
+    // True only while `stopKeyword` is putting a crawl down. `cancel()`
+    // fires `done` synchronously, and the reference search that
+    // follows waits on a fetch, so without this the panel shows "No
+    // work under this name uses … in the 7 read before stopping" for
+    // the second before the real answer lands. The Stop button cancels
+    // directly and is deliberately left to say it: there the reader
+    // asked for the stop and nothing else is coming.
+    let stopping = false;
+
+    // Hoisted, so `run` above can call it: both entries into the panel
+    // have to be able to put a crawl down, not just the keyword one.
+    function stopKeyword() {
+      if (!running) return;
+      stopping = true;
+      try { running.cancel(); } finally { stopping = false; }
+      running = null;
+    }
 
     function setMode() {
       const kw = mode.value === "kw";
@@ -202,7 +260,7 @@
 
     function runKeyword() {
       const term = input.value.trim();
-      if (running) { running.cancel(); running = null; }
+      stopKeyword();
       if (term.length < 2) {
         say(`<p class="fa-search-msg">Two letters at least.</p>`);
         return;
@@ -226,7 +284,7 @@
         },
         done({ results, searched, cancelled, short }) {
           running = null;
-          if (short) return;
+          if (stopping || short) return;
           if (!results.length) {
             say(`<p class="fa-search-msg">No work under this name uses "${started}"${
               cancelled ? ` in the ${searched} read before stopping` : ""}.</p>`);
@@ -255,7 +313,47 @@
 
     panel.querySelector("[data-fa-go]").addEventListener("click", go);
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+
+    // The way in from the fingerprint above. A verse there is a
+    // question this panel already answers, so it asks it here rather
+    // than sending the reader to a chapter listing on another page and
+    // losing the author he was reading about.
+    //
+    // The field is filled and left filled on purpose: what got
+    // searched should be visible and editable, so "Romans 5:5" can
+    // become "Romans 5" without retyping it.
+    find = (ref) => {
+      mode.value = "ref";
+      setMode();
+      input.value = ref;
+      // Focus follows the scroll. Without this the caret stays on the
+      // verse button now well off the top of the screen, so the next
+      // Tab goes to the verse beside it rather than into the results,
+      // and a screen reader is left reading a part of the page the
+      // sighted reader has already left. Focusing the field also puts
+      // the reference under the cursor for editing, which is why it was
+      // filled in and left filled, and makes Shift+Tab the way back up
+      // to the fingerprint.
+      //
+      // Before the scroll, not after: a focus() call aborts a smooth
+      // scroll already in flight, even with preventScroll set, and the
+      // page then does not move at all.
+      try { input.focus({ preventScroll: true }); } catch (_) { /* older engines scroll; the scroll below corrects it */ }
+      // Scrolled to the panel, not to the results, because the results
+      // are a moment away and an empty jump reads as a broken link.
+      panel.scrollIntoView({
+        block: "start",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto" : "smooth",
+      });
+      run();
+    };
   }
+
+  // Set by mount. Until the shelf has been drawn there is nothing to
+  // search, and the fingerprint checks for this before it offers a
+  // verse as a button.
+  let find = null;
 
   // Same shape the indexes build, so a link from here lands where a
   // link from the scripture page would.
@@ -276,5 +374,20 @@
     return (c ? url : "/the-faith-received/") + hash;
   }
 
-  window.MOAuthorSearch = { mount };
+  window.MOAuthorSearch = {
+    mount,
+    // Wrapped rather than exported directly, because `find` is not a
+    // function until mount has run and the fingerprint may be drawn
+    // first.
+    // A shorthand method, not a named function expression: the name is
+    // not bound inside the body, so `find` here is the module-level
+    // binding below and not a self-reference.
+    find(ref) { if (find) find(ref); },
+    // Asked before the fingerprint draws a verse as a button. The
+    // wrapper above exists whether or not the panel mounted, so it
+    // cannot itself be the test: a shelf with nothing on it never
+    // mounts, and a button that quietly does nothing is worse than a
+    // figure set as plain type.
+    ready: () => !!find,
+  };
 }());

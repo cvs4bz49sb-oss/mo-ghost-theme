@@ -71,12 +71,18 @@
     ? window.moAssetUrl("/assets/data/faith-received/tfr-authors.json")
     : "/assets/data/faith-received/tfr-authors.json";
 
+  // The scripture fingerprint is fetched here rather than after the
+  // page has drawn, so it can be part of the first paint instead of
+  // arriving late and pushing the shelves down. It is two kilobytes
+  // against catalogues that run to megabytes, so it never decides how
+  // long this wait is.
   Promise.all([
     fetch(`${BLOB}/v1/authors.json`).then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
     Promise.all(corpora.map((c) =>
       window.MOCorpora.load(c.id).catch(() => []))),
     fetch(oursUrl).then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
-  ]).then(([theirs, sets, ours]) => {
+    window.MOAuthorScripture ? window.MOAuthorScripture.load(key) : Promise.resolve(null),
+  ]).then(([theirs, sets, ours, fingerprint]) => {
     const authors = { ...ours, ...theirs };
     // ── The author's own entry, matched folded ─────────────────
     let entry = null;
@@ -116,7 +122,7 @@
       return;
     }
 
-    render(entry || {}, displayName, byCorpus, all);
+    render(entry || {}, displayName, byCorpus, all, fingerprint);
   });
 
   function century(w) {
@@ -184,7 +190,7 @@
     return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
   }
 
-  function render(entry, name, byCorpus, total) {
+  function render(entry, name, byCorpus, total, fingerprint) {
     const period = entry.dates || derivedPeriod(byCorpus);
     const tradition = entry.tradition || derivedTradition(byCorpus);
     const bio = houseStyle(entry.bio || "");
@@ -247,6 +253,15 @@
     // matching across every collection.
     if (window.MOAuthorSearch) {
       window.MOAuthorSearch.mount(byCorpus.reduce((all, g) => all.concat(g.works), []));
+    }
+
+    // How they read, above how to look. Mounted after the search panel
+    // so it can insert itself above it, and handed the shelf total so
+    // it can say when it is describing only part of the shelf. The data
+    // is already in hand from the load above, so this draws in the same
+    // frame as the shelves and nothing shifts.
+    if (window.MOAuthorScripture) {
+      window.MOAuthorScripture.mount(fingerprint, root, total);
     }
   }
 })();

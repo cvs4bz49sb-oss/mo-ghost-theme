@@ -5865,6 +5865,237 @@ mark.faith-find-hit.is-current {
   margin: 0 0 8px;
 }
 
+/* ── Scripture fingerprint ────────────────────────────────────────
+   What the author quoted, drawn between the life and the shelf. Set
+   as a page of a book would be: a rule, a heading, a paragraph that
+   states the finding, then the figures. No cards, no tiles, no chip
+   soup — the charts are the only ink that is not type. */
+.fa-fp {
+  margin: 40px 0 44px;
+  padding-top: 26px;
+  border-top: 1px solid var(--color-card-border);
+}
+.fa-fp-head {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--color-primary-text);
+  margin: 0 0 14px;
+}
+.fa-fp-lede {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--color-dark);
+  max-width: 68ch;
+  margin: 0 0 30px;
+}
+.fa-fp-lede b { font-weight: 600; }
+
+/* 420px, not 280px: the split is only worth having when each column is
+   wide enough to run the verses two abreast (2 x 196 + 8). At 280 the
+   panel went to two columns somewhere around 700px, where the verses
+   fell to a single file twelve rows deep beside a books list of eight,
+   and the left half of the panel was empty for six hundred pixels. */
+.fa-fp-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 40px 56px;
+}
+.fa-fp-sub {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--color-muted);
+  border-bottom: 1px solid var(--color-card-border);
+  padding-bottom: 8px;
+  margin: 0 0 4px;
+}
+.fa-fp-note, .fa-fp-foot, .fa-fp-source {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 10px 0 0;
+}
+.fa-fp-source { margin-top: 26px; }
+
+/* The books. A three-part row — name, bar, figure — on a grid so the
+   figures line up down the right whatever the name is. The bar is
+   scaled to this author's own top book, which is said in the JS. */
+/* Same top margin as `.fa-fp-verses`, so the two lists start on the
+   same line under their notes rather than sixty pixels apart. */
+.fa-fp-books { list-style: none; margin: 14px 0 0; padding: 0; }
+.fa-fp-book {
+  display: grid;
+  grid-template-columns: minmax(6.5em, 9em) 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--color-card-border);
+}
+/* `display: grid` outranks the UA rule behind the `hidden` attribute,
+   so without this the rows past the eighth are drawn anyway and the
+   "Show 12 more books" control below them does nothing when pressed.
+   The verses escape it only because their `li` keeps its default
+   display. Any row here that gets a `display` of its own needs the
+   same guard. */
+.fa-fp-book[hidden] { display: none; }
+.fa-fp-book-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.25;
+  color: var(--color-dark);
+}
+/* No track behind the bar. A track is a progress metaphor — so much of
+   a maximum — and there is no maximum here; drawn the full width of the
+   column in the same beige as the row rule, it gave every row two
+   horizontal lines and made a bibliography look like a settings screen.
+   The bars share a left edge and the figures at the right do the
+   precise work, which is how a chart sets on a printed page.
+
+   The old `opacity: 0.55` was on the track and so came down onto the
+   fill inside it, which is why the orange rendered as a wash rather
+   than as ink. */
+.fa-fp-bar {
+  display: block;
+  height: 6px;
+}
+/* --color-primary-text, not --color-primary: eight bars several hundred
+   pixels long is a large field of the accent orange, and the darker
+   brick is already the ink of the eyebrows above them. */
+.fa-fp-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary-text);
+  /* The bar is the same fact as the figure beside it, so it is not
+     announced twice. */
+}
+.fa-fp-book-n {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--color-muted);
+  min-width: 4.5ch;
+  text-align: right;
+}
+
+/* The verses. Each is a control that runs the search below on that
+   reference, so it is sized and styled as one. */
+/* A column grid rather than a wrapped row. Twelve controls of twelve
+   different widths wrap into a ragged staircase — four, then three,
+   then three, then two — which is a tag cloud, and it sat beside a
+   ruled list of eight books that is perfectly square. On a grid the
+   references start on the same left edge and the figures line up down
+   the right, the same rhythm as the books, and the block reads as an
+   index rather than as chip soup. */
+.fa-fp-verses {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 8px;
+}
+/* 3px is the radius every other control in this stylesheet carries
+   (the search field, the search button, the reader's find buttons).
+   At 0 these read as tags; at 3 they read as the same kind of thing
+   as the search box they drive. */
+.fa-fp-verse {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  padding: 6px 14px;
+  background: var(--color-page);
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.fa-fp-verse-ref {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.2;
+  color: var(--color-dark);
+}
+.fa-fp-verse-n {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+/* Where there is no search panel to drive, the verses are set as plain
+   type instead: a box with a border and a hover is a promise, and the
+   one thing worse than not offering the search is offering it and
+   doing nothing when it is pressed. */
+.fa-fp-verse-static {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  /* Full width like the control it stands in for, so the figures still
+     line up down the right of the grid track. */
+  width: 100%;
+  padding: 4px 0;
+}
+.fa-fp-verse:hover { border-color: var(--color-primary); }
+.fa-fp-verse:hover .fa-fp-verse-ref { color: var(--color-primary-text); }
+.fa-fp-verse:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* The tap target stays 44px, but the rule that marks this as a control
+   has to sit on the words. As a border on the button it fell fourteen
+   pixels clear of the text — the button is taller than its label — and
+   under the books it landed a second beige rule directly beneath the
+   list's own closing one, so it read as a stray line rather than as
+   something to press. */
+.fa-fp-more {
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--color-primary-text);
+  background: none;
+  border: 0;
+  padding: 12px 0;
+  margin-top: 2px;
+  min-height: 44px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--color-card-border);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s ease;
+}
+.fa-fp-more:hover { text-decoration-color: var(--color-primary); }
+.fa-fp-more:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+@media (max-width: 700px) {
+  .fa-fp { margin: 32px 0 36px; }
+  .fa-fp-cols { grid-template-columns: 1fr; gap: 34px; }
+  /* The name wraps rather than being squeezed to an ellipsis, so the
+     bar keeps a readable length on a 375px screen. */
+  .fa-fp-book { grid-template-columns: minmax(5.5em, 7.5em) 1fr auto; gap: 10px; }
+  .fa-fp-book-name { font-size: 15px; }
+  /* One reference per line at 375px. Two columns of 196px do not fit,
+     and auto-fill would otherwise leave "Ecclesiasticus 24:29" set in
+     a box narrower than the reference. */
+  .fa-fp-verses { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fa-fp-verse, .fa-fp-more { transition: none; }
+}
+
 /* One shelf per collection the author appears in. */
 .fa-shelf { margin: 48px 0 0; }
 .fa-shelf-head {

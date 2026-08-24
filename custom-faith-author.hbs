@@ -1,9 +1,11 @@
 {{!< default}}
 {{#contentFor "moHead"}}
 <title>Author &mdash; The Faith Received</title>
-<meta name="description" content="An author in The Faith Received: their dates, tradition, a short life, and every work of theirs the library holds." />
+<meta name="description" content="An author in The Faith Received: their dates, tradition, a short life, the scripture they quoted most, and every work of theirs the library holds." />
 <meta property="og:title" content="Author — The Faith Received" />
+<meta property="og:description" content="An author in The Faith Received: their dates, tradition, a short life, the scripture they quoted most, and every work of theirs the library holds." />
 <meta name="twitter:title" content="Author — The Faith Received" />
+<meta name="twitter:description" content="An author in The Faith Received: their dates, tradition, a short life, the scripture they quoted most, and every work of theirs the library holds." />
 {{/contentFor}}
 {{!-- /the-faith-received/author/?a=<folded-name>
 
@@ -44,5 +46,8 @@
 <script src="{{asset "js/faith-text.js"}}"></script>
 <script src="{{asset "js/faith-corpus-search.js"}}"></script>
 <script src="{{asset "js/faith-author-search.js"}}"></script>
+{{!-- The scripture fingerprint: what this author quoted, from the
+     generated index, drawn above the search panel and driving it. --}}
+<script src="{{asset "js/faith-author-scripture.js"}}"></script>
 <script src="{{asset "js/faith-author.js"}}"></script>
 <script src="{{asset "js/faith-gate.js"}}"></script>

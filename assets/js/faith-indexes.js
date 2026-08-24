@@ -1011,7 +1011,7 @@
     const links = vs.map(([v, loc]) =>
       `<span class="faith-verse-link" role="link" tabindex="0" data-go="${
         escapeHtml(readerUrl(e.corpus, e.id, loc == null ? e.loc : loc, { ref: `${ref}:${v}` }))
-      }">${v}</span>`).join("");
+      }">${escapeHtml(v)}</span>`).join("");
     return `<p class="faith-verse-row"><span class="faith-verse-label">Verses</span>${links}</p>`;
   }
 
@@ -1030,7 +1030,7 @@
       `<span class="faith-scripture-ref-title">${escapeHtml(e.title || String(e.id))}</span>${ 
       e.author ? `<span class="faith-scripture-ref-author">${escapeHtml(e.author)}</span>` : "" 
       }${e.excerpt ? `<span class="faith-scripture-ref-excerpt">${escapeHtml(e.excerpt)}</span>` : "" 
-      }${e.times > 1 ? `<span class="faith-scripture-ref-times">cited ${e.times} times</span>` : "" 
+      }${e.times > 1 ? `<span class="faith-scripture-ref-times">cited ${escapeHtml(e.times)} times</span>` : ""
       }</a>${verseLinks(e, ref)}`;
     return li;
   }
