@@ -2304,6 +2304,86 @@
     return pages;
   }
 
+
+  // ── One file, two languages ───────────────────────────────────
+  //
+  // Some works ship a single TEI file with the translation and the
+  // original alternating inside it, and nothing in the markup says
+  // which is which: one <text>, no xml:lang, 2,465 paragraphs. Calvin
+  // on Hebrews reads a verse in English, then the same verse in Latin,
+  // all the way down, and the language switch had nothing to filter
+  // on, so both lanes showed everything at once.
+  //
+  // So the language is worked out from the words. Function words carry
+  // it: no Latin sentence contains "the", no English one contains
+  // "quod". "in" and "non" are deliberately left out of both lists,
+  // being ordinary words in each.
+  const LA_WORDS = new Set(("et qui quae quod quam quia enim autem sed atque nec esse est sunt ex ut "
+    + "hoc haec ipse eius tamen nam sicut igitur vero propter cuius quibus illa ille quo qua nisi "
+    + "quidem").split(" "));
+  const EN_WORDS = new Set(("the and of to that which with from they have been this these was were "
+    + "his their would should shall upon unto hath doth are but not for you our who when there").split(" "));
+  const LA_END = /(?:orum|arum|ibus|itur|ntur|que|mus)$/;
+  const EN_END = /(?:ing|ed|ly|tion|ness|ment|ship|ful)$/;
+
+  function guessLang(text) {
+    const w = String(text || "").toLowerCase().match(/[a-z]+/g) || [];
+    // Too short to judge: running heads, names, dates. In these works
+    // that is the editor writing, and the editor writes English.
+    if (w.length < 6) return "en";
+    let la = 0, en = 0;
+    for (const x of w) { if (LA_WORDS.has(x)) la += 1; if (EN_WORDS.has(x)) en += 1; }
+    if (la !== en && (la + en) / w.length >= 0.05) return la > en ? "la" : "en";
+    // Function words said nothing. Endings can, but only on a clear
+    // margin: "at various times" is English and ends in -us.
+    let lm = 0, em = 0;
+    for (const x of w) {
+      if (x.length > 4 && LA_END.test(x)) lm += 1;
+      if (x.length > 4 && EN_END.test(x)) em += 1;
+    }
+    if (lm >= 2 && lm > em) return "la";
+    return "en";
+  }
+
+  // Split one page of HTML into the two lanes, block by block.
+  function splitBlocks(html) {
+    const doc = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
+    const root = doc.body.firstElementChild;
+    const en = [], la = [];
+    if (!root) return { en: html, la: "", latin: 0, total: 0 };
+    let latin = 0, total = 0;
+    Array.prototype.forEach.call(root.children, (el) => {
+      total += 1;
+      const lang = guessLang(el.textContent || "");
+      if (lang === "la") { latin += 1; la.push(el.outerHTML); } else en.push(el.outerHTML);
+    });
+    return { en: en.join(""), la: la.join(""), latin, total };
+  }
+
+  // Only actually bilingual works are split. Of 130 works in this
+  // shape, 123 are under 2% Latin: English books that quote a line of
+  // it here and there, and cutting those in two would move a dozen
+  // quotations into a lane of their own and call it the original. The
+  // genuine ones sit far above that — Calvin on Hebrews at 13%,
+  // Hammond at 17%, Andrewes at 91% — so the gap is wide and the line
+  // goes in the middle of it.
+  const BILINGUAL_SHARE = 0.10;
+  const BILINGUAL_MIN = 20;
+
+  function splitOneFile(pages) {
+    const split = new Map();
+    let latin = 0, total = 0;
+    pages.forEach((html, n) => {
+      const r = splitBlocks(html);
+      split.set(n, r);
+      latin += r.latin;
+      total += r.total;
+    });
+    if (!total) return null;
+    if (latin < BILINGUAL_MIN || latin / total < BILINGUAL_SHARE) return null;
+    return split;
+  }
+
   let teiPromise = null;
 
   // Both lanes, in parallel. Either may be absent: the English-only
@@ -2321,8 +2401,14 @@
       if (!en.size && !la.size) throw new Error("tei: neither lane parsed");
       // A work whose second lane 404s on the CDN, which is every one of
       // the 733 English-only works, was still being offered the button.
-      // The switch is narrowed to what actually arrived.
-      if (!la.size && lanes.length > 1) {
+      // The switch is narrowed to what actually arrived — unless both
+      // languages turn out to be inside the one file, in which case
+      // they are taken apart and the switch means something again.
+      let oneFile = null;
+      if (!la.size) oneFile = splitOneFile(en);
+      if (oneFile) {
+        oneFile.forEach((r, n) => { en.set(n, r.en); la.set(n, r.la); });
+      } else if (!la.size && lanes.length > 1) {
         lanes = [lanes[0]];
         buildLangToggle();
       }
