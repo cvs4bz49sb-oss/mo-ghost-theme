@@ -16227,9 +16227,19 @@ body:has(.admin-workspace) > *:not(.admin-workspace):not(.au-modal-overlay) {
   max-width: 1200px;
 }
 
-/* Hide old admin-hero and admin-nav inside workspace. */
-.admin-workspace .admin-hero { display: none; }
+/* Hide the old admin-nav inside workspace. */
 .admin-workspace .admin-nav { display: none; }
+
+/* The signed-out notice is the only .admin-hero left in the theme, and the
+   workspace is a full-viewport flex row with no sidebar rendered on that
+   branch. Center it, or the page reads as blank. */
+.admin-workspace .admin-hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
 
 /* Members sidebar within workspace. */
 .admin-workspace .admin-members-layout {
