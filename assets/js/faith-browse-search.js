@@ -225,7 +225,7 @@
   function hitUrl(w, loc) {
     const base = w.url || "";
     if (!base) return "#";
-    let url = base + (base.indexOf("?") >= 0 ? "&" : "?") + `q=${encodeURIComponent(term)}`;
+    let url = `${base + (base.indexOf("?") >= 0 ? "&" : "?")}q=${encodeURIComponent(term)}`;
     let hash = "";
     if (loc != null && loc !== "") {
       if (w.corpus === "tfr" || w.corpus === "confessions") {
@@ -530,8 +530,8 @@
       const rest = works.length - checked;
       const list = found.length
         ? `<ol class="bsearch-list">${found.map((r) => card(r.work,
-          `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>`
-          + passages(r.work, r.hits, r.total),
+          `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>${
+           passages(r.work, r.hits, r.total)}`,
           r.hits[0] ? r.hits[0].loc : null
         )).join("")}</ol>`
         : (busy ? "" : `<p class="bsearch-msg">None of the ${checked.toLocaleString()} works opened so far `
@@ -627,8 +627,8 @@
           : "";
         out.innerHTML = results.length
           ? `<ol class="bsearch-list">${results.map((r) => card(r.work,
-            `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>`
-            + passages(r.work, r.hits, r.total),
+            `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>${
+             passages(r.work, r.hits, r.total)}`,
             r.hits[0] ? r.hits[0].loc : null
           )).join("")}</ol>`
           : `<p class="bsearch-msg">Not one of the ${searched.toLocaleString()} works read uses "${escapeHtml(term)}".</p>`;

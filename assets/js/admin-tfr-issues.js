@@ -70,9 +70,9 @@
       + `<span class="tfr-issue-type">${escapeHtml(row.issue_type || "")}</span>`
       + `<span class="tfr-issue-when">${escapeHtml(when(row.created_at))}</span>`
       + `</div>`
-      + `<p class="tfr-issue-work">${escapeHtml(row.work_name || "")}</p>`
-      + (row.page_url ? `<p class="tfr-issue-where">${safeLink(row.page_url)}</p>` : "")
-      + `<p class="tfr-issue-who">${escapeHtml(name)} &middot; `
+      + `<p class="tfr-issue-work">${escapeHtml(row.work_name || "")}</p>${
+       row.page_url ? `<p class="tfr-issue-where">${safeLink(row.page_url)}</p>` : ""
+       }<p class="tfr-issue-who">${escapeHtml(name)} &middot; `
       + `<a href="mailto:${escapeHtml(row.email || "")}">${escapeHtml(row.email || "")}</a></p>`
       + `<div class="tfr-issue-comment">${escapeHtml(row.comment || "")}</div>`
       + `<div class="tfr-issue-actions">`

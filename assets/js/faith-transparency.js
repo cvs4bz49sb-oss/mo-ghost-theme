@@ -35,7 +35,7 @@
   const noteEl = root.querySelector("[data-tp-note]");
   const moreEl = root.querySelector("[data-tp-more]");
 
-  let all = [];
+  const all = [];
   let shown = 0;
 
   function escapeHtml(s) {

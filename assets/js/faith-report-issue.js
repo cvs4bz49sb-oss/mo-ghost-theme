@@ -108,9 +108,9 @@
       `placeholder="${onWork ? "" : "The work this is about, or the page"}" required></label>` +
       `<label class="fr-report-field"><span>Issue type</span>` +
       `<select name="issueType" required>` +
-      `<option value="">Choose one</option>` +
-      TYPES.map((t) => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("") +
-      `</select></label>` +
+      `<option value="">Choose one</option>${ 
+      TYPES.map((t) => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("") 
+      }</select></label>` +
       `<label class="fr-report-field"><span>Comment</span>` +
       `<textarea name="comment" rows="5" placeholder="Describe The Issue" required></textarea></label>` +
       `<div class="fr-report-turnstile" data-turnstile-wrap></div>` +
@@ -143,8 +143,8 @@
       try {
         window.turnstile.render(wrap, {
           sitekey: siteKey,
-          callback: (t) => { token = t; },
-          "expired-callback": () => { token = ""; },
+          callback(t) { token = t; },
+          "expired-callback"() { token = ""; },
         });
       } catch (_) { /* the form still sends; the worker decides */ }
     }
