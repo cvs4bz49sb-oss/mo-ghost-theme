@@ -190,7 +190,7 @@
 
   // ── Loaders, one per source shape ─────────────────────────────
 
-  const BLOB = "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com";
+  const BLOB = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
 
   // { genesis: { "1": [[slug, page, excerpt], …] } }
   // The Latin Library's shipped scripture index mistakes a work's own

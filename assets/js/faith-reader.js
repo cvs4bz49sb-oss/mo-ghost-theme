@@ -40,6 +40,28 @@
     }
   }
 
+  // The catalogue was written when the library lived on the source's
+  // blob, so every img_base in it still names that host. The text has
+  // since moved to our own storage and the scans are served through it
+  // too, fetched from the source once and kept. So a scan URL is taken
+  // apart and rebuilt on BASE: the path is the catalogue's, the host is
+  // ours. Anything that is not one of those two hosts is refused
+  // outright rather than rewritten, because a poisoned record should
+  // not be able to aim the pane at someone else's server and a rewrite
+  // would quietly launder it into a request we make.
+  const SCAN_SOURCES = [
+    "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com",
+  ];
+
+  function rebaseOnLibrary(url) {
+    let u;
+    try { u = new URL(url, BASE); } catch (_) { return ""; }
+    if (u.protocol !== "https:") return "";
+    const here = new URL(BASE).origin;
+    if (u.origin !== here && SCAN_SOURCES.indexOf(u.origin) < 0) return "";
+    return `${BASE}${u.pathname}`;
+  }
+
   // ── DOM refs ──────────────────────────────────────────────────
   const titleEl = document.querySelector("[data-fr-title]");
   const dekEl = document.querySelector("[data-fr-dek]");
@@ -186,9 +208,10 @@
         // ever meant to point back at the host this work came from, so
         // check that it does rather than letting a poisoned record aim
         // the pane at someone else's server.
-        if (m.img_base && sameHostAsBase(m.img_base)) {
+        const scanBase = m.img_base ? rebaseOnLibrary(m.img_base) : "";
+        if (scanBase) {
           initFacsimile(null, {
-            imgBase: String(m.img_base).replace(/\/*$/, "/"),
+            imgBase: scanBase.replace(/\/*$/, "/"),
             titlePage: m.title_page || 0,
           });
         }

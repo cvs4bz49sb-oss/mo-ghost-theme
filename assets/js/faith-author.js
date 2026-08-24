@@ -22,7 +22,7 @@
   if (!root) return;
 
   const BLOB = (document.querySelector('meta[name="tfr-library-base"]') || {}).content
-    || "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com";
+    || "https://mo-tfr-library.mo-podcast-feed.workers.dev";
 
   function fold(s) {
     return String(s || "")

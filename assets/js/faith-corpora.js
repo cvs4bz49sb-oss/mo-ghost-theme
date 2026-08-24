@@ -54,7 +54,7 @@
 (function () {
   "use strict";
 
-  const BLOB = "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com";
+  const BLOB = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
   // Our own R2, behind mo-tfr-library. The scripture index and our
   // own editions are served from here.
   const LIBRARY = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
@@ -84,6 +84,24 @@
     } catch (_) {
       return false;
     }
+  }
+
+  // Every img_base in the catalogue still names the blob the library
+  // used to live on. The scans are served from our own host now,
+  // fetched from the source once and kept, so a cover URL keeps the
+  // catalogue's path and takes our host. Only those two origins are
+  // accepted; anything else returns "" rather than being rewritten,
+  // so a bad record cannot be laundered into a request we make.
+  const SCAN_SOURCES = [
+    "https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com",
+  ];
+
+  function rebaseScan(url) {
+    let u;
+    try { u = new URL(url); } catch (_) { return ""; }
+    if (u.protocol !== "https:") return "";
+    if (!sameOrigin(url, BLOB) && SCAN_SOURCES.indexOf(u.origin) < 0) return "";
+    return `${BLOB}${u.pathname}`;
   }
 
   function pickAugustine(d) {
@@ -408,8 +426,8 @@
         // The work's own title page, where the source has scanned one.
         // 738 of these works ship page images; the rest are born-digital
         // or transcribed, and get the plain card they have always had.
-        cover: w.img_base && w.title_page && sameOrigin(w.img_base, BLOB)
-          ? `${w.img_base}${w.title_page}.webp` : "",
+        cover: w.img_base && w.title_page && rebaseScan(w.img_base)
+          ? `${rebaseScan(w.img_base)}${w.title_page}.webp` : "",
         url: `/the-faith-received/reader/?w=${encodeURIComponent(w.slug)}`,
       }),
     },
