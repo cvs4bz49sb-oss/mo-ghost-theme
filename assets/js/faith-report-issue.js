@@ -18,8 +18,10 @@
   const ENDPOINT = "https://mo-forms.mo-podcast-feed.workers.dev/tfr-issue";
   const TYPES = ["Translation", "Formatting", "Page Error", "Other"];
 
+  // The reader mounts this as a tool; the landing page opens the same
+  // form from a button of its own. So the module no longer requires the
+  // reader's controls to exist, and exposes the dialog instead.
   const controls = document.querySelector("[data-faith-controls]");
-  if (!controls) return;
 
   function escapeHtml(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
@@ -27,12 +29,18 @@
     }[c]));
   }
 
-  // What the reader is looking at. The reader stamps the work's own
-  // title on <html> once its metadata lands; before that, and on any
-  // page that is not a work, the document title is the best we have.
+  // What the reader is looking at, when they are looking at a work at
+  // all. The reader stamps the work's own title on <html> once its
+  // metadata lands.
+  //
+  // Off a work page this must come back empty rather than guessing.
+  // Falling through to the first h1 on the landing page would prefill
+  // "The Christian tradition is the Christian's inheritance" as the
+  // name of a work, which is not a work and not what they meant.
   function workName() {
     const stamped = document.documentElement.getAttribute("data-fr-work-title");
     if (stamped) return stamped;
+    if (!param("w")) return "";
     const h1 = document.querySelector("[data-faith-work-name], .faith-work-title, h1");
     const t = h1 && h1.textContent ? h1.textContent.trim() : "";
     if (t) return t;
@@ -72,16 +80,20 @@
   function open() {
     if (overlay) return;
     lastFocused = document.activeElement;
+    const here = workName();
+    const onWork = !!here;
 
     overlay = document.createElement("div");
     overlay.className = "fr-report-overlay";
     overlay.innerHTML =
       `<div class="fr-report" role="dialog" aria-modal="true" aria-labelledby="fr-report-title">` +
       `<div class="fr-report-head">` +
-      `<h2 class="fr-report-title" id="fr-report-title">Report an issue</h2>` +
+      `<h2 class="fr-report-title" id="fr-report-title">${onWork ? "Report an issue" : "Give feedback"}</h2>` +
       `<button type="button" class="fr-report-close" data-fr-close aria-label="Close">&times;</button>` +
       `</div>` +
-      `<p class="fr-report-note">Tell us what is wrong and we will look at it.</p>` +
+      `<p class="fr-report-note">${onWork
+        ? "Tell us what is wrong and we will look at it."
+        : "Tell us what is wrong or missing and we will look at it. If it concerns a particular work, name it."}</p>` +
       `<form class="fr-report-form" data-fr-form novalidate>` +
       `<div class="fr-report-row">` +
       `<label class="fr-report-field"><span>First name</span>` +
@@ -92,7 +104,8 @@
       `<label class="fr-report-field"><span>Email</span>` +
       `<input type="email" name="email" autocomplete="email" required></label>` +
       `<label class="fr-report-field"><span>Work name</span>` +
-      `<input type="text" name="workName" value="${escapeHtml(workName())}" required></label>` +
+      `<input type="text" name="workName" value="${escapeHtml(here)}" ` +
+      `placeholder="${onWork ? "" : "The work this is about, or the page"}" required></label>` +
       `<label class="fr-report-field"><span>Issue type</span>` +
       `<select name="issueType" required>` +
       `<option value="">Choose one</option>` +
@@ -187,10 +200,23 @@
     });
   }
 
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "faith-tool faith-report-toggle";
-  btn.innerHTML = `<span class="faith-toggle-label">Report An Issue</span>`;
-  btn.addEventListener("click", open);
-  controls.appendChild(btn);
+  if (controls) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "faith-tool faith-report-toggle";
+    btn.innerHTML = `<span class="faith-toggle-label">Report An Issue</span>`;
+    btn.addEventListener("click", open);
+    controls.appendChild(btn);
+  }
+
+  // Anything on the page can raise it. The landing page's feedback
+  // button does, and so could a collection page.
+  window.MOReportIssue = { open };
+
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-report-issue]");
+    if (!t) return;
+    e.preventDefault();
+    open();
+  });
 }());

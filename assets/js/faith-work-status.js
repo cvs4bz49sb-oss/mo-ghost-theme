@@ -68,11 +68,11 @@
 
   const REVIEW = {
     reviewed: { label: "Reviewed", cls: "is-reviewed",
-      note: "A translator has checked this work against the original." },
+      note: "The translation committee has reviewed this work against the original." },
     under: { label: "Under review", cls: "is-under",
-      note: "A translator is working through this text now." },
+      note: "The translation committee is reviewing this work now." },
     needs: { label: "Needs review", cls: "is-needs",
-      note: "No translator has checked this work yet." },
+      note: "The translation committee has not reviewed this work yet." },
   };
 
   // ── The tab ───────────────────────────────────────────────────
@@ -98,8 +98,8 @@
     + `<div class="fr-ai-note">`
     + `<p class="fr-ai-note-head">This English was translated by a machine.</p>`
     + `<p class="fr-ai-note-body">The English on this page was produced from the `
-    + `${escapeHtml(source)} by artificial intelligence, and has not been through a `
-    + `translator unless this panel says so. The original is beside it under Text Tools, `
+    + `${escapeHtml(source)} by artificial intelligence, and has not yet been reviewed by `
+    + `the translation committee unless this panel says so. The original is beside it under Text Tools, `
     + `with the page scan where one exists, so you can check any sentence yourself.</p>`
     + `</div>`
     + `<div class="fr-tt-rows" data-tt-rows></div>`

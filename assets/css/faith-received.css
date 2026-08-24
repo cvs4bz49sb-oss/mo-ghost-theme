@@ -7984,3 +7984,144 @@ body.faith-toc-open .faith-dock { display: none; }
   .fr-tt-caret { display: none; }
 }
 
+/* ── Commitment to transparency ──────────────────────────────────
+   A page of argument followed by a list of thousands. The prose is
+   set narrow to stay readable; the list goes three across because it
+   is a list of names, not sentences. */
+.faith-tp p {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+.faith-tp-lede { font-size: 19px; }
+.faith-tp-steps {
+  list-style: none;
+  counter-reset: tp;
+  margin: 30px 0;
+  padding: 0;
+}
+.faith-tp-steps > li {
+  counter-increment: tp;
+  position: relative;
+  padding: 0 0 0 46px;
+  margin: 0 0 26px;
+}
+.faith-tp-steps > li::before {
+  content: counter(tp);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--color-card-border);
+  color: var(--color-primary-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.faith-tp-steps h2 {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 20px;
+  color: var(--color-dark);
+  margin: 3px 0 6px;
+}
+.faith-tp-steps p { font-size: 16px; margin: 0; color: var(--color-muted); }
+.faith-tp-note {
+  border-left: 2px solid var(--color-rule);
+  padding-left: 14px;
+  font-size: 15px !important;
+  color: var(--color-muted) !important;
+}
+
+.faith-tp-list-wrap { margin: 34px 0 26px; }
+.faith-tp-list {
+  border: 1px solid var(--color-card-border);
+  border-radius: 5px;
+  background: var(--color-page);
+}
+.faith-tp-list-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 13px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.faith-tp-list-head::-webkit-details-marker { display: none; }
+.faith-tp-list-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-dark);
+}
+.faith-tp-list-count {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.faith-tp-list-body { padding: 0 16px 16px; }
+.faith-tp-list-note {
+  font-size: 13px !important;
+  color: var(--color-muted) !important;
+  margin: 0 0 10px !important;
+}
+.faith-tp-works {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Three across, and the browser balances them. Below 900px it drops
+     to two and then to one rather than squeezing three names into a
+     phone. */
+  column-count: 3;
+  column-gap: 26px;
+}
+.faith-tp-works > li {
+  break-inside: avoid;
+  margin: 0 0 10px;
+}
+.faith-tp-work {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.faith-tp-work-title {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--color-dark);
+}
+a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
+.faith-tp-work-author,
+.faith-tp-work-coll {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.faith-tp-work-coll { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.faith-tp-more { margin: 16px 0 0; }
+.faith-tp-act { margin: 26px 0 0; }
+.lp-beta-act {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 20px !important;
+}
+.lp-beta-link {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-primary-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.lp-beta-link:hover { color: var(--color-secondary); }
+@media (max-width: 900px) { .faith-tp-works { column-count: 2; } }
+@media (max-width: 600px) { .faith-tp-works { column-count: 1; } }
+

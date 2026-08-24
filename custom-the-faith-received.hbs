@@ -336,12 +336,21 @@
 <section class="lp-band lp-band--cream lp-beta">
   <div class="container container-narrow">
     <p class="lp-num">Beta</p>
-    <p>A third of the Latin library is catalogued but not yet readable. The scripture and topic indexes are incomplete. Some translations are machine-assisted and are being checked.</p>
-    <p>Every text here is free to read. The research tools are for members. If something is broken, tell us.</p>
+    {{!-- Counted, not remembered. The old copy said a third of the
+          Latin Library was not yet readable; it is all readable now,
+          and the gaps have moved elsewhere. --}}
+    <p>The whole library is readable and searchable, by word or by phrase. What is still thin: the topic index reaches a small fraction of the works, page scans exist for about a third of the Latin Library, and the scripture index does not yet cover every collection.</p>
+    <p>Most of the English here was translated by machine. Every work that was says so at the top, and carries its own review status, its open reports, and a dated list of every correction made to it.</p>
+    <p>Every text is free to read. The research tools are for members. If something is wrong, tell us.</p>
+    <p class="lp-beta-act">
+      <button type="button" class="btn btn-primary" data-report-issue>Give Feedback</button>
+      <a class="lp-beta-link" href="/the-faith-received/transparency/">Our commitment to transparency</a>
+    </p>
   </div>
 </section>
 </main>
 
+<script src="{{asset "js/faith-report-issue.js"}}"></script>
 <script src="{{asset "js/page/membership-toggle.js"}}"></script>
 <script src="{{asset "js/page/membership-cards.js"}}"></script>
 

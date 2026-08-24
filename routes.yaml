@@ -311,6 +311,8 @@ routes:
   /the-faith-received/author/:
     template: custom-faith-author
   # Feature pages
+  /the-faith-received/transparency/:
+    template: custom-faith-transparency
   /the-faith-received/search/:
     template: custom-faith-search
   /the-faith-received/scripture/:

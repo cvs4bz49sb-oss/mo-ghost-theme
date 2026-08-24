@@ -1,0 +1,105 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Our Commitment to Transparency &mdash; The Faith Received</title>
+<meta name="description" content="How The Faith Received uses artificial intelligence to translate, what we do to keep the quality honest, and every work that carries a machine translation." />
+<meta property="og:title" content="Our Commitment to Transparency — The Faith Received" />
+<meta property="og:description" content="How The Faith Received uses artificial intelligence to translate, what we do to keep the quality honest, and every work that carries a machine translation." />
+<meta name="twitter:title" content="Our Commitment to Transparency — The Faith Received" />
+<meta name="twitter:description" content="How The Faith Received uses artificial intelligence to translate, what we do to keep the quality honest, and every work that carries a machine translation." />
+{{/contentFor}}
+{{!-- /the-faith-received/transparency/ — what artificial intelligence
+     did here, what we do about it, and the full list of works that
+     carry a machine translation.
+
+     The list is built client-side from the same catalogues the rest of
+     the library uses, by faith-transparency.js. Fourteen thousand
+     titles are not something to ship as markup, and a list generated
+     at build time would go stale the moment a collection moved. --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker">The Faith Received &middot; Library</p>
+      <h1>Our Commitment to Transparency</h1>
+      <p class="bhero-sub">What artificial intelligence did here, what we do to keep it honest, and every work it touched.</p>
+    </div>
+  </section>
+
+  <section class="bband faith-feature-body">
+    <div class="container container-narrow faith-tp">
+
+      <p class="faith-tp-lede">We understand the gravity of a project like The Faith Received. It is no light thing to publish nearly 70,000 primary sources of the Christian faith in one place, over 2,000 of which are translated into English for the first time. A project of this scope and scale never would have been possible without the help of artificial intelligence.</p>
+
+      <p>But we are not ignorant of the promises and the perils of using this technology in this way. It matters that the quality of these translations is good, not that they simply exist. Which is why we do not see The Faith Received as a static resource, but as a living project, and one that requires radical transparency and openness to iteration.</p>
+
+      <p>With that in mind, we have undertaken seven steps to ensure transparency and ongoing improvement of quality.</p>
+
+      {{!-- Numbered as an ordered list rather than as prose with
+            digits in it, so a screen reader announces seven steps and
+            says which one it is on. --}}
+      <ol class="faith-tp-steps">
+        <li>
+          <h2>Everything translated by artificial intelligence says so</h2>
+          <p>Every machine-translated work carries a Translation Transparency panel at the top of the page. It names the language the text was translated from, before the text rather than in a footnote after it.</p>
+        </li>
+        <li>
+          <h2>The original is always beside the translation</h2>
+          <p>Every machine-translated work carries the English, the original language, and, where the source digitised one, the page scan the original was read from. All three are in the Text Tools menu on every work, so anyone can check a sentence against the page it came from.</p>
+        </li>
+        <li>
+          <h2>Anyone can report a problem</h2>
+          <p>Every work has a Report An Issue button in the same menu. Reports go to an inbox that is worked through, answered, and closed.</p>
+        </li>
+        <li>
+          <h2>The reports are counted in public</h2>
+          <p>Each work shows how many issues have been reported against it and how many have been settled. Both numbers, always. Showing only the open ones would let a work corrected twenty times look untouched.</p>
+        </li>
+        <li>
+          <h2>Every correction is dated and published</h2>
+          <p>When a work is corrected, what changed is written into that work's own history with the date. A translation that changes silently is worse than one that was wrong, because a reader who checked it once has no way to know it moved.</p>
+        </li>
+        <li>
+          <h2>A translation committee is being formed</h2>
+          <p>We are assembling credentialed translators to begin checking these works and making the changes their reading calls for.</p>
+        </li>
+        <li>
+          <h2>Every work says where it stands</h2>
+          <p>Works carry a status of Reviewed, Under Review, or Needs Review. Until a translator has read a work, it says Needs Review, because silence has to mean nobody has checked this and never that it is fine. A reviewed work should be trusted further than one that has not been.</p>
+        </li>
+      </ol>
+
+      <p class="faith-tp-note">Two of these are still being built out. The committee in step six is being assembled now, and until it has read a work that work will say Needs Review. Page scans in step two exist for about a third of the Latin Library, because that is how much of it the source digitised; where there is no scan, the original language is still there beside the translation.</p>
+
+      {{!-- The list. Closed by default: it runs to thousands of
+            titles, and a reader who wants it will open it. --}}
+      <section class="faith-tp-list-wrap" data-faith-transparency>
+        <details class="faith-tp-list">
+          <summary class="faith-tp-list-head">
+            <span class="faith-tp-list-title">Every work carrying a machine translation</span>
+            <span class="faith-tp-list-count" data-tp-count>Counting&hellip;</span>
+          </summary>
+          <div class="faith-tp-list-body">
+            <p class="faith-tp-list-note" data-tp-note></p>
+            <ol class="faith-tp-works" data-tp-works></ol>
+            <div class="faith-tp-more">
+              <button type="button" class="bsearch-more" data-tp-more hidden>Show more</button>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <p class="faith-tp-act">
+        <button type="button" class="btn btn-primary" data-report-issue>Report an issue</button>
+      </p>
+
+    </div>
+  </section>
+
+</main>
+
+<meta name="tfr-library-base" content="https://mo-tfr-library.mo-podcast-feed.workers.dev" />
+<script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/faith-century.js"}}"></script>
+<script src="{{asset "js/faith-report-issue.js"}}"></script>
+<script src="{{asset "js/faith-transparency.js"}}"></script>
