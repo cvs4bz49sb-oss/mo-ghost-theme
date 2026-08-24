@@ -3029,6 +3029,17 @@
         "Promotional sends cost more list than the weekly digest does.",
         sends.map((x) => [mdy(x.date), x.unsubscribes]), { rotate: true, color: C2 }));
     }
+    // Commit the email charts BEFORE touching podcasts.
+    //
+    // These two live in one function only because both are "channels", and
+    // that shared roof made them share a failure. Everything above this line
+    // is email; everything below is podcasts; and the single assignment that
+    // used to sit at the very end meant any throw in the podcast half
+    // discarded finished email charts on its way out. That is not a
+    // hypothetical — it is what emptied the email section for every snapshot
+    // that lacked podcasts.per_episode.
+    chartBuckets.email = chartBuckets.email.concat(email);
+
     if (s.podcasts) {
       const shows = [
         ["mere_fidelity", "Mere Fidelity", C1, "podmf"],
@@ -3080,7 +3091,14 @@
             `The last ${rows.length} episodes, newest on the right. Total plays each, so recent ones are still climbing. ${PLAYS_SINCE}`,
             rows.map((r) => [mdy(r.date), r.plays]), { rotate: true, color, labels: rows.map((r) => `${mdy(r.date, true)} · ${r.title}`) }));
         } else {
-          const months = (s.podcasts.per_episode[key] || []).slice(-8);
+          // `|| {}` is load-bearing. per_episode is absent from every
+          // snapshot written between the 2026-08-10 rebuild and 2026-08-24,
+          // and indexing undefined threw here — which killed the whole of
+          // renderChannels before the line below that commits the EMAIL
+          // charts, so a missing podcast field silently emptied the email
+          // section. safe() swallowed the error, so the page just looked
+          // like a week with no sends.
+          const months = ((s.podcasts.per_episode || {})[key] || []).slice(-8);
           if (months.length > 1) {
             pods.push(barBlock(`${name} — reach per episode`,
               "Average plays for episodes published each month.",
@@ -3089,7 +3107,6 @@
         }
       });
     }
-    chartBuckets.email = chartBuckets.email.concat(email);
     chartBuckets.podcasts = pods;
   }
 
