@@ -4755,11 +4755,16 @@ mark.faith-find-hit.is-current {
 @media (max-width: 640px) {
   /* Doors: one per row, ruled, with the link on the floor of each. */
   .lp-doors { grid-template-columns: 1fr; }
+  /* Padding, not margin, for the space around the rule. These are
+     grid items in a single column, and the row sizing was absorbing
+     two of the three top margins, so two of the four rules sat flush
+     against the link above them while the other had 22px. Padding
+     belongs to the door's own box and cannot be swallowed. */
   .lp-door {
     border-left: 0;
     border-top: 1px solid var(--color-card-border);
-    padding: 22px 0 0;
-    margin-top: 22px;
+    padding: 22px 0;
+    margin-top: 0;
   }
   .lp-door:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
   .lp-door h3 { font-size: 22px; }
@@ -4776,7 +4781,11 @@ mark.faith-find-hit.is-current {
   }
   .faith-landing .faith-card:first-child { border-top: 0; }
   .faith-landing .faith-card-title { font-size: 20px; margin-bottom: 2px; }
-  .faith-landing .faith-card-link { display: none; }
+  /* The twelve collection cards only. `.faith-card-link` is also the
+     class on the four doors above, and an unscoped rule here took
+     "The library", "The index" and "The tools" off the phone with
+     them, which is the one line in a door that says it is a door. */
+  .faith-landing .faith-card .faith-card-link { display: none; }
   .faith-card-era { margin-bottom: 6px; }
 
   /* The collections: names, not plates. */
