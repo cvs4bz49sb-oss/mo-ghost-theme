@@ -7242,6 +7242,41 @@ body.faith-toc-open .faith-dock { display: none; }
   color: var(--color-primary-text);
   margin: 0 0 10px;
 }
+/* Passages inside a result. Each line is a way into the text, so it
+   reads as something to click rather than as a caption under a title.
+   Ruled down the left because these are quotations from the work
+   above them, not a list of separate things. */
+.bsearch-passages {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0 0 0 14px;
+  border-left: 2px solid var(--color-rule);
+}
+.bsearch-passage { margin: 0 0 7px; }
+.bsearch-passage:last-child { margin-bottom: 0; }
+.bsearch-passage-line {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-dark);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.bsearch-passage-line:hover {
+  color: var(--color-primary-text);
+  border-bottom-color: var(--color-card-border);
+}
+.bsearch-passage-rest a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.bsearch-passage-rest a:hover { color: var(--color-primary-text); }
+.bsearch-hit-lines { display: block; }
+
 /* Why an answer is not the whole answer. A sentence, not a shouted
    label: the count above it is already in caps, and this is the part
    the reader actually has to read. */

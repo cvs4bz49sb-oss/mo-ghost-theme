@@ -42,8 +42,13 @@
   }
 
   // One pass: count every occurrence, keep the first few as previews.
-  // Three is enough to judge whether the work is worth opening.
-  const MAX_PREVIEWS = 3;
+  //
+  // Three was enough when a preview only had to say whether a work was
+  // worth opening. It is not enough now that the passages are the
+  // result: a reader wants the lines that matched and a way into each
+  // of them, not one line standing for a whole volume. Eight fills a
+  // card without turning one book into the entire page.
+  const MAX_PREVIEWS = 8;
 
   function searchRows(rows, re) {
     const hits = [];

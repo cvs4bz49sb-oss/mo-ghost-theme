@@ -237,6 +237,28 @@
     return url + hash;
   }
 
+  // ── A result is a passage, not a book ────────────────────────
+  //
+  // A card that links to a work has answered "which book" when the
+  // question was "where". Every matching line gets its own row and
+  // its own way in, under the work it came from so the reader still
+  // knows whose sentence they are reading. The work title stays a
+  // link, because sometimes the answer really is the book.
+  function passages(w, hits, total) {
+    if (!hits || !hits.length) return "";
+    const rows = hits.map((h) => `<li class="bsearch-passage">`
+      + `<a class="bsearch-passage-line" href="${escapeHtml(hitUrl(w, h.loc))}">`
+      + `${escapeHtml(h.snippet)}</a></li>`).join("");
+    // Said plainly rather than dropped. The reader is told the rest
+    // are there and handed the search that finds them in the work.
+    const rest = total > hits.length
+      ? `<li class="bsearch-passage bsearch-passage-rest">`
+        + `<a href="${escapeHtml(hitUrl(w, null))}">`
+        + `${(total - hits.length).toLocaleString()} more in this work</a></li>`
+      : "";
+    return `<ol class="bsearch-passages">${rows}${rest}</ol>`;
+  }
+
   function card(w, extra, loc) {
     const c = window.MOCorpora && window.MOCorpora.get(w.corpus);
     return `<li class="bsearch-hit">` +
@@ -433,7 +455,10 @@
       out.innerHTML = `<ol class="bsearch-list">${top.map((h) => {
         const w = byKey.get(`${h.corpus}:${h.id}`);
         return card(w, `<span class="bsearch-hit-times">${h.count.toLocaleString()} mention${h.count === 1 ? "" : "s"}</span>`
-          + `<span class="bsearch-hit-snippet" data-snip="${escapeHtml(`${h.corpus}:${h.id}`)}">reading&hellip;</span>`);
+          // The index knows the work and the count; the lines have to
+          // come from the work itself. This is where they land.
+          + `<div class="bsearch-hit-lines" data-snip="${escapeHtml(`${h.corpus}:${h.id}`)}">`
+          + `<span class="bsearch-hit-snippet">reading&hellip;</span></div>`);
       }).join("")}</ol>${hits.length > top.length
         ? `<button type="button" class="bsearch-more" data-bs-hitmore>Show more</button>` : ""}`;
 
@@ -450,7 +475,11 @@
           results.forEach((r) => {
             const key = `${r.work.corpus}:${r.work.id}`;
             const el = out.querySelector(`[data-snip="${CSS.escape(key)}"]`);
-            if (el && r.hits[0]) el.textContent = r.hits[0].snippet;
+            // Every line that matched, each linking to its own place,
+            // rather than one line standing in for the whole book.
+            if (el && r.hits && r.hits.length) {
+              el.innerHTML = passages(r.work, r.hits, r.total);
+            }
             // The index knows which works, not where in them. The
             // preview does, so the link is sharpened when it lands.
             if (r.hits[0] && r.hits[0].loc != null) {
@@ -501,8 +530,8 @@
       const rest = works.length - checked;
       const list = found.length
         ? `<ol class="bsearch-list">${found.map((r) => card(r.work,
-          `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>${ 
-          r.hits.map((h) => `<span class="bsearch-hit-snippet">${escapeHtml(h.snippet)}</span>`).join("")}`,
+          `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>`
+          + passages(r.work, r.hits, r.total),
           r.hits[0] ? r.hits[0].loc : null
         )).join("")}</ol>`
         : (busy ? "" : `<p class="bsearch-msg">None of the ${checked.toLocaleString()} works opened so far `
@@ -598,8 +627,8 @@
           : "";
         out.innerHTML = results.length
           ? `<ol class="bsearch-list">${results.map((r) => card(r.work,
-            `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>${ 
-            r.hits.map((h) => `<span class="bsearch-hit-snippet">${escapeHtml(h.snippet)}</span>`).join("")}`,
+            `<span class="bsearch-hit-times">${r.total.toLocaleString()} mention${r.total === 1 ? "" : "s"}</span>`
+            + passages(r.work, r.hits, r.total),
             r.hits[0] ? r.hits[0].loc : null
           )).join("")}</ol>`
           : `<p class="bsearch-msg">Not one of the ${searched.toLocaleString()} works read uses "${escapeHtml(term)}".</p>`;
