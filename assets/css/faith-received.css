@@ -7523,6 +7523,12 @@ body.faith-toc-open .faith-dock { display: none; }
   .bcolls { grid-template-columns: 1fr; gap: 28px; }
 }
 
+/* Last in the panel, whatever order things mounted in. The tools
+   arrive from three different scripts and this one is appended on
+   load while Save is added later, so source order cannot decide it.
+   The panel is a flex column, so `order` can. */
+.faith-dock .faith-report-toggle { order: 99; }
+
 /* ── Report an issue ─────────────────────────────────────────────
    A dialog in the middle of the screen, over the work rather than
    away from it: the reader is reporting the thing they are looking
