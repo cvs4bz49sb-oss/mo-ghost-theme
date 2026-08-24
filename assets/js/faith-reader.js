@@ -1425,8 +1425,40 @@
     const toggle = document.querySelector("[data-modernizer-toggle]");
     if (!toggle || !window.FaithModernize) return;
     if (!(corpus && corpus.modernize)) return;
-    if (!hasArchaic(contentEl)) return;
 
+    // ── Deciding once was deciding too early ──────────────────
+    //
+    // This asked whether the rendered text looked archaic, at the
+    // moment the work first painted. A work opens with one section
+    // hydrated and the rest closed, so the question was being put to
+    // whatever happened to be on screen: a title page, a dedication,
+    // a table of contents. A book whose first archaic word is in
+    // chapter two answered no and never offered the toggle again.
+    //
+    // So it keeps asking as the text arrives, and stops the moment it
+    // has an answer or the work has finished settling.
+    if (!hasArchaic(contentEl)) {
+      let checks = 0;
+      const obs = new MutationObserver(() => {
+        checks += 1;
+        if (!hasArchaic(contentEl)) {
+          // Sections hydrate as they are opened, which can go on for
+          // as long as the reader keeps reading. This is bounded so a
+          // long session is not running a scan on every mutation.
+          if (checks < 60) return;
+          obs.disconnect();
+          return;
+        }
+        obs.disconnect();
+        showModernizer(toggle);
+      });
+      obs.observe(contentEl, { childList: true, subtree: true, characterData: true });
+      return;
+    }
+    showModernizer(toggle);
+  }
+
+  function showModernizer(toggle) {
     toggle.hidden = false;
     if (!toggle.dataset.frBound) {
       toggle.dataset.frBound = "1";
@@ -1449,10 +1481,33 @@
     }
   }
 
+  function archaicIn(text) {
+    if (!text || !window.FaithModernize) return false;
+    const t = String(text).slice(0, 120000);
+    return window.FaithModernize.hasArchaicLanguage(t) || EARLY_MODERN.test(t);
+  }
+
+  // Ask the text, not the screen.
+  //
+  // This used to read contentEl.textContent, which on arrival is one
+  // open section and a row of closed summaries: Ames rendered 567
+  // characters, none of them archaic, and the toggle stayed hidden
+  // over a book that says hath, doth, thee, thou and saith throughout.
+  // The pages are already in memory, so the question can be put to the
+  // whole work instead of to the part of it that happens to be
+  // expanded.
   function hasArchaic(root) {
-    if (!root || !window.FaithModernize) return false;
-    const text = (root.textContent || "").slice(0, 60000);
-    return window.FaithModernize.hasArchaicLanguage(text) || EARLY_MODERN.test(text);
+    if (!window.FaithModernize) return false;
+    let sample = "";
+    pageStore.forEach((pg) => {
+      if (sample.length > 120000) return;
+      if (pg && pg.en) sample += ` ${pg.en}`;
+    });
+    if (sample && archaicIn(sample)) return true;
+    // The extract collections keep their text in the rendered rows
+    // rather than in pageStore, so the DOM is still the source for
+    // those, and it is still worth asking about what is on screen.
+    return archaicIn(root ? root.textContent || "" : "");
   }
 
   // Early modern orthography the grammar-focused engine doesn't cover:

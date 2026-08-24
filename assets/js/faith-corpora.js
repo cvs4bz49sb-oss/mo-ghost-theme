@@ -392,6 +392,11 @@
       // toggle at all. `modernize` opts a corpus into the archaic-
       // English engine.
       lanes: [{ id: "en", label: "English" }, { id: "la", label: "Latin" }],
+      // The Latin Library was the one collection never offered the
+      // modernizer, and it is the one with 732 English divines in it:
+      // Ames, Owen, Baxter, Sibbes, writing the English of their own
+      // century. Every other collection had this and this one did not.
+      modernize: true,
       reader: "shards",
       readable: true,
       // The source folded its sister collections into this catalogue on
