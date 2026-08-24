@@ -7791,3 +7791,196 @@ body.faith-toc-open .faith-dock { display: none; }
   color: var(--color-white, #fff);
 }
 
+/* ── How a work stands ───────────────────────────────────────────
+   The machine-translation notice is the one thing on this page a
+   reader must not miss, so it is a bordered block rather than a line
+   of grey type. Everything under it is quieter: a badge, a count, and
+   the corrections if there are any. */
+.faith-reader-status { margin: 16px 0 4px; }
+.faith-reader-status[hidden] { display: none; }
+
+.fr-ai-note {
+  border: 1px solid var(--color-card-border);
+  border-left: 3px solid var(--color-secondary);
+  border-radius: 4px;
+  padding: 13px 16px;
+  margin: 0 0 12px;
+  background: var(--color-cream, var(--color-page));
+}
+.fr-ai-note-head {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+}
+.fr-ai-note-body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
+  max-width: 68ch;
+}
+
+.fr-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.fr-status-spacer { flex: 1 1 auto; }
+.fr-status-badge {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  padding: 4px 9px;
+  border: 1px solid var(--color-card-border);
+  color: var(--color-primary-text);
+  white-space: nowrap;
+}
+/* Reviewed is the only one that gets to look settled. The other two
+   are deliberately plain: an unchecked work should not wear a colour
+   that reads as a verdict. */
+.fr-status-badge.is-reviewed {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-white, #fff);
+}
+.fr-status-badge.is-under { border-color: var(--color-secondary); color: var(--color-secondary); }
+.fr-status-when { font-size: 12px; }
+.fr-status-note { font-size: 13px; }
+.fr-status-reports b { color: var(--color-dark); font-weight: 600; }
+.fr-status-reports--none { color: var(--color-muted); }
+.fr-status-sep { opacity: 0.5; }
+
+.fr-status-history { margin: 10px 0 0; }
+.fr-status-history > summary {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-primary-text);
+  cursor: pointer;
+}
+.fr-status-revs {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0 0 0 13px;
+  border-left: 2px solid var(--color-rule);
+}
+.fr-status-revs li { margin: 0 0 6px; }
+.fr-status-rev-date {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+}
+.fr-status-rev-what {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-dark);
+}
+@media (max-width: 640px) {
+  .fr-status-spacer { display: none; }
+  .fr-status { gap: 7px; }
+}
+
+/* ── The Translation Transparency tab ────────────────────────────
+   Closed by default: most readers came to read, not to audit. But the
+   summary line carries the facts that decide whether to trust the
+   page, so a reader who never opens it has still been told. A
+   disclosure hidden behind a click discloses nothing. */
+.fr-tt {
+  border: 1px solid var(--color-card-border);
+  border-left: 3px solid var(--color-secondary);
+  border-radius: 4px;
+  background: var(--color-cream, var(--color-page));
+}
+.fr-tt-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+.fr-tt-head::-webkit-details-marker { display: none; }
+.fr-tt-title {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  white-space: nowrap;
+}
+.fr-tt-facts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+/* Separated by a dot rather than a comma: these are independent
+   facts, not a list reading as one sentence. */
+.fr-tt-fact + .fr-tt-fact::before { content: "· "; opacity: 0.55; }
+.fr-tt-caret {
+  margin-left: auto;
+  width: 8px; height: 8px;
+  border-right: 1.5px solid var(--color-muted);
+  border-bottom: 1.5px solid var(--color-muted);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+  flex: none;
+}
+.fr-tt[open] .fr-tt-caret { transform: rotate(-135deg); }
+.fr-tt-body { padding: 0 14px 14px; }
+.fr-tt .fr-ai-note {
+  border: 0;
+  border-left: 2px solid var(--color-rule);
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 0 12px;
+  margin: 0 0 14px;
+}
+.fr-tt-rows { display: block; }
+.fr-tt-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid var(--color-rule);
+}
+.fr-tt-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--color-primary-text);
+  padding-top: 3px;
+}
+.fr-tt-value {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-dark);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+.fr-tt-value .fr-status-revs,
+.fr-tt-value .fr-tt-empty { flex: 1 1 100%; margin: 0; }
+.fr-tt-empty { color: var(--color-muted); font-size: 14px; }
+@media (max-width: 640px) {
+  .fr-tt-row { grid-template-columns: 1fr; gap: 3px; }
+  .fr-tt-caret { display: none; }
+}
+

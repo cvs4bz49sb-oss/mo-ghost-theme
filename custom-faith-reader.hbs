@@ -81,6 +81,13 @@
             <li hidden><a href="/the-faith-received/browse/#traditions" class="faith-reader-tag" data-fr-tradition></a></li>
           </ul>
 
+          {{!-- How this work was made and how far it has been checked.
+                Above the introduction on purpose: a reader deciding
+                whether to trust a machine translation should meet that
+                fact before the text, not after it. Filled by
+                faith-work-status.js. --}}
+          <div class="faith-reader-status" data-fr-status hidden></div>
+
           {{!-- The introduction. One place, every work: the corpus
                 blurb where there is one, the catalogue description
                 otherwise. --}}
@@ -191,6 +198,7 @@
      comes to them and carries the work with it. Appended to the same
      controls the reader's own tools use, so it loads after them. --}}
 <script src="{{asset "js/faith-report-issue.js"}}"></script>
+<script src="{{asset "js/faith-work-status.js"}}"></script>
 {{!-- The citation resolver exposes window.MOResolve here rather than
      any UI: an arriving constellation addresses Patrologia Graeca by
      volume and column, and the resolver is what turns that into the

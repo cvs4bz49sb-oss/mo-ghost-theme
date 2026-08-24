@@ -65,7 +65,7 @@
   function card(row) {
     const name = `${row.first_name || ""} ${row.last_name || ""}`.trim();
     const done = row.status === "done";
-    return `<li class="tfr-issue" data-issue="${row.id}">`
+    return `<li class="tfr-issue" data-issue="${row.id}" data-corpus="${escapeHtml(row.corpus || "tfr")}" data-work="${escapeHtml(row.work_id || "")}">`
       + `<div class="tfr-issue-head">`
       + `<span class="tfr-issue-type">${escapeHtml(row.issue_type || "")}</span>`
       + `<span class="tfr-issue-when">${escapeHtml(when(row.created_at))}</span>`
@@ -159,7 +159,32 @@
     if (!done) return;
     const id = done.getAttribute("data-issue-done");
     const next = done.getAttribute("data-next");
+    const row = done.closest("[data-issue]");
+
+    // Closing a report is the moment the correction is known, so it is
+    // the moment to write it down. The reader's Translation
+    // Transparency panel prints this list, and a correction nobody
+    // recorded is a change the reader cannot see was made.
+    let note = "";
+    if (next === "done" && row) {
+      note = (window.prompt(
+        "What was corrected? This is published in the work's correction history.\n\n"
+        + "Leave blank to close the report without recording a change.", "") || "").trim();
+    }
+
     done.disabled = true;
+    if (note && row) {
+      const corpus = row.getAttribute("data-corpus") || "tfr";
+      const workId = row.getAttribute("data-work") || "";
+      if (workId) {
+        window.MOAuth.fetch(`${adminUrl}/tfr/revisions`, {
+          method: "POST",
+          credentials: "omit",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ corpus, workId, summary: note, source: "report", reportId: Number(id) }),
+        }).catch(() => { /* the report still closes */ });
+      }
+    }
     window.MOAuth.fetch(`${adminUrl}/tfr/issues/${encodeURIComponent(id)}/status`, {
       method: "POST",
       credentials: "omit",
