@@ -8125,3 +8125,18 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 @media (max-width: 900px) { .faith-tp-works { column-count: 2; } }
 @media (max-width: 600px) { .faith-tp-works { column-count: 1; } }
 
+/* The transparency block sets its own type, because it sits between a
+   cream band and the footer and would otherwise inherit whichever it
+   was placed after. `.lp-beta-act` is shared with the beta block above
+   it so the two buttons sit on the same line and at the same weight. */
+.lp-transparency p {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+  max-width: 68ch;
+}
+.lp-transparency .lp-head { margin: 6px 0 14px; max-width: 22ch; }
+.lp-transparency a.btn { text-decoration: none; }
+
