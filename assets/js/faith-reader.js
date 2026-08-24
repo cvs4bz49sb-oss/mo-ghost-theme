@@ -209,6 +209,20 @@
         // they are linked without a ?c=, so the corpus default alone
         // would give them a Latin button over an empty column.
         if (m.en_only) lanes = [{ id: "en", label: "English" }];
+        // Whether this work has an original alongside the English, and
+        // in what language. The Latin Library is not all Latin: 802 of
+        // its 2,296 works carry no Latin at all and 732 of those are
+        // English divines writing in English. Labelling William Ames as
+        // translated from the Latin, on the strength of the shelf he
+        // sits on, is a false claim about how the text was made. So the
+        // work answers for itself and the transparency panel reads it
+        // here rather than guessing from the collection.
+        // en_only is the work's own answer, and meta.json carries it.
+        // la_chars looked like the obvious test and is only in the
+        // catalogue index, not here, so keying on it would have
+        // labelled nothing at all.
+        const original = m.en_only ? "" : (lanes[1] && lanes[1].label) || "";
+        document.documentElement.setAttribute("data-fr-original-lang", original);
         buildLangToggle(langLabelForWork(m));
         populateHeader(m);
         buildToc(m.structure || []);
@@ -2426,9 +2440,15 @@
       if (!la.size) oneFile = splitOneFile(en);
       if (oneFile) {
         oneFile.forEach((r, n) => { en.set(n, r.en); la.set(n, r.la); });
+        document.documentElement.setAttribute(
+          "data-fr-original-lang", (lanes[1] && lanes[1].label) || "Latin");
+      } else if (la.size) {
+        document.documentElement.setAttribute(
+          "data-fr-original-lang", (lanes[1] && lanes[1].label) || "Latin");
       } else if (!la.size && lanes.length > 1) {
         lanes = [lanes[0]];
         buildLangToggle();
+        document.documentElement.setAttribute("data-fr-original-lang", "");
       }
       if (la.size) sniffSecondLane([...la.values()].join(" ").replace(/<[^>]*>/g, " "));
       const nums = new Set([...en.keys(), ...la.keys()]);
@@ -2716,7 +2736,12 @@
     const collEl = document.querySelector("[data-fr-collection]");
     if (collEl && corpus) {
       collEl.textContent = corpus.label;
-      if (corpus.room) collEl.href = corpus.room;
+      // MOCorpora.room is a function on the module, not a field on
+      // the corpus, so `corpus.room` was undefined and this link never
+      // left the browse page it was born pointing at.
+      const room = window.MOCorpora && window.MOCorpora.room
+        ? window.MOCorpora.room(corpus.id) : "";
+      if (room) collEl.href = room;
     }
 
     if (traditionEl && m.tradition) {

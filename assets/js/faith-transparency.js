@@ -105,7 +105,26 @@
     return;
   }
 
-  Promise.all(AI_CORPORA.map((id) =>
+  // Which Latin Library works carry no Latin at all. The catalogue
+  // records the size of each lane, so this is one file rather than
+  // 2,296 questions. (meta.json answers with en_only instead, which is
+  // what the reader uses; the index is the cheaper way to ask about
+  // every work at once.)
+  const englishOriginals = new Set();
+  function loadOriginals() {
+    const base = (document.querySelector('meta[name="tfr-library-base"]') || {}).content || "";
+    return fetch(`${String(base).replace(/\/+$/, "")}/v1/works-index.json`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((idx) => {
+        if (!idx || !idx.works) return;
+        idx.works.forEach((w) => {
+          if (!(Number(w.la_chars) > 0)) englishOriginals.add(w.slug);
+        });
+      })
+      .catch(() => {});
+  }
+
+  loadOriginals().then(() => Promise.all(AI_CORPORA.map((id) =>
     window.MOCorpora.load(id).then((works) => ({ id, works })).catch(() => ({ id, works: [] }))))
     .then((sets) => {
       sets.forEach(({ id, works }) => {
@@ -116,6 +135,11 @@
           // anything. Seventy-eight of the Latin Library are in that
           // state and do not belong on this list.
           if (w.readable === false) return;
+          // Nor is a work that was written in English. The Latin
+          // Library holds 732 English divines, and listing them as
+          // machine translations from the Latin would be a false claim
+          // about 732 books.
+          if (id === "tfr" && englishOriginals.has(w.id)) return;
           all.push({
             id: w.id,
             title: w.title,
@@ -142,7 +166,7 @@
     .catch(() => {
       countEl.textContent = "";
       noteEl.textContent = "The catalogue could not be loaded.";
-    });
+    }));
 
   moreEl.addEventListener("click", render);
 }());

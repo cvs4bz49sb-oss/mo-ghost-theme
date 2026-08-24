@@ -8140,3 +8140,16 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 .lp-transparency .lp-head { margin: 6px 0 14px; max-width: 22ch; }
 .lp-transparency a.btn { text-decoration: none; }
 
+/* The kicker is a path back into the library, so its segments are
+   links. They inherit the kicker's colour rather than turning blue,
+   and show they are links on hover: a permanently underlined trail
+   above every heading would compete with the heading. */
+.bhero-kicker a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.bhero-kicker a:hover { border-bottom-color: currentColor; }
+.bhero-kicker a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+

@@ -29,28 +29,17 @@
   const baseMeta = document.querySelector('meta[name="tfr-library-base"]');
   const BASE = ((baseMeta && baseMeta.getAttribute("content")) || "").replace(/\/+$/, "");
 
-  // Which collections carry a machine translation, and what the
-  // machine worked from.
+  // Which collections were machine-translated at all. This decides
+  // whether to ask the question, not what the answer is.
   //
   // Early English Books is English already, and the English Editions
   // are historic translations made by people. Patrologia Orientalis
-  // prints the translation its own fascicles carry. Labelling those as
-  // machine work would be its own kind of dishonesty.
-  //
-  // null means the collection is mixed and each work has to be asked
-  // about separately. The creeds are: 29 of the 260 were written in
-  // English and were never translated at all, and calling the Forty-Two
-  // Articles a translation would be wrong in the other direction.
-  const AI_TRANSLATED = {
-    tfr: "Latin",
-    pld: "Latin",
-    pg: "Greek",
-    augustine: "Latin",
-    confessions: null,
-  };
+  // prints the translation its own fascicles carry.
+  const AI_COLLECTIONS = new Set(["tfr", "pld", "pg", "augustine", "confessions"]);
 
-  // Regions whose confessions were composed in English. Everything
-  // else in that collection reached English by translation.
+  // Regions whose confessions were composed in English. The creeds
+  // ship no original text, so they cannot answer for themselves and
+  // this is what stands in.
   const ENGLISH_ORIGIN = /^(English|Scottish)/i;
 
   function param(name) {
@@ -93,18 +82,46 @@
   // that decide whether to trust the page, so a reader who never opens
   // it has still been told. Hiding "translated by a machine" behind a
   // click would be a disclosure that discloses nothing.
-  if (!(corpus in AI_TRANSLATED)) return;
+  if (!AI_COLLECTIONS.has(corpus)) return;
 
-  // A collection with a fixed answer needs no request. A mixed one
-  // does: the creeds record where they came from, and that is what
-  // decides whether this work was translated at all.
-  const known = AI_TRANSLATED[corpus];
-  const resolve = known
-    ? Promise.resolve(known)
-    : fetch(`${BASE}/v1/works/${encodeURIComponent(workId)}/meta.json`)
+  // The work answers for itself. The reader stamps the language of the
+  // original it is showing beside the English, or an empty string if
+  // there is none, once the work's metadata lands.
+  //
+  // This matters because a collection is not a claim about a text. The
+  // Latin Library holds 732 English divines writing in English, and
+  // calling William Ames a translation from the Latin because of the
+  // shelf he sits on is simply false.
+  function stamped() {
+    return document.documentElement.getAttribute("data-fr-original-lang");
+  }
+
+  function whenAnswered() {
+    if (stamped() !== null) return Promise.resolve(stamped());
+    return new Promise((resolve) => {
+      const obs = new MutationObserver(() => {
+        if (stamped() === null) return;
+        obs.disconnect();
+        window.clearTimeout(timer);
+        resolve(stamped());
+      });
+      obs.observe(document.documentElement, {
+        attributes: true, attributeFilter: ["data-fr-original-lang"],
+      });
+      // A work that never answers gets no label. Silence must not
+      // become a claim in either direction.
+      const timer = window.setTimeout(() => { obs.disconnect(); resolve(null); }, 8000);
+    });
+  }
+
+  const resolve = corpus === "confessions"
+    // The creeds ship no original, so they are asked where they came
+    // from instead.
+    ? fetch(`${BASE}/v1/works/${encodeURIComponent(workId)}/meta.json`)
       .then((r) => (r.ok ? r.json() : null))
       .then((m) => (m && !ENGLISH_ORIGIN.test(String(m.region || "")) ? "the original" : ""))
-      .catch(() => "");
+      .catch(() => "")
+    : whenAnswered();
 
   resolve.then((source) => {
     if (!source) return;
