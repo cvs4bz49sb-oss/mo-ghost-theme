@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-25T07:10:52.577Z",
+  "generated_at": "2026-08-25T13:13:51.588Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 314,
-      "plays": 58715,
+      "plays": 58756,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -14,7 +14,7 @@
         {
           "date": "2024-12-10",
           "title": "Mere Christian Hermeneutics with Kevin Vanhoozer",
-          "plays": 76
+          "plays": 77
         },
         {
           "date": "2024-12-19",
@@ -194,17 +194,17 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 311
+          "plays": 312
         },
         {
           "date": "2026-03-25",
           "title": "The Fall Before The Fall with Philip G. Porter",
-          "plays": 203
+          "plays": 204
         },
         {
           "date": "2026-04-01",
           "title": "Replay: The Age of AI with Jason Thacker",
-          "plays": 151
+          "plays": 152
         },
         {
           "date": "2026-04-08",
@@ -229,17 +229,17 @@
         {
           "date": "2026-05-06",
           "title": "Virtues For Living Well with Dr. Alan Noble",
-          "plays": 706
+          "plays": 707
         },
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1148
+          "plays": 1149
         },
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3603
+          "plays": 3604
         },
         {
           "date": "2026-05-27",
@@ -254,7 +254,7 @@
         {
           "date": "2026-06-10",
           "title": "Online And Outside the Institutions",
-          "plays": 3483
+          "plays": 3484
         },
         {
           "date": "2026-06-17",
@@ -284,7 +284,7 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3348
+          "plays": 3349
         },
         {
           "date": "2026-07-29",
@@ -299,12 +299,12 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3025
+          "plays": 3028
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3125
+          "plays": 3149
         }
       ],
       "per_episode": [
@@ -500,7 +500,7 @@
         },
         {
           "month": "2020-10",
-          "avg": 14,
+          "avg": 15,
           "episodes": 3
         },
         {
@@ -520,7 +520,7 @@
         },
         {
           "month": "2021-02",
-          "avg": 28,
+          "avg": 29,
           "episodes": 4
         },
         {
@@ -705,7 +705,7 @@
         },
         {
           "month": "2024-03",
-          "avg": 24,
+          "avg": 25,
           "episodes": 3
         },
         {
@@ -800,7 +800,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 192,
+          "avg": 193,
           "episodes": 4
         },
         {
@@ -825,14 +825,14 @@
         },
         {
           "month": "2026-08",
-          "avg": 2987,
+          "avg": 2996,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 48,
-      "plays": 15762,
+      "plays": 15779,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -868,7 +868,7 @@
         {
           "date": "2025-08-21",
           "title": "J.R.R. Tolkien - The Return of the King with Kirsten Sanders",
-          "plays": 124
+          "plays": 126
         },
         {
           "date": "2025-08-28",
@@ -1028,7 +1028,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1127
+          "plays": 1128
         },
         {
           "date": "2026-06-25",
@@ -1048,22 +1048,22 @@
         {
           "date": "2026-07-16",
           "title": "Jack London: An American Classic with Elizabeth Stice",
-          "plays": 750
+          "plays": 751
         },
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 904
+          "plays": 908
         },
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 840
+          "plays": 841
         },
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 883
+          "plays": 884
         },
         {
           "date": "2026-08-13",
@@ -1073,7 +1073,7 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 633
+          "plays": 640
         }
       ],
       "per_episode": [
@@ -1134,12 +1134,12 @@
         },
         {
           "month": "2026-07",
-          "avg": 816,
+          "avg": 817,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 720,
+          "avg": 723,
           "episodes": 3
         }
       ]
