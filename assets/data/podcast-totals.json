@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-26T13:19:45.856Z",
+  "generated_at": "2026-08-26T20:07:00.238Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 315,
-      "plays": 60053,
+      "plays": 60648,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -74,7 +74,7 @@
         {
           "date": "2025-08-27",
           "title": "Two Cheers For Modernity!",
-          "plays": 52
+          "plays": 53
         },
         {
           "date": "2025-09-03",
@@ -104,7 +104,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 264
+          "plays": 265
         },
         {
           "date": "2025-10-15",
@@ -159,12 +159,12 @@
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 235
+          "plays": 236
         },
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 96
+          "plays": 97
         },
         {
           "date": "2026-02-18",
@@ -174,22 +174,22 @@
         {
           "date": "2026-02-25",
           "title": "Resisting Doomerism and Cultivating Hope",
-          "plays": 136
+          "plays": 137
         },
         {
           "date": "2026-03-04",
           "title": "The Spirituality of Aliens",
-          "plays": 141
+          "plays": 143
         },
         {
           "date": "2026-03-11",
           "title": "Delighting In The Ten Commandments",
-          "plays": 113
+          "plays": 114
         },
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 313
+          "plays": 316
         },
         {
           "date": "2026-03-25",
@@ -224,7 +224,7 @@
         {
           "date": "2026-05-06",
           "title": "Virtues For Living Well with Dr. Alan Noble",
-          "plays": 708
+          "plays": 709
         },
         {
           "date": "2026-05-13",
@@ -239,7 +239,7 @@
         {
           "date": "2026-05-27",
           "title": "Idolatry And The Shape Of Worship",
-          "plays": 3714
+          "plays": 3715
         },
         {
           "date": "2026-06-03",
@@ -259,22 +259,22 @@
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3587
+          "plays": 3588
         },
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3410
+          "plays": 3411
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3827
+          "plays": 3831
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 2985
+          "plays": 2987
         },
         {
           "date": "2026-07-22",
@@ -284,33 +284,33 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2811
+          "plays": 2814
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2829
+          "plays": 2835
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3066
+          "plays": 3083
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3250
+          "plays": 3279
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 1071
+          "plays": 1583
         }
       ],
       "per_episode": [
         {
           "month": "2017-02",
-          "avg": 28,
+          "avg": 29,
           "episodes": 2
         },
         {
@@ -660,7 +660,7 @@
         },
         {
           "month": "2023-06",
-          "avg": 42,
+          "avg": 43,
           "episodes": 2
         },
         {
@@ -670,7 +670,7 @@
         },
         {
           "month": "2023-08",
-          "avg": 123,
+          "avg": 124,
           "episodes": 1
         },
         {
@@ -795,12 +795,12 @@
         },
         {
           "month": "2026-02",
-          "avg": 137,
+          "avg": 138,
           "episodes": 4
         },
         {
           "month": "2026-03",
-          "avg": 193,
+          "avg": 195,
           "episodes": 4
         },
         {
@@ -815,24 +815,24 @@
         },
         {
           "month": "2026-06",
-          "avg": 3458,
+          "avg": 3459,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 3277,
+          "avg": 3279,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 2554,
+          "avg": 2695,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 48,
-      "plays": 15865,
+      "plays": 15898,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -848,7 +848,7 @@
         {
           "date": "2025-08-12",
           "title": "A. A. Milne - Winnie the Pooh with Ivana D. Greco and Dixie Dillon Lane",
-          "plays": 113
+          "plays": 114
         },
         {
           "date": "2025-08-12",
@@ -923,7 +923,7 @@
         {
           "date": "2025-11-06",
           "title": "Reading Ancient Pagans As Modern Christians",
-          "plays": 93
+          "plays": 95
         },
         {
           "date": "2026-01-29",
@@ -933,7 +933,7 @@
         {
           "date": "2026-02-05",
           "title": "Narrative of the Life of Frederick Douglass with Shilo Brooks | America 250",
-          "plays": 83
+          "plays": 84
         },
         {
           "date": "2026-02-12",
@@ -943,7 +943,7 @@
         {
           "date": "2026-02-19",
           "title": "Brave New World by Aldous Huxley with Katelyn Walls Shelton | America 250",
-          "plays": 82
+          "plays": 83
         },
         {
           "date": "2026-02-26",
@@ -963,7 +963,7 @@
         {
           "date": "2026-03-18",
           "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
-          "plays": 113
+          "plays": 114
         },
         {
           "date": "2026-03-26",
@@ -978,17 +978,17 @@
         {
           "date": "2026-04-09",
           "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
-          "plays": 91
+          "plays": 92
         },
         {
           "date": "2026-04-16",
           "title": "The Scarlet Letter by Nathaniel Hawthorne with Jeff Bilbro | American 250",
-          "plays": 98
+          "plays": 99
         },
         {
           "date": "2026-04-23",
           "title": "Thomas Aquinas For Protestants with Miles Smith",
-          "plays": 154
+          "plays": 155
         },
         {
           "date": "2026-05-01",
@@ -1028,12 +1028,12 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1129
+          "plays": 1130
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1251
+          "plays": 1252
         },
         {
           "date": "2026-07-02",
@@ -1048,7 +1048,7 @@
         {
           "date": "2026-07-16",
           "title": "Jack London: An American Classic with Elizabeth Stice",
-          "plays": 754
+          "plays": 755
         },
         {
           "date": "2026-07-23",
@@ -1063,17 +1063,17 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 888
+          "plays": 890
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 656
+          "plays": 659
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 672
+          "plays": 688
         }
       ],
       "per_episode": [
@@ -1099,7 +1099,7 @@
         },
         {
           "month": "2025-11",
-          "avg": 93,
+          "avg": 95,
           "episodes": 1
         },
         {
@@ -1109,7 +1109,7 @@
         },
         {
           "month": "2026-02",
-          "avg": 69,
+          "avg": 70,
           "episodes": 4
         },
         {
@@ -1119,7 +1119,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 118,
+          "avg": 119,
           "episodes": 4
         },
         {
@@ -1139,7 +1139,7 @@
         },
         {
           "month": "2026-08",
-          "avg": 739,
+          "avg": 746,
           "episodes": 3
         }
       ]
