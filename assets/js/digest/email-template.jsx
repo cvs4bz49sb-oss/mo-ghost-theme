@@ -315,6 +315,20 @@ const SIGNATURES = {
 
 // --- Default content bundle (shape used everywhere) ----------------
 
+// Eyebrow labels for the two CTA boxes. Both are editable per-issue in the
+// content editor; these are only the fallback for saved content written
+// before the field existed (loadSavedContent shallow-merges at the TOP level
+// only, so an older saved `membership` object arrives with no eyebrow key at
+// all — undefined must mean "the old hardcoded label", not "hidden").
+const MEMBERSHIP_EYEBROW_DEFAULT = 'Become a Member';
+const MEMBER_THANKS_EYEBROW_DEFAULT = 'For Members';
+
+// undefined/null → the historical label; '' (or whitespace) → hide the line.
+function ctaEyebrow(value, fallback) {
+  const raw = value == null ? fallback : value;
+  return String(raw).trim();
+}
+
 const DEFAULT_CONTENT = {
   issueNumber: '184',
   dateStr: 'May 4, 2026',
@@ -336,12 +350,17 @@ const DEFAULT_CONTENT = {
   editorSignature: '— Ian Harber, Director of Communications',
   signatureKey: 'ian',
   membership: {
+    // Small caps line above the headline. An empty string hides the line
+    // entirely; a MISSING key falls back to the label below, so older saved
+    // content (which predates the field) keeps rendering as it always did.
+    eyebrow: MEMBERSHIP_EYEBROW_DEFAULT,
     headline: 'Mere Orthodoxy exists because of readers like you.',
     body: "Support Mere Orthodoxy in our mission to produce media that advances Christian renewal for the common good. You'll get the print Journal, access to our online community, and more usable features on MereOrthodoxy.com.",
     cta: 'Join Mere Orthodoxy',
     href: 'https://mereorthodoxy.com/membership',
   },
   memberThanks: {
+    eyebrow: MEMBER_THANKS_EYEBROW_DEFAULT,
     headline: 'Thank you for keeping this work going.',
     body: 'Your members-only essay this week, The Liturgy of the Inbox by Brad East, is now live in the archive.',
     cta: 'Read the Member Essay →',
@@ -619,6 +638,7 @@ function CustomBlocks({ tokens, accent, blocks }) {
 
 function MembershipCTA({ tokens, accent, content }) {
   const isBold = accent === 'bold';
+  const eyebrow = ctaEyebrow(content.eyebrow, MEMBERSHIP_EYEBROW_DEFAULT);
   return (
     <div style={{ padding: '0 32px 8px' }} className="mo-pad-32">
     <div style={{
@@ -629,17 +649,19 @@ function MembershipCTA({ tokens, accent, content }) {
       border: isBold ? 'none' : `1px solid ${tokens.ruleSoft}`,
       borderRadius: 5,
     }} className="mo-pad-32-tight">
-      <div style={{
-        fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-        fontSize: 11,
-        color: isBold ? '#f1e0c9' : tokens.secondary,
-        letterSpacing: '0.22em',
-        textTransform: 'uppercase',
-        fontWeight: 600,
-        marginBottom: 12,
-      }}>
-        Become a Member
-      </div>
+      {eyebrow ? (
+        <div style={{
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 11,
+          color: isBold ? '#f1e0c9' : tokens.secondary,
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          fontWeight: 600,
+          marginBottom: 12,
+        }}>
+          {eyebrow}
+        </div>
+      ) : null}
       <h2
         className="mo-cta-headline"
         style={{
@@ -1087,6 +1109,7 @@ function DailyLiturgyBlock({ tokens, content }) {
 }
 
 function MemberThanks({ tokens, content }) {
+  const eyebrow = ctaEyebrow(content.eyebrow, MEMBER_THANKS_EYEBROW_DEFAULT);
   return (
     <div style={{ padding: '0 32px' }} className="mo-pad-32">
     <div style={{
@@ -1096,17 +1119,19 @@ function MemberThanks({ tokens, content }) {
       border: `1px solid ${tokens.ruleSoft}`,
       borderRadius: 5,
     }} className="mo-pad-32-tight">
-      <div style={{
-        fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
-        fontSize: 10.5,
-        color: tokens.secondary,
-        letterSpacing: '0.22em',
-        textTransform: 'uppercase',
-        fontWeight: 700,
-        marginBottom: 10,
-      }}>
-        For Members
-      </div>
+      {eyebrow ? (
+        <div style={{
+          fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
+          fontSize: 10.5,
+          color: tokens.secondary,
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          fontWeight: 700,
+          marginBottom: 10,
+        }}>
+          {eyebrow}
+        </div>
+      ) : null}
       <div
         style={{
           fontFamily: '"IM Fell English", Georgia, serif',

@@ -11,6 +11,20 @@
     const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
     return m ? m[1] : null;
   }
+  function trimSummary(text, max) {
+    const s = String(text || "").trim();
+    if (!s || s.length <= max) return s;
+    const window2 = s.slice(0, max);
+    let cut = -1;
+    const re = /[.!?][)"'’”]?(?=\s|$)/g;
+    let m;
+    while ((m = re.exec(window2)) !== null) cut = m.index + m[0].length;
+    if (cut > 0) return window2.slice(0, cut).trim();
+    const space = window2.lastIndexOf(" ");
+    return (space > 0 ? window2.slice(0, space) : window2).replace(/[,;:\s]+$/, "") + "\u2026";
+  }
+  const PODCAST_SUMMARY_MAX = 800;
+  const ESSAY_SUMMARY_MAX = 280;
   function parseRSS(xmlText) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, "application/xml");
@@ -48,7 +62,7 @@
       return {
         title,
         link,
-        summary: summary.slice(0, 280),
+        summary: trimSummary(summary, ESSAY_SUMMARY_MAX),
         image,
         byline,
         kicker
@@ -358,7 +372,7 @@
     const snippet = String(b.heading || b.text || b.linkText || "").replace(/[#*_>[\]`]/g, "").trim();
     return snippet ? `${typeLabel}: ${snippet.slice(0, 40)}` : `${typeLabel} block`;
   }
-  const CTA_FIELDS = ["headline", "body", "cta", "href"];
+  const CTA_FIELDS = ["eyebrow", "headline", "body", "cta", "href"];
   const CTA_SLOT_LABELS = {
     membership: "Membership CTA (free)",
     memberThanks: "Member thanks (paid)"
@@ -383,6 +397,10 @@
     const s = src || {};
     const out = {};
     CTA_FIELDS.forEach((f) => {
+      if (f === "eyebrow") {
+        if (s[f] != null) out[f] = s[f];
+        return;
+      }
       out[f] = s[f] || "";
     });
     return out;
@@ -488,7 +506,7 @@
         kicker: author,
         title: p.title || "Untitled",
         byline: author,
-        summary: (p.custom_excerpt || p.excerpt || "").slice(0, 280),
+        summary: trimSummary(p.custom_excerpt || p.excerpt || "", ESSAY_SUMMARY_MAX),
         url: p.url || slot && slot.url || "#"
       };
     };
@@ -510,7 +528,7 @@
             label: existing[i] && existing[i].label || p.primary_tag && p.primary_tag.name || "Podcast",
             episode: existing[i] && existing[i].episode || "Episode",
             title: p.title || "Untitled",
-            summary: (p.custom_excerpt || p.excerpt || "").slice(0, 280),
+            summary: trimSummary(p.custom_excerpt || p.excerpt || "", ESSAY_SUMMARY_MAX),
             cta: existing[i] && existing[i].cta || "Listen to the episode",
             url: p.url || existing[i] && existing[i].url || "#"
           }));
@@ -598,7 +616,7 @@
           label: r.row.label || r.show && r.show.title || slot.label || "Podcast",
           episode: episodeNum,
           title: ep.title || slot.title || "Untitled",
-          summary: (ep.description || "").slice(0, 280) || slot.summary || "",
+          summary: trimSummary(ep.description || "", PODCAST_SUMMARY_MAX) || slot.summary || "",
           cta: slot.cta || "Listen to the episode",
           url: ep.link || ep.audioUrl || slot.url || "#"
         });
@@ -1742,7 +1760,7 @@
             style: btnStyle("secondary")
           },
           "+ Add Image"
-        )), renderBlockLibraryTools()), /* @__PURE__ */ React.createElement(Group, { title: "Membership CTA (free version)" }, renderCtaTools("membership"), /* @__PURE__ */ React.createElement(Field, { label: "Headline (use \\\\n for line break)", value: content.membership?.headline, multiline: true, rows: 2, onChange: (v) => updateField("membership.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.membership?.body, multiline: true, rows: 3, onChange: (v) => updateField("membership.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.membership?.cta, onChange: (v) => updateField("membership.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.membership?.href, onChange: (v) => updateField("membership.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "The Daily Liturgy" }, /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 10px", fontSize: 12, color: "#9a8773", lineHeight: 1.5 } }, "A standing promo under the podcasts. Nothing is pulled for it, so it needs no API key. Hide it for a week from the Sections list above rather than deleting the text."), /* @__PURE__ */ React.createElement(Field, { label: "Logo URL", value: content.dailyLiturgy?.logo, onChange: (v) => updateField("dailyLiturgy.logo", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.dailyLiturgy?.headline, onChange: (v) => updateField("dailyLiturgy.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.dailyLiturgy?.body, multiline: true, rows: 2, onChange: (v) => updateField("dailyLiturgy.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.dailyLiturgy?.cta, onChange: (v) => updateField("dailyLiturgy.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.dailyLiturgy?.href, onChange: (v) => updateField("dailyLiturgy.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "Member thanks (paid version)" }, renderCtaTools("memberThanks"), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.memberThanks?.headline, onChange: (v) => updateField("memberThanks.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.memberThanks?.body, multiline: true, rows: 2, onChange: (v) => updateField("memberThanks.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.memberThanks?.cta, onChange: (v) => updateField("memberThanks.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.memberThanks?.href, onChange: (v) => updateField("memberThanks.href", v) }))), ["sponsorTop", "sponsorBottom"].map((key) => /* @__PURE__ */ React.createElement(Group, { key, title: key === "sponsorTop" ? "Sponsor \u2014 top slot" : "Sponsor \u2014 bottom slot" }, renderSponsorTools(key), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Section label", value: content[key]?.label, onChange: (v) => updateField(`${key}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Sponsor name", value: content[key]?.name, onChange: (v) => updateField(`${key}.name`, v) })), /* @__PURE__ */ React.createElement(ImageUrlField, { value: content[key]?.image, onChange: (v) => updateField(`${key}.image`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content[key]?.headline, onChange: (v) => updateField(`${key}.headline`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content[key]?.body, multiline: true, rows: 3, onChange: (v) => updateField(`${key}.body`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content[key]?.cta, onChange: (v) => updateField(`${key}.cta`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content[key]?.href, onChange: (v) => updateField(`${key}.href`, v) })))), /* @__PURE__ */ React.createElement(Group, { title: `Essays (${content.essays?.length || 0})` }, /* @__PURE__ */ React.createElement(Field, { label: "Section heading", value: content.essaysHeading, placeholder: "This Week's Essays", onChange: (v) => updateField("essaysHeading", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement(
+        )), renderBlockLibraryTools()), /* @__PURE__ */ React.createElement(Group, { title: "Membership CTA (free version)" }, renderCtaTools("membership"), /* @__PURE__ */ React.createElement(Field, { label: "Eyebrow (small caps above the headline \u2014 clear it to remove the line)", value: content.membership?.eyebrow ?? "Become a Member", onChange: (v) => updateField("membership.eyebrow", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline (use \\\\n for line break)", value: content.membership?.headline, multiline: true, rows: 2, onChange: (v) => updateField("membership.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.membership?.body, multiline: true, rows: 3, onChange: (v) => updateField("membership.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.membership?.cta, onChange: (v) => updateField("membership.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.membership?.href, onChange: (v) => updateField("membership.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "The Daily Liturgy" }, /* @__PURE__ */ React.createElement("p", { style: { margin: "0 0 10px", fontSize: 12, color: "#9a8773", lineHeight: 1.5 } }, "A standing promo under the podcasts. Nothing is pulled for it, so it needs no API key. Hide it for a week from the Sections list above rather than deleting the text."), /* @__PURE__ */ React.createElement(Field, { label: "Logo URL", value: content.dailyLiturgy?.logo, onChange: (v) => updateField("dailyLiturgy.logo", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.dailyLiturgy?.headline, onChange: (v) => updateField("dailyLiturgy.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.dailyLiturgy?.body, multiline: true, rows: 2, onChange: (v) => updateField("dailyLiturgy.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.dailyLiturgy?.cta, onChange: (v) => updateField("dailyLiturgy.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.dailyLiturgy?.href, onChange: (v) => updateField("dailyLiturgy.href", v) }))), /* @__PURE__ */ React.createElement(Group, { title: "Member thanks (paid version)" }, renderCtaTools("memberThanks"), /* @__PURE__ */ React.createElement(Field, { label: "Eyebrow (small caps above the headline \u2014 clear it to remove the line)", value: content.memberThanks?.eyebrow ?? "For Members", onChange: (v) => updateField("memberThanks.eyebrow", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content.memberThanks?.headline, onChange: (v) => updateField("memberThanks.headline", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content.memberThanks?.body, multiline: true, rows: 2, onChange: (v) => updateField("memberThanks.body", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content.memberThanks?.cta, onChange: (v) => updateField("memberThanks.cta", v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content.memberThanks?.href, onChange: (v) => updateField("memberThanks.href", v) }))), ["sponsorTop", "sponsorBottom"].map((key) => /* @__PURE__ */ React.createElement(Group, { key, title: key === "sponsorTop" ? "Sponsor \u2014 top slot" : "Sponsor \u2014 bottom slot" }, renderSponsorTools(key), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Section label", value: content[key]?.label, onChange: (v) => updateField(`${key}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Sponsor name", value: content[key]?.name, onChange: (v) => updateField(`${key}.name`, v) })), /* @__PURE__ */ React.createElement(ImageUrlField, { value: content[key]?.image, onChange: (v) => updateField(`${key}.image`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Headline", value: content[key]?.headline, onChange: (v) => updateField(`${key}.headline`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Body", value: content[key]?.body, multiline: true, rows: 3, onChange: (v) => updateField(`${key}.body`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: content[key]?.cta, onChange: (v) => updateField(`${key}.cta`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: content[key]?.href, onChange: (v) => updateField(`${key}.href`, v) })))), /* @__PURE__ */ React.createElement(Group, { title: `Essays (${content.essays?.length || 0})` }, /* @__PURE__ */ React.createElement(Field, { label: "Section heading", value: content.essaysHeading, placeholder: "This Week's Essays", onChange: (v) => updateField("essaysHeading", v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement(
           "button",
           {
             onClick: () => {
@@ -1821,7 +1839,7 @@
           textTransform: "uppercase",
           color: "#c1593c",
           marginBottom: 8
-        } }, "Podcast ", i + 1), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Show name", value: pod.label, onChange: (v) => updateField(`podcasts.${i}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Episode", value: pod.episode, onChange: (v) => updateField(`podcasts.${i}.episode`, v) })), /* @__PURE__ */ React.createElement(Field, { label: "Title", value: pod.title, onChange: (v) => updateField(`podcasts.${i}.title`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Summary", value: pod.summary, multiline: true, rows: 2, onChange: (v) => updateField(`podcasts.${i}.summary`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Image", value: pod.img, onChange: (v) => updateField(`podcasts.${i}.img`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: pod.cta, onChange: (v) => updateField(`podcasts.${i}.cta`, v) })), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: pod.url, placeholder: "https://\u2026", onChange: (v) => updateField(`podcasts.${i}.url`, v) }))))),
+        } }, "Podcast ", i + 1), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Show name", value: pod.label, onChange: (v) => updateField(`podcasts.${i}.label`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Episode", value: pod.episode, onChange: (v) => updateField(`podcasts.${i}.episode`, v) })), /* @__PURE__ */ React.createElement(Field, { label: "Title", value: pod.title, onChange: (v) => updateField(`podcasts.${i}.title`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "Summary", value: pod.summary, multiline: true, rows: 5, onChange: (v) => updateField(`podcasts.${i}.summary`, v) }), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 } }, /* @__PURE__ */ React.createElement(Field, { label: "Image", value: pod.img, onChange: (v) => updateField(`podcasts.${i}.img`, v) }), /* @__PURE__ */ React.createElement(Field, { label: "CTA text", value: pod.cta, onChange: (v) => updateField(`podcasts.${i}.cta`, v) })), /* @__PURE__ */ React.createElement(Field, { label: "Link", value: pod.url, placeholder: "https://\u2026", onChange: (v) => updateField(`podcasts.${i}.url`, v) }))))),
         /* @__PURE__ */ React.createElement("div", { "data-mo-modal-footer": true, style: {
           padding: "14px 24px",
           borderTop: "1px solid #e8d9bd",

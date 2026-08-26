@@ -25,6 +25,37 @@ function findFirstImg(html) {
   return m ? m[1] : null;
 }
 
+// Cap a pulled summary WITHOUT leaving it visibly chopped.
+//
+// Every pull used to end in a bare `.slice(0, n)`, which lands wherever the
+// character count runs out — mid-word, or on a trailing comma. In the email
+// that reads as a rendering bug rather than an excerpt: a podcast blurb ended
+// "Is their influence over, or do" with no ellipsis and no period.
+//
+// So: cut at the last sentence that fits. Only if the first sentence is itself
+// longer than the cap do we fall back to a word-boundary cut plus an ellipsis,
+// which at least announces itself as an excerpt. Text already under the cap is
+// returned untouched.
+function trimSummary(text, max) {
+  const s = String(text || '').trim();
+  if (!s || s.length <= max) return s;
+  const window = s.slice(0, max);
+  // Sentence end = . ! ? optionally followed by a closing quote/bracket.
+  let cut = -1;
+  const re = /[.!?][)"'’”]?(?=\s|$)/g;
+  let m;
+  while ((m = re.exec(window)) !== null) cut = m.index + m[0].length;
+  if (cut > 0) return window.slice(0, cut).trim();
+  const space = window.lastIndexOf(' ');
+  return (space > 0 ? window.slice(0, space) : window).replace(/[,;:\s]+$/, '') + '…';
+}
+
+// The mo-podcast-feed worker already strips HTML and caps descriptions at 800
+// characters, so matching that number here means a pulled episode blurb now
+// arrives whole instead of losing its last two sentences to a second cap.
+const PODCAST_SUMMARY_MAX = 800;
+const ESSAY_SUMMARY_MAX = 280;
+
 function parseRSS(xmlText) {
   // Returns { items: [{ title, link, summary, image, byline, kicker, pubDate }] }
   const parser = new DOMParser();
@@ -77,7 +108,7 @@ function parseRSS(xmlText) {
     return {
       title,
       link,
-      summary: summary.slice(0, 280),
+      summary: trimSummary(summary, ESSAY_SUMMARY_MAX),
       image,
       byline,
       kicker,
@@ -431,7 +462,7 @@ function blockTitle(b) {
 // One shared store, because the copy is often reused across both with small
 // edits. Each entry remembers the slot it was saved from so the picker can
 // group them; loading across slots is still allowed.
-const CTA_FIELDS = ['headline', 'body', 'cta', 'href'];
+const CTA_FIELDS = ['eyebrow', 'headline', 'body', 'cta', 'href'];
 
 const CTA_SLOT_LABELS = {
   membership: 'Membership CTA (free)',
@@ -456,7 +487,18 @@ function saveCtaLibrary(arr) {
 function ctaFields(src) {
   const s = src || {};
   const out = {};
-  CTA_FIELDS.forEach((f) => { out[f] = s[f] || ''; });
+  CTA_FIELDS.forEach((f) => {
+    // `eyebrow` is three-state: a string, '' (hide the line), or ABSENT (fall
+    // back to the template's built-in label). Coercing absent → '' the way the
+    // other fields do would silently strip the eyebrow off every CTA saved to
+    // the library before this field existed, so leave the key off instead and
+    // let the spread in loadCtaIntoSlot keep whatever the slot already has.
+    if (f === 'eyebrow') {
+      if (s[f] != null) out[f] = s[f];
+      return;
+    }
+    out[f] = s[f] || '';
+  });
   return out;
 }
 
@@ -623,7 +665,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
       kicker: author,
       title: p.title || 'Untitled',
       byline: author,
-      summary: (p.custom_excerpt || p.excerpt || '').slice(0, 280),
+      summary: trimSummary(p.custom_excerpt || p.excerpt || '', ESSAY_SUMMARY_MAX),
       url: p.url || (slot && slot.url) || '#',
     };
   };
@@ -648,7 +690,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
           label: (existing[i] && existing[i].label) || (p.primary_tag && p.primary_tag.name) || 'Podcast',
           episode: (existing[i] && existing[i].episode) || 'Episode',
           title: p.title || 'Untitled',
-          summary: (p.custom_excerpt || p.excerpt || '').slice(0, 280),
+          summary: trimSummary(p.custom_excerpt || p.excerpt || '', ESSAY_SUMMARY_MAX),
           cta: (existing[i] && existing[i].cta) || 'Listen to the episode',
           url: p.url || (existing[i] && existing[i].url) || '#',
         }));
@@ -799,7 +841,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
         label: r.row.label || (r.show && r.show.title) || slot.label || 'Podcast',
         episode: episodeNum,
         title: ep.title || slot.title || 'Untitled',
-        summary: (ep.description || '').slice(0, 280) || slot.summary || '',
+        summary: trimSummary(ep.description || '', PODCAST_SUMMARY_MAX) || slot.summary || '',
         cta: slot.cta || 'Listen to the episode',
         url: ep.link || ep.audioUrl || slot.url || '#',
       });
@@ -2202,6 +2244,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
 
           <Group title="Membership CTA (free version)">
             {renderCtaTools('membership')}
+            <Field label="Eyebrow (small caps above the headline — clear it to remove the line)" value={content.membership?.eyebrow ?? 'Become a Member'} onChange={(v) => updateField('membership.eyebrow', v)} />
             <Field label="Headline (use \\n for line break)" value={content.membership?.headline} multiline rows={2} onChange={(v) => updateField('membership.headline', v)} />
             <Field label="Body" value={content.membership?.body} multiline rows={3} onChange={(v) => updateField('membership.body', v)} />
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
@@ -2226,6 +2269,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
 
           <Group title="Member thanks (paid version)">
             {renderCtaTools('memberThanks')}
+            <Field label="Eyebrow (small caps above the headline — clear it to remove the line)" value={content.memberThanks?.eyebrow ?? 'For Members'} onChange={(v) => updateField('memberThanks.eyebrow', v)} />
             <Field label="Headline" value={content.memberThanks?.headline} onChange={(v) => updateField('memberThanks.headline', v)} />
             <Field label="Body" value={content.memberThanks?.body} multiline rows={2} onChange={(v) => updateField('memberThanks.body', v)} />
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
@@ -2361,7 +2405,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
                   <Field label="Episode" value={pod.episode} onChange={(v) => updateField(`podcasts.${i}.episode`, v)} />
                 </div>
                 <Field label="Title" value={pod.title} onChange={(v) => updateField(`podcasts.${i}.title`, v)} />
-                <Field label="Summary" value={pod.summary} multiline rows={2} onChange={(v) => updateField(`podcasts.${i}.summary`, v)} />
+                <Field label="Summary" value={pod.summary} multiline rows={5} onChange={(v) => updateField(`podcasts.${i}.summary`, v)} />
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
                   <Field label="Image" value={pod.img} onChange={(v) => updateField(`podcasts.${i}.img`, v)} />
                   <Field label="CTA text" value={pod.cta} onChange={(v) => updateField(`podcasts.${i}.cta`, v)} />

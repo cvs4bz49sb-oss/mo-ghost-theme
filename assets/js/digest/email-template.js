@@ -240,6 +240,12 @@
       photo: "https://storage.ghost.io/c/7b/0b/7b0bd699-d78f-4472-8d29-233bd333f048/content/images/2026/05/sig-mark-256.png"
     }
   };
+  const MEMBERSHIP_EYEBROW_DEFAULT = "Become a Member";
+  const MEMBER_THANKS_EYEBROW_DEFAULT = "For Members";
+  function ctaEyebrow(value, fallback) {
+    const raw = value == null ? fallback : value;
+    return String(raw).trim();
+  }
   const DEFAULT_CONTENT = {
     issueNumber: "184",
     dateStr: "May 4, 2026",
@@ -261,12 +267,17 @@
     editorSignature: "\u2014 Ian Harber, Director of Communications",
     signatureKey: "ian",
     membership: {
+      // Small caps line above the headline. An empty string hides the line
+      // entirely; a MISSING key falls back to the label below, so older saved
+      // content (which predates the field) keeps rendering as it always did.
+      eyebrow: MEMBERSHIP_EYEBROW_DEFAULT,
       headline: "Mere Orthodoxy exists because of readers like you.",
       body: "Support Mere Orthodoxy in our mission to produce media that advances Christian renewal for the common good. You'll get the print Journal, access to our online community, and more usable features on MereOrthodoxy.com.",
       cta: "Join Mere Orthodoxy",
       href: "https://mereorthodoxy.com/membership"
     },
     memberThanks: {
+      eyebrow: MEMBER_THANKS_EYEBROW_DEFAULT,
       headline: "Thank you for keeping this work going.",
       body: "Your members-only essay this week, The Liturgy of the Inbox by Brad East, is now live in the archive.",
       cta: "Read the Member Essay \u2192",
@@ -442,6 +453,7 @@
   }
   function MembershipCTA({ tokens, accent, content }) {
     const isBold = accent === "bold";
+    const eyebrow = ctaEyebrow(content.eyebrow, MEMBERSHIP_EYEBROW_DEFAULT);
     return /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px 8px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("div", { style: {
       padding: "32px 28px",
       background: isBold ? tokens.tertiary : tokens.bgCream,
@@ -449,7 +461,7 @@
       textAlign: "center",
       border: isBold ? "none" : `1px solid ${tokens.ruleSoft}`,
       borderRadius: 5
-    }, className: "mo-pad-32-tight" }, /* @__PURE__ */ React.createElement("div", { style: {
+    }, className: "mo-pad-32-tight" }, eyebrow ? /* @__PURE__ */ React.createElement("div", { style: {
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
       fontSize: 11,
       color: isBold ? "#f1e0c9" : tokens.secondary,
@@ -457,7 +469,7 @@
       textTransform: "uppercase",
       fontWeight: 600,
       marginBottom: 12
-    } }, "Become a Member"), /* @__PURE__ */ React.createElement(
+    } }, eyebrow) : null, /* @__PURE__ */ React.createElement(
       "h2",
       {
         className: "mo-cta-headline",
@@ -775,13 +787,14 @@
     } }, c.cta || "Start Now")));
   }
   function MemberThanks({ tokens, content }) {
+    const eyebrow = ctaEyebrow(content.eyebrow, MEMBER_THANKS_EYEBROW_DEFAULT);
     return /* @__PURE__ */ React.createElement("div", { style: { padding: "0 32px" }, className: "mo-pad-32" }, /* @__PURE__ */ React.createElement("div", { style: {
       padding: "24px 28px",
       background: tokens.bgCream,
       textAlign: "center",
       border: `1px solid ${tokens.ruleSoft}`,
       borderRadius: 5
-    }, className: "mo-pad-32-tight" }, /* @__PURE__ */ React.createElement("div", { style: {
+    }, className: "mo-pad-32-tight" }, eyebrow ? /* @__PURE__ */ React.createElement("div", { style: {
       fontFamily: '"Source Sans 3", "Helvetica Neue", Arial, sans-serif',
       fontSize: 10.5,
       color: tokens.secondary,
@@ -789,7 +802,7 @@
       textTransform: "uppercase",
       fontWeight: 700,
       marginBottom: 10
-    } }, "For Members"), /* @__PURE__ */ React.createElement(
+    } }, eyebrow) : null, /* @__PURE__ */ React.createElement(
       "div",
       {
         style: {
