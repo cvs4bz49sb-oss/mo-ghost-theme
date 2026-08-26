@@ -24711,3 +24711,103 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
   .art-detail > td::before { content: none; }
   .art-detail-grid { gap: 8px 20px; }
 }
+
+/* ---------------------------------------------------------------------------
+   Homepage: upright type
+   ---------------------------------------------------------------------------
+   Ian, 2026-08-26: no italics on the homepage except "for the Common Good."
+   in the hero headline.
+
+   Scoped to Ghost's `home-template` body class, so every one of these
+   selectors keeps its italic on the pages it is shared with (/membership/,
+   /tag/, the podcast pages, the article rail). Nothing here changes a
+   template; it is a display override on the homepage only.
+
+   Three layers, on purpose:
+
+   1. The blanket. There is NO global `em { font-style: normal }` in this
+      theme, so <em>/<i>/<cite> carry the browser's italic and the blanket
+      is doing real work, not standing guard. Note what that means for
+      specificity: :is() takes the specificity of its most specific
+      argument, and these are all type selectors, so the blanket is (0,1,1)
+      - it ties every `.X em` rule in the file and wins on source order,
+      because it sits last. That reach is why layer 3 exists.
+   2. The explicit list. This is where most of the work happens, and it
+      exists ONLY for specificity: each source rule outranks the blanket
+      (.read-list .card-title em is 0,2,1; the contributor byline rule is
+      0,4,0), so each is restated here with the .home-template prefix to win
+      by exactly one class. If you delete a selector from screen.css, delete
+      its twin here too.
+   3. The exceptions - the hero tail Ian kept, and the site chrome the
+      blanket would otherwise reach past the homepage's edges.
+
+   Two things are deliberately NOT swept:
+
+   - Site chrome. The footer wordmark, the footer tagline ("Christian
+     renewal for the common good."), the mobile-nav wordmark and the search
+     overlay render identically on every page, and de-italicising them on
+     the homepage alone would read as a bug rather than a decision.
+   - Ornaments. The hero kicker's pilcrow and the ❦ flourishes are glyphs,
+     not italic type, and the Fell roman and italic pilcrows are materially
+     different marks - the source rule's own `margin-right` was tuned to
+     correct the ITALIC glyph's left side bearing, so flipping it to roman
+     would silently un-tune documented optical spacing on the hero's focal
+     ornament.
+   --------------------------------------------------------------------------- */
+.home-template :is(em, i, cite, var, dfn, address) { font-style: normal; }
+
+.home-template .hero-feature h3,
+.home-template .hero-feature .byline em,
+.home-template .hero-feature .excerpt .hero-initial,
+.home-template .sidebar-heading h3,
+.home-template .section-heading em,
+.home-template .feature-title,
+.home-template .feature-byline em,
+.home-template .feature-excerpt .feature-initial,
+.home-template .card-title em,
+.home-template .card-byline .author,
+.home-template .card-label,
+.home-template .card-label em,
+.home-template .read-list .card-title em,
+.home-template .read-list .card-byline .author,
+.home-template .entry-title,
+.home-template .entry-byline em,
+.home-template .entry-excerpt .entry-initial,
+.home-template .entry-byline-contributors[data-byline] .entry-contributor--candidate[data-tag-slug^="author-"],
+/* topic-filter.js swaps the This Week grid for .tag-header when a topic
+   rail chip is clicked, so it is homepage markup even though no template
+   carries it. Same for .pod-title, which podcast-feed.js writes into
+   .pod-show-latest. */
+.home-template .tag-header h3,
+.home-template .digest-copy h3,
+.home-template .digest-field input::placeholder,
+.home-template .dlp-band-title em,
+.home-template .pod-title,
+.home-template .pod-show-latest .pod-title em,
+.home-template .journal-copy h2 em,
+.home-template .journal-status-section em,
+.home-template .journal-status-heading em,
+.home-template .reader-feature,
+.home-template .reader-quote,
+.home-template .mb-hero-headline em,
+.home-template .already-member,
+.home-template .benefit-item h3,
+.home-template .capstone-title em,
+.home-template .other-way-numeral {
+  font-style: normal;
+}
+
+/* The exception Ian named. Outranks the blanket above. */
+.home-template .hero-headline em { font-style: italic; }
+
+/* Site chrome, restated because the blanket reaches it. Both wordmarks are
+   an <em> inside their span - .site-footer-wordmark em ties the blanket at
+   (0,1,1) and loses on source order, and .mobile-nav-wordmark sets italic
+   on the SPAN, so the blanket's declaration on the inner <em> beats
+   inheritance outright. The search overlay is the same story. Without
+   these three the homepage would render a roman footer wordmark above an
+   italic footer tagline, and a roman drawer masthead one tap from an
+   italic one on every other page. */
+.home-template .site-footer-wordmark em,
+.home-template .mobile-nav-wordmark em,
+.home-template .mo-search-result-title em { font-style: italic; }
