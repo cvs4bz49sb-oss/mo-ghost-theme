@@ -36,18 +36,54 @@ function findFirstImg(html) {
 // longer than the cap do we fall back to a word-boundary cut plus an ellipsis,
 // which at least announces itself as an excerpt. Text already under the cap is
 // returned untouched.
+// Offset just past the last sentence-ending punctuation in `text`, or 0 if the
+// text contains no complete sentence. Shared by every trimmer below so they all
+// break in the same places.
+//
+// The initials guard matters: "Walter M. Miller Jr." would otherwise read as
+// three sentence endings, and a trimmer could stop after "Walter M." A period
+// preceded by a lone capital is treated as an initial, not a full stop.
+// Deliberately written without lookbehind — a regex Safari can't parse throws at
+// script-parse time and takes the whole builder down with it.
+function lastSentenceEnd(text) {
+  const re = /[.!?][)"'’”]?(?=\s|$)/g;
+  let cut = 0;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const prev = text[m.index - 1];
+    const prev2 = text[m.index - 2];
+    const isInitial = text[m.index] === '.' && prev && /[A-Z]/.test(prev)
+      && (m.index < 2 || /[\s("']/.test(prev2 || ' '));
+    if (isInitial) continue;
+    cut = m.index + m[0].length;
+  }
+  return cut;
+}
+
 function trimSummary(text, max) {
   const s = String(text || '').trim();
   if (!s || s.length <= max) return s;
   const window = s.slice(0, max);
-  // Sentence end = . ! ? optionally followed by a closing quote/bracket.
-  let cut = -1;
-  const re = /[.!?][)"'’”]?(?=\s|$)/g;
-  let m;
-  while ((m = re.exec(window)) !== null) cut = m.index + m[0].length;
+  const cut = lastSentenceEnd(window);
   if (cut > 0) return window.slice(0, cut).trim();
   const space = window.lastIndexOf(' ');
   return (space > 0 ? window.slice(0, space) : window).replace(/[,;:\s]+$/, '') + '…';
+}
+
+// Drop a tail that some upstream truncation already left dangling. The
+// mo-podcast-feed worker caps descriptions at 800 characters and marks the cut
+// with an ellipsis, which can land mid-word inside the house boilerplate — one
+// episode arrived ending "...morally fraught? Chr...", too short a fragment for
+// the promo patterns to recognise. Anything ending in an ellipsis with no
+// closing punctuation of its own is a machine cut, so fall back to the last
+// whole sentence. Text with no complete sentence at all is left alone rather
+// than emptied.
+function dropTruncatedTail(text) {
+  const s = String(text || '').trim();
+  if (!/(\.{3}|…)$/.test(s)) return s;
+  const body = s.replace(/(\.{3}|…)$/, '');
+  const cut = lastSentenceEnd(body);
+  return cut > 0 ? body.slice(0, cut).trim() : s;
 }
 
 // The mo-podcast-feed worker already strips HTML and caps descriptions at 800
@@ -55,6 +91,49 @@ function trimSummary(text, max) {
 // arrives whole instead of losing its last two sentences to a second cap.
 const PODCAST_SUMMARY_MAX = 800;
 const ESSAY_SUMMARY_MAX = 280;
+
+// Every show ends its Buzzsprout description with the same house boilerplate —
+// "Mere Fidelity is a podcast from Mere Orthodoxy and is listener-supported. If
+// you would like to support this work, become a Mere Orthodoxy Member today at
+// http://mereorthodoxy.com/membership." — plus, depending on the show, a
+// sponsor discount code or a production-credits block after it. That belongs on
+// the show page. In the digest it is a second membership pitch sitting a few
+// inches above the actual membership CTA, in the voice of the podcast.
+//
+// This only runs on the email builder's pull. The worker keeps serving the full
+// description to the website, where the CTA is doing its job.
+const PODCAST_PROMO_PATTERNS = [
+  /\bis a podcast from Mere Orthodoxy\b/i,
+  /\bis listener[-\s]supported\b/i,
+  /\bbecome a Mere Orthodoxy Member\b/i,
+  /\bif you(?:'d| would)? like to support\b/i,
+  /\bto support (?:this work|those who made)\b/i,
+  /\bplease consider donating\b/i,
+  /\bmereorthodoxy\.com\/(?:membership|members|donate|give)\b/i,
+];
+
+// Cut from the boilerplate to the end of the text. The house block always runs
+// to the end of the description, so anything after the first marker is more of
+// the same — and dropping only the matched sentence would strand the follow-on
+// "...today at http://mereorthodoxy.com/membership." on its own.
+//
+// The cut backs up to the last sentence that ENDED before the marker, so the
+// blurb still closes on a full sentence. If the promo starts the description
+// (Daily Liturgy opens with its production credit) this returns '' and the
+// caller falls back to whatever summary the slot already had.
+function stripPodcastPromo(text) {
+  const s = String(text || '').trim();
+  if (!s) return '';
+  let earliest = -1;
+  PODCAST_PROMO_PATTERNS.forEach((re) => {
+    const m = s.match(re);
+    if (m && m.index != null && (earliest === -1 || m.index < earliest)) earliest = m.index;
+  });
+  if (earliest === -1) return dropTruncatedTail(s);
+  const before = s.slice(0, earliest);
+  const cut = lastSentenceEnd(before);
+  return before.slice(0, cut).trim();
+}
 
 function parseRSS(xmlText) {
   // Returns { items: [{ title, link, summary, image, byline, kicker, pubDate }] }
@@ -841,7 +920,7 @@ function ContentEditor({ open, content, onChange, onClose, isMember = false }) {
         label: r.row.label || (r.show && r.show.title) || slot.label || 'Podcast',
         episode: episodeNum,
         title: ep.title || slot.title || 'Untitled',
-        summary: trimSummary(ep.description || '', PODCAST_SUMMARY_MAX) || slot.summary || '',
+        summary: trimSummary(stripPodcastPromo(ep.description || ''), PODCAST_SUMMARY_MAX) || slot.summary || '',
         cta: slot.cta || 'Listen to the episode',
         url: ep.link || ep.audioUrl || slot.url || '#',
       });

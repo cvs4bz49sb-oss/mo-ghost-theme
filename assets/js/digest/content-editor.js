@@ -11,20 +11,59 @@
     const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
     return m ? m[1] : null;
   }
+  function lastSentenceEnd(text) {
+    const re = /[.!?][)"'’”]?(?=\s|$)/g;
+    let cut = 0;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      const prev = text[m.index - 1];
+      const prev2 = text[m.index - 2];
+      const isInitial = text[m.index] === "." && prev && /[A-Z]/.test(prev) && (m.index < 2 || /[\s("']/.test(prev2 || " "));
+      if (isInitial) continue;
+      cut = m.index + m[0].length;
+    }
+    return cut;
+  }
   function trimSummary(text, max) {
     const s = String(text || "").trim();
     if (!s || s.length <= max) return s;
     const window2 = s.slice(0, max);
-    let cut = -1;
-    const re = /[.!?][)"'’”]?(?=\s|$)/g;
-    let m;
-    while ((m = re.exec(window2)) !== null) cut = m.index + m[0].length;
+    const cut = lastSentenceEnd(window2);
     if (cut > 0) return window2.slice(0, cut).trim();
     const space = window2.lastIndexOf(" ");
     return (space > 0 ? window2.slice(0, space) : window2).replace(/[,;:\s]+$/, "") + "\u2026";
   }
+  function dropTruncatedTail(text) {
+    const s = String(text || "").trim();
+    if (!/(\.{3}|…)$/.test(s)) return s;
+    const body = s.replace(/(\.{3}|…)$/, "");
+    const cut = lastSentenceEnd(body);
+    return cut > 0 ? body.slice(0, cut).trim() : s;
+  }
   const PODCAST_SUMMARY_MAX = 800;
   const ESSAY_SUMMARY_MAX = 280;
+  const PODCAST_PROMO_PATTERNS = [
+    /\bis a podcast from Mere Orthodoxy\b/i,
+    /\bis listener[-\s]supported\b/i,
+    /\bbecome a Mere Orthodoxy Member\b/i,
+    /\bif you(?:'d| would)? like to support\b/i,
+    /\bto support (?:this work|those who made)\b/i,
+    /\bplease consider donating\b/i,
+    /\bmereorthodoxy\.com\/(?:membership|members|donate|give)\b/i
+  ];
+  function stripPodcastPromo(text) {
+    const s = String(text || "").trim();
+    if (!s) return "";
+    let earliest = -1;
+    PODCAST_PROMO_PATTERNS.forEach((re) => {
+      const m = s.match(re);
+      if (m && m.index != null && (earliest === -1 || m.index < earliest)) earliest = m.index;
+    });
+    if (earliest === -1) return dropTruncatedTail(s);
+    const before = s.slice(0, earliest);
+    const cut = lastSentenceEnd(before);
+    return before.slice(0, cut).trim();
+  }
   function parseRSS(xmlText) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, "application/xml");
@@ -616,7 +655,7 @@
           label: r.row.label || r.show && r.show.title || slot.label || "Podcast",
           episode: episodeNum,
           title: ep.title || slot.title || "Untitled",
-          summary: trimSummary(ep.description || "", PODCAST_SUMMARY_MAX) || slot.summary || "",
+          summary: trimSummary(stripPodcastPromo(ep.description || ""), PODCAST_SUMMARY_MAX) || slot.summary || "",
           cta: slot.cta || "Listen to the episode",
           url: ep.link || ep.audioUrl || slot.url || "#"
         });
