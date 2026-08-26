@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-26T02:00:33.088Z",
+  "generated_at": "2026-08-26T07:10:52.290Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 314,
-      "plays": 58884,
+      "plays": 58902,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -24,7 +24,7 @@
         {
           "date": "2025-05-28",
           "title": "Hath Pope Leo XIV Jurisdiction Here?",
-          "plays": 84
+          "plays": 85
         },
         {
           "date": "2025-06-04",
@@ -194,7 +194,7 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 312
+          "plays": 313
         },
         {
           "date": "2026-03-25",
@@ -234,7 +234,7 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1152
+          "plays": 1153
         },
         {
           "date": "2026-05-20",
@@ -259,7 +259,7 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3628
+          "plays": 3629
         },
         {
           "date": "2026-06-24",
@@ -274,7 +274,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3825
+          "plays": 3826
         },
         {
           "date": "2026-07-15",
@@ -299,12 +299,12 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3042
+          "plays": 3045
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3217
+          "plays": 3226
         }
       ],
       "per_episode": [
@@ -455,7 +455,7 @@
         },
         {
           "month": "2020-01",
-          "avg": 15,
+          "avg": 16,
           "episodes": 1
         },
         {
@@ -750,7 +750,7 @@
         },
         {
           "month": "2025-05",
-          "avg": 84,
+          "avg": 85,
           "episodes": 1
         },
         {
@@ -825,14 +825,14 @@
         },
         {
           "month": "2026-08",
-          "avg": 3025,
+          "avg": 3029,
           "episodes": 3
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 48,
-      "plays": 15839,
+      "plays": 15846,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -908,7 +908,7 @@
         {
           "date": "2025-10-16",
           "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
-          "plays": 164
+          "plays": 165
         },
         {
           "date": "2025-10-23",
@@ -1053,7 +1053,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 910
+          "plays": 911
         },
         {
           "date": "2026-07-29",
@@ -1068,12 +1068,12 @@
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 654
+          "plays": 655
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 660
+          "plays": 664
         }
       ],
       "per_episode": [
@@ -1094,7 +1094,7 @@
         },
         {
           "month": "2025-10",
-          "avg": 103,
+          "avg": 104,
           "episodes": 5
         },
         {
@@ -1139,7 +1139,7 @@
         },
         {
           "month": "2026-08",
-          "avg": 734,
+          "avg": 735,
           "episodes": 3
         }
       ]
