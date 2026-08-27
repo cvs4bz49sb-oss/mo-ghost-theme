@@ -1380,13 +1380,15 @@ img { max-width: 100%; height: auto; }
   height: 1px;
   background: var(--color-card-border);
 }
-/* Divider mark: the MO site mark rendered as a small badge by the
-   shared flourish-mark partial. Source is a transparent PNG so the
-   mark reads cleanly on any page background. display: block (instead
-   of inline-block + vertical-align) avoids inline-baseline drift that
-   left the mark sitting visibly above the divider line in some
-   contexts. Size bumped from 24 to 32 so the mark reads as a logo
-   at 100% browser zoom on larger desktops, not a smudge. */
+/* The MO site mark was removed from the dividers site-wide (2026-08-27),
+   leaving a plain hairline rule. With no child element between them the
+   two halves need the gap closed or the rule reads as two segments with
+   a 16px hole punched in the middle. Scoped with :empty so the /privacy/
+   pilcrow variant (`<div class="flourish"><span>&para;</span></div>`)
+   keeps its 16px of breathing room around the glyph. */
+.flourish:empty { gap: 0; }
+/* Retained for the closing-flourish partial, which is not currently
+   rendered by any template. No live divider uses this rule. */
 .flourish-mark {
   width: 40px;
   height: 40px;
