@@ -28,7 +28,14 @@ const SRC_DIR = path.join(REPO, "assets/js/digest");
 const SOURCES = [
   "tweaks-panel.jsx",
   "email-template.jsx",
-  "content-editor.jsx",
+  // The -v2 suffix is a cache-buster, not a rewrite. Ghost's {{asset}} helper
+  // appends ?v=<hash>, but that hash is scoped to Ghost's boot rather than to
+  // the theme, and the CDN in front of mereorthodoxy.com keys on PATH and
+  // ignores the query string entirely. A redeployed file therefore keeps
+  // serving the old bytes at the old path until the edge object ages out on
+  // its own, which took about a week on 2026-08-26. Renaming the file is what
+  // actually ships a change. Bump the suffix when this file must go live now.
+  "content-editor-v2.jsx",
   "export-html.jsx",
   "kit-push.jsx",
   "app.jsx",
