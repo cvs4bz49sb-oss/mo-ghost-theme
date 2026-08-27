@@ -599,18 +599,6 @@
   position: relative;
   text-align: center;
 }
-.faith-pending-panel::before {
-  content: "\2766";
-  position: absolute;
-  top: -9px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-primary);
-  font-size: 15px;
-  line-height: 1;
-}
 .faith-pending-lede {
   font-family: var(--font-display);
   font-style: italic;

@@ -1200,9 +1200,6 @@ img { max-width: 100%; height: auto; }
   top: 24px;
   bottom: 24px;
 }
-.today-tag .entry:nth-child(n+3)::before {
-  background: var(--color-page);
-}
 
 .tag-more {
   text-align: center;
@@ -1210,19 +1207,6 @@ img { max-width: 100%; height: auto; }
   padding-top: 40px;
   border-top: 1px solid var(--color-card-border);
   position: relative;
-}
-.tag-more::before {
-  content: "\2766";
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-primary);
-  font-size: 16px;
-  line-height: 1;
-  background: transparent;
 }
 .tag-more-link {
   font-family: var(--font-body);
@@ -1444,19 +1428,6 @@ img { max-width: 100%; height: auto; }
 
 .entry:nth-child(n+3) {
   border-top: 1px solid var(--color-card-border);
-}
-.entry:nth-child(n+3)::before {
-  content: "\2766";
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-primary);
-  font-size: 14px;
-  line-height: 1;
-  background: transparent;
 }
 
 .entry-plate {
@@ -1786,26 +1757,30 @@ img { max-width: 100%; height: auto; }
   padding: 0 24px;
   position: relative;
 }
-.reader-feature::after {
-  content: "\2766";
-  display: block;
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-primary);
-  font-size: 18px;
-  line-height: 1;
-  margin: 22px auto 0;
-  text-align: center;
+/* Reader testimonials carry real typographic quotation marks. Uses the
+   `quotes` property with open-quote/close-quote rather than literal glyphs
+   in `content`, so the pair nests correctly and assistive tech treats them
+   as quotation punctuation instead of announcing a character name. This
+   ::after previously held the ❦ fleuron that sat under the feature quote;
+   the fleuron was removed site-wide 2026-08-27. */
+.reader-feature,
+.reader-quote p {
+  quotes: "\201C" "\201D" "\2018" "\2019";
 }
-/* Coda quote at the bottom of the section — same display sizing as
-   the opening feature, but quieter (no flourish, smaller scale, more
-   muted color). Sits below the grid as a closing note. */
+.reader-feature::before,
+.reader-quote p::before { content: open-quote; }
+.reader-feature::after,
+.reader-quote p::after { content: close-quote; }
+/* Coda quote at the bottom of the section: same display sizing as the
+   opening feature, but quieter (smaller scale, more muted color). Sits
+   below the grid as a closing note. It keeps its quotation marks, so
+   there is no longer an ::after override here — that override existed
+   only to suppress the fleuron. */
 .reader-feature--coda {
   font-size: clamp(20px, 2.2vw, 26px);
   color: var(--color-muted);
   margin: 48px auto 0;
 }
-.reader-feature--coda::after { display: none; }
 
 .readers-grid {
   display: grid;
@@ -3345,19 +3320,6 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-variant: small-caps;
   color: var(--color-muted);
 }
-.pagination::before {
-  content: "\2766";
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-primary);
-  font-size: 16px;
-  line-height: 1;
-  background: transparent;
-}
 .pagination a {
   color: var(--color-secondary);
   text-decoration: none;
@@ -3807,8 +3769,6 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   .entry-meta { font-size: 11px; flex-direction: column; align-items: flex-start; gap: 6px; }
   .entry:nth-child(n+2) { border-top: 1px solid var(--color-card-border); }
   .entry:nth-child(n+3) { border-top: 1px solid var(--color-card-border); }
-  .entry:nth-child(n+2)::before,
-  .entry:nth-child(n+3)::before { display: none; }
 
   /* Article page */
   .article-header { padding: 48px 0 72px; }
@@ -7055,19 +7015,6 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   padding-top: 24px;
   border-top: 1px solid var(--color-card-border);
   position: relative;
-}
-.week-more::before {
-  content: "\2766";
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--color-primary);
-  font-size: 14px;
-  line-height: 1;
-  background: transparent;
 }
 .week-more-link {
   font-family: var(--font-body);
