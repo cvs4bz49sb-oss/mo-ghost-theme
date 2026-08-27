@@ -24811,3 +24811,120 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
 .home-template .site-footer-wordmark em,
 .home-template .mobile-nav-wordmark em,
 .home-template .mo-search-result-title em { font-style: italic; }
+
+/* ============================================================
+   /give/ — gift chooser + /give/lifetime/ form
+   Added 2026-08-27 when 1-to-12-month gifts moved to Ghost's
+   native Portal gift flow and lifetime moved to its own page.
+
+   The chooser itself needs no new layout: it reuses .cards /
+   .membership .card from partials/membership-pricing.hbs, which
+   already stacks at 760px. Only the explanatory notes below the
+   cards and the price line above the lifetime submit are new.
+   ============================================================ */
+
+/* The two gift products differ at the moment of giving (one is
+   claimed by the recipient, one is provisioned immediately), and
+   that is the thing buyers get wrong. These sit below the cards. */
+/* Links in a dark hero. The base rule (screen.css:58) sets
+   --color-secondary #c1593c AND text-decoration:none, which on
+   .page-hero's #2d2927 is 3.27:1, under the 4.5:1 AA floor, and leaves
+   the link distinguished from surrounding body text by colour alone
+   (WCAG 1.4.1). --color-primary #ee7d51 on the same ground is 5.27:1.
+   Also repairs the same latent failure on custom-institution-manage. */
+.membership-support .page-hero-sub a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.gift-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 32px;
+  max-width: 980px;
+  margin: 56px auto 0;
+  padding-top: 36px;
+  border-top: 1px solid var(--color-card-border);
+}
+.gift-note a {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.gift-note p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+.gift-note-heading {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+}
+
+/* Price restated next to the submit button. The tier radio used to
+   be the only place "$995" appeared, and it sat ~230 lines above
+   the button. Body font, not the display face: IM Fell's old-style
+   numerals set the 9s low and read as a typo on a price. */
+.gift-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-card-border);
+}
+.gift-total-label {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--color-dark);
+}
+.gift-total-amount {
+  font-family: var(--font-body);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-dark);
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 760px) {
+  .gift-notes {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* 88px of dead space under the last control, and no mobile
+     override until now. */
+  .membership-support .form-section { padding: 36px 0 48px; }
+
+  /* Every control in the shared form card was 15px/40px. Under
+     16px iOS zooms the viewport on focus and does not zoom back,
+     and 40px fails the 44px touch minimum. The country select is
+     the worst case: 200 options behind a 40px tap target. */
+  .membership-support .stacked-form input[type="text"],
+  .membership-support .stacked-form input[type="email"],
+  .membership-support .stacked-form input[type="date"],
+  .membership-support .stacked-form input[type="number"],
+  .membership-support .stacked-form select,
+  .membership-support .stacked-form textarea {
+    font-size: 16px;
+    min-height: 48px;
+  }
+  .membership-support .stacked-form textarea { min-height: 96px; }
+
+  /* iOS renders a date input at its own intrinsic height and
+     ignores min-height without this. */
+  .membership-support .stacked-form input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}

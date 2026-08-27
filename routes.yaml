@@ -23,6 +23,12 @@ routes:
     controller: channel
     template: custom-archive
     filter: status:published
+  # More specific path first. /give/ is the chooser and sends 1-to-12
+  # month gifts to Ghost's native Portal gift flow; /give/lifetime/ is
+  # the one gift Portal cannot sell, so it keeps the custom
+  # mo-membership checkout.
+  /give/lifetime/:
+    template: custom-gift-lifetime
   /give/:
     template: custom-gift
   /donate/:

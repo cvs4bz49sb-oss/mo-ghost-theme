@@ -16,6 +16,7 @@
     "/events/": [{ name: "Events" }],
     "/ebooks/": [{ name: "Ebooks" }],
     "/give/": [{ name: "Gift a Membership" }],
+    "/give/lifetime/": [{ name: "Gift a Membership", url: "/give/" }, { name: "Lifetime" }],
     "/donate/": [{ name: "Donate" }],
     "/books/": [{ name: "Bookstore" }],
     "/the-faith-received/": [{ name: "The Faith Received" }],

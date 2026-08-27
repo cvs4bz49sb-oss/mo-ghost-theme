@@ -368,9 +368,9 @@
                 </ol>
                 <div class="journal-ctas">
                     {{#match @member.status "paid"}}
-                        <a href="/give/" class="btn btn-primary btn-lg" data-hm-goal="gift">Gift The Journal</a>
+                        <a href="/give/" class="btn btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
                     {{else}}{{#match @member.status "comped"}}
-                        <a href="/give/" class="btn btn-primary btn-lg" data-hm-goal="gift">Gift The Journal</a>
+                        <a href="/give/" class="btn btn-primary btn-lg" data-hm-goal="gift">Give a Membership</a>
                     {{else}}{{#if @member}}
                         <a href="#join" class="btn btn-primary btn-lg" data-hm-goal="journal">Get The Journal</a>
                     {{else}}

@@ -1,13 +1,37 @@
 {{!< default}}
 {{#contentFor "moHead"}}
 <title>Give a Membership | Mere Orthodoxy</title>
-<meta name="description" content="Share Mere Orthodoxy with someone who would value it. Gift memberships do not auto-renew and arrive with a personal message." />
+<meta name="description" content="Give Mere Orthodoxy to someone who would value it. Choose one month to one year, add a note, and pick the day it arrives. Gift memberships never auto-renew." />
 <meta property="og:title" content="Give a Membership" />
-<meta property="og:description" content="Share Mere Orthodoxy with someone who would value it. Gift memberships do not auto-renew and arrive with a personal message." />
+<meta property="og:description" content="Give Mere Orthodoxy to someone who would value it. Choose one month to one year, add a note, and pick the day it arrives. Gift memberships never auto-renew." />
+<meta property="og:image" content="{{asset "images/mo-share-card.jpg"}}" />
 <meta name="twitter:title" content="Give a Membership" />
-<meta name="twitter:description" content="Share Mere Orthodoxy with someone who would value it. Gift memberships do not auto-renew and arrive with a personal message." />
+<meta name="twitter:description" content="Give Mere Orthodoxy to someone who would value it. Choose one month to one year, add a note, and pick the day it arrives. Gift memberships never auto-renew." />
+<meta name="twitter:image" content="{{asset "images/mo-share-card.jpg"}}" />
 {{/contentFor}}
-{{!-- custom-gift: Mere Orthodoxy gift membership flow --}}
+{{!-- custom-gift: the /give/ chooser.
+
+     Two products, two very different mechanics:
+
+     1. Gift a membership (1/3/6/12 months) runs on GHOST'S NATIVE gift
+        subscriptions. The CTA opens Portal at the `gift` route. Portal
+        collects the recipient, the note, and the delivery date itself,
+        so this page carries NO form for it. The recipient redeems by
+        email and their term starts on the day they claim it.
+
+     2. Lifetime ($995) cannot run on Portal, which has no concept of a
+        one-time or perpetual purchase. It keeps the custom
+        mo-membership checkout and now lives on its own page at
+        /give/lifetime/ (custom-gift-lifetime.hbs).
+
+     `data-portal="gift"` is a real Portal route (it match-cases `gift`
+     alongside signin/account/offers). Portal enumerates [data-portal]
+     ONCE at init, so this anchor must stay in the served HTML and must
+     never be injected by script. Note also that Portal's handler bails
+     silently if gift subscriptions are switched off site-wide in Ghost
+     admin: it calls preventDefault() first, so the href is not a
+     fallback and the button would simply go dead. If this CTA ever
+     stops responding, check Settings first, not this template. --}}
 
 <main class="membership membership-support">
 
@@ -15,318 +39,102 @@
     <div class="container">
       <p class="eyebrow">Give a Membership</p>
       <h1 class="page-hero-headline"><em>Share Mere&nbsp;Orthodoxy</em> with someone who would value it.</h1>
-      <p class="page-hero-sub">Gift memberships do not auto-renew. Your recipient receives an email with a personal message and no credit card surprises at the end.</p>
+      <p class="page-hero-sub">Gift memberships never auto-renew. Your recipient gets an email with your note, claims it whenever they like, and is never asked for a card.</p>
     </div>
   </section>
 
-  <section class="form-section">
+  <section class="pricing">
     <div class="container">
-      <form id="gift-form" class="stacked-form" novalidate>
-        <fieldset class="form-group">
-          <legend class="form-legend">1. Choose a tier</legend>
-          <div class="tier-options">
-            <label class="tier-option">
-              <input type="radio" name="tier" value="annual" checked />
-              <span class="tier-option-body">
-                <span class="tier-option-name">Annual</span>
-                <span class="tier-option-price">$100</span>
-                <span class="tier-option-detail">One year of access. Includes the print journal.</span>
-              </span>
-            </label>
-            <label class="tier-option">
-              <input type="radio" name="tier" value="lifetime" />
-              <span class="tier-option-body">
-                <span class="tier-option-name">Lifetime</span>
-                <span class="tier-option-price">$995</span>
-                <span class="tier-option-detail">Permanent access. Includes Jake Meador's <em>In Search Of The Common Good</em>.</span>
-              </span>
-            </label>
-          </div>
-        </fieldset>
+      <div class="cards">
 
-        <fieldset class="form-group">
-          <legend class="form-legend">2. Your details</legend>
-          <div class="form-row">
-            <label class="form-field">
-              <span class="form-label">Your name</span>
-              <input type="text" name="purchaser_name" autocomplete="name" required />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Your email</span>
-              <input type="email" name="purchaser_email" autocomplete="email" required />
-            </label>
+        {{!-- data-card-cta: membership-cards.js makes the whole card
+             fire its CTA. Carried over from the pricing cards, where
+             the heatmap recorded more dead clicks on benefit rows than
+             real clicks on the button. Its INTERACTIVE list already
+             excludes [data-portal], so forwarding to the Portal anchor
+             below is safe and does not double-fire. --}}
+        <article class="card card-member is-featured" data-card-cta data-hm-goal="gift-card">
+          <span class="card-flag">Most Popular</span>
+          <h2 class="card-label"><em>Membership</em></h2>
+          <div class="card-price">
+            <span class="price-amount">$10</span>
+            <span class="price-interval">and up</span>
           </div>
-        </fieldset>
+          <p class="card-subtext">One month, three, six, or a full year</p>
+          <p class="card-pitch">Choose the length, write a note, and pick the day it lands in their inbox.</p>
+          <a
+            class="btn btn-pill btn-primary"
+            href="#/portal/gift"
+            data-portal="gift"
+            data-hm-goal="gift-checkout"
+          >Give a Membership</a>
+          <p class="btn-tagline">Never renews. No card from them.</p>
+          <ul class="benefits">
+            <li>The quarterly print journal, mailed to their door</li>
+            <li>Digital archive of every past journal issue</li>
+            <li>Private Discord community of serious readers</li>
+            <li>Ebook and online event library</li>
+            <li>Monthly Mailbag from Jake Meador</li>
+            <li>The full archive, including 20+ years of essays</li>
+            <li>Audio versions of every article</li>
+            <li>Ad-free experience and the Member Dashboard</li>
+          </ul>
+        </article>
 
-        <fieldset class="form-group">
-          <legend class="form-legend">3. Recipient</legend>
-          <div class="form-row">
-            <label class="form-field">
-              <span class="form-label">Recipient name</span>
-              <input type="text" name="recipient_name" required />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Recipient email</span>
-              <input type="email" name="recipient_email" required />
-            </label>
+        <article class="card card-lifetime" data-card-cta data-hm-goal="gift-lifetime-card">
+          <h2 class="card-label"><em>Lifetime</em></h2>
+          <div class="card-price">
+            <span class="price-amount">$995</span>
           </div>
-          <label class="form-field">
-            <span class="form-label">Personal message <span class="form-hint">(optional, 500 characters max)</span></span>
-            <textarea name="message" maxlength="500" rows="4" placeholder="A line or two that goes in the gift email."></textarea>
-          </label>
-          <label class="form-field">
-            <span class="form-label">Deliver on</span>
-            <input type="date" name="deliver_at" />
-            <span class="form-hint">Leave blank to send immediately.</span>
-          </label>
-        </fieldset>
+          <p class="card-subtext">One-time payment</p>
+          <p class="card-pitch">For a reader you want to keep in Mere&nbsp;Orthodoxy for good, and who should have Jake's book on the shelf.</p>
+          <a
+            class="btn btn-pill btn-dark"
+            href="/give/lifetime/"
+            data-hm-goal="gift-lifetime"
+          >Give a Lifetime Membership</a>
+          <p class="btn-tagline">One-time. No renewal.</p>
+          <ul class="benefits">
+            <li><strong>Everything in Membership, plus:</strong></li>
+            <li>A copy of Jake Meador's <em>In Search Of The Common Good: Christian Fidelity In A Fractured World</em></li>
+            <li>Access that never expires</li>
+          </ul>
+        </article>
 
-        {{!-- Recipient shipping address. Optional — if the purchaser
-             doesn't know the address, the recipient can add it via
-             their dashboard after they claim the gift. The print
-             journal is mailed to whatever's on file quarterly. --}}
-        <fieldset class="form-group">
-          <legend class="form-legend">4. Where to mail the print journal <span class="form-hint">(optional)</span></legend>
-          <p class="form-intro">Mere Orthodoxy members receive the quarterly print journal. If you know your recipient's address, drop it in here. Otherwise leave blank — we'll ask them when they claim the gift.</p>
-          <label class="form-field">
-            <span class="form-label">Street</span>
-            <input type="text" name="recipient_line1" autocomplete="address-line1" />
-          </label>
-          <label class="form-field">
-            <span class="form-label">Apartment, suite, or unit <span class="form-hint">(optional)</span></span>
-            <input type="text" name="recipient_line2" autocomplete="address-line2" />
-          </label>
-          <div class="form-row">
-            <label class="form-field">
-              <span class="form-label">City</span>
-              <input type="text" name="recipient_city" autocomplete="address-level2" />
-            </label>
-            <label class="form-field">
-              <span class="form-label">State / Province</span>
-              <input type="text" name="recipient_state" autocomplete="address-level1" maxlength="3" />
-            </label>
-          </div>
-          <div class="form-row">
-            <label class="form-field">
-              <span class="form-label">ZIP / Postal code</span>
-              <input type="text" name="recipient_postal_code" autocomplete="postal-code" />
-            </label>
-            <label class="form-field">
-              <span class="form-label">Country</span>
-              <select name="recipient_country">
-                <option value="">—</option>
-                <option value="US">United States</option>
-                <option value="CA">Canada</option>
-                <option value="GB">United Kingdom</option>
-                <option disabled>──────────</option>
-                <option value="AF">Afghanistan</option>
-                <option value="AL">Albania</option>
-                <option value="DZ">Algeria</option>
-                <option value="AD">Andorra</option>
-                <option value="AO">Angola</option>
-                <option value="AG">Antigua and Barbuda</option>
-                <option value="AR">Argentina</option>
-                <option value="AM">Armenia</option>
-                <option value="AU">Australia</option>
-                <option value="AT">Austria</option>
-                <option value="AZ">Azerbaijan</option>
-                <option value="BS">Bahamas</option>
-                <option value="BH">Bahrain</option>
-                <option value="BD">Bangladesh</option>
-                <option value="BB">Barbados</option>
-                <option value="BY">Belarus</option>
-                <option value="BE">Belgium</option>
-                <option value="BZ">Belize</option>
-                <option value="BJ">Benin</option>
-                <option value="BT">Bhutan</option>
-                <option value="BO">Bolivia</option>
-                <option value="BA">Bosnia and Herzegovina</option>
-                <option value="BW">Botswana</option>
-                <option value="BR">Brazil</option>
-                <option value="BN">Brunei</option>
-                <option value="BG">Bulgaria</option>
-                <option value="BF">Burkina Faso</option>
-                <option value="BI">Burundi</option>
-                <option value="CV">Cabo Verde</option>
-                <option value="KH">Cambodia</option>
-                <option value="CM">Cameroon</option>
-                <option value="CF">Central African Republic</option>
-                <option value="TD">Chad</option>
-                <option value="CL">Chile</option>
-                <option value="CN">China</option>
-                <option value="CO">Colombia</option>
-                <option value="KM">Comoros</option>
-                <option value="CG">Congo</option>
-                <option value="CD">Congo (DRC)</option>
-                <option value="CR">Costa Rica</option>
-                <option value="CI">Cote d'Ivoire</option>
-                <option value="HR">Croatia</option>
-                <option value="CU">Cuba</option>
-                <option value="CY">Cyprus</option>
-                <option value="CZ">Czech Republic</option>
-                <option value="DK">Denmark</option>
-                <option value="DJ">Djibouti</option>
-                <option value="DM">Dominica</option>
-                <option value="DO">Dominican Republic</option>
-                <option value="EC">Ecuador</option>
-                <option value="EG">Egypt</option>
-                <option value="SV">El Salvador</option>
-                <option value="GQ">Equatorial Guinea</option>
-                <option value="ER">Eritrea</option>
-                <option value="EE">Estonia</option>
-                <option value="SZ">Eswatini</option>
-                <option value="ET">Ethiopia</option>
-                <option value="FJ">Fiji</option>
-                <option value="FI">Finland</option>
-                <option value="FR">France</option>
-                <option value="GA">Gabon</option>
-                <option value="GM">Gambia</option>
-                <option value="GE">Georgia</option>
-                <option value="DE">Germany</option>
-                <option value="GH">Ghana</option>
-                <option value="GR">Greece</option>
-                <option value="GD">Grenada</option>
-                <option value="GT">Guatemala</option>
-                <option value="GN">Guinea</option>
-                <option value="GW">Guinea-Bissau</option>
-                <option value="GY">Guyana</option>
-                <option value="HT">Haiti</option>
-                <option value="HN">Honduras</option>
-                <option value="HU">Hungary</option>
-                <option value="IS">Iceland</option>
-                <option value="IN">India</option>
-                <option value="ID">Indonesia</option>
-                <option value="IR">Iran</option>
-                <option value="IQ">Iraq</option>
-                <option value="IE">Ireland</option>
-                <option value="IL">Israel</option>
-                <option value="IT">Italy</option>
-                <option value="JM">Jamaica</option>
-                <option value="JP">Japan</option>
-                <option value="JO">Jordan</option>
-                <option value="KZ">Kazakhstan</option>
-                <option value="KE">Kenya</option>
-                <option value="KI">Kiribati</option>
-                <option value="KW">Kuwait</option>
-                <option value="KG">Kyrgyzstan</option>
-                <option value="LA">Laos</option>
-                <option value="LV">Latvia</option>
-                <option value="LB">Lebanon</option>
-                <option value="LS">Lesotho</option>
-                <option value="LR">Liberia</option>
-                <option value="LY">Libya</option>
-                <option value="LI">Liechtenstein</option>
-                <option value="LT">Lithuania</option>
-                <option value="LU">Luxembourg</option>
-                <option value="MG">Madagascar</option>
-                <option value="MW">Malawi</option>
-                <option value="MY">Malaysia</option>
-                <option value="MV">Maldives</option>
-                <option value="ML">Mali</option>
-                <option value="MT">Malta</option>
-                <option value="MH">Marshall Islands</option>
-                <option value="MR">Mauritania</option>
-                <option value="MU">Mauritius</option>
-                <option value="MX">Mexico</option>
-                <option value="FM">Micronesia</option>
-                <option value="MD">Moldova</option>
-                <option value="MC">Monaco</option>
-                <option value="MN">Mongolia</option>
-                <option value="ME">Montenegro</option>
-                <option value="MA">Morocco</option>
-                <option value="MZ">Mozambique</option>
-                <option value="MM">Myanmar</option>
-                <option value="NA">Namibia</option>
-                <option value="NR">Nauru</option>
-                <option value="NP">Nepal</option>
-                <option value="NL">Netherlands</option>
-                <option value="NZ">New Zealand</option>
-                <option value="NI">Nicaragua</option>
-                <option value="NE">Niger</option>
-                <option value="NG">Nigeria</option>
-                <option value="KP">North Korea</option>
-                <option value="MK">North Macedonia</option>
-                <option value="NO">Norway</option>
-                <option value="OM">Oman</option>
-                <option value="PK">Pakistan</option>
-                <option value="PW">Palau</option>
-                <option value="PS">Palestine</option>
-                <option value="PA">Panama</option>
-                <option value="PG">Papua New Guinea</option>
-                <option value="PY">Paraguay</option>
-                <option value="PE">Peru</option>
-                <option value="PH">Philippines</option>
-                <option value="PL">Poland</option>
-                <option value="PT">Portugal</option>
-                <option value="QA">Qatar</option>
-                <option value="RO">Romania</option>
-                <option value="RU">Russia</option>
-                <option value="RW">Rwanda</option>
-                <option value="KN">Saint Kitts and Nevis</option>
-                <option value="LC">Saint Lucia</option>
-                <option value="VC">Saint Vincent and the Grenadines</option>
-                <option value="WS">Samoa</option>
-                <option value="SM">San Marino</option>
-                <option value="ST">Sao Tome and Principe</option>
-                <option value="SA">Saudi Arabia</option>
-                <option value="SN">Senegal</option>
-                <option value="RS">Serbia</option>
-                <option value="SC">Seychelles</option>
-                <option value="SL">Sierra Leone</option>
-                <option value="SG">Singapore</option>
-                <option value="SK">Slovakia</option>
-                <option value="SI">Slovenia</option>
-                <option value="SB">Solomon Islands</option>
-                <option value="SO">Somalia</option>
-                <option value="ZA">South Africa</option>
-                <option value="KR">South Korea</option>
-                <option value="SS">South Sudan</option>
-                <option value="ES">Spain</option>
-                <option value="LK">Sri Lanka</option>
-                <option value="SD">Sudan</option>
-                <option value="SR">Suriname</option>
-                <option value="SE">Sweden</option>
-                <option value="CH">Switzerland</option>
-                <option value="SY">Syria</option>
-                <option value="TW">Taiwan</option>
-                <option value="TJ">Tajikistan</option>
-                <option value="TZ">Tanzania</option>
-                <option value="TH">Thailand</option>
-                <option value="TL">Timor-Leste</option>
-                <option value="TG">Togo</option>
-                <option value="TO">Tonga</option>
-                <option value="TT">Trinidad and Tobago</option>
-                <option value="TN">Tunisia</option>
-                <option value="TR">Turkey</option>
-                <option value="TM">Turkmenistan</option>
-                <option value="TV">Tuvalu</option>
-                <option value="UG">Uganda</option>
-                <option value="UA">Ukraine</option>
-                <option value="AE">United Arab Emirates</option>
-                <option value="UY">Uruguay</option>
-                <option value="UZ">Uzbekistan</option>
-                <option value="VU">Vanuatu</option>
-                <option value="VA">Vatican City</option>
-                <option value="VE">Venezuela</option>
-                <option value="VN">Vietnam</option>
-                <option value="YE">Yemen</option>
-                <option value="ZM">Zambia</option>
-                <option value="ZW">Zimbabwe</option>
-              </select>
-            </label>
-          </div>
-        </fieldset>
+      </div>
 
-        <button type="submit" class="btn btn-pill btn-primary btn-wide" id="gift-submit">
-          <span class="btn-label">Continue to payment</span>
-          <span class="btn-spinner" aria-hidden="true"></span>
-        </button>
-        <p class="btn-tagline">Payment runs on Stripe. Your recipient is notified after purchase.</p>
-        <p class="btn-error" id="gift-error" role="alert"></p>
-      </form>
+      {{!-- The two products behave differently at the moment of giving,
+           and that difference is the thing buyers get wrong. Say it
+           plainly rather than letting them find out by email.
+
+           These are h2 so all four headings on the page are siblings.
+           As h3 they parsed as subsections of the Lifetime card, which
+           is the last h2 above them. .gift-note-heading sets its own
+           family/size/margin and the theme has no base heading rule, so
+           the level is an outline change only, not a visual one.
+
+           The address claim below is kept honest by a Ghost setting,
+           not by theme code: the paid tier's welcome_page_url is
+           /complete-membership/, whose first step is the mailing
+           address, so a redeemer lands on it. If that setting is ever
+           cleared in Ghost admin, this sentence becomes false. --}}
+      <div class="gift-notes">
+        <div class="gift-note">
+          <h2 class="gift-note-heading">How a membership gift arrives</h2>
+          <p>We email your recipient on the day you choose. They claim it with their name and email address, and the clock starts then, so a year given at Christmas runs to the following Christmas. If they never claim it, the gift expires after a year and you can ask us for a refund.</p>
+        </div>
+        <div class="gift-note">
+          <h2 class="gift-note-heading">About the print journal</h2>
+          <p>Every gift includes the print journal, a one-month gift included. We ask your recipient for a mailing address when they claim the gift, so you do not need to know it.</p>
+        </div>
+        <div class="gift-note">
+          <h2 class="gift-note-heading">If something goes wrong</h2>
+          <p>Email <a href="mailto:ian@mereorthodoxy.com">ian@mereorthodoxy.com</a> and we will sort it out by hand. That covers a gift that will not start, a wrong address, a recipient who never got the email, and a date you want changed.</p>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
-  <script src="{{asset "js/gift.js"}}"></script>
+  <script src="{{asset "js/page/membership-cards.js"}}"></script>
 </main>
