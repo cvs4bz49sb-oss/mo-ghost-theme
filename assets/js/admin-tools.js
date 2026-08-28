@@ -47,6 +47,9 @@ const ADMIN_TOOLS = [
     routes: {
       admin: ["/members", "/journeys", "/cancellations"],
       membership: ["/api/admin/addresses", "/api/admin/gifts", "/api/admin/groups", "/api/admin/institutions", "/api/admin/institutions-list", "/api/admin/students", "/api/admin/student", "/api/admin/member"],
+      // mo-kit-bridge: the Ghost↔Kit drift report and its reconcile
+      // action, which is the /admin/members/drift/ sub-page.
+      "kit-bridge": ["/api/drift", "/api/reconcile"],
     },
   },
   { id: "orders", label: "Store Orders", group: "Executive", pages: ["orders"], routes: { store: ["/orders"] } },
