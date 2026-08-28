@@ -8593,14 +8593,10 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 .fr-modal[hidden] { display: none; }
 .fr-modal-backdrop { position: absolute; inset: 0; background: rgba(45, 41, 39, 0.5); }
 .fr-modal-card {
-  /* The dialog opts out of the brand faces on purpose. IM Fell and
-     Source Serif are for the reading, and a form set in them reads as
-     decorated rather than clear. This is an interface, so it uses the
-     reader's own system UI face: cleaner at small sizes, and it never
-     waits on a webfont. Declared once here and inherited by everything
-     inside. */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  /* Source Serif, the same face the contents rail is set in. Not IM
+     Fell Great Primer, which is the display face and too mannered for a
+     form. Declared once here and inherited by everything inside. */
+  font-family: var(--font-body);
   position: relative;
   width: 100%;
   max-width: 440px;
@@ -8616,9 +8612,8 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   border-bottom: 1px solid var(--color-card-border);
 }
 .fr-modal-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
-  letter-spacing: -0.01em;
   line-height: 1.25;
   color: var(--color-dark);
   margin: 0;
