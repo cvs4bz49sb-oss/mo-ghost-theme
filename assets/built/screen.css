@@ -18011,6 +18011,7 @@ body:has(.au-modal-overlay) {
 }
 .asset-toolbar-modes {
   display: flex;
+  flex-wrap: wrap;
   gap: 2px;
   background: var(--color-rule);
   border-radius: 6px;
@@ -18020,7 +18021,7 @@ body:has(.au-modal-overlay) {
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border: none;
   background: var(--color-page);
   color: var(--color-muted);
@@ -18058,7 +18059,7 @@ body:has(.au-modal-overlay) {
 
 .asset-workspace {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 320px 1fr;
   gap: 24px;
   align-items: start;
 }
@@ -18069,6 +18070,10 @@ body:has(.au-modal-overlay) {
   border-radius: var(--radius);
   background: #fff;
   overflow: hidden;
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
 }
 .asset-settings-group {
   padding: 16px;
@@ -18185,6 +18190,225 @@ body:has(.au-modal-overlay) {
   margin-bottom: 8px;
 }
 
+/* ── Layer editor: heads, hints, mini buttons ─────────────────── */
+.asset-settings-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.asset-hint {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin: 8px 0 0;
+}
+.asset-hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  background: var(--color-page);
+  border: 1px solid var(--color-rule);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+.asset-mini-btn {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  background: var(--color-page);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+.asset-mini-btn:hover { border-color: var(--color-dark); color: var(--color-dark); }
+.asset-mini-btn.is-active {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-white);
+}
+
+/* Add-layer row */
+.asset-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.asset-add-btn {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 9px;
+  border: 1px dashed var(--color-rule);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.asset-add-btn:hover { border-style: solid; border-color: var(--color-dark); color: var(--color-dark); }
+
+/* Layer list */
+.asset-layer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.asset-layer-row {
+  display: grid;
+  grid-template-columns: 22px 1fr auto 20px 20px 20px;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--color-rule);
+  cursor: pointer;
+  background: #fff;
+}
+.asset-layer-row:last-child { border-bottom: 0; }
+.asset-layer-row:hover { background: var(--color-page); }
+.asset-layer-row.is-active { background: var(--color-background); }
+.asset-layer-name {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.asset-layer-kind {
+  font-family: var(--font-body);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.asset-layer-eye,
+.asset-layer-move,
+.asset-layer-del {
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.asset-layer-eye:hover,
+.asset-layer-move:hover { color: var(--color-dark); background: var(--color-rule); }
+.asset-layer-del:hover { color: #c0392b; background: var(--color-rule); }
+
+/* Inspector */
+.asset-inspector { background: var(--color-page); }
+.asset-insp-block {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.asset-insp-block:last-of-type { border-bottom: 0; margin-bottom: 0; }
+.asset-insp-block[hidden] { display: none; }
+.asset-insp-actions { padding-top: 4px; }
+
+.asset-format-bar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 8px 0 6px;
+  flex-wrap: wrap;
+}
+.asset-fmt-btn {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--color-dark);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.asset-fmt-btn:hover { border-color: var(--color-dark); }
+.asset-fmt-btn.is-active {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-white);
+}
+.asset-fmt-dim { font-size: 8px; letter-spacing: 0.06em; opacity: 0.65; }
+.asset-format-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--color-rule);
+  margin: 0 4px;
+}
+.asset-layer-text {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--color-dark);
+  resize: vertical;
+}
+.asset-settings-field select {
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 5px 8px;
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--color-dark);
+}
+.asset-settings-field input[type="number"] {
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 5px 8px;
+  border: 1px solid var(--color-rule);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--color-dark);
+  width: 100%;
+}
+.asset-align-row,
+.asset-nudge-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.asset-align-btns {
+  display: flex;
+  gap: 4px;
+}
+.asset-align-btns--wrap { flex-wrap: wrap; margin-top: 6px; }
+.asset-xy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.asset-status {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 0;
+  text-align: center;
+}
+.asset-status.is-error { color: var(--color-alert-text); }
+
 /* ── Admin button system ──────────────────────────────────────
    Compact, neutral buttons for tool UIs. No CTA styling —
    primary actions use dark bg, destructive uses red outline,
@@ -18284,13 +18508,24 @@ body:has(.au-modal-overlay) {
   border-radius: var(--radius);
   overflow: hidden;
   line-height: 0;
+  /* Checkerboard so a transparent-looking panel is obviously the tool,
+     not the artwork. */
+  background:
+    repeating-conic-gradient(#eceae8 0% 25%, #f6f3f2 0% 50%) 50% / 20px 20px;
 }
 .asset-canvas-wrap canvas {
-  width: 100%;
+  display: block;
+  width: auto;
   height: auto;
-  max-height: 70vh;
-  object-fit: contain;
+  max-width: 100%;
+  max-height: 72vh;
+  margin: 0 auto;
+  cursor: grab;
+  touch-action: none;
+  outline: none;
 }
+.asset-canvas-wrap canvas:active { cursor: grabbing; }
+.asset-canvas-wrap canvas:focus-visible { box-shadow: inset 0 0 0 2px var(--color-primary); }
 
 /* Panel strip (carousel) */
 .asset-panels {
@@ -18344,8 +18579,23 @@ body:has(.au-modal-overlay) {
 
 @media (max-width: 860px) {
   .asset-workspace { grid-template-columns: 1fr; }
-  .asset-settings { order: 2; }
+  .asset-settings {
+    order: 2;
+    position: static;
+    max-height: none;
+  }
   .asset-preview { order: 1; }
+  .asset-mode-btn { padding: 8px 10px; font-size: 12px; }
+  .asset-mode-dim { display: none; }
+  .asset-canvas-wrap canvas { max-height: 60vh; }
+  /* Touch targets: the layer row's icon buttons are 20px in the grid,
+     so give them real hit area without changing the column width. */
+  .asset-layer-eye,
+  .asset-layer-move,
+  .asset-layer-del { padding: 8px 3px; }
+  .asset-mini-btn,
+  .asset-add-btn { padding: 8px 12px; }
+  .asset-fmt-btn { min-width: 36px; height: 34px; }
 }
 
 
@@ -21627,6 +21877,9 @@ html[data-theme="dark"] .dlr-play-btn {
 .kpi-verdict.ok { color: #17692b; } .kpi-verdict.bad { color: #c0392b; }
 .kpi-verdict.warn { color: #9a7b1f; } .kpi-verdict.na { color: var(--k-muted); }
 .kpi-note { font-size: 12px; color: var(--k-muted); margin: 12px 0 0; }
+/* A panel fed by its own job rather than the nightly snapshot says when
+   it last ran; --warn is for when that answer is "too long ago". */
+.kpi-note--warn { color: #b94a48; font-weight: 600; }
 .kpi-actions { margin: 0; padding-left: 18px; }
 .kpi-actions li { font-size: 14px; color: var(--k-secondary); margin-bottom: 11px; line-height: 1.5; }
 .kpi-actions li:last-child { margin-bottom: 0; }

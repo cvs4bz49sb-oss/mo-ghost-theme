@@ -2433,6 +2433,33 @@
       </table></div></div></details>`;
   }
 
+  /*
+   * When this data was last rebuilt, on the panel.
+   *
+   * These cards are the only ones on the dashboard fed by a rolling KV
+   * blob rather than the nightly snapshot, and the job that writes it
+   * died with the old backend on 2026-08-08. The blob survived — KV
+   * outlives the Worker that wrote it — so five cards went on drawing a
+   * frozen picture for three weeks with nothing on screen to say so.
+   * `updated` was in the data the whole time and was never rendered.
+   *
+   * A day or two behind is normal: the job runs overnight and works
+   * through any backlog of sends a few at a time. Past three days it is
+   * not lag, it is a job that has stopped, so it says so in red.
+   */
+  function staleness(updated) {
+    if (!updated) return `<p class="kpi-note kpi-note--warn">This panel does not know when it was last rebuilt. Treat every number on it as undated.</p>`;
+    const days = (Date.now() - new Date(updated).getTime()) / 86400000;
+    const when = new Date(updated).toLocaleString("en-US", {
+      month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+    });
+    if (days > 3) {
+      return `<p class="kpi-note kpi-note--warn">Last rebuilt ${esc(when)}, ${fmt(Math.floor(days))} days ago. `
+        + `The nightly job has stopped — sends since then are missing from every card here.</p>`;
+    }
+    return `<p class="kpi-note">Rebuilt ${esc(when)}.</p>`;
+  }
+
   function renderAttribution() {
     const host = document.querySelector("[data-kpi-attribution]");
     if (!host) return;
@@ -2484,6 +2511,7 @@
         HubSpot base moving onto Ghost billing rather than new revenue, so they are labelled and left
         out of the chart. Lag is measured from the send: Kit gives the broadcast a click belongs to
         but never the click's own timestamp.</p>
+      ${staleness(attribution.updated)}
       <div class="kpi-attr" data-window="month">${rows.map((s) => attrRow(s, age(s))).join("")}</div>
       ${nQuarter + nOlder
     ? `<p class="kpi-more"><button type="button" class="kpi-btn" data-attr-more>Expand
