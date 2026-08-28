@@ -167,13 +167,20 @@
   function renderUserList() {
     const rows = adminUsers.map((u) => {
       const enabledCount = TOOLS.filter((t) => u.tools && u.tools[t.id]).length;
+      // Ghost staff hold every dashboard by virtue of their /ghost/ seat,
+      // so a count is the wrong thing to show them. A stored entry on top
+      // of that is redundant while they are staff and outlives the seat if
+      // they ever lose it, which is worth seeing on the row.
+      const meta = u.isStaff
+        ? `Ghost staff · all dashboards${u.tools ? " · also stored" : ""}`
+        : `${enabledCount} tool${enabledCount !== 1 ? "s" : ""}`;
       return `<div class="au-row" data-au-email="${esc(u.email)}">` +
         `<div class="au-row-info">` +
           `<span class="au-row-name">${esc(u.name)}</span>` +
           `<span class="au-row-email">${esc(u.email)}</span>` +
         `</div>` +
         `<div class="au-row-meta">` +
-          `<span class="au-row-count">${enabledCount} tool${enabledCount !== 1 ? "s" : ""}</span>` +
+          `<span class="au-row-count">${esc(meta)}</span>` +
         `</div>` +
         `<div class="au-row-actions">` +
           `<button type="button" class="au-row-btn" data-au-edit="${esc(u.email)}" title="Edit permissions">` +
@@ -220,6 +227,11 @@
   // -----------------------------------------------------------------------
   function showUserModal(existingUser) {
     const isEdit = !!existingUser;
+    // An edit dialog that cannot see the stored grants must not offer to
+    // save: every box would draw clear and saving would revoke the lot.
+    // That is exactly what the old /admin-users response caused, since it
+    // stripped `tools` before sending the list.
+    const toolsUnknown = isEdit && !existingUser.tools && !existingUser.isStaff;
     const tools = existingUser ? (existingUser.tools || {}) : {};
 
     const groups = {};
@@ -243,6 +255,13 @@
       checkboxesHtml += `</div>`;
     }
 
+    const permsHint = toolsUnknown
+      ? `<p class="au-modal-perms-hint au-modal-perms-warn">Their current permissions could not be loaded, so these boxes do not reflect what they have. Reload the page before editing.</p>`
+      : `<p class="au-modal-perms-hint">A ticked box grants that dashboard and the data behind it. Unticked means the page and its API both refuse.</p>`;
+    const staffNote = isEdit && existingUser.isStaff
+      ? `<p class="au-modal-perms-hint">${esc(existingUser.name)} is Ghost staff and already reaches every dashboard through that seat. Saving here stores a separate grant that would outlive it.</p>`
+      : "";
+
     const html = `<div class="au-modal-overlay" data-au-modal>` +
       `<div class="au-modal">` +
         `<h3 class="au-modal-title">${isEdit ? "Edit" : "Add"} Admin User</h3>` +
@@ -262,11 +281,10 @@
             `<button type="button" class="au-link-btn" data-au-select-all>Select all</button>` +
             `<button type="button" class="au-link-btn" data-au-select-none>Clear all</button>` +
           `</div>` +
-          `<div class="au-modal-perms-scroll">${checkboxesHtml}</div>` +
-          `<p class="au-modal-perms-hint">A ticked box grants that dashboard and the data behind it. Unticked means the page and its API both refuse.</p>` +
+          `<div class="au-modal-perms-scroll">${checkboxesHtml}</div>${permsHint}${staffNote}` +
         `</div>` +
         `<div class="au-modal-actions">` +
-          `<button type="button" class="btn btn-primary" data-au-save>${isEdit ? "Save" : "Add user"}</button>` +
+          `<button type="button" class="btn btn-primary" data-au-save${toolsUnknown ? " disabled" : ""}>${isEdit ? "Save" : "Add user"}</button>` +
           `<button type="button" class="btn" data-au-cancel>Cancel</button>` +
         `</div>` +
         `<p class="au-modal-status" data-au-modal-status hidden></p>` +

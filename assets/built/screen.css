@@ -16515,6 +16515,7 @@ body:has(.au-modal-overlay) {
   color: var(--color-muted);
   margin: 8px 0 0;
 }
+.au-modal-perms-warn { color: #b94a48; }
 .au-modal-actions {
   display: flex;
   align-items: center;
