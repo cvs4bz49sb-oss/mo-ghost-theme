@@ -52,7 +52,6 @@
     `<div class="fr-plan">
        <p class="fr-plan-kicker">Make a reading plan</p>
        <p class="fr-plan-line">
-         A portion each morning, at
          <select class="fr-plan-pace" data-plan-pace aria-label="Minutes a day">${
            PACES.map((m) => `<option value="${m}"${m === minutes ? " selected" : ""}>${m} minutes</option>`).join("")
          }</select>
@@ -81,21 +80,11 @@
           mount.hidden = true;
           return;
         }
-        const months = d.days / 30.4;
-        // The word "about" belongs to the sentence, not to the unit.
-        const human = d.days <= 45
-          ? `${d.days} days`
-          : months < 18
-            ? `${Math.round(months)} months`
-            : `${(months / 12).toFixed(1)} years`;
-        // Both halves of the honest answer: how long the whole thing
-        // takes, and how much actually lands each morning. Duration
-        // alone tells someone what they are committing to without
-        // telling them what it feels like.
-        const perDay = d.firstDayWords
-          ? ` About ${Math.round(d.firstDayWords / 100) * 100} words a morning.`
+        const per = d.firstDayWords
+          ? `, about ${(Math.round(d.firstDayWords / 100) * 100).toLocaleString()} words each`
           : "";
-        estimateEl.textContent = `About ${human}.${perDay}`;
+        estimateEl.textContent =
+          `${d.days.toLocaleString()} email${d.days === 1 ? "" : "s"}${per}.`;
       })
       .catch(() => { estimateEl.textContent = ""; });
   }
@@ -126,7 +115,7 @@
         mount.querySelector(".fr-plan-line").hidden = true;
         form.hidden = true;
         statusEl.textContent =
-          `Set. ${d.days.toLocaleString()} readings of ${d.work}, starting tomorrow. Check your inbox.`;
+          `Set. ${d.days.toLocaleString()} emails, starting tomorrow. The first one confirms it.`;
       })
       .catch(() => {
         statusEl.textContent = "That did not go through. Try again in a moment.";
