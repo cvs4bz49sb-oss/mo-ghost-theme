@@ -749,10 +749,49 @@
     return e._tp || t;
   }
 
-  function filterControls(entries, onChange) {
+  // "26", "26-28", "26a" — the forms a printed citation takes. Ordered
+  // by where the verse starts, which is the only order anyone reads a
+  // chapter in.
+  function verseNum(v) {
+    const m = /\d+/.exec(String(v));
+    return m ? parseInt(m[0], 10) : 0;
+  }
+
+  // The verses a work names, as a set, so the filter does not walk the
+  // pair list once per work per keystroke.
+  function verseSet(e) {
+    if (!e._vs) {
+      e._vs = new Set((e.verses || [])
+        .map(([v]) => String(v).trim())
+        .filter(Boolean));
+    }
+    return e._vs;
+  }
+
+  function filterControls(entries, onChange, opts) {
     const state = {
-      collection: "", tradition: "", denomination: "", century: "", q: "", scope: "all",
+      collection: "", tradition: "", denomination: "", century: "", q: "", scope: "all", verse: "",
     };
+
+    // A chapter can be drilled to the verse; a topic cannot, because a
+    // topic is not a passage.
+    const withVerses = !!(opts && opts.verses);
+
+    // Every verse of this chapter that something actually cites, and
+    // how many works cite it. Built from the entries rather than from
+    // the chapter's length, so a verse nobody has ever quoted never
+    // appears as a button that leads to an empty list. Counted once per
+    // work: a commentary that returns to 1:26 four times is one work
+    // citing 1:26.
+    const verseCounts = (() => {
+      if (!withVerses) return [];
+      const m = new Map();
+      entries.forEach((e) => {
+        verseSet(e).forEach((v) => { m.set(v, (m.get(v) || 0) + 1); });
+      });
+      return [...m.entries()]
+        .sort((a, b) => verseNum(a[0]) - verseNum(b[0]) || a[0].localeCompare(b[0]));
+    })();
 
     const counts = (key) => {
       const m = new Map();
@@ -819,10 +858,28 @@
     const scopeOpts = Object.keys(SCOPES)
       .map((k) => `<option value="${k}">${SCOPES[k]}</option>`).join("");
 
+    // The chapter, opened out to the verse. One chip per verse anything
+    // cites, carrying how many works cite it, and choosing one narrows
+    // the list under it to those works.
+    //
+    // Suppressed at one verse: a chapter whose citations all land on
+    // the same verse offers a chip that filters to everything, which is
+    // a control that does nothing dressed as one that does.
+    const verseStrip = verseCounts.length > 1
+      ? `<div class="faith-refs-verses" data-refs-verses role="group" aria-label="Filter by verse">` +
+        `<span class="faith-refs-verses-label">Verse</span>` +
+        `<button type="button" class="faith-verse-chip is-on" data-refs-verse="" aria-pressed="true">All</button>${
+          verseCounts.map(([v, n]) =>
+            `<button type="button" class="faith-verse-chip" data-refs-verse="${escapeHtml(v)}" ` +
+            `aria-pressed="false" aria-label="Verse ${escapeHtml(v)}, ${n.toLocaleString()} work${n === 1 ? "" : "s"}">` +
+            `${escapeHtml(v)}<span class="faith-verse-chip-n">${n.toLocaleString()}</span></button>`).join("")
+        }</div>`
+      : "";
+
     const el = document.createElement("div");
     el.className = "faith-refs-controls";
     el.innerHTML =
-      `<div class="faith-refs-searchbar">` +
+      `${verseStrip}<div class="faith-refs-searchbar">` +
       `<input type="search" class="faith-refs-search" data-refs-q placeholder="Search an author or a title&hellip;" aria-label="Search these works">` +
       `<label class="faith-refs-select faith-refs-scope"><span>Search in</span>` +
       `<select data-refs-scope aria-label="What to search" ` +
@@ -868,6 +925,7 @@
     function matching() {
       const q = fold(state.q);
       return entries.filter((e) => {
+        if (state.verse && !verseSet(e).has(state.verse)) return false;
         if (state.collection && e.corpus !== state.collection) return false;
         if (state.tradition
           && (useRaw ? tradOf(e) : topTradOf(e)) !== state.tradition) return false;
@@ -917,6 +975,26 @@
         });
       }
     };
+    // One delegated handler on the strip: Psalm 119 is 176 chips.
+    const verseWrap = el.querySelector("[data-refs-verses]");
+    if (verseWrap) {
+      verseWrap.addEventListener("click", (ev) => {
+        const btn = ev.target.closest("[data-refs-verse]");
+        if (!btn) return;
+        const v = btn.getAttribute("data-refs-verse") || "";
+        // Clicking the chosen verse again is the way back out, so a
+        // reader who drilled in is never stuck inside one verse looking
+        // for the control that undoes it.
+        state.verse = state.verse === v ? "" : v;
+        verseWrap.querySelectorAll("[data-refs-verse]").forEach((b) => {
+          const on = (b.getAttribute("data-refs-verse") || "") === state.verse;
+          b.classList.toggle("is-on", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+        onChange();
+      });
+    }
+
     bind("collection", "collection");
     // Changing the tradition drops any denomination under the old one,
     // which would otherwise filter to nothing.
@@ -971,7 +1049,8 @@
     body.innerHTML = "";
     const list = document.createElement("div");
     list.className = "faith-refs-list";
-    const f = filterControls(entries, () => render(1));
+    // The chapter is the one view with verses under it.
+    const f = filterControls(entries, () => render(1), { verses: true });
     body.appendChild(f.el);
     body.appendChild(list);
 
@@ -988,7 +1067,7 @@
       }
       const ol = document.createElement("ol");
       ol.className = "faith-scripture-refs";
-      slice.forEach((e) => ol.appendChild(refItem(e, `${book} ${ch}`)));
+      slice.forEach((e) => ol.appendChild(refItem(e, `${book} ${ch}`, f.state.verse)));
       list.appendChild(ol);
       if (pages > 1) list.appendChild(pagerNav(p, pages, render));
     }
@@ -1002,20 +1081,22 @@
   // gave a chapter and nothing more there is nothing to show, which is
   // most of the Latin corpus: "as it is written Rom. 8" was a complete
   // citation in 1640.
-  function verseLinks(e, ref) {
+  function verseLinks(e, ref, chosen) {
     const vs = e.verses || [];
     if (!vs.length) return "";
     // All of them. A reference the index holds and does not show is a
     // reference the reader cannot follow, and "and 2 more" names the
     // two it is keeping back.
     const links = vs.map(([v, loc]) =>
-      `<span class="faith-verse-link" role="link" tabindex="0" data-go="${
+      `<span class="faith-verse-link${
+        chosen && String(v).trim() === chosen ? " is-on" : ""
+      }" role="link" tabindex="0" data-go="${
         escapeHtml(readerUrl(e.corpus, e.id, loc == null ? e.loc : loc, { ref: `${ref}:${v}` }))
       }">${escapeHtml(v)}</span>`).join("");
     return `<p class="faith-verse-row"><span class="faith-verse-label">Verses</span>${links}</p>`;
   }
 
-  function refItem(e, ref) {
+  function refItem(e, ref, verse) {
     const c = window.MOCorpora.get(e.corpus);
     const li = document.createElement("li");
     li.className = "faith-scripture-ref";
@@ -1023,7 +1104,16 @@
     // locator, which is every Early English Books citation, the reader
     // matches the reference against the work's own text and lands on
     // the line that makes it.
-    const href = readerUrl(e.corpus, e.id, e.loc, { ref });
+    //
+    // With a verse chosen upstairs, the whole row is about that verse,
+    // so the title opens where the work names it rather than at the
+    // chapter's first mention — which for a commentary on Genesis is
+    // eighty pages from 1:26.
+    const pair = verse
+      ? (e.verses || []).find(([v]) => String(v).trim() === verse)
+      : null;
+    const at = pair && pair[1] != null ? pair[1] : e.loc;
+    const href = readerUrl(e.corpus, e.id, at, { ref: verse ? `${ref}:${verse}` : ref });
     li.innerHTML =
       `<a class="faith-scripture-ref-link" href="${escapeHtml(href)}">` +
       `<span class="faith-scripture-ref-source">${escapeHtml(c ? c.label : e.corpus)}</span>` +
@@ -1031,7 +1121,7 @@
       e.author ? `<span class="faith-scripture-ref-author">${escapeHtml(e.author)}</span>` : "" 
       }${e.excerpt ? `<span class="faith-scripture-ref-excerpt">${escapeHtml(e.excerpt)}</span>` : "" 
       }${e.times > 1 ? `<span class="faith-scripture-ref-times">cited ${escapeHtml(e.times)} times</span>` : ""
-      }</a>${verseLinks(e, ref)}`;
+      }</a>${verseLinks(e, ref, verse)}`;
     return li;
   }
 

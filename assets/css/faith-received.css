@@ -5326,6 +5326,33 @@ mark.faith-find-hit.is-current {
    not have a seam down the middle of it. */
 [data-fr-tint="warm"] .faith-reader { background: #faf4e8; }
 [data-fr-tint="dark"] .faith-reader { background: #23211f; color: #e8e3dc; }
+/* The line above sets the ink on <main>, and the block near the top of
+   this file headed "Defensive ground-truth colors" sets it straight back
+   on everything inside: .article-body, .faith-doc-body, .article-content
+   and every p, li and heading within it. That block was written to stop
+   an unscoped site-wide dark-mode rule leaking into these pages, and it
+   does its job so well that it also blocked the reader's OWN dark paper.
+   The contents rail sits outside all of those wrappers, so it turned
+   light while the text of the work stayed near-black on near-black,
+   which is exactly the split Jake reported.
+
+   Answered element for element, because the pinned p/li rules match the
+   paragraph directly and no amount of specificity on an ancestor beats
+   a rule that matches the element itself. */
+[data-fr-tint="dark"] .faith-reader .article-body,
+[data-fr-tint="dark"] .faith-reader .faith-doc-body,
+[data-fr-tint="dark"] .faith-reader .article-content,
+[data-fr-tint="dark"] .faith-reader .article-content p,
+[data-fr-tint="dark"] .faith-reader .article-content li { color: #e8e3dc; }
+/* Headings take the brighter of the two inks, the one the rest of the
+   reader's headings already wear. h4-h6 were not in that older rule and
+   were left near-black. */
+[data-fr-tint="dark"] .faith-reader .article-content h1,
+[data-fr-tint="dark"] .faith-reader .article-content h2,
+[data-fr-tint="dark"] .faith-reader .article-content h3,
+[data-fr-tint="dark"] .faith-reader .article-content h4,
+[data-fr-tint="dark"] .faith-reader .article-content h5,
+[data-fr-tint="dark"] .faith-reader .article-content h6 { color: #f4efe8; }
 [data-fr-tint="dark"] .faith-reader .faith-toc-sidebar { border-right-color: #453f3a; }
 [data-fr-tint="dark"] .faith-reader .faith-col-la { color: #bdb6ac; }
 /* Everything that carries its own colour has to be told, or a dark
@@ -5377,6 +5404,20 @@ mark.faith-find-hit.is-current {
 [data-fr-tint="dark"] .faith-reader [data-fr-content] .faith-section-details {
   border-color: #453f3a;
 }
+/* Translation Transparency. Same defect as the dock panels above and
+   caught the same way: a cream card left at its light default is a lit
+   box sitting on near-black paper, and it is the first thing on the
+   page for every machine-translated work in the Latin Library. The
+   accent rule down its left edge stays; that is what marks it as the
+   provenance note rather than prose. */
+[data-fr-tint="dark"] .faith-reader .fr-tt {
+  background: #2c2926;
+  border-color: #453f3a;
+  border-left-color: var(--color-secondary);
+  color: #e8e3dc;
+}
+[data-fr-tint="dark"] .faith-reader .fr-tt-row,
+[data-fr-tint="dark"] .faith-reader .fr-tt .fr-ai-note { border-color: #453f3a; }
 /* The contents rule is drawn in two pieces on desktop (the rail's own
    border plus the fixed stub that covers the nav's height), so the dark
    paper has to recolour both. One variable, read by both. */

@@ -225,8 +225,22 @@
         document.documentElement.setAttribute("data-fr-original-lang", original);
         buildLangToggle(langLabelForWork(m));
         populateHeader(m);
-        buildToc(m.structure || []);
-        renderContent(m);
+        // The contents rail and the text were numbered by two separate
+        // walks of the same outline, and the walks did not agree. The
+        // renderer also emits a "Front matter" section ahead of the
+        // tree, and a lead-in section for any part whose own text
+        // starts before its first child; the contents counted neither.
+        // Every link was therefore one section short at the top of the
+        // work and drifted further with each part that has a preface,
+        // so "Part II" opened Part I.
+        //
+        // Render first, stamping each node with the id it was actually
+        // given, then build the contents from those. One walk owns the
+        // numbering and the other reads it, which is the only
+        // arrangement the two cannot disagree about.
+        const outline = buildTree(m.structure || [], lastPage());
+        renderContent(m, outline);
+        buildToc(m.structure || [], outline);
         hideLoading();
         saveLastRead();
         // The printed leaf beside the transcription, for the works the
@@ -2890,7 +2904,11 @@
     return node.children.reduce((a, c) => a + countLeaves(c), 0);
   }
 
-  function buildToc(structure) {
+  // `rendered` is the same tree renderContent walked, carrying the
+  // section id each node was actually given. Passed in rather than
+  // rebuilt here: a second walk is a second opinion about the
+  // numbering, which is what was wrong.
+  function buildToc(structure, rendered) {
     if (!tocNav) return;
     const loadNote = tocNav.querySelector(".faith-toc-loading");
     if (!structure.length) {
@@ -2898,7 +2916,7 @@
       return;
     }
     if (loadNote) loadNote.remove();
-    const tree = buildTree(structure, lastPage());
+    const tree = rendered || buildTree(structure, lastPage());
     let n = 0;
 
     function renderBranch(nodes, into, depth) {
@@ -2906,12 +2924,16 @@
       ol.className = "faith-toc-list faith-toc-book-list";
       nodes.forEach((node) => {
         n += 1;
+        // The id the renderer stamped. The bare counter survives only
+        // as a fallback for a tree that was never rendered, which is
+        // the shape this function used to assume for every work.
+        const seq = node._sec || n;
         const li = document.createElement("li");
         li.className = "faith-toc-item";
         if (depth) li.style.paddingLeft = `${Math.min(depth, 3) * 12}px`;
         const leaves = countLeaves(node);
         li.innerHTML =
-          `<a href="#section-${n}"><span class="faith-toc-label">${escapeHtml(node.title)}</span>${ 
+          `<a href="#section-${seq}"><span class="faith-toc-label">${escapeHtml(node.title)}</span>${ 
           node.children.length
             ? `<span class="faith-toc-book-count">${leaves}</span>`
             : "" 
@@ -2927,7 +2949,7 @@
 
   // ── Render content ────────────────────────────────────────────
 
-  function renderContent(m) {
+  function renderContent(m, outline) {
     if (!contentEl) return;
     contentEl.innerHTML = "";
     sectionSeq = 0;
@@ -2945,7 +2967,7 @@
       return;
     }
 
-    const tree = buildTree(structure, lastPage());
+    const tree = outline || buildTree(structure, lastPage());
     // Anything before the first heading — title page, dedication —
     // belongs to the work and would otherwise be unreachable.
     const firstPage = tree.length ? tree[0].page : 1;
@@ -2959,6 +2981,10 @@
   function renderNode(node) {
     sectionSeq += 1;
     const seq = sectionSeq;
+    // What the contents rail links to. Recorded here because this is
+    // the only place that knows it: the sequence also absorbs the
+    // front-matter section and each part's lead-in run.
+    node._sec = seq;
 
     if (!node.children.length) {
       return createSection(node.title, seq, node.from, node.to);

@@ -599,8 +599,34 @@
     });
   }
 
+  // On the generated document pages the work is the path, so an anchor
+  // hung off origin + pathname is a whole link. On the dynamic reader
+  // the work is the QUERY (/the-faith-received/reader/?c=…&w=…) and the
+  // path is the same for all 68,724 of them, so dropping the query
+  // turned every Copy link on every work into the same bare reader,
+  // which answers "No work specified."
+  //
+  // Only `c` and `w` are carried. The reader's other parameters — `p`,
+  // `ref`, `h` — are locators that would land the recipient somewhere
+  // other than the passage being copied, and campaign junk picked up on
+  // the way in has no business in a link a reader hands to someone.
+  function sectionUrl(id) {
+    let qs = "";
+    try {
+      const q = new URLSearchParams(location.search);
+      const keep = new URLSearchParams();
+      ["c", "w"].forEach((k) => {
+        const v = q.get(k);
+        if (v) keep.set(k, v);
+      });
+      const s = keep.toString();
+      if (s) qs = `?${s}`;
+    } catch (_) {}
+    return `${location.origin + location.pathname}${qs}#${id}`;
+  }
+
   function buildActionsRow(section) {
-    const url = `${location.origin + location.pathname}#${section.id}`;
+    const url = sectionUrl(section.id);
     const actions = document.createElement("div");
     actions.className = "faith-section-actions";
     actions.innerHTML =
