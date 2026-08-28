@@ -40,7 +40,8 @@
     ["1", "M"], ["2", "T"], ["3", "W"], ["4", "T"], ["5", "F"], ["6", "S"], ["7", "S"],
   ];
 
-  const state = { minutes: 15, days: "1234567", variant: "original", step: 0 };
+  const state = { mode: "time", minutes: 15, per: 1, days: "1234567", variant: "original", step: 0 };
+  const SECTIONS_PER = [1, 2, 3, 5];
   let est = null;
 
   // ── The trigger ───────────────────────────────────────────────
@@ -93,16 +94,36 @@
     if (!est) return "";
     const wk = est.weeks;
     const span = wk <= 8 ? `${wk} weeks` : `${Math.round(wk / 4.35)} months`;
-    return `${est.days.toLocaleString()} emails, about ${
-      (Math.round(est.firstDayWords / 100) * 100).toLocaleString()} words each, over ${span}.`;
+    const each = (Math.round(est.firstDayWords / 100) * 100).toLocaleString();
+    return `${est.days.toLocaleString()} emails, about ${each} words each, over ${span}.`;
   }
 
   const STEPS = [
     {
       q: "How much at a time",
-      render: () => `<div class="fr-opts fr-opts--5">${
-        PACES.map((m) => `<button type="button" class="fr-opt${m === state.minutes ? " is-on" : ""}" data-set-minutes="${m}">${m}</button>`).join("")
-      }</div><p class="fr-opts-cap">minutes a day</p>`,
+      render() {
+        /* Some books are already divided, and dividing them again is
+           vandalism: the Imitation is a hundred short chapters, a
+           catechism is a sequence of questions, an article of a
+           confession is the unit its author wrote. Offered only where
+           the work actually has an outline. */
+        const hasSections = est && est.sections > 1;
+        const tabs = hasSections
+          ? `<div class="fr-tabs">
+               <button type="button" class="fr-tab${state.mode === "time" ? " is-on" : ""}" data-set-mode="time">By time</button>
+               <button type="button" class="fr-tab${state.mode === "section" ? " is-on" : ""}" data-set-mode="section">By section</button>
+             </div>`
+          : "";
+        if (hasSections && state.mode === "section") {
+          return `${tabs}<div class="fr-opts fr-opts--4">${
+            SECTIONS_PER.map((n) => `<button type="button" class="fr-opt${n === state.per ? " is-on" : ""}" data-set-per="${n}">${n}</button>`).join("")
+          }</div><p class="fr-opts-cap">${
+            est.sections.toLocaleString()} sections in this work, ${state.per} per email</p>`;
+        }
+        return `${tabs}<div class="fr-opts fr-opts--5">${
+          PACES.map((m) => `<button type="button" class="fr-opt${m === state.minutes ? " is-on" : ""}" data-set-minutes="${m}">${m}</button>`).join("")
+        }</div><p class="fr-opts-cap">minutes a day</p>`;
+      },
     },
     {
       q: "Which days",
@@ -150,7 +171,7 @@
     window.clearTimeout(estTimer);
     estTimer = window.setTimeout(() => {
       const seq = ++estSeq;
-      fetch(`${API}/estimate?c=${encodeURIComponent(corpus)}&w=${encodeURIComponent(slug)}&minutes=${state.minutes}&days=${state.days}`)
+      fetch(`${API}/estimate?c=${encodeURIComponent(corpus)}&w=${encodeURIComponent(slug)}&minutes=${state.minutes}&days=${state.days}&mode=${state.mode}&per=${state.per}`)
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => {
           // A later question is already out; this answer is stale.
@@ -165,6 +186,10 @@
 
   // Delegated: the body is rewritten on every step.
   body.addEventListener("click", (e) => {
+    const md = e.target.closest("[data-set-mode]");
+    if (md) { state.mode = md.getAttribute("data-set-mode"); paint(); refreshEstimate(); return; }
+    const pr = e.target.closest("[data-set-per]");
+    if (pr) { state.per = parseInt(pr.getAttribute("data-set-per"), 10); paint(); refreshEstimate(); return; }
     const m = e.target.closest("[data-set-minutes]");
     if (m) { state.minutes = parseInt(m.getAttribute("data-set-minutes"), 10); paint(); refreshEstimate(); return; }
     const v = e.target.closest("[data-set-variant]");
@@ -249,7 +274,8 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         c: corpus, w: slug,
-        minutes: state.minutes, days: state.days, variant: state.variant,
+        minutes: state.minutes, mode: state.mode, per: state.per,
+        days: state.days, variant: state.variant,
         name: first, last, email, source: "tfr-work",
       }),
     })
