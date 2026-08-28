@@ -58,7 +58,8 @@
          a day. <span class="fr-plan-est" data-plan-estimate aria-live="polite"></span>
        </p>
        <form class="fr-plan-form" data-plan-form>
-         <input type="text" name="name" placeholder="First name" autocomplete="given-name" required />
+         <input type="text" name="first" placeholder="First name" autocomplete="given-name" required />
+         <input type="text" name="last" placeholder="Last name" autocomplete="family-name" required />
          <input type="email" name="email" placeholder="Email" autocomplete="email" required />
          <button type="submit" class="fr-plan-go">Start &rarr;</button>
        </form>
@@ -94,24 +95,65 @@
     estimate();
   });
 
+  /*
+   * Ghost signup, the same call the rest of the site makes.
+   *
+   * Not a second identity store: a reading plan should make somebody a
+   * free member, so mo-kit mirrors them into Kit with their provenance
+   * and they exist in the one place members are counted. This is the
+   * flow inline-signup.js already uses, integrity token included,
+   * because Ghost 5 rejects a signup without one.
+   *
+   * It runs AFTER the plan is stored and its failure is swallowed. The
+   * reader asked for a reading plan, not an account, so a bad minute at
+   * Ghost must not lose them the thing they actually asked for.
+   */
+  function ghostSignup(first, last, email) {
+    const name = [first, last].filter(Boolean).join(" ");
+    return fetch("/members/api/integrity-token/", { credentials: "same-origin" })
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("integrity"))))
+      .then((integrityToken) => fetch("/members/api/send-magic-link/", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          email,
+          emailType: "signup",
+          name,
+          labels: ["source:tfr-plan"],
+          requestSrc: "portal",
+          redirect: window.location.href,
+          integrityToken,
+        }),
+      }))
+      .catch(() => null);
+  }
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const btn = form.querySelector(".fr-plan-go");
+    const first = form.first.value.trim();
+    const last = form.last.value.trim();
+    const email = form.email.value.trim();
     btn.disabled = true;
     statusEl.hidden = false;
     statusEl.textContent = "Setting up your plan…";
+
     fetch(`${API}/plans`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         c: corpus, w: slug, minutes,
-        name: form.name.value, email: form.email.value,
+        name: first, last, email,
         source: "tfr-work",
       }),
     })
       .then((r) => r.json())
       .then((d) => {
         if (!d || !d.ok) throw new Error((d && d.error) || "failed");
+        // The account is a side effect of the plan, so it is started
+        // here and not waited on.
+        ghostSignup(first, last, email);
         mount.querySelector(".fr-plan-line").hidden = true;
         form.hidden = true;
         statusEl.textContent =
