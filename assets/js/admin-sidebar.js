@@ -78,36 +78,14 @@
   const workerUrl = (document.body.getAttribute("data-admin-worker-url") || "").replace(/\/+$/, "");
   if (!workerUrl || !window.MOAuth) return;
 
-  const PAGE_TO_TOOL = {
-    members: "members",
-    traffic: "traffic",
-    content: "content",
-    agenda: "agenda",
-    settings: "settings",
-    kpi: "kpi",
-    // Rides on the kpi grant rather than a tool of its own: same class of
-    // business data, and it means existing non-staff grants keep working
-    // without a KV edit. Split it out if audience ever needs its own key.
-    audience: "kpi",
-    coverage: "coverage",
-    // Matches toolForRoute("/articles") on mo-admin. The signup and
-    // conversion columns are gated separately, inside the endpoint.
-    articles: "traffic",
-    editorial: "editorial",
-    contact: "contact",
-    inbox: "inbox",
-    sponsors: "sponsors",
-    digest: "digest",
-    social: "social",
-    assets: "assets",
-    copy: "copy",
-    extract: "extract",
-    "slide-ins": "slide-ins",
-    engagement: "engagement",
-    heatmap: "heatmap",
-    podcasts: "podcasts",
-    referrals: "members",
-  };
+  // Page → grant comes from the shared registry (admin-tools.js, loaded
+  // in boot.min.js), the same list the permission checkboxes and the
+  // workers read. It used to be a second hand-kept map here, which is
+  // how /admin/orders/, /admin/events/, /admin/liturgy/, /admin/tfr/ and
+  // the rest ended up visible to every delegated user: a page absent
+  // from the map was treated as ungated.
+  const registry = window.MOAdminTools;
+  const OPEN_PAGES = (registry && registry.openPages) || [];
 
   window.MOAuth.fetch(`${workerUrl}/my-permissions`)
     .then((r) => r.json())
@@ -120,25 +98,33 @@
       window.__moPerms = perms;
 
       if (perms.isStaff || perms.tools === null) return;
+      // No registry means the boot bundle is stale. The worker still
+      // enforces every route, so leave the nav alone rather than hiding
+      // the whole sidebar on a build error.
+      if (!registry) return;
 
       const tools = perms.tools || {};
+      // A page with no entry in the registry is hidden rather than shown.
+      // The old map failed open, so every dashboard nobody had added to
+      // it stayed in the sidebar for people who had not been granted it.
+      const allowed = (page) => {
+        if (!page || OPEN_PAGES.indexOf(page) >= 0) return true;
+        const tool = registry.toolForPage(page);
+        return tool ? !!tools[tool] : false;
+      };
+
       links.forEach((link) => {
-        const page = link.getAttribute("data-ws-page");
-        const tool = PAGE_TO_TOOL[page];
-        if (tool && !tools[tool]) {
+        if (!allowed(link.getAttribute("data-ws-page"))) {
           const li = link.closest("li");
           if (li) li.style.display = "none";
+          else link.style.display = "none";
         }
       });
 
       hideSectionsIfEmpty();
 
       const activePg = sidebar.querySelector(".ws-sidebar-link.is-active");
-      if (activePg) {
-        const pgId = activePg.getAttribute("data-ws-page");
-        const pgTool = PAGE_TO_TOOL[pgId];
-        if (pgTool && !tools[pgTool]) blockPage();
-      }
+      if (activePg && !allowed(activePg.getAttribute("data-ws-page"))) blockPage();
     })
     .catch(() => { /* fail open for staff on network errors — worker still enforces */ });
 

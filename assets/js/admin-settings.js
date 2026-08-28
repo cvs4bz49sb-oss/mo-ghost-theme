@@ -12,25 +12,14 @@
   if (!workerUrl) return;
 
   // -----------------------------------------------------------------------
-  // Tool definitions for permission checkboxes
+  // Permission checkboxes — one per dashboard, from the shared registry
+  // in admin-tools.js (loaded in boot.min.js). This list used to be
+  // hand-kept here and had fallen eleven dashboards behind the sidebar,
+  // so Store Orders, Referrals, Audience, Daily Liturgy, Sponsorships,
+  // Podcasts, Events, Article Performance, Click Heatmap, Faith Received
+  // and Migration could not be granted to anyone at all.
   // -----------------------------------------------------------------------
-  const TOOLS = [
-    { id: "members", label: "Members", group: "Executive" },
-    { id: "traffic", label: "Traffic", group: "Executive" },
-    { id: "content", label: "Content Calendar", group: "Executive" },
-    { id: "agenda", label: "Meeting Agenda", group: "Executive" },
-    { id: "settings", label: "Settings", group: "Executive" },
-    { id: "kpi", label: "KPI Dashboard", group: "Executive" },
-    { id: "coverage", label: "Coverage Scan", group: "Editorial" },
-    { id: "editorial", label: "Editorial", group: "Editorial" },
-    { id: "digest", label: "Email Builder", group: "Marketing" },
-    { id: "social", label: "Social Dashboard", group: "Marketing" },
-    { id: "assets", label: "Social Assets", group: "Marketing" },
-    { id: "copy", label: "Social Copy", group: "Marketing" },
-    { id: "extract", label: "Article Extractor", group: "Marketing" },
-    { id: "slide-ins", label: "Slide-ins", group: "Marketing" },
-    { id: "engagement", label: "Engagement", group: "Marketing" },
-  ];
+  const TOOLS = (window.MOAdminTools && window.MOAdminTools.all) || [];
 
   // -----------------------------------------------------------------------
   // Site Settings (existing)
@@ -245,9 +234,10 @@
       checkboxesHtml += `<p class="au-modal-group-label">${esc(group)}</p>`;
       for (const t of items) {
         const checked = tools[t.id] ? " checked" : "";
+        const note = t.note ? `<em class="au-modal-check-note">${esc(t.note)}</em>` : "";
         checkboxesHtml += `<label class="au-modal-check">` +
           `<input type="checkbox" name="tool_${t.id}" value="1"${checked} />` +
-          `<span>${esc(t.label)}</span>` +
+          `<span>${esc(t.label)}${note}</span>` +
         `</label>`;
       }
       checkboxesHtml += `</div>`;
@@ -271,9 +261,10 @@
           `<div class="au-modal-select-all">` +
             `<button type="button" class="au-link-btn" data-au-select-all>Select all</button>` +
             `<button type="button" class="au-link-btn" data-au-select-none>Clear all</button>` +
-          `</div>${ 
-          checkboxesHtml 
-        }</div>` +
+          `</div>` +
+          `<div class="au-modal-perms-scroll">${checkboxesHtml}</div>` +
+          `<p class="au-modal-perms-hint">A ticked box grants that dashboard and the data behind it. Unticked means the page and its API both refuse.</p>` +
+        `</div>` +
         `<div class="au-modal-actions">` +
           `<button type="button" class="btn btn-primary" data-au-save>${isEdit ? "Save" : "Add user"}</button>` +
           `<button type="button" class="btn" data-au-cancel>Cancel</button>` +

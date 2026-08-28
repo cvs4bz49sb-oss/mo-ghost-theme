@@ -16473,20 +16473,47 @@ body:has(.au-modal-overlay) {
   color: var(--color-muted);
   margin: 0 0 8px;
 }
+/* The permission list is one row per dashboard and there are two dozen
+   of them, so it scrolls inside the modal. Without this the Save button
+   sits below the fold on a laptop and the dialog reads as broken. */
+.au-modal-perms-scroll {
+  max-height: 40vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  margin-bottom: 4px;
+  border-top: 1px solid var(--color-rule, rgba(45, 41, 39, 0.12));
+  border-bottom: 1px solid var(--color-rule, rgba(45, 41, 39, 0.12));
+}
 .au-modal-check {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   padding: 5px 0;
   font-size: 14px;
   color: var(--color-dark);
   cursor: pointer;
 }
+.au-modal-check > span { display: block; }
+.au-modal-check-note {
+  display: block;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin-top: 1px;
+}
 .au-modal-check input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: var(--color-primary);
   cursor: pointer;
+}
+.au-modal-perms-hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 8px 0 0;
 }
 .au-modal-actions {
   display: flex;

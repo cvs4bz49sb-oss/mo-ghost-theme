@@ -42,6 +42,12 @@ const BUNDLES = [
       "assets/js/boot/mo-api-base.js",
       "assets/js/boot/mo-asset-version.js",
       "assets/js/admin-auth.js",
+      // The admin tool registry rides in boot for the same reason
+      // admin-auth does: the 37 admin templates each load their page
+      // scripts with their own <script> tags, and anything they depend
+      // on has to already exist. One missed template would be a
+      // dashboard with no permission enforcement.
+      "assets/js/admin-tools.js",
       "assets/js/lib/safe-href.js",
       "assets/js/lib/safe-redirect.js",
       "assets/js/vendor/purify.min.js",
