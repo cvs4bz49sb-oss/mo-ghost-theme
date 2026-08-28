@@ -9,8 +9,11 @@
 <meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
 {{/contentFor}}
 {{!-- /admin/assets/ — Social media asset creator.
-     Canvas-based tool for creating branded Instagram carousels
-     (1080x1350, up to 12 panels) and stories (1080x1920).
+     Layer-based canvas editor for Instagram carousels (1080x1350,
+     up to 12 panels) and stories (1080x1920). Every element on the
+     canvas is a layer that can be dragged, resized, reordered, and
+     deleted. Text layers carry inline bold/italic/underline markup.
+     Templates are presets that seed layers, not fixed renderers.
      Pull article content from Ghost Content API via URL. --}}
 
 <main class="admin-page admin-workspace">
@@ -32,11 +35,15 @@
                {{#if @custom.content_api_key}}data-content-api-key="{{@custom.content_api_key}}"{{/if}}
                data-site-url="{{@site.url}}">
 
-            {{!-- Mode + article pull toolbar --}}
+            {{!-- Size + article pull toolbar --}}
             <div class="asset-toolbar">
-              <div class="asset-toolbar-modes">
-                <button type="button" class="asset-mode-btn is-active" data-asset-mode="carousel">Carousel <span class="asset-mode-dim">1080 &times; 1350</span></button>
-                <button type="button" class="asset-mode-btn" data-asset-mode="story">Story <span class="asset-mode-dim">1080 &times; 1920 &middot; safety zones marked</span></button>
+              <div class="asset-toolbar-modes" data-asset-modes>
+                <button type="button" class="asset-mode-btn is-active" data-asset-mode="carousel">Carousel <span class="asset-mode-dim">IG &middot; 1080&times;1350</span></button>
+                <button type="button" class="asset-mode-btn" data-asset-mode="square">Square <span class="asset-mode-dim">IG &middot; 1080&times;1080</span></button>
+                <button type="button" class="asset-mode-btn" data-asset-mode="story">Story <span class="asset-mode-dim">IG &middot; 1080&times;1920</span></button>
+                <button type="button" class="asset-mode-btn" data-asset-mode="x">X <span class="asset-mode-dim">1600&times;900</span></button>
+                <button type="button" class="asset-mode-btn" data-asset-mode="linkedin">LinkedIn <span class="asset-mode-dim">1200&times;627</span></button>
+                <button type="button" class="asset-mode-btn" data-asset-mode="facebook">Facebook <span class="asset-mode-dim">1200&times;630</span></button>
               </div>
               <div class="asset-toolbar-pull">
                 <input type="text" class="asset-url-input" data-asset-url placeholder="Paste article URL to pull title, author, and image..." />
@@ -46,7 +53,7 @@
 
             <div class="asset-workspace">
 
-              {{!-- Left panel: settings --}}
+              {{!-- Left rail: canvas settings, layer list, inspector --}}
               <aside class="asset-settings">
 
                 <div class="asset-settings-group">
@@ -59,6 +66,7 @@
                     <button type="button" class="asset-template-btn" data-template="cta-card" title="Call to action">CTA</button>
                     <button type="button" class="asset-template-btn" data-template="blank" title="Blank canvas">Blank</button>
                   </div>
+                  <p class="asset-hint">Templates lay out fresh layers. Everything after that is yours to move.</p>
                 </div>
 
                 <div class="asset-settings-group">
@@ -77,80 +85,175 @@
                   </label>
                 </div>
 
+                {{!-- Layer stack --}}
                 <div class="asset-settings-group">
-                  <p class="asset-settings-label">Text color</p>
-                  <div class="asset-color-swatches" data-asset-fg-swatches>
-                    <button type="button" class="asset-swatch is-active" data-fg="#ffffff" style="background:#ffffff" title="White"></button>
-                    <button type="button" class="asset-swatch" data-fg="#1d1b18" style="background:#1d1b18" title="Dark"></button>
-                    <button type="button" class="asset-swatch" data-fg="#ee7d51" style="background:#ee7d51" title="Orange"></button>
-                    <button type="button" class="asset-swatch" data-fg="#f1e0c9" style="background:#f1e0c9" title="Warm"></button>
+                  <div class="asset-settings-head">
+                    <p class="asset-settings-label">Layers</p>
+                    <button type="button" class="asset-mini-btn" data-asset-arrange title="Re-stack text layers with even spacing">Auto-space</button>
                   </div>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Custom</span>
-                    <input type="color" data-asset-fg-custom value="#ffffff" />
-                  </label>
+                  <div class="asset-add-row">
+                    <button type="button" class="asset-add-btn" data-asset-add="text">+ Text</button>
+                    <button type="button" class="asset-add-btn" data-asset-add="image">+ Image</button>
+                    <button type="button" class="asset-add-btn" data-asset-add="rule">+ Rule</button>
+                    <button type="button" class="asset-add-btn" data-asset-add="box">+ Box</button>
+                    <button type="button" class="asset-add-btn" data-asset-add="scrim">+ Scrim</button>
+                  </div>
+                  <input type="file" accept="image/*" data-asset-layer-file hidden />
+                  <ul class="asset-layer-list" data-asset-layer-list></ul>
+                  <p class="asset-hint">Drag on the canvas to move. Handles resize. Delete key removes.</p>
                 </div>
 
-                <div class="asset-settings-group">
-                  <p class="asset-settings-label">Content</p>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Title</span>
-                    <input type="text" data-asset-field="title" placeholder="Article title..." />
-                  </label>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Subtitle</span>
-                    <input type="text" data-asset-field="subtitle" placeholder="Author or tagline..." />
-                  </label>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Body</span>
-                    <textarea data-asset-field="body" rows="4" placeholder="Quote or body text..."></textarea>
-                  </label>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Title size</span>
-                    <input type="range" data-asset-fontsize min="24" max="120" value="48" />
-                    <span class="asset-settings-field-value" data-asset-fontsize-val>48</span>
-                  </label>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Wordmark size</span>
-                    <input type="range" data-asset-wordmark-size min="8" max="28" value="13" />
-                    <span class="asset-settings-field-value" data-asset-wordmark-size-val>13</span>
-                  </label>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Author size</span>
-                    <input type="range" data-asset-author-size min="14" max="48" value="22" />
-                    <span class="asset-settings-field-value" data-asset-author-size-val>22</span>
-                  </label>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Text position</span>
-                    <input type="range" data-asset-text-pos min="-50" max="50" value="0" />
-                    <span class="asset-settings-field-value" data-asset-text-pos-val>0</span>
-                  </label>
-                  <label class="asset-settings-field asset-settings-field--checkbox">
-                    <input type="checkbox" data-asset-watermark checked />
-                    <span class="asset-settings-field-label">Show MO wordmark</span>
-                  </label>
-                  <label class="asset-settings-field asset-settings-field--checkbox">
-                    <input type="checkbox" data-asset-show-author checked />
-                    <span class="asset-settings-field-label">Show author</span>
-                  </label>
-                  <label class="asset-settings-field asset-settings-field--checkbox">
-                    <input type="checkbox" data-asset-show-body checked />
-                    <span class="asset-settings-field-label">Show body text</span>
-                  </label>
-                </div>
-
-                <div class="asset-settings-group">
-                  <p class="asset-settings-label">Background image</p>
-                  <div class="asset-image-controls">
-                    <button type="button" class="btn btn-ghost btn-sm" data-asset-image-upload>Upload image</button>
-                    <input type="file" accept="image/*" data-asset-image-file hidden />
-                    <button type="button" class="btn btn-ghost btn-sm" data-asset-image-clear hidden>Clear image</button>
+                {{!-- Inspector for the selected layer --}}
+                <div class="asset-settings-group asset-inspector" data-asset-inspector hidden>
+                  <div class="asset-settings-head">
+                    <p class="asset-settings-label" data-asset-insp-title>Layer</p>
+                    <button type="button" class="asset-mini-btn" data-asset-duplicate title="Duplicate layer">Duplicate</button>
                   </div>
-                  <label class="asset-settings-field">
-                    <span class="asset-settings-field-label">Overlay opacity</span>
-                    <input type="range" data-asset-overlay min="0" max="100" value="60" />
-                    <span class="asset-settings-field-value" data-asset-overlay-val>60%</span>
-                  </label>
+
+                  {{!-- Text content + formatting --}}
+                  <div class="asset-insp-block" data-for="text">
+                    <div class="asset-format-bar">
+                      <button type="button" class="asset-fmt-btn" data-asset-fmt="bold" title="Bold (Cmd+B)"><strong>B</strong></button>
+                      <button type="button" class="asset-fmt-btn" data-asset-fmt="italic" title="Italic (Cmd+I)"><em>I</em></button>
+                      <button type="button" class="asset-fmt-btn" data-asset-fmt="underline" title="Underline (Cmd+U)"><u>U</u></button>
+                      <span class="asset-format-sep"></span>
+                      <button type="button" class="asset-fmt-btn asset-fmt-toggle" data-asset-style="bold" title="Bold whole layer">B<span class="asset-fmt-dim">all</span></button>
+                      <button type="button" class="asset-fmt-btn asset-fmt-toggle" data-asset-style="italic" title="Italic whole layer">I<span class="asset-fmt-dim">all</span></button>
+                      <button type="button" class="asset-fmt-btn asset-fmt-toggle" data-asset-style="caps" title="All caps">AA</button>
+                    </div>
+                    <textarea class="asset-layer-text" data-asset-layer-text rows="4" placeholder="Layer text..."></textarea>
+                    <p class="asset-hint">Wrap words in <code>**bold**</code>, <code>*italic*</code>, or <code>__underline__</code>. Enter makes a new line.</p>
+
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Typeface</span>
+                      <select data-asset-prop="font">
+                        <option value="display">Display italic (IM Fell)</option>
+                        <option value="body">Body (Source Serif)</option>
+                      </select>
+                    </label>
+
+                    <div class="asset-align-row" data-asset-align>
+                      <span class="asset-settings-field-label">Align</span>
+                      <div class="asset-align-btns">
+                        <button type="button" class="asset-mini-btn" data-align="left">Left</button>
+                        <button type="button" class="asset-mini-btn" data-align="center">Center</button>
+                        <button type="button" class="asset-mini-btn" data-align="right">Right</button>
+                      </div>
+                    </div>
+
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Size <span class="asset-settings-field-value" data-val="size"></span></span>
+                      <input type="range" data-asset-prop="size" min="10" max="220" step="1" />
+                    </label>
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Line spacing <span class="asset-settings-field-value" data-val="lineHeight"></span></span>
+                      <input type="range" data-asset-prop="lineHeight" min="0.8" max="2.6" step="0.02" />
+                    </label>
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Letter spacing <span class="asset-settings-field-value" data-val="tracking"></span></span>
+                      <input type="range" data-asset-prop="tracking" min="-4" max="24" step="0.5" />
+                    </label>
+                  </div>
+
+                  {{!-- Rule --}}
+                  <div class="asset-insp-block" data-for="rule">
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Thickness <span class="asset-settings-field-value" data-val="thickness"></span></span>
+                      <input type="range" data-asset-prop="thickness" min="1" max="24" step="1" />
+                    </label>
+                  </div>
+
+                  {{!-- Box / scrim --}}
+                  <div class="asset-insp-block" data-for="box scrim">
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Corner radius <span class="asset-settings-field-value" data-val="radius"></span></span>
+                      <input type="range" data-asset-prop="radius" min="0" max="200" step="1" />
+                    </label>
+                  </div>
+                  <div class="asset-insp-block" data-for="scrim">
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Fade direction</span>
+                      <select data-asset-prop="direction">
+                        <option value="up">Dark at bottom</option>
+                        <option value="down">Dark at top</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  {{!-- Image --}}
+                  <div class="asset-insp-block" data-for="image">
+                    <div class="asset-image-controls">
+                      <button type="button" class="btn btn-ghost btn-sm" data-asset-image-replace>Replace image</button>
+                    </div>
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Corner radius <span class="asset-settings-field-value" data-val="radius"></span></span>
+                      <input type="range" data-asset-prop="radius" min="0" max="200" step="1" />
+                    </label>
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Fill zoom <span class="asset-settings-field-value" data-val="zoom"></span></span>
+                      <input type="range" data-asset-prop="zoom" min="1" max="3" step="0.02" />
+                    </label>
+                    <div class="asset-nudge-row">
+                      <span class="asset-settings-field-label">Nudge crop</span>
+                      <div class="asset-align-btns">
+                        <button type="button" class="asset-mini-btn" data-crop="up">&uarr;</button>
+                        <button type="button" class="asset-mini-btn" data-crop="down">&darr;</button>
+                        <button type="button" class="asset-mini-btn" data-crop="left">&larr;</button>
+                        <button type="button" class="asset-mini-btn" data-crop="right">&rarr;</button>
+                        <button type="button" class="asset-mini-btn" data-crop="reset">Reset</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {{!-- Shared: colour, opacity, geometry --}}
+                  <div class="asset-insp-block" data-for="text rule box scrim">
+                    <p class="asset-settings-label">Colour</p>
+                    <div class="asset-color-swatches" data-asset-layer-swatches>
+                      <button type="button" class="asset-swatch" data-color="#ffffff" style="background:#ffffff" title="White"></button>
+                      <button type="button" class="asset-swatch" data-color="#1d1b18" style="background:#1d1b18" title="Dark"></button>
+                      <button type="button" class="asset-swatch" data-color="#ee7d51" style="background:#ee7d51" title="Orange"></button>
+                      <button type="button" class="asset-swatch" data-color="#f1e0c9" style="background:#f1e0c9" title="Warm"></button>
+                      <button type="button" class="asset-swatch" data-color="#c1593c" style="background:#c1593c" title="Rust"></button>
+                    </div>
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Custom</span>
+                      <input type="color" data-asset-prop="color" />
+                    </label>
+                  </div>
+
+                  <div class="asset-insp-block" data-for="text image rule box scrim">
+                    <label class="asset-settings-field">
+                      <span class="asset-settings-field-label">Opacity <span class="asset-settings-field-value" data-val="opacity"></span></span>
+                      <input type="range" data-asset-prop="opacity" min="0" max="100" step="1" />
+                    </label>
+                    <div class="asset-xy-grid">
+                      <label class="asset-settings-field">
+                        <span class="asset-settings-field-label">X</span>
+                        <input type="number" data-asset-prop="x" step="1" />
+                      </label>
+                      <label class="asset-settings-field">
+                        <span class="asset-settings-field-label">Y</span>
+                        <input type="number" data-asset-prop="y" step="1" />
+                      </label>
+                      <label class="asset-settings-field">
+                        <span class="asset-settings-field-label">Width</span>
+                        <input type="number" data-asset-prop="w" step="1" />
+                      </label>
+                      <label class="asset-settings-field" data-for="image box scrim">
+                        <span class="asset-settings-field-label">Height</span>
+                        <input type="number" data-asset-prop="h" step="1" />
+                      </label>
+                    </div>
+                    <div class="asset-align-btns asset-align-btns--wrap">
+                      <button type="button" class="asset-mini-btn" data-asset-center="h" title="Centre horizontally on the canvas">Centre &harr;</button>
+                      <button type="button" class="asset-mini-btn" data-asset-center="v" title="Centre vertically on the canvas">Centre &updownarrow;</button>
+                      <button type="button" class="asset-mini-btn" data-asset-fullbleed title="Fill the whole canvas">Full bleed</button>
+                    </div>
+                  </div>
+
+                  <div class="asset-insp-actions">
+                    <button type="button" class="btn btn-danger btn-sm" data-asset-delete-layer>Delete layer</button>
+                  </div>
                 </div>
 
               </aside>
@@ -158,7 +261,7 @@
               {{!-- Canvas preview --}}
               <div class="asset-preview">
                 <div class="asset-canvas-wrap" data-asset-canvas-wrap>
-                  <canvas data-asset-canvas width="1080" height="1350"></canvas>
+                  <canvas data-asset-canvas width="1080" height="1350" tabindex="0"></canvas>
                 </div>
 
                 {{!-- Carousel panel navigation --}}
@@ -174,6 +277,8 @@
                   <button type="button" class="btn btn-primary" data-asset-export>Download this panel</button>
                   <button type="button" class="btn btn-dark" data-asset-export-all>Download all panels</button>
                 </div>
+
+                <p class="asset-status" data-asset-status role="status" aria-live="polite" hidden></p>
               </div>
 
             </div>

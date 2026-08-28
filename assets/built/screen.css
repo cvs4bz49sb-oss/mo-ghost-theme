@@ -18585,7 +18585,14 @@ body:has(.au-modal-overlay) {
     max-height: none;
   }
   .asset-preview { order: 1; }
-  .asset-mode-btn { padding: 8px 10px; font-size: 12px; }
+  /* Six formats wrap raggedly in a flex row and leave a bare strip of
+     the container background. Lay them out as an even 3×2 grid. */
+  .asset-toolbar-modes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+  }
+  .asset-mode-btn { padding: 10px 6px; font-size: 12px; }
   .asset-mode-dim { display: none; }
   .asset-canvas-wrap canvas { max-height: 60vh; }
   /* Touch targets: the layer row's icon buttons are 20px in the grid,
