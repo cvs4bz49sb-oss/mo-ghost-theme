@@ -25,10 +25,16 @@
 
   /* ── Output sizes ─────────────────────────────────────────────── */
 
+  // safeTop / safeBottom are the bands the platform covers with its own
+  // chrome. Instagram Stories puts the profile row over the top ~250px
+  // and the reply bar over the bottom ~250px; X, LinkedIn and Facebook
+  // crop feed previews toward the centre. Where a platform adds nothing,
+  // the safe inset is just the design margin. Everything the tool lays
+  // out — presets, auto-space, pinned furniture — stays inside this box.
   const MODES = {
     carousel: { w: 1080, h: 1350, panels: true },
     square: { w: 1080, h: 1080, panels: true },
-    story: { w: 1080, h: 1920, panels: true, safety: true },
+    story: { w: 1080, h: 1920, panels: true, safeTop: 250, safeBottom: 250 },
     x: { w: 1600, h: 900, panels: true },
     linkedin: { w: 1200, h: 627, panels: true },
     facebook: { w: 1200, h: 630, panels: true },
@@ -72,12 +78,32 @@
   const $exportBtn = root.querySelector("[data-asset-export]");
   const $exportAllBtn = root.querySelector("[data-asset-export-all]");
   const $status = root.querySelector("[data-asset-status]");
+  const $safeWarn = root.querySelector("[data-asset-safe-warn]");
 
   /* ── Small helpers ────────────────────────────────────────────── */
 
   function nextId() { uid += 1; return `l${uid}`; }
   function panel() { return panels[currentPanel]; }
-  function pad() { return Math.round(Math.min(canvas.width, canvas.height) * 0.075); }
+
+  // The safe box for the current format, in canvas px.
+  function safeArea() {
+    const m = MODES[mode] || {};
+    const side = Math.round(Math.min(canvas.width, canvas.height) * 0.075);
+    const top = Math.round(m.safeTop || side);
+    const bottom = Math.round(m.safeBottom || side);
+    return {
+      left: side,
+      right: side,
+      top,
+      bottom,
+      x: side,
+      y: top,
+      w: canvas.width - side * 2,
+      h: canvas.height - top - bottom,
+    };
+  }
+
+  function pad() { return safeArea().left; }
   function unit() { return canvas.width / 1080; }
   function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
   function dispScale() {
@@ -463,19 +489,30 @@
     }
   }
 
-  function drawSafetyZones() {
-    const w = canvas.width;
-    const h = canvas.height;
+  // Editor guide only — render(false) skips it, so it never exports.
+  function drawSafeArea() {
+    const sa = safeArea();
+    const s = dispScale();
+    const offenders = outsideSafe();
     ctx.save();
     ctx.strokeStyle = "#ff3b30";
-    ctx.globalAlpha = 0.35;
-    ctx.lineWidth = 2 / dispScale();
-    ctx.setLineDash([14, 10]);
-    [Math.round(h * 0.1), h - Math.round(h * 0.13)].forEach((y) => {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
+    ctx.globalAlpha = offenders.length ? 0.5 : 0.28;
+    ctx.lineWidth = 2 / s;
+    ctx.setLineDash([14 / s, 10 / s]);
+    ctx.strokeRect(sa.x, sa.y, sa.w, sa.h);
+    ctx.restore();
+
+    // Outline whatever is breaking out, so "something is unsafe" points
+    // at the layer instead of leaving Ian to find it.
+    if (!offenders.length) return;
+    ctx.save();
+    ctx.strokeStyle = "#ff3b30";
+    ctx.globalAlpha = 0.9;
+    ctx.lineWidth = 3 / s;
+    ctx.setLineDash([]);
+    offenders.forEach((l) => {
+      const b = boxOf(l);
+      ctx.strokeRect(b.x, b.y, b.w, b.h);
     });
     ctx.restore();
   }
@@ -524,8 +561,12 @@
     ctx.fillRect(0, 0, w, h);
     p.layers.forEach(drawLayer);
     if (withChrome !== false) {
-      if (MODES[mode].safety) drawSafetyZones();
+      drawSafeArea();
       drawChrome();
+      // Tied to the draw rather than to individual handlers: every path
+      // that changes the canvas renders, so the readout cannot drift out
+      // of step with what is on screen.
+      refreshSafeWarning();
     }
   }
 
@@ -590,7 +631,7 @@
 
   function wordmarkLayer(align, color) {
     const u = unit();
-    const p = pad();
+    const sa = safeArea();
     return makeText({
       role: "wordmark",
       pin: "top",
@@ -605,9 +646,9 @@
       align: align || "center",
       color,
       opacity: 0.45,
-      x: p,
-      y: p,
-      w: canvas.width - p * 2,
+      x: sa.x,
+      y: sa.y,
+      w: sa.w,
     });
   }
 
@@ -616,6 +657,7 @@
     const h = canvas.height;
     const u = unit();
     const p = pad();
+    const sa = safeArea();
     const fg = contrastOn(panel().bg);
     const inner = w - p * 2;
     const layers = [];
@@ -664,18 +706,18 @@
         x: p, y: Math.round(h * 0.28), w: inner,
       }));
       layers.push(makeRule({
-        pin: "bottom", x: p, w: Math.round(w * 0.3), y: h - p - Math.round(96 * u),
+        pin: "bottom", x: p, w: Math.round(w * 0.3), y: h - sa.bottom - Math.round(96 * u),
         color: fg, opacity: 0.2, thickness: Math.max(1, Math.round(u)),
       }));
       layers.push(makeText({
         role: "subtitle", pin: "bottom", text: content.subtitle || "Author name", font: "body",
         italic: false, bold: true, size: Math.round(26 * u), lineHeight: 1.3, align: "left",
-        color: fg, opacity: 0.7, x: p, y: h - p - Math.round(72 * u), w: inner,
+        color: fg, opacity: 0.7, x: p, y: h - sa.bottom - Math.round(72 * u), w: inner,
       }));
       layers.push(makeText({
         role: "title", pin: "bottom", text: content.title || "", font: "body", italic: true,
         size: Math.round(20 * u), lineHeight: 1.3, align: "left", color: fg, opacity: 0.45,
-        x: p + Math.round(20 * u), y: h - p - Math.round(34 * u), w: inner,
+        x: p + Math.round(20 * u), y: h - sa.bottom - Math.round(34 * u), w: inner,
       }));
       return layers;
     }
@@ -695,7 +737,7 @@
       layers.push(makeText({
         role: "subtitle", pin: "bottom", text: content.subtitle || "Author name", font: "body",
         italic: false, size: Math.round(24 * u), lineHeight: 1.3, align: "left",
-        color: "#ffffff", opacity: 0.78, x: p, y: h - p - Math.round(30 * u), w: inner,
+        color: "#ffffff", opacity: 0.78, x: p, y: h - sa.bottom - Math.round(30 * u), w: inner,
       }));
       return layers;
     }
@@ -712,7 +754,7 @@
         x: p, y: p + Math.round(100 * u), w: inner,
       }));
       layers.push(makeRule({
-        pin: "bottom", x: p, w: inner, y: h - p, color: fg, opacity: 0.14,
+        pin: "bottom", x: p, w: inner, y: h - sa.bottom, color: fg, opacity: 0.14,
         thickness: Math.max(1, Math.round(u)),
       }));
       return layers;
@@ -786,6 +828,49 @@
     refreshAll();
   }
 
+  /* ── Safe area ────────────────────────────────────────────────── */
+
+  // Content layers only. Photos and scrims are background and are meant
+  // to bleed to the edge — pulling them inside the safe box would put a
+  // margin around the picture, which is not what the guide is for.
+  function isContentLayer(l) {
+    return l.type === "text" || l.type === "rule" || l.type === "box";
+  }
+
+  // Pulls every content layer inside the safe box: narrows anything
+  // wider than the safe width, then clamps it horizontally and
+  // vertically. Text re-wraps as it narrows, so this runs before the
+  // vertical re-stack, never after.
+  function fitToSafe(target) {
+    const p = target || panel();
+    const sa = safeArea();
+    p.layers.forEach((l) => {
+      if (!isContentLayer(l) || !l.visible) return;
+      if (l.w > sa.w) l.w = sa.w;
+      l.x = Math.round(clamp(l.x, sa.x, sa.x + sa.w - l.w));
+      const b = boxOf(l);
+      if (b.h > sa.h && l.type !== "text") l.h = sa.h;
+      const top = l.type === "rule" ? l.y - (boxOf(l).h / 2) : l.y;
+      const maxTop = sa.y + sa.h - boxOf(l).h;
+      const clampedTop = clamp(top, sa.y, Math.max(sa.y, maxTop));
+      l.y = Math.round(l.type === "rule" ? clampedTop + (boxOf(l).h / 2) : clampedTop);
+    });
+  }
+
+  // Anything a platform would crop or cover. Reported, never silently
+  // moved — the canvas is Ian's to arrange.
+  function outsideSafe(target) {
+    const p = target || panel();
+    const sa = safeArea();
+    return p.layers.filter((l) => {
+      if (!l.visible || !isContentLayer(l)) return false;
+      const b = boxOf(l);
+      return b.x < sa.x - 1 || b.y < sa.y - 1
+        || b.x + b.w > sa.x + sa.w + 1
+        || b.y + b.h > sa.y + sa.h + 1;
+    });
+  }
+
   /* ── Auto-space ───────────────────────────────────────────────── */
 
   // Re-stacks unpinned text/rule layers in reading order inside the
@@ -795,11 +880,15 @@
     const p = target || panel();
     const h = canvas.height;
     const pd = pad();
+    // Fit first: narrowing a text layer changes how it wraps, which
+    // changes its height, which is what the stack below is measured on.
+    fitToSafe(p);
     const stack = p.layers.filter((l) => l.visible && !l.pin && (l.type === "text" || l.type === "rule"));
     if (!stack.length) return;
 
-    let bandTop = pd;
-    let bandBottom = h - pd;
+    const sa = safeArea();
+    let bandTop = sa.top;
+    let bandBottom = h - sa.bottom;
     // A photo band across the top pushes the stack below it.
     p.layers.forEach((l) => {
       if (l.type !== "image" && l.type !== "box") return;
@@ -894,11 +983,11 @@
       });
       if (full) { l.x = 0; l.y = 0; l.w = newW; l.h = newH; }
     });
-    // Re-seat the pinned furniture against the new margins.
-    const pd = Math.round(Math.min(newW, newH) * 0.075);
+    // Re-seat the pinned furniture against the new format's safe box.
+    const sa = safeArea();
     p.layers.forEach((l) => {
-      if (l.pin === "top") l.y = pd;
-      if (l.pin === "bottom") l.y = Math.round(newH - pd - boxOf(l).h);
+      if (l.pin === "top") l.y = sa.top;
+      if (l.pin === "bottom") l.y = Math.round(newH - sa.bottom - boxOf(l).h);
     });
   }
 
@@ -1069,6 +1158,21 @@
   function setVal(key, text) {
     const el = $inspector.querySelector(`[data-val="${key}"]`);
     if (el) el.textContent = text;
+  }
+
+  function refreshSafeWarning() {
+    if (!$safeWarn) return;
+    const bad = outsideSafe();
+    if (!bad.length) {
+      $safeWarn.hidden = true;
+      $safeWarn.textContent = "";
+      return;
+    }
+    const names = bad.map(layerName).join(", ");
+    $safeWarn.hidden = false;
+    $safeWarn.textContent = bad.length === 1
+      ? `${names} sits outside the safe area — ${MODES[mode].safeTop ? "the app will cover it" : "it may be cropped"}. Auto-space fixes it.`
+      : `${bad.length} layers sit outside the safe area (${names}). Auto-space fixes it.`;
   }
 
   function refreshAll() {
