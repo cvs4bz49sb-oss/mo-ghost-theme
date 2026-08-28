@@ -8556,9 +8556,12 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
    A button on the work, and a dialog behind it. */
 .fr-plan {
   border-top: 1px solid var(--color-card-border);
-  /* Even above and below, so the button sits centred in the band the
-     two rules make rather than crowding the top one. */
-  padding: 22px 0;
+  /* Centred between the two rules. The gap below is not ours to set:
+     .faith-doc-actions, which follows, already carries a 22px top
+     margin, so matching it here with padding would make the space below
+     twice the space above. 22 above, none below, and the neighbour
+     supplies the other half. */
+  padding: 22px 0 0;
   margin: 26px 0 0;
 }
 /* Outlined, small radius, not a pill and not filled. Same manners as
