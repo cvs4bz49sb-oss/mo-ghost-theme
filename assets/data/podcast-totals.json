@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-28T11:29:20.896Z",
+  "generated_at": "2026-08-28T22:25:09.415Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 315,
-      "plays": 61667,
+      "plays": 61913,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -19,7 +19,7 @@
         {
           "date": "2025-05-28",
           "title": "Hath Pope Leo XIV Jurisdiction Here?",
-          "plays": 90
+          "plays": 91
         },
         {
           "date": "2025-06-04",
@@ -29,7 +29,7 @@
         {
           "date": "2025-06-11",
           "title": "The Counterculture That Became The Culture",
-          "plays": 44
+          "plays": 45
         },
         {
           "date": "2025-06-18",
@@ -59,7 +59,7 @@
         {
           "date": "2025-07-23",
           "title": "Can You Really Read The Bible Like That?!",
-          "plays": 108
+          "plays": 109
         },
         {
           "date": "2025-08-13",
@@ -104,7 +104,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 268
+          "plays": 269
         },
         {
           "date": "2025-10-15",
@@ -164,7 +164,7 @@
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 98
+          "plays": 99
         },
         {
           "date": "2026-02-18",
@@ -184,17 +184,17 @@
         {
           "date": "2026-03-11",
           "title": "Delighting In The Ten Commandments",
-          "plays": 114
+          "plays": 115
         },
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 317
+          "plays": 318
         },
         {
           "date": "2026-03-25",
           "title": "The Fall Before The Fall with Philip G. Porter",
-          "plays": 206
+          "plays": 207
         },
         {
           "date": "2026-04-01",
@@ -204,12 +204,12 @@
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 159
+          "plays": 160
         },
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 161
+          "plays": 162
         },
         {
           "date": "2026-04-22",
@@ -239,7 +239,7 @@
         {
           "date": "2026-05-27",
           "title": "Idolatry And The Shape Of Worship",
-          "plays": 3716
+          "plays": 3718
         },
         {
           "date": "2026-06-03",
@@ -249,62 +249,62 @@
         {
           "date": "2026-06-10",
           "title": "Online And Outside the Institutions",
-          "plays": 3484
+          "plays": 3485
         },
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3630
+          "plays": 3631
         },
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3591
+          "plays": 3596
         },
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3416
+          "plays": 3418
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3836
+          "plays": 3840
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 2989
+          "plays": 2992
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3358
+          "plays": 3360
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2829
+          "plays": 2835
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2857
+          "plays": 2862
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3124
+          "plays": 3132
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3347
+          "plays": 3373
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 2360
+          "plays": 2520
         }
       ],
       "per_episode": [
@@ -620,12 +620,12 @@
         },
         {
           "month": "2022-10",
-          "avg": 40,
+          "avg": 41,
           "episodes": 2
         },
         {
           "month": "2022-11",
-          "avg": 14,
+          "avg": 15,
           "episodes": 3
         },
         {
@@ -670,7 +670,7 @@
         },
         {
           "month": "2023-08",
-          "avg": 124,
+          "avg": 126,
           "episodes": 1
         },
         {
@@ -750,17 +750,17 @@
         },
         {
           "month": "2025-05",
-          "avg": 90,
+          "avg": 91,
           "episodes": 1
         },
         {
           "month": "2025-06",
-          "avg": 55,
+          "avg": 56,
           "episodes": 4
         },
         {
           "month": "2025-07",
-          "avg": 75,
+          "avg": 76,
           "episodes": 4
         },
         {
@@ -775,7 +775,7 @@
         },
         {
           "month": "2025-10",
-          "avg": 124,
+          "avg": 125,
           "episodes": 5
         },
         {
@@ -800,12 +800,12 @@
         },
         {
           "month": "2026-03",
-          "avg": 195,
+          "avg": 196,
           "episodes": 4
         },
         {
           "month": "2026-04",
-          "avg": 232,
+          "avg": 233,
           "episodes": 5
         },
         {
@@ -815,24 +815,24 @@
         },
         {
           "month": "2026-06",
-          "avg": 3461,
+          "avg": 3463,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 3286,
+          "avg": 3289,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 2922,
+          "avg": 2972,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 16460,
+      "plays": 16552,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -848,7 +848,7 @@
         {
           "date": "2025-08-12",
           "title": "A. A. Milne - Winnie the Pooh with Ivana D. Greco and Dixie Dillon Lane",
-          "plays": 115
+          "plays": 116
         },
         {
           "date": "2025-08-12",
@@ -873,7 +873,7 @@
         {
           "date": "2025-08-28",
           "title": "The Nicene Creed with Shawn Wilhite and Coleman Ford",
-          "plays": 87
+          "plays": 88
         },
         {
           "date": "2025-09-04",
@@ -908,7 +908,7 @@
         {
           "date": "2025-10-16",
           "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
-          "plays": 166
+          "plays": 168
         },
         {
           "date": "2025-10-23",
@@ -928,12 +928,12 @@
         {
           "date": "2026-01-29",
           "title": "America 250: Books American Christians Should Read | Season 2 Preview",
-          "plays": 75
+          "plays": 76
         },
         {
           "date": "2026-02-05",
           "title": "Narrative of the Life of Frederick Douglass with Shilo Brooks | America 250",
-          "plays": 85
+          "plays": 86
         },
         {
           "date": "2026-02-12",
@@ -948,7 +948,7 @@
         {
           "date": "2026-02-26",
           "title": "Uncle Toms Cabin by Harriet Beecher Stowe with Obbie Tyler Todd | America 250",
-          "plays": 61
+          "plays": 62
         },
         {
           "date": "2026-03-05",
@@ -958,7 +958,7 @@
         {
           "date": "2026-03-12",
           "title": "The Nichomachean Ethics by Aristotle with Sabrina Little | America 250",
-          "plays": 87
+          "plays": 88
         },
         {
           "date": "2026-03-18",
@@ -988,17 +988,17 @@
         {
           "date": "2026-04-23",
           "title": "Thomas Aquinas For Protestants with Miles Smith",
-          "plays": 158
+          "plays": 159
         },
         {
           "date": "2026-05-01",
           "title": "Great American Sermons with John Wilsey and Daniel K. Williams [FULL EPISODE]",
-          "plays": 124
+          "plays": 125
         },
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 203
+          "plays": 204
         },
         {
           "date": "2026-05-14",
@@ -1008,7 +1008,7 @@
         {
           "date": "2026-05-21",
           "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
-          "plays": 800
+          "plays": 801
         },
         {
           "date": "2026-05-28",
@@ -1018,7 +1018,7 @@
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 921
+          "plays": 923
         },
         {
           "date": "2026-06-11",
@@ -1028,7 +1028,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1132
+          "plays": 1133
         },
         {
           "date": "2026-06-25",
@@ -1043,7 +1043,7 @@
         {
           "date": "2026-07-09",
           "title": "The Declaration of Independence and the Classics with Brad Birzer",
-          "plays": 747
+          "plays": 748
         },
         {
           "date": "2026-07-16",
@@ -1053,32 +1053,32 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 918
+          "plays": 920
         },
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 848
+          "plays": 850
         },
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 898
+          "plays": 901
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 668
+          "plays": 670
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 731
+          "plays": 741
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 425
+          "plays": 482
         }
       ],
       "per_episode": [
@@ -1089,7 +1089,7 @@
         },
         {
           "month": "2025-08",
-          "avg": 106,
+          "avg": 107,
           "episodes": 7
         },
         {
@@ -1109,7 +1109,7 @@
         },
         {
           "month": "2026-01",
-          "avg": 75,
+          "avg": 76,
           "episodes": 1
         },
         {
@@ -1124,27 +1124,27 @@
         },
         {
           "month": "2026-04",
-          "avg": 120,
+          "avg": 121,
           "episodes": 4
         },
         {
           "month": "2026-05",
-          "avg": 481,
+          "avg": 482,
           "episodes": 5
         },
         {
           "month": "2026-06",
-          "avg": 1037,
+          "avg": 1038,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 823,
+          "avg": 824,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 681,
+          "avg": 699,
           "episodes": 4
         }
       ]
