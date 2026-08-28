@@ -118,7 +118,7 @@
                     <button type="button" class="btn btn-ghost btn-sm" data-exclude-add>Add</button>
                   </div>
                   <input type="hidden" name="exclude_paths" />
-                  <span class="dashboard-form-hint">Optional. The slide-in never appears on these pages, even when "Show on" matches. End a path with * to cover everything beneath it.</span>
+                  <span class="dashboard-form-hint">Optional. The slide-in never appears on these pages, even when "Show on" matches. A path covers everything beneath it, so /daily-liturgy/ also hides it on /daily-liturgy/read/.</span>
                 </div>
                 <fieldset class="dashboard-form-field" data-audience-group>
                   <span class="dashboard-form-label">Audience</span>
@@ -172,7 +172,7 @@
                     <option value="monthly">Once a month</option>
                     <option value="once">Once (until cleared)</option>
                   </select>
-                  <span class="dashboard-form-hint">How often a visitor sees this after dismissing it.</span>
+                  <span class="dashboard-form-hint">The most often a visitor can see this, whether or not they dismiss it. Closing it hides it for 90 days, and it stops for good after five views.</span>
                 </label>
                 <label class="dashboard-form-field">
                   <span class="dashboard-form-label">Priority</span>
