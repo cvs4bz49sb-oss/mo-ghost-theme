@@ -128,17 +128,34 @@
     nextBtn.textContent = state.step === STEPS.length - 1 ? "Start reading" : "Next";
   }
 
+  /*
+   * Debounced, and sequenced.
+   *
+   * Turning four days off fires four requests, and a big work takes a
+   * second or two to divide, so without a guard whichever reply lands
+   * last wins rather than whichever was asked last. That is not a
+   * cosmetic race: it showed Monday/Wednesday/Friday as nine months
+   * when the answer is sixteen, which is exactly the number somebody
+   * uses to decide whether to start.
+   */
+  let estSeq = 0;
+  let estTimer = 0;
   function refreshEstimate() {
-    fetch(`${API}/estimate?c=${encodeURIComponent(corpus)}&w=${encodeURIComponent(slug)}&minutes=${state.minutes}&days=${state.days}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (!d || d.error || !d.days) { mount.hidden = true; return; }
-        est = d;
-        hint.textContent = summary();
-        const el = body.querySelector("[data-plan-summary]");
-        if (el) el.textContent = summary();
-      })
-      .catch(() => {});
+    window.clearTimeout(estTimer);
+    estTimer = window.setTimeout(() => {
+      const seq = ++estSeq;
+      fetch(`${API}/estimate?c=${encodeURIComponent(corpus)}&w=${encodeURIComponent(slug)}&minutes=${state.minutes}&days=${state.days}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (seq !== estSeq) return;              // a later question is already out
+          if (!d || d.error || !d.days) { mount.hidden = true; return; }
+          est = d;
+          hint.textContent = summary();
+          const el = body.querySelector("[data-plan-summary]");
+          if (el) el.textContent = summary();
+        })
+        .catch(() => {});
+    }, 220);
   }
 
   // Delegated: the body is rewritten on every step.
