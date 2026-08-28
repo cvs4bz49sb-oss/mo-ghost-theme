@@ -95,6 +95,15 @@
             <p class="faith-reader-intro-text" data-fr-description></p>
           </div>
 
+          {{!-- "Read this with us". Placed at the foot of the title
+                page rather than the foot of the work: these run to 800
+                pages and load lazily, so almost nobody reaches the
+                bottom, while everybody passes this once. Renders only
+                for people who are not signed in; faith-plan.js returns
+                immediately when body carries data-member-email. --}}
+          <div class="faith-plan-mount" data-fr-plan
+               data-plans-url="https://mo-tfr-plans.mo-podcast-feed.workers.dev"></div>
+
           <div class="faith-doc-actions">
             <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
               <span class="faith-doc-toc-toggle-icon" aria-hidden="true">
@@ -212,4 +221,5 @@
 {{!-- Docks the tools at the bottom right and keeps them there. --}}
 <script src="{{asset "js/faith-dock.js"}}"></script>
 <script src="{{asset "js/faith-bookmark.js"}}"></script>
+<script src="{{asset "js/faith-plan.js"}}"></script>
 <script src="{{asset "js/faith-gate.js"}}"></script>

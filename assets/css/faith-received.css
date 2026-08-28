@@ -8551,3 +8551,93 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 .bhero-kicker a:hover { border-bottom-color: currentColor; }
 .bhero-kicker a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
+
+/* ══ Read this with us ═════════════════════════════════════════════
+   The reading-plan offer at the foot of a work's title page. Quiet
+   enough to read past, there for the reader who has just decided the
+   library is too big to start on their own. */
+.fr-plan {
+  border: 1px solid var(--color-card-border);
+  border-left: 3px solid var(--color-secondary);
+  border-radius: 4px;
+  padding: 22px 24px;
+  margin: 30px 0 10px;
+  background: var(--color-page);
+}
+.fr-plan-kicker {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro, 11px);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-primary-text, var(--color-secondary));
+  margin: 0 0 8px;
+}
+.fr-plan-lead {
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.4;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+.fr-plan-paces { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.fr-plan-pace {
+  min-height: 34px;
+  padding: 5px 12px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+.fr-plan-pace:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+.fr-plan-pace.is-on {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: #fff;
+}
+/* The honest consequence of the chosen pace, shown before they commit
+   rather than discovered in week one. */
+.fr-plan-estimate {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+.fr-plan-sub { color: var(--color-muted); font-size: 13px; }
+.fr-plan-form { display: flex; flex-wrap: wrap; gap: 8px; }
+.fr-plan-form input {
+  flex: 1 1 160px;
+  min-width: 140px;
+  height: 40px;
+  padding: 0 12px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-dark);
+}
+.fr-plan-form input:focus { outline: 2px solid var(--color-secondary); outline-offset: 1px; }
+.fr-plan-go {
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fr-plan-go[disabled] { opacity: 0.6; cursor: default; }
+.fr-plan-note { font-family: var(--font-body); font-size: 12px; color: var(--color-muted); margin: 10px 0 0; }
+.fr-plan-status { font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--color-dark); margin: 12px 0 0; }
+[data-fr-tint="dark"] .faith-reader .fr-plan { background: #2c2926; border-color: #453f3a; border-left-color: var(--color-secondary); }
+[data-fr-tint="dark"] .faith-reader .fr-plan-form input { background: #23211f; border-color: #453f3a; color: #e8e3dc; }
+@media (max-width: 640px) {
+  .fr-plan-form input, .fr-plan-go { flex: 1 1 100%; }
+}
