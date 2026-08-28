@@ -537,9 +537,13 @@
   // nothing on the page when this file runs and every converted work
   // came out without a copy row. It calls this back once the text is
   // in; the guard against double-injecting is already below.
+  // `refresh` takes an optional element to work inside. The reader's
+  // lazy sections rebuild their own body when the text lands, which
+  // throws away the row this file put there, so it calls back with just
+  // that section rather than making us walk a 900-page work again.
   window.MOFaithSections = { refresh: initSectionActions };
 
-  function initSectionActions() {
+  function initSectionActions(root) {
     if (!navigator.clipboard) return;
     // Every readable unit gets its own Copy link / Copy passage row.
     // Includes: collapsibles (sections, articles, chapters, Lord's
@@ -547,16 +551,27 @@
     // Q&A, topic rows), flat sections (creeds), Q&A rows (Westminster
     // Shorter, Heidelberg's nested Q&A), and the smaller numbered
     // units (95 Theses, Edwards' Resolutions).
-    const targets = document.querySelectorAll(
+    //
+    // Declared in here rather than beside the function: initSectionActions
+    // is called above its own definition, which a hoisted declaration
+    // survives and a module-scope `const` does not.
+    const sel =
       ".faith-doc .faith-section-details, " +
       ".faith-doc .faith-doc-inner > .faith-section, " +
       ".faith-doc .faith-qa, " +
       ".faith-doc .faith-thesis, " +
       ".faith-doc .faith-edwards-item, " +
       ".faith-doc .faith-book-details, " +
-      ".faith-doc .faith-topic-row-details"
-    );
-    Array.prototype.forEach.call(targets, (target) => {
+      ".faith-doc .faith-topic-row-details";
+    const scope = root && root.nodeType === 1 ? root : document;
+    const targets = [];
+    // A scoped refresh is usually handed the section itself, and
+    // querySelectorAll does not return the element you called it on.
+    if (scope !== document && scope.matches && scope.matches(sel)) {
+      targets.push(scope);
+    }
+    Array.prototype.push.apply(targets, scope.querySelectorAll(sel));
+    targets.forEach((target) => {
       if (!target.id) return;
       // Don't double-inject if we've already added actions.
       if (target.querySelector(":scope > .faith-section-actions, :scope > .faith-section-body > .faith-section-actions, :scope > .faith-book-body > .faith-section-actions, :scope > .faith-topic-row-body > .faith-section-actions")) {

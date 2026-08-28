@@ -3095,10 +3095,15 @@
         if (!sectionPages.length) {
           body.innerHTML = `<p class="faith-section-loading">No text on these pages.</p>`;
           details.dataset.frState = "loaded";
+          // A section with nothing on its pages is still a section
+          // worth linking to, and the reader who wants to report the
+          // gap needs the link to do it with.
+          restoreSectionActions(details);
           return;
         }
         body.appendChild(buildPagesBlock(sectionPages));
         details.dataset.frState = "loaded";
+        restoreSectionActions(details);
         // A section opened after the reader was switched to modern
         // English has to catch up, or the work reads half-modernized.
         if (modernOn) modernizeWithin(details);
@@ -3848,6 +3853,19 @@
     if (titleEl) titleEl.textContent = "The Faith Received";
     const tocLoading = tocNav && tocNav.querySelector(".faith-toc-loading");
     if (tocLoading) tocLoading.hidden = true;
+  }
+
+  // Copy link / Copy passage is injected into the section body by
+  // faith-received.js, and hydrateSection fills that same body by
+  // clearing it and rebuilding — which threw the row away every time.
+  // The row was therefore present on every section the reader had not
+  // opened and missing from every section they had, which is the exact
+  // inverse of useful.
+  //
+  // Scoped to the one section, because the alternative is re-walking a
+  // 900-page work on every open.
+  function restoreSectionActions(details) {
+    if (window.MOFaithSections) window.MOFaithSections.refresh(details);
   }
 
   // Every path through this file ends here, whichever reader kind the

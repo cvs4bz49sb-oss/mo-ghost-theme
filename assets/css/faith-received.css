@@ -5430,10 +5430,13 @@ mark.faith-find-hit.is-current {
        rule that fills the gap above it (below) have to agree to the
        pixel or the line has a step in it. */
     --fr-rail-w: 270px;
-    /* The sticky offset is the height of the fixed Mere Orthodoxy
-       header, so the rail parks directly under the nav rather than
-       behind it. */
-    --fr-rail-top: 84px;
+    /* The height of the fixed Mere Orthodoxy header. Two things are
+       measured off it and they must not be confused: --fr-nav-h is the
+       constant, and --fr-rail-top is where the rail currently parks,
+       which is the nav's height while the nav is on screen and zero
+       once it recedes. */
+    --fr-nav-h: 84px;
+    --fr-rail-top: var(--fr-nav-h);
     grid-template-columns: var(--fr-rail-w) minmax(0, 1fr);
     column-gap: 0;
     /* Was capped at 1200px and centred, which put the contents rail in
@@ -5452,18 +5455,43 @@ mark.faith-find-hit.is-current {
     padding: 40px 26px 40px 32px;
     border-right: 1px solid var(--fr-rail-line, var(--color-card-border));
     background: transparent;
+    /* Matched to the header's own transform transition so the rail and
+       the nav move as one gesture rather than two. */
+    transition: top 0.25s ease, max-height 0.25s ease;
   }
-  /* The rule stops where the rail stops, which is 84px down the window,
-     and the nav that used to fill those 84px slides away on a
-     scroll-down. That left the contents divider starting in mid-air
-     with a gap of nothing above it.
+  /* The nav is a preceding sibling of <main>, so the rail can follow it
+     without asking JavaScript for anything: header-behaviors.js already
+     puts .is-hidden on the header, and that is the whole signal.
 
-     Rather than move the rail — sliding the whole contents list up and
-     down every time the nav hides and shows is worse than the gap — the
-     missing 84px is drawn as its own hairline, fixed to the top of the
-     window at the same x as the rail's border. When the nav is showing
-     it sits behind it (the header is opaque and carries z-index 20);
-     when the nav recedes the line reads as continuous to the top edge.
+     Redefining the offset rather than setting `top` directly means the
+     max-height follows in the same breath; the rail grows into the
+     space it just moved into instead of ending 84px short of the
+     window. */
+  .site-header.is-hidden ~ .faith-reader .faith-doc-layout {
+    --fr-rail-top: 0px;
+  }
+  /* A rail that jumps 84px on every change of scroll direction is worse
+     than the gap it closes, and for anyone who has asked the system to
+     stop moving things this IS that jump. Park it under the nav and
+     leave it there; the hairline below still keeps the line unbroken. */
+  @media (prefers-reduced-motion: reduce) {
+    .faith-reader .faith-toc-sidebar { transition: none; }
+    .site-header.is-hidden ~ .faith-reader .faith-doc-layout {
+      --fr-rail-top: var(--fr-nav-h);
+    }
+  }
+  /* The hairline that covers the nav's height, fixed to the top of the
+     window at the same x as the rail's border.
+
+     Keyed to --fr-nav-h and NOT to --fr-rail-top, which is the whole
+     point of keeping the two apart: a custom property does not
+     interpolate, so the offset snaps from 84px to 0 the instant the nav
+     recedes while the rail takes a quarter second to slide up after it.
+     A stub keyed to the offset would vanish at the start of that slide
+     and leave the gap on show for exactly as long as the animation
+     runs. Held at a constant height it covers the transit, sits behind
+     the opaque nav whenever the nav is up, and lies under the rail's
+     own border once the rail arrives. Drawn three ways, seen one way.
 
      Hung off .faith-doc-layout rather than the sidebar on purpose: the
      sidebar is a scroll container, and a fixed child of one is a fight
@@ -5474,7 +5502,7 @@ mark.faith-find-hit.is-current {
     top: 0;
     left: calc(var(--fr-rail-w) - 1px);
     width: 1px;
-    height: var(--fr-rail-top);
+    height: var(--fr-nav-h);
     background: var(--fr-rail-line, var(--color-card-border));
     pointer-events: none;
   }
