@@ -1,26 +1,23 @@
 /*
- * "Read this with us" — the reading-plan generator, on every work.
+ * "Make a reading plan" — the offer on every work, and the dialog behind it.
  *
- * WHY THIS IS THE ASK
+ * WHY A BUTTON AND NOT A FORM
  *
- * A reader standing in front of 68,724 works does not have an appetite
- * problem that more passages would solve. They have the opposite one:
- * the library is overwhelming, they do not know where to start, and a
- * 900-page folio needs a structure they do not have. So the ask is not
- * "we will send you more of this", it is "we will show you how to read
- * it", which is a question a stranger can actually answer.
+ * The inline version asked four questions on the title page of a
+ * sixteenth-century folio, which is three too many for a page somebody
+ * came to in order to read. One button costs a reader nothing to
+ * ignore. Everything else happens after they have said yes to the idea.
  *
- * THE DIAL ONLY TURNS ONE WAY
+ * WHY THE EMAIL IS LAST
  *
- * The reader sets minutes a day and we show them the duration. Asking
- * for the duration instead sounds friendlier and produces plans nobody
- * can keep: the median work here is 161,000 words, so "in four weeks"
- * is 5,750 words a day and they fail in week one. Better to say plainly
- * that at fifteen minutes the Institutes takes seven months, and let
- * them choose a shorter work if that is not what they wanted.
+ * The steps run pace, days, English, then name and address. Someone who
+ * has chosen a pace and a schedule has decided to read the thing; asking
+ * for the address first asks them to pay before they know the price. It
+ * also means every question before the last one is about the reading
+ * rather than about us.
  *
- * Hidden entirely for signed-in members, who already have the reader's
- * own tools and do not need to be sold an email.
+ * Hidden entirely for signed-in members, who have the reader's own tools
+ * and do not need to be sold an email.
  */
 (function () {
   const mount = document.querySelector("[data-fr-plan]");
@@ -28,8 +25,6 @@
 
   const API = (mount.getAttribute("data-plans-url") || "").replace(/\/$/, "");
   if (!API) return;
-
-  // Already a member? Then this is not for you.
   if (document.body.getAttribute("data-member-email")) return;
 
   let slug = "", corpus = "tfr";
@@ -41,75 +36,154 @@
   if (!slug) return;
 
   const PACES = [5, 10, 15, 20, 30];
-  let minutes = 15;
+  const DAYS = [
+    ["1", "M"], ["2", "T"], ["3", "W"], ["4", "T"], ["5", "F"], ["6", "S"], ["7", "S"],
+  ];
 
-  // Deliberately not a card. Every other element on this page is a
-  // hairline and a typeface; a bordered box with an accent bar and five
-  // filled buttons is the only thing shouting, and on the title page of
-  // a sixteenth-century folio it reads as an advert someone taped on.
-  // One rule above, one sentence, an inline pace, two underlined fields.
+  const state = { minutes: 15, days: "1234567", variant: "original", step: 0 };
+  let est = null;
+
+  // ── The trigger ───────────────────────────────────────────────
   mount.innerHTML =
     `<div class="fr-plan">
-       <p class="fr-plan-kicker">Make a reading plan</p>
-       <p class="fr-plan-line">
-         <select class="fr-plan-pace" data-plan-pace aria-label="Minutes a day">${
-           PACES.map((m) => `<option value="${m}"${m === minutes ? " selected" : ""}>${m} minutes</option>`).join("")
-         }</select>
-         a day. <span class="fr-plan-est" data-plan-estimate aria-live="polite"></span>
-       </p>
-       <form class="fr-plan-form" data-plan-form>
-         <input type="text" name="first" placeholder="First name" autocomplete="given-name" required />
-         <input type="text" name="last" placeholder="Last name" autocomplete="family-name" required />
-         <input type="email" name="email" placeholder="Email" autocomplete="email" required />
-         <button type="submit" class="fr-plan-go">Start &rarr;</button>
-       </form>
-       <p class="fr-plan-status" data-plan-status hidden></p>
+       <button type="button" class="fr-plan-open" data-plan-open>Make a reading plan</button>
+       <span class="fr-plan-hint" data-plan-hint></span>
      </div>`;
 
-  const estimateEl = mount.querySelector("[data-plan-estimate]");
-  const statusEl = mount.querySelector("[data-plan-status]");
-  const form = mount.querySelector("[data-plan-form]");
+  const hint = mount.querySelector("[data-plan-hint]");
 
-  function estimate() {
-    estimateEl.textContent = "";
-    fetch(`${API}/estimate?c=${encodeURIComponent(corpus)}&w=${encodeURIComponent(slug)}&minutes=${minutes}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (!d || d.error || !d.days) {
-          // A work we cannot divide should say so rather than offer a
-          // plan that will never arrive.
-          mount.hidden = true;
-          return;
-        }
-        const per = d.firstDayWords
-          ? `, about ${(Math.round(d.firstDayWords / 100) * 100).toLocaleString()} words each`
-          : "";
-        estimateEl.textContent =
-          `${d.days.toLocaleString()} email${d.days === 1 ? "" : "s"}${per}.`;
-      })
-      .catch(() => { estimateEl.textContent = ""; });
+  // ── The dialog ────────────────────────────────────────────────
+  const dlg = document.createElement("div");
+  dlg.className = "fr-modal";
+  dlg.hidden = true;
+  dlg.innerHTML =
+    `<div class="fr-modal-backdrop" data-plan-close></div>
+     <div class="fr-modal-card" role="dialog" aria-modal="true" aria-label="Make a reading plan">
+       <button type="button" class="fr-modal-x" data-plan-close aria-label="Close">&times;</button>
+       <p class="fr-modal-step" data-plan-stepno></p>
+       <div data-plan-body></div>
+       <div class="fr-modal-nav">
+         <button type="button" class="fr-modal-back" data-plan-back>Back</button>
+         <button type="button" class="fr-modal-next" data-plan-next>Next</button>
+       </div>
+       <p class="fr-modal-status" data-plan-status hidden></p>
+     </div>`;
+  document.body.appendChild(dlg);
+
+  const body = dlg.querySelector("[data-plan-body]");
+  const stepNo = dlg.querySelector("[data-plan-stepno]");
+  const backBtn = dlg.querySelector("[data-plan-back]");
+  const nextBtn = dlg.querySelector("[data-plan-next]");
+  const statusEl = dlg.querySelector("[data-plan-status]");
+
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+
+  function summary() {
+    if (!est) return "";
+    const wk = est.weeks;
+    const span = wk <= 8 ? `${wk} weeks` : `${Math.round(wk / 4.35)} months`;
+    return `${est.days.toLocaleString()} emails, about ${
+      (Math.round(est.firstDayWords / 100) * 100).toLocaleString()} words each, over ${span}.`;
   }
 
-  mount.querySelector("[data-plan-pace]").addEventListener("change", (e) => {
-    minutes = parseInt(e.target.value, 10) || 15;
-    estimate();
+  const STEPS = [
+    {
+      title: "How much at a time",
+      render: () => `<div class="fr-opts">${
+        PACES.map((m) => `<button type="button" class="fr-opt${m === state.minutes ? " is-on" : ""}" data-set-minutes="${m}">${m} minutes</button>`).join("")
+      }</div><p class="fr-modal-note" data-plan-summary>${esc(summary())}</p>`,
+    },
+    {
+      title: "Which days",
+      render: () => `<div class="fr-opts">${
+        DAYS.map(([d, label]) => `<button type="button" class="fr-opt fr-opt--day${state.days.indexOf(d) > -1 ? " is-on" : ""}" data-toggle-day="${d}" aria-pressed="${state.days.indexOf(d) > -1}">${label}</button>`).join("")
+      }</div><p class="fr-modal-note" data-plan-summary>${esc(summary())}</p>`,
+    },
+    {
+      title: "Which English",
+      render: () => `<div class="fr-opts fr-opts--stack">
+        <button type="button" class="fr-opt${state.variant === "original" ? " is-on" : ""}" data-set-variant="original">
+          Original spelling<span>As the work was printed.</span></button>
+        <button type="button" class="fr-opt${state.variant === "modern" ? " is-on" : ""}" data-set-variant="modern">
+          Modern English<span>Archaic forms updated. Hath becomes has, saith becomes says.</span></button>
+      </div>`,
+    },
+    {
+      title: "Where to send it",
+      render: () => `<form class="fr-modal-form" data-plan-form>
+        <input type="text" name="first" placeholder="First name" autocomplete="given-name" required />
+        <input type="text" name="last" placeholder="Last name" autocomplete="family-name" required />
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required />
+      </form><p class="fr-modal-note">${esc(summary())}</p>`,
+    },
+  ];
+
+  function paint() {
+    const s = STEPS[state.step];
+    stepNo.textContent = `Step ${state.step + 1} of ${STEPS.length} · ${s.title}`;
+    body.innerHTML = s.render();
+    backBtn.hidden = state.step === 0;
+    nextBtn.textContent = state.step === STEPS.length - 1 ? "Start reading" : "Next";
+  }
+
+  function refreshEstimate() {
+    fetch(`${API}/estimate?c=${encodeURIComponent(corpus)}&w=${encodeURIComponent(slug)}&minutes=${state.minutes}&days=${state.days}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d || d.error || !d.days) { mount.hidden = true; return; }
+        est = d;
+        hint.textContent = summary();
+        const el = body.querySelector("[data-plan-summary]");
+        if (el) el.textContent = summary();
+      })
+      .catch(() => {});
+  }
+
+  // Delegated: the body is rewritten on every step.
+  body.addEventListener("click", (e) => {
+    const m = e.target.closest("[data-set-minutes]");
+    if (m) { state.minutes = parseInt(m.getAttribute("data-set-minutes"), 10); paint(); refreshEstimate(); return; }
+    const v = e.target.closest("[data-set-variant]");
+    if (v) { state.variant = v.getAttribute("data-set-variant"); paint(); return; }
+    const d = e.target.closest("[data-toggle-day]");
+    if (d) {
+      const k = d.getAttribute("data-toggle-day");
+      const set = new Set(state.days.split(""));
+      if (set.has(k)) set.delete(k); else set.add(k);
+      // Never let them arrive at a plan that sends nothing.
+      if (!set.size) set.add(k);
+      state.days = [...set].sort().join("");
+      paint(); refreshEstimate();
+    }
   });
 
+  function open() {
+    dlg.hidden = false;
+    document.body.style.overflow = "hidden";
+    state.step = 0;
+    paint();
+    refreshEstimate();
+  }
+  function close() {
+    dlg.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  mount.querySelector("[data-plan-open]").addEventListener("click", open);
+  dlg.querySelectorAll("[data-plan-close]").forEach((b) => b.addEventListener("click", close));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !dlg.hidden) close(); });
+  backBtn.addEventListener("click", () => { if (state.step > 0) { state.step--; paint(); } });
+
   /*
-   * Ghost signup, the same call the rest of the site makes.
-   *
-   * Not a second identity store: a reading plan should make somebody a
-   * free member, so mo-kit mirrors them into Kit with their provenance
-   * and they exist in the one place members are counted. This is the
-   * flow inline-signup.js already uses, integrity token included,
-   * because Ghost 5 rejects a signup without one.
-   *
-   * It runs AFTER the plan is stored and its failure is swallowed. The
-   * reader asked for a reading plan, not an account, so a bad minute at
-   * Ghost must not lose them the thing they actually asked for.
+   * Ghost signup, the same call the rest of the site makes. A reading
+   * plan should make somebody a free member, so mo-kit mirrors them into
+   * Kit with their provenance and they are counted where members are
+   * counted. It runs after the plan is stored and its failure is
+   * swallowed: they asked for a reading plan, not an account.
    */
   function ghostSignup(first, last, email) {
-    const name = [first, last].filter(Boolean).join(" ");
     return fetch("/members/api/integrity-token/", { credentials: "same-origin" })
       .then((r) => (r.ok ? r.text() : Promise.reject(new Error("integrity"))))
       .then((integrityToken) => fetch("/members/api/send-magic-link/", {
@@ -117,9 +191,8 @@
         headers: { "content-type": "application/json" },
         credentials: "same-origin",
         body: JSON.stringify({
-          email,
-          emailType: "signup",
-          name,
+          email, emailType: "signup",
+          name: [first, last].filter(Boolean).join(" "),
           labels: ["source:tfr-plan"],
           requestSrc: "portal",
           redirect: window.location.href,
@@ -129,13 +202,16 @@
       .catch(() => null);
   }
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const btn = form.querySelector(".fr-plan-go");
+  nextBtn.addEventListener("click", () => {
+    if (state.step < STEPS.length - 1) { state.step++; paint(); refreshEstimate(); return; }
+
+    const form = body.querySelector("[data-plan-form]");
+    if (!form.reportValidity()) return;
     const first = form.first.value.trim();
     const last = form.last.value.trim();
     const email = form.email.value.trim();
-    btn.disabled = true;
+
+    nextBtn.disabled = true;
     statusEl.hidden = false;
     statusEl.textContent = "Setting up your plan…";
 
@@ -143,27 +219,26 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        c: corpus, w: slug, minutes,
-        name: first, last, email,
-        source: "tfr-work",
+        c: corpus, w: slug,
+        minutes: state.minutes, days: state.days, variant: state.variant,
+        name: first, last, email, source: "tfr-work",
       }),
     })
       .then((r) => r.json())
       .then((d) => {
         if (!d || !d.ok) throw new Error((d && d.error) || "failed");
-        // The account is a side effect of the plan, so it is started
-        // here and not waited on.
         ghostSignup(first, last, email);
-        mount.querySelector(".fr-plan-line").hidden = true;
-        form.hidden = true;
+        body.innerHTML = "";
+        stepNo.textContent = "";
+        dlg.querySelector(".fr-modal-nav").hidden = true;
         statusEl.textContent =
           `Set. ${d.days.toLocaleString()} emails, starting tomorrow. The first one confirms it.`;
       })
       .catch(() => {
         statusEl.textContent = "That did not go through. Try again in a moment.";
-        btn.disabled = false;
+        nextBtn.disabled = false;
       });
   });
 
-  estimate();
+  refreshEstimate();
 })();
