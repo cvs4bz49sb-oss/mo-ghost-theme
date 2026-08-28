@@ -67,6 +67,7 @@ const ADMIN_TOOLS = [
   // Marketing
   { id: "digest", label: "Email Builder", group: "Marketing", pages: ["digest"], routes: { admin: ["/digest/"] } },
   { id: "liturgy", label: "Daily Liturgy", group: "Marketing", pages: ["liturgy"], routes: { admin: ["/liturgy"] } },
+  { id: "emails", label: "Auto-Responders", group: "Marketing", pages: ["emails"], routes: { admin: ["/email-templates"] } },
   { id: "social", label: "Social Dashboard", group: "Marketing", pages: ["social"], routes: { admin: ["/social", "/autopost"] } },
   { id: "assets", label: "Social Assets", group: "Marketing", pages: ["assets"], routes: { admin: ["/images/upload", "/assets/lookup"] } },
   { id: "copy", label: "Social Copy", group: "Marketing", pages: ["copy"], routes: { admin: ["/social/copy"] } },

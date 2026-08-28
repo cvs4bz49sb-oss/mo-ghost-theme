@@ -25180,3 +25180,97 @@ body:has(.welcome-page) .site-header { position: static; flex: 0 0 auto; }
     appearance: none;
   }
 }
+
+/* ══ /admin/emails/ — auto-responder copy ═══════════════════════════
+   List on the left, editor and live preview on the right. The preview
+   is the real shell rendered by the worker, not a CSS impression of
+   it, so what is in the frame is what lands in an inbox. */
+.admin-emails-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.admin-emails-list { display: flex; flex-direction: column; gap: 8px; }
+.admin-emails-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  padding: 12px 14px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  background: var(--color-page);
+  cursor: pointer;
+}
+.admin-emails-item:hover { border-color: var(--color-secondary); }
+/* The chosen one is filled, not tinted: a hover state and a selected
+   state that look alike leave you guessing which you are editing. */
+.admin-emails-item.is-on {
+  border-color: var(--color-secondary);
+  box-shadow: inset 3px 0 0 var(--color-secondary);
+}
+.admin-emails-item-label { font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--color-dark); }
+.admin-emails-item-key { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--color-muted); }
+.admin-emails-item-desc { font-family: var(--font-body); font-size: 12px; line-height: 1.5; color: var(--color-muted); }
+
+.admin-emails-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.admin-emails-field { display: flex; flex-direction: column; gap: 5px; }
+.admin-emails-field--wide { grid-column: 1 / -1; }
+.admin-emails-field > span {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.admin-emails-field input,
+.admin-emails-field textarea {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 9px 11px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-dark);
+  width: 100%;
+}
+.admin-emails-field textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+.admin-emails-field input:focus,
+.admin-emails-field textarea:focus { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.admin-emails-hint { font-family: var(--font-body); font-size: 11px; color: var(--color-muted); font-style: normal; }
+
+.admin-emails-actions { display: flex; align-items: center; gap: 14px; margin: 16px 0 20px; }
+.admin-emails-saved { font-family: var(--font-body); font-size: 13px; color: var(--color-secondary); }
+.admin-emails-size { font-family: var(--font-body); font-size: 12px; color: var(--color-muted); margin-left: auto; }
+/* Gmail clips a message near 102KB and prints "[Message clipped]" in
+   the middle of it. The counter turns when a template gets close. */
+.admin-emails-size.is-warn { color: var(--color-primary); font-weight: 600; }
+
+.admin-emails-preview-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 8px;
+}
+.admin-emails-frame {
+  width: 100%;
+  height: 620px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  background: #f6f3f2;
+}
+.admin-emails-loading { font-family: var(--font-body); font-size: 14px; color: var(--color-muted); }
+
+@media (max-width: 1000px) {
+  .admin-emails-layout { grid-template-columns: 1fr; }
+  .admin-emails-fields { grid-template-columns: 1fr; }
+  .admin-emails-frame { height: 480px; }
+}

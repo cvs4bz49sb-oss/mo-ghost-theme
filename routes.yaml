@@ -187,6 +187,8 @@ routes:
     template: custom-admin-social
   /admin/liturgy/:
     template: custom-admin-liturgy
+  /admin/emails/:
+    template: custom-admin-emails
   /admin/assets/:
     template: custom-admin-assets
   /admin/copy/:

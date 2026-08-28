@@ -1,0 +1,99 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Auto-Responders | MO Admin</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Internal Mere Orthodoxy staff tool." />
+<meta property="og:title" content="Auto-Responders | MO Admin" />
+<meta property="og:description" content="Internal Mere Orthodoxy staff tool." />
+<meta name="twitter:title" content="Auto-Responders | MO Admin" />
+<meta name="twitter:description" content="Internal Mere Orthodoxy staff tool." />
+{{/contentFor}}
+{{!-- /admin/emails/ — the copy inside every automatic email MO sends.
+
+     The DESIGN is not here and is not editable from here. The masthead,
+     the measure, the typeface, the dark-mode handling and the footer
+     live in workers/_shared/email-layout.js, where they are reviewed
+     and cannot be broken by a paste. This page edits the words that go
+     inside that shell, which is the part that should never wait on a
+     deploy.
+
+     Every field is a fragment. Preview wraps it in the real shell and
+     renders it with sample values, so what you see here is what a
+     reader gets. --}}
+
+<main class="admin-page admin-workspace">
+
+  {{#if @member}}
+
+    {{> "admin-sidebar" active="emails"}}
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <h1 class="admin-topbar-title"><em>Auto-Responders</em></h1>
+        <p class="admin-topbar-sub">The words inside every automatic email. The layout around them is set in code, so anything you change here is safe to change.</p>
+      </header>
+
+      <section class="admin-body">
+        <div class="container">
+          <div class="admin-emails"
+               data-admin-emails
+               data-worker-url="{{@custom.admin_worker_url}}">
+            <p class="admin-emails-loading" data-emails-status>Loading auto-responders&hellip;</p>
+
+            <div class="admin-emails-layout" data-emails-layout hidden>
+              {{!-- Left: every template we send. --}}
+              <aside class="admin-emails-list" data-emails-list aria-label="Auto-responders"></aside>
+
+              {{!-- Right: the editor and a live preview of it. --}}
+              <div class="admin-emails-editor" data-emails-editor hidden>
+                <div class="admin-emails-fields">
+                  <label class="admin-emails-field">
+                    <span>Subject</span>
+                    <input type="text" data-email-field="subject" />
+                  </label>
+                  <label class="admin-emails-field">
+                    <span>Preview text</span>
+                    <input type="text" data-email-field="preheader" />
+                    <em class="admin-emails-hint">The grey line inboxes show beside the subject.</em>
+                  </label>
+                  <label class="admin-emails-field">
+                    <span>Eyebrow</span>
+                    <input type="text" data-email-field="eyebrow" />
+                  </label>
+                  <label class="admin-emails-field">
+                    <span>Headline</span>
+                    <input type="text" data-email-field="title" />
+                  </label>
+                  <label class="admin-emails-field admin-emails-field--wide">
+                    <span>Body</span>
+                    <textarea data-email-field="body_html" rows="16" spellcheck="true"></textarea>
+                    <em class="admin-emails-hint" data-emails-vars></em>
+                  </label>
+                </div>
+
+                <div class="admin-emails-actions">
+                  <button type="button" class="admin-btn" data-emails-save>Save changes</button>
+                  <span class="admin-emails-saved" data-emails-saved hidden>Saved</span>
+                  <span class="admin-emails-size" data-emails-size></span>
+                </div>
+
+                <div class="admin-emails-preview">
+                  <p class="admin-emails-preview-label">Preview</p>
+                  <iframe class="admin-emails-frame" data-emails-frame title="Email preview" sandbox=""></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  {{else}}
+    {{> "admin-denied"}}
+  {{/if}}
+
+</main>
+
+<script src="{{asset "js/admin-auth.js"}}"></script>
+<script src="{{asset "js/admin-sidebar.js"}}"></script>
+<script src="{{asset "js/admin-emails.js"}}"></script>
