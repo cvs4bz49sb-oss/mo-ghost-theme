@@ -8553,19 +8553,11 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 
 
 /* ══ Make a reading plan ═══════════════════════════════════════════
-   A button on the work, and a step-by-step dialog behind it.
-
-   The inline version asked four questions on the title page of a folio,
-   which is three too many for a page somebody came to in order to read.
-   One button costs nothing to ignore. */
+   A button on the work, and a dialog behind it. */
 .fr-plan {
   border-top: 1px solid var(--color-card-border);
   padding: 18px 0 4px;
   margin: 26px 0 0;
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 6px 14px;
 }
 .fr-plan-open {
   font-family: var(--font-body);
@@ -8578,41 +8570,71 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   cursor: pointer;
 }
 .fr-plan-open:hover { text-decoration: underline; }
-/* The shape of the offer, before they open anything. */
-.fr-plan-hint { font-family: var(--font-body); font-size: 14px; color: var(--color-muted); }
 
-/* ── The dialog ─────────────────────────────────────────────── */
+/* ── The dialog ─────────────────────────────────────────────────
+   Fixed header and footer, one changing panel between them. The first
+   version let every step set its own layout, so the card resized under
+   the reader's hand and the buttons ragged onto two lines. Now the
+   frame holds still and only the question inside it changes. */
 .fr-modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .fr-modal[hidden] { display: none; }
-.fr-modal-backdrop { position: absolute; inset: 0; background: rgba(45, 41, 39, 0.45); }
+.fr-modal-backdrop { position: absolute; inset: 0; background: rgba(45, 41, 39, 0.5); }
 .fr-modal-card {
   position: relative;
   width: 100%;
-  max-width: 460px;
+  max-width: 440px;
   background: var(--color-page);
   border: 1px solid var(--color-card-border);
-  border-radius: 4px;
-  padding: 30px 30px 26px;
-  box-shadow: 0 18px 50px -20px rgba(45, 41, 39, 0.4);
-  max-height: 88vh;
-  overflow-y: auto;
+  border-radius: 5px;
+  box-shadow: 0 24px 60px -24px rgba(45, 41, 39, 0.45);
+  overflow: hidden;
+}
+.fr-modal-head {
+  position: relative;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.fr-modal-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0;
+}
+/* The work being read, so somebody four steps in still knows what for. */
+.fr-modal-work {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin: 4px 44px 0 0;
 }
 .fr-modal-x {
-  position: absolute; top: 12px; right: 14px;
-  width: 34px; height: 34px;
+  position: absolute; top: 16px; right: 16px;
+  width: 30px; height: 30px;
   background: none; border: 0;
   font-size: 24px; line-height: 1; color: var(--color-muted); cursor: pointer;
 }
-.fr-modal-step {
+.fr-modal-x:hover { color: var(--color-dark); }
+
+/* A fixed floor, so the card does not jump between a row of days and a
+   pair of stacked options. */
+.fr-modal-main { padding: 20px 24px 4px; min-height: 168px; }
+.fr-modal-q {
   font-family: var(--font-body);
   font-size: var(--tfr-micro, 11px);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--color-muted);
-  margin: 0 0 18px;
+  margin: 0 0 14px;
 }
-.fr-opts { display: flex; flex-wrap: wrap; gap: 8px; }
-.fr-opts--stack { flex-direction: column; }
+
+/* Even columns rather than a wrapping row: five paces and seven days
+   both sat ragged when they were allowed to flow. */
+.fr-opts { display: grid; gap: 6px; }
+.fr-opts--5 { grid-template-columns: repeat(5, 1fr); }
+.fr-opts--7 { grid-template-columns: repeat(7, 1fr); }
+.fr-opts--stack { grid-template-columns: 1fr; gap: 8px; }
 .fr-opt {
   font-family: var(--font-body);
   font-size: 15px;
@@ -8620,47 +8642,81 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   background: transparent;
   border: 1px solid var(--color-card-border);
   border-radius: 3px;
-  padding: 9px 14px;
+  padding: 10px 0;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
 }
+.fr-opt--wide { text-align: left; padding: 11px 14px; }
 .fr-opt span { display: block; font-size: 13px; color: var(--color-muted); margin-top: 3px; }
 .fr-opt:hover { border-color: var(--color-secondary); }
-/* Filled rather than tinted: a hover state and a chosen state that look
-   alike leave the reader guessing which is which. */
+/* Filled, not tinted: a hover state and a chosen state that look alike
+   leave the reader guessing which is which. */
 .fr-opt.is-on { background: var(--color-secondary); border-color: var(--color-secondary); color: #fff; }
 .fr-opt.is-on span { color: rgba(255, 255, 255, 0.82); }
-/* Seven of these sit in a row, so they are square rather than wide. */
-.fr-opt--day { min-width: 40px; text-align: center; padding: 9px 0; }
-
-.fr-modal-note { font-family: var(--font-body); font-size: 13px; line-height: 1.6; color: var(--color-muted); margin: 16px 0 0; }
-.fr-modal-form { display: flex; flex-direction: column; gap: 10px; }
+.fr-opts-cap {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 8px 0 0;
+}
+/* The one figure a reader is weighing, in the same place on every step. */
+.fr-modal-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 16px 0 0;
+  min-height: 2.6em;
+}
+.fr-modal-form { display: flex; flex-direction: column; gap: 8px; }
+.fr-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fr-modal-form input {
   font-family: var(--font-body);
   font-size: 15px;
-  padding: 9px 11px;
+  padding: 10px 11px;
   border: 1px solid var(--color-card-border);
   border-radius: 3px;
   background: var(--color-page);
   color: var(--color-dark);
+  width: 100%;
 }
 .fr-modal-form input:focus { outline: 2px solid var(--color-secondary); outline-offset: 1px; }
-.fr-modal-nav { display: flex; align-items: center; gap: 14px; margin-top: 22px; }
+
+.fr-modal-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--color-card-border);
+}
+.fr-dots { display: inline-flex; gap: 5px; margin-right: auto; }
+.fr-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-card-border);
+  display: block;
+}
+.fr-dot.is-on { background: var(--color-secondary); }
 .fr-modal-back {
   font-family: var(--font-body); font-size: 14px; color: var(--color-muted);
-  background: none; border: 0; padding: 0; cursor: pointer;
+  background: none; border: 0; padding: 4px 2px; cursor: pointer;
 }
-.fr-modal-back:hover { color: var(--color-dark); }
+.fr-modal-back:hover:not([disabled]) { color: var(--color-dark); }
+/* Disabled rather than hidden, so the footer does not reflow on step one. */
+.fr-modal-back[disabled] { opacity: 0.35; cursor: default; }
 .fr-modal-next {
-  margin-left: auto;
   font-family: var(--font-body); font-size: 15px; font-weight: 600;
   color: #fff; background: var(--color-primary);
   border: 0; border-radius: 999px; padding: 10px 22px; cursor: pointer;
 }
 .fr-modal-next[disabled] { opacity: 0.6; cursor: default; }
-.fr-modal-status { font-family: var(--font-body); font-size: 15px; line-height: 1.7; color: var(--color-dark); margin: 16px 0 0; }
+.fr-modal-status {
+  font-family: var(--font-body); font-size: 15px; line-height: 1.7;
+  color: var(--color-dark); margin: 0; padding: 22px 24px 26px;
+}
 [data-fr-tint="dark"] .faith-reader .fr-plan { border-top-color: #453f3a; }
 @media (max-width: 640px) {
-  .fr-modal-card { padding: 26px 20px 22px; }
-  .fr-opt--day { min-width: 36px; }
+  .fr-modal-main { padding: 18px 18px 4px; }
+  .fr-modal-head { padding: 20px 18px 14px; }
+  .fr-modal-foot { padding: 14px 18px 18px; }
+  .fr-opt { font-size: 14px; padding: 10px 0; }
 }

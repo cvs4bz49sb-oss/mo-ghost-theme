@@ -47,10 +47,7 @@
   mount.innerHTML =
     `<div class="fr-plan">
        <button type="button" class="fr-plan-open" data-plan-open>Make a reading plan</button>
-       <span class="fr-plan-hint" data-plan-hint></span>
      </div>`;
-
-  const hint = mount.querySelector("[data-plan-hint]");
 
   // ── The dialog ────────────────────────────────────────────────
   const dlg = document.createElement("div");
@@ -59,15 +56,24 @@
   dlg.innerHTML =
     `<div class="fr-modal-backdrop" data-plan-close></div>
      <div class="fr-modal-card" role="dialog" aria-modal="true" aria-label="Make a reading plan">
-       <button type="button" class="fr-modal-x" data-plan-close aria-label="Close">&times;</button>
-       <p class="fr-modal-step" data-plan-stepno></p>
-       <div data-plan-body></div>
-       <div class="fr-modal-nav">
+       <header class="fr-modal-head">
+         <p class="fr-modal-title">Make a reading plan</p>
+         <p class="fr-modal-work" data-plan-work></p>
+         <button type="button" class="fr-modal-x" data-plan-close aria-label="Close">&times;</button>
+       </header>
+       <div class="fr-modal-main">
+         <p class="fr-modal-q" data-plan-stepno></p>
+         <div data-plan-body></div>
+         <p class="fr-modal-note" data-plan-summary></p>
+       </div>
+       <footer class="fr-modal-foot">
+         <span class="fr-dots" data-plan-dots aria-hidden="true"></span>
          <button type="button" class="fr-modal-back" data-plan-back>Back</button>
          <button type="button" class="fr-modal-next" data-plan-next>Next</button>
-       </div>
+       </footer>
        <p class="fr-modal-status" data-plan-status hidden></p>
      </div>`;
+
   document.body.appendChild(dlg);
 
   const body = dlg.querySelector("[data-plan-body]");
@@ -75,6 +81,13 @@
   const backBtn = dlg.querySelector("[data-plan-back]");
   const nextBtn = dlg.querySelector("[data-plan-next]");
   const statusEl = dlg.querySelector("[data-plan-status]");
+  const dotsEl = dlg.querySelector("[data-plan-dots]");
+  const noteEl = dlg.querySelector("[data-plan-summary]");
+  const workEl = dlg.querySelector("[data-plan-work]");
+  // Name the work in the card, so somebody four steps deep still knows
+  // what they are signing up to read.
+  const titleNode = document.querySelector("[data-fr-title]");
+  workEl.textContent = titleNode ? titleNode.textContent.trim() : "";
 
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
@@ -90,54 +103,51 @@
 
   const STEPS = [
     {
-      title: "How much at a time",
-      render: () => `<div class="fr-opts">${
-        PACES.map((m) => `<button type="button" class="fr-opt${m === state.minutes ? " is-on" : ""}" data-set-minutes="${m}">${m} minutes</button>`).join("")
-      }</div><p class="fr-modal-note" data-plan-summary>${esc(summary())}</p>`,
+      q: "How much at a time",
+      render: () => `<div class="fr-opts fr-opts--5">${
+        PACES.map((m) => `<button type="button" class="fr-opt${m === state.minutes ? " is-on" : ""}" data-set-minutes="${m}">${m}</button>`).join("")
+      }</div><p class="fr-opts-cap">minutes a day</p>`,
     },
     {
-      title: "Which days",
-      render: () => `<div class="fr-opts">${
-        DAYS.map(([d, label]) => `<button type="button" class="fr-opt fr-opt--day${state.days.indexOf(d) > -1 ? " is-on" : ""}" data-toggle-day="${d}" aria-pressed="${state.days.indexOf(d) > -1}">${label}</button>`).join("")
-      }</div><p class="fr-modal-note" data-plan-summary>${esc(summary())}</p>`,
+      q: "Which days",
+      render: () => `<div class="fr-opts fr-opts--7">${
+        DAYS.map(([d, label]) => `<button type="button" class="fr-opt${state.days.indexOf(d) > -1 ? " is-on" : ""}" data-toggle-day="${d}" aria-pressed="${state.days.indexOf(d) > -1}">${label}</button>`).join("")
+      }</div><p class="fr-opts-cap">tap to add or remove a day</p>`,
     },
     {
-      title: "Which English",
+      q: "Which English",
       render: () => `<div class="fr-opts fr-opts--stack">
-        <button type="button" class="fr-opt${state.variant === "original" ? " is-on" : ""}" data-set-variant="original">
+        <button type="button" class="fr-opt fr-opt--wide${state.variant === "original" ? " is-on" : ""}" data-set-variant="original">
           Original spelling<span>As the work was printed.</span></button>
-        <button type="button" class="fr-opt${state.variant === "modern" ? " is-on" : ""}" data-set-variant="modern">
-          Modern English<span>Archaic forms updated. Hath becomes has, saith becomes says.</span></button>
+        <button type="button" class="fr-opt fr-opt--wide${state.variant === "modern" ? " is-on" : ""}" data-set-variant="modern">
+          Modern English<span>Hath becomes has, saith becomes says.</span></button>
       </div>`,
     },
     {
-      title: "Where to send it",
+      q: "Where to send it",
       render: () => `<form class="fr-modal-form" data-plan-form>
-        <input type="text" name="first" placeholder="First name" autocomplete="given-name" required />
-        <input type="text" name="last" placeholder="Last name" autocomplete="family-name" required />
+        <div class="fr-modal-row">
+          <input type="text" name="first" placeholder="First name" autocomplete="given-name" required />
+          <input type="text" name="last" placeholder="Last name" autocomplete="family-name" required />
+        </div>
         <input type="email" name="email" placeholder="Email" autocomplete="email" required />
-      </form><p class="fr-modal-note">${esc(summary())}</p>`,
+      </form>`,
     },
   ];
 
   function paint() {
     const s = STEPS[state.step];
-    stepNo.textContent = `Step ${state.step + 1} of ${STEPS.length} · ${s.title}`;
+    stepNo.textContent = s.q;
     body.innerHTML = s.render();
-    backBtn.hidden = state.step === 0;
+    dotsEl.innerHTML = STEPS.map((_, i) =>
+      `<i class="fr-dot${i === state.step ? " is-on" : ""}"></i>`).join("");
+    // The numbers sit in one place all the way through, so the figure a
+    // reader is weighing does not move around the card.
+    noteEl.textContent = summary();
+    backBtn.disabled = state.step === 0;
     nextBtn.textContent = state.step === STEPS.length - 1 ? "Start reading" : "Next";
   }
 
-  /*
-   * Debounced, and sequenced.
-   *
-   * Turning four days off fires four requests, and a big work takes a
-   * second or two to divide, so without a guard whichever reply lands
-   * last wins rather than whichever was asked last. That is not a
-   * cosmetic race: it showed Monday/Wednesday/Friday as nine months
-   * when the answer is sixteen, which is exactly the number somebody
-   * uses to decide whether to start.
-   */
   let estSeq = 0;
   let estTimer = 0;
   function refreshEstimate() {
@@ -151,9 +161,7 @@
           if (seq !== estSeq) return;
           if (!d || d.error || !d.days) { mount.hidden = true; return; }
           est = d;
-          hint.textContent = summary();
-          const el = body.querySelector("[data-plan-summary]");
-          if (el) el.textContent = summary();
+          noteEl.textContent = summary();
         })
         .catch(() => {});
     }, 220);
@@ -246,9 +254,8 @@
       .then((d) => {
         if (!d || !d.ok) throw new Error((d && d.error) || "failed");
         ghostSignup(first, last, email);
-        body.innerHTML = "";
-        stepNo.textContent = "";
-        dlg.querySelector(".fr-modal-nav").hidden = true;
+        dlg.querySelector(".fr-modal-main").hidden = true;
+        dlg.querySelector(".fr-modal-foot").hidden = true;
         statusEl.textContent =
           `Set. ${d.days.toLocaleString()} emails, starting tomorrow. The first one confirms it.`;
       })
