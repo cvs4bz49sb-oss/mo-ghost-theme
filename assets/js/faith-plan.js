@@ -25,7 +25,13 @@
 
   const API = (mount.getAttribute("data-plans-url") || "").replace(/\/$/, "");
   if (!API) return;
-  if (document.body.getAttribute("data-member-email")) return;
+  /* Available to everyone. It began as a way of collecting an address
+     from strangers, but a reading plan is a feature, and a subscriber or
+     a member has as much reason to want one. What changes for someone
+     signed in is that we stop asking for details we already hold. */
+  const memberEmail = document.body.getAttribute("data-member-email") || "";
+  const memberName = document.body.getAttribute("data-member-name") || "";
+  const signedIn = !!memberEmail;
 
   let slug = "", corpus = "tfr";
   try {
@@ -162,13 +168,16 @@
     },
     {
       q: "Where to send it",
-      render: () => `<form class="fr-modal-form" data-plan-form>
+      render: () => (signedIn
+        ? `<p class="fr-modal-to">Sent to <strong>${esc(memberEmail)}</strong>.</p>
+           <p class="fr-opts-cap">Not the right address? Change it in your account.</p>`
+        : `<form class="fr-modal-form" data-plan-form>
         <div class="fr-modal-row">
           <input type="text" name="first" placeholder="First name" autocomplete="given-name" required />
           <input type="text" name="last" placeholder="Last name" autocomplete="family-name" required />
         </div>
         <input type="email" name="email" placeholder="Email" autocomplete="email" required />
-      </form>`,
+      </form>`),
     },
   ];
 
@@ -280,10 +289,10 @@
     if (state.step < STEPS.length - 1) { state.step++; paint(); refreshEstimate(); return; }
 
     const form = body.querySelector("[data-plan-form]");
-    if (!form.reportValidity()) return;
-    const first = form.first.value.trim();
-    const last = form.last.value.trim();
-    const email = form.email.value.trim();
+    if (form && !form.reportValidity()) return;
+    const first = signedIn ? memberName.split(" ")[0] : form.first.value.trim();
+    const last = signedIn ? memberName.split(" ").slice(1).join(" ") : form.last.value.trim();
+    const email = signedIn ? memberEmail : form.email.value.trim();
 
     nextBtn.disabled = true;
     statusEl.hidden = false;
@@ -302,7 +311,10 @@
       .then((r) => r.json())
       .then((d) => {
         if (!d || !d.ok) throw new Error((d && d.error) || "failed");
-        ghostSignup(first, last, email);
+        // Only a stranger needs an account made. Signing an existing
+        // member up again would send them a magic link they did not ask
+        // for.
+        if (!signedIn) ghostSignup(first, last, email);
         dlg.querySelector(".fr-modal-main").hidden = true;
         dlg.querySelector(".fr-modal-foot").hidden = true;
         statusEl.textContent =

@@ -8698,6 +8698,13 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   margin: 16px 0 0;
   min-height: 2.6em;
 }
+/* What a signed-in reader sees instead of three empty fields. */
+.fr-modal-to {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+}
 .fr-modal-form { display: flex; flex-direction: column; gap: 8px; }
 .fr-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fr-modal-form input {
