@@ -8556,31 +8556,29 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
    A button on the work, and a dialog behind it. */
 .fr-plan {
   border-top: 1px solid var(--color-card-border);
-  padding: 18px 0 4px;
+  /* Even above and below, so the button sits centred in the band the
+     two rules make rather than crowding the top one. */
+  padding: 22px 0;
   margin: 26px 0 0;
 }
-/* An actual button. It was a text link twice, which is not what was
-   asked for either time: no border, no padding, no shape, nothing to
-   press. It has a border, a fill and a hit area now. */
+/* Outlined, small radius, not a pill and not filled. Same manners as
+   the spelling options in the dialog, which is the vocabulary the rest
+   of this feature already speaks. */
 .fr-plan-open {
   display: inline-block;
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 600;
   line-height: 1;
-  color: #fff;
-  background: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  border-radius: 999px;
-  padding: 12px 24px;
+  color: var(--color-secondary);
+  background: transparent;
+  border: 1px solid var(--color-secondary);
+  border-radius: 3px;
+  padding: 12px 20px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
-.fr-plan-open:hover {
-  background: var(--color-secondary);
-  border-color: var(--color-secondary);
-  text-decoration: none;
-}
+.fr-plan-open:hover { background: var(--color-secondary); color: #fff; }
 .fr-plan-open:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; }
 
 /* ── The dialog ─────────────────────────────────────────────────
