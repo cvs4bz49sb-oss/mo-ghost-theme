@@ -84,10 +84,6 @@
   const dotsEl = dlg.querySelector("[data-plan-dots]");
   const noteEl = dlg.querySelector("[data-plan-summary]");
   const workEl = dlg.querySelector("[data-plan-work]");
-  // Name the work in the card, so somebody four steps deep still knows
-  // what they are signing up to read.
-  const titleNode = document.querySelector("[data-fr-title]");
-  workEl.textContent = titleNode ? titleNode.textContent.trim() : "";
 
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
     { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
@@ -186,6 +182,13 @@
   });
 
   function open() {
+    // Read the title now rather than at load. The reader ships
+    // <h1 data-fr-title>Loading…</h1> and fills it in once the work has
+    // been fetched, so anything captured at init is the placeholder,
+    // and the card sat there saying "Loading…" for good.
+    const t = document.querySelector("[data-fr-title]");
+    const name = t ? t.textContent.trim() : "";
+    workEl.textContent = /^loading/i.test(name) ? "" : name;
     dlg.hidden = false;
     document.body.style.overflow = "hidden";
     state.step = 0;
