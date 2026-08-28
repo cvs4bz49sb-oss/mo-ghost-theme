@@ -116,7 +116,7 @@
         <button type="button" class="fr-opt fr-opt--wide${state.variant === "original" ? " is-on" : ""}" data-set-variant="original">
           Original spelling<span>As the work was printed.</span></button>
         <button type="button" class="fr-opt fr-opt--wide${state.variant === "modern" ? " is-on" : ""}" data-set-variant="modern">
-          Modern English<span>Hath becomes has, saith becomes says.</span></button>
+          Modern English<span>Hath becomes has, saith becomes says, etc.</span></button>
       </div>`,
     },
     {
