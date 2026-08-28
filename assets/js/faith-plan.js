@@ -147,7 +147,8 @@
       fetch(`${API}/estimate?c=${encodeURIComponent(corpus)}&w=${encodeURIComponent(slug)}&minutes=${state.minutes}&days=${state.days}`)
         .then((r) => (r.ok ? r.json() : null))
         .then((d) => {
-          if (seq !== estSeq) return;              // a later question is already out
+          // A later question is already out; this answer is stale.
+          if (seq !== estSeq) return;
           if (!d || d.error || !d.days) { mount.hidden = true; return; }
           est = d;
           hint.textContent = summary();
