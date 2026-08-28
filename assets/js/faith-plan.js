@@ -82,11 +82,12 @@
           return;
         }
         const months = d.days / 30.4;
+        // The word "about" belongs to the sentence, not to the unit.
         const human = d.days <= 45
           ? `${d.days} days`
           : months < 18
-            ? `about ${Math.round(months)} months`
-            : `about ${(months / 12).toFixed(1)} years`;
+            ? `${Math.round(months)} months`
+            : `${(months / 12).toFixed(1)} years`;
         estimateEl.textContent = `About ${human}.`;
       })
       .catch(() => { estimateEl.textContent = ""; });
