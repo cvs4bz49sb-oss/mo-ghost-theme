@@ -95,15 +95,6 @@
             <p class="faith-reader-intro-text" data-fr-description></p>
           </div>
 
-          {{!-- "Read this with us". Placed at the foot of the title
-                page rather than the foot of the work: these run to 800
-                pages and load lazily, so almost nobody reaches the
-                bottom, while everybody passes this once. Renders only
-                for people who are not signed in; faith-plan.js returns
-                immediately when body carries data-member-email. --}}
-          <div class="faith-plan-mount" data-fr-plan
-               data-plans-url="https://mo-tfr-plans.mo-podcast-feed.workers.dev"></div>
-
           <div class="faith-doc-actions">
             <button type="button" class="faith-doc-toc-toggle" data-faith-toc-toggle aria-label="Open contents">
               <span class="faith-doc-toc-toggle-icon" aria-hidden="true">
@@ -112,6 +103,20 @@
               <span class="faith-doc-toc-toggle-label">Contents</span>
             </button>
           </div>
+
+          {{!-- "Make a reading plan". Last inside the title-page header
+                on purpose, and specifically AFTER .faith-doc-actions:
+                that div carries a 22px top margin and 40px of height for
+                a Contents button that is mobile-only, so anything placed
+                above it sits 86px clear of the rule below while being
+                23px from the rule above. Down here the only thing under
+                it is the header's own 24px of padding, which matches.
+
+                Renders only for people who are not signed in;
+                faith-plan.js returns immediately when body carries
+                data-member-email. --}}
+          <div class="faith-plan-mount" data-fr-plan
+               data-plans-url="https://mo-tfr-plans.mo-podcast-feed.workers.dev"></div>
         </header>
 
         {{!-- Loading state --}}
