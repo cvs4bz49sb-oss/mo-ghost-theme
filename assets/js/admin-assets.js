@@ -19,6 +19,7 @@
 
   const siteUrl = (root.dataset.siteUrl || "").replace(/\/$/, "");
   const contentApiKey = root.dataset.contentApiKey || "";
+  const workerUrl = (root.dataset.workerUrl || "").replace(/\/+$/, "");
 
   const canvas = root.querySelector("[data-asset-canvas]");
   const ctx = canvas.getContext("2d");
@@ -1628,14 +1629,45 @@
   function pullArticle() {
     const url = $urlInput.value.trim();
     if (!url) { status("Paste an article URL first.", true); return; }
-    if (!contentApiKey) { status("No Content API key configured for this theme.", true); return; }
-    const slug = extractSlug(url);
-    if (!slug) { status("Could not read a slug from that URL.", true); return; }
+
+    const previewId = extractPreviewId(url);
+    if (previewId && !workerUrl) {
+      status("Preview links need the admin worker URL configured for this theme.", true);
+      return;
+    }
+    if (!previewId && !contentApiKey) {
+      status("No Content API key configured for this theme.", true);
+      return;
+    }
+    if (!previewId && !extractSlug(url)) {
+      status("Could not read a slug from that URL.", true);
+      return;
+    }
+
     $pullBtn.disabled = true;
     $pullBtn.textContent = "Pulling...";
     status("");
+
+    const load = previewId ? fetchPreview(previewId) : fetchPublished(extractSlug(url));
+    load
+      .then((post) => {
+        setRole("title", post.title || "");
+        setRole("subtitle", post.author || "");
+        if (post.excerpt) setRole("body", post.excerpt);
+        autoArrange();
+        refreshAll();
+        if (post.featureImage) loadArticleImage(post.featureImage);
+        const draftNote = post.status && post.status !== "published" ? ` (${post.status})` : "";
+        status(`Pulled “${post.title}”${draftNote}.`);
+      })
+      .catch((err) => { status(`Pull failed: ${err.message}`, true); })
+      .finally(() => { $pullBtn.disabled = false; $pullBtn.textContent = "Pull"; });
+  }
+
+  // Published posts come straight from the Content API, keyed by slug.
+  function fetchPublished(slug) {
     const apiUrl = `${siteUrl}/ghost/api/content/posts/slug/${slug}/?key=${contentApiKey}&include=authors,tags&formats=plaintext`;
-    fetch(apiUrl)
+    return fetch(apiUrl)
       .then((r) => {
         if (!r.ok) throw new Error(`Ghost API ${r.status}`);
         return r.json();
@@ -1646,25 +1678,55 @@
         const authorTags = (post.tags || [])
           .filter((t) => t.slug && t.slug.indexOf("author-") === 0)
           .map((t) => t.name);
-        const author = authorTags.length
-          ? authorTags.join(", ")
-          : (post.primary_author && post.primary_author.name) || "";
+        return {
+          title: post.title || "",
+          author: authorTags.length
+            ? authorTags.join(", ")
+            : (post.primary_author && post.primary_author.name) || "",
+          excerpt: post.custom_excerpt || "",
+          featureImage: post.feature_image || "",
+          status: post.status || "published",
+        };
+      });
+  }
 
-        setRole("title", post.title || "");
-        setRole("subtitle", author);
-        if (post.custom_excerpt) setRole("body", post.custom_excerpt);
-        autoArrange();
-        refreshAll();
-        if (post.feature_image) loadArticleImage(post.feature_image);
-        status(`Pulled “${post.title}”.`);
-      })
-      .catch((err) => { status(`Pull failed: ${err.message}`, true); })
-      .finally(() => { $pullBtn.disabled = false; $pullBtn.textContent = "Pull"; });
+  // A preview link points at a post that is usually still a draft, which
+  // the Content API cannot see. The admin worker resolves it through the
+  // Admin API under the caller's staff session.
+  function fetchPreview(uuid) {
+    if (!window.MOAuth || !window.MOAuth.fetch) {
+      return Promise.reject(new Error("not signed in to MOAdmin"));
+    }
+    return window.MOAuth.fetch(`${workerUrl}/assets/lookup?uuid=${encodeURIComponent(uuid)}`)
+      .then((r) => r.json().catch(() => null).then((body) => {
+        if (r.ok) return body;
+        // The route 404s until mo-admin ships the handler. Say so, rather
+        // than reporting a bare status that reads like a bad link.
+        if (r.status === 404 && !(body && body.error)) {
+          throw new Error("preview lookup is not deployed yet — mo-admin needs a deploy");
+        }
+        throw new Error(body && body.error ? body.error : `worker ${r.status}`);
+      }));
   }
 
   function setRole(role, text) {
     const l = panel().layers.find((x) => x.role === role);
     if (l) l.text = text;
+  }
+
+  // Ghost preview links are /p/<uuid>/, often with ?member_status= on
+  // the end. The uuid is not a slug, so it has to be recognised before
+  // the slug path or the Content API just 404s on it.
+  function extractPreviewId(url) {
+    try {
+      const u = new URL(url, window.location.origin);
+      const m = u.pathname.match(
+        /^\/p\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i,
+      );
+      return m ? m[1].toLowerCase() : "";
+    } catch (e) {
+      return "";
+    }
   }
 
   function extractSlug(url) {

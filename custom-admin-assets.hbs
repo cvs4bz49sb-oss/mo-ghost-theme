@@ -33,6 +33,7 @@
           <div class="asset-creator"
                data-asset-creator
                {{#if @custom.content_api_key}}data-content-api-key="{{@custom.content_api_key}}"{{/if}}
+               data-worker-url="{{@custom.admin_worker_url}}"
                data-site-url="{{@site.url}}">
 
             {{!-- Size + article pull toolbar --}}
@@ -46,7 +47,7 @@
                 <button type="button" class="asset-mode-btn" data-asset-mode="facebook">Facebook <span class="asset-mode-dim">1200&times;630</span></button>
               </div>
               <div class="asset-toolbar-pull">
-                <input type="text" class="asset-url-input" data-asset-url placeholder="Paste article URL to pull title, author, and image..." />
+                <input type="text" class="asset-url-input" data-asset-url placeholder="Paste an article or preview URL to pull title, author, and image..." />
                 <button type="button" class="btn btn-primary btn-sm" data-asset-pull>Pull</button>
               </div>
             </div>
