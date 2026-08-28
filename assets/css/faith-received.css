@@ -8666,6 +8666,9 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 .fr-tab.is-on { background: var(--color-secondary); color: #fff; }
 
 .fr-opts { display: grid; gap: 6px; }
+.fr-opts--1 { grid-template-columns: repeat(1, 1fr); }
+.fr-opts--2 { grid-template-columns: repeat(2, 1fr); }
+.fr-opts--3 { grid-template-columns: repeat(3, 1fr); }
 .fr-opts--4 { grid-template-columns: repeat(4, 1fr); }
 .fr-opts--5 { grid-template-columns: repeat(5, 1fr); }
 .fr-opts--7 { grid-template-columns: repeat(7, 1fr); }

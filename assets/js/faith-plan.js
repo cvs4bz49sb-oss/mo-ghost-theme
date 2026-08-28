@@ -41,7 +41,15 @@
   ];
 
   const state = { mode: "time", minutes: 15, per: 1, days: "1234567", variant: "original", step: 0 };
-  const SECTIONS_PER = [1, 2, 3, 5];
+  /* 1, 2, 3, 4. The old list skipped 4, which looked like it meant
+     something and did not.
+
+     Filtered against the work, because a fixed list offers a creed with
+     three sections a plan of five per email. Nothing is offered that
+     would produce fewer than two instalments, since one email is not a
+     reading plan. */
+  const SECTIONS_PER = [1, 2, 3, 4];
+  const persFor = (n) => SECTIONS_PER.filter((p) => p === 1 || n / p >= 2);
   let est = null;
 
   // ── The trigger ───────────────────────────────────────────────
@@ -123,10 +131,14 @@
              </div>`
           : "";
         if (hasSections && state.mode === "section") {
-          return `${tabs}<div class="fr-opts fr-opts--4">${
-            SECTIONS_PER.map((n) => `<button type="button" class="fr-opt${n === state.per ? " is-on" : ""}" data-set-per="${n}">${n}</button>`).join("")
+          const pers = persFor(est.sections);
+          // A pace that no longer fits the work must not stay selected.
+          if (pers.indexOf(state.per) === -1) state.per = pers[pers.length - 1];
+          return `${tabs}<div class="fr-opts fr-opts--${pers.length}">${
+            pers.map((n) => `<button type="button" class="fr-opt${n === state.per ? " is-on" : ""}" data-set-per="${n}">${n}</button>`).join("")
           }</div><p class="fr-opts-cap">${
-            est.sections.toLocaleString()} sections in this work, ${state.per} per email</p>`;
+            est.sections.toLocaleString()} sections in this work, ${
+            state.per === 1 ? "one" : state.per} per email</p>`;
         }
         return `${tabs}<div class="fr-opts fr-opts--5">${
           PACES.map((m) => `<button type="button" class="fr-opt${m === state.minutes ? " is-on" : ""}" data-set-minutes="${m}">${m}</button>`).join("")
