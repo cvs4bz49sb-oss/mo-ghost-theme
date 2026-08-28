@@ -154,14 +154,25 @@
     })
     .catch(() => { /* non-staff — section stays hidden */ });
 
+  // A failed load must never render as an empty list. "No admin users
+  // configured yet" is a statement about who has access, and showing it
+  // when the request 500'd says everyone lost theirs — which is what a
+  // Set/Array slip in the endpoint looked like from this page.
   function loadAdminUsers() {
     window.MOAuth.fetch(`${workerUrl}/admin-users`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`admin-users ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
         adminUsers = data.users || [];
         renderUserList();
       })
-      .catch(() => { /* fail silently */ });
+      .catch((err) => {
+        auEmpty.hidden = true;
+        auList.innerHTML = `<p class="au-load-error">The admin user list could not be loaded (${esc(err.message)}). ` +
+          `Nobody's access has changed — reload the page, and if it persists check the mo-admin logs.</p>`;
+      });
   }
 
   function renderUserList() {

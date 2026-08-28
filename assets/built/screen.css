@@ -16516,6 +16516,12 @@ body:has(.au-modal-overlay) {
   margin: 8px 0 0;
 }
 .au-modal-perms-warn { color: #b94a48; }
+.au-load-error {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #b94a48;
+  margin: 0;
+}
 .au-modal-actions {
   display: flex;
   align-items: center;
