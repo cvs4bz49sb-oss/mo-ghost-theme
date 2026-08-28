@@ -94,8 +94,16 @@
     if (!est) return "";
     const wk = est.weeks;
     const span = wk <= 8 ? `${wk} weeks` : `${Math.round(wk / 4.35)} months`;
-    const each = (Math.round(est.firstDayWords / 100) * 100).toLocaleString();
-    return `${est.days.toLocaleString()} emails, about ${each} words each, over ${span}.`;
+    /* By time every instalment is the same size by construction, so the
+       first one is a fair description of all of them. By section they
+       vary enormously — Calvin's chapters run from about 1,100 words to
+       well over twenty thousand — and quoting the first would promise a
+       short read and deliver a long one. Average, and say so. */
+    const bySection = est.mode === "section";
+    const n = bySection ? est.wordsPerDay : est.firstDayWords;
+    const each = (Math.round(n / 100) * 100).toLocaleString();
+    return `${est.days.toLocaleString()} emails, ${
+      bySection ? "averaging" : "about"} ${each} words each, over ${span}.`;
   }
 
   const STEPS = [
