@@ -8575,13 +8575,15 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   color: var(--color-muted);
   margin: 0 0 12px;
 }
+/* Its own line above the sentence: it is the name of the thing, not a
+   run-in label. */
 .fr-plan-kicker {
   font-family: var(--font-body);
   font-size: var(--tfr-micro, 11px);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--color-muted);
-  margin-right: 10px;
+  margin: 0 0 8px;
 }
 /* Set into the sentence rather than beside it, so choosing a pace is
    reading a line rather than filling in a form. */

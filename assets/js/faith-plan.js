@@ -50,8 +50,8 @@
   // One rule above, one sentence, an inline pace, two underlined fields.
   mount.innerHTML =
     `<div class="fr-plan">
+       <p class="fr-plan-kicker">Make a reading plan</p>
        <p class="fr-plan-line">
-         <span class="fr-plan-kicker">Read this with us</span>
          A portion each morning, at
          <select class="fr-plan-pace" data-plan-pace aria-label="Minutes a day">${
            PACES.map((m) => `<option value="${m}"${m === minutes ? " selected" : ""}>${m} minutes</option>`).join("")
@@ -88,7 +88,14 @@
           : months < 18
             ? `${Math.round(months)} months`
             : `${(months / 12).toFixed(1)} years`;
-        estimateEl.textContent = `About ${human}.`;
+        // Both halves of the honest answer: how long the whole thing
+        // takes, and how much actually lands each morning. Duration
+        // alone tells someone what they are committing to without
+        // telling them what it feels like.
+        const perDay = d.firstDayWords
+          ? ` About ${Math.round(d.firstDayWords / 100) * 100} words a morning.`
+          : "";
+        estimateEl.textContent = `About ${human}.${perDay}`;
       })
       .catch(() => { estimateEl.textContent = ""; });
   }
