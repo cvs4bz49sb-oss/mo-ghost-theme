@@ -8553,91 +8553,97 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 
 
 /* ══ Read this with us ═════════════════════════════════════════════
-   The reading-plan offer at the foot of a work's title page. Quiet
-   enough to read past, there for the reader who has just decided the
-   library is too big to start on their own. */
+   The reading-plan offer on a work's title page.
+
+   No card, no border, no accent bar, no filled buttons. The first
+   version was all four and it was the only shouting thing on a page
+   made of hairlines and type: an advert taped to a folio. This is one
+   rule, one sentence with the pace set inside it, and two underlined
+   fields. It should read as part of the front matter and be easy to
+   scroll past, because the reader who wants it will see it and the
+   reader who does not should not have to refuse it. */
 .fr-plan {
-  border: 1px solid var(--color-card-border);
-  border-left: 3px solid var(--color-secondary);
-  border-radius: 4px;
-  padding: 22px 24px;
-  margin: 30px 0 10px;
-  background: var(--color-page);
+  border-top: 1px solid var(--color-card-border);
+  padding: 20px 0 4px;
+  margin: 26px 0 0;
+}
+/* The whole offer is one sentence. */
+.fr-plan-line {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--color-muted);
+  margin: 0 0 12px;
 }
 .fr-plan-kicker {
   font-family: var(--font-body);
   font-size: var(--tfr-micro, 11px);
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-primary-text, var(--color-secondary));
-  margin: 0 0 8px;
+  color: var(--color-muted);
+  margin-right: 10px;
 }
-.fr-plan-lead {
-  font-family: var(--font-display);
-  font-size: 19px;
-  line-height: 1.4;
-  color: var(--color-dark);
-  margin: 0 0 16px;
-}
-.fr-plan-paces { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+/* Set into the sentence rather than beside it, so choosing a pace is
+   reading a line rather than filling in a form. */
 .fr-plan-pace {
-  min-height: 34px;
-  padding: 5px 12px;
-  border: 1px solid var(--color-card-border);
-  border-radius: 3px;
-  background: transparent;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--color-dark);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-card-border);
+  padding: 0 2px 1px;
   cursor: pointer;
 }
-.fr-plan-pace:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
-.fr-plan-pace.is-on {
-  background: var(--color-secondary);
-  border-color: var(--color-secondary);
-  color: #fff;
-}
-/* The honest consequence of the chosen pace, shown before they commit
-   rather than discovered in week one. */
-.fr-plan-estimate {
+.fr-plan-pace:hover { border-bottom-color: var(--color-secondary); color: var(--color-secondary); }
+.fr-plan-pace:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 2px; }
+.fr-plan-est { color: var(--color-dark); }
+
+.fr-plan-form { display: flex; flex-wrap: wrap; align-items: baseline; gap: 18px; }
+/* Underlines, not boxes. Two filled inputs on this page look like a
+   checkout. */
+.fr-plan-form input {
+  flex: 0 1 190px;
+  min-width: 150px;
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
-  color: var(--color-dark);
-  margin: 0 0 16px;
-}
-.fr-plan-sub { color: var(--color-muted); font-size: 13px; }
-.fr-plan-form { display: flex; flex-wrap: wrap; gap: 8px; }
-.fr-plan-form input {
-  flex: 1 1 160px;
-  min-width: 140px;
-  height: 40px;
-  padding: 0 12px;
-  font-family: var(--font-body);
-  font-size: 15px;
-  border: 1px solid var(--color-card-border);
-  border-radius: 3px;
-  background: var(--color-page);
-  color: var(--color-dark);
-}
-.fr-plan-form input:focus { outline: 2px solid var(--color-secondary); outline-offset: 1px; }
-.fr-plan-go {
-  height: 40px;
-  padding: 0 20px;
+  padding: 3px 0;
   border: 0;
-  border-radius: 999px;
-  background: var(--color-primary);
-  color: #fff;
+  border-bottom: 1px solid var(--color-card-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-dark);
+}
+.fr-plan-form input::placeholder { color: var(--color-muted); }
+.fr-plan-form input:focus { outline: none; border-bottom-color: var(--color-secondary); }
+/* A text link, not a pill. The pill was the loudest thing on the page. */
+.fr-plan-go {
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 600;
+  color: var(--color-secondary);
+  background: none;
+  border: 0;
+  padding: 3px 0;
   cursor: pointer;
 }
-.fr-plan-go[disabled] { opacity: 0.6; cursor: default; }
-.fr-plan-note { font-family: var(--font-body); font-size: 12px; color: var(--color-muted); margin: 10px 0 0; }
-.fr-plan-status { font-family: var(--font-body); font-size: 15px; line-height: 1.6; color: var(--color-dark); margin: 12px 0 0; }
-[data-fr-tint="dark"] .faith-reader .fr-plan { background: #2c2926; border-color: #453f3a; border-left-color: var(--color-secondary); }
-[data-fr-tint="dark"] .faith-reader .fr-plan-form input { background: #23211f; border-color: #453f3a; color: #e8e3dc; }
+.fr-plan-go:hover { text-decoration: underline; }
+.fr-plan-go[disabled] { opacity: 0.5; cursor: default; text-decoration: none; }
+.fr-plan-status {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0;
+}
+[data-fr-tint="dark"] .faith-reader .fr-plan { border-top-color: #453f3a; }
+[data-fr-tint="dark"] .faith-reader .fr-plan-form input,
+[data-fr-tint="dark"] .faith-reader .fr-plan-pace {
+  border-bottom-color: #453f3a;
+  color: #e8e3dc;
+}
 @media (max-width: 640px) {
-  .fr-plan-form input, .fr-plan-go { flex: 1 1 100%; }
+  .fr-plan-form { gap: 14px; }
+  .fr-plan-form input { flex: 1 1 100%; }
 }

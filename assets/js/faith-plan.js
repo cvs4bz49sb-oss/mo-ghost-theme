@@ -43,20 +43,26 @@
   const PACES = [5, 10, 15, 20, 30];
   let minutes = 15;
 
+  // Deliberately not a card. Every other element on this page is a
+  // hairline and a typeface; a bordered box with an accent bar and five
+  // filled buttons is the only thing shouting, and on the title page of
+  // a sixteenth-century folio it reads as an advert someone taped on.
+  // One rule above, one sentence, an inline pace, two underlined fields.
   mount.innerHTML =
     `<div class="fr-plan">
-       <p class="fr-plan-kicker">Read this with us</p>
-       <p class="fr-plan-lead">A portion in your inbox each morning, at a pace you set. Free.</p>
-       <div class="fr-plan-paces" role="group" aria-label="Minutes a day">${
-         PACES.map((m) => `<button type="button" class="fr-plan-pace${m === minutes ? " is-on" : ""}" data-pace="${m}">${m} min</button>`).join("")
-       }</div>
-       <p class="fr-plan-estimate" data-plan-estimate aria-live="polite">Working out how long that takes&hellip;</p>
+       <p class="fr-plan-line">
+         <span class="fr-plan-kicker">Read this with us</span>
+         A portion each morning, at
+         <select class="fr-plan-pace" data-plan-pace aria-label="Minutes a day">${
+           PACES.map((m) => `<option value="${m}"${m === minutes ? " selected" : ""}>${m} minutes</option>`).join("")
+         }</select>
+         a day. <span class="fr-plan-est" data-plan-estimate aria-live="polite"></span>
+       </p>
        <form class="fr-plan-form" data-plan-form>
          <input type="text" name="name" placeholder="First name" autocomplete="given-name" required />
          <input type="email" name="email" placeholder="Email" autocomplete="email" required />
-         <button type="submit" class="fr-plan-go">Start reading</button>
+         <button type="submit" class="fr-plan-go">Start &rarr;</button>
        </form>
-       <p class="fr-plan-note">One email a day. Stop, pause or change pace whenever you like.</p>
        <p class="fr-plan-status" data-plan-status hidden></p>
      </div>`;
 
@@ -65,7 +71,7 @@
   const form = mount.querySelector("[data-plan-form]");
 
   function estimate() {
-    estimateEl.textContent = "Working that out…";
+    estimateEl.textContent = "";
     fetch(`${API}/estimate?c=${encodeURIComponent(corpus)}&w=${encodeURIComponent(slug)}&minutes=${minutes}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
@@ -81,21 +87,14 @@
           : months < 18
             ? `about ${Math.round(months)} months`
             : `about ${(months / 12).toFixed(1)} years`;
-        estimateEl.innerHTML =
-          `At ${minutes} minutes a day, <strong>${human}</strong>. ` +
-          `<span class="fr-plan-sub">${d.days.toLocaleString()} readings, ${Number(d.totalWords).toLocaleString()} words in all.</span>`;
+        estimateEl.textContent = `About ${human}.`;
       })
       .catch(() => { estimateEl.textContent = ""; });
   }
 
-  mount.querySelectorAll("[data-pace]").forEach((b) => {
-    b.addEventListener("click", () => {
-      minutes = parseInt(b.getAttribute("data-pace"), 10);
-      mount.querySelectorAll("[data-pace]").forEach((x) => {
-        x.classList.toggle("is-on", x === b);
-      });
-      estimate();
-    });
+  mount.querySelector("[data-plan-pace]").addEventListener("change", (e) => {
+    minutes = parseInt(e.target.value, 10) || 15;
+    estimate();
   });
 
   form.addEventListener("submit", (e) => {
@@ -116,12 +115,10 @@
       .then((r) => r.json())
       .then((d) => {
         if (!d || !d.ok) throw new Error((d && d.error) || "failed");
+        mount.querySelector(".fr-plan-line").hidden = true;
         form.hidden = true;
-        mount.querySelector(".fr-plan-paces").hidden = true;
-        estimateEl.hidden = true;
-        statusEl.innerHTML =
-          `<strong>You are set.</strong> ${d.days.toLocaleString()} readings of ` +
-          `<em>${d.work}</em>, starting tomorrow morning. Check your inbox for the first note.`;
+        statusEl.textContent =
+          `Set. ${d.days.toLocaleString()} readings of ${d.work}, starting tomorrow. Check your inbox.`;
       })
       .catch(() => {
         statusEl.textContent = "That did not go through. Try again in a moment.";
