@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-28T22:25:09.415Z",
+  "generated_at": "2026-08-29T07:08:44.245Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 315,
-      "plays": 61913,
+      "plays": 62000,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -104,7 +104,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 269
+          "plays": 270
         },
         {
           "date": "2025-10-15",
@@ -129,7 +129,7 @@
         {
           "date": "2025-11-12",
           "title": "How Do We Change Our Minds?",
-          "plays": 126
+          "plays": 127
         },
         {
           "date": "2025-11-19",
@@ -229,12 +229,12 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1157
+          "plays": 1158
         },
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3609
+          "plays": 3610
         },
         {
           "date": "2026-05-27",
@@ -244,7 +244,7 @@
         {
           "date": "2026-06-03",
           "title": "Replay: How 1776 Remade The World with Andrew Wilson (Fixed Audio)",
-          "plays": 3138
+          "plays": 3141
         },
         {
           "date": "2026-06-10",
@@ -259,17 +259,17 @@
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3596
+          "plays": 3597
         },
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3418
+          "plays": 3419
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3840
+          "plays": 3842
         },
         {
           "date": "2026-07-15",
@@ -279,7 +279,7 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3360
+          "plays": 3363
         },
         {
           "date": "2026-07-29",
@@ -289,28 +289,28 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2862
+          "plays": 2863
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3132
+          "plays": 3137
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3373
+          "plays": 3384
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 2520
+          "plays": 2565
         }
       ],
       "per_episode": [
         {
           "month": "2017-02",
-          "avg": 29,
+          "avg": 30,
           "episodes": 2
         },
         {
@@ -470,7 +470,7 @@
         },
         {
           "month": "2020-04",
-          "avg": 21,
+          "avg": 22,
           "episodes": 4
         },
         {
@@ -535,7 +535,7 @@
         },
         {
           "month": "2021-05",
-          "avg": 23,
+          "avg": 24,
           "episodes": 3
         },
         {
@@ -695,7 +695,7 @@
         },
         {
           "month": "2024-01",
-          "avg": 31,
+          "avg": 32,
           "episodes": 4
         },
         {
@@ -810,29 +810,29 @@
         },
         {
           "month": "2026-05",
-          "avg": 2299,
+          "avg": 2300,
           "episodes": 4
         },
         {
           "month": "2026-06",
-          "avg": 3463,
+          "avg": 3464,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 3289,
+          "avg": 3290,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 2972,
+          "avg": 2987,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 16552,
+      "plays": 16592,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -998,42 +998,42 @@
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 204
+          "plays": 206
         },
         {
           "date": "2026-05-14",
           "title": "Petrarch's Canzoniere with A. M. Juster",
-          "plays": 211
+          "plays": 212
         },
         {
           "date": "2026-05-21",
           "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
-          "plays": 801
+          "plays": 802
         },
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1069
+          "plays": 1072
         },
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 923
+          "plays": 924
         },
         {
           "date": "2026-06-11",
           "title": "James Fenimore Cooper with Dr. Wayne Franklin",
-          "plays": 843
+          "plays": 844
         },
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1133
+          "plays": 1135
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1253
+          "plays": 1254
         },
         {
           "date": "2026-07-02",
@@ -1048,12 +1048,12 @@
         {
           "date": "2026-07-16",
           "title": "Jack London: An American Classic with Elizabeth Stice",
-          "plays": 757
+          "plays": 758
         },
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 920
+          "plays": 926
         },
         {
           "date": "2026-07-29",
@@ -1073,12 +1073,12 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 741
+          "plays": 743
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 482
+          "plays": 501
         }
       ],
       "per_episode": [
@@ -1129,22 +1129,22 @@
         },
         {
           "month": "2026-05",
-          "avg": 482,
+          "avg": 483,
           "episodes": 5
         },
         {
           "month": "2026-06",
-          "avg": 1038,
+          "avg": 1039,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 824,
+          "avg": 825,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 699,
+          "avg": 704,
           "episodes": 4
         }
       ]
