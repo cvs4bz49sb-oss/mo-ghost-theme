@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-30T11:58:56.867Z",
+  "generated_at": "2026-08-30T16:44:51.466Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 315,
-      "plays": 62333,
+      "plays": 62377,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -119,7 +119,7 @@
         {
           "date": "2025-10-29",
           "title": "Replay: Reading Advice",
-          "plays": 134
+          "plays": 135
         },
         {
           "date": "2025-11-05",
@@ -209,7 +209,7 @@
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 163
+          "plays": 164
         },
         {
           "date": "2026-04-22",
@@ -229,7 +229,7 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1159
+          "plays": 1160
         },
         {
           "date": "2026-05-20",
@@ -244,7 +244,7 @@
         {
           "date": "2026-06-03",
           "title": "Replay: How 1776 Remade The World with Andrew Wilson (Fixed Audio)",
-          "plays": 3143
+          "plays": 3144
         },
         {
           "date": "2026-06-10",
@@ -269,7 +269,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3851
+          "plays": 3852
         },
         {
           "date": "2026-07-15",
@@ -294,17 +294,17 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3153
+          "plays": 3157
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3415
+          "plays": 3418
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 2734
+          "plays": 2764
         }
       ],
       "per_episode": [
@@ -455,7 +455,7 @@
         },
         {
           "month": "2020-01",
-          "avg": 18,
+          "avg": 19,
           "episodes": 1
         },
         {
@@ -775,7 +775,7 @@
         },
         {
           "month": "2025-10",
-          "avg": 125,
+          "avg": 126,
           "episodes": 5
         },
         {
@@ -805,7 +805,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 233,
+          "avg": 234,
           "episodes": 5
         },
         {
@@ -825,14 +825,14 @@
         },
         {
           "month": "2026-08",
-          "avg": 3045,
+          "avg": 3054,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 16748,
+      "plays": 16762,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -938,7 +938,7 @@
         {
           "date": "2026-02-12",
           "title": "The Education of Henry Adams with Leah Libresco Sargeant | America 250",
-          "plays": 54
+          "plays": 55
         },
         {
           "date": "2026-02-19",
@@ -1003,27 +1003,27 @@
         {
           "date": "2026-05-14",
           "title": "Petrarch's Canzoniere with A. M. Juster",
-          "plays": 213
+          "plays": 214
         },
         {
           "date": "2026-05-21",
           "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
-          "plays": 804
+          "plays": 805
         },
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1076
+          "plays": 1077
         },
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 927
+          "plays": 928
         },
         {
           "date": "2026-06-11",
           "title": "James Fenimore Cooper with Dr. Wayne Franklin",
-          "plays": 846
+          "plays": 847
         },
         {
           "date": "2026-06-18",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1258
+          "plays": 1259
         },
         {
           "date": "2026-07-02",
@@ -1063,7 +1063,7 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 908
+          "plays": 909
         },
         {
           "date": "2026-08-13",
@@ -1078,7 +1078,7 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 563
+          "plays": 569
         }
       ],
       "per_episode": [
@@ -1129,12 +1129,12 @@
         },
         {
           "month": "2026-05",
-          "avg": 485,
+          "avg": 486,
           "episodes": 5
         },
         {
           "month": "2026-06",
-          "avg": 1043,
+          "avg": 1044,
           "episodes": 4
         },
         {
@@ -1144,7 +1144,7 @@
         },
         {
           "month": "2026-08",
-          "avg": 725,
+          "avg": 727,
           "episodes": 4
         }
       ]
