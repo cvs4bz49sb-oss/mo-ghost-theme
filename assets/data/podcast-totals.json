@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-30T05:29:30.761Z",
+  "generated_at": "2026-08-30T11:58:56.867Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 315,
-      "plays": 62287,
+      "plays": 62333,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -134,7 +134,7 @@
         {
           "date": "2025-11-19",
           "title": "What Is A Sermon, Anyway?",
-          "plays": 70
+          "plays": 71
         },
         {
           "date": "2025-11-26",
@@ -259,7 +259,7 @@
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3600
+          "plays": 3601
         },
         {
           "date": "2026-07-01",
@@ -269,12 +269,12 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3850
+          "plays": 3851
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 2994
+          "plays": 2995
         },
         {
           "date": "2026-07-22",
@@ -284,27 +284,27 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2844
+          "plays": 2845
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2875
+          "plays": 2878
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3149
+          "plays": 3153
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3411
+          "plays": 3415
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 2705
+          "plays": 2734
         }
       ],
       "per_episode": [
@@ -820,19 +820,19 @@
         },
         {
           "month": "2026-07",
-          "avg": 3295,
+          "avg": 3296,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3035,
+          "avg": 3045,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 16734,
+      "plays": 16748,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1058,27 +1058,27 @@
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 855
+          "plays": 857
         },
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 907
+          "plays": 908
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 675
+          "plays": 676
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 750
+          "plays": 754
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 557
+          "plays": 563
         }
       ],
       "per_episode": [
@@ -1139,12 +1139,12 @@
         },
         {
           "month": "2026-07",
-          "avg": 829,
+          "avg": 830,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 722,
+          "avg": 725,
           "episodes": 4
         }
       ]
