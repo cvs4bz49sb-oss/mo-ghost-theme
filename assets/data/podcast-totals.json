@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-30T16:44:51.466Z",
+  "generated_at": "2026-08-30T21:11:24.002Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 315,
-      "plays": 62377,
+      "plays": 62422,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -139,7 +139,7 @@
         {
           "date": "2025-11-26",
           "title": "Post-Liberalism: RETVRN, Retrieval, or Revolution?",
-          "plays": 63
+          "plays": 65
         },
         {
           "date": "2025-12-03",
@@ -174,7 +174,7 @@
         {
           "date": "2026-02-25",
           "title": "Resisting Doomerism and Cultivating Hope",
-          "plays": 139
+          "plays": 140
         },
         {
           "date": "2026-03-04",
@@ -234,7 +234,7 @@
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3610
+          "plays": 3611
         },
         {
           "date": "2026-05-27",
@@ -264,7 +264,7 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3420
+          "plays": 3421
         },
         {
           "date": "2026-07-08",
@@ -284,33 +284,33 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2845
+          "plays": 2846
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2878
+          "plays": 2882
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3157
+          "plays": 3158
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3418
+          "plays": 3420
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 2764
+          "plays": 2790
         }
       ],
       "per_episode": [
         {
           "month": "2017-02",
-          "avg": 30,
+          "avg": 31,
           "episodes": 2
         },
         {
@@ -590,7 +590,7 @@
         },
         {
           "month": "2022-04",
-          "avg": 38,
+          "avg": 39,
           "episodes": 3
         },
         {
@@ -620,7 +620,7 @@
         },
         {
           "month": "2022-10",
-          "avg": 41,
+          "avg": 42,
           "episodes": 2
         },
         {
@@ -780,7 +780,7 @@
         },
         {
           "month": "2025-11",
-          "avg": 98,
+          "avg": 99,
           "episodes": 4
         },
         {
@@ -795,7 +795,7 @@
         },
         {
           "month": "2026-02",
-          "avg": 139,
+          "avg": 140,
           "episodes": 4
         },
         {
@@ -820,19 +820,19 @@
         },
         {
           "month": "2026-07",
-          "avg": 3296,
+          "avg": 3297,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3054,
+          "avg": 3063,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 16762,
+      "plays": 16781,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -908,7 +908,7 @@
         {
           "date": "2025-10-16",
           "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
-          "plays": 168
+          "plays": 169
         },
         {
           "date": "2025-10-23",
@@ -943,12 +943,12 @@
         {
           "date": "2026-02-19",
           "title": "Brave New World by Aldous Huxley with Katelyn Walls Shelton | America 250",
-          "plays": 83
+          "plays": 84
         },
         {
           "date": "2026-02-26",
           "title": "Uncle Toms Cabin by Harriet Beecher Stowe with Obbie Tyler Todd | America 250",
-          "plays": 62
+          "plays": 63
         },
         {
           "date": "2026-03-05",
@@ -968,7 +968,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 148
+          "plays": 149
         },
         {
           "date": "2026-04-02",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1259
+          "plays": 1261
         },
         {
           "date": "2026-07-02",
@@ -1053,7 +1053,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 935
+          "plays": 937
         },
         {
           "date": "2026-07-29",
@@ -1063,7 +1063,7 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 909
+          "plays": 910
         },
         {
           "date": "2026-08-13",
@@ -1073,12 +1073,12 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 754
+          "plays": 757
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 569
+          "plays": 576
         }
       ],
       "per_episode": [
@@ -1134,7 +1134,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1044,
+          "avg": 1045,
           "episodes": 4
         },
         {
@@ -1144,7 +1144,7 @@
         },
         {
           "month": "2026-08",
-          "avg": 727,
+          "avg": 730,
           "episodes": 4
         }
       ]
