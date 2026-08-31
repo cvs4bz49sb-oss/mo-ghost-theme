@@ -541,12 +541,13 @@
 .faith-cite {
   position: absolute;
   top: -2px;
-  /* Out in the margin, not on the words. It was right: 0 inside a block
-     with no right padding, so it printed directly over the last 35px of
-     every line it sat beside. The reading column is anchored left with
-     real space to its right — 285px at 1440 — which is where a marginal
-     citation was always meant to go. */
-  right: -56px;
+  /* right: 0 into a gutter the block reserves for it, below. A negative
+     offset was the first attempt and it failed: the chip is positioned
+     against .faith-parallel-block, whose width varies with the row kind
+     — objections and replies carry an 18px indent — so one fixed offset
+     lands clear of the text on some rows and 11px inside it on 761
+     others. A reserved gutter is part of the block and cannot miss. */
+  right: 0;
   padding: 0;
   font-family: var(--font-body);
   font-size: 10px;
@@ -8803,7 +8804,13 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 /* Below the width where that margin exists, the chip cannot go outside
    the column without leaving the screen. It drops under the block
    instead, right-aligned and quiet, rather than overlapping the text. */
+/* The gutter, on the blocks that actually carry a citation. Reserving
+   it on every block would spend the measure on rows that have nothing
+   to put there. */
+.faith-reader [data-fr-content] .faith-parallel-block[data-cite] { padding-right: 56px; }
+
 @media (max-width: 1180px) {
+  .faith-reader [data-fr-content] .faith-parallel-block[data-cite] { padding-right: 0; }
   .faith-reader [data-fr-content] .faith-cite {
     position: static;
     display: block;
