@@ -8807,10 +8807,22 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 /* The gutter, on the blocks that actually carry a citation. Reserving
    it on every block would spend the measure on rows that have nothing
    to put there. */
-.faith-reader [data-fr-content] .faith-parallel-block[data-cite] { padding-right: 56px; }
+/* 88px, not 56. The first gutter was sized against a 35px chip, and
+   citation strings are not one length: "Doct.1.10.10" renders 67px, so
+   762 of the 919 chips on this work still crossed into the text by
+   11px. The gutter is wider than the widest chip now, and the chip is
+   capped below it so a longer citation wraps inside the gutter rather
+   than spilling out of it. */
+.faith-reader [data-fr-content] .faith-parallel-block[data-cite] { padding-right: 88px; }
+.faith-reader [data-fr-content] .faith-cite {
+  max-width: 80px;
+  text-align: right;
+  line-height: 1.35;
+}
 
 @media (max-width: 1180px) {
   .faith-reader [data-fr-content] .faith-parallel-block[data-cite] { padding-right: 0; }
+  .faith-reader [data-fr-content] .faith-cite { max-width: none; }
   .faith-reader [data-fr-content] .faith-cite {
     position: static;
     display: block;
