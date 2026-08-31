@@ -6432,10 +6432,20 @@ mark.faith-find-hit.is-current {
    paragraphs of Augustine arrive as one wall. */
 .faith-reader [data-fr-content] .faith-parallel-block {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0, 1fr), not 1fr. A 1fr track takes its minimum from
+     min-content, so one unbreakable child widens the track past the
+     container and the whole reading column blows out. On Augustine's
+     Teaching Christianity the English column was rendering 1,716px wide
+     inside a 760px measure, and the prose ran off the right of the
+     screen. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0 2.5rem;
   margin-bottom: 1.15rem;
 }
+/* Belt and braces: a grid item's own min-width is auto by default,
+   which is the other half of the same trap. */
+.faith-reader [data-fr-content] .faith-col-en,
+.faith-reader [data-fr-content] .faith-col-la { min-width: 0; overflow-wrap: break-word; }
 .faith-reader [data-fr-content] .faith-parallel-block:last-child { margin-bottom: 0; }
 
 /* One language: hide the other and give the survivor the full measure. */
@@ -6468,7 +6478,13 @@ mark.faith-find-hit.is-current {
 .faith-reader .faith-ref {
   font-size: 0.82em;
   color: var(--color-muted);
-  white-space: nowrap;
+  /* Was nowrap, to stop "PG 31:693" breaking across a line. That is
+     right for a citation and wrong for what the Augustine corpus puts
+     in the same class: whole sentences of editorial comment, one of
+     them 1,573px of unbreakable text. A citation breaking over two
+     lines is a small cost; a reading column pushed off the screen is
+     not. Short ones still rarely break, because they are short. */
+  overflow-wrap: break-word;
 }
 .faith-reader .faith-ref::before { content: " "; }
 .faith-reader a.faith-ref { color: var(--color-primary-text); text-decoration: none; }
@@ -8752,4 +8768,29 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   .fr-modal-head { padding: 20px 18px 14px; }
   .fr-modal-foot { padding: 14px 18px 18px; }
   .fr-opt { font-size: 14px; padding: 10px 0; }
+}
+
+/* ── Source-side annotation classes ────────────────────────────
+   The html-extract corpora (Augustine, Patrologia Graeca and
+   Orientalis) carry their editors' notes in classes of their own that
+   we never styled, so they arrived at full body size and full width and
+   read as though Augustine had written them. They are apparatus: set
+   them smaller and quieter than the text they comment on. */
+.faith-reader [data-fr-content] .aug-note,
+.faith-reader [data-fr-content] .note,
+.faith-reader [data-fr-content] .editor-note {
+  display: block;
+  font-size: 0.84em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0.5em 0 0.9em;
+  padding-left: 0.9em;
+  border-left: 2px solid var(--color-card-border);
+  overflow-wrap: break-word;
+}
+[data-fr-tint="dark"] .faith-reader [data-fr-content] .aug-note,
+[data-fr-tint="dark"] .faith-reader [data-fr-content] .note,
+[data-fr-tint="dark"] .faith-reader [data-fr-content] .editor-note {
+  border-left-color: #453f3a;
+  color: #a9a29a;
 }

@@ -1135,6 +1135,20 @@
 
   // Reuse the parallel-block markup the language toggle already
   // styles, so English / Latin / Parallel works without special cases.
+  /*
+   * The aquinas-studies pages ship their text double-escaped: "Lewis
+   * &amp;amp; Short" in the source, which renders to a reader as
+   * "Lewis &amp; Short". It is their bug and we cannot fix it there, so
+   * it is undone here.
+   *
+   * One level only, and only where an escaped entity name follows, so
+   * this can never turn text into markup. "&amp;amp;" becomes "&amp;";
+   * a bare "&amp;" is left exactly as it is.
+   */
+  function undoubleEscape(html) {
+    return String(html || "").replace(/&amp;(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]{1,8});/gi, "&$1;");
+  }
+
   function rowsBlock(rows) {
     const frag = document.createDocumentFragment();
     rows.forEach((r) => {
@@ -1159,13 +1173,13 @@
         en.appendChild(apparatus);
         block.classList.add("faith-row--scripture");
       } else {
-        en.innerHTML = sanitize(r.en);
+        en.innerHTML = sanitize(undoubleEscape(r.en));
         dressRefs(en);
       }
 
       const la = document.createElement("div");
       la.className = "faith-col-la";
-      la.innerHTML = sanitize(r.la);
+      la.innerHTML = sanitize(undoubleEscape(r.la));
       dressRefs(la);
 
       block.appendChild(en);
