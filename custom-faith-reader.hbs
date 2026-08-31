@@ -162,6 +162,15 @@
           already know what it opens, and this is the control the whole
           set of reading tools hangs off. The rule between the two is
           drawn in CSS so it cannot be read aloud as punctuation. --}}
+    {{!-- Support. A membership prompt belongs where a reader's hands
+          already are, not at the foot of an eight-hundred-page folio
+          that almost nobody reaches. Same paid/comped gate as every
+          other membership prompt on the site. --}}
+    {{#match @member.status "paid"}}{{else}}
+    {{#match @member.status "comped"}}{{else}}
+    <a href="/membership/" class="faith-dock-btn faith-dock-support" data-hm-goal="member-cta">Support</a>
+    {{/match}}
+    {{/match}}
     <button type="button" class="faith-dock-btn faith-dock-toggle" data-faith-dock-toggle
             aria-expanded="false" aria-controls="faith-dock-panel" aria-label="Text tools">
       <span class="faith-dock-aa" aria-hidden="true">Aa</span>
@@ -189,10 +198,6 @@
   </div>
 
 </main>
-{{!-- Sitewide membership CTA. Same partial and same gate as the rest
-     of the site: hidden for paid and comped members, shown to free
-     subscribers and anonymous visitors. --}}
-{{> "membership-cta"}}
 
 
 {{!-- CDN base URL for fetching work data. Read by faith-reader.js.

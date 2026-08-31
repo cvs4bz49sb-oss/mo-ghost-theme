@@ -8854,3 +8854,20 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   border-left-color: #453f3a;
   color: #a9a29a;
 }
+
+/* Support, in the dock beside Text Tools. A membership prompt belongs
+   where the reader's hands already are. It is a link rather than a
+   toggle, so it takes the dock's shape without the panel behaviour. */
+.faith-dock-support {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--color-dark);
+  padding: 0 14px;
+}
+.faith-dock-support:hover { color: var(--color-primary); text-decoration: none; }
+[data-fr-tint="dark"] .faith-reader .faith-dock-support { color: #e8e3dc; }
