@@ -299,6 +299,12 @@
      Reading is free and stays free. What membership buys is the work
      the corpus can do for you. The same two blocks close the Research
      page; this is where a reader who came for the landing meets them. -->
+{{!-- Hidden for paid and comped members. This list sells the tools
+     membership buys, and a member has already bought them; leaving it
+     up pitches somebody something they own. Same gate as the CTA
+     below, so the two cannot drift apart. --}}
+{{#match @member.status "paid"}}{{else}}
+{{#match @member.status "comped"}}{{else}}
 <section class="lp-band lp-band--cream faith-tools">
   <div class="container">
     <p class="lp-num">For members</p>
@@ -313,6 +319,8 @@
     </ul>
   </div>
 </section>
+{{/match}}
+{{/match}}
 
 {{!-- The landing used to close with its own billing toggle and the
       full $100/$995 pricing table, unGATED, so a member who had already
