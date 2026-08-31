@@ -344,10 +344,82 @@
       .then((data) => {
         const list = (data && data.entries) || [];
         renderCommonplaceList(mount, list);
+        hydrateCommonplaceBylines(mount);
       })
       .catch(() => {
         showEmpty(mount, "Couldn’t load your commonplace book right now. Try reloading.");
       });
+  }
+
+  // Author + original publish date for each saved passage. Entries only
+  // ever stored postId (no author/date snapshot at save time), so this
+  // resolves both live from Ghost's Content API — same technique as the
+  // Recent Articles neighbor-byline fix in related.js: fetch the posts
+  // by id, pull the author-* contributor tags (the site's byline
+  // convention, see memory/project_mo-bylines-from-author-tags.md —
+  // primary_author is always the house account), and patch the
+  // already-rendered entries. Fails silently (no API key configured, or
+  // the fetch errors) and simply leaves those lines blank, same as any
+  // other optional metadata on this page.
+  function hydrateCommonplaceBylines(mount) {
+    const apiKeyMeta = document.querySelector('meta[name="ghost-content-api-key"]');
+    const API_KEY = apiKeyMeta ? apiKeyMeta.getAttribute("content") : "";
+    if (!API_KEY) return;
+
+    const items = mount.querySelectorAll(".commonplace-entry[data-post-id]");
+    if (!items.length) return;
+    const ids = Array.prototype.map.call(items, (el) => {
+      return el.getAttribute("data-post-id");
+    }).filter(Boolean);
+    const uniqueIds = ids.filter((id, i) => { return ids.indexOf(id) === i; });
+    if (!uniqueIds.length) return;
+
+    const API_BASE = `${window.location.origin || ""}/ghost/api/content`;
+    const url = `${API_BASE}/posts/?key=${encodeURIComponent(API_KEY)
+      }&filter=${encodeURIComponent(`id:[${uniqueIds.join(",")}]`)
+      }&limit=${uniqueIds.length}&include=tags,authors&fields=id,published_at`;
+
+    fetch(url, { cache: "default" })
+      .then((r) => { return r.ok ? r.json() : null; })
+      .then((data) => {
+        if (!data || !Array.isArray(data.posts)) return;
+        data.posts.forEach((p) => {
+          mount.querySelectorAll(`.commonplace-entry[data-post-id="${p.id}"]`).forEach((el) => {
+            applyCommonplacePostMeta(el, p);
+          });
+        });
+      })
+      .catch(() => { /* leave byline/date blank */ });
+  }
+
+  function applyCommonplacePostMeta(el, p) {
+    const contributors = el.querySelector(".entry-byline-contributors");
+    if (contributors) {
+      (p.tags || []).forEach((t) => {
+        const em = document.createElement("em");
+        em.className = "entry-contributor entry-contributor--candidate";
+        em.setAttribute("data-tag-slug", t.slug);
+        em.textContent = t.name;
+        contributors.appendChild(em);
+      });
+    }
+
+    const fallback = el.querySelector(".entry-byline-fallback");
+    const primaryName = p.authors && p.authors[0] && p.authors[0].name;
+    if (fallback && primaryName) {
+      fallback.appendChild(document.createTextNode("By "));
+      const em = document.createElement("em");
+      em.textContent = primaryName;
+      fallback.appendChild(em);
+    }
+
+    const dateEl = el.querySelector(".commonplace-published-date");
+    if (dateEl && p.published_at) {
+      const d = new Date(p.published_at);
+      if (!isNaN(d.getTime())) {
+        dateEl.textContent = d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+      }
+    }
   }
 
   function renderCommonplaceList(mount, fullList) {
@@ -386,6 +458,7 @@
   function renderCommonplaceEntry(entry, isCompact) {
     const item = document.createElement("div");
     item.className = "commonplace-entry";
+    if (entry.postId) item.setAttribute("data-post-id", entry.postId);
 
     const quote = document.createElement("blockquote");
     quote.className = "commonplace-quote";
@@ -408,6 +481,37 @@
     }
 
     item.appendChild(meta);
+
+    // Author + original publish date. Reuses the site-wide byline
+    // convention (entry-byline-contributors / entry-byline-fallback,
+    // author-* tag CSS at screen.css) — see hydrateCommonplaceBylines(),
+    // which fills these in from a live Content API lookup by postId.
+    // They start empty and CSS keeps empty containers invisible, so
+    // there's no flash of "By" before the fetch resolves (or if it
+    // never resolves — e.g. no postId, or the API key isn't set).
+    if (entry.postId) {
+      const sourceMeta = document.createElement("div");
+      sourceMeta.className = "commonplace-source-meta";
+
+      const bylineContributors = document.createElement("p");
+      bylineContributors.className = "entry-byline entry-byline-contributors commonplace-byline";
+      bylineContributors.setAttribute("data-byline", "");
+      const bylinePrefix = document.createElement("span");
+      bylinePrefix.className = "entry-byline-prefix";
+      bylinePrefix.textContent = "By ";
+      bylineContributors.appendChild(bylinePrefix);
+      sourceMeta.appendChild(bylineContributors);
+
+      const bylineFallback = document.createElement("p");
+      bylineFallback.className = "entry-byline entry-byline-fallback commonplace-byline";
+      sourceMeta.appendChild(bylineFallback);
+
+      const publishedDate = document.createElement("p");
+      publishedDate.className = "entry-date commonplace-published-date";
+      sourceMeta.appendChild(publishedDate);
+
+      item.appendChild(sourceMeta);
+    }
 
     if (entry.savedAt) {
       const date = document.createElement("p");

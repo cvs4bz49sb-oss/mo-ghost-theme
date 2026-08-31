@@ -8344,6 +8344,26 @@ html[data-theme="dark"] .article-content .inline-signup-success p {
   font-weight: 600;
 }
 .commonplace-source:hover { text-decoration: underline; }
+
+/* Author + original publish date. Reuses the site-wide entry-byline /
+   entry-date convention from post-entry.hbs (author-* contributor tag
+   byline with a primary_author fallback, joined here via a live Content
+   API lookup — see hydrateCommonplaceBylines() in dashboard.js) rather
+   than inventing new typography. Only this flex wrapper + spacing is
+   new; .entry-byline-contributors/.entry-byline-fallback/.entry-date
+   keep their existing display and hide/show rules. */
+.commonplace-source-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0 0 6px;
+}
+.commonplace-byline,
+.commonplace-published-date { margin: 0; }
+.commonplace-byline.entry-byline-fallback:empty,
+.commonplace-published-date:empty { display: none; }
+
 .commonplace-date {
   font-family: var(--font-body);
   font-size: 11px;
