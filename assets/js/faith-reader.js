@@ -2170,12 +2170,33 @@
   // flush against the word before: "…for the sons of AdamSee Gen 3:16;
   // Sir 40:1.." So: give them room, mark them as apparatus, and where
   // the citation resolves, make the link real.
+  /*
+   * .faith-ref is doing two incompatible jobs. In most of the library
+   * it holds a citation — "PG 31:693", "Prov 1:7" — which belongs
+   * inline in the sentence that cites it. The Augustine corpus files
+   * whole sentences of editorial comment under the same class, and
+   * those were being spliced through the middle of Augustine's own
+   * prose: "...many call the Wisdom of Solomon—namely, that Jesus
+   * Sirach... See 2.8.13. On Augustine's uncertainty about the Book of
+   * Wisdom see also Revisions 2.20.—I later learned..."
+   *
+   * A reader cannot tell where he stops and his editor starts, which is
+   * the one thing apparatus must never do. So: anything long enough to
+   * be a remark rather than a reference is set apart as a note.
+   */
+  const REF_NOTE_CHARS = 48;
+  function isNote(text) {
+    const t = String(text || "").trim();
+    // Long, or carrying a sentence boundary, which no citation does.
+    return t.length > REF_NOTE_CHARS || /[.!?]\s+[A-Z]/.test(t);
+  }
+
   function dressRefs(root) {
     root.querySelectorAll("a:not([href])").forEach((a) => {
       const raw = a.textContent.trim();
       if (!raw) { a.remove(); return; }
       const span = document.createElement("span");
-      span.className = "faith-ref";
+      span.className = `faith-ref${isNote(raw) ? " faith-ref--note" : ""}`;
       span.textContent = raw;
 
       // A citation the resolver understands becomes a real link into
@@ -2187,7 +2208,7 @@
         const parsed = window.MOResolve.parse(first);
         if (parsed && parsed.kind === "scripture") {
           const link = document.createElement("a");
-          link.className = "faith-ref";
+          link.className = `faith-ref${isNote(raw) ? " faith-ref--note" : ""}`;
           link.href = `/the-faith-received/#scripture`;
           link.title = `${parsed.label} in the scripture index`;
           link.textContent = raw;

@@ -541,7 +541,12 @@
 .faith-cite {
   position: absolute;
   top: -2px;
-  right: 0;
+  /* Out in the margin, not on the words. It was right: 0 inside a block
+     with no right padding, so it printed directly over the last 35px of
+     every line it sat beside. The reading column is anchored left with
+     real space to its right — 285px at 1440 — which is where a marginal
+     citation was always meant to go. */
+  right: -56px;
   padding: 0;
   font-family: var(--font-body);
   font-size: 10px;
@@ -8791,6 +8796,42 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 [data-fr-tint="dark"] .faith-reader [data-fr-content] .aug-note,
 [data-fr-tint="dark"] .faith-reader [data-fr-content] .note,
 [data-fr-tint="dark"] .faith-reader [data-fr-content] .editor-note {
+  border-left-color: #453f3a;
+  color: #a9a29a;
+}
+
+/* Below the width where that margin exists, the chip cannot go outside
+   the column without leaving the screen. It drops under the block
+   instead, right-aligned and quiet, rather than overlapping the text. */
+@media (max-width: 1180px) {
+  .faith-reader [data-fr-content] .faith-cite {
+    position: static;
+    display: block;
+    width: 100%;
+    text-align: right;
+    margin-top: 4px;
+  }
+}
+
+/* A .faith-ref long enough to be a remark rather than a reference is
+   apparatus, and apparatus does not run through the middle of the
+   author's sentence. Same treatment as the source's own note classes,
+   so a reader can always tell where Augustine stops and his editor
+   starts. */
+.faith-reader [data-fr-content] .faith-ref--note {
+  display: block;
+  font-size: 0.84em;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0.5em 0 0.9em;
+  padding-left: 0.9em;
+  border-left: 2px solid var(--color-card-border);
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+.faith-reader [data-fr-content] a.faith-ref--note { text-decoration: none; }
+.faith-reader [data-fr-content] .faith-ref--note::before { content: none; }
+[data-fr-tint="dark"] .faith-reader [data-fr-content] .faith-ref--note {
   border-left-color: #453f3a;
   color: #a9a29a;
 }
