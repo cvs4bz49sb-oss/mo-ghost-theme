@@ -314,23 +314,21 @@
   </div>
 </section>
 
-<section class="faith-join" id="become-a-member">
-  <div class="container">
-    <p class="lp-num">Become a member</p>
-    <h2 class="lp-head">Use the tools and support the work.</h2>
-      <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
-        <div class="toggle">
-          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true" data-hm-goal="plan-annual">
-            Annual
-            <span class="badge">Save 17%</span>
-          </button>
-          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false" data-hm-goal="plan-monthly">Monthly</button>
-        </div>
-      </div>
-  </div>
-</section>
+{{!-- The landing used to close with its own billing toggle and the
+      full $100/$995 pricing table, unGATED, so a member who had already
+      paid was shown the price of what they had bought every time they
+      opened the library's front door.
 
-{{> "membership-pricing"}}
+      It is the sitewide CTA now, which is the same component, the same
+      design and the same rule as every other page: hidden for paid and
+      comped, shown to free subscribers and anonymous visitors. Anyone
+      who wants the table can still reach it at /membership/, which is
+      the page whose job that is.
+
+      The anchor stays, because "become-a-member" is linked from
+      elsewhere on this page. --}}
+<div id="become-a-member"></div>
+{{> "membership-cta"}}
 
 <!-- ── VII. Beta ─────────────────────────────────────────────────── -->
 <section class="lp-band lp-band--cream lp-beta">
@@ -365,10 +363,6 @@
   </div>
 </section>
 </main>
-{{!-- Sitewide membership CTA. Same partial and same gate as the rest
-     of the site: hidden for paid and comped members, shown to free
-     subscribers and anonymous visitors. --}}
-{{> "membership-cta"}}
 
 
 <script src="{{asset "js/faith-report-issue.js"}}"></script>
