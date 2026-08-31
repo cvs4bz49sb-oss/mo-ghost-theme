@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-31T05:43:07.489Z",
+  "generated_at": "2026-08-31T13:59:58.678Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 315,
-      "plays": 62525,
+      "plays": 62654,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -84,12 +84,12 @@
         {
           "date": "2025-09-08",
           "title": "Are You Scared Of Ambition?",
-          "plays": 49
+          "plays": 50
         },
         {
           "date": "2025-09-17",
           "title": "The Tabernacle, The Temple, and the Church",
-          "plays": 68
+          "plays": 69
         },
         {
           "date": "2025-09-24",
@@ -119,7 +119,7 @@
         {
           "date": "2025-10-29",
           "title": "Replay: Reading Advice",
-          "plays": 135
+          "plays": 136
         },
         {
           "date": "2025-11-05",
@@ -149,7 +149,7 @@
         {
           "date": "2026-01-21",
           "title": "Paul and the Resurrection of Israel with Dr. Jason Staples",
-          "plays": 134
+          "plays": 135
         },
         {
           "date": "2026-01-28",
@@ -219,7 +219,7 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 463
+          "plays": 464
         },
         {
           "date": "2026-05-06",
@@ -229,7 +229,7 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1161
+          "plays": 1162
         },
         {
           "date": "2026-05-20",
@@ -279,32 +279,32 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3370
+          "plays": 3371
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2848
+          "plays": 2851
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2884
+          "plays": 2890
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3167
+          "plays": 3174
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3430
+          "plays": 3441
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 2837
+          "plays": 2889
         }
       ],
       "per_episode": [
@@ -445,7 +445,7 @@
         },
         {
           "month": "2019-11",
-          "avg": 13,
+          "avg": 14,
           "episodes": 3
         },
         {
@@ -455,17 +455,17 @@
         },
         {
           "month": "2020-01",
-          "avg": 19,
+          "avg": 20,
           "episodes": 1
         },
         {
           "month": "2020-02",
-          "avg": 12,
+          "avg": 13,
           "episodes": 3
         },
         {
           "month": "2020-03",
-          "avg": 10,
+          "avg": 11,
           "episodes": 5
         },
         {
@@ -475,27 +475,27 @@
         },
         {
           "month": "2020-05",
-          "avg": 15,
+          "avg": 16,
           "episodes": 4
         },
         {
           "month": "2020-06",
-          "avg": 10,
+          "avg": 11,
           "episodes": 4
         },
         {
           "month": "2020-07",
-          "avg": 10,
+          "avg": 11,
           "episodes": 3
         },
         {
           "month": "2020-08",
-          "avg": 14,
+          "avg": 15,
           "episodes": 4
         },
         {
           "month": "2020-09",
-          "avg": 13,
+          "avg": 14,
           "episodes": 5
         },
         {
@@ -510,22 +510,22 @@
         },
         {
           "month": "2020-12",
-          "avg": 23,
+          "avg": 24,
           "episodes": 5
         },
         {
           "month": "2021-01",
-          "avg": 21,
+          "avg": 22,
           "episodes": 2
         },
         {
           "month": "2021-02",
-          "avg": 30,
+          "avg": 31,
           "episodes": 4
         },
         {
           "month": "2021-03",
-          "avg": 14,
+          "avg": 15,
           "episodes": 6
         },
         {
@@ -660,7 +660,7 @@
         },
         {
           "month": "2023-06",
-          "avg": 43,
+          "avg": 44,
           "episodes": 2
         },
         {
@@ -790,7 +790,7 @@
         },
         {
           "month": "2026-01",
-          "avg": 107,
+          "avg": 108,
           "episodes": 2
         },
         {
@@ -810,7 +810,7 @@
         },
         {
           "month": "2026-05",
-          "avg": 2301,
+          "avg": 2302,
           "episodes": 4
         },
         {
@@ -820,25 +820,25 @@
         },
         {
           "month": "2026-07",
-          "avg": 3298,
+          "avg": 3299,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3080,
+          "avg": 3099,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 16814,
+      "plays": 16841,
       "earliest": "2025-07-24",
       "recent": [
         {
           "date": "2025-07-24",
           "title": "Introducing: Christians Reading Classics",
-          "plays": 135
+          "plays": 136
         },
         {
           "date": "2025-08-12",
@@ -953,7 +953,7 @@
         {
           "date": "2026-03-05",
           "title": "Wuthering Heights with Evie Solheim",
-          "plays": 78
+          "plays": 79
         },
         {
           "date": "2026-03-12",
@@ -963,7 +963,7 @@
         {
           "date": "2026-03-18",
           "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
-          "plays": 118
+          "plays": 119
         },
         {
           "date": "2026-03-26",
@@ -978,7 +978,7 @@
         {
           "date": "2026-04-09",
           "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
-          "plays": 95
+          "plays": 96
         },
         {
           "date": "2026-04-16",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1261
+          "plays": 1262
         },
         {
           "date": "2026-07-02",
@@ -1048,7 +1048,7 @@
         {
           "date": "2026-07-16",
           "title": "Jack London: An American Classic with Elizabeth Stice",
-          "plays": 763
+          "plays": 764
         },
         {
           "date": "2026-07-23",
@@ -1058,33 +1058,33 @@
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 858
+          "plays": 859
         },
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 911
+          "plays": 912
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 680
+          "plays": 681
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 760
+          "plays": 765
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 591
+          "plays": 604
         }
       ],
       "per_episode": [
         {
           "month": "2025-07",
-          "avg": 135,
+          "avg": 136,
           "episodes": 1
         },
         {
@@ -1139,12 +1139,12 @@
         },
         {
           "month": "2026-07",
-          "avg": 830,
+          "avg": 831,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 736,
+          "avg": 741,
           "episodes": 4
         }
       ]
