@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-01T11:44:12.702Z",
+  "generated_at": "2026-09-01T16:43:13.963Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 315,
-      "plays": 62867,
+      "plays": 62940,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -29,7 +29,7 @@
         {
           "date": "2025-06-11",
           "title": "The Counterculture That Became The Culture",
-          "plays": 47
+          "plays": 48
         },
         {
           "date": "2025-06-18",
@@ -159,7 +159,7 @@
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 241
+          "plays": 242
         },
         {
           "date": "2026-02-11",
@@ -174,7 +174,7 @@
         {
           "date": "2026-02-25",
           "title": "Resisting Doomerism and Cultivating Hope",
-          "plays": 141
+          "plays": 142
         },
         {
           "date": "2026-03-04",
@@ -189,7 +189,7 @@
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 319
+          "plays": 320
         },
         {
           "date": "2026-03-25",
@@ -254,7 +254,7 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3639
+          "plays": 3640
         },
         {
           "date": "2026-06-24",
@@ -269,12 +269,12 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3857
+          "plays": 3858
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 2998
+          "plays": 2999
         },
         {
           "date": "2026-07-22",
@@ -284,27 +284,27 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2858
+          "plays": 2861
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2897
+          "plays": 2901
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3185
+          "plays": 3192
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3465
+          "plays": 3470
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3006
+          "plays": 3046
         }
       ],
       "per_episode": [
@@ -505,7 +505,7 @@
         },
         {
           "month": "2020-11",
-          "avg": 16,
+          "avg": 17,
           "episodes": 4
         },
         {
@@ -710,7 +710,7 @@
         },
         {
           "month": "2024-04",
-          "avg": 33,
+          "avg": 34,
           "episodes": 4
         },
         {
@@ -815,30 +815,30 @@
         },
         {
           "month": "2026-06",
-          "avg": 3468,
+          "avg": 3469,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 3302,
+          "avg": 3303,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3138,
+          "avg": 3152,
           "episodes": 4
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 16930,
+      "plays": 16949,
       "earliest": "2025-07-24",
       "recent": [
         {
           "date": "2025-07-24",
           "title": "Introducing: Christians Reading Classics",
-          "plays": 138
+          "plays": 140
         },
         {
           "date": "2025-08-12",
@@ -848,7 +848,7 @@
         {
           "date": "2025-08-12",
           "title": "A. A. Milne - Winnie the Pooh with Ivana D. Greco and Dixie Dillon Lane",
-          "plays": 118
+          "plays": 119
         },
         {
           "date": "2025-08-12",
@@ -888,7 +888,7 @@
         {
           "date": "2025-09-18",
           "title": "The Heart of a Dog - Mikhail Bulgakov with Vika Pechersky",
-          "plays": 50
+          "plays": 51
         },
         {
           "date": "2025-09-25",
@@ -938,7 +938,7 @@
         {
           "date": "2026-02-12",
           "title": "The Education of Henry Adams with Leah Libresco Sargeant | America 250",
-          "plays": 55
+          "plays": 56
         },
         {
           "date": "2026-02-19",
@@ -948,7 +948,7 @@
         {
           "date": "2026-02-26",
           "title": "Uncle Toms Cabin by Harriet Beecher Stowe with Obbie Tyler Todd | America 250",
-          "plays": 63
+          "plays": 64
         },
         {
           "date": "2026-03-05",
@@ -1013,7 +1013,7 @@
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1081
+          "plays": 1082
         },
         {
           "date": "2026-06-04",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 862
+          "plays": 863
         },
         {
           "date": "2026-08-06",
@@ -1068,23 +1068,23 @@
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 683
+          "plays": 684
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 776
+          "plays": 777
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 643
+          "plays": 652
         }
       ],
       "per_episode": [
         {
           "month": "2025-07",
-          "avg": 138,
+          "avg": 140,
           "episodes": 1
         },
         {
@@ -1144,7 +1144,7 @@
         },
         {
           "month": "2026-08",
-          "avg": 754,
+          "avg": 757,
           "episodes": 4
         }
       ]
