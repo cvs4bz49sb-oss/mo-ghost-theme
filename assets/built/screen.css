@@ -2190,6 +2190,45 @@ img { max-width: 100%; height: auto; }
    paragraph breaks (which are </p><p> boundaries). */
 .article-content p br { display: none; }
 
+/* -------- Verse: opt back in to real line breaks --------
+   The rule above is right for prose and wrong for poetry, where the line
+   break IS the content. It cannot simply be deleted: thousands of imported
+   posts carry hard-wraps from a fixed-width editor column, and un-hiding
+   those would make the whole archive choppy again.
+
+   So verse opts in explicitly. In the Ghost editor, add an HTML card:
+
+     <div class="poem">
+       <p>Well, you've gone along ahead&mdash;<br>
+       We shouldn't be surprised (but we are).</p>
+
+       <p>Your vision of the world has oriented us<br>
+       Helped us look, and see, and listen,</p>
+     </div>
+
+   One <p> per stanza, <br> at the end of every line except each stanza's
+   last. Also accepts <p class="poem"> for a single-stanza excerpt, and
+   .verse as an alias. */
+.article-content .poem br,
+.article-content .verse br,
+.article-content p.poem br,
+.article-content p.verse br { display: inline; }
+
+/* Verse typography: tighter leading than prose, clear stanza separation,
+   and a hanging indent so a line too long for the column wraps UNDER
+   itself instead of sitting flush and reading as a new line of the poem. */
+.article-content .poem p,
+.article-content .verse p,
+.article-content p.poem,
+.article-content p.verse {
+  line-height: 1.5;
+  margin: 0 0 1.35em 0;
+  text-indent: -1.4em;
+  padding-left: 1.4em;
+}
+.article-content .poem p:last-child,
+.article-content .verse p:last-child { margin-bottom: 0; }
+
 .kg-bookmark-card {
   width: 100%;
   margin: 24px 0;
