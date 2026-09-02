@@ -65,7 +65,17 @@ const ADMIN_TOOLS = [
   { id: "editorial", label: "Editorial", group: "Editorial", pages: ["editorial"], routes: { admin: ["/editorial", "/generate/subtitle", "/seo/batch", "/seo/cleanup"], membership: ["/api/admin/submissions"] } },
 
   // Marketing
-  { id: "digest", label: "Email Builder", group: "Marketing", pages: ["digest"], routes: { admin: ["/digest/"] } },
+  {
+    id: "digest",
+    label: "Email Builder",
+    group: "Marketing",
+    note: "Includes pushing the composed email to Kit as a draft or a scheduled broadcast.",
+    pages: ["digest"],
+    // mo-email serves the Kit half of the builder. Without it the page
+    // loads and every Kit call behind it comes back 403, which reads in
+    // the panel as "Could not load tags from Kit: Forbidden".
+    routes: { admin: ["/digest/"], email: ["/kit"] },
+  },
   { id: "liturgy", label: "Daily Liturgy", group: "Marketing", pages: ["liturgy"], routes: { admin: ["/liturgy"] } },
   { id: "emails", label: "Auto-Responders", group: "Marketing", pages: ["emails"], routes: { admin: ["/email-templates"] } },
   { id: "social", label: "Social Dashboard", group: "Marketing", pages: ["social"], routes: { admin: ["/social", "/autopost"] } },
