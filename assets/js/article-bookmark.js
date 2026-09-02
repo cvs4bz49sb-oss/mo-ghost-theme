@@ -18,15 +18,12 @@
   const label = btn.querySelector(".article-bookmark-label");
   const state = { bookmarked: false, busy: false };
 
-  // Non-paid click handler: redirect to the membership page. No
-  // pre-fetch of current state since we can't save bookmarks for them.
-  if (!hasPaidAccess()) {
-    btn.addEventListener("click", () => {
-      // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
-      window.location.href = "/membership/";
-    });
-    return;
-  }
+  // Non-paid: bind nothing. feature-gate.js intercepts the click on the
+  // capture phase and shows the Members Only modal, which explains what
+  // bookmarking is and offers the upgrade in place. This used to also
+  // navigate to /membership/, which raced the modal and threw the reader
+  // off the essay they were reading. Same fix as article-pdf.js.
+  if (!hasPaidAccess()) return;
 
   if (!WORKER || !EMAIL) return;
 

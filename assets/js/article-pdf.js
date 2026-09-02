@@ -23,9 +23,13 @@
 
   link.addEventListener("click", (e) => {
     if (!hasPaidAccess()) {
+      // Stop, but do not navigate. feature-gate.js runs on the capture
+      // phase and shows the Members Only modal before this handler is
+      // reached, so in practice we never get here. When we do — gate
+      // script failed to load, sessionStorage threw in private mode —
+      // silently throwing the reader off the essay to /membership/ is
+      // the worst available outcome, and was how this bug presented.
       e.preventDefault();
-      // eslint-disable-next-line no-restricted-syntax -- same-origin path literal
-      window.location.href = "/membership/";
       return;
     }
     // Intercept the default navigation while we mint a signed URL.

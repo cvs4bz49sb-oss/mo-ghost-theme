@@ -28,8 +28,10 @@
 
   trigger.addEventListener("click", () => {
     if (!hasPaidAccess()) {
-      // eslint-disable-next-line no-restricted-syntax -- same-origin path literal, not worker-supplied
-      window.location.href = "/membership/";
+      // Stop, but do not navigate. feature-gate.js shows the Members Only
+      // modal from the capture phase before this runs; navigating as well
+      // races it and throws the reader off the essay. Same fix as
+      // article-pdf.js and article-bookmark.js.
       return;
     }
     // Codex audit 2026-05-11 — mo-audio's GET /:id.mp3 is no longer

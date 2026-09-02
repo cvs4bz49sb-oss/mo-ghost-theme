@@ -64,6 +64,13 @@
       logoImg.src = data.logo_url;
       logoWrap.hidden = false;
     }
+    if (data.has_domains) {
+      const codeHint = host.querySelector('[data-join-code-hint]');
+      if (codeHint) {
+        codeHint.textContent =
+          'Provided by your organization\'s administrator. Leave it blank if you are signing up with your organization email address.';
+      }
+    }
     if (data.seats_remaining != null) {
       seatsEl.textContent = `${data.seats_remaining} seat${data.seats_remaining === 1 ? '' : 's'} remaining.`;
       seatsEl.hidden = false;
@@ -82,8 +89,11 @@
     const email = formEl.email.value.trim().toLowerCase();
     const code = formEl.code.value.trim().toUpperCase();
 
-    if (!first_name || !last_name || !email || !code) {
-      formErrorEl.textContent = 'All fields are required.';
+    // `code` is deliberately not checked here. An organization can admit
+    // anyone at an allowlisted email domain, and only the worker knows
+    // which domains those are. Let it decide and report back.
+    if (!first_name || !last_name || !email) {
+      formErrorEl.textContent = 'Name and email are required.';
       return;
     }
 
@@ -105,6 +115,21 @@
         return;
       }
 
+      // The membership is live either way, but the person is not signed
+      // in until they open the emailed link. Say which of those happened
+      // rather than "You're in", which sent Anselm House's staff off to
+      // read the site as anonymous visitors and hit a gate on every
+      // member feature.
+      // Note the worker returns the same shape whether this was a new
+      // signup or someone who was already enrolled, on purpose, so the
+      // page cannot be used to enumerate an organization's roster.
+      const emailedEl = host.querySelector('[data-join-emailed]');
+      const manualEl = host.querySelector('[data-join-manual]');
+      if (body && body.emailed) {
+        if (emailedEl) emailedEl.hidden = false;
+      } else if (manualEl) {
+        manualEl.hidden = false;
+      }
       formEl.hidden = true;
       successEl.hidden = false;
     } catch (err) {

@@ -68,12 +68,16 @@
             </label>
           </fieldset>
 
+          {{!-- Not `required`: an organization can also admit anyone at an
+               allowlisted email domain, in which case the code is optional.
+               institution-join.js relaxes the hint when the API reports
+               has_domains, and the worker is the real arbiter either way. --}}
           <fieldset class="form-group">
             <legend class="form-legend">Access code</legend>
             <label class="form-field">
               <span class="form-label">Code</span>
-              <input type="text" name="code" autocomplete="off" placeholder="e.g. ABCD1234" style="font-family:monospace;font-size:1.1em;letter-spacing:2px;text-transform:uppercase;" required />
-              <span class="form-hint">Provided by your organization's administrator.</span>
+              <input type="text" name="code" autocomplete="off" placeholder="e.g. ABCD1234" style="font-family:monospace;font-size:1.1em;letter-spacing:2px;text-transform:uppercase;" />
+              <span class="form-hint" data-join-code-hint>Provided by your organization's administrator.</span>
             </label>
           </fieldset>
 
@@ -86,11 +90,16 @@
           <p class="btn-error" data-join-form-error role="alert"></p>
         </form>
 
+        {{!-- Two outcomes. The membership is live in both, but the reader
+             is only signed in once they open the emailed link, so the
+             copy must not promise a session we have not given them. --}}
         <div data-join-success hidden>
           <div class="form-success">
-            <h2>You're in.</h2>
-            <p>Your membership is now active. You have full access to all Mere Orthodoxy content.</p>
-            <a href="/" class="btn btn-pill btn-primary" style="margin-top:16px;">Start reading</a>
+            <h2>Check your email.</h2>
+            <p data-join-emailed hidden>Your membership is active. We sent a sign-in link to the address you entered. Open it and you will land on your dashboard with full access to everything.</p>
+            <p data-join-manual hidden>Your membership is active. Sign in with the address you entered and we will email you a one-click link.</p>
+            <p class="form-hint" style="margin-top:12px;">The link can take a minute to arrive. If it does not, check your spam folder, or write to <a href="mailto:institutions@mereorthodoxy.com">institutions@mereorthodoxy.com</a>.</p>
+            <a href="/" class="btn btn-pill btn-primary" style="margin-top:16px;">Back to the site</a>
           </div>
         </div>
       </div>

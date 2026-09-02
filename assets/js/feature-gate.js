@@ -3,10 +3,17 @@
  * visitor isn't entitled to, and presents a modal with the right
  * next step.
  *
- * Tier mapping (Ian, 2026-04-23):
- *   - Members (paid/comped):        audio, bookmark
- *   - Subscribers (any signed-in):  pdf, gift
+ * Tier mapping (Ian, 2026-04-23; pdf moved to member 2026-09-02):
+ *   - Members (paid/comped):        audio, bookmark, pdf
+ *   - Subscribers (any signed-in):  gift
  *   - Everyone:                     dark mode (no gate)
+ *
+ * pdf was listed as subscriber-tier here while article-pdf.js required
+ * paid and hard-redirected to /membership/ when it didn't find it. A free
+ * subscriber therefore passed this gate, got no modal, and was bounced off
+ * the essay with no explanation. Anselm House reported it on 2026-08-29.
+ * Resolved in favour of member-tier: the modal now says so, and the same
+ * check is enforced in article-pdf.js and in mo-pdf's /sign endpoint.
  *
  * Subscriber-tier features → modal with an inline Ghost magic-link
  * signup form. On submit, Ghost emails a verify link that redirects
@@ -56,10 +63,10 @@
       body: "Members get saved essays, the print journal, Discord, and a growing library of benefits. Support the work to unlock it all.",
     },
     pdf: {
-      requires: "subscriber",
-      eyebrow: "Free Subscriber",
-      title: "Subscribe to download PDFs",
-      body: "Become a free subscriber and we'll email a magic link to verify your address. You'll come right back to this essay.",
+      requires: "member",
+      eyebrow: "Members Only",
+      title: "PDFs are for members",
+      body: "Members get downloadable PDFs of every essay, the print journal, Discord, and a growing library of benefits. Support the work to unlock it all.",
     },
     gift: {
       requires: "subscriber",
