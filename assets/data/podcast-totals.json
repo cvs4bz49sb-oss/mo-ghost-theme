@@ -1,16 +1,11 @@
 {
-  "generated_at": "2026-09-02T04:41:26.187Z",
+  "generated_at": "2026-09-02T11:24:58.440Z",
   "shows": {
     "mere-fidelity": {
-      "episodes": 315,
-      "plays": 63080,
+      "episodes": 316,
+      "plays": 63411,
       "earliest": "2017-02-15",
       "recent": [
-        {
-          "date": "2024-12-10",
-          "title": "Mere Christian Hermeneutics with Kevin Vanhoozer",
-          "plays": 78
-        },
         {
           "date": "2024-12-19",
           "title": "The One Thing Necessary",
@@ -39,7 +34,7 @@
         {
           "date": "2025-06-25",
           "title": "After 'After Virtue' with Jason Blakely",
-          "plays": 77
+          "plays": 78
         },
         {
           "date": "2025-07-02",
@@ -104,7 +99,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 275
+          "plays": 277
         },
         {
           "date": "2025-10-15",
@@ -209,7 +204,7 @@
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 166
+          "plays": 167
         },
         {
           "date": "2026-04-22",
@@ -264,12 +259,12 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3424
+          "plays": 3426
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3859
+          "plays": 3860
         },
         {
           "date": "2026-07-15",
@@ -279,32 +274,37 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3379
+          "plays": 3380
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2864
+          "plays": 2865
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2905
+          "plays": 2907
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3199
+          "plays": 3203
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3484
+          "plays": 3494
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3094
+          "plays": 3125
+        },
+        {
+          "date": "2026-09-02",
+          "title": "In Defense of Evangelicalism with Bonnie Kristian",
+          "plays": 269
         }
       ],
       "per_episode": [
@@ -605,7 +605,7 @@
         },
         {
           "month": "2022-07",
-          "avg": 17,
+          "avg": 18,
           "episodes": 3
         },
         {
@@ -620,7 +620,7 @@
         },
         {
           "month": "2022-10",
-          "avg": 42,
+          "avg": 43,
           "episodes": 2
         },
         {
@@ -775,7 +775,7 @@
         },
         {
           "month": "2025-10",
-          "avg": 127,
+          "avg": 128,
           "episodes": 5
         },
         {
@@ -820,19 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3305,
+          "avg": 3306,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3171,
+          "avg": 3182,
           "episodes": 4
+        },
+        {
+          "month": "2026-09",
+          "avg": 269,
+          "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 17001,
+      "plays": 17007,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -968,7 +973,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 151
+          "plays": 152
         },
         {
           "date": "2026-04-02",
@@ -1073,12 +1078,12 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 784
+          "plays": 787
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 667
+          "plays": 669
         }
       ],
       "per_episode": [
@@ -1144,7 +1149,7 @@
         },
         {
           "month": "2026-08",
-          "avg": 764,
+          "avg": 765,
           "episodes": 4
         }
       ]
