@@ -1,0 +1,42 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Westminster Assembly &mdash; The Faith Received</title>
+<meta name="description" content="The Westminster Assembly's own divines, in their own writing beyond the Confession and catechisms that carry the Assembly's name." />
+<meta property="og:title" content="Westminster Assembly — The Faith Received" />
+<meta name="twitter:title" content="Westminster Assembly — The Faith Received" />
+<meta name="tfr-shelf-slug" content="westminster-assembly" />
+{{/contentFor}}
+{{!-- /the-faith-received/westminster-assembly/ — a school inside
+     English Divines, from v1/schools.json's explicit author/slug list.
+     New with the 2026-09 mo-tfr data drop; see assets/js/faith-shelves.js
+     and website/sessions/2026-09-03-mo-tfr-bucket-audit.md.
+
+     One of seven near-identical wrapper templates (the other six are
+     puritans, anglicans, jesuits, franciscans, dominicans,
+     augustinians). Change one, change them all. --}}
+
+<main class="faith-received faith-room">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/browse/">Library</a></p>
+      <h1>Westminster Assembly</h1>
+      <p class="bhero-sub">The men who sat at Westminster from 1643, in their own writing beyond the Confession and catechisms that carry the Assembly&rsquo;s name. Part of English Divines.</p>
+    </div>
+  </section>
+
+  <section class="bband faith-room-body">
+    <div class="container" data-faith-shelf></div>
+  </section>
+
+</main>
+{{!-- Sitewide membership CTA. Same partial and same gate as the rest
+     of the site: hidden for paid and comped members, shown to free
+     subscribers and anonymous visitors. --}}
+{{> "membership-cta"}}
+
+
+
+<script src="{{asset "js/faith-shelves.js"}}"></script>
+<script src="{{asset "js/faith-resolve.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>

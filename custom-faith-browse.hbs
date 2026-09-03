@@ -94,7 +94,25 @@
   <ul class="blist"><li><a href="/the-faith-received/reader/?c=eebo&amp;w=21938"><span class="brow-t">The Saints&rsquo; Everlasting Rest</span><span class="brow-m">Richard Baxter</span></a></li><li><a href="/the-faith-received/reader/?c=eebo&amp;w=40611"><span class="brow-t">The Pilgrim&rsquo;s Progress</span><span class="brow-m">John Bunyan</span></a></li><li><a href="/the-faith-received/reader/?c=eebo&amp;w=11846"><span class="brow-t">The Bruised Reed and Smoking Flax</span><span class="brow-m">Richard Sibbes</span></a></li><li><a href="/the-faith-received/reader/?c=eebo&amp;w=6371"><span class="brow-t">A Golden Chain</span><span class="brow-m">William Perkins</span></a></li><li><a href="/the-faith-received/reader/?c=eebo&amp;w=15053"><span class="brow-t">The Marrow of Sacred Divinity</span><span class="brow-m">William Ames</span></a></li></ul>
   <a class="btrad-all" href="/the-faith-received/early-english-books/">All 15,569 works <span aria-hidden="true">&rarr;</span></a>
 </div>
+{{!-- Ninth tradition, added to the mo-tfr bucket 2026-09 (see
+     website/sessions/2026-09-03-mo-tfr-bucket-audit.md). Jurists and
+     political theorists next to the confessional traditions above —
+     five example works checked against the live bucket 2026-09-03. --}}
+<div class="btrad">
+  <h3>Humanism and Law</h3>
+  <ul class="blist"><li><a href="/the-faith-received/reader/?w=selden-opera-omnia-vol-1"><span class="brow-t">Collected Works, volume 1</span><span class="brow-la">Opera Omnia</span><span class="brow-m">John Selden</span></a></li><li><a href="/the-faith-received/reader/?w=pierre-gr-goire-tholosanus-de-republica-libri-sex-et-viginti"><span class="brow-t">Twenty-Six Books on the Republic</span><span class="brow-la">De Republica Libri Sex et Viginti</span><span class="brow-m">Pierre Gr&eacute;goire</span></a></li><li><a href="/the-faith-received/reader/?w=contzen-politicorum-libri-decem"><span class="brow-t">Ten Books of Politics</span><span class="brow-la">Politicorum Libri Decem</span><span class="brow-m">Adam Contzen</span></a></li><li><a href="/the-faith-received/reader/?w=robert-sanderson-de-obligatione-conscientiae-praelectiones-decem"><span class="brow-t">Ten Lectures on the Obligation of Conscience</span><span class="brow-la">De Obligatione Conscientiae Praelectiones Decem</span><span class="brow-m">Robert Sanderson</span></a></li><li><a href="/the-faith-received/reader/?w=gottfried-wilhelm-leibniz-philosophische-schriften-band-iv"><span class="brow-t">Philosophical Writings, volume 4</span><span class="brow-la">Philosophische Schriften</span><span class="brow-m">Gottfried Wilhelm Leibniz</span></a></li></ul>
+  <a class="btrad-all" href="/the-faith-received/latin-library/?tradition=Humanism%20and%20Law">All 45 works <span aria-hidden="true">&rarr;</span></a>
+</div>
     </div>
+
+    {{!-- Finer than a tradition: two parties inside English Divines and
+         five schools inside Rome, from the same 2026-09 drop. Live
+         counts fetched by faith-shelves.js; the routes and curated
+         copy are static below so the page still means something if
+         that fetch fails. See assets/js/faith-shelves.js. --}}
+    <header class="bhead"><p class="blabel">Within a tradition</p>
+      <h2>Schools &amp; parties</h2></header>
+    <div class="bcolls" data-faith-shelves></div>
     <p class="tfr-browse-all tfr-browse-all--under"><a class="tfr-browse-btn" href="/the-faith-received/all-works/">Browse Full Library</a></p>
   </div>
 </section>
@@ -161,6 +179,9 @@
 <script src="{{asset "js/faith-century.js"}}"></script>
 <script src="{{asset "js/faith-text.js"}}"></script>
 <script src="{{asset "js/faith-corpus-search.js"}}"></script>
+{{!-- The seven-card "Schools & parties" grid just above. Independent
+     of MOCorpora — see assets/js/faith-shelves.js. --}}
+<script src="{{asset "js/faith-shelves.js"}}"></script>
 {{!-- Which works use a word, for the whole library, from an index
      built once rather than by reading sixty-nine thousand works in a
      browser. --}}

@@ -314,6 +314,24 @@ routes:
     template: custom-faith-room-confessions
   /the-faith-received/room/:
     template: custom-faith-room
+  # Schools & parties — finer than the nine top-level traditions, from
+  # the 2026-09 mo-tfr data drop (v1/schools.json + the `party` field
+  # on v1/works-index.json). See assets/js/faith-shelves.js and
+  # website/sessions/2026-09-03-mo-tfr-bucket-audit.md.
+  /the-faith-received/puritans/:
+    template: custom-faith-shelf-puritans
+  /the-faith-received/anglicans/:
+    template: custom-faith-shelf-anglicans
+  /the-faith-received/westminster-assembly/:
+    template: custom-faith-shelf-westminster-assembly
+  /the-faith-received/jesuits/:
+    template: custom-faith-shelf-jesuits
+  /the-faith-received/franciscans/:
+    template: custom-faith-shelf-franciscans
+  /the-faith-received/dominicans/:
+    template: custom-faith-shelf-dominicans
+  /the-faith-received/augustinians/:
+    template: custom-faith-shelf-augustinians
   # One page per author, keyed by ?a=<folded-name>. Rendered at read
   # time: there are 14,000+ names across the seven collections.
   /the-faith-received/author/:
