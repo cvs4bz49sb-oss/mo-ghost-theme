@@ -130,22 +130,48 @@
         <p class="faith-search-scripture-cta"><a class="btn btn-outline" href="/the-faith-received/scripture/">Open the full Scripture Index</a></p>
       </div>
 
-      {{!-- Ask and Meaning: honest placeholders. Both need live
-           infrastructure — an LLM API for Ask, a vector-search index for
-           Meaning — that isn't connected. Visible and explained, not
-           hidden and not faked. Reuses the reader's own "not yet ported"
-           panel style (.faith-pending-panel) rather than inventing a new
-           empty-state pattern. --}}
+      {{!-- Ask: no longer a placeholder. Ask shipped 2026-09 as its own
+           routed page (/the-faith-received/ask/, custom-faith-ask.hbs +
+           faith-ask.js) — a question answered from the corpus, POSTed to
+           mo-tfr-library's /v1/ask, with the paid-member gate and usage
+           meter it needs. This tab used to carry its own hardcoded "Ask
+           needs an AI backend that isn't connected yet" placeholder,
+           written before that page existed and never updated once it
+           landed — a signed-in paid member clicking Ask here hit a dead
+           end with no way to reach the real feature. Fixed by linking
+           out rather than building a second Ask implementation inside
+           this tab: same call the data owner's own header comment in
+           custom-faith-ask.hbs anticipated ("this page's markup and
+           faith-ask.js are the pieces to wire in there"), reading that
+           as "point at it," not "duplicate it," since a second Ask UI
+           bound to the same worker call is a second thing to keep in
+           sync for no reader benefit — the full page also has the room
+           this tab's narrow panel doesn't for the usage meter, citation
+           rail, and a real question box. Same pattern as the Scripture
+           tab just above (.faith-search-scripture-cta): a short note and
+           a button into the full page, not a rebuilt mini-version. --}}
       <div data-fs-panel="ask" hidden>
         <div class="faith-pending-panel faith-search-pending-panel">
-          <p class="faith-pending-lede">Ask needs an AI backend that isn&rsquo;t connected yet.</p>
-          <p class="faith-pending-note">The plan is a question answered from the corpus itself, with every page it drew on cited inline — not a general chatbot. That needs an LLM API this site doesn&rsquo;t call anywhere today, and a decision about which one, at what cost, before it can be wired up. Nothing here will silently pretend to answer in the meantime.</p>
+          <p class="faith-pending-lede">Ask a question of the whole library.</p>
+          <p class="faith-pending-note">A question answered from the corpus itself, with every claim cited to a page you can open — not a general chatbot. Ask lives on its own page, with room for a real conversation and its sources.</p>
+          <p class="faith-search-scripture-cta"><a class="btn btn-primary" href="/the-faith-received/ask/">Open Ask</a></p>
           <p class="faith-pending-actions">
-            <a href="/the-faith-received/search/#find">Try Find instead</a>
             <a href="/membership/">Become a member</a>
           </p>
         </div>
       </div>
+      {{!-- Meaning: genuinely still unbuilt, unlike Ask above — checked
+           2026-09-03 alongside the Ask fix per the same brief (the two
+           placeholders were written together and needed the same
+           audit). /v1/vsearch exists on mo-tfr-library (see default.hbs's
+           mo-trusted-hosts comment and admin-tfr-budget.js), but nothing
+           in this theme calls it: no routed page, no faith-*.js file
+           references "vsearch" anywhere except that worker-auth comment
+           and the admin spend dashboard, which only shows it isn't
+           spending Claude budget (lib/budget.js excludes it — it never
+           calls Claude). There is no working Meaning feature for this
+           tab to link out to, so unlike Ask it stays an honest
+           placeholder rather than a second instance of the same bug. --}}
       <div data-fs-panel="meaning" hidden>
         <div class="faith-pending-panel faith-search-pending-panel">
           <p class="faith-pending-lede">Meaning needs a semantic index that isn&rsquo;t built yet.</p>
