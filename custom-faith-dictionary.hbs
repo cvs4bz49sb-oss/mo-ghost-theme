@@ -1,0 +1,42 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Dictionary | The Faith Received</title>
+<meta name="description" content="The Dictionnaire de Théologie Catholique, translated into English as it is read — French and English side by side, article by article." />
+<meta property="og:title" content="Dictionary | The Faith Received" />
+<meta property="og:description" content="The Dictionnaire de Théologie Catholique, translated into English as it is read — French and English side by side, article by article." />
+<meta name="twitter:title" content="Dictionary | The Faith Received" />
+<meta name="twitter:description" content="The Dictionnaire de Théologie Catholique, translated into English as it is read — French and English side by side, article by article." />
+{{/contentFor}}
+{{!-- /the-faith-received/dictionary/ — a browsable reader for mo-tfr's
+     v1/dtc/, the Dictionnaire de Théologie Catholique: a real French
+     theological encyclopedia, not a short biographical glossary --
+     entries run from a few hundred bytes to several megabytes. Nothing
+     is translated in bulk. tfr-library worker's /v1/dtc-translate
+     translates an entry the first time a reader opens it, caches the
+     result, and serves the cache on every read after -- see
+     assets/js/faith-dictionary.js and the file-header comment on
+     dtcTranslate() in tfr-library/worker.js. Only letter A has landed
+     in the source bucket as of 2026-09 and it is still growing; the
+     browse UI works letter by letter regardless of how many have
+     arrived, so nothing here needs to change when the rest lands. --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/dictionary/">Dictionary</a></p>
+      <h1>Dictionary</h1>
+      <p class="bhero-sub">The Dictionnaire de Théologie Catholique, translated as it is read &mdash; French and English side by side, article by article.</p>
+    </div>
+  </section>
+
+  <section class="bband faith-feature-body">
+    <div class="container">
+      {{> "faith-received/_dictionary"}}
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/faith-dictionary.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>

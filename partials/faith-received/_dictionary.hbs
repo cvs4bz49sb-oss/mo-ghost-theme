@@ -1,0 +1,65 @@
+{{!-- Dictionary body. Two views in one page, same shape as the
+     Glossary (_glossary.hbs): browse (pick a letter, see its entries)
+     and an open article (French and English side by side, fetched --
+     and translated on first read -- from /v1/dtc-translate). Both
+     wired up by assets/js/faith-dictionary.js; this markup is just the
+     mounts. Shares .faith-glossary-az / -letter / -terms / -term-btn /
+     -more / -empty classes with the Glossary on purpose: the letter
+     picker, entry list, and empty state are the identical widget, so
+     there is no reason for a second copy of that CSS. --}}
+<div class="faith-dictionary" data-faith-dictionary>
+
+  <div data-faith-dictionary-browse>
+    <nav class="faith-glossary-az" data-faith-dictionary-az aria-label="Browse by letter">
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="a">A</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="b">B</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="c">C</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="d">D</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="e">E</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="f">F</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="g">G</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="h">H</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="i">I</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="j">J</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="k">K</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="l">L</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="m">M</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="n">N</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="o">O</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="p">P</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="q">Q</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="r">R</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="s">S</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="t">T</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="u">U</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="v">V</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="w">W</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="x">X</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="y">Y</button>
+      <button type="button" class="faith-glossary-letter" data-faith-dictionary-letter="z">Z</button>
+    </nav>
+
+    <div class="faith-dictionary-filter-wrap" data-faith-dictionary-filter-wrap hidden>
+      <input type="search" class="faith-dictionary-filter" data-faith-dictionary-filter placeholder="Filter this letter&hellip;" autocomplete="off" aria-label="Filter entries in this letter" />
+    </div>
+
+    <p class="faith-search-status" data-faith-dictionary-status role="status" aria-live="polite"></p>
+
+    <div class="faith-glossary-terms" data-faith-dictionary-terms hidden></div>
+    <button type="button" class="faith-glossary-more" data-faith-dictionary-more hidden>Show more</button>
+
+    <div class="faith-glossary-empty" data-faith-dictionary-empty hidden>
+      <p>No entries for this letter yet &mdash; the dictionary is still being added to. Try another letter.</p>
+    </div>
+
+    <p class="faith-glossary-note">
+      Entries are drawn from the <cite>Dictionnaire de Théologie Catholique</cite> and translated into English by AI the first time each one is opened. None of these translations have been reviewed by a human editor &mdash; see <a href="/the-faith-received/transparency/">Translation Transparency</a> for how the library discloses AI-assisted text generally.
+    </p>
+  </div>
+
+  <div class="faith-dictionary-article" data-faith-dictionary-article hidden>
+    <button type="button" class="faith-dictionary-back" data-faith-dictionary-back>&larr; Back to browse</button>
+    <div data-faith-dictionary-article-body></div>
+  </div>
+
+</div>
