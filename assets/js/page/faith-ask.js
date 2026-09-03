@@ -223,7 +223,13 @@
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ question }),
       });
-    } catch (_) {
+    } catch (err) {
+      // The actual reason (untrusted-destination refusal vs. a real
+      // network/CORS failure) was previously discarded here, which
+      // made this error unreconstructable from a bug report alone --
+      // logged now so DevTools shows what MOAuth.fetch/fetch() itself
+      // threw, not just the reader-facing message below.
+      console.error("[faith-ask] POST /v1/ask failed before a response was received", err);
       showError("Could not reach the library. Please check your connection and try again.");
       return;
     }
