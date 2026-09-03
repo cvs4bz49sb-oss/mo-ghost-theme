@@ -3591,6 +3591,155 @@
     window.setTimeout(go, 600);
   }
 
+  // The "Ask" feature's citations carry the real retrieved passage as
+  // `q` — up to 160 normalized characters, guaranteed by the server to
+  // exist verbatim on the cited page. `?p=` gets a reader to the page;
+  // this gets them to the line, the same way landOnRef marks a
+  // scripture verse once its section has hydrated.
+  //
+  // The passage can cross a tag boundary (italics, a footnote marker,
+  // a language-lane switch — this corpus renders bilingual and
+  // annotated text), so a single-text-node substring search misses a
+  // fair number of real quotes. Instead the search space is every text
+  // node in `root` concatenated into one normalized string, with each
+  // character tracked back to the DOM node and offset it came from; a
+  // match found in that string is split back across however many
+  // nodes it actually spans.
+  const QUOTE_MIN_CHARS = 30;
+  const QUOTE_SHORT_PREFIX = 70;
+
+  function normQuoteText(s) {
+    return String(s || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  // Builds `root`'s visible text as one lowercased, whitespace-collapsed
+  // string, plus a parallel array where positions[i] is the [node,
+  // offset] that normalized[i] came from. Runs of whitespace collapse
+  // to a single space attributed to the position of the character
+  // that follows it — the same collapsing quoteParam() does server-side
+  // before truncating to 160 chars.
+  function buildQuoteIndex(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+        const p = node.parentNode;
+        if (p && p.closest && p.closest(".faith-cite, .faith-find, .faith-notebook")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    });
+    let normalized = "";
+    const positions = [];
+    let pendingSpace = false;
+    let node = walker.nextNode();
+    while (node) {
+      const text = node.nodeValue;
+      for (let i = 0; i < text.length; i += 1) {
+        const ch = text[i];
+        if (/\s/.test(ch)) {
+          if (normalized.length) pendingSpace = true;
+          continue;
+        }
+        if (pendingSpace) {
+          normalized += " ";
+          positions.push([node, i]);
+          pendingSpace = false;
+        }
+        const lower = ch.toLowerCase();
+        // toLowerCase() can expand one char into two (a handful of
+        // Unicode cases). Fall back to the original char there rather
+        // than let normalized and positions drift out of lockstep.
+        normalized += lower.length === 1 ? lower : ch;
+        positions.push([node, i]);
+      }
+      node = walker.nextNode();
+    }
+    return { normalized, positions };
+  }
+
+  // Groups a [from, to) range of normalized-string indices into the
+  // runs of (node, startOffset, endOffset) it actually spans, in
+  // document order. A quote that never crosses a tag is one run; a
+  // quote that opens on one side of an <em> and closes on the other is
+  // several runs, one per node it touches.
+  function quoteMatchRuns(positions, from, to) {
+    const runs = [];
+    let i = from;
+    while (i < to) {
+      const node = positions[i][0];
+      const start = positions[i][1];
+      let end = start;
+      let j = i;
+      while (j < to && positions[j][0] === node) {
+        end = positions[j][1] + 1;
+        j += 1;
+      }
+      runs.push([node, start, end]);
+      i = j;
+    }
+    return runs;
+  }
+
+  function markQuoteRun(node, from, to) {
+    const mid = node.splitText(from);
+    mid.splitText(to - from);
+    const mark = document.createElement("mark");
+    mark.className = "faith-ref-target";
+    mid.parentNode.insertBefore(mark, mid);
+    mark.appendChild(mid);
+    return mark;
+  }
+
+  // `root` and `scroll` mean exactly what they mean in landOnRef:
+  // scoped to a matched page section with scroll left alone when the
+  // page already positioned the viewport, or the whole document with
+  // scroll earned when there was no page to position it. A failed
+  // match — including one that simply hasn't hydrated yet — retries on
+  // the same cadence as landOnRef and otherwise does nothing: this is
+  // purely additive to landOnPage, never a replacement for it.
+  function landOnQuote(quote, tries, root, scroll) {
+    const full = normQuoteText(quote);
+    if (full.length < QUOTE_MIN_CHARS) return;
+    const where = root || contentEl;
+    const { normalized, positions } = buildQuoteIndex(where);
+    let needle = full;
+    let at = normalized.indexOf(needle);
+    // The full 160-char quote can fail to match verbatim — OCR
+    // artifacts, editorial brackets, formatting differences between
+    // what got embedded and what's rendered. A shorter, word-aligned
+    // prefix beats no highlight, as long as it's not so short it risks
+    // landing on the wrong occurrence.
+    if (at < 0 && full.length > QUOTE_SHORT_PREFIX) {
+      needle = full.slice(0, QUOTE_SHORT_PREFIX);
+      const lastSpace = needle.lastIndexOf(" ");
+      if (lastSpace >= QUOTE_MIN_CHARS) needle = needle.slice(0, lastSpace);
+      at = normalized.indexOf(needle);
+    }
+    if (at < 0) {
+      if (tries < REF_TRIES) {
+        window.setTimeout(() => landOnQuote(quote, tries + 1, root, scroll), 150);
+      }
+      return;
+    }
+    // Someone who gave up waiting and started reading keeps their place.
+    if (scroll && window.pageYOffset > 200 && tries > 0) return;
+    const runs = quoteMatchRuns(positions, at, at + needle.length);
+    if (!runs.length) return;
+    const marks = runs.map(([node, from, to]) => markQuoteRun(node, from, to));
+    let parent = marks[0].parentElement;
+    while (parent && parent !== contentEl) {
+      if (parent.tagName === "DETAILS") parent.open = true;
+      parent = parent.parentElement;
+    }
+    if (!scroll) return;
+    // Instant and asserted, for the reason landOnPage and landOnRef are.
+    const go = () => marks[0].scrollIntoView({ block: "center", behavior: "instant" });
+    window.requestAnimationFrame(go);
+    window.setTimeout(go, 200);
+    window.setTimeout(go, 600);
+  }
+
   // Patrologia Latina's topic index names each passage by its heading
   // and by an ordinal that indexes nothing this reader holds, so the
   // heading is what arrives. Long sections are split at their headings
@@ -3626,11 +3775,13 @@
     let wanted = null;
     let ref = null;
     let heading = null;
+    let quote = null;
     try {
       const q = new URLSearchParams(window.location.search);
       wanted = parseInt(q.get("p"), 10);
       ref = q.get("ref") || null;
       heading = q.get("h") || null;
+      quote = q.get("q") || null;
     } catch (_) {}
     if (heading) landOnHeading(heading, 0);
     if (wanted) {
@@ -3661,12 +3812,16 @@
         // the page puts the reader on the right folio, this puts a mark
         // on the line.
         if (ref) landOnRef(ref, 0, target, false);
+        // Same idea for an Ask citation's retrieved passage: the page
+        // already positioned the viewport, this only marks the line.
+        if (quote) landOnQuote(quote, 0, target, false);
         return;
       }
     }
     // No page: the reference is the only locator there is, which is
     // every Early English Books citation in the index.
     if (ref) landOnRef(ref, 0, contentEl, true);
+    if (quote) landOnQuote(quote, 0, contentEl, true);
     if (window.location.hash && revealSection(window.location.hash, true)) return;
     const first = contentEl.querySelector(".faith-section-details");
     if (first) revealSection(`#${first.id}`, false);
