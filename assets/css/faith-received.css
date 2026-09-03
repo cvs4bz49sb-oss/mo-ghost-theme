@@ -3174,6 +3174,241 @@ mark.faith-find-hit.is-current {
   text-align: center;
 }
 
+/* ── Topic-page enrichment (mo-tfr knowledge graph) ───────────────
+   Author strip and chronological quotes first (topic2-all, plain
+   editorial rows, not cards — per spec, the ranking tells a reader
+   who to open before any excerpt does); the older 43-locus prose
+   overview sits collapsed underneath. Sits atop a page whose passages
+   are otherwise hand-curated, so it gets its own band and its own
+   disclosure — reuses .fr-ai-note (see the Translation Transparency
+   panel) rather than inventing a second disclosure pattern. Ships
+   hidden; faith-topic-synthesis.js unhides it once content loads. */
+.faith-topic-synthesis { background: var(--color-page, var(--color-cream)); padding: 32px 0 8px; }
+.faith-topic-synthesis[hidden] { display: none; }
+.faith-topic-synthesis-inner { max-width: 760px; margin: 0 auto; }
+.faith-topic-synthesis-body { margin-top: 14px; }
+
+.faith-topic2-topic + .faith-topic2-topic {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-rule);
+}
+.faith-topic2-topic-label {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 21px;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+}
+
+/* Author strip: plain rows, ranked, heaviest first. */
+.faith-topic-authors-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary-text, var(--color-secondary));
+  margin: 0 0 8px;
+}
+.faith-topic-author-rows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-top: 1px solid var(--color-rule);
+}
+.faith-topic-author-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-rule);
+  text-decoration: none;
+  color: inherit;
+}
+.faith-topic-author-row:hover .faith-topic-author-name { color: var(--color-secondary); }
+.faith-topic-author-name {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-dark);
+}
+.faith-topic-author-year {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.faith-topic-author-count {
+  margin-left: auto;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+@media (min-width: 700px) {
+  .faith-topic-author-row { width: calc(50% - 10px); }
+  .faith-topic-author-rows { column-gap: 20px; }
+}
+
+/* Chronological positions, by era band. */
+.faith-topic-eras { margin-top: 26px; }
+.faith-topic-era + .faith-topic-era { margin-top: 22px; }
+.faith-topic-era-label {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+}
+.faith-topic-era--undated .faith-topic-era-label { color: var(--color-muted); }
+.faith-topic-quote-list { list-style: none; margin: 0; padding: 0; }
+.faith-topic-quote {
+  padding: 12px 0;
+  border-top: 1px solid var(--color-rule);
+}
+.faith-topic-quote-stance {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  margin: 0 0 4px;
+}
+.faith-topic-quote-text {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 6px;
+}
+.faith-topic-quote-source {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0;
+}
+.faith-topic-quote-source a { color: var(--color-muted); text-decoration: none; border-bottom: 1px solid var(--color-card-border); }
+.faith-topic-quote-source a:hover { color: var(--color-secondary); border-bottom-color: var(--color-secondary); }
+
+/* Editorial overview: the demoted 43-locus AI paragraph. */
+.faith-topic-overview { margin-top: 26px; border-top: 1px solid var(--color-rule); padding-top: 14px; }
+.faith-topic-overview-summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary-text, var(--color-secondary));
+}
+.faith-topic-overview-summary::-webkit-details-marker { display: none; }
+.faith-topic-overview[open] .faith-chev { transform: rotate(-135deg); }
+.faith-topic-overview-body { margin-top: 14px; }
+.faith-topic-synthesis-locus + .faith-topic-synthesis-locus {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-rule);
+}
+.faith-topic-synthesis-locus-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary-text, var(--color-secondary));
+  margin: 0 0 6px;
+}
+.faith-topic-synthesis-prose {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0;
+}
+.faith-topic-synthesis-cite {
+  color: var(--color-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-card-border);
+  font-size: 0.82em;
+  white-space: nowrap;
+}
+.faith-topic-synthesis-cite:hover { border-bottom-color: var(--color-secondary); }
+@media (max-width: 640px) {
+  .faith-topic-synthesis { padding: 24px 0 4px; }
+  .faith-topic-quote-text { font-size: 16px; }
+  .faith-topic-author-count { margin-left: 0; }
+  .faith-topic-author-row { flex-wrap: wrap; }
+}
+
+/* ── Every doctrine (/the-faith-received/doctrines/) ──────────────
+   Index: a filterable, ranked list — the ~190-topic layer the 13
+   curated pages only sample from. Detail: reuses the same
+   .faith-topic-synthesis-inner/.faith-topic-authors/.faith-topic-eras
+   rules as the curated-page enrichment section, since
+   window.MOTopicSynth.renderTopic2 is the same renderer. */
+.faith-doctrines-loading,
+.faith-doctrines-empty {
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  padding: 32px 0;
+}
+.faith-doctrines-empty a { color: var(--color-secondary); }
+.faith-doctrines-filter {
+  width: 100%;
+  max-width: 420px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-card-border);
+  background: var(--color-white);
+  color: var(--color-dark);
+  outline: none;
+}
+.faith-doctrines-filter:focus { border-color: var(--color-secondary); }
+.faith-doctrines-count {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 14px 0 4px;
+}
+.faith-doctrines-list { list-style: none; margin: 0; padding: 0; }
+.faith-doctrines-row a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-rule);
+  text-decoration: none;
+  color: inherit;
+}
+.faith-doctrines-row a:hover .faith-doctrines-row-title { color: var(--color-secondary); }
+.faith-doctrines-row-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--color-dark);
+}
+.faith-doctrines-row-meta {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+  flex: none;
+}
+.faith-doctrines-detail { max-width: 760px; margin: 0 auto; }
+@media (max-width: 640px) {
+  .faith-doctrines-row a { flex-direction: column; gap: 4px; align-items: flex-start; }
+}
+
 /* ── Mobile tightening ───────────────────────────────────────── */
 @media (max-width: 640px) {
   .faith-hero { padding: 64px 0 64px; }
@@ -4361,6 +4596,8 @@ mark.faith-find-hit.is-current {
 }
 .lp-features b { font-weight: 600; }
 .lp-features span { color: var(--color-muted); }
+.lp-features a { display: block; text-decoration: none; color: inherit; }
+.lp-features a:hover b { color: var(--color-secondary); }
 
 .faith-card-era {
   font-family: var(--font-body);

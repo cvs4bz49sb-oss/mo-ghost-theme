@@ -1,0 +1,39 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Glossary | The Faith Received</title>
+<meta name="description" content="Look up a theological or historical term and see how the creeds, confessions, and classic works of the Christian tradition define it, with citations to the page." />
+<meta property="og:title" content="Glossary | The Faith Received" />
+<meta property="og:description" content="Look up a theological or historical term and see how the creeds, confessions, and classic works of the Christian tradition define it, with citations to the page." />
+<meta name="twitter:title" content="Glossary | The Faith Received" />
+<meta name="twitter:description" content="Look up a theological or historical term and see how the creeds, confessions, and classic works of the Christian tradition define it, with citations to the page." />
+{{/contentFor}}
+{{!-- /the-faith-received/glossary/ — a term-and-definition index built
+     from mo-tfr's v1/glossary2/ (296 gzipped buckets, one per
+     first-two-character prefix of the term, ~34 MB total). Nothing is
+     fetched until a reader searches a term or opens a letter: see
+     assets/js/faith-glossary.js. Body markup lives in _glossary.hbs so
+     it stays swappable without touching this wrapper. --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/glossary/">Glossary</a></p>
+      <h1>Glossary</h1>
+      <p class="bhero-sub">Terms as the tradition itself defines them &mdash; drawn from across the library, each definition attributed to the author and page it came from.</p>
+      <form class="faith-search-form" data-faith-glossary-form role="search">
+        <input type="search" name="q" data-faith-glossary-input placeholder="Look up a term&hellip;" autocomplete="off" aria-label="Look up a term" />
+      </form>
+    </div>
+  </section>
+
+  <section class="bband faith-feature-body">
+    <div class="container">
+      {{> "faith-received/_glossary"}}
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/faith-glossary.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>

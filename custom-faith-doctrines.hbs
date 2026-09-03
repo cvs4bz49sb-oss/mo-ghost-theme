@@ -1,0 +1,41 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Every Doctrine | The Faith Received</title>
+<meta name="description" content="Every doctrinal topic the mo-tfr knowledge graph tracks across the library &mdash; who wrote on it most, and what they said, from the Fathers to the Post-Reformation divines." />
+<meta property="og:title" content="Every Doctrine | The Faith Received" />
+<meta property="og:description" content="Every doctrinal topic the mo-tfr knowledge graph tracks across the library, ranked by how much the tradition wrote on it." />
+<meta name="twitter:title" content="Every Doctrine | The Faith Received" />
+<meta name="twitter:description" content="Every doctrinal topic the mo-tfr knowledge graph tracks across the library, ranked by how much the tradition wrote on it." />
+{{/contentFor}}
+{{!-- /the-faith-received/doctrines/[?s=<slug>] — the full ~190-topic
+     layer from v1/mine/topic2-all/, the granular layer underneath the
+     13 curated topic pages (see TOPIC2_MAP in
+     assets/js/faith-topic-synthesis.js for which ~17 of these are
+     already surfaced there). One route, two states, same pattern as
+     /the-faith-received/author/?a=: no ?s= is the index — every topic,
+     sorted by how much the tradition wrote on it, filterable by name;
+     ?s=<slug> is one topic's author strip + chronological positions,
+     rendered by the same window.MOTopicSynth.renderTopic2Block that
+     the curated pages use. --}}
+
+<main class="faith-received faith-doctrines-page">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/doctrines/">Doctrines</a></p>
+      <h1 data-faith-doctrines-title>Every doctrine</h1>
+      <p class="bhero-sub" data-faith-doctrines-sub>Every topic the library's knowledge graph tracks, ranked by how much the tradition wrote on it. Thirteen of these have their own curated reading page; the rest are here.</p>
+    </div>
+  </section>
+
+  <section class="bband faith-feature-body">
+    <div class="container" data-faith-doctrines>
+      <p class="faith-doctrines-loading">Loading&hellip;</p>
+    </div>
+  </section>
+
+</main>
+
+<script src="{{asset "js/faith-topic-synthesis.js"}}"></script>
+<script src="{{asset "js/faith-doctrines.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>
