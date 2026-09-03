@@ -2546,39 +2546,56 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
 }
 
-/* ── Ask page: wide research workspace ────────────────────────────
+/* ── Ask: inline research workspace ───────────────────────────────
    A question answered from the library, rendered as an editorial set
    piece: the question becomes a heading, the answer is running prose,
    citations are footnotes. Not a chat widget on purpose — no bubbles,
-   no avatar, no "typing…" affordance.
+   no avatar, no "typing…" affordance, and (2026-09 restyle, below) no
+   raised white "app" cards either — this reads as part of the same
+   reading experience as the reader pages, not a SaaS dashboard bolted
+   onto the site.
 
-   Redesigned 2026-09 from a single `container container-narrow`
-   (720px) column — question box, then answer, then footnotes, all
-   stacked — per the data owner's own read: "horrible... use the whole
-   width of the body area to make a good working environment for
-   research and chat use." A wider column alone doesn't fix a research
-   tool (a 1180px-wide paragraph of prose is worse to read, not
-   better), so this is a real two-column layout above 820px instead:
-   .ask-main carries the conversation (the question box and the
-   running answer, read top to bottom), .ask-sources is a rail beside
-   it holding the citations — visible alongside a long answer instead
-   of buried in a wall of footnotes below it. Comparable in kind to
-   the reader's own contents-rail-plus-reading-column layout
+   This is shared markup: partials/faith-received/_ask-panel.hbs
+   renders on both the standalone /the-faith-received/ask/ page and
+   the "Ask" tab on /the-faith-received/search/, so every rule below
+   applies in both places. .ask-layout is a real two-column layout
+   above 820px: .ask-main carries the conversation (the question box
+   and the running answer, read top to bottom), .ask-sources is a rail
+   beside it holding the citations — visible alongside a long answer
+   instead of buried in a wall of footnotes below it. Comparable in
+   kind to the reader's own contents-rail-plus-reading-column layout
    (.faith-doc-layout / .faith-toc-sidebar, "Layout: contents far
-   left, text in the rest" above) but built fresh at this page's own
-   scale rather than reusing that layout's classes: the reader's rail
-   is edge-to-edge full-bleed and syncs to the site header's
-   hide-on-scroll animation, machinery this page doesn't need for a
-   secondary reference list.
+   left, text in the rest" above) but built fresh at this scale rather
+   than reusing that layout's classes: the reader's rail is
+   edge-to-edge full-bleed and syncs to the site header's
+   hide-on-scroll animation, machinery this doesn't need for a
+   secondary reference list. A wider column alone doesn't fix a
+   research tool (a 1180px-wide paragraph of prose is worse to read,
+   not better), which is why this is two columns rather than just a
+   wider single one.
 
    .ask-layout is mobile-first ONLY for this one grid rule (base = one
    column, a `min-width: 821px` query adds the second) — everything
    else in this block keeps the file's usual desktop-base /
    `max-width` convention. Below 820px there's no room for two columns
    on a phone, so the grid drops back to a single column and the rail
-   renders as a normal block after .ask-main, in DOM order — the exact
-   stack this page used to have permanently, so the collapse needs no
-   `order:` juggling or JS. */
+   renders as a normal block after .ask-main, in DOM order — no
+   `order:` juggling or JS needed for the collapse.
+
+   The Search page's own container is `container container-narrow`
+   (720px) — too narrow for this grid to do anything useful, the same
+   squeeze the standalone /ask/ page hit before it widened off
+   `container-narrow` entirely. faith-tfr-search.js's showMode()
+   toggles this class on [data-fs-page] itself (the container div)
+   only while the Ask tab is active, so the other five modes keep
+   their normal 720px reading measure. Higher specificity than the
+   single `.container-narrow` class it's paired with (two class-level
+   selectors beat one), so no !important and no ordering dependency
+   on where this rule sits in the file. */
+.container[data-fs-page].fs-page--ask {
+  max-width: 1180px;
+}
+
 .ask-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -2614,23 +2631,31 @@ mark.faith-find-hit.is-current {
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     overscroll-behavior: contain;
+    /* Below this breakpoint the rail stacks under .ask-main, so it
+       gets a top rule instead — see the base .ask-sources-inner rule
+       below. Side by side, a left rule reads the same way the
+       reader's own .faith-toc-sidebar separates itself from the
+       reading column: a thin line, no card. */
+    padding: 0 0 0 26px;
+    border-top: 0;
+    border-left: 1px solid var(--color-rule);
   }
 }
 
-/* Question box, redesigned as a bordered card — the primary input on
-   the page, not a cramped inline strip. Same white/border/radius/
-   shadow recipe as .faith-memorize-card above, reused rather than
-   invented fresh. */
+/* Question box. Restyled 2026-09: this used to be a raised white card
+   (background/border/radius/shadow, borrowed from .faith-memorize-card)
+   with an italic display-serif input in a cream pill — read as a
+   product widget dropped onto the page, not a reading experience. Sits
+   directly on the page background now, the same way .faith-doc does
+   for the reader's own article body, with a plain rule standing in
+   for the card border. */
 .ask-form {
   display: flex;
   flex-direction: column;
   gap: 14px;
   margin-top: 8px;
-  padding: 30px 30px 24px;
-  background: var(--color-white);
-  border: 1px solid var(--color-card-border);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(45,41,39,0.04);
+  padding-top: 28px;
+  border-top: 1px solid var(--color-rule);
 }
 .ask-label {
   display: block;
@@ -2642,21 +2667,24 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
   margin: 0;
 }
+/* Plain body-text register — same font, size, and 4px radius as
+   .faith-scripture-jump-input's search box, not the display-serif
+   italic pill this used to be. Background matches the page rather
+   than standing out as a raised field. */
 .ask-input {
   width: 100%;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 21px;
-  line-height: 1.4;
-  padding: 16px 20px;
-  border-radius: 14px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  border-radius: 4px;
   border: 1px solid var(--color-card-border);
-  background: var(--color-cream);
+  background: var(--color-page);
   color: var(--color-dark);
   resize: vertical;
   outline: none;
 }
-.ask-input::placeholder { color: var(--color-muted); font-style: italic; }
+.ask-input::placeholder { color: var(--color-muted); }
 .ask-input:focus { border-color: var(--color-primary); }
 .ask-form-footer {
   display: flex;
@@ -2772,15 +2800,17 @@ mark.faith-find-hit.is-current {
   border-left: 2px solid var(--color-card-border);
 }
 
-/* Sources rail. Same white/border/radius/shadow card recipe as
-   .ask-form above, at a quieter scale — this is reference material a
-   reader consults, not the page's primary input. */
+/* Sources rail. Restyled 2026-09 alongside .ask-form: no more raised
+   white card — sits on the page background with a plain rule standing
+   in for the card border. Stacked under .ask-main below 820px, so the
+   rule runs along the top like .ask-form's; from 821px up the
+   `min-width: 821px` block above switches it to a left rule instead,
+   to read as a rail beside the reading column, the same way the
+   reader's own .faith-toc-sidebar separates itself with a border-right
+   rather than a shadowed panel. */
 .ask-sources-inner {
-  padding: 26px 26px 22px;
-  background: var(--color-white);
-  border: 1px solid var(--color-card-border);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(45,41,39,0.04);
+  padding-top: 28px;
+  border-top: 1px solid var(--color-rule);
 }
 .ask-footnotes-title {
   font-family: var(--font-body);
@@ -2791,9 +2821,6 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
   margin: 0 0 14px;
 }
-/* No top border/margin here — unlike the old single-column stack,
-   this is the first thing in the rail card, right under the "Sources"
-   heading, not a divider after a wall of prose. */
 .ask-footnotes-wrap { margin: 0; padding: 0; border: 0; }
 .ask-footnotes {
   list-style: decimal;
@@ -2831,25 +2858,25 @@ mark.faith-find-hit.is-current {
 
 /* ── Breakpoints: 820 / 700 / 640, matching the rest of this file ──
    820: the two-column grid has already dropped to one column (see the
-   `min-width: 821px` query above), so this tier is only trimming card
-   padding for a tablet-width single column -- .ask-sources-inner is no
-   longer sticky here either, since that too lives inside the
-   `min-width: 821px` query and never applies below it.
-   700: no layout change, just tightening the card padding further as
+   `min-width: 821px` query above), so .ask-sources-inner is back to
+   its stacked-under-.ask-main top rule at this width and just needs
+   its top padding trimmed along with .ask-form's, same as any other
+   tablet-width single column in this file.
+   700: no layout change, just tightening the top padding further as
    the column keeps narrowing.
    640: the form's own footer (hint + submit) stacks so the button
    never has to compete with the hint text for a cramped row; this is
    the same width the file already treats as "phone" everywhere else. */
 @media (max-width: 820px) {
-  .ask-form { padding: 26px 26px 20px; }
-  .ask-sources-inner { padding: 22px 22px 18px; }
+  .ask-form { padding-top: 24px; }
+  .ask-sources-inner { padding-top: 24px; }
 }
 @media (max-width: 700px) {
-  .ask-form { padding: 22px 22px 18px; }
-  .ask-sources-inner { padding: 20px 20px 16px; }
+  .ask-form { padding-top: 20px; }
+  .ask-sources-inner { padding-top: 20px; }
 }
 @media (max-width: 640px) {
-  .ask-form { padding: 20px 18px 16px; }
+  .ask-form { padding-top: 18px; }
   .ask-form-footer { flex-direction: column; align-items: stretch; gap: 12px; }
   .ask-form-hint { order: 2; text-align: center; }
   .ask-submit { width: 100%; }

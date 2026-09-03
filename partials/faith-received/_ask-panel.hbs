@@ -1,0 +1,115 @@
+{{!-- Faith Received — Ask panel markup, shared between the standalone
+     /the-faith-received/ask/ route (custom-faith-ask.hbs) and the "Ask"
+     tab on /the-faith-received/search/ (custom-faith-search.hbs,
+     [data-fs-panel="ask"]). assets/js/page/faith-ask.js binds to this
+     markup with plain, unscoped document.querySelector() calls (see that
+     file's own header) — it doesn't care which page it's on, only that
+     the markup exists exactly once on whichever page loads it, which is
+     true here since the two routes never render at the same time. This
+     partial exists so there is exactly one copy of that markup to keep in
+     sync with the JS, instead of two.
+
+     Whichever page includes this partial must also load, at the bottom
+     of its own template and in this relative order, feature-gate.js
+     (gates the submit button below to paid members) then
+     page/faith-ask.js (the DOM binding) — see custom-faith-ask.hbs's own
+     script block for the working order; page-template scripts run before
+     site.min.js, so both must be loaded this way rather than assumed
+     from the boot bundle.
+
+     DOM contract faith-ask.js depends on — re-read that file before
+     touching any of this:
+       - form[data-ask-form] > textarea[data-ask-input],
+         button[data-ask-submit] — the question box.
+       - [data-ask-usage] wraps two rows. faith-ask.js finds the second
+         (global-capacity) row via `usageMineRow.nextElementSibling`, NOT
+         a data attribute — the [data-ask-usage-mine] row and the
+         unlabeled row right after it must stay exactly adjacent siblings
+         in that order.
+       - [data-ask-status], [data-ask-result] containing
+         [data-ask-heading], [data-ask-answer], [data-ask-gaps], and
+         [data-ask-error] as siblings of [data-ask-result].
+       - [data-ask-footnotes-wrap] > [data-ask-footnotes], immediately
+         followed by [data-ask-sources-empty] — the CSS rule
+         ".ask-footnotes-wrap:not([hidden]) ~ .ask-sources-empty" in
+         faith-received.css depends on that sibling order to hide the
+         empty-state line once a real answer has citations.
+       - button[data-feature-gate="ask"] on the submit button — the
+         paid-member gate (assets/js/feature-gate.js intercepts the
+         click). Do not remove or weaken this: any LLM-calling feature on
+         this site is a standing member-gate + rate-limit requirement,
+         and the worker itself enforces the same gate server-side (see
+         faith-ask.js's header comment). --}}
+<div class="ask-layout">
+  <div class="ask-main">
+
+    <form class="ask-form" data-ask-form>
+      <label class="ask-label" for="ask-question">Your question</label>
+      <textarea
+        id="ask-question"
+        class="ask-input"
+        data-ask-input
+        rows="3"
+        maxlength="600"
+        placeholder="e.g. What does the tradition teach about justification?"
+        required
+      ></textarea>
+      <div class="ask-form-footer">
+        <p class="ask-form-hint">Enter to ask &middot; Shift+Enter for a new line</p>
+        <button type="submit" class="btn btn-primary ask-submit" data-feature-gate="ask" data-ask-submit>
+          Ask the library
+        </button>
+      </div>
+    </form>
+
+    {{!-- Usage meter -- a beta capacity cap on /v1/ask. Reads GET
+          /v1/ask/usage on page load and after each answer -- see
+          assets/js/page/faith-ask.js. Hidden until that first read
+          succeeds, so a fetch failure degrades to "no meter shown"
+          rather than a stuck "Loading…" line. --}}
+    <div class="ask-usage" data-ask-usage hidden>
+      <div class="ask-usage-row" data-ask-usage-mine hidden>
+        <div class="ask-usage-meta">
+          <span class="ask-usage-label">Your questions today</span>
+          <span class="ask-usage-pct" data-ask-usage-mine-text></span>
+        </div>
+        <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-mine-fill></span></div>
+      </div>
+      <div class="ask-usage-row">
+        <div class="ask-usage-meta">
+          <span class="ask-usage-label">Beta capacity today</span>
+          <span class="ask-usage-pct" data-ask-usage-global-text></span>
+        </div>
+        <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-global-fill></span></div>
+      </div>
+    </div>
+
+    <p class="ask-status" data-ask-status role="status" aria-live="polite" hidden></p>
+
+    <article class="ask-result" data-ask-result hidden>
+      <h2 class="ask-question" data-ask-heading></h2>
+      <div class="ask-answer" data-ask-answer></div>
+
+      <p class="ask-gaps" data-ask-gaps hidden></p>
+    </article>
+
+    <p class="ask-error" data-ask-error role="alert" hidden></p>
+
+  </div>
+
+  {{!-- Citations rail. .ask-footnotes-wrap/.ask-footnotes are exactly
+       the elements faith-ask.js already renders into
+       (renderFootnotes() in assets/js/page/faith-ask.js).
+       .ask-sources-empty is pure CSS: a sibling selector hides it once
+       .ask-footnotes-wrap loses its `hidden` attribute, so the rail
+       never sits blank before a first question is asked. --}}
+  <aside class="ask-sources" aria-label="Sources for this answer">
+    <div class="ask-sources-inner">
+      <h3 class="ask-footnotes-title">Sources</h3>
+      <div class="ask-footnotes-wrap" data-ask-footnotes-wrap hidden>
+        <ol class="ask-footnotes" data-ask-footnotes></ol>
+      </div>
+      <p class="ask-sources-empty" data-ask-sources-empty>Ask a question. The pages it draws its answer from will list here, each one a link into the reader.</p>
+    </div>
+  </aside>
+</div>

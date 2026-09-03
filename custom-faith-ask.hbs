@@ -15,20 +15,25 @@
      heading, the answer is running prose, and citations are footnotes
      linking into the reader — not a chat bubble.
 
-     Standalone route rather than a tab inside the library search page
-     the "Find/Full-text/Scripture/Tradition" track built: that track
-     had not landed a search-modes page at the time this was built, and
-     the task brief said not to block on it. It has landed since, with
-     its own "Ask" tab — that tab now links here (see the "Ask" panel
-     in custom-faith-search.hbs) rather than carrying a second Ask
-     implementation, so this page is the one place Ask actually lives.
+     This is the standalone route. The same Ask UI is also embedded
+     inline as the "Ask" tab on /the-faith-received/search/
+     (custom-faith-search.hbs, [data-fs-panel="ask"]) — both pages
+     render partials/faith-received/_ask-panel.hbs rather than each
+     carrying its own copy, since assets/js/page/faith-ask.js binds to
+     that markup with plain unscoped querySelector() calls regardless
+     of which page loaded it. See that partial's own header comment for
+     the DOM contract and the required script-loading order. This page
+     stays a separate route (rather than folding entirely into the
+     search page) for its own dedicated hero, URL, and metadata.
 
      Layout redesigned 2026-09 into a two-column research workspace
      above 820px (main conversation column + a persistent sources
      rail) — see "Ask page: wide research workspace" in
      assets/css/faith-received.css for the full reasoning; the original
      single narrow `container-narrow` column was unusable for real
-     research/chat use at any width. --}}
+     research/chat use at any width. Styling simplified 2026-09 to a
+     plain editorial register (no raised white cards/shadows) matching
+     the reader pages — see the same CSS block's updated comments. --}}
 
 <main class="faith-received faith-feature">
 
@@ -43,105 +48,11 @@
   <section class="bband faith-feature-body">
     <div class="container" data-ask-page>
 
-      {{!-- Two columns above 820px: .ask-main is the conversation (the
-           part read top to bottom — question box, usage meter, status,
-           answer), .ask-sources is a persistent rail holding the
-           citations, so a reader can see what the current answer draws
-           on without scrolling past a wall of footnotes. Below 820px
-           there's no room for two columns on a phone, so this collapses
-           to a single stack in DOM order (main, then sources) — same
-           order the page always rendered in, so no JS reshuffling is
-           needed for the collapse. See ".ask-layout" in
-           faith-received.css for the grid rules and the exact
-           breakpoint reasoning. --}}
-      <div class="ask-layout">
-        <div class="ask-main">
-
-          <form class="ask-form" data-ask-form>
-            <label class="ask-label" for="ask-question">Your question</label>
-            <textarea
-              id="ask-question"
-              class="ask-input"
-              data-ask-input
-              rows="3"
-              maxlength="600"
-              placeholder="e.g. What does the tradition teach about justification?"
-              required
-            ></textarea>
-            <div class="ask-form-footer">
-              <p class="ask-form-hint">Enter to ask &middot; Shift+Enter for a new line</p>
-              <button type="submit" class="btn btn-primary ask-submit" data-feature-gate="ask" data-ask-submit>
-                Ask the library
-              </button>
-            </div>
-          </form>
-
-          {{!-- Usage meter -- a beta capacity cap on /v1/ask, added
-                2026-09. Mirrors Anthropic's own console pattern (a
-                labeled bar, a percentage, a reset time), per the shape
-                Ian asked for. Reads GET /v1/ask/usage on page load and
-                after each answer -- see assets/js/page/faith-ask.js.
-                Hidden until that first read succeeds, so a fetch
-                failure degrades to "no meter shown" rather than a
-                stuck "Loading…" line. Reuses the same bar/fill/pct
-                visual language as Memorize mode's progress bar
-                (.faith-memorize-progress in faith-received.css) rather
-                than inventing a new component.
-
-                Markup below is untouched by the 2026-09 layout
-                redesign on purpose: faith-ask.js finds the "global"
-                row via `usageMineRow.nextElementSibling`, not a data
-                attribute, so the two .ask-usage-row divs have to stay
-                exactly these two adjacent siblings in this order. --}}
-          <div class="ask-usage" data-ask-usage hidden>
-            <div class="ask-usage-row" data-ask-usage-mine hidden>
-              <div class="ask-usage-meta">
-                <span class="ask-usage-label">Your questions today</span>
-                <span class="ask-usage-pct" data-ask-usage-mine-text></span>
-              </div>
-              <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-mine-fill></span></div>
-            </div>
-            <div class="ask-usage-row">
-              <div class="ask-usage-meta">
-                <span class="ask-usage-label">Beta capacity today</span>
-                <span class="ask-usage-pct" data-ask-usage-global-text></span>
-              </div>
-              <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-global-fill></span></div>
-            </div>
-          </div>
-
-          <p class="ask-status" data-ask-status role="status" aria-live="polite" hidden></p>
-
-          <article class="ask-result" data-ask-result hidden>
-            <h2 class="ask-question" data-ask-heading></h2>
-            <div class="ask-answer" data-ask-answer></div>
-
-            <p class="ask-gaps" data-ask-gaps hidden></p>
-          </article>
-
-          <p class="ask-error" data-ask-error role="alert" hidden></p>
-
-        </div>
-
-        {{!-- Citations rail. .ask-footnotes-wrap/.ask-footnotes are
-             exactly the elements faith-ask.js already renders into
-             (renderFootnotes() in assets/js/page/faith-ask.js) —
-             relocated from inside .ask-result into this rail, but the
-             same elements with the same data attributes, so the JS
-             needed no changes. .ask-sources-empty is pure CSS: a
-             sibling selector hides it once .ask-footnotes-wrap loses
-             its `hidden` attribute, so the rail never sits blank
-             before a first question is asked. --}}
-        <aside class="ask-sources" aria-label="Sources for this answer">
-          <div class="ask-sources-inner">
-            <h3 class="ask-footnotes-title">Sources</h3>
-            <div class="ask-footnotes-wrap" data-ask-footnotes-wrap hidden>
-              <ol class="ask-footnotes" data-ask-footnotes></ol>
-            </div>
-            <p class="ask-sources-empty" data-ask-sources-empty>Ask a question. The pages it draws its answer from will list here, each one a link into the reader.</p>
-          </div>
-        </aside>
-      </div>
+      {{!-- Shared with the "Ask" tab on /the-faith-received/search/ —
+           see partials/faith-received/_ask-panel.hbs for the markup,
+           the DOM contract faith-ask.js depends on, and the required
+           script-loading order. --}}
+      {{> "faith-received/_ask-panel"}}
 
     </div>
   </section>

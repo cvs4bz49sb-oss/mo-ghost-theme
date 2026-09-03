@@ -172,6 +172,17 @@
       t.classList.toggle("is-active", active);
       t.setAttribute("aria-selected", active ? "true" : "false");
     });
+    // Ask's two-column research-workspace layout (.ask-layout, shared
+    // with the standalone /the-faith-received/ask/ page via
+    // partials/faith-received/_ask-panel.hbs) needs real width to lay
+    // its sources rail out beside the answer. This page's own container
+    // is `container-narrow` (720px) — the same squeeze Ian flagged on
+    // the standalone page before that page widened off it. Toggling
+    // this class on `page` ([data-fs-page] itself, the container div)
+    // widens only while Ask is the active tab, rather than duplicating
+    // .ask-layout's grid rules with a second breakout hack — see
+    // ".fs-page--ask" in faith-received.css.
+    page.classList.toggle("fs-page--ask", mode === "ask");
     if (mode === "fulltext" || mode === "find" || mode === "tradition") {
       ensureInstances();
     }

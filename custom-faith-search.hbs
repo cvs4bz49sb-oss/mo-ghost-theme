@@ -13,10 +13,10 @@
      mirrored into the mo-tfr bucket at v1/search/pagefind/ (ten shards,
      ~108,500 pages of the Latin Library — see the header of
      assets/js/faith-tfr-search.js for how that was confirmed and how
-     the shards are merged). Ask and Meaning need an LLM API and a
-     vector index this codebase does not have; their panels say so
-     rather than pretending to work — see [data-fs-panel="ask"] and
-     ="meaning" below.
+     the shards are merged). Ask is real, built inline via a shared
+     partial — see [data-fs-panel="ask"] below. Meaning needs a vector
+     index this codebase does not have; that panel says so rather than
+     pretending to work — see [data-fs-panel="meaning"] below.
 
      Fresh data-fs-* attributes throughout, deliberately not the older
      data-faith-search-* set assets/js/faith-received.js still binds
@@ -130,35 +130,32 @@
         <p class="faith-search-scripture-cta"><a class="btn btn-outline" href="/the-faith-received/scripture/">Open the full Scripture Index</a></p>
       </div>
 
-      {{!-- Ask: no longer a placeholder. Ask shipped 2026-09 as its own
-           routed page (/the-faith-received/ask/, custom-faith-ask.hbs +
-           faith-ask.js) — a question answered from the corpus, POSTed to
-           mo-tfr-library's /v1/ask, with the paid-member gate and usage
-           meter it needs. This tab used to carry its own hardcoded "Ask
-           needs an AI backend that isn't connected yet" placeholder,
-           written before that page existed and never updated once it
-           landed — a signed-in paid member clicking Ask here hit a dead
-           end with no way to reach the real feature. Fixed by linking
-           out rather than building a second Ask implementation inside
-           this tab: same call the data owner's own header comment in
-           custom-faith-ask.hbs anticipated ("this page's markup and
-           faith-ask.js are the pieces to wire in there"), reading that
-           as "point at it," not "duplicate it," since a second Ask UI
-           bound to the same worker call is a second thing to keep in
-           sync for no reader benefit — the full page also has the room
-           this tab's narrow panel doesn't for the usage meter, citation
-           rail, and a real question box. Same pattern as the Scripture
-           tab just above (.faith-search-scripture-cta): a short note and
-           a button into the full page, not a rebuilt mini-version. --}}
-      <div data-fs-panel="ask" hidden>
-        <div class="faith-pending-panel faith-search-pending-panel">
-          <p class="faith-pending-lede">Ask a question of the whole library.</p>
-          <p class="faith-pending-note">A question answered from the corpus itself, with every claim cited to a page you can open — not a general chatbot. Ask lives on its own page, with room for a real conversation and its sources.</p>
-          <p class="faith-search-scripture-cta"><a class="btn btn-primary" href="/the-faith-received/ask/">Open Ask</a></p>
-          <p class="faith-pending-actions">
-            <a href="/membership/">Become a member</a>
-          </p>
-        </div>
+      {{!-- Ask: built inline, not a link-out. Ask used to be reachable
+           only from its own routed page (/the-faith-received/ask/) with
+           this tab carrying a "Open Ask" placeholder pointing there —
+           on the reasoning at the time that a second Ask UI bound to
+           the same mo-tfr-library /v1/ask call was a second thing to
+           keep in sync for no reader benefit. Rebuilt 2026-09 as a
+           shared Handlebars partial instead
+           (partials/faith-received/_ask-panel.hbs) so that reasoning no
+           longer applies: this tab and the standalone /ask/ page both
+           render the same partial, so there is still exactly one copy
+           of the markup, but a reader on this page can now actually use
+           Ask without leaving it. assets/js/page/faith-ask.js binds to
+           the partial's markup with plain unscoped querySelector()
+           calls, so it works here unchanged.
+
+           .ask-layout (in the partial) needs real width for its
+           two-column research-workspace grid — this page's own
+           container is `container-narrow` (720px), the same squeeze
+           Ian flagged on the standalone /ask/ page before that page
+           widened off it. faith-tfr-search.js's showMode() toggles
+           `.fs-page--ask` on [data-fs-page] itself while this tab is
+           active, which widens the container without touching the
+           other five panels — see ".fs-page--ask" in
+           faith-received.css. --}}
+      <div data-fs-panel="ask" data-ask-page hidden>
+        {{> "faith-received/_ask-panel"}}
       </div>
       {{!-- Meaning: genuinely still unbuilt, unlike Ask above — checked
            2026-09-03 alongside the Ask fix per the same brief (the two
@@ -235,6 +232,16 @@
 
 <script src="{{asset "js/page/membership-toggle.js"}}"></script>
 <script src="{{asset "js/page/membership-cards.js"}}"></script>
+
+{{!-- Ask tab: same two scripts, in the same relative order, that
+     custom-faith-ask.hbs loads for the same partial — feature-gate.js
+     gates the submit button in partials/faith-received/_ask-panel.hbs
+     to paid members, then page/faith-ask.js does the DOM binding. Both
+     are plain page-bottom <script src> tags rather than bundle
+     dependencies because page-template scripts run before
+     site.min.js. --}}
+<script src="{{asset "js/feature-gate.js"}}"></script>
+<script src="{{asset "js/page/faith-ask.js"}}"></script>
 
 {{!-- The six-mode search page itself: mode tabs, the Pagefind-backed
      Find/Full text/Tradition modes, and the Scripture shortcut. Loads
