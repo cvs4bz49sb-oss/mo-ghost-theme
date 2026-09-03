@@ -54,6 +54,23 @@
             {{!-- Totals --}}
             <div class="admin-tfr-totals" data-tfr-totals hidden></div>
 
+            {{!-- Ask spend and budget -- the $100/month beta cap added
+                  2026-09 (see tfr-library/lib/budget.js). Reads GET
+                  /admin/ask-usage on the same tfr-library worker
+                  (Ghost staff only), not mo-tfr-events -- this is
+                  spend history, a different concern from the
+                  engagement stats the rest of this page shows. Leads
+                  with today's numbers because "are we about to run out
+                  today" is the question this panel exists to answer
+                  first. --}}
+            <section class="admin-tfr-section" data-tfr-budget
+                     data-worker-url="https://mo-tfr-library.mo-podcast-feed.workers.dev">
+              <h2 class="admin-tfr-section-title"><em>Ask</em> spend &amp; budget</h2>
+              <p class="admin-tfr-section-note">Daily spend against the beta's $3.35/day (~$100/month) shared budget across /v1/ask and the paid-translation branch of /v1/dtc-translate. /v1/vsearch is not included -- it never calls Claude, see lib/budget.js.</p>
+              <div class="admin-tfr-totals" data-tfr-budget-totals hidden></div>
+              <div data-tfr-budget-trend></div>
+            </section>
+
             {{!-- Reader reports lead. Everything else on this page is a
                   measurement; this is the only panel where a person has
                   asked for something and is waiting on an answer. --}}
@@ -123,3 +140,4 @@
 <script src="{{asset "js/admin-sidebar.js"}}"></script>
 <script src="{{asset "js/admin-tfr.js"}}"></script>
 <script src="{{asset "js/admin-tfr-issues.js"}}"></script>
+<script src="{{asset "js/admin-tfr-budget.js"}}"></script>

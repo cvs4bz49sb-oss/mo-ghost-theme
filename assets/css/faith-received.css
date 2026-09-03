@@ -2588,6 +2588,46 @@ mark.faith-find-hit.is-current {
 .ask-input:focus { border-color: var(--color-primary); }
 .ask-submit { flex: 0 0 auto; white-space: nowrap; }
 
+/* Usage meter -- beta capacity cap on /v1/ask, added 2026-09. Same
+   bar/fill/pct shape as Memorize mode's progress bar
+   (.faith-memorize-progress* above) rather than a new component: a
+   quiet 4px track, no card chrome, an uppercase label row. Two rows
+   stack when a signed-in member's own count is shown; only the global
+   row renders for a caller /v1/ask/usage has no personal data for. */
+.ask-usage { margin: 20px 0 0; display: flex; flex-direction: column; gap: 14px; }
+.ask-usage-row { display: flex; flex-direction: column; gap: 6px; }
+.ask-usage-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.ask-usage-label { color: var(--color-muted); }
+.ask-usage-pct { color: var(--color-primary); font-variant-numeric: tabular-nums; }
+.ask-usage-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-card-border);
+  overflow: hidden;
+}
+.ask-usage-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+/* Beta capacity nearing full reads as a soft warning rather than the
+   ordinary progress color -- reuses --color-secondary (already the
+   error-text color on this page, see .ask-error above) rather than
+   introducing a new semantic color. */
+.ask-usage-row--warn .ask-usage-pct { color: var(--color-secondary); }
+.ask-usage-row--warn .ask-usage-fill { background: var(--color-secondary); }
+
 .ask-status {
   font-family: var(--font-body);
   font-size: 12px;

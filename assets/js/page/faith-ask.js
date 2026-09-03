@@ -27,6 +27,22 @@
  * a real 401 from the worker and the generic-but-actionable error
  * message below, not a raw network failure.
  *
+ * SPEND-CAP UI (2026-09): a beta capacity cap now backs /v1/ask on the
+ * worker side (per-member daily question cap + a shared daily $
+ * budget — see lib/budget.js). Two additions here:
+ *   1. A usage meter, fetched from GET /v1/ask/usage on page load and
+ *      refreshed after every attempt (success, cooldown, or error) —
+ *      mirrors Anthropic's own console pattern per the brief: a
+ *      labeled bar, a percentage, a reset time. See renderUsage()
+ *      and loadUsage() below, and .ask-usage* in faith-received.css.
+ *   2. A cooldown response (HTTP 429, `{ok:false, cooldown:true,
+ *      reason, error, resetsAt}` — see cooldownResponse() in
+ *      lib/ask.js) is handled distinctly from a generic error: the
+ *      message the worker already wrote is shown as-is (it already
+ *      says which limit was hit and when it resets), and the meter is
+ *      refreshed immediately so the reader sees the same 100% the
+ *      error just described, not a stale 60%.
+ *
  * Loaded as a page-template script, so per the theme's own script-
  * order rule it runs before site.min.js and must not depend on any
  * bundle global other than window.MOAuth, which is in the boot
@@ -48,11 +64,21 @@
   const footnotesEl = document.querySelector("[data-ask-footnotes]");
   const errorEl = document.querySelector("[data-ask-error]");
 
+  const usageEl = document.querySelector("[data-ask-usage]");
+  const usageMineRow = document.querySelector("[data-ask-usage-mine]");
+  const usageMineText = document.querySelector("[data-ask-usage-mine-text]");
+  const usageMineFill = document.querySelector("[data-ask-usage-mine-fill]");
+  const usageGlobalRow = usageMineRow ? usageMineRow.nextElementSibling : null;
+  const usageGlobalText = document.querySelector("[data-ask-usage-global-text]");
+  const usageGlobalFill = document.querySelector("[data-ask-usage-global-fill]");
+
   // Same worker every other faith-*.js file in this theme talks to
   // (see assets/js/faith-corpora.js's own BLOB/LIBRARY constant) —
   // each file defines its own copy of this base URL rather than
   // sharing a global, matching that existing convention.
-  const ASK_URL = "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/ask";
+  const WORKER = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
+  const ASK_URL = `${WORKER}/v1/ask`;
+  const USAGE_URL = `${WORKER}/v1/ask/usage`;
 
   function escapeHtml(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => {
@@ -135,6 +161,55 @@
     gapsEl.textContent = `Not yet represented in this answer: ${gaps.join("; ")}.`;
   }
 
+  // ── Usage meter ──────────────────────────────────────────────
+  //
+  // GET /v1/ask/usage never spends anything and never denies — it
+  // always returns 200 with `global` (safe for any caller) and `mine`
+  // (populated only for a verified, currently-paid member; null
+  // otherwise). See handleAskUsage() in tfr-library/worker.js.
+  function renderUsage(data) {
+    if (!usageEl) return;
+    const global = data && data.global;
+    const mine = data && data.mine;
+
+    // No global data at all (fetch failed, or the worker itself
+    // reported the budget check unavailable) — hide the whole meter
+    // rather than show a misleading 0%. See custom-faith-ask.hbs's own
+    // comment: "hidden until that first read succeeds."
+    if (!global || global.unavailable || typeof global.pctUsed !== "number") {
+      usageEl.hidden = true;
+      return;
+    }
+    usageEl.hidden = false;
+
+    if (usageMineRow) {
+      if (mine && !mine.unavailable && typeof mine.used === "number" && mine.cap > 0) {
+        usageMineRow.hidden = false;
+        const pct = Math.min(100, Math.round((mine.used / mine.cap) * 100));
+        if (usageMineText) usageMineText.textContent = `${mine.used} of ${mine.cap} used`;
+        if (usageMineFill) usageMineFill.style.width = `${pct}%`;
+        usageMineRow.classList.toggle("ask-usage-row--warn", mine.used >= mine.cap);
+      } else {
+        usageMineRow.hidden = true;
+      }
+    }
+
+    if (usageGlobalRow) {
+      const pct = global.pctUsed;
+      if (usageGlobalText) usageGlobalText.textContent = `${pct}% used, resets at midnight UTC`;
+      if (usageGlobalFill) usageGlobalFill.style.width = `${pct}%`;
+      usageGlobalRow.classList.toggle("ask-usage-row--warn", pct >= 90);
+    }
+  }
+
+  function loadUsage() {
+    if (!usageEl) return;
+    const go = window.MOAuth && window.MOAuth.fetch ? window.MOAuth.fetch(USAGE_URL) : fetch(USAGE_URL);
+    go.then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d) renderUsage(d); })
+      .catch(() => { /* meter is a nice-to-have -- a failed fetch just leaves it hidden */ });
+  }
+
   async function streamAsk(question) {
     let resp;
     try {
@@ -160,12 +235,23 @@
       // than papered over, since "Ask is temporarily unavailable"
       // would wrongly suggest an outage to a visitor who just isn't
       // signed in or isn't a paid member yet.
+      //
+      // 429 is the spend-cap cooldown (see cooldownResponse() in
+      // lib/ask.js) — its `.error` string already names which limit
+      // was hit and when it resets ("You've used your 5 questions for
+      // today. Resets at midnight UTC." / "Today's shared Ask capacity
+      // is used up. Resets at midnight UTC."), so it's shown the same
+      // way as any other gate message. The one thing worth doing extra
+      // on a cooldown specifically: refresh the meter immediately, so
+      // it shows the same 100% the error text just described instead
+      // of whatever stale percentage was last fetched.
       let message = "Ask is temporarily unavailable. Please try again shortly.";
       try {
         const j = await resp.json();
         if (j && j.error) message = j.error;
       } catch (_) { /* non-JSON error body — keep the generic message */ }
       showError(message);
+      if (resp.status === 429) loadUsage();
       return;
     }
 
@@ -211,6 +297,13 @@
     if (!gotResult && (!errorEl || errorEl.hidden)) {
       showError("The library stopped answering before finishing. Please try again.");
     }
+
+    // A successful question spent money and (if signed in) counted
+    // against the per-member daily cap — refresh the meter so it
+    // reflects that, whether or not the answer itself succeeded (a
+    // question that errored out after the planner call still spent
+    // something — see lib/ask.js's runAsk() finally block).
+    loadUsage();
   }
 
   form.addEventListener("submit", (e) => {
@@ -238,4 +331,6 @@
       if (submitBtn) submitBtn.click();
     }
   });
+
+  loadUsage();
 })();

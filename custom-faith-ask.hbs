@@ -52,6 +52,33 @@
         </button>
       </form>
 
+      {{!-- Usage meter -- a beta capacity cap on /v1/ask, added
+            2026-09. Mirrors Anthropic's own console pattern (a labeled
+            bar, a percentage, a reset time), per the shape Ian asked
+            for. Reads GET /v1/ask/usage on page load and after each
+            answer -- see assets/js/page/faith-ask.js. Hidden until
+            that first read succeeds, so a fetch failure degrades to
+            "no meter shown" rather than a stuck "Loading…" line. Reuses
+            the same bar/fill/pct visual language as Memorize mode's
+            progress bar (.faith-memorize-progress in
+            faith-received.css) rather than inventing a new component. --}}
+      <div class="ask-usage" data-ask-usage hidden>
+        <div class="ask-usage-row" data-ask-usage-mine hidden>
+          <div class="ask-usage-meta">
+            <span class="ask-usage-label">Your questions today</span>
+            <span class="ask-usage-pct" data-ask-usage-mine-text></span>
+          </div>
+          <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-mine-fill></span></div>
+        </div>
+        <div class="ask-usage-row">
+          <div class="ask-usage-meta">
+            <span class="ask-usage-label">Beta capacity today</span>
+            <span class="ask-usage-pct" data-ask-usage-global-text></span>
+          </div>
+          <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-global-fill></span></div>
+        </div>
+      </div>
+
       <p class="ask-status" data-ask-status role="status" aria-live="polite" hidden></p>
 
       <article class="ask-result" data-ask-result hidden>
