@@ -323,6 +323,10 @@ routes:
     template: custom-faith-transparency
   /the-faith-received/search/:
     template: custom-faith-search
+  # A question answered from the library with citations — POSTs to
+  # mo-tfr-library's /v1/ask. See website/workers/tfr-library/lib/ask.js.
+  /the-faith-received/ask/:
+    template: custom-faith-ask
   /the-faith-received/scripture/:
     template: custom-faith-scripture
   /the-faith-received/today/:
