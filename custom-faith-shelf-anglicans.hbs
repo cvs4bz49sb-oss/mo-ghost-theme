@@ -1,0 +1,42 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Anglicans &mdash; The Faith Received</title>
+<meta name="description" content="The Anglican wing of English Divinity in The Faith Received's Latin Library, filed apart from the Puritans by the source catalogue's own party field." />
+<meta property="og:title" content="Anglicans — The Faith Received" />
+<meta name="twitter:title" content="Anglicans — The Faith Received" />
+<meta name="tfr-shelf-slug" content="anglican" />
+{{/contentFor}}
+{{!-- /the-faith-received/anglicans/ — one of two parties inside English
+     Divines, split by v1/works-index.json's `party` field. New with
+     the 2026-09 mo-tfr data drop; see assets/js/faith-shelves.js and
+     website/sessions/2026-09-03-mo-tfr-bucket-audit.md.
+
+     One of seven near-identical wrapper templates (the other six are
+     puritans, westminster-assembly, jesuits, franciscans, dominicans,
+     augustinians). Change one, change them all. --}}
+
+<main class="faith-received faith-room">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/browse/">Library</a></p>
+      <h1>Anglicans</h1>
+      <p class="bhero-sub">Conformist divinity within the English church, from Davenant&rsquo;s Calvinism to the Restoration churchmen who followed him. Part of English Divines.</p>
+    </div>
+  </section>
+
+  <section class="bband faith-room-body">
+    <div class="container" data-faith-shelf></div>
+  </section>
+
+</main>
+{{!-- Sitewide membership CTA. Same partial and same gate as the rest
+     of the site: hidden for paid and comped members, shown to free
+     subscribers and anonymous visitors. --}}
+{{> "membership-cta"}}
+
+
+
+<script src="{{asset "js/faith-shelves.js"}}"></script>
+<script src="{{asset "js/faith-resolve.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>

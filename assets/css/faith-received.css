@@ -4489,6 +4489,14 @@ mark.faith-find-hit.is-current {
   font-size: 15px; color: var(--color-muted); margin-top: 2px; }
 .bband--dark .brow-la { color: #ffffff87; }
 
+/* A work's one-line description (v1/blurbs.json), on the schools &
+   parties pages faith-shelves.js renders. Body face rather than
+   .brow-la's italic display face: this is a sentence of prose, not a
+   second title. */
+.brow-blurb { display: block; font-family: var(--font-body); font-size: 13px;
+  line-height: 1.4; color: var(--color-muted); margin-top: 4px; }
+.bband--dark .brow-blurb { color: #ffffff87; }
+
 /* Four doors, one of them gated. The tag carries the same small caps as
    an eyebrow rather than a padlock, which belongs on a different sort of
    site. */

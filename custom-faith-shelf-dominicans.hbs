@@ -1,0 +1,42 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Dominicans &mdash; The Faith Received</title>
+<meta name="description" content="The Dominican school in The Faith Received: Thomas Aquinas's own order, and the commentators who kept his Summa the standard text it became." />
+<meta property="og:title" content="Dominicans — The Faith Received" />
+<meta name="twitter:title" content="Dominicans — The Faith Received" />
+<meta name="tfr-shelf-slug" content="dominicans" />
+{{/contentFor}}
+{{!-- /the-faith-received/dominicans/ — a school inside Roman Catholic,
+     from v1/schools.json's explicit author/slug list. New with the
+     2026-09 mo-tfr data drop; see assets/js/faith-shelves.js and
+     website/sessions/2026-09-03-mo-tfr-bucket-audit.md.
+
+     One of seven near-identical wrapper templates (the other six are
+     puritans, anglicans, westminster-assembly, jesuits, franciscans,
+     augustinians). Change one, change them all. --}}
+
+<main class="faith-received faith-room">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/browse/">Library</a></p>
+      <h1>Dominicans</h1>
+      <p class="bhero-sub">Thomas&rsquo;s own order, and the commentators &mdash; Cajetan chief among them &mdash; who kept his Summa the standard text it became. Part of Roman Catholic.</p>
+    </div>
+  </section>
+
+  <section class="bband faith-room-body">
+    <div class="container" data-faith-shelf></div>
+  </section>
+
+</main>
+{{!-- Sitewide membership CTA. Same partial and same gate as the rest
+     of the site: hidden for paid and comped members, shown to free
+     subscribers and anonymous visitors. --}}
+{{> "membership-cta"}}
+
+
+
+<script src="{{asset "js/faith-shelves.js"}}"></script>
+<script src="{{asset "js/faith-resolve.js"}}"></script>
+<script src="{{asset "js/faith-gate.js"}}"></script>
