@@ -5058,13 +5058,23 @@ mark.faith-find-hit.is-current {
   .bsearch button { padding: 15px 0; }
 }
 
-.btrads { display: grid; grid-template-columns: 1fr 1fr; gap: 56px 64px; }
+/* Nine traditions, each with a different sample-list length (2 to 5+
+   works). A two-up CSS grid pairs items into rows and sizes each row
+   to its tallest cell, so a short tradition next to a long one leaves
+   a large dead gap under itself -- that's not a data problem, it's
+   row-pairing fighting uneven content. Native multi-column flow fills
+   one column top-to-bottom by total height instead of row-by-row, so
+   short and long blocks interleave without stretching to match a
+   row-partner. break-inside: avoid keeps one tradition from splitting
+   across the column break. */
+.btrads { columns: 2; column-gap: 64px; }
+.btrad { break-inside: avoid; margin: 0 0 56px; }
 .btrad h3 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0 0 14px; }
 .btrad .blist { columns: 1; }
 .btrad-all { display: inline-block; margin-top: 18px; font-family: var(--font-body); font-size: 11px;
   letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-secondary); text-decoration: none; }
 .btrad-all:hover { text-decoration: none; color: var(--color-primary-text); }
-@media (max-width: 900px) { .btrads { grid-template-columns: 1fr; gap: 44px; } }
+@media (max-width: 900px) { .btrads { columns: 1; } }
 
 /* The work's own title, under the English. Most of this library has never
    had an English title before, so the English leads and the original stays
