@@ -2701,6 +2701,13 @@ mark.faith-find-hit.is-current {
 }
 .ask-usage-fill {
   display: block;
+  /* Only ever grown via JS (faith-ask.js sets an inline style.width
+     once real usage data loads) -- a bare `display: block` span with
+     no width otherwise defaults to filling its containing block, so
+     without this the bar reads as 100% full any moment before that
+     JS runs (or if the usage fetch is slow, fails, or the row
+     re-renders) rather than the honest "no data yet" of zero width. */
+  width: 0;
   height: 100%;
   background: var(--color-primary);
   border-radius: 2px;
