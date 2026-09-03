@@ -6197,6 +6197,219 @@ mark.faith-find-hit.is-current {
   .fa-fp-verse, .fa-fp-more { transition: none; }
 }
 
+/* The verse, expanded in place. A second control beside the search
+   button rather than a second behaviour bolted onto it — the button
+   still does exactly one thing. Stacked in a column now instead of
+   filling the card, so the row and the text it can open sit one above
+   the other. */
+.fa-fp-verse-item { display: flex; flex-direction: column; gap: 6px; }
+/* Same guard as .fa-fp-book[hidden]: a flex item ignores the [hidden]
+   attribute's default display:none the moment it has a display of its
+   own, so the rows past the twelfth would draw anyway and "Show more"
+   would do nothing. */
+.fa-fp-verse-item[hidden] { display: none; }
+.fa-fp-verse-row { display: flex; align-items: stretch; gap: 6px; }
+.fa-fp-verse-row .fa-fp-verse,
+.fa-fp-verse-row .fa-fp-verse-static { flex: 1 1 auto; min-width: 0; }
+.fa-fp-verse-read {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  background: transparent;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.fa-fp-verse-read:hover,
+.fa-fp-verse-read[aria-expanded="true"] {
+  color: var(--color-primary-text);
+  border-color: var(--color-primary);
+}
+.fa-fp-verse-read:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.fa-fp-verse-body:not([hidden]) { margin: 2px 0 4px; }
+.fa-fp-verse-loading, .fa-fp-verse-missing {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0;
+}
+.fa-fp-verse-text {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-dark);
+  background: var(--color-page);
+  border-left: 2px solid var(--color-primary);
+  margin: 0;
+  padding: 10px 16px;
+}
+.fa-fp-verse-text::before { content: "\201C"; }
+.fa-fp-verse-text::after { content: "\201D"; }
+.fa-fp-verse-text cite {
+  display: block;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  margin-top: 8px;
+}
+.fa-fp-verse-version { text-transform: uppercase; }
+
+@media (max-width: 700px) {
+  .fa-fp-verse-row { flex-wrap: wrap; }
+  .fa-fp-verse-row .fa-fp-verse,
+  .fa-fp-verse-row .fa-fp-verse-static { flex-basis: 100%; }
+}
+
+/* ── Reception ──────────────────────────────────────────────────
+   Who else in the library cites this author, and who this author
+   cites in turn. Set as the fingerprint's sibling — same rule above
+   it, same two-column shape, same bar-and-figure row — because it is
+   answering the same kind of question (how does this life sit inside
+   the library) with a different axis (other writers, not scripture). */
+.fa-rc {
+  margin: 40px 0 44px;
+  padding-top: 26px;
+  border-top: 1px solid var(--color-card-border);
+}
+.fa-rc-head {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--color-primary-text);
+  margin: 0 0 14px;
+}
+.fa-rc-lede {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--color-dark);
+  max-width: 68ch;
+  margin: 0 0 30px;
+}
+.fa-rc-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 40px 56px;
+}
+.fa-rc-list { list-style: none; margin: 14px 0 0; padding: 0; }
+.fa-rc-row {
+  display: grid;
+  grid-template-columns: minmax(9em, 1fr) auto minmax(4em, 8em) auto;
+  align-items: baseline;
+  column-gap: 10px;
+  row-gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-card-border);
+}
+.fa-rc-row[hidden] { display: none; }
+.fa-rc-name {
+  grid-column: 1;
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.25;
+  color: var(--color-dark);
+  text-decoration: none;
+}
+.fa-rc-name:hover { color: var(--color-primary); text-decoration: underline; }
+.fa-rc-trad {
+  grid-column: 2;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.fa-rc-opp {
+  grid-column: 2;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--color-secondary);
+  border: 1px solid var(--color-secondary);
+  border-radius: 3px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+.fa-rc-bar { grid-column: 3; display: block; height: 6px; align-self: center; }
+.fa-rc-bar-fill { display: block; height: 100%; background: var(--color-primary-text); }
+.fa-rc-n {
+  grid-column: 4;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--color-muted);
+  min-width: 4.5ch;
+  text-align: right;
+}
+.fa-rc-sample {
+  grid-column: 1 / -1;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0;
+}
+.fa-rc-sample em { font-style: italic; color: var(--color-dark); }
+
+@media (max-width: 700px) {
+  .fa-rc { margin: 32px 0 36px; }
+  .fa-rc-cols { grid-template-columns: 1fr; gap: 34px; }
+  .fa-rc-row { grid-template-columns: 1fr auto; }
+  .fa-rc-bar { display: none; }
+  .fa-rc-n { grid-column: 2; }
+  .fa-rc-trad, .fa-rc-opp { grid-column: 1 / -1; }
+}
+
+/* Citations across the canon, on the Scripture Index page. Reuses the
+   fingerprint's own bars and columns rather than a new chart style;
+   the only additions are the jump form and the empty-book dash. */
+.faith-scripture-totals { margin: 0 0 40px; padding-top: 0; border-top: 0; }
+.faith-scripture-jump {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin: 0 0 28px;
+  max-width: 44em;
+}
+.faith-scripture-jump-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 240px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.faith-scripture-jump-input {
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 3px;
+  background: var(--color-page);
+  color: var(--color-dark);
+}
+.faith-scripture-jump-input:focus { outline: 2px solid var(--color-secondary); outline-offset: 1px; }
+.faith-scripture-totals .fa-fp-book.is-empty .fa-fp-book-name { color: var(--color-muted); }
+.faith-scripture-totals .fa-fp-book.is-empty .fa-fp-book-n { opacity: 0.6; }
+
+@media (max-width: 700px) {
+  .faith-scripture-jump { flex-direction: column; align-items: stretch; }
+}
+
 /* One shelf per collection the author appears in. */
 .fa-shelf { margin: 48px 0 0; }
 .fa-shelf-head {

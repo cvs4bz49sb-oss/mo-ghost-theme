@@ -49,5 +49,9 @@
      being used; unset it, or let the fetch fail, and they come back. --}}
 <meta name="tfr-scripture-index" content="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/index/scripture-books.json" />
 <script src="{{asset "js/faith-indexes.js"}}"></script>
+{{!-- The library-wide citation totals, from the 2026-09 mo-tfr drop.
+     Independent of faith-indexes.js above: its own fetch, its own
+     panel, no shared state. See the file's own header for why. --}}
+<script src="{{asset "js/faith-scripture-totals.js"}}"></script>
 
 <script src="{{asset "js/faith-gate.js"}}"></script>
