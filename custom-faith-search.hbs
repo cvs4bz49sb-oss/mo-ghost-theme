@@ -1,43 +1,168 @@
 {{!< default}}
 {{#contentFor "moHead"}}
 <title>Search The Faith Received</title>
-<meta name="description" content="Search across every creed, confession, catechism, and classic work in The Faith Received." />
+<meta name="description" content="Search across every creed, confession, catechism, and classic work in The Faith Received — full text, by work, by tradition, and by passage." />
 <meta property="og:title" content="Search The Faith Received" />
 <meta property="og:description" content="Search across every creed, confession, catechism, and classic work in The Faith Received." />
 <meta name="twitter:title" content="Search The Faith Received" />
 <meta name="twitter:description" content="Search across every creed, confession, catechism, and classic work in The Faith Received." />
 {{/contentFor}}
-{{!-- /the-faith-received/search/ — full-text search across every
-     document, section, Q&A, thesis, and chapter in The Faith Received.
-     Index is built at theme-build time (scripts/build-faith-received.mjs)
-     and served as a static asset. fuse.js is loaded from a CDN. --}}
+{{!-- /the-faith-received/search/ — six modes, one page, per the data
+     owner's 2026-09-03 brief: Find, Ask, Full text, Meaning, Scripture,
+     Tradition. Find/Full text/Tradition run on the real Pagefind index
+     mirrored into the mo-tfr bucket at v1/search/pagefind/ (ten shards,
+     ~108,500 pages of the Latin Library — see the header of
+     assets/js/faith-tfr-search.js for how that was confirmed and how
+     the shards are merged). Ask and Meaning need an LLM API and a
+     vector index this codebase does not have; their panels say so
+     rather than pretending to work — see [data-fs-panel="ask"] and
+     ="meaning" below.
+
+     Fresh data-fs-* attributes throughout, deliberately not the older
+     data-faith-search-* set assets/js/faith-received.js still binds
+     to (a smaller, separate Fuse.js index over the ~100 native English
+     Editions only) — so that dead code stays inert here rather than
+     double-driving these same result lists. That script is not loaded
+     on this page at all any more; see the script list at the bottom. --}}
 
 <main class="faith-received faith-feature">
 
   <section class="bhero bhero--tool">
-  <div class="bhero-inner container">
-    <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/search/">Search</a></p>
-    <h1>Search</h1>
-    <p class="bhero-sub">Search across every creed, confession, catechism, and work in the library. Results link directly to the passage.</p>
-  </div>
-</section>
+    <div class="bhero-inner container">
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/search/">Search</a></p>
+      <h1>Search</h1>
+      <p class="bhero-sub">Search across every creed, confession, catechism, and work in the library. Six ways in, below.</p>
 
+      <form class="faith-search-form" data-fs-form>
+        <label class="visually-hidden" for="fs-query">Search The Faith Received</label>
+        <input id="fs-query" type="search" data-fs-query autocomplete="off" placeholder="Search a word or phrase&hellip;" />
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+      <p class="faith-search-status" data-fs-status role="status" aria-live="polite"></p>
+    </div>
+  </section>
 
   <section class="bband faith-feature-body">
-    <div class="container container-narrow" data-faith-search-page>
-      <p class="faith-search-status" data-faith-search-status role="status" aria-live="polite"></p>
-      <ol class="faith-search-results" data-faith-search-results></ol>
+    <div class="container container-narrow" data-fs-page>
 
-      <div class="faith-search-empty" data-faith-search-empty hidden>
-        <p>No results. Try a different phrase, or browse by document.</p>
-        <p><a class="btn btn-outline" href="/the-faith-received/">Back to The Faith Received</a></p>
+      {{!-- Mode tabs. Markup/CSS pattern lifted from the Heidelberg
+           view toggle (assets/css/faith-received.css, "View toggle
+           (Heidelberg)") rather than inventing a new tab chrome. --}}
+      <nav class="faith-view-toggle faith-search-modes" data-fs-tabs role="tablist" aria-label="Search mode">
+        <button type="button" class="faith-view-toggle-tab is-active" data-fs-mode="find" role="tab" aria-selected="true">Find</button>
+        <button type="button" class="faith-view-toggle-tab" data-fs-mode="fulltext" role="tab" aria-selected="false">Full text</button>
+        <button type="button" class="faith-view-toggle-tab" data-fs-mode="tradition" role="tab" aria-selected="false">Tradition</button>
+        <button type="button" class="faith-view-toggle-tab" data-fs-mode="scripture" role="tab" aria-selected="false">Scripture</button>
+        <button type="button" class="faith-view-toggle-tab" data-fs-mode="ask" role="tab" aria-selected="false">Ask</button>
+        <button type="button" class="faith-view-toggle-tab" data-fs-mode="meaning" role="tab" aria-selected="false">Meaning</button>
+      </nav>
+
+      {{!-- Shared scope filters — author / work / tradition — per the
+           brief's "sharing scope filters" across modes. Same markup
+           convention as the curated topic pages
+           (partials/faith-received/_topic-*.hbs): .faith-topic-filters
+           / .faith-filter-group / .faith-filter-pill. --}}
+      <div class="faith-topic-filters faith-search-scope">
+        <div class="faith-filter-group" data-fs-trad-group>
+          <span class="faith-filter-label">Tradition</span>
+          <button type="button" class="faith-filter-pill is-active" data-fs-trad="">All</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="English Divines">English Divines</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="Greek Fathers">Greek Fathers</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="Humanism and Law">Humanism and Law</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="Lutheran">Lutheran</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="Medieval">Medieval</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="Latin Fathers">Latin Fathers</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="Eastern Fathers">Eastern Fathers</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="Roman Catholic">Roman Catholic</button>
+          <button type="button" class="faith-filter-pill" data-fs-trad="Reformed">Reformed</button>
+        </div>
+        <div class="faith-filter-group faith-search-scope-text">
+          <label class="faith-search-scope-label">Author <input type="text" data-fs-author placeholder="e.g. Baxter" /></label>
+          <label class="faith-search-scope-label">Work <input type="text" data-fs-work placeholder="e.g. Institutes" /></label>
+        </div>
       </div>
+
+      {{!-- Find: grouped by work, per the brief — "a hit lists the
+           work once with its matching section headings under it, each
+           with its page." --}}
+      <div data-fs-panel="find">
+        <p class="faith-search-status" data-fs-count="find" role="status" aria-live="polite"></p>
+        <div data-fs-results="find"></div>
+        <div class="faith-search-empty" data-fs-empty="find" hidden>
+          <p>No results. Try a different phrase, or drop a scope filter above.</p>
+        </div>
+      </div>
+
+      {{!-- Full text: the same index, flat, one row per matching page. --}}
+      <div data-fs-panel="fulltext" hidden>
+        <p class="faith-search-status" data-fs-count="fulltext" role="status" aria-live="polite"></p>
+        <ol class="faith-search-results" data-fs-results="fulltext"></ol>
+        <div class="faith-search-empty" data-fs-empty="fulltext" hidden>
+          <p>No results. Try a different phrase, or drop a scope filter above.</p>
+        </div>
+      </div>
+
+      {{!-- Tradition: Full text with the Tradition pill pinned rather
+           than optional. Uses the same pill row above; this panel just
+           insists one is chosen before it runs anything. --}}
+      <div data-fs-panel="tradition" hidden>
+        <p class="faith-search-scope-note" data-fs-trad-required>Choose a tradition above to search within it.</p>
+        <p class="faith-search-status" data-fs-count="tradition" role="status" aria-live="polite"></p>
+        <ol class="faith-search-results" data-fs-results="tradition"></ol>
+        <div class="faith-search-empty" data-fs-empty="tradition" hidden>
+          <p>No results in this tradition. Try a different phrase.</p>
+        </div>
+      </div>
+
+      {{!-- Scripture: a passage-lookup shortcut into the full Scripture
+           Index (/the-faith-received/scripture/), which already carries
+           the canon-wide citation panel, the tradition filter chips, and
+           the citation-density strip. Not a second citation browser. --}}
+      <div class="faith-search-scripture-panel" data-fs-panel="scripture" hidden>
+        <p class="faith-pending-note faith-search-scripture-note">Jump straight to a passage in the full Scripture Index — every citation in the library, by book, with tradition filters and a canon-wide density chart.</p>
+        <form class="faith-scripture-jump" data-fs-scripture-form>
+          <label class="faith-scripture-jump-label"><span>Go to a passage</span>
+            <input type="text" class="faith-scripture-jump-input" data-fs-scripture-input placeholder="Romans 8, or Genesis 1" aria-label="Go to a book and chapter">
+          </label>
+          <button type="submit" class="fa-search-btn">Go</button>
+        </form>
+        <p class="faith-search-status" data-fs-scripture-status role="status" aria-live="polite"></p>
+        <p class="faith-search-scripture-cta"><a class="btn btn-outline" href="/the-faith-received/scripture/">Open the full Scripture Index</a></p>
+      </div>
+
+      {{!-- Ask and Meaning: honest placeholders. Both need live
+           infrastructure — an LLM API for Ask, a vector-search index for
+           Meaning — that isn't connected. Visible and explained, not
+           hidden and not faked. Reuses the reader's own "not yet ported"
+           panel style (.faith-pending-panel) rather than inventing a new
+           empty-state pattern. --}}
+      <div data-fs-panel="ask" hidden>
+        <div class="faith-pending-panel faith-search-pending-panel">
+          <p class="faith-pending-lede">Ask needs an AI backend that isn&rsquo;t connected yet.</p>
+          <p class="faith-pending-note">The plan is a question answered from the corpus itself, with every page it drew on cited inline — not a general chatbot. That needs an LLM API this site doesn&rsquo;t call anywhere today, and a decision about which one, at what cost, before it can be wired up. Nothing here will silently pretend to answer in the meantime.</p>
+          <p class="faith-pending-actions">
+            <a href="/the-faith-received/search/#find">Try Find instead</a>
+            <a href="/membership/">Become a member</a>
+          </p>
+        </div>
+      </div>
+      <div data-fs-panel="meaning" hidden>
+        <div class="faith-pending-panel faith-search-pending-panel">
+          <p class="faith-pending-lede">Meaning needs a semantic index that isn&rsquo;t built yet.</p>
+          <p class="faith-pending-note">Full text and Find search the words on the page. Meaning is meant to search by concept instead — so a search for "God's unchangeableness" would also surface a passage that says "immutability" and never uses that word. That takes a vector-search index over the whole library, which doesn&rsquo;t exist here yet; the knowledge graph the 2026-09 data drop shipped (v1/graph/) is a step toward it but is itself still Phase 1, with no author- or work-level nodes to search by. Nothing here will silently return word matches and call them semantic.</p>
+          <p class="faith-pending-actions">
+            <a href="/the-faith-received/search/#fulltext">Try Full text instead</a>
+            <a href="/membership/">Become a member</a>
+          </p>
+        </div>
+      </div>
+
     </div>
   </section>
 
   {{!-- No prices here on purpose: /membership/ is where they live, and a
        number repeated in two places is a number that goes stale in one. --}}
-  
+
   {{!-- The tools membership buys. The free list lives on the landing;
        a reader who reaches this page is already looking for these. --}}
   <section class="bband bband--cream faith-tools">
@@ -48,7 +173,7 @@
       </header>
       <ul class="blist blist--2 blist--tools">
         <li><span class="brow-t">Ask</span><span class="brow-m">A question answered from the corpus. Every page it drew on is cited inline.</span></li>
-        <li><span class="brow-t">Semantic search</span><span class="brow-m">Search by meaning rather than by word across every collection.</span></li>
+        <li><span class="brow-t">Meaning</span><span class="brow-m">Search by concept rather than by word, across every collection.</span></li>
         <li><span class="brow-t">Latin word forms</span><span class="brow-m">One search across every inflection of a word.</span></li>
         <li><span class="brow-t">Constellations</span><span class="brow-m">The passages that stand behind a passage. Share the set as a link.</span></li>
         <li><span class="brow-t">Citation export</span><span class="brow-m">Copy, permalink, BibTeX or Zotero. Each one carries its locus.</span></li>
@@ -85,19 +210,10 @@
 <script src="{{asset "js/page/membership-toggle.js"}}"></script>
 <script src="{{asset "js/page/membership-cards.js"}}"></script>
 
-
-{{!-- SRI on the CDN script: the browser refuses to execute if the
-     hash doesn't match, so a jsdelivr compromise can't ship attacker
-     JS to /the-faith-received/search/ visitors. Hash regenerated by:
-       openssl dgst -sha384 -binary fuse.min.js | openssl base64 -A --}}
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"
-        integrity="sha384-PCSoOZTpbkikBEtd/+uV3WNdc676i9KUf01KOA8CnJotvlx8rRrETbDuwdjqTYvt"
-        crossorigin="anonymous"></script>
-<script src="{{asset "js/faith-received.js"}}"></script>
-
-{{!-- Citation resolver — a reader arriving at search often already
-     holds a reference ("PL 176, 17c") rather than a phrase. --}}
-<script src="{{asset "js/faith-corpora.js"}}"></script>
-<script src="{{asset "js/faith-resolve.js"}}"></script>
+{{!-- The six-mode search page itself: mode tabs, the Pagefind-backed
+     Find/Full text/Tradition modes, and the Scripture shortcut. Loads
+     no CDN script — the old fuse.js dependency went with the Fuse-based
+     search this page no longer runs (see the file's own header). --}}
+<script src="{{asset "js/faith-tfr-search.js"}}"></script>
 
 <script src="{{asset "js/faith-gate.js"}}"></script>

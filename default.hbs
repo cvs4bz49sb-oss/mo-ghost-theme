@@ -32,6 +32,21 @@
          click-jacking surface is unmitigated for now.
 
          Pass 2 A05-1, A05-2, A05-3. --}}
+    {{!-- script-src carries one data host: mo-tfr-library.mo-podcast-
+         feed.workers.dev, added 2026-09-03 for /the-faith-received/
+         search/'s Full text, Find and Tradition modes. Those load the
+         real Pagefind runtime (pagefind.js) as an ES module straight
+         from that worker's v1/search/pagefind/{b0..b8,bnew}/ prefix —
+         see assets/js/faith-tfr-search.js — rather than reimplementing
+         search over the index format ourselves. Dynamic import() of a
+         cross-origin script is governed by script-src, and Pagefind's
+         own WASM search core needs 'wasm-unsafe-eval' to instantiate
+         under a CSP that doesn't otherwise allow 'unsafe-eval'. Both
+         additions are scoped to a host already the single most-trusted
+         TFR data source in connect-src below (see that host's own
+         comment) — this is the same worker, not a new trust boundary,
+         just the one place in the theme that also needs to run its
+         script rather than only fetch its data. --}}
     {{!-- connect-src is named-host, not wildcard. `https://*.workers.dev`
          would allow any attacker.workers.dev as a JWT exfiltration
          target (Codex audit 2026-05-11: "MOAuth.fetch sends member
@@ -59,7 +74,7 @@
          Access-Control-Allow-Origin: *. They belong to the author MO
          is porting from, not to MO; slated to be replaced by an
          MO-owned R2 mirror before public launch. --}}
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com https://js.stripe.com https://plausible.io https://mo-admin.mo-podcast-feed.workers.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.buzzsprout.com https://js.stripe.com https://challenges.cloudflare.com https://embed.spotify.com https://open.spotify.com https://mereorthodoxy.com https://mo-test.ghost.io; connect-src 'self' https://mo-test.ghost.io https://mo-admin.mo-podcast-feed.workers.dev https://mo-audio.mo-podcast-feed.workers.dev https://mo-bible.mo-podcast-feed.workers.dev https://mo-ebook-access.mo-podcast-feed.workers.dev https://mo-email.mo-podcast-feed.workers.dev https://mo-errors.mo-podcast-feed.workers.dev https://mo-forms.mo-podcast-feed.workers.dev https://mo-gift.mo-podcast-feed.workers.dev https://mo-kit.mo-podcast-feed.workers.dev https://mo-kit-bridge.mo-podcast-feed.workers.dev https://mo-membership.mo-podcast-feed.workers.dev https://mo-pdf.mo-podcast-feed.workers.dev https://mo-podcast-feed.mo-podcast-feed.workers.dev https://mo-search.mo-podcast-feed.workers.dev https://mo-store.mo-podcast-feed.workers.dev https://mo-tfr-library.mo-podcast-feed.workers.dev https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com https://mo-tfr.mo-podcast-feed.workers.dev https://mo-tfr-events.mo-podcast-feed.workers.dev https://mo-tfr-plans.mo-podcast-feed.workers.dev https://eebo-backup.vercel.app https://pld-patrologia-latina.vercel.app https://patrologia-graeca.vercel.app https://patrologia-orientalis.vercel.app https://aquinas-studies.vercel.app https://mereorthodoxy.com https://www.mereorthodoxy.com https://api.stripe.com https://plausible.io https://challenges.cloudflare.com; form-action 'self' https://challenges.cloudflare.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://challenges.cloudflare.com https://js.stripe.com https://plausible.io https://mo-admin.mo-podcast-feed.workers.dev https://mo-tfr-library.mo-podcast-feed.workers.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.buzzsprout.com https://js.stripe.com https://challenges.cloudflare.com https://embed.spotify.com https://open.spotify.com https://mereorthodoxy.com https://mo-test.ghost.io; connect-src 'self' https://mo-test.ghost.io https://mo-admin.mo-podcast-feed.workers.dev https://mo-audio.mo-podcast-feed.workers.dev https://mo-bible.mo-podcast-feed.workers.dev https://mo-ebook-access.mo-podcast-feed.workers.dev https://mo-email.mo-podcast-feed.workers.dev https://mo-errors.mo-podcast-feed.workers.dev https://mo-forms.mo-podcast-feed.workers.dev https://mo-gift.mo-podcast-feed.workers.dev https://mo-kit.mo-podcast-feed.workers.dev https://mo-kit-bridge.mo-podcast-feed.workers.dev https://mo-membership.mo-podcast-feed.workers.dev https://mo-pdf.mo-podcast-feed.workers.dev https://mo-podcast-feed.mo-podcast-feed.workers.dev https://mo-search.mo-podcast-feed.workers.dev https://mo-store.mo-podcast-feed.workers.dev https://mo-tfr-library.mo-podcast-feed.workers.dev https://0ss8v4l06kodnhp0.public.blob.vercel-storage.com https://mo-tfr.mo-podcast-feed.workers.dev https://mo-tfr-events.mo-podcast-feed.workers.dev https://mo-tfr-plans.mo-podcast-feed.workers.dev https://eebo-backup.vercel.app https://pld-patrologia-latina.vercel.app https://patrologia-graeca.vercel.app https://patrologia-orientalis.vercel.app https://aquinas-studies.vercel.app https://mereorthodoxy.com https://www.mereorthodoxy.com https://api.stripe.com https://plausible.io https://challenges.cloudflare.com; form-action 'self' https://challenges.cloudflare.com; base-uri 'self'; object-src 'none'; upgrade-insecure-requests" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     {{!-- Per-template document title + social meta.
