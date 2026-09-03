@@ -74,6 +74,12 @@
       title: "Subscribe to gift essays",
       body: "Become a free subscriber and we'll email a magic link to verify your address. You'll come right back to this essay.",
     },
+    ask: {
+      requires: "member",
+      eyebrow: "Members Only",
+      title: "Ask is for members",
+      body: "Members can ask a question of the library and get back a cited answer, plus semantic search, the print journal, Discord, and a growing library of benefits. Support the work to unlock it all.",
+    },
   };
 
   function hasAccess(feature) {
