@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-02T21:06:40.566Z",
+  "generated_at": "2026-09-03T04:38:13.936Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 64884,
+      "plays": 65281,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -14,7 +14,7 @@
         {
           "date": "2025-05-28",
           "title": "Hath Pope Leo XIV Jurisdiction Here?",
-          "plays": 92
+          "plays": 93
         },
         {
           "date": "2025-06-04",
@@ -34,7 +34,7 @@
         {
           "date": "2025-06-25",
           "title": "After 'After Virtue' with Jason Blakely",
-          "plays": 78
+          "plays": 80
         },
         {
           "date": "2025-07-02",
@@ -119,7 +119,7 @@
         {
           "date": "2025-11-05",
           "title": "Jesus and The Law of Moses with Paul T. Sloan",
-          "plays": 134
+          "plays": 135
         },
         {
           "date": "2025-11-12",
@@ -144,7 +144,7 @@
         {
           "date": "2026-01-21",
           "title": "Paul and the Resurrection of Israel with Dr. Jason Staples",
-          "plays": 143
+          "plays": 145
         },
         {
           "date": "2026-01-28",
@@ -154,7 +154,7 @@
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 244
+          "plays": 245
         },
         {
           "date": "2026-02-11",
@@ -194,17 +194,17 @@
         {
           "date": "2026-04-01",
           "title": "Replay: The Age of AI with Jason Thacker",
-          "plays": 157
+          "plays": 158
         },
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 162
+          "plays": 163
         },
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 168
+          "plays": 169
         },
         {
           "date": "2026-04-22",
@@ -214,7 +214,7 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 468
+          "plays": 469
         },
         {
           "date": "2026-05-06",
@@ -229,12 +229,12 @@
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3616
+          "plays": 3617
         },
         {
           "date": "2026-05-27",
           "title": "Idolatry And The Shape Of Worship",
-          "plays": 3722
+          "plays": 3723
         },
         {
           "date": "2026-06-03",
@@ -249,7 +249,7 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3643
+          "plays": 3644
         },
         {
           "date": "2026-06-24",
@@ -259,7 +259,7 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3427
+          "plays": 3429
         },
         {
           "date": "2026-07-08",
@@ -269,42 +269,42 @@
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3003
+          "plays": 3004
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3381
+          "plays": 3384
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2870
+          "plays": 2874
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2919
+          "plays": 2924
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3215
+          "plays": 3225
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3517
+          "plays": 3528
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3176
+          "plays": 3209
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 1577
+          "plays": 1885
         }
       ],
       "per_episode": [
@@ -615,7 +615,7 @@
         },
         {
           "month": "2022-09",
-          "avg": 12,
+          "avg": 13,
           "episodes": 4
         },
         {
@@ -750,7 +750,7 @@
         },
         {
           "month": "2025-05",
-          "avg": 92,
+          "avg": 93,
           "episodes": 1
         },
         {
@@ -780,7 +780,7 @@
         },
         {
           "month": "2025-11",
-          "avg": 99,
+          "avg": 100,
           "episodes": 4
         },
         {
@@ -790,7 +790,7 @@
         },
         {
           "month": "2026-01",
-          "avg": 113,
+          "avg": 114,
           "episodes": 2
         },
         {
@@ -805,12 +805,12 @@
         },
         {
           "month": "2026-04",
-          "avg": 237,
+          "avg": 238,
           "episodes": 5
         },
         {
           "month": "2026-05",
-          "avg": 2306,
+          "avg": 2307,
           "episodes": 4
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3309,
+          "avg": 3311,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3207,
+          "avg": 3222,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 1577,
+          "avg": 1885,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 49,
-      "plays": 17043,
+      "plays": 17071,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -928,7 +928,7 @@
         {
           "date": "2025-11-06",
           "title": "Reading Ancient Pagans As Modern Christians",
-          "plays": 102
+          "plays": 105
         },
         {
           "date": "2026-01-29",
@@ -983,7 +983,7 @@
         {
           "date": "2026-04-09",
           "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
-          "plays": 97
+          "plays": 99
         },
         {
           "date": "2026-04-16",
@@ -1063,27 +1063,27 @@
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 867
+          "plays": 871
         },
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 920
+          "plays": 921
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 688
+          "plays": 691
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 791
+          "plays": 794
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 685
+          "plays": 697
         }
       ],
       "per_episode": [
@@ -1109,7 +1109,7 @@
         },
         {
           "month": "2025-11",
-          "avg": 102,
+          "avg": 105,
           "episodes": 1
         },
         {
@@ -1129,7 +1129,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 124,
+          "avg": 125,
           "episodes": 4
         },
         {
@@ -1144,12 +1144,12 @@
         },
         {
           "month": "2026-07",
-          "avg": 835,
+          "avg": 836,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 771,
+          "avg": 776,
           "episodes": 4
         }
       ]
