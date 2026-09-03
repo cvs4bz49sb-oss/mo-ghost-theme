@@ -1,0 +1,54 @@
+{{!-- Glossary body. Two ways in: type a term above (fetches the one
+     bucket that term falls in), or pick a letter below (fetches every
+     bucket starting with that letter and lists the terms it holds).
+     Both are wired up by assets/js/faith-glossary.js; this markup is
+     just the mounts. --}}
+<div class="faith-glossary" data-faith-glossary>
+
+  <nav class="faith-glossary-az" data-faith-glossary-az aria-label="Browse by letter">
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="#">#</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="a">A</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="b">B</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="c">C</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="d">D</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="e">E</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="f">F</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="g">G</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="h">H</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="i">I</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="j">J</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="k">K</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="l">L</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="m">M</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="n">N</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="o">O</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="p">P</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="q">Q</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="r">R</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="s">S</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="t">T</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="u">U</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="v">V</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="w">W</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="x">X</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="y">Y</button>
+    <button type="button" class="faith-glossary-letter" data-faith-glossary-letter="z">Z</button>
+  </nav>
+
+  <p class="faith-search-status" data-faith-glossary-status role="status" aria-live="polite"></p>
+
+  {{!-- Letter browse: a flat list of term buttons, 50 at a time. --}}
+  <div class="faith-glossary-terms" data-faith-glossary-terms hidden></div>
+  <button type="button" class="faith-glossary-more" data-faith-glossary-more hidden>Show more</button>
+
+  {{!-- Search results / an opened term: full definitions. --}}
+  <ol class="faith-glossary-entries" data-faith-glossary-entries></ol>
+
+  <div class="faith-glossary-empty" data-faith-glossary-empty hidden>
+    <p>No terms found. Try a shorter word, or browse by letter above.</p>
+  </div>
+
+  <p class="faith-glossary-note">
+    Definitions are drawn from the works that use each term and attributed to the author and page they came from. Where a work's own English gloss wasn't available, the definition was extracted by AI from the surrounding text &mdash; see <a href="/the-faith-received/transparency/">Translation Transparency</a> for how the library discloses AI-assisted text generally. These have not been reviewed by a human editor.
+  </p>
+</div>

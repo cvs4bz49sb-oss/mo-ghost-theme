@@ -327,6 +327,13 @@ routes:
     template: custom-faith-scripture
   /the-faith-received/today/:
     template: custom-faith-today
+  /the-faith-received/glossary/:
+    template: custom-faith-glossary
+  # The full ~190-topic layer (v1/mine/topic2-all/) underneath the 13
+  # curated topic pages below. One route, two states via ?s=<slug> —
+  # same pattern as /the-faith-received/author/?a=.
+  /the-faith-received/doctrines/:
+    template: custom-faith-doctrines
   /the-faith-received/topics/:
     template: custom-faith-topics
   /the-faith-received/topics/god-and-trinity/:
