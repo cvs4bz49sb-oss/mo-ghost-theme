@@ -3409,6 +3409,118 @@ mark.faith-find-hit.is-current {
   .faith-doctrines-row a { flex-direction: column; gap: 4px; align-items: flex-start; }
 }
 
+/* ── Glossary (/the-faith-received/glossary/) ─────────────────────
+   A-Z letter nav, a flat term list per letter, then full entries
+   (one term can carry several definitions, one per source). Follows
+   the doctrines block above: same row/border/type conventions. */
+.faith-glossary { max-width: 760px; margin: 0 auto; }
+.faith-glossary-az {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+.faith-glossary-letter {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0 4px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.faith-glossary-letter:hover,
+.faith-glossary-letter:focus-visible { border-color: var(--color-secondary); color: var(--color-secondary); }
+.faith-glossary-letter.is-active {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-white);
+}
+.faith-glossary-terms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: 20px 0;
+}
+.faith-glossary-term-btn {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-secondary);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-card-border);
+  padding: 6px 0;
+  cursor: pointer;
+  text-align: left;
+}
+.faith-glossary-term-btn:hover,
+.faith-glossary-term-btn:focus-visible { border-bottom-color: var(--color-secondary); }
+.faith-glossary-more {
+  display: block;
+  margin: 4px 0 24px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-secondary);
+  background: none;
+  border: none;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.faith-glossary-entries { list-style: none; margin: 0; padding: 0; }
+.faith-glossary-entry {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.faith-glossary-entry:first-child { padding-top: 0; }
+.faith-glossary-term {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--color-dark);
+  margin: 0 0 10px;
+}
+.faith-glossary-def-list { list-style: none; margin: 0; padding: 0; }
+.faith-glossary-def { margin: 0 0 12px; }
+.faith-glossary-def:last-child { margin-bottom: 0; }
+.faith-glossary-def-text {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+}
+.faith-glossary-def-source {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0;
+}
+.faith-glossary-cite { color: var(--color-secondary); text-decoration: none; border-bottom: 1px solid var(--color-card-border); }
+.faith-glossary-cite:hover { border-bottom-color: var(--color-secondary); }
+.faith-glossary-cite-plain { color: var(--color-muted); }
+.faith-glossary-empty {
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  padding: 24px 0;
+}
+.faith-glossary-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 40px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-rule);
+}
+.faith-glossary-note a { color: var(--color-secondary); }
+@media (max-width: 640px) {
+  .faith-glossary-letter { min-width: 36px; font-size: 13px; }
+  .faith-glossary-term { font-size: 19px; }
+}
+
 /* ── Mobile tightening ───────────────────────────────────────── */
 @media (max-width: 640px) {
   .faith-hero { padding: 64px 0 64px; }
@@ -6653,6 +6765,10 @@ mark.faith-find-hit.is-current {
 
 @media (max-width: 700px) {
   .faith-scripture-jump { flex-direction: column; align-items: stretch; }
+  /* flex: 1 1 240px was a width basis; once the container's main axis
+     turns vertical here, that basis becomes a height and the label
+     (one short line + an input) renders as a ~240px tall empty box. */
+  .faith-scripture-jump-label { flex: 0 0 auto; }
 }
 
 /* One shelf per collection the author appears in. */

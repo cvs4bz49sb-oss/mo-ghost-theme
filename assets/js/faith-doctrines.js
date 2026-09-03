@@ -103,7 +103,15 @@
       }
       if (titleEl) titleEl.textContent = title;
       if (subEl) subEl.innerHTML = `<a href="/the-faith-received/doctrines/">&larr; Every doctrine</a>`;
-      root.innerHTML = `<div class="faith-topic-synthesis-inner faith-doctrines-detail">${html}</div>`;
+      // Same disclosure the 13 curated topic pages hard-code in their
+      // .hbs — this page renders the identical MOTopicSynth output for
+      // the ~175 topics those pages don't cover, so it carries the same
+      // AI involvement and needs the same notice, not a lesser one.
+      const aiNote = `<div class="fr-ai-note">` +
+        `<p class="fr-ai-note-head">Positions below were extracted and summarized by AI.</p>` +
+        `<p class="fr-ai-note-body">Author rankings and position counts are computed directly from citations. The quoted positions themselves were extracted from the source texts and put into English by AI, and have not been reviewed by a human editor &mdash; open the page link on any one to check it against the source.</p>` +
+        `</div>`;
+      root.innerHTML = `<div class="faith-topic-synthesis-inner faith-doctrines-detail">${aiNote}${html}</div>`;
     });
   }
 }());

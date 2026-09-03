@@ -291,10 +291,17 @@
 
   Promise.all([primary, overview]).then(([primaryHtml, overviewHtml]) => {
     if (!primaryHtml && !overviewHtml) return; // page reads fine without this section
+    // This paragraph is a single AI-generated synthesis across the
+    // corpus, not editorial prose despite the summary label -- it needs
+    // the same disclosure the positions above it already carry.
+    const overviewNote = `<div class="fr-ai-note">` +
+      `<p class="fr-ai-note-head">This overview was written by AI.</p>` +
+      `<p class="fr-ai-note-body">It summarizes across the sources cited inline; it has not been reviewed by a human editor.</p>` +
+      `</div>`;
     const overviewBlock = overviewHtml ? `
       <details class="faith-topic-overview">
         <summary class="faith-topic-overview-summary">Editorial overview <span class="faith-chev" aria-hidden="true"></span></summary>
-        <div class="faith-topic-overview-body">${overviewHtml}</div>
+        <div class="faith-topic-overview-body">${overviewNote}${overviewHtml}</div>
       </details>` : "";
     bodyEl.innerHTML = primaryHtml + overviewBlock;
     mount.hidden = false;

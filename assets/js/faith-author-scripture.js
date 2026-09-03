@@ -250,7 +250,7 @@
           `${inner}</button>`
         : `<span class="fa-fp-verse-static">${inner}</span>`;
       const readBtn = `<button type="button" class="fa-fp-verse-read" data-fp-read` +
-        ` data-fp-book="${escapeHtml(book)}" data-fp-ch="${ch}" data-fp-v="${v}"` +
+        ` data-fp-book="${escapeHtml(book)}" data-fp-ch="${escapeHtml(ch)}" data-fp-v="${escapeHtml(v)}"` +
         ` data-fp-refname="${escapeHtml(ref)}" aria-expanded="false"` +
         ` aria-label="Show the text of ${escapeHtml(ref)}, American Standard Version">` +
         `Read<span aria-hidden="true"> &#9662;</span></button>`;
