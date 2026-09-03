@@ -2780,6 +2780,14 @@ mark.faith-find-hit.is-current {
 }
 .ask-answer p { margin: 0 0 22px; }
 .ask-answer p:last-child { margin-bottom: 0; }
+/* synthesisSystem()'s ENUMERATE rule asks for real bulleted lists --
+   same measure/spacing as the answer's own paragraphs, not the
+   browser's default list indent. */
+.ask-answer ul { margin: 0 0 22px; padding-left: 22px; }
+.ask-answer ul:last-child { margin-bottom: 0; }
+.ask-answer li { margin: 0 0 10px; }
+.ask-answer li:last-child { margin-bottom: 0; }
+.ask-answer strong { font-weight: 600; }
 .ask-footnote-ref { line-height: 0; }
 .ask-footnote-ref a {
   color: var(--color-primary);

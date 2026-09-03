@@ -110,17 +110,38 @@
   // and only for an `n` that is both a parsed integer AND present in
   // the citations list the server returned, so there is no path from
   // arbitrary answer text to arbitrary markup.
+  // Citation markers and **bold** both operate on text that's already
+  // been through escapeHtml() below -- the only tags this can ever
+  // introduce are the fixed <strong>/<sup><a> templates here, so this
+  // stays as safe as the citation-marker handling it's alongside.
+  function renderInline(text, citByN) {
+    const withNotes = text.replace(/\[(\d+)\]/g, (whole, numStr) => {
+      const n = parseInt(numStr, 10);
+      if (!citByN.has(n)) return ""; // a dangling marker never renders as text or markup
+      return `<sup class="ask-footnote-ref"><a href="#ask-fn-${n}">${n}</a></sup>`;
+    });
+    // synthesisSystem() explicitly asks the model for **bold** lead-ins
+    // ("bold heading each", "**Where they agree**" etc.) -- this used
+    // to render as literal asterisks since nothing consumed them.
+    return withNotes.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  }
+
   function renderAnswer(text, citations) {
     const citByN = new Map((citations || []).map((c) => [c.n, c]));
     const escaped = escapeHtml(text);
-    const paras = escaped.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
-    const html = paras.map((p) => {
-      const withNotes = p.replace(/\[(\d+)\]/g, (whole, numStr) => {
-        const n = parseInt(numStr, 10);
-        if (!citByN.has(n)) return ""; // a dangling marker never renders as text or markup
-        return `<sup class="ask-footnote-ref"><a href="#ask-fn-${n}">${n}</a></sup>`;
-      });
-      return `<p>${withNotes}</p>`;
+    const blocks = escaped.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+    const html = blocks.map((block) => {
+      const lines = block.split(/\n/).map((l) => l.trim()).filter(Boolean);
+      // The ENUMERATE rule in synthesisSystem() asks for "EVERY relevant
+      // one as its own bulleted entry" -- a block that's entirely "- "
+      // lines renders as a real list instead of a paragraph with
+      // literal dashes in it.
+      const isList = lines.length > 1 && lines.every((l) => /^-\s+/.test(l));
+      if (isList) {
+        const items = lines.map((l) => `<li>${renderInline(l.replace(/^-\s+/, ""), citByN)}</li>`).join("");
+        return `<ul>${items}</ul>`;
+      }
+      return `<p>${renderInline(block.replace(/\n/g, " "), citByN)}</p>`;
     }).join("");
     answerEl.innerHTML = html || "<p>The library had nothing to answer this from.</p>";
   }
@@ -132,6 +153,14 @@
     citations.forEach((c) => {
       const li = document.createElement("li");
       li.id = `ask-fn-${c.n}`;
+      // citations only lists indexes the model actually cited, so this
+      // list is sparse relative to the full evidence array (e.g. 1, 3,
+      // 6, 7, 22 -- never a dense 1..k run). Without this, <ol>'s own
+      // auto-numbering shows "1, 2, 3, 4, 5" here regardless of the
+      // real n -- a reader following an inline "[22]" footnote link
+      // would land on a sidebar entry visibly labeled "5", not "22",
+      // and conclude sources were missing rather than mislabeled.
+      li.value = c.n;
       const a = document.createElement("a");
       // c.url comes from the worker's own readerUrl() builder
       // (/the-faith-received/reader/?w=<slug>&p=<page>) — a fixed
