@@ -13,17 +13,25 @@
  * Access: the "Ask the library" button carries data-feature-gate="ask"
  * (see assets/js/feature-gate.js, loaded before this file) — a free
  * or anonymous visitor's click is intercepted there and never reaches
- * the submit handler below. That is a CLIENT-side gate only. The
- * Worker's own /v1/ask endpoint does not itself check Ghost member
- * status server-side (verifying a Ghost member session from a Worker
- * with no existing auth integration for this corpus was out of scope
- * for this build) — a determined caller could hit the endpoint
- * directly. Flagged here and in the build report; closing it is
- * unfinished work, not a design decision.
+ * the submit handler below. That client-side gate is now backed by a
+ * real server-side one: security review 2026-09-03 found POST /v1/ask
+ * took no Authorization header at all, so a determined caller could
+ * bypass the modal with curl and spend our Workers AI + Claude budget
+ * for free. The worker now requires a verified paid-member bearer
+ * token (see requirePaidMember() in
+ * website/workers/tfr-library/worker.js) — this file calls it through
+ * window.MOAuth.fetch (assets/js/admin-auth.js, loaded in the boot
+ * bundle before {{{body}}}) instead of a plain fetch(), so a signed-in
+ * member's request actually carries that token. An anonymous visitor
+ * who reaches streamAsk() anyway (JS console, gate bypass) still gets
+ * a real 401 from the worker and the generic-but-actionable error
+ * message below, not a raw network failure.
  *
  * Loaded as a page-template script, so per the theme's own script-
  * order rule it runs before site.min.js and must not depend on any
- * bundle global — everything this file needs, it defines itself.
+ * bundle global other than window.MOAuth, which is in the boot
+ * bundle and therefore already on the page by the time this file's
+ * IIFE runs (see default.hbs's boot-bundle comment).
  */
 (function () {
   const form = document.querySelector("[data-ask-form]");
@@ -130,7 +138,12 @@
   async function streamAsk(question) {
     let resp;
     try {
-      resp = await fetch(ASK_URL, {
+      // MOAuth.fetch attaches the caller's Ghost member bearer token
+      // when one exists (anonymous visitors just get a plain fetch —
+      // see admin-auth.js's authedFetch) and refuses the call outright
+      // if mo-tfr-library.mo-podcast-feed.workers.dev isn't on the
+      // page's mo-trusted-hosts allowlist (see default.hbs).
+      resp = await window.MOAuth.fetch(ASK_URL, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ question }),
@@ -141,6 +154,12 @@
     }
 
     if (!resp.ok || !resp.body) {
+      // 401/403 come from the worker's server-side paid-member gate
+      // (requirePaidMember() in tfr-library/worker.js) and already
+      // carry a reader-facing `.error` string — surfaced as-is rather
+      // than papered over, since "Ask is temporarily unavailable"
+      // would wrongly suggest an outage to a visitor who just isn't
+      // signed in or isn't a paid member yet.
       let message = "Ask is temporarily unavailable. Please try again shortly.";
       try {
         const j = await resp.json();

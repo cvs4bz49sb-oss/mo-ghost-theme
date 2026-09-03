@@ -17,6 +17,25 @@
  * way faith-glossary.js turns a term-bucket key into a display name.
  * The real title (the entry's own `t`/`te` fields) only appears once
  * the entry itself has been opened.
+ *
+ * Access: this page stays free and unauthenticated for browsing and
+ * reading -- no feature-gate.js entry exists for it, unlike audio/
+ * bookmark/pdf/ask, and that is a deliberate product decision, not an
+ * oversight (most DTC paragraphs already ship translated by upstream;
+ * see dtcTranslate()'s header in tfr-library/worker.js). What changed
+ * 2026-09-03: the ONE thing this page can trigger that costs money --
+ * a Claude call to fill the rare untranslated gap paragraphs -- now
+ * requires a verified paid-member bearer token server-side
+ * (requirePaidMember() in that same file), closing a hole a security
+ * review found with no gating at all. openEntry() below calls through
+ * window.MOAuth.fetch instead of a plain fetch() so a signed-in paid
+ * member's request actually carries that token and gets a real
+ * translation; a free or signed-out reader still gets the entry back
+ * (200, not an error) with whatever upstream already translated, plus
+ * an honest note on any paragraph the worker declined to fill for
+ * them -- see the `translationUnavailable` handling in
+ * renderArticle() below, which already existed for the "Claude key
+ * not configured" case and now covers this case with the same UI.
  */
 (function () {
   "use strict";
@@ -228,7 +247,13 @@
     url.searchParams.set("e", key);
     window.history.replaceState(null, "", `${url.pathname}?${url.searchParams.toString()}`);
 
-    fetch(`${LIBRARY}/v1/dtc-translate?key=${encodeURIComponent(key)}`)
+    // window.MOAuth.fetch (assets/js/admin-auth.js, boot bundle) so a
+    // signed-in paid member's request carries their bearer token --
+    // see the file-header comment above. Falls back to an unauthenticated
+    // fetch for a signed-out reader (MOAuth.fetch does this itself when
+    // there is no session token), which still resolves 200 with whatever
+    // upstream already translated.
+    window.MOAuth.fetch(`${LIBRARY}/v1/dtc-translate?key=${encodeURIComponent(key)}`)
       .then((r) => {
         if (!r.ok) throw new Error(String(r.status));
         return r.json();
