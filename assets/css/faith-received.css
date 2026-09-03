@@ -2788,6 +2788,16 @@ mark.faith-find-hit.is-current {
 .ask-answer li { margin: 0 0 10px; }
 .ask-answer li:last-child { margin-bottom: 0; }
 .ask-answer strong { font-weight: 600; }
+/* A **bold** lead-in renders as its own heading-style line (see
+   renderAnswer()'s "lead" handling in faith-ask.js), not inline
+   <strong> text running straight into the paragraph after it. Small
+   bottom margin keeps it visually attached to the paragraph it heads,
+   rather than reading as another paragraph of its own -- the gap
+   *before* it comes from the preceding paragraph's own margin-bottom. */
+.ask-answer-lead {
+  margin: 0 0 8px;
+  font-weight: 600;
+}
 .ask-footnote-ref { line-height: 0; }
 .ask-footnote-ref a {
   color: var(--color-primary);

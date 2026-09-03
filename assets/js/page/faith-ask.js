@@ -141,7 +141,22 @@
         const items = lines.map((l) => `<li>${renderInline(l.replace(/^-\s+/, ""), citByN)}</li>`).join("");
         return `<ul>${items}</ul>`;
       }
-      return `<p>${renderInline(block.replace(/\n/g, " "), citByN)}</p>`;
+      const joined = block.replace(/\n/g, " ");
+      // synthesisSystem() always uses a **bold** lead-in as a heading
+      // for a block ("**Where they agree**", "**Hooker (Anglican) on
+      // justification**" -- see its ANSWER SHAPE and PIVOT RULE) --
+      // rendering that as plain inline <strong> left it running
+      // straight into the sentence that follows with no break. Only a
+      // LEADING bold phrase gets this heading treatment; **bold**
+      // appearing mid-sentence elsewhere (renderInline handles that
+      // case) stays inline emphasis.
+      const lead = joined.match(/^\*\*(.+?)\*\*\s*-?\s*/);
+      if (lead) {
+        const heading = `<p class="ask-answer-lead">${renderInline(lead[1], citByN)}</p>`;
+        const rest = joined.slice(lead[0].length);
+        return rest ? `${heading}<p>${renderInline(rest, citByN)}</p>` : heading;
+      }
+      return `<p>${renderInline(joined, citByN)}</p>`;
     }).join("");
     answerEl.innerHTML = html || "<p>The library had nothing to answer this from.</p>";
   }
