@@ -3521,6 +3521,108 @@ mark.faith-find-hit.is-current {
   .faith-glossary-term { font-size: 19px; }
 }
 
+/* ── Dictionary (DTC) ─────────────────────────────────────────
+   Browse chrome (letter nav, entry list, "more" button, empty state)
+   reuses .faith-glossary-az / -letter / -terms / -term-btn / -more /
+   -empty / -note from the block above -- identical widgets, one CSS
+   copy. Only the filter input and the article's side-by-side French/
+   English columns are new here. */
+.faith-dictionary { max-width: 900px; margin: 0 auto; }
+.faith-dictionary-filter-wrap { margin: 0 0 16px; }
+.faith-dictionary-filter {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px;
+}
+.faith-dictionary-filter:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 1px; }
+
+.faith-dictionary-article { max-width: 900px; margin: 0 auto; }
+.faith-dictionary-back {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-secondary);
+  background: none;
+  border: none;
+  padding: 0 0 20px;
+  cursor: pointer;
+}
+.faith-dictionary-back:hover,
+.faith-dictionary-back:focus-visible { text-decoration: underline; }
+
+.faith-dictionary-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 30px;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+}
+.faith-dictionary-title-fr {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  margin: 0 0 16px;
+}
+.faith-dictionary-loading,
+.faith-dictionary-unavailable {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--color-muted);
+  padding: 32px 0;
+}
+.faith-dictionary-unavailable { font-style: normal; }
+
+/* fr-ai-note is the sitewide disclosure block (see the Translation
+   Transparency panel); no local override needed beyond spacing. */
+.faith-dictionary-article .fr-ai-note { margin: 0 0 24px; }
+
+.faith-dictionary-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 8px;
+}
+.faith-dictionary-col-head {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.faith-dictionary-col p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+.faith-dictionary-col p:last-child { margin-bottom: 0; }
+.faith-dictionary-col p.is-gap { color: var(--color-muted); font-style: italic; }
+
+@media (max-width: 820px) {
+  .faith-dictionary-columns { grid-template-columns: 1fr; gap: 4px; }
+  .faith-dictionary-col + .faith-dictionary-col {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-rule);
+  }
+}
+@media (max-width: 700px) {
+  .faith-dictionary-title { font-size: 25px; }
+}
+@media (max-width: 640px) {
+  .faith-dictionary-filter { max-width: none; }
+  .faith-dictionary-col p { font-size: 15px; }
+}
+
 /* ── Mobile tightening ───────────────────────────────────────── */
 @media (max-width: 640px) {
   .faith-hero { padding: 64px 0 64px; }

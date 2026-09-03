@@ -347,6 +347,12 @@ routes:
     template: custom-faith-today
   /the-faith-received/glossary/:
     template: custom-faith-glossary
+  # v1/dtc/ (mo-tfr) -- the Dictionnaire de Théologie Catholique, a real
+  # French theological encyclopedia. Browse and article view share one
+  # route: ?e=<letter>/<slug>.json opens an entry directly, same pattern
+  # as /the-faith-received/glossary/?q=.
+  /the-faith-received/dictionary/:
+    template: custom-faith-dictionary
   # The full ~190-topic layer (v1/mine/topic2-all/) underneath the 13
   # curated topic pages below. One route, two states via ?s=<slug> —
   # same pattern as /the-faith-received/author/?a=.
