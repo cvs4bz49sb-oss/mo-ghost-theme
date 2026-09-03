@@ -255,13 +255,27 @@
       window.MOAuthorSearch.mount(byCorpus.reduce((all, g) => all.concat(g.works), []));
     }
 
-    // How they read, above how to look. Mounted after the search panel
-    // so it can insert itself above it, and handed the shelf total so
-    // it can say when it is describing only part of the shelf. The data
-    // is already in hand from the load above, so this draws in the same
-    // frame as the shelves and nothing shifts.
-    if (window.MOAuthorScripture) {
-      window.MOAuthorScripture.mount(fingerprint, root, total);
-    }
+    // How they read, above how to look. The old prebuilt index
+    // (`fingerprint`) is already in hand from the load above; the
+    // richer per-author profile the 2026-09 drop ships, and the
+    // reception panel beside it, both key on the name this block just
+    // resolved, so they are fetched now rather than blindly at the top
+    // of the page. Mounted together, in a fixed order, so the fetch
+    // that happens to answer first never decides which panel a reader
+    // sees on top: the fingerprint always draws before reception,
+    // whichever promise actually resolved first.
+    const extraP = window.MOAuthorScripture && window.MOAuthorScripture.loadExtra
+      ? window.MOAuthorScripture.loadExtra(name) : Promise.resolve(null);
+    const receptionP = window.MOAuthorReception && window.MOAuthorReception.load
+      ? window.MOAuthorReception.load(name) : Promise.resolve([null, null]);
+    Promise.all([extraP, receptionP]).then(([extra, reception]) => {
+      if (window.MOAuthorScripture) {
+        window.MOAuthorScripture.mount(fingerprint, extra, root, total);
+      }
+      if (window.MOAuthorReception) {
+        const [neighbors, excerpts] = reception || [null, null];
+        window.MOAuthorReception.mount(neighbors, excerpts, root);
+      }
+    });
   }
 })();
