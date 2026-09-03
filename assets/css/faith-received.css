@@ -2546,46 +2546,131 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
 }
 
-/* ── Ask page ──────────────────────────────────────────────────── */
-/* A question answered from the library, rendered as an editorial set
+/* ── Ask page: wide research workspace ────────────────────────────
+   A question answered from the library, rendered as an editorial set
    piece: the question becomes a heading, the answer is running prose,
    citations are footnotes. Not a chat widget on purpose — no bubbles,
-   no avatar, no "typing…" affordance. */
+   no avatar, no "typing…" affordance.
+
+   Redesigned 2026-09 from a single `container container-narrow`
+   (720px) column — question box, then answer, then footnotes, all
+   stacked — per the data owner's own read: "horrible... use the whole
+   width of the body area to make a good working environment for
+   research and chat use." A wider column alone doesn't fix a research
+   tool (a 1180px-wide paragraph of prose is worse to read, not
+   better), so this is a real two-column layout above 820px instead:
+   .ask-main carries the conversation (the question box and the
+   running answer, read top to bottom), .ask-sources is a rail beside
+   it holding the citations — visible alongside a long answer instead
+   of buried in a wall of footnotes below it. Comparable in kind to
+   the reader's own contents-rail-plus-reading-column layout
+   (.faith-doc-layout / .faith-toc-sidebar, "Layout: contents far
+   left, text in the rest" above) but built fresh at this page's own
+   scale rather than reusing that layout's classes: the reader's rail
+   is edge-to-edge full-bleed and syncs to the site header's
+   hide-on-scroll animation, machinery this page doesn't need for a
+   secondary reference list.
+
+   .ask-layout is mobile-first ONLY for this one grid rule (base = one
+   column, a `min-width: 821px` query adds the second) — everything
+   else in this block keeps the file's usual desktop-base /
+   `max-width` convention. Below 820px there's no room for two columns
+   on a phone, so the grid drops back to a single column and the rail
+   renders as a normal block after .ask-main, in DOM order — the exact
+   stack this page used to have permanently, so the collapse needs no
+   `order:` juggling or JS. */
+.ask-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px;
+}
+.ask-main { min-width: 0; }
+.ask-sources { min-width: 0; }
+
+@media (min-width: 821px) {
+  .ask-layout {
+    /* 300px rail, ~56px gap: at the container's own 1180px max-width
+       (minus 28px*2 padding) that leaves the main column ~766px wide
+       — close to the old 720px `container-narrow` measure, which is
+       the point: the extra page width goes to the rail, not to
+       stretching the prose past a comfortable line length. */
+    grid-template-columns: minmax(0, 1fr) 300px;
+    column-gap: 56px;
+    align-items: start;
+  }
+  .ask-sources-inner {
+    position: sticky;
+    /* 84px is the fixed site header's own height (see --fr-nav-h on
+       the reader's sticky rail, "Layout: contents far left" above)
+       plus a little breathing room. Unlike that rail this doesn't
+       track the header's hide-on-scroll animation (its --fr-rail-top
+       / .site-header.is-hidden dance) — that's a lot of moving parts
+       for a rail that's supplementary reference material, not primary
+       navigation. FLAG for a live check once deployed: if the header
+       hiding on scroll-down leaves a visible gap above the rail
+       before it catches up, tightening this to the same --fr-nav-h
+       variable is the fix; it wasn't worth adding sight-unseen. */
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+/* Question box, redesigned as a bordered card — the primary input on
+   the page, not a cramped inline strip. Same white/border/radius/
+   shadow recipe as .faith-memorize-card above, reused rather than
+   invented fresh. */
 .ask-form {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 14px;
-  align-items: flex-end;
   margin-top: 8px;
+  padding: 30px 30px 24px;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(45,41,39,0.04);
 }
 .ask-label {
   display: block;
-  width: 100%;
   font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   font-weight: 600;
   color: var(--color-muted);
-  margin: 0 0 8px;
+  margin: 0;
 }
 .ask-input {
-  flex: 1 1 320px;
-  min-width: 0;
+  width: 100%;
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 20px;
-  line-height: 1.35;
-  padding: 14px 20px;
-  border-radius: 18px;
+  font-size: 21px;
+  line-height: 1.4;
+  padding: 16px 20px;
+  border-radius: 14px;
   border: 1px solid var(--color-card-border);
-  background: var(--color-white);
+  background: var(--color-cream);
   color: var(--color-dark);
   resize: vertical;
   outline: none;
 }
 .ask-input::placeholder { color: var(--color-muted); font-style: italic; }
 .ask-input:focus { border-color: var(--color-primary); }
+.ask-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.ask-form-hint {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-muted);
+  margin: 0;
+}
 .ask-submit { flex: 0 0 auto; white-space: nowrap; }
 
 /* Usage meter -- beta capacity cap on /v1/ask, added 2026-09. Same
@@ -2594,7 +2679,7 @@ mark.faith-find-hit.is-current {
    quiet 4px track, no card chrome, an uppercase label row. Two rows
    stack when a signed-in member's own count is shown; only the global
    row renders for a caller /v1/ask/usage has no personal data for. */
-.ask-usage { margin: 20px 0 0; display: flex; flex-direction: column; gap: 14px; }
+.ask-usage { margin: 24px 0 0; display: flex; flex-direction: column; gap: 14px; }
 .ask-usage-row { display: flex; flex-direction: column; gap: 6px; }
 .ask-usage-meta {
   display: flex;
@@ -2680,10 +2765,15 @@ mark.faith-find-hit.is-current {
   border-left: 2px solid var(--color-card-border);
 }
 
-.ask-footnotes-wrap {
-  margin-top: 48px;
-  padding-top: 24px;
-  border-top: 1px solid var(--color-rule);
+/* Sources rail. Same white/border/radius/shadow card recipe as
+   .ask-form above, at a quieter scale — this is reference material a
+   reader consults, not the page's primary input. */
+.ask-sources-inner {
+  padding: 26px 26px 22px;
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(45,41,39,0.04);
 }
 .ask-footnotes-title {
   font-family: var(--font-body);
@@ -2694,6 +2784,10 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
   margin: 0 0 14px;
 }
+/* No top border/margin here — unlike the old single-column stack,
+   this is the first thing in the rail card, right under the "Sources"
+   heading, not a divider after a wall of prose. */
+.ask-footnotes-wrap { margin: 0; padding: 0; border: 0; }
 .ask-footnotes {
   list-style: decimal;
   padding-left: 20px;
@@ -2704,6 +2798,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
 }
 .ask-footnotes li { margin: 0 0 8px; }
+.ask-footnotes li:last-child { margin-bottom: 0; }
 .ask-footnotes a {
   color: var(--color-dark);
   text-decoration: underline;
@@ -2713,8 +2808,43 @@ mark.faith-find-hit.is-current {
 .ask-footnotes a:hover { text-decoration-color: currentColor; }
 .ask-footnote-tradition { color: var(--color-muted); }
 
+/* Empty state before a first question is asked (or while one is in
+   flight) -- pure CSS, no JS change needed. .ask-footnotes-wrap keeps
+   its `hidden` attribute until faith-ask.js has real citations to
+   render, so the sibling selector below is really testing "has an
+   answer landed yet." */
+.ask-sources-empty {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-muted);
+  margin: 0;
+}
+.ask-footnotes-wrap:not([hidden]) ~ .ask-sources-empty { display: none; }
+
+/* ── Breakpoints: 820 / 700 / 640, matching the rest of this file ──
+   820: the two-column grid has already dropped to one column (see the
+   `min-width: 821px` query above), so this tier is only trimming card
+   padding for a tablet-width single column -- .ask-sources-inner is no
+   longer sticky here either, since that too lives inside the
+   `min-width: 821px` query and never applies below it.
+   700: no layout change, just tightening the card padding further as
+   the column keeps narrowing.
+   640: the form's own footer (hint + submit) stacks so the button
+   never has to compete with the hint text for a cramped row; this is
+   the same width the file already treats as "phone" everywhere else. */
+@media (max-width: 820px) {
+  .ask-form { padding: 26px 26px 20px; }
+  .ask-sources-inner { padding: 22px 22px 18px; }
+}
+@media (max-width: 700px) {
+  .ask-form { padding: 22px 22px 18px; }
+  .ask-sources-inner { padding: 20px 20px 16px; }
+}
 @media (max-width: 640px) {
-  .ask-form { flex-direction: column; align-items: stretch; }
+  .ask-form { padding: 20px 18px 16px; }
+  .ask-form-footer { flex-direction: column; align-items: stretch; gap: 12px; }
+  .ask-form-hint { order: 2; text-align: center; }
   .ask-submit { width: 100%; }
   .ask-answer { font-size: 17px; }
 }
