@@ -85,6 +85,15 @@
   // Never falls back to the identity function: an escaper that stops
   // escaping is worse than one that returns nothing.
   const esc = (s) => (NB ? NB.escapeHtml(s) : "");
+  // A notebook entry's `url` is NOT trustworthy: entries can arrive from
+  // an imported constellation share link (decodeShare), so the value is
+  // attacker-supplied. esc() HTML-escapes but does nothing about the
+  // SCHEME -- `javascript:alert(1)` survives it intact and fires on
+  // click. Both anchors below render through innerHTML, so they need a
+  // sanitized URL string rather than MOSafeHref.set(), which wants an
+  // element. Falls back to "#" when the helper is absent, which is the
+  // safe direction.
+  const safeUrl = (u) => (window.MOSafeHref ? window.MOSafeHref.sanitize(u) || "#" : "#");
 
   // Nearest citation and anchor above a node — the block a selection
   // started in, or the section that holds it.
@@ -429,7 +438,7 @@
           const other = byId.get(x.a === id ? x.b : x.a);
           if (!other) return "";
           const dir = x.a === id ? x.rel : `${x.rel} ←`;
-          return `<li class="faith-notebook-edge">${esc(dir)} <a href="${esc(other.url)}">${esc(other.cite || other.title || "a passage")}</a></li>`;
+          return `<li class="faith-notebook-edge">${esc(dir)} <a href="${esc(safeUrl(other.url))}">${esc(other.cite || other.title || "a passage")}</a></li>`;
         })
         .filter(Boolean)
         .join("");
@@ -445,7 +454,7 @@
             <button type="button" class="faith-notebook-act" data-nb-rel-go>Relate to selected</button>
           </div>` : ""}
           <div class="faith-notebook-row">
-            <a class="faith-notebook-act" href="${esc(e.url)}">Go to</a>
+            <a class="faith-notebook-act" href="${esc(safeUrl(e.url))}">Go to</a>
             <button type="button" class="faith-notebook-act" data-nb-copy-one>Copy</button>
             <button type="button" class="faith-notebook-act" data-nb-link>${linkFrom === e.id ? "Cancel" : "Relate"}</button>
             <button type="button" class="faith-notebook-act faith-notebook-act--quiet" data-nb-remove>Remove</button>
@@ -517,11 +526,12 @@
       if (!field) return;
       const item = field.closest("[data-nb-id]");
       const id = item && item.getAttribute("data-nb-id");
-      const list = load();
-      const hit = list.filter((x) => x.id === id)[0];
-      if (!hit) return;
-      hit.note = field.value.slice(0, 2000);
-      save(list);
+      if (!id) return;
+      // Through the store, not by hand. This used to load the list,
+      // mutate the entry and save it back -- a second implementation of
+      // a write the store already owns, and the exact way two copies of
+      // a format drift apart. setNote() applies the same length cap.
+      if (NB) NB.setNote(id, field.value);
     });
 
     panel.querySelector("[data-nb-copy]").addEventListener("click", (e) => {
