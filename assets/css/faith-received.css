@@ -11908,7 +11908,7 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
    bitten by that at least four times. */
 
 /* ── The category ramp ────────────────────────────────────────────
-   Seven swatches, read by the script through getComputedStyle so the
+   Nine swatches, read by the script through getComputedStyle so the
    canvas and the legend cannot disagree about a colour.
 
    REPLACED 2026-09-04, and this is the one place in the theme where a
@@ -11957,7 +11957,41 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
    channel anyway; in the regional arrangement position carries the
    category outright, the legend doubles as a filter, unclassified
    points differ in SHAPE, and the dossier names the category in
-   words. */
+   words.
+
+   EXTENDED to nine, 2026-09-04, and the reason is a hard one rather
+   than a preference. The citation views categorise by TRADITION and the
+   payload declares nine of them (Latin Fathers, Greek Fathers, English
+   Divines, Roman Catholic, Reformed, Lutheran, Medieval, Humanism and
+   Law, Eastern Fathers). Both node passes in the script iterate
+   catColors.length, so with seven swatches every point in categories 8
+   and 9 is drawn by neither the fill pass nor the open-ring pass and is
+   silently invisible. That is 219 of 1,668 authors, Bellarmine and
+   Calvin among them, on a map about who is argued with. Nine swatches
+   is the fix; the Scripture views declare seven and are unaffected,
+   since the two extra passes find no members there.
+
+   The two additions were chosen by search rather than by eye, against
+   the same three tests the seven were held to. Both fill a gap in the
+   L* ladder, which is what stops the ramp collapsing at a 3px dot when
+   hue fails:
+
+     cat-8  #0c3568  indigo    10.62:1  L*22  C*35
+     cat-9  #8054a0  violet     4.96:1  L*43  C*48
+
+   L* ladder, all nine: 17, 22, 26, 35, 40, 43, 47, 52, 56.
+
+   The floors move as little as nine categories allow. Closest pair in
+   CIEDE2000 goes from 21.1 to 18.3 (slate against violet), and the
+   colour-blind floors do not move at all: protanopia 8.2, deuteranopia
+   5.9, tritanopia 8.4, identical to the seven-swatch ramp, because
+   indigo and violet both sit clear of the confusion lines the existing
+   pairs already crowd.
+
+   Nine hues at 3px is past what colour alone can carry, and the map
+   does not ask it to. In the ring arrangement the tradition is carried
+   by ANGLE: each one owns a wedge, so the grouping is read from
+   position and the colour only has to confirm it. */
 [data-cn-root] {
   --cn-cat-1: #2d2927;
   --cn-cat-2: #9c4126;
@@ -11966,6 +12000,8 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   --cn-cat-5: #1a5b63;
   --cn-cat-6: #677e99;
   --cn-cat-7: #602d4e;
+  --cn-cat-8: #0c3568;
+  --cn-cat-9: #8054a0;
   --cn-edge: #6b6660;
   --cn-ghost: #d9c6a7;
   --cn-accent: #ee7d51;
@@ -12057,8 +12093,18 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   outline: 2px solid var(--color-dark);
   outline-offset: 1px;
 }
+/* The links control holds two alternatives in the same slot: a
+   Shown/Hidden toggle for the Scripture maps, whose edge count is small
+   and fixed, and a select for the citation maps, where 37,427 pairs is
+   ten times what this map has ever drawn and the reader has to be able
+   to choose how many of them are on screen. One of the two is always
+   hidden, so both need a hand-written [hidden] rule: the select's own
+   `appearance` declaration does not set `display`, but this file has
+   been bitten enough times that stating it is cheaper than checking. */
+.cn-select[hidden] { display: none; }
 
 .cn-views { display: flex; flex-wrap: wrap; gap: 8px; }
+.cn-views[hidden] { display: none; }
 .cn-view-btn {
   display: inline-flex;
   align-items: center;
@@ -12228,6 +12274,18 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   margin-top: 4px;
   padding-left: 12px;
   border-left: 1px solid var(--color-rule);
+}
+/* What the two kinds of line are, on the citation maps. Its own line
+   under the blurb, like the caveat, but without the rule on the leading
+   edge: this is a key to the picture rather than a correction to it,
+   and giving it the aside marker would file it as one. */
+.cn-caption-key {
+  flex: 1 1 100%;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin-top: 4px;
 }
 
 /* ── Legend, which is also the filter ─────────────────────────── */
@@ -12408,6 +12466,55 @@ a.cn-row-title { color: var(--color-primary-text); }
   line-height: 1.5;
   color: var(--color-muted);
   margin: 4px 0 0;
+}
+
+/* ── An author's citation figures ─────────────────────────────────
+   Only on the citation maps. Flat label-and-value rows on a hairline,
+   the same editorial row .cn-row and .cn-link already use, never a
+   grid of little stat boxes (DESIGN §6.1).
+
+   The rows are here because a raw count is misleading on its own and
+   the corrections have to sit beside the number rather than in a
+   footnote somewhere else: the refutations an author received are
+   shown next to the citations they received, and the number of authors
+   refuting is shown next to the number of refutations, so a figure that
+   comes from one opponent cannot read as a verdict. */
+.cn-stats { list-style: none; margin: 12px 0 0; padding: 0; }
+.cn-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.cn-stat-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+.cn-stat-value {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-dark);
+  text-align: right;
+}
+/* The one figure allowed to be larger than the prose around it, the
+   same licence .cn-link-figure has in a link's dossier: it is the
+   number the whole view is ranked by. */
+.cn-stat--lead .cn-stat-value {
+  font-size: 22px;
+  line-height: 1.2;
+}
+.cn-stat-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 10px 0 0;
 }
 
 /* ── A link ───────────────────────────────────────────────────────

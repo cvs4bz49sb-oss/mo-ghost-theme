@@ -165,6 +165,111 @@
  * payload. Read § mergeShelfPayloads for the three traps in doing that
  * and for why it covers authors and doctrines but not works.
  *
+ * ══ THE CITATION GRAPH ═══════════════════════════════════════════════
+ *
+ * A SECOND DATASET behind the same panel, added 2026-09-04, answering a
+ * different question with the same machinery. Everything above is about
+ * which Scripture a writer quotes. This is about which WRITERS a writer
+ * quotes, and it is the only place in the panel where an edge is
+ * directed and carries a disagreement.
+ *
+ *   GET /v1/mine/citations/all.json   (one file, 190 KB gzipped)
+ *     -> { version, scope: "all", floor: 5,
+ *          cats:  [ { k, l } ],
+ *          nodes: [ { a, fk, n, pos, ref, src, e } ],
+ *          edges: [ [ fromIndex, toIndex, n, ref ] ] }
+ *
+ * 1,668 authors, 37,427 pairs, ten declared traditions. On a node, `n`
+ * is inbound citations, `ref` how many of those were refutations, `pos`
+ * is n minus ref, `src` is how many distinct authors cite this one, and
+ * `e` is an INDEX into `cats` rather than a key string, which is the one
+ * shape difference the adapter exists to absorb.
+ *
+ * On an edge, `from` cites `to`, `n` is the pair's total and `ref` how
+ * many of them are refutations. Nothing arrives pre-classified. A pair
+ * is an ARGUMENT when ref * 2 > n, which is 911 of the 37,427.
+ *
+ * THE FLOOR IS 5. A pair below five citations is not in `edges` at all,
+ * while a node's own `n` and `ref` are unfloored totals. So anything
+ * counted off the edge list, the number of authors refuting somebody
+ * most of all, is a FLOOR rather than a total, and the copy says so
+ * rather than presenting it as complete.
+ *
+ * TWO VIEWS over the one payload, and the difference between them is
+ * which number puts a point at the centre:
+ *
+ *   Most cited      radius from `pos`.  Augustine 271,515, Aquinas
+ *                   174,096, Jerome 84,244, Chrysostom 51,149.
+ *   Most contested  radius from `ref`.  Bellarmine 24,899, Aquinas
+ *                   5,126, Calvin 4,804, Scotus 4,660.
+ *
+ * WHAT THE CONTESTED VIEW IS NOT. It is not a list of heretics and it
+ * must never be labelled as one. The figures are symmetric across the
+ * confessional line (Calvin third, Aquinas second) and they measure who
+ * the arguments were WITH. Two distortions follow from that and both
+ * are defused in the drawing rather than in a footnote:
+ *
+ *   ONE POLEMIC CAN TOP THE LIST. Augustinus Reding is 84% refuted and
+ *     every one of those 2,680 refutations is Johann Heinrich
+ *     Heidegger, one man and one book. Bellarmine's 24,899 come from
+ *     267 different authors. So the number of DISTINCT REFUTERS is
+ *     computed off the edge list and carried everywhere the count is:
+ *     in the dossier beside it, in the index list's second line, and on
+ *     the map, where a point refuted by fewer than three authors is
+ *     drawn as a hollow ring rather than a filled dot.
+ *
+ *   BEING CONTESTED IS NOT BEING MARGINAL. Bellarmine has 33,599
+ *     positive citations as well as 24,899 refutations: he is at once
+ *     among the most cited and by far the most argued with. So a dot's
+ *     SIZE is total citations `n` in BOTH views, never the view's own
+ *     metric. On the contested map he is therefore near the centre and
+ *     one of the largest points on the plate, which is the true reading
+ *     and is not available if size and position say the same thing.
+ *
+ * The same rule saves the case that would otherwise break the view.
+ * Scotus cites Aquinas 8,829 times, 7,757 of them positively and 1,072
+ * as refutations: the largest single debt in the library and its largest
+ * single dispute, one pair. It is NOT an argument edge by the ref*2>n
+ * test, so a contested map drawing only the 911 argument edges would be
+ * missing it. Hence the contested view's edge budget ranks by
+ * refutations rather than filtering to arguments, the pair is drawn
+ * SOLID because it is mostly agreement, and its dossier gives both
+ * numbers. Aquinas's own dossier lists Scotus first under "Most argued
+ * with" and fifth under "Most cited by", in the same rail.
+ *
+ * THE ARRANGEMENT is concentric rings, and it is the answer to the
+ * question that prompted this: who is at the centre and who is an
+ * outlier. Read § layoutRings for the ring thresholds and the sector
+ * angles, both of which were chosen against the measured distribution
+ * rather than picked.
+ *
+ * THE EDGE BUDGET. 37,427 edges is roughly ten times what this map has
+ * drawn before and the tiers above were tuned around 3,700. They are
+ * not all drawn. Read § buildBudgets for the ladder and the defaults;
+ * the count on screen is always stated and is always measured off the
+ * payload rather than remembered.
+ *
+ * WHAT THIS PAYLOAD DOES NOT SAY, and the copy is held to it: these are
+ * the most cited IN THE INDEXED CORPUS rather than in the world. The
+ * graph is scoped to the reception index roster, which is what every
+ * other reception surface uses; the 1,076 unindexed record sets would
+ * add 313,614 rows and move Augustine's inbound by 14%. And a
+ * tradition is where the library SHELVES an author. Thirty-three
+ * authors are filed under contradictory traditions upstream and are
+ * resolved by majority with an alphabetical tiebreak, so the grouping
+ * is a filing decision rather than metadata about a person, and nothing
+ * in the UI invites it to be read as more than that.
+ *
+ * THE TENTH CATEGORY. `cats` declares "unknown", and it is not empty:
+ * four authors sit in it. The adapter drops that key and emits those
+ * four with NO category at all, which routes them through the same
+ * unclassified path the Scripture views already have (an open ring, an
+ * "Unclassified" legend entry, a sector of their own). "We do not know"
+ * gets a shape rather than a colour, here as everywhere else, because
+ * painting it as a tenth tradition would say four people belonged to
+ * one.
+ *
+
  * ACCESS. Not gated, deliberately. These are static JSON files on a
  * public route; nothing here spends an embedding call or reaches an
  * LLM, which is what the standing both-sides gating rule is about, and
@@ -204,6 +309,8 @@
   const viewBtns = Array.from(root.querySelectorAll("[data-cn-view]"));
   const layoutBtns = Array.from(root.querySelectorAll("[data-cn-layout]"));
   const linksBtn = root.querySelector("[data-cn-links]");
+  const linksGroup = root.querySelector("[data-cn-links-group]");
+  const budgetSel = root.querySelector("[data-cn-edge-budget]");
   const viewsNote = root.querySelector("[data-cn-views-note]");
   const arrangeNote = root.querySelector("[data-cn-arrange-note]");
   const statusEl = root.querySelector("[data-cn-status]");
@@ -228,7 +335,7 @@
 
   /* ── Palette ──────────────────────────────────────────────────────
    *
-   * Seven category swatches, read from the custom properties the
+   * Nine category swatches, read from the custom properties the
    * stylesheet defines on [data-cn-root] rather than written here, so
    * the colours sit in one auditable place with the rest of the theme's
    * tokens (DESIGN §3a M1). Custom properties resolve as authored text,
@@ -236,10 +343,20 @@
    * directly. The literals below are a fallback for a stylesheet that
    * failed to load, never a second source of truth.
    *
+   * NINE, not seven, since 2026-09-04. The Scripture payloads declare
+   * seven categories and the citation payload declares nine traditions,
+   * and BOTH node passes in draw() iterate catColors.length: a slot the
+   * ramp does not reach is drawn by neither the fill pass nor the
+   * open-ring pass and is simply not on the map. At seven swatches that
+   * silently lost 219 authors, Bellarmine and Calvin among them. The
+   * stylesheet carries the measurements for the two additions; the
+   * Scripture views are unaffected, because their two extra passes find
+   * no members.
+   *
    * The accent (--color-primary) is deliberately NOT in the ramp: it
    * means "this is the one you chose" and nothing else. It is also
    * 2.38:1 on the cream plot ground and would fail WCAG 1.4.11 as a
-   * 3px dot; every one of the seven clears 3:1 there.
+   * 3px dot; every one of the nine clears 3:1 there.
    *
    * The ramp walks hue AND lightness. The stylesheet carries the
    * measurements and the reasoning; the short version is that the
@@ -248,7 +365,10 @@
    * 3.7 ΔE2000 apart, which is a difference you cannot see on a 3px
    * dot. The set below is 21.1 apart at its closest.
    */
-  const CAT_FALLBACK = ["#2d2927", "#9c4126", "#a77e3c", "#5a7848", "#1a5b63", "#677e99", "#602d4e"];
+  const CAT_FALLBACK = [
+    "#2d2927", "#9c4126", "#a77e3c", "#5a7848", "#1a5b63",
+    "#677e99", "#602d4e", "#0c3568", "#8054a0",
+  ];
   let catColors = CAT_FALLBACK.slice();
   let edgeColor = "#6b6660";
   let ghostColor = "#d9c6a7";
@@ -324,7 +444,13 @@
 
   /* ── Copy that depends on the view ───────────────────────────── */
 
-  const VIEW_LABEL = { authors: "Authors", doctrines: "Doctrines", works: "Works" };
+  const VIEW_LABEL = {
+    authors: "Authors",
+    doctrines: "Doctrines",
+    works: "Works",
+    cited: "Most cited",
+    contested: "Most contested",
+  };
   const VIEW_BLURB = {
     authors:
       "Each point is an author on this shelf, placed by which parts of Scripture they quote. Two authors sit close together when they reach for the same passages, not merely the same books.",
@@ -353,13 +479,21 @@
     authors: "By Scripture",
     works: "By Scripture",
     doctrines: "By doctrine",
+    cited: "By tradition",
+    contested: "By tradition",
   };
   const ROWS_HEADING = {
     authors: "Principal works",
     works: "Most cited chapters",
     doctrines: "Passages",
   };
-  const NODE_NOUN = { authors: "author", works: "work", doctrines: "topic" };
+  const NODE_NOUN = {
+    authors: "author",
+    works: "work",
+    doctrines: "topic",
+    cited: "author",
+    contested: "author",
+  };
 
   /* ── Copy for a link ──────────────────────────────────────────────
    *
@@ -371,13 +505,77 @@
     authors: "part of Scripture",
     works: "part of Scripture",
     doctrines: "head of doctrine",
+    cited: "tradition",
+    contested: "tradition",
   };
   const LINK_GLOSS = {
     authors:
       "A line joins two authors who reach for the same passages, not merely the same books.",
     works: "A line joins two works that reach for the same passages, not merely the same books.",
     doctrines: "A line joins two topics that rest on the same texts.",
+    cited:
+      "A line runs from an author to someone they cite. It counts every citation the reception index holds for that pair.",
+    contested:
+      "A line runs from an author to someone they cite. It counts every citation the reception index holds for that pair. A refutation is a citation the index reads as an argument against.",
   };
+
+  /* ── The citation graph ───────────────────────────────────────────
+   *
+   * A second endpoint behind the same panel, offered as a synthetic
+   * shelf beside "All shelves" because it is corpus-wide rather than
+   * per-shelf. Read the header's § THE CITATION GRAPH before touching
+   * anything below; the short version is that a node is an author, an
+   * edge is directed, and an edge carries a disagreement.
+   *
+   * The slug is a sentinel, checked against the real ones the same way
+   * ALL_SLUG is (citeSlugFree below). */
+  const CITE_SLUG = "citations";
+  const CITE_LABEL = "Citations between authors";
+  const CITE_VIEWS = ["cited", "contested"];
+  const CITE_URL = `${WORKER}/v1/mine/citations/all.json`;
+  const CITE_FLOOR_NOTE =
+    "Pairs below five citations are not in this graph, so any count of how many authors cite or refute somebody is a floor rather than a total.";
+
+  /* The blurb for each ring map. Said in the geometry's own terms,
+   * because the plane means something here that it does not mean
+   * anywhere else in this panel: distance from the centre IS the
+   * measurement, and the rings are decades of it. */
+  const CITE_BLURB = {
+    cited:
+      "Every point is an author the indexed library has been read for, placed by how often the rest of that library cites them. The most cited sit at the centre and the least cited at the rim. Each ring inward is ten times as many citations. The wedges group authors by the tradition the library shelves them in. A line runs from an author to somebody they cite.",
+    contested:
+      "Every point is an author the indexed library has been read for, placed by how often the rest of that library argues with them. The most refuted sit at the centre and the never refuted at the rim. Each ring inward is ten times as many refutations. The wedges group authors by the tradition the library shelves them in. This measures who the arguments were with, not who was wrong.",
+  };
+  const CITE_REGION_BLURB = {
+    cited:
+      "Every point is an author the indexed library has been read for, filed under the tradition the library shelves them in. A point's size is how much the rest of the library cites them. A line runs from an author to somebody they cite.",
+    contested:
+      "Every point is an author the indexed library has been read for, filed under the tradition the library shelves them in. A point's size is how much the rest of the library cites them at all, so a large point in this view is somebody both cited and argued with. A line runs from an author to somebody they cite.",
+  };
+
+  /* Three corrections, kept apart because they correct different
+   * things. The first is about what the numbers count. The second is
+   * about what the wedges are. The third exists only on the contested
+   * map, where a count read on its own says something the data does
+   * not, and it is the one that must never be dropped. */
+  const CITE_SCOPE_CAVEAT =
+    "Every figure here is counted inside the indexed corpus rather than being an absolute ranking. This library is heavily Protestant and scholastic, so the totals partly measure who it happens to hold.";
+  const CITE_TRADITION_CAVEAT =
+    "A wedge is where the library shelves an author, not a claim about the person. A few authors are shelved in more than one place and are drawn under the one that holds most of them.";
+  const CITE_CONTESTED_CAVEAT =
+    "Being argued with is not a verdict. It is not the same as being ignored either. Several of the figures nearest this centre are also among the most cited in the library, which is why size here is total citations rather than refutations. A large count can also come from a single opponent, so every figure below is given with the number of authors behind it. A point refuted by fewer than three authors is drawn as a hollow ring.";
+
+  const CITE_LINE_KEY = {
+    cited:
+      "Solid lines are citations. The heavier the line, the more of them. Dashed lines are the pairs where refutations outnumber agreements.",
+    contested:
+      "Dashed lines are the pairs where refutations outnumber agreements. Solid lines are pairs that are mostly agreement with an argument inside them, which is what the heaviest disputes in this library turn out to be.",
+  };
+
+  const CITE_VIEWS_NOTE =
+    "Citations between authors covers the whole indexed library at once, so the shelf list does not apply to it and neither do the three Scripture views.";
+  const CITE_ARRANGE_NOTE =
+    "By similarity is unavailable here. The citation graph carries no coordinates of its own, so there is no embedding to lay these authors out in.";
 
   /* ── Copy for the merged shelf ────────────────────────────────────
    *
@@ -436,6 +634,7 @@
 
   const LAYOUT_REGIONS = "regions";
   const LAYOUT_SIMILARITY = "similarity";
+  const LAYOUT_RINGS = "rings";
 
   /* ── "All shelves" ────────────────────────────────────────────────
    *
@@ -521,6 +720,41 @@
   let preAllLayout = "";
   let allMissed = 0;
 
+  /* ── The citation graph's state ───────────────────────────────────
+   *
+   * `citeMode` is the one flag everything downstream branches on, and
+   * it is set from the payload rather than from the shelf slug, so a
+   * half-loaded switch cannot leave the drawing reading citation fields
+   * off a Scripture payload.
+   *
+   * inAdj / outAdj are the DIRECTED halves of the adjacency, which the
+   * undirected `adj` above cannot answer: "who cites this author" and
+   * "who does this author cite" are different lists and the dossier
+   * shows both. `refuters[i]` is how many distinct authors refute node
+   * i, counted off the edge list and therefore floored at pairs of five
+   * citations (see CITE_FLOOR_NOTE). `topRefuter[i]` is the edge
+   * carrying most of them, which is what makes a single-source spike
+   * legible in one line. `reverseAt` finds the return traffic for a
+   * pair, since 614 of the 37,427 edges have their opposite in the set
+   * and drawing one without naming the other would be half a sentence. */
+  let citeMode = false;
+  let inAdj = [];
+  let outAdj = [];
+  let refuters = new Int32Array(0);
+  let topRefuter = new Int32Array(0);
+  let reverseAt = null;
+  let preCiteLayout = "";
+
+  /* The edge budget: which of the 37,427 pairs are on screen. `budgets`
+   * is the ladder for the current view with the true count beside each
+   * rung, measured off the payload rather than written down here, and
+   * `inBudget` is that decision cached per edge so the draw loop and the
+   * hit test are both O(1) on it and cannot disagree. */
+  let budgets = [];
+  let budgetKey = "";
+  let inBudget = new Uint8Array(0);
+  let budgetCount = 0;
+
   /* The arrangement, and the positions it produced.
    *
    * posX/posY are the ONLY coordinates anything downstream reads.
@@ -539,6 +773,12 @@
   let posY = new Float64Array(0);
   let cellSpan = new Float64Array(0);
   let regions = [];
+  // The ring arrangement's radial axis: one entry per decade band, with
+  // the world radii it occupies. Empty in every other arrangement, and
+  // `regions` carries the wedges there rather than the grid cells, so
+  // the two sets of furniture are drawn by different functions and
+  // neither can be handed the other's shape.
+  let ringBands = [];
   let bounds = null;
 
   const cache = new Map();
@@ -718,6 +958,25 @@
 
   function catKeyOf(node) {
     return typeof node.e === "string" && node.e ? node.e : "";
+  }
+
+  /*
+   * The number this view ranks by. On the Scripture maps there is only
+   * one, `n`, and this is what it has always been. On the citation maps
+   * the two views are the SAME points ranked by different columns, and
+   * everything that orders points reads through here so none of them
+   * can be left ranking by the other view's number: the rings, the
+   * centre of each tradition cell, and the index list beneath the map.
+   *
+   * The dot's SIZE is deliberately not this. Size stays total citations
+   * in both views (see radiusFor), so that an author who is heavily
+   * refuted AND heavily cited is drawn large near the contested
+   * centre rather than being forced into one camp.
+   */
+  function sortMetric(node) {
+    if (!node) return 0;
+    if (citeMode) return (view === "contested" ? node.ref : node.pos) || 0;
+    return node.n || 0;
   }
 
   function slotOf(node) {
@@ -922,7 +1181,7 @@
     const m = members.length;
     if (!m) return;
     const order = members.slice().sort((a, b) => {
-      const d = (nodes[b].n || 0) - (nodes[a].n || 0);
+      const d = sortMetric(nodes[b]) - sortMetric(nodes[a]);
       return d !== 0 ? d : a - b;
     });
     if (m === 1) {
@@ -971,6 +1230,195 @@
     }
   }
 
+  /* ── Arrangement: concentric rings ────────────────────────────────
+   *
+   * The citation graph's own arrangement, and the one that answers the
+   * question the two views were built for: who is at the centre and who
+   * is an outlier. Distance from the centre IS the measurement here,
+   * which is not true of either other arrangement, so the geometry is
+   * doing the work a legend would otherwise have to.
+   *
+   * RADIUS: DECADE BANDS, not a continuous log ramp. The metric runs
+   * from 0 to 271,515 and is heavily bottom-weighted (measured over the
+   * live payload: by positive citations, 221 authors at zero, 119 in
+   * the ones, 546 in the tens, 556 in the hundreds, 185 in the
+   * thousands, 39 in the ten thousands and 2 above a hundred thousand).
+   * A linear radius would put nine authors in ten inside the outermost
+   * few per cent of the plate. A continuous log ramp fixes that but
+   * leaves the radial axis unreadable: a reader can see that a point is
+   * further out without being able to say further out by how much.
+   * Decades can be DRAWN and LABELLED, so the axis reads like the log
+   * axis it is, and each circle is a round number rather than a
+   * position in a gradient. It also gives the contested map its
+   * strongest true sentence: Bellarmine is alone inside the ten
+   * thousand ring.
+   *
+   * ANGLE: ONE EQUAL WEDGE PER TRADITION, and equal is a deliberate
+   * choice against the obvious alternative. The traditions are wildly
+   * uneven (Latin Fathers 798 of 1,668, Eastern Fathers 14, four
+   * unclassified), so a wedge sized in proportion to its roster would
+   * give the Latin Fathers 172 degrees and leave five traditions as
+   * slivers. Worse, it would put roster size on the loudest channel
+   * left, and roster size is a fact about what has been indexed rather
+   * than a fact about the tradition. Equal wedges keep the difference
+   * visible AS DENSITY, which is what it is: the Latin wedge reads as a
+   * packed field and the Eastern one as a handful of points, and no
+   * wedge is too thin to find or to label. The four unclassified
+   * authors get a readable wedge for the same reason.
+   *
+   * A gutter is left empty at twelve o'clock so the ring labels have
+   * somewhere to sit that is not on top of the data.
+   */
+  const RING_CENTRE = 1000;
+  const RING_MIN = 90;
+  const RING_MAX = 900;
+  /* World units reserved OUTSIDE the rim for the wedge names. It has
+   * to be a real band rather than a hairline of air: all furniture is
+   * drawn before the points, so a name drawn just inside the rim is
+   * drawn under whatever sits there, and the wedges that most need
+   * naming are exactly the ones whose outermost band is full. Measured
+   * in the harness at 1280: Latin Fathers, 798 authors, had its own
+   * label completely buried under its own points.
+   *
+   * The cost is 8% off the circle's fitted diameter, which buys a 33px
+   * annulus at that width. Height is not the constraint on a tangential
+   * label; arc length is, and outside the rim there is more of it. */
+  const RING_PAD = 150;
+  const RING_LABEL_OUT = 30; // world units from the rim to the name's baseline
+  const RING_GUTTER = 16; // degrees left empty at the top for the radial axis labels
+
+  function bandOf(v) {
+    return v <= 0 ? 0 : Math.floor(Math.log10(v)) + 1;
+  }
+
+  function layoutRings() {
+    const keys = orderedCatKeys();
+    const buckets = {};
+    keys.forEach((k) => { buckets[k] = []; });
+    const loose = [];
+    for (let i = 0; i < nodes.length; i++) {
+      const k = catKeyOf(nodes[i]);
+      if (k && buckets[k]) buckets[k].push(i);
+      else loose.push(i);
+    }
+    const cells = keys.map((k) => ({ key: k, label: catLabel(k), members: buckets[k] }));
+    if (loose.length) cells.push({ key: "", label: "Unclassified", members: loose });
+    if (!cells.length) {
+      layoutSimilarity();
+      return;
+    }
+
+    let maxBand = 0;
+    for (let i = 0; i < nodes.length; i++) {
+      const b = bandOf(sortMetric(nodes[i]));
+      if (b > maxBand) maxBand = b;
+    }
+    const bandCount = maxBand + 1;
+    const thick = (RING_MAX - RING_MIN) / bandCount;
+    ringBands = [];
+    for (let b = 0; b < bandCount; b++) {
+      ringBands.push({
+        // rIn is the edge nearer the centre. Band 0 is the rim and holds
+        // the zeroes; band `maxBand` is innermost and holds the giants.
+        rIn: RING_MAX - (b + 1) * thick,
+        rOut: RING_MAX - b * thick,
+        // The value the circle on this band's INNER edge stands for.
+        mark: 10 ** b,
+      });
+    }
+
+    const gut = (RING_GUTTER * Math.PI) / 180;
+    const span = (Math.PI * 2 - gut) / cells.length;
+    const start = -Math.PI / 2 + gut / 2;
+    regions = [];
+    cells.forEach((cell, i) => {
+      const a0 = start + i * span;
+      const reg = {
+        key: cell.key,
+        label: cell.label,
+        count: cell.members.length,
+        a0,
+        a1: a0 + span,
+      };
+      regions.push(reg);
+      placeInSector(reg, cell.members);
+    });
+
+    const half = RING_MAX + RING_PAD;
+    bounds = {
+      minX: RING_CENTRE - half,
+      minY: RING_CENTRE - half,
+      maxX: RING_CENTRE + half,
+      maxY: RING_CENTRE + half,
+    };
+  }
+
+  /*
+   * Placement inside one wedge: a polar grid, one cell per point, filled
+   * from the inside of each band outwards with the members sorted
+   * largest first, and each part-filled row centred in its wedge.
+   *
+   * The same three properties placeInRegion has, for the same reasons.
+   * Nothing overlaps, because every point owns a cell. The order is
+   * total, so the picture is identical on every load and nothing here is
+   * random. And cellSpan is written, so radiusAt() can cap a dot to its
+   * own cell and the packed Latin wedge reads as a fine dense field at
+   * rest instead of one solid mass, separating as the reader zooms.
+   *
+   * The number of sub-rings inside a band is chosen to make the cells
+   * roughly square, which is what keeps a crowded band from becoming a
+   * single hairline arc of 400 points.
+   */
+  function placeInSector(reg, members) {
+    if (!members.length || !ringBands.length) return;
+    const byBand = {};
+    for (let k = 0; k < members.length; k++) {
+      const i = members[k];
+      const b = Math.min(ringBands.length - 1, bandOf(sortMetric(nodes[i])));
+      if (!byBand[b]) byBand[b] = [];
+      byBand[b].push(i);
+    }
+    const aSpan = reg.a1 - reg.a0;
+
+    Object.keys(byBand).forEach((bk) => {
+      const band = ringBands[Number(bk)];
+      if (!band) return;
+      const list = byBand[bk].slice().sort((p, q) => {
+        const d = sortMetric(nodes[q]) - sortMetric(nodes[p]);
+        return d !== 0 ? d : p - q;
+      });
+      const m = list.length;
+      const thick = band.rOut - band.rIn;
+      const arc = aSpan * ((band.rIn + band.rOut) / 2);
+      let sub = Math.max(1, Math.round(Math.sqrt((m * thick) / Math.max(1, arc))));
+      if (sub > m) sub = m;
+      let per = Math.ceil(m / sub);
+      // Rounding can leave a whole empty sub-ring; pull them in until
+      // the grid is no deeper than it needs to be.
+      while (sub > 1 && (sub - 1) * per >= m) {
+        sub -= 1;
+        per = Math.ceil(m / sub);
+      }
+      const rowH = thick / sub;
+      const aStep = aSpan / per;
+
+      for (let k = 0; k < m; k++) {
+        const i = list[k];
+        const row = Math.floor(k / per);
+        const col = k % per;
+        const inRow = Math.min(per, m - row * per);
+        // Centred in the wedge, so a part-filled row reads as a centred
+        // group rather than as a row shoved against one edge.
+        const offset = (per - inRow) / 2;
+        const r = band.rIn + (row + 0.5) * rowH;
+        const a = reg.a0 + (offset + col + 0.5) * aStep;
+        posX[i] = RING_CENTRE + r * Math.cos(a);
+        posY[i] = RING_CENTRE + r * Math.sin(a);
+        cellSpan[i] = Math.min(rowH, aStep * r);
+      }
+    });
+  }
+
   function positionNodes() {
     if (posX.length !== nodes.length) {
       posX = new Float64Array(nodes.length);
@@ -979,13 +1427,19 @@
     }
     if (!nodes.length) {
       regions = [];
+      ringBands = [];
       bounds = null;
       return;
     }
-    // The regional arrangement needs the stage's box to choose its
-    // column count, so before the first measure there is nothing to
-    // choose from and the embedding is the only honest answer.
-    if (layout === LAYOUT_REGIONS && cssW > 0 && cssH > 0) layoutRegions();
+    ringBands = [];
+    // The rings arrangement is the only one that needs no stage box at
+    // all: its geometry is world units throughout, so it is the same
+    // board before and after the first measure. The regional one does
+    // need the box, to choose its column count, so before the first
+    // measure there is nothing to choose from and the embedding is the
+    // only honest answer.
+    if (layout === LAYOUT_RINGS && citeMode) layoutRings();
+    else if (layout === LAYOUT_REGIONS && cssW > 0 && cssH > 0) layoutRegions();
     else layoutSimilarity();
   }
 
@@ -1006,6 +1460,59 @@
     { max: Infinity, alpha: 0.26 },
   ];
 
+  /* The citation graph's two line kinds, and the tiers are on COUNTS
+   * rather than on a 0-to-1 similarity, so they cannot share a table
+   * with the four above.
+   *
+   * Two channels carry the difference between a debt and an argument,
+   * and neither of them is colour alone (WCAG 1.4.1). An argument is
+   * DASHED, which survives at one pixel and survives any colour vision;
+   * and it is drawn in ink rather than in the muted edge grey, at three
+   * to four times the alpha, which it can afford because arguments are
+   * rare. No new colour token was invented for it: the palette is
+   * closed (DESIGN §6.5) and ink against muted grey is already a real
+   * difference in value.
+   */
+  const CITE_EDGE_TIERS = [
+    { max: 24, alpha: 0.07 },
+    { max: 99, alpha: 0.11 },
+    { max: 499, alpha: 0.17 },
+    { max: Infinity, alpha: 0.26 },
+  ];
+  const ARG_EDGE_TIERS = [
+    { max: 24, alpha: 0.22 },
+    { max: 99, alpha: 0.34 },
+    { max: Infinity, alpha: 0.5 },
+  ];
+  const ARG_DASH = [3, 3];
+
+  // A pair the citation index reads as an argument: refutations
+  // outnumber agreements. Nothing arrives pre-classified, so this test
+  // is the only definition and every surface that uses the word reads
+  // it from here.
+  function isArgument(e) {
+    return !!e && e[3] * 2 > e[2];
+  }
+
+  /*
+   * A point whose refutations come from almost nobody. Augustinus
+   * Reding is 84% refuted and every one of those 2,680 refutations is
+   * Johann Heinrich Heidegger; Bellarmine's 24,899 come from 267
+   * different authors. Drawn as a hollow ring rather than a filled dot,
+   * so a single-source spike near the contested centre does not read as
+   * a consensus verdict at a glance.
+   *
+   * Contested view only. In the cited view it would be a mark about a
+   * number the map is not drawing.
+   */
+  const LONE_REFUTERS = 3;
+
+  function isLoneSpike(i) {
+    if (!citeMode || view !== "contested") return false;
+    if (!nodes[i] || !nodes[i].ref) return false;
+    return refuters.length > i && refuters[i] > 0 && refuters[i] < LONE_REFUTERS;
+  }
+
   function draw() {
     if (!cssW || !cssH) return;
     ctx.clearRect(0, 0, cssW, cssH);
@@ -1019,6 +1526,7 @@
     // the data. Nothing is drawn there but a rule and a caption above
     // the plot box, so there is nothing for a point to collide with.
     drawRegionFurniture(s);
+    drawRingFurniture(s);
 
     // Screen positions once per frame; the edge pass and the node pass
     // both need them.
@@ -1043,31 +1551,34 @@
     // from one section to another, and 3,753 of them at the alphas the
     // embedding wants would be a grey wash over the regions. The reader
     // can also switch them off outright.
-    const edgeFade = layout === LAYOUT_REGIONS ? 0.55 : 1;
+    const edgeFade = layout === LAYOUT_REGIONS || layout === LAYOUT_RINGS ? 0.55 : 1;
     if (edgesOn) {
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = edgeColor;
-      for (let t = 0; t < EDGE_TIERS.length; t++) {
-        const tier = EDGE_TIERS[t];
-        const lo = t === 0 ? -Infinity : EDGE_TIERS[t - 1].max;
-        ctx.globalAlpha = tier.alpha * edgeFade;
-        ctx.beginPath();
-        let any = false;
-        for (let i = 0; i < edges.length; i++) {
-          const e = edges[i];
-          const w = e[2];
-          if (!(w > lo && w <= tier.max)) continue;
-          const a = e[0];
-          const b = e[1];
-          if (!onScreen[a] && !onScreen[b]) continue;
-          if (!isVisible(nodes[a]) || !isVisible(nodes[b])) continue;
-          ctx.moveTo(px[a], py[a]);
-          ctx.lineTo(px[b], py[b]);
-          any = true;
+      if (citeMode) drawCiteEdges(px, py, onScreen, edgeFade);
+      else {
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = edgeColor;
+        for (let t = 0; t < EDGE_TIERS.length; t++) {
+          const tier = EDGE_TIERS[t];
+          const lo = t === 0 ? -Infinity : EDGE_TIERS[t - 1].max;
+          ctx.globalAlpha = tier.alpha * edgeFade;
+          ctx.beginPath();
+          let any = false;
+          for (let i = 0; i < edges.length; i++) {
+            const e = edges[i];
+            const w = e[2];
+            if (!(w > lo && w <= tier.max)) continue;
+            const a = e[0];
+            const b = e[1];
+            if (!onScreen[a] && !onScreen[b]) continue;
+            if (!isVisible(nodes[a]) || !isVisible(nodes[b])) continue;
+            ctx.moveTo(px[a], py[a]);
+            ctx.lineTo(px[b], py[b]);
+            any = true;
+          }
+          if (any) ctx.stroke();
         }
-        if (any) ctx.stroke();
+        ctx.globalAlpha = 1;
       }
-      ctx.globalAlpha = 1;
     }
 
     // Filtered-out points stay on the map as faint marks. Removing them
@@ -1096,12 +1607,44 @@
         if (!onScreen[i]) continue;
         const node = nodes[i];
         if (!isVisible(node) || slotOf(node) !== c) continue;
+        // Drawn hollow in the pass below instead, so the mark reads at
+        // a glance rather than only in the rail.
+        if (isLoneSpike(i)) continue;
         const r = radiusAt(i);
         ctx.moveTo(px[i] + r, py[i]);
         ctx.arc(px[i], py[i], r, 0, Math.PI * 2);
         any = true;
       }
       if (any) ctx.fill();
+    }
+
+    /* The single-refuter mark, on the contested map only. Hollow, in
+     * the tradition's own colour, so the point keeps saying which
+     * tradition it belongs to while also saying that the count behind
+     * its position came from one or two people rather than from a room.
+     *
+     * Floored at 3.2px whatever the size ramp asks for. A hole smaller
+     * than that is not a hole, and a mark that disappears on exactly
+     * the small points it most needs to qualify would be worse than no
+     * mark at all. The cost is under two pixels of size fidelity on the
+     * smallest dots, and the rail carries the exact figures anyway. */
+    if (citeMode && view === "contested") {
+      ctx.lineWidth = 1.6;
+      for (let c = 0; c < catColors.length; c++) {
+        ctx.strokeStyle = catColors[c];
+        ctx.beginPath();
+        let any = false;
+        for (let i = 0; i < nodes.length; i++) {
+          if (!onScreen[i] || !isLoneSpike(i)) continue;
+          const node = nodes[i];
+          if (!isVisible(node) || slotOf(node) !== c) continue;
+          const r = Math.max(radiusAt(i), 3.2);
+          ctx.moveTo(px[i] + r, py[i]);
+          ctx.arc(px[i], py[i], r, 0, Math.PI * 2);
+          any = true;
+        }
+        if (any) ctx.stroke();
+      }
     }
 
     // Unclassified: an open ring. "We do not know" is not one of the
@@ -1144,10 +1687,21 @@
       if (isVisible(nodes[ma]) && isVisible(nodes[mb])) {
         ctx.strokeStyle = inkColor;
         ctx.lineWidth = 2;
+        // The marked line keeps the dash when it is an argument, so the
+        // thing the reader picked out of the field is still the thing
+        // they saw in it.
+        if (citeMode && isArgument(me)) ctx.setLineDash([5, 4]);
         ctx.beginPath();
         ctx.moveTo(px[ma], py[ma]);
         ctx.lineTo(px[mb], py[mb]);
         ctx.stroke();
+        ctx.setLineDash([]);
+        // Direction, which nothing in the resting field can carry: an
+        // arrowhead at one pixel is not an arrowhead. On the marked
+        // line it is legible, and this is the one place the map itself
+        // can say "this one cites that one" rather than leaving it to
+        // the plate.
+        if (citeMode) arrowHead(px[ma], py[ma], px[mb], py[mb], radiusAt(mb) + 5);
         const endColor = markEdge === selectedEdge ? accentColor : inkColor;
         ring(px[ma], py[ma], radiusAt(ma) + 4, endColor, 2);
         ring(px[mb], py[mb], radiusAt(mb) + 4, endColor, 2);
@@ -1177,8 +1731,249 @@
 
     const labelFor = hovered >= 0 ? hovered : selected;
     if (labelFor >= 0 && labelFor < nodes.length && isVisible(nodes[labelFor])) {
-      drawLabel(nodes[labelFor].a, px[labelFor], py[labelFor], radiusAt(labelFor));
+      drawLabel(nodePlateLines(labelFor), px[labelFor], py[labelFor], radiusAt(labelFor));
     }
+  }
+
+  /* What a point's plate says. One line on the Scripture maps, which is
+   * what it has always been. Two on the citation maps, because the
+   * count a point is placed by is the whole of what the reader is
+   * pointing at, and on the contested map that count is not safe to
+   * show without the number of authors behind it. */
+  function nodePlateLines(i) {
+    const node = nodes[i];
+    if (!node) return [];
+    const name = node.a || "Untitled";
+    if (!citeMode) return [name];
+    if (view === "contested") {
+      if (!node.ref) return [name, "Never refuted"];
+      const by = refuters.length > i ? refuters[i] : 0;
+      return [
+        name,
+        `${fmt(node.ref)} ${node.ref === 1 ? "refutation" : "refutations"} from ${fmt(by)} ${by === 1 ? "author" : "authors"}`,
+      ];
+    }
+    if (!node.pos) return [name, "Never cited"];
+    return [
+      name,
+      `${fmt(node.pos)} ${node.pos === 1 ? "citation" : "citations"} from ${fmt(node.src)} ${node.src === 1 ? "author" : "authors"}`,
+    ];
+  }
+
+  /*
+   * A small filled triangle on the segment, set back from the cited end
+   * by that point's own radius so it sits against the dot rather than
+   * on it. Nothing is drawn for a zero-length segment: two points on
+   * one coordinate have no direction to point in and normalising there
+   * divides by zero.
+   */
+  function arrowHead(ax, ay, bx, by, back) {
+    const vx = bx - ax;
+    const vy = by - ay;
+    const len = Math.sqrt(vx * vx + vy * vy);
+    if (!(len > back + 6)) return;
+    const ux = vx / len;
+    const uy = vy / len;
+    const tipX = bx - ux * back;
+    const tipY = by - uy * back;
+    const size = 7;
+    const wing = 3.4;
+    ctx.fillStyle = inkColor;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(tipX - ux * size - uy * wing, tipY - uy * size + ux * wing);
+    ctx.lineTo(tipX - ux * size + uy * wing, tipY - uy * size - ux * wing);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /* ── The rings' own furniture ─────────────────────────────────────
+   *
+   * A radial log axis and one wedge label per tradition, both drawn
+   * UNDER the edges and the points like the regional furniture above,
+   * so nothing structural ever sits on top of the data.
+   *
+   * The axis is a circle at each decade boundary with the round number
+   * it stands for, drawn straight up from the centre in the gutter
+   * layoutRings leaves empty at twelve o'clock. That gutter is why the
+   * numbers are readable at all: a label in a wedge would be sitting on
+   * whatever points are behind it, and a paper-coloured plate under it
+   * would be erasing them.
+   *
+   * The wedge names run ALONG the arc just inside the rim rather than
+   * horizontally outside it. Horizontal labels need a reserved margin
+   * in world units, and world units are scaled: at 1280 there is room
+   * for one and at 375 the same reservation would eat a third of the
+   * plate. Text on the arc costs no margin at all, and it is clipped to
+   * the arc it has, exactly as a region's name is clipped to its
+   * column. Where nothing fits, the swatch alone is drawn and the
+   * legend below the map carries every name in full.
+   */
+  function drawRingFurniture(s) {
+    if (layout !== LAYOUT_RINGS || !ringBands.length || !regions.length) return;
+    const ox = (RING_CENTRE - cx) * s + cssW / 2 + panX;
+    const oy = (RING_CENTRE - cy) * s + cssH / 2 + panY;
+    ctx.font = '12px "Source Serif Pro", Georgia, serif';
+
+    // The rim, then each decade boundary inside it.
+    ctx.strokeStyle = edgeColor;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.22;
+    ctx.beginPath();
+    ctx.moveTo(ox + RING_MAX * s, oy);
+    ctx.arc(ox, oy, RING_MAX * s, 0, Math.PI * 2);
+    for (let b = 0; b < ringBands.length; b++) {
+      const r = ringBands[b].rIn * s;
+      if (r <= 1) continue;
+      ctx.moveTo(ox + r, oy);
+      ctx.arc(ox, oy, r, 0, Math.PI * 2);
+    }
+    ctx.stroke();
+
+    // The wedge boundaries, quieter still: they separate rather than
+    // measure, and at ten of them a full-strength spoke would read as a
+    // wheel drawn over the data.
+    ctx.globalAlpha = 0.14;
+    ctx.beginPath();
+    for (let i = 0; i < regions.length; i++) {
+      const a = regions[i].a0;
+      ctx.moveTo(ox + Math.cos(a) * RING_MIN * s, oy + Math.sin(a) * RING_MIN * s);
+      ctx.lineTo(ox + Math.cos(a) * RING_MAX * s, oy + Math.sin(a) * RING_MAX * s);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // The axis numbers, in the gutter. Each sits just above the circle
+    // it labels, which is the boundary rather than the band, so "1,000"
+    // means the thousand mark and everything inside it has more.
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillStyle = edgeColor;
+    for (let b = 0; b < ringBands.length - 1; b++) {
+      const r = ringBands[b].rIn * s;
+      if (r <= 14) continue;
+      const y = oy - r;
+      if (y < 12 || y > cssH - 2) continue;
+      ctx.fillText(fmt(ringBands[b].mark), ox, y - 3);
+    }
+
+    // The wedge names, on the arc.
+    ctx.textBaseline = "middle";
+    for (let i = 0; i < regions.length; i++) {
+      const reg = regions[i];
+      const off = !!hiddenCats[reg.key];
+      const mid = (reg.a0 + reg.a1) / 2;
+      const rLabel = (RING_MAX + RING_LABEL_OUT) * s;
+      if (rLabel <= 8) continue;
+      const lx = ox + Math.cos(mid) * rLabel;
+      const ly = oy + Math.sin(mid) * rLabel;
+      if (lx < -40 || lx > cssW + 40 || ly < -40 || ly > cssH + 40) continue;
+
+      const room = (reg.a1 - reg.a0) * rLabel - 16;
+      const full = `${reg.label} · ${fmt(reg.count)}`;
+      const text =
+        ctx.measureText(full).width <= room ? full : clipToWidth(reg.label, room);
+      ctx.save();
+      ctx.translate(lx, ly);
+      // Upright rather than upside down on the bottom half. The tangent
+      // is the angle plus a quarter turn; past the horizontal it has to
+      // be the angle minus one, or half the wheel reads inverted.
+      ctx.rotate(Math.sin(mid) > 0 ? mid - Math.PI / 2 : mid + Math.PI / 2);
+      ctx.globalAlpha = off ? 0.4 : 1;
+      if (text) {
+        ctx.fillStyle = inkColor;
+        ctx.fillText(text, 0, 0);
+      } else {
+        // No room for the name at this scale. The swatch still says
+        // which wedge this is, and zooming brings the name back.
+        const slot = catIndex[reg.key];
+        if (typeof slot === "number") {
+          ctx.fillStyle = catColors[slot % catColors.length];
+          ctx.beginPath();
+          ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.strokeStyle = edgeColor;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.arc(0, 0, 3.2, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+  }
+
+  /*
+   * The citation field. Two passes rather than one, because the two
+   * line kinds mean different things and are tiered on different
+   * numbers: a citation line is weighted by how many citations the pair
+   * carries, an argument line by how many refutations. Arguments go
+   * down SECOND so they sit on top of the field they are the exception
+   * to, which is 911 of 37,427 pairs.
+   *
+   * Both respect the same three gates the Scripture field does, plus
+   * the budget: an edge is drawn only when it is in the reader's chosen
+   * set, when at least one end is on screen, and when neither end's
+   * tradition is switched off in the legend.
+   */
+  function drawCiteEdges(px, py, onScreen, edgeFade) {
+    ctx.lineWidth = 1;
+
+    ctx.strokeStyle = edgeColor;
+    for (let t = 0; t < CITE_EDGE_TIERS.length; t++) {
+      const tier = CITE_EDGE_TIERS[t];
+      const lo = t === 0 ? -Infinity : CITE_EDGE_TIERS[t - 1].max;
+      ctx.globalAlpha = tier.alpha * edgeFade;
+      ctx.beginPath();
+      let any = false;
+      for (let i = 0; i < edges.length; i++) {
+        if (!edgeShown(i)) continue;
+        const e = edges[i];
+        if (isArgument(e)) continue;
+        const w = e[2];
+        if (!(w > lo && w <= tier.max)) continue;
+        const a = e[0];
+        const b = e[1];
+        if (!onScreen[a] && !onScreen[b]) continue;
+        if (!isVisible(nodes[a]) || !isVisible(nodes[b])) continue;
+        ctx.moveTo(px[a], py[a]);
+        ctx.lineTo(px[b], py[b]);
+        any = true;
+      }
+      if (any) ctx.stroke();
+    }
+
+    ctx.strokeStyle = inkColor;
+    ctx.setLineDash(ARG_DASH);
+    for (let t = 0; t < ARG_EDGE_TIERS.length; t++) {
+      const tier = ARG_EDGE_TIERS[t];
+      const lo = t === 0 ? -Infinity : ARG_EDGE_TIERS[t - 1].max;
+      ctx.globalAlpha = tier.alpha * edgeFade;
+      ctx.beginPath();
+      let any = false;
+      for (let i = 0; i < edges.length; i++) {
+        if (!edgeShown(i)) continue;
+        const e = edges[i];
+        if (!isArgument(e)) continue;
+        const w = e[3];
+        if (!(w > lo && w <= tier.max)) continue;
+        const a = e[0];
+        const b = e[1];
+        if (!onScreen[a] && !onScreen[b]) continue;
+        if (!isVisible(nodes[a]) || !isVisible(nodes[b])) continue;
+        ctx.moveTo(px[a], py[a]);
+        ctx.lineTo(px[b], py[b]);
+        any = true;
+      }
+      if (any) ctx.stroke();
+    }
+    // Left set, every later stroke in the frame inherits it.
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
   }
 
   /* ── The regions' own furniture ───────────────────────────────────
@@ -1296,15 +2091,31 @@
    * apart (FRONTEND §6.34).
    */
   function drawLabel(text, x, y, r) {
-    const label = String(text == null ? "" : text).slice(0, 90);
-    if (!label) return;
     const fontSize = 12;
+    const lead = 16;
     ctx.font = `${fontSize}px "Source Serif Pro", Georgia, serif`;
     ctx.textBaseline = "top";
     const padX = 7;
     const padY = 5;
-    const w = ctx.measureText(label).width + padX * 2;
-    const h = fontSize + padY * 2 + 2;
+    // One line on the Scripture maps and two on the citation maps, so
+    // the plate is measured rather than assumed. Clipped to the STAGE
+    // for the same reason the link plate is: at 375px the stage is
+    // 335px wide and an early-modern name is not.
+    const room = Math.max(60, cssW - 40 - padX * 2);
+    const raw = Array.isArray(text) ? text : [text];
+    const lines = [];
+    let widest = 0;
+    for (let i = 0; i < raw.length; i++) {
+      const s = clipToWidth(String(raw[i] == null ? "" : raw[i]).slice(0, 120), room);
+      if (!s) continue;
+      const wl = ctx.measureText(s).width;
+      if (wl > widest) widest = wl;
+      lines.push(s);
+    }
+    if (!lines.length) return;
+    const w = widest + padX * 2;
+    // Unchanged at 24px for one line, which is what it has always been.
+    const h = padY * 2 + (lines.length - 1) * lead + fontSize + 2;
 
     let lx = x + r + 8;
     let ly = y - h / 2;
@@ -1319,7 +2130,9 @@
     ctx.fillRect(lx, ly, w, h);
     ctx.globalAlpha = 1;
     ctx.fillStyle = paperColor;
-    ctx.fillText(label, lx + padX, ly + padY);
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], lx + padX, ly + padY + i * lead);
+    }
   }
 
   /* ── The plate for a link ─────────────────────────────────────────
@@ -1339,6 +2152,30 @@
   function edgePlateLines(j) {
     const f = edgeFacts(j);
     if (!f) return [];
+
+    /* The citation plate. Direction is on its own line and in the verb,
+     * because "A and B" is the one thing this edge does not say; and
+     * both halves of the total are given, because a pair that is mostly
+     * agreement with a large argument inside it is the shape of the
+     * heaviest disputes in this library and a single number hides it.
+     * Scotus on Aquinas reads here as 8,829 citations, 7,757 positive
+     * and 1,072 refutations, which is the whole point. */
+    if (f.cite) {
+      const c = f.cite;
+      const lines = [
+        f.nameA,
+        `cites ${f.nameB}`,
+        `${fmt(c.total)} ${c.total === 1 ? "citation" : "citations"}`,
+      ];
+      if (c.ref) {
+        lines.push(`${fmt(c.pos)} positive, ${fmt(c.ref)} refutations (${pct(c.share)})`);
+        if (c.argument) lines.push("Refutations outnumber agreements");
+      } else {
+        lines.push("No refutations in this pair");
+      }
+      return lines;
+    }
+
     const out = [f.nameA, f.nameB];
     out.push(
       f.bothKnown && !f.crosses
@@ -1494,12 +2331,16 @@
     let best = -1;
     let bestDist = Infinity;
     for (let i = 0; i < edges.length; i++) {
+      // Same rules the drawing uses, in the same order. A line outside
+      // the reader's chosen budget is not on the plate, so it must not
+      // be hoverable either; the alternative is a map that reports
+      // something invisible when the pointer happens to cross it.
+      if (!edgeShown(i)) continue;
       const e = edges[i];
       const a = e[0];
       const b = e[1];
-      // Same rule the drawing uses: an edge is gone when either end's
-      // category is switched off, so the legend cannot leave a line
-      // hoverable that is not painted.
+      // An edge is gone when either end's category is switched off, so
+      // the legend cannot leave a line hoverable that is not painted.
       if (!isVisible(nodes[a]) || !isVisible(nodes[b])) continue;
       const ax = (posX[a] - cx) * s + ox;
       const ay = (posY[a] - cy) * s + oy;
@@ -1538,7 +2379,7 @@
     const ka = catKeyOf(a);
     const kb = catKeyOf(b);
     const w = Number(e[2]);
-    return {
+    const out = {
       ia,
       ib,
       a,
@@ -1555,6 +2396,27 @@
       weight: isFinite(w) ? w : 0,
       word: strengthWord(isFinite(w) ? w : 0),
     };
+    if (!citeMode) return out;
+
+    /* The citation graph's edge is a different sentence: directed,
+     * counted rather than scored, and carrying a disagreement inside a
+     * total. `weight` above is a similarity between 0 and 1 everywhere
+     * else and is meaningless here, so `word` is dropped and `cite` is
+     * what every citation surface reads instead. Nothing branches on
+     * the ARRAY's length to work out which shape it has; it branches on
+     * citeMode, which is set from the payload. */
+    const ref = Number(e[3]) || 0;
+    const total = out.weight;
+    out.word = "";
+    out.cite = {
+      total,
+      ref,
+      pos: Math.max(0, total - ref),
+      share: total > 0 ? ref / total : 0,
+      argument: isArgument(e),
+      back: reverseEdge(i),
+    };
+    return out;
   }
 
   function buildAdjacency() {
@@ -1683,6 +2545,10 @@
    * fifteen requests.
    */
   function ensureFingerprints() {
+    // The sidecar is a per-book Scripture profile and the citation
+    // graph has no such thing. Asking for it here would spend a request
+    // on /constellations/citations/cited-fp.json, which is not a route.
+    if (citeMode) return;
     if (!shelfSlug || !view) return;
     const key = `${shelfSlug}/${view}`;
     if (fpKey === key) return;
@@ -1818,6 +2684,10 @@
       renderDossierEmpty();
       return;
     }
+    if (citeMode) {
+      renderCiteDossier(i);
+      return;
+    }
     dossierEl.textContent = "";
 
     const key = catKeyOf(node);
@@ -1898,6 +2768,342 @@
       }
       if (r && r.s) li.appendChild(textEl("span", "cn-row-meta", r.s));
       if (r && r.g) li.appendChild(textEl("span", "cn-row-gloss", r.g));
+      ul.appendChild(li);
+    });
+    dossierEl.appendChild(ul);
+  }
+
+  /* ── An author in the citation graph ──────────────────────────────
+   *
+   * The rail is where the two distortions in a raw refutation count are
+   * actually defused, because it is the only surface with room to put
+   * the correction NEXT TO the number rather than in a footnote:
+   *
+   *   The figures are always given in pairs. Citations received sit
+   *   beside refutations received, so an author who is heavily cited
+   *   and heavily refuted reads as both rather than as one. Bellarmine
+   *   is the case: 58,498 citations, 33,599 of them positive, 24,899
+   *   refutations, and every one of those numbers is on screen at once.
+   *
+   *   The refutation count is always given with the number of authors
+   *   behind it. Reding's 2,680 refutations from one author and
+   *   Bellarmine's 24,899 from 267 are the same column and would read
+   *   the same way without it.
+   *
+   * Three link lists, not one, and they are three different questions.
+   * "Most cited by" and "Cites most" are the two directions of the same
+   * edge set and answer who builds on whom. "Most argued with" is the
+   * same inbound list re-sorted by refutations rather than a filter of
+   * the first, which is what lets Scotus be Aquinas's largest opponent
+   * and his fifth largest source in one rail.
+   */
+  const CITE_LIST_CAP = 6;
+
+  function statRow(label, value, lead) {
+    const li = document.createElement("li");
+    li.className = lead ? "cn-stat cn-stat--lead" : "cn-stat";
+    li.appendChild(textEl("span", "cn-stat-label", label));
+    li.appendChild(textEl("span", "cn-stat-value", value));
+    return li;
+  }
+
+  /*
+   * One row in a link list, and the whole of the keyboard and touch
+   * path onto an edge. Focus lights the line on the map exactly as the
+   * index list lights a point, which is the only way somebody who
+   * cannot point gets "which line is this?" answered.
+   */
+  function linkRow(ei, name, meta) {
+    const li = document.createElement("li");
+    li.className = "cn-link";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "cn-link-btn";
+    btn.appendChild(textEl("span", "cn-link-name", name));
+    btn.appendChild(textEl("span", "cn-link-meta", meta));
+    btn.addEventListener("click", () => selectEdge(ei, { centre: true }));
+    btn.addEventListener("focus", () => {
+      hoveredEdge = ei;
+      draw();
+    });
+    btn.addEventListener("blur", () => {
+      if (hoveredEdge !== ei) return;
+      hoveredEdge = -1;
+      draw();
+    });
+    btn.addEventListener("mouseenter", () => {
+      hoveredEdge = ei;
+      draw();
+    });
+    btn.addEventListener("mouseleave", () => {
+      if (hoveredEdge !== ei) return;
+      hoveredEdge = -1;
+      draw();
+    });
+    li.appendChild(btn);
+    return li;
+  }
+
+  // The links off one author that are still on the map. Only the legend
+  // filter is applied, never the edge budget: the budget is a decision
+  // about the resting picture, and an author's citation record is the
+  // most useful thing in the rail. Choosing one paints it whatever the
+  // field is doing.
+  function citeLinks(list) {
+    const out = [];
+    if (!list) return out;
+    for (let k = 0; k < list.length; k++) {
+      const e = edges[list[k]];
+      if (!e || !isVisible(nodes[e[0]]) || !isVisible(nodes[e[1]])) continue;
+      out.push(list[k]);
+    }
+    return out;
+  }
+
+  function citeLinkList(heading, order, farEnd, metaOf) {
+    if (!order.length) return;
+    dossierEl.appendChild(textEl("p", "cn-dossier-heading", heading));
+    const ul = document.createElement("ul");
+    ul.className = "cn-links";
+    const shown = order.slice(0, CITE_LIST_CAP);
+    shown.forEach((ei) => {
+      const e = edges[ei];
+      if (!e) return;
+      const far = nodes[farEnd(e)];
+      ul.appendChild(linkRow(ei, (far && far.a) || "Untitled", metaOf(e)));
+    });
+    dossierEl.appendChild(ul);
+    dossierEl.appendChild(
+      textEl(
+        "p",
+        "cn-links-note",
+        order.length > shown.length
+          ? `The ${shown.length} largest of ${fmt(order.length)}.`
+          : `${fmt(order.length)} in all.`
+      )
+    );
+  }
+
+  function renderCiteDossier(i) {
+    const node = nodes[i];
+    if (!node) return;
+    dossierEl.textContent = "";
+
+    const key = catKeyOf(node);
+    dossierEl.appendChild(
+      textEl("p", "cn-dossier-kicker", key ? catLabel(key) : "Unclassified")
+    );
+    dossierEl.appendChild(textEl("h3", "cn-dossier-title", node.a || "Untitled"));
+
+    const by = refuters.length > i ? refuters[i] : 0;
+    const contested = view === "contested";
+    const stats = document.createElement("ul");
+    stats.className = "cn-stats";
+    // The view's own number first and largest, then the rest of the
+    // picture under it. Which one leads changes with the view; which
+    // ones are present does not, because the correction has to be
+    // there whichever way round the reader came at it.
+    stats.appendChild(
+      statRow(
+        contested ? "Refutations received" : "Citations received",
+        fmt(contested ? node.ref : node.pos),
+        true
+      )
+    );
+    stats.appendChild(
+      statRow(
+        contested ? "Citations received" : "Refutations received",
+        fmt(contested ? node.pos : node.ref)
+      )
+    );
+    stats.appendChild(statRow("Of everything citing them", pct(node.n ? node.ref / node.n : 0)));
+    stats.appendChild(statRow("Authors citing them", fmt(node.src)));
+    stats.appendChild(
+      statRow("Authors refuting them", node.ref ? `${fmt(by)} of ${fmt(node.src)}` : "None")
+    );
+    dossierEl.appendChild(stats);
+
+    /* The single-refuter sentence, said outright rather than left to be
+     * inferred from two numbers in a list. This is the line that stops
+     * Reding's 84% reading as a verdict, and it names who. */
+    if (node.ref && by > 0 && by < LONE_REFUTERS) {
+      const top = topRefuter.length > i ? topRefuter[i] : -1;
+      const e = top >= 0 ? edges[top] : null;
+      const one = e ? nodes[e[0]] : null;
+      dossierEl.appendChild(
+        textEl(
+          "p",
+          "cn-stat-note",
+          one && by === 1
+            ? `Every one of these refutations is ${one.a}. That is one opponent rather than a reputation, which is why this point is drawn as a hollow ring.`
+            : "These refutations come from one or two opponents rather than from the library at large, which is why this point is drawn as a hollow ring."
+        )
+      );
+    }
+    dossierEl.appendChild(textEl("p", "cn-stat-note", CITE_FLOOR_NOTE));
+
+    const inbound = citeLinks(inAdj[i]);
+    const outbound = citeLinks(outAdj[i]);
+    const argued = inbound
+      .filter((ei) => edges[ei][3] > 0)
+      .sort((p, q) => edges[q][3] - edges[p][3] || p - q);
+
+    // Ordered so the contested view opens on the argument. Same three
+    // lists either way, since an author's record does not change with
+    // the view the reader arrived through.
+    const citedBy = () =>
+      citeLinkList(
+        "Most cited by",
+        inbound,
+        (e) => e[0],
+        (e) =>
+          `${fmt(e[2])} ${e[2] === 1 ? "citation" : "citations"}${e[3] ? `, ${fmt(e[3])} refuting` : ""}`
+      );
+    const arguedWith = () =>
+      citeLinkList(
+        "Most argued with by",
+        argued,
+        (e) => e[0],
+        (e) => `${fmt(e[3])} of ${fmt(e[2])} refuting${isArgument(e) ? ", mostly argument" : ""}`
+      );
+    if (contested) {
+      arguedWith();
+      citedBy();
+    } else {
+      citedBy();
+      arguedWith();
+    }
+
+    citeLinkList(
+      "Cites most",
+      outbound,
+      (e) => e[1],
+      (e) =>
+        `${fmt(e[2])} ${e[2] === 1 ? "citation" : "citations"}${e[3] ? `, ${fmt(e[3])} refuting` : ""}`
+    );
+
+    if (!inbound.length && !outbound.length && edges.length) {
+      dossierEl.appendChild(textEl("p", "cn-dossier-heading", "Links"));
+      dossierEl.appendChild(
+        textEl(
+          "p",
+          "cn-links-none",
+          "No pair involving this author reaches five citations, so none of them is in the graph."
+        )
+      );
+    }
+  }
+
+  /* A citation, in the rail. The plate's four lines in full, plus the
+   * two things a plate has no room for: the traffic in the other
+   * direction, which exists for 614 of the 37,427 pairs and is half the
+   * sentence when it does, and the two ends as real buttons. */
+  function renderCiteLink(j) {
+    const f = edgeFacts(j);
+    if (!f || !f.cite) {
+      renderDossierEmpty();
+      return;
+    }
+    const c = f.cite;
+    dossierEl.textContent = "";
+    dossierEl.appendChild(
+      textEl("p", "cn-dossier-kicker", c.argument ? "Argument" : "Citation")
+    );
+    dossierEl.appendChild(
+      textEl("h3", "cn-dossier-title", `${f.nameA} cites ${f.nameB}`)
+    );
+
+    const strength = document.createElement("p");
+    strength.className = "cn-link-strength";
+    strength.appendChild(textEl("span", "cn-link-figure", fmt(c.total)));
+    strength.appendChild(
+      textEl("span", "cn-link-word", c.total === 1 ? "citation" : "citations")
+    );
+    dossierEl.appendChild(strength);
+
+    dossierEl.appendChild(
+      textEl(
+        "p",
+        "cn-dossier-sub",
+        c.ref
+          ? `${fmt(c.pos)} of them positive and ${fmt(c.ref)} refutations, which is ${pct(c.share)} of the pair.`
+          : "None of them is a refutation."
+      )
+    );
+    if (c.argument) {
+      dossierEl.appendChild(
+        textEl(
+          "p",
+          "cn-link-gloss",
+          "Refutations outnumber agreements here, which is what the dashed line on the map marks."
+        )
+      );
+    } else if (c.ref) {
+      // The Scotus and Aquinas case, and it is the reading that a
+      // single number would lose: the largest debt in the library is
+      // also its largest dispute.
+      dossierEl.appendChild(
+        textEl(
+          "p",
+          "cn-link-gloss",
+          "Mostly agreement with an argument inside it, so the line is drawn solid. A pair can be both a debt and a dispute. The heaviest ones in this library are."
+        )
+      );
+    }
+    dossierEl.appendChild(
+      textEl(
+        "p",
+        "cn-dossier-sub",
+        f.bothKnown && !f.crosses
+          ? `Both are shelved under ${f.regionA}.`
+          : `${f.regionA} citing ${f.regionB}.`
+      )
+    );
+    dossierEl.appendChild(textEl("p", "cn-link-gloss", LINK_GLOSS[view] || LINK_GLOSS.cited));
+
+    if (c.back >= 0) {
+      const b = edges[c.back];
+      dossierEl.appendChild(textEl("p", "cn-dossier-heading", "The other direction"));
+      const ul = document.createElement("ul");
+      ul.className = "cn-links";
+      ul.appendChild(
+        linkRow(
+          c.back,
+          `${f.nameB} cites ${f.nameA}`,
+          `${fmt(b[2])} ${b[2] === 1 ? "citation" : "citations"}${b[3] ? `, ${fmt(b[3])} refuting` : ", none refuting"}`
+        )
+      );
+      dossierEl.appendChild(ul);
+    }
+
+    dossierEl.appendChild(textEl("p", "cn-dossier-heading", "The two ends"));
+    const ul = document.createElement("ul");
+    ul.className = "cn-links";
+    [
+      [f.ia, f.nameA, `Citing · ${f.regionA}`],
+      [f.ib, f.nameB, `Cited · ${f.regionB}`],
+    ].forEach((end) => {
+      const li = document.createElement("li");
+      li.className = "cn-link";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cn-link-btn";
+      btn.appendChild(textEl("span", "cn-link-name", end[1]));
+      btn.appendChild(textEl("span", "cn-link-meta", end[2]));
+      btn.addEventListener("click", () => {
+        select(end[0], { centre: true });
+        syncIndexSelection();
+      });
+      btn.addEventListener("focus", () => {
+        hovered = end[0];
+        draw();
+      });
+      btn.addEventListener("blur", () => {
+        if (hovered !== end[0]) return;
+        hovered = -1;
+        draw();
+      });
+      li.appendChild(btn);
       ul.appendChild(li);
     });
     dossierEl.appendChild(ul);
@@ -1998,6 +3204,10 @@
    */
   function renderLinkDossier(j) {
     if (!dossierEl) return;
+    if (citeMode) {
+      renderCiteLink(j);
+      return;
+    }
     const f = edgeFacts(j);
     if (!f) {
       renderDossierEmpty();
@@ -2152,7 +3362,9 @@
     renderLinkDossier(j);
     syncIndexSelection();
     announce(
-      `Link selected. ${f.nameA} and ${f.nameB}, strength ${f.weight.toFixed(2)}, ${f.word}.`
+      f.cite
+        ? `Link selected. ${f.nameA} cites ${f.nameB}, ${fmt(f.cite.total)} citations, ${fmt(f.cite.ref)} of them refutations.`
+        : `Link selected. ${f.nameA} and ${f.nameB}, strength ${f.weight.toFixed(2)}, ${f.word}.`
     );
     if (opts && opts.centre) centreOnEdge(j);
     draw();
@@ -2499,7 +3711,7 @@
     for (let i = 0; i < nodes.length; i++) {
       if (isVisible(nodes[i])) out.push(i);
     }
-    out.sort((a, b) => (nodes[b].n || 0) - (nodes[a].n || 0));
+    out.sort((a, b) => sortMetric(nodes[b]) - sortMetric(nodes[a]) || a - b);
     return out;
   }
 
@@ -2598,17 +3810,48 @@
       visible === nodes.length
         ? `${fmt(nodes.length)} ${noun}${nodes.length === 1 ? "" : "s"}`
         : `${fmt(visible)} of ${fmt(nodes.length)} ${noun}s`;
-    const links = edgesOn
-      ? `${fmt(edges.length)} links`
-      : `${fmt(edges.length)} links, hidden`;
+    /* What is on screen, always, and on the citation maps always as N
+     * of M. 37,427 pairs is ten times what this map has drawn before,
+     * so a default that showed some of them and said "37,427 links"
+     * would be a silent truncation of the loudest kind: the reader
+     * would be counting a picture that is not the one in front of them.
+     * The number here is budgetCount, which is what the draw loop
+     * itself gates on, so the two cannot come apart. */
+    const links = citeMode
+      ? edgesOn
+        ? `${fmt(budgetCount)} of ${fmt(edges.length)} citation pairs drawn`
+        : `${fmt(edges.length)} citation pairs, hidden`
+      : edgesOn
+        ? `${fmt(edges.length)} links`
+        : `${fmt(edges.length)} links, hidden`;
     const from = isAll ? ` from ${fmt(allShelvesFor(view).length - allMissed)} shelves` : "";
     captionEl.appendChild(textEl("span", "cn-caption-count", `${count}${from}, ${links}`));
-    const blurb = isAll
-      ? ALL_BLURB[view] || ALL_BLURB.authors
-      : layout === LAYOUT_REGIONS
-        ? REGION_BLURB[view]
-        : VIEW_BLURB[view];
+    const blurb = citeMode
+      ? layout === LAYOUT_RINGS
+        ? CITE_BLURB[view] || CITE_BLURB.cited
+        : CITE_REGION_BLURB[view] || CITE_REGION_BLURB.cited
+      : isAll
+        ? ALL_BLURB[view] || ALL_BLURB.authors
+        : layout === LAYOUT_REGIONS
+          ? REGION_BLURB[view]
+          : VIEW_BLURB[view];
     captionEl.appendChild(textEl("span", "cn-caption-blurb", blurb || ""));
+
+    /* What the citation maps measure and what they do not. Three
+     * separate corrections in three separate spans, because folding any
+     * of them into the sentence above would bury it. The contested one
+     * is the one that must never be dropped: a refutation count read on
+     * its own says something the data does not say. */
+    if (citeMode) {
+      captionEl.appendChild(
+        textEl("span", "cn-caption-key", CITE_LINE_KEY[view] || CITE_LINE_KEY.cited)
+      );
+      captionEl.appendChild(textEl("span", "cn-caption-caveat", CITE_SCOPE_CAVEAT));
+      captionEl.appendChild(textEl("span", "cn-caption-caveat", CITE_TRADITION_CAVEAT));
+      if (view === "contested") {
+        captionEl.appendChild(textEl("span", "cn-caption-caveat", CITE_CONTESTED_CAVEAT));
+      }
+    }
 
     /* The one thing this view cannot do, in its own span rather than
      * folded into the sentence above, because it is a caveat about the
@@ -2624,9 +3867,11 @@
     }
 
     if (canvas) {
-      const where = isAll
-        ? "across all shelves"
-        : `on the ${(shelves.find((s) => s.slug === shelfSlug) || {}).shelf || "this"} shelf`;
+      const where = citeMode
+        ? "in the library's citation graph"
+        : isAll
+          ? "across all shelves"
+          : `on the ${(shelves.find((s) => s.slug === shelfSlug) || {}).shelf || "this"} shelf`;
       canvas.setAttribute("aria-label", `Map of ${count} ${where}.`);
     }
   }
@@ -2647,10 +3892,23 @@
   }
 
   function availableViews(slug) {
+    // The citation graph's two views are never offered beside the three
+    // Scripture ones and the three are never offered beside them. They
+    // are different measurements over different payloads, and a picker
+    // that mixed them would offer combinations with nothing behind
+    // them.
+    if (slug === CITE_SLUG) return CITE_VIEWS.slice();
     if (slug === ALL_SLUG) return ALL_VIEWS.filter((v) => allShelvesFor(v).length > 0);
     const s = shelves.find((x) => x.slug === slug);
     const have = (s && s.have) || {};
     return ["authors", "works", "doctrines"].filter((v) => Number(have[v]) > 0);
+  }
+
+  // Same rule as allSlugFree: a real shelf answering to this slug wins,
+  // and the synthetic entry is simply not offered rather than two
+  // things sharing one ?shelf= value.
+  function citeSlugFree() {
+    return !shelves.some((s) => s && s.slug === CITE_SLUG);
   }
 
   // The real shelves that carry a view, in the index's own order. The
@@ -2665,8 +3923,21 @@
   // would put position, the map's loudest channel, to work saying
   // something nobody computed. The regional arrangement is safe because
   // the panel places those points itself from the category key.
+  /* Which SHELF the reader is on, as against whether citation data has
+   * actually landed. The controls read this one, so they are correct
+   * the instant the shelf changes rather than one network round trip
+   * later; the drawing and the dossier read citeMode, which is set from
+   * the payload, so they can never read citation fields off a map that
+   * has none. */
+  function onCiteShelf() {
+    return shelfSlug === CITE_SLUG;
+  }
+
   function similarityOK() {
-    return !isAll;
+    // The citation payload carries no x/y at all, so there is nothing
+    // to lay out by. Same answer as the merged shelf, different reason,
+    // and the note under the control says which.
+    return !isAll && !onCiteShelf();
   }
 
   function renderViewButtons() {
@@ -2682,6 +3953,15 @@
     // Said out loud rather than left as an unexplained gap: a shelf with
     // one view reads as a broken picker otherwise.
     if (!viewsNote) return;
+
+    // The citation graph is not a shelf and does not have a `have`
+    // block, so the "has been mined for" sentence below would be a
+    // claim about a shelf that does not exist.
+    if (onCiteShelf()) {
+      viewsNote.hidden = false;
+      viewsNote.textContent = `${CITE_VIEWS_NOTE} ${CITE_FLOOR_NOTE}`;
+      return;
+    }
 
     // The merged shelf is missing a view for a reason of its own, and
     // the "has been mined for" sentence below would be a lie about it:
@@ -2724,7 +4004,21 @@
     posY = new Float64Array(0);
     cellSpan = new Float64Array(0);
     regions = [];
+    ringBands = [];
     bounds = null;
+    inAdj = [];
+    outAdj = [];
+    refuters = new Int32Array(0);
+    topRefuter = new Int32Array(0);
+    reverseAt = null;
+    inBudget = new Uint8Array(0);
+    budgetCount = 0;
+    // An empty map is not a citation map. Leaving the flag up would
+    // leave the caption promising citation pairs and the links control
+    // showing a budget over an edge list that no longer exists.
+    citeMode = false;
+    budgets = [];
+    renderBudgetSelect();
     clearSelection();
     hovered = -1;
     hoveredEdge = -1;
@@ -2759,6 +4053,24 @@
     hoveredEdge = -1;
     clearSelection();
     buildAdjacency();
+    // Set from the PAYLOAD rather than from the shelf slug, so a switch
+    // caught half way through cannot leave the drawing reading citation
+    // fields off a Scripture map or the other way round.
+    citeMode = !!payload.cite;
+    buildCiteStats();
+    buildBudgets();
+    if (citeMode) {
+      // Kept across a view switch where the ladder still offers it, so
+      // a reader who widened the field does not have it narrowed again
+      // underneath them.
+      const want = budgetAt(budgetKey) ? budgetKey : CITE_BUDGET_DEFAULT[view] || "all";
+      applyBudget(want);
+      edgesOn = want !== "none";
+    } else {
+      inBudget = new Uint8Array(0);
+      budgetCount = 0;
+    }
+    renderBudgetSelect();
     computeWeights();
     positionNodes();
     fit();
@@ -2772,8 +4084,48 @@
     draw();
   }
 
+  /*
+   * One file, both views. The payload is cached like every other, so
+   * switching between "Most cited" and "Most contested" costs nothing
+   * on the wire; what it does cost is a re-adapt, because the index
+   * list's second line and the ring metric are both written per view.
+   */
+  async function loadCitations() {
+    const token = ++loadToken;
+    clearError();
+    setStatus("Reading the citation graph…");
+    let payload;
+    try {
+      payload = await getJSON(CITE_URL);
+    } catch (err) {
+      console.error("[faith-constellations] could not load the citation graph", err);
+      if (token !== loadToken) return;
+      setStatus("");
+      // Never a blank plate. A 404 here means the graph has not been
+      // published, which is a different sentence from a network
+      // failure, and both are different from "nobody cites anybody"
+      // (FRONTEND 6.33).
+      showError(
+        err && err.status === 404
+          ? "The citation graph has not been published yet."
+          : "Could not reach the library. Please check your connection and try again."
+      );
+      clearMap();
+      return;
+    }
+    if (token !== loadToken) return;
+    setStatus("");
+    adopt(adaptCitations(payload, view));
+    renderViewButtons();
+    renderLayoutButtons();
+  }
+
   async function load() {
     if (!shelfSlug || !view) return;
+    if (shelfSlug === CITE_SLUG) {
+      loadCitations();
+      return;
+    }
     const token = ++loadToken;
     clearError();
     setStatus("Drawing the map…");
@@ -2994,6 +4346,291 @@
     if (edgesOn) ensureFingerprints();
   }
 
+  /* ── Reading the citation graph ───────────────────────────────────
+   *
+   * The adapter. Everything downstream of adopt() reads the
+   * constellations shape, so the citation payload is translated into it
+   * once, here, rather than being branched on in twenty places. Three
+   * things are actually different and all three are absorbed:
+   *
+   *   `e` is an INDEX into cats, not a key string. catKeyOf() tests for
+   *     a string, so an index left as a number would make every author
+   *     unclassified and the map one colour.
+   *
+   *   The tenth category is "unknown" and it holds four authors. It is
+   *     dropped from `cats` and those four are emitted with no `e` at
+   *     all, which is the same absence the Scripture views already know
+   *     how to draw: an open ring, an "Unclassified" legend entry, a
+   *     wedge of their own. A tradition nobody was in should not be
+   *     painted as a tradition somebody was in.
+   *
+   *   There is no `sub`, and the index list is the only place an author
+   *     can be compared to the next one as text. So the second line is
+   *     synthesised per view, and on the contested view it carries the
+   *     number of authors refuting alongside the count, which is the
+   *     whole defence against reading Reding's 2,680 as a consensus.
+   *
+   * Copies are made rather than the payload's own objects being marked
+   * up, because `cache` hands the same object back on a view switch and
+   * a `sub` written for one view would then be read by the other.
+   */
+  function numOf(v) {
+    const n = Number(v);
+    return isFinite(n) && n > 0 ? n : 0;
+  }
+
+  function adaptCitations(payload, which) {
+    const declared = Array.isArray(payload && payload.cats) ? payload.cats : [];
+    const cats = [];
+    // payload cat index -> our cat index, or -1 for "no category"
+    const catMap = declared.map((c) => {
+      if (!c || typeof c.k !== "string" || !c.k || c.k === "unknown") return -1;
+      cats.push({ k: c.k, l: c.l || c.k });
+      return cats.length - 1;
+    });
+
+    const src = Array.isArray(payload && payload.nodes) ? payload.nodes : [];
+    const nodes = src.map((n) => {
+      const out = {
+        a: n && typeof n.a === "string" && n.a ? n.a : "Untitled",
+        fk: n && typeof n.fk === "string" ? n.fk : "",
+        n: numOf(n && n.n),
+        pos: numOf(n && n.pos),
+        ref: numOf(n && n.ref),
+        src: numOf(n && n.src),
+      };
+      const at = n && typeof n.e === "number" ? catMap[n.e] : -1;
+      if (typeof at === "number" && at >= 0) out.e = cats[at].k;
+      return out;
+    });
+
+    const edges = (Array.isArray(payload && payload.edges) ? payload.edges : [])
+      .filter(
+        (e) =>
+          Array.isArray(e) &&
+          Number.isInteger(e[0]) &&
+          Number.isInteger(e[1]) &&
+          e[0] >= 0 &&
+          e[1] >= 0 &&
+          e[0] < nodes.length &&
+          e[1] < nodes.length &&
+          e[0] !== e[1]
+      )
+      .map((e) => [e[0], e[1], numOf(e[2]), numOf(e[3])]);
+
+    // The second line in the index list, and it is written AFTER the
+    // edges exist because the contested one needs them.
+    const refBy = new Int32Array(nodes.length);
+    for (let i = 0; i < edges.length; i++) {
+      if (edges[i][3] > 0) refBy[edges[i][1]] += 1;
+    }
+    nodes.forEach((n, i) => {
+      if (which === "contested") {
+        n.sub = n.ref
+          ? `${fmt(n.ref)} ${n.ref === 1 ? "refutation" : "refutations"} from ${fmt(refBy[i])} ${refBy[i] === 1 ? "author" : "authors"}`
+          : "Never refuted";
+      } else {
+        n.sub = n.pos
+          ? `${fmt(n.pos)} ${n.pos === 1 ? "citation" : "citations"} from ${fmt(n.src)} ${n.src === 1 ? "author" : "authors"}`
+          : "Never cited";
+      }
+    });
+
+    return { nodes, edges, cats, cite: true };
+  }
+
+  /*
+   * The directed halves of the adjacency, plus the two figures that
+   * stop a refutation count being read as a verdict.
+   *
+   * Both lists are sorted by the pair's TOTAL citations rather than by
+   * refutations, and the dossier re-sorts the argument list itself.
+   * That is deliberate: "who cites this author most" and "who argues
+   * with them most" are different questions with different answers, and
+   * Aquinas is the case that proves it. Scotus is his fifth largest
+   * source and his largest opponent, and the rail has to be able to say
+   * both without either list being the other one filtered.
+   */
+  function buildCiteStats() {
+    const nn = nodes.length;
+    inAdj = new Array(nn);
+    outAdj = new Array(nn);
+    refuters = new Int32Array(nn);
+    topRefuter = new Int32Array(nn).fill(-1);
+    reverseAt = new Map();
+    if (!citeMode) return;
+
+    for (let i = 0; i < edges.length; i++) {
+      const e = edges[i];
+      const a = e[0];
+      const b = e[1];
+      if (!outAdj[a]) outAdj[a] = [];
+      if (!inAdj[b]) inAdj[b] = [];
+      outAdj[a].push(i);
+      inAdj[b].push(i);
+      reverseAt.set(`${a}:${b}`, i);
+      if (e[3] > 0) {
+        refuters[b] += 1;
+        const held = topRefuter[b];
+        if (held < 0 || e[3] > edges[held][3]) topRefuter[b] = i;
+      }
+    }
+    const heavy = (p, q) => (edges[q][2] || 0) - (edges[p][2] || 0) || p - q;
+    for (let i = 0; i < nn; i++) {
+      if (inAdj[i]) inAdj[i].sort(heavy);
+      if (outAdj[i]) outAdj[i].sort(heavy);
+    }
+  }
+
+  function reverseEdge(j) {
+    const e = edges[j];
+    if (!e || !reverseAt) return -1;
+    const at = reverseAt.get(`${e[1]}:${e[0]}`);
+    return typeof at === "number" ? at : -1;
+  }
+
+  /* ── How many lines, and why that many ────────────────────────────
+   *
+   * 37,427 edges is roughly ten times what this map has drawn before
+   * and the alpha tiers were tuned around 3,700, so the whole set is
+   * not the default anywhere. What IS the default was chosen off the
+   * measured distribution rather than picked:
+   *
+   *   MOST CITED defaults to pairs of 250 citations or more, which is
+   *     1,348 of them. The threshold is a round number a reader can
+   *     hold, it is well inside the ink budget the existing map already
+   *     proves at 3,753, and it leaves the shape of the thing intact:
+   *     almost every one of those lines runs inward, which is the
+   *     picture the view exists to show.
+   *
+   *   MOST CONTESTED defaults to pairs carrying ten refutations or
+   *     more, which is 2,066. It deliberately does NOT default to the
+   *     911 argument edges, tempting as that is, because the ref*2>n
+   *     test excludes Scotus on Aquinas: 8,829 citations, 1,072 of them
+   *     refutations, the largest dispute in the library and only 12% of
+   *     its own pair. A contested map without the largest dispute on it
+   *     is the wrong map. Arguments-only is offered as a rung rather
+   *     than used as the floor.
+   *
+   * Every count here is measured off the payload on the spot. Nothing
+   * about the ladder is remembered from a previous version of the
+   * worker, and the number the caption prints is the number the draw
+   * loop will actually put on screen.
+   */
+  const CITE_BUDGETS = {
+    cited: [
+      { key: "n500", label: "500 citations or more", test: (e) => e[2] >= 500 },
+      { key: "n250", label: "250 citations or more", test: (e) => e[2] >= 250 },
+      { key: "n100", label: "100 citations or more", test: (e) => e[2] >= 100 },
+      { key: "n25", label: "25 citations or more", test: (e) => e[2] >= 25 },
+      { key: "all", label: "Every pair", test: () => true },
+    ],
+    contested: [
+      { key: "arg", label: "Arguments only", test: (e) => e[3] * 2 > e[2] },
+      { key: "ref100", label: "100 refutations or more", test: (e) => e[3] >= 100 },
+      { key: "ref25", label: "25 refutations or more", test: (e) => e[3] >= 25 },
+      { key: "ref10", label: "10 refutations or more", test: (e) => e[3] >= 10 },
+      { key: "ref1", label: "Every pair with a refutation", test: (e) => e[3] >= 1 },
+      { key: "all", label: "Every pair", test: () => true },
+    ],
+  };
+  const CITE_BUDGET_DEFAULT = { cited: "n250", contested: "ref10" };
+
+  function buildBudgets() {
+    budgets = [];
+    if (!citeMode) return;
+    const rungs = CITE_BUDGETS[view] || CITE_BUDGETS.cited;
+    rungs.forEach((rung) => {
+      let count = 0;
+      for (let i = 0; i < edges.length; i++) {
+        if (rung.test(edges[i])) count += 1;
+      }
+      // A rung nothing satisfies is not offered. It would read as a
+      // control that does nothing rather than as a fact about the data,
+      // and the caption is where a zero belongs.
+      if (count > 0) budgets.push({ key: rung.key, label: rung.label, test: rung.test, count });
+    });
+    budgets.push({ key: "none", label: "Hidden", test: () => false, count: 0 });
+  }
+
+  function budgetAt(key) {
+    for (let i = 0; i < budgets.length; i++) {
+      if (budgets[i].key === key) return budgets[i];
+    }
+    return null;
+  }
+
+  function applyBudget(key) {
+    inBudget = new Uint8Array(edges.length);
+    budgetCount = 0;
+    const rung = budgetAt(key);
+    if (!rung || rung.key === "none") {
+      budgetKey = rung ? rung.key : "none";
+      return;
+    }
+    budgetKey = rung.key;
+    for (let i = 0; i < edges.length; i++) {
+      if (rung.test(edges[i])) {
+        inBudget[i] = 1;
+        budgetCount += 1;
+      }
+    }
+  }
+
+  // The one predicate the drawing, the hit test and the caption all
+  // read, so a line that is countable is hoverable and a line that is
+  // hoverable is on screen.
+  function edgeShown(i) {
+    if (!citeMode) return true;
+    return inBudget.length > i ? inBudget[i] === 1 : false;
+  }
+
+  function renderBudgetSelect() {
+    if (!budgetSel) return;
+    if (!citeMode) {
+      budgetSel.hidden = true;
+      budgetSel.textContent = "";
+      if (linksGroup) linksGroup.hidden = false;
+      return;
+    }
+    if (linksGroup) linksGroup.hidden = true;
+    budgetSel.hidden = false;
+    budgetSel.textContent = "";
+    budgets.forEach((rung) => {
+      const opt = document.createElement("option");
+      opt.value = rung.key;
+      // The count sits in the option itself, so the cost of widening is
+      // known before the reader commits to it rather than after.
+      opt.textContent =
+        rung.key === "none" ? rung.label : `${rung.label} (${fmt(rung.count)})`;
+      budgetSel.appendChild(opt);
+    });
+    budgetSel.value = edgesOn ? budgetKey : "none";
+  }
+
+  function setBudget(key) {
+    if (!citeMode) return;
+    if (key === "none") {
+      edgesOn = false;
+    } else {
+      edgesOn = true;
+      applyBudget(key);
+    }
+    renderCaption();
+    // A hover or a selection on a line that has just left the budget
+    // would keep describing something no longer on the plate. A hover
+    // is dropped; a SELECTION is kept, because a chosen link is drawn
+    // whatever the field is doing and reading one at a time with the
+    // field off is a real way to use this map.
+    hoveredEdge = -1;
+    draw();
+    announce(
+      edgesOn
+        ? `Drawing ${fmt(budgetCount)} of ${fmt(edges.length)} pairs.`
+        : "Links hidden."
+    );
+  }
+
   /* ── Arrangement and links: the two display toggles ─────────────── */
 
   function renderLayoutButtons() {
@@ -3004,6 +4641,15 @@
       // reader on the doctrines view is not told it files by Scripture.
       if (which === LAYOUT_REGIONS) {
         b.textContent = REGION_BTN_LABEL[view] || "By section";
+      }
+      // Rings is HIDDEN off the citation graph rather than disabled.
+      // The two disabled controls in this panel are both cases where a
+      // reader might reasonably expect the arrangement to work and has
+      // to be told why it does not. Nobody expects a Scripture shelf to
+      // offer an arrangement by citation count, and a permanently
+      // struck-through third option would be furniture.
+      if (which === LAYOUT_RINGS) {
+        b.hidden = !onCiteShelf();
       }
       // Disabled and still there, rather than removed. A control that
       // vanishes on one shelf and returns on the next reads as the
@@ -3019,7 +4665,7 @@
     });
     if (!arrangeNote) return;
     arrangeNote.hidden = simOK;
-    arrangeNote.textContent = simOK ? "" : ALL_ARRANGE_NOTE;
+    arrangeNote.textContent = simOK ? "" : onCiteShelf() ? CITE_ARRANGE_NOTE : ALL_ARRANGE_NOTE;
   }
 
   function renderLinksButton() {
@@ -3030,8 +4676,9 @@
   }
 
   function setLayout(next) {
-    if (next !== LAYOUT_REGIONS && next !== LAYOUT_SIMILARITY) return;
+    if (next !== LAYOUT_REGIONS && next !== LAYOUT_SIMILARITY && next !== LAYOUT_RINGS) return;
     if (next === LAYOUT_SIMILARITY && !similarityOK()) return;
+    if (next === LAYOUT_RINGS && !onCiteShelf()) return;
     if (next === layout) return;
     layout = next;
     renderLayoutButtons();
@@ -3044,9 +4691,11 @@
     resetView();
     renderCaption();
     announce(
-      layout === LAYOUT_REGIONS
-        ? `Arranged in sections, ${regions.length} of them.`
-        : "Arranged by similarity."
+      layout === LAYOUT_RINGS
+        ? `Arranged in ${ringBands.length} rings, grouped into ${regions.length} wedges by tradition.`
+        : layout === LAYOUT_REGIONS
+          ? `Arranged in sections, ${regions.length} of them.`
+          : "Arranged by similarity."
     );
   }
 
@@ -3081,9 +4730,32 @@
 
   function setShelf(slug) {
     const wasAll = isAll;
+    const wasCite = shelfSlug === CITE_SLUG;
+    const isCite = slug === CITE_SLUG;
     shelfSlug = slug;
     isAll = slug === ALL_SLUG;
     allMissed = 0;
+
+    /* Entering the citation graph forces the ring arrangement and
+     * leaving it gives the reader back whatever they had, the same
+     * bargain the merged shelf strikes below. Rings is not a preference
+     * here: the two views exist to say who is at the centre and who is
+     * at the rim, and neither of the other two arrangements can say it.
+     *
+     * The edge budget is dropped on the way in and on the way out. It
+     * is a decision about a 37,427-edge graph and it means nothing over
+     * a Scripture payload, so carrying it across would be carrying a
+     * number that no longer refers to anything. */
+    if (isCite && !wasCite) {
+      preCiteLayout = layout;
+      layout = LAYOUT_RINGS;
+      budgetKey = "";
+    } else if (!isCite && wasCite) {
+      layout = preCiteLayout || LAYOUT_REGIONS;
+      preCiteLayout = "";
+      budgetKey = "";
+      edgesOn = true;
+    }
 
     /* Entering the merged shelf turns the links OFF and forces the
      * regional arrangement, and both of those are corrections rather
@@ -3128,6 +4800,7 @@
     b.addEventListener("click", () => setLayout(b.getAttribute("data-cn-layout")));
   });
   if (linksBtn) linksBtn.addEventListener("click", () => setEdges(!edgesOn));
+  if (budgetSel) budgetSel.addEventListener("change", () => setBudget(budgetSel.value));
   shelfSel.addEventListener("change", () => setShelf(shelfSel.value));
 
   async function boot() {
@@ -3163,6 +4836,17 @@
       opt.textContent = ALL_LABEL;
       shelfSel.appendChild(opt);
     }
+    // The citation graph, next to the merged shelf and above the
+    // sixteen real ones, because both of them are corpus-wide and the
+    // list below is per-shelf. It is a different endpoint rather than a
+    // shelf, so it is added here rather than expected in the index.
+    const citeOK = citeSlugFree();
+    if (citeOK) {
+      const opt = document.createElement("option");
+      opt.value = CITE_SLUG;
+      opt.textContent = CITE_LABEL;
+      shelfSel.appendChild(opt);
+    }
     shelves.forEach((s) => {
       const opt = document.createElement("option");
       opt.value = s.slug;
@@ -3185,10 +4869,16 @@
     } catch (_) { /* malformed query string; fall through to the defaults */ }
 
     if (wantLayout === LAYOUT_SIMILARITY || wantLayout === LAYOUT_REGIONS) layout = wantLayout;
-    // ?shelf=all is a real, shareable starting point, but only where
-    // the merged option was actually offered above.
+    // ?shelf=all and ?shelf=citations are real, shareable starting
+    // points, but only where those options were actually offered above.
+    // ?arrange=rings is deliberately NOT honoured: setShelf forces the
+    // ring arrangement on the citation graph and refuses it everywhere
+    // else, so a query string could only ever ask for a state the panel
+    // would immediately correct.
     const known =
-      shelves.some((s) => s.slug === wantShelf) || (wantShelf === ALL_SLUG && allViews.length > 0);
+      shelves.some((s) => s.slug === wantShelf) ||
+      (wantShelf === ALL_SLUG && allViews.length > 0) ||
+      (wantShelf === CITE_SLUG && citeOK);
     const first = known ? wantShelf : shelves[0].slug;
     shelfSel.value = first;
     if (wantView && availableViews(first).indexOf(wantView) >= 0) view = wantView;

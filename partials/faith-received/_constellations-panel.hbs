@@ -37,30 +37,45 @@
        - [data-cn-root] wrapping everything. The script marks it bound.
        - [data-cn-shelf] — the shelf <select>. Ships EMPTY and disabled;
          the script writes all sixteen options from index.json and
-         enables it, plus a seventeenth, "All shelves", which the worker
-         does not serve and the script merges in the browser. A
-         hard-coded list here would go stale against the worker without
-         anything failing.
-       - [data-cn-view] — one button per view. All three ship `hidden`;
-         the script unhides only the views the shelf's `have` block
-         actually lists, because a view a shelf lacks is a 404 rather
-         than an empty map.
-       - [data-cn-layout] — the two arrangements. "regions" is the
-         default and ships marked active. Its LABEL is written by the
-         script, because what the sections are depends on the view:
-         Scripture for authors and works, heads of doctrine for
-         doctrines. The markup carries "By Scripture" so the control
-         reads correctly before any script runs. The similarity button
-         is DISABLED rather than removed on the merged shelf, where the
-         fifteen shelves' coordinates are fifteen unrelated spaces.
+         enables it, plus two the worker's shelf index does not carry:
+         "All shelves", which the script merges in the browser, and
+         "Citations between authors", which is a second endpoint
+         entirely and is corpus-wide rather than per-shelf. A hard-coded
+         list here would go stale against the worker without anything
+         failing.
+       - [data-cn-view] — one button per view. All five ship `hidden`;
+         the script unhides only the views the current shelf actually
+         carries, because a view a shelf lacks is a 404 rather than an
+         empty map. Three of them (authors, works, doctrines) belong to
+         the Scripture shelves and two (cited, contested) belong to the
+         citation graph, and the two sets are never offered together:
+         they are different measurements over different data.
+       - [data-cn-layout] — the arrangements. "regions" is the default
+         on a Scripture shelf and "rings" on the citation graph, which
+         is the only place the rings button is offered at all. The
+         regions button's LABEL is written by the script, because what
+         the sections are depends on the view: Scripture for authors and
+         works, heads of doctrine for doctrines, tradition on the
+         citation graph. The markup carries "By Scripture" so the
+         control reads correctly before any script runs. The similarity
+         button is DISABLED rather than removed on the merged shelf,
+         where the fifteen shelves' coordinates are fifteen unrelated
+         spaces, and on the citation graph, which carries no coordinates
+         at all.
        - [data-cn-arrange-note] — the sentence that makes that disabled
          control legible. A greyed button with no explanation reads as
          breakage, so the note is the load-bearing half of the pair.
-       - [data-cn-links] — one toggle for the edges, whose text is the
-         current state ("Shown" / "Hidden") and whose aria-pressed says
-         the same thing. Edges cross between sections in the regional
-         arrangement, which is what makes them worth drawing there and
-         also what makes 3,753 of them worth being able to switch off.
+       - [data-cn-links-group] holding [data-cn-links], and
+         [data-cn-edge-budget] beside it. Two controls in one slot and
+         exactly one of them is ever on screen. The Scripture maps get
+         the toggle, whose text is the current state ("Shown" /
+         "Hidden") and whose aria-pressed says the same thing. The
+         citation maps get the select instead: 37,427 pairs is ten times
+         what this map has drawn before, drawing them all is a grey
+         wash, and a reader who wants more than the default has to have
+         somewhere to ask for it. Its options are written by the script
+         with their true counts, so the number on screen is measured
+         rather than remembered.
        - [data-cn-views-note] — one line naming what a partial shelf was
          mined for, so a picker with one button reads as a fact about
          the shelf rather than as breakage.
@@ -102,7 +117,7 @@
 
   <header class="cn-head">
     <h2 class="cn-title">Constellations</h2>
-    <p class="cn-lede">Sixteen shelves of the library, or all of them at once, read for the Scripture they quote. Every point is an author, a work or a doctrine, filed under the part of the Bible it leans on hardest. A line joins two that reach for the same passages. Switch the arrangement to see the same points placed by how alike they quote instead.</p>
+    <p class="cn-lede">Sixteen shelves of the library, or all of them at once, read for the Scripture they quote. Every point is an author, a work or a doctrine, filed under the part of the Bible it leans on hardest. A line joins two that reach for the same passages. Switch the arrangement to see the same points placed by how alike they quote instead, or switch the shelf to the citation graph, where every point is an author and every line is one author citing another.</p>
   </header>
 
   {{!-- The controls. A <select> for the shelves rather than sixteen
@@ -124,16 +139,29 @@
         <button type="button" class="cn-view-btn" data-cn-view="authors" aria-pressed="false" hidden>Authors</button>
         <button type="button" class="cn-view-btn" data-cn-view="works" aria-pressed="false" hidden>Works</button>
         <button type="button" class="cn-view-btn" data-cn-view="doctrines" aria-pressed="false" hidden>Doctrines</button>
+        {{!-- The citation graph's two readings of one set of points.
+              Offered only on that shelf, where the other three are
+              hidden in turn: an author's Scripture fingerprint and an
+              author's standing in the citation graph are different
+              measurements over different data, and a picker that mixed
+              them would offer combinations that have no payload. --}}
+        <button type="button" class="cn-view-btn" data-cn-view="cited" aria-pressed="false" hidden>Most cited</button>
+        <button type="button" class="cn-view-btn" data-cn-view="contested" aria-pressed="false" hidden>Most contested</button>
       </div>
     </div>
 
     {{!-- Sections first, similarity second, and the default is
           sections. The embedding is real, but most of a shelf quotes
           Paul above everything else, so at rest it draws one crowd in
-          one corner and the reader is told nothing. --}}
+          one corner and the reader is told nothing.
+
+          Rings is the citation graph's own arrangement and ships
+          hidden, because it needs a citation count to place a point by
+          and no Scripture payload carries one. --}}
     <div class="cn-control">
       <p class="cn-control-label" id="cn-arrange-label">Arrangement</p>
       <div class="cn-views" role="group" aria-labelledby="cn-arrange-label">
+        <button type="button" class="cn-view-btn" data-cn-layout="rings" aria-pressed="false" hidden>In rings</button>
         <button type="button" class="cn-view-btn is-active" data-cn-layout="regions" aria-pressed="true">By Scripture</button>
         <button type="button" class="cn-view-btn" data-cn-layout="similarity" aria-pressed="false">By similarity</button>
       </div>
@@ -141,9 +169,16 @@
 
     <div class="cn-control">
       <p class="cn-control-label" id="cn-links-label">Links</p>
-      <div class="cn-views" role="group" aria-labelledby="cn-links-label">
+      <div class="cn-views" role="group" aria-labelledby="cn-links-label" data-cn-links-group>
         <button type="button" class="cn-view-btn is-active" data-cn-links aria-pressed="true">Shown</button>
       </div>
+      {{!-- The citation graph's replacement for that toggle. Ships
+            empty and hidden; the script writes the options and their
+            real counts, so the number of lines on screen is always
+            stated and never silently trimmed. Its accessible name is
+            fuller than the visible "Links" above it, and contains it,
+            which is what WCAG 2.5.3 asks for. --}}
+      <select class="cn-select" data-cn-edge-budget aria-label="Links drawn" hidden></select>
     </div>
   </div>
 
