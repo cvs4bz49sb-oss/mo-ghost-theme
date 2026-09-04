@@ -252,9 +252,9 @@
   const VIEW_LABEL = { authors: "Authors", doctrines: "Doctrines", works: "Works" };
   const VIEW_BLURB = {
     authors:
-      "Each point is an author on this shelf, placed by which parts of Scripture they quote. Two authors sit close together when they quote alike.",
+      "Each point is an author on this shelf, placed by which parts of Scripture they quote. Two authors sit close together when they reach for the same passages, not merely the same books.",
     works:
-      "Each point is a work on this shelf, placed by which parts of Scripture it quotes. Two works sit close together when they quote alike.",
+      "Each point is a work on this shelf, placed by which parts of Scripture it quotes. Two works sit close together when they reach for the same passages, not merely the same books.",
     doctrines:
       "Each point is a doctrinal topic on this shelf, placed by the passages that carry it. Two topics sit close together when they rest on the same texts.",
   };
@@ -264,9 +264,9 @@
   // different picture.
   const REGION_BLURB = {
     authors:
-      "Each point is an author on this shelf, filed under the part of Scripture they quote most. The sections run in the Bible's own order, and a line crossing between two of them marks a pair who quote alike in spite of leaning on different books.",
+      "Each point is an author on this shelf, filed under the part of Scripture they quote most. The sections run in the Bible's own order, and a line marks a pair who reach for the same passages, even when they lean on different books.",
     works:
-      "Each point is a work on this shelf, filed under the part of Scripture it quotes most. The sections run in the Bible's own order, and a line crossing between two of them marks a pair that quote alike in spite of leaning on different books.",
+      "Each point is a work on this shelf, filed under the part of Scripture it quotes most. The sections run in the Bible's own order, and a line marks a pair that reach for the same passages, even when they lean on different books.",
     doctrines:
       "Each point is a doctrinal topic on this shelf, filed under the head of doctrine it belongs to. A line crossing between two sections marks a pair of topics resting on the same texts.",
   };
