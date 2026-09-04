@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-04T16:25:58.661Z",
+  "generated_at": "2026-09-04T20:48:38.909Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 66286,
+      "plays": 66358,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -99,7 +99,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 281
+          "plays": 282
         },
         {
           "date": "2025-10-15",
@@ -194,7 +194,7 @@
         {
           "date": "2026-04-01",
           "title": "Replay: The Age of AI with Jason Thacker",
-          "plays": 159
+          "plays": 160
         },
         {
           "date": "2026-04-08",
@@ -204,7 +204,7 @@
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 171
+          "plays": 172
         },
         {
           "date": "2026-04-22",
@@ -259,7 +259,7 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3435
+          "plays": 3436
         },
         {
           "date": "2026-07-08",
@@ -269,12 +269,12 @@
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3005
+          "plays": 3007
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3388
+          "plays": 3389
         },
         {
           "date": "2026-07-29",
@@ -289,22 +289,22 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3252
+          "plays": 3253
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3571
+          "plays": 3573
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3315
+          "plays": 3325
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 2525
+          "plays": 2568
         }
       ],
       "per_episode": [
@@ -455,7 +455,7 @@
         },
         {
           "month": "2020-01",
-          "avg": 20,
+          "avg": 21,
           "episodes": 1
         },
         {
@@ -505,7 +505,7 @@
         },
         {
           "month": "2020-11",
-          "avg": 17,
+          "avg": 18,
           "episodes": 4
         },
         {
@@ -725,7 +725,7 @@
         },
         {
           "month": "2024-08",
-          "avg": 41,
+          "avg": 42,
           "episodes": 4
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3314,
+          "avg": 3315,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3270,
+          "avg": 3273,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2525,
+          "avg": 2568,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 17745,
+      "plays": 17786,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -883,12 +883,12 @@
         {
           "date": "2025-09-04",
           "title": "Alexis de Tocqueville - Democracy in America with John Wilsey",
-          "plays": 76
+          "plays": 77
         },
         {
           "date": "2025-09-11",
           "title": "C. S. Lewis - That Hideous Strength with Philip D. Bunn and Ronni Kurtz",
-          "plays": 136
+          "plays": 137
         },
         {
           "date": "2025-09-18",
@@ -933,12 +933,12 @@
         {
           "date": "2026-01-29",
           "title": "America 250: Books American Christians Should Read | Season 2 Preview",
-          "plays": 79
+          "plays": 80
         },
         {
           "date": "2026-02-05",
           "title": "Narrative of the Life of Frederick Douglass with Shilo Brooks | America 250",
-          "plays": 89
+          "plays": 90
         },
         {
           "date": "2026-02-12",
@@ -958,7 +958,7 @@
         {
           "date": "2026-03-05",
           "title": "Wuthering Heights with Evie Solheim",
-          "plays": 81
+          "plays": 82
         },
         {
           "date": "2026-03-12",
@@ -968,7 +968,7 @@
         {
           "date": "2026-03-18",
           "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
-          "plays": 123
+          "plays": 124
         },
         {
           "date": "2026-03-26",
@@ -978,12 +978,12 @@
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 136
+          "plays": 137
         },
         {
           "date": "2026-04-09",
           "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
-          "plays": 102
+          "plays": 103
         },
         {
           "date": "2026-04-16",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 950
+          "plays": 951
         },
         {
           "date": "2026-07-29",
@@ -1068,27 +1068,27 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 930
+          "plays": 932
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 705
+          "plays": 707
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 811
+          "plays": 812
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 725
+          "plays": 730
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 513
+          "plays": 535
         }
       ],
       "per_episode": [
@@ -1119,12 +1119,12 @@
         },
         {
           "month": "2026-01",
-          "avg": 79,
+          "avg": 80,
           "episodes": 1
         },
         {
           "month": "2026-02",
-          "avg": 75,
+          "avg": 76,
           "episodes": 4
         },
         {
@@ -1154,12 +1154,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 793,
+          "avg": 795,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 513,
+          "avg": 535,
           "episodes": 1
         }
       ]
