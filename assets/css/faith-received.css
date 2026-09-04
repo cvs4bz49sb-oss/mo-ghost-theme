@@ -12961,6 +12961,117 @@ a.cn-row-title { color: var(--color-primary-text); }
   margin: 10px 0 0;
 }
 
+/* ── Comparing two points ─────────────────────────────────────────
+   The rail's third job, after a point and a link. Read
+   § COMPARING TWO POINTS in assets/js/page/faith-constellations.js
+   before touching any of this; the short version is that a plain click
+   still opens one point and the second point is a named gesture, armed
+   from the button below.
+
+   The author's name, linked to their own page. Only rendered where the
+   point genuinely is an author (the citation maps and the Scripture
+   authors view), so this rule is inert on a work or a doctrinal topic.
+   Underlined on the hairline like every other link in this rail rather
+   than coloured differently from the heading it sits in: a title that
+   changes colour to announce itself is a heading fighting its own
+   page. */
+.cn-dossier-title-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-rule);
+  transition: border-color 0.15s;
+}
+.cn-dossier-title-link:hover { border-bottom-color: var(--color-dark); }
+.cn-dossier-title-link:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+
+/* The control that arms a comparison, and the ones that leave it.
+   Written as a standalone class rather than on top of .btn, which sets
+   `border: 0` and would silently win over an outline declared here
+   (DESIGN §6.9). No fill: the map is the thing being looked at and
+   everything in this panel is apparatus, so this is an outlined text
+   control rather than a button with a colour. */
+.cn-compare-invite { margin: 14px 0 0; }
+.cn-compare-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cn-compare-btn:hover {
+  border-color: var(--color-dark);
+  color: var(--color-dark);
+}
+.cn-compare-btn:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+.cn-compare-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.cn-compare-btn:disabled:hover { border-color: var(--color-rule); }
+
+/* The half-chosen state, and it has to be unmissable. Below 980px the
+   rail sits UNDER the map, so a reader who has armed a comparison and
+   scrolled back up to tap sees only the plate on the canvas; this is
+   what they meet on the way back down, and a quiet line of prose would
+   not be enough to explain why the next tap behaves differently.
+
+   A recessed note, not a card: the ground is --color-page, which is the
+   page's own light ground rather than a colour introduced for this, and
+   there is no radius and no shadow (DESIGN §6.1). The accent rule down
+   the leading edge is what carries the state. */
+.cn-compare-arm {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  background: var(--color-page);
+  border-left: 3px solid var(--color-primary);
+}
+.cn-compare-arm-kicker {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary-text);
+  margin: 0 0 6px;
+}
+.cn-compare-arm-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-dark);
+  margin: 0 0 12px;
+}
+
+/* The opt-in exact count, and its answer in the same place. Separated
+   from the reading above it by a rule, because it is a different claim
+   over a different file. */
+.cn-compare-count {
+  margin: 20px 0 0;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-rule);
+}
+
+/* A direction with no pair behind it. The same row as .cn-link, minus
+   the button, because a control that cannot do anything is worse than a
+   line of text that never offered to. The padding the button supplied
+   has to be restored here or the row collapses against its hairline. */
+.cn-link--flat { padding: 10px 0; }
+.cn-link--flat .cn-link-name { color: var(--color-dark); }
+
 /* ── The index ────────────────────────────────────────────────────
    The keyboard and screen-reader path. Full width under both columns,
    because it is the same map said differently rather than a footnote

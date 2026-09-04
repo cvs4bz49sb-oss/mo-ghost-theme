@@ -96,11 +96,17 @@
        - [data-cn-caption] — the counts and the sentence explaining what
          the current view plots, plus, on the merged shelf, the caveat
          about what its links cannot show.
-       - [data-cn-dossier] — the selected point, OR the selected link.
-         One rail, two things, never both: a point's dossier lists its
-         strongest links as buttons, and a link's lists its two ends as
-         buttons, which is how an edge is reached without a pointer and
-         how a reader gets back to where they were.
+       - [data-cn-dossier] — the selected point, OR the selected link,
+         OR a comparison of two points. One rail, three things, never
+         two at once: a point's dossier lists its strongest links as
+         buttons, a link's lists its two ends as buttons, and a
+         comparison lists both, which is how an edge or a pair is
+         reached without a pointer and how a reader gets back to where
+         they were. A point's dossier also carries the "Compare with
+         another point" button that arms the second gesture; that
+         button is the whole of how the comparison is discovered, so it
+         is deliberately a labelled control in the rail rather than a
+         modifier key or a second meaning for a plain click.
        - [data-cn-index] (a <details>), holding [data-cn-index-filter],
          [data-cn-index-note] and [data-cn-index-list]. This is the
          keyboard and screen-reader path: a canvas is opaque to
@@ -217,8 +223,17 @@
             on the gesture being found. --}}
       {{!-- The line about links names BOTH ways in, because the first
             one does not exist on a phone and the second is also the
-            keyboard's path. --}}
-      <p class="cn-hint">Drag to pan. Pinch, or hold Ctrl and scroll, to zoom. Point at a line to see what it joins, or choose a point and read its strongest links beside the map. The positions come from the library, so the same shelf draws the same map every time.</p>
+            keyboard's path.
+
+            The comparison is named here as well, but it is named as a
+            confirmation rather than as an instruction: the gesture is a
+            labelled button in the rail precisely so that it does not
+            need this line, and a reader who never reads the hint still
+            finds it. Shift-clicking is mentioned because an accelerator
+            nobody is told about is an accelerator nobody uses, and it
+            cannot exist on a phone, where the button is the only
+            path. --}}
+      <p class="cn-hint">Drag to pan. Pinch, or hold Ctrl and scroll, to zoom. Point at a line to see what it joins, or choose a point and read its strongest links beside the map. To compare two points, choose one and press &ldquo;Compare with another point&rdquo;, then choose the second; with a mouse, shift-click the second point instead. The positions come from the library, so the same shelf draws the same map every time.</p>
     </div>
 
     <aside class="cn-aside" aria-label="The selected point">

@@ -270,6 +270,98 @@
  * one.
  *
 
+ * ══ COMPARING TWO POINTS ═════════════════════════════════════════════
+ *
+ * Added 2026-09-04. A single click still opens one point's dossier and
+ * always will; the second point is a SEPARATE, NAMED gesture, because a
+ * plain click already means something and overloading it would make the
+ * map's most common action ambiguous.
+ *
+ * THE GESTURE. A point's dossier carries a "Compare with another point"
+ * button. Pressing it holds that point and puts the panel in an armed
+ * state; the next point chosen ANYWHERE becomes the second of the pair.
+ * "Anywhere" is the point of it: the arming lives inside select(), which
+ * every path already funnels through (a dot on the map, a button in the
+ * index list, either end of a link's dossier), so the pointer, the
+ * keyboard and a fingertip all reach the same gesture without a second
+ * mechanism being invented for any of them. Shift-clicking a second dot
+ * does the same thing in one move for a reader who already knows that
+ * idiom; it is an accelerator, never the discoverable path, and it
+ * cannot fire on a touchscreen.
+ *
+ * NO MODE THE READER CANNOT LEAVE. The armed state is stated in the rail
+ * (a banner with a Cancel button, above the point's own dossier, so
+ * nothing is lost while it is up) AND on the map itself (a plate on the
+ * held point reading "Now choose a second point"), because below 980px
+ * the rail sits under the map and a reader who scrolls back up to tap
+ * must be able to see what state they are in. Escape cancels, a tap on
+ * empty ground cancels, and both give back the point that was held
+ * rather than clearing the rail out from under it.
+ *
+ * THE PAIR MARK is two rings, and it is deliberately not the same as any
+ * other mark on the plate. A selected point wears one accent ring; a
+ * hovered point one ink ring; an edge's ends one ring apiece. A compared
+ * point wears an accent ring AND a wider ink ring outside it, so the
+ * difference is a count rather than a colour and survives any colour
+ * vision (WCAG 1.4.1).
+ *
+ * THE TIE BETWEEN THEM, and this is the honesty-critical part. Where the
+ * two ends have a published edge, that edge is drawn exactly as a marked
+ * edge is: ink, 2px, keeping the argument dash and the direction
+ * arrowhead. The tie is then the map's own line and says only what the
+ * map already said. Where there is NO published edge, a hairline is
+ * drawn in the ghost colour on a 1-and-6 dot pattern, which resembles no
+ * edge tier in either dataset, and the plate over it says outright that
+ * no pair was published. It exists so a reader can find their two points
+ * on a crowded plate, and it is drawn so that it cannot be mistaken for
+ * a measurement.
+ *
+ * WHAT THE EMPTY PAIR MEANS, which is the common case in both datasets
+ * and is measured, not guessed:
+ *
+ *   CITATIONS. 37,120 of the 1,390,278 unordered pairs of the 1,668
+ *     authors carry an edge, which is 2.7%. Among the hundred most cited
+ *     it is 48.8%. So two prominent figures usually have something and
+ *     two obscure ones usually have nothing, and the nothing is the
+ *     ordinary result rather than the exception.
+ *
+ *     The floor is 5 (`floor: 5` in the payload). A missing pair
+ *     therefore means FEWER THAN FIVE CITATIONS, POSSIBLY NONE. It does
+ *     not mean the two never named each other, and no copy here is
+ *     allowed to say that it does.
+ *
+ *     That distinction can actually be settled, per pair, on request.
+ *     v1/reception/full/<fk>.json.gz carries every extracted citation
+ *     record for one author, and `to[<other fk>]` is the whole of that
+ *     author's outbound traffic to the other: present means a real
+ *     count below five, absent means genuinely none anywhere in the
+ *     indexed corpus. It is OPT-IN behind a button rather than fetched
+ *     on selection, because the wire cost is 15 KB for Jerome and 1.1 MB
+ *     for Francisco Suárez (measured 2026-09-04) and a reader comparing
+ *     ten pairs should not pay that ten times for a question they did
+ *     not ask. Coverage is about 92%; a 404 is reported as "not
+ *     published", never as zero.
+ *
+ *   SCRIPTURE. 608 of the 41,041 pairs on English Divines carry an edge,
+ *     which is 1.5%. A missing pair means the worker's similarity
+ *     threshold was not cleared, not that the two share nothing, and the
+ *     sidecar proves it: over 394 sampled NO-EDGE pairs on that shelf the
+ *     median number of books both writers have in their visible top
+ *     fifteen is ELEVEN, and not one pair had zero. So the empty state
+ *     there is not an apology. It names the books both lean on, off the
+ *     same sidecar the edge hover already uses, with the same top-15
+ *     truncation caveat. Where the sidecar is empty (it ships
+ *     contract-shaped and empty for `works` and `doctrines`) the pair is
+ *     named with the fact that no line was published and nothing more.
+ *
+ * WHAT A COMPARISON SAYS, per family. Citations: BOTH DIRECTIONS, always
+ * separately, never added together. Augustine cites Jerome 55 times with
+ * 3 refuting while Jerome cites Augustine 13 times with none, and one
+ * number in place of those two would be a different and false sentence.
+ * Scripture: the worker's own weight, which is the authoritative score,
+ * plus the books both lean on. Nothing here computes a score of its own;
+ * the reasoning is the same as § THE SIDECAR above.
+ *
  * ACCESS. Not gated, deliberately. These are static JSON files on a
  * public route; nothing here spends an embedding call or reaches an
  * LLM, which is what the standing both-sides gating rule is about, and
@@ -301,6 +393,11 @@
   const WORKER = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
   const BASE = `${WORKER}/v1/mine/constellations`;
   const READER = "/the-faith-received/reader/";
+  const AUTHOR_PAGE = "/the-faith-received/author/";
+  // Every extracted citation record for one author, keyed by the
+  // reception index's own slug (a node's `fk`). Read only on request;
+  // see § COMPARING TWO POINTS and loadFullReception below.
+  const FULL_BASE = `${WORKER}/v1/reception/full/`;
 
   /* ── DOM contract ─────────────────────────────────────────────────
    * Every querySelector in this file, in one place. The partial's
@@ -442,6 +539,65 @@
     return slug ? readerUrlFromSlug(slug) : "";
   }
 
+  /* ── Author pages ─────────────────────────────────────────────────
+   *
+   * /the-faith-received/author/?a=<folded name>. The fold is the whole
+   * of the addressing scheme: accents stripped, everything outside
+   * a-z0-9 dropped, so "Theodore Beza" is `theodorebeza` and the URL
+   * survives the three ways the catalogues spell the same person.
+   *
+   * A FOURTH COPY of this function, and that is a known cost rather
+   * than an oversight. It already lives in assets/js/faith-author.js
+   * (which is the authority, since it is the page doing the matching),
+   * assets/js/faith-author-reception.js and
+   * assets/js/faith-browse-search.js. None of the four has a load-order
+   * guarantee against the others, and this file is a page-template
+   * script that runs before site.min.js and may not read a bundle
+   * global (FRONTEND §6.18), so sharing it would mean shipping a fifth
+   * file into <head> to serve one regular expression. THE FOUR MUST
+   * CHANGE TOGETHER: if the author page ever changes how it folds a
+   * name, every link built here goes to a page that cannot find
+   * anybody, and nothing fails loudly.
+   *
+   * NOT the same string as the citation payload's `fk`, which is the
+   * reception index's own file key ("augustine-of-hippo") and keeps a
+   * hyphen where a diacritic was. They differ on 75 of the 1,668
+   * authors: "Francisco Suárez" folds to `franciscosuarez` here and is
+   * `francisco-su-rez` there. Use fold() for a page link and `fk` for a
+   * worker file, never one for the other.
+   */
+  function fold(s) {
+    return String(s || "")
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "");
+  }
+
+  function authorPageUrl(name) {
+    const key = fold(name);
+    return key ? `${AUTHOR_PAGE}?a=${encodeURIComponent(key)}` : "";
+  }
+
+  /* Which views have an author behind every point, and therefore an
+   * author page to link to. Read off NODE_NOUN rather than listed
+   * again: `authors`, `cited` and `contested` all say "author" there
+   * and a work or a doctrinal topic is not a person, so the one table
+   * that already answers "what is a point here" answers this too. A new
+   * view gets the link by declaring its noun, which is the only place
+   * it could be got wrong.
+   *
+   * The link is never a promise that the page has an entry. The author
+   * page is built at read time from the library catalogue and the
+   * citation roster is the reception index's, and the two are not the
+   * same list; there is no cheap local way to know, and finding out per
+   * point would be a request per selection. It degrades where it has to:
+   * an unknown name renders "No author by that name in the library" on
+   * a real page rather than a 404. */
+  function viewHasAuthors() {
+    return NODE_NOUN[view] === "author";
+  }
+
   /* ── Copy that depends on the view ───────────────────────────── */
 
   const VIEW_LABEL = {
@@ -518,6 +674,48 @@
     contested:
       "A line runs from an author to someone they cite. It counts every citation the reception index holds for that pair. A refutation is a citation the index reads as an argument against.",
   };
+
+  /* ── Copy for a comparison ────────────────────────────────────────
+   *
+   * The empty pair is the ordinary case in both datasets (2.7% of
+   * citation pairs and 1.5% of Scripture pairs carry an edge), so these
+   * sentences are the ones a reader will meet most often and they are
+   * the ones most easily got wrong. Every one of them says what the
+   * absence of a line IS: a threshold that was not cleared, or a floor
+   * that was not reached. None of them says the two are unconnected,
+   * because the data does not know that and has not been asked.
+   */
+  const COMPARE_INVITE = "Compare with another point";
+  const COMPARE_ARM_NOTE =
+    "Choose a second point, on the map or in the list under it, to see what joins the two.";
+
+  // The citation floor, said as a fact about this pair rather than as a
+  // fact about the dataset. CITE_FLOOR_NOTE covers the general case
+  // elsewhere; this one has to be unmistakable about what it does and
+  // does not rule out.
+  const COMPARE_CITE_NONE =
+    "Neither of these two cites the other five times or more, and five is the floor for this graph. A pair under it is not published at all, so this means fewer than five in each direction, possibly none. It is not a finding that they never named each other.";
+  const COMPARE_CITE_ONE_WAY =
+    "The other direction is not in the graph, which puts it under five citations rather than at none.";
+
+  /* The opt-in exact count, and the cost is stated before it is spent.
+   * Measured on the wire 2026-09-04: 15 KB for Jerome, 19 KB for
+   * Augustine, 459 KB for Gisbertus Voetius, 1.1 MB for Francisco
+   * Suárez. A reader on a phone is entitled to know that before
+   * pressing. */
+  const COMPARE_COUNT_INVITE = "Count this pair exactly";
+  const COMPARE_COUNT_NOTE =
+    "This reads the complete citation record for both authors. For a heavily cited figure that file runs to about a megabyte.";
+  const COMPARE_COUNT_WORKING = "Reading the complete records…";
+  const COMPARE_COUNT_FAILED =
+    "Could not read the complete records just now, so this cannot be settled either way. The counts above are unchanged.";
+
+  // The Scripture threshold. Same shape as the citation floor and the
+  // same rule: name the mechanism, never claim the absence.
+  const COMPARE_SIM_NONE =
+    "No line was published for this pair, which means it did not clear the similarity threshold the worker used. That is a threshold rather than a measurement of nothing in common.";
+  const COMPARE_SIM_NO_SIDECAR =
+    "The per-book profiles have not been published for this view, so there is nothing further the map can say about this pair.";
 
   /* ── The citation graph ───────────────────────────────────────────
    *
@@ -703,6 +901,18 @@
   let selectedEdge = -1;
   let hoveredEdge = -1;
   let adj = [];
+
+  /* The compared pair, and it is a THIRD thing that can own the
+   * dossier, mutually exclusive with the other two for the same reason
+   * they are exclusive with each other.
+   *
+   * Two fields rather than one array, because the half-state is real
+   * and is most of the interaction: compareA alone is "armed and
+   * waiting for a second point", which is a state the reader has to be
+   * able to see and to leave. compareB is set only when a pair exists.
+   * Both are -1 at rest. */
+  let compareA = -1;
+  let compareB = -1;
 
   /* The optional per-book profile. `fp` is null until a sidecar has
    * been read; `fpKey` is the shelf/view it belongs to, so a stale
@@ -1708,6 +1918,72 @@
       }
     }
 
+    /* The compared pair, drawn ON TOP of everything the field put down,
+     * for the same reason the marked link is: two points chosen out of
+     * 1,668 have to be findable without hunting.
+     *
+     * THE TIE IS TWO DIFFERENT MARKS and the difference is the honest
+     * part. Where the two ends have a published edge, that edge is
+     * redrawn exactly as a marked edge is (ink, 2px, the argument dash
+     * kept, the direction arrow kept), so the tie says only what the
+     * map already said. Where there is none, a round-capped DOT every
+     * six pixels at half alpha: it resembles no edge tier in either
+     * dataset, it is half the weight of the tie that means something,
+     * and it carries no arrowhead, because a direction is precisely
+     * what is not known here. It is a guide between two points the
+     * reader picked and it must never be read as a measurement; the
+     * plate over it says so in words and the rail says it again.
+     *
+     * While the pair is only half chosen, the held point still wears
+     * the mark alone. That is the on-map half of the armed state, and
+     * below 980px the rail is under the map, so it is the half a reader
+     * scrolling back up to tap actually sees. */
+    if (compareA >= 0 && compareA < nodes.length && isVisible(nodes[compareA])) {
+      const paired =
+        compareB >= 0 && compareB < nodes.length && isVisible(nodes[compareB]);
+      if (paired) {
+        const f = compareFacts(compareA, compareB);
+        const tie = f ? f.edge : -1;
+        if (tie >= 0) {
+          const te = edges[tie];
+          ctx.strokeStyle = inkColor;
+          ctx.lineWidth = 2;
+          if (citeMode && isArgument(te)) ctx.setLineDash([5, 4]);
+          ctx.beginPath();
+          ctx.moveTo(px[te[0]], py[te[0]]);
+          ctx.lineTo(px[te[1]], py[te[1]]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          if (citeMode) {
+            arrowHead(px[te[0]], py[te[0]], px[te[1]], py[te[1]], radiusAt(te[1]) + 5);
+          }
+        } else {
+          /* DOTTED, not dashed, and the difference is the whole signal.
+           * Measured against the field it sits in: the Scripture tiers
+           * are solid grey at 0.07 to 0.26 alpha, the citation tiers
+           * the same, and an argument is a [3,3] dash. A 1px dot every
+           * six pixels matches none of those at any weight. Ink rather
+           * than the ghost tan, which is 1.3:1 on this cream and
+           * disappears entirely over a busy wedge, which would fail the
+           * one thing this mark is for. */
+          ctx.strokeStyle = inkColor;
+          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = 0.5;
+          ctx.setLineDash([1, 5]);
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(px[compareA], py[compareA]);
+          ctx.lineTo(px[compareB], py[compareB]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.lineCap = "butt";
+          ctx.globalAlpha = 1;
+        }
+        pairRing(px[compareB], py[compareB], radiusAt(compareB));
+      }
+      pairRing(px[compareA], py[compareA], radiusAt(compareA));
+    }
+
     // Selection, then hover. Rings rather than a colour change, so the
     // category colour is never overwritten by interaction state.
     if (selected >= 0 && selected < nodes.length && isVisible(nodes[selected])) {
@@ -1717,10 +1993,19 @@
       ring(px[hovered], py[hovered], radiusAt(hovered) + 4, inkColor, 1.5);
     }
 
-    // One plate at a time. A link's plate carries four lines and a
-    // point's carries one, and stacking both would cover the very
-    // corner of the map they are describing. A point being pointed at
-    // wins, since that is the more immediate of the two.
+    /* One plate at a time. A link's plate carries four lines and a
+     * point's carries one, and stacking both would cover the very
+     * corner of the map they are describing. A point being pointed at
+     * wins, since that is the more immediate of the two.
+     *
+     * A comparison outranks a SELECTED link (the two are mutually
+     * exclusive in any case) but not a HOVERED one: a line under the
+     * pointer right now is the more immediate thing, exactly as a dot
+     * under the pointer is. With no comparison open this branch is
+     * inert and the order below is what it has always been. */
+    if (hovered < 0 && hoveredEdge < 0 && compareA >= 0 && compareA < nodes.length) {
+      if (drawComparePlate(px, py)) return;
+    }
     if (hovered < 0 && markEdge >= 0 && markEdge < edges.length) {
       const me = edges[markEdge];
       if (isVisible(nodes[me[0]]) && isVisible(nodes[me[1]])) {
@@ -2079,6 +2364,25 @@
     ctx.stroke();
   }
 
+  /* The pair mark: TWO rings, and the second one is the whole of the
+   * signal. A selected point already wears one accent ring and a
+   * hovered point one ink ring, so a third colour would have been the
+   * obvious move and the wrong one. The palette is closed (DESIGN §6.5)
+   * and, more to the point, a mark that differs from its neighbours
+   * only in hue is a mark some readers do not have (WCAG 1.4.1). A
+   * COUNT of rings is legible to everyone.
+   *
+   * The inner ring keeps the accent at exactly the radius and weight a
+   * plain selection uses, so a compared point still reads as chosen;
+   * the outer one is ink, which is 12.56:1 on this cream against the
+   * accent's 2.38:1, so the mark holds up on the smallest dots where
+   * the accent alone would not.
+   */
+  function pairRing(x, y, r) {
+    ring(x, y, r + 4, accentColor, 2);
+    ring(x, y, r + 9, inkColor, 1.2);
+  }
+
   /*
    * The hover label is painted on the canvas rather than positioned as
    * a DOM tooltip: it cannot then be clipped by the stage's overflow,
@@ -2197,7 +2501,93 @@
   }
 
   function drawEdgePlate(j, ax, ay, bx, by) {
-    const lines = edgePlateLines(j);
+    paintPlate(edgePlateLines(j), ax, ay, bx, by);
+  }
+
+  /* ── What a comparison says on the plate ──────────────────────────
+   *
+   * The rail carries the full reading; this is the part that has to fit
+   * over the map, so it is the facts a reader is looking at the two
+   * dots to check.
+   *
+   * Both directions are given SEPARATELY on the citation maps and are
+   * never added. Augustine cites Jerome 55 times with 3 refuting and
+   * Jerome cites Augustine 13 times with none; "68 citations between
+   * them" would be a different claim and a false one. Where a direction
+   * is missing it is named as under the floor rather than left off,
+   * because a line that is simply absent reads as a zero.
+   */
+  function comparePlateLines(f) {
+    if (!f) return [];
+    const lines = [`${f.nameA} and ${f.nameB}`];
+    if (f.cite) {
+      const say = (from, to, ei) => {
+        if (ei < 0) return `${from} cites ${to}: under five, not in the graph`;
+        const e = edges[ei];
+        const ref = e[3]
+          ? `, ${fmt(e[3])} refuting`
+          : ", none refuting";
+        return `${from} cites ${to}: ${fmt(e[2])}${ref}`;
+      };
+      lines.push(say(f.nameA, f.nameB, f.ab));
+      lines.push(say(f.nameB, f.nameA, f.ba));
+      if (!f.any) lines.push("Fewer than five citations either way, possibly none");
+      return lines;
+    }
+    if (f.edge >= 0) {
+      lines.push(
+        `${f.weight.toFixed(2)}, ${f.word}${f.bothKnown && f.crosses ? ", crosses sections" : ""}`
+      );
+    } else {
+      lines.push("No line published for this pair");
+    }
+    lines.push(
+      f.bothKnown && !f.crosses ? `Both in ${f.regionA}` : `${f.regionA} and ${f.regionB}`
+    );
+    // Named whether or not there is a line: the sidecar answers "what do
+    // these two share" on its own, and on a pair with no line it is the
+    // only thing that does.
+    const res = sharedBooks(f.nameA, f.nameB);
+    if (res && res.rows && res.rows.length) {
+      const names = res.rows.slice(0, 3).map((r) => bookLabel(r.book)).filter(Boolean);
+      if (names.length) lines.push(`Both lean on ${names.join(", ")}`);
+    }
+    return lines;
+  }
+
+  /* Returns whether it painted anything, so draw()'s plate ladder can
+   * fall through to the link and point plates when the pair is not
+   * currently on the map (a legend filter can take an end away). */
+  function drawComparePlate(px, py) {
+    if (compareA < 0 || !nodes[compareA] || !isVisible(nodes[compareA])) return false;
+    const paired =
+      compareB >= 0 && compareB < nodes.length && nodes[compareB] && isVisible(nodes[compareB]);
+    if (!paired) {
+      // The armed half. Said on the map as well as in the rail, because
+      // the rail is under the map on a phone and a reader who has
+      // scrolled up to tap can see only this.
+      drawLabel(
+        [nodes[compareA].a || "Untitled", "Now choose a second point"],
+        px[compareA],
+        py[compareA],
+        radiusAt(compareA)
+      );
+      return true;
+    }
+    const lines = comparePlateLines(compareFacts(compareA, compareB));
+    if (!lines.length) return false;
+    paintPlate(lines, px[compareA], py[compareA], px[compareB], py[compareB], true);
+    return true;
+  }
+
+  /* `clear` moves the plate OFF the segment instead of centring it on
+   * the midpoint. A link's plate can sit on its own line, because that
+   * line is 2px of ink and reads clearly on both sides of the plate. A
+   * comparison's tie may be a hairline of dots, which is exactly the
+   * case where a plate centred on the midpoint hides the mark it is
+   * describing, so the comparison asks for the offset and everything
+   * else keeps the placement it has always had. */
+  function paintPlate(lines, ax, ay, bx, by, clear) {
     if (!lines.length) return;
     const fontSize = 12;
     const lead = 16;
@@ -2225,10 +2615,16 @@
     // Off the midpoint, then clamped. A plate that ran off the stage
     // would be cropped by the overflow, and one that overhung the top
     // would take its first line with it.
-    let lx = (ax + bx) / 2 + 12;
-    let ly = (ay + by) / 2 - h / 2;
-    if (lx + w > cssW - 4) lx = (ax + bx) / 2 - 12 - w;
+    const midX = (ax + bx) / 2;
+    const midY = (ay + by) / 2;
+    let lx = midX + 12;
+    let ly = clear ? midY + 16 : midY - h / 2;
+    if (lx + w > cssW - 4) lx = midX - 12 - w;
     if (lx < 4) lx = 4;
+    // Below the segment where there is room, above it where there is
+    // not, and only then clamped. Clamping first would put the plate
+    // straight back on top of the mark.
+    if (clear && ly + h > cssH - 4) ly = midY - 16 - h;
     if (ly < 4) ly = 4;
     if (ly + h > cssH - 4) ly = Math.max(4, cssH - 4 - h);
 
@@ -2419,6 +2815,83 @@
     return out;
   }
 
+  /* ── What joins two points the reader picked ──────────────────────
+   *
+   * The comparison's one reader, in the same spirit as edgeFacts above:
+   * the plate on the canvas and the dossier in the rail both call this
+   * and neither of them touches `edges`, so they cannot come apart on a
+   * count, a direction or a region.
+   *
+   * The lookup is different in the two families, and deliberately reuses
+   * an index that already exists in each rather than building a third.
+   * On the citation graph `reverseAt` is already keyed "from:to", so
+   * both directions are two map reads. On a Scripture map the pair is
+   * undirected and `adj[ia]` already holds every edge touching that
+   * node; those lists run to a few dozen entries, so a scan is cheaper
+   * than the pair index it would replace and cannot fall out of date
+   * with the payload.
+   */
+  function directedEdge(a, b) {
+    if (!reverseAt) return -1;
+    const at = reverseAt.get(`${a}:${b}`);
+    return typeof at === "number" ? at : -1;
+  }
+
+  function undirectedEdge(a, b) {
+    const list = adj[a];
+    if (!list) return -1;
+    for (let k = 0; k < list.length; k++) {
+      const e = edges[list[k]];
+      if (!e) continue;
+      if ((e[0] === a && e[1] === b) || (e[0] === b && e[1] === a)) return list[k];
+    }
+    return -1;
+  }
+
+  function compareFacts(ia, ib) {
+    const a = nodes[ia];
+    const b = nodes[ib];
+    if (!a || !b || ia === ib) return null;
+    const ka = catKeyOf(a);
+    const kb = catKeyOf(b);
+    const out = {
+      ia,
+      ib,
+      a,
+      b,
+      nameA: a.a || "Untitled",
+      nameB: b.a || "Untitled",
+      regionA: catLabel(ka),
+      regionB: catLabel(kb),
+      // Same rule as a link's: two points with no category are not "in
+      // the same section", because neither of them is in one.
+      crosses: ka !== kb || !ka || !kb,
+      bothKnown: !!ka && !!kb,
+      cite: citeMode,
+      ab: -1,
+      ba: -1,
+      edge: -1,
+    };
+    if (citeMode) {
+      out.ab = directedEdge(ia, ib);
+      out.ba = directedEdge(ib, ia);
+      // The tie drawn on the plate is whichever direction exists. Where
+      // both do, the outbound one from the point the reader held first,
+      // so the arrowhead agrees with the order the rail lists them in.
+      out.edge = out.ab >= 0 ? out.ab : out.ba;
+      out.any = out.ab >= 0 || out.ba >= 0;
+      return out;
+    }
+    out.edge = undirectedEdge(ia, ib);
+    out.any = out.edge >= 0;
+    if (out.edge >= 0) {
+      const w = Number(edges[out.edge][2]);
+      out.weight = isFinite(w) ? w : 0;
+      out.word = strengthWord(out.weight);
+    }
+    return out;
+  }
+
   function buildAdjacency() {
     adj = new Array(nodes.length);
     for (let i = 0; i < edges.length; i++) {
@@ -2566,15 +3039,148 @@
         if (!books.list.length) return;
         fp = { books: books.list, byName: out };
         // Whatever is on screen was rendered without this and is now
-        // out of date by one section. Only the dossier reads it.
-        if (selectedEdge >= 0) renderLinkDossier(selectedEdge);
-        if (hoveredEdge >= 0) draw();
+        // out of date by one section. Only the dossier and the plate
+        // read it, and a comparison reads it whether or not the pair
+        // has a line: naming the books is the whole of what the empty
+        // state has to say.
+        if (selectedEdge >= 0 || compareB >= 0) refreshDossier();
+        if (hoveredEdge >= 0 || compareB >= 0) draw();
       })
       .catch(() => {
         /* Every branch above already swallowed its own failure; this is
            the belt for a throw inside the merge itself. The map is
            unaffected and the dossier stays on its no-sidecar copy. */
       });
+  }
+
+  /* ── Settling an empty pair ───────────────────────────────────────
+   *
+   * The citation graph floors a pair at five, so a pair that is not in
+   * `edges` is somewhere between one and four citations, or zero, and
+   * the graph cannot tell those apart. v1/reception/full/<fk>.json.gz
+   * can: it is one author's COMPLETE outbound record, unfloored, and
+   * `to[<other fk>]` either exists with a count or does not exist at
+   * all. That is the difference between "four citations, under the
+   * floor" and "never names them anywhere in this corpus", which is
+   * exactly the distinction the empty state has to avoid asserting for
+   * free.
+   *
+   * OPT-IN, and the reason is weight. Measured on the wire 2026-09-04:
+   * jerome 15 KB, augustine-of-hippo 19 KB, gisbertus-voetius 459 KB,
+   * francisco-su-rez 1.1 MB. Fetching this on every comparison would
+   * spend a megabyte to answer a question most readers are not asking,
+   * on a map where the empty pair is the ordinary case. So it sits
+   * behind a button whose copy states the cost.
+   *
+   * OUTBOUND ONLY. "A cites B" lives in A's file, so a pair needs both
+   * files to be answered in both directions and they are fetched
+   * together.
+   *
+   * A 404 is a RESOLUTION rather than a failure: coverage is about 92%
+   * and the gap is permanent, so the sentinel is cached and never
+   * retried. A network failure deletes its entry, so pressing again
+   * really does try again. Same shape as loadFull() in
+   * assets/js/faith-author-reception.js, which is the file this pattern
+   * comes from; the gzip sniff below is that file's lesson and must not
+   * be replaced with an assumption.
+   */
+  const FULL_PATIENCE = 20000;
+  const FULL_CACHE_MAX = 2;
+  const NOT_PUBLISHED = "cn-not-published";
+  const fullCache = new Map();
+
+  /* ".json.gz" is a file name, not a promise about the bytes.
+   * Cloudflare re-encodes at the edge and answers `content-type:
+   * application/json`, so what reaches fetch() is usually plain JSON
+   * the browser has already decoded; handing that to
+   * DecompressionStream throws. 1f 8b is the gzip magic. Both paths
+   * survive the worker changing its mind about which one it serves. */
+  async function gunzipJSON(response) {
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    const gzipped = bytes.length > 1 && bytes[0] === 0x1f && bytes[1] === 0x8b;
+    if (gzipped && typeof window.DecompressionStream === "function") {
+      const stream = new Blob([bytes]).stream()
+        .pipeThrough(new window.DecompressionStream("gzip"));
+      return JSON.parse(await new Response(stream).text());
+    }
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+
+  function loadFullReception(fk) {
+    if (!fk) return Promise.resolve(NOT_PUBLISHED);
+    if (fullCache.has(fk)) return fullCache.get(fk);
+
+    const controller = typeof window.AbortController === "function"
+      ? new window.AbortController()
+      : null;
+    const timer = window.setTimeout(() => {
+      if (controller) controller.abort();
+    }, FULL_PATIENCE);
+
+    const url = `${FULL_BASE}${encodeURIComponent(fk)}.json.gz`;
+    const p = fetch(url, controller ? { signal: controller.signal } : undefined)
+      .then((r) => {
+        if (r.status === 404) return NOT_PUBLISHED;
+        if (!r.ok) throw new Error(`reception/full ${r.status}`);
+        return gunzipJSON(r);
+      })
+      .then((data) => {
+        window.clearTimeout(timer);
+        return data;
+      })
+      .catch((err) => {
+        window.clearTimeout(timer);
+        fullCache.delete(fk);
+        throw err;
+      });
+
+    fullCache.set(fk, p);
+    // Oldest first. The entry just set is by definition the newest, so
+    // it can never be the one dropped; two whole files is enough to
+    // answer one pair and not enough to hold a megabyte per comparison.
+    while (fullCache.size > FULL_CACHE_MAX) {
+      const oldest = fullCache.keys().next().value;
+      if (oldest === fk) break;
+      fullCache.delete(oldest);
+    }
+    return p;
+  }
+
+  /* One direction, resolved. Four outcomes and they are four different
+   * sentences, never collapsed into a number (FRONTEND §6.33):
+   *
+   *   found        a real count, with the refutations inside it
+   *   none         the record exists and does not mention them at all
+   *   unpublished  this author's record was never published
+   *   failed       the fetch did not come back
+   *
+   * `h` is the extractor's verb and "refutes" is the only one that
+   * counts as a refutation, which is the same reading the graph's own
+   * `ref` uses: measured on Augustine's file, to.jerome carries 3 rows
+   * with h="refutes" against the graph edge's ref of 3.
+   */
+  function countDirection(fromFk, toFk) {
+    if (!fromFk || !toFk) return Promise.resolve({ state: "unpublished" });
+    return loadFullReception(fromFk).then(
+      (data) => {
+        if (data === NOT_PUBLISHED) return { state: "unpublished" };
+        const table = data && data.to;
+        const entry = table && typeof table === "object" ? table[toFk] : null;
+        if (!entry) return { state: "none" };
+        const rows = Array.isArray(entry.rows) ? entry.rows : [];
+        const total = Number(entry.n);
+        let ref = 0;
+        for (let i = 0; i < rows.length; i++) {
+          if (rows[i] && rows[i].h === "refutes") ref += 1;
+        }
+        return {
+          state: "found",
+          n: isFinite(total) && total > 0 ? total : rows.length,
+          ref,
+        };
+      },
+      () => ({ state: "failed" })
+    );
   }
 
   /* ── The books two points both lean on ────────────────────────────
@@ -2677,6 +3283,77 @@
     );
   }
 
+  /* ── The dossier's title, and when it is a link ───────────────────
+   *
+   * A point that IS an author gets its name linked to that author's own
+   * page, which is where the reception panel already renders every
+   * citation record behind the figures in this rail. Only where the
+   * point is an author: a work or a doctrinal topic has no author page
+   * and linking every title would send a reader to a name that is
+   * really a book title (viewHasAuthors above is the whole test, and it
+   * reads the noun table rather than a second list).
+   *
+   * Guarded on the displayed text being the node's own `a` as well. The
+   * works view titles itself from `t`, the full title, and a link built
+   * from a name the reader is not looking at would be a link that lies
+   * about where it goes.
+   *
+   * A NEW TAB, unlike the same-site author links elsewhere in the
+   * library. This panel is a workspace: a shelf, a view, an
+   * arrangement, a zoom, a pan and a selection, none of which survives
+   * a navigation, and only two of which are in the query string. Same
+   * reasoning as the reader links in this file.
+   */
+  function dossierTitle(node, text) {
+    const h3 = document.createElement("h3");
+    h3.className = "cn-dossier-title";
+    const name = node && node.a ? node.a : "";
+    const url = viewHasAuthors() && name && text === name ? authorPageUrl(name) : "";
+    if (!url) {
+      h3.textContent = text;
+      return h3;
+    }
+    const a = document.createElement("a");
+    a.className = "cn-dossier-title-link";
+    window.MOSafeHref.set(a, url, "#");
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = text;
+    // The visible text is a name; the accessible name says where it
+    // goes, which is what a heading that is also a link has to do.
+    a.setAttribute("aria-label", `${name}: open their page in the library`);
+    h3.appendChild(a);
+    return h3;
+  }
+
+  /* ── Arming a comparison ──────────────────────────────────────────
+   *
+   * The discoverable half of the whole gesture, and it is a button
+   * rather than an overloaded click for two reasons. A plain click
+   * already means "open this point", so a second click cannot also mean
+   * "add this point" without one of them becoming a guess. And a
+   * labelled control in the rail the reader is already reading after
+   * their first click needs no instructions, no modifier key and no
+   * hover, which is what makes it the same gesture on a desktop, a
+   * tablet and a phone.
+   *
+   * It lives directly under the title on both dossiers, above the
+   * figures, because on a doctrines point the figures run to hundreds
+   * of rows and a control buried under those on a phone is a control
+   * nobody finds.
+   */
+  function compareButton(i) {
+    const p = document.createElement("p");
+    p.className = "cn-compare-invite";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "cn-compare-btn";
+    btn.textContent = COMPARE_INVITE;
+    btn.addEventListener("click", () => armCompare(i));
+    p.appendChild(btn);
+    return p;
+  }
+
   function renderDossier(i) {
     if (!dossierEl) return;
     const node = nodes[i];
@@ -2693,7 +3370,7 @@
     const key = catKeyOf(node);
     const cat = cats.find((c) => c && c.k === key);
     dossierEl.appendChild(textEl("p", "cn-dossier-kicker", cat && cat.l ? cat.l : "Unclassified"));
-    dossierEl.appendChild(textEl("h3", "cn-dossier-title", node.t || node.a || "Untitled"));
+    dossierEl.appendChild(dossierTitle(node, node.t || node.a || "Untitled"));
     if (node.sub) dossierEl.appendChild(textEl("p", "cn-dossier-sub", node.sub));
 
     // Only on the merged shelf, where one point can stand for the same
@@ -2713,6 +3390,16 @@
         )
       );
     }
+
+    /* Under the identity block and above everything else, so the rail
+     * reads as who this is, then what you can do, then what stands
+     * behind it. A doctrines point can carry hundreds of rows and this
+     * is the only way onto the gesture without a pointer, so it must
+     * not end up below them on a phone.
+     *
+     * Withheld on a one-point map, where there is nothing to compare
+     * to and the button would be a control that cannot work. */
+    if (nodes.length > 1) dossierEl.appendChild(compareButton(i));
 
     // The `works` view is the only one whose node is itself a work, and
     // so the only one with a reader link of its own.
@@ -2893,7 +3580,8 @@
     dossierEl.appendChild(
       textEl("p", "cn-dossier-kicker", key ? catLabel(key) : "Unclassified")
     );
-    dossierEl.appendChild(textEl("h3", "cn-dossier-title", node.a || "Untitled"));
+    dossierEl.appendChild(dossierTitle(node, node.a || "Untitled"));
+    if (nodes.length > 1) dossierEl.appendChild(compareButton(i));
 
     const by = refuters.length > i ? refuters[i] : 0;
     const contested = view === "contested";
@@ -3079,33 +3767,8 @@
     dossierEl.appendChild(textEl("p", "cn-dossier-heading", "The two ends"));
     const ul = document.createElement("ul");
     ul.className = "cn-links";
-    [
-      [f.ia, f.nameA, `Citing · ${f.regionA}`],
-      [f.ib, f.nameB, `Cited · ${f.regionB}`],
-    ].forEach((end) => {
-      const li = document.createElement("li");
-      li.className = "cn-link";
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "cn-link-btn";
-      btn.appendChild(textEl("span", "cn-link-name", end[1]));
-      btn.appendChild(textEl("span", "cn-link-meta", end[2]));
-      btn.addEventListener("click", () => {
-        select(end[0], { centre: true });
-        syncIndexSelection();
-      });
-      btn.addEventListener("focus", () => {
-        hovered = end[0];
-        draw();
-      });
-      btn.addEventListener("blur", () => {
-        if (hovered !== end[0]) return;
-        hovered = -1;
-        draw();
-      });
-      li.appendChild(btn);
-      ul.appendChild(li);
-    });
+    ul.appendChild(nodeRow(f.ia, f.nameA, `Citing · ${f.regionA}`));
+    ul.appendChild(nodeRow(f.ib, f.nameB, `Cited · ${f.regionB}`));
     dossierEl.appendChild(ul);
   }
 
@@ -3240,30 +3903,8 @@
     dossierEl.appendChild(textEl("p", "cn-dossier-heading", "The two ends"));
     const ul = document.createElement("ul");
     ul.className = "cn-links";
-    [[f.ia, f.nameA, f.regionA], [f.ib, f.nameB, f.regionB]].forEach((end) => {
-      const li = document.createElement("li");
-      li.className = "cn-link";
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "cn-link-btn";
-      btn.appendChild(textEl("span", "cn-link-name", end[1]));
-      btn.appendChild(textEl("span", "cn-link-meta", end[2]));
-      btn.addEventListener("click", () => {
-        select(end[0], { centre: true });
-        syncIndexSelection();
-      });
-      btn.addEventListener("focus", () => {
-        hovered = end[0];
-        draw();
-      });
-      btn.addEventListener("blur", () => {
-        if (hovered !== end[0]) return;
-        hovered = -1;
-        draw();
-      });
-      li.appendChild(btn);
-      ul.appendChild(li);
-    });
+    ul.appendChild(nodeRow(f.ia, f.nameA, f.regionA));
+    ul.appendChild(nodeRow(f.ib, f.nameB, f.regionB));
     dossierEl.appendChild(ul);
   }
 
@@ -3276,9 +3917,24 @@
    *   sidecar, no overlap    say neither top fifteen reaches the other
    *   sidecar, overlap       name the books, both proportions each
    */
-  function renderShared(f) {
+  /* `scored` says whether a strength was published for this pair, and
+   * it is false exactly when a comparison found no line. Two sentences
+   * below refer to "the strength above" and would be pointing at
+   * nothing; the books themselves are unaffected, since the sidecar
+   * knows nothing about edges and answers the same way either way. */
+  function renderShared(f, opts) {
+    const scored = !opts || opts.scored !== false;
     const res = sharedBooks(f.nameA, f.nameB);
-    if (!res) return;
+    if (!res) {
+      // Only worth saying where the reader was told to expect it. On a
+      // link's dossier the four-state ladder below covers everything;
+      // on a comparison with no line, "no sidecar" is the difference
+      // between a short answer and an unexplained gap.
+      if (opts && opts.sayWhenAbsent) {
+        dossierEl.appendChild(textEl("p", "cn-share-note", COMPARE_SIM_NO_SIDECAR));
+      }
+      return;
+    }
     dossierEl.appendChild(textEl("p", "cn-dossier-heading", "Books they both lean on"));
 
     if (res.missing && res.missing.length) {
@@ -3299,7 +3955,9 @@
         textEl(
           "p",
           "cn-share-note",
-          "Neither one's fifteen most-cited books appears on the other's list. They may still share books further down, which is where the strength above is measured."
+          scored
+            ? "Neither one's fifteen most-cited books appears on the other's list. They may still share books further down, which is where the strength above is measured."
+            : "Neither one's fifteen most-cited books appears on the other's list. Only those fifteen were published, so they may still share books further down."
         )
       );
       return;
@@ -3333,12 +3991,473 @@
       textEl(
         "p",
         "cn-share-note",
-        `${extra}Each share is that book's part of everything the writer cites. Only the fifteen books each one cites most were published, so this is the overlap that can be seen rather than all of it. The strength above was measured across the whole profile.`
+        `${extra}Each share is that book's part of everything the writer cites. Only the fifteen books each one cites most were published, so this is the overlap that can be seen rather than all of it.${
+          scored ? " The strength above was measured across the whole profile." : ""
+        }`
       )
     );
   }
 
+  /* ── A comparison, in the rail ────────────────────────────────────
+   *
+   * The persistent, screen-readable half of everything the plate says,
+   * and the only surface with room for the corrections that make the
+   * numbers safe to read.
+   *
+   * The empty pair is the common case in both families and it gets the
+   * most care, because it is the one a careless sentence turns into a
+   * false claim. 2.7% of citation pairs and 1.5% of Scripture pairs
+   * carry an edge, so most of the time this rail is explaining an
+   * absence, and an absence here is a floor or a threshold rather than
+   * a zero. Nothing below says two writers are unconnected.
+   */
+
+  /* One end of a pair, as a button. The same row renderLinkDossier and
+   * renderCiteLink already build for "The two ends", lifted out so
+   * three callers cannot drift apart on the focus behaviour, which is
+   * the part that matters: focusing a row moves the highlight on the
+   * map exactly as focusing an index entry does, and that is the only
+   * way somebody who cannot point is told which dot this is. */
+  function nodeRow(i, name, meta) {
+    const li = document.createElement("li");
+    li.className = "cn-link";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "cn-link-btn";
+    btn.appendChild(textEl("span", "cn-link-name", name));
+    if (meta) btn.appendChild(textEl("span", "cn-link-meta", meta));
+    btn.addEventListener("click", () => {
+      select(i, { centre: true });
+      syncIndexSelection();
+    });
+    btn.addEventListener("focus", () => {
+      hovered = i;
+      draw();
+    });
+    btn.addEventListener("blur", () => {
+      if (hovered !== i) return;
+      hovered = -1;
+      draw();
+    });
+    li.appendChild(btn);
+    return li;
+  }
+
+  // The pair's two ends, and the way back to reading one of them alone.
+  function renderCompareEnds(f) {
+    dossierEl.appendChild(textEl("p", "cn-dossier-heading", "The two points"));
+    const ul = document.createElement("ul");
+    ul.className = "cn-links";
+    ul.appendChild(nodeRow(f.ia, f.nameA, f.regionA));
+    ul.appendChild(nodeRow(f.ib, f.nameB, f.regionB));
+    dossierEl.appendChild(ul);
+  }
+
+  /* One direction of a citation pair. A direction that HAS an edge is a
+   * real button, so choosing it opens that edge's own dossier with the
+   * works behind it; a direction that does not is a line of text, never
+   * a dead button, and it says what the absence is.
+   *
+   * The two are always rendered together and never summed. Augustine
+   * cites Jerome 55 times with 3 refuting; Jerome cites Augustine 13
+   * times with none. One number in place of those two would lose the
+   * asymmetry, which is the whole of what makes a citation pair
+   * interesting. */
+  function citeDirectionRow(ul, from, to, ei) {
+    if (ei < 0) {
+      const li = document.createElement("li");
+      li.className = "cn-link cn-link--flat";
+      li.appendChild(textEl("span", "cn-link-name", `${from} cites ${to}`));
+      li.appendChild(
+        textEl("span", "cn-link-meta", "Under five citations, so not in this graph")
+      );
+      ul.appendChild(li);
+      return;
+    }
+    const e = edges[ei];
+    const meta = e[3]
+      ? `${fmt(e[2])} ${e[2] === 1 ? "citation" : "citations"}, ${fmt(e[3])} refuting${
+        isArgument(e) ? ", mostly argument" : ""
+      }`
+      : `${fmt(e[2])} ${e[2] === 1 ? "citation" : "citations"}, none refuting`;
+    ul.appendChild(linkRow(ei, `${from} cites ${to}`, meta));
+  }
+
+  /* The reading a single figure cannot give. A pair can be at once the
+   * largest debt in the library and its largest dispute: Scotus cites
+   * Aquinas 8,829 times, 7,757 of them positively and 1,072 as
+   * refutations, which is not an argument by the ref*2>n test and is
+   * still the biggest argument there is. So both halves of every total
+   * are stated, and the sentence under them names which shape this
+   * particular pair has. */
+  function citeBalanceNote(f) {
+    const parts = [];
+    [[f.ab, f.nameA, f.nameB], [f.ba, f.nameB, f.nameA]].forEach((d) => {
+      if (d[0] < 0) return;
+      const e = edges[d[0]];
+      if (!e[3]) return;
+      const pos = Math.max(0, e[2] - e[3]);
+      parts.push(
+        isArgument(e)
+          ? `${d[1]} on ${d[2]} is mostly argument: ${fmt(pos)} agreements against ${fmt(e[3])} refutations.`
+          : `${d[1]} on ${d[2]} is mostly agreement with an argument inside it: ${fmt(pos)} positive against ${fmt(e[3])} refutations, which is ${pct(e[3] / e[2])} of the pair.`
+      );
+    });
+    if (!parts.length) return;
+    parts.push("A pair can be both a debt and a dispute. The heaviest ones in this library are.");
+    dossierEl.appendChild(textEl("p", "cn-link-gloss", parts.join(" ")));
+  }
+
+  /* The opt-in exact count, and the only place in this panel that can
+   * tell "four citations, under the floor" from "none anywhere". It is
+   * a button rather than a fetch on selection because the file behind
+   * it runs to a megabyte for a heavily cited figure, and because most
+   * readers comparing two names are not asking this question.
+   *
+   * Every outcome is a different sentence and a failure is never a
+   * zero (FRONTEND §6.33). The button disables itself while it works
+   * and is replaced by its answer, so it cannot be pressed twice into
+   * two megabytes.
+   */
+  function renderExactCount(f) {
+    const fkA = f.a && f.a.fk;
+    const fkB = f.b && f.b.fk;
+    if (!fkA || !fkB) return;
+
+    const box = document.createElement("div");
+    box.className = "cn-compare-count";
+    const p = document.createElement("p");
+    p.className = "cn-compare-invite";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "cn-compare-btn";
+    btn.textContent = COMPARE_COUNT_INVITE;
+    p.appendChild(btn);
+    box.appendChild(p);
+    const note = textEl("p", "cn-share-note", COMPARE_COUNT_NOTE);
+    box.appendChild(note);
+    dossierEl.appendChild(box);
+
+    const sentence = (from, to, r) => {
+      if (r.state === "unpublished") {
+        return `The complete record for ${from} has not been published, so this direction cannot be checked.`;
+      }
+      if (r.state === "failed") return "";
+      if (r.state === "none") {
+        return `${from} never names ${to} anywhere in the indexed corpus.`;
+      }
+      return r.ref
+        ? `${from} names ${to} ${fmt(r.n)} ${r.n === 1 ? "time" : "times"}, ${fmt(r.ref)} of them refutations.`
+        : `${from} names ${to} ${fmt(r.n)} ${r.n === 1 ? "time" : "times"}, none of them refutations.`;
+    };
+
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      note.textContent = COMPARE_COUNT_WORKING;
+      // The pair this was pressed for. A reader who moves on before the
+      // fetch lands must not have a stale answer painted into whatever
+      // is in the rail by then.
+      const forA = f.ia;
+      const forB = f.ib;
+      Promise.all([countDirection(fkA, fkB), countDirection(fkB, fkA)]).then((res) => {
+        if (compareA !== forA || compareB !== forB) return;
+        if (!box.isConnected) return;
+        box.textContent = "";
+        box.appendChild(textEl("p", "cn-dossier-heading", "The complete record"));
+        const said = [sentence(f.nameA, f.nameB, res[0]), sentence(f.nameB, f.nameA, res[1])];
+        if (!said[0] && !said[1]) {
+          box.appendChild(textEl("p", "cn-share-note", COMPARE_COUNT_FAILED));
+          return;
+        }
+        said.forEach((s) => {
+          if (s) box.appendChild(textEl("p", "cn-dossier-sub", s));
+        });
+        if (!said[0] || !said[1]) {
+          box.appendChild(textEl("p", "cn-share-note", COMPARE_COUNT_FAILED));
+        }
+        box.appendChild(
+          textEl(
+            "p",
+            "cn-share-note",
+            "Counted over the reception index rather than over everything ever written. It is the same corpus the map is drawn from."
+          )
+        );
+        announce("The complete record has been read for this pair.");
+      });
+    });
+  }
+
+  function renderCompareCite(f) {
+    dossierEl.appendChild(
+      textEl("p", "cn-dossier-kicker", f.any ? "Two authors" : "Two authors, no pair")
+    );
+    dossierEl.appendChild(textEl("h3", "cn-dossier-title", `${f.nameA} and ${f.nameB}`));
+
+    if (f.any) {
+      dossierEl.appendChild(textEl("p", "cn-dossier-heading", "Each direction"));
+      const ul = document.createElement("ul");
+      ul.className = "cn-links";
+      citeDirectionRow(ul, f.nameA, f.nameB, f.ab);
+      citeDirectionRow(ul, f.nameB, f.nameA, f.ba);
+      dossierEl.appendChild(ul);
+      citeBalanceNote(f);
+      if (f.ab < 0 || f.ba < 0) {
+        dossierEl.appendChild(textEl("p", "cn-stat-note", COMPARE_CITE_ONE_WAY));
+      }
+    } else {
+      dossierEl.appendChild(textEl("p", "cn-dossier-sub", COMPARE_CITE_NONE));
+    }
+
+    dossierEl.appendChild(
+      textEl(
+        "p",
+        "cn-dossier-sub",
+        f.bothKnown && !f.crosses
+          ? `Both are shelved under ${f.regionA}.`
+          : `${f.regionA} and ${f.regionB}.`
+      )
+    );
+    dossierEl.appendChild(textEl("p", "cn-link-gloss", CITE_SCOPE_CAVEAT));
+    renderExactCount(f);
+    renderCompareEnds(f);
+  }
+
+  function renderCompareScripture(f) {
+    const scored = f.edge >= 0;
+    dossierEl.appendChild(
+      textEl("p", "cn-dossier-kicker", scored ? "Two points, joined" : "Two points, no line")
+    );
+    dossierEl.appendChild(textEl("h3", "cn-dossier-title", `${f.nameA} and ${f.nameB}`));
+
+    if (scored) {
+      const strength = document.createElement("p");
+      strength.className = "cn-link-strength";
+      strength.appendChild(textEl("span", "cn-link-figure", f.weight.toFixed(2)));
+      strength.appendChild(textEl("span", "cn-link-word", `of 1, ${f.word}`));
+      dossierEl.appendChild(strength);
+    } else {
+      dossierEl.appendChild(textEl("p", "cn-dossier-sub", COMPARE_SIM_NONE));
+    }
+
+    const noun = SECTION_NOUN[view] || "section";
+    let where;
+    if (!f.bothKnown) {
+      where = `${f.regionA} and ${f.regionB}. One of these two has no ${noun} on record.`;
+    } else if (f.crosses) {
+      where = scored
+        ? `${f.regionA} and ${f.regionB}. This pair crosses from one ${noun} to another, which is the kind worth looking at.`
+        : `${f.regionA} and ${f.regionB}. They are filed under different sections.`;
+    } else {
+      where = `Both sit under ${f.regionA}.`;
+    }
+    dossierEl.appendChild(textEl("p", "cn-dossier-sub", where));
+    dossierEl.appendChild(textEl("p", "cn-link-gloss", LINK_GLOSS[view] || LINK_GLOSS.authors));
+
+    // The substantive half of the empty state. The sidecar answers "what
+    // do these two share" whether or not a line was published, and on
+    // English Divines the median no-line pair still has eleven books in
+    // both visible top fifteens, so this is usually a real answer rather
+    // than an apology.
+    renderShared(f, { scored, sayWhenAbsent: !scored });
+
+    if (scored) {
+      dossierEl.appendChild(textEl("p", "cn-dossier-heading", "This link"));
+      const ul = document.createElement("ul");
+      ul.className = "cn-links";
+      ul.appendChild(
+        linkRow(
+          f.edge,
+          `${f.nameA} and ${f.nameB}`,
+          `${f.weight.toFixed(2)} ${f.word}${f.crosses ? " · crosses sections" : ""}`
+        )
+      );
+      dossierEl.appendChild(ul);
+    }
+    renderCompareEnds(f);
+  }
+
+  function renderCompare(ia, ib) {
+    if (!dossierEl) return;
+    const f = compareFacts(ia, ib);
+    if (!f) {
+      renderDossierEmpty();
+      return;
+    }
+    dossierEl.textContent = "";
+    // A comparison is a state, not a reading, so the way out of it is
+    // the first control in the rail rather than the last.
+    const bar = document.createElement("p");
+    bar.className = "cn-compare-invite";
+    const clear = document.createElement("button");
+    clear.type = "button";
+    clear.className = "cn-compare-btn";
+    clear.textContent = "Clear this pair";
+    clear.addEventListener("click", () => {
+      const back = compareA;
+      clearCompare();
+      select(back);
+      syncIndexSelection();
+    });
+    bar.appendChild(clear);
+    dossierEl.appendChild(bar);
+
+    if (f.cite) renderCompareCite(f);
+    else renderCompareScripture(f);
+  }
+
+  /* The half-chosen state. The point's own dossier is left intact under
+   * the banner rather than replaced, so arming a comparison costs the
+   * reader nothing they were reading; the banner on top is what makes
+   * the state impossible to be in by accident. */
+  function renderCompareArmed(i, opts) {
+    if (!dossierEl) return;
+    renderDossier(i);
+    const box = document.createElement("div");
+    box.className = "cn-compare-arm";
+    box.appendChild(textEl("p", "cn-compare-arm-kicker", "Choosing a pair"));
+    box.appendChild(
+      textEl(
+        "p",
+        "cn-compare-arm-note",
+        `${nodes[i] && nodes[i].a ? nodes[i].a : "This point"} is held. ${COMPARE_ARM_NOTE}`
+      )
+    );
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "cn-compare-btn";
+    cancel.textContent = "Cancel";
+    cancel.addEventListener("click", () => {
+      clearCompare();
+      select(i);
+      syncIndexSelection();
+    });
+    box.appendChild(cancel);
+    dossierEl.insertBefore(box, dossierEl.firstChild);
+    /* Focus is MOVED only when the reader's own press caused this
+     * render. Arming replaces the button that was just pressed, so
+     * without this a keyboard user is left on <body> with no way back
+     * into the panel, which is the trap the legend and the index list
+     * are both written to avoid. A repaint from somewhere else (a
+     * legend toggle, a late sidecar) must not steal focus from
+     * whatever the reader is actually using, which is the same trap
+     * from the other side. */
+    if (opts && opts.focus) cancel.focus();
+  }
+
+  /* ── The three states of a comparison ─────────────────────────── */
+
+  function clearCompare() {
+    compareA = -1;
+    compareB = -1;
+  }
+
+  /* Repaint whatever the rail is currently showing, without knowing
+   * which of the four things that is. Called where something under the
+   * dossier has changed rather than the selection itself: a legend
+   * filter that hid a point one of these lists names, or the book
+   * profiles arriving after the rail was already drawn. Four states and
+   * a dispatch, rather than four call sites each remembering all four.
+   */
+  function refreshDossier() {
+    if (compareA >= 0 && compareB >= 0) renderCompare(compareA, compareB);
+    else if (compareA >= 0) renderCompareArmed(compareA);
+    else if (selectedEdge >= 0) renderLinkDossier(selectedEdge);
+    else if (selected >= 0) renderDossier(selected);
+  }
+
+  function armCompare(i) {
+    if (i < 0 || !nodes[i]) return;
+    compareA = i;
+    compareB = -1;
+    selected = i;
+    selectedEdge = -1;
+    hoveredEdge = -1;
+    renderCompareArmed(i, { focus: true });
+    syncIndexSelection();
+    draw();
+    announce(`${nodes[i].a || "Point"} held. ${COMPARE_ARM_NOTE}`);
+  }
+
+  function setPair(ia, ib, opts) {
+    const f = compareFacts(ia, ib);
+    if (!f) return;
+    compareA = ia;
+    compareB = ib;
+    // A comparison owns the rail, so neither of the other two things
+    // that can own it is left claiming to.
+    selected = -1;
+    selectedEdge = -1;
+    hoveredEdge = -1;
+    // A chosen pair is worth the profiles even on the merged shelf,
+    // where nothing was fetched on load. Same bargain selectEdge makes.
+    ensureFingerprints();
+    renderCompare(ia, ib);
+    syncIndexSelection();
+    if (!opts || opts.centre !== false) centrePair(ia, ib);
+    draw();
+    announce(compareAnnouncement(f));
+  }
+
+  /* Said in full, because a screen reader gets no plate and no rings.
+   * Both directions, separately, for the same reason the rail gives
+   * them separately. */
+  function compareAnnouncement(f) {
+    if (f.cite) {
+      if (!f.any) {
+        return `${f.nameA} and ${f.nameB} compared. Neither cites the other five times or more, so this pair is not in the graph.`;
+      }
+      const say = (from, to, ei) => {
+        if (ei < 0) return `${from} cites ${to} fewer than five times.`;
+        const e = edges[ei];
+        return `${from} cites ${to} ${fmt(e[2])} times, ${e[3] ? `${fmt(e[3])} of them refutations` : "none of them refutations"}.`;
+      };
+      return `${f.nameA} and ${f.nameB} compared. ${say(f.nameA, f.nameB, f.ab)} ${say(f.nameB, f.nameA, f.ba)}`;
+    }
+    return f.edge >= 0
+      ? `${f.nameA} and ${f.nameB} compared. Strength ${f.weight.toFixed(2)}, ${f.word}.`
+      : `${f.nameA} and ${f.nameB} compared. No line was published for this pair.`;
+  }
+
+  /* Both points on screen at once, which is the one thing a comparison
+   * needs the view to do and neither centreOn nor centreOnEdge does.
+   * centreOn zooms IN, which can leave the other half of a pair off the
+   * plate; this centres the midpoint and pulls the zoom back until the
+   * span between the two fits inside the stage with room for their
+   * rings. It never zooms further in than the reader already was. */
+  function centrePair(ia, ib) {
+    if (!nodes[ia] || !nodes[ib] || !cssW || !cssH) return;
+    const dx = Math.abs(posX[ia] - posX[ib]);
+    const dy = Math.abs(posY[ia] - posY[ib]);
+    const room = Math.max(80, Math.min(cssW, cssH) - 120);
+    const span = Math.max(dx, dy);
+    if (span > 0) {
+      const fits = room / (span * baseScale);
+      if (fits < zoom) zoom = Math.max(MIN_ZOOM, fits);
+    }
+    const s = scale();
+    panX = -((posX[ia] + posX[ib]) / 2 - cx) * s;
+    panY = -((posY[ia] + posY[ib]) / 2 - cy) * s;
+    clampPan();
+    syncTouchAction();
+  }
+
   function select(i, opts) {
+    /* Completing a comparison, and this is why the arming lives here
+     * rather than in the pointer handler. Every way of choosing a point
+     * already funnels through select(): a dot on the map, a button in
+     * the index list, either end of a link's dossier or of another
+     * comparison. Putting the second half of the gesture at the funnel
+     * gives the pointer, the keyboard and a fingertip the same gesture
+     * without a parallel mechanism for any of them.
+     *
+     * Choosing the held point AGAIN falls through to the ordinary
+     * branch below, which cancels: un-picking is the same gesture as
+     * picking, which is what a reader expects of a held selection. */
+    if (compareA >= 0 && compareB < 0 && i >= 0 && i !== compareA && nodes[i]) {
+      setPair(compareA, i, opts);
+      return;
+    }
+    clearCompare();
     selected = i;
     selectedEdge = -1;
     hoveredEdge = -1;
@@ -3353,6 +4472,10 @@
   function selectEdge(j, opts) {
     const f = edgeFacts(j);
     if (!f) return;
+    // A link and a comparison are two answers to the same question and
+    // one rail. Choosing a link ends the comparison rather than sitting
+    // beside it.
+    clearCompare();
     selectedEdge = j;
     selected = -1;
     hoveredEdge = -1;
@@ -3371,6 +4494,7 @@
   }
 
   function clearSelection() {
+    clearCompare();
     selected = -1;
     selectedEdge = -1;
     renderDossierEmpty();
@@ -3554,11 +4678,32 @@
      * carries. */
     const hit = hitTest(p.x, p.y);
     if (hit >= 0) {
-      select(hit);
+      /* Shift-click is the ACCELERATOR, never the discoverable path:
+       * it is the universal "and this one as well", it cannot exist on
+       * a touchscreen, and a reader who does not know it loses nothing
+       * because the rail's Compare button is the real gesture. The
+       * anchor is whichever point is already in hand, so shift-clicking
+       * a third dot swaps the far end of an open pair rather than
+       * starting over. */
+      const anchor = compareA >= 0 ? compareA : selected;
+      if (e.shiftKey && anchor >= 0 && anchor !== hit && nodes[anchor]) {
+        setPair(anchor, hit);
+      } else {
+        select(hit);
+      }
     } else {
       const edgeHit = hitTestEdge(p.x, p.y, tapTolerance(e));
       if (edgeHit >= 0) {
         selectEdge(edgeHit);
+      } else if (compareA >= 0 && compareB < 0) {
+        /* Escaping a half-chosen pair. Tapping empty ground cancels the
+         * arm and gives back the point that was held, rather than
+         * clearing the rail out from under a reader who has just been
+         * told to choose a second point and has mis-tapped. A second
+         * tap on nothing then clears as it always did. */
+        const back = compareA;
+        clearCompare();
+        select(back);
       } else {
         clearSelection();
         draw();
@@ -3606,6 +4751,25 @@
     e.preventDefault();
     clampPan();
     draw();
+  });
+
+  /* Escape leaves a comparison from anywhere in the panel, which is the
+   * one keystroke a reader will try without being told. Bound on the
+   * root rather than on the canvas because the gesture is armed from a
+   * button in the rail and the keyboard path never touches the canvas
+   * at all.
+   *
+   * No preventDefault and no stopPropagation: the handler does nothing
+   * unless a comparison is actually open, so it can never swallow an
+   * Escape that belonged to the tab shell around it or to the index
+   * filter's own search field. */
+  root.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || compareA < 0) return;
+    const back = compareA;
+    clearCompare();
+    select(back);
+    syncIndexSelection();
+    announce("Comparison cleared.");
   });
 
   if (zoomInBtn) zoomInBtn.addEventListener("click", () => zoomAt(1.35, cssW / 2, cssH / 2));
@@ -3667,10 +4831,26 @@
           const se = edges[selectedEdge];
           if (!se || !isVisible(nodes[se[0]]) || !isVisible(nodes[se[1]])) clearSelection();
         }
+        /* A comparison goes when EITHER of its ends goes, the same rule
+         * a link follows, and for the same reason: half a pair on the
+         * map and a whole pair in the rail is the rail describing
+         * something that is not there. Where the far end went the near
+         * one is given back on its own, rather than the reader losing
+         * both to a filter they used on neither. */
+        if (compareA >= 0) {
+          const goneA = !nodes[compareA] || !isVisible(nodes[compareA]);
+          const goneB = compareB >= 0 && (!nodes[compareB] || !isVisible(nodes[compareB]));
+          if (goneA) clearSelection();
+          else if (goneB) {
+            const back = compareA;
+            clearCompare();
+            select(back);
+          }
+        }
         hoveredEdge = -1;
         // The links list inside an open dossier names points that may
         // have just been hidden, so it is rebuilt rather than left.
-        if (selected >= 0) renderDossier(selected);
+        refreshDossier();
         renderIndex();
         renderCaption();
         draw();
@@ -3697,10 +4877,16 @@
   // pressed must still be there, and still be focused, afterwards.
   let indexButtons = [];
 
+  /* Both halves of a comparison are marked here, not just `selected`.
+   * The index list is the whole of the keyboard path onto this map, so
+   * a reader who armed a comparison and is now arrowing the list for
+   * the second point has to be able to see which entry is already in
+   * hand. Without it the list would show nothing pressed at all while a
+   * pair was open, which reads as the selection having been lost. */
   function syncIndexSelection() {
     for (let k = 0; k < indexButtons.length; k++) {
       const entry = indexButtons[k];
-      const on = entry.i === selected;
+      const on = entry.i === selected || entry.i === compareA || entry.i === compareB;
       entry.el.classList.toggle("is-selected", on);
       entry.el.setAttribute("aria-pressed", on ? "true" : "false");
     }
@@ -3741,8 +4927,11 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "cn-index-btn";
-      if (i === selected) btn.classList.add("is-selected");
-      btn.setAttribute("aria-pressed", i === selected ? "true" : "false");
+      // Same rule as syncIndexSelection: a compared point is in hand
+      // even though `selected` is -1 while a pair is open.
+      const marked = i === selected || i === compareA || i === compareB;
+      if (marked) btn.classList.add("is-selected");
+      btn.setAttribute("aria-pressed", marked ? "true" : "false");
       btn.appendChild(textEl("span", "cn-index-name", nodes[i].a || "Untitled"));
       if (nodes[i].sub) btn.appendChild(textEl("span", "cn-index-sub", nodes[i].sub));
       btn.addEventListener("click", () => {
@@ -4484,9 +5673,8 @@
 
   function reverseEdge(j) {
     const e = edges[j];
-    if (!e || !reverseAt) return -1;
-    const at = reverseAt.get(`${e[1]}:${e[0]}`);
-    return typeof at === "number" ? at : -1;
+    if (!e) return -1;
+    return directedEdge(e[1], e[0]);
   }
 
   /* ── How many lines, and why that many ────────────────────────────
