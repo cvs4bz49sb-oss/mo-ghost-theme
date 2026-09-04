@@ -168,9 +168,16 @@
     // plain text runs inside already-generated HTML is far easier to
     // get wrong.
     const linked = linkWorks(withNotes, workLinks);
+    // The italic pass requires the emphasised run to begin AND end with
+    // a non-space character, which is what markdown means by emphasis
+    // anyway. Without that guard a list marker opens an italic span:
+    // "* one * two" matched from the first marker to the second and
+    // italicised the text between two unrelated bullets. Block-level
+    // handling in renderAnswer() strips those markers first, so this is
+    // the second line of defence rather than the only one.
     return linked
       .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
+      .replace(/\*([^\s*](?:[^*\n]*[^\s*])?)\*/g, "<em>$1</em>");
   }
 
   // Escapes a string for safe use inside a RegExp.
@@ -243,14 +250,26 @@
       }
 
       // The ENUMERATE rule in synthesisSystem() asks for "EVERY relevant
-      // one as its own bulleted entry" -- a block that's entirely "- "
-      // lines renders as a real list instead of a paragraph with
-      // literal dashes in it.
-      const isList = lines.length > 1 && lines.every((l) => /^-\s+/.test(l));
-      if (isList) {
-        const items = lines.map((l) => `<li>${renderInline(l.replace(/^-\s+/, ""), citByN, workLinks)}</li>`).join("");
-        return `<ul>${items}</ul>`;
-      }
+      // one as its own bulleted entry", and the model answers that in
+      // whichever bullet character it feels like.
+      //
+      // This used to test /^-\s+/ on EVERY line, which failed twice over
+      // (2026-09, "do dogs go to heaven?"). It missed "*" bullets
+      // entirely, and requiring every line to be a bullet missed the
+      // ordinary case of a lead-in sentence followed by its list. Both
+      // fell through to the paragraph joiner below, and then the italic
+      // pass in renderInline() matched from one bullet marker to the
+      // next -- so three "* **Lead-in:** text" items rendered as one
+      // running paragraph with the middle item italicised and a literal
+      // "*" left visible where the third marker had nothing to pair
+      // with. The bullets are recognised here so the markers are gone
+      // before any inline pass can mistake them for emphasis.
+      //
+      // "**Bold**" is safe against BULLET: the character after "*" is
+      // another "*", not the required whitespace.
+      const BULLET = /^[*+-]\s+(.+)$/;
+      const ORDERED = /^\d{1,3}[.)]\s+(.+)$/;
+      const QUOTE = /^(?:&gt;|>)\s?(.*)$/;
 
       // A "> quoted text" line (2026-09, confirmed with Gemini): often
       // arrives as a lead-in sentence on one line ("...defines it as:")
@@ -272,21 +291,50 @@
       // faith-received.css styled nothing. Found on the first real
       // render of the rebuilt panel, 2026-09. The bare `>` alternative
       // is kept so this still works if the escaping order ever moves.
-      if (lines.some((l) => /^(?:&gt;|>)\s?/.test(l))) {
+      if (lines.some((l) => QUOTE.test(l) || BULLET.test(l) || ORDERED.test(l))) {
         const parts = [];
         let plain = [];
+        let items = null; // { tag: "ul" | "ol", li: [] }
+        // A plain run that is nothing but a bold phrase is the heading
+        // the model was asked for, so it keeps the heading treatment it
+        // would have had below rather than becoming a paragraph that
+        // happens to be entirely bold.
         const flushPlain = () => {
-          if (plain.length) { parts.push(`<p>${renderInline(plain.join(" "), citByN, workLinks)}</p>`); plain = []; }
+          if (!plain.length) return;
+          const joinedPlain = plain.join(" ");
+          const only = plain.length === 1 && joinedPlain.match(/^\*\*(.+?)\*\*\s*:?\s*$/);
+          parts.push(only
+            ? `<p class="ask-answer-lead">${renderInline(only[1], citByN, workLinks)}</p>`
+            : `<p>${renderInline(joinedPlain, citByN, workLinks)}</p>`);
+          plain = [];
+        };
+        const flushItems = () => {
+          if (!items) return;
+          parts.push(`<${items.tag}>${items.li.join("")}</${items.tag}>`);
+          items = null;
         };
         for (const l of lines) {
-          const q = l.match(/^(?:&gt;|>)\s?(.*)$/);
+          const q = l.match(QUOTE);
+          const b = q ? null : l.match(BULLET);
+          const o = q || b ? null : l.match(ORDERED);
           if (q) {
+            flushItems();
             flushPlain();
             parts.push(`<blockquote>${renderInline(q[1], citByN, workLinks)}</blockquote>`);
+          } else if (b || o) {
+            flushPlain();
+            const tag = b ? "ul" : "ol";
+            // A run that switches marker closes the list it was in, so
+            // bullets and numbers never end up in one another's list.
+            if (items && items.tag !== tag) flushItems();
+            if (!items) items = { tag, li: [] };
+            items.li.push(`<li>${renderInline((b || o)[1], citByN, workLinks)}</li>`);
           } else {
+            flushItems();
             plain.push(l);
           }
         }
+        flushItems();
         flushPlain();
         return parts.join("");
       }

@@ -2756,8 +2756,13 @@ mark.faith-find-hit.is-current {
 /* synthesisSystem()'s ENUMERATE rule asks for real bulleted lists --
    same measure/spacing as the answer's own paragraphs, not the
    browser's default list indent. */
-.ask-answer ul { margin: 0 0 22px; padding-left: 22px; }
-.ask-answer ul:last-child { margin-bottom: 0; }
+/* ol alongside ul: the answer renderer emits a real <ol> for a numbered
+   block, which without this took the browser default indent and sat at a
+   different left edge from every bulleted list above it. */
+.ask-answer ul,
+.ask-answer ol { margin: 0 0 22px; padding-left: 22px; }
+.ask-answer ul:last-child,
+.ask-answer ol:last-child { margin-bottom: 0; }
 .ask-answer li { margin: 0 0 10px; }
 .ask-answer li:last-child { margin-bottom: 0; }
 .ask-answer strong { font-weight: 600; }
