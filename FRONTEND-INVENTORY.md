@@ -117,8 +117,8 @@ collector feeding `/admin/heatmap/`.
 | custom-donate.hbs | page/donate-redirect |
 | custom-digest-gen.hbs | React 18.3.1 (CDN+SRI), ReactDOM (CDN+SRI), page/digest-bootstrap, digest/* (5 files) |
 | All admin templates | admin-auth + page-specific admin-* script |
-| Faith Received documents | faith-modernize, faith-received, faith-gate |
-| Faith Received memorize | faith-received, faith-memorize, faith-gate |
+| Faith Received documents | faith-modernize, faith-received |
+| Faith Received memorize | faith-received, faith-memorize |
 | membership-body.hbs partial | page/membership-toggle, lib/safe-redirect, lifetime-checkout |
 | page-ebook/journal-*-read.hbs | reader |
 

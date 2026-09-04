@@ -53,7 +53,6 @@ Each also defines `--lc-accent-hero` and `--lc-accent-article` for radial glow c
 | `mo-spin` | 4369 | Simple 360deg rotation (`to { transform: rotate(360deg); }`). Used on loading spinner. |
 | `journal-status-glow` | 5940-5943 | Drop-shadow pulse on active journal status mark (2.6s infinite). 0%/100%: 4px/10px. 50%: 8px/18px. |
 | `faith-section-fade-in` | 11020-11023 | Fade-in for accordion open state. from: opacity 0, translateY(-4px). to: opacity 1, translateY(0). 0.22s ease-out. |
-| `faith-gate-shake` | 13842-13846 | Horizontal shake on wrong password. 0%/100%: translateX(0). 20%/60%: -8px. 40%/80%: +8px. 0.35s ease. |
 
 All animations except `mo-spin` have `prefers-reduced-motion: reduce` fallbacks that set `animation: none`.
 
@@ -573,15 +572,6 @@ Transition: 300ms ease on background-color, color, border-color for all scoped e
 |---|---|
 | `.slide-in` | position: fixed; bottom: 28px; right: 28px; z-index: 50; width: 320px; background: var(--color-white); border: 1px solid var(--color-card-border); border-radius: var(--radius-lg); box-shadow: 0 12px 40px rgba(45, 41, 39, 0.18) |
 | `.slide-in.has-image` | display: grid; grid-template-columns: 170px 1fr |
-
-### 4.36 Faith Gate (lines 13773-13849)
-
-| Class | Properties |
-|---|---|
-| `.faith-gate` | position: fixed; inset: 0; z-index: 99999; backdrop-filter: blur(24px); background: rgba(45, 41, 39, 0.70) |
-| `.faith-gate-card` | max-width: 440px; background: var(--color-white); border-radius: var(--radius-lg); padding: 48px 40px |
-
----
 
 ## 5. Responsive Breakpoints
 

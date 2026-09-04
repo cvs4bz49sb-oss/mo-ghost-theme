@@ -740,16 +740,22 @@
       pick: (d) => Object.keys(d.docs || {}).map((k) => ({_id: k, ...d.docs[k]})),
       indexes: { topics: "/data/topics.json", refindex: "/data/refindex.json" },
       extras: { titles: "/data/titles_en.json", authreg: "/data/authreg.json" },
-      // LICENSING — READ BEFORE LAUNCH. The owner's port handoff
-      // (website/migration/ghost-port-handoff.md §8) is explicit: PO's
-      // source text came from a licensed library service and the PO
-      // mount must stay GATED. Not "should" — must. Today that is
-      // satisfied only incidentally, because faith-gate.js sits over
-      // the whole of TFR before launch, and that gate is cosmetic:
-      // client-side, one shared password, the text loads either way.
-      // Before the Beta on 14 Sep 2026 either PO gets a real
-      // server-side gate or `readable` goes back to false. Do not let
-      // this ship open.
+      // LICENSING — OPEN BY DECISION, NOT BY OVERSIGHT. The owner's
+      // port handoff (website/migration/ghost-port-handoff.md §8) says
+      // PO's source text came from a licensed library service and the
+      // PO mount must stay GATED. That was satisfied only incidentally
+      // by faith-gate.js, the shared-password overlay that sat over the
+      // whole of TFR before launch. That overlay was removed on
+      // 2026-09-04 and PO is now readable by anyone.
+      //
+      // Ian was shown this comment and chose to ship PO open rather
+      // than take the documented fallback (`readable: false`) or build
+      // a server-side member gate. So `readable: true` below is a
+      // deliberate acceptance of the licensing exposure, not a leftover.
+      // If the licensor ever objects, the one-line fix is
+      // `readable: false` — every consumer already treats that as
+      // "listed but not readable" (faith-reader.js, faith-resolve.js,
+      // faith-library-browse.js, faith-indexes.js).
       //
       // Syriac, Coptic, Armenian, Ge'ez and Arabic originals. Every
       // block carries three columns: the source, the printed facing

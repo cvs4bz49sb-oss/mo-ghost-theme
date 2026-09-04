@@ -78,14 +78,12 @@ jobs:
           # ── Deny list, evaluated BEFORE the allowlist ──────────────────
           # These match the allowlist patterns but must never be
           # contributor-editable:
-          #   faith-gate.js    — the access gate itself
           #   faith-corpora.js — carries each corpus's `readable` flag, and
           #                      Patrologia Orientalis is contractually
           #                      required to stay gated. Handing this file
           #                      to a contributor would make the guard
           #                      undermine the very control it exists for.
-          DENY='^assets/js/faith-gate\.js$
-          ^assets/js/faith-corpora\.js$'
+          DENY='^assets/js/faith-corpora\.js$'
 
           # ── Entry-type check ──────────────────────────────────────────
           # The allowlist tests the PATH, not what the entry actually is. A

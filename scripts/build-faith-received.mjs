@@ -1599,7 +1599,7 @@ for (const item of manifest) {
     ? `<script src="{{asset "js/faith-memorize.js"}}"></script>\n`
     : "";
   const meta = metaBlock(tfrTitle(item.title), item.description);
-  const tmpl = `{{!< default}}\n${meta}{{!-- Generated wrapper for /the-faith-received/${item.slug}/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}"}}\n<script src="{{asset "js/faith-modernize.js"}}"></script>\n<script src="{{asset "js/faith-received.js"}}"></script>\n${memorizeScript}<script src="{{asset "js/faith-gate.js"}}"></script>\n`;
+  const tmpl = `{{!< default}}\n${meta}{{!-- Generated wrapper for /the-faith-received/${item.slug}/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}"}}\n<script src="{{asset "js/faith-modernize.js"}}"></script>\n<script src="{{asset "js/faith-received.js"}}"></script>\n${memorizeScript}`;
   await writeFile(path.join(TEMPLATE_DIR, `custom-faith-${item.slug}.hbs`), tmpl);
 
   if (item.memorizable) {
@@ -1607,7 +1607,7 @@ for (const item of manifest) {
       tfrTitle(memorizeLabel(item.title)),
       `Learn ${item.title} by heart, one question and answer at a time.`
     );
-    const memTmpl = `{{!< default}}\n${memMeta}{{!-- Generated wrapper for /the-faith-received/${item.slug}/memorize/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}-memorize"}}\n<script src="{{asset "js/faith-received.js"}}"></script>\n<script src="{{asset "js/faith-memorize.js"}}"></script>\n<script src="{{asset "js/faith-gate.js"}}"></script>\n`;
+    const memTmpl = `{{!< default}}\n${memMeta}{{!-- Generated wrapper for /the-faith-received/${item.slug}/memorize/. Edit\n     scripts/build-faith-received.mjs (or the underlying partial) and\n     re-run \`node scripts/build-faith-received.mjs\` to regenerate. --}}\n{{> "faith-received/${item.slug}-memorize"}}\n<script src="{{asset "js/faith-received.js"}}"></script>\n<script src="{{asset "js/faith-memorize.js"}}"></script>\n`;
     await writeFile(path.join(TEMPLATE_DIR, `custom-faith-${item.slug}-memorize.hbs`), memTmpl);
   }
 }
@@ -1993,7 +1993,7 @@ ${topicSynthesisMount(slug)}
 
     // Wrapper template
     const topicMeta = metaBlock(tfrTitle(meta.label), meta.description);
-    const tmpl = `{{!< default}}\n${topicMeta}{{!-- /the-faith-received/topics/${slug}/. Auto-generated; edit\n     scripts/build-faith-received.mjs (or the underlying partial). --}}\n{{> "faith-received/_topic-${slug}"}}\n<script src="{{asset "js/faith-gate.js"}}"></script>\n`;
+    const tmpl = `{{!< default}}\n${topicMeta}{{!-- /the-faith-received/topics/${slug}/. Auto-generated; edit\n     scripts/build-faith-received.mjs (or the underlying partial). --}}\n{{> "faith-received/_topic-${slug}"}}\n`;
     await writeFile(path.join(TEMPLATE_DIR, `custom-faith-topic-${slug}.hbs`), tmpl);
   }
 
@@ -2004,7 +2004,7 @@ ${topicSynthesisMount(slug)}
   );
   await writeFile(
     path.join(TEMPLATE_DIR, `custom-faith-topics.hbs`),
-    `{{!< default}}\n${topicsIndexMeta}{{!-- /the-faith-received/topics/ — auto-generated index of every topic. --}}\n{{> "faith-received/_topics-index"}}\n<script src="{{asset "js/faith-gate.js"}}"></script>\n`
+    `{{!< default}}\n${topicsIndexMeta}{{!-- /the-faith-received/topics/ — auto-generated index of every topic. --}}\n{{> "faith-received/_topics-index"}}\n`
   );
 
   console.log(`  + ${topicsBundle.order.length} topic pages + topics index`);
