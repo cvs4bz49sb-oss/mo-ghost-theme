@@ -11613,3 +11613,606 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   .ps-empty-note { font-size: 15px; }
   .ps-hit-cit { font-size: 19px; }
 }
+
+/* ══ Constellations ═══════════════════════════════════════════════
+   The map workspace on /the-faith-received/research/. Markup in
+   partials/faith-received/_constellations-panel.hbs, behaviour in
+   assets/js/page/faith-constellations.js; that file's header carries
+   the endpoint shapes and the reader-URL translation.
+
+   Unlike .bookmarks-workspace this block does NOT break out of its
+   container. It is rendered inside .research-workspace-inner, which
+   already supplies the white ground, the two hairlines and the
+   padding; a second `calc(50% - 50vw)` pair inside that would draw a
+   white plate on a white plate with a doubled rule between them. The
+   map simply takes the full 1180px inner width instead of the 660px
+   .research-column measure, because a reading measure is the wrong
+   width for a figure.
+
+   [hidden] IS SET BY HAND on every class below that sets `display`.
+   An author `display` beats the UA stylesheet's `[hidden]{display:none}`,
+   and several of these elements ship hidden and are unhidden by the
+   script only when there is something real to say. This file has been
+   bitten by that at least four times. */
+
+/* ── The category ramp ────────────────────────────────────────────
+   Seven swatches, read by the script through getComputedStyle so the
+   canvas and the legend cannot disagree about a colour. Six are the
+   palette's own tokens; --cn-cat-3 and --cn-cat-7 are --color-rule
+   (#d9c6a7) taken down toward --color-dark, because the token itself
+   is 1.46:1 on the cream ground and a 3px dot in it is invisible. The
+   palette is closed (DESIGN §6.5): these are its members and two
+   darkenings of one of them, not new colours.
+
+   Every one of the seven clears 3:1 on --cn-paper, which is what WCAG
+   1.4.11 asks of a graphical object:
+
+     cat-1  #2d2927  --color-dark          12.56:1
+     cat-2  #b45f3d  --color-primary-text   3.94:1
+     cat-3  #7d6f57  --color-rule darkened  4.28:1
+     cat-4  #9c4126  --color-alert-text     5.73:1
+     cat-5  #6b6660  --color-muted          4.96:1
+     cat-6  #c1593c  --color-secondary      3.85:1
+     cat-7  #8a7a62  --color-rule darkened  3.63:1
+
+   They are interleaved rather than run as a lightness ramp so that
+   neighbouring categories differ in hue family as well as in value.
+   --color-primary (#ee7d51) is deliberately absent: it is 2.38:1 here
+   and would fail as a dot, and it is needed for one job only, which is
+   marking the point the reader chose. Colour is never the sole channel
+   anyway; the legend doubles as a filter and the dossier names the
+   category in words. */
+[data-cn-root] {
+  --cn-cat-1: #2d2927;
+  --cn-cat-2: #b45f3d;
+  --cn-cat-3: #7d6f57;
+  --cn-cat-4: #9c4126;
+  --cn-cat-5: #6b6660;
+  --cn-cat-6: #c1593c;
+  --cn-cat-7: #8a7a62;
+  --cn-edge: #6b6660;
+  --cn-ghost: #d9c6a7;
+  --cn-accent: #ee7d51;
+  --cn-ink: #2d2927;
+  --cn-paper: #f5efe1;
+}
+
+/* The panel root carries no ground of its own on purpose. It sits
+   inside .research-workspace-inner, which already supplies the white
+   plate, the two hairlines and the padding; a second fill here would
+   be a box inside a box, which is the card pattern by another name. */
+.cn-panel { width: 100%; }
+
+/* ── Head ─────────────────────────────────────────────────────────
+   Held to the reading measure even though the map below runs full
+   width: the sentence that explains the map is prose and wants 70ch,
+   and a lede stretched to 1124px is unreadable. */
+.cn-head {
+  max-width: 720px;
+  margin: 0 auto 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.cn-title {
+  font-family: var(--font-display);
+  font-size: var(--tfr-display-s);
+  line-height: 1.2;
+  color: var(--color-dark);
+  margin: 0;
+}
+.cn-lede {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 8px 0 0;
+}
+
+/* ── Controls ─────────────────────────────────────────────────────
+   Apparatus, not calls to action: a hairline-bordered select and a row
+   of text toggles, the same register the Bookmarks panel's sort row
+   uses. Nothing here is filled, because the map is the thing being
+   looked at. */
+.cn-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px 32px;
+  margin: 0 0 8px;
+}
+.cn-control { min-width: 0; }
+.cn-control-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 0 0 8px;
+}
+/* A native select, restyled rather than replaced. The whole shelf list
+   is sixteen entries and a phone's own picker is better than anything
+   built here. `appearance: none` with the chevron drawn as a
+   background gradient pair, the pattern already used by .ps-scope. */
+.cn-select {
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--color-dark);
+  background-color: var(--color-white);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+    linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+  background-position: calc(100% - 17px) calc(50% + 1px), calc(100% - 12px) calc(50% + 1px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 10px 38px 10px 12px;
+  cursor: pointer;
+}
+.cn-select:disabled { color: var(--color-muted); cursor: default; }
+.cn-select:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 1px;
+}
+
+.cn-views { display: flex; flex-wrap: wrap; gap: 8px; }
+.cn-view-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 2px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+/* Set by hand: the rule above gives this class a `display`, which beats
+   the UA stylesheet, and all three buttons ship hidden. */
+.cn-view-btn[hidden] { display: none; }
+.cn-view-btn + .cn-view-btn { margin-left: 16px; }
+.cn-view-btn:hover { color: var(--color-dark); }
+.cn-view-btn:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+.cn-view-btn.is-active {
+  color: var(--color-dark);
+  border-bottom-color: var(--color-dark);
+}
+
+.cn-views-note,
+.cn-status {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0 0 8px;
+}
+.cn-error {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.5;
+  color: var(--color-alert-text);
+  margin: 0 0 8px;
+}
+
+/* ── The body: map beside dossier ────────────────────────────────
+   A grid rather than flex so the rail's width is stated once and the
+   map takes whatever is left. minmax(0, 1fr) rather than 1fr: a grid
+   track's default min-width is auto, and a canvas in an auto track
+   refuses to shrink below its own width, which is how a full-bleed
+   figure quietly overflows the page. */
+.cn-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 32px;
+  align-items: start;
+  margin-top: 20px;
+}
+.cn-map { min-width: 0; }
+
+/* A fixed height, not an aspect-ratio. The map is fitted to whatever
+   box it is given (the script measures the stage and scales the 0-1000
+   layout into it), so the box is free to be stated outright; and
+   `aspect-ratio` plus a cap narrows the box rather than cropping it
+   (FRONTEND §6.28). Cream, not white: it reads as a plate mounted on
+   the page, and it is the ground the seven swatches were contrast-
+   checked against. */
+.cn-stage {
+  position: relative;
+  height: 520px;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: var(--cn-paper);
+  overflow: hidden;
+}
+.cn-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Overridden by the script: `pan-y` at rest so a finger dragged down
+     the page still scrolls it, `none` once zoomed in so the map can be
+     panned. A canvas that is permanently `none` is a trap on a phone. */
+  touch-action: pan-y;
+}
+.cn-canvas:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: -2px;
+}
+
+.cn-zoom {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cn-zoom-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cn-zoom-btn--wide { font-size: var(--tfr-meta); }
+.cn-zoom-btn:hover { border-color: var(--color-dark); }
+.cn-zoom-btn:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 1px;
+}
+
+.cn-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 12px 0 0;
+}
+.cn-caption-count {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+.cn-caption-blurb {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.5;
+  color: var(--color-muted);
+  flex: 1 1 260px;
+}
+
+/* ── Legend, which is also the filter ─────────────────────────── */
+.cn-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 14px 0 0;
+}
+.cn-legend[hidden] { display: none; }
+.cn-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: color 0.15s, opacity 0.15s;
+}
+.cn-legend-item:hover { color: var(--color-secondary); }
+.cn-legend-item:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+/* Switched off. Struck through as well as faded, so the state does not
+   depend on noticing a change in opacity. */
+.cn-legend-item.is-off {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+.cn-legend-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: var(--color-muted);
+}
+/* Unclassified: an open ring here and an open ring on the map, because
+   "no category" is not one of the seven answers. */
+.cn-legend-dot--ring {
+  background: none;
+  border: 1.5px solid var(--cn-edge);
+}
+/* The label never wraps under its own swatch: a two-line legend entry
+   with a dot floating beside the first line reads as two entries. The
+   row wraps between entries instead. */
+.cn-legend-label { white-space: nowrap; }
+
+.cn-hint {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 14px 0 0;
+}
+
+/* ── The dossier ──────────────────────────────────────────────────
+   A rule, not a box. The rail is separated from the map by a single
+   hairline on its leading edge and carries no fill, no radius and no
+   shadow (DESIGN §6.1). */
+.cn-aside {
+  min-width: 0;
+  padding-left: 24px;
+  border-left: 1px solid var(--color-rule);
+}
+/* Early-modern titles run long and some of this corpus is addressed by
+   an unbroken slug. In a 300px rail that overflows the panel rather
+   than wrapping, so the break is allowed anywhere it has to be. */
+.cn-dossier {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.cn-dossier-empty {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
+}
+.cn-dossier-kicker {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-primary-text);
+  margin: 0 0 8px;
+}
+.cn-dossier-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.25;
+  color: var(--color-dark);
+  margin: 0;
+}
+.cn-dossier-sub {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 8px 0 0;
+}
+.cn-dossier-open { margin: 14px 0 0; }
+.cn-open-link,
+.cn-row-link {
+  font-family: var(--font-body);
+  color: var(--color-primary-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-rule);
+  transition: color 0.15s, border-color 0.15s;
+}
+.cn-open-link:hover,
+.cn-row-link:hover {
+  color: var(--color-dark);
+  border-bottom-color: var(--color-dark);
+}
+.cn-open-link:focus-visible,
+.cn-row-link:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+.cn-dossier-heading {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 22px 0 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-rule);
+}
+.cn-rows { list-style: none; margin: 0; padding: 0; }
+.cn-row {
+  margin: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.cn-row-title {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-dark);
+}
+a.cn-row-title { color: var(--color-primary-text); }
+.cn-row-meta,
+.cn-row-gloss {
+  display: block;
+  font-family: var(--font-body);
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+.cn-row-meta { font-size: 13px; }
+.cn-row-gloss { font-size: var(--tfr-meta); }
+
+/* ── The index ────────────────────────────────────────────────────
+   The keyboard and screen-reader path. Full width under both columns,
+   because it is the same map said differently rather than a footnote
+   to the rail. */
+.cn-index {
+  margin: 28px 0 0;
+  border-top: 1px solid var(--color-rule);
+}
+.cn-index-summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 0;
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  color: var(--color-dark);
+  cursor: pointer;
+  list-style: none;
+}
+.cn-index-summary::-webkit-details-marker { display: none; }
+.cn-index-summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin-left: 10px;
+  border-right: 1px solid var(--color-muted);
+  border-bottom: 1px solid var(--color-muted);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.15s;
+}
+.cn-index[open] .cn-index-summary::after { transform: rotate(-135deg) translateY(-2px); }
+.cn-index-summary:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+.cn-index-body { padding: 4px 0 18px; }
+.cn-index-intro {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+  max-width: 640px;
+}
+.cn-index-filter {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--color-dark);
+  background: var(--color-white);
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  min-height: 44px;
+  width: 100%;
+  max-width: 340px;
+  padding: 10px 12px;
+}
+.cn-index-filter::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.cn-index-filter::placeholder { color: var(--color-muted); }
+.cn-index-filter:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 1px;
+  border-color: var(--color-dark);
+}
+.cn-index-note {
+  font-family: var(--font-body);
+  font-size: var(--tfr-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin: 14px 0 0;
+}
+/* Two and three columns of names, not one long ribbon: this list runs
+   to two hundred entries and a single column would bury the map under
+   it. Column count only; each row is still a full-width flat entry
+   inside its column. */
+.cn-index-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  columns: 3;
+  column-gap: 28px;
+}
+.cn-index-row {
+  margin: 0;
+  break-inside: avoid;
+  border-bottom: 1px solid var(--color-rule);
+}
+.cn-index-btn {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.cn-index-btn:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: -2px;
+}
+.cn-index-name {
+  display: block;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-dark);
+}
+.cn-index-btn:hover .cn-index-name { color: var(--color-secondary); }
+.cn-index-btn.is-selected .cn-index-name { color: var(--color-primary-text); }
+.cn-index-sub {
+  display: block;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+
+/* ── Breakpoints ──────────────────────────────────────────────────
+   Three tiers, matching the file's own. The rail drops under the map
+   at 980 rather than 820: 300px of dossier plus a map is already tight
+   at 900, and a 260px-wide map is not a map. Nothing in .cn-body
+   carries a px flex-basis, so there is no MOBILE §6.13 trap in the
+   flip; it is a grid in any case. */
+@media (max-width: 980px) {
+  .cn-body { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .cn-aside {
+    padding-left: 0;
+    padding-top: 20px;
+    border-left: 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  .cn-stage { height: 440px; }
+  .cn-index-list { columns: 2; }
+}
+@media (max-width: 640px) {
+  .cn-controls { gap: 16px 24px; }
+  .cn-select { width: 100%; }
+  .cn-control:first-child { flex: 1 1 100%; }
+  .cn-stage { height: 340px; }
+  /* 18px apart rather than 8: at 375px these wrap to one per line and
+     adjacent 32px-high targets that close together are a mis-tap
+     (MOBILE M4). */
+  .cn-legend { gap: 4px 18px; }
+  .cn-legend-item { min-height: 44px; }
+  .cn-dossier-title { font-size: 20px; }
+  .cn-index-list { columns: 1; }
+}

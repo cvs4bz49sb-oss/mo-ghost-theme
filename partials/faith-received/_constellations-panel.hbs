@@ -1,0 +1,172 @@
+{{!-- Faith Received — the Constellations workspace.
+
+     A map of one shelf of the library. Every author, work and doctrinal
+     topic has been read for the Scripture it quotes, and each point is
+     placed by that fingerprint: two points sit close together when they
+     quote alike. Sixteen shelves, up to three views apiece (authors,
+     works, doctrines), drawn on a canvas from coordinates the worker
+     computes. Bound by assets/js/page/faith-constellations.js; read that
+     file's header for the endpoint shapes, for how a source href is
+     translated into one of our reader URLs, and for why the panel is
+     not member-gated.
+
+     SELF-CONTAINED. Like _bookmarks-panel.hbs and unlike _ask-panel.hbs,
+     this partial ships its own <script> tag at the bottom. It is written
+     to be dropped into a workspace shell whose template is owned by
+     someone else, and a partial whose host has to remember to add a
+     script tag is a partial that renders a permanent empty box the first
+     time anyone reuses it. A host page that ALSO loads
+     js/page/faith-constellations.js is harmless: the script marks
+     [data-cn-root] with data-cn-bound and returns on a second run.
+
+     It does NOT need feature-gate.js and does NOT carry
+     data-feature-gate. Nothing here calls an LLM or spends money; the
+     three routes it reads are public static JSON on mo-tfr-library, and
+     a client-side gate over an endpoint the worker serves to anyone
+     would only tell a free reader they cannot have something they can
+     already have.
+
+     It does not need js/faith-corpora.js either. The reader URLs are
+     built from the id prefix directly, mirroring collectionFor() in
+     website/workers/tfr-library/lib/collections.js, which is the
+     authority for that mapping.
+
+     DOM contract faith-constellations.js depends on. Every
+     querySelector in that file is listed here; re-read it before
+     touching any of this.
+       - [data-cn-root] wrapping everything. The script marks it bound.
+       - [data-cn-shelf] — the shelf <select>. Ships EMPTY and disabled;
+         the script writes all sixteen options from index.json and
+         enables it. A hard-coded list here would go stale against the
+         worker without anything failing.
+       - [data-cn-view] — one button per view. All three ship `hidden`;
+         the script unhides only the views the shelf's `have` block
+         actually lists, because a view a shelf lacks is a 404 rather
+         than an empty map.
+       - [data-cn-views-note] — one line naming what a partial shelf was
+         mined for, so a picker with one button reads as a fact about
+         the shelf rather than as breakage.
+       - [data-cn-status] and [data-cn-error] — loading and failure.
+         Separate elements on purpose: "nothing here" and "could not
+         load" look identical to a reader and mean opposite things.
+       - [data-cn-stage] — the plot area. The script measures THIS, not
+         the canvas, and a ResizeObserver on it is also what tells the
+         script the tab has been opened (the panel ships `hidden`, so
+         the stage is 0×0 until then and nothing is fetched before).
+       - [data-cn-canvas] — the map. Focusable, with arrow keys panning
+         and +/-/0 zooming for anyone who reads it by eye and drives by
+         keyboard.
+       - [data-cn-zoom-in], [data-cn-zoom-out], [data-cn-reset].
+       - [data-cn-legend] — written by the script, one button per
+         category. Pressing one hides that category; colour is never the
+         only channel.
+       - [data-cn-caption] — the counts and the sentence explaining what
+         the current view plots.
+       - [data-cn-dossier] — the selected point.
+       - [data-cn-index] (a <details>), holding [data-cn-index-filter],
+         [data-cn-index-note] and [data-cn-index-list]. This is the
+         keyboard and screen-reader path: a canvas is opaque to
+         assistive technology, so every point is also a real button
+         here. Built on first disclosure, not on load.
+       - [data-cn-live] — the polite live region. LAST inside the panel
+         on purpose: a non-visual node placed first takes the
+         :first-child margin reset off the header (FRONTEND §6.18).
+
+     Rendered on a page of its own rather than in a tab strip, wrap it
+     in a <section class="bband"> and give the page its own hero.
+     Nothing in here depends on the tab shell. --}}
+<div class="cn-panel" data-cn-root>
+
+  <header class="cn-head">
+    <h2 class="cn-title">Constellations</h2>
+    <p class="cn-lede">Sixteen shelves of the library, read for the Scripture they quote. Every point is an author, a work or a doctrine, and two points sit close together when they lean on the same passages.</p>
+  </header>
+
+  {{!-- The controls. A <select> for the shelves rather than sixteen
+        pills, which would be a wall of controls above a map; text
+        toggles on a hairline for the three views, matching the
+        Bookmarks panel's sort row. Both are apparatus: the map is the
+        thing being looked at, so nothing here is a filled button. --}}
+  <div class="cn-controls">
+    <div class="cn-control">
+      <label class="cn-control-label" for="cn-shelf">Shelf</label>
+      <select id="cn-shelf" class="cn-select" data-cn-shelf disabled>
+        <option value="">Reading the shelves&hellip;</option>
+      </select>
+    </div>
+
+    <div class="cn-control">
+      <p class="cn-control-label" id="cn-view-label">View</p>
+      <div class="cn-views" role="group" aria-labelledby="cn-view-label">
+        <button type="button" class="cn-view-btn" data-cn-view="authors" aria-pressed="false" hidden>Authors</button>
+        <button type="button" class="cn-view-btn" data-cn-view="works" aria-pressed="false" hidden>Works</button>
+        <button type="button" class="cn-view-btn" data-cn-view="doctrines" aria-pressed="false" hidden>Doctrines</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="cn-views-note" data-cn-views-note hidden></p>
+
+  <p class="cn-status" data-cn-status role="status" aria-live="polite" hidden></p>
+  <p class="cn-error" data-cn-error role="alert" hidden></p>
+
+  <div class="cn-body">
+
+    <div class="cn-map">
+      <div class="cn-stage" data-cn-stage>
+        <canvas class="cn-canvas" data-cn-canvas tabindex="0" role="img" aria-label="Constellation map. The list below this map carries the same points as text."></canvas>
+
+        {{!-- Over the map rather than beside it, the ordinary place for
+              map chrome, and the only three controls that survive a
+              phone: everything else is a gesture. --}}
+        <div class="cn-zoom" role="group" aria-label="Zoom">
+          <button type="button" class="cn-zoom-btn" data-cn-zoom-in aria-label="Zoom in"><span aria-hidden="true">+</span></button>
+          <button type="button" class="cn-zoom-btn" data-cn-zoom-out aria-label="Zoom out"><span aria-hidden="true">&minus;</span></button>
+          <button type="button" class="cn-zoom-btn cn-zoom-btn--wide" data-cn-reset aria-label="Reset the view">Fit</button>
+        </div>
+      </div>
+
+      <p class="cn-caption" data-cn-caption></p>
+
+      <div class="cn-legend" data-cn-legend role="group" aria-label="Categories. Press one to hide it."></div>
+
+      {{!-- A plain two-finger scroll over the map scrolls the page, as
+            it does everywhere else on the site. Only a pinch or a held
+            modifier zooms, and the buttons above mean nothing depends
+            on the gesture being found. --}}
+      <p class="cn-hint">Drag to pan. Pinch, or hold Ctrl and scroll, to zoom. The positions come from the library, so the same shelf draws the same map every time.</p>
+    </div>
+
+    <aside class="cn-aside" aria-label="The selected point">
+      <div class="cn-dossier" data-cn-dossier>
+        <p class="cn-dossier-empty">Choose a point to see what stands behind it.</p>
+      </div>
+    </aside>
+
+  </div>
+
+  {{!-- The keyboard and screen-reader path, and a usable one for
+        anybody: a dense map is hard to hunt through with a pointer too.
+        Closed by default because the map is the point, and built by the
+        script on first disclosure. --}}
+  <details class="cn-index" data-cn-index>
+    <summary class="cn-index-summary">Read this map as a list</summary>
+    <div class="cn-index-body">
+      <p class="cn-index-intro">The same points, largest first. Choosing one selects it on the map and opens it beside the map above.</p>
+      <label class="visually-hidden" for="cn-index-filter">Filter these points by name</label>
+      <input id="cn-index-filter" class="cn-index-filter" type="search" data-cn-index-filter maxlength="80" autocomplete="off" placeholder="Filter by name&hellip;" />
+      <p class="cn-index-note" data-cn-index-note></p>
+      <ul class="cn-index-list" data-cn-index-list></ul>
+    </div>
+  </details>
+
+  <p class="visually-hidden" data-cn-live role="status" aria-live="polite"></p>
+
+</div>
+
+{{!-- Last inside the panel on purpose: a non-visual node placed first
+      would take the :first-child margin reset off the header above it.
+      No dependency on anything bundled — window.MOSafeHref ships in
+      boot.min.js in <head>, and page-template scripts run before
+      site.min.js (FRONTEND §6.18). --}}
+<script src="{{asset "js/page/faith-constellations.js"}}"></script>
