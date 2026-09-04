@@ -8279,16 +8279,18 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
   white-space: nowrap;
 }
+/* The disagreement figure. It carries a whole sentence now ("2,075 of
+   the 2,920 are refutations"), so it takes its own line under the name
+   rather than a pill in column 2, which it used to share with
+   .fa-rc-trad and overlap whenever a row had both. */
 .fa-rc-opp {
-  grid-column: 2;
+  grid-column: 1 / -1;
   font-family: var(--font-body);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 12px;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
   color: var(--color-secondary);
-  border: 1px solid var(--color-secondary);
-  border-radius: 3px;
-  padding: 1px 6px;
-  white-space: nowrap;
+  margin: 0;
 }
 .fa-rc-bar { grid-column: 3; display: block; height: 6px; align-self: center; }
 .fa-rc-bar-fill { display: block; height: 100%; background: var(--color-primary-text); }
@@ -8301,6 +8303,95 @@ mark.faith-find-hit.is-current {
   min-width: 4.5ch;
   text-align: right;
 }
+/* The count doubles as the disclosure control for the pair detail.
+   Reset to look exactly like the plain figure it replaces, and sized
+   to a 44px target without disturbing the row grid. */
+.fa-rc-open {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0 2px;
+  /* 44px both ways. A three-digit figure plus the chevron measures
+     about 37px wide on its own, which clears the 24px minimum but not
+     the 44px target this theme holds itself to. */
+  min-height: 44px;
+  min-width: 44px;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+  text-align: right;
+}
+.fa-rc-open::after {
+  content: "\203A";
+  display: inline-block;
+  margin-left: 7px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-muted);
+  transform: rotate(90deg);
+  transition: transform 0.15s ease;
+}
+.fa-rc-open[aria-expanded="true"]::after { transform: rotate(-90deg); }
+.fa-rc-open:hover { color: var(--color-primary); }
+.fa-rc-open:hover::after { color: var(--color-primary); }
+.fa-rc-open:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+
+.fa-rc-detail { grid-column: 1 / -1; margin: 10px 0 4px; }
+.fa-rc-detail[hidden] { display: none; }
+.fa-rc-detail-lede,
+.fa-rc-detail-how,
+.fa-rc-detail-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0 0 8px;
+  max-width: 56ch;
+}
+.fa-rc-detail-lede { color: var(--color-dark); }
+.fa-rc-detail-note { font-style: italic; }
+.fa-rc-detail-sub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--color-primary-text);
+  margin: 14px 0 6px;
+}
+.fa-rc-works,
+.fa-rc-cites { list-style: none; margin: 0 0 6px; padding: 0; }
+.fa-rc-works li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.fa-rc-work-link { flex: 1 1 auto; min-width: 0; }
+.fa-rc-work-n {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+.fa-rc-cites li {
+  padding: 3px 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.fa-rc-works a,
+.fa-rc-cites a { color: var(--color-dark); text-decoration: none; }
+.fa-rc-works a:hover,
+.fa-rc-cites a:hover { color: var(--color-primary); text-decoration: underline; }
+.fa-rc-loc,
+.fa-rc-sf { font-style: italic; }
 .fa-rc-sample {
   grid-column: 1 / -1;
   font-family: var(--font-body);
@@ -8316,8 +8407,16 @@ mark.faith-find-hit.is-current {
   .fa-rc-cols { grid-template-columns: 1fr; gap: 34px; }
   .fa-rc-row { grid-template-columns: 1fr auto; }
   .fa-rc-bar { display: none; }
-  .fa-rc-n { grid-column: 2; }
-  .fa-rc-trad, .fa-rc-opp { grid-column: 1 / -1; }
+  /* Name and figure are pinned to the first row. Without the explicit
+     grid-row the full-width tradition tag takes row two, the figure
+     cannot fit beside it and auto-flows to row three, leaving the
+     count stranded on a line of its own with a hole to its left. */
+  .fa-rc-name { grid-column: 1; grid-row: 1; }
+  .fa-rc-n { grid-column: 2; grid-row: 1; }
+  .fa-rc-trad, .fa-rc-opp, .fa-rc-detail { grid-column: 1 / -1; }
+  /* The works row is a title and a count. On a narrow column the title
+     wraps rather than pushing the count off the edge. */
+  .fa-rc-works li { flex-wrap: wrap; }
 }
 
 /* Citations across the canon, on the Scripture Index page. Reuses the
