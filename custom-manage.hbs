@@ -112,6 +112,15 @@
                for paid + student (the tiers billed for the print journal). --}}
           {{> "manage-address"}}
 
+          {{!-- Upgrade to Lifetime. Also a shared sibling rather than a
+               per-variant block: every tier here except lifetime itself
+               can take it, and lifetime-upgrade.js hides it from the one
+               that can't. This page is where Ian sends anyone asking how
+               to go permanent, so it has to be the answer rather than a
+               pointer to /membership/, which shows current members no
+               pricing at all. --}}
+          {{> "lifetime-upgrade"}}
+
           <p class="fine-print">
             Questions? Email <a href="mailto:member@mereorthodoxy.com">member@mereorthodoxy.com</a>.
           </p>
@@ -155,4 +164,9 @@
   <script src="{{asset "js/lib/safe-redirect.js"}}"></script>
   <script src="{{asset "js/manage.js"}}"></script>
   <script src="{{asset "js/dashboard-address.js"}}"></script>
+  {{!-- Powers the [data-lifetime-checkout] button in the upgrade row
+       above. On /membership/ this rides in partials/membership-body.hbs;
+       this page includes the partial on its own, so it has to load the
+       handler on its own too. --}}
+  <script src="{{asset "js/lifetime-checkout.js"}}"></script>
 </main>

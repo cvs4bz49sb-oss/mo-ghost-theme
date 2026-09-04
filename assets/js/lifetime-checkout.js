@@ -23,6 +23,20 @@
 
   buttons.forEach((btn) => {
     const errorEl = document.querySelector('[data-lifetime-error]');
+
+    // The button is disabled on click and re-enabled only in the catch,
+    // because the success path navigates away to Stripe. Back-navigation
+    // restores this page from bfcache with the DOM intact, so the button
+    // came back permanently disabled and spinning, with no way to retry
+    // short of a manual reload. That matters more now that /manage/
+    // offers this as the only lifetime path and Stripe's cancel_url
+    // sends people to /membership/, which makes Back the likely return.
+    window.addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      btn.disabled = false;
+      btn.classList.remove('is-loading');
+    });
+
     btn.addEventListener('click', async () => {
       if (errorEl) errorEl.textContent = '';
       btn.disabled = true;

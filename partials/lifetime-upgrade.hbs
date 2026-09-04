@@ -1,0 +1,56 @@
+{{!-- Lifetime upgrade row — the one place an EXISTING member can buy
+     Lifetime. Everywhere else, being a member is a dead end: /membership/
+     swaps the pricing cards (Lifetime included) for "You're already a
+     member", and /manage/ offers only Portal billing. A member who wanted
+     to go permanent had to be told, by hand, to cancel first and then buy,
+     which is a step nobody should have to know and several people would
+     get half-done.
+
+     Hidden until assets/js/page/lifetime-upgrade.js clears the flag, so
+     an existing lifetime member never sees a flash of an offer they
+     already took. Hidden-by-default costs nothing when JS is off: the
+     button POSTs to mo-membership, so it needs JS to work at all.
+
+     The button is the same [data-lifetime-checkout] contract that
+     partials/membership-pricing.hbs uses, handled by
+     assets/js/lifetime-checkout.js. Those two are mutually exclusive
+     branches of partials/membership-body.hbs, so the single global
+     [data-lifetime-error] lookup in that script never has two targets. --}}
+<div class="lifetime-upgrade"
+     data-lifetime-upgrade
+     data-member-status="{{@member.status}}"
+     data-member-labels="{{#foreach @member.labels}}{{name}} {{/foreach}}"
+     hidden>
+  {{!-- .lifetime-upgrade-copy carries no CSS of its own. It exists only
+       to group the text as one grid item against the action column. --}}
+  <div class="lifetime-upgrade-copy">
+    <p class="eyebrow">Lifetime</p>
+    <h2 class="lifetime-upgrade-title"><em>Join permanently.</em></h2>
+    {{!-- The cancel-and-refund sentence is conditional in its wording
+         because it is conditional in fact. The worker only supersedes a
+         subscription that costs more than $0 (a Ghost comp is a $0
+         "Complimentary" subscription), so comped, gift, group, and
+         student members have nothing to cancel and get no refund.
+         Promising them one unconditionally would be a lie told at the
+         moment they hand over $995. --}}
+    <p class="lifetime-upgrade-body">
+      $995, once. It includes everything in the Membership, plus a copy of Jake Meador's <em>In Search Of The Common Good</em>. If you are paying monthly or annually, we cancel that for you and refund the part of the term you have not used.
+    </p>
+  </div>
+  <div class="lifetime-upgrade-action">
+    <button
+      type="button"
+      class="btn btn-pill btn-dark"
+      data-hm-goal="upgrade-lifetime"
+      data-lifetime-checkout
+      data-member-email="{{#if @member}}{{@member.email}}{{/if}}"
+      data-member-name="{{#if @member}}{{@member.name}}{{/if}}"
+    >
+      <span class="btn-label">Upgrade to Lifetime</span>
+      <span class="btn-spinner" aria-hidden="true"></span>
+    </button>
+    <p class="btn-tagline">One-time. No renewal.</p>
+    <p class="btn-error" data-lifetime-error role="alert"></p>
+  </div>
+</div>
+<script src="{{asset "js/page/lifetime-upgrade.js"}}"></script>

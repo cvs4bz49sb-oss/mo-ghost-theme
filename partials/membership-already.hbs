@@ -6,6 +6,11 @@
 <section class="pricing">
   <div class="container">
     <p class="already-member">You're already a member. <a href="/manage">Manage your membership &rarr;</a></p>
+    {{!-- The one thing a current member can still buy for themselves.
+         Without it this whole surface is a dead end, and the only way
+         to go Lifetime was to cancel first and then buy. Hides itself
+         for members who already hold Lifetime. --}}
+    {{> "lifetime-upgrade"}}
     {{!-- Members still see the other ways to share / join (gift, group,
          institutions, student). --}}
     {{> "other-memberships"}}
