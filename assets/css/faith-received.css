@@ -11806,10 +11806,195 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   max-width: 60ch;
 }
 
+/* ── Filters ─────────────────────────────────────────────────────
+   A SECOND control, and a different one from .ps-scope above. Scope
+   decides what gets searched and costs a query; these narrow the works
+   already on screen and cost nothing. They are separated by the result
+   list, named differently, and the body carries a line saying which is
+   which — the one confusion this workspace can produce is a reader
+   thinking one of them is the other.
+
+   Same details/summary geometry as .ps-scope so the two read as
+   siblings, and collapsed by default for the same reason: a wall of
+   thirty chips above the works would bury the thing being filtered. */
+.ps-filters {
+  margin: 0 0 18px;
+  border-top: 1px solid var(--color-rule);
+}
+.ps-filters-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 2px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  list-style: none;
+}
+.ps-filters-summary::-webkit-details-marker { display: none; }
+.ps-filters-summary:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+.ps-filters-title {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.ps-filters-state {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.ps-filters--set .ps-filters-state { color: var(--color-dark); }
+/* Rotated square rather than a glyph, matching .ps-scope-summary. */
+.ps-filters-summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin: -3px 0 0 2px;
+  border-right: 1px solid var(--color-muted);
+  border-bottom: 1px solid var(--color-muted);
+  transform: rotate(45deg);
+  transition: transform 0.1s;
+}
+.ps-filters[open] .ps-filters-summary::after {
+  margin-top: 2px;
+  transform: rotate(-135deg);
+}
+.ps-filters-body { padding: 4px 2px 20px; }
+.ps-filters-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0 0 16px;
+}
+.ps-narrow-field { margin: 0 0 20px; }
+.ps-narrow {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-dark);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ps-narrow::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.ps-narrow:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 1px;
+  border-color: var(--color-dark);
+}
+.ps-facet { margin: 0 0 20px; }
+.ps-facet-legend {
+  display: block;
+  margin: 0 0 10px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.ps-facet-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ps-facet-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 10px 0 0;
+  max-width: 60ch;
+}
+/* Standalone, NOT chained off `.btn` or off `.faith-filter-pill`.
+   `.btn` sets `border: 0` and a pill radius that fight anything a
+   component adds (FRONTEND §6.3 / MOBILE §10.4), and .faith-filter-pill
+   is single-select vocabulary — these are multi-select toggles, so
+   borrowing its look would promise the wrong behaviour. Squared to 6px
+   for the same reason: a pill here would read as the scope control. */
+.ps-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ps-chip:hover {
+  border-color: var(--color-dark);
+  color: var(--color-dark);
+}
+.ps-chip:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+/* Dark fill, not --color-secondary (#c1593c): white on that is 4.39:1,
+   which misses AA at 14px. Dark is 14:1. Same correction the scope
+   pills carry. */
+.ps-chip.is-on {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-white);
+}
+.ps-chip-count {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.65;
+}
+.ps-clear {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.ps-clear:hover { border-color: var(--color-dark); }
+.ps-clear:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+
 /* ── The result list ─────────────────────────────────────────────
-   Flat editorial rows separated by hairlines. No card, and no score: a
-   raw cosine number is noise to a reader and an invitation to over-read
-   a 0.71 against a 0.68. */
+   Flat editorial rows separated by hairlines, one per WORK. No card,
+   and no score: a raw cosine number is noise to a reader and an
+   invitation to over-read a 0.71 against a 0.68.
+
+   Each row is three lines and then it stops — tradition, work title,
+   author and century — with the passages behind a disclosure below.
+   That is the whole shape of the feature: the list is works, the
+   dropdown is passages.
+
+   HOVER. Underline means "this navigates," and each clickable row has
+   exactly one line that carries it: the line that names the thing. On
+   a work row that is the title. The tradition eyebrow and the byline
+   describe the target rather than being it, so they never react. On a
+   passage row there is no title, so the passage text is the naming
+   line and takes the underline while its locus stays inert. The
+   disclosure toggle is deliberately the exception: it is a control,
+   it goes nowhere, and it answers hover by moving to the dark ink and
+   turning its caret, never by underlining. If the toggle underlined
+   too, the underline would stop meaning anything. */
 .ps-count {
   font-family: var(--font-body);
   font-size: 11px;
@@ -11819,27 +12004,27 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   color: var(--color-muted);
   margin: 0 0 14px;
 }
+/* The pager focuses this line, so it needs an indicator of its own —
+   never a bare outline: none on something that can hold focus. */
+.ps-count:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 4px;
+}
 .ps-results {
   list-style: none;
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--color-rule);
 }
-.ps-hit { margin: 0; border-bottom: 1px solid var(--color-rule); }
-.ps-hit-link {
-  display: block;
+.ps-work {
+  margin: 0;
   padding: 22px 0;
-  color: inherit;
-  text-decoration: none;
-}
-.ps-hit-link:focus-visible {
-  outline: 2px solid var(--color-dark);
-  outline-offset: -2px;
+  border-bottom: 1px solid var(--color-rule);
 }
 /* --color-primary-text (#b45f3d), not the --color-primary (#ee7d51)
    that .faith-search-hit-meta uses: that is 2.73:1 on white and fails
    AA at this size. */
-.ps-hit-meta {
+.ps-work-trad {
   font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 0.22em;
@@ -11848,21 +12033,195 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   color: var(--color-primary-text);
   margin: 0 0 8px;
 }
-.ps-hit-cit {
+.ps-work-title {
   font-family: var(--font-body);
   font-size: 20px;
   line-height: 1.3;
+  margin: 0 0 6px;
+}
+.ps-work-titlelink {
   color: var(--color-dark);
-  margin: 0 0 8px;
+  text-decoration: none;
   transition: color 0.15s;
 }
-.ps-hit-link:hover .ps-hit-cit { color: var(--color-secondary); }
-.ps-hit-snippet {
+.ps-work-titlelink:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ps-work-titlelink:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+.ps-work-by {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* ── The passage disclosure ──────────────────────────────────────
+   A real button with aria-expanded/aria-controls rather than a nested
+   <details>, because opening it runs a slug-scoped query and needs a
+   loading and an error state the <summary> element cannot carry.
+   No background, no border, no rounded box: the opened panel is an
+   indented list under a hairline, not a card (DESIGN §6.1). */
+.ps-work-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+/* No underline here, on purpose. See the hover rule above. */
+.ps-work-toggle:hover { color: var(--color-dark); }
+.ps-work-toggle:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+.ps-work-toggle::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 0;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.1s;
+}
+.ps-work-toggle[aria-expanded="true"]::after {
+  margin-top: 2px;
+  transform: rotate(-135deg);
+}
+.ps-passages { padding: 6px 0 0; }
+.ps-passage-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0 0 0 16px;
+  border-left: 1px solid var(--color-rule);
+}
+.ps-passage { margin: 0; }
+.ps-passage + .ps-passage { border-top: 1px solid var(--color-rule); }
+.ps-passage-link {
+  display: block;
+  padding: 12px 0;
+  color: inherit;
+  text-decoration: none;
+}
+.ps-passage-link:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: -2px;
+}
+/* NOT an uppercase eyebrow, unlike every other small label in this
+   file. `locus` is whatever printed address the collection carries and
+   it is not all of one kind: "PL 80" survives uppercasing, "p. 45"
+   becomes "P. 45", and Patrologia Latina and the English Editions put
+   a whole section title in here, which uppercased is a shout. */
+.ps-passage-locus {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin: 0 0 4px;
+}
+.ps-passage-text {
+  display: block;
   font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
+  color: var(--color-dark);
+  transition: color 0.15s;
+}
+.ps-passage-link:hover .ps-passage-text {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ps-passages-status,
+.ps-passages-note {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--color-muted);
-  margin: 0;
+  margin: 10px 0 0;
+}
+.ps-passages-error {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-alert-text);
+  margin: 10px 0 0;
+}
+
+/* ── Pager ───────────────────────────────────────────────────────
+   Prev / label / Next, and only when there IS a second page. Vectorize
+   returns at most fifty candidate passages with metadata attached, so
+   a work-grouped list tops out in the forties and a third page cannot
+   exist; a numbered pager would advertise depth this endpoint does not
+   have. Grid rather than flex at 640 so the two buttons stay side by
+   side and the label takes its own row (MOBILE §6.5). */
+.ps-pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 0;
+}
+/* An author `display` beats the UA stylesheet's `[hidden] { display:
+   none }` no matter how specific either is, so any element this file
+   gives a display value AND the JS hides with `hidden` needs the
+   attribute written back in. Without this the pager is on screen from
+   first paint with two dead buttons and an empty label. */
+.ps-pager[hidden] { display: none; }
+.ps-pager-btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--color-card-border);
+  border-radius: 6px;
+  background: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.ps-pager-btn:hover:not(:disabled) { border-color: var(--color-dark); }
+.ps-pager-btn:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+.ps-pager-btn:disabled {
+  color: var(--color-muted);
+  opacity: 0.55;
+  cursor: default;
+}
+.ps-pager-label {
+  margin: 0 auto;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.ps-ceiling {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 24px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--color-rule);
+  max-width: 66ch;
 }
 
 /* ── Breakpoints ─────────────────────────────────────────────────
@@ -11872,6 +12231,7 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 @media (max-width: 820px) {
   .research-workspace-inner { padding: 36px 28px 36px; }
   .ps-scope-pills .faith-filter-pill { min-height: 44px; }
+  .ps-chip { min-height: 44px; }
 }
 @media (max-width: 640px) {
   .bband.faith-research-band { padding: 0 0 60px; }
@@ -11883,7 +12243,25 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   .ps-form { flex-direction: column; align-items: stretch; padding: 12px; }
   .ps-submit { width: 100%; }
   .ps-empty-note { font-size: 15px; }
-  .ps-hit-cit { font-size: 19px; }
+  .ps-work-title { font-size: 19px; }
+  .ps-narrow { max-width: none; }
+  /* Two-up grid, not a wrapped flex row: at 375px "Previous", the page
+     label and "Next" cannot share a line, and a wrapped flex row drops
+     them into a ragged column. The label takes the top row full width
+     and the buttons sit under it at either end (MOBILE §6.5). */
+  .ps-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .ps-pager-label {
+    grid-column: 1 / -1;
+    order: -1;
+    margin: 0;
+    text-align: center;
+  }
+  .ps-pager-btn:first-of-type { justify-self: start; }
+  .ps-pager-btn:last-of-type { justify-self: end; }
 }
 
 /* ══ Constellations ═══════════════════════════════════════════════

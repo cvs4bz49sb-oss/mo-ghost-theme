@@ -112,6 +112,15 @@
                [data-ps-tradition] pills
              - [data-ps-status], [data-ps-error], [data-ps-empty],
                [data-ps-results], [data-ps-noresults], [data-ps-count]
+             - [data-ps-filters] wrapping [data-ps-filters-state],
+               [data-ps-narrow], [data-ps-facets], [data-ps-clear]
+             - [data-ps-filter-status], [data-ps-nomatch] wrapping
+               [data-ps-nomatch-note], [data-ps-ceiling]
+             - [data-ps-pager] wrapping [data-ps-prev],
+               [data-ps-page-label], [data-ps-next]
+           The chips inside [data-ps-facets] are built in JS, not here:
+           their values are whatever the works on screen happen to be,
+           so there is no fixed vocabulary to write down.
            The submit button carries data-feature-gate="ask" so
            feature-gate.js intercepts a free or anonymous visitor's
            click before it ever reaches the submit handler. Do not
@@ -197,8 +206,71 @@
               </ul>
             </div>
 
-            <p class="ps-count" data-ps-count hidden></p>
+            {{!-- Filters. A DIFFERENT control from Scope above, and the
+                  copy has to keep saying so: Scope decides what gets
+                  searched and costs a new query, these narrow the works
+                  already on screen and cost nothing. They sit below the
+                  count and above the list because that is where the
+                  thing they act on is (UX §3b.5, action proximity).
+
+                  Hidden until a search returns. The chip groups inside
+                  [data-ps-facets] are written by the JS from the result
+                  set itself, and a group only appears when the results
+                  hold at least two distinct values for it. --}}
+            <details class="ps-filters" data-ps-filters hidden>
+              <summary class="ps-filters-summary">
+                <span class="ps-filters-title">Filter</span>
+                <span class="ps-filters-state" data-ps-filters-state></span>
+              </summary>
+              <div class="ps-filters-body">
+                <p class="ps-filters-note">These narrow the works already found. They do not run a new search.</p>
+
+                <div class="ps-narrow-field">
+                  <label class="ps-facet-legend" for="ps-narrow">Author or title</label>
+                  <input id="ps-narrow" class="ps-narrow" type="search" data-ps-narrow maxlength="120" autocomplete="off" />
+                </div>
+
+                <div class="ps-facets" data-ps-facets></div>
+
+                <button type="button" class="ps-clear" data-ps-clear hidden>Clear filters</button>
+              </div>
+            </details>
+
+            {{!-- The filters announce what they left. A reader using a
+                  screen reader gets no signal at all from twenty-five
+                  rows silently becoming nine. --}}
+            <p class="visually-hidden" data-ps-filter-status role="status" aria-live="polite"></p>
+
+            {{!-- tabindex="-1" so the pager can put focus here. A pager
+                  that swaps twenty-five rows and leaves focus on a Next
+                  button that may have just gone disabled loses a
+                  keyboard reader entirely; this line has been rewritten
+                  to say exactly where they now are. --}}
+            <p class="ps-count" data-ps-count tabindex="-1" hidden></p>
             <ol class="ps-results" data-ps-results hidden></ol>
+
+            {{!-- "The library found nothing" and "you filtered it all
+                  away" are an identical empty list and opposite facts,
+                  so they are two states with two different sentences
+                  (FRONTEND §6.33). --}}
+            <div class="ps-nomatch" data-ps-nomatch hidden>
+              <p class="ps-noresults-lede">No works match these filters.</p>
+              <p class="ps-noresults-note" data-ps-nomatch-note></p>
+            </div>
+
+            <nav class="ps-pager" data-ps-pager aria-label="Result pages" hidden>
+              <button type="button" class="ps-pager-btn" data-ps-prev>Previous</button>
+              <span class="ps-pager-label" data-ps-page-label></span>
+              <button type="button" class="ps-pager-btn" data-ps-next>Next</button>
+            </nav>
+
+            {{!-- The ceiling, said out loud. Vectorize returns at most
+                  fifty candidate passages when metadata comes back with
+                  them, so a work-grouped list tops out around forty and
+                  can never run to a third page. Better to state that
+                  than to let a reader read a short list as the library
+                  having little to say. --}}
+            <p class="ps-ceiling" data-ps-ceiling hidden>Power Search reads the fifty closest passages in the library and groups them into works, so this is a shortlist rather than every match. Change the scope above, or ask for the idea a different way, to reach further in.</p>
 
             <div class="ps-noresults" data-ps-noresults hidden>
               <p class="ps-noresults-lede">Nothing close enough to that.</p>
