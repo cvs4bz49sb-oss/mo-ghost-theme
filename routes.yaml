@@ -345,6 +345,14 @@ routes:
   # mo-tfr-library's /v1/ask. See website/workers/tfr-library/lib/ask.js.
   /the-faith-received/ask/:
     template: custom-faith-ask
+  # The research desk — one page, five workspaces behind a tab strip:
+  # Ask (the same shared partial /ask/ renders), Power Search (semantic
+  # search over the corpus, GET /v1/vsearch on mo-tfr-library), and
+  # Bookmarks / Notebook / Constellations, which are still being built.
+  # Deep-linkable per workspace: #ask, #power-search, #bookmarks,
+  # #notebook, #constellations.
+  /the-faith-received/research/:
+    template: custom-faith-research
   /the-faith-received/scripture/:
     template: custom-faith-scripture
   /the-faith-received/today/:

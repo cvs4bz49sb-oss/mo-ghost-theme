@@ -1,0 +1,325 @@
+{{!< default}}
+{{#contentFor "moHead"}}
+<title>Research | The Faith Received</title>
+<meta name="description" content="The research desk for The Faith Received. Ask a question of the library, search it by meaning, and keep what you find." />
+<meta property="og:title" content="Research | The Faith Received" />
+<meta property="og:description" content="The research desk for The Faith Received. Ask a question of the library, search it by meaning, and keep what you find." />
+<meta name="twitter:title" content="Research | The Faith Received" />
+<meta name="twitter:description" content="The research desk for The Faith Received. Ask a question of the library, search it by meaning, and keep what you find." />
+{{/contentFor}}
+{{!-- /the-faith-received/research/ — the research desk. One page, five
+     workspaces, a tab strip under the heading, and whichever workspace
+     is active fills everything below it.
+
+     ROUTING. routes.yaml maps this template at
+     /the-faith-received/research/. The deploy Action does NOT ship
+     routes.yaml (FRONTEND §6.12) — it has to be uploaded by hand in
+     Ghost Admin > Settings > Labs > Routes, and until it is, this URL
+     404s no matter how healthy the template is.
+
+     THE SHELL. assets/js/page/faith-research.js does the tab switching
+     with the same mechanism faith-tfr-search.js's showMode() uses:
+     [data-research-mode] buttons toggle `is-active`, [data-research-panel]
+     elements toggle `hidden`. Deliberately its own small file rather
+     than a sixth and seventh mode bolted onto faith-tfr-search.js —
+     that file is 500-odd lines of Pagefind shard-merging and has no
+     business knowing about this page. Deep-linkable: the hash (#ask,
+     #power-search, #bookmarks, #notebook, #constellations) is read on
+     load and written with replaceState on every tab change, same as
+     the Search page.
+
+     ASK. Renders partials/faith-received/_ask-panel.hbs — the SAME
+     partial the standalone /the-faith-received/ask/ route and the Ask
+     tab of /the-faith-received/search/ render. Not a copy: read that
+     partial's header for the DOM contract assets/js/page/faith-ask.js
+     binds to with unscoped querySelector() calls, and note the required
+     script order (feature-gate.js, then page/faith-ask.js) reproduced
+     at the bottom of this file. Nothing on this page may introduce a
+     second [data-ask-*] element; faith-ask.js would bind to whichever
+     came first in the document.
+
+     POWER SEARCH. Semantic search over the corpus — meaning, not
+     words. GET /v1/vsearch on mo-tfr-library (see
+     website/workers/tfr-library/lib/vsearch.js for the response shape
+     and the single-value `tradition` filter). Paid-member gated on the
+     worker (requirePaidMember() in that worker's worker.js) and gated
+     again client-side by the data-feature-gate="ask" on its submit
+     button, per the standing rule that any LLM/embedding-spending
+     feature carries both. Driven by assets/js/page/faith-power-search.js.
+
+     BOOKMARKS / NOTEBOOK / CONSTELLATIONS. Empty on purpose. Bookmarks
+     and Notebook are being built in a parallel session; Constellations
+     is a port that does not exist yet. Each is a real panel with the
+     right data-research-panel value and one honest line saying so, so
+     the tab strip is complete and the panels are somewhere to drop
+     real markup into. Nothing here fakes a feature. --}}
+
+<main class="faith-received faith-feature">
+
+  <section class="bhero bhero--tool">
+    <div class="bhero-inner container">
+      <p class="bhero-kicker"><a href="/the-faith-received/">The Faith Received</a> <span aria-hidden="true">&middot;</span> <a href="/the-faith-received/research/">Research</a></p>
+      <h1>Research</h1>
+      <p class="bhero-sub">Nineteen thousand works of Christian theology, and the tools to work in them. Ask the library a question, search it by meaning, and keep what you find.</p>
+    </div>
+  </section>
+
+  <section class="bband faith-feature-body faith-research-band">
+    <div class="container" data-research-page>
+
+      {{!-- The tab strip. Same markup and CSS as the Search page's mode
+           tabs (.faith-view-toggle + .faith-search-modes overrides,
+           which handle the horizontal scroll at 375px and the active
+           tab's underline), with .faith-research-tabs adding only the
+           rule that separates the strip from the workspace below it. --}}
+      <nav class="faith-view-toggle faith-search-modes faith-research-tabs" data-research-tabs role="tablist" aria-label="Research workspace">
+        <button type="button" class="faith-view-toggle-tab is-active" data-research-mode="ask" role="tab" aria-selected="true" aria-controls="research-panel-ask" id="research-tab-ask">Ask</button>
+        <button type="button" class="faith-view-toggle-tab" data-research-mode="power-search" role="tab" aria-selected="false" aria-controls="research-panel-power-search" id="research-tab-power-search">Power Search</button>
+        <button type="button" class="faith-view-toggle-tab" data-research-mode="bookmarks" role="tab" aria-selected="false" aria-controls="research-panel-bookmarks" id="research-tab-bookmarks">Bookmarks</button>
+        <button type="button" class="faith-view-toggle-tab" data-research-mode="notebook" role="tab" aria-selected="false" aria-controls="research-panel-notebook" id="research-tab-notebook">Notebook</button>
+        <button type="button" class="faith-view-toggle-tab" data-research-mode="constellations" role="tab" aria-selected="false" aria-controls="research-panel-constellations" id="research-tab-constellations">Constellations</button>
+      </nav>
+
+      {{!-- ── Ask ────────────────────────────────────────────────────
+           The shared partial, unmodified. .ask-workspace inside it
+           breaks out of this .container and runs the full width of the
+           viewport on its own white ground (percentage margins, so it
+           works from any parent width) — which is exactly the
+           "workspace fills the section below the bar" shape this page
+           is built around, and the reason Power Search below uses the
+           same shell. --}}
+      <div data-research-panel="ask" data-ask-page role="tabpanel" id="research-panel-ask" aria-labelledby="research-tab-ask">
+        {{> "faith-received/_ask-panel"}}
+      </div>
+
+      {{!-- ── Power Search ───────────────────────────────────────────
+           The control sits at the TOP of this workspace rather than
+           docked at the bottom the way Ask's composer is, and that is
+           deliberate rather than an oversight. Ask is one question and
+           one long answer, so its composer is the last thing you touch
+           and the answer scrolls up past it. Search is iterative: you
+           read a list, narrow the tradition, rephrase, run it again.
+           Burying the box under twenty hits would make every refinement
+           a scroll to the bottom of the page. Same composer geometry
+           and the same dark button, so the register still matches;
+           only the position differs.
+
+           DOM contract for assets/js/page/faith-power-search.js. Every
+           querySelector in that file is listed here:
+             - form[data-ps-form] > input[data-ps-input],
+               button[data-ps-submit]
+             - [data-ps-scope] wrapping [data-ps-scope-state] and the
+               [data-ps-tradition] pills
+             - [data-ps-status], [data-ps-error], [data-ps-empty],
+               [data-ps-results], [data-ps-noresults], [data-ps-count]
+           The submit button carries data-feature-gate="ask" so
+           feature-gate.js intercepts a free or anonymous visitor's
+           click before it ever reaches the submit handler. Do not
+           remove it: the worker enforces the same gate server-side, but
+           the modal is the only thing that tells a non-member WHY
+           nothing happened.
+
+           The nine tradition values must stay byte-identical to
+           KNOWN_TRADITIONS in website/workers/tfr-library/lib/ask.js
+           (the same nine Ask's scope control offers). vsearch's filter
+           is an exact-match Vectorize metadata filter, so a value that
+           does not match reads as "the filter found nothing" rather
+           than as an error. Single-select, not multi-select like Ask's:
+           /v1/vsearch takes ONE `tradition` param (see handleVSearch in
+           lib/vsearch.js), so a multi-select control here would be
+           promising something the endpoint cannot do. --}}
+      <div data-research-panel="power-search" role="tabpanel" id="research-panel-power-search" aria-labelledby="research-tab-power-search" hidden>
+        <div class="research-workspace" data-ps-workspace>
+          <div class="research-workspace-inner">
+           <div class="research-column">
+
+            <div class="ps-controls">
+              <form class="ps-form" data-ps-form>
+                <label class="visually-hidden" for="ps-query">Search the library by meaning</label>
+                <input
+                  id="ps-query"
+                  class="ps-input"
+                  type="search"
+                  data-ps-input
+                  maxlength="300"
+                  autocomplete="off"
+                  placeholder="Describe the idea you are looking for&hellip;"
+                  required
+                />
+                <button type="submit" class="ps-submit" data-feature-gate="ask" data-ps-submit>Search</button>
+              </form>
+
+              {{!-- Collapsed by default. The whole library is the right
+                   default and a wall of ten pills above the results
+                   would dominate the workspace before anything has been
+                   searched. faith-power-search.js writes the summary
+                   line so the collapsed state still says what is
+                   selected — a filter set and forgotten silently
+                   narrows every later search otherwise. --}}
+              <details class="ps-scope" data-ps-scope>
+                <summary class="ps-scope-summary">
+                  <span class="ps-scope-title">Scope</span>
+                  <span class="ps-scope-state" data-ps-scope-state>The whole library</span>
+                </summary>
+                <div class="ps-scope-body">
+                  <p class="ps-scope-legend" id="ps-scope-tradition-label">Tradition</p>
+                  <div class="ps-scope-pills" role="group" aria-labelledby="ps-scope-tradition-label">
+                    <button type="button" class="faith-filter-pill is-active" data-ps-tradition="" aria-pressed="true">The whole library</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="English Divines" aria-pressed="false">English Divines</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="Greek Fathers" aria-pressed="false">Greek Fathers</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="Humanism and Law" aria-pressed="false">Humanism and Law</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="Lutheran" aria-pressed="false">Lutheran</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="Medieval" aria-pressed="false">Medieval</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="Latin Fathers" aria-pressed="false">Latin Fathers</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="Eastern Fathers" aria-pressed="false">Eastern Fathers</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="Roman Catholic" aria-pressed="false">Roman Catholic</button>
+                    <button type="button" class="faith-filter-pill" data-ps-tradition="Reformed" aria-pressed="false">Reformed</button>
+                  </div>
+                </div>
+              </details>
+            </div>
+
+            <p class="ps-status" data-ps-status role="status" aria-live="polite" hidden></p>
+            <p class="ps-error" data-ps-error role="alert" hidden></p>
+
+            {{!-- Empty state. The example searches only fill the box;
+                  they never submit. A search spends a real embedding
+                  call and the paid-member gate lives on the submit
+                  button's own click, so nothing here may reach the
+                  worker on its own. --}}
+            <div class="ps-empty" data-ps-empty>
+              <p class="ps-empty-lede">Search by what a passage means, not by the words it happens to use.</p>
+              <p class="ps-empty-note">A search for God&rsquo;s unchangeableness finds the passage that says immutability and never uses the word. Ask for an idea in your own English and the library answers in Latin, Greek and four centuries of English prose.</p>
+              <ul class="ps-examples">
+                <li><button type="button" class="ps-example" data-ps-example>justification by faith alone</button></li>
+                <li><button type="button" class="ps-example" data-ps-example>the real presence in the eucharist</button></li>
+                <li><button type="button" class="ps-example" data-ps-example>how the will is bound before grace</button></li>
+              </ul>
+            </div>
+
+            <p class="ps-count" data-ps-count hidden></p>
+            <ol class="ps-results" data-ps-results hidden></ol>
+
+            <div class="ps-noresults" data-ps-noresults hidden>
+              <p class="ps-noresults-lede">Nothing close enough to that.</p>
+              <p class="ps-noresults-note">Try describing the idea a different way, or widen the tradition above. The semantic index is still being built out across the collections, so a corner of the library may not answer yet.</p>
+            </div>
+
+           </div>
+          </div>
+        </div>
+      </div>
+
+      {{!-- ── Bookmarks / Notebook / Constellations ──────────────────
+           Deliberately empty. Bookmarks and Notebook are under
+           construction in a parallel session and Constellations has not
+           been ported yet; each panel says so in one line and does
+           nothing else.
+
+           Each still carries the same three-div workspace shell the
+           other two tabs use (.research-workspace > -inner >
+           .research-column) so that switching tabs doesn't change the
+           ground under the reader's feet, and so whoever builds these
+           out replaces one .faith-pending-panel with real markup and
+           inherits the layout for free. Keep the
+           data-research-panel attribute where it is —
+           faith-research.js reads nothing else about these panels. --}}
+      <div data-research-panel="bookmarks" role="tabpanel" id="research-panel-bookmarks" aria-labelledby="research-tab-bookmarks" hidden>
+        <div class="research-workspace">
+          <div class="research-workspace-inner">
+           <div class="research-column">
+            <div class="faith-pending-panel research-pending">
+              <p class="faith-pending-lede">Bookmarks are not wired up on this page yet.</p>
+              <p class="faith-pending-note">Saved passages live in the member dashboard while this workspace is being built.</p>
+              <p class="faith-pending-actions"><a href="/dashboard/bookmarks/">Open your bookmarks</a></p>
+            </div>
+           </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-research-panel="notebook" role="tabpanel" id="research-panel-notebook" aria-labelledby="research-tab-notebook" hidden>
+        <div class="research-workspace">
+          <div class="research-workspace-inner">
+           <div class="research-column">
+            <div class="faith-pending-panel research-pending">
+              <p class="faith-pending-lede">The notebook is not wired up on this page yet.</p>
+              <p class="faith-pending-note">Highlights, private notes and your own translations will be kept here.</p>
+            </div>
+           </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-research-panel="constellations" role="tabpanel" id="research-panel-constellations" aria-labelledby="research-tab-constellations" hidden>
+        <div class="research-workspace">
+          <div class="research-workspace-inner">
+           <div class="research-column">
+            <div class="faith-pending-panel research-pending">
+              <p class="faith-pending-lede">Constellations have not been ported to this page yet.</p>
+              <p class="faith-pending-note">The passages that stand behind a passage, as a set you can share as a link.</p>
+            </div>
+           </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  {{!-- No prices here on purpose: /membership/ is where they live, and a
+       number repeated in two places is a number that goes stale in one. --}}
+  <section class="bband bband--cream faith-tools">
+    <div class="container">
+      <header class="bhead">
+        <p class="blabel">For members</p>
+        <h2>Get the most from The Faith Received.</h2>
+      </header>
+      <ul class="blist blist--2 blist--tools">
+        <li><span class="brow-t">Ask</span><span class="brow-m">A question answered from the corpus. Every page it drew on is cited inline.</span></li>
+        <li><span class="brow-t">Power Search</span><span class="brow-m">Search by meaning rather than by word, across every collection.</span></li>
+        <li><span class="brow-t">Latin word forms</span><span class="brow-m">One search across every inflection of a word.</span></li>
+        <li><span class="brow-t">Constellations</span><span class="brow-m">The passages that stand behind a passage. Share the set as a link.</span></li>
+        <li><span class="brow-t">Citation export</span><span class="brow-m">Copy, permalink, BibTeX or Zotero. Each one carries its locus.</span></li>
+        <li><span class="brow-t">The notebook</span><span class="brow-m">Highlight a paragraph, keep a private note, or write your own translation.</span></li>
+      </ul>
+    </div>
+  </section>
+
+<section class="faith-join">
+  <div class="container">
+    <p class="blabel">Become a member</p>
+    <h2>Use the tools and support the work.</h2>
+      <div class="toggle-wrap" role="tablist" aria-label="Billing interval">
+        <div class="toggle">
+          <button type="button" class="toggle-option is-active" data-interval="annual" role="tab" aria-selected="true" data-hm-goal="plan-annual">
+            Annual
+            <span class="badge">Save 17%</span>
+          </button>
+          <button type="button" class="toggle-option" data-interval="monthly" role="tab" aria-selected="false" data-hm-goal="plan-monthly">Monthly</button>
+        </div>
+      </div>
+  </div>
+</section>
+
+{{> "membership-pricing"}}
+</main>
+{{> "membership-cta"}}
+
+<script src="{{asset "js/page/membership-toggle.js"}}"></script>
+<script src="{{asset "js/page/membership-cards.js"}}"></script>
+
+{{!-- feature-gate.js FIRST, then the two page scripts that depend on
+     it gating their submit buttons — the same relative order
+     custom-faith-ask.hbs and custom-faith-search.hbs use for the same
+     partial. All three are plain page-bottom <script src> tags rather
+     than bundle members because page-template scripts run BEFORE
+     site.min.js (FRONTEND §6.18); the only bundle global any of them
+     touches is window.MOAuth, which ships in boot.min.js in <head> and
+     is therefore already on the page. --}}
+<script src="{{asset "js/feature-gate.js"}}"></script>
+<script src="{{asset "js/page/faith-ask.js"}}"></script>
+<script src="{{asset "js/page/faith-power-search.js"}}"></script>
+<script src="{{asset "js/page/faith-research.js"}}"></script>
+
+<script src="{{asset "js/faith-gate.js"}}"></script>
