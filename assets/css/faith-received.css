@@ -36,6 +36,28 @@
    so the project reads as part of the Mere Orthodoxy journal.
    ============================================================= */
 
+/* --color-darkgrey: the middle of three emphasis levels.
+   -------------------------------------------------------------
+   Six rules in this file already referenced this token and it was
+   declared nowhere, in either stylesheet, so every one of those colour
+   declarations was silently discarded and the element fell back to
+   whatever it inherited. Found 2026-09-04.
+
+   It is declared rather than rewritten onto an existing token because
+   the file wants three levels, not two, and the shelf block shows it
+   plainly: the title is --color-dark, the description is this, and
+   .lp-shelf-who under it is --color-muted. Mapping this to --color-dark
+   would flatten the description into the title, and to --color-muted
+   would flatten it into the byline.
+
+   Sits between the two it separates (#2d2927 and #6b6660) and clears
+   AA comfortably on both page backgrounds: 9.17:1 on white, 8.00:1 on
+   the cream. Ghost's own vocabulary uses "darkgrey" for body ink, which
+   is why the original author reached for the name. */
+:root {
+  --color-darkgrey: #4c4743;
+}
+
 /* `.visually-hidden` used to open this section. It moved back to
    screen.css on 2026-08-07: it is a site-wide a11y utility, and two of
    its three consumers (custom-admin-institution.hbs,
