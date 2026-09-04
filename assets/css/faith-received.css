@@ -8407,6 +8407,137 @@ mark.faith-find-hit.is-current {
 }
 .fa-rc-sample em { font-style: italic; color: var(--color-dark); }
 
+/* ── The full list ──────────────────────────────────────────────
+   The verbs, as controls. Before the full file loads each one is a
+   loader that preselects a filter; after it loads they ARE the
+   filter. Set as a rule-under-text tab row rather than as pills,
+   because this is a public editorial page and the panel already
+   speaks in hairlines and figures. The pressed state carries on
+   three channels at once — the weight of the rule, the colour of
+   the rule, and the colour of the text — so it never rests on hue
+   alone. */
+.fa-rc-verbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 20px;
+  margin: 0 0 12px;
+}
+.fa-rc-verbs[hidden] { display: none; }
+.fa-rc-verb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--color-card-border);
+  /* 44px of thumb without a box around it: the height is the target,
+     the rule under the words is the affordance. */
+  display: inline-flex;
+  align-items: flex-end;
+  min-height: 44px;
+  padding: 0 0 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.fa-rc-verb:enabled:hover {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+.fa-rc-verb:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.fa-rc-verb[aria-pressed="true"] {
+  color: var(--color-dark);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 7px;
+}
+.fa-rc-verb:disabled { cursor: default; opacity: 0.5; }
+
+/* The swappable half of a pair detail: sample, loading, full list, or
+   failure. It owns no look of its own on purpose, so that swapping
+   states cannot shift the lede and the chips above it. */
+.fa-rc-body { display: block; }
+
+.fa-rc-state,
+.fa-rc-progress {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  max-width: 56ch;
+  margin: 0 0 8px;
+}
+.fa-rc-state { color: var(--color-dark); }
+.fa-rc-progress { font-style: italic; margin: 10px 0 0; }
+
+/* Grouped by work, because six works over 2,924 citations means the
+   title would otherwise be printed nine hundred times in a row. */
+.fa-rc-groups { list-style: none; margin: 0; padding: 0; }
+.fa-rc-group { margin: 0 0 20px; }
+.fa-rc-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-card-border);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-dark);
+}
+.fa-rc-group-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--color-dark);
+  text-decoration: none;
+  /* Where a work has no title the slug stands in, and a slug is one
+     long token that would push the panel sideways at 375px. */
+  overflow-wrap: anywhere;
+}
+a.fa-rc-group-link:hover { color: var(--color-primary); text-decoration: underline; }
+.fa-rc-group-n {
+  flex: 0 0 auto;
+  /* The link's flex-grow already puts this at the right edge on one
+     line. The auto margin is for the wrapped case at 375px, where a
+     two-line title drops the figure onto a line of its own: without
+     it the count sits at the left margin under the title, reading as
+     the start of the list rather than as the heading's tally. */
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.fa-rc-pages { list-style: none; margin: 0; padding: 0; }
+.fa-rc-page-row {
+  padding: 4px 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+/* An inline link, deliberately, and the one place this panel does not
+   reach for 44px. These rows come in thousands: at a 44px target the
+   Ames/Bellarmine refutations would run to ninety thousand pixels of
+   page. Row padding keeps roughly 8px of clear space between one page
+   number and the next, which is the same shape .fa-rc-cites already
+   uses for the sample above it. */
+.fa-rc-page {
+  color: var(--color-dark);
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+a.fa-rc-page:hover { color: var(--color-primary); text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fa-rc-verb { transition: none; }
+}
+
 @media (max-width: 700px) {
   .fa-rc { margin: 32px 0 36px; }
   .fa-rc-cols { grid-template-columns: 1fr; gap: 34px; }
@@ -8422,6 +8553,13 @@ mark.faith-find-hit.is-current {
   /* The works row is a title and a count. On a narrow column the title
      wraps rather than pushing the count off the edge. */
   .fa-rc-works li { flex-wrap: wrap; }
+  /* Same shape, same reason: a work title and its count, in a column
+     that is now the full width of a phone. */
+  .fa-rc-group-head { flex-wrap: wrap; }
+  /* Nineteen or twenty characters per chip against a 375px column
+     means two chips a row at most, so the horizontal gap can come
+     down without them touching. */
+  .fa-rc-verbs { gap: 8px 16px; }
 }
 
 /* Citations across the canon, on the Scripture Index page. Reuses the

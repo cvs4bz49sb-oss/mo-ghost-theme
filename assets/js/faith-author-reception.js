@@ -23,6 +23,14 @@
  *   time, or 404s, the ranked lists still render and the rows simply
  *   do not open; the panel does not wait on it.
  *
+ *   v1/reception/full/<slug>.json.gz — the records. Every extracted
+ *   citation, one row each, with the work it sits in, its printed
+ *   page, the locator the extractor read off it, the surface form of
+ *   the name and the verb. NEVER fetched on page load: it is the
+ *   heaviest thing this panel can ask for and most readers open none
+ *   of it. A reader presses a verb in an open pair detail and only
+ *   then does it go over the wire. See § THE FULL LIST below.
+ *
  * "Cites" and "cited by" are asymmetric on purpose. A name near the
  * top of "cited by" was read closely by the tradition after him; a
  * name near the top of "cites" is who he was reading. Printing them
@@ -45,6 +53,38 @@
  * it. A reader who walks away thinking "Voetius cites Ames in three
  * works" has been misled by this panel, and that is the one failure
  * mode it may not have.
+ *
+ * ── THE FULL LIST ────────────────────────────────────────────────
+ *
+ * The sample is the honest default; it is not the answer. Ames names
+ * Bellarmine 2,924 times and the request is to read every one of
+ * them, so each open pair detail carries a row of verb chips ("2,078
+ * refutations", "413 paraphrases", ...) and pressing one fetches
+ * v1/reception/full/ and prints that verb's rows in full, grouped by
+ * the work they sit in and paged in at FULL_CHUNK a time.
+ *
+ * DIRECTION. `to` in the full file is OUTBOUND ONLY, which is what
+ * keeps these files down to a few dozen KB over the wire. So an
+ * "Also cites" row reads the page author's own file at to[neighbour],
+ * and a "Cited by" row reads THE NEIGHBOUR'S file at to[pageAuthor].
+ * Getting this backwards yields a plausible, populated, wrong list, so
+ * the file slug and the map key are computed once in mount() and
+ * carried on the pair state rather than re-derived at press time.
+ *
+ * WHICH NUMBER WINS. Three files count the same pair three ways.
+ * Ames on Bellarmine is 2,920/2,075 in v1/graph/nb, 2,917/2,072 in
+ * v1/reception, and 2,924/2,078 in v1/reception/full. They were built
+ * by different sweeps and none is a rounding of another. The full
+ * file is the records themselves, and `rows.length` matched the
+ * declared `n` exactly on every one of the 216 pairs measured on
+ * Ames, so once it has loaded for a pair EVERY figure that pair shows
+ * is recounted from those rows: the lede, the chips, the row's own
+ * count button and the refutation line beside it. Nothing on screen
+ * may say 2,917 above a list of 2,924 items. Before the full file
+ * loads the summary still wins over nb, for the same reason it did
+ * before (it is closer to the records than the ranked file is), and
+ * the ranked file keeps only what no number depends on: which
+ * neighbours appear, in what order, at what bar width.
  */
 (function () {
   "use strict";
@@ -285,6 +325,76 @@
     ]);
   }
 
+  /* ── The full file ────────────────────────────────────────────────
+   *
+   * Opt-in, never on page load. Measured against the live worker
+   * 2026-09-04, wire bytes then parsed JSON:
+   *
+   *   augustine-of-hippo    19 KB ->   102 KB
+   *   john-calvin           46 KB ->   352 KB
+   *   thomas-aquinas        77 KB ->   611 KB
+   *   william-ames          75 KB ->   784 KB
+   *   gisbertus-voetius    452 KB -> 3,817 KB
+   *
+   * So the wire cost is half a megabyte at worst and the PARSED cost
+   * is nearly four, which is the number that matters on a phone. Two
+   * things follow. The timeout is long and real (AbortController, so
+   * a stalled transfer is actually cancelled rather than left running
+   * behind a Promise.race that has already given up), and the cache
+   * holds at most FULL_CACHE_MAX whole files: each pair extracts the
+   * slice it needs and keeps only that, so opening ten pairs does not
+   * retain ten copies of Voetius. Evicted files re-fetch from the
+   * browser's HTTP cache, which the worker allows for a day.
+   *
+   * A 404 is a resolution, not a rejection: coverage is 92% and the
+   * missing 8% are missing permanently, so the sentinel is cached and
+   * never retried. A network failure deletes its cache entry so the
+   * reader's "Try again" can actually try again. */
+  const FULL_PATIENCE = 20000;
+  const FULL_CACHE_MAX = 2;
+  const NOT_PUBLISHED = "mo-rc-not-published";
+  const fullCache = new Map();
+
+  function loadFull(slug) {
+    if (!slug) return Promise.resolve(NOT_PUBLISHED);
+    if (fullCache.has(slug)) return fullCache.get(slug);
+
+    const controller = typeof window.AbortController === "function"
+      ? new window.AbortController() : null;
+    const timer = window.setTimeout(() => {
+      if (controller) controller.abort();
+    }, FULL_PATIENCE);
+
+    const url = `${LIBRARY}/v1/reception/full/${encodeURIComponent(slug)}.json.gz`;
+    const p = fetch(url, controller ? { signal: controller.signal } : undefined)
+      .then((r) => {
+        if (r.status === 404) return NOT_PUBLISHED;
+        if (!r.ok) throw new Error(`reception/full ${r.status}`);
+        // The same sniffing decoder the summary uses. Do NOT write a
+        // second one: ".json.gz" is a file name, not a promise about
+        // the bytes, and assuming gzip is what made this whole feature
+        // silently dead once already.
+        return gunzip(r);
+      })
+      .then((data) => { window.clearTimeout(timer); return data; })
+      .catch((err) => {
+        window.clearTimeout(timer);
+        fullCache.delete(slug);
+        throw err;
+      });
+
+    fullCache.set(slug, p);
+    // Oldest-first eviction. Map iterates in insertion order, and the
+    // entry just set is by definition the newest, so it is never the
+    // one dropped.
+    while (fullCache.size > FULL_CACHE_MAX) {
+      const oldest = fullCache.keys().next().value;
+      if (oldest === slug) break;
+      fullCache.delete(oldest);
+    }
+    return p;
+  }
+
   // Enrichment only — a slower, heavier fetch the panel does not wait
   // on before drawing the ranked lists themselves.
   function loadExcerpts(name) {
@@ -316,13 +426,39 @@
     quotes: ["quotation", "quotations"],
   };
 
+  const verbLabel = (k, count) => `${n(count)} ${HOW_NOUN[k][count === 1 ? 0 : 1]}`;
+
+  // Kept for the one path that has to reproduce the panel exactly as
+  // it stood before the full list existed: a pair the extraction never
+  // published, where the chips have nothing to offer and revert to the
+  // plain sentence they replaced.
   function howLine(how) {
     if (!how) return "";
     const parts = Object.keys(how)
       .filter((k) => HOW_NOUN[k] && how[k] > 0)
       .sort((a, b) => how[b] - how[a])
-      .map((k) => `${n(how[k])} ${HOW_NOUN[k][how[k] === 1 ? 0 : 1]}`);
+      .map((k) => verbLabel(k, how[k]));
     return parts.length ? `${parts.join(", ")}.` : "";
+  }
+
+  // Verbs in descending order of how much of the pair they account
+  // for, which is also the order the sentence they replaced used. The
+  // dominant verb is the interesting one and it reads first.
+  function verbKeys(how) {
+    return Object.keys(how || {})
+      .filter((k) => HOW_NOUN[k] && how[k] > 0)
+      .sort((a, b) => how[b] - how[a]);
+  }
+
+  // Recount from the records. Called only on full rows, never on the
+  // summary's own `how`, so the counts it returns sum to rows.length.
+  function countVerbs(rows) {
+    const how = {};
+    for (let i = 0; i < rows.length; i++) {
+      const k = rows[i].h;
+      if (HOW_NOUN[k]) how[k] = (how[k] || 0) + 1;
+    }
+    return how;
   }
 
   // The one sentence the whole third ask turns on. Kept as a function
@@ -332,6 +468,24 @@
     return opp === 1
       ? `1 of the ${n(total)} is a refutation.`
       : `${n(opp)} of the ${n(total)} are refutations.`;
+  }
+
+  /* The extractor leaks a few of its own absent-values through as
+   * literal strings rather than as null. Measured 2026-09-04: `loc` is
+   * the four-character string "null" on 23 of Ames's 6,038 rows and 22
+   * of Voetius's 29,308. At four examples a pair that almost never
+   * surfaced, and it went unnoticed. At 2,078 rows it is on screen
+   * inside the first page, printed as a quotation, p. 32, "null",
+   * which reads as a citation of a passage that says null.
+   *
+   * A truthiness check does not catch it, because "null" is truthy.
+   * Everything that crosses the network and gets printed as prose goes
+   * through here. */
+  const ABSENT = /^(?:null|undefined|none|nan|n\/?a|-{1,2})$/i;
+  function printable(v) {
+    if (v == null) return "";
+    const s = String(v).trim();
+    return s && !ABSENT.test(s) ? s : "";
   }
 
   const el = (tag, cls, text) => {
@@ -354,25 +508,28 @@
    * page's author, so tw holds the page author's works; on an "Also
    * cites" row it is the other way round. citing/cited are passed in
    * already swapped rather than branched on here. */
-  function detailFragment(row, citing, cited) {
+  // One sentence, one source. Whoever calls this has already decided
+  // which total is authoritative, so the lede cannot be built from one
+  // file while the chips beneath it are built from another.
+  function ledeText(citing, cited, total, opp) {
+    const parts = [
+      `${citing} names ${cited} ${n(total)} time${total === 1 ? "" : "s"} across the library.`,
+    ];
+    if (opp) {
+      parts.push(refutationTag(opp, total));
+      parts.push(`A refutation is a passage where ${citing} argues against ${cited}.`);
+    }
+    return parts.join(" ");
+  }
+
+  /* The sample body: the five capped works and the four printed
+   * citations the summary file carries. This is what a pair shows
+   * before anyone asks for more, and what it falls back to when the
+   * full file cannot be had. Unchanged from what it printed before the
+   * full list existed, including the honesty line at the bottom. */
+  function sampleFragment(row, citing, cited) {
     const frag = document.createDocumentFragment();
     const total = Number(row.n || 0);
-
-    const lede = el("p", "fa-rc-detail-lede");
-    lede.appendChild(document.createTextNode(
-      `${citing} names ${cited} ${n(total)} time${total === 1 ? "" : "s"} across the library.`,
-    ));
-    const opp = (row.how && row.how.refutes) || 0;
-    if (opp) {
-      lede.appendChild(document.createTextNode(` ${refutationTag(opp, total)}`));
-      lede.appendChild(document.createTextNode(
-        ` A refutation is a passage where ${citing} argues against ${cited}.`,
-      ));
-    }
-    frag.appendChild(lede);
-
-    const verbs = howLine(row.how);
-    if (verbs) frag.appendChild(el("p", "fa-rc-detail-how", verbs));
 
     // Which works. Absent on 207 of the 378 rows measured on Ames, so
     // the section is dropped rather than shown empty.
@@ -425,16 +582,19 @@
         // marks are generated content: they are absent from copied
         // text, and a locator like "Medulla, lib. 1, c. 38, 39" runs
         // into the surrounding commas without them.
-        if (s.loc) {
+        const loc = printable(s.loc);
+        const twt = printable(s.twt);
+        const sf = printable(s.sf);
+        if (loc) {
           li.appendChild(document.createTextNode(", "));
-          li.appendChild(el("span", "fa-rc-loc", `“${String(s.loc)}”`));
-        } else if (s.twt) {
+          li.appendChild(el("span", "fa-rc-loc", `“${loc}”`));
+        } else if (twt) {
           li.appendChild(document.createTextNode(", on "));
-          li.appendChild(el("em", null, String(s.twt)));
+          li.appendChild(el("em", null, twt));
         }
-        if (s.sf) {
+        if (sf) {
           li.appendChild(document.createTextNode(", named "));
-          li.appendChild(el("span", "fa-rc-sf", `“${String(s.sf)}”`));
+          li.appendChild(el("span", "fa-rc-sf", `“${sf}”`));
         }
         li.appendChild(document.createTextNode("."));
         list.appendChild(li);
@@ -449,6 +609,400 @@
     }
 
     return frag;
+  }
+
+  /* ── Printing 2,924 rows ──────────────────────────────────────────
+   *
+   * Two decisions carry this, and both are about node count rather
+   * than about bytes.
+   *
+   * GROUP BY WORK. Ames's 2,924 citations of Bellarmine sit in six
+   * works, one of which holds 1,482 of them. A flat list prints
+   * "Bellarminus Enervatus (Amsterdam 1630, 4 toms)" 1,482 times, which
+   * is unreadable and is also most of the DOM. The title is printed
+   * once as a heading and each citation under it is its own page
+   * number, which is the only part that differs. Screen readers get
+   * the work back through aria-label on the link, not through 1,482
+   * more elements.
+   *
+   * CHUNK. Even so, rows are appended FULL_CHUNK at a time behind a
+   * "Show N more" that says where it has got to. Measured in Chrome on
+   * this markup, Ames on Bellarmine filtered to refutations:
+   *
+   *   2,078 rows -> 8,112 elements, 6 groups, 134,433px of page
+   *   ~3.9 elements per row, ~0.08ms per row to build
+   *   one 250-row chunk: 19 to 24ms, appended in two operations
+   *   all 2,078 in one go: 197ms of scripting
+   *
+   * 197ms is a dozen dropped frames on this machine and close to a
+   * second on a mid-range phone, for something a reader did not ask
+   * for all at once. A chunk is one dropped frame on a deliberate
+   * press, with a line underneath saying how far in it has got. The
+   * cursor is (group index, row index) so a chunk boundary inside a
+   * work continues into the same list rather than starting a second
+   * heading for it. */
+  const FULL_CHUNK = 250;
+
+  function groupsFor(rows, works) {
+    const byWork = new Map();
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      const key = r.w || "";
+      const bucket = byWork.get(key);
+      if (bucket) bucket.push(r);
+      else byWork.set(key, [r]);
+    }
+    const out = [];
+    byWork.forEach((rs, w) => {
+      rs.sort((a, b) => (Number(a.p) || 0) - (Number(b.p) || 0));
+      out.push({ w, title: (works && printable(works[w])) || w, rows: rs });
+    });
+    // Heaviest work first. Six works over 2,924 rows means heavy title
+    // repetition across groups is normal and not a bug: the library
+    // genuinely holds three separate records of the Bellarminus
+    // Enervatus, and each opens a different scan.
+    out.sort((a, b) => b.rows.length - a.rows.length);
+    return out;
+  }
+
+  // `noun` is the active filter's word, so a group under the
+  // refutations filter says "1,070 refutations in this work" and not
+  // "1,070 citations in this work", which would be a different and
+  // much larger claim about the same heading.
+  function makeChunker(groups, works, container, noun) {
+    let gi = 0;
+    let ri = 0;
+    let openList = null;
+    let shown = 0;
+
+    function groupHead(g) {
+      const h = el("h5", "fa-rc-group-head");
+      const url = safeHref(readerUrl(g.w));
+      if (url) {
+        const a = el("a", "fa-rc-group-link", g.title);
+        a.href = url;
+        h.appendChild(a);
+      } else {
+        h.appendChild(el("span", "fa-rc-group-link", g.title));
+      }
+      const count = el("span", "fa-rc-group-n", n(g.rows.length));
+      // Sighted readers get "1,070" beside a heading and the state
+      // line above tells them what of. A screen reader takes the
+      // heading and this figure as one run of text, so the unit rides
+      // along here: "1,070 refutations in this work".
+      count.appendChild(el("span", "visually-hidden",
+        ` ${noun(g.rows.length)} in this work`));
+      h.appendChild(count);
+      return h;
+    }
+
+    function pageRow(r, workTitle) {
+      const li = el("li", "fa-rc-page-row");
+      const pg = Number(r.p);
+      const printed = Number.isFinite(pg) && pg > 0 && Math.floor(pg) === pg;
+      const label = printed ? `p. ${n(pg)}` : "page not recorded";
+      const url = printed ? safeHref(readerUrl(r.w, pg)) : "";
+      if (url) {
+        const a = el("a", "fa-rc-page", label);
+        a.href = url;
+        a.setAttribute("aria-label", `${label}, ${workTitle}`);
+        li.appendChild(a);
+      } else {
+        li.appendChild(el("span", "fa-rc-page", label));
+      }
+      const loc = printable(r.loc);
+      if (loc) {
+        li.appendChild(document.createTextNode(", "));
+        li.appendChild(el("span", "fa-rc-loc", `“${loc}”`));
+      }
+      // `tw` names the work of the party being CITED, and it is on
+      // about a fifth of rows. Where the extractor caught it, say so.
+      const twt = r.tw && works ? printable(works[r.tw]) : "";
+      if (twt) {
+        li.appendChild(document.createTextNode(", on "));
+        li.appendChild(el("em", null, twt));
+      }
+      const sf = printable(r.sf);
+      if (sf) {
+        li.appendChild(document.createTextNode(", named "));
+        li.appendChild(el("span", "fa-rc-sf", `“${sf}”`));
+      }
+      li.appendChild(document.createTextNode("."));
+      return li;
+    }
+
+    return {
+      shown: () => shown,
+      done: () => gi >= groups.length,
+      // Appends up to `limit` rows and returns the first link it added,
+      // which is where focus goes after a "Show more".
+      render(limit) {
+        let added = 0;
+        let firstLink = null;
+        const fresh = document.createDocumentFragment();
+        let pending = null;
+        const flush = () => {
+          if (pending && openList) openList.appendChild(pending);
+          pending = null;
+        };
+        while (gi < groups.length && added < limit) {
+          const g = groups[gi];
+          if (ri === 0) {
+            flush();
+            const li = el("li", "fa-rc-group");
+            const head = groupHead(g);
+            if (!firstLink) firstLink = head.querySelector("a");
+            li.appendChild(head);
+            openList = el("ol", "fa-rc-pages");
+            li.appendChild(openList);
+            fresh.appendChild(li);
+          }
+          if (!pending) pending = document.createDocumentFragment();
+          while (ri < g.rows.length && added < limit) {
+            const node = pageRow(g.rows[ri], g.title);
+            if (!firstLink) firstLink = node.querySelector("a");
+            pending.appendChild(node);
+            ri += 1;
+            added += 1;
+            shown += 1;
+          }
+          if (ri >= g.rows.length) { gi += 1; ri = 0; }
+        }
+        flush();
+        if (fresh.childNodes.length) container.appendChild(fresh);
+        return firstLink;
+      },
+    };
+  }
+
+  /* ── The pair detail, as a small machine ──────────────────────────
+   *
+   * Four states, in one host element, with a fixed skeleton so nothing
+   * has to be re-found by selector:
+   *
+   *   lede   the sentence, rebuilt whenever the authoritative total
+   *          changes
+   *   hint   the lead-in above the chips, and the one place the panel
+   *          reverts to its pre-full-list sentence
+   *   chips  the verbs. Before the full file loads they are loaders
+   *          that preselect a filter; after it loads they are the
+   *          filter, with aria-pressed
+   *   body   sample | loading | full list | failed
+   *
+   * ctx.sync is how the row above gets its figure corrected once the
+   * records are in hand. Without it the row would keep saying 2,917
+   * over a list of 2,924, which is the one thing this must not do. */
+  function buildDetail(host, ctx) {
+    const {
+      row, citing, cited, fileSlug, mapKey, say, sync,
+    } = ctx;
+
+    const summaryTotal = Number(row.n || 0);
+    const summaryOpp = (row.how && row.how.refutes) || 0;
+
+    const lede = el("p", "fa-rc-detail-lede");
+    const hint = el("p", "fa-rc-detail-how");
+    const chips = el("div", "fa-rc-verbs");
+    chips.setAttribute("role", "group");
+    const body = el("div", "fa-rc-body");
+    host.appendChild(lede);
+    host.appendChild(hint);
+    host.appendChild(chips);
+    host.appendChild(body);
+
+    let full = null;
+    let loading = false;
+    let active = "";
+
+    function chipsDisabled(on) {
+      const list = chips.querySelectorAll("button");
+      for (let i = 0; i < list.length; i++) list[i].disabled = on;
+    }
+
+    function paintChips(how, total, loaded) {
+      chips.hidden = false;
+      chips.textContent = "";
+      chips.setAttribute(
+        "aria-label",
+        loaded ? "Filter these citations by kind" : "Read every citation, by kind",
+      );
+      const add = (key, text, aria) => {
+        const b = el("button", "fa-rc-verb", text);
+        b.type = "button";
+        if (loaded) {
+          b.setAttribute("aria-pressed", key === active ? "true" : "false");
+        } else {
+          b.setAttribute("aria-label", aria);
+        }
+        b.addEventListener("click", () => { press(key); });
+        chips.appendChild(b);
+      };
+      add("", `All ${n(total)}`, total === 1
+        ? "Show the one citation"
+        : `Show all ${n(total)} citations`);
+      verbKeys(how).forEach((k) => {
+        const label = verbLabel(k, how[k]);
+        // "Show all 1 approval" is the kind of sentence a screen
+        // reader makes a meal of. One of a thing gets said as one.
+        add(k, label, how[k] === 1
+          ? `Show the one ${HOW_NOUN[k][0]}`
+          : `Show all ${label}`);
+      });
+    }
+
+    function paintSample() {
+      lede.textContent = ledeText(citing, cited, summaryTotal, summaryOpp);
+      hint.hidden = false;
+      hint.textContent = "Press a kind to read every one of them.";
+      paintChips(row.how, summaryTotal, false);
+      body.textContent = "";
+      body.appendChild(sampleFragment(row, citing, cited));
+    }
+
+    function paintLoading() {
+      body.textContent = "";
+      body.appendChild(el("p", "fa-rc-detail-note",
+        "Loading every citation for this pair. This is a large file, so it can take a moment on a slow connection."));
+      say("Loading every citation for this pair.");
+    }
+
+    /* A pair the extraction never published. Coverage is 92%, the
+     * missing 8% are missing for good, and the reader is owed the
+     * panel exactly as it stood before any of this existed: the same
+     * four examples, the same plain verb sentence, no error, nothing
+     * emptied. The one addition is a single factual line, because a
+     * control that vanishes without a word after you press it reads
+     * as a bug. */
+    function paintUnpublished() {
+      chips.textContent = "";
+      chips.hidden = true;
+      hint.hidden = false;
+      hint.textContent = howLine(row.how);
+      body.textContent = "";
+      body.appendChild(sampleFragment(row, citing, cited));
+      body.appendChild(el("p", "fa-rc-detail-note",
+        "The full list has not been published for this pair."));
+      say("The full list has not been published for this pair.");
+    }
+
+    function paintFailed() {
+      body.textContent = "";
+      body.appendChild(sampleFragment(row, citing, cited));
+      body.appendChild(el("p", "fa-rc-detail-note",
+        "The full list did not load. The examples above are still here."));
+      const retry = el("button", "fa-fp-more", "Try again");
+      retry.type = "button";
+      retry.addEventListener("click", () => { start(); });
+      body.appendChild(retry);
+      say("The full list did not load. The examples above are still here.");
+    }
+
+    function paintFull() {
+      const { how, total, works } = full;
+      const opp = how.refutes || 0;
+      lede.textContent = ledeText(citing, cited, total, opp);
+      hint.hidden = true;
+      hint.textContent = "";
+      paintChips(how, total, true);
+
+      const count = active ? (how[active] || 0) : total;
+      const rows = active ? full.rows.filter((r) => r.h === active) : full.rows;
+      const nounFor = (c) => (active
+        ? HOW_NOUN[active][c === 1 ? 0 : 1]
+        : `citation${c === 1 ? "" : "s"}`);
+      const noun = nounFor(count);
+
+      body.textContent = "";
+      body.appendChild(el("h4", "fa-rc-detail-sub", "Every citation"));
+      // One of a thing is said as one. "Showing all 1 approval" is a
+      // sentence no reader should have to parse, and Ames has a pair
+      // with exactly one of four of the five verbs.
+      const many = count === 1 ? `the one ${noun}` : `all ${n(count)} ${noun}`;
+      const grouped = count === 1 ? "" : ", grouped by the work each appears in";
+      const state = el("p", "fa-rc-state", active
+        ? `Showing ${many}, out of ${n(total)} citations in all${grouped}.`
+        : `Showing ${many}${grouped}.`);
+      body.appendChild(state);
+
+      // The only place the disagreement between the files is visible,
+      // and it is said out loud rather than papered over. Shown once,
+      // and only when the figure actually moved under the reader.
+      if (summaryTotal && summaryTotal !== total) {
+        body.appendChild(el("p", "fa-rc-detail-note",
+          `Counted from the citation records themselves. A separate summary pass counted ${n(summaryTotal)} for this pair, and the records are the authority here.`));
+      }
+
+      const list = el("ul", "fa-rc-groups");
+      body.appendChild(list);
+      const progress = el("p", "fa-rc-progress");
+      const more = el("button", "fa-fp-more");
+      more.type = "button";
+      const chunk = makeChunker(groupsFor(rows, works), works, list, nounFor);
+      const step = () => {
+        const first = chunk.render(FULL_CHUNK);
+        const done = chunk.done();
+        let where;
+        if (!done) where = `${n(chunk.shown())} of ${n(count)} shown.`;
+        else if (count === 1) where = "That is the only one.";
+        else where = `All ${n(count)} shown.`;
+        progress.textContent = where;
+        more.hidden = done;
+        if (!done) {
+          more.textContent = `Show ${n(Math.min(FULL_CHUNK, count - chunk.shown()))} more`;
+        }
+        return first;
+      };
+      more.addEventListener("click", () => {
+        const first = step();
+        say(progress.textContent);
+        if (first) first.focus({ preventScroll: false });
+      });
+      body.appendChild(progress);
+      body.appendChild(more);
+      step();
+      say(`${state.textContent} ${progress.textContent}`);
+    }
+
+    function start() {
+      if (loading) return;
+      loading = true;
+      chipsDisabled(true);
+      paintLoading();
+      loadFull(fileSlug).then((data) => {
+        loading = false;
+        chipsDisabled(false);
+        if (data === NOT_PUBLISHED) { paintUnpublished(); return; }
+        // `to` is outbound only, so a "Cited by" pair is read out of
+        // the NEIGHBOUR's file under the page author's key. A miss here
+        // means the two files disagree about how to spell one of them,
+        // which is indistinguishable to a reader from the pair never
+        // having been published, and is handled the same way.
+        const pair = data && data.to ? data.to[mapKey] : null;
+        const rows = pair && Array.isArray(pair.rows) ? pair.rows : null;
+        if (!rows || !rows.length) { paintUnpublished(); return; }
+        const how = countVerbs(rows);
+        // rows.length, not the declared `n`. They matched on all 216
+        // pairs measured, and if they ever stop matching the count on
+        // screen has to be the count of what is on screen.
+        full = { rows, works: data.works || {}, how, total: rows.length };
+        if (active && !how[active]) active = "";
+        sync(full.total, how.refutes || 0);
+        paintFull();
+      }).catch(() => {
+        loading = false;
+        chipsDisabled(false);
+        paintFailed();
+      });
+    }
+
+    function press(key) {
+      if (full) { active = key; paintFull(); return; }
+      if (loading) return;
+      active = key;
+      start();
+    }
+
+    paintSample();
   }
 
   let uid = 0;
@@ -473,7 +1027,14 @@
    * `opp`. The two files were built from different sweeps and disagree
    * slightly (Ames on Bellarmine: 2,920 against 2,917), so mixing them
    * would print one number on the row and a different one three lines
-   * below it. Ranking and bar width still come from nb. */
+   * below it. Ranking and bar width still come from nb.
+   *
+   * That is the figure a row is BORN with. If the reader then loads
+   * the full list for that pair, syncTotals rewrites this button and
+   * the refutation line beneath it from the records (2,924 and 2,078),
+   * because the row and the list under it are one reading and may not
+   * carry two totals. The bar is left alone: it is a proportion, not a
+   * figure, and nothing on screen states the number behind it. */
   function neighborList(rows, byKey, dir, pageName) {
     if (!rows.length) return "";
     const max = rows[0].w || 1;
@@ -591,6 +1152,35 @@
     else root2.appendChild(panel);
 
     const status = panel.querySelector(".fa-rc-status");
+    const say = (text) => { if (status) status.textContent = text; };
+
+    /* The page author's own two keys, resolved once. `s` and `fk` were
+     * identical on every row measured, so this is belt and braces
+     * rather than a real branch, but the full-file lookup is the one
+     * place where getting a key wrong yields a populated, plausible,
+     * wrong list instead of an empty one. */
+    const pageFile = (excerpts && (excerpts.s || excerpts.fk)) || libraryKey(name);
+    const pageKey = (excerpts && (excerpts.fk || excerpts.s)) || libraryKey(name);
+
+    // The row's figure and its refutation line, rewritten once the
+    // records are in hand. See § WHICH NUMBER WINS at the top.
+    function syncTotals(li, isIn, other, total, opp) {
+      const btn = li.querySelector(".fa-rc-open");
+      if (btn) {
+        btn.textContent = n(total);
+        btn.setAttribute("aria-label", isIn
+          ? `${other} names ${name} ${n(total)} times. Show the works and citations.`
+          : `${name} names ${other} ${n(total)} times. Show the works and citations.`);
+      }
+      const tag = refutationTag(opp, total);
+      let line = li.querySelector(".fa-rc-opp");
+      if (!tag) { if (line) line.remove(); return; }
+      if (!line) {
+        line = el("p", "fa-rc-opp");
+        li.insertBefore(line, li.querySelector(".fa-rc-detail"));
+      }
+      line.textContent = tag;
+    }
 
     // The detail is built on first press, not at render. Sixteen rows
     // each way against a payload that runs to 1,217 rows on Augustine
@@ -607,9 +1197,19 @@
       if (!row) return host;
       const nameEl = li.querySelector(".fa-rc-name");
       const other = nameEl ? nameEl.textContent : (row.a || "");
-      host.appendChild(isIn
-        ? detailFragment(row, other, name)
-        : detailFragment(row, name, other));
+      const neighbourKey = row.fk || row.s || "";
+      buildDetail(host, {
+        row,
+        citing: isIn ? other : name,
+        cited: isIn ? name : other,
+        // OUTBOUND ONLY, both times. "Also cites" is this author's own
+        // file read at the neighbour's key; "Cited by" is the
+        // neighbour's file read at this author's key.
+        fileSlug: isIn ? neighbourKey : pageFile,
+        mapKey: isIn ? pageKey : neighbourKey,
+        say,
+        sync(total, opp) { syncTotals(li, isIn, other, total, opp); },
+      });
       host.setAttribute("data-rc-filled", "1");
       return host;
     }
