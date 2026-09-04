@@ -37,8 +37,10 @@
        - [data-cn-root] wrapping everything. The script marks it bound.
        - [data-cn-shelf] — the shelf <select>. Ships EMPTY and disabled;
          the script writes all sixteen options from index.json and
-         enables it. A hard-coded list here would go stale against the
-         worker without anything failing.
+         enables it, plus a seventeenth, "All shelves", which the worker
+         does not serve and the script merges in the browser. A
+         hard-coded list here would go stale against the worker without
+         anything failing.
        - [data-cn-view] — one button per view. All three ship `hidden`;
          the script unhides only the views the shelf's `have` block
          actually lists, because a view a shelf lacks is a 404 rather
@@ -48,7 +50,12 @@
          script, because what the sections are depends on the view:
          Scripture for authors and works, heads of doctrine for
          doctrines. The markup carries "By Scripture" so the control
-         reads correctly before any script runs.
+         reads correctly before any script runs. The similarity button
+         is DISABLED rather than removed on the merged shelf, where the
+         fifteen shelves' coordinates are fifteen unrelated spaces.
+       - [data-cn-arrange-note] — the sentence that makes that disabled
+         control legible. A greyed button with no explanation reads as
+         breakage, so the note is the load-bearing half of the pair.
        - [data-cn-links] — one toggle for the edges, whose text is the
          current state ("Shown" / "Hidden") and whose aria-pressed says
          the same thing. Edges cross between sections in the regional
@@ -72,8 +79,13 @@
          category. Pressing one hides that category; colour is never the
          only channel.
        - [data-cn-caption] — the counts and the sentence explaining what
-         the current view plots.
-       - [data-cn-dossier] — the selected point.
+         the current view plots, plus, on the merged shelf, the caveat
+         about what its links cannot show.
+       - [data-cn-dossier] — the selected point, OR the selected link.
+         One rail, two things, never both: a point's dossier lists its
+         strongest links as buttons, and a link's lists its two ends as
+         buttons, which is how an edge is reached without a pointer and
+         how a reader gets back to where they were.
        - [data-cn-index] (a <details>), holding [data-cn-index-filter],
          [data-cn-index-note] and [data-cn-index-list]. This is the
          keyboard and screen-reader path: a canvas is opaque to
@@ -90,7 +102,7 @@
 
   <header class="cn-head">
     <h2 class="cn-title">Constellations</h2>
-    <p class="cn-lede">Sixteen shelves of the library, read for the Scripture they quote. Every point is an author, a work or a doctrine, filed under the part of the Bible it leans on hardest. Switch the arrangement to see the same points placed by how alike they quote instead.</p>
+    <p class="cn-lede">Sixteen shelves of the library, or all of them at once, read for the Scripture they quote. Every point is an author, a work or a doctrine, filed under the part of the Bible it leans on hardest. A line joins two that reach for the same passages. Switch the arrangement to see the same points placed by how alike they quote instead.</p>
   </header>
 
   {{!-- The controls. A <select> for the shelves rather than sixteen
@@ -136,6 +148,10 @@
   </div>
 
   <p class="cn-views-note" data-cn-views-note hidden></p>
+  {{!-- Why "By similarity" is greyed out on the merged shelf. Written
+        by the script and hidden everywhere else, because on a single
+        shelf the control works and there is nothing to explain. --}}
+  <p class="cn-views-note" data-cn-arrange-note hidden></p>
 
   <p class="cn-status" data-cn-status role="status" aria-live="polite" hidden></p>
   <p class="cn-error" data-cn-error role="alert" hidden></p>
@@ -164,7 +180,10 @@
             it does everywhere else on the site. Only a pinch or a held
             modifier zooms, and the buttons above mean nothing depends
             on the gesture being found. --}}
-      <p class="cn-hint">Drag to pan. Pinch, or hold Ctrl and scroll, to zoom. The positions come from the library, so the same shelf draws the same map every time.</p>
+      {{!-- The line about links names BOTH ways in, because the first
+            one does not exist on a phone and the second is also the
+            keyboard's path. --}}
+      <p class="cn-hint">Drag to pan. Pinch, or hold Ctrl and scroll, to zoom. Point at a line to see what it joins, or choose a point and read its strongest links beside the map. The positions come from the library, so the same shelf draws the same map every time.</p>
     </div>
 
     <aside class="cn-aside" aria-label="The selected point">

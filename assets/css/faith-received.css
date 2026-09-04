@@ -11943,6 +11943,18 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   color: var(--color-dark);
   border-bottom-color: var(--color-dark);
 }
+/* An arrangement that is unavailable on the current shelf. Struck
+   through as well as faded, the same pair of signals the switched-off
+   legend entries use, so the state does not rest on noticing a change
+   in opacity alone. The sentence in [data-cn-arrange-note] is what
+   actually explains it; this only has to stop the control looking
+   pressable. */
+.cn-view-btn:disabled {
+  opacity: 0.45;
+  text-decoration: line-through;
+  cursor: default;
+}
+.cn-view-btn:disabled:hover { color: var(--color-muted); }
 
 .cn-views-note,
 .cn-status {
@@ -12057,6 +12069,22 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   line-height: 1.5;
   color: var(--color-muted);
   flex: 1 1 260px;
+}
+/* The merged shelf's caveat about its links. On its own line under the
+   blurb rather than beside it (flex-basis 100%), because it corrects
+   the picture rather than describing it, and a caveat that shares a
+   line with the description reads as more of the description. Marked
+   with a rule on its leading edge, the same hairline the rest of the
+   panel uses to mean "aside". */
+.cn-caption-caveat {
+  flex: 1 1 100%;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin-top: 4px;
+  padding-left: 12px;
+  border-left: 1px solid var(--color-rule);
 }
 
 /* ── Legend, which is also the filter ─────────────────────────── */
@@ -12218,6 +12246,148 @@ a.cn-row-title { color: var(--color-primary-text); }
 }
 .cn-row-meta { font-size: 13px; }
 .cn-row-gloss { font-size: var(--tfr-meta); }
+
+/* ── The merged shelf's provenance ────────────────────────────────
+   Only ever rendered on "All shelves", where one point can stand for
+   the same name found on four of them. The second line is the honest
+   footnote about where the figures above came from, so it is set as
+   quiet as a footnote. */
+.cn-dossier-shelves {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.5;
+  color: var(--color-dark);
+  margin: 12px 0 0;
+}
+.cn-dossier-shelves-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 4px 0 0;
+}
+
+/* ── A link ───────────────────────────────────────────────────────
+   The rail's second job. A point's dossier lists its strongest links
+   here and a link's dossier lists its two ends, and both are the same
+   row: a name, then a line of apparatus under it. Flat editorial rows
+   with a hairline between them, the same shape as .cn-row above, never
+   a stack of little boxes (DESIGN §6.1).
+
+   Every one of these is a real <button>, because this list is the only
+   way onto an edge without a pointer: a 1px diagonal cannot be tabbed
+   to and cannot reliably be tapped. */
+.cn-links { list-style: none; margin: 0; padding: 0; }
+.cn-link {
+  margin: 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.cn-link-btn {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.cn-link-btn:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: -2px;
+}
+.cn-link-name {
+  display: block;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-primary-text);
+}
+.cn-link-btn:hover .cn-link-name { color: var(--color-dark); }
+.cn-link-meta {
+  display: block;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+.cn-links-note,
+.cn-links-none {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  margin: 10px 0 0;
+}
+
+/* The strength, given its own line and its own weight. It is the
+   authoritative number about a link (the shared-books list below is
+   deliberately not scored), so it is the one figure in the rail that is
+   allowed to be larger than the prose around it. */
+.cn-link-strength {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 12px 0 0;
+}
+.cn-link-figure {
+  font-family: var(--font-body);
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--color-dark);
+}
+.cn-link-word {
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+.cn-link-gloss {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 10px 0 0;
+}
+
+/* ── The books both ends lean on ──────────────────────────────────
+   Present only when the {view}-fp.json sidecar exists, which it does
+   not for every shelf, so every rule here has to be inert when the
+   markup is absent rather than leaving a gap behind. Rows, not a table:
+   two facts per book and the second is a sentence. */
+.cn-share { list-style: none; margin: 10px 0 0; padding: 0; }
+.cn-share-row {
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.cn-share-book {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-dark);
+}
+.cn-share-meta {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+/* The truncation caveat, and the "not published yet" line. Both are
+   corrections to what the reader would otherwise assume, so neither is
+   allowed to be smaller than the fine print above it. */
+.cn-share-note {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 10px 0 0;
+}
 
 /* ── The index ────────────────────────────────────────────────────
    The keyboard and screen-reader path. Full width under both columns,

@@ -60,6 +60,16 @@
  *          edges: [ [fromIndex, toIndex, weight], … ],
  *          cats:  [ { k, l } ] }
  *
+ *   /v1/mine/constellations/{shelfSlug}/{view}-fp.json   (OPTIONAL)
+ *     -> { version, shelf, view,
+ *          books: [ "psalms", "isaiah", … ],
+ *          fp: { "<node.a verbatim>": { n, t: [ [bookIndex, count], … ] } } }
+ *     The per-book citation profile behind a node, so a link can name
+ *     the books its two ends both lean on. `t` is the node's TOP 15
+ *     books descending, not a complete profile, and `n` is the node's
+ *     total across every book including the ones `t` does not list.
+ *     Read § THE SIDECAR below before using it for anything.
+ *
  * Four things about that payload are load-bearing, none of them are
  * uniform across the three views, and all four were measured against
  * the live endpoint rather than assumed:
@@ -90,6 +100,70 @@
  * numbers, and the section ordinal the rest carry is not something the
  * reader can land on. Any `#fragment` on the source href is dropped as
  * well, since it addresses the source site's own block ids.
+ *
+ * WHAT A LINE MEANS, AND HOW IT IS REACHED. The edge weight tracks the
+ * cosine similarity of log-damped per-book citation counts (r=0.88
+ * across 45 sampled pairs, measured 2026-09-04). The damping is the
+ * whole of it: on RAW counts those same pairs average 0.878, because
+ * every English divine quotes Psalms and Romans heavily, so undamped
+ * the map would say everyone matches everyone. So a line claims "these
+ * two reach for the same passages, not merely the same books", which is
+ * what the captions already say, and 0.36 to 0.95 is the range the
+ * worker emits.
+ *
+ * A line is inert until it is reached, and there are three ways in
+ * because there is no one way that works everywhere:
+ *
+ *   POINTER. hitTestEdge() is a point-to-segment distance test with a
+ *     7px tolerance, nearest-wins. Nodes are tested FIRST and always
+ *     win: a line passing under a dot must never steal that dot's
+ *     hover. Hovering paints the line, rings both ends and draws a
+ *     plate naming both, their regions, the strength and whether it
+ *     crosses. Clicking opens the same thing in the dossier.
+ *
+ *   TOUCH. There is no hover on a phone, so a tap does the selecting,
+ *     with a 16px tolerance rather than 7. But a 1px diagonal is a poor
+ *     touch target however generous the slop, so the reliable path on a
+ *     phone is the same one the keyboard uses: tap a point, then tap a
+ *     link in the "Strongest links" list its dossier now carries.
+ *
+ *   KEYBOARD. Through the two nodes an edge joins, NOT through a
+ *     parallel list of every edge. The index list below the plate
+ *     already exposes each point as a real button; a point's dossier
+ *     now lists its strongest links as real buttons; and a link's
+ *     dossier lists its two ends as real buttons, which is also how you
+ *     get back. Every edge is therefore reachable in three keystrokes
+ *     from a node that is already reachable. English Divines has 608
+ *     edges over 287 authors, and a flat 608-button list would be a
+ *     worse disclosure than the 200-button cap the index already needs.
+ *     Focus moves the highlight on the map, exactly as the index list
+ *     does, so "where is this link?" is answerable without a pointer.
+ *
+ * THE SIDECAR, and why it is optional. {view}-fp.json is generated
+ * separately and does not exist for every shelf (measured 2026-09-04:
+ * 404 on all nine shelf/view pairs sampled). It is fetched lazily, only
+ * once edges are actually on screen, never awaited, and never allowed
+ * to fail loudly. Everything above works without it; with it, a link
+ * also names the books both ends lean on.
+ *
+ * Two honesty rules govern how it is read, and both are easy to break:
+ *
+ *   - `t` is a TOP-15 TRUNCATION. Two writers can share a book that is
+ *     on neither of their top-15 lists, so the overlap shown is the
+ *     overlap that is visible, never the whole of it, and the copy says
+ *     so. A book missing from the list is not a book neither cites.
+ *   - No score is computed from it. A cosine over two truncated vectors
+ *     is not the payload's weight and would disagree with it; the
+ *     weight the worker shipped is the only number quoted as the
+ *     strength. The sidecar names books and proportions, nothing else.
+ *
+ *   A node absent from `fp` is UNKNOWN, not zero. It says the profile
+ *   has not been published, which is a different sentence from "these
+ *   two share nothing" (FRONTEND §6.33).
+ *
+ * "ALL SHELVES" is merged in the browser; the worker serves no such
+ * payload. Read § mergeShelfPayloads for the three traps in doing that
+ * and for why it covers authors and doctrines but not works.
  *
  * ACCESS. Not gated, deliberately. These are static JSON files on a
  * public route; nothing here spends an embedding call or reaches an
@@ -131,6 +205,7 @@
   const layoutBtns = Array.from(root.querySelectorAll("[data-cn-layout]"));
   const linksBtn = root.querySelector("[data-cn-links]");
   const viewsNote = root.querySelector("[data-cn-views-note]");
+  const arrangeNote = root.querySelector("[data-cn-arrange-note]");
   const statusEl = root.querySelector("[data-cn-status]");
   const errorEl = root.querySelector("[data-cn-error]");
   const stageEl = root.querySelector("[data-cn-stage]");
@@ -286,6 +361,63 @@
   };
   const NODE_NOUN = { authors: "author", works: "work", doctrines: "topic" };
 
+  /* ── Copy for a link ──────────────────────────────────────────────
+   *
+   * What a section IS depends on the view, so the sentence about
+   * crossing one has to as well: the authors and works views file by
+   * Scripture, the doctrines view by head of doctrine.
+   */
+  const SECTION_NOUN = {
+    authors: "part of Scripture",
+    works: "part of Scripture",
+    doctrines: "head of doctrine",
+  };
+  const LINK_GLOSS = {
+    authors:
+      "A line joins two authors who reach for the same passages, not merely the same books.",
+    works: "A line joins two works that reach for the same passages, not merely the same books.",
+    doctrines: "A line joins two topics that rest on the same texts.",
+  };
+
+  /* ── Copy for the merged shelf ────────────────────────────────────
+   *
+   * Three separate claims, kept apart on purpose. The blurb says what
+   * the picture IS. The caveat says the one thing it cannot show, and
+   * is the reason the lines start hidden there. The arrange note says
+   * why an arrangement that works everywhere else is unavailable.
+   * Folding any of them into another would bury it.
+   */
+  const ALL_BLURB = {
+    authors:
+      "Every author the library has been read for, on one plate, each filed under the part of Scripture they quote most. A name found on more than one shelf is drawn once.",
+    doctrines:
+      "Every doctrinal topic the library has been read for, on one plate, each filed under the head of doctrine it belongs to. A topic found on more than one shelf is drawn once.",
+  };
+
+  /* The honest sentence about the edges, and the reason for it. Every
+   * edge in every payload was computed WITHIN one shelf; no cross-shelf
+   * pair was ever measured upstream. Drawing them merged would look
+   * corpus-wide and would be missing precisely the cross-tradition
+   * links this view exists to look for. */
+  const ALL_LINKS_CAVEAT =
+    "Links are hidden here because none of them cross a shelf. Every pair was measured inside a single shelf, so the map can only join two writers who already share one. The cross-tradition links this view exists to look for were never computed.";
+
+  const ALL_ARRANGE_NOTE =
+    "By similarity is unavailable on all shelves. Each shelf was placed in a coordinate space of its own, so laying fifteen of them over each other would claim a closeness that was never measured.";
+
+  const ALL_VIEWS_NOTE =
+    "All shelves covers authors and doctrines. Works is left out: hundreds of works in the library share a title with another work, so there is no safe way to merge them into single points.";
+
+  /* The four bands are the SAME partition the drawing uses (EDGE_TIERS
+   * below), so the word a reader is given for a line and the weight of
+   * ink it was drawn with cannot disagree. */
+  function strengthWord(w) {
+    if (w <= 0.5) return "faint";
+    if (w <= 0.65) return "moderate";
+    if (w <= 0.8) return "strong";
+    return "very strong";
+  }
+
   /* ── The canonical fallback orders ────────────────────────────────
    *
    * NOT the primary source of the region order: `cats` is, and it has
@@ -305,6 +437,46 @@
   const LAYOUT_REGIONS = "regions";
   const LAYOUT_SIMILARITY = "similarity";
 
+  /* ── "All shelves" ────────────────────────────────────────────────
+   *
+   * A synthetic shelf. The worker serves no merged payload, so this one
+   * is built in the browser out of every shelf that has the view, and
+   * the slug is a sentinel that can never collide with a real one
+   * (every real slug is a lowercase word, measured across all sixteen).
+   *
+   * TWO of the three views only, and the missing one is `works`.
+   * Measured 2026-09-04 against the live worker:
+   *
+   *   authors     0.18 MB on the wire, 0.74 MB parsed, 1,690 node rows
+   *   doctrines   0.50 MB on the wire, 2.09 MB parsed, 1,898 node rows
+   *   works       0.62 MB on the wire, 3.35 MB parsed, 9,552 node rows
+   *
+   * so weight is not what rules works out. IDENTITY is. The merge key
+   * has to be the node's `a` string, and in the authors and doctrines
+   * views that string IS the identity: a person is their name, a topic
+   * is its name. In the works view `a` is a truncated title, and titles
+   * are not identities. Those 9,552 rows carry only 6,494 distinct `a`
+   * strings, and 477 of those names stand for more than one distinct
+   * work slug: "Letters" covers 114 different works, "Opera" 64,
+   * "Sermons" 50. Merging on `a` there would fuse 114 unrelated books
+   * into one point and add their citation counts together. Merging on
+   * `w` instead avoids that and still leaves 7,845 points, about
+   * two-thirds of them in the Acts & Paul region, which is a grey field
+   * rather than a map. Neither is worth shipping, so works keeps its
+   * fifteen separate shelves and the note under the picker says so.
+   */
+  const ALL_SLUG = "all";
+  const ALL_LABEL = "All shelves";
+  const ALL_VIEWS = ["authors", "doctrines"];
+
+  // "all" reads well as a shareable ?shelf= value and no shelf the
+  // worker serves uses it (checked against all sixteen). If one ever
+  // does, the real shelf wins and the merged option is simply not
+  // offered, rather than two entries answering to one slug.
+  function allSlugFree() {
+    return !shelves.some((s) => s && s.slug === ALL_SLUG);
+  }
+
   /* ── State ────────────────────────────────────────────────────── */
 
   let shelves = [];
@@ -319,6 +491,35 @@
   let hovered = -1;
   let loadToken = 0;
   let indexBuilt = false;
+
+  /* The link half of the same pair. A node selection and a link
+   * selection are mutually exclusive: both own the dossier, and two
+   * things in one rail is two things claiming to be what you chose.
+   *
+   * `adj` is node index -> the indices of its edges, sorted strongest
+   * first. Built once per payload rather than scanned per render: the
+   * dossier asks for one node's links on every selection, and rescanning
+   * 17,715 edges to answer that is work done over and over for an answer
+   * that cannot change until the payload does. */
+  let selectedEdge = -1;
+  let hoveredEdge = -1;
+  let adj = [];
+
+  /* The optional per-book profile. `fp` is null until a sidecar has
+   * been read; `fpKey` is the shelf/view it belongs to, so a stale
+   * response cannot be adopted onto a map it does not describe. */
+  let fp = null;
+  let fpKey = "";
+  let fpToken = 0;
+  const fpCache = new Map(); // url -> payload, or null for "asked, not there"
+
+  // The merged shelf, and the reader's arrangement from before they
+  // opened it. Similarity is not offered there (see similarityOK), and
+  // silently keeping them on regions afterwards would lose a choice
+  // they made.
+  let isAll = false;
+  let preAllLayout = "";
+  let allMissed = 0;
 
   /* The arrangement, and the positions it produced.
    *
@@ -396,18 +597,39 @@
 
   /* ── Geometry ─────────────────────────────────────────────────── */
 
+  /*
+   * Reads the stage's box and sizes the canvas to it.
+   *
+   * The two guarded assignments are load-bearing and were not always
+   * guarded. Writing to canvas.width or canvas.height CLEARS the whole
+   * canvas, and it does so even when the value written is the value
+   * already there. This function runs on every ResizeObserver and
+   * window-resize delivery, and almost all of those report the same box
+   * as last time; onResize() then returns early precisely because
+   * nothing changed, so nothing redraws. An unguarded assignment here
+   * therefore wipes a fully drawn map and leaves it wiped.
+   *
+   * Measured 2026-09-04 in the harness: an observer delivery arrived
+   * 1.8s after load, long after the last paint, and blanked a map that
+   * had drawn correctly twice. It reads exactly like a failed fetch and
+   * is not one.
+   */
   function measure() {
     const rect = stageEl.getBoundingClientRect();
     cssW = Math.max(0, Math.round(rect.width));
     cssH = Math.max(0, Math.round(rect.height));
     if (!cssW || !cssH) return false;
     const dpr = Math.min(3, Math.max(1, window.devicePixelRatio || 1));
-    canvas.width = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
+    const bw = Math.round(cssW * dpr);
+    const bh = Math.round(cssH * dpr);
+    if (canvas.width !== bw) canvas.width = bw;
+    if (canvas.height !== bh) canvas.height = bh;
     canvas.style.width = `${cssW}px`;
     canvas.style.height = `${cssH}px`;
     // setTransform, not scale(): this runs on every resize and a
-    // cumulative scale() would compound.
+    // cumulative scale() would compound. Idempotent, so it is safe to
+    // re-apply on the passes that changed nothing, and necessary on the
+    // ones that did.
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return true;
   }
@@ -899,6 +1121,39 @@
     }
     if (anyRing) ctx.stroke();
 
+    /* The marked link, drawn ON TOP of the points rather than under
+     * them with the rest of the field. A line the reader is pointing at
+     * has stopped being background and has to be followable across a
+     * crowded region.
+     *
+     * In INK at 2px, not in the accent. The accent is 2.38:1 on this
+     * cream and fails WCAG 1.4.11 as a graphical object, which is why
+     * it was kept out of the category ramp; ink is 12.56:1 and is
+     * unmistakable against a field drawn at 0.07 to 0.26 alpha. The
+     * accent still does its one job, marking the ends of the link the
+     * reader CHOSE as opposed to the one they are merely over.
+     *
+     * Drawn whether or not the field is switched on. On the merged
+     * shelf the lines start hidden, and being able to pull up one link
+     * at a time without the wash is the good way to read that map. */
+    const markEdge = hoveredEdge >= 0 ? hoveredEdge : selectedEdge;
+    if (markEdge >= 0 && markEdge < edges.length) {
+      const me = edges[markEdge];
+      const ma = me[0];
+      const mb = me[1];
+      if (isVisible(nodes[ma]) && isVisible(nodes[mb])) {
+        ctx.strokeStyle = inkColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px[ma], py[ma]);
+        ctx.lineTo(px[mb], py[mb]);
+        ctx.stroke();
+        const endColor = markEdge === selectedEdge ? accentColor : inkColor;
+        ring(px[ma], py[ma], radiusAt(ma) + 4, endColor, 2);
+        ring(px[mb], py[mb], radiusAt(mb) + 4, endColor, 2);
+      }
+    }
+
     // Selection, then hover. Rings rather than a colour change, so the
     // category colour is never overwritten by interaction state.
     if (selected >= 0 && selected < nodes.length && isVisible(nodes[selected])) {
@@ -906,6 +1161,18 @@
     }
     if (hovered >= 0 && hovered < nodes.length && hovered !== selected && isVisible(nodes[hovered])) {
       ring(px[hovered], py[hovered], radiusAt(hovered) + 4, inkColor, 1.5);
+    }
+
+    // One plate at a time. A link's plate carries four lines and a
+    // point's carries one, and stacking both would cover the very
+    // corner of the map they are describing. A point being pointed at
+    // wins, since that is the more immediate of the two.
+    if (hovered < 0 && markEdge >= 0 && markEdge < edges.length) {
+      const me = edges[markEdge];
+      if (isVisible(nodes[me[0]]) && isVisible(nodes[me[1]])) {
+        drawEdgePlate(markEdge, px[me[0]], py[me[0]], px[me[1]], py[me[1]]);
+        return;
+      }
     }
 
     const labelFor = hovered >= 0 ? hovered : selected;
@@ -1055,6 +1322,89 @@
     ctx.fillText(label, lx + padX, ly + padY);
   }
 
+  /* ── The plate for a link ─────────────────────────────────────────
+   *
+   * The same plate as a point's, taller. Painted on the canvas for the
+   * same three reasons: the stage's overflow cannot clip it, it forces
+   * no layout on a pointer move, and it cannot sit under the pointer
+   * and swallow the click that was about to select the thing it
+   * describes. The dossier in the rail is the accessible copy of all of
+   * this, and the persistent one.
+   *
+   * Anchored at the segment's MIDPOINT rather than at the pointer.
+   * Following the pointer along a line makes the plate jitter over the
+   * whole plate; anchoring it to the thing it is about holds it still
+   * while the reader traces the line, and the ends are ringed anyway.
+   */
+  function edgePlateLines(j) {
+    const f = edgeFacts(j);
+    if (!f) return [];
+    const out = [f.nameA, f.nameB];
+    out.push(
+      f.bothKnown && !f.crosses
+        ? `Both in ${f.regionA}`
+        : `${f.regionA} to ${f.regionB}`
+    );
+    out.push(
+      `${f.weight.toFixed(2)}, ${f.word}${f.bothKnown && f.crosses ? ", crosses sections" : ""}`
+    );
+    // Only when the sidecar is there and has both of them. Without it
+    // the plate is three facts rather than four, which is the whole of
+    // the degradation.
+    const res = sharedBooks(f.nameA, f.nameB);
+    if (res && res.rows && res.rows.length) {
+      const names = res.rows.slice(0, 3).map((r) => bookLabel(r.book)).filter(Boolean);
+      if (names.length) out.push(`Both lean on ${names.join(", ")}`);
+    }
+    return out;
+  }
+
+  function drawEdgePlate(j, ax, ay, bx, by) {
+    const lines = edgePlateLines(j);
+    if (!lines.length) return;
+    const fontSize = 12;
+    const lead = 16;
+    ctx.font = `${fontSize}px "Source Serif Pro", Georgia, serif`;
+    ctx.textBaseline = "top";
+    const padX = 8;
+    const padY = 7;
+
+    // Clipped to the STAGE, not to a character count. Early-modern
+    // titles run to eighty words and a plate wider than the plate it is
+    // drawn on cannot be clamped back onto it (MOBILE M2: at 375px the
+    // stage is 335px wide and two full titles would be four times
+    // that).
+    const room = Math.max(60, cssW - 40 - padX * 2);
+    let widest = 0;
+    const clipped = lines.map((line) => {
+      const s = clipToWidth(String(line == null ? "" : line), room);
+      const wl = ctx.measureText(s).width;
+      if (wl > widest) widest = wl;
+      return s;
+    });
+    const w = widest + padX * 2;
+    const h = clipped.length * lead + padY * 2;
+
+    // Off the midpoint, then clamped. A plate that ran off the stage
+    // would be cropped by the overflow, and one that overhung the top
+    // would take its first line with it.
+    let lx = (ax + bx) / 2 + 12;
+    let ly = (ay + by) / 2 - h / 2;
+    if (lx + w > cssW - 4) lx = (ax + bx) / 2 - 12 - w;
+    if (lx < 4) lx = 4;
+    if (ly < 4) ly = 4;
+    if (ly + h > cssH - 4) ly = Math.max(4, cssH - 4 - h);
+
+    ctx.globalAlpha = 0.94;
+    ctx.fillStyle = inkColor;
+    ctx.fillRect(lx, ly, w, h);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = paperColor;
+    for (let i = 0; i < clipped.length; i++) {
+      ctx.fillText(clipped[i], lx + padX, ly + padY + i * lead);
+    }
+  }
+
   /* ── Hit testing ──────────────────────────────────────────────────
    *
    * A linear scan. At 2,600 nodes that is a few thousand comparisons
@@ -1084,6 +1434,364 @@
       }
     }
     return best;
+  }
+
+  /* ── Hit testing a line ───────────────────────────────────────────
+   *
+   * The hard half. A node is a disc and a hit is one distance; an edge
+   * is a thin diagonal and a hit is the distance from the pointer to
+   * the nearest point ON THE SEGMENT, which is the projection clamped
+   * to the segment's ends. Clamping is what stops the infinite line
+   * through two dots in one corner from being "hovered" from the
+   * opposite corner.
+   *
+   * Two rules that are not negotiable and are enforced at the CALL
+   * SITES rather than here, so they cannot be forgotten in one of them:
+   * a node is tested first and always wins, and where several lines are
+   * within tolerance the NEAREST is taken rather than the first found.
+   *
+   * The tolerance is passed in because a hover and a tap are not the
+   * same gesture. 7px for a mouse is generous enough to catch a line
+   * without the pointer feeling sticky in a dense region; a tap is
+   * deliberate and imprecise, so it gets 16.
+   *
+   * Cost. The scan is linear, like the node one, but the constant is
+   * bigger: 3,753 edges on English Divines works and 17,715 on a merged
+   * doctrines map. The bounding-box reject before the projection is
+   * what keeps that cheap. Almost every edge fails one of the four
+   * comparisons and never reaches the arithmetic, because a segment's
+   * box is nowhere near the pointer for all but a handful of them.
+   */
+  const EDGE_TOL_HOVER = 7;
+  const EDGE_TOL_TAP = 16;
+  const EDGE_TOL_CLICK = 9;
+
+  function segDist2(px, py, ax, ay, bx, by) {
+    const vx = bx - ax;
+    const vy = by - ay;
+    const wx = px - ax;
+    const wy = py - ay;
+    const vv = vx * vx + vy * vy;
+    // A zero-length segment (two points stacked on one coordinate) is
+    // the distance to that point, not a division by zero.
+    let t = vv > 0 ? (wx * vx + wy * vy) / vv : 0;
+    if (t < 0) t = 0;
+    else if (t > 1) t = 1;
+    const dx = wx - t * vx;
+    const dy = wy - t * vy;
+    return dx * dx + dy * dy;
+  }
+
+  function hitTestEdge(mx, my, tol) {
+    // A line that is not on screen cannot be pointed at. The reader can
+    // switch the whole field off, and a hover that still fired there
+    // would report something invisible.
+    if (!edgesOn || !edges.length || !nodes.length) return -1;
+    const s = scale();
+    const ox = cssW / 2 + panX;
+    const oy = cssH / 2 + panY;
+    const tol2 = tol * tol;
+    let best = -1;
+    let bestDist = Infinity;
+    for (let i = 0; i < edges.length; i++) {
+      const e = edges[i];
+      const a = e[0];
+      const b = e[1];
+      // Same rule the drawing uses: an edge is gone when either end's
+      // category is switched off, so the legend cannot leave a line
+      // hoverable that is not painted.
+      if (!isVisible(nodes[a]) || !isVisible(nodes[b])) continue;
+      const ax = (posX[a] - cx) * s + ox;
+      const ay = (posY[a] - cy) * s + oy;
+      const bx = (posX[b] - cx) * s + ox;
+      const by = (posY[b] - cy) * s + oy;
+      if (mx < (ax < bx ? ax : bx) - tol || mx > (ax > bx ? ax : bx) + tol) continue;
+      if (my < (ay < by ? ay : by) - tol || my > (ay > by ? ay : by) + tol) continue;
+      const d2 = segDist2(mx, my, ax, ay, bx, by);
+      if (d2 <= tol2 && d2 < bestDist) {
+        bestDist = d2;
+        best = i;
+      }
+    }
+    return best;
+  }
+
+  // A tap and a click are different tolerances, and a stylus is a tap.
+  function tapTolerance(e) {
+    const t = e && e.pointerType;
+    return t === "touch" || t === "pen" ? EDGE_TOL_TAP : EDGE_TOL_CLICK;
+  }
+
+  /* ── What a link says ─────────────────────────────────────────────
+   *
+   * One reader for both surfaces. The plate painted on the canvas and
+   * the dossier in the rail must never be able to disagree about a
+   * strength or a region, so neither of them reads the edge array. */
+  function edgeFacts(i) {
+    if (i < 0 || i >= edges.length) return null;
+    const e = edges[i];
+    const ia = e[0];
+    const ib = e[1];
+    const a = nodes[ia];
+    const b = nodes[ib];
+    if (!a || !b) return null;
+    const ka = catKeyOf(a);
+    const kb = catKeyOf(b);
+    const w = Number(e[2]);
+    return {
+      ia,
+      ib,
+      a,
+      b,
+      nameA: a.a || "Untitled",
+      nameB: b.a || "Untitled",
+      regionA: catLabel(ka),
+      regionB: catLabel(kb),
+      // Two points with no category at all are not "in the same
+      // section": neither of them is in one. Unclassified is the
+      // absence of an answer, not a seventh answer (see the drawing).
+      crosses: ka !== kb || !ka || !kb,
+      bothKnown: !!ka && !!kb,
+      weight: isFinite(w) ? w : 0,
+      word: strengthWord(isFinite(w) ? w : 0),
+    };
+  }
+
+  function buildAdjacency() {
+    adj = new Array(nodes.length);
+    for (let i = 0; i < edges.length; i++) {
+      const e = edges[i];
+      const a = e[0];
+      const b = e[1];
+      if (!adj[a]) adj[a] = [];
+      if (!adj[b]) adj[b] = [];
+      adj[a].push(i);
+      adj[b].push(i);
+    }
+    for (let i = 0; i < adj.length; i++) {
+      if (!adj[i]) continue;
+      // Strongest first, ties broken on the edge index so the list is
+      // the same on every load.
+      adj[i].sort((p, q) => (edges[q][2] || 0) - (edges[p][2] || 0) || p - q);
+    }
+  }
+
+  // The links off one node that are still on the map. A category
+  // switched off in the legend takes its lines with it, here as well as
+  // in the drawing, or the dossier would offer a link to a point the
+  // reader has just hidden.
+  function visibleLinksFor(i) {
+    const list = adj[i];
+    if (!list) return [];
+    const out = [];
+    for (let k = 0; k < list.length; k++) {
+      const e = edges[list[k]];
+      if (!isVisible(nodes[e[0]]) || !isVisible(nodes[e[1]])) continue;
+      out.push(list[k]);
+    }
+    return out;
+  }
+
+  /* ── The book profiles, if there are any ──────────────────────────
+   *
+   * Progressive enhancement, and it has to be real progressive
+   * enhancement rather than the kind that only degrades in theory: the
+   * sidecar 404s on every shelf as this is written, so the path with no
+   * sidecar is the ONLY path that runs today and it has to be the good
+   * one. Nothing below is awaited by the map, nothing surfaces an
+   * error, and a link's dossier is complete without any of it.
+   *
+   * The vocabulary is per-file. A merged map reads fifteen of these and
+   * their `books` arrays are not promised to agree, so the merge remaps
+   * every index into one shared vocabulary rather than trusting slot 0
+   * to mean the same book in all of them.
+   */
+  function normaliseFingerprint(payload, books, out) {
+    if (!payload || typeof payload !== "object") return;
+    const vocab = Array.isArray(payload.books) ? payload.books : null;
+    const table = payload.fp;
+    if (!vocab || !table || typeof table !== "object") return;
+    // Local slot -> shared slot, computed once per file.
+    const remap = new Array(vocab.length);
+    for (let i = 0; i < vocab.length; i++) {
+      const slug = typeof vocab[i] === "string" ? vocab[i] : "";
+      if (!slug) {
+        remap[i] = -1;
+        continue;
+      }
+      let at = books.index[slug];
+      if (typeof at !== "number") {
+        at = books.list.length;
+        books.list.push(slug);
+        books.index[slug] = at;
+      }
+      remap[i] = at;
+    }
+    const names = Object.keys(table);
+    for (let k = 0; k < names.length; k++) {
+      const name = names[k];
+      const entry = table[name];
+      if (!entry || typeof entry !== "object") continue;
+      const total = Number(entry.n);
+      const pairs = Array.isArray(entry.t) ? entry.t : [];
+      if (!isFinite(total) || total <= 0) continue;
+      // Where a name arrives from more than one shelf, keep the reading
+      // with the most citations behind it, mirroring exactly how the
+      // node itself was merged. Two halves of one writer must not be
+      // described by one shelf's profile and sized by another's.
+      const held = out[name];
+      if (held && held.n >= total) continue;
+      const counts = {};
+      for (let p = 0; p < pairs.length; p++) {
+        const pair = pairs[p];
+        if (!Array.isArray(pair)) continue;
+        const slot = remap[pair[0]];
+        const c = Number(pair[1]);
+        if (typeof slot !== "number" || slot < 0 || !isFinite(c) || c <= 0) continue;
+        counts[slot] = c;
+      }
+      out[name] = { n: total, counts };
+    }
+  }
+
+  function fpUrlFor(slug, v) {
+    return `${BASE}/${encodeURIComponent(slug)}/${encodeURIComponent(v)}-fp.json`;
+  }
+
+  // Cached BOTH ways. A 404 is an answer, and re-asking for it on every
+  // shelf switch is fifteen requests for a file that is not there.
+  function getFingerprint(url) {
+    if (fpCache.has(url)) return Promise.resolve(fpCache.get(url));
+    return getJSON(url).then(
+      (json) => {
+        fpCache.set(url, json);
+        return json;
+      },
+      () => {
+        fpCache.set(url, null);
+        return null;
+      }
+    );
+  }
+
+  /*
+   * Called when edges become relevant, not when the map loads. On a
+   * single shelf that is immediately after the payload lands, because
+   * links are shown by default there. On the merged shelf links start
+   * hidden, so nothing is fetched until the reader turns them on or
+   * opens one, and a reader who never touches a line never pays for
+   * fifteen requests.
+   */
+  function ensureFingerprints() {
+    if (!shelfSlug || !view) return;
+    const key = `${shelfSlug}/${view}`;
+    if (fpKey === key) return;
+    fpKey = key;
+    fp = null;
+    const token = ++fpToken;
+    const slugs = isAll ? allShelvesFor(view).map((s) => s.slug) : [shelfSlug];
+    if (!slugs.length) return;
+    Promise.all(slugs.map((s) => getFingerprint(fpUrlFor(s, view))))
+      .then((results) => {
+        if (token !== fpToken) return;
+        const books = { list: [], index: Object.create(null) };
+        const out = Object.create(null);
+        results.forEach((r) => normaliseFingerprint(r, books, out));
+        if (!books.list.length) return;
+        fp = { books: books.list, byName: out };
+        // Whatever is on screen was rendered without this and is now
+        // out of date by one section. Only the dossier reads it.
+        if (selectedEdge >= 0) renderLinkDossier(selectedEdge);
+        if (hoveredEdge >= 0) draw();
+      })
+      .catch(() => {
+        /* Every branch above already swallowed its own failure; this is
+           the belt for a throw inside the merge itself. The map is
+           unaffected and the dossier stays on its no-sidecar copy. */
+      });
+  }
+
+  /* ── The books two points both lean on ────────────────────────────
+   *
+   * Proportions, not counts, because `n` runs from a single treatise to
+   * a lifetime of annotation and "412 citations of Romans" says nothing
+   * without knowing whether that is most of a writer or a rounding
+   * error. Each side is given as its own share of its own total.
+   *
+   * Ranked on the SMALLER of the two shares. That is the one number
+   * that means "both of them lean on this at least this much"; ranking
+   * on the sum would let a book that is 40% of one and 1% of the other
+   * outrank one that is 15% of each, which is the opposite of shared.
+   *
+   * What this deliberately does NOT do is score the pair. A cosine over
+   * two fifteen-element truncations is not the weight the worker
+   * computed over the whole profile and would quietly disagree with the
+   * number beside it. The weight is the score; this names books.
+   */
+  function sharedBooks(nameA, nameB) {
+    if (!fp) return null;
+    const A = fp.byName[nameA];
+    const B = fp.byName[nameB];
+    // Absent is UNKNOWN, never zero, and the caller has to be able to
+    // tell the two apart to say the right sentence.
+    if (!A || !B) {
+      const missing = [];
+      if (!A) missing.push(nameA);
+      if (!B) missing.push(nameB);
+      return { missing };
+    }
+    const rows = [];
+    const slots = Object.keys(A.counts);
+    for (let i = 0; i < slots.length; i++) {
+      const slot = slots[i];
+      const cb = B.counts[slot];
+      if (!cb) continue;
+      const ca = A.counts[slot];
+      const shareA = ca / A.n;
+      const shareB = cb / B.n;
+      rows.push({
+        book: fp.books[slot] || "",
+        shareA,
+        shareB,
+        floor: shareA < shareB ? shareA : shareB,
+      });
+    }
+    rows.sort((p, q) => q.floor - p.floor || (p.book < q.book ? -1 : 1));
+    return { rows, missing: [] };
+  }
+
+  const SHARED_CAP = 6;
+
+  /* Book slugs arrive as the sidecar's own vocabulary and this file has
+   * never seen one (the route 404s everywhere as this is written), so
+   * the label is derived rather than looked up in a table that would be
+   * a guess. "1-corinthians" -> "1 Corinthians", "song-of-songs" ->
+   * "Song of Songs". Small words stay lowercase inside a title but
+   * never at the start of one. */
+  const BOOK_SMALL = { of: 1, the: 1, and: 1, to: 1 };
+
+  function bookLabel(slug) {
+    const s = String(slug == null ? "" : slug).trim();
+    if (!s) return "";
+    return s
+      .split("-")
+      .map((part, i) => {
+        if (!part) return "";
+        if (/^\d+$/.test(part)) return part;
+        if (i > 0 && BOOK_SMALL[part]) return part;
+        return part.charAt(0).toUpperCase() + part.slice(1);
+      })
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  // Rounded to whole points, with anything that rounds to nothing shown
+  // as "under 1%" rather than as "0%", which would read as none.
+  function pct(v) {
+    const p = v * 100;
+    if (!isFinite(p) || p <= 0) return "0%";
+    if (p < 1) return "under 1%";
+    return `${Math.round(p)}%`;
   }
 
   /* ── The dossier ──────────────────────────────────────────────── */
@@ -1118,6 +1826,24 @@
     dossierEl.appendChild(textEl("h3", "cn-dossier-title", node.t || node.a || "Untitled"));
     if (node.sub) dossierEl.appendChild(textEl("p", "cn-dossier-sub", node.sub));
 
+    // Only on the merged shelf, where one point can stand for the same
+    // name found on four different shelves. Said plainly, along with
+    // which shelf the figures above actually came from, because they
+    // are one shelf's reading rather than a total (see
+    // mergeShelfPayloads for why a total is not available).
+    if (Array.isArray(node._shelves) && node._shelves.length > 1) {
+      dossierEl.appendChild(
+        textEl("p", "cn-dossier-shelves", `On ${node._shelves.length} shelves: ${node._shelves.join(", ")}.`)
+      );
+      dossierEl.appendChild(
+        textEl(
+          "p",
+          "cn-dossier-shelves-note",
+          `The figures above are from ${node._shelfOf || "one shelf"}, which holds the most of this ${NODE_NOUN[view] || "point"}. The shelves overlap, so adding them together would count the same books twice.`
+        )
+      );
+    }
+
     // The `works` view is the only one whose node is itself a work, and
     // so the only one with a reader link of its own.
     if (node.w) {
@@ -1135,6 +1861,13 @@
         dossierEl.appendChild(p);
       }
     }
+
+    // Before the works list, not after it. This is the one part of the
+    // dossier that is a control rather than a reference, it is the only
+    // way to reach a line without a pointer, and a doctrines node can
+    // carry hundreds of rows underneath. Buried under those on a phone
+    // it would never be found.
+    renderNodeLinks(i);
 
     const rows = Array.isArray(node.rows) ? node.rows : [];
     if (!rows.length) return;
@@ -1170,8 +1903,235 @@
     dossierEl.appendChild(ul);
   }
 
+  /* ── A point's links ──────────────────────────────────────────────
+   *
+   * The touch and keyboard path onto the edges. Every one of these is a
+   * real button, so an edge is reachable by tabbing rather than by
+   * landing a fingertip on a 1px diagonal, and focusing one moves the
+   * highlight on the map exactly as focusing an index entry does.
+   *
+   * Capped at eight with the true total stated. A point in the Acts &
+   * Paul crowd can carry fifty links and a rail of fifty buttons is a
+   * list, not a dossier; the strongest eight are the ones that carry
+   * the claim, and the count says outright that they are not all of
+   * them.
+   */
+  const NODE_LINKS_CAP = 8;
+
+  function renderNodeLinks(i) {
+    if (!dossierEl) return;
+    const all = visibleLinksFor(i);
+    if (!all.length) {
+      // Only worth a line when there could have been links. On a
+      // payload with no edges at all this would be a fact about the
+      // whole map masquerading as a fact about this point.
+      if (edges.length) {
+        dossierEl.appendChild(textEl("p", "cn-dossier-heading", "Links"));
+        dossierEl.appendChild(
+          textEl("p", "cn-links-none", "Nothing on this map is linked to this point.")
+        );
+      }
+      return;
+    }
+
+    dossierEl.appendChild(textEl("p", "cn-dossier-heading", "Strongest links"));
+    const ul = document.createElement("ul");
+    ul.className = "cn-links";
+    const shown = all.slice(0, NODE_LINKS_CAP);
+    shown.forEach((ei) => {
+      const f = edgeFacts(ei);
+      if (!f) return;
+      // The other end, whichever end this node is.
+      const farName = f.ia === i ? f.nameB : f.nameA;
+      const farRegion = f.ia === i ? f.regionB : f.regionA;
+      const li = document.createElement("li");
+      li.className = "cn-link";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cn-link-btn";
+      btn.appendChild(textEl("span", "cn-link-name", farName));
+      const meta = `${farRegion} · ${f.weight.toFixed(2)} ${f.word}${f.crosses ? " · crosses sections" : ""}`;
+      btn.appendChild(textEl("span", "cn-link-meta", meta));
+      btn.addEventListener("click", () => selectEdge(ei, { centre: true }));
+      // Focus is the keyboard's hover here too: arrowing down this list
+      // lights each line on the map in turn, which is the only way
+      // somebody who cannot point gets "which line is this?".
+      btn.addEventListener("focus", () => {
+        hoveredEdge = ei;
+        draw();
+      });
+      btn.addEventListener("blur", () => {
+        if (hoveredEdge !== ei) return;
+        hoveredEdge = -1;
+        draw();
+      });
+      btn.addEventListener("mouseenter", () => {
+        hoveredEdge = ei;
+        draw();
+      });
+      btn.addEventListener("mouseleave", () => {
+        if (hoveredEdge !== ei) return;
+        hoveredEdge = -1;
+        draw();
+      });
+      li.appendChild(btn);
+      ul.appendChild(li);
+    });
+    dossierEl.appendChild(ul);
+    dossierEl.appendChild(
+      textEl(
+        "p",
+        "cn-links-note",
+        all.length > shown.length
+          ? `The ${shown.length} strongest of ${fmt(all.length)} links.`
+          : `${fmt(all.length)} ${all.length === 1 ? "link" : "links"}, strongest first.`
+      )
+    );
+  }
+
+  /* ── A link's dossier ─────────────────────────────────────────────
+   *
+   * What the hover plate says, in full, in real DOM: readable by a
+   * screen reader, persistent rather than lost the moment the pointer
+   * moves, and carrying the two buttons that are both the way onward
+   * and the way back.
+   */
+  function renderLinkDossier(j) {
+    if (!dossierEl) return;
+    const f = edgeFacts(j);
+    if (!f) {
+      renderDossierEmpty();
+      return;
+    }
+    dossierEl.textContent = "";
+    dossierEl.appendChild(textEl("p", "cn-dossier-kicker", "Link"));
+    dossierEl.appendChild(textEl("h3", "cn-dossier-title", `${f.nameA} and ${f.nameB}`));
+
+    const strength = document.createElement("p");
+    strength.className = "cn-link-strength";
+    strength.appendChild(textEl("span", "cn-link-figure", f.weight.toFixed(2)));
+    strength.appendChild(textEl("span", "cn-link-word", `of 1, ${f.word}`));
+    dossierEl.appendChild(strength);
+
+    const noun = SECTION_NOUN[view] || "section";
+    let where;
+    if (!f.bothKnown) {
+      where = `${f.regionA} and ${f.regionB}. One of these two has no ${noun} on record, so the map cannot say whether the line crosses.`;
+    } else if (f.crosses) {
+      where = `${f.regionA} and ${f.regionB}. This line crosses from one ${noun} to another, which is the kind worth looking at.`;
+    } else {
+      where = `Both sit under ${f.regionA}.`;
+    }
+    dossierEl.appendChild(textEl("p", "cn-dossier-sub", where));
+    dossierEl.appendChild(textEl("p", "cn-link-gloss", LINK_GLOSS[view] || LINK_GLOSS.authors));
+
+    renderShared(f);
+
+    dossierEl.appendChild(textEl("p", "cn-dossier-heading", "The two ends"));
+    const ul = document.createElement("ul");
+    ul.className = "cn-links";
+    [[f.ia, f.nameA, f.regionA], [f.ib, f.nameB, f.regionB]].forEach((end) => {
+      const li = document.createElement("li");
+      li.className = "cn-link";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cn-link-btn";
+      btn.appendChild(textEl("span", "cn-link-name", end[1]));
+      btn.appendChild(textEl("span", "cn-link-meta", end[2]));
+      btn.addEventListener("click", () => {
+        select(end[0], { centre: true });
+        syncIndexSelection();
+      });
+      btn.addEventListener("focus", () => {
+        hovered = end[0];
+        draw();
+      });
+      btn.addEventListener("blur", () => {
+        if (hovered !== end[0]) return;
+        hovered = -1;
+        draw();
+      });
+      li.appendChild(btn);
+      ul.appendChild(li);
+    });
+    dossierEl.appendChild(ul);
+  }
+
+  /* The books both ends lean on. Four states, and three of them are the
+   * ones that only exist on a bad day, so all four are written out
+   * rather than collapsed into "no data" (FRONTEND §6.33):
+   *
+   *   no sidecar at all      say nothing, the dossier is complete
+   *   sidecar, name missing  say the profile is not published
+   *   sidecar, no overlap    say neither top fifteen reaches the other
+   *   sidecar, overlap       name the books, both proportions each
+   */
+  function renderShared(f) {
+    const res = sharedBooks(f.nameA, f.nameB);
+    if (!res) return;
+    dossierEl.appendChild(textEl("p", "cn-dossier-heading", "Books they both lean on"));
+
+    if (res.missing && res.missing.length) {
+      dossierEl.appendChild(
+        textEl(
+          "p",
+          "cn-share-note",
+          res.missing.length > 1
+            ? "The book profiles for these two have not been published yet, so this cannot be said either way."
+            : `The book profile for ${res.missing[0]} has not been published yet, so this cannot be said either way.`
+        )
+      );
+      return;
+    }
+
+    if (!res.rows.length) {
+      dossierEl.appendChild(
+        textEl(
+          "p",
+          "cn-share-note",
+          "Neither one's fifteen most-cited books appears on the other's list. They may still share books further down, which is where the strength above is measured."
+        )
+      );
+      return;
+    }
+
+    const ul = document.createElement("ul");
+    ul.className = "cn-share";
+    res.rows.slice(0, SHARED_CAP).forEach((r) => {
+      const li = document.createElement("li");
+      li.className = "cn-share-row";
+      li.appendChild(textEl("span", "cn-share-book", bookLabel(r.book) || "Unnamed book"));
+      li.appendChild(
+        textEl(
+          "span",
+          "cn-share-meta",
+          `${pct(r.shareA)} of ${f.nameA}, ${pct(r.shareB)} of ${f.nameB}`
+        )
+      );
+      ul.appendChild(li);
+    });
+    dossierEl.appendChild(ul);
+
+    // The truncation, said outright. Fifteen books each is not a
+    // profile, and an overlap drawn from two truncated lists is a floor
+    // rather than a total.
+    const extra =
+      res.rows.length > SHARED_CAP
+        ? `The ${SHARED_CAP} most shared of ${res.rows.length} books in common. `
+        : "";
+    dossierEl.appendChild(
+      textEl(
+        "p",
+        "cn-share-note",
+        `${extra}Each share is that book's part of everything the writer cites. Only the fifteen books each one cites most were published, so this is the overlap that can be seen rather than all of it. The strength above was measured across the whole profile.`
+      )
+    );
+  }
+
   function select(i, opts) {
     selected = i;
+    selectedEdge = -1;
+    hoveredEdge = -1;
     renderDossier(i);
     if (i >= 0 && nodes[i]) {
       announce(`${nodes[i].a || "Point"} selected.`);
@@ -1180,8 +2140,27 @@
     draw();
   }
 
+  function selectEdge(j, opts) {
+    const f = edgeFacts(j);
+    if (!f) return;
+    selectedEdge = j;
+    selected = -1;
+    hoveredEdge = -1;
+    // A link the reader chose is worth fetching the books for even on
+    // the merged shelf, where nothing was fetched on load.
+    ensureFingerprints();
+    renderLinkDossier(j);
+    syncIndexSelection();
+    announce(
+      `Link selected. ${f.nameA} and ${f.nameB}, strength ${f.weight.toFixed(2)}, ${f.word}.`
+    );
+    if (opts && opts.centre) centreOnEdge(j);
+    draw();
+  }
+
   function clearSelection() {
     selected = -1;
+    selectedEdge = -1;
     renderDossierEmpty();
   }
 
@@ -1190,6 +2169,25 @@
     if (zoom < 2) zoom = 2;
     panX = -(posX[i] - cx) * scale();
     panY = -(posY[i] - cy) * scale();
+    clampPan();
+    syncTouchAction();
+  }
+
+  /*
+   * A link is centred on its MIDDLE and, unlike a point, it is not
+   * zoomed in on. A line reached from the keyboard often runs right
+   * across the plate, and magnifying its midpoint puts both of the
+   * things it is about off screen. Centring alone is what "show me
+   * where this is" means for something that has length.
+   */
+  function centreOnEdge(j) {
+    const e = edges[j];
+    if (!e || !cssW) return;
+    const a = e[0];
+    const b = e[1];
+    if (!nodes[a] || !nodes[b]) return;
+    panX = -((posX[a] + posX[b]) / 2 - cx) * scale();
+    panY = -((posY[a] + posY[b]) / 2 - cy) * scale();
     clampPan();
     syncTouchAction();
   }
@@ -1299,10 +2297,19 @@
       }
       return;
     }
+    /* Nodes first, and a node always wins. A line passing under a dot
+     * must never take that dot's hover: the dot is the thing with a
+     * dossier behind it, and a map where pointing at a person sometimes
+     * selects a line through them is a map that feels broken.
+     *
+     * The edge test only runs where the node test found nothing, which
+     * is also what keeps it off the hot path in a crowded region. */
     const hit = hitTest(p.x, p.y);
-    if (hit !== hovered) {
+    const edgeHit = hit >= 0 ? -1 : hitTestEdge(p.x, p.y, EDGE_TOL_HOVER);
+    if (hit !== hovered || edgeHit !== hoveredEdge) {
       hovered = hit;
-      canvas.style.cursor = hit >= 0 ? "pointer" : "default";
+      hoveredEdge = edgeHit;
+      canvas.style.cursor = hit >= 0 || edgeHit >= 0 ? "pointer" : "default";
       draw();
     }
   });
@@ -1322,12 +2329,28 @@
     endDrag(e);
     if (wasDrag) return;
     const p = localPoint(e);
+    /* The same order as the hover, for the same reason, and this is the
+     * whole of the touch story for edges: there is no hover on a phone,
+     * so the tap that selects a point also selects a line when it lands
+     * on one and on nothing else. The tolerance is 16px rather than the
+     * hover's 7 because a fingertip is not a cursor.
+     *
+     * A 1px diagonal is still a poor target at any tolerance, so this
+     * is the convenience path rather than the guaranteed one. The
+     * guaranteed one on a phone is the same as the keyboard's: tap a
+     * point, then tap a row in the "Strongest links" list its dossier
+     * carries. */
     const hit = hitTest(p.x, p.y);
     if (hit >= 0) {
       select(hit);
     } else {
-      clearSelection();
-      draw();
+      const edgeHit = hitTestEdge(p.x, p.y, tapTolerance(e));
+      if (edgeHit >= 0) {
+        selectEdge(edgeHit);
+      } else {
+        clearSelection();
+        draw();
+      }
     }
     syncIndexSelection();
   });
@@ -1335,8 +2358,9 @@
   canvas.addEventListener("pointercancel", endDrag);
   canvas.addEventListener("pointerleave", (e) => {
     endDrag(e);
-    if (hovered !== -1) {
+    if (hovered !== -1 || hoveredEdge !== -1) {
       hovered = -1;
+      hoveredEdge = -1;
       draw();
     }
   });
@@ -1423,8 +2447,18 @@
         btn.setAttribute("aria-pressed", off ? "false" : "true");
         btn.classList.toggle("is-off", off);
         // A selection that has just been filtered off the map must not
-        // stay in the dossier claiming to be on it.
+        // stay in the dossier claiming to be on it. A LINK goes when
+        // either of its ends goes, which is the same rule the drawing
+        // and the hit test both use.
         if (selected >= 0 && nodes[selected] && !isVisible(nodes[selected])) clearSelection();
+        if (selectedEdge >= 0) {
+          const se = edges[selectedEdge];
+          if (!se || !isVisible(nodes[se[0]]) || !isVisible(nodes[se[1]])) clearSelection();
+        }
+        hoveredEdge = -1;
+        // The links list inside an open dossier names points that may
+        // have just been hidden, so it is rebuilt rather than left.
+        if (selected >= 0) renderDossier(selected);
         renderIndex();
         renderCaption();
         draw();
@@ -1567,12 +2601,33 @@
     const links = edgesOn
       ? `${fmt(edges.length)} links`
       : `${fmt(edges.length)} links, hidden`;
-    captionEl.appendChild(textEl("span", "cn-caption-count", `${count}, ${links}`));
-    const blurb = layout === LAYOUT_REGIONS ? REGION_BLURB[view] : VIEW_BLURB[view];
+    const from = isAll ? ` from ${fmt(allShelvesFor(view).length - allMissed)} shelves` : "";
+    captionEl.appendChild(textEl("span", "cn-caption-count", `${count}${from}, ${links}`));
+    const blurb = isAll
+      ? ALL_BLURB[view] || ALL_BLURB.authors
+      : layout === LAYOUT_REGIONS
+        ? REGION_BLURB[view]
+        : VIEW_BLURB[view];
     captionEl.appendChild(textEl("span", "cn-caption-blurb", blurb || ""));
+
+    /* The one thing this view cannot do, in its own span rather than
+     * folded into the sentence above, because it is a caveat about the
+     * picture rather than a description of it. EVERY edge in the data
+     * was computed inside a single shelf: the worker never compared a
+     * pair from two different shelves, so a merged map that drew its
+     * lines the usual way would look corpus-wide while showing fifteen
+     * separate neighbourhoods, and would be silently missing exactly
+     * the cross-tradition links a reader opens this for. Hence the
+     * lines start hidden here (see setShelf) and hence this line. */
+    if (isAll) {
+      captionEl.appendChild(textEl("span", "cn-caption-caveat", ALL_LINKS_CAVEAT));
+    }
+
     if (canvas) {
-      const shelfName = (shelves.find((s) => s.slug === shelfSlug) || {}).shelf || "this shelf";
-      canvas.setAttribute("aria-label", `Map of ${count} on the ${shelfName} shelf.`);
+      const where = isAll
+        ? "across all shelves"
+        : `on the ${(shelves.find((s) => s.slug === shelfSlug) || {}).shelf || "this"} shelf`;
+      canvas.setAttribute("aria-label", `Map of ${count} ${where}.`);
     }
   }
 
@@ -1592,9 +2647,26 @@
   }
 
   function availableViews(slug) {
+    if (slug === ALL_SLUG) return ALL_VIEWS.filter((v) => allShelvesFor(v).length > 0);
     const s = shelves.find((x) => x.slug === slug);
     const have = (s && s.have) || {};
     return ["authors", "works", "doctrines"].filter((v) => Number(have[v]) > 0);
+  }
+
+  // The real shelves that carry a view, in the index's own order. The
+  // synthetic one is excluded, or it would try to merge itself.
+  function allShelvesFor(v) {
+    return shelves.filter((s) => s && s.slug !== ALL_SLUG && Number((s.have || {})[v]) > 0);
+  }
+
+  // Similarity reads node.x/node.y, and those coordinates are ONE
+  // shelf's embedding. Fifteen of them are fifteen unrelated coordinate
+  // spaces that happen to share a 0-1000 range, so overlaying them
+  // would put position, the map's loudest channel, to work saying
+  // something nobody computed. The regional arrangement is safe because
+  // the panel places those points itself from the category key.
+  function similarityOK() {
+    return !isAll;
   }
 
   function renderViewButtons() {
@@ -1610,6 +2682,24 @@
     // Said out loud rather than left as an unexplained gap: a shelf with
     // one view reads as a broken picker otherwise.
     if (!viewsNote) return;
+
+    // The merged shelf is missing a view for a reason of its own, and
+    // the "has been mined for" sentence below would be a lie about it:
+    // works IS mined on all fifteen shelves, it just cannot be merged.
+    if (isAll) {
+      const lines = [ALL_VIEWS_NOTE];
+      if (allMissed > 0) {
+        lines.push(
+          allMissed === 1
+            ? "One shelf could not be read just now, so it is not in this picture."
+            : `${fmt(allMissed)} shelves could not be read just now, so they are not in this picture.`
+        );
+      }
+      viewsNote.hidden = false;
+      viewsNote.textContent = lines.join(" ");
+      return;
+    }
+
     if (avail.length >= 3) {
       viewsNote.hidden = true;
       viewsNote.textContent = "";
@@ -1629,6 +2719,7 @@
     cats = [];
     catIndex = {};
     hiddenCats = {};
+    adj = [];
     posX = new Float64Array(0);
     posY = new Float64Array(0);
     cellSpan = new Float64Array(0);
@@ -1636,6 +2727,7 @@
     bounds = null;
     clearSelection();
     hovered = -1;
+    hoveredEdge = -1;
     renderLegend();
     renderCaption();
     if (indexBuilt) renderIndex();
@@ -1664,7 +2756,9 @@
     });
     hiddenCats = {};
     hovered = -1;
+    hoveredEdge = -1;
     clearSelection();
+    buildAdjacency();
     computeWeights();
     positionNodes();
     fit();
@@ -1707,11 +2801,203 @@
     if (token !== loadToken) return;
     setStatus("");
     adopt(payload);
+    // Links are shown by default on a single shelf, so the profiles
+    // behind them are wanted straight away. Not awaited, and a failure
+    // never reaches the map.
+    if (edgesOn) ensureFingerprints();
+  }
+
+  /* ── Merging the shelves ──────────────────────────────────────────
+   *
+   * The worker serves no merged payload, so this is the only place it
+   * exists. Three traps, all of them measured against the live
+   * endpoints on 2026-09-04 rather than reasoned about.
+   *
+   * ONE: the same name is on several shelves. 1,690 author rows across
+   * the fifteen shelves that have the view carry only 1,314 distinct
+   * names; one in four authors is on more than one shelf and James
+   * Ussher is on four (anglican, english-divines, puritan, reformed).
+   * Drawn as they arrive, he is four dots.
+   *
+   * TWO, and this is the one that looks like arithmetic and is not: the
+   * shelves OVERLAP rather than partition, so the figures cannot be
+   * added. 290 of the 326 repeated authors carry an IDENTICAL `n` on
+   * every shelf they appear on, which is the same works counted twice
+   * rather than two halves of a corpus. Where the figures do differ
+   * they nest: Ussher's english-divines row is 5,181 mined pages over
+   * 54 works, and his puritan (1,268 / 14) and anglican (3,913 / 40)
+   * rows add up to exactly that. So does Lancelot Andrewes's, and so
+   * does John Pearson's. Summing would have inflated 325 of the 326 by
+   * up to three times (Jeremiah Burroughs), which on a log radius ramp
+   * changes how big a writer is drawn and where they sit in the index.
+   *
+   * Taking the MAX is not the true union either: Ussher's reformed row
+   * adds a work that his english-divines row does not contain. But the
+   * union is not computable from what the payload carries, since
+   * nothing here says which works two shelves have in common, and the
+   * max is a floor rather than a fiction. So the representative is the
+   * single richest reading, its own figures are shown unaltered, and
+   * the dossier names the shelf they came from and says the shelves
+   * overlap. A number that is one shelf's honest total beats a sum that
+   * is nobody's.
+   *
+   * THREE: edges are indices INTO one payload's node array, so every
+   * one of them has to be remapped or they point at whoever now
+   * occupies that slot. Merging also makes duplicates of the edges
+   * themselves, since a pair on two shelves was measured twice: 3,435
+   * author edges collapse to 2,938 distinct pairs. The stronger reading
+   * is kept.
+   *
+   * The category vocabulary needs no remapping at all: all sixteen
+   * shelves declare the same seven keys in the same order in each
+   * vocabulary, verified across every payload the worker serves.
+   */
+  function bigger(a, b) {
+    const na = Number(a.n) || 0;
+    const nb = Number(b.n) || 0;
+    if (na !== nb) return na > nb;
+    const pa = Number(a.pg) || 0;
+    const pb = Number(b.pg) || 0;
+    return pa > pb;
+  }
+
+  function mergeCats(items) {
+    const seen = {};
+    const out = [];
+    items.forEach(({ payload }) => {
+      (Array.isArray(payload.cats) ? payload.cats : []).forEach((c) => {
+        if (!c || typeof c.k !== "string" || !c.k || seen[c.k]) return;
+        seen[c.k] = true;
+        out.push({ k: c.k, l: c.l });
+      });
+    });
+    // Sorted canonically rather than left in first-seen order, so the
+    // merged map hands out the same colour slots as every single shelf
+    // does and a reader switching between them keeps their bearings.
+    out.sort((a, b) => byCanonRank(a.k, b.k));
+    return out;
+  }
+
+  function mergeShelfPayloads(items) {
+    const order = [];
+    const byName = Object.create(null);
+    // shelf position -> (local node index -> merged node index)
+    const maps = items.map(() => Object.create(null));
+
+    items.forEach(({ shelf, payload }, si) => {
+      const list = Array.isArray(payload.nodes) ? payload.nodes : [];
+      const label = shelf.shelf || shelf.slug;
+      for (let i = 0; i < list.length; i++) {
+        const n = list[i];
+        if (!n || typeof n.a !== "string" || !n.a) continue;
+        let slot = byName[n.a];
+        if (!slot) {
+          slot = { at: order.length, node: n, from: label, shelves: [label] };
+          byName[n.a] = slot;
+          order.push(slot);
+        } else {
+          if (slot.shelves.indexOf(label) < 0) slot.shelves.push(label);
+          if (bigger(n, slot.node)) {
+            slot.node = n;
+            slot.from = label;
+          }
+        }
+        maps[si][i] = slot.at;
+      }
+    });
+
+    // Copies, never the cached payload's own objects: `cache` hands the
+    // same object back to a single-shelf load, and a merged-only field
+    // left on it would then show up on a shelf that was never merged.
+    const merged = order.map((slot) => {
+      const out = { ...slot.node };
+      out._shelves = slot.shelves;
+      out._shelfOf = slot.from;
+      return out;
+    });
+
+    const pairs = Object.create(null);
+    items.forEach(({ payload }, si) => {
+      const list = Array.isArray(payload.edges) ? payload.edges : [];
+      const map = maps[si];
+      for (let i = 0; i < list.length; i++) {
+        const e = list[i];
+        if (!Array.isArray(e)) continue;
+        const a = map[e[0]];
+        const b = map[e[1]];
+        // A pair that merged onto ONE point is a name linked to itself,
+        // which is not a line and cannot be drawn.
+        if (typeof a !== "number" || typeof b !== "number" || a === b) continue;
+        const w = Number(e[2]);
+        if (!isFinite(w)) continue;
+        const key = a < b ? `${a}:${b}` : `${b}:${a}`;
+        const held = pairs[key];
+        if (!held) pairs[key] = [Math.min(a, b), Math.max(a, b), w];
+        else if (w > held[2]) held[2] = w;
+      }
+    });
+
+    return { nodes: merged, edges: Object.keys(pairs).map((k) => pairs[k]), cats: mergeCats(items) };
+  }
+
+  async function loadAll() {
+    const token = ++loadToken;
+    clearError();
+    const list = allShelvesFor(view);
+    if (!list.length) {
+      setStatus("");
+      showError("No shelf carries that view.");
+      clearMap();
+      return;
+    }
+
+    // A real loading state, and one that moves. Fifteen requests on a
+    // slow connection is long enough that a message which never changes
+    // reads as a page that has stopped.
+    let done = 0;
+    const total = list.length;
+    setStatus(`Reading ${total} shelves…`);
+    const settled = await Promise.all(
+      list.map((s) =>
+        getJSON(`${BASE}/${encodeURIComponent(s.slug)}/${encodeURIComponent(view)}.json`)
+          .then(
+            (payload) => ({ shelf: s, payload }),
+            (err) => {
+              console.error("[faith-constellations] shelf failed inside all", s.slug, err);
+              return null;
+            }
+          )
+          .then((r) => {
+            done += 1;
+            if (token === loadToken) setStatus(`Reading the shelves, ${done} of ${total}…`);
+            return r;
+          })
+      )
+    );
+
+    if (token !== loadToken) return;
+    const ok = settled.filter(Boolean);
+    setStatus("");
+
+    // A merged view is not allowed to quietly stand in for the whole
+    // library when part of it did not arrive (FRONTEND §6.33). All
+    // fifteen failing is a network failure and says so; some of them
+    // failing draws what there is and names the shortfall.
+    if (!ok.length) {
+      showError("Could not reach the library. Please check your connection and try again.");
+      clearMap();
+      return;
+    }
+    allMissed = total - ok.length;
+    adopt(mergeShelfPayloads(ok));
+    renderViewButtons();
+    if (edgesOn) ensureFingerprints();
   }
 
   /* ── Arrangement and links: the two display toggles ─────────────── */
 
   function renderLayoutButtons() {
+    const simOK = similarityOK();
     layoutBtns.forEach((b) => {
       const which = b.getAttribute("data-cn-layout");
       // The regional button is named after what its regions are, so a
@@ -1719,10 +3005,21 @@
       if (which === LAYOUT_REGIONS) {
         b.textContent = REGION_BTN_LABEL[view] || "By section";
       }
+      // Disabled and still there, rather than removed. A control that
+      // vanishes on one shelf and returns on the next reads as the
+      // panel breaking; a greyed one with a sentence under it reads as
+      // an answer. The sentence is the load-bearing half.
+      if (which === LAYOUT_SIMILARITY) {
+        b.disabled = !simOK;
+        b.setAttribute("aria-disabled", simOK ? "false" : "true");
+      }
       const on = which === layout;
       b.classList.toggle("is-active", on);
       b.setAttribute("aria-pressed", on ? "true" : "false");
     });
+    if (!arrangeNote) return;
+    arrangeNote.hidden = simOK;
+    arrangeNote.textContent = simOK ? "" : ALL_ARRANGE_NOTE;
   }
 
   function renderLinksButton() {
@@ -1734,6 +3031,7 @@
 
   function setLayout(next) {
     if (next !== LAYOUT_REGIONS && next !== LAYOUT_SIMILARITY) return;
+    if (next === LAYOUT_SIMILARITY && !similarityOK()) return;
     if (next === layout) return;
     layout = next;
     renderLayoutButtons();
@@ -1754,22 +3052,56 @@
 
   function setEdges(on) {
     edgesOn = !!on;
+    // A hover on a line that has just been switched off would keep
+    // painting a plate for something no longer on the plate. A
+    // SELECTED link is kept: it stays drawn, and reading one link at a
+    // time with the field off is the good way to use the merged map.
+    hoveredEdge = -1;
     renderLinksButton();
     renderCaption();
     draw();
+    // Where the profiles were skipped on load because nothing was
+    // linked on screen, this is the moment they became worth having.
+    if (edgesOn) ensureFingerprints();
     announce(edgesOn ? "Links shown." : "Links hidden.");
   }
 
   function setView(next) {
     if (!next || next === view) return;
     view = next;
+    allMissed = 0;
     renderViewButtons();
     renderLayoutButtons();
+    if (isAll) {
+      loadAll();
+      return;
+    }
     load();
   }
 
   function setShelf(slug) {
+    const wasAll = isAll;
     shelfSlug = slug;
+    isAll = slug === ALL_SLUG;
+    allMissed = 0;
+
+    /* Entering the merged shelf turns the links OFF and forces the
+     * regional arrangement, and both of those are corrections rather
+     * than preferences: no edge in the data crosses a shelf, and no two
+     * shelves share a coordinate space. Leaving it gives the reader
+     * back whatever they had, since neither of those is a choice they
+     * made. */
+    if (isAll && !wasAll) {
+      preAllLayout = layout;
+      if (layout === LAYOUT_SIMILARITY) layout = LAYOUT_REGIONS;
+      edgesOn = false;
+    } else if (!isAll && wasAll) {
+      if (preAllLayout) layout = preAllLayout;
+      preAllLayout = "";
+      edgesOn = true;
+    }
+    renderLinksButton();
+
     const avail = availableViews(slug);
     // Keep the reader's chosen view across a shelf change when the new
     // shelf has it; otherwise fall back to the first it does have,
@@ -1780,6 +3112,10 @@
     if (!view) {
       showError("This shelf has not been mined yet.");
       clearMap();
+      return;
+    }
+    if (isAll) {
+      loadAll();
       return;
     }
     load();
@@ -1817,6 +3153,16 @@
     }
 
     shelfSel.textContent = "";
+    // The merged shelf first, and only where there is something to
+    // merge. It is not a shelf the worker knows about, so it is added
+    // here rather than expected in the index.
+    const allViews = allSlugFree() ? ALL_VIEWS.filter((v) => allShelvesFor(v).length > 0) : [];
+    if (allViews.length) {
+      const opt = document.createElement("option");
+      opt.value = ALL_SLUG;
+      opt.textContent = ALL_LABEL;
+      shelfSel.appendChild(opt);
+    }
     shelves.forEach((s) => {
       const opt = document.createElement("option");
       opt.value = s.slug;
@@ -1839,7 +3185,11 @@
     } catch (_) { /* malformed query string; fall through to the defaults */ }
 
     if (wantLayout === LAYOUT_SIMILARITY || wantLayout === LAYOUT_REGIONS) layout = wantLayout;
-    const first = shelves.some((s) => s.slug === wantShelf) ? wantShelf : shelves[0].slug;
+    // ?shelf=all is a real, shareable starting point, but only where
+    // the merged option was actually offered above.
+    const known =
+      shelves.some((s) => s.slug === wantShelf) || (wantShelf === ALL_SLUG && allViews.length > 0);
+    const first = known ? wantShelf : shelves[0].slug;
     shelfSel.value = first;
     if (wantView && availableViews(first).indexOf(wantView) >= 0) view = wantView;
     setShelf(first);
