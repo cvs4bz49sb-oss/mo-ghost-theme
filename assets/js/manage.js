@@ -45,7 +45,14 @@
       // before navigating, to defang a tampered worker response.
       window.MOSafeRedirect.go(data.url);
     } catch (err) {
-      showError('Something went wrong. Please try again.');
+      // "Something went wrong" is the right answer to an unexpected
+      // worker error and the wrong answer to a request that a blocker
+      // stopped before it left the browser: the member can fix the
+      // second one themselves, but only if we say so. MONet returns ""
+      // for anything that is not a network failure, so the generic
+      // message still covers everything else.
+      const netMsg = window.MONet && window.MONet.describe(err, 'membership billing');
+      showError(netMsg || 'Something went wrong. Please try again.');
       setLoading(false);
     }
   });

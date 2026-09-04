@@ -16,7 +16,8 @@
  * Bundles:
  *   boot.min.js   — scripts that MUST run before {{{body}}} in
  *                   default.hbs (liturgical, mo-api-base,
- *                   admin-auth, safe-href, safe-redirect, DOMPurify)
+ *                   admin-auth, safe-href, safe-redirect, mo-net,
+ *                   DOMPurify)
  *   site.min.js   — footer scripts loaded on every page
  *   post.min.js   — article-page scripts (toc, related, gate, etc.)
  *   screen.min.css — minified main stylesheet
@@ -50,6 +51,12 @@ const BUNDLES = [
       "assets/js/admin-tools.js",
       "assets/js/lib/safe-href.js",
       "assets/js/lib/safe-redirect.js",
+      // mo-net rides in boot for the same reason safe-href does: the
+      // page templates load their own scripts inside {{{body}}}, which
+      // is before site.min.js, and those page scripts are exactly the
+      // ones that talk to a *.workers.dev host and need to explain it
+      // when the request never leaves the browser.
+      "assets/js/lib/mo-net.js",
       "assets/js/vendor/purify.min.js",
     ],
   },

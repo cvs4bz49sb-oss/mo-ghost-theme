@@ -522,7 +522,16 @@
       // logged now so DevTools shows what MOAuth.fetch/fetch() itself
       // threw, not just the reader-facing message below.
       console.error("[faith-ask] POST /v1/ask failed before a response was received", err);
-      showError("Could not reach the library. Please check your connection and try again.");
+      // "Check your connection" was the wrong first guess. The reader's
+      // connection is demonstrably working, since this page is running,
+      // and the usual cause of a request dying here is a blocker
+      // catching the mo-tfr-library workers.dev host. MONet leads with
+      // that and only mentions the connection when navigator.onLine
+      // actually says the device is offline. It returns "" for the
+      // other thing that lands in this catch, MOAuth's refusal to call
+      // an untrusted destination, which keeps its own wording.
+      const netMsg = window.MONet && window.MONet.describe(err, "Ask");
+      showError(netMsg || "Could not reach the library. Please try again.");
       return;
     }
 

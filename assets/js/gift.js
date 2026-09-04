@@ -69,7 +69,13 @@
       }
       errorEl.textContent = body.message || 'Checkout is not yet enabled. Stripe wiring is pending.';
     } catch (err) {
-      errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+      // A request that never left the browser (an ad blocker catching
+      // the workers.dev host) rejects as a bare TypeError whose message
+      // is "Failed to fetch". Printed raw that reads as a broken site
+      // and loses the sale. MONet returns "" for anything else, so a
+      // real worker error still shows its own text.
+      const netMsg = window.MONet && window.MONet.describe(err, 'checkout');
+      errorEl.textContent = netMsg || err.message || 'Something went wrong. Please try again.';
     } finally {
       submit.classList.remove('is-loading');
       submit.disabled = false;

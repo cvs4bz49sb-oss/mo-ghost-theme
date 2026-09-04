@@ -62,7 +62,10 @@
         // before navigating, to defang a tampered worker response.
         window.MOSafeRedirect.go(body.url);
       } catch (err) {
-        if (errorEl) errorEl.textContent = err.message || 'Something went wrong.';
+        // See gift.js: a blocked request rejects as a bare TypeError, and
+        // "Failed to fetch" in a checkout error slot loses the sale.
+        const netMsg = window.MONet && window.MONet.describe(err, 'checkout');
+        if (errorEl) errorEl.textContent = netMsg || err.message || 'Something went wrong.';
         btn.disabled = false;
         btn.classList.remove('is-loading');
       }

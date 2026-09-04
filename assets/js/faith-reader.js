@@ -262,7 +262,7 @@
         initModernizer();
       })
       .catch((err) => {
-        showError(`Could not load this work. (${err.message || err})`);
+        showLoadError(err);
       });
   }
 
@@ -298,7 +298,7 @@
         initModernizer();
       })
       .catch((err) => {
-        showError(`Could not load this work. (${err.message || err})`);
+        showLoadError(err);
       });
   }
 
@@ -359,7 +359,7 @@
         initModernizer();
       })
       .catch((err) => {
-        showError(`Could not load this work. (${err.message || err})`);
+        showLoadError(err);
       });
   }
 
@@ -401,7 +401,7 @@
         });
       })
       .catch((err) => {
-        showError(`Could not load this work. (${err.message || err})`);
+        showLoadError(err);
       });
   }
 
@@ -3153,11 +3153,23 @@
       })
       .catch((err) => {
         details.dataset.frState = "";
-        body.innerHTML =
-          `<p class="faith-section-error">Could not load these pages. ` +
-          `<button type="button" class="faith-retry" data-faith-retry>Retry</button></p>`;
-        const retry = body.querySelector("[data-faith-retry]");
-        if (retry) retry.addEventListener("click", () => hydrateSection(details));
+        // Same failure as the whole-work loader, one section deep. The
+        // short form, because this sits inline in an open section next
+        // to its own Retry button rather than in the full-width error
+        // panel. Built node by node: the message is composed at runtime
+        // now, so it must not go anywhere near innerHTML.
+        const netMsg = window.MONet && window.MONet.describeShort(err, "the library");
+        const p = document.createElement("p");
+        p.className = "faith-section-error";
+        p.appendChild(document.createTextNode(`${netMsg || "Could not load these pages."} `));
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "faith-retry";
+        retry.setAttribute("data-faith-retry", "");
+        retry.textContent = "Retry";
+        p.appendChild(retry);
+        body.replaceChildren(p);
+        retry.addEventListener("click", () => hydrateSection(details));
         if (window.console) window.console.warn("faith-reader:", err);
       });
   }
@@ -4178,16 +4190,56 @@
       `</p></div>`;
   }
 
-  function showError(msg) {
+  function showError(msg, withRetry) {
     if (loadingEl) loadingEl.hidden = true;
     if (errorEl) {
       errorEl.hidden = false;
       const textEl = errorEl.querySelector(".faith-reader-error-text");
-      if (textEl) textEl.textContent = msg;
+      if (textEl) {
+        // Assignment, not append: this clears any button left by a
+        // previous failure along with the previous text.
+        textEl.textContent = msg;
+        // A button the reader presses, never an automatic retry. If the
+        // cause is a blocker the request can never succeed, so a loop
+        // would only hide the one explanation that lets them fix it.
+        // reload() rather than re-calling the fetch, because the point
+        // of pressing this is "I have just allowed the page", and a
+        // reload is the only retry that is correct from every one of
+        // the four loaders regardless of how far each one got.
+        if (withRetry) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "faith-retry";
+          btn.textContent = "Try again";
+          btn.addEventListener("click", () => {
+            btn.disabled = true;
+            window.location.reload();
+          });
+          textEl.appendChild(document.createTextNode(" "));
+          textEl.appendChild(btn);
+        }
+      }
     }
     if (titleEl) titleEl.textContent = "The Faith Received";
     const tocLoading = tocNav && tocNav.querySelector(".faith-toc-loading");
     if (tocLoading) tocLoading.hidden = true;
+  }
+
+  // The one place a failed work-load is turned into words.
+  //
+  // Until 2026-09-04 all four loaders printed the raw rejection, so a
+  // reader whose blocker had started catching the library's workers.dev
+  // host was told "Could not load this work. (Failed to fetch)" — which
+  // is indistinguishable from a bug of ours, and so goes unreported.
+  // MONet returns "" for anything that is not a network failure, so a
+  // 404 or a malformed record still reports itself exactly as before.
+  function showLoadError(err) {
+    const netMsg = window.MONet && window.MONet.describe(err, "the library");
+    if (netMsg) {
+      showError(netMsg, true);
+      return;
+    }
+    showError(`Could not load this work. (${(err && err.message) || err})`);
   }
 
   // Copy link / Copy passage is injected into the section body by

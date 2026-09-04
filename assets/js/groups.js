@@ -57,7 +57,10 @@
       }
       errorEl.textContent = body.message || 'Checkout is not yet enabled. Stripe wiring is pending.';
     } catch (err) {
-      errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+      // See gift.js: a blocked request rejects as a bare TypeError, and
+      // "Failed to fetch" in a checkout error slot loses the sale.
+      const netMsg = window.MONet && window.MONet.describe(err, 'checkout');
+      errorEl.textContent = netMsg || err.message || 'Something went wrong. Please try again.';
     } finally {
       submit.classList.remove('is-loading');
       submit.disabled = false;

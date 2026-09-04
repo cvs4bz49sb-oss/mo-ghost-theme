@@ -187,7 +187,15 @@
     // Turnstile tokens are single-use, so a retry without a reset would
     // fail the bot check no matter what the visitor does.
     resetTurnstile(root);
-    setStatus(root, (err && err.message) || "Something went wrong. Try again.", true);
+    // Every failure in this file funnels through here, including the
+    // forum registration POST to the mo-forms workers.dev host. A
+    // blocker stopping that arrives as a bare TypeError, and printing
+    // "Failed to fetch" under a signup form reads as a broken site.
+    // MONet returns "" for anything that is not a network failure, so a
+    // worker's own error text (`err.message`) still wins where there is
+    // one.
+    const netMsg = window.MONet && window.MONet.describe(err, "this form");
+    setStatus(root, netMsg || (err && err.message) || "Something went wrong. Try again.", true);
   }
 
   function ghostSignup(root, email, name) {

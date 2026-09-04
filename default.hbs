@@ -301,9 +301,9 @@
       {{#if @member}}data-member-email="{{@member.email}}" data-member-status="{{@member.status}}" data-member-name="{{@member.name}}"{{/if}}>
 
     {{!-- Boot bundle: liturgical-class, mo-api-base, mo-asset-version,
-         admin-auth, safe-href, safe-redirect, DOMPurify. MUST load
-         before {{{body}}} — page templates call window.MOAuth.fetch
-         and window.MOSafeHref synchronously on load.
+         admin-auth, safe-href, safe-redirect, mo-net, DOMPurify. MUST
+         load before {{{body}}} — page templates call window.MOAuth.fetch,
+         window.MOSafeHref and window.MONet synchronously on load.
 
          title-fix.js was dropped 2026-07-29. It patched document.title
          and injected robots noindex from a path map, which never

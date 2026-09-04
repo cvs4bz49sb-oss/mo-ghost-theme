@@ -239,8 +239,15 @@
           resetTurnstile(form);
         }
       })
-      .catch(() => {
-        setStatus(status, "Couldn't reach the server. Try again.", true);
+      .catch((err) => {
+        // "Couldn't reach the server" was true and useless: it named no
+        // cause the sender could act on, and the usual cause here is a
+        // blocker catching the mo-forms workers.dev host, which the
+        // sender can fix in about two clicks. MONet returns "" for a
+        // non-network failure (a bug in the .then handlers above lands
+        // in this same catch), so that keeps the old wording.
+        const netMsg = window.MONet && window.MONet.describe(err, "this form");
+        setStatus(status, netMsg || "Couldn't reach the server. Try again.", true);
         if (submitBtn) submitBtn.disabled = false;
         resetTurnstile(form);
       });
