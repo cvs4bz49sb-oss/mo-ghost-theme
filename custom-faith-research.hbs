@@ -227,13 +227,7 @@
       <div data-research-panel="bookmarks" role="tabpanel" id="research-panel-bookmarks" aria-labelledby="research-tab-bookmarks" hidden>
         <div class="research-workspace">
           <div class="research-workspace-inner">
-           <div class="research-column">
-            <div class="faith-pending-panel research-pending">
-              <p class="faith-pending-lede">Bookmarks are not wired up on this page yet.</p>
-              <p class="faith-pending-note">Saved passages live in the member dashboard while this workspace is being built.</p>
-              <p class="faith-pending-actions"><a href="/dashboard/bookmarks/">Open your bookmarks</a></p>
-            </div>
-           </div>
+           {{> "faith-received/_bookmarks-panel"}}
           </div>
         </div>
       </div>
@@ -241,12 +235,7 @@
       <div data-research-panel="notebook" role="tabpanel" id="research-panel-notebook" aria-labelledby="research-tab-notebook" hidden>
         <div class="research-workspace">
           <div class="research-workspace-inner">
-           <div class="research-column">
-            <div class="faith-pending-panel research-pending">
-              <p class="faith-pending-lede">The notebook is not wired up on this page yet.</p>
-              <p class="faith-pending-note">Highlights, private notes and your own translations will be kept here.</p>
-            </div>
-           </div>
+           {{> "faith-received/_notebook-panel"}}
           </div>
         </div>
       </div>

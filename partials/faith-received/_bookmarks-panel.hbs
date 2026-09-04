@@ -1,0 +1,83 @@
+{{!-- Faith Received — the Bookmarks workspace.
+
+     Every work the reader has saved from the library, most recent
+     first, each one a link back into the reader and each one removable
+     from here. Bound by assets/js/page/faith-bookmarks.js — read that
+     file's header for where bookmarks actually live (the mo-kit
+     Worker's KV, not localStorage and not Ghost) and for how a reader
+     link is built.
+
+     SELF-CONTAINED. Unlike _ask-panel.hbs, this partial ships its own
+     <script> tags at the bottom. It is written to be dropped into a
+     workspace shell (the Research page's Bookmarks tab) whose template
+     is owned by someone else, and a partial whose host has to remember
+     to add two script tags is a partial that renders a permanent
+     "Loading…" the first time anyone reuses it. The same pattern is
+     already in partials/faith-received/_topics-index.hbs and
+     partials/membership-body.hbs.
+
+     A host page that ALSO loads js/faith-corpora.js or
+     js/page/faith-bookmarks.js is harmless: faith-corpora.js only
+     redefines window.MOCorpora, and faith-bookmarks.js binds once and
+     returns on a second run (it marks [data-fb-root] with
+     data-fb-bound). It does NOT need feature-gate.js: nothing here
+     calls an LLM or costs money, and the panel gates itself on
+     data-member-status because the bookmark store is per member.
+
+     DOM contract faith-bookmarks.js depends on — re-read that file
+     before touching any of this:
+       - [data-fb-root] wrapping everything. The script marks it bound
+         and hangs the click / focusout handlers that cancel a pending
+         Remove on it.
+       - [data-fb-status] — the one status line. Three states, three
+         different renders: loading, error, and the ordinary empty
+         panel. An empty state is a claim and a failed fetch is not
+         allowed to make it, so "nothing saved" is painted into
+         [data-fb-list] only after a read that succeeded.
+       - [data-fb-count] — the running total, hidden until there is one.
+       - [data-fb-sort] holding three button[data-fb-sort-by] with the
+         values "recent", "author" and "collection". Hidden by the
+         script below two saved works. "recent" is the default AND is
+         the order the worker returns; nothing may re-sort it in place.
+       - [data-fb-list] — everything rendered. Rows carry [data-fb-id]
+         (the full "tfr:<corpus>:<work>" bookmark id) and a
+         button[data-fb-remove]; the error state carries
+         button[data-fb-retry].
+
+     Rendered on its own page rather than in a tab strip, wrap it in a
+     <section class="bband"> and give the page its own hero. Nothing in
+     here depends on the tab shell. --}}
+<div class="bookmarks-workspace" data-fb-root>
+  <div class="bookmarks-workspace-inner">
+
+    <header class="bookmarks-head">
+      <div class="bookmarks-head-text">
+        <h2 class="bookmarks-title">Bookmarks</h2>
+        <p class="bookmarks-count" data-fb-count hidden></p>
+      </div>
+
+      {{!-- Sort. Plain text toggles on a hairline, not a select and not
+            a row of pills: this is apparatus, and the panel below it is
+            the thing being looked at. Hidden by the script until there
+            are at least two works to order. --}}
+      <div class="bookmarks-sort" data-fb-sort role="group" aria-label="Order saved works" hidden>
+        <button type="button" class="bookmarks-sort-btn is-active" data-fb-sort-by="recent" aria-pressed="true">Recent</button>
+        <button type="button" class="bookmarks-sort-btn" data-fb-sort-by="author" aria-pressed="false">Author</button>
+        <button type="button" class="bookmarks-sort-btn" data-fb-sort-by="collection" aria-pressed="false">Collection</button>
+      </div>
+    </header>
+
+    <p class="bookmarks-status" data-fb-status role="status" aria-live="polite">Loading your saved works&hellip;</p>
+
+    <div class="bookmarks-list" data-fb-list></div>
+
+  </div>
+</div>
+
+{{!-- Last inside the panel on purpose: a non-visual node placed first
+      would take the :first-child margin reset off the header above it.
+      faith-corpora.js first — faith-bookmarks.js resolves saved ids
+      against window.MOCorpora, and page-template scripts run before
+      site.min.js, so nothing bundled can be assumed here. --}}
+<script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/page/faith-bookmarks.js"}}"></script>

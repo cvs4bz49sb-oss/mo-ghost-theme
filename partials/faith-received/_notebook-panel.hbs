@@ -1,0 +1,113 @@
+{{!-- Faith Received — the Notebook workspace.
+
+     Every passage the reader has kept, across every work, with its
+     citation, its own note, and a link back to the exact block it came
+     from. Bound by assets/js/page/faith-notebook.js.
+
+     ONE NOTEBOOK, TWO VIEWS. The notes are made in the reader:
+     assets/js/faith-reader-tools.js puts a "Save to notebook" popover
+     over any selection and keeps a slide-out panel scoped to the work
+     in front of you. This is the same data seen whole. Both read and
+     write through window.MOFaithNotebook
+     (assets/js/lib/faith-notebook-store.js) and neither touches
+     localStorage directly, so there is exactly one definition of the
+     stored format. Do not add a second one here.
+
+     SELF-CONTAINED. Like _bookmarks-panel.hbs and unlike
+     _ask-panel.hbs, this partial ships its own <script> tags at the
+     bottom, so it can be dropped into a workspace shell whose template
+     is owned by someone else. A host page that also loads either file
+     is harmless: the store only redefines window.MOFaithNotebook, and
+     faith-notebook.js binds once and returns on a second run (it marks
+     [data-fn-root] with data-fn-bound). The store must load FIRST.
+
+     DOM contract faith-notebook.js depends on — re-read that file
+     before touching any of this:
+       - [data-fn-root] wrapping everything. The script marks it bound
+         and hangs the focusout handler that cancels a pending Remove.
+       - [data-fn-count] — "12 passages", or "3 of 12 passages" while a
+         filter is on. Hidden until there is something to count.
+       - [data-fn-tools] holding [data-fn-filter] (a search input with a
+         real <label>, never placeholder-only) and [data-fn-group]
+         (class .notebook-groupby) with two button[data-fn-group-by],
+         "recent" and "work". Hidden by the script below two passages.
+       - [data-fn-status] — the one status line, for "Note saved" and
+         for a save that failed.
+       - [data-fn-list] — everything rendered. Entries carry
+         [data-fn-id], a textarea[data-fn-note], and three controls:
+         a link, button[data-fn-copy-one], button[data-fn-remove].
+       - [data-fn-foot] holding [data-fn-copy], [data-fn-download] and
+         [data-fn-share]. Hidden while there is nothing to export.
+
+     Remove is TWO CLICKS here (the button becomes "Remove?"), where the
+     reader's panel removes on one. A note is someone's own work, there
+     is no undo, and it cannot be got back by clicking anything: it
+     would have to be found and re-selected in the text. The reader's
+     panel gets away with one click because it lists a handful of
+     passages from the work on screen; this lists the whole notebook and
+     the rows all look alike.
+
+     What is deliberately NOT here: drawing a relation between two
+     notes. That belongs to the reader panel and to Constellations.
+     Relations already drawn ARE shown on each entry, since hiding them
+     would make a passage look like it stood alone. --}}
+<div class="notebook-workspace" data-fn-root>
+  <div class="notebook-workspace-inner">
+
+    <header class="notebook-head">
+      <div class="notebook-head-text">
+        <h2 class="notebook-title">Notebook</h2>
+        <p class="notebook-count" data-fn-count hidden></p>
+      </div>
+
+      <div class="notebook-tools" data-fn-tools hidden>
+        <div class="notebook-filter-field">
+          <label class="visually-hidden" for="notebook-filter">Filter your notes</label>
+          <input
+            id="notebook-filter"
+            class="notebook-filter"
+            type="search"
+            data-fn-filter
+            maxlength="120"
+            autocomplete="off"
+            placeholder="Filter your notes&hellip;"
+          />
+        </div>
+        {{!-- .notebook-groupby, not .notebook-group: .notebook-group is
+              the class on a rendered "By work" SECTION in the list
+              below, and two different things under one class name is
+              how a stylesheet starts fighting itself. --}}
+        <div class="notebook-groupby" data-fn-group role="group" aria-label="Order your notes">
+          <button type="button" class="notebook-groupby-btn is-active" data-fn-group-by="recent" aria-pressed="true">Recent</button>
+          <button type="button" class="notebook-groupby-btn" data-fn-group-by="work" aria-pressed="false">By work</button>
+        </div>
+      </div>
+    </header>
+
+    <p class="notebook-status" data-fn-status role="status" aria-live="polite" hidden></p>
+
+    <div class="notebook-list" data-fn-list></div>
+
+    <div class="notebook-foot" data-fn-foot hidden>
+      <div class="notebook-foot-acts">
+        <button type="button" class="notebook-act" data-fn-copy>Copy all</button>
+        <button type="button" class="notebook-act" data-fn-download>Download</button>
+        <button type="button" class="notebook-act" data-fn-share>Share as a link</button>
+      </div>
+      {{!-- Said plainly, and said here rather than in a tooltip. The
+            notebook is in this browser, so it does not follow the
+            reader to a phone and clearing site data clears it. --}}
+      <p class="notebook-foot-note">Kept in this browser only. Copy or download anything you want to keep.</p>
+    </div>
+
+  </div>
+</div>
+
+{{!-- Last inside the panel on purpose: a non-visual node placed first
+      would take the :first-child margin reset off the header above it.
+      The store first, always — faith-notebook.js reads
+      window.MOFaithNotebook on its first line, and page-template
+      scripts run before site.min.js, so nothing bundled can be assumed
+      here. --}}
+<script src="{{asset "js/lib/faith-notebook-store.js"}}"></script>
+<script src="{{asset "js/page/faith-notebook.js"}}"></script>

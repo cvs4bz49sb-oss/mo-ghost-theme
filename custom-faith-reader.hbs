@@ -230,7 +230,15 @@
 <script src="{{asset "js/faith-resolve.js"}}"></script>
 
 {{!-- Find in work + notebook. Loaded after the reader so the tools
-     mount over rendered content. --}}
+     mount over rendered content.
+
+     The store FIRST, and it is not optional: it holds the notebook's
+     only definition of the stored format, the citation format, and the
+     constellation wire format, shared with the Notebook workspace
+     (partials/faith-received/_notebook-panel.hbs). Without it
+     faith-reader-tools.js still gives the reader Find, and says in the
+     console that the notebook is missing. --}}
+<script src="{{asset "js/lib/faith-notebook-store.js"}}"></script>
 <script src="{{asset "js/faith-reader-tools.js"}}"></script>
 <script src="{{asset "js/faith-reader-prefs.js"}}"></script>
 {{!-- Docks the tools at the bottom right and keeps them there. --}}

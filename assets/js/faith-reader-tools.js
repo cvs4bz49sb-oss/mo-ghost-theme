@@ -17,6 +17,15 @@
  * localStorage, which means it survives a reload and does not survive a
  * new browser. That is the right trade before there are accounts to
  * hang it on, and the panel says so.
+ *
+ * The STORAGE is no longer here. It moved to
+ * assets/js/lib/faith-notebook-store.js on 2026-09-04, when the
+ * Notebook workspace (partials/faith-received/_notebook-panel.hbs)
+ * became a second surface over the same notes. This file still owns
+ * every piece of reader-specific behaviour — the selection popover, the
+ * work-scoped panel, the constellation import banner — and reads and
+ * writes through window.MOFaithNotebook rather than through
+ * localStorage. See that file's header for the entry shape.
  */
 
 (function () {
@@ -26,8 +35,10 @@
   const controls = document.querySelector("[data-faith-controls]");
   if (!contentEl || !controls) return;
 
-  const NOTEBOOK_KEY = "fr_notebook";
-  const MAX_ENTRIES = 500;
+  // custom-faith-reader.hbs loads the store immediately before this
+  // file. Find does not depend on it, so a missing store costs the
+  // notebook and nothing else — see boot() at the foot of this file.
+  const NB = window.MOFaithNotebook;
 
   const work = (() => {
     let w = "";
@@ -53,50 +64,27 @@
   };
 
   // ── Storage ───────────────────────────────────────────────────
+  //
+  // All of it lives in the store. These are the only names the rest of
+  // this file uses, kept so the code below reads as it always did.
+  // `remove` now drops the entry's relations with it, which this file's
+  // one call site was doing by hand.
+  //
+  // Each one is guarded rather than aliased straight onto NB, so a
+  // missing store cannot throw at load time and take Find down with the
+  // notebook. boot() below skips the notebook entirely in that case, so
+  // in practice none of these guards is ever the branch taken.
 
-  function load() {
-    try {
-      const raw = window.localStorage.getItem(NOTEBOOK_KEY);
-      const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
-    } catch (_) {
-      return [];
-    }
-  }
-
-  function save(list) {
-    try {
-      window.localStorage.setItem(NOTEBOOK_KEY, JSON.stringify(list.slice(0, MAX_ENTRIES)));
-      return true;
-    } catch (_) {
-      // Quota. Losing the oldest half is better than losing the save.
-      try {
-        window.localStorage.setItem(NOTEBOOK_KEY, JSON.stringify(list.slice(0, Math.floor(MAX_ENTRIES / 2))));
-        return true;
-      } catch (__) {
-        return false;
-      }
-    }
-  }
-
-  function add(entry) {
-    const list = load();
-    list.unshift(entry);
-    save(list);
-    return list;
-  }
-
-  function remove(id) {
-    const list = load().filter((e) => e.id !== id);
-    save(list);
-    return list;
-  }
+  const load = () => (NB ? NB.load() : []);
+  const save = (list) => (NB ? NB.save(list) : false);
+  const add = (entry) => (NB ? NB.add(entry) : []);
+  const remove = (id) => (NB ? NB.remove(id) : []);
 
   // ── Helpers ───────────────────────────────────────────────────
 
-  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  }[c]));
+  // Never falls back to the identity function: an escaper that stops
+  // escaping is worse than one that returns nothing.
+  const esc = (s) => (NB ? NB.escapeHtml(s) : "");
 
   // Nearest citation and anchor above a node — the block a selection
   // started in, or the section that holds it.
@@ -118,25 +106,12 @@
       window.location.search + (anchor ? `#${anchor}` : "");
   }
 
-  function copyText(s) {
-    if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(s).then(() => true).catch(() => false);
-    }
-    return Promise.resolve(false);
-  }
+  const copyText = (s) => (NB ? NB.copyText(s) : Promise.resolve(false));
 
   // The shape a citation should take when it leaves this site: enough
-  // for a footnote without editing.
-  function formatEntry(e) {
-    const head = [e.author, e.title].filter(Boolean).join(", ");
-    const ref = [head, e.cite].filter(Boolean).join(" — ");
-    const lines = [];
-    if (ref) lines.push(ref);
-    if (e.text) lines.push(`"${e.text}"`);
-    if (e.note) lines.push(`Note: ${e.note}`);
-    if (e.url) lines.push(e.url);
-    return lines.join("\n");
-  }
+  // for a footnote without editing. Shared, so the Notebook workspace's
+  // "Copy all" and this panel's produce the same text.
+  const formatEntry = (e) => (NB ? NB.formatEntry(e) : "");
 
   // ── Constellations ────────────────────────────────────────────
   //
@@ -146,138 +121,21 @@
   // building. So entries can be related, and a set of related entries
   // travels in a URL.
   //
-  // The wire format is not ours. The four sister corpora already share
-  // one, and honouring it means a constellation built on Patrologia
-  // Latina's own site opens here, and one built here opens there:
-  //
-  //   #c= urlsafe-base64 of
-  //   { v:3, n:<name>, i:[[site, work, page|null, label, note] …],
-  //                    e:[[aIndex, bIndex, relation] …] }
-  //
-  // v2 payloads (3-tuples, no edges) must keep working — they predate
-  // the relations and readers still hold links to them.
-  //
-  // `site` is their vocabulary: fr · pld · po · pg. `page` is each
-  // corpus's own native unit, which is the part that makes this
-  // portable rather than merely compatible — a block id for PL, a
-  // printed-page band for PO, a Migne column for PG.
+  // The relations UI is here. The wire format, the edge storage and the
+  // tuple ↔ entry translation are in the store, because they are not
+  // this surface's private business: the Notebook workspace shares a
+  // notebook by the same encoder, and a second copy of a format four
+  // other sites also read is the last thing this should have two of.
+  // See assets/js/lib/faith-notebook-store.js for the payload shape.
 
-  const EDGES_KEY = "fr_notebook_edges";
-  const RELATIONS = ["supports", "contests", "cites", "expands", "parallels"];
+  const RELATIONS = NB ? NB.RELATIONS : [];
 
-  // Our collection ids ↔ their site codes.
-  const SITE_OF = { tfr: "fr", pld: "pld", po: "po", pg: "pg" };
-  const CORPUS_OF = { fr: "tfr", pld: "pld", po: "po", pg: "pg" };
-
-  function loadEdges() {
-    try {
-      const raw = window.localStorage.getItem(EDGES_KEY);
-      const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list : [];
-    } catch (_) {
-      return [];
-    }
-  }
-
-  function saveEdges(list) {
-    try {
-      window.localStorage.setItem(EDGES_KEY, JSON.stringify(list.slice(0, 2000)));
-    } catch (_) { /* quota — the notes matter more than the edges */ }
-  }
-
-  // An anchor carries the native unit inside it: b176886, dt-p42, r25.
-  const unitOf = (anchor) => {
-    const m = String(anchor || "").match(/(\d+)\s*$/);
-    return m ? parseInt(m[1], 10) : null;
-  };
-
-  function toTuple(e) {
-    const site = SITE_OF[e.corpus];
-    if (!site || !e.work) return null;
-    return [site, String(e.work), unitOf(e.anchor), String(e.cite || ""), String(e.note || "")];
-  }
-
-  // Their tuple → our reader. PG is the one that needs the resolver
-  // rather than a rewrite: they address it by volume and column
-  // ("vol133", 757) and we address it by document and block, but every
-  // block here carries its Migne citation, which is exactly that pair.
-  function fromTuple(t) {
-    const site = String(t[0] || "");
-    const corpus = CORPUS_OF[site];
-    if (!corpus) return null;
-    const work = String(t[1] || "");
-    const page = t[2] == null ? null : Number(t[2]);
-    const entry = {
-      corpus,
-      work,
-      cite: String(t[3] || ""),
-      note: String(t[4] || ""),
-      anchor: "",
-      pending: "",
-    };
-    if (site === "pld") entry.anchor = page == null ? "" : `b${page}`;
-    else if (site === "po") entry.anchor = page == null ? "" : `dt-p${page}`;
-    else if (site === "fr") entry.anchor = page == null ? "" : `section-${page}`;
-    else if (site === "pg") {
-      // vol133 + column 757 is "PG 133:757" — hand it to the resolver.
-      const vol = (work.match(/(\d+)/) || [])[1];
-      entry.pending = vol && page != null ? `PG ${vol}:${page}` : "";
-    }
-    return entry;
-  }
-
-  function readerUrl(e) {
-    if (!e.work) return "/the-faith-received/";
-    const q = e.corpus === "tfr"
-      ? `?w=${encodeURIComponent(e.work)}`
-      : `?c=${encodeURIComponent(e.corpus)}&w=${encodeURIComponent(e.work)}`;
-    return `/the-faith-received/reader/${q}${e.anchor ? `#${e.anchor}` : ""}`;
-  }
-
-  // base64url, and UTF-8 safe: these payloads carry Greek and Syriac.
-  function b64urlEncode(s) {
-    const bytes = new TextEncoder().encode(s);
-    let bin = "";
-    bytes.forEach((b) => { bin += String.fromCharCode(b); });
-    return window.btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  }
-
-  function b64urlDecode(s) {
-    const pad = s.replace(/-/g, "+").replace(/_/g, "/");
-    const bin = window.atob(pad + "===".slice((pad.length + 3) % 4));
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i);
-    return new TextDecoder().decode(bytes);
-  }
-
-  function encodeShare(entries, edges, name) {
-    const kept = [];
-    const index = new Map();
-    entries.forEach((e) => {
-      const t = toTuple(e);
-      if (!t) return;
-      index.set(e.id, kept.length);
-      kept.push(t);
-    });
-    const e2 = edges
-      .map((x) => [index.get(x.a), index.get(x.b), x.rel])
-      .filter((x) => x[0] != null && x[1] != null);
-    return `#c=${b64urlEncode(JSON.stringify({ v: 3, n: name || "Notebook", i: kept, e: e2 }))}`;
-  }
-
-  function decodeShare(hash) {
-    const m = String(hash || "").match(/[#&]c=([A-Za-z0-9\-_]+)/);
-    if (!m) return null;
-    try {
-      const d = JSON.parse(b64urlDecode(m[1]));
-      if (!d || !Array.isArray(d.i)) return null;
-      // v2 had no edges. Accept it rather than reject a link someone
-      // is still holding.
-      return { name: d.n || "Shared notebook", items: d.i, edges: Array.isArray(d.e) ? d.e : [] };
-    } catch (_) {
-      return null;
-    }
-  }
+  const loadEdges = () => (NB ? NB.loadEdges() : []);
+  const saveEdges = (list) => { if (NB) NB.saveEdges(list); };
+  const fromTuple = (t) => (NB ? NB.fromTuple(t) : null);
+  const readerUrl = (e) => (NB ? NB.readerUrl(e) : "/the-faith-received/");
+  const encodeShare = (entries, edges, name) => (NB ? NB.encodeShare(entries, edges, name) : "");
+  const decodeShare = (hash) => (NB ? NB.decodeShare(hash) : null);
 
   // ── Find in work ──────────────────────────────────────────────
   //
@@ -621,8 +479,10 @@
       const id = item.getAttribute("data-nb-id");
       const entry = load().filter((x) => x.id === id)[0];
       if (e.target.closest("[data-nb-remove]")) {
+        // The store drops the entry's relations with it — a dangling
+        // edge is an invisible row that still counts against the cap
+        // and still rides into any constellation shared afterwards.
         remove(id);
-        saveEdges(loadEdges().filter((x) => x.a !== id && x.b !== id));
         render();
         return;
       }
@@ -889,6 +749,17 @@
   function boot() {
     if (!contentEl.children.length) return false;
     buildFind();
+    // Find is self-contained; the notebook is not. A reader whose page
+    // failed to load the store gets Find rather than a broken panel,
+    // and the console says which half is missing.
+    if (!NB) {
+      if (window.console) {
+        window.console.warn(
+          "faith-reader-tools: js/lib/faith-notebook-store.js did not load; notebook disabled"
+        );
+      }
+      return true;
+    }
     const notebook = buildNotebook();
     notebook.render();
     buildSelectionSave(notebook);
