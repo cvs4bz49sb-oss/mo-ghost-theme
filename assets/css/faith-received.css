@@ -2788,6 +2788,19 @@ mark.faith-find-hit.is-current {
 .ask-answer li { margin: 0 0 10px; }
 .ask-answer li:last-child { margin-bottom: 0; }
 .ask-answer strong { font-weight: 600; }
+/* A "> quoted text" line (see renderAnswer()'s blockquote handling in
+   faith-ask.js) -- a direct quotation carries the same evidentiary
+   weight as the surrounding prose, so this stays full-color and
+   full-size (unlike the quieter, muted .ask-gaps aside below), just
+   set apart with an indent, a left rule, and italics -- the ordinary
+   typographic signal for a direct quotation. */
+.ask-answer blockquote {
+  margin: 0 0 22px;
+  padding: 2px 0 2px 20px;
+  border-left: 2px solid var(--color-card-border);
+  font-style: italic;
+}
+.ask-answer blockquote:last-child { margin-bottom: 0; }
 /* A **bold** lead-in renders as its own heading-style line (see
    renderAnswer()'s "lead" handling in faith-ask.js), not inline
    <strong> text running straight into the paragraph after it. Small

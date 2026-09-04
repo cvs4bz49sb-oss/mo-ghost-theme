@@ -132,6 +132,20 @@
     const blocks = escaped.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
     const html = blocks.map((block) => {
       const lines = block.split(/\n/).map((l) => l.trim()).filter(Boolean);
+
+      // A "### Heading"-style block (2026-09, confirmed with Gemini's
+      // synthesis output -- synthesisSystem() never asks for this, it
+      // asks for **bold** lead-ins, but Gemini sometimes reaches for a
+      // markdown heading for the same "heading for this block"
+      // purpose). Same heading treatment as a leading **bold** below,
+      // so the reader sees one consistent heading style regardless of
+      // which markdown the model happened to use, rather than literal
+      // "###" text.
+      const headingMatch = lines.length === 1 && block.match(/^#{1,6}\s+(.+)$/);
+      if (headingMatch) {
+        return `<p class="ask-answer-lead">${renderInline(headingMatch[1], citByN)}</p>`;
+      }
+
       // The ENUMERATE rule in synthesisSystem() asks for "EVERY relevant
       // one as its own bulleted entry" -- a block that's entirely "- "
       // lines renders as a real list instead of a paragraph with
@@ -141,6 +155,35 @@
         const items = lines.map((l) => `<li>${renderInline(l.replace(/^-\s+/, ""), citByN)}</li>`).join("");
         return `<ul>${items}</ul>`;
       }
+
+      // A "> quoted text" line (2026-09, confirmed with Gemini): often
+      // arrives as a lead-in sentence on one line ("...defines it as:")
+      // followed by the blockquote on the next, both inside the SAME
+      // block (single \n, not the \n{2,} that separates blocks) --
+      // without handling this per-line, the old single-newline-to-space
+      // join below smashes the lead-in and the literal "> " marker
+      // together into one line of running prose. Walks the block's own
+      // lines in order so a lead-in before/after the quote still reads
+      // as normal prose, only the "> " line becomes a real blockquote.
+      if (lines.some((l) => /^>\s?/.test(l))) {
+        const parts = [];
+        let plain = [];
+        const flushPlain = () => {
+          if (plain.length) { parts.push(`<p>${renderInline(plain.join(" "), citByN)}</p>`); plain = []; }
+        };
+        for (const l of lines) {
+          const q = l.match(/^>\s?(.*)$/);
+          if (q) {
+            flushPlain();
+            parts.push(`<blockquote>${renderInline(q[1], citByN)}</blockquote>`);
+          } else {
+            plain.push(l);
+          }
+        }
+        flushPlain();
+        return parts.join("");
+      }
+
       const joined = block.replace(/\n/g, " ");
       // synthesisSystem() always uses a **bold** lead-in as a heading
       // for a block ("**Where they agree**", "**Hooker (Anglican) on
