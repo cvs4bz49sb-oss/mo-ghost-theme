@@ -25,9 +25,11 @@
  * every surface says so in as many words ("Kept in this browser only").
  * If it ever moves to a worker, it moves HERE and both surfaces follow.
  *
- * THE ENTRY. Written by the reader's selection-save popover:
+ * THE ENTRY. Minted by newEntry() and by nothing else:
  *
  *   { id      "n" + base36 time + base36 random — unique, not ordered
+ *     kind    HOW it was kept: "selection" | "section" | "shared".
+ *             See below.
  *     corpus  MOCorpora id: tfr | confessions | mo | eebo | pld | pg |
  *             po | augustine
  *     work    the work's id within that corpus (?w= in the reader)
@@ -36,13 +38,31 @@
  *     cite    the block's own data-cite, where the corpus prints one
  *     anchor  the block's data-src-id or DOM id, for the #fragment
  *     url     ABSOLUTE url of the block, from the reader's own location
- *     text    the selected passage, capped at 1200 chars
+ *     text    the passage, capped at 1200 chars
  *     note    the reader's own note, capped at 2000 chars
  *     at      YYYY-MM-DD }
  *
  * The list is newest-first: add() unshifts, and both surfaces render in
  * array order. There is no separate sort key, so array order IS the
  * recency order and nothing may re-sort the stored list in place.
+ *
+ * ON `kind`. Three ways a passage gets in here, and they are not the
+ * same act:
+ *
+ *   selection  a passage the reader chose by highlighting it. The
+ *              original and still the commonest.
+ *   section    a whole section kept from the Copy row at its foot,
+ *              which is a unit the document already declares rather
+ *              than one the reader drew.
+ *   shared     arrived in someone else's constellation link. Its
+ *              `text` is often only the sharer's note, since the wire
+ *              format carries a citation and a note and not the
+ *              passage itself.
+ *
+ * It is DESCRIPTIVE, never load-bearing: entries written before this
+ * field existed have no kind at all, and every surface has to render
+ * them. Nothing may filter, sort or gate on it in a way that hides an
+ * entry that lacks it.
  *
  * THE EDGE. { a: entryId, b: entryId, rel } — a directed relation from
  * a to b. See the constellation notes below.
@@ -57,7 +77,51 @@
 
   const RELATIONS = ["supports", "contests", "cites", "expands", "parallels"];
 
+  const MAX_TEXT = 1200;
+  const MAX_NOTE = 2000;
+
+  // The three ways a passage gets kept. See the header note on `kind`:
+  // descriptive, never load-bearing, and absent from every entry
+  // written before the field existed.
+  const KINDS = { SELECTION: "selection", SECTION: "section", SHARED: "shared" };
+
   /* ── Entries ─────────────────────────────────────────────────── */
+
+  // "n" + time + randomness. Base36 time is not ordered enough to sort
+  // by on its own (two saves in the same millisecond collide), which is
+  // why array order is the recency order and this is only an identity.
+  function newId(prefix) {
+    return `${prefix || "n"}${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
+  }
+
+  // The ONE place an entry is shaped. Three surfaces now write to this
+  // notebook — the reader's selection popover, the Save-to-notebook
+  // button at the foot of a section, and the constellation importer —
+  // and three hand-built object literals is exactly how a stored format
+  // grows a field on one path and loses it on another. Every field is
+  // defaulted and both length caps are applied here, so a caller can
+  // pass only what it knows.
+  function newEntry(fields) {
+    const f = fields || {};
+    const text = String(f.text == null ? "" : f.text);
+    return {
+      id: f.id || newId(f.idPrefix),
+      kind: f.kind || KINDS.SELECTION,
+      corpus: String(f.corpus || "tfr"),
+      work: String(f.work || ""),
+      title: String(f.title || ""),
+      author: String(f.author || ""),
+      cite: String(f.cite || ""),
+      anchor: String(f.anchor || ""),
+      url: String(f.url || ""),
+      // The ellipsis is part of the stored text on purpose: a truncated
+      // quotation that does not say it was truncated is a misquotation
+      // the moment it is pasted into a footnote.
+      text: text.length > MAX_TEXT ? `${text.slice(0, MAX_TEXT)}…` : text,
+      note: String(f.note == null ? "" : f.note).slice(0, MAX_NOTE),
+      at: f.at || new Date().toISOString().slice(0, 10),
+    };
+  }
 
   function load() {
     try {
@@ -110,7 +174,7 @@
     const list = load();
     const hit = list.filter((x) => x.id === id)[0];
     if (!hit) return null;
-    hit.note = String(text == null ? "" : text).slice(0, 2000);
+    hit.note = String(text == null ? "" : text).slice(0, MAX_NOTE);
     save(list);
     return hit;
   }
@@ -307,7 +371,12 @@
     NOTEBOOK_KEY,
     EDGES_KEY,
     MAX_ENTRIES,
+    MAX_TEXT,
+    MAX_NOTE,
     RELATIONS,
+    KINDS,
+    newId,
+    newEntry,
     load,
     save,
     add,

@@ -43,6 +43,18 @@
          (the full "tfr:<corpus>:<work>" bookmark id) and a
          button[data-fb-remove]; the error state carries
          button[data-fb-retry].
+       - [data-fb-foot] — the note about where a resumed work opens.
+         Shown by the script only once at least one row actually has a
+         place to resume to, since otherwise it describes nothing.
+
+     WHERE IT OPENS. A bookmark names the work; where you were in it is
+     kept separately, in this browser, by
+     assets/js/lib/faith-position-store.js. The two cannot be one
+     record: bookmarks are the mo-kit Worker's KV and its ids are bare
+     strings with no field to carry a position. So the row's link
+     resumes where there is something to resume to, and the foot note
+     says plainly that the work follows the reader between devices and
+     the place in it does not.
 
      Rendered on its own page rather than in a tab strip, wrap it in a
      <section class="bband"> and give the page its own hero. Nothing in
@@ -71,6 +83,16 @@
 
     <div class="bookmarks-list" data-fb-list></div>
 
+    {{!-- Said plainly rather than in a tooltip, and only once it is
+          true of something on screen. A reader who opens a saved work
+          on their phone and lands at the top would otherwise think the
+          resume had broken. --}}
+    <p class="bookmarks-foot-note" data-fb-foot hidden>
+      Works marked <em>picks up where you left off</em> reopen at the place you stopped.
+      Your saved works are kept with your membership and follow you between devices;
+      the place you left off is kept in this browser only.
+    </p>
+
   </div>
 </div>
 
@@ -78,6 +100,9 @@
       would take the :first-child margin reset off the header above it.
       faith-corpora.js first — faith-bookmarks.js resolves saved ids
       against window.MOCorpora, and page-template scripts run before
-      site.min.js, so nothing bundled can be assumed here. --}}
+      site.min.js, so nothing bundled can be assumed here. The position
+      store is the same kind of dependency: without it every row still
+      links to its work, only to the top of it. --}}
 <script src="{{asset "js/faith-corpora.js"}}"></script>
+<script src="{{asset "js/lib/faith-position-store.js"}}"></script>
 <script src="{{asset "js/page/faith-bookmarks.js"}}"></script>

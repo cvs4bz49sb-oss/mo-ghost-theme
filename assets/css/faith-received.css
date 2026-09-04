@@ -975,6 +975,21 @@ mark.faith-find-hit.is-current {
   border-radius: 3px;
   resize: vertical;
 }
+/* "Saved", under the note field. A note autosaves while it is being
+   typed, and a save nobody can see is a save nobody trusts. Reserves
+   no height when hidden: this sits between the field and the row of
+   actions, and a permanent blank line there reads as a gap. */
+.faith-notebook-saved {
+  margin: 4px 0 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.faith-notebook-saved[hidden] { display: none; }
+.faith-notebook-saved.is-error { color: var(--color-alert-text); }
 .faith-notebook-row { display: flex; gap: 14px; margin-top: 8px; }
 .faith-notebook-act {
   padding: 0;
@@ -3647,6 +3662,21 @@ mark.faith-find-hit.is-current {
   color: var(--color-muted);
   margin: 0 0 10px;
 }
+
+/* Where a saved work reopens, and the honest half of it: the work
+   follows the member between devices and the place in it does not.
+   Under the list rather than in the header, because it explains a
+   label the rows carry. */
+.bookmarks-foot-note {
+  margin: 20px 0 0;
+  max-width: 62ch;
+  font-family: var(--font-body);
+  font-size: var(--tfr-meta);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.bookmarks-foot-note[hidden] { display: none; }
+.bookmarks-foot-note em { font-style: italic; }
 
 /* Remove. Quiet until it is armed, and it takes two clicks: this list
    is where someone scans a shelf rather than toggles one work, and

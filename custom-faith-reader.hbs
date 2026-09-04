@@ -216,6 +216,13 @@
      Shared with the searches on the browse and author pages. --}}
 <script src="{{asset "js/faith-text.js"}}"></script>
 <script src="{{asset "js/faith-scripture-ref.js"}}"></script>
+{{!-- Where you left off. BEFORE the reader, which reads
+     window.MOFaithPosition as it renders: the position is what the
+     "Continue reading" shelf's link and the Bookmarks workspace's link
+     resume to, and both are written by the reader. A missing store
+     costs the resume point and nothing else — the reader checks for it
+     and falls back to the plain work URL. --}}
+<script src="{{asset "js/lib/faith-position-store.js"}}"></script>
 <script src="{{asset "js/faith-reader.js"}}"></script>
 {{!-- "Report An Issue" in the text tools: a reader who has found a bad
      translation or a broken page is already looking at it, so the form

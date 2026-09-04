@@ -417,13 +417,50 @@
       return scope === "all" ? all : all.filter((e) => e.work === work.id && e.corpus === work.corpus);
     }
 
+    // A render throws the list away and rebuilds it from storage, which
+    // is fine for every caller except one: a reader typing a note is
+    // holding text that is not in storage yet, and rebuilding under
+    // them deletes the half-sentence they are in the middle of. Saving
+    // a section from the text calls render() to update the count, so
+    // this is not hypothetical. Defer instead, and run the deferred
+    // render when the field is done.
+    let deferred = false;
+    let deferTimer = null;
+
+    function typing() {
+      const el = document.activeElement;
+      return !!(el && el.matches && el.matches("[data-nb-note]") && panel.contains(el));
+    }
+
+    // A deferred render is picked up by whichever comes first: the
+    // field losing focus, or this. Both, because neither alone is
+    // enough — `focusout` is the immediate one and does not fire when
+    // the field is emptied of focus by something other than the
+    // reader (a closed panel, a document that never had focus), and a
+    // deferred render that nothing ever runs is a list frozen at the
+    // moment someone started typing.
+    function deferRender() {
+      deferred = true;
+      if (deferTimer) return;
+      deferTimer = window.setInterval(() => {
+        if (typing()) return;
+        window.clearInterval(deferTimer);
+        deferTimer = null;
+        if (deferred) render();
+      }, 700);
+    }
+
     function render() {
       const list = entries();
       const mine = load().filter((e) => e.work === work.id && e.corpus === work.corpus).length;
+      // The count is a number on a button and cannot eat anyone's
+      // typing, so it is updated either way.
       if (countEl) {
         countEl.hidden = !mine;
         countEl.textContent = mine ? String(mine) : "";
       }
+      if (typing()) { deferRender(); return; }
+      deferred = false;
       if (!list.length) {
         listEl.innerHTML =
           `<p class="faith-notebook-empty">Select any passage in the text to keep it here, with its citation and a link back to the exact place.</p>`;
@@ -448,6 +485,7 @@
           ${scope === "all" && e.title ? `<p class="faith-notebook-work">${esc(e.title)}</p>` : ""}
           <blockquote class="faith-notebook-text">${esc(e.text)}</blockquote>
           <textarea class="faith-notebook-input" data-nb-note placeholder="Note">${esc(e.note || "")}</textarea>
+          <p class="faith-notebook-saved" data-nb-saved role="status" aria-live="polite" hidden></p>
           ${relatedTo(e.id) ? `<ul class="faith-notebook-edges">${relatedTo(e.id)}</ul>` : ""}
           ${linkFrom && linkFrom !== e.id ? `<div class="faith-notebook-relate">
             <select class="faith-notebook-rel" data-nb-rel>${RELATIONS.map((r) => `<option value="${r}">${r}</option>`).join("")}</select>
@@ -521,17 +559,72 @@
       }
     });
 
-    panel.addEventListener("change", (e) => {
-      const field = e.target.closest("[data-nb-note]");
-      if (!field) return;
+    // ── Notes ───────────────────────────────────────────────────
+    //
+    // Autosaved while typing rather than only on blur. A note is
+    // someone's own work and the old behaviour lost it silently in the
+    // ordinary case: type a sentence, close the panel with the toggle
+    // or Escape, and the field never fired `change`. `change` is kept
+    // as well, since it is the event a paste-and-tab produces.
+
+    function saveNote(field) {
       const item = field.closest("[data-nb-id]");
       const id = item && item.getAttribute("data-nb-id");
-      if (!id) return;
+      if (!id || !NB) return;
       // Through the store, not by hand. This used to load the list,
       // mutate the entry and save it back -- a second implementation of
       // a write the store already owns, and the exact way two copies of
       // a format drift apart. setNote() applies the same length cap.
-      if (NB) NB.setNote(id, field.value);
+      const saved = NB.setNote(id, field.value);
+      // Said on the field itself: there is no status line in this
+      // panel, and a save the reader cannot see is a save they will
+      // not trust. A failed one is the entry having been removed in
+      // another tab, which is worth saying rather than swallowing.
+      const flag = item && item.querySelector("[data-nb-saved]");
+      if (!flag) return;
+      flag.textContent = saved ? "Saved" : "Not saved";
+      flag.classList.toggle("is-error", !saved);
+      flag.hidden = false;
+      // One timer, not one per field: only one note is ever being
+      // typed, and the element the previous timer pointed at may have
+      // been thrown away by a render since.
+      window.clearTimeout(flagTimer);
+      flagTimer = window.setTimeout(() => { flag.hidden = true; }, 1400);
+    }
+
+    let flagTimer = null;
+    let noteTimer = null;
+    let noteField = null;
+
+    panel.addEventListener("input", (e) => {
+      const field = e.target.closest("[data-nb-note]");
+      if (!field) return;
+      noteField = field;
+      window.clearTimeout(noteTimer);
+      noteTimer = window.setTimeout(() => {
+        noteTimer = null;
+        if (noteField) saveNote(noteField);
+      }, 500);
+    });
+
+    panel.addEventListener("change", (e) => {
+      const field = e.target.closest("[data-nb-note]");
+      if (!field) return;
+      window.clearTimeout(noteTimer);
+      noteTimer = null;
+      saveNote(field);
+    });
+
+    // Leaving the field commits whatever the debounce has not yet
+    // written, and releases any render that was waiting on it.
+    panel.addEventListener("focusout", (e) => {
+      const field = e.target.closest && e.target.closest("[data-nb-note]");
+      if (!field) return;
+      window.clearTimeout(noteTimer);
+      noteTimer = null;
+      saveNote(field);
+      noteField = null;
+      if (deferred) window.setTimeout(render, 0);
     });
 
     panel.querySelector("[data-nb-copy]").addEventListener("click", (e) => {
@@ -618,21 +711,27 @@
       const base = load();
       const ids = [];
       parsed.forEach((p, i) => {
+        // Ids stay "s"-prefixed and index-suffixed: the edges below are
+        // matched to them by position, and two entries minted in the
+        // same millisecond would otherwise collide.
         const id = `s${Date.now().toString(36)}${i}`;
         ids.push(id);
-        base.unshift({
+        // Same factory as both save paths, marked `shared` so a passage
+        // someone else chose is distinguishable from one this reader
+        // did. The wire format carries a citation and a note, not the
+        // passage, which is why `text` falls back the way it does.
+        base.unshift(NB.newEntry({
           id,
+          kind: NB.KINDS.SHARED,
           corpus: p.corpus,
           work: p.work,
           title: shared.name,
-          author: "",
           cite: p.cite,
           anchor: p.anchor,
           url: readerUrl(p),
           text: p.note || p.cite || "",
           note: p.note || "",
-          at: new Date().toISOString().slice(0, 10),
-        });
+        }));
       });
       save(base);
       const edges = loadEdges();
@@ -650,6 +749,12 @@
   }
 
   // ── Selection → save ──────────────────────────────────────────
+  //
+  // Highlight anything in the text and a button appears over it. What
+  // is kept is the passage as selected, with the citation and anchor of
+  // the block the selection STARTED in — a selection that runs across
+  // two blocks is cited to the first, which is where a reader would cite
+  // it from.
 
   function buildSelectionSave(notebook) {
     const pop = document.createElement("button");
@@ -670,38 +775,68 @@
       if (!sel || sel.isCollapsed) hide();
     });
 
-    contentEl.addEventListener("mouseup", () => {
-      window.setTimeout(() => {
-        const sel = window.getSelection();
-        if (!sel || sel.isCollapsed || !sel.rangeCount) return hide();
-        const range = sel.getRangeAt(0);
-        if (!contentEl.contains(range.commonAncestorContainer)) return hide();
-        // The range, not the selection: Selection.toString() returns
-        // empty when the document does not have focus, which is every
-        // automated check of this feature and some real ones.
-        const text = range.toString().trim();
-        if (text.length < 4) return hide();
+    // Pressing the button can clear the very selection it is about to
+    // save. A mousedown outside the selection collapses it, the
+    // selectionchange handler above then calls hide(), and `pending` is
+    // null by the time the click handler runs — the button does
+    // nothing, with no way for the reader to tell why. Refusing the
+    // default on mousedown keeps the selection alive through the click;
+    // the button is not a text field and loses nothing by not taking
+    // focus this way.
+    pop.addEventListener("mousedown", (e) => { e.preventDefault(); });
 
-        const ctx = contextOf(range.startContainer);
-        pending = {
-          id: `n${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`,
-          corpus: work.corpus,
-          work: work.id,
-          title: titleOf(),
-          author: authorOf(),
-          cite: ctx.cite,
-          anchor: ctx.anchor,
-          url: linkTo(ctx.anchor),
-          text: text.length > 1200 ? `${text.slice(0, 1200)}…` : text,
-          note: "",
-          at: new Date().toISOString().slice(0, 10),
-        };
+    function offer() {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.rangeCount) return hide();
+      const range = sel.getRangeAt(0);
+      if (!contentEl.contains(range.commonAncestorContainer)) return hide();
+      // The range, not the selection: Selection.toString() returns
+      // empty when the document does not have focus, which is every
+      // automated check of this feature and some real ones.
+      const text = range.toString().trim();
+      if (text.length < 4) return hide();
 
-        const r = range.getBoundingClientRect();
-        pop.hidden = false;
-        pop.style.top = `${Math.max(8, r.top + window.scrollY - 42)}px`;
-        pop.style.left = `${Math.max(8, r.left + window.scrollX)}px`;
-      }, 10);
+      const ctx = contextOf(range.startContainer);
+      // Through the store's factory, so this entry and the one the
+      // section button writes are the same shape and both carry a
+      // `kind`. The 1,200-character cap lives there now.
+      pending = NB ? NB.newEntry({
+        kind: NB.KINDS.SELECTION,
+        corpus: work.corpus,
+        work: work.id,
+        title: titleOf(),
+        author: authorOf(),
+        cite: ctx.cite,
+        anchor: ctx.anchor,
+        url: linkTo(ctx.anchor),
+        text,
+      }) : null;
+      if (!pending) return hide();
+
+      const r = range.getBoundingClientRect();
+      pop.hidden = false;
+      pop.style.top = `${Math.max(8, r.top + window.scrollY - 42)}px`;
+      pop.style.left = `${Math.max(8, r.left + window.scrollX)}px`;
+      return undefined;
+    }
+
+    // A beat after the event, because the selection is not final until
+    // the browser has finished processing the gesture that made it.
+    const offerSoon = () => window.setTimeout(offer, 10);
+
+    contentEl.addEventListener("mouseup", offerSoon);
+    // A phone selects by long-press and drag, and never fires mouseup
+    // for it, so highlight-to-save did not exist on mobile at all.
+    contentEl.addEventListener("touchend", offerSoon);
+    // And a keyboard selects with shift+arrows, which is neither. Not
+    // while the reader is typing: Shift is also how they get a capital
+    // letter into a note, and every one of those would arm a timer to
+    // ask a question whose answer is already no.
+    document.addEventListener("keyup", (e) => {
+      if (!e.shiftKey && e.key !== "Shift") return;
+      const t = e.target;
+      if (t && t.closest && t.closest("input, textarea, select, [contenteditable]")) return;
+      offerSoon();
     });
 
     pop.addEventListener("click", () => {
@@ -771,6 +906,13 @@
       return true;
     }
     const notebook = buildNotebook();
+    // The one handle onto this panel. faith-received.js owns the Save
+    // to notebook button at the foot of each section and has no other
+    // way to tell the panel its count changed; it checks for this and
+    // does nothing when it is absent, so a page without the reader
+    // tools is unaffected. Deliberately just { render, open } — nothing
+    // outside this file may reach into the panel's state.
+    window.MOFaithNotebookPanel = notebook;
     notebook.render();
     buildSelectionSave(notebook);
     buildImport(notebook);

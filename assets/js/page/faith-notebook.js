@@ -167,6 +167,40 @@
       `</div>`;
   }
 
+  // A render rebuilds every entry from storage, textareas included. If
+  // one of them has the cursor in it, that field is holding text the
+  // store has not seen yet and the rebuild deletes it mid-sentence.
+  // The `storage` event makes this a real case rather than a
+  // theoretical one: the reader open in another tab saves a passage,
+  // this page renders, and the note being typed here vanishes.
+  //
+  // So a render that arrives while someone is typing is DEFERRED, not
+  // dropped, and runs when the field is released.
+  let deferred = false;
+  let deferTimer = null;
+
+  function typing() {
+    const el = document.activeElement;
+    return !!(el && el.matches && el.matches("[data-fn-note]") && listEl.contains(el));
+  }
+
+  // Picked up by whichever comes first: the field losing focus, or
+  // this. Both, because `focusout` is the immediate signal and is not
+  // a guaranteed one — a field can stop being the active element
+  // without the reader having blurred it — and a deferred render that
+  // nothing ever runs is a list frozen at the moment someone started
+  // typing.
+  function deferRender() {
+    deferred = true;
+    if (deferTimer) return;
+    deferTimer = window.setInterval(() => {
+      if (typing()) return;
+      window.clearInterval(deferTimer);
+      deferTimer = null;
+      if (deferred) render();
+    }, 700);
+  }
+
   function render() {
     const list = shown();
     const total = all().length;
@@ -184,6 +218,11 @@
     }
     if (toolsEl) toolsEl.hidden = total < 2;
     if (footEl) footEl.hidden = !list.length;
+
+    // Everything above this line is chrome and cannot eat anyone's
+    // typing. Everything below rebuilds the entries.
+    if (typing()) { deferRender(); return; }
+    deferred = false;
 
     if (!list.length) { renderEmpty(!!filter && !!total); return; }
 
@@ -272,20 +311,67 @@
     disarm();
   });
 
-  // Autosave on blur/commit, the same event the reader's panel uses, so
-  // a note typed in one place behaves the same way in the other.
-  listEl.addEventListener("change", (e) => {
-    const field = e.target.closest("[data-fn-note]");
-    if (!field) return;
+  /* ── Notes ───────────────────────────────────────────────────── */
+  //
+  // Autosaved while typing, not only on blur. Blur alone loses a note
+  // in the ordinary case: type a sentence, then close the tab or follow
+  // the "Open in the reader" link, and `change` never fires. The
+  // reader's own panel does the same thing on the same schedule, so a
+  // note behaves identically in both places.
+  //
+  // 500ms, trailing. Short enough that a note is safe almost as soon as
+  // it is typed, long enough that a whole sentence is one write to
+  // localStorage rather than forty.
+
+  let noteTimer = null;
+  let noteField = null;
+
+  function saveNote(field) {
     const item = field.closest("[data-fn-id]");
     const id = item && item.getAttribute("data-fn-id");
     if (!id) return;
     const saved = NB.setNote(id, field.value);
-    setStatus(saved ? "Note saved." : "That note could not be saved.", saved ? "" : "error");
+    // A failed save here means the entry is gone — removed in another
+    // tab, most likely — and the reader is typing into nothing. Said
+    // plainly, and left on screen rather than timed out.
+    setStatus(saved ? "Note saved." : "That note could not be saved: it is no longer in your notebook.", saved ? "" : "error");
     if (saved) window.setTimeout(() => setStatus(""), 1600);
+  }
+
+  listEl.addEventListener("input", (e) => {
+    const field = e.target.closest("[data-fn-note]");
+    if (!field) return;
+    noteField = field;
+    window.clearTimeout(noteTimer);
+    noteTimer = window.setTimeout(() => {
+      noteTimer = null;
+      if (noteField) saveNote(noteField);
+    }, 500);
+  });
+
+  // Kept alongside the debounce: `change` is what a paste-then-tab
+  // produces, and it commits immediately rather than waiting.
+  listEl.addEventListener("change", (e) => {
+    const field = e.target.closest("[data-fn-note]");
+    if (!field) return;
+    window.clearTimeout(noteTimer);
+    noteTimer = null;
+    saveNote(field);
   });
 
   root.addEventListener("focusout", (e) => {
+    const field = e.target.closest && e.target.closest("[data-fn-note]");
+    if (field) {
+      // Commit whatever the debounce has not written yet, then run any
+      // render that was waiting for this field to be free. A timeout of
+      // 0, because during focusout the field is still the active
+      // element and typing() would say the reader is still in it.
+      window.clearTimeout(noteTimer);
+      noteTimer = null;
+      saveNote(field);
+      noteField = null;
+      if (deferred) window.setTimeout(render, 0);
+    }
     if (!root.contains(e.relatedTarget)) disarm();
   });
 

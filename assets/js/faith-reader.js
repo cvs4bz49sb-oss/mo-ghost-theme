@@ -3964,16 +3964,39 @@
   }
 
   // ── Continue Reading ──────────────────────────────────────────
+  //
+  // Two records, and now a third thing they both carry.
+  //
+  //   fr_lastread  one work — the last one opened.
+  //   fr_recent    the last six, which is what the Library's "Continue
+  //                reading" shelf is built from.
+  //   fr_positions WHERE in each work, kept by
+  //                assets/js/lib/faith-position-store.js.
+  //
+  // The position used to be a hardcoded `page: 1` on fr_lastread, and
+  // nothing read fr_lastread at all, so "continue reading" meant
+  // "reopen at the top". Both records now carry the real spot: the
+  // recent shelf's URL gets the locator appended, and fr_lastread
+  // carries the same page/anchor for anything that reads it later.
+
+  const POS = () => window.MOFaithPosition || null;
 
   function saveLastRead() {
     if (!meta || !slug) return;
+    const store = POS();
+    const spot = store ? store.get(corpusId, slug) : null;
     try {
       localStorage.setItem(LASTREAD_KEY, JSON.stringify({
         slug,
         corpus: corpusId,
         title: meta.title || "",
         author: meta.author || "",
-        page: 1,
+        // The page the reader actually reached, where the corpus has
+        // pages and a section was proved to cover it. Null everywhere
+        // else, which is most of this library — the anchor is the
+        // locator there, and a made-up `1` was never true of either.
+        page: spot && spot.page ? spot.page : null,
+        anchor: spot ? spot.anchor : "",
         ts: Date.now(),
       }));
     } catch (_) {}
@@ -3989,7 +4012,15 @@
     if (!meta || !slug) return;
     try {
       const c = corpusId && corpusId !== "tfr" ? `&c=${encodeURIComponent(corpusId)}` : "";
-      const url = `/the-faith-received/reader/?w=${encodeURIComponent(slug)}${c}`;
+      const plain = `/the-faith-received/reader/?w=${encodeURIComponent(slug)}${c}`;
+      // The shelf link resumes. appendTo() adds `&p=` for a paginated
+      // work and `#anchor` for everything else, and returns the plain
+      // work URL untouched when there is no position yet — so the link
+      // is never dead, only sometimes less precise. faith-library-browse.js
+      // still recognises it: the locator is appended, and the
+      // "/the-faith-received/reader/?" prefix it filters on is intact.
+      const store = POS();
+      const url = store ? store.appendTo(plain, corpusId, slug) : plain;
       let list = [];
       try {
         list = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
@@ -4007,6 +4038,120 @@
       localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_MAX)));
     } catch (_) {}
   }
+
+  // ── Keeping the place ─────────────────────────────────────────
+  //
+  // The same rule the facsimile pane uses to decide which printed page
+  // it is showing (see sync() in initFacsimile): the block nearest the
+  // top of the reading column, skipping anything inside a closed
+  // <details> — offsetParent is null there, and a collapsed section is
+  // not what anyone is looking at — and stopping once past the fold.
+  // The pane and the resume point should never disagree about where
+  // the reader is, so they answer the question the same way.
+  //
+  // Both [data-page] and .faith-parallel-block are candidates. The
+  // Latin corpus prints a [p. 57] marker inside the flow, which is a
+  // finer answer than the block that contains it; the extract corpora
+  // have no markers and their blocks carry the addressable id.
+  const SPOT_SEL = "[data-page], .faith-parallel-block";
+  const SPOT_FOLD = 120;
+
+  function spotElement() {
+    const blocks = contentEl.querySelectorAll(SPOT_SEL);
+    if (!blocks.length) return null;
+    let best = null;
+    let bestD = Infinity;
+    for (let i = 0; i < blocks.length; i += 1) {
+      const b = blocks[i];
+      if (!b.offsetParent) continue;
+      const { top } = b.getBoundingClientRect();
+      if (top > window.innerHeight) break;
+      const d = Math.abs(top - SPOT_FOLD);
+      if (d < bestD) { bestD = d; best = b; }
+    }
+    return best || null;
+  }
+
+  // Is `?p=N` a locator this work can actually honour? openInitialSection
+  // resolves a page by finding the section whose [data-from, data-to)
+  // covers it, so the question is exactly whether such a section
+  // exists. Early English Books is `gz-toc` and renders sections with
+  // no data-from at all: a `p=` there resolves to nothing and drops the
+  // reader at the top of the work having promised otherwise. Asking the
+  // DOM rather than keeping a table of which corpora paginate makes a
+  // wrong `?p=` structurally impossible.
+  function pageResolves(n) {
+    const all = contentEl.querySelectorAll("[data-from][data-to]");
+    for (let i = 0; i < all.length; i += 1) {
+      const from = parseInt(all[i].getAttribute("data-from"), 10);
+      const to = parseInt(all[i].getAttribute("data-to"), 10);
+      if (!isNaN(from) && !isNaN(to) && n >= from && n < to) return true;
+    }
+    return false;
+  }
+
+  function currentSpot() {
+    const el = spotElement();
+    if (!el) return null;
+    // anchorOf() walks to the nearest data-src-id or DOM id, which for
+    // a page marker is the section holding it and for an extract block
+    // is the block itself.
+    const anchor = anchorOf(el);
+    const carrier = el.getAttribute("data-page") ? el : el.closest("[data-page]");
+    const raw = carrier ? parseInt(carrier.getAttribute("data-page"), 10) : NaN;
+    const page = !isNaN(raw) && raw > 0 && pageResolves(raw) ? raw : null;
+    if (!page && !anchor) return null;
+    return { page, anchor };
+  }
+
+  // Written at most once per 1.5s of reading, and only when the spot
+  // has actually moved: this runs on every scroll event of a work that
+  // can be 130,000px tall, and a localStorage write per frame would be
+  // the most expensive thing on the page.
+  let posTimer = null;
+  let posLast = "";
+
+  function savePosition() {
+    const store = POS();
+    if (!store || !slug || !meta) return;
+    const spot = currentSpot();
+    if (!spot) return;
+    const sig = `${spot.page || ""}|${spot.anchor}`;
+    if (sig === posLast) return;
+    posLast = sig;
+    store.set(corpusId, slug, spot);
+    // The two records that name this work carry the spot with them, so
+    // the Library's shelf and anything reading fr_lastread resume too.
+    saveLastRead();
+  }
+
+  function schedulePosition() {
+    if (posTimer) return;
+    posTimer = window.setTimeout(() => {
+      posTimer = null;
+      savePosition();
+    }, 1500);
+  }
+
+  // Trailing, not leading: the position worth keeping is where the
+  // reader stopped, not where they passed through.
+  function flushPosition() {
+    if (posTimer) { window.clearTimeout(posTimer); posTimer = null; }
+    savePosition();
+  }
+
+  window.addEventListener("scroll", schedulePosition, { passive: true });
+  // Opening or closing a section moves everything under it, so the
+  // block at the fold changes without a scroll event. Captured, because
+  // `toggle` does not bubble.
+  contentEl.addEventListener("toggle", schedulePosition, true);
+  // Closing a tab fires neither `beforeunload` reliably nor `unload` on
+  // mobile Safari. These two do fire, and between them they cover
+  // switching tabs, backgrounding the browser, and closing the page.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushPosition();
+  });
+  window.addEventListener("pagehide", flushPosition);
 
   // ── UI helpers ────────────────────────────────────────────────
 

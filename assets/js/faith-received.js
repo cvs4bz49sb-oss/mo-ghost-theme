@@ -640,17 +640,149 @@
     return `${location.origin + location.pathname}${qs}#${id}`;
   }
 
+  // ── Keeping a whole section ───────────────────────────────────
+  //
+  // Selecting a passage keeps what the reader drew. This keeps what the
+  // document already declares: an article, a question, a chapter — the
+  // unit the text itself is divided into, which is very often the thing
+  // someone means to keep and is tedious to highlight in a work that
+  // runs to four hundred pages.
+  //
+  // The condition is [data-fr-content]: the DYNAMIC reader, and only
+  // it. The ~100 generated document pages (custom-faith-heidelberg and
+  // friends) use this same actions row and have no work id, no corpus
+  // and no notebook panel to show a save in, so the button must never
+  // appear there.
+  //
+  // NOT `window.MOFaithNotebook &&`, which is the obvious test and the
+  // wrong one. This row is injected when a section's text lands, and
+  // that is an async callback: whether the store's <script> has run by
+  // then is a question of how fast a fetch resolved. Under a warm cache
+  // it can resolve between two script tags, and the button would appear
+  // on some loads of the same page and not others. The store ships in
+  // the same template as [data-fr-content], so the honest test is
+  // "is this the reader"; a store that genuinely failed to load is
+  // handled at click time, where it can be said out loud.
+  //
+  // Answered once. buildActionsRow runs per section, and a work with no
+  // outline is chunked into hundreds of them; the answer cannot change
+  // between two of those calls, since [data-fr-content] is in the
+  // template rather than rendered.
+  let isReaderPage = null;
+
+  function notebookAvailable() {
+    if (isReaderPage === null) {
+      isReaderPage = !!document.querySelector("[data-fr-content]");
+    }
+    return isReaderPage;
+  }
+
+  // The reader's own idea of which work this is. Read from the URL for
+  // the same reason faith-bookmark.js does: it is the only thing on the
+  // page that is true before the catalogue answers.
+  function readerWork() {
+    let w = "";
+    let c = "tfr";
+    try {
+      const q = new URLSearchParams(location.search);
+      w = q.get("w") || "";
+      c = q.get("c") || "tfr";
+    } catch (_) {}
+    return { work: w, corpus: c };
+  }
+
+  // Nearest citation and anchor for a whole section, which is the same
+  // question contextOf() answers for a selection in faith-reader-tools.js
+  // — asked of an element rather than of a text node. The section's own
+  // data-src-id is preferred over its DOM id: that is the id the source
+  // uses and the one a deep link resolves through revealSection().
+  function sectionContext(section) {
+    let cite = "";
+    let n = section;
+    while (n && n.getAttribute) {
+      if (!cite) cite = n.getAttribute("data-cite") || "";
+      if (cite) break;
+      if (n.hasAttribute && n.hasAttribute("data-fr-content")) break;
+      n = n.parentElement;
+    }
+    if (!cite) {
+      const title = section.querySelector(
+        ":scope > summary .faith-section-title, :scope > .faith-section-title, " +
+        ":scope > summary .faith-book-title, .faith-qa-question"
+      );
+      cite = title ? title.textContent.replace(/\s+/g, " ").trim() : "";
+    }
+    return {
+      cite,
+      anchor: section.getAttribute("data-src-id") || section.id || "",
+    };
+  }
+
+  function saveSectionToNotebook(section, btn) {
+    const NB = window.MOFaithNotebook;
+    // The store failed to load. Rare — it ships in the same template —
+    // but a button that does nothing at all teaches a reader that saves
+    // are unreliable, and that is a worse lesson than one failure.
+    if (!NB) {
+      if (btn) flashLabel(btn, "Unavailable");
+      return;
+    }
+    const ctx = sectionContext(section);
+    const where = readerWork();
+    // A section is a fixed unit, so saving it twice can only ever
+    // produce two identical clippings — which is what a second click,
+    // or a click on a row the reader saved last week, would otherwise
+    // do. The selection popover has no such problem: two selections are
+    // rarely the same passage.
+    const already = NB.load().some((e) => (
+      e.kind === NB.KINDS.SECTION &&
+      e.work === where.work &&
+      e.corpus === where.corpus &&
+      e.anchor === ctx.anchor
+    ));
+    if (already) {
+      if (btn) flashLabel(btn, "Already saved");
+      return;
+    }
+    const titleEl = document.querySelector("[data-fr-title]");
+    const dekEl = document.querySelector("[data-fr-dek]");
+    NB.add(NB.newEntry({
+      kind: NB.KINDS.SECTION,
+      corpus: where.corpus,
+      work: where.work,
+      title: titleEl ? titleEl.textContent.trim() : "",
+      // The dek is a whole descriptive line; only its first segment is
+      // an author. Same rule as authorOf() in faith-reader-tools.js.
+      author: dekEl ? dekEl.textContent.trim().split("·")[0].trim() : "",
+      cite: ctx.cite,
+      anchor: ctx.anchor,
+      // The section's own absolute link, already built above and
+      // already carrying ?c= and ?w=. newEntry caps the text.
+      url: sectionUrl(section.id),
+      text: extractCopyText(section),
+    }));
+    // The reader's slide-out panel is the surface this lands in, and it
+    // shows a count. Told rather than left to notice on next open.
+    if (window.MOFaithNotebookPanel) window.MOFaithNotebookPanel.render();
+    if (btn) flashLabel(btn, "Saved");
+  }
+
   function buildActionsRow(section) {
     const url = sectionUrl(section.id);
     const actions = document.createElement("div");
     actions.className = "faith-section-actions";
     actions.innerHTML =
-      `<button type="button" class="faith-section-action" data-faith-copy-link>${ 
+      `<button type="button" class="faith-section-action" data-faith-copy-link>${
         iconLink()}<span class="faith-section-action-label">Copy link</span>` +
       `</button>` +
-      `<button type="button" class="faith-section-action" data-faith-copy-text>${ 
+      `<button type="button" class="faith-section-action" data-faith-copy-text>${
         iconCopy()}<span class="faith-section-action-label">Copy passage</span>` +
-      `</button>`;
+      `</button>${
+        notebookAvailable()
+          ? `<button type="button" class="faith-section-action" data-faith-notebook-save>${
+            iconNotebook()}<span class="faith-section-action-label">Save to notebook</span>` +
+            `</button>`
+          : ""}`;
     actions.querySelector("[data-faith-copy-link]").addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -661,18 +793,39 @@
       e.stopPropagation();
       navigator.clipboard.writeText(extractCopyText(section)).then(() => { flashCopied(e.currentTarget); });
     });
+    const save = actions.querySelector("[data-faith-notebook-save]");
+    if (save) {
+      save.addEventListener("click", (e) => {
+        e.preventDefault();
+        // A section row can sit inside a <summary>'s sibling body but
+        // the Q&A rows sit inside clickable cards; stopping here keeps
+        // a save from also collapsing the section it saved.
+        e.stopPropagation();
+        saveSectionToNotebook(section, e.currentTarget);
+      });
+    }
     return actions;
   }
 
   function flashCopied(btn) {
+    flashLabel(btn, "Copied");
+  }
+
+  // The one confirmation these buttons give. Restores the label it
+  // found rather than a remembered constant, so a second click during
+  // the flash cannot leave the button reading "Saved" forever.
+  function flashLabel(btn, word) {
     const label = btn.querySelector(".faith-section-action-label");
     if (!label) return;
+    if (btn.dataset.faithFlashing === "1") return;
+    btn.dataset.faithFlashing = "1";
     const prev = label.textContent;
-    label.textContent = "Copied";
+    label.textContent = word;
     btn.classList.add("is-copied");
     setTimeout(() => {
       label.textContent = prev;
       btn.classList.remove("is-copied");
+      btn.dataset.faithFlashing = "";
     }, 1600);
   }
 
@@ -760,6 +913,13 @@
   }
   function iconCopy() {
     return '<svg class="faith-section-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  }
+  // An open book with a ribbon. Deliberately not a bookmark pennant:
+  // that is the Save button in the text tools, which saves the WORK,
+  // and two different actions wearing one glyph is how a reader learns
+  // to distrust both.
+  function iconNotebook() {
+    return '<svg class="faith-section-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H19v18H6.5A2.5 2.5 0 0 0 4 22z"/><path d="M9 2v8l2.5-1.8L14 10V2"/></svg>';
   }
 
   // ── Mobile TOC drawer ─────────────────────────────────────────

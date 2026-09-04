@@ -45,6 +45,20 @@
  * nothing. Only an id that resolves to no record at all gets a
  * constructed link, and that construction mirrors the same rule.
  *
+ * WHERE THE WORK OPENS. A bookmark says which work and nothing more:
+ * the id is a bare string and KV has no field to hang a position on, so
+ * a resume point cannot ride along with it. It is kept separately, in
+ * this browser, by assets/js/lib/faith-position-store.js, and appended
+ * to the row's link here — `&p=57` for a paginated work, `#r42942`
+ * everywhere else, and nothing at all where there is no position, so
+ * the link is never dead. The consequence is stated on screen rather
+ * than hidden: the work follows the member between devices and the
+ * place in it does not (see [data-fb-foot] in the partial).
+ *
+ * The locator is appended AFTER MOSafeHref has passed the base URL.
+ * That is deliberate and it is safe: a decimal page number and an
+ * encodeURIComponent'd anchor cannot introduce a scheme or a host.
+ *
  * THE CONFESSIONS FOOTNOTE. Creeds and confessions are opened by the
  * reader with no `?c=` at all (see MOCorpora's `confessions` adapter,
  * whose url is `?w=<slug>`), because that collection shares the Latin
@@ -70,6 +84,7 @@
   const statusEl = document.querySelector("[data-fb-status]");
   const countEl = document.querySelector("[data-fb-count]");
   const sortEl = document.querySelector("[data-fb-sort]");
+  const footEl = document.querySelector("[data-fb-foot]");
   if (!listEl || !statusEl) return;
 
   const { body } = document;
@@ -101,6 +116,21 @@
     const c = corpusId && corpusId !== "tfr"
       ? `c=${encodeURIComponent(corpusId)}&` : "";
     return `/the-faith-received/reader/?${c}w=${encodeURIComponent(workId)}`;
+  }
+
+  // The reader link, plus the place this browser last saw this reader
+  // in this work. The store returns the URL untouched where there is no
+  // position, so this is safe to run over every row.
+  const POS = () => window.MOFaithPosition || null;
+
+  function resumeUrl(url, corpusId, workId) {
+    const store = POS();
+    return store ? store.appendTo(url, corpusId, workId) : url;
+  }
+
+  function hasResume(corpusId, workId) {
+    const store = POS();
+    return !!(store && store.has(corpusId, workId));
   }
 
   /* ── State ───────────────────────────────────────────────────── */
@@ -138,6 +168,7 @@
   }
 
   function renderSignedOut() {
+    if (footEl) footEl.hidden = true;
     const lede = signedIn
       ? "Saved works are part of membership."
       : "Sign in to see the works you have saved.";
@@ -156,6 +187,8 @@
   }
 
   function renderError(message) {
+    // Nothing on screen is a row, so nothing on screen resumes.
+    if (footEl) footEl.hidden = true;
     listEl.innerHTML =
       `<div class="bookmarks-empty">` +
       `<p class="bookmarks-empty-lede">Your saved works could not be loaded.</p>` +
@@ -166,15 +199,22 @@
 
   function rowMarkup(r) {
     const meta = [r.author, r.eyebrow].filter(Boolean).map(esc).join(" &middot; ");
+    // Sanitize first, then add the locator: a page number and an
+    // encoded anchor cannot reintroduce a scheme, and doing it in this
+    // order means the catalogue's own url is the thing being checked.
+    const href = resumeUrl(safeHref(r.url), r.corpus, r.work);
     return [
       `<li class="bookmarks-row${r.resolved ? "" : " bookmarks-row--unmatched"}" data-fb-id="${esc(r.id)}">`,
-      `<a class="bookmarks-row-main" href="${esc(safeHref(r.url))}">`,
+      `<a class="bookmarks-row-main" href="${esc(href)}">`,
       `<span class="bookmarks-row-title">${esc(r.title)}</span>`,
       meta ? `<span class="bookmarks-row-meta">${meta}</span>` : "",
       // An id the catalogues could not match is still a real bookmark
       // and the link still works. Saying so is better than dropping the
       // row, which would read as "we lost it".
       r.resolved ? "" : `<span class="bookmarks-row-note">Not in the catalogue just now. The link still opens the reader.</span>`,
+      // Only where the link really does resume. An unconditional label
+      // would be a promise the row could not keep.
+      r.resume ? `<span class="bookmarks-row-note">Picks up where you left off.</span>` : "",
       `</a>`,
       `<span class="bookmarks-row-side">`,
       // The shelf name is already the group heading when grouped.
@@ -204,6 +244,9 @@
   function render() {
     setCount();
     if (sortEl) sortEl.hidden = rows.length < 2;
+    // The note explains a label. Where no row carries the label it
+    // explains nothing, so it is not shown.
+    if (footEl) footEl.hidden = !rows.some((r) => r.resume);
 
     if (!rows.length) { renderEmpty(); return; }
 
@@ -278,10 +321,18 @@
         hit = (indexOf.get(CONFESSION_FALLBACK) || new Map()).get(want.work);
         if (hit) corpusId = CONFESSION_FALLBACK;
       }
+      // The position was stored by the reader under the corpus the URL
+      // carried, which is what the bookmark id records — NOT the
+      // confessions fallback, which is a catalogue we retry against and
+      // not an address the reader ever used.
+      const resume = hasResume(want.corpus, want.work);
       if (hit) {
         return {
           id: want.id,
           resolved: true,
+          resume,
+          corpus: want.corpus,
+          work: want.work,
           title: hit.title || hit.id,
           author: hit.author || "",
           eyebrow: hit.eyebrow || "",
@@ -294,6 +345,9 @@
       return {
         id: want.id,
         resolved: false,
+        resume,
+        corpus: want.corpus,
+        work: want.work,
         title: want.work,
         author: "",
         eyebrow: "",
