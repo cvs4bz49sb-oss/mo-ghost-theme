@@ -143,7 +143,7 @@
   // been through escapeHtml() below -- the only tags this can ever
   // introduce are the fixed <strong>/<sup><a> templates here, so this
   // stays as safe as the citation-marker handling it's alongside.
-  function renderInline(text, citByN) {
+  function renderInline(text, citByN, workLinks) {
     const withNotes = text.replace(/\[(\d+)\]/g, (whole, numStr) => {
       const n = parseInt(numStr, 10);
       if (!citByN.has(n)) return ""; // a dangling marker never renders as text or markup
@@ -152,11 +152,67 @@
     // synthesisSystem() explicitly asks the model for **bold** lead-ins
     // ("bold heading each", "**Where they agree**" etc.) -- this used
     // to render as literal asterisks since nothing consumed them.
-    return withNotes.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    //
+    // Bold FIRST, then italic: the italic pass matches a single * pair,
+    // so running it first would eat the inner half of every ** pair and
+    // leave stray asterisks behind. Italics matter a lot in this corpus
+    // specifically -- the model sets Latin technical terms and work
+    // titles in them constantly (*sub lege*, *sub gratia*, *Expositio
+    // quarundam propositionum ex Epistola ad Romanos*), and every one
+    // of them was rendering with visible asterisks.
+    // Work titles -> links, BEFORE bold/italic. The model habitually
+    // sets a title in *italics* (*Ad Simplicianum*), so the anchor has
+    // to be inside the asterisks by the time the italic pass runs; an
+    // anchor contains no asterisks itself, so the later passes step
+    // over it cleanly. Done here rather than after, because matching
+    // plain text runs inside already-generated HTML is far easier to
+    // get wrong.
+    const linked = linkWorks(withNotes, workLinks);
+    return linked
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
   }
 
-  function renderAnswer(text, citations) {
+  // Escapes a string for safe use inside a RegExp.
+  function reEscape(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  /*
+   * Turns a work title named in the prose into a link to that work.
+   * The list comes from the server and contains ONLY works this answer
+   * actually retrieved (see linkableWorks() in the worker's lib/ask.js),
+   * so a link can never point at something we do not hold.
+   *
+   * Each title links on its FIRST occurrence only -- a work named eight
+   * times in one answer should read as prose, not as eight blue links.
+   * Titles arrive longest-first so a longer title is matched before a
+   * shorter one it contains.
+   */
+  function linkWorks(html, workLinks) {
+    if (!workLinks || !workLinks.length) return html;
+    let out = html;
+    workLinks.forEach((w) => {
+      if (!w || !w.title || !w.url) return;
+      // The haystack is already escaped, so the needle must be too.
+      const needle = escapeHtml(w.title);
+      const re = new RegExp(reEscape(needle), "");
+      // Never match inside an existing tag or an existing anchor's text.
+      const idx = out.search(re);
+      if (idx < 0) return;
+      const before = out.slice(0, idx);
+      const openTags = (before.match(/<a\b/g) || []).length;
+      const closeTags = (before.match(/<\/a>/g) || []).length;
+      if (openTags > closeTags) return; // already inside a link
+      if (/<[^>]*$/.test(before)) return; // mid-tag
+      out = out.replace(re, `<a class="ask-work-link" href="${w.url}">${needle}</a>`);
+    });
+    return out;
+  }
+
+  function renderAnswer(text, citations, works) {
     const citByN = new Map((citations || []).map((c) => [c.n, c]));
+    const workLinks = Array.isArray(works) ? works : [];
     const escaped = escapeHtml(text);
     const blocks = escaped.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
     const html = blocks.map((block) => {
@@ -170,9 +226,20 @@
       // so the reader sees one consistent heading style regardless of
       // which markdown the model happened to use, rather than literal
       // "###" text.
-      const headingMatch = lines.length === 1 && block.match(/^#{1,6}\s+(.+)$/);
+      // A "### Heading" line. The model does NOT reliably put it in a
+      // block of its own -- it commonly writes the heading and then the
+      // paragraph it heads as consecutive lines of the SAME block (one
+      // newline, not the blank line that separates blocks). An earlier
+      // version of this only matched a heading alone in its block, so
+      // in the common case the heading and its body were joined into
+      // one paragraph and the reader saw a literal "###" mid-sentence.
+      // Now the first line is taken as the heading and whatever follows
+      // is rendered as its paragraph.
+      const headingMatch = lines[0] && lines[0].match(/^#{1,6}\s+(.+)$/);
       if (headingMatch) {
-        return `<p class="ask-answer-lead">${renderInline(headingMatch[1], citByN)}</p>`;
+        const head = `<p class="ask-answer-lead">${renderInline(headingMatch[1], citByN, workLinks)}</p>`;
+        const rest = lines.slice(1).join(" ").trim();
+        return rest ? `${head}<p>${renderInline(rest, citByN, workLinks)}</p>` : head;
       }
 
       // The ENUMERATE rule in synthesisSystem() asks for "EVERY relevant
@@ -181,7 +248,7 @@
       // literal dashes in it.
       const isList = lines.length > 1 && lines.every((l) => /^-\s+/.test(l));
       if (isList) {
-        const items = lines.map((l) => `<li>${renderInline(l.replace(/^-\s+/, ""), citByN)}</li>`).join("");
+        const items = lines.map((l) => `<li>${renderInline(l.replace(/^-\s+/, ""), citByN, workLinks)}</li>`).join("");
         return `<ul>${items}</ul>`;
       }
 
@@ -209,13 +276,13 @@
         const parts = [];
         let plain = [];
         const flushPlain = () => {
-          if (plain.length) { parts.push(`<p>${renderInline(plain.join(" "), citByN)}</p>`); plain = []; }
+          if (plain.length) { parts.push(`<p>${renderInline(plain.join(" "), citByN, workLinks)}</p>`); plain = []; }
         };
         for (const l of lines) {
           const q = l.match(/^(?:&gt;|>)\s?(.*)$/);
           if (q) {
             flushPlain();
-            parts.push(`<blockquote>${renderInline(q[1], citByN)}</blockquote>`);
+            parts.push(`<blockquote>${renderInline(q[1], citByN, workLinks)}</blockquote>`);
           } else {
             plain.push(l);
           }
@@ -235,11 +302,11 @@
       // case) stays inline emphasis.
       const lead = joined.match(/^\*\*(.+?)\*\*\s*-?\s*/);
       if (lead) {
-        const heading = `<p class="ask-answer-lead">${renderInline(lead[1], citByN)}</p>`;
+        const heading = `<p class="ask-answer-lead">${renderInline(lead[1], citByN, workLinks)}</p>`;
         const rest = joined.slice(lead[0].length);
-        return rest ? `${heading}<p>${renderInline(rest, citByN)}</p>` : heading;
+        return rest ? `${heading}<p>${renderInline(rest, citByN, workLinks)}</p>` : heading;
       }
-      return `<p>${renderInline(joined, citByN)}</p>`;
+      return `<p>${renderInline(joined, citByN, workLinks)}</p>`;
     }).join("");
     answerEl.innerHTML = html || "<p>The library had nothing to answer this from.</p>";
   }
@@ -466,7 +533,7 @@
           setStatus("");
           if (errorEl) errorEl.hidden = true;
           headingEl.textContent = obj.question || question;
-          renderAnswer(obj.answer || "", obj.citations || []);
+          renderAnswer(obj.answer || "", obj.citations || [], obj.works || []);
           renderFootnotes(obj.citations || []);
           renderGaps(obj.gaps || []);
           resultEl.hidden = false;

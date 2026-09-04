@@ -2746,6 +2746,19 @@ mark.faith-find-hit.is-current {
 .ask-answer li { margin: 0 0 10px; }
 .ask-answer li:last-child { margin-bottom: 0; }
 .ask-answer strong { font-weight: 600; }
+.ask-answer em { font-style: italic; }
+/* A work named in the prose links to the work itself (see linkWorks()
+   in faith-ask.js -- only ever works this answer actually retrieved).
+   Underlined rather than colored: these sit inside running prose, often
+   several to a paragraph, and a page of orange would read as noise.
+   The rule darkens on hover the same way the footnote list's links do. */
+.ask-answer .ask-work-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--color-card-border);
+  text-underline-offset: 2px;
+}
+.ask-answer .ask-work-link:hover { text-decoration-color: currentColor; }
 /* A "> quoted text" line (see renderAnswer()'s blockquote handling in
    faith-ask.js) -- a direct quotation carries the same evidentiary
    weight as the surrounding prose, so this stays full-color and
