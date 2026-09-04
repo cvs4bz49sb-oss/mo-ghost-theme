@@ -113,7 +113,7 @@
 }
 .faith-hero .inline-signup-success .eyebrow { color: var(--color-primary); }
 .faith-hero .inline-signup-success h4 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 22px;
   margin: 4px 0 8px;
@@ -150,7 +150,7 @@
 }
 .faith-section-nav-inner::-webkit-scrollbar { display: none; }
 .faith-section-nav-brand {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 16px;
   color: var(--color-dark);
@@ -213,7 +213,7 @@
   background: transparent;
   border: 0;
   padding: 4px 0;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 17px;
   color: var(--color-muted);
   cursor: pointer;
@@ -329,7 +329,7 @@
   margin: 0 0 10px;
 }
 .faith-card-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 28px;
   line-height: 1.15;
   margin: 0 0 4px;
@@ -454,7 +454,7 @@
 .faith-continue-link:hover .faith-continue-title { color: var(--color-secondary); }
 .faith-continue-title {
   display: block;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 19px;
   line-height: 1.2;
   color: var(--color-dark);
@@ -527,7 +527,7 @@
    question and article, and a citation on every row (ST.I.Q1.A1.arg1).
    Both are scholarly apparatus, so they sit quiet. */
 .faith-section-subtitle {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 15px;
   line-height: 1.4;
@@ -606,7 +606,7 @@
   text-align: center;
 }
 .faith-pending-lede {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 21px;
   line-height: 1.45;
@@ -650,7 +650,7 @@
   margin: 0 0 14px;
 }
 .faith-today-q {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 34px;
   line-height: 1.2;
   color: var(--color-dark);
@@ -690,7 +690,7 @@
   margin: 0 auto 36px;
 }
 .faith-start-lede {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 19px;
   line-height: 1.5;
@@ -716,7 +716,7 @@
   border-bottom: 1px solid var(--color-card-border);
 }
 .faith-browse-note {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 15px;
   color: var(--color-muted);
@@ -757,7 +757,7 @@
   border-left: 1px solid var(--color-card-border);
 }
 .faith-notebook-edge {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 13px;
   line-height: 1.5;
@@ -783,7 +783,7 @@
 }
 .faith-shared-lead {
   margin: 0 0 10px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 17px;
   line-height: 1.5;
   color: var(--color-dark);
@@ -793,7 +793,7 @@
   margin: 0 0 14px;
   padding: 0 0 0 14px;
   border-left: 1px solid var(--color-card-border);
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
   color: var(--color-muted);
@@ -827,7 +827,7 @@
   flex: 1 1 220px;
   min-width: 0;
   padding: 7px 10px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 15px;
   color: var(--color-dark);
   background: var(--color-page);
@@ -850,7 +850,7 @@
 .faith-find-close:hover { color: var(--color-dark); border-color: var(--color-dark); }
 .faith-find-close { border: 0; font-size: 18px; }
 .faith-find-status {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 13px;
   color: var(--color-muted);
@@ -895,7 +895,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-notebook-title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 22px;
   color: var(--color-dark);
@@ -930,7 +930,7 @@ mark.faith-find-hit.is-current {
 .faith-notebook-tab.is-active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
 .faith-notebook-list { flex: 1 1 auto; overflow-y: auto; padding: 4px 20px; }
 .faith-notebook-empty {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 15px;
   line-height: 1.5;
@@ -949,7 +949,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-notebook-work {
   margin: -4px 0 6px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 13px;
   color: var(--color-muted);
@@ -957,7 +957,7 @@ mark.faith-find-hit.is-current {
 .faith-notebook-text {
   margin: 0 0 8px;
   padding-left: 12px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.55;
   color: var(--color-dark);
@@ -967,7 +967,7 @@ mark.faith-find-hit.is-current {
   width: 100%;
   min-height: 42px;
   padding: 7px 9px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-dark);
   background: var(--color-page);
@@ -1016,7 +1016,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-notebook-note {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 12px;
   color: var(--color-muted);
@@ -1102,7 +1102,7 @@ mark.faith-find-hit.is-current {
 .faith-facs-foot {
   margin: 0;
   padding: 10px 20px 14px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 12px;
   color: var(--color-muted);
@@ -1140,7 +1140,7 @@ mark.faith-find-hit.is-current {
   flex: 1 1 320px;
   min-width: 0;
   padding: 11px 14px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 18px;
   color: var(--color-dark);
   background: var(--color-page);
@@ -1165,7 +1165,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-resolve-go:hover { background: var(--color-primary); }
 .faith-resolve-status {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 15px;
   color: var(--color-muted);
@@ -1203,7 +1203,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-browse-bio-text {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.6;
   color: var(--color-muted);
@@ -1268,7 +1268,7 @@ mark.faith-find-hit.is-current {
 .faith-pager-btn:hover:not(:disabled) { color: var(--color-dark); }
 .faith-pager-btn:disabled { color: var(--color-muted); opacity: 0.4; cursor: default; }
 .faith-pager-count {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 14px;
   color: var(--color-muted);
@@ -1283,7 +1283,7 @@ mark.faith-find-hit.is-current {
 .faith-card--pending:hover { background: transparent; }
 .faith-pending,
 .faith-card-link--muted {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 14px;
   color: var(--color-muted);
@@ -1323,7 +1323,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-author-back:hover { color: var(--color-dark); }
 .faith-author-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 42px;
   line-height: 1.1;
   margin: 0 0 6px;
@@ -1331,7 +1331,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-author-name em { font-style: normal; }
 .faith-author-dates {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 17px;
   color: var(--color-muted);
@@ -1369,7 +1369,7 @@ mark.faith-find-hit.is-current {
 .faith-tool:first-child,
 .faith-tool:nth-child(2) { border-top: 0; padding-top: 0; }
 .faith-tool-numeral {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 26px;
   color: var(--color-primary);
@@ -1377,7 +1377,7 @@ mark.faith-find-hit.is-current {
   margin-bottom: 10px;
 }
 .faith-tool-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 28px;
   line-height: 1.12;
@@ -1416,7 +1416,7 @@ mark.faith-find-hit.is-current {
   position: relative;
 }
 .faith-coda-heading {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: clamp(32px, 4vw, 52px);
   line-height: 1.1;
@@ -1634,7 +1634,7 @@ mark.faith-find-hit.is-current {
   text-align: left;
 }
 .faith-intro-prose::first-letter {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 1.6em;
   line-height: 1;
@@ -1702,7 +1702,7 @@ mark.faith-find-hit.is-current {
   margin: 0 0 12px;
 }
 .faith-section-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: clamp(26px, 3vw, 36px);
   line-height: 1.15;
@@ -1812,7 +1812,7 @@ mark.faith-find-hit.is-current {
 .faith-thesis-details[open] > .faith-thesis { padding-bottom: 12px; }
 .faith-thesis-text { transition: color 0.15s; }
 .faith-thesis-number {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 28px;
   line-height: 1;
@@ -1846,7 +1846,7 @@ mark.faith-find-hit.is-current {
   margin: 0 0 8px;
 }
 .faith-qa-question {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 24px;
   line-height: 1.25;
@@ -1932,7 +1932,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-verse-popover.is-open { opacity: 1; pointer-events: auto; }
 .faith-verse-popover-ref {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 18px;
   line-height: 1.2;
@@ -2085,7 +2085,7 @@ mark.faith-find-hit.is-current {
 .faith-edwards-details[open] > .faith-edwards-item { padding-bottom: 12px; }
 .faith-edwards-text { transition: color 0.15s; }
 .faith-edwards-number {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 26px;
   line-height: 1;
@@ -2108,7 +2108,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-book + .faith-book { padding-top: 56px; border-top: 1px solid var(--color-card-border); }
 .faith-book-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   text-align: center;
   font-size: clamp(28px, 3.4vw, 40px);
@@ -2151,7 +2151,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-prayer-card-summary::-webkit-details-marker { display: none; }
 .faith-prayer-card-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: clamp(16px, 2vw, 19px);
   font-weight: 500;
   color: var(--color-dark);
@@ -2467,7 +2467,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-search-form input[type="search"] {
   flex: 1;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 22px;
   padding: 14px 20px;
@@ -2533,7 +2533,7 @@ mark.faith-find-hit.is-current {
   text-transform: none;
 }
 .faith-search-hit-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 22px;
   line-height: 1.2;
   margin: 0 0 8px;
@@ -2666,7 +2666,7 @@ mark.faith-find-hit.is-current {
    remember to toggle. */
 .ask-empty { padding-top: 4px; }
 .ask-empty-lede {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--tfr-display-s);
   line-height: 1.2;
   color: var(--color-dark);
@@ -2739,7 +2739,7 @@ mark.faith-find-hit.is-current {
 
 .ask-result { margin: 0; }
 .ask-question {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: clamp(26px, 3.4vw, 36px);
   line-height: 1.25;
   color: var(--color-dark);
@@ -3418,7 +3418,7 @@ mark.faith-find-hit.is-current {
 
 .bookmarks-title,
 .notebook-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--tfr-display-s);
   line-height: 1.2;
   color: var(--color-dark);
@@ -3511,7 +3511,7 @@ mark.faith-find-hit.is-current {
 .notebook-empty { padding: 8px 0 4px; }
 .bookmarks-empty-lede,
 .notebook-empty-lede {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--tfr-display-s);
   line-height: 1.25;
   color: var(--color-dark);
@@ -3609,7 +3609,7 @@ mark.faith-find-hit.is-current {
 }
 .bookmarks-row-title {
   display: block;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 20px;
   line-height: 1.3;
   color: var(--color-dark);
@@ -3773,7 +3773,7 @@ mark.faith-find-hit.is-current {
   margin: 0;
 }
 .notebook-entry-source {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 17px;
   line-height: 1.35;
@@ -3861,7 +3861,7 @@ mark.faith-find-hit.is-current {
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 20px;
   font-weight: 400;
   line-height: 1.3;
@@ -4003,7 +4003,7 @@ mark.faith-find-hit.is-current {
   border-radius: 0;
 }
 .faith-scripture-toggle-btn {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 18px;
   letter-spacing: 0;
@@ -4079,7 +4079,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-secondary);
 }
 .faith-scripture-book-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 22px;
   transition: color 0.15s;
@@ -4129,7 +4129,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-secondary);
 }
 .faith-scripture-chapter-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 17px;
   transition: color 0.15s;
@@ -4158,7 +4158,7 @@ mark.faith-find-hit.is-current {
 .faith-scripture-ref-link:hover { text-decoration: none; }
 .faith-scripture-ref-link:hover .faith-scripture-ref-passage { color: var(--color-secondary); }
 .faith-scripture-ref-passage {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 18px;
   line-height: 1.2;
@@ -4196,7 +4196,7 @@ mark.faith-find-hit.is-current {
 .faith-scripture-ref-excerpt::after { content: "\201C"; }
 .faith-scripture-ref-excerpt::after { content: "\201D"; }
 .faith-scripture-ref-author {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 14px;
   color: var(--color-muted);
@@ -4236,7 +4236,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-today-content p { font-size: 18px; line-height: 1.75; }
 .faith-today-content > p:first-of-type::first-letter {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 1.8em;
   line-height: 1;
@@ -4305,7 +4305,7 @@ mark.faith-find-hit.is-current {
   background: transparent;
   border: 0;
   border-radius: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 17px;
   letter-spacing: 0;
@@ -4351,7 +4351,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-secondary);
 }
 .faith-memorize-question {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: clamp(22px, 2.4vw, 28px);
   line-height: 1.35;
   margin: 0 0 8px;
@@ -4391,7 +4391,7 @@ mark.faith-find-hit.is-current {
   appearance: none;
   background: transparent;
   border: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 17px;
   color: var(--color-secondary);
@@ -4506,7 +4506,7 @@ mark.faith-find-hit.is-current {
 .faith-topic:first-child,
 .faith-topic:nth-child(2) { border-top: 0; padding-top: 8px; }
 .faith-topic-numeral {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 22px;
   color: var(--color-primary);
@@ -4514,7 +4514,7 @@ mark.faith-find-hit.is-current {
   margin-bottom: 8px;
 }
 .faith-topic-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 24px;
   line-height: 1.15;
@@ -4560,7 +4560,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-topic-card:hover .faith-topic-card-title { color: var(--color-secondary); }
 .faith-topic-card-numeral {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 22px;
   color: var(--color-primary);
@@ -4568,7 +4568,7 @@ mark.faith-find-hit.is-current {
   margin-bottom: 10px;
 }
 .faith-topic-card-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 26px;
   line-height: 1.15;
@@ -4634,7 +4634,7 @@ mark.faith-find-hit.is-current {
   border-top: 1px solid var(--color-rule);
 }
 .faith-topic2-topic-label {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 21px;
   color: var(--color-dark);
@@ -4694,7 +4694,7 @@ mark.faith-find-hit.is-current {
 .faith-topic-eras { margin-top: 26px; }
 .faith-topic-era + .faith-topic-era { margin-top: 22px; }
 .faith-topic-era-label {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 18px;
   color: var(--color-dark);
@@ -4832,7 +4832,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-doctrines-row a:hover .faith-doctrines-row-title { color: var(--color-secondary); }
 .faith-doctrines-row-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 19px;
   color: var(--color-dark);
@@ -4916,7 +4916,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-glossary-entry:first-child { padding-top: 0; }
 .faith-glossary-term {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 22px;
   color: var(--color-dark);
@@ -4996,7 +4996,7 @@ mark.faith-find-hit.is-current {
 .faith-dictionary-back:focus-visible { text-decoration: underline; }
 
 .faith-dictionary-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 30px;
   color: var(--color-dark);
@@ -5420,7 +5420,7 @@ mark.faith-find-hit.is-current {
   margin: 4px 0 0;
 }
 .faith-topic-row-read {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 14px;
   font-style: italic;
   color: var(--color-secondary);
@@ -5543,7 +5543,7 @@ mark.faith-find-hit.is-current {
   margin: 0 0 12px;
 }
 .faith-memorize-card-question {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: clamp(22px, 2.6vw, 30px);
   line-height: 1.25;
@@ -5694,7 +5694,7 @@ mark.faith-find-hit.is-current {
   background: transparent;
   border: 0;
   padding: 4px 0;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 18px;
   color: var(--color-muted);
   cursor: pointer;
@@ -5889,7 +5889,7 @@ mark.faith-find-hit.is-current {
   min-width: 0;
 }
 .faith-front-matter-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 22px;
   line-height: 1.25;
   color: var(--color-primary);
@@ -5977,7 +5977,7 @@ mark.faith-find-hit.is-current {
   text-align: center;
 }
 .faith-gate-lead {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 22px;
   line-height: 1.45;
@@ -6105,7 +6105,7 @@ mark.faith-find-hit.is-current {
 }
 .lp-band--dark .lp-num { color: var(--color-primary); }
 .lp-head {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: clamp(28px, 3.4vw, 44px);
   line-height: 1.12;
@@ -6164,7 +6164,7 @@ mark.faith-find-hit.is-current {
 .lp-door:last-child { padding-right: 0; }
 .lp-door:hover { text-decoration: none; }
 .lp-door h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 27px;
   margin: 0 0 6px;
@@ -6185,7 +6185,7 @@ mark.faith-find-hit.is-current {
 .lp-stat:first-child { border-left: 0; }
 .lp-stat b {
   display: block;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: clamp(30px, 3.6vw, 46px);
   color: #fff;
@@ -6224,7 +6224,7 @@ mark.faith-find-hit.is-current {
   padding: 18px;
 }
 .lp-shelf-plate--set em {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 21px;
   line-height: 1.2;
@@ -6232,7 +6232,7 @@ mark.faith-find-hit.is-current {
 }
 .lp-shelf-plate img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
 .lp-shelf h4 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 21px;
   margin: 0 0 2px;
@@ -6316,7 +6316,7 @@ mark.faith-find-hit.is-current {
 .blabel { font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
   color: var(--color-primary-text); margin: 0 0 10px; }
 .bband--dark .blabel { color: var(--color-primary); }
-.bhead h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 3vw, 38px);
+.bhead h2 { font-family: var(--font-body); font-weight: 400; font-size: clamp(26px, 3vw, 38px);
   line-height: 1.15; margin: 0; }
 
 .bcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--color-card-border); }
@@ -6326,7 +6326,7 @@ mark.faith-find-hit.is-current {
   letter-spacing: 0.18em; text-transform: uppercase; }
 .bcard-pre { color: var(--color-primary-text); }
 .bcard-era { color: var(--color-muted); margin-bottom: 12px; }
-.bcard h3 { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.15; margin: 0 0 8px; }
+.bcard h3 { font-family: var(--font-body); font-weight: 400; font-size: 26px; line-height: 1.15; margin: 0 0 8px; }
 .bcard p { font-family: var(--font-body); font-size: 15px; color: var(--color-muted); margin: 0 0 16px; }
 .bcard-read { font-family: var(--font-body); font-size: 11px; letter-spacing: 0.22em;
   text-transform: uppercase; color: var(--color-secondary); }
@@ -6339,7 +6339,7 @@ mark.faith-find-hit.is-current {
 .blist a { display: block; padding: 13px 0; text-decoration: none; color: inherit; }
 .blist a:hover .brow-t { color: var(--color-secondary); }
 .bband--dark .blist a:hover .brow-t { color: var(--color-primary); }
-.brow-t { display: block; font-family: var(--font-display); font-size: 20px; line-height: 1.2; }
+.brow-t { display: block; font-family: var(--font-body); font-size: 20px; line-height: 1.2; }
 .brow-m { display: block; font-family: var(--font-body); font-size: 12px; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--color-muted); margin-top: 3px; }
 .bband--dark .brow-m { color: #ffffff8a; }
@@ -6349,7 +6349,7 @@ mark.faith-find-hit.is-current {
 .btiles a { background: var(--color-cream); padding: 26px 24px; text-decoration: none; color: inherit; }
 .bband .btiles a { background: var(--color-page); }
 .btiles a:hover { background: #fff; text-decoration: none; }
-.btiles b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 21px; margin-bottom: 4px; }
+.btiles b { display: block; font-family: var(--font-body); font-weight: 400; font-size: 21px; margin-bottom: 4px; }
 .btiles span { font-family: var(--font-body); font-size: 12px; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--color-muted); }
 
@@ -6376,7 +6376,7 @@ mark.faith-find-hit.is-current {
    across the column break. */
 .btrads { columns: 2; column-gap: 64px; }
 .btrad { break-inside: avoid; margin: 0 0 56px; }
-.btrad h3 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0 0 14px; }
+.btrad h3 { font-family: var(--font-body); font-weight: 400; font-size: 26px; margin: 0 0 14px; }
 .btrad .blist { columns: 1; }
 .btrad-all { display: inline-block; margin-top: 18px; font-family: var(--font-body); font-size: 11px;
   letter-spacing: 0.22em; text-transform: uppercase; color: var(--color-secondary); text-decoration: none; }
@@ -6386,7 +6386,7 @@ mark.faith-find-hit.is-current {
 /* The work's own title, under the English. Most of this library has never
    had an English title before, so the English leads and the original stays
    visible for anyone who wants to cite it. */
-.brow-la { display: block; font-family: var(--font-display); font-style: italic;
+.brow-la { display: block; font-family: var(--font-body); font-style: italic;
   font-size: 15px; color: var(--color-muted); margin-top: 2px; }
 .bband--dark .brow-la { color: #ffffff87; }
 
@@ -6585,7 +6585,7 @@ mark.faith-find-hit.is-current {
 .faith-join-card:first-child { border-left: 0; padding-left: 0; }
 .faith-join-card:last-child { padding-right: 0; }
 .faith-join-card h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: var(--tfr-display-s);
   color: var(--color-white);
@@ -6850,7 +6850,7 @@ mark.faith-find-hit.is-current {
 }
 .faith-room-pager button[disabled] { color: var(--color-card-border); cursor: default; }
 .faith-room-pages {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 16px;
   color: var(--color-muted);
@@ -6949,7 +6949,7 @@ mark.faith-find-hit.is-current {
   border-radius: 999px;
   background: transparent;
   cursor: pointer;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 19px;
   line-height: 1;
   color: var(--color-muted);
@@ -7474,7 +7474,7 @@ mark.faith-find-hit.is-current {
 }
 /* The tail of a long title, printed rather than hidden. */
 .faith-reader-subtitle {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: normal;
   font-weight: 400;
   font-size: clamp(17px, 1.6vw, 21px);
@@ -7484,7 +7484,7 @@ mark.faith-find-hit.is-current {
   max-width: 46ch;
 }
 .faith-reader-byline {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 20px;
   line-height: 1.3;
   color: var(--color-dark);
@@ -7614,7 +7614,7 @@ mark.faith-find-hit.is-current {
 
 /* ── Preferences ──────────────────────────────────────────────── */
 .faith-prefs { position: relative; margin-left: auto; }
-.faith-prefs-toggle .faith-prefs-icon { font-family: var(--font-display); font-size: 15px; }
+.faith-prefs-toggle .faith-prefs-icon { font-family: var(--font-body); font-size: 15px; }
 .faith-prefs-panel {
   position: absolute;
   right: 0;
@@ -7699,7 +7699,7 @@ mark.faith-find-hit.is-current {
 /* Section headings at reading scale. A work with 211 chapters cannot
    set every chapter title at display size. */
 .faith-reader [data-fr-content] .faith-section-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 20px;
   line-height: 1.3;
   font-style: normal;
@@ -7865,7 +7865,7 @@ mark.faith-find-hit.is-current {
 }
 .fa-bio--none p { color: var(--color-muted); }
 .fa-significance {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: normal;
   font-size: 19px;
   line-height: 1.5;
@@ -7995,7 +7995,7 @@ mark.faith-find-hit.is-current {
    same guard. */
 .fa-fp-book[hidden] { display: none; }
 .fa-fp-book-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.25;
   color: var(--color-dark);
@@ -8071,7 +8071,7 @@ mark.faith-find-hit.is-current {
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 .fa-fp-verse-ref {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.2;
   color: var(--color-dark);
@@ -8189,7 +8189,7 @@ mark.faith-find-hit.is-current {
   margin: 0;
 }
 .fa-fp-verse-text {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.55;
   color: var(--color-dark);
@@ -8263,7 +8263,7 @@ mark.faith-find-hit.is-current {
 .fa-rc-row[hidden] { display: none; }
 .fa-rc-name {
   grid-column: 1;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.25;
   color: var(--color-dark);
@@ -8395,7 +8395,7 @@ mark.faith-find-hit.is-current {
 .fa-works a:hover .fa-work-t { color: var(--color-primary-text); }
 .fa-work-t {
   display: block;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 17px;
   line-height: 1.32;
   color: var(--color-dark);
@@ -8439,7 +8439,7 @@ mark.faith-find-hit.is-current {
 .faith-saved-list a:hover .faith-saved-title { color: var(--color-primary-text); }
 .faith-saved-title {
   display: block;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 17px;
   line-height: 1.32;
   color: var(--color-dark);
@@ -8638,7 +8638,7 @@ mark.faith-find-hit.is-current {
    heading. */
 .faith-reader [data-fr-content] .faith-row--heading {
   margin-top: 2rem;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 600;
 }
 .faith-reader [data-fr-content] .faith-row--heading:first-child { margin-top: 0; }
@@ -8672,7 +8672,7 @@ mark.faith-find-hit.is-current {
   color: var(--color-primary-text);
   margin: 0 0.15em 0 0.05em;
 }
-.faith-reader .faith-en-head { font-family: var(--font-display); font-weight: 600; }
+.faith-reader .faith-en-head { font-family: var(--font-body); font-weight: 600; }
 /* Margin notes and footnotes out of the TEI, and editors' interpolations. */
 .faith-reader .faith-ed-note {
   font-size: 0.82em;
@@ -9385,7 +9385,7 @@ body.faith-toc-open .faith-dock { display: none; }
   border-top: 1px solid #ffffff2e;
 }
 .lp-for-head {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: clamp(26px, 3.1vw, 40px);
   line-height: 1.14;
@@ -9408,7 +9408,7 @@ body.faith-toc-open .faith-dock { display: none; }
 .lp-for-col:first-child { border-left: 0; padding-left: 0; }
 .lp-for-col:last-child { padding-right: 0; }
 .lp-for-col h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 24px;
   line-height: 1.2;
@@ -9587,7 +9587,7 @@ body.faith-toc-open .faith-dock { display: none; }
   background: var(--color-page);
 }
 .fa-search-head {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 20px;
   margin: 0 0 12px;
@@ -9929,7 +9929,7 @@ body.faith-toc-open .faith-dock { display: none; }
 }
 .bsearch-hit-title:hover { color: var(--color-secondary); }
 .bsearch-hit-author {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: normal;
   font-size: 14px;
   color: var(--color-muted);
@@ -10013,7 +10013,7 @@ body.faith-toc-open .faith-dock { display: none; }
 .bsearch-author:hover { border-color: var(--color-secondary); }
 .bsearch-author:hover .bsearch-author-name { color: var(--color-secondary); }
 .bsearch-author-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 19px;
   color: var(--color-dark);
 }
@@ -10069,7 +10069,7 @@ body.faith-toc-open .faith-dock { display: none; }
 }
 .bcoll { max-width: 54ch; }
 .bcoll-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 400;
   font-size: 22px;
   line-height: 1.15;
@@ -10095,7 +10095,7 @@ body.faith-toc-open .faith-dock { display: none; }
 /* The names, quieter than the description: they are a sample of the
    shelf, not the point of the paragraph. */
 .bcoll-who {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.55;
   color: var(--color-muted);
@@ -11502,7 +11502,7 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   margin: 0 0 20px;
 }
 .ps-empty-lede {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--tfr-display-s);
   line-height: 1.2;
   color: var(--color-dark);
@@ -11548,7 +11548,7 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   outline-offset: -2px;
 }
 .ps-noresults-lede {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 21px;
   line-height: 1.45;
@@ -11607,7 +11607,7 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   margin: 0 0 8px;
 }
 .ps-hit-cit {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 20px;
   line-height: 1.3;
   color: var(--color-dark);
@@ -11724,7 +11724,7 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   border-bottom: 1px solid var(--color-rule);
 }
 .cn-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--tfr-display-s);
   line-height: 1.2;
   color: var(--color-dark);
@@ -12028,7 +12028,7 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
   margin: 0 0 8px;
 }
 .cn-dossier-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 22px;
   line-height: 1.25;
   color: var(--color-dark);
@@ -12245,4 +12245,35 @@ a.cn-row-title { color: var(--color-primary-text); }
   .cn-legend-item { min-height: 44px; }
   .cn-dossier-title { font-size: 20px; }
   .cn-index-list { columns: 1; }
+}
+
+/* ── The display face is for <h1> only ─────────────────────────────────
+   Every rule in this file above now reads in the body face; the four
+   exceptions are the four real page titles (.lp-hero h1, .bhero h1,
+   .faith-hero-headline, .faith-reader-title).
+
+   screen.css independently sets .article-content h2/h3 and its drop cap
+   in the display face for the magazine, and The Faith Received reuses
+   .article-content for chapter bodies and catechism answers. Those are
+   pulled back here, scoped to the two TFR roots, rather than edited in
+   screen.css, which the magazine's own essays still depend on.
+
+   .faith-received = index, browse, author, research pages
+   .faith-doc      = the reader and the creed/confession documents
+
+   h1 is deliberately absent from this list: .article-title on the creed
+   documents is an h1 and keeps the display face from screen.css.
+
+   The ::before ornaments (the ❦ on blockquote and hr) are also absent
+   on purpose. Those are glyphs, not type -- repointing their font-family
+   risks a fallback that has no U+2766 and renders tofu. */
+.faith-received h2, .faith-received h3, .faith-received h4,
+.faith-received h5, .faith-received h6,
+.faith-doc h2, .faith-doc h3, .faith-doc h4,
+.faith-doc h5, .faith-doc h6,
+.faith-received .article-content h2 .numeral,
+.faith-doc .article-content h2 .numeral,
+.faith-received .article-content > p:first-of-type::first-letter,
+.faith-doc .article-content > p:first-of-type::first-letter {
+  font-family: var(--font-body);
 }
