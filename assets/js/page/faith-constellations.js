@@ -4,12 +4,42 @@
  *
  * WHAT IT DRAWS. Every shelf in the library has been read for the
  * Scripture it quotes, and each author, work and doctrinal topic
- * carries the resulting fingerprint. Two points sit near each other
- * when their fingerprints agree. The layout is NOT computed here: the
- * worker ships finished x/y coordinates in a 0-1000 box and this file
- * plots them. Running a force simulation in the browser over 2,600
- * nodes would draw a different picture on every load, which is the one
- * thing a map may not do.
+ * carries the resulting fingerprint.
+ *
+ * TWO ARRANGEMENTS of the same points, and the default is the second:
+ *
+ *   By similarity — the worker's own x/y, a 0-1000 embedding in which
+ *     two points sit near each other when their fingerprints agree.
+ *     The layout is NOT computed here; running a force simulation in
+ *     the browser over 2,600 nodes would draw a different picture on
+ *     every load, which is the one thing a map may not do.
+ *
+ *   By Scripture — one region per category, laid out in the Bible's
+ *     own order. The similarity embedding is real but it collapses:
+ *     213 of the 287 English Divines quote Paul above everything else,
+ *     so seven eighths of that shelf lands in one corner and the
+ *     structure the map is meant to show is invisible. Sorting the
+ *     same points into named sections spends the plane on the one
+ *     distinction a reader can act on, and the edges (drawn under the
+ *     points) become the interesting mark, because an edge now crosses
+ *     from one region to another and says "these two quote alike in
+ *     spite of leaning on different testaments".
+ *
+ *     The region ORDER is taken from the order `cats` arrives in, not
+ *     from a table here. Measured 2026-09-04 across all 46 payloads the
+ *     worker serves: there are exactly two vocabularies, both already
+ *     canonical, and no node anywhere carries an `e` that `cats` does
+ *     not declare. CANON_SCRIPTURE and CANON_DOCTRINE below are the
+ *     documented fallback, used only to place a key `cats` omits and to
+ *     re-sort a payload whose own order is NOT canonical. A category
+ *     `cats` declares but no node uses still gets its region, so the
+ *     seven sections are the same seven on every shelf.
+ *
+ * Both arrangements share everything else: the hover and focus label,
+ * the dossier, pan/zoom/fit, the legend's per-category filter and the
+ * keyboard index list all read one pair of position arrays (posX/posY)
+ * rather than node.x/node.y, so neither of them knows which layout is
+ * on screen.
  *
  * THE DATA. Three public GET routes on mo-tfr-library. No auth, no
  * cost, no LLM call:
@@ -98,6 +128,8 @@
    * header lists the same set; keep the two together. */
   const shelfSel = root.querySelector("[data-cn-shelf]");
   const viewBtns = Array.from(root.querySelectorAll("[data-cn-view]"));
+  const layoutBtns = Array.from(root.querySelectorAll("[data-cn-layout]"));
+  const linksBtn = root.querySelector("[data-cn-links]");
   const viewsNote = root.querySelector("[data-cn-views-note]");
   const statusEl = root.querySelector("[data-cn-status]");
   const errorEl = root.querySelector("[data-cn-error]");
@@ -133,8 +165,15 @@
    * means "this is the one you chose" and nothing else. It is also
    * 2.38:1 on the cream plot ground and would fail WCAG 1.4.11 as a
    * 3px dot; every one of the seven clears 3:1 there.
+   *
+   * The ramp walks hue AND lightness. The stylesheet carries the
+   * measurements and the reasoning; the short version is that the
+   * first seven-warm-swatch ramp held three near-identical orange-reds
+   * and three near-identical olive-greys, and its closest pair was
+   * 3.7 ΔE2000 apart, which is a difference you cannot see on a 3px
+   * dot. The set below is 21.1 apart at its closest.
    */
-  const CAT_FALLBACK = ["#2d2927", "#b45f3d", "#7d6f57", "#9c4126", "#6b6660", "#c1593c", "#8a7a62"];
+  const CAT_FALLBACK = ["#2d2927", "#9c4126", "#a77e3c", "#5a7848", "#1a5b63", "#677e99", "#602d4e"];
   let catColors = CAT_FALLBACK.slice();
   let edgeColor = "#6b6660";
   let ghostColor = "#d9c6a7";
@@ -219,12 +258,52 @@
     doctrines:
       "Each point is a doctrinal topic on this shelf, placed by the passages that carry it. Two topics sit close together when they rest on the same texts.",
   };
+  // The same sentence for the regional arrangement, where "close
+  // together" is no longer what the plane means. Leaving VIEW_BLURB up
+  // while the regions are on screen would be a caption that describes a
+  // different picture.
+  const REGION_BLURB = {
+    authors:
+      "Each point is an author on this shelf, filed under the part of Scripture they quote most. The sections run in the Bible's own order, and a line crossing between two of them marks a pair who quote alike in spite of leaning on different books.",
+    works:
+      "Each point is a work on this shelf, filed under the part of Scripture it quotes most. The sections run in the Bible's own order, and a line crossing between two of them marks a pair that quote alike in spite of leaning on different books.",
+    doctrines:
+      "Each point is a doctrinal topic on this shelf, filed under the head of doctrine it belongs to. A line crossing between two sections marks a pair of topics resting on the same texts.",
+  };
+  // What the regional arrangement is called depends on what the regions
+  // are. The authors and works views are filed by Scripture; the
+  // doctrines view is filed by head of doctrine, and calling that "By
+  // Scripture" would be a label that lies.
+  const REGION_BTN_LABEL = {
+    authors: "By Scripture",
+    works: "By Scripture",
+    doctrines: "By doctrine",
+  };
   const ROWS_HEADING = {
     authors: "Principal works",
     works: "Most cited chapters",
     doctrines: "Passages",
   };
   const NODE_NOUN = { authors: "author", works: "work", doctrines: "topic" };
+
+  /* ── The canonical fallback orders ────────────────────────────────
+   *
+   * NOT the primary source of the region order: `cats` is, and it has
+   * been canonical on every payload measured. These exist so that a key
+   * `cats` omits still lands in the right place, and so that a payload
+   * whose own order is scrambled is re-sorted rather than drawn in the
+   * order it happened to arrive in.
+   *
+   * The two vocabularies never mix and their keys do not collide, so
+   * one rank table covers both. */
+  const CANON_SCRIPTURE = ["T", "H", "W", "P", "G", "A", "C"];
+  const CANON_DOCTRINE = ["S", "D", "X", "J", "E", "L", "M"];
+  const CANON_RANK = {};
+  CANON_SCRIPTURE.forEach((k, i) => { CANON_RANK[k] = i; });
+  CANON_DOCTRINE.forEach((k, i) => { CANON_RANK[k] = i; });
+
+  const LAYOUT_REGIONS = "regions";
+  const LAYOUT_SIMILARITY = "similarity";
 
   /* ── State ────────────────────────────────────────────────────── */
 
@@ -240,6 +319,26 @@
   let hovered = -1;
   let loadToken = 0;
   let indexBuilt = false;
+
+  /* The arrangement, and the positions it produced.
+   *
+   * posX/posY are the ONLY coordinates anything downstream reads.
+   * node.x and node.y are touched in exactly one place (layoutSimilarity)
+   * and are never written, so switching arrangement and switching back
+   * is lossless.
+   *
+   * cellSpan is the world-space width of the grid cell a point was given
+   * inside its region, and it is what stops a crowded region drawing as
+   * one solid mass: a dot is never allowed to be wider than its own
+   * cell. In the similarity arrangement it is Infinity, so the radius is
+   * whatever radiusFor() says, exactly as before. */
+  let layout = LAYOUT_REGIONS;
+  let edgesOn = true;
+  let posX = new Float64Array(0);
+  let posY = new Float64Array(0);
+  let cellSpan = new Float64Array(0);
+  let regions = [];
+  let bounds = null;
 
   const cache = new Map();
 
@@ -315,25 +414,21 @@
 
   const PAD = 26;
 
+  /*
+   * The box being fitted is the LAYOUT's, not the points'. In the
+   * similarity arrangement the two are the same thing. In the regional
+   * one they are not: each region reserves a strip above its points for
+   * its name, and fitting the points alone would push the top row's
+   * labels off the plate.
+   */
   function fit() {
-    if (!nodes.length || !cssW || !cssH) return;
-    let minX = Infinity;
-    let maxX = -Infinity;
-    let minY = Infinity;
-    let maxY = -Infinity;
-    for (let i = 0; i < nodes.length; i++) {
-      const n = nodes[i];
-      if (n.x < minX) minX = n.x;
-      if (n.x > maxX) maxX = n.x;
-      if (n.y < minY) minY = n.y;
-      if (n.y > maxY) maxY = n.y;
-    }
+    if (!bounds || !cssW || !cssH) return;
     // One node, or every node stacked on one coordinate, gives a zero
     // span and a scale of Infinity.
-    spanX = Math.max(1, maxX - minX);
-    spanY = Math.max(1, maxY - minY);
-    cx = (minX + maxX) / 2;
-    cy = (minY + maxY) / 2;
+    spanX = Math.max(1, bounds.maxX - bounds.minX);
+    spanY = Math.max(1, bounds.maxY - bounds.minY);
+    cx = (bounds.minX + bounds.maxX) / 2;
+    cy = (bounds.minY + bounds.maxY) / 2;
     baseScale = Math.min((cssW - PAD * 2) / spanX, (cssH - PAD * 2) / spanY);
     if (!isFinite(baseScale) || baseScale <= 0) baseScale = 1;
   }
@@ -375,6 +470,28 @@
     return rMin + (rMax - rMin) * Math.max(0, Math.min(1, t));
   }
 
+  /*
+   * The radius a point is actually drawn at, capped by the cell it was
+   * given. 936 of the 1,486 English Divines works are Pauline, so that
+   * one region holds a 36 x 26 grid whose cells are about 4.6 screen
+   * pixels across at the fitted scale; nine-pixel dots there would draw
+   * a single mass and hide the very thing the arrangement exists to
+   * show. Capping to the cell means the crowded region reads as a fine
+   * dense field at rest and separates into distinct, correctly-sized
+   * points as the reader zooms, which is what the zoom is for.
+   *
+   * The cap does not bind in a sparse region: Torah's 54 works get cells
+   * far wider than any dot, so the log size ramp shows in full there.
+   * In the similarity arrangement cellSpan is Infinity and this is
+   * exactly radiusFor().
+   */
+  function radiusAt(i) {
+    const r = radiusFor(nodes[i] ? nodes[i].n : 1);
+    const span = cellSpan.length > i ? cellSpan[i] : Infinity;
+    if (!isFinite(span)) return r;
+    return Math.max(1.6, Math.min(r, span * scale() * 0.46));
+  }
+
   /* ── Categories ───────────────────────────────────────────────── */
 
   function catKeyOf(node) {
@@ -388,6 +505,266 @@
 
   function isVisible(node) {
     return !hiddenCats[catKeyOf(node)];
+  }
+
+  function catLabel(key) {
+    const c = cats.find((x) => x && x.k === key);
+    if (c && c.l) return c.l;
+    return key || "Unclassified";
+  }
+
+  function rankOf(key) {
+    const r = CANON_RANK[key];
+    // A key neither canonical list knows goes after everything that is
+    // known, in a stable order, rather than being dropped.
+    return typeof r === "number" ? r : 900;
+  }
+
+  function byCanonRank(a, b) {
+    const d = rankOf(a) - rankOf(b);
+    if (d !== 0) return d;
+    if (a < b) return -1;
+    return a > b ? 1 : 0;
+  }
+
+  // "Canonical" here means only: the keys this payload declares appear
+  // in an order consistent with the documented list. Keys the list does
+  // not know are skipped rather than counted as a violation.
+  function isCanonicalOrder(keys) {
+    let last = -1;
+    for (let i = 0; i < keys.length; i++) {
+      const r = CANON_RANK[keys[i]];
+      if (typeof r !== "number") continue;
+      if (r < last) return false;
+      last = r;
+    }
+    return true;
+  }
+
+  function orderedCatKeys() {
+    const seen = {};
+    const declared = [];
+    cats.forEach((c) => {
+      if (!c || typeof c.k !== "string" || !c.k || seen[c.k]) return;
+      seen[c.k] = true;
+      declared.push(c.k);
+    });
+    if (!isCanonicalOrder(declared)) declared.sort(byCanonRank);
+    // A key a node claims that `cats` never declared. None exist on any
+    // payload the worker serves today; handled so that a vocabulary
+    // change cannot silently drop a whole region on the floor.
+    const orphans = [];
+    for (let i = 0; i < nodes.length; i++) {
+      const k = catKeyOf(nodes[i]);
+      if (!k || seen[k]) continue;
+      seen[k] = true;
+      orphans.push(k);
+    }
+    orphans.sort(byCanonRank);
+    return declared.concat(orphans);
+  }
+
+  /* ── Arrangement: one region per category ─────────────────────────
+   *
+   * Geometry, all of it in the same world units the similarity
+   * embedding uses so that fit(), scale(), the pan clamp and hit
+   * testing need to know nothing about which arrangement is on screen.
+   *
+   * A region is one grid cell: a strip at the top carrying its name, a
+   * count and a hairline, and a plot box under that holding its points.
+   * The number of columns comes from the stage's width, never from the
+   * number of regions: seven side by side is unreadable on a phone and
+   * a single column of seven is worse, because fitting a 3.5:1 board
+   * into a 340px stage leaves each region 29px tall. Two columns is the
+   * narrow answer and it is verified at 375, not assumed.
+   */
+  const REGION_GAP = 90; // world units between neighbouring regions
+  const REGION_CELL_W = 1000; // world width of one region
+  const REGION_INSET = 26; // world padding inside a region's plot box
+  const REGION_LABEL_PX = 26; // screen pixels reserved for a region's name
+
+  /*
+   * Measured in the research workspace, 2026-09-04: the stage is 792px
+   * wide at a 1280px window (three columns), 844px once the dossier
+   * rail drops under the map below 980 (still three), and 335px at 375
+   * (two). The four-column tier is not reachable there and is kept
+   * because the partial documents being dropped on a page of its own,
+   * where the stage takes the full 1124px inner width.
+   */
+  function columnsFor(width) {
+    if (width >= 1000) return 4;
+    if (width >= 700) return 3;
+    return 2;
+  }
+
+  function layoutSimilarity() {
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      posX[i] = n.x;
+      posY[i] = n.y;
+      cellSpan[i] = Infinity;
+      if (n.x < minX) minX = n.x;
+      if (n.x > maxX) maxX = n.x;
+      if (n.y < minY) minY = n.y;
+      if (n.y > maxY) maxY = n.y;
+    }
+    regions = [];
+    bounds = { minX, minY, maxX, maxY };
+  }
+
+  function layoutRegions() {
+    const keys = orderedCatKeys();
+    const buckets = {};
+    keys.forEach((k) => { buckets[k] = []; });
+    const loose = [];
+    for (let i = 0; i < nodes.length; i++) {
+      const k = catKeyOf(nodes[i]);
+      if (k && buckets[k]) buckets[k].push(i);
+      else loose.push(i);
+    }
+
+    // A declared category with no members still gets its region. The
+    // seven sections are then the same seven on every shelf, which is
+    // the whole point of arranging by them, and "Prophets · 0" is a true
+    // sentence about the shelf rather than a gap the reader has to
+    // explain to themselves.
+    const cells = keys.map((k) => ({ key: k, label: catLabel(k), members: buckets[k] }));
+    if (loose.length) cells.push({ key: "", label: "Unclassified", members: loose });
+    if (!cells.length) {
+      layoutSimilarity();
+      return;
+    }
+
+    const cols = Math.max(1, Math.min(cells.length, columnsFor(cssW)));
+    const rows = Math.ceil(cells.length / cols);
+    const boardW = cols * REGION_CELL_W + (cols - 1) * REGION_GAP;
+    // The board is shaped to the stage so that fitting it uses the whole
+    // plate instead of leaving a band of cream down one side.
+    const aspect = cssW > 0 && cssH > 0 ? cssH / cssW : 0.66;
+    let cellH = (boardW * aspect - (rows - 1) * REGION_GAP) / rows;
+    cellH = Math.max(320, Math.min(1800, cellH));
+    const boardH = rows * cellH + (rows - 1) * REGION_GAP;
+
+    // The name strip is a fixed number of SCREEN pixels, so its size in
+    // world units depends on the scale fit() is about to choose. That
+    // scale is computable here because the board's box is already known.
+    const approx = Math.min((cssW - PAD * 2) / boardW, (cssH - PAD * 2) / boardH);
+    const strip = Math.max(24, Math.min(cellH * 0.42, REGION_LABEL_PX / (approx > 0 ? approx : 1)));
+
+    regions = [];
+    cells.forEach((cell, i) => {
+      const c = i % cols;
+      const r = Math.floor(i / cols);
+      const x = c * (REGION_CELL_W + REGION_GAP);
+      const y = r * (cellH + REGION_GAP);
+      const reg = {
+        key: cell.key,
+        label: cell.label,
+        count: cell.members.length,
+        x,
+        y,
+        w: REGION_CELL_W,
+        h: cellH,
+        plotX: x + REGION_INSET,
+        plotY: y + strip,
+        plotW: REGION_CELL_W - REGION_INSET * 2,
+        plotH: Math.max(1, cellH - strip - REGION_INSET),
+      };
+      regions.push(reg);
+      placeInRegion(reg, cell.members);
+    });
+
+    bounds = { minX: 0, minY: 0, maxX: boardW, maxY: boardH };
+  }
+
+  /*
+   * Placement inside one region: a grid whose aspect matches the plot
+   * box, filled from the middle outwards with the members sorted
+   * largest first. Two things follow, and both are the point.
+   *
+   * Nothing overlaps, because every point owns a cell. And the largest
+   * points sit in the centre of their section, so "who is the big one
+   * here" is answered by looking at the middle rather than by hunting
+   * for the biggest dot. Where a grid is not exactly full, the empty
+   * cells are the outermost ones, so a part-filled region reads as a
+   * centred cluster rather than as a rectangle with a bite out of it.
+   *
+   * Ties on `n` break on the node's own index, so the picture is
+   * identical on every load. Nothing here is random.
+   */
+  function placeInRegion(reg, members) {
+    const m = members.length;
+    if (!m) return;
+    const order = members.slice().sort((a, b) => {
+      const d = (nodes[b].n || 0) - (nodes[a].n || 0);
+      return d !== 0 ? d : a - b;
+    });
+    if (m === 1) {
+      posX[order[0]] = reg.plotX + reg.plotW / 2;
+      posY[order[0]] = reg.plotY + reg.plotH / 2;
+      cellSpan[order[0]] = Math.min(reg.plotW, reg.plotH);
+      return;
+    }
+
+    const ratio = reg.plotW / Math.max(1, reg.plotH);
+    let icols = Math.max(1, Math.min(m, Math.round(Math.sqrt(m * ratio))));
+    let irows = Math.ceil(m / icols);
+    // sqrt rounding can leave a whole empty row; pull the columns in
+    // until the grid is no taller than it needs to be.
+    while (icols > 1 && (icols - 1) * irows >= m) {
+      icols -= 1;
+      irows = Math.ceil(m / icols);
+    }
+    const cw = reg.plotW / icols;
+    const chh = reg.plotH / irows;
+    const midX = reg.plotX + reg.plotW / 2;
+    const midY = reg.plotY + reg.plotH / 2;
+
+    const slots = [];
+    for (let r = 0; r < irows; r++) {
+      for (let c = 0; c < icols; c++) {
+        const x = reg.plotX + (c + 0.5) * cw;
+        const y = reg.plotY + (r + 0.5) * chh;
+        // Distance measured in units of the plot box, not in world
+        // units: a wide flat region would otherwise fill left-to-right
+        // rather than outwards from its middle.
+        const dx = (x - midX) / reg.plotW;
+        const dy = (y - midY) / reg.plotH;
+        slots.push({ x, y, d: dx * dx + dy * dy, r, c });
+      }
+    }
+    slots.sort((a, b) => a.d - b.d || a.r - b.r || a.c - b.c);
+
+    const span = Math.min(cw, chh);
+    for (let k = 0; k < order.length; k++) {
+      const i = order[k];
+      const slot = slots[k];
+      posX[i] = slot.x;
+      posY[i] = slot.y;
+      cellSpan[i] = span;
+    }
+  }
+
+  function positionNodes() {
+    if (posX.length !== nodes.length) {
+      posX = new Float64Array(nodes.length);
+      posY = new Float64Array(nodes.length);
+      cellSpan = new Float64Array(nodes.length);
+    }
+    if (!nodes.length) {
+      regions = [];
+      bounds = null;
+      return;
+    }
+    // The regional arrangement needs the stage's box to choose its
+    // column count, so before the first measure there is nothing to
+    // choose from and the embedding is the only honest answer.
+    if (layout === LAYOUT_REGIONS && cssW > 0 && cssH > 0) layoutRegions();
+    else layoutSimilarity();
   }
 
   /* ── Drawing ──────────────────────────────────────────────────────
@@ -415,14 +792,20 @@
     const s = scale();
     const margin = 40;
 
+    // The section names and their hairlines go down FIRST, under the
+    // edges and under the points, so the furniture never sits on top of
+    // the data. Nothing is drawn there but a rule and a caption above
+    // the plot box, so there is nothing for a point to collide with.
+    drawRegionFurniture(s);
+
     // Screen positions once per frame; the edge pass and the node pass
     // both need them.
     const px = new Float64Array(nodes.length);
     const py = new Float64Array(nodes.length);
     const onScreen = new Uint8Array(nodes.length);
     for (let i = 0; i < nodes.length; i++) {
-      const x = (nodes[i].x - cx) * s + cssW / 2 + panX;
-      const y = (nodes[i].y - cy) * s + cssH / 2 + panY;
+      const x = (posX[i] - cx) * s + cssW / 2 + panX;
+      const y = (posY[i] - cy) * s + cssH / 2 + panY;
       px[i] = x;
       py[i] = y;
       onScreen[i] = x >= -margin && x <= cssW + margin && y >= -margin && y <= cssH + margin ? 1 : 0;
@@ -432,29 +815,38 @@
     // if either end's category is switched off the edge goes with it,
     // so the legend filter cannot leave a line hanging off a point that
     // is no longer there.
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = edgeColor;
-    for (let t = 0; t < EDGE_TIERS.length; t++) {
-      const tier = EDGE_TIERS[t];
-      const lo = t === 0 ? -Infinity : EDGE_TIERS[t - 1].max;
-      ctx.globalAlpha = tier.alpha;
-      ctx.beginPath();
-      let any = false;
-      for (let i = 0; i < edges.length; i++) {
-        const e = edges[i];
-        const w = e[2];
-        if (!(w > lo && w <= tier.max)) continue;
-        const a = e[0];
-        const b = e[1];
-        if (!onScreen[a] && !onScreen[b]) continue;
-        if (!isVisible(nodes[a]) || !isVisible(nodes[b])) continue;
-        ctx.moveTo(px[a], py[a]);
-        ctx.lineTo(px[b], py[b]);
-        any = true;
+    //
+    // Held back in the regional arrangement. There, an edge no longer
+    // reinforces a cluster the eye already sees; it crosses the plate
+    // from one section to another, and 3,753 of them at the alphas the
+    // embedding wants would be a grey wash over the regions. The reader
+    // can also switch them off outright.
+    const edgeFade = layout === LAYOUT_REGIONS ? 0.55 : 1;
+    if (edgesOn) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = edgeColor;
+      for (let t = 0; t < EDGE_TIERS.length; t++) {
+        const tier = EDGE_TIERS[t];
+        const lo = t === 0 ? -Infinity : EDGE_TIERS[t - 1].max;
+        ctx.globalAlpha = tier.alpha * edgeFade;
+        ctx.beginPath();
+        let any = false;
+        for (let i = 0; i < edges.length; i++) {
+          const e = edges[i];
+          const w = e[2];
+          if (!(w > lo && w <= tier.max)) continue;
+          const a = e[0];
+          const b = e[1];
+          if (!onScreen[a] && !onScreen[b]) continue;
+          if (!isVisible(nodes[a]) || !isVisible(nodes[b])) continue;
+          ctx.moveTo(px[a], py[a]);
+          ctx.lineTo(px[b], py[b]);
+          any = true;
+        }
+        if (any) ctx.stroke();
       }
-      if (any) ctx.stroke();
+      ctx.globalAlpha = 1;
     }
-    ctx.globalAlpha = 1;
 
     // Filtered-out points stay on the map as faint marks. Removing them
     // outright would make the shelf appear to lose half its contents
@@ -482,7 +874,7 @@
         if (!onScreen[i]) continue;
         const node = nodes[i];
         if (!isVisible(node) || slotOf(node) !== c) continue;
-        const r = radiusFor(node.n);
+        const r = radiusAt(i);
         ctx.moveTo(px[i] + r, py[i]);
         ctx.arc(px[i], py[i], r, 0, Math.PI * 2);
         any = true;
@@ -500,7 +892,7 @@
       if (!onScreen[i]) continue;
       const node = nodes[i];
       if (!isVisible(node) || slotOf(node) >= 0) continue;
-      const r = radiusFor(node.n);
+      const r = radiusAt(i);
       ctx.moveTo(px[i] + r, py[i]);
       ctx.arc(px[i], py[i], r, 0, Math.PI * 2);
       anyRing = true;
@@ -510,15 +902,110 @@
     // Selection, then hover. Rings rather than a colour change, so the
     // category colour is never overwritten by interaction state.
     if (selected >= 0 && selected < nodes.length && isVisible(nodes[selected])) {
-      ring(px[selected], py[selected], radiusFor(nodes[selected].n) + 4, accentColor, 2);
+      ring(px[selected], py[selected], radiusAt(selected) + 4, accentColor, 2);
     }
     if (hovered >= 0 && hovered < nodes.length && hovered !== selected && isVisible(nodes[hovered])) {
-      ring(px[hovered], py[hovered], radiusFor(nodes[hovered].n) + 4, inkColor, 1.5);
+      ring(px[hovered], py[hovered], radiusAt(hovered) + 4, inkColor, 1.5);
     }
 
     const labelFor = hovered >= 0 ? hovered : selected;
     if (labelFor >= 0 && labelFor < nodes.length && isVisible(nodes[labelFor])) {
-      drawLabel(nodes[labelFor].a, px[labelFor], py[labelFor], radiusFor(nodes[labelFor].n));
+      drawLabel(nodes[labelFor].a, px[labelFor], py[labelFor], radiusAt(labelFor));
+    }
+  }
+
+  /* ── The regions' own furniture ───────────────────────────────────
+   *
+   * A hairline across the top of each plot box with the section's name
+   * and its count above it. A rule and a caption, which is the theme's
+   * editorial row, rather than a bordered box around each section: a box
+   * per category would be seven cards on a plate, and cards are not the
+   * house language.
+   *
+   * The name is drawn at a fixed 12px and clipped to the width the
+   * region actually occupies on screen, so a section too narrow to hold
+   * "Catholic Epistles & Revelation" at the fitted scale shows as much
+   * of it as fits and the whole name as the reader zooms in. The count
+   * is measured first and never clipped: it is the shorter fact and the
+   * more useful one when there is no room for both.
+   */
+  function clipToWidth(text, maxW) {
+    if (maxW <= 4) return "";
+    if (ctx.measureText(text).width <= maxW) return text;
+    let s = text;
+    while (s.length > 1 && ctx.measureText(`${s}…`).width > maxW) s = s.slice(0, -1);
+    const out = `${s}…`;
+    return ctx.measureText(out).width <= maxW ? out : "";
+  }
+
+  function drawRegionFurniture(s) {
+    if (layout !== LAYOUT_REGIONS || !regions.length) return;
+    ctx.font = '12px "Source Serif Pro", Georgia, serif';
+    ctx.textBaseline = "alphabetic";
+
+    for (let i = 0; i < regions.length; i++) {
+      const reg = regions[i];
+      const x0 = (reg.x - cx) * s + cssW / 2 + panX;
+      const w = reg.w * s;
+      const yTop = (reg.y - cy) * s + cssH / 2 + panY;
+      const h = reg.h * s;
+      if (x0 > cssW + 8 || x0 + w < -8 || yTop > cssH + 8 || yTop + h < -8) continue;
+
+      // The hairline sits on the top edge of the plot box, which is
+      // where the points start; the name sits above it, in the strip.
+      const ruleY = Math.round((reg.plotY - cy) * s + cssH / 2 + panY) - 0.5;
+      const off = !!hiddenCats[reg.key];
+
+      ctx.strokeStyle = edgeColor;
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = off ? 0.12 : 0.3;
+      ctx.beginPath();
+      ctx.moveTo(x0, ruleY);
+      ctx.lineTo(x0 + w, ruleY);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      const baseline = ruleY - 7;
+      if (baseline < 10 || baseline > cssH) continue;
+
+      // The same swatch the legend shows, so a section, its legend row
+      // and its dots are one thing. Unclassified keeps its open ring
+      // here too: "we do not know" is not one of the colours.
+      const slot = catIndex[reg.key];
+      const dotX = x0 + 4.5;
+      const dotY = baseline - 4;
+      ctx.globalAlpha = off ? 0.4 : 1;
+      if (typeof slot === "number") {
+        ctx.fillStyle = catColors[slot % catColors.length];
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = edgeColor;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 3.2, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      const textX = dotX + 8;
+      const room = x0 + w - textX;
+      const countText = ` · ${fmt(reg.count)}`;
+      const countW = ctx.measureText(countText).width;
+      const name = clipToWidth(reg.label, room - countW);
+      ctx.fillStyle = inkColor;
+      if (name) {
+        ctx.fillText(name, textX, baseline);
+        ctx.fillStyle = edgeColor;
+        ctx.fillText(countText, textX + ctx.measureText(name).width, baseline);
+      } else if (room >= countW) {
+        // No room for the name. The count and the swatch still say
+        // which section this is and how much is in it; the legend below
+        // the map carries every name in full.
+        ctx.fillStyle = edgeColor;
+        ctx.fillText(fmt(reg.count), textX, baseline);
+      }
+      ctx.globalAlpha = 1;
     }
   }
 
@@ -582,12 +1069,15 @@
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
       if (!isVisible(node)) continue;
-      const dx = mx - ((node.x - cx) * s + cssW / 2 + panX);
-      const dy = my - ((node.y - cy) * s + cssH / 2 + panY);
+      const dx = mx - ((posX[i] - cx) * s + cssW / 2 + panX);
+      const dy = my - ((posY[i] - cy) * s + cssH / 2 + panY);
       const d2 = dx * dx + dy * dy;
       // The drawn radius plus enough slack for a fingertip on the
-      // smallest dots.
-      const reach = Math.max(radiusFor(node.n) + 4, 11);
+      // smallest dots. The 11px floor is what keeps a capped dot in a
+      // crowded region reachable: the cap shrinks what is drawn, never
+      // what can be pressed, and the nearest-wins tiebreak below is
+      // what stops a tap in a dense grid picking an arbitrary one.
+      const reach = Math.max(radiusAt(i) + 4, 11);
       if (d2 <= reach * reach && d2 < bestDist) {
         bestDist = d2;
         best = i;
@@ -696,11 +1186,10 @@
   }
 
   function centreOn(i) {
-    const node = nodes[i];
-    if (!node || !cssW) return;
+    if (!nodes[i] || !cssW) return;
     if (zoom < 2) zoom = 2;
-    panX = -(node.x - cx) * scale();
-    panY = -(node.y - cy) * scale();
+    panX = -(posX[i] - cx) * scale();
+    panY = -(posY[i] - cy) * scale();
     clampPan();
     syncTouchAction();
   }
@@ -1075,10 +1564,12 @@
       visible === nodes.length
         ? `${fmt(nodes.length)} ${noun}${nodes.length === 1 ? "" : "s"}`
         : `${fmt(visible)} of ${fmt(nodes.length)} ${noun}s`;
-    captionEl.appendChild(
-      textEl("span", "cn-caption-count", `${count}, ${fmt(edges.length)} links`)
-    );
-    captionEl.appendChild(textEl("span", "cn-caption-blurb", VIEW_BLURB[view] || ""));
+    const links = edgesOn
+      ? `${fmt(edges.length)} links`
+      : `${fmt(edges.length)} links, hidden`;
+    captionEl.appendChild(textEl("span", "cn-caption-count", `${count}, ${links}`));
+    const blurb = layout === LAYOUT_REGIONS ? REGION_BLURB[view] : VIEW_BLURB[view];
+    captionEl.appendChild(textEl("span", "cn-caption-blurb", blurb || ""));
     if (canvas) {
       const shelfName = (shelves.find((s) => s.slug === shelfSlug) || {}).shelf || "this shelf";
       canvas.setAttribute("aria-label", `Map of ${count} on the ${shelfName} shelf.`);
@@ -1138,6 +1629,11 @@
     cats = [];
     catIndex = {};
     hiddenCats = {};
+    posX = new Float64Array(0);
+    posY = new Float64Array(0);
+    cellSpan = new Float64Array(0);
+    regions = [];
+    bounds = null;
     clearSelection();
     hovered = -1;
     renderLegend();
@@ -1170,6 +1666,7 @@
     hovered = -1;
     clearSelection();
     computeWeights();
+    positionNodes();
     fit();
     resetView();
     renderLegend();
@@ -1212,10 +1709,62 @@
     adopt(payload);
   }
 
+  /* ── Arrangement and links: the two display toggles ─────────────── */
+
+  function renderLayoutButtons() {
+    layoutBtns.forEach((b) => {
+      const which = b.getAttribute("data-cn-layout");
+      // The regional button is named after what its regions are, so a
+      // reader on the doctrines view is not told it files by Scripture.
+      if (which === LAYOUT_REGIONS) {
+        b.textContent = REGION_BTN_LABEL[view] || "By section";
+      }
+      const on = which === layout;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+
+  function renderLinksButton() {
+    if (!linksBtn) return;
+    linksBtn.textContent = edgesOn ? "Shown" : "Hidden";
+    linksBtn.classList.toggle("is-active", edgesOn);
+    linksBtn.setAttribute("aria-pressed", edgesOn ? "true" : "false");
+  }
+
+  function setLayout(next) {
+    if (next !== LAYOUT_REGIONS && next !== LAYOUT_SIMILARITY) return;
+    if (next === layout) return;
+    layout = next;
+    renderLayoutButtons();
+    // The selection is kept across the switch on purpose: watching the
+    // point you chose move from the blob to its section, or back, is the
+    // one thing that explains what the two arrangements are to each
+    // other. The dossier is already correct and is not rebuilt.
+    positionNodes();
+    fit();
+    resetView();
+    renderCaption();
+    announce(
+      layout === LAYOUT_REGIONS
+        ? `Arranged in sections, ${regions.length} of them.`
+        : "Arranged by similarity."
+    );
+  }
+
+  function setEdges(on) {
+    edgesOn = !!on;
+    renderLinksButton();
+    renderCaption();
+    draw();
+    announce(edgesOn ? "Links shown." : "Links hidden.");
+  }
+
   function setView(next) {
     if (!next || next === view) return;
     view = next;
     renderViewButtons();
+    renderLayoutButtons();
     load();
   }
 
@@ -1227,6 +1776,7 @@
     // rather than requesting a 404.
     if (avail.indexOf(view) < 0) view = avail[0] || "";
     renderViewButtons();
+    renderLayoutButtons();
     if (!view) {
       showError("This shelf has not been mined yet.");
       clearMap();
@@ -1238,10 +1788,16 @@
   viewBtns.forEach((b) => {
     b.addEventListener("click", () => setView(b.getAttribute("data-cn-view")));
   });
+  layoutBtns.forEach((b) => {
+    b.addEventListener("click", () => setLayout(b.getAttribute("data-cn-layout")));
+  });
+  if (linksBtn) linksBtn.addEventListener("click", () => setEdges(!edgesOn));
   shelfSel.addEventListener("change", () => setShelf(shelfSel.value));
 
   async function boot() {
     readPalette();
+    renderLayoutButtons();
+    renderLinksButton();
     setStatus("Reading the shelves…");
     let index;
     try {
@@ -1274,12 +1830,15 @@
     // rewrite each other.
     let wantShelf = "";
     let wantView = "";
+    let wantLayout = "";
     try {
       const q = new URLSearchParams(window.location.search);
       wantShelf = q.get("shelf") || "";
       wantView = q.get("view") || "";
+      wantLayout = q.get("arrange") || "";
     } catch (_) { /* malformed query string; fall through to the defaults */ }
 
+    if (wantLayout === LAYOUT_SIMILARITY || wantLayout === LAYOUT_REGIONS) layout = wantLayout;
     const first = shelves.some((s) => s.slug === wantShelf) ? wantShelf : shelves[0].slug;
     shelfSel.value = first;
     if (wantView && availableViews(first).indexOf(wantView) >= 0) view = wantView;
@@ -1325,6 +1884,23 @@
       booted = true;
       syncTouchAction();
       boot();
+      return;
+    }
+    // A resize is a RE-LAYOUT, not just a re-fit, when the regions are
+    // on screen: the column count and each region's aspect are both
+    // chosen from the stage's box, so a rotation from portrait to
+    // landscape is a different board. The pan goes back to nothing
+    // because the coordinates it was measured against no longer exist;
+    // the reader's zoom is kept, since that is a choice about how close
+    // they wanted to be and it survives the reshuffle.
+    if (layout === LAYOUT_REGIONS && nodes.length) {
+      positionNodes();
+      fit();
+      panX = 0;
+      panY = 0;
+      clampPan();
+      syncTouchAction();
+      draw();
       return;
     }
     fit();

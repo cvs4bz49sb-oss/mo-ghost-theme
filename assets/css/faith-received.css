@@ -11667,39 +11667,63 @@ a.faith-tp-work:hover .faith-tp-work-title { color: var(--color-secondary); }
 
 /* ── The category ramp ────────────────────────────────────────────
    Seven swatches, read by the script through getComputedStyle so the
-   canvas and the legend cannot disagree about a colour. Six are the
-   palette's own tokens; --cn-cat-3 and --cn-cat-7 are --color-rule
-   (#d9c6a7) taken down toward --color-dark, because the token itself
-   is 1.46:1 on the cream ground and a 3px dot in it is invisible. The
-   palette is closed (DESIGN §6.5): these are its members and two
-   darkenings of one of them, not new colours.
+   canvas and the legend cannot disagree about a colour.
 
-   Every one of the seven clears 3:1 on --cn-paper, which is what WCAG
-   1.4.11 asks of a graphical object:
+   REPLACED 2026-09-04, and this is the one place in the theme where a
+   hue outside the warm nine is deliberate, so the reasoning is written
+   down rather than left to be re-litigated.
 
-     cat-1  #2d2927  --color-dark          12.56:1
-     cat-2  #b45f3d  --color-primary-text   3.94:1
-     cat-3  #7d6f57  --color-rule darkened  4.28:1
-     cat-4  #9c4126  --color-alert-text     5.73:1
-     cat-5  #6b6660  --color-muted          4.96:1
-     cat-6  #c1593c  --color-secondary      3.85:1
-     cat-7  #8a7a62  --color-rule darkened  3.63:1
+   The first ramp was seven warm swatches: --color-dark, three
+   orange-reds (--color-primary-text #b45f3d, --color-alert-text
+   #9c4126, --color-secondary #c1593c) and three olive-greys
+   (--color-muted #6b6660 plus two darkenings of --color-rule). Every
+   one of them cleared 3:1, which is what it was checked for, and the
+   ramp still failed at the only job it has. Measured in CIEDE2000, its
+   closest pair (#b45f3d against #c1593c) was 3.7 apart and its next
+   (#7d6f57 against #8a7a62) 4.6; simulated for deuteranopia the first
+   pair collapses to 1.5 and for protanopia to 0.6. Seven categories
+   were reading as about three, on a 3px dot, which is what Ian saw.
 
-   They are interleaved rather than run as a lightness ramp so that
-   neighbouring categories differ in hue family as well as in value.
-   --color-primary (#ee7d51) is deliberately absent: it is 2.38:1 here
-   and would fail as a dot, and it is needed for one job only, which is
-   marking the point the reader chose. Colour is never the sole channel
-   anyway; the legend doubles as a filter and the dossier names the
-   category in words. */
+   These seven walk hue AND lightness. L* runs 17, 26, 35, 40, 47, 52,
+   56, so any two are separated in value even where hue fails, and the
+   closest pair is 21.1 ΔE2000 rather than 3.7 (protanopia 7.7,
+   deuteranopia 6.2, tritanopia 19.7). They stay low-chroma and mid-dark
+   on purpose: this is the ink range of an old atlas plate, not a
+   category palette out of a dashboard, and nothing here is saturated
+   enough to shout on a cream ground.
+
+   Contrast on --cn-paper (#f5efe1), which is WCAG 1.4.11's 3:1 for a
+   graphical object:
+
+     cat-1  #2d2927  ink        --color-dark, unchanged   12.56:1  L*17
+     cat-2  #9c4126  rust       --color-alert-text         5.73:1  L*40
+     cat-3  #a77e3c  ochre                                 3.22:1  L*56
+     cat-4  #5a7848  moss                                  4.35:1  L*47
+     cat-5  #1a5b63  verdigris                             6.73:1  L*35
+     cat-6  #677e99  slate                                 3.65:1  L*52
+     cat-7  #602d4e  plum                                  9.24:1  L*27
+
+   Slate is the quietest of the seven by design: it takes whichever
+   category is the shelf's giant in the reading order the payload uses
+   (Acts & Paul, 213 of 287 English Divines authors and 936 of 1,486 of
+   its works), so the crowd is the calm colour and the small categories
+   are the ones that carry chroma and can be picked out of it.
+
+   --color-primary (#ee7d51) is still deliberately absent: it is 2.38:1
+   here and would fail as a dot, and it is needed for one job only,
+   which is marking the point the reader chose. Colour is never the sole
+   channel anyway; in the regional arrangement position carries the
+   category outright, the legend doubles as a filter, unclassified
+   points differ in SHAPE, and the dossier names the category in
+   words. */
 [data-cn-root] {
   --cn-cat-1: #2d2927;
-  --cn-cat-2: #b45f3d;
-  --cn-cat-3: #7d6f57;
-  --cn-cat-4: #9c4126;
-  --cn-cat-5: #6b6660;
-  --cn-cat-6: #c1593c;
-  --cn-cat-7: #8a7a62;
+  --cn-cat-2: #9c4126;
+  --cn-cat-3: #a77e3c;
+  --cn-cat-4: #5a7848;
+  --cn-cat-5: #1a5b63;
+  --cn-cat-6: #677e99;
+  --cn-cat-7: #602d4e;
   --cn-edge: #6b6660;
   --cn-ghost: #d9c6a7;
   --cn-accent: #ee7d51;
@@ -12237,7 +12261,14 @@ a.cn-row-title { color: var(--color-primary-text); }
   .cn-controls { gap: 16px 24px; }
   .cn-select { width: 100%; }
   .cn-control:first-child { flex: 1 1 100%; }
-  .cn-stage { height: 340px; }
+  /* 420, not 340. The regional arrangement puts eight named sections on
+     the plate, and at 375 they land as a 2x4 board; 340px left each
+     section 63px tall, which is a name, a hairline and barely room for
+     the points underneath. 420px buys 16px per section and the map is
+     the panel's whole reason for existing, so it is the right thing to
+     spend a phone's viewport on. Still half of an iPhone screen, not
+     more. */
+  .cn-stage { height: 420px; }
   /* 18px apart rather than 8: at 375px these wrap to one per line and
      adjacent 32px-high targets that close together are a mis-tap
      (MOBILE M4). */

@@ -43,6 +43,17 @@
          the script unhides only the views the shelf's `have` block
          actually lists, because a view a shelf lacks is a 404 rather
          than an empty map.
+       - [data-cn-layout] — the two arrangements. "regions" is the
+         default and ships marked active. Its LABEL is written by the
+         script, because what the sections are depends on the view:
+         Scripture for authors and works, heads of doctrine for
+         doctrines. The markup carries "By Scripture" so the control
+         reads correctly before any script runs.
+       - [data-cn-links] — one toggle for the edges, whose text is the
+         current state ("Shown" / "Hidden") and whose aria-pressed says
+         the same thing. Edges cross between sections in the regional
+         arrangement, which is what makes them worth drawing there and
+         also what makes 3,753 of them worth being able to switch off.
        - [data-cn-views-note] — one line naming what a partial shelf was
          mined for, so a picker with one button reads as a fact about
          the shelf rather than as breakage.
@@ -79,7 +90,7 @@
 
   <header class="cn-head">
     <h2 class="cn-title">Constellations</h2>
-    <p class="cn-lede">Sixteen shelves of the library, read for the Scripture they quote. Every point is an author, a work or a doctrine, and two points sit close together when they lean on the same passages.</p>
+    <p class="cn-lede">Sixteen shelves of the library, read for the Scripture they quote. Every point is an author, a work or a doctrine, filed under the part of the Bible it leans on hardest. Switch the arrangement to see the same points placed by how alike they quote instead.</p>
   </header>
 
   {{!-- The controls. A <select> for the shelves rather than sixteen
@@ -101,6 +112,25 @@
         <button type="button" class="cn-view-btn" data-cn-view="authors" aria-pressed="false" hidden>Authors</button>
         <button type="button" class="cn-view-btn" data-cn-view="works" aria-pressed="false" hidden>Works</button>
         <button type="button" class="cn-view-btn" data-cn-view="doctrines" aria-pressed="false" hidden>Doctrines</button>
+      </div>
+    </div>
+
+    {{!-- Sections first, similarity second, and the default is
+          sections. The embedding is real, but most of a shelf quotes
+          Paul above everything else, so at rest it draws one crowd in
+          one corner and the reader is told nothing. --}}
+    <div class="cn-control">
+      <p class="cn-control-label" id="cn-arrange-label">Arrangement</p>
+      <div class="cn-views" role="group" aria-labelledby="cn-arrange-label">
+        <button type="button" class="cn-view-btn is-active" data-cn-layout="regions" aria-pressed="true">By Scripture</button>
+        <button type="button" class="cn-view-btn" data-cn-layout="similarity" aria-pressed="false">By similarity</button>
+      </div>
+    </div>
+
+    <div class="cn-control">
+      <p class="cn-control-label" id="cn-links-label">Links</p>
+      <div class="cn-views" role="group" aria-labelledby="cn-links-label">
+        <button type="button" class="cn-view-btn is-active" data-cn-links aria-pressed="true">Shown</button>
       </div>
     </div>
   </div>
