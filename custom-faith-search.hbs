@@ -61,7 +61,16 @@
            brief's "sharing scope filters" across modes. Same markup
            convention as the curated topic pages
            (partials/faith-received/_topic-*.hbs): .faith-topic-filters
-           / .faith-filter-group / .faith-filter-pill. --}}
+           / .faith-filter-group / .faith-filter-pill.
+
+           Hidden by CSS while the Ask tab is active (`.fs-page--ask
+           .faith-search-scope`, set by faith-tfr-search.js's
+           showMode()): ten pills plus two text inputs dominated
+           everything below them, and Ask carries its own collapsed
+           multi-select scope control inside its composer. Hidden, never
+           cleared — these pills are single-select and drive Pagefind
+           for the other five modes, and their state is exactly as it
+           was left when you switch back. --}}
       <div class="faith-topic-filters faith-search-scope">
         <div class="faith-filter-group" data-fs-trad-group>
           <span class="faith-filter-label">Tradition</span>
@@ -145,14 +154,15 @@
            the partial's markup with plain unscoped querySelector()
            calls, so it works here unchanged.
 
-           .ask-layout (in the partial) needs real width for its
-           two-column research-workspace grid — this page's own
-           container is `container-narrow` (720px), the same squeeze
-           Ian flagged on the standalone /ask/ page before that page
-           widened off it. faith-tfr-search.js's showMode() toggles
-           `.fs-page--ask` on [data-fs-page] itself while this tab is
-           active, which widens the container without touching the
-           other five panels — see ".fs-page--ask" in
+           .ask-workspace (in the partial) makes its own width: it
+           breaks out of this page's `container-narrow` (720px) and
+           runs the full width of the viewport, so the container no
+           longer has to be widened for it. faith-tfr-search.js's
+           showMode() still toggles `.fs-page--ask` on [data-fs-page]
+           while this tab is active; that class now hides the shared
+           scope row above instead of resizing the container, which
+           also means the tab strip no longer jumps 460px wider the
+           moment Ask is selected — see ".fs-page--ask" in
            faith-received.css. --}}
       <div data-fs-panel="ask" data-ask-page hidden>
         {{> "faith-received/_ask-panel"}}

@@ -26,14 +26,15 @@
      stays a separate route (rather than folding entirely into the
      search page) for its own dedicated hero, URL, and metadata.
 
-     Layout redesigned 2026-09 into a two-column research workspace
-     above 820px (main conversation column + a persistent sources
-     rail) — see "Ask page: wide research workspace" in
-     assets/css/faith-received.css for the full reasoning; the original
-     single narrow `container-narrow` column was unusable for real
-     research/chat use at any width. Styling simplified 2026-09 to a
-     plain editorial register (no raised white cards/shadows) matching
-     the reader pages — see the same CSS block's updated comments. --}}
+     Layout redesigned 2026-09 (second pass) into a full-bleed
+     workspace: .ask-workspace breaks out of the container below and
+     runs the full width of the viewport on its own white ground, so
+     the page opens into it rather than holding it. The band it sits in
+     carries `faith-ask-band`, which zeroes the band's top padding so
+     the window butts straight up against the dark hero — that join is
+     the "pop into it" moment and it does not survive 92px of page
+     ground between the two. See "Ask: the research workspace" in
+     assets/css/faith-received.css for the full reasoning. --}}
 
 <main class="faith-received faith-feature">
 
@@ -45,7 +46,7 @@
     </div>
   </section>
 
-  <section class="bband faith-feature-body">
+  <section class="bband faith-feature-body faith-ask-band">
     <div class="container" data-ask-page>
 
       {{!-- Shared with the "Ask" tab on /the-faith-received/search/ —

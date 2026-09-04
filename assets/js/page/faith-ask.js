@@ -8,7 +8,22 @@
  * Rendered as an editorial set piece per the data owner's spec: the
  * question becomes a heading, the answer is running prose, and
  * citations are footnotes linking into the reader — not a chat
- * bubble. See custom-faith-ask.hbs for the markup this fills in.
+ * bubble. The markup is a shared partial,
+ * partials/faith-received/_ask-panel.hbs (rendered by both
+ * custom-faith-ask.hbs and the Ask tab of custom-faith-search.hbs);
+ * read its header for the DOM contract every querySelector() below
+ * depends on.
+ *
+ * SCOPE (2026-09): the composer carries a collapsed scope control —
+ * multi-select traditions plus an author box — whose values go out as
+ * `traditions` and `author` in the POST body. See currentScope() and
+ * renderScopeState() below. The worker has accepted both fields since
+ * the spend-cap work but this file never sent them, so a reader who
+ * set a scope on the Search page got an unscoped answer with nothing
+ * on screen to say the filter had been ignored. Ask's control is its
+ * own thing, deliberately: the Search page's pills are single-select
+ * and drive Pagefind through faith-tfr-search.js, and are hidden while
+ * the Ask tab is active.
  *
  * Access: the "Ask the library" button carries data-feature-gate="ask"
  * (see assets/js/feature-gate.js, loaded before this file) — a free
@@ -63,6 +78,20 @@
   const footnotesWrap = document.querySelector("[data-ask-footnotes-wrap]");
   const footnotesEl = document.querySelector("[data-ask-footnotes]");
   const errorEl = document.querySelector("[data-ask-error]");
+
+  // Scope control (2026-09): the collapsed <details> in the composer.
+  // The worker has accepted `traditions` (array) and `author` on POST
+  // /v1/ask since the spend-cap work -- see the body parse in
+  // website/workers/tfr-library/lib/ask.js -- but nothing sent them
+  // until now, so a reader who set a scope got an unscoped answer with
+  // no sign anything had been ignored. The nine tradition values in the
+  // partial are validated server-side against KNOWN_TRADITIONS and any
+  // value the worker does not recognise is dropped, so the strings must
+  // stay byte-identical to that set.
+  const scopeEl = document.querySelector("[data-ask-scope]");
+  const scopeStateEl = document.querySelector("[data-ask-scope-state]");
+  const scopeAuthorEl = document.querySelector("[data-ask-author]");
+  const scopeTraditionEls = Array.from(document.querySelectorAll("[data-ask-tradition]"));
 
   const usageEl = document.querySelector("[data-ask-usage]");
   const usageMineRow = document.querySelector("[data-ask-usage-mine]");
@@ -165,14 +194,25 @@
       // together into one line of running prose. Walks the block's own
       // lines in order so a lead-in before/after the quote still reads
       // as normal prose, only the "> " line becomes a real blockquote.
-      if (lines.some((l) => /^>\s?/.test(l))) {
+      //
+      // The marker is matched as `&gt;` first, not `>`. This whole
+      // block runs on text that escapeHtml() has ALREADY been through
+      // (see `escaped` above), so by the time a line reaches here a
+      // model's "> quoted line" is literally "&gt; quoted line" and a
+      // bare /^>/ test can never match. It never did: every quotation
+      // the model marked up rendered as a paragraph beginning with a
+      // visible "&gt;", and .ask-answer blockquote in
+      // faith-received.css styled nothing. Found on the first real
+      // render of the rebuilt panel, 2026-09. The bare `>` alternative
+      // is kept so this still works if the escaping order ever moves.
+      if (lines.some((l) => /^(?:&gt;|>)\s?/.test(l))) {
         const parts = [];
         let plain = [];
         const flushPlain = () => {
           if (plain.length) { parts.push(`<p>${renderInline(plain.join(" "), citByN)}</p>`); plain = []; }
         };
         for (const l of lines) {
-          const q = l.match(/^>\s?(.*)$/);
+          const q = l.match(/^(?:&gt;|>)\s?(.*)$/);
           if (q) {
             flushPlain();
             parts.push(`<blockquote>${renderInline(q[1], citByN)}</blockquote>`);
@@ -248,6 +288,48 @@
     gapsEl.textContent = `Not yet represented in this answer: ${gaps.join("; ")}.`;
   }
 
+  // ── Scope ────────────────────────────────────────────────────
+  //
+  // Read on every submit rather than tracked in a variable, so there is
+  // exactly one source of truth (the checkboxes themselves) and no way
+  // for the summary line and the request body to disagree.
+  function currentScope() {
+    const traditions = scopeTraditionEls.filter((el) => el.checked).map((el) => el.value);
+    const author = scopeAuthorEl ? scopeAuthorEl.value.trim().slice(0, 100) : "";
+    return { traditions, author };
+  }
+
+  // The collapsed summary has to say what is selected, or a scope set
+  // and forgotten silently narrows every later answer with nothing on
+  // screen to explain why the library suddenly knows less.
+  function renderScopeState() {
+    if (!scopeStateEl) return;
+    const scope = currentScope();
+    const parts = [];
+    if (scope.traditions.length === 1) parts.push(scope.traditions[0]);
+    else if (scope.traditions.length > 1) parts.push(`${scope.traditions.length} traditions`);
+    if (scope.author) parts.push(scope.author);
+    scopeStateEl.textContent = parts.length ? parts.join(" · ") : "The whole library";
+    if (scopeEl) scopeEl.classList.toggle("ask-scope--set", parts.length > 0);
+  }
+
+  scopeTraditionEls.forEach((el) => el.addEventListener("change", renderScopeState));
+  if (scopeAuthorEl) scopeAuthorEl.addEventListener("input", renderScopeState);
+  renderScopeState();
+
+  // Example questions in the empty state fill the box and stop there.
+  // They deliberately do NOT submit: the paid-member gate is on the
+  // submit button's own click (feature-gate.js), and a question spends
+  // real money against the shared daily budget, so nothing may reach
+  // the worker without a deliberate press.
+  document.querySelectorAll("[data-ask-example]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!input) return;
+      input.value = (btn.textContent || "").trim();
+      input.focus();
+    });
+  });
+
   // ── Usage meter ──────────────────────────────────────────────
   //
   // GET /v1/ask/usage never spends anything and never denies — it
@@ -299,6 +381,14 @@
 
   async function streamAsk(question) {
     let resp;
+    // Only send a scope key when the reader actually set one. The
+    // worker treats an empty `traditions` array the same as an absent
+    // one, but omitting it keeps the request body an honest record of
+    // what was asked for.
+    const scope = currentScope();
+    const payload = { question };
+    if (scope.traditions.length) payload.traditions = scope.traditions;
+    if (scope.author) payload.author = scope.author;
     try {
       // MOAuth.fetch attaches the caller's Ghost member bearer token
       // when one exists (anonymous visitors just get a plain fetch —
@@ -308,7 +398,7 @@
       resp = await window.MOAuth.fetch(ASK_URL, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify(payload),
       });
     } catch (err) {
       // The actual reason (untrusted-destination refusal vs. a real

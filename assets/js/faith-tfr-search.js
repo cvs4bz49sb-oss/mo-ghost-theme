@@ -172,16 +172,18 @@
       t.classList.toggle("is-active", active);
       t.setAttribute("aria-selected", active ? "true" : "false");
     });
-    // Ask's two-column research-workspace layout (.ask-layout, shared
-    // with the standalone /the-faith-received/ask/ page via
-    // partials/faith-received/_ask-panel.hbs) needs real width to lay
-    // its sources rail out beside the answer. This page's own container
-    // is `container-narrow` (720px) — the same squeeze Ian flagged on
-    // the standalone page before that page widened off it. Toggling
-    // this class on `page` ([data-fs-page] itself, the container div)
-    // widens only while Ask is the active tab, rather than duplicating
-    // .ask-layout's grid rules with a second breakout hack — see
-    // ".fs-page--ask" in faith-received.css.
+    // Ask's workspace (.ask-workspace, shared with the standalone
+    // /the-faith-received/ask/ page via
+    // partials/faith-received/_ask-panel.hbs) makes its own width now:
+    // it breaks out of this page's `container-narrow` (720px) and runs
+    // the full width of the viewport, so this class no longer resizes
+    // the container. What it does instead is hide the page's shared
+    // scope row while Ask is active — ten tradition pills and two text
+    // inputs that dominated the panel below them, and that Ask replaces
+    // with its own collapsed multi-select control in the composer. The
+    // row is hidden, never cleared, so `currentTradition` below and the
+    // other five modes are untouched. See ".fs-page--ask" in
+    // faith-received.css.
     page.classList.toggle("fs-page--ask", mode === "ask");
     if (mode === "fulltext" || mode === "find" || mode === "tradition") {
       ensureInstances();

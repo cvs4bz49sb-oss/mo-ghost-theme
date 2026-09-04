@@ -17,6 +17,29 @@
      site.min.js, so both must be loaded this way rather than assumed
      from the boot bundle.
 
+     SHAPE (2026-09 redesign). This is a workspace you step into, not a
+     widget sitting on a marketing page: .ask-workspace breaks out of
+     whichever container it was dropped into and runs the full width of
+     the viewport with its own ground, so the page visibly opens into it.
+     Inside, three parts, in this DOM order, which is also the reading
+     order and the tab order at every width:
+
+       1. .ask-thread   — the transcript. Empty state, then the streaming
+                          status line, then the answer, then errors. One
+                          calm reading column, capped at a ~68ch measure.
+       2. .ask-sources  — the citations. A sticky rail beside the thread
+                          from 1025px up; stacked under it below that.
+       3. .ask-dock     — the composer, at the bottom of the window and
+                          the last thing in it. In flow, not pinned to
+                          the viewport; the CSS block says why, and what
+                          would change that.
+
+     Multi-turn conversation is NOT built server-side yet (one question,
+     one answer, per POST /v1/ask). Nothing here fakes it. But the shape
+     is the one a follow-up drops into unchanged: when the worker grows a
+     conversation, .ask-thread gains a sequence of turns above the dock
+     and nothing else about this layout has to move.
+
      DOM contract faith-ask.js depends on — re-read that file before
      touching any of this:
        - form[data-ask-form] > textarea[data-ask-input],
@@ -28,7 +51,7 @@
          in that order.
        - [data-ask-status], [data-ask-result] containing
          [data-ask-heading], [data-ask-answer], [data-ask-gaps], and
-         [data-ask-error] as siblings of [data-ask-result].
+         [data-ask-error] as a sibling of [data-ask-result].
        - [data-ask-footnotes-wrap] > [data-ask-footnotes], immediately
          followed by [data-ask-sources-empty] — the CSS rule
          ".ask-footnotes-wrap:not([hidden]) ~ .ask-sources-empty" in
@@ -39,77 +62,165 @@
          click). Do not remove or weaken this: any LLM-calling feature on
          this site is a standing member-gate + rate-limit requirement,
          and the worker itself enforces the same gate server-side (see
-         faith-ask.js's header comment). --}}
-<div class="ask-layout">
-  <div class="ask-main">
+         faith-ask.js's header comment).
+       - The scope control below ([data-ask-scope] and its
+         [data-ask-tradition] / [data-ask-author] / [data-ask-scope-state]
+         children) is read by faith-ask.js and sent as `traditions` and
+         `author` in the POST body. The nine tradition values must stay
+         byte-identical to KNOWN_TRADITIONS in
+         website/workers/tfr-library/lib/ask.js — the worker drops any
+         value it doesn't recognise, which would read as "the filter did
+         nothing" rather than as an error.
 
-    <form class="ask-form" data-ask-form>
-      <label class="ask-label" for="ask-question">Your question</label>
-      <textarea
-        id="ask-question"
-        class="ask-input"
-        data-ask-input
-        rows="3"
-        maxlength="600"
-        placeholder="e.g. What does the tradition teach about justification?"
-        required
-      ></textarea>
-      <div class="ask-form-footer">
-        <p class="ask-form-hint">Enter to ask &middot; Shift+Enter for a new line</p>
-        <button type="submit" class="btn btn-primary ask-submit" data-feature-gate="ask" data-ask-submit>
-          Ask the library
-        </button>
-      </div>
-    </form>
+     Deliberately NOT inside form[data-ask-form]: the scope control's
+     author text input. A single-line text input inside a form triggers
+     implicit submission on Enter, and implicit submission fires the
+     form's submit event WITHOUT a click on [data-ask-submit] — which is
+     exactly what feature-gate.js listens for. Keeping it out of the form
+     means the only route to a question is the gated button. --}}
+<div class="ask-workspace" data-ask-workspace>
 
-    {{!-- Usage meter -- a beta capacity cap on /v1/ask. Reads GET
-          /v1/ask/usage on page load and after each answer -- see
-          assets/js/page/faith-ask.js. Hidden until that first read
-          succeeds, so a fetch failure degrades to "no meter shown"
-          rather than a stuck "Loading…" line. --}}
-    <div class="ask-usage" data-ask-usage hidden>
-      <div class="ask-usage-row" data-ask-usage-mine hidden>
-        <div class="ask-usage-meta">
-          <span class="ask-usage-label">Your questions today</span>
-          <span class="ask-usage-pct" data-ask-usage-mine-text></span>
-        </div>
-        <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-mine-fill></span></div>
+  <div class="ask-workspace-inner">
+
+    <div class="ask-thread">
+
+      {{!-- Empty state. Hidden by CSS (a :has() rule on .ask-thread) the
+            moment a status line, an answer, or an error appears, so it
+            needs no JS of its own. The example questions only fill the
+            question box; they never submit. A question costs real money
+            and the paid-member gate lives on the submit button's own
+            click, so nothing here may bypass it. --}}
+      <div class="ask-empty">
+        <p class="ask-empty-lede">A question, answered from the library itself.</p>
+        <p class="ask-empty-note">Nineteen thousand works of Christian theology are open in front of you. Every claim in the answer carries a citation you can open in the reader.</p>
+        <ul class="ask-examples">
+          <li><button type="button" class="ask-example" data-ask-example>What does the tradition teach about justification?</button></li>
+          <li><button type="button" class="ask-example" data-ask-example>Where do the Fathers and the Reformers divide on the Lord&rsquo;s Supper?</button></li>
+          <li><button type="button" class="ask-example" data-ask-example>How did Augustine read the seventh chapter of Romans?</button></li>
+        </ul>
       </div>
-      <div class="ask-usage-row">
-        <div class="ask-usage-meta">
-          <span class="ask-usage-label">Beta capacity today</span>
-          <span class="ask-usage-pct" data-ask-usage-global-text></span>
-        </div>
-        <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-global-fill></span></div>
-      </div>
+
+      <p class="ask-status" data-ask-status role="status" aria-live="polite" hidden></p>
+
+      <article class="ask-result" data-ask-result hidden>
+        <h2 class="ask-question" data-ask-heading></h2>
+        <div class="ask-answer" data-ask-answer></div>
+
+        <p class="ask-gaps" data-ask-gaps hidden></p>
+      </article>
+
+      <p class="ask-error" data-ask-error role="alert" hidden></p>
+
     </div>
 
-    <p class="ask-status" data-ask-status role="status" aria-live="polite" hidden></p>
-
-    <article class="ask-result" data-ask-result hidden>
-      <h2 class="ask-question" data-ask-heading></h2>
-      <div class="ask-answer" data-ask-answer></div>
-
-      <p class="ask-gaps" data-ask-gaps hidden></p>
-    </article>
-
-    <p class="ask-error" data-ask-error role="alert" hidden></p>
+    {{!-- Citations rail. .ask-footnotes-wrap/.ask-footnotes are exactly
+         the elements faith-ask.js already renders into
+         (renderFootnotes() in assets/js/page/faith-ask.js).
+         .ask-sources-empty is pure CSS: a sibling selector hides it once
+         .ask-footnotes-wrap loses its `hidden` attribute, so the rail
+         never sits blank before a first question is asked. Below 1025px
+         the whole rail is hidden until there is something in it, so a
+         phone doesn't open onto a "Sources" heading with nothing under
+         it. --}}
+    <aside class="ask-sources" aria-label="Sources for this answer">
+      <div class="ask-sources-inner">
+        <h3 class="ask-footnotes-title">Sources</h3>
+        <div class="ask-footnotes-wrap" data-ask-footnotes-wrap hidden>
+          <ol class="ask-footnotes" data-ask-footnotes></ol>
+        </div>
+        <p class="ask-sources-empty" data-ask-sources-empty>Every page the answer draws on lists here, each one a link into the reader.</p>
+      </div>
+    </aside>
 
   </div>
 
-  {{!-- Citations rail. .ask-footnotes-wrap/.ask-footnotes are exactly
-       the elements faith-ask.js already renders into
-       (renderFootnotes() in assets/js/page/faith-ask.js).
-       .ask-sources-empty is pure CSS: a sibling selector hides it once
-       .ask-footnotes-wrap loses its `hidden` attribute, so the rail
-       never sits blank before a first question is asked. --}}
-  <aside class="ask-sources" aria-label="Sources for this answer">
-    <div class="ask-sources-inner">
-      <h3 class="ask-footnotes-title">Sources</h3>
-      <div class="ask-footnotes-wrap" data-ask-footnotes-wrap hidden>
-        <ol class="ask-footnotes" data-ask-footnotes></ol>
+  <div class="ask-dock">
+    <div class="ask-dock-inner">
+      <div class="ask-composer">
+
+        <form class="ask-form" data-ask-form>
+          <label class="visually-hidden" for="ask-question">Your question</label>
+          <textarea
+            id="ask-question"
+            class="ask-input"
+            data-ask-input
+            rows="3"
+            maxlength="600"
+            placeholder="Ask the library a question&hellip;"
+            required
+          ></textarea>
+          <div class="ask-form-footer">
+            <p class="ask-form-hint">Enter to ask, Shift+Enter for a new line</p>
+            <button type="submit" class="ask-submit" data-feature-gate="ask" data-ask-submit>
+              Ask the library
+            </button>
+          </div>
+        </form>
+
+        {{!-- Scope. Collapsed by default and quiet on purpose: the whole
+             library is the right default, and a reader who wants less
+             than that goes looking for the control rather than being
+             confronted with it. The nine traditions are the corpus's own
+             vocabulary; see the DOM-contract note above. --}}
+        <details class="ask-scope" data-ask-scope>
+          <summary class="ask-scope-summary">
+            <span class="ask-scope-title">Scope</span>
+            <span class="ask-scope-state" data-ask-scope-state>The whole library</span>
+          </summary>
+          <div class="ask-scope-body">
+            <fieldset class="ask-scope-field">
+              <legend class="ask-scope-legend">Traditions</legend>
+              <div class="ask-scope-pills">
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="English Divines" /><span>English Divines</span></label>
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="Greek Fathers" /><span>Greek Fathers</span></label>
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="Humanism and Law" /><span>Humanism and Law</span></label>
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="Lutheran" /><span>Lutheran</span></label>
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="Medieval" /><span>Medieval</span></label>
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="Latin Fathers" /><span>Latin Fathers</span></label>
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="Eastern Fathers" /><span>Eastern Fathers</span></label>
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="Roman Catholic" /><span>Roman Catholic</span></label>
+                <label class="ask-scope-pill"><input type="checkbox" data-ask-tradition value="Reformed" /><span>Reformed</span></label>
+              </div>
+            </fieldset>
+            <div class="ask-scope-field">
+              <label class="ask-scope-legend" for="ask-scope-author">Author</label>
+              <input
+                id="ask-scope-author"
+                class="ask-scope-input"
+                type="text"
+                data-ask-author
+                maxlength="100"
+                autocomplete="off"
+                placeholder="e.g. Baxter"
+              />
+            </div>
+          </div>
+        </details>
+
+        {{!-- Usage meter -- a beta capacity cap on /v1/ask. Reads GET
+              /v1/ask/usage on page load and after each answer -- see
+              assets/js/page/faith-ask.js. Hidden until that first read
+              succeeds, so a fetch failure degrades to "no meter shown"
+              rather than a stuck "Loading…" line. --}}
+        <div class="ask-usage" data-ask-usage hidden>
+          <div class="ask-usage-row" data-ask-usage-mine hidden>
+            <div class="ask-usage-meta">
+              <span class="ask-usage-label">Your questions today</span>
+              <span class="ask-usage-pct" data-ask-usage-mine-text></span>
+            </div>
+            <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-mine-fill></span></div>
+          </div>
+          <div class="ask-usage-row">
+            <div class="ask-usage-meta">
+              <span class="ask-usage-label">Beta capacity today</span>
+              <span class="ask-usage-pct" data-ask-usage-global-text></span>
+            </div>
+            <div class="ask-usage-bar"><span class="ask-usage-fill" data-ask-usage-global-fill></span></div>
+          </div>
+        </div>
+
       </div>
-      <p class="ask-sources-empty" data-ask-sources-empty>Ask a question. The pages it draws its answer from will list here, each one a link into the reader.</p>
     </div>
-  </aside>
+  </div>
+
 </div>
