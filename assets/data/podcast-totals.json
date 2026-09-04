@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-04T04:39:57.557Z",
+  "generated_at": "2026-09-04T11:24:27.213Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 66086,
+      "plays": 66157,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -149,27 +149,27 @@
         {
           "date": "2026-01-28",
           "title": "A Generous Ecclesiology with Myles Werntz",
-          "plays": 83
+          "plays": 84
         },
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 249
+          "plays": 251
         },
         {
           "date": "2026-02-11",
           "title": "The Great Evangelical Hand-Off (That Never Happened) with Jake Meador",
-          "plays": 105
+          "plays": 106
         },
         {
           "date": "2026-02-18",
           "title": "Replay: Put Social Media In Its Place with Andy Crouch",
-          "plays": 83
+          "plays": 84
         },
         {
           "date": "2026-02-25",
           "title": "Resisting Doomerism and Cultivating Hope",
-          "plays": 146
+          "plays": 147
         },
         {
           "date": "2026-03-04",
@@ -179,12 +179,12 @@
         {
           "date": "2026-03-11",
           "title": "Delighting In The Ten Commandments",
-          "plays": 118
+          "plays": 119
         },
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 325
+          "plays": 326
         },
         {
           "date": "2026-03-25",
@@ -199,7 +199,7 @@
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 165
+          "plays": 166
         },
         {
           "date": "2026-04-15",
@@ -209,7 +209,7 @@
         {
           "date": "2026-04-22",
           "title": "How To Approach God",
-          "plays": 230
+          "plays": 231
         },
         {
           "date": "2026-04-30",
@@ -254,7 +254,7 @@
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3608
+          "plays": 3609
         },
         {
           "date": "2026-07-01",
@@ -284,7 +284,7 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2938
+          "plays": 2939
         },
         {
           "date": "2026-08-12",
@@ -294,17 +294,17 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3563
+          "plays": 3564
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3291
+          "plays": 3302
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 2394
+          "plays": 2439
         }
       ],
       "per_episode": [
@@ -650,7 +650,7 @@
         },
         {
           "month": "2023-04",
-          "avg": 43,
+          "avg": 44,
           "episodes": 2
         },
         {
@@ -795,12 +795,12 @@
         },
         {
           "month": "2026-02",
-          "avg": 146,
+          "avg": 147,
           "episodes": 4
         },
         {
           "month": "2026-03",
-          "avg": 200,
+          "avg": 201,
           "episodes": 4
         },
         {
@@ -825,30 +825,30 @@
         },
         {
           "month": "2026-08",
-          "avg": 3260,
+          "avg": 3263,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2394,
+          "avg": 2439,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 17625,
+      "plays": 17675,
       "earliest": "2025-07-24",
       "recent": [
         {
           "date": "2025-07-24",
           "title": "Introducing: Christians Reading Classics",
-          "plays": 142
+          "plays": 143
         },
         {
           "date": "2025-08-12",
           "title": "G.K. Chesterton - The Everlasting Man with Timothy Larsen",
-          "plays": 174
+          "plays": 175
         },
         {
           "date": "2025-08-12",
@@ -963,32 +963,32 @@
         {
           "date": "2026-03-12",
           "title": "The Nichomachean Ethics by Aristotle with Sabrina Little | America 250",
-          "plays": 90
+          "plays": 91
         },
         {
           "date": "2026-03-18",
           "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
-          "plays": 122
+          "plays": 123
         },
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 157
+          "plays": 158
         },
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 135
+          "plays": 136
         },
         {
           "date": "2026-04-09",
           "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
-          "plays": 101
+          "plays": 102
         },
         {
           "date": "2026-04-16",
           "title": "The Scarlet Letter by Nathaniel Hawthorne with Jeff Bilbro | American 250",
-          "plays": 103
+          "plays": 104
         },
         {
           "date": "2026-04-23",
@@ -1063,7 +1063,7 @@
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 874
+          "plays": 876
         },
         {
           "date": "2026-08-06",
@@ -1078,7 +1078,7 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 809
+          "plays": 810
         },
         {
           "date": "2026-08-27",
@@ -1088,13 +1088,13 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 425
+          "plays": 464
         }
       ],
       "per_episode": [
         {
           "month": "2025-07",
-          "avg": 142,
+          "avg": 143,
           "episodes": 1
         },
         {
@@ -1129,12 +1129,12 @@
         },
         {
           "month": "2026-03",
-          "avg": 112,
+          "avg": 113,
           "episodes": 4
         },
         {
           "month": "2026-04",
-          "avg": 127,
+          "avg": 128,
           "episodes": 4
         },
         {
@@ -1149,7 +1149,7 @@
         },
         {
           "month": "2026-07",
-          "avg": 838,
+          "avg": 839,
           "episodes": 5
         },
         {
@@ -1159,7 +1159,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 425,
+          "avg": 464,
           "episodes": 1
         }
       ]
