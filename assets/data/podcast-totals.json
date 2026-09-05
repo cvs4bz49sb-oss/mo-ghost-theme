@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-05T15:18:14.529Z",
+  "generated_at": "2026-09-05T20:26:34.371Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 66586,
+      "plays": 66684,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -79,7 +79,7 @@
         {
           "date": "2025-09-08",
           "title": "Are You Scared Of Ambition?",
-          "plays": 52
+          "plays": 53
         },
         {
           "date": "2025-09-17",
@@ -119,7 +119,7 @@
         {
           "date": "2025-11-05",
           "title": "Jesus and The Law of Moses with Paul T. Sloan",
-          "plays": 135
+          "plays": 136
         },
         {
           "date": "2025-11-12",
@@ -129,7 +129,7 @@
         {
           "date": "2025-11-19",
           "title": "What Is A Sermon, Anyway?",
-          "plays": 71
+          "plays": 72
         },
         {
           "date": "2025-11-26",
@@ -179,12 +179,12 @@
         {
           "date": "2026-03-11",
           "title": "Delighting In The Ten Commandments",
-          "plays": 120
+          "plays": 121
         },
         {
           "date": "2026-03-18",
           "title": "What 'Headship' Really Means with Dr. Lyndon Jost",
-          "plays": 327
+          "plays": 328
         },
         {
           "date": "2026-03-25",
@@ -199,7 +199,7 @@
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 167
+          "plays": 169
         },
         {
           "date": "2026-04-15",
@@ -209,12 +209,12 @@
         {
           "date": "2026-04-22",
           "title": "How To Approach God",
-          "plays": 231
+          "plays": 232
         },
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 470
+          "plays": 471
         },
         {
           "date": "2026-05-06",
@@ -224,7 +224,7 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1168
+          "plays": 1169
         },
         {
           "date": "2026-05-20",
@@ -234,7 +234,7 @@
         {
           "date": "2026-05-27",
           "title": "Idolatry And The Shape Of Worship",
-          "plays": 3727
+          "plays": 3728
         },
         {
           "date": "2026-06-03",
@@ -249,7 +249,7 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3646
+          "plays": 3648
         },
         {
           "date": "2026-06-24",
@@ -259,52 +259,52 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3439
+          "plays": 3440
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3869
+          "plays": 3870
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3008
+          "plays": 3010
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3391
+          "plays": 3392
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2878
+          "plays": 2880
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2944
+          "plays": 2949
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3260
+          "plays": 3263
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3590
+          "plays": 3601
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3353
+          "plays": 3361
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 2712
+          "plays": 2754
         }
       ],
       "per_episode": [
@@ -445,7 +445,7 @@
         },
         {
           "month": "2019-11",
-          "avg": 14,
+          "avg": 15,
           "episodes": 3
         },
         {
@@ -475,7 +475,7 @@
         },
         {
           "month": "2020-05",
-          "avg": 16,
+          "avg": 17,
           "episodes": 4
         },
         {
@@ -770,7 +770,7 @@
         },
         {
           "month": "2025-09",
-          "avg": 65,
+          "avg": 66,
           "episodes": 4
         },
         {
@@ -780,7 +780,7 @@
         },
         {
           "month": "2025-11",
-          "avg": 100,
+          "avg": 101,
           "episodes": 4
         },
         {
@@ -800,17 +800,17 @@
         },
         {
           "month": "2026-03",
-          "avg": 201,
+          "avg": 202,
           "episodes": 4
         },
         {
           "month": "2026-04",
-          "avg": 240,
+          "avg": 241,
           "episodes": 5
         },
         {
           "month": "2026-05",
-          "avg": 2309,
+          "avg": 2310,
           "episodes": 4
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3317,
+          "avg": 3318,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3287,
+          "avg": 3294,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2712,
+          "avg": 2754,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 17864,
+      "plays": 17889,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1008,7 +1008,7 @@
         {
           "date": "2026-05-14",
           "title": "Petrarch's Canzoniere with A. M. Juster",
-          "plays": 216
+          "plays": 218
         },
         {
           "date": "2026-05-21",
@@ -1038,7 +1038,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1272
+          "plays": 1273
         },
         {
           "date": "2026-07-02",
@@ -1048,7 +1048,7 @@
         {
           "date": "2026-07-09",
           "title": "The Declaration of Independence and the Classics with Brad Birzer",
-          "plays": 752
+          "plays": 753
         },
         {
           "date": "2026-07-16",
@@ -1078,17 +1078,17 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 815
+          "plays": 816
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 737
+          "plays": 742
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 589
+          "plays": 604
         }
       ],
       "per_episode": [
@@ -1139,7 +1139,7 @@
         },
         {
           "month": "2026-05",
-          "avg": 491,
+          "avg": 492,
           "episodes": 5
         },
         {
@@ -1154,12 +1154,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 799,
+          "avg": 800,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 589,
+          "avg": 604,
           "episodes": 1
         }
       ]
