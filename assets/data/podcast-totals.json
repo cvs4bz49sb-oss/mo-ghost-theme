@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-05T04:36:03.692Z",
+  "generated_at": "2026-09-05T10:41:05.185Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 66473,
+      "plays": 66517,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -274,12 +274,12 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3390
+          "plays": 3391
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2877
+          "plays": 2878
         },
         {
           "date": "2026-08-05",
@@ -294,17 +294,17 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3581
+          "plays": 3587
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3336
+          "plays": 3344
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 2641
+          "plays": 2669
         }
       ],
       "per_episode": [
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3316,
+          "avg": 3317,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3280,
+          "avg": 3283,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2641,
+          "avg": 2669,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 17827,
+      "plays": 17838,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1038,7 +1038,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1271
+          "plays": 1272
         },
         {
           "date": "2026-07-02",
@@ -1088,7 +1088,7 @@
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 562
+          "plays": 572
         }
       ],
       "per_episode": [
@@ -1159,7 +1159,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 562,
+          "avg": 572,
           "episodes": 1
         }
       ]
