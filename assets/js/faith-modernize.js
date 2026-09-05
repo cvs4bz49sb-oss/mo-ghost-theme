@@ -782,6 +782,21 @@ const REWRITES = [
   [/([aeiou])u([aeiou])/g, "$1v$2", RESTORE], // haue, euery, deuil
   [/^v([bcdfghjklmnpqrstvwxz])/, "u$1", RESTORE], // vpon, vnto, vs
   [/^i([aeou])/, "j$1", RESTORE], // iudge, Iohn, ioy
+  // The same i/j swap inside a word. The rule above only fired at the
+  // start, so "iudge" modernised while "obiect", "subiect", "adioyned"
+  // and "maiestie" did not, which is the commonest single class of
+  // Early Modern spelling in this corpus after u/v. Safe for the same
+  // reason every rule here is: bestSpelling() returns early for any
+  // word already in the lexicon, and a candidate is only accepted if
+  // it lands on a real word, so "biology" and friends are untouchable.
+  [/([a-z])i([aeou])/g, "$1j$2", RESTORE], // obiect, adioyned, maiestie
+  // -ick was entirely unhandled, so critick, cynick, musick, physick,
+  // publick, logick and traffick all rendered as printed. Found from a
+  // Thomas Brooks work, 2026-09-04. The lexicon already held the modern
+  // forms; the search simply had no rule that could reach them.
+  // Only three words in the lexicon collide (sick, lick, frederick) and
+  // all three are already modern, so the early return covers them.
+  [/ick$/, "ic", RESTORE], // critick, cynick, musick, publick
   [/(?!^)y(?!$)/g, "i", RESTORE], // wyth, hym, dyuyne
   [/ie$/, "y", RESTORE], // maiestie, fidelitie
   [/es$/, "s", TAKE], // writinges, thynges
