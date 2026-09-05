@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-05T10:41:05.185Z",
+  "generated_at": "2026-09-05T15:18:14.529Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 66517,
+      "plays": 66586,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -134,12 +134,12 @@
         {
           "date": "2025-11-26",
           "title": "Post-Liberalism: RETVRN, Retrieval, or Revolution?",
-          "plays": 67
+          "plays": 68
         },
         {
           "date": "2025-12-03",
           "title": "The World Is The Wrong Shape For Women with Leah Sargeant",
-          "plays": 211
+          "plays": 212
         },
         {
           "date": "2026-01-21",
@@ -154,7 +154,7 @@
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 252
+          "plays": 253
         },
         {
           "date": "2026-02-11",
@@ -259,12 +259,12 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3438
+          "plays": 3439
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3868
+          "plays": 3869
         },
         {
           "date": "2026-07-15",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2943
+          "plays": 2944
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3258
+          "plays": 3260
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3587
+          "plays": 3590
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3344
+          "plays": 3353
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 2669
+          "plays": 2712
         }
       ],
       "per_episode": [
@@ -425,7 +425,7 @@
         },
         {
           "month": "2019-06",
-          "avg": 9,
+          "avg": 10,
           "episodes": 2
         },
         {
@@ -530,7 +530,7 @@
         },
         {
           "month": "2021-04",
-          "avg": 27,
+          "avg": 28,
           "episodes": 4
         },
         {
@@ -785,7 +785,7 @@
         },
         {
           "month": "2025-12",
-          "avg": 211,
+          "avg": 212,
           "episodes": 1
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3283,
+          "avg": 3287,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2669,
+          "avg": 2712,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 17838,
+      "plays": 17864,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -893,7 +893,7 @@
         {
           "date": "2025-09-18",
           "title": "The Heart of a Dog - Mikhail Bulgakov with Vika Pechersky",
-          "plays": 52
+          "plays": 53
         },
         {
           "date": "2025-09-25",
@@ -948,7 +948,7 @@
         {
           "date": "2026-02-19",
           "title": "Brave New World by Aldous Huxley with Katelyn Walls Shelton | America 250",
-          "plays": 89
+          "plays": 90
         },
         {
           "date": "2026-02-26",
@@ -973,7 +973,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 159
+          "plays": 160
         },
         {
           "date": "2026-04-02",
@@ -1073,22 +1073,22 @@
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 708
+          "plays": 709
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 814
+          "plays": 815
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 733
+          "plays": 737
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 572
+          "plays": 589
         }
       ],
       "per_episode": [
@@ -1154,12 +1154,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 797,
+          "avg": 799,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 572,
+          "avg": 589,
           "episodes": 1
         }
       ]
