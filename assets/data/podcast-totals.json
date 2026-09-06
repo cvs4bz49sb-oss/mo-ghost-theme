@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-06T11:03:00.715Z",
+  "generated_at": "2026-09-06T15:31:06.469Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 66802,
+      "plays": 66848,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -34,7 +34,7 @@
         {
           "date": "2025-06-25",
           "title": "After 'After Virtue' with Jason Blakely",
-          "plays": 81
+          "plays": 82
         },
         {
           "date": "2025-07-02",
@@ -64,7 +64,7 @@
         {
           "date": "2025-08-20",
           "title": "Are We Disenchanted? Should We Be Enchanted?",
-          "plays": 126
+          "plays": 127
         },
         {
           "date": "2025-08-27",
@@ -79,7 +79,7 @@
         {
           "date": "2025-09-08",
           "title": "Are You Scared Of Ambition?",
-          "plays": 53
+          "plays": 54
         },
         {
           "date": "2025-09-17",
@@ -259,7 +259,7 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3441
+          "plays": 3442
         },
         {
           "date": "2026-07-08",
@@ -279,7 +279,7 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2882
+          "plays": 2883
         },
         {
           "date": "2026-08-05",
@@ -289,22 +289,22 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3266
+          "plays": 3267
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3605
+          "plays": 3608
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3374
+          "plays": 3380
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 2815
+          "plays": 2839
         }
       ],
       "per_episode": [
@@ -435,7 +435,7 @@
         },
         {
           "month": "2019-09",
-          "avg": 11,
+          "avg": 12,
           "episodes": 4
         },
         {
@@ -465,7 +465,7 @@
         },
         {
           "month": "2020-03",
-          "avg": 12,
+          "avg": 13,
           "episodes": 5
         },
         {
@@ -670,7 +670,7 @@
         },
         {
           "month": "2023-08",
-          "avg": 130,
+          "avg": 132,
           "episodes": 1
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3320,
+          "avg": 3321,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3299,
+          "avg": 3302,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2815,
+          "avg": 2839,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 17939,
+      "plays": 17955,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -943,17 +943,17 @@
         {
           "date": "2026-02-12",
           "title": "The Education of Henry Adams with Leah Libresco Sargeant | America 250",
-          "plays": 57
+          "plays": 58
         },
         {
           "date": "2026-02-19",
           "title": "Brave New World by Aldous Huxley with Katelyn Walls Shelton | America 250",
-          "plays": 90
+          "plays": 91
         },
         {
           "date": "2026-02-26",
           "title": "Uncle Toms Cabin by Harriet Beecher Stowe with Obbie Tyler Todd | America 250",
-          "plays": 67
+          "plays": 68
         },
         {
           "date": "2026-03-05",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1149
+          "plays": 1150
         },
         {
           "date": "2026-06-25",
@@ -1083,12 +1083,12 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 751
+          "plays": 753
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 625
+          "plays": 635
         }
       ],
       "per_episode": [
@@ -1124,7 +1124,7 @@
         },
         {
           "month": "2026-02",
-          "avg": 76,
+          "avg": 77,
           "episodes": 4
         },
         {
@@ -1159,7 +1159,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 625,
+          "avg": 635,
           "episodes": 1
         }
       ]
