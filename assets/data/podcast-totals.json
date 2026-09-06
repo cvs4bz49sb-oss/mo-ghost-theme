@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-06T04:45:38.545Z",
+  "generated_at": "2026-09-06T11:03:00.715Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 66771,
+      "plays": 66802,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -249,7 +249,7 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3648
+          "plays": 3650
         },
         {
           "date": "2026-06-24",
@@ -259,52 +259,52 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3440
+          "plays": 3441
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3870
+          "plays": 3872
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3010
+          "plays": 3011
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3394
+          "plays": 3395
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2881
+          "plays": 2882
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2951
+          "plays": 2952
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3265
+          "plays": 3266
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3602
+          "plays": 3605
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3371
+          "plays": 3374
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 2801
+          "plays": 2815
         }
       ],
       "per_episode": [
@@ -480,7 +480,7 @@
         },
         {
           "month": "2020-06",
-          "avg": 11,
+          "avg": 12,
           "episodes": 4
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3319,
+          "avg": 3320,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3297,
+          "avg": 3299,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2801,
+          "avg": 2815,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 17929,
+      "plays": 17939,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -938,7 +938,7 @@
         {
           "date": "2026-02-05",
           "title": "Narrative of the Life of Frederick Douglass with Shilo Brooks | America 250",
-          "plays": 90
+          "plays": 91
         },
         {
           "date": "2026-02-12",
@@ -1083,12 +1083,12 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 750
+          "plays": 751
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 617
+          "plays": 625
         }
       ],
       "per_episode": [
@@ -1154,12 +1154,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 805,
+          "avg": 806,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 617,
+          "avg": 625,
           "episodes": 1
         }
       ]
