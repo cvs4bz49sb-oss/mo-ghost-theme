@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-06T20:28:09.138Z",
+  "generated_at": "2026-09-07T04:49:07.282Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 66904,
+      "plays": 66982,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -14,7 +14,7 @@
         {
           "date": "2025-05-28",
           "title": "Hath Pope Leo XIV Jurisdiction Here?",
-          "plays": 95
+          "plays": 96
         },
         {
           "date": "2025-06-04",
@@ -34,7 +34,7 @@
         {
           "date": "2025-06-25",
           "title": "After 'After Virtue' with Jason Blakely",
-          "plays": 82
+          "plays": 83
         },
         {
           "date": "2025-07-02",
@@ -99,7 +99,7 @@
         {
           "date": "2025-10-08",
           "title": "Do You Need Penal Substitution?",
-          "plays": 283
+          "plays": 285
         },
         {
           "date": "2025-10-15",
@@ -154,7 +154,7 @@
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 253
+          "plays": 254
         },
         {
           "date": "2026-02-11",
@@ -169,12 +169,12 @@
         {
           "date": "2026-02-25",
           "title": "Resisting Doomerism and Cultivating Hope",
-          "plays": 147
+          "plays": 148
         },
         {
           "date": "2026-03-04",
           "title": "The Spirituality of Aliens",
-          "plays": 147
+          "plays": 148
         },
         {
           "date": "2026-03-11",
@@ -209,7 +209,7 @@
         {
           "date": "2026-04-22",
           "title": "How To Approach God",
-          "plays": 232
+          "plays": 233
         },
         {
           "date": "2026-04-30",
@@ -219,7 +219,7 @@
         {
           "date": "2026-05-06",
           "title": "Virtues For Living Well with Dr. Alan Noble",
-          "plays": 724
+          "plays": 726
         },
         {
           "date": "2026-05-13",
@@ -264,7 +264,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3873
+          "plays": 3876
         },
         {
           "date": "2026-07-15",
@@ -294,17 +294,17 @@
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3611
+          "plays": 3614
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3390
+          "plays": 3399
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 2863
+          "plays": 2898
         }
       ],
       "per_episode": [
@@ -325,7 +325,7 @@
         },
         {
           "month": "2017-09",
-          "avg": 18,
+          "avg": 19,
           "episodes": 3
         },
         {
@@ -335,12 +335,12 @@
         },
         {
           "month": "2017-11",
-          "avg": 15,
+          "avg": 16,
           "episodes": 4
         },
         {
           "month": "2017-12",
-          "avg": 11,
+          "avg": 12,
           "episodes": 3
         },
         {
@@ -350,7 +350,7 @@
         },
         {
           "month": "2018-03",
-          "avg": 11,
+          "avg": 12,
           "episodes": 3
         },
         {
@@ -365,7 +365,7 @@
         },
         {
           "month": "2018-06",
-          "avg": 16,
+          "avg": 17,
           "episodes": 1
         },
         {
@@ -380,7 +380,7 @@
         },
         {
           "month": "2018-09",
-          "avg": 11,
+          "avg": 12,
           "episodes": 3
         },
         {
@@ -600,7 +600,7 @@
         },
         {
           "month": "2022-06",
-          "avg": 19,
+          "avg": 20,
           "episodes": 3
         },
         {
@@ -695,7 +695,7 @@
         },
         {
           "month": "2024-01",
-          "avg": 32,
+          "avg": 33,
           "episodes": 4
         },
         {
@@ -750,12 +750,12 @@
         },
         {
           "month": "2025-05",
-          "avg": 95,
+          "avg": 96,
           "episodes": 1
         },
         {
           "month": "2025-06",
-          "avg": 59,
+          "avg": 60,
           "episodes": 4
         },
         {
@@ -775,7 +775,7 @@
         },
         {
           "month": "2025-10",
-          "avg": 129,
+          "avg": 130,
           "episodes": 5
         },
         {
@@ -805,12 +805,12 @@
         },
         {
           "month": "2026-04",
-          "avg": 241,
+          "avg": 242,
           "episodes": 5
         },
         {
           "month": "2026-05",
-          "avg": 2310,
+          "avg": 2311,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3306,
+          "avg": 3309,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2863,
+          "avg": 2898,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 17967,
+      "plays": 17994,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -913,7 +913,7 @@
         {
           "date": "2025-10-16",
           "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
-          "plays": 171
+          "plays": 173
         },
         {
           "date": "2025-10-23",
@@ -968,7 +968,7 @@
         {
           "date": "2026-03-18",
           "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
-          "plays": 124
+          "plays": 125
         },
         {
           "date": "2026-03-26",
@@ -978,7 +978,7 @@
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 137
+          "plays": 138
         },
         {
           "date": "2026-04-09",
@@ -1013,12 +1013,12 @@
         {
           "date": "2026-05-21",
           "title": "Cassiodorus and Classical Education with Joseph Griffith and Joshua Kinlaw",
-          "plays": 811
+          "plays": 812
         },
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1088
+          "plays": 1089
         },
         {
           "date": "2026-06-04",
@@ -1033,12 +1033,12 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1150
+          "plays": 1151
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1274
+          "plays": 1275
         },
         {
           "date": "2026-07-02",
@@ -1068,27 +1068,27 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 939
+          "plays": 940
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 711
+          "plays": 712
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 823
+          "plays": 824
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 754
+          "plays": 756
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 642
+          "plays": 656
         }
       ],
       "per_episode": [
@@ -1154,12 +1154,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 807,
+          "avg": 808,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 642,
+          "avg": 656,
           "episodes": 1
         }
       ]
