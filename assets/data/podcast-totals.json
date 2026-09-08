@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-08T11:24:56.924Z",
+  "generated_at": "2026-09-08T16:41:53.147Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 67312,
+      "plays": 67380,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -24,7 +24,7 @@
         {
           "date": "2025-06-11",
           "title": "The Counterculture That Became The Culture",
-          "plays": 51
+          "plays": 52
         },
         {
           "date": "2025-06-18",
@@ -64,7 +64,7 @@
         {
           "date": "2025-08-20",
           "title": "Are We Disenchanted? Should We Be Enchanted?",
-          "plays": 129
+          "plays": 130
         },
         {
           "date": "2025-08-27",
@@ -84,7 +84,7 @@
         {
           "date": "2025-09-17",
           "title": "The Tabernacle, The Temple, and the Church",
-          "plays": 70
+          "plays": 71
         },
         {
           "date": "2025-09-24",
@@ -239,7 +239,7 @@
         {
           "date": "2026-06-03",
           "title": "Replay: How 1776 Remade The World with Andrew Wilson (Fixed Audio)",
-          "plays": 3154
+          "plays": 3156
         },
         {
           "date": "2026-06-10",
@@ -264,7 +264,7 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3879
+          "plays": 3880
         },
         {
           "date": "2026-07-15",
@@ -289,22 +289,22 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3282
+          "plays": 3283
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3639
+          "plays": 3643
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3444
+          "plays": 3452
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3047
+          "plays": 3090
         }
       ],
       "per_episode": [
@@ -555,7 +555,7 @@
         },
         {
           "month": "2021-09",
-          "avg": 43,
+          "avg": 44,
           "episodes": 4
         },
         {
@@ -650,12 +650,12 @@
         },
         {
           "month": "2023-04",
-          "avg": 44,
+          "avg": 45,
           "episodes": 2
         },
         {
           "month": "2023-05",
-          "avg": 26,
+          "avg": 27,
           "episodes": 4
         },
         {
@@ -670,7 +670,7 @@
         },
         {
           "month": "2023-08",
-          "avg": 132,
+          "avg": 133,
           "episodes": 1
         },
         {
@@ -680,7 +680,7 @@
         },
         {
           "month": "2023-10",
-          "avg": 25,
+          "avg": 26,
           "episodes": 3
         },
         {
@@ -720,7 +720,7 @@
         },
         {
           "month": "2024-07",
-          "avg": 18,
+          "avg": 19,
           "episodes": 1
         },
         {
@@ -815,7 +815,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 3478,
+          "avg": 3479,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3333,
+          "avg": 3336,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3047,
+          "avg": 3090,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 18094,
+      "plays": 18118,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -923,7 +923,7 @@
         {
           "date": "2025-10-30",
           "title": "The Scandal of the Christian Imagination",
-          "plays": 56
+          "plays": 57
         },
         {
           "date": "2025-11-06",
@@ -968,12 +968,12 @@
         {
           "date": "2026-03-18",
           "title": "Mansfield Park by Jane Austen with Beatrice Scudeler",
-          "plays": 125
+          "plays": 126
         },
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 162
+          "plays": 165
         },
         {
           "date": "2026-04-02",
@@ -1003,7 +1003,7 @@
         {
           "date": "2026-05-07",
           "title": "The Great Gatsby with Katy Carl",
-          "plays": 214
+          "plays": 215
         },
         {
           "date": "2026-05-14",
@@ -1038,12 +1038,12 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1276
+          "plays": 1277
         },
         {
           "date": "2026-07-02",
           "title": "The Declaration of Independence with Matthew Spalding and Jake Meador",
-          "plays": 849
+          "plays": 850
         },
         {
           "date": "2026-07-09",
@@ -1083,12 +1083,12 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 770
+          "plays": 771
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 699
+          "plays": 714
         }
       ],
       "per_episode": [
@@ -1129,7 +1129,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 116,
+          "avg": 117,
           "episodes": 4
         },
         {
@@ -1149,7 +1149,7 @@
         },
         {
           "month": "2026-07",
-          "avg": 840,
+          "avg": 841,
           "episodes": 5
         },
         {
@@ -1159,7 +1159,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 699,
+          "avg": 714,
           "episodes": 1
         }
       ]
