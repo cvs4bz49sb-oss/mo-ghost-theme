@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-08T04:44:52.451Z",
+  "generated_at": "2026-09-08T11:24:56.924Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 316,
-      "plays": 67261,
+      "plays": 67312,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -24,7 +24,7 @@
         {
           "date": "2025-06-11",
           "title": "The Counterculture That Became The Culture",
-          "plays": 50
+          "plays": 51
         },
         {
           "date": "2025-06-18",
@@ -39,17 +39,17 @@
         {
           "date": "2025-07-02",
           "title": "The Deep Weird of the Book of Daniel",
-          "plays": 64
+          "plays": 66
         },
         {
           "date": "2025-07-09",
           "title": "Is \"Covenant\" Overused?",
-          "plays": 48
+          "plays": 49
         },
         {
           "date": "2025-07-16",
           "title": "AI, The Infinite Work Day, And The Finite Pastor",
-          "plays": 86
+          "plays": 89
         },
         {
           "date": "2025-07-23",
@@ -214,7 +214,7 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 475
+          "plays": 476
         },
         {
           "date": "2026-05-06",
@@ -249,7 +249,7 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3651
+          "plays": 3652
         },
         {
           "date": "2026-06-24",
@@ -264,12 +264,12 @@
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3877
+          "plays": 3879
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3013
+          "plays": 3014
         },
         {
           "date": "2026-07-22",
@@ -279,32 +279,32 @@
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2884
+          "plays": 2885
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2965
+          "plays": 2967
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3281
+          "plays": 3282
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3637
+          "plays": 3639
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3437
+          "plays": 3444
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3027
+          "plays": 3047
         }
       ],
       "per_episode": [
@@ -660,7 +660,7 @@
         },
         {
           "month": "2023-06",
-          "avg": 44,
+          "avg": 45,
           "episodes": 2
         },
         {
@@ -760,7 +760,7 @@
         },
         {
           "month": "2025-07",
-          "avg": 78,
+          "avg": 79,
           "episodes": 4
         },
         {
@@ -820,55 +820,55 @@
         },
         {
           "month": "2026-07",
-          "avg": 3323,
+          "avg": 3324,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3330,
+          "avg": 3333,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3027,
+          "avg": 3047,
           "episodes": 1
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 18081,
+      "plays": 18094,
       "earliest": "2025-07-24",
       "recent": [
         {
           "date": "2025-07-24",
           "title": "Introducing: Christians Reading Classics",
-          "plays": 143
+          "plays": 144
         },
         {
           "date": "2025-08-12",
           "title": "G.K. Chesterton - The Everlasting Man with Timothy Larsen",
-          "plays": 175
+          "plays": 176
         },
         {
           "date": "2025-08-12",
           "title": "A. A. Milne - Winnie the Pooh with Ivana D. Greco and Dixie Dillon Lane",
-          "plays": 122
+          "plays": 123
         },
         {
           "date": "2025-08-12",
           "title": "Ignazio Silone - Bread and Wine with Geoffrey Kurtz",
-          "plays": 56
+          "plays": 57
         },
         {
           "date": "2025-08-12",
           "title": "Laura Ingalls Wilder - Little House on the Prairie with John Fry and LuElla D'Amico",
-          "plays": 114
+          "plays": 115
         },
         {
           "date": "2025-08-12",
           "title": "Lewis Carroll - Alice in Wonderland with John Shelton",
-          "plays": 76
+          "plays": 78
         },
         {
           "date": "2025-08-21",
@@ -1033,7 +1033,7 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1154
+          "plays": 1155
         },
         {
           "date": "2026-06-25",
@@ -1078,23 +1078,23 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 830
+          "plays": 831
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 768
+          "plays": 770
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 697
+          "plays": 699
         }
       ],
       "per_episode": [
         {
           "month": "2025-07",
-          "avg": 143,
+          "avg": 144,
           "episodes": 1
         },
         {
@@ -1144,7 +1144,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1052,
+          "avg": 1053,
           "episodes": 4
         },
         {
@@ -1154,12 +1154,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 815,
+          "avg": 816,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 697,
+          "avg": 699,
           "episodes": 1
         }
       ]
