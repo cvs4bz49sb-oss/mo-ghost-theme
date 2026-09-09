@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-09-09T11:30:23.336Z",
+  "generated_at": "2026-09-09T16:42:48.512Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 68190,
+      "plays": 68994,
       "earliest": "2017-02-15",
       "recent": [
         {
           "date": "2025-05-28",
           "title": "Hath Pope Leo XIV Jurisdiction Here?",
-          "plays": 96
+          "plays": 97
         },
         {
           "date": "2025-06-04",
@@ -19,12 +19,12 @@
         {
           "date": "2025-06-11",
           "title": "The Counterculture That Became The Culture",
-          "plays": 52
+          "plays": 54
         },
         {
           "date": "2025-06-18",
           "title": "This Is Bavinck's Moment with Dr. John Bolt",
-          "plays": 52
+          "plays": 53
         },
         {
           "date": "2025-06-25",
@@ -54,7 +54,7 @@
         {
           "date": "2025-08-13",
           "title": "Should I Stay Or Should I Go (From My Denomination)?",
-          "plays": 133
+          "plays": 134
         },
         {
           "date": "2025-08-20",
@@ -124,7 +124,7 @@
         {
           "date": "2025-11-19",
           "title": "What Is A Sermon, Anyway?",
-          "plays": 73
+          "plays": 74
         },
         {
           "date": "2025-11-26",
@@ -164,7 +164,7 @@
         {
           "date": "2026-02-25",
           "title": "Resisting Doomerism and Cultivating Hope",
-          "plays": 148
+          "plays": 149
         },
         {
           "date": "2026-03-04",
@@ -209,12 +209,12 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 476
+          "plays": 477
         },
         {
           "date": "2026-05-06",
           "title": "Virtues For Living Well with Dr. Alan Noble",
-          "plays": 726
+          "plays": 727
         },
         {
           "date": "2026-05-13",
@@ -244,67 +244,67 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3652
+          "plays": 3654
         },
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3614
+          "plays": 3615
         },
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3443
+          "plays": 3444
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3884
+          "plays": 3886
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3014
+          "plays": 3015
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3398
+          "plays": 3399
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2887
+          "plays": 2890
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2973
+          "plays": 2975
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3292
+          "plays": 3300
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3656
+          "plays": 3663
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3481
+          "plays": 3495
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3170
+          "plays": 3193
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 631
+          "plays": 1358
         }
       ],
       "per_episode": [
@@ -565,7 +565,7 @@
         },
         {
           "month": "2021-11",
-          "avg": 20,
+          "avg": 21,
           "episodes": 2
         },
         {
@@ -580,7 +580,7 @@
         },
         {
           "month": "2022-02",
-          "avg": 25,
+          "avg": 26,
           "episodes": 3
         },
         {
@@ -750,12 +750,12 @@
         },
         {
           "month": "2025-05",
-          "avg": 96,
+          "avg": 97,
           "episodes": 1
         },
         {
           "month": "2025-06",
-          "avg": 60,
+          "avg": 61,
           "episodes": 4
         },
         {
@@ -810,7 +810,7 @@
         },
         {
           "month": "2026-05",
-          "avg": 2312,
+          "avg": 2313,
           "episodes": 4
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3325,
+          "avg": 3327,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3351,
+          "avg": 3358,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 1901,
+          "avg": 2276,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 50,
-      "plays": 18235,
+      "plays": 18263,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -1033,12 +1033,12 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1156
+          "plays": 1157
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1282
+          "plays": 1285
         },
         {
           "date": "2026-07-02",
@@ -1058,37 +1058,37 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 957
+          "plays": 958
         },
         {
           "date": "2026-07-29",
           "title": "Augustine - Enchiridion and Morals of the Catholic Church with Joseph Lanier and Travis Montgomery",
-          "plays": 884
+          "plays": 885
         },
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 949
+          "plays": 951
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 721
+          "plays": 722
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 837
+          "plays": 841
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 783
+          "plays": 785
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 742
+          "plays": 755
         }
       ],
       "per_episode": [
@@ -1144,7 +1144,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1055,
+          "avg": 1056,
           "episodes": 4
         },
         {
@@ -1154,12 +1154,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 823,
+          "avg": 825,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 742,
+          "avg": 755,
           "episodes": 1
         }
       ]
