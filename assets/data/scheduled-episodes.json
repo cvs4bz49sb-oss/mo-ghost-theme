@@ -1,4 +1,18 @@
 {
   "mere-fidelity": null,
-  "christians-reading-classics": null
+  "christians-reading-classics": {
+    "id": 19782753,
+    "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
+    "slug": "meditations-by-marcus-aurelius-with-eric-hutchinson",
+    "pubDate": "2026-09-10T06:00:00.000-04:00",
+    "episode": 32,
+    "season": 2,
+    "description": "Marcus Aurelius, the Roman Emperor known for his philosophical insights, penned his thoughts in a private notebook that became one of the most enduring classics of Western literature. In this episode, Nadya Williams speaks with Eric Hutchinson, Associate Professor of Classics at Hillsdale College, to delve into the essence of Aurelius's Meditations and the Stoic principles that shaped his life.",
+    "artwork": "https://storage.buzzsprout.com/2un9yr8vlv10xq05wrov9gidr29v",
+    "audioUrl": "https://www.buzzsprout.com/2612793/episodes/19782753-meditations-by-marcus-aurelius-with-eric-hutchinson.mp3",
+    "link": "https://mereorthodoxy.com/podcasts/christians-reading-classics/",
+    "embedUrl": "https://www.buzzsprout.com/2612793/19782753?client_source=small_player&iframe=true",
+    "hasTranscript": true,
+    "transcriptUrl": "/transcript/christians-reading-classics/meditations-by-marcus-aurelius-with-eric-hutchinson/"
+  }
 }
