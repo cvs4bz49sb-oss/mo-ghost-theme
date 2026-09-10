@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-10T16:29:03.698Z",
+  "generated_at": "2026-09-10T20:55:15.850Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 70183,
+      "plays": 70308,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -39,7 +39,7 @@
         {
           "date": "2025-07-09",
           "title": "Is \"Covenant\" Overused?",
-          "plays": 50
+          "plays": 51
         },
         {
           "date": "2025-07-16",
@@ -194,7 +194,7 @@
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 170
+          "plays": 171
         },
         {
           "date": "2026-04-15",
@@ -209,7 +209,7 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 478
+          "plays": 480
         },
         {
           "date": "2026-05-06",
@@ -244,22 +244,22 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3657
+          "plays": 3658
         },
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3621
+          "plays": 3623
         },
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3447
+          "plays": 3448
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3890
+          "plays": 3891
         },
         {
           "date": "2026-07-15",
@@ -269,42 +269,42 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3402
+          "plays": 3403
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2894
+          "plays": 2895
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2980
+          "plays": 2981
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3323
+          "plays": 3327
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3690
+          "plays": 3694
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3529
+          "plays": 3536
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3273
+          "plays": 3289
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 2133
+          "plays": 2212
         }
       ],
       "per_episode": [
@@ -390,7 +390,7 @@
         },
         {
           "month": "2018-11",
-          "avg": 9,
+          "avg": 10,
           "episodes": 1
         },
         {
@@ -550,7 +550,7 @@
         },
         {
           "month": "2021-08",
-          "avg": 25,
+          "avg": 26,
           "episodes": 5
         },
         {
@@ -805,7 +805,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 244,
+          "avg": 245,
           "episodes": 5
         },
         {
@@ -815,29 +815,29 @@
         },
         {
           "month": "2026-06",
-          "avg": 3484,
+          "avg": 3485,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 3330,
+          "avg": 3331,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3381,
+          "avg": 3385,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2703,
+          "avg": 2751,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 18652,
+      "plays": 18728,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -848,7 +848,7 @@
         {
           "date": "2025-08-12",
           "title": "G.K. Chesterton - The Everlasting Man with Timothy Larsen",
-          "plays": 178
+          "plays": 179
         },
         {
           "date": "2025-08-12",
@@ -873,7 +873,7 @@
         {
           "date": "2025-08-21",
           "title": "J.R.R. Tolkien - The Return of the King with Kirsten Sanders",
-          "plays": 133
+          "plays": 135
         },
         {
           "date": "2025-08-28",
@@ -903,7 +903,7 @@
         {
           "date": "2025-10-02",
           "title": "Flannery O'Connor - A Good Man Is Hard To Find with Jon Parrish Peede",
-          "plays": 122
+          "plays": 123
         },
         {
           "date": "2025-10-09",
@@ -913,7 +913,7 @@
         {
           "date": "2025-10-16",
           "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
-          "plays": 176
+          "plays": 177
         },
         {
           "date": "2025-10-23",
@@ -928,7 +928,7 @@
         {
           "date": "2025-11-06",
           "title": "Reading Ancient Pagans As Modern Christians",
-          "plays": 108
+          "plays": 109
         },
         {
           "date": "2026-01-29",
@@ -988,7 +988,7 @@
         {
           "date": "2026-04-16",
           "title": "The Scarlet Letter by Nathaniel Hawthorne with Jeff Bilbro | American 250",
-          "plays": 105
+          "plays": 106
         },
         {
           "date": "2026-04-23",
@@ -1033,12 +1033,12 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1161
+          "plays": 1162
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1293
+          "plays": 1294
         },
         {
           "date": "2026-07-02",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 960
+          "plays": 962
         },
         {
           "date": "2026-07-29",
@@ -1068,7 +1068,7 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 955
+          "plays": 956
         },
         {
           "date": "2026-08-13",
@@ -1078,22 +1078,22 @@
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 847
+          "plays": 848
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 795
+          "plays": 797
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 777
+          "plays": 781
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 306
+          "plays": 363
         }
       ],
       "per_episode": [
@@ -1114,12 +1114,12 @@
         },
         {
           "month": "2025-10",
-          "avg": 110,
+          "avg": 111,
           "episodes": 5
         },
         {
           "month": "2025-11",
-          "avg": 108,
+          "avg": 109,
           "episodes": 1
         },
         {
@@ -1159,12 +1159,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 831,
+          "avg": 832,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 542,
+          "avg": 572,
           "episodes": 2
         }
       ]
