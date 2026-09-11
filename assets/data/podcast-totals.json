@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-11T11:28:26.774Z",
+  "generated_at": "2026-09-11T16:33:02.175Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 70527,
+      "plays": 70650,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -29,7 +29,7 @@
         {
           "date": "2025-06-25",
           "title": "After 'After Virtue' with Jason Blakely",
-          "plays": 84
+          "plays": 86
         },
         {
           "date": "2025-07-02",
@@ -114,17 +114,17 @@
         {
           "date": "2025-11-05",
           "title": "Jesus and The Law of Moses with Paul T. Sloan",
-          "plays": 137
+          "plays": 138
         },
         {
           "date": "2025-11-12",
           "title": "How Do We Change Our Minds?",
-          "plays": 128
+          "plays": 129
         },
         {
           "date": "2025-11-19",
           "title": "What Is A Sermon, Anyway?",
-          "plays": 75
+          "plays": 76
         },
         {
           "date": "2025-11-26",
@@ -134,12 +134,12 @@
         {
           "date": "2025-12-03",
           "title": "The World Is The Wrong Shape For Women with Leah Sargeant",
-          "plays": 215
+          "plays": 216
         },
         {
           "date": "2026-01-21",
           "title": "Paul and the Resurrection of Israel with Dr. Jason Staples",
-          "plays": 152
+          "plays": 154
         },
         {
           "date": "2026-01-28",
@@ -189,17 +189,17 @@
         {
           "date": "2026-04-01",
           "title": "Replay: The Age of AI with Jason Thacker",
-          "plays": 163
+          "plays": 164
         },
         {
           "date": "2026-04-08",
           "title": "Between Nature and Grace",
-          "plays": 172
+          "plays": 173
         },
         {
           "date": "2026-04-15",
           "title": "Replay: Protestants & History with Paul Gutacker",
-          "plays": 176
+          "plays": 177
         },
         {
           "date": "2026-04-22",
@@ -209,7 +209,7 @@
         {
           "date": "2026-04-30",
           "title": "On Paul and The Law",
-          "plays": 480
+          "plays": 481
         },
         {
           "date": "2026-05-06",
@@ -244,67 +244,67 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3658
+          "plays": 3659
         },
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3623
+          "plays": 3626
         },
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3450
+          "plays": 3451
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3893
+          "plays": 3896
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3018
+          "plays": 3020
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3405
+          "plays": 3410
         },
         {
           "date": "2026-07-29",
           "title": "Replay: Conservatism, with Dr. Yoram Hazony",
-          "plays": 2896
+          "plays": 2898
         },
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2983
+          "plays": 2987
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3331
+          "plays": 3333
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3703
+          "plays": 3706
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3554
+          "plays": 3556
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3318
+          "plays": 3330
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 2352
+          "plays": 2414
         }
       ],
       "per_episode": [
@@ -330,7 +330,7 @@
         },
         {
           "month": "2017-10",
-          "avg": 15,
+          "avg": 16,
           "episodes": 3
         },
         {
@@ -360,7 +360,7 @@
         },
         {
           "month": "2018-05",
-          "avg": 11,
+          "avg": 12,
           "episodes": 3
         },
         {
@@ -650,12 +650,12 @@
         },
         {
           "month": "2023-04",
-          "avg": 47,
+          "avg": 48,
           "episodes": 2
         },
         {
           "month": "2023-05",
-          "avg": 27,
+          "avg": 28,
           "episodes": 4
         },
         {
@@ -755,7 +755,7 @@
         },
         {
           "month": "2025-06",
-          "avg": 62,
+          "avg": 63,
           "episodes": 4
         },
         {
@@ -780,17 +780,17 @@
         },
         {
           "month": "2025-11",
-          "avg": 102,
+          "avg": 103,
           "episodes": 4
         },
         {
           "month": "2025-12",
-          "avg": 215,
+          "avg": 216,
           "episodes": 1
         },
         {
           "month": "2026-01",
-          "avg": 121,
+          "avg": 122,
           "episodes": 2
         },
         {
@@ -805,7 +805,7 @@
         },
         {
           "month": "2026-04",
-          "avg": 245,
+          "avg": 246,
           "episodes": 5
         },
         {
@@ -815,29 +815,29 @@
         },
         {
           "month": "2026-06",
-          "avg": 3485,
+          "avg": 3486,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 3332,
+          "avg": 3335,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3393,
+          "avg": 3396,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2835,
+          "avg": 2872,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 18828,
+      "plays": 18891,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -868,7 +868,7 @@
         {
           "date": "2025-08-12",
           "title": "Lewis Carroll - Alice in Wonderland with John Shelton",
-          "plays": 79
+          "plays": 80
         },
         {
           "date": "2025-08-21",
@@ -888,7 +888,7 @@
         {
           "date": "2025-09-11",
           "title": "C. S. Lewis - That Hideous Strength with Philip D. Bunn and Ronni Kurtz",
-          "plays": 141
+          "plays": 142
         },
         {
           "date": "2025-09-18",
@@ -988,7 +988,7 @@
         {
           "date": "2026-04-16",
           "title": "The Scarlet Letter by Nathaniel Hawthorne with Jeff Bilbro | American 250",
-          "plays": 107
+          "plays": 108
         },
         {
           "date": "2026-04-23",
@@ -1018,7 +1018,7 @@
         {
           "date": "2026-05-28",
           "title": "Augustine's Confessions with Joey Sherrard",
-          "plays": 1093
+          "plays": 1094
         },
         {
           "date": "2026-06-04",
@@ -1028,7 +1028,7 @@
         {
           "date": "2026-06-11",
           "title": "James Fenimore Cooper with Dr. Wayne Franklin",
-          "plays": 850
+          "plays": 851
         },
         {
           "date": "2026-06-18",
@@ -1038,7 +1038,7 @@
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1297
+          "plays": 1299
         },
         {
           "date": "2026-07-02",
@@ -1068,32 +1068,32 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 958
+          "plays": 959
         },
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 730
+          "plays": 731
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 849
+          "plays": 852
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 797
+          "plays": 801
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 786
+          "plays": 796
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 440
+          "plays": 477
         }
       ],
       "per_episode": [
@@ -1149,7 +1149,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1060,
+          "avg": 1061,
           "episodes": 4
         },
         {
@@ -1159,12 +1159,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 834,
+          "avg": 836,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 613,
+          "avg": 637,
           "episodes": 2
         }
       ]
