@@ -1,0 +1,14 @@
+.fr-explore{position:relative;flex:none;margin-inline-start:10px;color:var(--fg);font:15px/1.4 var(--font-ui,'Source Serif Pro',Georgia,serif);z-index:160}
+.fr-explore>summary{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 10px;cursor:pointer;list-style:none;border:1px solid var(--border);border-radius:4px;background:var(--card-bg,var(--bg));color:var(--fg)}
+.fr-explore>summary::-webkit-details-marker{display:none}.fr-explore>nav{position:absolute;right:0;top:calc(100% + 6px);display:grid;grid-template-columns:1fr 1fr;width:min(380px,calc(100vw - 24px));max-height:70dvh;overflow:auto;box-sizing:border-box;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--card-bg,var(--bg));color:var(--fg);box-shadow:0 8px 24px #0002}
+.fr-explore:not([open])>nav{display:none}.fr-explore>nav>a{display:flex;flex-direction:column;justify-content:center;min-height:44px;padding:9px 10px;text-decoration:none;color:var(--fg);font:inherit;white-space:normal}.fr-explore small{font-size:12px;line-height:1.4;color:var(--muted);font-weight:400}.fr-explore a:hover,.fr-explore a[aria-current]{background:var(--hl,var(--highlight));text-decoration:underline;text-underline-offset:3px}.fr-explore :is(a,summary):focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+@media(max-width:640px){.fr-explore{margin-inline-start:5px;font-size:14px}.fr-explore>summary{padding-inline:7px}.fr-explore>nav{position:fixed;top:calc(var(--phh,72px) + 4px);right:12px}.ph:has(>.fr-explore){gap:4px}.ph:has(>.fr-explore) .phl{min-width:0;flex:1}}
+@media print{.fr-explore{display:none!important}}
+
+/* quick links beside Explore (2026-09-10) */
+.fr-quick{display:flex;align-items:center;gap:2px;flex:none;margin-inline-start:auto;font:14px/1.4 var(--font-ui,'Source Serif Pro',Georgia,serif)}
+.fr-quick>a{display:inline-flex;align-items:center;min-height:44px;padding:0 9px;color:var(--fg);text-decoration:none;border-radius:4px;white-space:nowrap}.fr-quick>a:hover{text-decoration:underline;text-underline-offset:3px}.fr-quick>a[aria-current]{text-decoration:underline;text-underline-offset:3px}.fr-quick>a:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.fr-quick+.fr-explore{margin-inline-start:6px}
+@media(max-width:640px){.fr-quick{gap:0;font-size:13px}.fr-quick>a{padding:0 6px}}
+@media(max-width:420px){.fr-quick{display:none}}
+@media print{.fr-quick{display:none!important}}

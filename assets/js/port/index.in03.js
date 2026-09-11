@@ -1,0 +1,1 @@
+window.__FR_LIBRARY_SEARCH__=true;

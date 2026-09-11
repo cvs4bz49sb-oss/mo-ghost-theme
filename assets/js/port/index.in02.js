@@ -1,0 +1,4 @@
+addEventListener("DOMContentLoaded",function(){var b=document.getElementById("thBtn");if(!b)return;
+var r=document.documentElement;function ic(){b.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor"/></svg>';b.setAttribute("aria-label",r.getAttribute("data-theme")==="dark"?"Use light theme":"Use dark theme");}ic();
+b.onclick=function(){var n=(r.getAttribute("data-theme")==="dark")?"light":"dark";
+r.setAttribute("data-theme",n);try{localStorage.setItem("fr_theme",n)}catch(e){}ic();};});

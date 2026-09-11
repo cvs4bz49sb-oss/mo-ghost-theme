@@ -28,8 +28,19 @@
           two text nodes ran together as "isthe". --}}
     <h1>The Christian tradition is<br /> the <em>Christian&rsquo;s inheritance.</em></h1>
     <p class="lp-hero-sub">The Faith Received gathers the creeds, confessions, and classic works of the Christian tradition into a single library, designed to be publicly available, practically usable, and beautifully readable.</p>
+    {{!-- The library's search, in the hero (owner 2026-09-10 "make the landing page look like what you had"):
+          a plain GET to the library page, which reads q and find from the address. --}}
+    <form class="lp-search" action="/the-faith-received/library/" method="get" role="search" aria-label="Search the library" onsubmit="if(this.find.value==='ask'){this.action='/the-faith-received/ask/';}">
+      <div class="lp-modes" role="group" aria-label="Search type">
+        <label><input type="radio" name="find" value="works" checked> Works &amp; authors</label>
+        <label><input type="radio" name="find" value="passages"> Passages</label>
+        <label><input type="radio" name="find" value="ask"> Ask the library</label>
+      </div>
+      <div class="lp-query"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input name="q" type="search" placeholder="Search works or authors" aria-label="Search works and authors" autocomplete="off"><button type="submit">Search</button></div>
+      <p class="lp-search-help">Find an author, a title, or a volume such as PL 32, PG 64, or PO 2.</p>
+    </form>
     <div class="lp-ctas">
-      <a href="/the-faith-received/browse/" class="btn btn-primary btn-lg">Begin reading</a>
+      <a href="/the-faith-received/library/" class="btn btn-primary btn-lg">Begin reading</a>
       <a href="#become-a-member" class="btn btn-ghost btn-lg">Support the work</a>
     </div>
   </div>
@@ -37,11 +48,27 @@
 
 
 <!-- ── I. Three doors ────────────────────────────────────────────── -->
+<style>
+  /* the hero's library search (2026-09-10) */
+  .lp-search{max-width:820px;margin:0 auto 30px;text-align:left}
+  .lp-modes{display:flex;gap:26px;border-bottom:1px solid #ffffff3d;margin:0 0 16px;overflow-x:auto}
+  .lp-modes label{display:inline-flex;align-items:center;gap:8px;padding:10px 0 12px;font:15px/1.2 var(--font-body);color:#ffffffcc;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .lp-modes label:has(input:checked){color:#fff;border-bottom-color:#fff}
+  .lp-modes input{position:absolute;opacity:0;width:0;height:0}
+  .lp-query{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #ffffff66;border-radius:12px;padding:6px 6px 6px 16px;box-shadow:0 18px 50px -24px rgba(0,0,0,.6);color:#1c1c1a}
+  .lp-query svg{flex:none;color:#6b675f}
+  .lp-query input{flex:1;min-width:0;border:0;background:transparent;font:20px/1.4 var(--font-body);color:#1c1c1a;padding:10px 2px;outline:none}
+  .lp-query input::placeholder{color:#6b675f}
+  .lp-query button{flex:none;min-height:50px;padding:0 26px;border:0;border-radius:9px;background:var(--color-primary);color:#fff;font:600 16px/1 var(--font-body);cursor:pointer}
+  .lp-query button:hover{background:var(--color-primary-text,#b45f3d)}
+  .lp-search-help{margin:10px 0 0;font:14px/1.5 var(--font-body);color:#ffffffb8}
+  @media(max-width:700px){.lp-modes{gap:18px}.lp-query input{font-size:17px}.lp-query button{padding:0 16px}}
+</style>
 <section class="lp-band">
   <div class="container">
     <p class="lp-num">Where to start</p>
     <div class="lp-doors">
-      <a class="lp-door" href="/the-faith-received/browse/">
+      <a class="lp-door" href="/the-faith-received/library/">
         <h3>Read</h3>
         <p>Find any work in the library by name.</p>
         <span class="faith-card-link">The library <span class="faith-card-arrow">&rarr;</span></span>
@@ -78,7 +105,7 @@
         <p class="lp-num">Devotional</p>
         <h2 class="lp-head">The tradition was written to be used.</h2>
         <p class="lp-body">Most of what the church wrote across two thousand years was meant for use rather than for the archive: catechisms written to teach children, confessions drawn up by congregations under pressure, prayers set down for people who did not know what to say. Read a question or a page at a time, they steady a faith that has gone thin. The people who wrote them had been through what you are going through.</p>
-        <a href="/the-faith-received/browse/" class="btn btn-primary">Start reading</a>
+        <a href="/the-faith-received/library/" class="btn btn-primary">Start reading</a>
       </div>
     </div>
   </div>
@@ -196,7 +223,7 @@
         <span class="faith-card-link">Read <span class="faith-card-arrow">&rarr;</span></span>
       </a>
     </div>
-    <p class="lp-more"><a class="lp-more-link" href="/the-faith-received/browse/">Browse the whole library <span class="faith-card-arrow">&rarr;</span></a></p>
+    <p class="lp-more"><a class="lp-more-link" href="/the-faith-received/library/">Browse the whole library <span class="faith-card-arrow">&rarr;</span></a></p>
   </div>
 </section>
 
@@ -212,7 +239,7 @@
         <p class="lp-num">Study</p>
         <h2 class="lp-head">Over a million pages unlocked for the first time.</h2>
         <p class="lp-body">This theology has sat in folio in a handful of research libraries where only a few specialists could read it. The English now runs beside the Latin with the scanned page beside both.</p>
-        <a href="/the-faith-received/research/" class="btn btn-primary">Search the library</a>
+        <a href="/the-faith-received/library/" class="btn btn-primary">Browse the library</a>
       </div>
     </div>
   </div>
@@ -221,51 +248,103 @@
 <!-- ── V. The shelf ──────────────────────────────────────────────── -->
 <section class="lp-band">
   <div class="container">
-    <p class="lp-num">The collections</p>
-    <div class="lp-shelf">
-      <a href="/the-faith-received/confessions/">
-        <span class="lp-shelf-plate"><img src="{{asset "images/tfr/confessions-plate.jpg"}}" alt="" loading="lazy" /></span>
-        <h4>Creeds, Confessions, &amp; Catechisms</h4>
-        <p>260 documents</p>
-        <p class="lp-shelf-desc">The confessional record from the second century to the twentieth, with the conciliar acts alongside it.</p>
-        <p class="lp-shelf-who">Nicaea &middot; Chalcedon &middot; Augsburg &middot; Trent &middot; Westminster</p>
+    <h2 class="lp-num" id="library-shelves">The shelves</h2>
+    {{!-- Collection-card treatment with a period leaf per shelf (owner
+         2026-09-10: "should have pictures and adopt how The collections
+         [look]"). Leaves are representative facsimiles served from the
+         library worker; swap the slugs to retint a shelf. --}}
+    <style>
+      .lp-shelfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px}
+      .lp-shelfcard{display:flex;gap:16px;text-decoration:none;color:inherit;border:1px solid var(--color-card-border,#d9c6a7);background:var(--color-card-bg,#fffdf8);border-radius:6px;padding:16px;transition:box-shadow .2s ease,transform .2s ease}
+      .lp-shelfcard:hover{box-shadow:0 10px 30px -18px rgba(60,40,20,.55);transform:translateY(-2px)}
+      .lp-shelfcard-plate{flex:0 0 86px}
+      .lp-shelfcard-plate img{width:86px;height:118px;object-fit:cover;object-position:center;border:1px solid var(--color-card-border,#d9c6a7);border-radius:3px;background:#efe7d8}
+      .lp-shelfcard-body h4{margin:0 0 2px}
+      .lp-shelfcard-n{margin:0 0 6px;font-size:.82rem;letter-spacing:.04em;color:var(--color-primary-text,#b45f3d)}
+    </style>
+    <div class="lp-shelf lp-shelfgrid" aria-labelledby="library-shelves">
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=Latin%20Fathers">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/fulgentius-lafosse-augustinus-theologus-sive-theologia-secundum-genium/p/12.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>Latin Fathers</h4>
+          <p class="lp-shelfcard-n">8,967 works</p>
+          <p class="lp-shelf-desc">The Latin patristic tradition and its medieval reception.</p>
+          <p class="lp-shelf-who">Augustine · Jerome · Ambrose · Gregory the Great</p>
+        </span>
       </a>
-      <a href="/the-faith-received/patrologia-graeca/">
-        <span class="lp-shelf-plate"><img src="https://xmw4yslyv6oq3m7i.public.blob.vercel-storage.com/migne/047/00109_dialogus-historicus-latin/mg047_0110.jpg" alt="" loading="lazy" /></span>
-        <h4>Patrologia Graeca</h4>
-        <p>2,976 works</p>
-        <p class="lp-shelf-desc">Migne&rsquo;s Greek fathers, the Apostolic Fathers to the fall of Constantinople.</p>
-        <p class="lp-shelf-who">John Chrysostom &middot; Origen &middot; Athanasius &middot; Basil the Great &middot; Gregory of Nazianzus</p>
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=Greek%20Fathers">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/petavius-de-theologicis-dogmatibus-vol-2/p/16.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>Greek Fathers</h4>
+          <p class="lp-shelfcard-n">3,822 works</p>
+          <p class="lp-shelf-desc">Greek patristic and Byzantine theology.</p>
+          <p class="lp-shelf-who">Athanasius · Basil the Great · John Chrysostom · John of Damascus</p>
+        </span>
       </a>
-      <a href="/the-faith-received/patrologia-latina/">
-        <span class="lp-shelf-plate"><img src="{{asset "images/tfr/pl-plate.jpg"}}" alt="" loading="lazy" /></span>
-        <h4>Patrologia Latina</h4>
-        <p>8,967 works</p>
-        <p class="lp-shelf-desc">Migne&rsquo;s Latin fathers and medievals, Tertullian to Innocent III.</p>
-        <p class="lp-shelf-who">Augustine &middot; Jerome &middot; Ambrose &middot; Bernard of Clairvaux &middot; Peter Damian</p>
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=Eastern%20Fathers">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/petavius-de-theologicis-dogmatibus-vol-6/p/24.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>Eastern Fathers</h4>
+          <p class="lp-shelfcard-n">400 works</p>
+          <p class="lp-shelf-desc">The Syriac, Coptic, Armenian, Ethiopic and Arabic traditions.</p>
+          <p class="lp-shelf-who">Severus of Antioch · Philoxenus of Mabbug · Jacob of Edessa</p>
+        </span>
       </a>
-      <a href="/the-faith-received/patrologia-orientalis/">
-        <span class="lp-shelf-plate"><img src="https://fqzfe6cpzqk0a5qv.public.blob.vercel-storage.com/po/26794985/26794985_seg00.jpg" alt="" loading="lazy" /></span>
-        <h4>Patrologia Orientalis</h4>
-        <p>400 works</p>
-        <p class="lp-shelf-desc">The Christian East: Syriac, Coptic, Armenian, Ethiopic and Arabic.</p>
-        <p class="lp-shelf-who">Severus of Antioch &middot; Philoxenus of Mabbug &middot; Jacob of Edessa &middot; Bar Hebraeus &middot; Mark of Ephesus</p>
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=Medieval">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/capreolus-defensiones-theologiae-aquinatis-vol-1/p/24.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>Medieval</h4>
+          <p class="lp-shelfcard-n">358 works</p>
+          <p class="lp-shelf-desc">Scholastic theology, commentary and disputation.</p>
+          <p class="lp-shelf-who">Anselm · Peter Lombard · Thomas Aquinas · Duns Scotus</p>
+        </span>
       </a>
-      <a href="/the-faith-received/latin-library/">
-        <span class="lp-shelf-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/alsted-theologia-scholastica-didactica/p/5.webp" alt="" loading="lazy" /></span>
-        <h4>The Latin Library</h4>
-        <p>2,285 works</p>
-        <p class="lp-shelf-desc">Scholastic and reformation divinity in Latin, with English alongside.</p>
-        <p class="lp-shelf-who">Thomas Aquinas &middot; Martin Luther &middot; John Calvin &middot; Duns Scotus &middot; Francisco Su&aacute;rez</p>
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=Roman%20Catholic">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/becanus-summa-theologiae-scholasticae-vol-1/p/24.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>Roman Catholic</h4>
+          <p class="lp-shelfcard-n">514 works</p>
+          <p class="lp-shelf-desc">Catholic theology and controversy after the Reformation.</p>
+          <p class="lp-shelf-who">Robert Bellarmine · Francisco Suárez · Thomas Cajetan</p>
+        </span>
       </a>
-      <a href="/the-faith-received/early-english-books/">
-        <span class="lp-shelf-plate"><img src="{{asset "images/tfr/eebo-plate.jpg"}}" alt="" loading="lazy" /></span>
-        <h4>Early English Books</h4>
-        <p>15,569 works</p>
-        <p class="lp-shelf-desc">Nearly everything printed in English before 1700, sermons and controversy alike.</p>
-        <p class="lp-shelf-who">John Owen &middot; Richard Baxter &middot; John Bunyan &middot; William Perkins &middot; Richard Hooker</p>
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=Reformed">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/chamier-panstratia-catholica-vol-1/p/8.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>Continental Reformed</h4>
+          <p class="lp-shelfcard-n">426 works</p>
+          <p class="lp-shelf-desc">Reformed theology, biblical commentary and confessional debate.</p>
+          <p class="lp-shelf-who">John Calvin · Peter Martyr Vermigli · Heinrich Bullinger</p>
+        </span>
       </a>
-    </div>
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=English%20Divines">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/robert-baron-of-st-andrews-disputatio-de-formali-objecto-fidei/p/8.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>English Divines</h4>
+          <p class="lp-shelfcard-n">4,635 works</p>
+          <p class="lp-shelf-desc">English sermons, controversy and practical divinity.</p>
+          <p class="lp-shelf-who">John Owen · Richard Baxter · William Perkins · Richard Hooker</p>
+        </span>
+      </a>
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=Lutheran">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/christoph-scheibler-metaphysica-duobus-libris-geneva-1636-protestant-s/p/24.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>Lutheran</h4>
+          <p class="lp-shelfcard-n">280 works</p>
+          <p class="lp-shelf-desc">Lutheran theology, biblical commentary and disputation.</p>
+          <p class="lp-shelf-who">Martin Luther · Philipp Melanchthon · Johann Gerhard</p>
+        </span>
+      </a>
+      <a class="lp-shelfcard" href="/the-faith-received/library/?shelf=Humanism%20and%20Law">
+        <span class="lp-shelfcard-plate"><img src="https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/coluccio-salutati-de-nobilitate-legum-et-medicinae-vol-1/p/20.webp" alt="" loading="lazy" /></span>
+        <span class="lp-shelfcard-body">
+          <h4>Humanism and Law</h4>
+          <p class="lp-shelfcard-n">45 works</p>
+          <p class="lp-shelf-desc">Humanist scholarship, jurisprudence and the study of conscience.</p>
+          <p class="lp-shelf-who">Erasmus · Hugo Grotius · Robert Sanderson</p>
+        </span>
+      </a>
+</div>
     <p class="tfr-browse-all tfr-browse-all--under"><a class="tfr-browse-btn" href="/the-faith-received/all-works/">Browse Full Library</a></p>
   </div>
 </section>
@@ -276,7 +355,7 @@
     <p class="lp-num">Everything in the library</p>
     <ul class="lp-features">
       <li><b>Creeds &amp; Catechisms</b> <span>&middot; 260 documents</span></li>
-      <li><b>The Library</b> <span>&middot; 7 collections, 68,814 works</span></li>
+      <li><b>The Library</b> <span>&middot; 9 shelves and Confessions</span></li>
       <li><b>First translation</b> <span>&middot; 2,218 works newly in English</span></li>
       <li><b>Topics</b> <span>&middot; 43 doctrinal loci</span></li>
       <li><a href="/the-faith-received/doctrines/"><b>Every doctrine</b> <span>&middot; ~190 topics, ranked by who wrote on it most</span></a></li>

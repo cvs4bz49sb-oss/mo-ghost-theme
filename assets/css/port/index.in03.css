@@ -1,0 +1,16 @@
+
+.sitefoot{margin-top:4rem;border-top:1px solid var(--border);background:color-mix(in oklab,var(--bg) 96%,var(--fg))}
+.sflinks{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin:.7rem 0 0}
+.sflinks a{font:600 .82rem/1 var(--sans);color:var(--muted);text-decoration:none;
+  border:1px solid var(--border);border-radius:99px;padding:.45rem .95rem;
+  transition:color .16s,border-color .16s,background .16s}
+.sflinks a:hover{color:var(--accent2);border-color:var(--accent-soft);background:var(--highlight)}
+.sflinks.sf2 a{border-color:transparent;font-weight:400}
+.sflinks.sf2 a:hover{border-color:var(--border)}
+.sfin{max-width:64rem;margin:0 auto;padding:2.2rem 1.2rem calc(2.2rem + env(safe-area-inset-bottom));display:grid;gap:.7rem}
+.sfbrand{font:600 .95rem/1 var(--font-display,serif);letter-spacing:.04em;color:var(--fg)}
+.sfline{font:.85rem/1.6 var(--sans,sans-serif);color:var(--muted);max-width:52ch;margin:0}
+.sflinks{display:flex;gap:1.2rem;flex-wrap:wrap}
+.sflinks a{font:600 .78rem/1 var(--sans,sans-serif);letter-spacing:.06em;text-transform:uppercase;color:var(--accent2,var(--accent));text-decoration:none}
+.sflinks a:hover{text-decoration:underline}
+.sfcolo{font:.74rem/1.6 var(--sans,sans-serif);color:color-mix(in oklab,var(--muted) 80%,var(--bg));max-width:60ch;margin:.3rem 0 0}

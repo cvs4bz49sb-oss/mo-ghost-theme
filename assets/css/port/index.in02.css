@@ -1,0 +1,52 @@
+
+/* ═══ MOBILE APP SHELL (owner 2026-08-17 'truly feel like a mobile iOS or Android app'):
+   ≤700px the site composes as an app — slim header, search-led home, shelf rows,
+   and a fixed bottom tab bar shared in spirit with the reader's thumb bar. */
+@view-transition{navigation:auto}
+#appbar{display:none}
+@media(max-width:700px){
+  /* slim header: wordmark + sign-in; the section seg lives in the bottom bar now */
+  .top{padding:8px 14px}
+  .top .tag{display:none}
+  .top .seg{display:none}
+  .brand{font-size:1.12rem}
+  /* the home INTRODUCES the site before search (owner 2026-08-18): compact wordmark,
+     inheritance line, and a two-line lede — then the omnibox */
+  .hero{padding-top:1.6rem}
+  .hero h1{font-size:1.85rem;margin:0 0 .25rem}
+  .hero .sub{font-size:.95rem}
+  .hero .lede{font-size:.9rem;line-height:1.55;margin:.5rem 0 .95rem;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .hero-stats,.shelfcue{display:none}
+  .hero-q{font-size:16px;padding:.95rem 1.05rem;border-radius:14px;box-shadow:inset 0 0 0 1px var(--border),0 10px 26px -18px rgba(42,28,14,.4)}
+  .hero-cta .pri{border-radius:14px;padding:.85rem 1.2rem}
+  .hero-cta .sec{border-radius:14px;padding:.85rem 1.2rem;margin-left:0}
+  /* doors: one swipeable row, snap */
+  .doorgrid,.doors{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:.6rem;padding-bottom:.4rem;-webkit-overflow-scrolling:touch}
+  .door{flex:0 0 72vw;scroll-snap-align:start}
+  /* shelves: app rows — name, count, chevron */
+  .shelfgrid,.shelfgrid.trads{display:flex;flex-direction:column;gap:.5rem}
+  .shelf{display:flex;align-items:center;gap:.6rem;padding:.9rem 1rem;min-height:52px}
+  .shelf .sn{flex:1;font-size:1.06rem}
+  .shelf .sd{display:none}
+  .shelf .sc{white-space:nowrap}
+  .shelf .sx{display:none}
+  /* room for the bar + iOS momentum everywhere */
+  body{padding-bottom:calc(64px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+  #appbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;
+    background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:saturate(1.5) blur(18px);backdrop-filter:saturate(1.5) blur(18px);
+    border-top:1px solid var(--rule-soft);padding:.35rem .4rem calc(.35rem + env(safe-area-inset-bottom));
+    justify-content:space-around;align-items:stretch}
+  #appbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:.15rem;
+    border:0;background:none;color:var(--muted);font:600 .62rem/1 var(--sans);padding:.3rem 0;cursor:pointer;min-height:48px;justify-content:center}
+  #appbar button .ai{font-size:1.15rem;line-height:1;font-family:var(--font-display)}
+  #appbar button.on{color:var(--accent2)}
+  #appbar button:active{transform:scale(.94);transition:transform .1s}
+}
+@media(prefers-reduced-motion:reduce){#appbar button:active{transform:none}}
+#secSheet .ss-scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:88}
+#secSheet .ss-panel{position:fixed;left:0;right:0;bottom:calc(54px + env(safe-area-inset-bottom,0px));z-index:89;
+  background:var(--bg);border-top:1px solid var(--border);border-radius:14px 14px 0 0;
+  display:grid;grid-template-columns:1fr 1fr;gap:.15rem;padding:.8rem .9rem 1rem;box-shadow:0 -12px 34px -18px rgba(0,0,0,.4)}
+#secSheet .ss-panel a{font:600 .95rem/1 var(--font-body);color:var(--fg);text-decoration:none;padding:.75rem .6rem;border-radius:9px}
+#secSheet .ss-panel a:active{background:color-mix(in oklab,var(--accent) 10%,transparent)}

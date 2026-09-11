@@ -1,0 +1,4 @@
+
+.rx-qlink{color:inherit;text-decoration:none;display:block;border-radius:4px}
+.rx-qlink:hover p{color:var(--accent,#b45f3d)}
+.rx-qlink p{transition:color .15s ease}

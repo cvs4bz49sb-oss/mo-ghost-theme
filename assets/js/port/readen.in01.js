@@ -1,0 +1,1 @@
+(function(){try{var t=localStorage.getItem('fr-eebo-theme');if(t&&t!=='light')document.documentElement.setAttribute('data-theme',t);var s=localStorage.getItem('eebo-fs');if(s)document.documentElement.style.setProperty('--read-fs',s+'px');}catch(e){}})();

@@ -1,0 +1,70 @@
+
+/* ── PO search elevation (2026-07-09) ── */
+.count-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap}
+.density-btn{font:600 .74rem/1 var(--font-ui,inherit);color:var(--muted);background:none;
+  border:1px solid var(--border);border-radius:7px;padding:.32rem .7rem;cursor:pointer;
+  min-height:40px;transition:border-color .14s,color .14s}
+.density-btn:hover{border-color:var(--accent);color:var(--accent)}
+.density-btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-tint,rgba(0,0,0,.05))}
+.sr-compact .sr{padding:.35rem .5rem}
+.sr-compact .sr-ex{display:none}
+.sr-more{display:block;width:100%;margin:.8rem 0 0;border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:8px;padding:.7rem;font:600 .82rem/1 var(--font-ui,inherit);cursor:pointer}
+.sr-more:hover{border-color:var(--fg)}
+.sr-more:disabled{opacity:.5;cursor:default}
+.sr-zero{padding:1.4rem .2rem;color:var(--muted)}
+.sr-zero p{margin:.25rem 0;font-size:.92rem;line-height:1.55}
+.sr-zero-tip{font-size:.84rem}
+.smodes-wrap{position:relative}
+/* right-edge fade + chevron CHIP (mobsearch P2: the old bare '\203A\203A' glyph sat directly on the
+   clipped tab label and read as a rendering glitch, not an affordance). The wrap is NOT the
+   scroller, so both pseudo-elements anchor stably at its right edge. */
+.smodes-wrap.smodes-more::before{content:'';position:absolute;right:0;top:1px;bottom:1px;width:34px;
+  pointer-events:none;border-radius:0 10px 10px 0;
+  background:linear-gradient(to left,color-mix(in srgb,var(--fg,#2d2927) 14%,transparent),transparent)}
+.smodes-wrap.smodes-more::after{content:'\203A';position:absolute;right:5px;top:50%;
+  transform:translateY(-50%);width:1.35rem;height:1.35rem;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;background:var(--fg);color:var(--bg);
+  font:700 .74rem/1 var(--font-ui,inherit);box-shadow:0 1px 3px rgba(0,0,0,.25);
+  pointer-events:none;opacity:.95}
+@media(min-width:641px){.smodes-wrap.smodes-more::before,.smodes-wrap.smodes-more::after{display:none}}
+/* iOS snap-zoom guard + tap-target floor (mobsearch P1/P2): the sub-filter fields shipped at
+   .84rem/38px — Safari pinch-zooms the page on focusing any text control under 16px. */
+.fac-in,.fac-sel{font-size:16px!important;min-height:44px}
+/* (mobsearch P1 float-overlap fix superseded 2026-07-15 by the family standard: cgpt-link.js no
+   longer floats at all — the link lives only in [data-cgpt-link] slots.) */
+.cgptl-x{position:relative}
+.cgptl-x::before{content:'';position:absolute;inset:-12px}
+@media(max-width:640px){.smodes{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;max-width:100%}.smodes::-webkit-scrollbar{display:none}}
+.sstart{margin:1.6rem 0}
+.sstart-h{font:600 .78rem/1 var(--font-ui,inherit);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 .2rem}
+.sd-mode{cursor:pointer;text-align:left;font-family:inherit}
+.sd-ex{font:.76rem/1.4 var(--font-ui,inherit);color:color-mix(in oklab,var(--muted) 80%,var(--fg));margin-top:.15rem}
+.sdoors{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.6rem;max-width:52rem;margin:.9rem auto .4rem}
+.sdoor{display:flex;flex-direction:column;gap:.15rem;border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;text-decoration:none;background:var(--card)}
+.sdoor:hover{border-color:var(--fg)}
+.sd-n{font:600 .74rem/1.3 var(--font-ui,inherit);letter-spacing:.07em;text-transform:uppercase;color:var(--fg)}
+.sd-d{font:italic .82rem/1.45 var(--font-body);color:var(--muted)}
+.smodes-hint{font:.78rem/1.4 var(--font-ui,inherit);color:var(--muted);margin:.3rem 0 .6rem;
+  display:flex;align-items:center;gap:.3rem}
+.smodes-hint span{flex:1}
+.smodes-hint button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1.05rem;
+  line-height:1;width:40px;height:40px;border-radius:8px;flex:none}
+.smodes-hint button:hover{color:var(--accent);background:var(--accent-tint,rgba(0,0,0,.05))}
+.sb-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 1rem}
+.sb-chip{font:600 .78rem/1 var(--font-ui,inherit);padding:.4rem .8rem;border-radius:7px;
+  border:1px solid var(--border);background:var(--card);color:var(--fg);cursor:pointer;
+  min-height:40px;transition:border-color .14s,color .14s,transform .12s}
+.sb-chip:hover{border-color:var(--accent);color:var(--accent)}
+.sb-chip:active{transform:scale(.96)}
+@media(prefers-reduced-motion:reduce){.sb-chip:active{transform:none}}
+.ask-src-block{margin:0}
+.ask-src-block:empty{display:none}
+.ask-src-block summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.4rem;
+  -webkit-tap-highlight-color:transparent;min-height:40px}
+.ask-src-block summary::-webkit-details-marker{display:none}
+.ask-src-block summary::before{content:'\25B8';display:inline-block;font-size:.75em;color:inherit;
+  transition:transform .18s ease}
+.ask-src-block[open] summary::before{transform:rotate(90deg)}
+.ask-src-block summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.ask-src-block summary::before{transition:none}}

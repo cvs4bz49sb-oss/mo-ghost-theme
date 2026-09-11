@@ -1,0 +1,34 @@
+/* A compact apparatus cue keeps marginalia out of the prose's vertical measure. */
+/* Match the enhancer's ordinary-note eligibility before it runs. Editorial
+   headnotes and body material are not folded into margin-note controls. */
+@media screen{#reading .mnote:not(.headnote):not(.edinl):not(.edblock *){display:none!important}}
+html.fr-margin-notes.railok #reading:has(.hasmn){padding-inline:clamp(1.75rem,4.5vw,4rem)}
+html.fr-margin-notes #reading .row>:is(.la,.en).hasmn{padding-inline:0}
+html.fr-margin-notes #reading .rm-original{display:none!important;float:none!important;clear:none!important}
+html.fr-margin-notes #reading .mnp.rm-group{display:block!important;float:none!important;clear:none!important;width:auto!important;max-width:none!important;margin:.25rem 0 .55rem!important;padding:0!important;border:0!important;text-align:start!important;text-indent:0!important;font-style:normal!important;line-height:1.4!important}
+html.fr-margin-notes #reading .rm-marker{display:inline-flex;align-items:center;gap:6px;border:0;border-bottom:1px solid var(--detail-rule,var(--border));border-radius:0;padding:4px 1px;min-height:32px;background:none;color:var(--detail,var(--muted));font:13px/1.45 'Source Serif Pro',Georgia,serif;text-align:start;text-indent:0;vertical-align:baseline;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html.fr-margin-notes #reading .rm-marker:hover,html.fr-margin-notes #reading .rm-marker[aria-expanded=true]{color:var(--fg);border-bottom-color:var(--fg)}
+html.fr-margin-notes #reading .rm-marker:focus-visible{outline:2px solid var(--fg);outline-offset:4px}
+html.fr-margin-notes #reading .rm-marker.rm-inline{font-size:12px;min-height:28px;margin-inline:5px;padding-inline:2px}
+.rm-marker-compact{display:none}
+#readerMarginPopover{display:none;position:fixed;inset:90px 24px auto auto;margin:0;padding:0;width:min(460px,calc(100vw - 32px));max-height:min(650px,calc(100dvh - 120px));overflow:hidden;border:1px solid var(--border);border-radius:8px;background:var(--card,var(--card-bg,#fff));color:var(--fg);box-shadow:0 12px 32px #0000001c;font:16px/1.7 'Source Serif Pro',Georgia,serif;z-index:13000}
+#readerMarginPopover:popover-open,#readerMarginPopover.rm-open{display:flex;flex-direction:column}
+#readerMarginPopover::backdrop{background:transparent}
+#readerMarginPopover .rm-panel-head{display:flex;align-items:start;justify-content:space-between;gap:20px;padding:20px 22px 16px;border-bottom:1px solid var(--border);flex:none}
+#readerMarginPopover h2{font:500 26px/1.2 'EB Garamond',Georgia,serif;margin:0 0 6px;color:var(--fg)}
+#readerMarginPopover .rm-context{font-size:12px;line-height:1.5;color:var(--muted);margin:0}
+#readerMarginPopover .rm-close{font:13px/1.4 'Source Serif Pro',Georgia,serif;min-width:44px;min-height:44px;border:0;border-radius:4px;padding:8px;background:none;color:var(--fg);cursor:pointer}
+#readerMarginPopover .rm-close:hover{background:var(--hl,var(--highlight))}
+#readerMarginPopover .rm-panel-body{overflow:auto;overscroll-behavior:contain;padding:2px 22px 8px;scrollbar-color:var(--border) transparent;scrollbar-width:thin}
+#readerMarginPopover .rm-note{padding:18px 0;overflow-wrap:anywhere;text-align:start;font-style:normal;line-height:1.7;color:var(--fg)}
+#readerMarginPopover .rm-note+.rm-note{border-top:1px solid var(--border)}
+#readerMarginPopover .rm-note p{margin:0 0 .7em}#readerMarginPopover a{color:var(--fg);text-underline-offset:3px}#readerMarginPopover :is(a,button):focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+#readerMarginPopover ::selection{background:var(--fg);color:var(--bg)}
+html.fr-margin-notes #reading .rm-marker.rm-inline{position:relative;min-height:0;height:14px;min-width:26px;margin:0 3px;padding:0;border:0;vertical-align:super;font-size:11px;line-height:1}
+ .rm-inline .rm-marker-label{display:none}.rm-inline .rm-marker-compact{display:inline;text-decoration:underline;text-underline-offset:2px}
+ html.fr-margin-notes #reading .rm-marker.rm-inline::after{content:'';position:absolute;width:44px;height:44px;left:50%;top:50%;transform:translate(-50%,-50%)}
+@media(max-width:700px){html.fr-margin-notes.railok #reading:has(.hasmn){padding-inline:16px}html.fr-margin-notes #reading .rm-marker{min-height:44px}
+
+ #readerMarginPopover{inset:auto 0 0;margin:0;width:100%;max-height:70dvh;border-radius:12px 12px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom)}#readerMarginPopover .rm-panel-head{padding:18px 18px 12px}#readerMarginPopover .rm-panel-body{padding-inline:18px}#readerMarginPopover h2{font-size:25px}}
+@media(prefers-reduced-motion:no-preference){#readerMarginPopover:popover-open{animation:margin-note-open 140ms cubic-bezier(.22,1,.36,1)}@keyframes margin-note-open{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}}
+@media print{#readerMarginPopover,html.fr-margin-notes #reading .rm-marker{display:none!important}html.fr-margin-notes #reading .rm-original{display:block!important;width:auto!important;max-width:none!important;float:none!important;clear:none!important;margin:.35em 0!important;padding:0!important;border:0!important;font-size:10pt!important;line-height:1.4!important;text-align:start!important;-webkit-line-clamp:unset!important;overflow:visible!important}html.fr-margin-notes #reading p:not(.mnp)>.rm-original{display:inline!important}html.fr-margin-notes #reading .rm-group::before{content:'Margin notes';font-size:10pt;font-style:italic}}

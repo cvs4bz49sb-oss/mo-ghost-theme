@@ -1,0 +1,11 @@
+
+.sr-work{border:1px solid var(--border,#e2ddd4);border-radius:7px;background:var(--card,#fff);padding:12px 16px;margin:12px 0}
+.sr-whead{margin-bottom:6px}
+.sr-wtitle{display:block;font-weight:600;font-size:1.02rem;color:inherit;text-decoration:none;margin-top:2px}
+.sr-wtitle:hover{color:var(--accent,#b45f3d)}
+.sr-page{display:flex;gap:12px;align-items:baseline;padding:5px 0;border-top:1px dotted var(--rule-soft,#eee5d8);text-decoration:none;color:inherit}
+.sr-page:hover .sr-ex{color:var(--fg,#222)}
+.sr-pg{flex:none;font-size:.8rem;color:var(--accent,#b45f3d);min-width:3.4em}
+.sr-page .sr-ex{font-size:.88rem;color:var(--muted,#5A5A56)}
+.sr-morework summary,.sr-note{font-size:.82rem;color:var(--muted,#5A5A56);padding:6px 0 2px;cursor:pointer}
+.sr-note{cursor:default}

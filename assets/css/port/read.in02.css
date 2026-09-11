@@ -1,0 +1,12 @@
+
+/* Ask lives in the research rail (owner 2026-09-10): when docked on the
+   reader, the workspace pins over the LEFT rail column, not a right panel */
+@media(min-width:1100px){
+  #fra-workspace.fra-docked{inset:var(--phh,64px) auto 0 0!important;
+    width:var(--fr-rail-width,460px);border-left:0!important;
+    border-right:1px solid var(--fra-border,#d8d8d3);z-index:60}
+  /* the reader reserves rail width on the RIGHT for the stock dock; a
+     left dock needs the sheet pushed right instead */
+  html.fra-docked #app{margin-left:var(--fr-rail-width,460px)}
+}
+.nav-vt [data-ask-rail]{margin-left:auto}

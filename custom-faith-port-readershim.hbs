@@ -1,0 +1,36 @@
+{{!-- /the-faith-received/reader/ — TEI unification shim (owner 2026-09-10:
+     "everything in MereO must be TEI"). The corpus readers (html-extract,
+     json-sections) are retired; every ?c=&w= deep link resolves to the
+     ported TEI reader over v1/works + v1/tei. MO's own editions and any
+     unknown corpus fall through to the classic reader route. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reader — The Faith Received</title>
+{{ghost_head}}
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var c = (q.get('c') || 'tfr').toLowerCase();
+    var w = q.get('w') || '';
+    var hash = location.hash || '';
+    var slug = null;
+    if (c === 'pld' || c === 'pg' || c === 'po') slug = c + '-' + w;
+    else if (c === 'tfr' || c === 'confessions' || c === 'eebo') slug = w;
+    if (slug) {
+      location.replace('/the-faith-received/read/?w=' + encodeURIComponent(slug) + hash);
+    } else {
+      location.replace('/the-faith-received/reader-classic/' + location.search + hash);
+    }
+  } catch (e) {
+    location.replace('/the-faith-received/read/');
+  }
+})();
+</script>
+</head>
+<body><p style="font:1rem Georgia,serif;padding:2rem">Opening the reader&hellip;</p>
+{{ghost_foot}}
+</body>
+</html>

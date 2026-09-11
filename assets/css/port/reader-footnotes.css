@@ -1,0 +1,37 @@
+@media(min-width:941px){html:not(.fr-plain) .fr-reader-head .ctr>#rdFlow{display:inline-flex;align-items:center;min-height:40px;font:13px/1.4 'Source Serif Pro',Georgia,serif;padding:6px 9px;color:var(--fg)}}
+#aaPop :is([aria-label="Reading layout"],[aria-label="Footnote display"]) button{min-height:40px;min-width:64px;font:13px/1.4 'Source Serif Pro',Georgia,serif}#aaPop :is([aria-label="Reading layout"],[aria-label="Footnote display"]) button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+html:not(.fr-plain) .app.rflow .apptog:not(.open),html:not(.fr-plain) .app.rflow .apptog.open{position:static;inset:auto;margin:.55rem 0 .35rem;padding:6px 0;max-width:none;min-height:32px;font:13px/1.4 'Source Serif Pro',Georgia,serif;opacity:1;color:var(--muted)}
+html:not(.fr-plain) .app.rflow .apptog:hover{color:var(--fg)}
+/* Explicit bank state outranks single-language display rules. An open bank is
+   independent of earlier closed banks in the same Flow section. Print retains
+   the reader's existing full-apparatus rules. No body rows are marked. */
+@media screen{
+ /* Initial banks are hidden before enhancement can annotate their exact state. */
+ #reading .apptog:not(.open)~:is(.row.rapp,.appdiv):not([data-rf-bank-open]){display:none!important}
+ #reading :is(.row.rapp,.appdiv)[data-rf-bank-open="false"]{display:none!important}
+ #reading .row.rapp[data-rf-bank-open="true"]:not([hidden]){display:grid}
+ #reading .appdiv[data-rf-bank-open="true"]:not([hidden]),#reading .row.rapp.appband[data-rf-bank-open="true"]:not([hidden]),#reading .row.rapp.var.conly[data-rf-bank-open="true"]:not([hidden]),#app:is(.only-en,.only-la,.en-only) #reading .row.rapp[data-rf-bank-open="true"]:not([hidden]){display:block}
+}
+#readerFootnotePreview[hidden]{display:none!important}#readerFootnotePreview{position:fixed;z-index:13000;display:flex;flex-direction:column;width:min(470px,calc(100vw - 24px));max-height:min(580px,65dvh);margin:0;padding:0;border:1px solid var(--border);border-radius:7px;background:var(--card,var(--card-bg));color:var(--fg);box-shadow:0 10px 28px #0000001f;font:16px/1.65 'Source Serif Pro',Georgia,serif;text-align:start}
+#readerFootnotePreview>header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 16px;border-bottom:1px solid var(--border);flex:none}
+#readerFootnotePreview h2{font:500 22px/1.2 'EB Garamond',Georgia,serif;margin:0}
+#readerFootnotePreview button{min-height:40px;background:none;border:0;color:var(--fg);font:13px/1.4 'Source Serif Pro',Georgia,serif;padding:8px;cursor:pointer}
+#readerFootnotePreview .rf-content{overflow:auto;overscroll-behavior:contain;padding:14px 18px;overflow-wrap:anywhere;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+#readerFootnotePreview p{margin:0 0 .6em}#readerFootnotePreview .rf-content>:last-child{margin-bottom:0}#readerFootnotePreview summary{font-size:13px;min-height:40px;padding:9px 0;cursor:pointer;color:var(--muted)}
+#readerFootnotePreview a{color:var(--fg);text-underline-offset:3px}#readerFootnotePreview footer{padding:0 10px 5px;border-top:1px solid var(--border)}#readerFootnotePreview :is(a,button,summary):focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+#readerFootnotePreview ::selection{background:var(--fg);color:var(--bg)}
+@media(max-width:700px){#readerFootnotePreview{inset:auto 0 0;width:100%;max-height:70dvh;border-radius:12px 12px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom)}#readerFootnotePreview button,#aaPop :is([aria-label="Reading layout"],[aria-label="Footnote display"]) button,html:not(.fr-plain) .app.rflow .apptog{min-height:44px}}
+@media print{#readerFootnotePreview{display:none!important}}
+/* Pages exposes existing boundaries; it does not re-pair or rebuild the text. */
+html:not(.fr-plain) #app:not(.rflow) #reading .fmark:not(.rolled){display:flex;height:auto;min-height:32px;position:relative;inset:auto;margin:1.3rem 0 .65rem;padding:.4rem 0;border-bottom:1px solid var(--border);opacity:1;pointer-events:auto;justify-content:flex-start}
+html:not(.fr-plain) #app:not(.rflow) #reading .fmark:not(.rolled) .ff{position:static;font-size:13px;opacity:1}
+
+#readerNoteState{font:12px/1.4 'Source Serif Pro',Georgia,serif;color:var(--muted)}#readerNoteState:empty{display:none}
+
+/* Apparatus typography is shared by both lanes, independent of body-language scaling. */
+html:not(.fr-plain) #reading .row.rapp[data-fnid] > :is(.la,.en){font-size:1em!important;line-height:1.65!important;padding-inline:2em 0!important;text-indent:-2em!important}
+html:not(.fr-plain) #reading .row.rapp[data-fnid] :is(.la,.en) p{font-size:inherit;line-height:inherit;text-indent:0!important;margin:.45em 0 0!important}
+html:not(.fr-plain) #reading .row.rapp[data-fnid] :is(.la,.en) > .fnsep + p{display:inline;margin:0!important}
+html:not(.fr-plain) #reading .row.rapp.fst[data-fnid] > :is(.la,.en){position:relative;padding-top:.7em}
+html:not(.fr-plain) #reading .row.rapp.fst[data-fnid] > :is(.la,.en):not(:empty)::before{position:absolute;inset:0 auto auto 0;margin:0}
+html:not(.fr-plain) #reading .row.rapp[data-fnid] .fn-ret{text-indent:0}

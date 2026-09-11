@@ -1,0 +1,17 @@
+
+/* Greek-shelf scroll experience (2026-09-11) */
+#shelfworks .inirow{position:sticky;top:8.1rem;z-index:5;background:var(--bg);
+ padding:.4rem 0 .45rem;margin:0 0 .6rem;box-shadow:0 10px 12px -12px rgba(42,28,14,.35)}
+.alet{position:sticky;top:12.6rem;z-index:4;width:2.1rem;margin:.9rem 0 .2rem;
+ font:600 .8rem/1 var(--sans);letter-spacing:.08em;color:var(--shelfc,var(--accent));
+ background:var(--bg);border-bottom:2px solid var(--shelfc,var(--accent));
+ padding:.2rem .1rem .3rem;scroll-margin-top:12.4rem}
+.authsec{scroll-margin-top:13.2rem}
+.inib.jumped{outline:1px solid var(--shelfc,var(--accent))}
+@media(max-width:640px){
+  .shelfsearch{top:4.4rem}
+  #shelfworks .inirow{top:7.2rem;overflow-x:auto;white-space:nowrap;display:flex;gap:.25rem;scrollbar-width:none}
+  #shelfworks .inirow::-webkit-scrollbar{display:none}
+  .alet{top:11.2rem}
+  .authsec{scroll-margin-top:12rem}
+}

@@ -1,0 +1,14 @@
+
+/* Greek-shelf review polish (2026-09-10) */
+.auth .c .ced{font-style:normal;color:var(--faint,#8a8580);font-size:.86em}
+.aname.anth{max-width:22em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom}
+.volgrid.picked{max-height:0;overflow:hidden;padding:0;margin:0;border:0;opacity:0;transition:max-height .2s,opacity .2s}
+.volhead .vall{width:auto;padding:0 .6rem;font-size:.72rem}
+@media(max-width:640px){
+  .authsec .auth{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .5rem;line-height:1.35;padding:.5rem 0}
+  .authsec .auth .cv{font-size:1.05rem;min-width:1.4rem;text-align:center}
+  .authsec .auth .aname{flex:1 1 12em;min-width:0;overflow-wrap:anywhere;font-size:.98rem}
+  .authsec .auth .authdt{font-size:.74rem;color:var(--faint,#8a8580);flex-basis:auto}
+  .authsec .auth .c{font-size:.74rem;color:var(--faint,#8a8580);margin-left:auto;white-space:nowrap}
+  .volgrid .vcell{min-width:44px;min-height:40px}
+}

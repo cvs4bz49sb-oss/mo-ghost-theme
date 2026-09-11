@@ -1,0 +1,198 @@
+/* ============================================================================
+   PRDL SHARED DESIGN SYSTEM  ·  single source of truth for all four reading sites
+   The Faith Received · Patrologia Latina (PLD) · Thomas Aquinas · Patrologia Graeca
+
+   HOW IT WORKS
+   ─ Each site links/imports THIS file and sets   <html data-site="…">   to pick
+     its identity (accent + display face). Everything structural is shared here;
+     only the per-site accent/font lives in the [data-site] blocks below.
+   ─ Edit this ONE file and every site that points to it updates. Sites point to it
+     via a symlink (prdl-system.css → _shared/prdl-system.css) + an @import / <link>.
+
+   data-site values:  faith-received (default) · pld · aquinas · graeca
+   ============================================================================ */
+
+/* ── horizontal-scroll safety net (defense-in-depth) — no page anywhere in the family should
+      ever be able to scroll sideways; this is a pure backstop, invisible under normal content ── */
+html{ overflow-x:hidden; }
+
+/* ── base palette (warm-paper editorial; matches the current sibling values so
+      adopting this file is a no-op until a site opts into its [data-site] identity) ── */
+:root{
+  --bg:#f6f3f2; --bg-warm:#f1e0c9; --fg:#2d2927;
+  /* muted text tier: quieted to sit inside 4.6–5:1 on --bg/--card (measured; was 5.15/5.60 —
+     a hair too crisp for a "calm-expensive" secondary tier). Never let it drift under 4.5:1. */
+  --muted:#6f6a64;
+  --border:#d9c6a7; --card:#fffdfa; --card-bg:#fffdfa; --sidebar:#f1e0c9;
+  --latin:#2d2927; --col:#9a7b4f; --hl:#fbe9c8;
+
+  /* identity (default = faith-received terracotta; overridden per [data-site]) */
+  --accent:#c1593c; --accent2:#a8462b;
+  --accent-soft:color-mix(in oklch, var(--accent) 42%, transparent);
+  --accent-tint:color-mix(in srgb, var(--accent) 9%, transparent);
+  --rule-soft:color-mix(in oklch, var(--fg) 12%, transparent);
+  --highlight:color-mix(in oklch, var(--accent) 12%, transparent);
+  --masthead:#2A231D; --masthead-ink:#EFE7DA;
+
+  /* type */
+  --font-display:'IM Fell Great Primer','Source Serif Pro',Georgia,serif;
+  --font-body:'Source Serif Pro','Old Standard TT',Palatino,Georgia,serif;
+  --font-ui:'Source Serif Pro',Georgia,serif;
+
+  /* scale — radius / motion (shared rhythm) */
+  --radius-sm:5px; --radius-md:9px; --radius-lg:12px; --radius-full:999px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-premium:cubic-bezier(.32,.72,0,1);   /* house curve — drawers, panels, anything that travels */
+  --ease-out:cubic-bezier(.23,1,.32,1);       /* strong ease-out — entrances */
+  --ease-spring:cubic-bezier(.34,1.56,.64,1); /* gentle overshoot — MICRO arrivals only: pills,
+                                                  toasts, popovers ≤200ms, :active press. Never
+                                                  on panels/drawers (those keep --ease-premium). */
+  --dur-fast:.14s; --dur:.2s; --dur-slow:.3s;
+
+  /* surfaces — ONE warm light source (top); shadows drawn from the paper/ink hues, never pure black */
+  --shadow-sm:0 1px 2px rgba(60,30,15,.05);
+  --shadow-md:0 2px 6px rgba(60,30,15,.05),0 10px 28px -18px rgba(60,30,15,.22);
+  --shadow-lg:0 4px 10px rgba(60,30,15,.06),0 18px 44px -22px rgba(60,30,15,.3);
+  --bezel-hi:inset 0 1px 0 rgba(255,255,255,.55);   /* fine print-shop matting: faint top highlight inside a hairline ring */
+
+  /* hint native form controls / scrollbars which palette we're in. MUST stay `light` here:
+     `light dark` lets a dark-OS browser paint UA widgets (radios/checkboxes) dark on our
+     light pages (PG saw solid-black radio dots site-wide, mailbox 2026-07-18); the
+     [data-theme="dark"] block below flips it when a reader actually chooses dark */
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --shadow-sm:0 1px 2px rgba(0,0,0,.28);
+  --shadow-md:0 2px 6px rgba(0,0,0,.26),0 10px 28px -18px rgba(0,0,0,.55);
+  --shadow-lg:0 4px 10px rgba(0,0,0,.3),0 18px 44px -22px rgba(0,0,0,.65);
+  --bezel-hi:inset 0 1px 0 rgba(255,255,255,.045);
+  color-scheme:dark;
+}
+
+/* ── per-site identity ── only the accent + display face differ. A site activates
+      its identity with <html data-site="…">. Base structure is unchanged. ── */
+:root[data-site="faith-received"]{
+  --accent:#c1593c; --accent2:#a8462b;
+}
+:root[data-site="pld"]{           /* Patrologia Latina — a deep Latin red */
+  --accent:oklch(.50 .12 24); --accent2:oklch(.44 .115 22);
+}
+:root[data-site="aquinas"]{       /* Aquinas — warm scholastic brick */
+  --accent:oklch(.525 .12 28); --accent2:oklch(.46 .12 27);
+}
+:root[data-site="graeca"]{        /* Patrologia Graeca — Byzantine teal */
+  --accent:oklch(.51 .085 195); --accent2:oklch(.45 .08 195);
+}
+
+/* ── dark mode (shared; warm near-black, lifted accent) ── */
+[data-theme="dark"]{
+  --bg:#211E1A; --card:#2B2722; --card-bg:#2B2722; --sidebar:#262019; --bg-warm:#2B2722;
+  --fg:#E9E4DB; --muted:#BCB3A6; --border:#3F392F; --rule-soft:#332E26;
+  --hl:#3A2F22; --highlight:#3A2F22; --col:#9C8350; --masthead:#15120E;
+  --accent:#E1855F; --accent2:#E6916C;
+}
+:root[data-theme="dark"][data-site="graeca"]{--accent:oklch(.73 .09 190);--accent2:oklch(.79 .08 190)}
+:root[data-theme="dark"][data-site="pld"]{--accent:oklch(.70 .125 24);--accent2:oklch(.77 .115 24)}
+:root[data-theme="dark"][data-site="aquinas"]{--accent:oklch(.71 .125 30);--accent2:oklch(.77 .115 30)}
+
+/* ── paper grain — one fixed film overlay to break digital flatness (never on scrolling
+      containers; pointer-events:none so it can never intercept a click) ── */
+body::after{
+  content:""; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat:repeat;
+}
+[data-theme="dark"] body::after{ opacity:.035 }
+@media print{ body::after{ display:none } }
+
+/* ── form fields never take UA-scheme ink (owner screenshot 2026-07-22): a data-theme="dark"
+      stamp on a page whose surfaces are still light (partial adopters — search pages) lets
+      color-scheme:dark paint input text WHITE on paper. Fields state their ink explicitly;
+      class-level styling (e.g. a dark hero omnibox) still overrides this element-level rule. ── */
+input, textarea, select { color: var(--fg,#2d2927); caret-color: var(--fg,#2d2927); }
+
+/* ── shared polish layer (consolidated from the per-site copies) ──
+      a11y focus · tactile press · tabular numerals · facsimile edge · dismissible sign-in bar ── */
+:where(button, a, summary, input, select, textarea, [role="button"], [tabindex]):focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px; border-radius:var(--radius-sm);
+}
+.col-marker, .col-range, .auth-sync, .nt-meta, .work-badge,
+.hero .n, .vol-cell .vn, .vol-cell .vc, .facs-head, #facsFol, .page-header .meta{
+  font-variant-numeric:tabular-nums;
+}
+/* source facsimile: a hairline page edge — pure black/white at 10%, never a tinted neutral */
+#facsImg, .facs-stage img, .study-img img{ outline:1px solid rgba(0,0,0,.1); outline-offset:-1px; }
+[data-theme="dark"] #facsImg, [data-theme="dark"] .facs-stage img, [data-theme="dark"] .study-img img{
+  outline-color:rgba(255,255,255,.1);
+}
+/* dismiss × on the signed-out sign-in bar (behavior lives in each site's auth.js) */
+.auth-x{ margin-left:.4rem; border:0; background:none; color:rgba(255,255,255,.55);
+  font:1.15rem/1 inherit; cursor:pointer; padding:0 .3rem;
+  transition:color var(--dur-fast), transform var(--dur-fast) var(--ease); }
+.auth-x:hover{ color:#fff } .auth-x:active{ transform:scale(.96) }
+/* tactile press feedback on the auth-bar's buttons (chrome buttons handle their own) */
+.auth-btn{ transition:background var(--dur-fast) ease, transform var(--dur-fast) var(--ease) }
+.auth-btn:active{ transform:scale(.96) }
+
+
+/* sign-in CTA quieted — optional sync, not the page's primary action (was a loud solid pill) */
+.auth-g, .auth-google{background:color-mix(in oklch, var(--accent) 26%, transparent); border-color:color-mix(in oklch, var(--accent) 55%, transparent)}
+.auth-g:hover, .auth-google:hover{background:color-mix(in oklch, var(--accent) 40%, transparent)}
+
+/* ── reading measure scales with the font ──
+   Bumping the reader size should WIDEN the column to use more of the page, not just enlarge text in a fixed
+   width. The siblings' reading column is .fr-reader .main, whose font-size IS the slider (--read-fs); an em
+   max-width therefore grows with the font. Aquinas is a wider 2-column commentary, so it gets a larger measure.
+   (The Faith Received reader uses #reading and handles this in reader_shell.html.) */
+.fr-reader .main{ max-width:min(46em, 100%) }
+:root[data-site="aquinas"] .fr-reader .main{ max-width:min(64em, 100%) }
+
+/* ── EEBO identity (Early English Books — antique morocco green; adopted 2026-07-21) ── */
+:root[data-site="eebo"]{          /* Early English Books — antique morocco green */
+  --accent:oklch(.47 .078 152); --accent2:oklch(.41 .072 152);
+}
+:root[data-theme="dark"][data-site="eebo"]{--accent:oklch(.72 .10 150);--accent2:oklch(.78 .09 150)}
+
+
+/* ── cross-site family switcher (.prdl-fam) ──────────────────────────────────────
+   A slim strip above each sister site's own masthead so the five corpora read as one
+   family (they were 100% siloed). NEUTRAL chrome — the shared warm-dark --masthead, never a
+   single corpus's accent; only the CURRENT site is marked, in ITS own accent. Each build
+   injects <nav class="prdl-fam"> as the first child of <body>, with aria-current on itself. */
+.prdl-fam{ display:flex; align-items:baseline; flex-wrap:wrap; gap:.12rem 1.05rem;
+  padding:.4rem clamp(.85rem,3.2vw,2.1rem); background:var(--masthead); color:var(--masthead-ink);
+  font:500 .75rem/1.5 var(--font-ui); letter-spacing:.012em; }
+.prdl-fam .fam{ font-variant:all-small-caps; letter-spacing:.11em; font-weight:700; opacity:.5;
+  margin-right:.15rem; }
+.prdl-fam a{ color:color-mix(in oklch, var(--masthead-ink) 66%, transparent); text-decoration:none;
+  white-space:nowrap; transition:color var(--dur-fast) var(--ease); }
+.prdl-fam a:hover{ color:var(--masthead-ink); }
+.prdl-fam a[aria-current="page"]{ color:color-mix(in oklch, var(--accent) 78%, white);
+  font-weight:700; cursor:default; }
+@media (max-width:620px){ .prdl-fam{ flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
+  .prdl-fam::-webkit-scrollbar{ display:none; } }
+
+@media (prefers-reduced-motion:reduce){
+  .auth-x, .auth-btn{ transition:none }
+}
+
+/* ── loading states shimmer softly instead of sitting flat (body-prefixed so it wins
+      over each page's plain .loading/.sbusy colour without !important) ── */
+@media (prefers-reduced-motion: no-preference){
+  body .sbusy, body .loading, body .nav-loading{
+    background:linear-gradient(90deg, var(--muted) 38%, var(--accent) 50%, var(--muted) 62%);
+    background-size:220% 100%; -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    animation:prdl-shimmer 2.4s linear infinite;
+  }
+  @keyframes prdl-shimmer{ from{background-position:130% 0} to{background-position:-130% 0} }
+}
+
+/* ── entrance reveal (classes set by prdl-reveal.js via IntersectionObserver; transform/opacity
+      only, strong ease-out, hidden state exists ONLY when motion is welcome) ── */
+@media (prefers-reduced-motion: no-preference){
+  .rv{ opacity:0; transform:translateY(13px) }
+  .rv.rv-in{ opacity:1; transform:none;
+    transition:opacity .55s var(--ease-out), transform .55s var(--ease-out);
+    transition-delay:var(--rv-d, 0ms); }
+}

@@ -105,7 +105,11 @@
   // (see assets/js/faith-corpora.js's own BLOB/LIBRARY constant) —
   // each file defines its own copy of this base URL rather than
   // sharing a global, matching that existing convention.
-  const WORKER = "https://mo-tfr-library.mo-podcast-feed.workers.dev";
+  // ASK-PORT (owner 2026-09-10, port phase on our fork — not for PR yet):
+  // the ported Ask — full deep-research brain (gate, GraphRAG route,
+  // research loop, evidence miner, commentary bench, Investigations) —
+  // lives on the staging worker until it folds into mo-tfr-library.
+  const WORKER = "https://mo-tfr-ask-dev.mo-podcast-feed.workers.dev";
   const ASK_URL = `${WORKER}/v1/ask`;
   const USAGE_URL = `${WORKER}/v1/ask/usage`;
 

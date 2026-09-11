@@ -1,0 +1,217 @@
+/* Shared reading edition: paper, soft graphite, editorial type. Source files only.
+   The owner's September 6 direction replaces the mixed warm and colored chrome.
+   Existing accessibility font, size, lane, and explicit sepia choices remain available. */
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+:root,:root[data-site]{--bg:#F0F0ED;--bg-warm:#F0F0ED;--card:#FFFFFF;--card-bg:#FFFFFF;--panel:#FFFFFF;--paper:#FFFFFF;--sidebar:#F0F0ED;--sidebar-bg:#F0F0ED;--fg:#1C1C1A;--head:#1C1C1A;--ink:#1C1C1A;--accent:#1C1C1A;--accent2:#484845;--muted:#5A5A56;--border:#D8D8D3;--line:#D8D8D3;--hl:#E7E7E2;--highlight:#E7E7E2;--rule-soft:#E7E7E3;--accent-soft:#AAAAA4;--latin:#1C1C1A;--english:#1C1C1A;--masthead:#FFFFFF;--masthead-ink:#1C1C1A;--facs-mat:#EEEEEA;--font-display:'EB Garamond',Georgia,serif;--font-ui:'Source Serif Pro',Georgia,serif;--serif:'Source Serif Pro',Georgia,serif}
+:root{--font-body:'Source Serif Pro',Georgia,serif;--reading-lh:1.78}
+/* Explicit spacing choices win over the light/dark defaults and classic type layer. */
+html:root[data-lh="compact"]{--reading-lh:1.45}
+html:root[data-lh="relaxed"]{--reading-lh:1.85}
+/* Confessions use stacked text cells rather than paired rows; both obey spacing. */
+html[data-lh] .app #reading :is(.row:not(.rapp)>.en,.row:not(.rapp)>.la,.stk>.en,.stk>.la,.zipcol>.en,.zipcol>.la){line-height:var(--reading-lh)}
+.fr-no-personal-translation :is(#spTr,[data-reader-action="translate"],.nb-mytr,#reading .trpencil,#reading .rowx.tr){display:none!important}
+.fr-no-personal-translation #reading .en.mytr::after{content:none!important}
+.app.source-en #m-par,.app.source-en .la-rev{display:none!important}
+@media screen and (max-width:880px){
+ html.g-mobile .app #reading{box-sizing:border-box;width:100%;max-width:100%!important;margin-inline:0;padding-inline:12px!important}
+}
+/* Owner-approved September 7 direction: stone/graphite, brown apparatus details,
+   and the established shelf identities. Paragraph ink and primary actions stay neutral. */
+:root{--detail:#775B43;--detail-rule:#C6B7A7;--shelf-latin:#A8462B;--shelf-greek:#3E5F8A;--shelf-eastern:#7A6025;--shelf-english:#3F6B4E;--shelf-medieval:#5B4E7A;--shelf-catholic:#8E2F39;--shelf-reformed:#4A6178;--shelf-lutheran:#2F6F62;--shelf-humanism:#6E5A3A;--shelfc:var(--detail)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){--detail:#C7AD90;--detail-rule:#62564A;--shelf-latin:#D09A7E;--shelf-greek:#9FB5D3;--shelf-eastern:#C7AD78;--shelf-english:#A4B7A4;--shelf-medieval:#B9ACCA;--shelf-catholic:#C9A0A5;--shelf-reformed:#A5B7C6;--shelf-lutheran:#97B8AE;--shelf-humanism:#BEAE91}}
+:root[data-theme="dark"]{--detail:#C7AD90;--detail-rule:#62564A;--shelf-latin:#D09A7E;--shelf-greek:#9FB5D3;--shelf-eastern:#C7AD78;--shelf-english:#A4B7A4;--shelf-medieval:#B9ACCA;--shelf-catholic:#C9A0A5;--shelf-reformed:#A5B7C6;--shelf-lutheran:#97B8AE;--shelf-humanism:#BEAE91}
+[data-shelf="Latin Fathers"]{--shelfc:var(--shelf-latin)}[data-shelf="Greek Fathers"]{--shelfc:var(--shelf-greek)}[data-shelf="Eastern Fathers"]{--shelfc:var(--shelf-eastern)}[data-shelf="English Divines"]{--shelfc:var(--shelf-english)}[data-shelf="Medieval"]{--shelfc:var(--shelf-medieval)}[data-shelf="Roman Catholic"]{--shelfc:var(--shelf-catholic)}[data-shelf="Reformed"],[data-shelf="Continental Reformed"]{--shelfc:var(--shelf-reformed)}[data-shelf="Lutheran"]{--shelfc:var(--shelf-lutheran)}[data-shelf="Humanism and Law"]{--shelfc:var(--shelf-humanism)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]),:root[data-site]:not([data-theme="light"]):not([data-theme="sepia"]){--bg:#222320;--bg-warm:#272824;--card:#2B2C29;--card-bg:#2B2C29;--panel:#2B2C29;--paper:#2B2C29;--sidebar:#242521;--sidebar-bg:#242521;--fg:#E9E9E5;--head:#E9E9E5;--ink:#E9E9E5;--accent:#E9E9E5;--accent2:#D2D3CB;--muted:#B0B0A8;--border:#454740;--line:#454740;--hl:#373932;--highlight:#373932;--rule-soft:#3A3C35;--accent-soft:#868A7E;--latin:#E9E9E5;--english:#E9E9E5;--masthead:#2B2C29;--masthead-ink:#E9E9E5;--facs-mat:#1C1D1B}}
+:root[data-theme="dark"],:root[data-site][data-theme="dark"]{--bg:#222320;--bg-warm:#272824;--card:#2B2C29;--card-bg:#2B2C29;--panel:#2B2C29;--paper:#2B2C29;--sidebar:#242521;--sidebar-bg:#242521;--fg:#E9E9E5;--head:#E9E9E5;--ink:#E9E9E5;--accent:#E9E9E5;--accent2:#D2D3CB;--muted:#B0B0A8;--border:#454740;--line:#454740;--hl:#373932;--highlight:#373932;--rule-soft:#3A3C35;--accent-soft:#868A7E;--latin:#E9E9E5;--english:#E9E9E5;--masthead:#2B2C29;--masthead-ink:#E9E9E5;--facs-mat:#1C1D1B}
+:root[data-theme="sepia"],:root[data-site][data-theme="sepia"]{--bg:#EEE7D9;--card:#FAF6EC;--card-bg:#FAF6EC;--panel:#FAF6EC;--paper:#FAF6EC;--sidebar:#EEE7D9;--sidebar-bg:#EEE7D9;--fg:#302C24;--head:#302C24;--ink:#302C24;--accent:#302C24;--accent2:#514A3D;--muted:#6D6557;--border:#D8D0C1;--line:#D8D0C1;--hl:#E7DFCF;--highlight:#E7DFCF;--rule-soft:#E2DACB;--latin:#302C24;--english:#302C24;--masthead:#FAF6EC;--masthead-ink:#302C24}
+body{ -webkit-font-smoothing:antialiased }
+body::after{display:none!important}
+:where(button,input,textarea,select){font-family:var(--font-ui)}
+:where(button,a,input,textarea,select,summary):focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+/* Clear, quiet search furniture. The text and links carry the hierarchy. */
+#main #hint{font-family:var(--font-ui);font-size:14px;line-height:1.65;color:var(--muted)}
+#main .sd-d,#main .sdoor{font-style:normal}
+#main .sd-d{font-size:14px;line-height:1.55}
+#main .smodes button{letter-spacing:.04em;min-height:44px}
+#main .sstart-grid button{border-radius:6px;box-shadow:none}
+#main .tr-chip,#main .tr-scope button{color:var(--fg);border-color:var(--border)}
+/* Keep existing reader pairing and user's lane controls untouched. */
+html:not(.fr-plain) .app #reading{box-shadow:none;border-color:var(--rule-soft)}
+html:not(.fr-plain) .app.only-en #reading .row .en,html:not(.fr-plain) .app.only-la #reading .row .la{line-height:var(--reading-lh);color:var(--fg)}
+html:not(.fr-plain) .app.only-en #reading .row .en p,html:not(.fr-plain) .app.only-la #reading .row .la p{margin:.3rem 0 .65rem}
+.nav-node:hover,.fol:hover{background:var(--highlight)}
+@media(max-width:640px){#main .smodes{gap:8px;flex-wrap:wrap}#main .smodes button{font-size:12px}.ph button,.thumbbar button{touch-action:manipulation}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}body *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/* Reader find stays in the reading column; no overlay or corpus request. */
+#findbar{position:sticky;top:0;left:auto;bottom:auto;transform:none;z-index:120;display:grid;grid-template-columns:minmax(100px,1fr) repeat(3,40px);gap:2px 6px;width:min(100%,850px);max-width:100%;box-sizing:border-box;margin:0 auto;padding:10px 18px 8px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:var(--card);color:var(--fg);box-shadow:none;transition:none;font:14px/1.4 var(--font-ui)}
+#findbar[hidden],#findbar:not(.on){display:none}
+#findbar input{width:100%;min-width:0;box-sizing:border-box;padding:7px 9px;border:1px solid var(--border);border-radius:5px;background:var(--bg);color:var(--fg);font:16px/1.4 var(--font-ui)}
+#findbar input::placeholder{color:var(--muted)}
+#findbar button{width:40px;height:40px;border-radius:5px;background:transparent;color:var(--fg);font-size:20px}
+#findbar button:hover{background:var(--hl)}
+#findbar button:disabled{opacity:.35;cursor:default}
+#findbar .findmeta{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;padding:2px 2px 0;color:var(--muted);font-size:12px;line-height:1.5}
+#reading mark.findhit{background:var(--hl);color:var(--fg);box-shadow:0 1px 0 var(--muted);border-radius:1px}
+#reading mark.findhit.cur{background:var(--fg);color:var(--card);box-shadow:0 0 0 2px var(--fg)}
+@media(max-width:640px){#findbar{grid-template-columns:minmax(80px,1fr) repeat(3,44px);gap:2px 3px;padding:8px 10px 6px}#findbar button{width:44px;height:44px}}
+.search-recovery{padding:18px 0;color:var(--muted);font-size:15px;line-height:1.6}
+.search-recovery p{margin:0 0 12px}
+.search-recovery button{min-height:44px;margin:0 8px 8px 0;padding:8px 14px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:14px var(--font-ui);cursor:pointer}
+.search-recovery button:hover{background:var(--fg);color:var(--card)}
+#heroQ{box-sizing:border-box;min-height:56px;padding:14px 62px 14px 18px;font:17px/1.5 var(--font-ui);border:1px solid var(--border);border-radius:12px;background:var(--card);box-shadow:none}
+#heroAsk{width:40px;height:40px;padding:0;border:0;border-radius:50%;right:8px;background:var(--fg);color:var(--card);font:23px/1 var(--font-ui)}
+/* Four plain search destinations; phrase/concept choice belongs to Passages. */
+#main .smodes{gap:24px;overflow:visible;flex-wrap:wrap}
+#main .smodes button{font:15px/1.3 var(--font-ui);letter-spacing:0;text-transform:none;white-space:nowrap;min-height:44px}
+#main .smodes-wrap::before,#main .smodes-wrap::after{display:none!important}
+.passage-method{display:flex;gap:8px;margin:4px 0 14px}
+.passage-method[hidden]{display:none}
+.passage-method button{min-height:40px;padding:7px 13px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);font:14px/1.4 var(--font-ui);cursor:pointer}
+.passage-method button[aria-pressed="true"]{background:var(--fg);color:var(--card);border-color:var(--fg)}
+.search-query{position:relative;margin:8px 0}
+#main .search-query #q{box-sizing:border-box;min-height:52px;margin:0;padding:12px 92px 12px 15px;font:17px/1.5 var(--font-ui);border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--fg)}
+#runSearch{position:absolute;right:6px;top:6px;min-height:40px;padding:8px 14px;border:0;border-radius:5px;background:var(--fg);color:var(--card);font:14px/1.4 var(--font-ui);cursor:pointer}
+@media(max-width:640px){#main .smodes{gap:22px;flex-wrap:nowrap}#main .smodes button{font-size:14px}#main .search-query #q{font-size:16px}#main .sdoors{grid-template-columns:1fr}}
+/* Desk, reader highlights, and notebook share the same paper and neutral black scale. */
+:root{--mark-amber:#F0E9D9;--mark-sage:#E6EBE2;--mark-slate:#E5E9EC}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){--mark-amber:#353026;--mark-sage:#293129;--mark-slate:#293037}}
+:root[data-theme="dark"]{--mark-amber:#353026;--mark-sage:#293129;--mark-slate:#293037}
+#reading .row[data-hl="amber"],.rl-item[data-highlight="amber"] .tx{background:var(--mark-amber)}
+#reading .row[data-hl="sage"],.rl-item[data-highlight="sage"] .tx{background:var(--mark-sage)}
+#reading .row[data-hl="slate"],.rl-item[data-highlight="slate"] .tx{background:var(--mark-slate)}
+#reading .row[data-hl]{color:var(--fg)}
+.nb-desk-link{padding:12px 4px;border-bottom:1px solid var(--border);font:14px/1.6 var(--font-ui)}
+.nb-desk-link a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+body:has(#ed) header{gap:10px}
+#deskTheme{display:flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;border-radius:50%;padding:8px}
+#dTitle{font-family:var(--font-ui)}
+#ed{font-family:var(--font-body);font-size:18px;line-height:1.78;box-shadow:none}
+#ed h2,#ed h3{font-family:var(--font-display)}
+#ed blockquote{border-radius:3px;border-left:2px solid var(--muted);padding:12px 18px;background:var(--highlight)}
+#deskSaveState{max-width:46rem;width:100%;padding:12px 0;color:var(--muted);font:12px/1.5 var(--font-ui)}
+#toolbar{flex-wrap:wrap;max-width:100%;box-shadow:none;border-radius:6px}
+#toolbar button{min-width:36px;min-height:40px}
+#newDoc{min-height:44px;border-style:solid;border-radius:6px}
+.desk-export{border-top:1px solid var(--line);padding-top:18px;margin-top:24px;display:flex;flex-direction:column;gap:8px}
+.desk-export .hbtn{min-height:40px;text-align:left;border-radius:5px}
+.desk-rail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.desk-rail-head .ds-h{margin:0;font-size:12px;text-transform:none;letter-spacing:0}
+.desk-rail-head .hbtn{min-height:40px}
+.desk-rail-close{display:none}
+.desk-research-links{display:flex;gap:18px;margin:4px 0 18px;font:13px/1.5 var(--font-ui)}
+.desk-research-links a,.rl-actions a,.rl-open{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+#rail .rl-tabs{gap:0;border-bottom:1px solid var(--line);margin-bottom:16px}
+#rail .rl-tabs button{border:0;border-radius:0;min-height:44px;background:transparent;font:13px/1.3 var(--font-ui);padding:8px 5px;white-space:nowrap}
+#rail .rl-tabs button.on{box-shadow:inset 0 -2px var(--fg);color:var(--fg)}
+.desk-collection-label{display:block;font:12px/1.4 var(--font-ui);color:var(--muted);margin:0 0 5px}
+#deskCollection{width:100%;min-height:40px;padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--fg);font:14px var(--font-ui)}
+#deskCollection[hidden],.desk-collection-label[hidden]{display:none}
+#rail .rl-item{font:15px/1.65 var(--font-ui);padding:16px 0}
+#rail .rl-item .cite{font-size:12px;line-height:1.55;margin-bottom:5px;overflow-wrap:anywhere}
+#rail .rl-item .tx{max-height:6.5em;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere}
+#rail .rl-item[data-highlight] .tx{padding:8px;border-radius:3px;color:var(--fg)}
+.rl-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+#rail .rl-ins,.rl-open{font:12px/1.4 var(--font-ui);min-height:36px;cursor:pointer}
+.rl-actions a{font-size:12px}.rl-open{background:none;border:0;padding:0}
+@media(max-width:940px){.desk-rail-close{display:block}body:has(#ed) header{gap:6px}#docsTog,#railTog{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}#rail{width:min(94vw,360px)}#ed{font-size:17px}.rl-actions .rl-ins,.rl-actions .rl-open{min-height:44px}}
+#main .sstart .sdoors{grid-template-columns:repeat(2,minmax(0,1fr))}
+#ed{flex:0 0 auto}#deskSaveState{flex:none}
+body:has(#rail.open) #fra-launcher,body:has(#docs.open) #fra-launcher{display:none}
+@media(max-width:640px){#main .sstart .sdoors{grid-template-columns:1fr}}
+#deskScrim{position:fixed;inset:0;z-index:35;border:0;background:rgba(0,0,0,.18);padding:0;width:100%;height:100%}
+#deskScrim[hidden]{display:none}
+
+/* Soft graphite for long academic reading; explicit and system themes agree. */
+:root{color-scheme:light;--control-border:var(--border)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){color-scheme:dark;--control-border:#7D8075}}
+:root[data-theme="dark"]{color-scheme:dark;--control-border:#7D8075}
+::selection{background:var(--fg);color:var(--bg)}
+#ed{caret-color:var(--fg)}
+#ed a{text-decoration:underline;text-underline-offset:3px}
+#main .search-query #q,#scopeToggle,.passage-method button,#deskCollection,#newDoc,#findbar input{border-color:var(--control-border)}
+#toolbar button:hover,.hbtn:hover,#toolbar button:focus-visible{background:var(--highlight);color:var(--fg)}
+/* Brown marks the apparatus: location, citation, active section, and binding rules. */
+html body.fr-library .top,html body.research-enhanced header.site,html body.web-page header.site,html:not(.fr-plain) .ph.fr-reader-head{border-bottom-color:var(--detail-rule)}
+body.fr-library .top .seg button[aria-pressed="true"],html body.web-page header.site nav a.on{box-shadow:inset 0 -1px var(--detail)}
+body.fr-library .home-modes button[aria-pressed="true"],body #notebook .nb-tabs button[aria-selected="true"],body #rail .rl-tabs button.on,body.research-enhanced .research .pseg button.on{border-bottom-color:var(--detail)}
+body #rail .rl-tabs button.on{box-shadow:inset 0 -2px var(--detail)}
+html:not(.fr-plain) .fr-reader-head #reader-location,body #notebook .nb-cite,body #notebook .nb-context-label,body #rail .rl-item .cite{color:var(--detail)}
+body.research-enhanced .rx-source .rx-text-link,body .desk-research-links a{color:var(--detail)}
+body #main .smodes button.active{border-bottom-color:var(--detail)}
+body #main .sr .sr-cite{color:var(--detail)}
+body #notebook .nb-head,body #notebook .nb-destinations,body #rail .rl-tabs,body .home-paths,body .home-modes{border-color:var(--detail-rule)}
+
+/* Consistent, visible mobile route to the library landing page. */
+.fr-home-link .fr-home-wide{display:inline!important;font:inherit!important;color:inherit!important;letter-spacing:inherit!important}
+.fr-home-link>.fr-home-wide,.fr-home-link>.fr-home-compact{padding:0!important;border:0!important}.desk-home .fr-home-wide{display:inline!important}.fr-home-link .fr-home-compact{display:none}.desk-panel-home{display:none}
+.search-site-nav{display:flex;align-items:center;gap:14px;margin:1rem 0}
+.fr-home-link:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+@media(max-width:940px){body .desk-panel-home{display:inline-flex;align-items:center;gap:4px;min-height:48px;color:var(--fg);text-decoration:none;font:14px/1.3 var(--font-body,'Source Serif Pro',Georgia,serif)}}
+@media(max-width:640px){
+ body a.fr-home-link[data-fr-home]{display:inline-flex!important;align-items:center;flex:none;min-width:48px;min-height:48px;color:inherit;text-decoration:none;white-space:nowrap}
+ body .fr-home-link .fr-home-wide{display:none!important}
+ body .fr-home-link .fr-home-compact{display:inline-flex!important;align-items:center;gap:4px;color:inherit;font:14px/1.3 var(--font-body,'Source Serif Pro',Georgia,serif)}
+ .fr-home-compact svg{flex:none}
+ body:has(#dTitle)>header{padding:4px 8px;gap:4px}
+ body:has(#dTitle)>header .hbtn{box-sizing:border-box;flex:0 0 44px;width:44px;height:48px;padding:8px}
+ body:has(#dTitle)>header #dTitle{min-width:64px;min-height:48px;padding:4px;flex:1 1 0}
+ body:has(#dTitle)>header .desk-home{order:-1}
+ body>.top:has(>.fr-home-link){position:sticky;top:0;z-index:60;align-items:center;gap:8px;padding:4px 12px}
+ body>.top>.fr-home-link{order:-1;margin-left:0;padding:0;border:0;background:none;opacity:1}
+ body>.top:has(>.fr-home-link)>.wm{flex:1;min-width:0;font-size:16px;line-height:1.3}
+ body>.top:has(>.fr-home-link)>.sub{display:none}
+ .search-site-nav{position:sticky;top:0;z-index:55;background:var(--bg);border-bottom:1px solid var(--border);margin:0 0 12px;padding:0;min-height:48px;gap:12px;font-size:14px}
+}
+
+/* Reading stays primary when tools share a smaller window. */
+@media(min-width:941px) and (max-width:1160px){
+ body:not(.desk-source-open):has(#ed) #edwrap{padding:24px 24px 64px}
+ body:not(.desk-source-open):has(#ed) #ed{font-size:18px;padding:40px 52px 56px}
+}
+@media(min-width:900px){
+ html body.research-enhanced header.site{padding-inline:max(32px,calc((100vw - 1180px)/2 + 32px))}
+ body.research-enhanced main#page .research-intro:has(>.rx-intro-detail){display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);align-items:start;gap:40px;margin-bottom:28px}
+ body.research-enhanced .research-intro .rx-intro-detail>#author-order-note{font-size:13px;line-height:1.55;margin-top:8px}
+}
+/* Ask already names the source above its frame. Keep one compact reader toolbar. */
+@media(max-width:800px){
+ html.fr-ask-source:not(.fr-plain) #app .ph.fr-reader-head{min-height:44px;padding:0 8px;gap:8px}
+ html.fr-ask-source:not(.fr-plain) #app .fr-reader-head .mh-home{display:none!important}
+ html.fr-ask-source:not(.fr-plain) #app .fr-reader-head .reader-identity h1{position:absolute!important;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ html.fr-ask-source:not(.fr-plain) #app .fr-reader-head .reader-reference{margin:0;min-height:44px;font-size:12px;flex-wrap:nowrap}
+ html.fr-ask-source:not(.fr-plain) #app .fr-reader-head #reader-author{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ html.fr-ask-source:not(.fr-plain) #app .fr-reader-head #reader-location{min-height:44px}
+}
+#notebook .nb-head button{min-width:44px;min-height:44px}
+.fr-library .home-recent button,.fr-library .home-examples button{min-height:44px}
+
+@media(min-width:941px) and (max-width:1160px){
+ #docs .desk-panel-home{display:inline-flex;align-items:center;gap:4px;min-height:44px;color:var(--fg);text-decoration:none;font:14px/1.3 var(--font-body)}
+ #docs .desk-rail-close{display:inline-flex}
+}
+/* Author refinement stays inside its opened result; suggestions never replace the query. */
+.home-author-filter{display:flex;flex-wrap:wrap;align-items:end;gap:8px 12px;padding:12px 0 16px;border-bottom:1px solid var(--border)}
+.home-author-filter label{display:flex;flex-direction:column;gap:6px;flex:1 1 240px;max-width:460px;font:13px/1.5 var(--font-ui);color:var(--muted)}
+.home-author-filter input{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:9px 12px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--fg);font:16px/1.4 var(--font-ui)}
+.home-author-filter input::placeholder{color:var(--muted)}
+.home-author-filter button,.home-query-suggestions button,.home-author-shortcut button{min-height:44px;padding:8px 0;border:0;background:none;color:var(--fg);font:14px/1.5 var(--font-ui);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.home-author-count{flex-basis:100%;margin:0;font:12px/1.5 var(--font-ui);color:var(--muted)}
+.home-author-empty{font:14px/1.6 var(--font-ui);color:var(--muted);padding:16px 0}
+.home-author-shortcut,.home-query-suggestions{display:flex;align-items:center;flex-wrap:wrap;gap:4px 16px;margin:12px 0 20px;padding:8px 0;border-bottom:1px solid var(--border)}
+.home-author-shortcut>span,.home-query-suggestions>span{font:12px/1.5 var(--font-ui);color:var(--muted)}
+.home-author-shortcut>small{font:12px/1.5 var(--font-ui);color:var(--muted)}
+@media(max-width:640px){.home-author-filter{gap:4px 12px}.home-author-filter label{flex-basis:190px}.home-author-shortcut>span{flex-basis:100%}.home-author-shortcut{gap:0 12px}.home-author-shortcut>small{font-size:11px}.home-query-suggestions{display:block}.home-query-suggestions>span{display:block}.home-query-suggestions button{display:block;text-align:left}}
+
+/* Source previews keep one parent Back control; full reader tools remain available via Open reader. */
+@media(max-width:800px){
+ html.fr-ask-source .frthumb{display:none!important}
+ html.fr-ask-source #scroll{padding-bottom:0!important}
+ html.fr-ask-source #selpop{bottom:max(10px,env(safe-area-inset-bottom))}
+}
+
+/* Phone reading uses the toolbar's location. Hide only generated boundary
+   labels; inline milestones keep geometry for navigation and saved places. */
+@media screen and (max-width:880px){
+ #reading .fmark>.ff,#reading .fmark>.fm{display:none!important}
+ #reading .pganchor[data-page]{display:inline-block!important;width:1px!important;min-width:0!important;max-width:1px!important;height:1px!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;font-size:0!important;line-height:0!important;overflow:hidden!important;clip-path:inset(50%);opacity:0!important;pointer-events:none!important;vertical-align:baseline}
+}
