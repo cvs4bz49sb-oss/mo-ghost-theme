@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-11T04:46:58.026Z",
+  "generated_at": "2026-09-11T11:28:26.774Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 70455,
+      "plays": 70527,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -254,7 +254,7 @@
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3449
+          "plays": 3450
         },
         {
           "date": "2026-07-08",
@@ -269,7 +269,7 @@
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3404
+          "plays": 3405
         },
         {
           "date": "2026-07-29",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3329
+          "plays": 3331
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3699
+          "plays": 3703
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3544
+          "plays": 3554
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3310
+          "plays": 3318
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 2308
+          "plays": 2352
         }
       ],
       "per_episode": [
@@ -625,7 +625,7 @@
         },
         {
           "month": "2022-11",
-          "avg": 16,
+          "avg": 17,
           "episodes": 3
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3389,
+          "avg": 3393,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 2809,
+          "avg": 2835,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 18806,
+      "plays": 18828,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -913,7 +913,7 @@
         {
           "date": "2025-10-16",
           "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
-          "plays": 178
+          "plays": 179
         },
         {
           "date": "2025-10-23",
@@ -973,7 +973,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 169
+          "plays": 170
         },
         {
           "date": "2026-04-02",
@@ -1023,7 +1023,7 @@
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 931
+          "plays": 932
         },
         {
           "date": "2026-06-11",
@@ -1068,7 +1068,7 @@
         {
           "date": "2026-08-06",
           "title": "Nolan's Odyssey and Epics with Jonathan Geltner, Eric Hutchinson, and Rob Wyllie",
-          "plays": 956
+          "plays": 958
         },
         {
           "date": "2026-08-13",
@@ -1093,7 +1093,7 @@
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 423
+          "plays": 440
         }
       ],
       "per_episode": [
@@ -1159,12 +1159,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 833,
+          "avg": 834,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 605,
+          "avg": 613,
           "episodes": 2
         }
       ]
