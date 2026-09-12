@@ -83,6 +83,14 @@
   <div class="ask-workspace-inner">
 
     <div class="ask-thread">
+      <details class="ask-history" data-ask-history>
+        <summary>Saved questions</summary>
+        <p>Questions and answers are saved in this browser. Sources open in a new tab.</p>
+        <label>Find a saved question<input type="search" data-ask-history-search placeholder="Search saved questions" /></label>
+        <ol data-ask-history-list></ol>
+      </details>
+      <p class="ask-save-state" data-ask-save-state role="status">Questions are saved in this browser when you ask.</p>
+
 
       {{!-- Empty state. Hidden by CSS (a :has() rule on .ask-thread) the
             moment a status line, an answer, or an error appears, so it

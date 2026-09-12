@@ -16428,3 +16428,12 @@ body[data-member-status] [data-tfr-gate="signed-out"] { display: none !important
   .ask-actions { flex-wrap: wrap; }
   .ask-action + .ask-action { border-left: 1px solid var(--color-card-border); }
 }
+
+/* Browser-local Ask recovery, shared across standalone, Search and Research. */
+.ask-history{margin:0 0 1rem;border-block:1px solid var(--border, #d8d8d3);padding:.5rem 0}
+.ask-history>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600}
+.ask-history label{display:flex;flex-direction:column;gap:.4rem}.ask-history input{font:inherit;font-size:16px;padding:.6rem;min-height:44px}
+.ask-history ol{max-height:20rem;overflow:auto;overscroll-behavior:contain;list-style:none;margin:.7rem 0;padding:0}
+.ask-history li>button{display:block;width:100%;text-align:left;min-height:44px;padding:.6rem .3rem;background:none;color:inherit;border:0;border-bottom:1px solid var(--border, #d8d8d3);font:inherit;cursor:pointer}
+.ask-history :is(button,input,summary):focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.ask-save-state{font-size:.85rem;line-height:1.5;margin:0 0 1rem}

@@ -222,6 +222,7 @@
     let out = html;
     workLinks.forEach((w) => {
       if (!w || !w.title || !w.url) return;
+      try { if (!/^https?:$/.test(new URL(w.url, location.origin).protocol)) return; } catch (_) { return; }
       // The haystack is already escaped, so the needle must be too.
       const needle = escapeHtml(w.title);
       const re = new RegExp(reEscape(needle), "");
@@ -233,7 +234,7 @@
       const closeTags = (before.match(/<\/a>/g) || []).length;
       if (openTags > closeTags) return; // already inside a link
       if (/<[^>]*$/.test(before)) return; // mid-tag
-      out = out.replace(re, `<a class="ask-work-link" href="${w.url}">${needle}</a>`);
+      out = out.replace(re, `<a class="ask-work-link" href="${escapeHtml(w.url)}" target="_blank" rel="noopener noreferrer">${needle}</a>`);
     });
     return out;
   }
@@ -597,7 +598,7 @@
       .catch(() => { /* meter is a nice-to-have -- a failed fetch just leaves it hidden */ });
   }
 
-  async function streamAsk(question) {
+  async function streamAsk(question, savedId) {
     let resp;
     // Only send a scope key when the reader actually set one. The
     // worker treats an empty `traditions` array the same as an absent
@@ -690,6 +691,8 @@
           setStatus(obj.message || "");
         } else if (obj.type === "result") {
           gotResult = true;
+          try { await questionHistory.complete(savedId, obj); questionHistory.message("Saved in this browser. Open Saved questions to return later."); await questionHistory.refresh(); }
+          catch (_) { questionHistory.message("This answer could not be saved. Copy it before leaving this page."); }
           setStatus("");
           if (errorEl) errorEl.hidden = true;
           headingEl.textContent = obj.question || question;
@@ -722,7 +725,33 @@
     loadUsage();
   }
 
-  form.addEventListener("submit", (e) => {
+  let questionHistory;
+  try { questionHistory = window.MOFaithAskHistory.mount({
+    store: window.FRChatStore,
+    isBusy: () => !!submitBtn.disabled,
+    canAutoRestore: () => !input.value.trim(),
+    onRestore({ record, result, status, error }) {
+      input.value = result.question || record.t || "";
+      const scope = record.mereoScope || { traditions: record.scope?.shelves || [], author: "" };
+      scopeTraditionEls.forEach(el => { el.checked = (scope.traditions || []).includes(el.value); });
+      if (scopeAuthorEl) scopeAuthorEl.value = scope.author || "";
+      renderScopeState(); setStatus("");
+      if (errorEl) errorEl.hidden = true;
+      headingEl.textContent = result.question || record.t;
+      renderAnswer(result.answer || "", result.citations || [], result.works || []);
+      renderFootnotes(result.citations || []); renderGaps(result.gaps || []);
+      lastAnswer = result;
+      if (actionsEl) actionsEl.hidden = !result.answer;
+      resultEl.hidden = false;
+      questionHistory.message(status === "complete" ? "Saved in this browser. Sources open in a new tab." : error || "This question is saved; its answer may still be running in another tab or may have been interrupted. You can retry it.");
+    },
+  }); } catch (_) {
+    if (submitBtn) submitBtn.disabled = true;
+    showError("Question storage could not load. Reload before asking.");
+    return;
+  }
+
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const question = (input.value || "").trim();
     if (!question) { input.focus(); return; }
@@ -732,9 +761,19 @@
     if (submitBtn) submitBtn.disabled = true;
     setStatus("Reading the question…");
 
-    streamAsk(question).finally(() => {
+    let savedId;
+    try {
+      savedId = await questionHistory.begin(question, currentScope());
+      await questionHistory.refresh();
+      questionHistory.message("Question saved in this browser.");
+      await streamAsk(question, savedId);
+    } catch (_) {
+      showError("Your question could not be saved. Enable browser storage and reload before asking.");
+    } finally {
+      if (savedId) await questionHistory.fail(savedId, errorEl?.textContent).catch(() => {});
       if (submitBtn) submitBtn.disabled = false;
-    });
+      await questionHistory.refresh().catch(() => {});
+    }
   });
 
   // Enter (without Shift) submits, same as a single-line search box —
