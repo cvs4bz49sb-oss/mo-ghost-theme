@@ -1,0 +1,241 @@
+{
+ "generated": "2026-09-11",
+ "source": "v1/works-index.json (mo-tfr R2 / Blob)",
+ "total_works": 19448,
+ "shelves": [
+  {
+   "tradition": "Latin Fathers",
+   "slug": "latin-fathers",
+   "works": 8967,
+   "authors": 2013,
+   "facsimiles": 0,
+   "leading_authors": [
+    "Johann Albert Fabricius",
+    "Augustine of Hippo",
+    "Jerome",
+    "Denis de Sainte-Marthe",
+    "Jean Mabillon",
+    "Walafrid Strabo"
+   ],
+   "description": "Migne’s Patrologia Latina: the Latin fathers and their medieval heirs, Tertullian to Innocent III.",
+   "library_url": "/the-faith-received/library/?shelf=Latin%20Fathers",
+   "room_url": "/the-faith-received/latin-fathers/?shelf=latin-fathers",
+   "leaf": null,
+   "slug_prefixes": [
+    "pld"
+   ]
+  },
+  {
+   "tradition": "Greek Fathers",
+   "slug": "greek-fathers",
+   "works": 3822,
+   "authors": 499,
+   "facsimiles": 0,
+   "leading_authors": [
+    "John Chrysostom",
+    "Origen",
+    "Athanasius of Alexandria",
+    "Basil the Great",
+    "Eusebius of Caesarea",
+    "Gregory of Nyssa"
+   ],
+   "description": "Migne’s Patrologia Graeca: the Greek fathers, the Apostolic Fathers to the fall of Constantinople.",
+   "library_url": "/the-faith-received/library/?shelf=Greek%20Fathers",
+   "room_url": "/the-faith-received/greek-fathers/?shelf=greek-fathers",
+   "leaf": null,
+   "slug_prefixes": [
+    "pg"
+   ]
+  },
+  {
+   "tradition": "English Divines",
+   "slug": "english-divines",
+   "works": 4636,
+   "authors": 294,
+   "facsimiles": 11,
+   "leading_authors": [
+    "William Prynne",
+    "Richard Baxter",
+    "Joseph Hall",
+    "Gilbert Burnet",
+    "John Owen",
+    "Edward Stillingfleet"
+   ],
+   "description": "The English Reformation and its Puritan and Anglican divines, Tyndale to the Restoration.",
+   "library_url": "/the-faith-received/library/?shelf=English%20Divines",
+   "room_url": "/the-faith-received/english-divines/?shelf=english-divines",
+   "leaf": "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/robert-baron-of-st-andrews-disputatio-de-formali-objecto-fidei/p/8.webp",
+   "slug_prefixes": [
+    "eebo",
+    "watson",
+    "joseph",
+    "dury"
+   ]
+  },
+  {
+   "tradition": "Eastern Fathers",
+   "slug": "eastern-fathers",
+   "works": 400,
+   "authors": 120,
+   "facsimiles": 0,
+   "leading_authors": [
+    "Jacques d'Édesse, traductions syriaques",
+    "Marc d'Éphèse",
+    "Gregory Abulfaraj Bar-Hebraeus",
+    "Le Synaxaire éthiopien",
+    "Homélies mariales byzantines",
+    "Ter Israel"
+   ],
+   "description": "Patrologia Orientalis: the Christian East in Syriac, Coptic, Armenian, Ethiopic and Arabic.",
+   "library_url": "/the-faith-received/library/?shelf=Eastern%20Fathers",
+   "room_url": "/the-faith-received/eastern-fathers/?shelf=eastern-fathers",
+   "leaf": null,
+   "slug_prefixes": [
+    "po"
+   ]
+  },
+  {
+   "tradition": "Medieval",
+   "slug": "medieval",
+   "works": 358,
+   "authors": 34,
+   "facsimiles": 53,
+   "leading_authors": [
+    "Thomas Aquinas",
+    "Albert the Great",
+    "John Duns Scotus",
+    "Bonaventure",
+    "Gennadius Scholarios, Patriarch of Constantinople",
+    "Johannes Capreolus"
+   ],
+   "description": "Scholastic theology, commentary and disputation, Lombard to Scholarios.",
+   "library_url": "/the-faith-received/library/?shelf=Medieval",
+   "room_url": "/the-faith-received/medieval/?shelf=medieval",
+   "leaf": "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/capreolus-defensiones-theologiae-aquinatis-vol-1/p/8.webp",
+   "slug_prefixes": [
+    "aq",
+    "albertus",
+    "duns",
+    "bonaventure"
+   ]
+  },
+  {
+   "tradition": "Roman Catholic",
+   "slug": "roman-catholic",
+   "works": 514,
+   "authors": 115,
+   "facsimiles": 387,
+   "leading_authors": [
+    "Francisco Suárez",
+    "Cornelius a Lapide",
+    "Salamanticenses",
+    "Poinsot / John of St. Thomas",
+    "Alfonso Salmerón",
+    "Acts of the Council of Trent"
+   ],
+   "description": "The Catholic Reformation and the great commentators, Trent to the eighteenth century.",
+   "library_url": "/the-faith-received/library/?shelf=Roman%20Catholic",
+   "room_url": "/the-faith-received/roman-catholic/?shelf=roman-catholic",
+   "leaf": "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/becanus-summa-theologiae-scholasticae-vol-1/p/6.webp",
+   "slug_prefixes": [
+    "suarez",
+    "cornelius",
+    "salamanticenses",
+    "poinsot"
+   ]
+  },
+  {
+   "tradition": "Reformed",
+   "slug": "reformed",
+   "works": 426,
+   "authors": 113,
+   "facsimiles": 200,
+   "leading_authors": [
+    "John Calvin",
+    "Franciscus Junius",
+    "Martin Bucer",
+    "Amandus Polanus",
+    "Johannes Cocceius",
+    "Hugo Grotius"
+   ],
+   "description": "The Reformed tradition, Calvin and Bucer to the federal theologians.",
+   "library_url": "/the-faith-received/library/?shelf=Reformed",
+   "room_url": "/the-faith-received/reformed/?shelf=reformed",
+   "leaf": "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/alsted-theologia-scholastica-didactica/p/5.webp",
+   "slug_prefixes": [
+    "calvin",
+    "junius",
+    "bucer",
+    "coccejus"
+   ]
+  },
+  {
+   "tradition": "Lutheran",
+   "slug": "lutheran",
+   "works": 280,
+   "authors": 40,
+   "facsimiles": 104,
+   "leading_authors": [
+    "Martin Luther",
+    "Philipp Melanchthon",
+    "Abraham Calov",
+    "Johann Gerhard",
+    "Matthias Flacius Illyricus",
+    "Balthasar Meisner"
+   ],
+   "description": "The Lutheran Reformation and its orthodoxy, Luther and Melanchthon to Calov.",
+   "library_url": "/the-faith-received/library/?shelf=Lutheran",
+   "room_url": "/the-faith-received/lutheran/?shelf=lutheran",
+   "leaf": "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/christoph-scheibler-metaphysica-duobus-libris-geneva-1636-protestant-s/p/6.webp",
+   "slug_prefixes": [
+    "luther",
+    "calov",
+    "philipp",
+    "gerhard"
+   ]
+  },
+  {
+   "tradition": "Humanism and Law",
+   "slug": "humanism-and-law",
+   "works": 45,
+   "authors": 17,
+   "facsimiles": 41,
+   "leading_authors": [
+    "Gottfried Wilhelm Leibniz",
+    "Christian Wolff",
+    "William Blackstone",
+    "John Selden",
+    "Coluccio Salutati",
+    "Adam Contzen"
+   ],
+   "description": "Humanist letters, natural law and jurisprudence, Salutati to Leibniz and Blackstone.",
+   "library_url": "/the-faith-received/library/?shelf=Humanism%20and%20Law",
+   "room_url": "/the-faith-received/humanism-and-law/?shelf=humanism-and-law",
+   "leaf": "https://mo-tfr-library.mo-podcast-feed.workers.dev/v1/works/coluccio-salutati-de-nobilitate-legum-et-medicinae-vol-1/p/2.webp",
+   "slug_prefixes": [
+    "gottfried",
+    "christian",
+    "william",
+    "selden"
+   ]
+  }
+ ],
+ "confessions": {
+  "documents": 260,
+  "by_tradition": {
+   "Reformed": 127,
+   "Roman Catholic": 124,
+   "Lutheran": 9
+  },
+  "periods": [
+   "1523–1552",
+   "1552–1566",
+   "1567–1599",
+   "1600–1693",
+   "Ancient creeds",
+   "Medieval (700–1500)",
+   "Modern (1700+)",
+   "Patristic (to 700)"
+  ]
+ }
+}
