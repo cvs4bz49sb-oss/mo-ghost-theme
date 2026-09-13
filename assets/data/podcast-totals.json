@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-13T11:58:24.735Z",
+  "generated_at": "2026-09-13T16:23:42.578Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 71448,
+      "plays": 71489,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -279,12 +279,12 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2990
+          "plays": 2991
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3352
+          "plays": 3353
         },
         {
           "date": "2026-08-19",
@@ -294,17 +294,17 @@
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3589
+          "plays": 3591
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3402
+          "plays": 3408
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 2722
+          "plays": 2743
         }
       ],
       "per_episode": [
@@ -430,7 +430,7 @@
         },
         {
           "month": "2019-08",
-          "avg": 12,
+          "avg": 13,
           "episodes": 1
         },
         {
@@ -520,7 +520,7 @@
         },
         {
           "month": "2021-02",
-          "avg": 34,
+          "avg": 35,
           "episodes": 4
         },
         {
@@ -645,12 +645,12 @@
         },
         {
           "month": "2023-03",
-          "avg": 25,
+          "avg": 26,
           "episodes": 3
         },
         {
           "month": "2023-04",
-          "avg": 49,
+          "avg": 50,
           "episodes": 2
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3416,
+          "avg": 3417,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3062,
+          "avg": 3076,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 19092,
+      "plays": 19104,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -863,12 +863,12 @@
         {
           "date": "2025-08-12",
           "title": "Laura Ingalls Wilder - Little House on the Prairie with John Fry and LuElla D'Amico",
-          "plays": 118
+          "plays": 119
         },
         {
           "date": "2025-08-12",
           "title": "Lewis Carroll - Alice in Wonderland with John Shelton",
-          "plays": 81
+          "plays": 82
         },
         {
           "date": "2025-08-21",
@@ -903,7 +903,7 @@
         {
           "date": "2025-10-02",
           "title": "Flannery O'Connor - A Good Man Is Hard To Find with Jon Parrish Peede",
-          "plays": 124
+          "plays": 125
         },
         {
           "date": "2025-10-09",
@@ -973,7 +973,7 @@
         {
           "date": "2026-03-26",
           "title": "Atlas Shrugged by Ayn Rand with David Kee",
-          "plays": 172
+          "plays": 173
         },
         {
           "date": "2026-04-02",
@@ -1023,7 +1023,7 @@
         {
           "date": "2026-06-04",
           "title": "The Journals of Lewis and Clark with Craig Fehrman",
-          "plays": 933
+          "plays": 935
         },
         {
           "date": "2026-06-11",
@@ -1083,7 +1083,7 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 808
+          "plays": 809
         },
         {
           "date": "2026-09-03",
@@ -1093,7 +1093,7 @@
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 569
+          "plays": 574
         }
       ],
       "per_episode": [
@@ -1134,7 +1134,7 @@
         },
         {
           "month": "2026-03",
-          "avg": 121,
+          "avg": 122,
           "episodes": 4
         },
         {
@@ -1149,7 +1149,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 1063,
+          "avg": 1064,
           "episodes": 4
         },
         {
@@ -1164,7 +1164,7 @@
         },
         {
           "month": "2026-09",
-          "avg": 691,
+          "avg": 694,
           "episodes": 2
         }
       ]
