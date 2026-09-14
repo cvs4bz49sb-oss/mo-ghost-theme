@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-14T12:56:35.197Z",
+  "generated_at": "2026-09-14T21:52:43.619Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 71712,
+      "plays": 71852,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -149,7 +149,7 @@
         {
           "date": "2026-02-04",
           "title": "Spiritual Formation: A Close Examination",
-          "plays": 259
+          "plays": 260
         },
         {
           "date": "2026-02-11",
@@ -229,12 +229,12 @@
         {
           "date": "2026-05-27",
           "title": "Idolatry And The Shape Of Worship",
-          "plays": 3739
+          "plays": 3740
         },
         {
           "date": "2026-06-03",
           "title": "Replay: How 1776 Remade The World with Andrew Wilson (Fixed Audio)",
-          "plays": 3160
+          "plays": 3161
         },
         {
           "date": "2026-06-10",
@@ -249,7 +249,7 @@
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3629
+          "plays": 3630
         },
         {
           "date": "2026-07-01",
@@ -264,7 +264,7 @@
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3024
+          "plays": 3025
         },
         {
           "date": "2026-07-22",
@@ -284,27 +284,27 @@
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3362
+          "plays": 3365
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3742
+          "plays": 3754
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3614
+          "plays": 3620
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3439
+          "plays": 3461
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 2842
+          "plays": 2923
         }
       ],
       "per_episode": [
@@ -335,7 +335,7 @@
         },
         {
           "month": "2017-11",
-          "avg": 18,
+          "avg": 19,
           "episodes": 4
         },
         {
@@ -450,7 +450,7 @@
         },
         {
           "month": "2019-12",
-          "avg": 11,
+          "avg": 12,
           "episodes": 2
         },
         {
@@ -650,7 +650,7 @@
         },
         {
           "month": "2023-04",
-          "avg": 50,
+          "avg": 51,
           "episodes": 2
         },
         {
@@ -670,7 +670,7 @@
         },
         {
           "month": "2023-08",
-          "avg": 134,
+          "avg": 135,
           "episodes": 1
         },
         {
@@ -725,7 +725,7 @@
         },
         {
           "month": "2024-08",
-          "avg": 46,
+          "avg": 47,
           "episodes": 4
         },
         {
@@ -815,7 +815,7 @@
         },
         {
           "month": "2026-06",
-          "avg": 3488,
+          "avg": 3489,
           "episodes": 4
         },
         {
@@ -825,19 +825,19 @@
         },
         {
           "month": "2026-08",
-          "avg": 3428,
+          "avg": 3433,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3141,
+          "avg": 3192,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 19167,
+      "plays": 19221,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -848,27 +848,27 @@
         {
           "date": "2025-08-12",
           "title": "G.K. Chesterton - The Everlasting Man with Timothy Larsen",
-          "plays": 183
+          "plays": 184
         },
         {
           "date": "2025-08-12",
           "title": "A. A. Milne - Winnie the Pooh with Ivana D. Greco and Dixie Dillon Lane",
-          "plays": 127
+          "plays": 128
         },
         {
           "date": "2025-08-12",
           "title": "Ignazio Silone - Bread and Wine with Geoffrey Kurtz",
-          "plays": 60
+          "plays": 61
         },
         {
           "date": "2025-08-12",
           "title": "Laura Ingalls Wilder - Little House on the Prairie with John Fry and LuElla D'Amico",
-          "plays": 121
+          "plays": 122
         },
         {
           "date": "2025-08-12",
           "title": "Lewis Carroll - Alice in Wonderland with John Shelton",
-          "plays": 83
+          "plays": 84
         },
         {
           "date": "2025-08-21",
@@ -913,7 +913,7 @@
         {
           "date": "2025-10-16",
           "title": "C.S. Lewis - The Great Divorce with Dr. Leslie Baynes",
-          "plays": 182
+          "plays": 183
         },
         {
           "date": "2025-10-23",
@@ -978,12 +978,12 @@
         {
           "date": "2026-04-02",
           "title": "Moby Dick by Herman Melville with Christina Bieber Lake",
-          "plays": 141
+          "plays": 142
         },
         {
           "date": "2026-04-09",
           "title": "The Adventures of Tom Sawyer by Mark Twain with Ivana Greco and Dixie Dillon Lane",
-          "plays": 108
+          "plays": 109
         },
         {
           "date": "2026-04-16",
@@ -1033,12 +1033,12 @@
         {
           "date": "2026-06-18",
           "title": "East of Eden with Philip Bunn & Matthew H. Young",
-          "plays": 1164
+          "plays": 1166
         },
         {
           "date": "2026-06-25",
           "title": "Till We Have Faces by C.S. Lewis with Oliver Traldi",
-          "plays": 1305
+          "plays": 1307
         },
         {
           "date": "2026-07-02",
@@ -1058,7 +1058,7 @@
         {
           "date": "2026-07-23",
           "title": "The Idiot by Fyodor Dostoevsky with Maria Baer",
-          "plays": 970
+          "plays": 973
         },
         {
           "date": "2026-07-29",
@@ -1073,27 +1073,27 @@
         {
           "date": "2026-08-13",
           "title": "Notes on the State of Virginia by Thomas Jefferson, with Cara Rogers Stevens",
-          "plays": 738
+          "plays": 739
         },
         {
           "date": "2026-08-20",
           "title": "A Canticle For Leibowitz by Walter Miller with Brad Birzer",
-          "plays": 859
+          "plays": 863
         },
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 810
+          "plays": 816
         },
         {
           "date": "2026-09-03",
           "title": "Mere Christianity by C.S. Lewis, with Daniel K. Williams",
-          "plays": 819
+          "plays": 825
         },
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 594
+          "plays": 616
         }
       ],
       "per_episode": [
@@ -1104,7 +1104,7 @@
         },
         {
           "month": "2025-08",
-          "avg": 115,
+          "avg": 116,
           "episodes": 7
         },
         {
@@ -1149,22 +1149,22 @@
         },
         {
           "month": "2026-06",
-          "avg": 1065,
+          "avg": 1066,
           "episodes": 4
         },
         {
           "month": "2026-07",
-          "avg": 848,
+          "avg": 849,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 843,
+          "avg": 845,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 707,
+          "avg": 721,
           "episodes": 2
         }
       ]
