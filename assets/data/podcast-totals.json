@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-14T05:03:09.219Z",
+  "generated_at": "2026-09-14T12:56:35.197Z",
   "shows": {
     "mere-fidelity": {
       "episodes": 317,
-      "plays": 71631,
+      "plays": 71712,
       "earliest": "2017-02-15",
       "recent": [
         {
@@ -59,7 +59,7 @@
         {
           "date": "2025-08-20",
           "title": "Are We Disenchanted? Should We Be Enchanted?",
-          "plays": 136
+          "plays": 137
         },
         {
           "date": "2025-08-27",
@@ -219,12 +219,12 @@
         {
           "date": "2026-05-13",
           "title": "The Desecration of Man with Dr. Carl Trueman",
-          "plays": 1177
+          "plays": 1179
         },
         {
           "date": "2026-05-20",
           "title": "The Christian Life with Kelly Kapic",
-          "plays": 3626
+          "plays": 3627
         },
         {
           "date": "2026-05-27",
@@ -244,32 +244,32 @@
         {
           "date": "2026-06-17",
           "title": "Magnifica Humanitas with Brad Littlejohn",
-          "plays": 3662
+          "plays": 3663
         },
         {
           "date": "2026-06-24",
           "title": "How Theology Nerds Are Made",
-          "plays": 3628
+          "plays": 3629
         },
         {
           "date": "2026-07-01",
           "title": "How to Read Outside Your Tradition",
-          "plays": 3458
+          "plays": 3460
         },
         {
           "date": "2026-07-08",
           "title": "Divided We Stand: On Denominations",
-          "plays": 3906
+          "plays": 3909
         },
         {
           "date": "2026-07-15",
           "title": "Replay: The Fractured Republic with Yuval Levin",
-          "plays": 3023
+          "plays": 3024
         },
         {
           "date": "2026-07-22",
           "title": "Measuring Wealth",
-          "plays": 3416
+          "plays": 3417
         },
         {
           "date": "2026-07-29",
@@ -279,32 +279,32 @@
         {
           "date": "2026-08-05",
           "title": "Replay: The Struggle of Prayer",
-          "plays": 2993
+          "plays": 2994
         },
         {
           "date": "2026-08-12",
           "title": "Examining Nolan’s Odyssey",
-          "plays": 3360
+          "plays": 3362
         },
         {
           "date": "2026-08-19",
           "title": "What Is A Man?",
-          "plays": 3740
+          "plays": 3742
         },
         {
           "date": "2026-08-26",
           "title": "Postliberal Theology, Explained",
-          "plays": 3606
+          "plays": 3614
         },
         {
           "date": "2026-09-02",
           "title": "In Defense of Evangelicalism with Bonnie Kristian",
-          "plays": 3431
+          "plays": 3439
         },
         {
           "date": "2026-09-09",
           "title": "The Four Senses of Scripture, with Dr. Patrick Schreiner",
-          "plays": 2808
+          "plays": 2842
         }
       ],
       "per_episode": [
@@ -535,7 +535,7 @@
         },
         {
           "month": "2021-05",
-          "avg": 26,
+          "avg": 27,
           "episodes": 3
         },
         {
@@ -555,7 +555,7 @@
         },
         {
           "month": "2021-09",
-          "avg": 46,
+          "avg": 47,
           "episodes": 4
         },
         {
@@ -810,7 +810,7 @@
         },
         {
           "month": "2026-05",
-          "avg": 2318,
+          "avg": 2319,
           "episodes": 4
         },
         {
@@ -820,24 +820,24 @@
         },
         {
           "month": "2026-07",
-          "avg": 3341,
+          "avg": 3342,
           "episodes": 5
         },
         {
           "month": "2026-08",
-          "avg": 3425,
+          "avg": 3428,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 3120,
+          "avg": 3141,
           "episodes": 2
         }
       ]
     },
     "christians-reading-classics": {
       "episodes": 51,
-      "plays": 19158,
+      "plays": 19167,
       "earliest": "2025-07-24",
       "recent": [
         {
@@ -858,12 +858,12 @@
         {
           "date": "2025-08-12",
           "title": "Ignazio Silone - Bread and Wine with Geoffrey Kurtz",
-          "plays": 59
+          "plays": 60
         },
         {
           "date": "2025-08-12",
           "title": "Laura Ingalls Wilder - Little House on the Prairie with John Fry and LuElla D'Amico",
-          "plays": 120
+          "plays": 121
         },
         {
           "date": "2025-08-12",
@@ -888,7 +888,7 @@
         {
           "date": "2025-09-11",
           "title": "C. S. Lewis - That Hideous Strength with Philip D. Bunn and Ronni Kurtz",
-          "plays": 146
+          "plays": 147
         },
         {
           "date": "2025-09-18",
@@ -1083,7 +1083,7 @@
         {
           "date": "2026-08-27",
           "title": "Crossing to Safety by Wallace Stegner, with Matt Stewart",
-          "plays": 809
+          "plays": 810
         },
         {
           "date": "2026-09-03",
@@ -1093,7 +1093,7 @@
         {
           "date": "2026-09-10",
           "title": "Meditations by Marcus Aurelius, with Eric Hutchinson",
-          "plays": 589
+          "plays": 594
         }
       ],
       "per_episode": [
@@ -1109,7 +1109,7 @@
         },
         {
           "month": "2025-09",
-          "avg": 84,
+          "avg": 85,
           "episodes": 4
         },
         {
@@ -1159,12 +1159,12 @@
         },
         {
           "month": "2026-08",
-          "avg": 842,
+          "avg": 843,
           "episodes": 4
         },
         {
           "month": "2026-09",
-          "avg": 704,
+          "avg": 707,
           "episodes": 2
         }
       ]
